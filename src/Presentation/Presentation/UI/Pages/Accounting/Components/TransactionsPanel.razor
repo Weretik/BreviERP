@@ -1,0 +1,101 @@
+﻿@rendermode InteractiveServer
+@using System.Globalization
+
+<MudStack Spacing="2">
+    <MudText Typo="Typo.h5">Транзакции</MudText>
+
+    <MudTextField @bind-Value="_search"
+                  Placeholder="Поиск (название, кошелёк, категория, подкатегория)…"
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  Clearable="true"
+                  Immediate="true"
+                  EditMode="DataGridEditMode.Form"
+                  Style="max-width:420px" />
+
+    <MudDataGrid T="Transaction"
+                 Items="@Filtered"
+                 Filterable="true"
+                 Groupable="true"
+                 FilterMode="@DataGridFilterMode.Simple"
+                 Hover="true" Dense="false" Striped="true" Bordered="true"
+                 RowsPerPage="10">
+
+        <Columns>
+            <PropertyColumn Property="x => x.Id" Title="ID" Filterable="false" />
+            <PropertyColumn Property="x => x.Title" Title="Название" />
+            <PropertyColumn Property="x => x.WalletName" Title="Кошелёк" />
+            <PropertyColumn Property="x => x.Category" Title="Категория" />
+            <PropertyColumn Property="x => x.Subcategory" Title="Подкатегория" />
+            <PropertyColumn Property="x => x.Amount" Title="Сумма" AggregateDefinition="_amountAggregation"/>
+            <PropertyColumn Property="x => x.Date" Title="Дата" Format="dd.MM.yyyy" />
+            <TemplateColumn CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+
+        <PagerContent>
+            <MudDataGridPager T="Transaction" PageSizeOptions="new int[]{5,10,20}" />
+        </PagerContent>
+    </MudDataGrid>
+</MudStack>
+
+@code {
+    private string? _search;
+
+    public sealed record Transaction(
+        int Id,
+        string Title,
+        string WalletName,
+        string Category,
+        string Subcategory,
+        decimal Amount,
+        DateTime Date);
+
+    // Демо данные
+    private readonly List<Transaction> _all =
+    [
+        new(1001,"Закупка ткани саржа","Монобанк","Закупки","Сырьё",-12500.0m,new DateTime(2025,9,1)),
+        new(1002,"Продажа комплектов 'Антей'","Приват","Продажи","B2B",18990.0m,new DateTime(2025,9,2)),
+        new(1003,"Налоги ЕН","Приват","Налоги","ЕН",-4200.0m,new DateTime(2025,9,3)),
+        new(1004,"Доставка НП","Касса","Логистика","Нова Пошта",-890.0m,new DateTime(2025,9,3)),
+        new(1005,"Аванс швеям","Касса","ФОТ","Аванс",-16000.0m,new DateTime(2025,9,4)),
+        new(1006,"Оплата ткани 'электрик'","Ощад","Закупки","Сырьё",-7400.0m,new DateTime(2025,9,5)),
+        new(1007,"Продажа 'Сварог' штаны","Монобанк","Продажи","Розница",2450.0m,new DateTime(2025,9,6)),
+        new(1008,"Реклама Google Ads","Приват","Маркетинг","Google Ads",-3100.0m,new DateTime(2025,9,6)),
+        new(1009,"Поступление Brevi B2B","Приват","Продажи","B2B",32500.0m,new DateTime(2025,9,7)),
+        new(1010,"Коммуналка цех","Ощад","Операционные","Коммуналка",-2100.96m,new DateTime(2025,9,7)),
+        new(1011,"Фурнитура","Монобанк","Закупки","Фурнитура",-1900.0m,new DateTime(2025,9,8)),
+        new(1012,"Возврат от клиента","Приват","Прочее","Возвраты",-1450.8m,new DateTime(2025,9,8)),
+        new(1013,"Продажа 'Заметіль' комплект","Приват","Продажи","B2B",27900.0m,new DateTime(2025,9,9)),
+        new(1014,"Хостинг/VPS","Приват","IT","Инфраструктура",-650.0m,new DateTime(2025,9,9)),
+        new(1015,"Зарплата швеям","Касса","ФОТ","Зарплата",-22000.0m,new DateTime(2025,9,10)),
+        new(1016,"Вышивка логотипов","Ощад","Услуги","Вышивка",-1200.0m,new DateTime(2025,9,11)),
+        new(1017,"Продажа жилетов 'Гриф'","Монобанк","Продажи","Розница",3560.6m,new DateTime(2025,9,12)),
+        new(1018,"Масло для машин","Касса","Операционные","Расходники",-480.7m,new DateTime(2025,9,12)),
+        new(1019,"SEO подрядчик","Приват","Маркетинг","SEO",-5000.0m,new DateTime(2025,9,13)),
+        new(1020,"Полукомбинезон 'Влес'","Приват","Продажи","B2B",9150.4m,new DateTime(2025,9,14)),
+        new(1021,"Кофе в офис","Касса","Операционные","Бытовые",-350.0m,new DateTime(2025,9,14)),
+        new(1022,"Ткань 'графит'","Ощад","Закупки","Сырьё",-9800.0m,new DateTime(2025,9,15)),
+        new(1023,"Костюм 'Антей'","Монобанк","Продажи","Розница",3990.11m,new DateTime(2025,9,16)),
+        new(1024,"Интернет/связь","Приват","Операционные","Связь",-720.5m,new DateTime(2025,9,16)),
+    ];
+    private IEnumerable<Transaction> Filtered =>
+        string.IsNullOrWhiteSpace(_search)
+            ? _all
+            : _all.Where(t =>
+                  t.Title.Contains(_search, StringComparison.OrdinalIgnoreCase)
+               || t.WalletName.Contains(_search, StringComparison.OrdinalIgnoreCase)
+               || t.Category.Contains(_search, StringComparison.OrdinalIgnoreCase)
+               || t.Subcategory.Contains(_search, StringComparison.OrdinalIgnoreCase));
+
+    AggregateDefinition<Transaction> _amountAggregation = new AggregateDefinition<Transaction>
+    {
+        Type = AggregateType.Sum,
+        DisplayFormat = "Всього {value}"
+    };
+
+
+}

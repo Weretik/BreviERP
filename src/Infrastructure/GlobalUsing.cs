@@ -20,8 +20,6 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.Extensions.Hosting;
 
 // Infrastructure namespaces
-global using Infrastructure.ExampleAggregate;
-global using Infrastructure.ExampleAggregate.Migrations;
 
 global using Infrastructure.Identity;
 global using Infrastructure.Identity.Entities;
@@ -36,22 +34,17 @@ global using Infrastructure.Identity.Persistence;
 global using Infrastructure.Common.Abstractions;
 global using Infrastructure.Common.Events;
 global using Infrastructure.Common.Services;
-global using Infrastructure.ExampleAggregate.Interfaces;
-global using Infrastructure.ExampleAggregate;
-global using Infrastructure.ExampleAggregate.Interfaces;
-global using Infrastructure.ExampleAggregate.Migrations;
-global using Infrastructure.ExampleAggregate.Persistence;
-global using Infrastructure.ExampleAggregate.Seeders;
+global using Infrastructure.Common.Configurations;
 
 // Domain namespaces
+global using Domain.Common.Entity;
 global using Domain.Common.Abstractions;
 global using Domain.Identity.Constants;
-global using Domain.ExampleAggregate.Entities;
-global using Domain.ExampleAggregate.ValueObjects;
+global using Domain.Accounting.Entities;
+global using Domain.Accounting.ValueObjects;
 
 
 // Application namespaces
-global using Application.ExampleAggregate.Interfaces;
 global using Application.Common.Interfaces;
 global using Application.Common.Notifications;
 global using Application.Identity.Interfaces;

@@ -7,13 +7,6 @@ public static class InfrastreExtension
         // Подключение Catalog БД
         var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
-        services.AddDbContext<CatalogDbContext>(
-            options => options.UseNpgsql(connectionString));
-
-        services.AddDbContextFactory<CatalogDbContext>(
-            options => options.UseNpgsql(connectionString),
-            lifetime: ServiceLifetime.Scoped
-        );
 
         // services.AddPooledDbContextFactory<CatalogDbContext>(
         // o => o.UseNpgsql(connectionString),
@@ -36,15 +29,9 @@ public static class InfrastreExtension
             .AddDefaultTokenProviders();
 
         // Регистрация Репозиториев
-        services.AddScoped(typeof(ICatalogRepository<>), typeof(CatalogEfRepository<>));
-        services.AddScoped(typeof(ICatalogReadRepository<>), typeof(CatalogReadEfRepository<>));
 
         services.AddScoped(typeof(IAppIdentityRepository<>), typeof(AppIdentityEfRepository<>));
         services.AddScoped(typeof(IAppIdentityReadRepository<>), typeof(AppIdentityEfRepository<>));
-
-        // Регистрация миграторов каталога и идентификации
-        services.AddScoped<IDatabaseMigrator, CatalogDbMigrator>();
-        services.AddScoped<ICatalogDbMigrator, CatalogDbMigrator>();
 
         // Регистрация миграторов идентификации
         services.AddScoped<IDatabaseMigrator, AppIdentityDbMigrator>();
@@ -57,13 +44,6 @@ public static class InfrastreExtension
         services.AddScoped<ISeeder, IdentitySeeder>();
         services.AddScoped<IIdentitySeeder, IdentitySeeder>();
 
-        // Регистрация сидеров Catalog
-        services.AddScoped<ISeeder, CategorySeeder>();
-        services.AddScoped<ICatalogSeeder, CategorySeeder>();
-
-        services.AddScoped<ISeeder, ProductSeeder>();
-        services.AddScoped<ICatalogSeeder, ProductSeeder>();
-
         //Регистрация Fake Services
         services.AddScoped<IPermissionService, FakePermissionService>();
         services.AddScoped<ICurrentUserService, FakeCurrentUserService>();
@@ -71,7 +51,6 @@ public static class InfrastreExtension
         // Регистрация Services
         services.AddSingleton<IEnvironmentService, EnvironmentService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        services.AddScoped<IDomainEventContext, EfDomainEventContext>();
         services.AddScoped<IDomainEventDispatcher, MediatorDomainEventDispatcher>();
 
         return services;

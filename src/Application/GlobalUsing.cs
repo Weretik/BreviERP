@@ -19,14 +19,9 @@ global using Application.Common.Behaviors;
 global using Application.Common.Sorting;
 global using Application.Common.Paging;
 global using Application.Common.Logging;
-global using Application.ExampleAggregate.DTOs;
-global using Application.ExampleAggregate.Sorting;
-global using Application.ExampleAggregate.Interfaces;
-global using Application.ExampleAggregate.Specifications;
+
 // Domain namespaces
 global using Domain.Common.Abstractions;
-global using Domain.ExampleAggregate.Entities;
-global using Domain.ExampleAggregate.ValueObjects;
 
 // External libraries
 global using Mediator;

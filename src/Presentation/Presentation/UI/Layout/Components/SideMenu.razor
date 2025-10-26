@@ -1,0 +1,72 @@
+﻿@rendermode InteractiveServer
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+@inject IState<BurgerMenuState> BurgerMenuState
+@inject IBurgerMenuStore BurgerMenuStore
+
+<MudDrawer @bind-Open="@Open" Overlay="true" Elevation="2"
+           Variant="@DrawerVariant.Temporary" >
+
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h6">Brevi</MudText>
+    </MudDrawerHeader>
+
+    <MudNavMenu>
+        <MudNavGroup Title="Сервіс менеджера" Expanded="false" Icon="@Icons.Material.Filled.ManageAccounts" IconColor="Color.Primary"
+                     ExpandButtonIcon="@Icons.Material.Filled.ArrowRight" ExpandButtonIconColor="Color.Primary">
+
+            <MudNavLink Href="/" Match="NavLinkMatch.All">Dashboard</MudNavLink>
+
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Клієнти</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Ліди</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Постачальники</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Прорахунки та КП</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Прайс</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Архів КП</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Завдання в роботу</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Угоди</MudNavLink>
+        </MudNavGroup>
+
+        <MudNavGroup Title="Швацький цех" Expanded="false" Icon="@Icons.Material.Filled.Apartment" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen"
+                     ExpandButtonIcon="@Icons.Material.Filled.ArrowRight" ExpandButtonIconColor="Color.Primary">
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Графік роботи</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Зарплата</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Тканина в цеху</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Фурнітура в цеху</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Робочий час</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Вишивка</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Касса цех</MudNavLink>
+        </MudNavGroup>
+
+        <MudNavGroup Title="Бухгалтерія" Expanded="false" Icon="@Icons.Material.Filled.Wallet" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen"
+                     ExpandButtonIcon="@Icons.Material.Filled.ArrowRight" ExpandButtonIconColor="Color.Primary">
+            <MudNavLink Href="/AccountingPage" Match="NavLinkMatch.Prefix">Рахунки</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Надходження</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Витрати</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Звіти</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Довідники</MudNavLink>
+        </MudNavGroup>
+
+        <MudNavGroup Title="Загальні довідники" Expanded="false" Icon="@Icons.Material.Filled.Archive" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen"
+                     ExpandButtonIcon="@Icons.Material.Filled.ArrowRight" ExpandButtonIconColor="Color.Primary">
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Товари</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Тканина та фурнітура</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Прорахунки</MudNavLink>
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Додаткові довідники</MudNavLink>
+        </MudNavGroup>
+
+        <MudNavGroup Title="Загальні звіти" Expanded="false" Icon="@Icons.Material.Filled.Info" IconExpanded="@Icons.Custom.Uncategorized.FolderOpen"
+                     ExpandButtonIcon="@Icons.Material.Filled.ArrowRight" ExpandButtonIconColor="Color.Primary">
+            <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Security</MudNavLink>
+        </MudNavGroup>
+    </MudNavMenu>
+</MudDrawer>
+
+
+
+@code {
+    bool Open
+    {
+        get => BurgerMenuState.Value.IsOpen;
+        set => BurgerMenuStore.Open(value);
+    }
+}

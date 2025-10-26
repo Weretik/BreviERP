@@ -1,21 +1,27 @@
 ﻿@inherits LayoutComponentBase
 
 @* Required *@
-<MudThemeProvider Theme="@ExampleTheme.Themetheme" IsDarkMode="false"/>
+<MudThemeProvider Theme="@BreviTheme.Themetheme" IsDarkMode="false"/>
 <MudPopoverProvider @rendermode="InteractiveAuto"/>
 @* Needed for dialogs *@
 <MudDialogProvider @rendermode="InteractiveAuto"/>
 @* Needed for snackbars *@
 <MudSnackbarProvider @rendermode="InteractiveAuto"/>
 @* Fluxor for state management *@
-<Fluxor.Blazor.Web.StoreInitializer @rendermode="InteractiveServer" />
+<Fluxor.Blazor.Web.StoreInitializer @rendermode="InteractiveServer"/>
 
 <MudLayout>
+
     <Header></Header>
+
+
     <MudMainContent >
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             @Body
         </MudContainer>
     </MudMainContent>
+
     <Footer></Footer>
+
 </MudLayout>
+<SideMenu></SideMenu>

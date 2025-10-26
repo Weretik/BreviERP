@@ -3,8 +3,8 @@
 public abstract class BaseEntity<TId> : IEntity<TId>, IHasDomainEvents
 {
     public TId Id { get; protected set; } = default!;
-    public DateTime CreatedAt { get; protected set; }
-    public DateTime? UpdatedAt { get; protected set; }
+    public DateTimeOffset CreatedAt { get; protected set; }
+    public DateTimeOffset? UpdatedAt { get; protected set; }
     public bool IsDeleted { get; protected set; } = false;
 
 
