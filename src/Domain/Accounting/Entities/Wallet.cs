@@ -1,6 +1,6 @@
 ﻿namespace Domain.Accounting.Entities;
 
-public class Wallet : BaseEntity<WalletId>, IAggregateRoot
+public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
 {
     #region Properties
     public string Name { get; private set; } = null!;
