@@ -1,37 +1,42 @@
-﻿namespace Infrastructure.Common.Configurations;
+﻿using Domain.Common.ValueObject;
+using Infrastructure.Common.Convertors;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+namespace Infrastructure.Common.Configurations;
 
 public static class CategoryMapping
 {
-    public static void Configure<TNode, TId>(
+    public static void Configure<TId, TNode>(
         EntityTypeBuilder<TNode> builder,
         string tableName,
         int nameMaxLen = 100)
-        where TNode : CategoryNode<TId, TNode>
+        where TNode : BaseCategory<TId, TNode>
         where TId   : struct
     {
         builder.ToTable(tableName);
 
-        builder.HasKey(x => x.Id);
+        builder.HasKey(c => c.Id);
 
-        builder.Property(x => x.Name)
+        builder.Property(c => c.Id)
+            .ValueGeneratedNever();
+
+        builder.Property(c => c.Name)
             .HasMaxLength(nameMaxLen)
             .IsRequired();
 
-        builder.Property(x => x.Path)
+        builder.Property(c => c.Path)
+            .HasConversion(PathConverter.Convert)
             .HasColumnType("ltree")
-            .IsRequired();
-        builder.HasIndex(x => x.Path).HasMethod("gist");
+            .IsRequired()
+            .Metadata.SetValueComparer(
+                new ValueComparer<CategoryPath>(
+                    (pathLeft, pathRight) => pathLeft.Value == pathRight.Value,
+                    path => StringComparer.Ordinal.GetHashCode(path.Value),
+                    path => CategoryPath.From(path.Value))
+            );
 
-        builder.Property(x => x.ParentId);
-        builder.HasIndex(x => x.ParentId);
-
-
-        builder.HasMany(x => x.Children)
-            .WithOne()
-            .HasForeignKey(x => x.ParentId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasQueryFilter(x => !x.IsDeleted);
+        builder.HasIndex(c => c.Path)
+            .HasMethod("gist")
+            .HasDatabaseName($"IX_{tableName}_Path_gist");
     }
 }
