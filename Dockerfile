@@ -9,7 +9,7 @@ USER exampleuser
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY KedrStore.sln ./
+COPY ExampleProject.sln ./
 
 COPY src/Domain/*.csproj src/Domain/
 COPY src/Application/*.csproj src/Application/
