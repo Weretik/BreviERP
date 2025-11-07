@@ -1,4 +1,4 @@
 ﻿namespace Domain.Accounting.ValueObjects;
 
-[StronglyTypedId]
+[ValueObject<int>]
 public partial struct TransactionCategoryId { }
