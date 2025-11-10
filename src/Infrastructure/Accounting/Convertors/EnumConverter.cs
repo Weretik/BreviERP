@@ -10,5 +10,4 @@ public class EnumConverter
             priceType => priceType.Name,
             name => TransactionType.FromName(name, false)
         );
-
 }
