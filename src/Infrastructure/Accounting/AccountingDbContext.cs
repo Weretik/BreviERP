@@ -1,4 +1,6 @@
-﻿namespace Infrastructure.Accounting;
+﻿using Domain.Accounting.Entities;
+
+namespace Infrastructure.Accounting;
 
 public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> options) : DbContext(options)
 {
