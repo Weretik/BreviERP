@@ -1,4 +1,12 @@
-﻿namespace Infrastructure.Extensions;
+﻿using Application.Identity.Interfaces;
+using Infrastructure.Identity;
+using Infrastructure.Identity.Entities;
+using Infrastructure.Identity.Interfaces;
+using Infrastructure.Identity.Migrations;
+using Infrastructure.Identity.Persistence;
+using Infrastructure.Identity.Security;
+
+namespace Infrastructure.Extensions;
 
 public static class InfrastreExtension
 {
@@ -36,13 +44,6 @@ public static class InfrastreExtension
         // Регистрация миграторов идентификации
         services.AddScoped<IDatabaseMigrator, AppIdentityDbMigrator>();
         services.AddScoped<IAppIdentityDbMigrator, AppIdentityDbMigrator>();
-
-        // Регистрация сидеров Identity
-        services.AddScoped<ISeeder, RoleSeeder>();
-        services.AddScoped<IIdentitySeeder, RoleSeeder>();
-
-        services.AddScoped<ISeeder, IdentitySeeder>();
-        services.AddScoped<IIdentitySeeder, IdentitySeeder>();
 
         //Регистрация Fake Services
         services.AddScoped<IPermissionService, FakePermissionService>();
