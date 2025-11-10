@@ -1,3 +1,4 @@
+using Domain.Accounting.ValueObjects;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Accounting.Convertors;
