@@ -1,4 +1,6 @@
-﻿using Infrastructure.Accounting.Convertors;
+﻿using Domain.Accounting.Entities;
+using Domain.Accounting.ValueObjects;
+using Infrastructure.Accounting.Convertors;
 
 namespace Infrastructure.Accounting.Configurations;
 
