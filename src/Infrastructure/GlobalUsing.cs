@@ -20,17 +20,6 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.Extensions.Hosting;
 
 // Infrastructure namespaces
-
-global using Infrastructure.Identity;
-global using Infrastructure.Identity.Entities;
-global using Infrastructure.Identity.Seeders;
-global using Infrastructure.Identity.Configuration;
-global using Infrastructure.Identity.Utils;
-global using Infrastructure.Identity.Security;
-global using Infrastructure.Identity.Interfaces;
-global using Infrastructure.Identity.Migrations;
-global using Infrastructure.Identity.Persistence;
-
 global using Infrastructure.Common.Abstractions;
 global using Infrastructure.Common.Events;
 global using Infrastructure.Common.Services;
@@ -39,18 +28,12 @@ global using Infrastructure.Common.Configurations;
 // Domain namespaces
 global using Domain.Common.Entity;
 global using Domain.Common.Abstractions;
-global using Domain.Identity.Constants;
-global using Domain.Accounting.Entities;
-global using Domain.Accounting.ValueObjects;
-
 
 // Application namespaces
 global using Application.Common.Interfaces;
 global using Application.Common.Notifications;
-global using Application.Identity.Interfaces;
 
 // Ardalis
-global using Ardalis.Specification;
 global using Ardalis.Specification.EntityFrameworkCore;
 
 
