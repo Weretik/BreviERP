@@ -1,3 +1,5 @@
+using Infrastructure.Identity.Entities;
+
 namespace Infrastructure.Identity;
 
 public class AppIdentityDbContext

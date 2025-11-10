@@ -1,4 +1,6 @@
-﻿namespace Infrastructure.Identity.Migrations;
+﻿using Infrastructure.Identity.Interfaces;
+
+namespace Infrastructure.Identity.Migrations;
 
 public class AppIdentityDbMigrator: IAppIdentityDbMigrator
 {
@@ -18,7 +20,7 @@ public class AppIdentityDbMigrator: IAppIdentityDbMigrator
                 async ct => await appIdentityDbContext.Database.MigrateAsync(ct),
                 cancellationToken);
 
-            
+
             logger.LogInformation("✅ Migrations for AppIdentityDbContext applied successfully.");
         }
         catch (OperationCanceledException)
