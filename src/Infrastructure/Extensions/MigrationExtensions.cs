@@ -9,9 +9,10 @@ public static class MigrationExtensions
     {
         using var scope = app.ApplicationServices.CreateScope();
         var services = scope.ServiceProvider;
+
         var migrators = services.GetServices<IDatabaseMigrator>();
         var logger = services.GetRequiredService<ILoggerFactory>()
-            .CreateLogger("SeederRunner");
+            .CreateLogger("MigratorRunner");
 
         logger.LogInformation("🚀 Launch migrations for all contexts...");
 
@@ -22,7 +23,7 @@ public static class MigrationExtensions
             logger.LogInformation("➡️ Migrating {MigratorName}...", name);
 
             cancellationToken.ThrowIfCancellationRequested();
-            await migrator.MigrateAsync(services, cancellationToken);
+            await migrator.MigrateAsync(cancellationToken);
 
             logger.LogInformation("✅ {MigratorName} migration completed", name);
         }
