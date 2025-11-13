@@ -1,5 +1,4 @@
 ﻿global using System.Diagnostics.CodeAnalysis;
-global using Microsoft.Extensions.Logging;
 
 global using MudBlazor;
 global using Fluxor;
