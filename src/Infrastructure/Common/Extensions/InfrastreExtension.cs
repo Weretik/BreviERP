@@ -8,7 +8,7 @@ using Infrastructure.Identity.Repositories;
 using Infrastructure.Reference;
 using Infrastructure.Reference.Repositories;
 
-namespace Infrastructure.Extensions;
+namespace Infrastructure.Common.Extensions;
 
 public static class InfrastreExtension
 {

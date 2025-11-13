@@ -26,9 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Extensions\" />
       <Folder Include="Identity\" />
-      <Folder Include="Reference\Migrations\" />
     </ItemGroup>
 
 </Project>
