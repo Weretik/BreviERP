@@ -1,4 +1,5 @@
 ﻿using Application.Identity.Interfaces;
+using Infrastructure.Common.Contracts;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Entities;
 using Infrastructure.Identity.Interfaces;

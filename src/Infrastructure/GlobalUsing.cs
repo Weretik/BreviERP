@@ -18,7 +18,6 @@ global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.Extensions.Hosting;
 
 // Infrastructure namespaces
-global using Infrastructure.Common.Abstractions;
 global using Infrastructure.Common.Events;
 global using Infrastructure.Common.Services;
 global using Infrastructure.Common.Configurations;
@@ -33,5 +32,6 @@ global using Application.Common.Notifications;
 
 // Services
 global using Ardalis.Specification.EntityFrameworkCore;
+global using Ardalis.Specification;
 global using Mediator;
 global using NodaMoney;
