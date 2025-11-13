@@ -14,10 +14,7 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.EntityFrameworkCore;
 
 // Application namespaces
-global using Application.Extensions;
 global using Application.Common.Behaviors;
-global using Application.Common.Sorting;
-global using Application.Common.Paging;
 global using Application.Common.Logging;
 
 // Domain namespaces

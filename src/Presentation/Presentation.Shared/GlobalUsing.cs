@@ -7,4 +7,3 @@ global using Mediator;
 global using Ardalis.Result;
 global using System.Globalization;
 
-global using Application.Common.Paging;
