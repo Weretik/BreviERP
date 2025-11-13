@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Common.Abstractions;
+﻿namespace Infrastructure.Common.Contracts;
 
 public interface ISeeder
 {
