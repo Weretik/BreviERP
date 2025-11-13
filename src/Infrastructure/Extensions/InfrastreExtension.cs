@@ -1,12 +1,10 @@
 ﻿using Application.Identity.Interfaces;
 using Application.Reference.Shared;
 using Infrastructure.Common.Contracts;
+using Infrastructure.Common.Migrator;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Entities;
-using Infrastructure.Identity.Interfaces;
-using Infrastructure.Identity.Migrations;
 using Infrastructure.Identity.Persistence;
-using Infrastructure.Identity.Security;
 using Infrastructure.Reference;
 using Infrastructure.Reference.Repositories;
 
@@ -25,21 +23,11 @@ public static class InfrastreExtension
         // read operations
         services.AddDbContextFactory<ReferenceDbContext>(options => options.UseNpgsql(connectionString),
             lifetime: ServiceLifetime.Scoped);
-        //Repository
+        // Repository
         services.AddScoped(typeof(IReferenceRepository<>), typeof(ReferenceEfRepository<>));
         services.AddScoped(typeof(IReferenceReadRepository<>), typeof(ReferenceReadEfRepository<>));
-
-        // Registration of migrants identification
-        services.AddScoped<IDatabaseMigrator, AppIdentityDbMigrator>();
-        services.AddScoped<IAppIdentityDbMigrator, AppIdentityDbMigrator>();
-
-        //Fake Services
-        services.AddScoped<IPermissionService, FakePermissionService>();
-        services.AddScoped<ICurrentUserService, FakeCurrentUserService>();
-
-        // Infrastructure Services
-        services.AddSingleton<IEnvironmentService, EnvironmentService>();
-        services.AddScoped<IDomainEventDispatcher, MediatorDomainEventDispatcher>();
+        // Migrator
+        services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
 
         // Identity DB
         services.AddDbContext<AppIdentityDbContext>(options =>
@@ -56,9 +44,14 @@ public static class InfrastreExtension
             .AddEntityFrameworkStores<AppIdentityDbContext>()
             .AddDefaultTokenProviders();
 
-        //Repository
+        // Repository
         services.AddScoped(typeof(IAppIdentityRepository<>), typeof(AppIdentityEfRepository<>));
         services.AddScoped(typeof(IAppIdentityReadRepository<>), typeof(AppIdentityEfRepository<>));
+        // Migrator
+        services.AddScoped<IDatabaseMigrator, DbMigrator<AppIdentityDbContext>>();
+
+        // Infrastructure Services
+        services.AddScoped<IDomainEventDispatcher, MediatorDomainEventDispatcher>();
 
         return services;
     }
