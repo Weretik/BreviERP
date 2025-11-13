@@ -4,7 +4,7 @@ using Infrastructure.Common.Contracts;
 using Infrastructure.Common.Migrator;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Entities;
-using Infrastructure.Identity.Persistence;
+using Infrastructure.Identity.Repositories;
 using Infrastructure.Reference;
 using Infrastructure.Reference.Repositories;
 
