@@ -45,11 +45,11 @@ builder.Services.AddAuthentication();
 
 var app = builder.Build();
 
-/*
-// Migrations & Seeders
+
+//Migrations & Seeders
 await app.UseAppMigrations();
-await app.UseAppSeeders();
-*/
+//await app.UseAppSeeders();
+
 app.UseRequestLocalization(new RequestLocalizationOptions()
     .AddSupportedCultures("uk-UA")
     .AddSupportedUICultures("uk-UA")
