@@ -20,14 +20,14 @@ public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregate
         int seamstressCount,
         Money seamstressAverageSalary,
         Money monthlyExpenses,
-        LaborOverheadFactors factors,
+        LaborOverheadFactors laborOverheadFactors,
         ProfitFactors producedProfit,
         ProfitFactors ppeProfit)
     {
         SetSeamstressCount(seamstressCount);
         SetSeamstressAverageSalary(seamstressAverageSalary);
-        SetMonthlyExpenses(factors);
-        SetFactors(monthlyExpenses);
+        SetMonthlyExpenses(monthlyExpenses);
+        SetLaborOverheadFactors(laborOverheadFactors);
         SetProducedProfit(producedProfit);
         SetPpeProfit(ppeProfit);
     }
@@ -41,13 +41,13 @@ public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregate
         Guard.Against.OutOfRange(salary.Amount, nameof(salary), 1000, 50_000);
         SeamstressAverageSalary = salary;
     }
-    private void SetFactors(Money expenses)
+    private void SetMonthlyExpenses(Money expenses)
     {
         Guard.Against.Null(expenses, nameof(expenses));
         Guard.Against.OutOfRange(expenses.Amount, nameof(expenses), 100_000, 1_000_000);
         MonthlyExpenses = expenses;
     }
-    private void SetMonthlyExpenses(LaborOverheadFactors factors) => Factors = factors;
+    private void SetLaborOverheadFactors(LaborOverheadFactors factors) => Factors = factors;
     private void SetProducedProfit(ProfitFactors factors) => ProducedProfit = factors;
     private void SetPpeProfit(ProfitFactors factors) => PpeProfit = factors;
 
