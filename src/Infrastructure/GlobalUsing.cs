@@ -3,8 +3,6 @@ global using System.Xml.Linq;
 global using System.Globalization;
 global using System.Security.Claims;
 
-global using Mediator;
-
 // Microsoft namespaces
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Configuration;
@@ -33,7 +31,7 @@ global using Domain.Common.Abstractions;
 global using Application.Common.Interfaces;
 global using Application.Common.Notifications;
 
-// Ardalis
+// Services
 global using Ardalis.Specification.EntityFrameworkCore;
-
-
+global using Mediator;
+global using NodaMoney;
