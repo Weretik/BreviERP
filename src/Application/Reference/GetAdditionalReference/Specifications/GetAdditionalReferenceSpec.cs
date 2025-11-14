@@ -1,6 +1,6 @@
 ﻿using Domain.Reference.Entities;
 
-namespace Application.Reference.GetAdditionalReference.Specifications;
+namespace Application.Reference.GetAdditionalReference;
 
 public class GetAdditionalReferenceSpec : Specification<AdditionalReference, AdditionalReferenceDTO>
 {
