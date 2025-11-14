@@ -22,7 +22,7 @@ namespace Infrastructure.Reference.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Reference.Entities.AdditionalReference", b =>
+            modelBuilder.Entity("Domain.Reference.Entities.AdditionalReferenceDTO", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -41,7 +41,7 @@ namespace Infrastructure.Reference.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("SeamstressCount");
 
-                    b.ComplexProperty<Dictionary<string, object>>("Factors", "Domain.Reference.Entities.AdditionalReference.Factors#LaborOverheadFactors", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("Factors", "Domain.Reference.Entities.AdditionalReferenceDTO.Factors#LaborOverheadFactorsDTO", b1 =>
                         {
                             b1.IsRequired();
 
@@ -66,7 +66,7 @@ namespace Infrastructure.Reference.Migrations
                                 .HasColumnName("WorkshopManagerFactor");
                         });
 
-                    b.ComplexProperty<Dictionary<string, object>>("PpeProfit", "Domain.Reference.Entities.AdditionalReference.PpeProfit#ProfitFactors", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("PpeProfit", "Domain.Reference.Entities.AdditionalReferenceDTO.PpeProfit#ProfitFactorsDTO", b1 =>
                         {
                             b1.IsRequired();
 
@@ -86,7 +86,7 @@ namespace Infrastructure.Reference.Migrations
                                 .HasColumnName("PpeUpTo10UnitsProfit");
                         });
 
-                    b.ComplexProperty<Dictionary<string, object>>("ProducedProfit", "Domain.Reference.Entities.AdditionalReference.ProducedProfit#ProfitFactors", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("ProducedProfit", "Domain.Reference.Entities.AdditionalReferenceDTO.ProducedProfit#ProfitFactorsDTO", b1 =>
                         {
                             b1.IsRequired();
 
