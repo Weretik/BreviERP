@@ -1,6 +1,4 @@
-﻿using Application.CRM.GetCounterparty.DTOs;
-using Application.CRM.GetCounterparty.Specifications;
-using Application.CRM.Shared.Contracts;
+﻿using Application.CRM.Shared.Contracts;
 using Domain.CRM.Entities;
 
 namespace Application.CRM.GetCounterparty;
