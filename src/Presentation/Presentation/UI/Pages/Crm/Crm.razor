@@ -1,0 +1,21 @@
+﻿@page "/crm"
+@rendermode InteractiveAuto
+@using Presentation.UI.Pages.Crm.Components
+
+
+<h3>Crm</h3>
+
+<MudText>Сервіс менеджера</MudText>
+
+<MudTabs Outlined="true">
+
+    <MudTabPanel Text="Постачальники" Icon="@Icons.Material.Filled.BugReport">
+        <Counterparty/>
+    </MudTabPanel>
+
+</MudTabs>
+
+
+@code {
+
+}
