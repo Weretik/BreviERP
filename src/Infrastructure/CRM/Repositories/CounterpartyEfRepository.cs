@@ -2,6 +2,6 @@
 
 namespace Infrastructure.CRM.Repositories;
 
-public sealed class CounterpartyEfRepository<T>(CounterpartyDbContext dbContext)
+public sealed class CounterpartyEfRepository<T>(CrmDbContext dbContext)
     : RepositoryBase<T>(dbContext), ICounterpartyRepository<T>
     where T : class, IAggregateRoot { }

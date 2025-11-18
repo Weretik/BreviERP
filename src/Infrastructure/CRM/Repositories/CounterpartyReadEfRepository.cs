@@ -2,7 +2,7 @@
 
 namespace Infrastructure.CRM.Repositories;
 
-public sealed class CounterpartyReadEfRepository<T>(IDbContextFactory<CounterpartyDbContext> factory)
+public sealed class CounterpartyReadEfRepository<T>(IDbContextFactory<CrmDbContext> factory)
     : ICounterpartyReadRepository<T>
     where T : class, IAggregateRoot
 {
