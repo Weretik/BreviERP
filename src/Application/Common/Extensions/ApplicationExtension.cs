@@ -4,7 +4,7 @@
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            // Регистрация Mediator
+            //Mediator
             services.AddMediator(options =>
             {
                 options.Assemblies = [ typeof(ApplicationAssemblyMarker) ];
@@ -19,9 +19,8 @@
                 ];
             });
 
-            // Регистрация FluentValidation
+            //FluentValidation
             services.AddValidatorsFromAssembly(typeof(ApplicationAssemblyMarker).Assembly, includeInternalTypes: true);
-
             return services;
         }
 
