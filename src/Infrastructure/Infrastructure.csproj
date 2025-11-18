@@ -26,6 +26,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="CRM\Configurations\" />
+      <Folder Include="CRM\Migrations\" />
+      <Folder Include="CRM\Repositories\" />
+      <Folder Include="CRM\Seeders\" />
       <Folder Include="Identity\" />
     </ItemGroup>
 
