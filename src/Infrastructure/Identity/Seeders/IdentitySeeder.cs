@@ -1,23 +1,22 @@
 ﻿using Domain.Identity.Constants;
+using Infrastructure.Common.Contracts;
 using Infrastructure.Identity.Configuration;
 using Infrastructure.Identity.Entities;
-using Infrastructure.Identity.Interfaces;
 using Infrastructure.Identity.Utils;
 
 namespace Infrastructure.Identity.Seeders;
 
-public class IdentitySeeder(
+public sealed class IdentitySeeder(
     UserManager<AppUser> userManager,
     IOptions<AdminUserConfig> adminOptions,
     ILogger<IdentitySeeder> logger)
-    : IIdentitySeeder
+    : ISeeder
 {
     private readonly AdminUserConfig _adminConfig = adminOptions.Value;
 
-    public async Task SeedAsync(IServiceProvider _, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-
         await SeedAdminUserAsync(cancellationToken);
     }
 
@@ -37,9 +36,9 @@ public class IdentitySeeder(
 
         var user = new AppUser
         {
-            UserName = _adminConfig.Email,
-            Email = _adminConfig.Email,
-            FullName = _adminConfig.FullName,
+            UserName       = _adminConfig.Email,
+            Email          = _adminConfig.Email,
+            FullName       = _adminConfig.FullName,
             EmailConfirmed = true,
             LockoutEnabled = _adminConfig.LockoutEnabled
         };
