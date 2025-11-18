@@ -5,8 +5,10 @@ using Infrastructure.Common.Migrator;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Entities;
 using Infrastructure.Identity.Repositories;
+using Infrastructure.Identity.Seeders;
 using Infrastructure.Reference;
 using Infrastructure.Reference.Repositories;
+using Infrastructure.Reference.Seeders;
 
 namespace Infrastructure.Common.Extensions;
 
@@ -51,7 +53,13 @@ public static class InfrastreExtension
         services.AddScoped<IDatabaseMigrator, DbMigrator<AppIdentityDbContext>>();
 
         // Infrastructure Services
+        services.AddScoped<IDomainEventContext, EfDomainEventContext>();
         services.AddScoped<IDomainEventDispatcher, MediatorDomainEventDispatcher>();
+
+        // Seeders
+        services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
+        services.AddScoped<ISeeder, RoleSeeder>();
+        services.AddScoped<ISeeder, IdentitySeeder>();
 
         return services;
     }
