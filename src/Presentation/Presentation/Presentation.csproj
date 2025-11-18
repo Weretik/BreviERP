@@ -29,4 +29,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.7"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="wwwroot\Seed\counterparties.json" />
+    </ItemGroup>
+
 </Project>
