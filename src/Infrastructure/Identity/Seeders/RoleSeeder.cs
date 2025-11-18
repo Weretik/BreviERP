@@ -1,12 +1,15 @@
 using Domain.Identity.Constants;
+using Infrastructure.Common.Contracts;
 using Infrastructure.Identity.Entities;
-using Infrastructure.Identity.Interfaces;
 
 namespace Infrastructure.Identity.Seeders;
 
-public class RoleSeeder(RoleManager<AppRole> roleManager, ILogger<RoleSeeder> logger) : IIdentitySeeder
+public sealed class RoleSeeder(
+    RoleManager<AppRole> roleManager,
+    ILogger<RoleSeeder> logger)
+    : ISeeder
 {
-    public async Task SeedAsync(IServiceProvider _, CancellationToken cancellationToken = default)
+    public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -19,10 +22,13 @@ public class RoleSeeder(RoleManager<AppRole> roleManager, ILogger<RoleSeeder> lo
 
         foreach (var role in roles)
         {
-            var exists = await roleManager.FindByNameAsync(role.Name);
-            if (exists != null) continue;
+            if (role.Name != null)
+            {
+                var exists = await roleManager.FindByNameAsync(role.Name);
+                if (exists != null) continue;
+            }
 
-            role.NormalizedName = role.Name.ToUpperInvariant();
+            role.NormalizedName = role.Name?.ToUpperInvariant();
 
             var result = await roleManager.CreateAsync(role);
             if (!result.Succeeded)
@@ -37,5 +43,3 @@ public class RoleSeeder(RoleManager<AppRole> roleManager, ILogger<RoleSeeder> lo
         }
     }
 }
-
-
