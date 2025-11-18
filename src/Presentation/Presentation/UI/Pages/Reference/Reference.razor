@@ -1,0 +1,22 @@
+﻿@page "/reference"
+@rendermode InteractiveServer
+@using Presentation.UI.Pages.Reference.Components
+
+<MudText>Загальні довідники</MudText>
+
+<MudTabs Outlined="true">
+    <MudTabPanel Text="Товари" Icon="@Icons.Material.Filled.Api"/>
+
+    <MudTabPanel Text="Тканина та фурнітура" Icon="@Icons.Material.Filled.Build"/>
+
+    <MudTabPanel Text="Прорахунки" Icon="@Icons.Material.Filled.BugReport"/>
+
+    <MudTabPanel Text="Додаткові довідники" Icon="@Icons.Material.Filled.BugReport">
+        <AdditionalReference/>
+    </MudTabPanel>
+
+</MudTabs>
+
+@code {
+
+}
