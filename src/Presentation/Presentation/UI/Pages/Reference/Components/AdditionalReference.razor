@@ -1,0 +1,39 @@
+﻿@using Application.Reference.GetAdditionalReference
+@rendermode InteractiveServer
+
+<MudTable T="AdditionalReferenceRowDTO" Items="@_rowDtos" Hover="true" Editable="true" OnSave="SaveAsync">
+    <ColGroup>
+        <col />
+        <col />
+        <col style="width: 60px;" />
+    </ColGroup>
+    <HeaderContent>
+        <MudTh>Параметр</MudTh>
+        <MudTh>Значення</MudTh>
+        <MudTh>Од.</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Параметр">@context.Name</MudTd>
+        <MudTd DataLabel="Значення">@context.Value</MudTd>
+        <MudTd DataLabel="Од.">@context.Unit</MudTd>
+    </RowTemplate>
+
+</MudTable>
+
+@code
+{
+    private List<AdditionalReferenceRowDTO> _rowDtos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Mediator.Send(new GetAdditionalReferenceQuery());
+
+        if (result.IsSuccess)
+            _rowDtos = result.Value!;
+    }
+
+    private Task SaveAsync()
+    {
+        return Task.CompletedTask;
+    }
+}
