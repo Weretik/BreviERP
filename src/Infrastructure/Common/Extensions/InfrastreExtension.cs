@@ -1,7 +1,11 @@
-﻿using Application.Identity.Interfaces;
+﻿using Application.CRM.Shared.Contracts;
+using Application.Identity.Interfaces;
 using Application.Reference.Shared;
 using Infrastructure.Common.Contracts;
 using Infrastructure.Common.Migrator;
+using Infrastructure.CRM;
+using Infrastructure.CRM.Repositories;
+using Infrastructure.CRM.Seeders;
 using Infrastructure.Identity;
 using Infrastructure.Identity.Entities;
 using Infrastructure.Identity.Repositories;
@@ -18,22 +22,18 @@ public static class InfrastreExtension
     {
         // Connections DB
         var connectionString = configuration.GetConnectionString("Default");
-
-        // Reference
+        // Contexts
         // write operations
         services.AddDbContext<ReferenceDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddDbContext<CrmDbContext>(options => options.UseNpgsql(connectionString));
         // read operations
         services.AddDbContextFactory<ReferenceDbContext>(options => options.UseNpgsql(connectionString),
             lifetime: ServiceLifetime.Scoped);
-        // Repository
-        services.AddScoped(typeof(IReferenceRepository<>), typeof(ReferenceEfRepository<>));
-        services.AddScoped(typeof(IReferenceReadRepository<>), typeof(ReferenceReadEfRepository<>));
-        // Migrator
-        services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
+        services.AddDbContextFactory<CrmDbContext>(options => options.UseNpgsql(connectionString),
+            lifetime: ServiceLifetime.Scoped);
 
         // Identity DB
-        services.AddDbContext<AppIdentityDbContext>(options =>
-            options.UseNpgsql(connectionString));
+        services.AddDbContext<AppIdentityDbContext>(options => options.UseNpgsql(connectionString));
 
         services.AddIdentity<AppUser, AppRole>(options =>
             {
@@ -46,20 +46,30 @@ public static class InfrastreExtension
             .AddEntityFrameworkStores<AppIdentityDbContext>()
             .AddDefaultTokenProviders();
 
+        // Migrator
+        services.AddScoped<IDatabaseMigrator, DbMigrator<AppIdentityDbContext>>();
+        services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
+        services.AddScoped<IDatabaseMigrator, DbMigrator<CrmDbContext>>();
+
+        // Seeders
+        services.AddScoped<ISeeder, RoleSeeder>();
+        services.AddScoped<ISeeder, IdentitySeeder>();
+        services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
+        services.AddScoped<ISeeder, CounterpartySeeder>();
+
         // Repository
         services.AddScoped(typeof(IAppIdentityRepository<>), typeof(AppIdentityEfRepository<>));
         services.AddScoped(typeof(IAppIdentityReadRepository<>), typeof(AppIdentityEfRepository<>));
-        // Migrator
-        services.AddScoped<IDatabaseMigrator, DbMigrator<AppIdentityDbContext>>();
+
+        services.AddScoped(typeof(IReferenceRepository<>), typeof(ReferenceEfRepository<>));
+        services.AddScoped(typeof(IReferenceReadRepository<>), typeof(ReferenceReadEfRepository<>));
+
+        services.AddScoped(typeof(ICounterpartyRepository<>), typeof(CounterpartyEfRepository<>));
+        services.AddScoped(typeof(ICounterpartyReadRepository<>), typeof(CounterpartyReadEfRepository<>));
 
         // Infrastructure Services
         services.AddScoped<IDomainEventContext, EfDomainEventContext>();
         services.AddScoped<IDomainEventDispatcher, MediatorDomainEventDispatcher>();
-
-        // Seeders
-        services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
-        services.AddScoped<ISeeder, RoleSeeder>();
-        services.AddScoped<ISeeder, IdentitySeeder>();
 
         return services;
     }

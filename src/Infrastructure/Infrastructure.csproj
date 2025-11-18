@@ -27,7 +27,6 @@
 
     <ItemGroup>
       <Folder Include="CRM\Migrations\" />
-      <Folder Include="CRM\Seeders\" />
       <Folder Include="Identity\" />
     </ItemGroup>
 
