@@ -2,7 +2,7 @@
 
 namespace Infrastructure.CRM;
 
-public class CounterpartyDbContext(DbContextOptions<CounterpartyDbContext> options) : DbContext(options)
+public class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbContext(options)
 {
     public DbSet<Counterparty> Counterparty => Set<Counterparty>();
     public void DiscardChanges() => ChangeTracker.Clear();
@@ -12,7 +12,7 @@ public class CounterpartyDbContext(DbContextOptions<CounterpartyDbContext> optio
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(CounterpartyDbContext).Assembly,
+            typeof(CrmDbContext).Assembly,
             type => type.Namespace?.StartsWith("Infrastructure.CRM") ?? false);
     }
 }
