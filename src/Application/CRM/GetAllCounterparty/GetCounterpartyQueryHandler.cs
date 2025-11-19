@@ -1,9 +1,9 @@
 ﻿using Application.CRM.Shared.Contracts;
 using Domain.CRM.Entities;
 
-namespace Application.CRM.GetCounterparty;
+namespace Application.CRM.GetAllCounterparty;
 
-public class GetCounterpartyQueryHandler(ICounterpartyReadRepository<Counterparty> repository)
+public class GetCounterpartyQueryHandler(ICrmReadRepository<Counterparty> repository)
     : IQueryHandler<GetCounterpartyQuery, Result<List<CounterpartyDto>>>
 {
     public async ValueTask<Result<List<CounterpartyDto>>> Handle(
