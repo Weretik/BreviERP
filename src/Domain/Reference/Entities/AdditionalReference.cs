@@ -11,7 +11,7 @@ public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregate
     public string? Description { get; private set; }
     #endregion
 
-    #region Constructors & Factories
+    #region Constructors
     private AdditionalReference(){}
     private AdditionalReference(AdditionalReferenceId id, string name, decimal value, string unit,
         string? description = null)
@@ -22,7 +22,9 @@ public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregate
         SetUnit(unit);
         SetDescription(description);
     }
+    #endregion
 
+    #region Factories
     public static AdditionalReference Create(AdditionalReferenceId id, string name, decimal value, string unit,
         string? description = null)
         => new(id, name, value, unit, description);
