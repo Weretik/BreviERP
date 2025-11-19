@@ -2,15 +2,15 @@
 
 namespace Infrastructure.CRM.Repositories;
 
-public sealed class CounterpartyReadEfRepository<T>(IDbContextFactory<CrmDbContext> factory)
-    : ICounterpartyReadRepository<T>
+public sealed class CrmReadEfRepository<T>(IDbContextFactory<CrmDbContext> factory)
+    : ICrmReadRepository<T>
     where T : class, IAggregateRoot
 {
     private async Task<TResult> WithReadRepo<TResult>(
         Func<IRepositoryBase<T>, Task<TResult>> action, CancellationToken ct)
     {
         await using var db = await factory.CreateDbContextAsync(ct);
-        var repo = new CounterpartyEfRepository<T>(db);
+        var repo = new CrmEfRepository<T>(db);
         return await action(repo);
     }
 
@@ -50,7 +50,7 @@ public sealed class CounterpartyReadEfRepository<T>(IDbContextFactory<CrmDbConte
     public async IAsyncEnumerable<T> AsAsyncEnumerable(ISpecification<T> spec)
     {
         await using var db = await factory.CreateDbContextAsync();
-        var repo = new CounterpartyEfRepository<T>(db);
+        var repo = new CrmEfRepository<T>(db);
 
         await foreach (var item in repo.AsAsyncEnumerable(spec))
         {

@@ -1,4 +1,4 @@
 ﻿namespace Application.CRM.Shared.Contracts;
 
-public interface ICounterpartyReadRepository<T> : IReadRepositoryBase<T>
+public interface ICrmReadRepository<T> : IReadRepositoryBase<T>
     where T : class, IAggregateRoot {}
