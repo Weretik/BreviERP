@@ -1,11 +1,15 @@
-﻿using Domain.Reference.Entities;
+﻿using Domain.CRM.Entities;
+using Domain.CRM.Enums;
+using Domain.Reference.Entities;
+using Domain.Reference.ValueObjects;
 using Infrastructure.Common.Contracts;
 
 namespace Infrastructure.Reference.Seeders;
 
 public sealed class AdditionalReferenceSeeder(
     ReferenceDbContext db,
-    ILogger<AdditionalReferenceSeeder> logger)
+    ILogger<AdditionalReferenceSeeder> logger,
+    IWebHostEnvironment env)
     : ISeeder
 {
     public async Task SeedAsync(CancellationToken cancellationToken = default)
@@ -16,11 +20,25 @@ public sealed class AdditionalReferenceSeeder(
             return;
         }
 
-        var entity = AdditionalReference.CreateDefault();
+        var path = Path.Combine(env.WebRootPath, "Seed", "additional_reference.json");
+        string json = await File.ReadAllTextAsync(path, cancellationToken);
 
-        await db.AdditionalReferences.AddAsync(entity, cancellationToken);
+        var rows = JsonSerializer.Deserialize<List<AdditionalReferenceSeed>>(json)
+                   ?? new List<AdditionalReferenceSeed>();
+
+        var list = new List<AdditionalReference>();
+
+        foreach (var row in rows)
+        {
+            var id = AdditionalReferenceId.From(row.Id);
+            var entity = AdditionalReference.Create(id, row.Name, row.Value, row.Unit);
+
+            list.Add(entity);
+        }
+
+        await db.AdditionalReferences.AddRangeAsync(list, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("✅ Seeded default AdditionalReference with Id={Id}", entity.Id);
+        logger.LogInformation("✅ Seeded {Count} AdditionalReference", list.Count);
     }
 }

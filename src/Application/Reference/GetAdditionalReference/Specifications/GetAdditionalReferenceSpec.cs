@@ -3,11 +3,12 @@ using Domain.Reference.ValueObjects;
 
 namespace Application.Reference.GetAdditionalReference;
 
-public class GetAdditionalReferenceSpec : Specification<AdditionalReference>
+public class GetAdditionalReferenceSpec : Specification<AdditionalReference, AdditionalReferenceRowDTO>
 {
     public GetAdditionalReferenceSpec()
     {
         Query.AsNoTracking()
-            .Where(x => x.Id == AdditionalReferenceId.From(1));
+            .Select(x=>
+                new AdditionalReferenceRowDTO(x.Id.Value, x.Name, x.Value, x.Unit, x.Description));
     }
 }
