@@ -2,6 +2,7 @@
 global using System.Xml.Linq;
 global using System.Globalization;
 global using System.Security.Claims;
+global using System.Text.Json;
 
 // Microsoft namespaces
 global using Microsoft.EntityFrameworkCore;

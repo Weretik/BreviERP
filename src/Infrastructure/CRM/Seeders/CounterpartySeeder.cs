@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Domain.CRM.Entities;
+﻿using Domain.CRM.Entities;
 using Domain.CRM.Enums;
 using Domain.CRM.ValueObjects;
 using Infrastructure.Common.Contracts;
