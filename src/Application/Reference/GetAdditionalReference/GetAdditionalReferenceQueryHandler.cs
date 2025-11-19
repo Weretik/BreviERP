@@ -9,8 +9,9 @@ public class GetAdditionalReferenceQueryHandler(IReferenceReadRepository<Additio
     public async ValueTask<Result<List<AdditionalReferenceRowDTO>>> Handle(
         GetAdditionalReferenceQuery query, CancellationToken cancellationToken)
     {
-        var spec = new GetAdditionalReferenceSpec();
-        var result = await repository.ListAsync(spec, cancellationToken);
+        var result = await repository.ListAsync(
+            new GetAdditionalReferenceSpec(), cancellationToken);
+
         if (result is {Count: 0}) return Result.NotFound();
 
         return Result.Success(result);
