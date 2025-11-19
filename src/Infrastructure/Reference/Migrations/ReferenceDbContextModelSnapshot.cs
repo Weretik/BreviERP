@@ -51,6 +51,28 @@ namespace Infrastructure.Reference.Migrations
 
                     b.ToTable("AdditionalReferences", (string)null);
                 });
+
+            modelBuilder.Entity("Domain.Reference.Entities.Fabric", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CounterpartyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FabricsReference", (string)null);
+                });
 #pragma warning restore 612, 618
         }
     }

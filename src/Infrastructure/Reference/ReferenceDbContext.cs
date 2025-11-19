@@ -5,6 +5,7 @@ namespace Infrastructure.Reference;
 public class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options) : DbContext(options)
 {
     public DbSet<AdditionalReference> AdditionalReferences => Set<AdditionalReference>();
+    public DbSet<Fabric> Fabrics => Set<Fabric>();
     public void DiscardChanges() => ChangeTracker.Clear();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1,6 +1,4 @@
-﻿using Domain.CRM.Entities;
-using Domain.CRM.Enums;
-using Domain.Reference.Entities;
+﻿using Domain.Reference.Entities;
 using Domain.Reference.ValueObjects;
 using Infrastructure.Common.Contracts;
 
@@ -23,8 +21,8 @@ public sealed class AdditionalReferenceSeeder(
         var path = Path.Combine(env.WebRootPath, "Seed", "additional_reference.json");
         string json = await File.ReadAllTextAsync(path, cancellationToken);
 
-        var rows = JsonSerializer.Deserialize<List<AdditionalReferenceSeed>>(json)
-                   ?? new List<AdditionalReferenceSeed>();
+        var rows = JsonSerializer.Deserialize<List<AdditionalSeedRow>>(json)
+                   ?? new List<AdditionalSeedRow>();
 
         var list = new List<AdditionalReference>();
 
