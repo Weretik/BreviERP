@@ -10,7 +10,11 @@ public static class ReferenceConverters
             id => id.Value,
             v => AdditionalReferenceId.From(v)
         );
-
+    public static readonly ValueConverter<FabricId, int> FabricIdConvert =
+        new(
+            id => id.Value,
+            v => FabricId.From(v)
+        );
 
     public static readonly ValueConverter<Percent, decimal> PercentConvert =
         new(
