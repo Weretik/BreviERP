@@ -56,7 +56,7 @@ public static class InfrastreExtension
         services.AddScoped<ISeeder, IdentitySeeder>();
         services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
         services.AddScoped<ISeeder, CounterpartySeeder>();
-
+        services.AddScoped<ISeeder, FabricSeeder>();
         // Repository
         services.AddScoped(typeof(IAppIdentityRepository<>), typeof(AppIdentityEfRepository<>));
         services.AddScoped(typeof(IAppIdentityReadRepository<>), typeof(AppIdentityEfRepository<>));
@@ -64,8 +64,8 @@ public static class InfrastreExtension
         services.AddScoped(typeof(IReferenceRepository<>), typeof(ReferenceEfRepository<>));
         services.AddScoped(typeof(IReferenceReadRepository<>), typeof(ReferenceReadEfRepository<>));
 
-        services.AddScoped(typeof(ICounterpartyRepository<>), typeof(CounterpartyEfRepository<>));
-        services.AddScoped(typeof(ICounterpartyReadRepository<>), typeof(CounterpartyReadEfRepository<>));
+        services.AddScoped(typeof(ICrmRepository<>), typeof(CrmEfRepository<>));
+        services.AddScoped(typeof(ICrmReadRepository<>), typeof(CrmReadEfRepository<>));
 
         // Infrastructure Services
         services.AddScoped<IDomainEventContext, EfDomainEventContext>();
