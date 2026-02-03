@@ -1,0 +1,22 @@
+﻿// System namespaces
+global using System;
+global using System.Collections.Generic;
+global using System.Security.Claims;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using System.Diagnostics;
+global using System.Linq.Expressions;
+global using System.Globalization;
+
+// Microsoft namespaces
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.EntityFrameworkCore;
+
+// External libraries
+global using Mediator;
+global using FluentValidation;
+global using FluentValidation.Results;
+global using Ardalis.Specification;
+global using Ardalis.Result;
+global using Ardalis.Result.FluentValidation;
