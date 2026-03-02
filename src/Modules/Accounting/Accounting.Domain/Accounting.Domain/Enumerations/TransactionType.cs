@@ -1,6 +1,7 @@
-﻿namespace Domain.Accounting.Enumerations;
+﻿namespace Accounting.Domain.Enumerations;
 
-public sealed class TransactionType(string name, int value, string description, char symbol ) : SmartEnum<TransactionType>(name, value)
+public sealed class TransactionType(string name, int value, string description, char symbol )
+    : SmartEnum<TransactionType>(name, value)
 {
     public string Description { get; } = description;
     public char Symbol { get; } = symbol;
