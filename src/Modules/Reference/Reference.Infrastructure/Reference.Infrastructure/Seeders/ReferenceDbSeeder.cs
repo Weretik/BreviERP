@@ -1,10 +1,9 @@
-﻿using Domain.Reference.Entities;
-using Domain.Reference.ValueObjects;
-using Infrastructure.Common.Contracts;
+﻿using BuildingBlocks.Infrastructure.Seeding;
+using Reference.Domain.Entities;
+using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
-using Reference.Infrastructure.Seeders;
 
-namespace Infrastructure.Reference.Seeders;
+namespace Reference.Infrastructure.Seeders;
 
 public sealed class AdditionalReferenceSeeder(
     ReferenceDbContext db,
@@ -12,7 +11,7 @@ public sealed class AdditionalReferenceSeeder(
     IWebHostEnvironment env)
     : ISeeder
 {
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
         if (await db.AdditionalReferences.AnyAsync(cancellationToken))
         {

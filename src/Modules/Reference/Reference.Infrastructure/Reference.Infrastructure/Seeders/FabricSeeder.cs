@@ -12,7 +12,7 @@ public sealed class FabricSeeder(
     IWebHostEnvironment env)
     : ISeeder
 {
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
         if (await db.Fabrics.AnyAsync(cancellationToken))
         {

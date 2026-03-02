@@ -1,17 +1,14 @@
-﻿using Domain.CRM.Entities;
-using Domain.CRM.Enums;
-using Domain.CRM.ValueObjects;
-using Infrastructure.Common.Contracts;
+﻿using Microsoft.Extensions.Hosting;
 
-namespace Infrastructure.CRM.Seeders;
+namespace Crm.Infrastructure.Seeders;
 
 public sealed class CounterpartySeeder(
     CrmDbContext db,
     ILogger<CounterpartySeeder> logger,
-    IWebHostEnvironment env)
+    IHostEnvironment env)
     : ISeeder
 {
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
         if (await db.Counterparty.AnyAsync(cancellationToken))
         {
@@ -19,7 +16,7 @@ public sealed class CounterpartySeeder(
             return;
         }
 
-        var path = Path.Combine(env.WebRootPath, "Seed", "counterparties.json");
+        var path = Path.Combine(env.ContentRootPath, "Seeders", "Data", "counterparties.json");
         string json = await File.ReadAllTextAsync(path, cancellationToken);
 
         var rows = JsonSerializer.Deserialize<List<CounterpartySeedRow>>(json)

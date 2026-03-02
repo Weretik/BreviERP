@@ -9,18 +9,23 @@ public static class SeederExtensions
 {
     public static async Task UseAppSeeders(this IApplicationBuilder app, CancellationToken cancellationToken = default)
     {
-        using var scope = app.ApplicationServices.CreateScope();
-        var services = scope.ServiceProvider;
-        var logger = services.GetRequiredService<ILoggerFactory>()
+        await app.ApplicationServices.SeedAppAsync(cancellationToken);
+    }
+
+    public static async Task SeedAppAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
+    {
+        using var scope = services.CreateScope();
+        var scopeServices = scope.ServiceProvider;
+        var logger = scopeServices.GetRequiredService<ILoggerFactory>()
             .CreateLogger("SeederRunner");
 
 
-        var allSeeders = services.GetServices<ISeeder>();
+        var allSeeders = scopeServices.GetServices<ISeeder>();
         foreach (var seeder in allSeeders.DistinctBy(s => s.GetType()))
         {
             cancellationToken.ThrowIfCancellationRequested();
             logger.LogInformation("Виконання: {Seeder}", seeder.GetType().Name);
-            await seeder.SeedAsync(services, cancellationToken);
+            await seeder.SeedAsync(scopeServices, cancellationToken);
         }
     }
 }

@@ -10,4 +10,17 @@
       <Folder Include="Migrations\" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="Seeders\Data\counterparties.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Crm.Application\Crm.Application\Crm.Application.csproj" />
+      <ProjectReference Include="..\..\Crm.Domain\Crm.Domain\Crm.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

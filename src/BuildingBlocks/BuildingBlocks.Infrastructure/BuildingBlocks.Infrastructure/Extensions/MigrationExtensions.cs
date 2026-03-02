@@ -10,11 +10,16 @@ public static class MigrationExtensions
     public static async Task UseAppMigrations(
         this IApplicationBuilder app, CancellationToken cancellationToken = default)
     {
-        using var scope = app.ApplicationServices.CreateScope();
-        var services = scope.ServiceProvider;
-        var migrators = services.GetServices<IDatabaseMigrator>();
-        var logger = services.GetRequiredService<ILoggerFactory>()
-            .CreateLogger("SeederRunner");
+        await app.ApplicationServices.MigrateAppAsync(cancellationToken);
+    }
+
+    public static async Task MigrateAppAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
+    {
+        using var scope = services.CreateScope();
+        var scopeServices = scope.ServiceProvider;
+        var migrators = scopeServices.GetServices<IDatabaseMigrator>();
+        var logger = scopeServices.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("MigrationRunner");
 
         logger.LogInformation("🚀 Launch migrations for all contexts...");
 
