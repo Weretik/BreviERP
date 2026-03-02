@@ -15,13 +15,17 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.MapOpenApi();
-    app.UseCors("SpaDev");
+
+    await app.RunStartupTasksAsync();
 }
 else
 {
-    app.UseExceptionHandler();
+    app.UseExceptionHandler(opt => { });
+    app.UseStatusCodePages();
     app.UseHsts();
 }
+
+app.UseCors("Frontend");
 app.UseHttpsRedirection();
 
 app.UseSerilogRequestLogging();
