@@ -1,6 +1,8 @@
 ﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
+using BuildingBlocks.Domain.Exceptions;
 using Reference.Domain.ValueObjects;
+using Reference.Domain.Errors;
 
 namespace Reference.Domain.Entities;
 
@@ -39,10 +41,38 @@ public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregate
     #endregion
 
     #region Setters/Validation
-    private void SetId(AdditionalReferenceId id) => Id = Guard.Against.Default(id, nameof(id));
-    private void SetName(string name) => Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
-    private void SetValue(decimal value) => Value = Guard.Against.Negative(value, nameof(value));
-    private void SetUnit(string unit) => Unit = Guard.Against.NullOrWhiteSpace(unit, nameof(unit));
+    private void SetId(AdditionalReferenceId id)
+    {
+        if (id.Value == default)
+            throw new DomainException(AdditionalReferenceErrors.IdIsRequired());
+
+        Id = id;
+    }
+
+    private void SetName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException(AdditionalReferenceErrors.NameIsRequired());
+
+        Name = name;
+    }
+
+    private void SetValue(decimal value)
+    {
+        if (value < 0)
+            throw new DomainException(AdditionalReferenceErrors.ValueMustBeNonNegative());
+
+        Value = value;
+    }
+
+    private void SetUnit(string unit)
+    {
+        if (string.IsNullOrWhiteSpace(unit))
+            throw new DomainException(AdditionalReferenceErrors.UnitIsRequired());
+
+        Unit = unit;
+    }
+
     private void SetDescription(string? description) => Description = description;
     #endregion
 }

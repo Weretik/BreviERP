@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.Domain.Abstractions;
+﻿using Accounting.Domain.Enumerations;
+using Accounting.Domain.ValueObjects;
+using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using Domain.Accounting.Enumerations;
 using Domain.Accounting.ValueObjects;
 using NodaMoney;
+using TransactionId = Accounting.Domain.ValueObjects.TransactionId;
 
-namespace Domain.Accounting.Entities;
+namespace Accounting.Domain.Entities;
 
 public class Transaction: BaseEntity<TransactionId>, IAggregateRoot
 {

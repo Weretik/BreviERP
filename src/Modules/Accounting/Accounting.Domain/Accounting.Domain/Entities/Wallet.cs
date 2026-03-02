@@ -1,4 +1,7 @@
-﻿namespace Domain.Accounting.Entities;
+﻿using Accounting.Domain.Errors;
+using Domain.Accounting.ValueObjects;
+
+namespace Accounting.Domain.Entities;
 
 public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
 {
@@ -6,12 +9,12 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
     public string Name { get; private set; } = null!;
     public Money Balance { get; private set; }
     public string? Notes { get; private set; }
-
     #endregion
 
     #region Constructors
 
     private Wallet() { }
+
     private Wallet(WalletId id, string name, Money amount, string? notes, DateTime createdDate)
     {
         SetWalletId(id);
@@ -20,8 +23,9 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
         SetNotes(notes);
         MarkAsCreated(createdDate);
     }
+
     public static Wallet Create(WalletId id, string name, Money amount, string? notes, DateTime createdDate)
-        => new (id, name, amount, notes, createdDate);
+        => new(id, name, amount, notes, createdDate);
 
     public void Update(string name, string? notes, DateTime updatedDate)
     {
@@ -34,15 +38,45 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
 
     #region Validation & Setters
 
-    private void SetWalletId(WalletId id) => Id = Guard.Against.Default(id, nameof(id));
-    private void SetName(string name) => Name = Guard.Against.NullOrWhiteSpace(name, nameof(name)).Trim();
-    private void SetBalance(Money amount) => Balance = Guard.Against.Null(amount, nameof(amount));
-    private void SetNotes(string? notes) => Notes = notes;
+    private void SetWalletId(WalletId id)
+    {
+        if (id == 0)
+            throw new DomainException(WalletErrors.IdMustBeProvided());
+
+        Id = id;
+    }
+
+    private void SetName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException(WalletErrors.NameIsRequired());
+
+        if (name.Length is < 1 or > 100)
+            throw new DomainException(WalletErrors.NameLengthInvalid(name.Length));
+
+        Name = name.Trim();
+    }
+
+    private void SetBalance(Money amount)
+    {
+        Balance = amount;
+    }
+
+    private void SetNotes(string? notes)
+    {
+        Notes = notes;
+    }
+
+    #endregion
+
+    #region Domain Operations
 
     public void Deposit(Money amount, DateTime occurredAtUtc)
     {
         EnsureSameCurrency(amount);
-        Guard.Against.Negative(amount.Amount, nameof(amount));
+
+        if (amount.Amount <= 0)
+            throw new DomainException(WalletErrors.AmountMustBePositive(amount.Amount));
 
         Balance += amount;
         MarkAsUpdated(occurredAtUtc);
@@ -51,21 +85,24 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
     public void Withdraw(Money amount, DateTime occurredAtUtc)
     {
         EnsureSameCurrency(amount);
-        Guard.Against.Negative(amount.Amount, nameof(amount));
+
+        if (amount.Amount <= 0)
+            throw new DomainException(WalletErrors.AmountMustBePositive(amount.Amount));
 
         Balance -= amount;
         MarkAsUpdated(occurredAtUtc);
     }
+
     private void EnsureSameCurrency(Money other)
     {
-        Guard.Against.InvalidInput(
-            other, nameof(other),
-            otherMoney => Balance.Currency == otherMoney.Currency,
-            $"Different currencies are not allowed: {Balance.Currency.Code} vs {other.Currency.Code}");
+        if (Balance.Currency != other.Currency)
+            throw new DomainException(
+                WalletErrors.CurrencyMismatch(
+                    Balance.Currency.Code,
+                    other.Currency.Code
+                )
+            );
     }
 
     #endregion
-
-
 }
-

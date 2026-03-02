@@ -1,6 +1,8 @@
 ﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
+using BuildingBlocks.Domain.Exceptions;
 using Reference.Domain.ValueObjects;
+using Reference.Domain.Errors;
 
 namespace Reference.Domain.Entities;
 
@@ -36,12 +38,35 @@ public class Fabric : BaseEntity<FabricId>, IAggregateRoot
     #endregion
 
     #region Setters/Validation
-    private void SetId(FabricId id) => Id = Guard.Against.Default(id, nameof(id));
-    private void SetName(string name) => Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
-    private void SetCounterpartyId(int counterpartyId) => CounterpartyId = Guard.Against.Negative(counterpartyId, nameof(counterpartyId));
+    private void SetId(FabricId id)
+    {
+        if (id.Value == default)
+            throw new DomainException(FabricErrors.IdIsRequired());
+
+        Id = id;
+    }
+
+    private void SetName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException(FabricErrors.NameIsRequired());
+
+        Name = name;
+    }
+
+    private void SetCounterpartyId(int counterpartyId)
+    {
+        if (counterpartyId < 0)
+            throw new DomainException(FabricErrors.CounterpartyIdIsRequired());
+
+        CounterpartyId = counterpartyId;
+    }
+
     private void SetPrice(Money price)
     {
-        Guard.Against.OutOfRange(price.Amount, nameof(price), 0, 10_000);
+        if (price.Amount < 0 || price.Amount > 10_000)
+            throw new DomainException(FabricErrors.PriceOutOfRange(0, 10_000));
+
         Price = price;
     }
     #endregion

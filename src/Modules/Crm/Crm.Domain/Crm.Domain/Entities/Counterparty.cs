@@ -1,7 +1,9 @@
-﻿using Domain.CRM.Enums;
-using Domain.CRM.ValueObjects;
+﻿using Crm.Domain.Enums;
+using Crm.Domain.ValueObjects;
+using Crm.Domain.Errors;
+using BuildingBlocks.Domain.Exceptions;
 
-namespace Domain.CRM.Entities;
+namespace Crm.Domain.Entities;
 
 public class Counterparty : BaseEntity<CounterpartyId>, IAggregateRoot
 {
@@ -31,8 +33,28 @@ public class Counterparty : BaseEntity<CounterpartyId>, IAggregateRoot
     #endregion
 
     #region Validation & Setters
-    private void SetId(CounterpartyId id) => Id = Guard.Against.Default(id, nameof(id));
-    private void SetName(string name) => Name = Guard.Against.NullOrWhiteSpace(name, nameof(name));
-    private void SetType(CounterpartyType type) => Type = Guard.Against.Default(type, nameof(type));
+    private void SetId(CounterpartyId id)
+    {
+        if (id.Value == default)
+            throw new DomainException(CounterpartyErrors.IdIsRequired());
+
+        Id = id;
+    }
+
+    private void SetName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException(CounterpartyErrors.NameIsRequired());
+
+        Name = name;
+    }
+
+    private void SetType(CounterpartyType type)
+    {
+        if (type is null)
+            throw new DomainException(CounterpartyErrors.TypeIsRequired());
+
+        Type = type;
+    }
     #endregion
 }
