@@ -8,10 +8,13 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Application\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
+      <ProjectReference Include="..\..\..\Crm\Crm.Application\Crm.Application\Crm.Application.csproj" />
+      <ProjectReference Include="..\..\..\Crm\Crm.Domain\Crm.Domain\Crm.Domain.csproj" />
       <ProjectReference Include="..\..\Reference.Domain\Reference.Domain\Reference.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Features\Fabric\" />
       <Folder Include="Shared\Contracts\" />
     </ItemGroup>
 

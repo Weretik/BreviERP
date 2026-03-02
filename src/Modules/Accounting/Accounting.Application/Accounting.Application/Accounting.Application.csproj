@@ -6,4 +6,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Contracts\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Application\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
+      <ProjectReference Include="..\..\Accounting.Domain\Accounting.Domain\Accounting.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

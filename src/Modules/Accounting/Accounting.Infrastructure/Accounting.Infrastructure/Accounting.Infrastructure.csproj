@@ -6,4 +6,15 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Accounting.Application\Accounting.Application\Accounting.Application.csproj" />
+      <ProjectReference Include="..\..\Accounting.Domain\Accounting.Domain\Accounting.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+      <Folder Include="Seeders\" />
+    </ItemGroup>
+
 </Project>
