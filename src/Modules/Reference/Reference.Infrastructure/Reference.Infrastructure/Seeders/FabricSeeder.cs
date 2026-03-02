@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Infrastructure.Seeding;
-using Infrastructure.Reference.Seeders;
 using Reference.Domain.Entities;
 using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
@@ -20,7 +19,7 @@ public sealed class FabricSeeder(
             return;
         }
 
-        var path = Path.Combine(env.WebRootPath, "Seed", "fabric.json");
+        var path = Path.Combine(env.ContentRootPath, "Seeders", "Data", "fabric.json");
         string json = await File.ReadAllTextAsync(path, cancellationToken);
 
         var rows = JsonSerializer.Deserialize<List<FabricSeedRow>>(json)

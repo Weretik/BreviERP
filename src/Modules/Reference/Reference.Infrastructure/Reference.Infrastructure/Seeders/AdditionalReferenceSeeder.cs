@@ -19,7 +19,7 @@ public sealed class AdditionalReferenceSeeder(
             return;
         }
 
-        var path = Path.Combine(env.WebRootPath, "Seed", "additional_reference.json");
+        var path = Path.Combine(env.ContentRootPath, "Seeders", "Data", "additional_reference.json");
         string json = await File.ReadAllTextAsync(path, cancellationToken);
 
         var rows = JsonSerializer.Deserialize<List<AdditionalSeedRow>>(json)
