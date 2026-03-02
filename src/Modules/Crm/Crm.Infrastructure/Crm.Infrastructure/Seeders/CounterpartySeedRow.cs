@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.CRM.Seeders;
+﻿namespace Crm.Infrastructure.Seeders;
 
 public sealed class CounterpartySeedRow
 {

@@ -1,6 +1,8 @@
-﻿using Domain.CRM.Entities;
+﻿using Crm.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.CRM.Configurations;
+namespace Crm.Infrastructure.Configurations;
 
 public class CounterpartyConfiguration : IEntityTypeConfiguration<Counterparty>
 {

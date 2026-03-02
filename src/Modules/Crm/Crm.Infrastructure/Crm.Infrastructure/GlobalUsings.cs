@@ -1,0 +1,9 @@
+﻿global using System.Text.Json;
+global using BuildingBlocks.Infrastructure.Seeding;
+global using Crm.Domain.Entities;
+global using Crm.Domain.Enums;
+global using Crm.Domain.ValueObjects;
+global using Crm.Infrastructure.DataBase;
+global using Microsoft.AspNetCore.Hosting;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Logging;

@@ -1,8 +1,8 @@
-﻿using Domain.CRM.Enums;
-using Domain.CRM.ValueObjects;
+﻿using Crm.Domain.Enums;
+using Crm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Infrastructure.CRM.Configurations;
+namespace Crm.Infrastructure.Configurations;
 
 public static class CrmConverter
 {

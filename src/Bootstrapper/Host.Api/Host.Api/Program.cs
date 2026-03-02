@@ -1,7 +1,3 @@
-using Host.Api.DependencyInjection.ServiceCollections;
-
-Env.TraversePath().Load();
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilog();
@@ -9,7 +5,6 @@ builder.Services.AddHostServices(builder.Configuration);
 
 var app = builder.Build();
 
-await app.RunStartupTasksAsync();
 
 if (app.Environment.IsDevelopment())
 {
@@ -27,7 +22,6 @@ else
 
 app.UseCors("Frontend");
 app.UseHttpsRedirection();
-
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();

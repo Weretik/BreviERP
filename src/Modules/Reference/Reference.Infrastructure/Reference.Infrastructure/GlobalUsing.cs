@@ -18,16 +18,6 @@ global using Microsoft.EntityFrameworkCore.Storage;
 global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.Extensions.Hosting;
 
-// Infrastructure namespaces
-global using Infrastructure.Common.Events;
-global using Infrastructure.Common.Configurations;
-
-// Domain namespaces
-global using Domain.Common.Entity;
-global using Domain.Common.Abstractions;
-
-// Application namespaces
-global using Application.Common.Notifications;
 
 // Services
 global using Ardalis.Specification.EntityFrameworkCore;

@@ -1,4 +1,8 @@
-﻿namespace Reference.Infrastructure.Congigurations;
+﻿using Domain.Reference.ValueObjects;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Reference.Domain.ValueObjects;
+
+namespace Reference.Infrastructure.Converters;
 
 public static class ReferenceConverters
 {

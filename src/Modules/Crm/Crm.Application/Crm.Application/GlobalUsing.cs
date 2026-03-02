@@ -13,13 +13,6 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.EntityFrameworkCore;
 
-// Application namespaces
-global using Application.Common.Behaviors;
-global using Application.Common.Logging;
-
-// Domain namespaces
-global using Domain.Common.Abstractions;
-
 // External libraries
 global using Mediator;
 global using FluentValidation;

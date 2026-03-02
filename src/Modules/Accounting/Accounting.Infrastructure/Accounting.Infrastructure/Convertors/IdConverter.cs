@@ -1,7 +1,7 @@
-using Domain.Accounting.ValueObjects;
+using Accounting.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Infrastructure.Accounting.Convertors;
+namespace Accounting.Infrastructure.Convertors;
 
 public class IdConverter
 {

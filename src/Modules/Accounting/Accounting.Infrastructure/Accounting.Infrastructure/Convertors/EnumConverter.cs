@@ -1,7 +1,7 @@
-using Domain.Accounting.Enumerations;
+using Accounting.Domain.Enumerations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Infrastructure.Accounting.Convertors;
+namespace Accounting.Infrastructure.Convertors;
 
 public class EnumConverter
 {

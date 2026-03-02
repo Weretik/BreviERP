@@ -1,10 +1,12 @@
-﻿using Application.CRM.Shared.Contracts;
-using Domain.CRM.Entities;
-using Domain.CRM.ValueObjects;
-using Domain.Reference.Entities;
+﻿using Application.Reference.GetAllFabric;
+using Crm.Application.Contracts;
+using Crm.Domain.Entities;
+using Crm.Domain.ValueObjects;
 using Reference.Application.Contracts.Persistence;
+using Reference.Application.GetAllFabric.Specifications;
+using Reference.Domain.Entities;
 
-namespace Application.Reference.GetAllFabric;
+namespace Reference.Application.GetAllFabric;
 
 public class GetAllFabricQueryHandler(
     IReferenceReadRepository<Fabric> referenceRepository, ICrmReadRepository<Counterparty> crmRepository)

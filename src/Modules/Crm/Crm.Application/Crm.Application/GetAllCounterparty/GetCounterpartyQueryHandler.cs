@@ -1,7 +1,9 @@
-﻿using Application.CRM.Shared.Contracts;
-using Domain.CRM.Entities;
+﻿using Application.CRM.GetAllCounterparty;
+using Crm.Application.Contracts;
+using Crm.Application.GetAllCounterparty.Specifications;
+using Crm.Domain.Entities;
 
-namespace Application.CRM.GetAllCounterparty;
+namespace Crm.Application.GetAllCounterparty;
 
 public class GetCounterpartyQueryHandler(ICrmReadRepository<Counterparty> repository)
     : IQueryHandler<GetCounterpartyQuery, Result<List<CounterpartyDto>>>

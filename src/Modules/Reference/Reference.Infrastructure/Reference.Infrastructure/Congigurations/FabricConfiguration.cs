@@ -1,3 +1,6 @@
+using Reference.Domain.Entities;
+using Reference.Infrastructure.Converters;
+
 namespace Reference.Infrastructure.Congigurations;
 
 public sealed class FabricConfiguration : IEntityTypeConfiguration<Fabric>

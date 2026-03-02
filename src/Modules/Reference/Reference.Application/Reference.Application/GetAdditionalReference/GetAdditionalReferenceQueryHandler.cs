@@ -1,7 +1,9 @@
-﻿using Domain.Reference.Entities;
+﻿using Application.Reference.GetAdditionalReference;
 using Reference.Application.Contracts.Persistence;
+using Reference.Application.GetAdditionalReference.Specifications;
+using Reference.Domain.Entities;
 
-namespace Application.Reference.GetAdditionalReference;
+namespace Reference.Application.GetAdditionalReference;
 
 public class GetAdditionalReferenceQueryHandler(IReferenceReadRepository<AdditionalReference> repository)
     : IQueryHandler<GetAdditionalReferenceQuery, Result<List<AdditionalReferenceRowDTO>>>

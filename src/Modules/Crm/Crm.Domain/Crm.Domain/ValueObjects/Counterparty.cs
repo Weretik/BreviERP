@@ -1,4 +1,4 @@
-﻿namespace Domain.CRM.ValueObjects;
+﻿namespace Crm.Domain.ValueObjects;
 
 [ValueObject<int>]
 public partial struct CounterpartyId

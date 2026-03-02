@@ -1,5 +1,4 @@
-﻿using Domain.Common.Helpers;
-
+﻿
 namespace Reference.Domain.ValueObjects;
 
 [ValueObject<int>]

@@ -1,4 +1,4 @@
-﻿namespace Domain.CRM.Enums;
+﻿namespace Crm.Domain.Enums;
 
 public sealed class CounterpartyType(string name, int value) : SmartEnum<CounterpartyType>(name, value)
 {

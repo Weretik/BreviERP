@@ -1,7 +1,7 @@
-﻿using Domain.Reference.Entities;
-using Domain.Reference.ValueObjects;
+﻿using Application.Reference.GetAdditionalReference;
+using Reference.Domain.Entities;
 
-namespace Application.Reference.GetAdditionalReference;
+namespace Reference.Application.GetAdditionalReference.Specifications;
 
 public class GetAdditionalReferenceSpec : Specification<AdditionalReference, AdditionalReferenceRowDTO>
 {

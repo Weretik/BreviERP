@@ -1,6 +1,7 @@
-﻿using Domain.CRM.Entities;
+﻿using Application.CRM.GetAllCounterparty;
+using Crm.Domain.Entities;
 
-namespace Application.CRM.GetAllCounterparty;
+namespace Crm.Application.GetAllCounterparty.Specifications;
 
 public class GetCounterpartySpec : Specification<Counterparty, CounterpartyDto>
 {
