@@ -1,8 +1,10 @@
-﻿using Domain.Accounting.Entities;
+﻿using Accounting.Application.Contracts.Persistence;
+using Accounting.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Accounting;
+namespace Accounting.Infrastructure.DataBase;
 
-public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> options) : DbContext(options)
+public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> options) : DbContext(options), IReadAccountingDbContext
 {
     public DbSet<TransactionCategory> TransactionCategories => Set<TransactionCategory>();
 

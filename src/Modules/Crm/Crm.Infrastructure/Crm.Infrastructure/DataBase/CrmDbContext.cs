@@ -1,8 +1,10 @@
-﻿using Domain.CRM.Entities;
+﻿using Crm.Application.Contracts;
+using Crm.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.CRM;
+namespace Crm.Infrastructure.DataBase;
 
-public class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbContext(options)
+public class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbContext(options), IReadCrmDbContext
 {
     public DbSet<Counterparty> Counterparty => Set<Counterparty>();
     public void DiscardChanges() => ChangeTracker.Clear();

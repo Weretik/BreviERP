@@ -1,6 +1,9 @@
-﻿using Application.CRM.Shared.Contracts;
+﻿using Ardalis.Specification.EntityFrameworkCore;
+using BuildingBlocks.Domain.Abstractions;
+using Crm.Application.Contracts;
+using Crm.Infrastructure.DataBase;
 
-namespace Infrastructure.CRM.Repositories;
+namespace Crm.Infrastructure.Repositories;
 
 public sealed class CrmEfRepository<T>(CrmDbContext dbContext)
     : RepositoryBase<T>(dbContext), ICrmRepository<T>

@@ -1,4 +1,6 @@
-﻿namespace Host.Api.DependencyInjection.ServiceCollections.HostServices;
+﻿using Identity.Infrastructure.Configuration;
+
+namespace Host.Api.DependencyInjection.ServiceCollections.HostServices;
 
 public static class IdentityConfigurationExtensions
 {
