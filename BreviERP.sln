@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests", "tests\I
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bootstrapper", "Bootstrapper", "{B1B3714D-B747-461B-9766-ECC729B72AD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Api", "src\Bootstrapper\Host.Api\Host.Api\Host.Api.csproj", "{4D34BF75-F1E0-4A0D-8A90-C60EBAF14586}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Api", "src\Bootstrapper\Host.Api\Host.Api.csproj", "{4D34BF75-F1E0-4A0D-8A90-C60EBAF14586}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildingBlocks", "BuildingBlocks", "{D9710DFD-E5C2-44D7-ADA9-04A8264FB254}"
 EndProject
@@ -64,6 +64,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Accounting.Infrastructure",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Seed", "src\Bootstrapper\Host.Seed\Host.Seed.csproj", "{9D2753D0-6A3E-4936-8157-DDE1202C65CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Api", "src\Modules\Identity\Identity.Api\Identity.Api\Identity.Api.csproj", "{C6693837-CE7A-4C35-941F-625EC0E795D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Api", "src\BuildingBlocks\BuildingBlocks.Api\BuildingBlocks.Api.csproj", "{406D7E07-2E7E-4CE0-97A5-2C741553E5F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +104,8 @@ Global
 		{0FD5AF9B-6137-471B-B2C2-24EECE9AF987} = {57FE34C6-B9FE-4FF2-8810-64AB31A626F9}
 		{EBD881D4-0A74-4F07-A36B-E60B02298D25} = {57FE34C6-B9FE-4FF2-8810-64AB31A626F9}
 		{9D2753D0-6A3E-4936-8157-DDE1202C65CA} = {B1B3714D-B747-461B-9766-ECC729B72AD8}
+		{C6693837-CE7A-4C35-941F-625EC0E795D6} = {91603986-ACA0-431A-B5CF-83F098F192CA}
+		{406D7E07-2E7E-4CE0-97A5-2C741553E5F3} = {D9710DFD-E5C2-44D7-ADA9-04A8264FB254}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B6594A08-A062-4CD6-BD41-B04FB6AE423C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -194,5 +200,13 @@ Global
 		{9D2753D0-6A3E-4936-8157-DDE1202C65CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D2753D0-6A3E-4936-8157-DDE1202C65CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D2753D0-6A3E-4936-8157-DDE1202C65CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6693837-CE7A-4C35-941F-625EC0E795D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6693837-CE7A-4C35-941F-625EC0E795D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6693837-CE7A-4C35-941F-625EC0E795D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6693837-CE7A-4C35-941F-625EC0E795D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{406D7E07-2E7E-4CE0-97A5-2C741553E5F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{406D7E07-2E7E-4CE0-97A5-2C741553E5F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{406D7E07-2E7E-4CE0-97A5-2C741553E5F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{406D7E07-2E7E-4CE0-97A5-2C741553E5F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

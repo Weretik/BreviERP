@@ -27,10 +27,9 @@
       <ProjectReference Include="..\..\Modules\Crm\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Identity\Identity.Infrastructure\Identity.Infrastructure\Identity.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Reference.Infrastructure.csproj" />
-      <ProjectReference Include="..\Host.Api\Host.Api\Host.Api.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+      <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     </ItemGroup>
 </Project>
