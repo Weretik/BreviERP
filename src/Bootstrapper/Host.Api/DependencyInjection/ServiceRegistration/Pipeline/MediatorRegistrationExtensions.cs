@@ -13,8 +13,6 @@ public static class MediatorRegistrationExtensions
     {
         services.AddMediator(options =>
         {
-            options.ServiceLifetime = ServiceLifetime.Scoped;
-
             options.Assemblies =
             [
                 typeof(AccountingApplicationAssemblyMarker).Assembly,
