@@ -8,20 +8,24 @@ namespace Reference.Domain.Entities;
 
 public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregateRoot
 {
+    private static readonly string[] AllowedUnits = ["шт.", "грн.", "%"];
+
     #region Properties
-    public string Name { get; private set; }
+    public string Name { get; private set; } = null!;
+    public string Key { get; private set; } = null!;
     public decimal Value { get; private set; }
-    public string Unit { get; private set; }
+    public string Unit { get; private set; } = null!;
     public string? Description { get; private set; }
     #endregion
 
     #region Constructors
     private AdditionalReference(){}
-    private AdditionalReference(AdditionalReferenceId id, string name, decimal value, string unit,
+    private AdditionalReference(AdditionalReferenceId id, string name, string key, decimal value, string unit,
         string? description = null)
     {
         SetId(id);
         SetName(name);
+        SetKey(key);
         SetValue(value);
         SetUnit(unit);
         SetDescription(description);
@@ -29,13 +33,15 @@ public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregate
     #endregion
 
     #region Factories
-    public static AdditionalReference Create(AdditionalReferenceId id, string name, decimal value, string unit,
+    public static AdditionalReference Create(AdditionalReferenceId id, string name, string key, decimal value, string unit,
         string? description = null)
-        => new(id, name, value, unit, description);
-    public void Update(string name, decimal value, string? description = null)
+        => new(id, name, key, value, unit, description);
+    public void Update(string name, string key, decimal value, string unit, string? description = null)
     {
         SetName(name);
+        SetKey(key);
         SetValue(value);
+        SetUnit(unit);
         SetDescription(description);
     }
     #endregion
@@ -57,6 +63,14 @@ public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregate
         Name = name;
     }
 
+    private void SetKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            throw new DomainException(AdditionalReferenceErrors.KeyIsRequired());
+
+        Key = key;
+    }
+
     private void SetValue(decimal value)
     {
         if (value < 0)
@@ -69,6 +83,9 @@ public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregate
     {
         if (string.IsNullOrWhiteSpace(unit))
             throw new DomainException(AdditionalReferenceErrors.UnitIsRequired());
+
+        if (!AllowedUnits.Contains(unit))
+            throw new DomainException(AdditionalReferenceErrors.UnitIsInvalid());
 
         Unit = unit;
     }

@@ -1,8 +1,6 @@
-﻿using Reference.Domain.Entities;
+﻿namespace Reference.Application.Features.Fabric.GetList.Specifications;
 
-namespace Reference.Application.GetAllFabric.Specifications;
-
-public sealed class AllFabricsSpec : Specification<Fabric>
+public sealed class AllFabricsSpec : Specification<Domain.Entities.Fabric>
 {
     public AllFabricsSpec()
     {

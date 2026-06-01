@@ -1,18 +1,114 @@
 [
-  { "Id": 1, "Name": "Кількість швачок", "Value": 12, "Unit": "шт." },
-  { "Id": 2, "Name": "Середня зарплата швачки", "Value": 15000, "Unit": "грн." },
-  { "Id": 3, "Name": "Витрати за місяць", "Value": 180000, "Unit": "грн." },
-
-  { "Id": 4, "Name": "Відсоток закрою", "Value": 21.8, "Unit": "%" },
-  { "Id": 5, "Name": "Відсоток майстра", "Value": 8.4, "Unit": "%" },
-  { "Id": 6, "Name": "Відсоток начальниці цеху", "Value": 10, "Unit": "%" },
-  { "Id": 7, "Name": "Відсоток премії швачки", "Value": 8, "Unit": "%" },
-
-  { "Id": 8, "Name": "Прибуток до 10 шт", "Value": 55, "Unit": "%" },
-  { "Id": 9, "Name": "Прибуток 10-40 шт", "Value": 32, "Unit": "%" },
-  { "Id": 10, "Name": "Прибуток понад 40 шт", "Value": 25, "Unit": "%" },
-
-  { "Id": 11, "Name": "Прибуток (ЗІЗ) до 10 шт", "Value": 40, "Unit": "%" },
-  { "Id": 12, "Name": "Прибуток (ЗІЗ) 10-40 шт", "Value": 33, "Unit": "%" },
-  { "Id": 13, "Name": "Прибуток (ЗІЗ) понад 40 шт", "Value": 27, "Unit": "%" }
+  {
+    "Id": 1,
+    "Name": "кол-во раб дней",
+    "Key": "work_day",
+    "Value": 20.5,
+    "Unit": "шт.",
+    "Description": null
+  },
+  {
+    "Id": 2,
+    "Name": "ср.зп швеи",
+    "Key": "sr_zp_shvei",
+    "Value": 16500,
+    "Unit": "грн.",
+    "Description": null
+  },
+  {
+    "Id": 3,
+    "Name": "кол-во швей",
+    "Key": "count_shvei",
+    "Value": 12.0,
+    "Unit": "шт.",
+    "Description": null
+  },
+  {
+    "Id": 4,
+    "Name": "кооф-т закроя",
+    "Key": "coefficient_factor",
+    "Value": 4.6,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 5,
+    "Name": "кооф-т мастера",
+    "Key": "coefficient_master",
+    "Value": 11,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 6,
+    "Name": "коэффициент начальника цеха",
+    "Key": "coefficient_foreman",
+    "Value": 0.12,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 7,
+    "Name": "коэффициент премия швеи",
+    "Key": "coefficient_seamstress_award",
+    "Value": 0.08,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 8,
+    "Name": "расходы за месяц",
+    "Key": "monthly_expenses",
+    "Value": 210000,
+    "Unit": "грн.",
+    "Description": null
+  },
+  {
+    "Id": 9,
+    "Name": "прибыль: до 10 шт.",
+    "Key": "profit_10",
+    "Value": 1.55,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 10,
+    "Name": "прибыль: 10-40 шт.",
+    "Key": "profit_10_40",
+    "Value": 1.32,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 11,
+    "Name": "прибыль: свыше 40 шт.",
+    "Key": "profit_40",
+    "Value": 1.25,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 12,
+    "Name": "коэффициент для СИЗов: до 10 шт.",
+    "Key": "coefficient_ciz_10",
+    "Value": 1.4,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 13,
+    "Name": "коэффициент для СИЗов: 10-40 шт.",
+    "Key": "coefficient_ciz_10_40",
+    "Value": 1.33,
+    "Unit": "%",
+    "Description": null
+  },
+  {
+    "Id": 14,
+    "Name": "коэффициент для СИЗов: свыше 40 шт.",
+    "Key": "coefficient_ciz_40",
+    "Value": 1.27,
+    "Unit": "%",
+    "Description": null
+  }
 ]

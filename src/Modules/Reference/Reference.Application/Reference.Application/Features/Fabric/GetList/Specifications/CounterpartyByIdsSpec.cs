@@ -1,7 +1,7 @@
 ﻿using Crm.Domain.Entities;
 using Crm.Domain.ValueObjects;
 
-namespace Reference.Application.GetAllFabric.Specifications;
+namespace Reference.Application.Features.Fabric.GetList.Specifications;
 
 public sealed class CounterpartyByIdsSpec : Specification<Counterparty>
 {

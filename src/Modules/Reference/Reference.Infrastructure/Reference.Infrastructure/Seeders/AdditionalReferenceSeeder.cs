@@ -13,31 +13,40 @@ public sealed class AdditionalReferenceSeeder(
 {
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
-        if (await db.AdditionalReferences.AnyAsync(cancellationToken))
-        {
-            logger.LogInformation("ℹ️ AdditionalReference already exists, skip seeding.");
-            return;
-        }
-
         var path = Path.Combine(env.ContentRootPath, "Seeders", "Data", "additional_reference.json");
         string json = await File.ReadAllTextAsync(path, cancellationToken);
 
         var rows = JsonSerializer.Deserialize<List<AdditionalSeedRow>>(json)
                    ?? new List<AdditionalSeedRow>();
 
-        var list = new List<AdditionalReference>();
+        var existingById = await db.AdditionalReferences
+            .ToDictionaryAsync(x => x.Id.Value, cancellationToken);
+
+        var added = 0;
+        var updated = 0;
 
         foreach (var row in rows)
         {
             var id = AdditionalReferenceId.From(row.Id);
-            var entity = AdditionalReference.Create(id, row.Name, row.Value, row.Unit);
 
-            list.Add(entity);
+            if (existingById.TryGetValue(row.Id, out var existing))
+            {
+                existing.Update(row.Name, row.Key, row.Value, row.Unit, row.Description);
+                updated++;
+                continue;
+            }
+
+            var entity = AdditionalReference.Create(id, row.Name, row.Key, row.Value, row.Unit, row.Description);
+
+            await db.AdditionalReferences.AddAsync(entity, cancellationToken);
+            added++;
         }
 
-        await db.AdditionalReferences.AddRangeAsync(list, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("✅ Seeded {Count} AdditionalReference", list.Count);
+        logger.LogInformation(
+            "Seeded AdditionalReference. Added: {AddedCount}, Updated: {UpdatedCount}",
+            added,
+            updated);
     }
 }

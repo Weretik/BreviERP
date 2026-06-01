@@ -18,7 +18,14 @@ public sealed class AdditionalReferenceConfiguration : IEntityTypeConfiguration<
         builder.HasIndex(x => x.Name)
             .IsUnique();
 
+        builder.HasIndex(x => x.Key)
+            .IsUnique();
+
         builder.Property(x => x.Name)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        builder.Property(x => x.Key)
             .HasMaxLength(100)
             .IsRequired();
 

@@ -1,15 +1,14 @@
-﻿using Application.Reference.GetAllFabric;
-using Crm.Application.Contracts;
+﻿using Crm.Application.Contracts;
 using Crm.Domain.Entities;
 using Crm.Domain.ValueObjects;
 using Reference.Application.Contracts.Persistence;
-using Reference.Application.GetAllFabric.Specifications;
-using Reference.Domain.Entities;
+using Reference.Application.Features.Fabric.GetList.DTOs;
+using Reference.Application.Features.Fabric.GetList.Specifications;
 
-namespace Reference.Application.GetAllFabric;
+namespace Reference.Application.Features.Fabric.GetList;
 
 public class GetAllFabricQueryHandler(
-    IReferenceReadRepository<Fabric> referenceRepository, ICrmReadRepository<Counterparty> crmRepository)
+    IReferenceReadRepository<Domain.Entities.Fabric> referenceRepository, ICrmReadRepository<Counterparty> crmRepository)
     : IQueryHandler<GetAllFabricQuery, Result<List<FabricRowDTO>>>
 {
     public async ValueTask<Result<List<FabricRowDTO>>> Handle(GetAllFabricQuery query,
