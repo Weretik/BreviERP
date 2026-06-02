@@ -5,6 +5,7 @@ using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Repositories;
 using Reference.Infrastructure.Seeders.AdditionalReferences;
 using Reference.Infrastructure.Seeders.Fabrics;
+using Reference.Infrastructure.Seeders.GarmentAccessories;
 using Reference.Infrastructure.Seeders.GarmentParts;
 using Reference.Infrastructure.Seeders.GarmentPartOperations;
 using Reference.Infrastructure.Seeders.Suppliers;
@@ -28,6 +29,7 @@ public static class ReferenceDbContextExtensions
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
         services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
         services.AddScoped<ISeeder, FabricSeeder>();
+        services.AddScoped<ISeeder, GarmentAccessorySeeder>();
         services.AddScoped<ISeeder, GarmentPartSeeder>();
         services.AddScoped<ISeeder, GarmentPartOperationSeeder>();
         services.AddScoped<ISeeder, SupplierSeeder>();
