@@ -1,4 +1,4 @@
-using Reference.Domain.Entities;
+﻿using Reference.Domain.Entities;
 using Reference.Infrastructure.Converters;
 
 namespace Reference.Infrastructure.Congigurations;
@@ -15,16 +15,26 @@ public sealed class FabricConfiguration : IEntityTypeConfiguration<Fabric>
             .HasConversion(ReferenceConverters.FabricIdConvert)
             .ValueGeneratedNever();
 
-        builder.Property(x => x.Name)
-            .HasMaxLength(200)
-            .IsRequired();
+        builder.HasIndex(x => x.Name)
+            .IsUnique();
 
-        builder.Property(x => x.CounterpartyId)
+        builder.Property(x => x.Name)
+            .HasMaxLength(500)
             .IsRequired();
 
         builder.Property(x => x.Price)
-            .HasConversion(ReferenceConverters.MoneyConvert)
+            .HasConversion(ReferenceConverters.MoneyAmountConvert)
             .HasPrecision(18, 2)
+            .IsRequired();
+
+        builder.Property(x => x.ProviderId)
+            .HasConversion(ReferenceConverters.SupplierIdConvert)
+            .IsRequired();
+
+        builder.HasOne<Supplier>()
+            .WithMany()
+            .HasForeignKey(x => x.ProviderId)
             .IsRequired();
     }
 }
+

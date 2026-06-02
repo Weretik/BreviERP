@@ -1,8 +1,8 @@
 ﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Exceptions;
-using Reference.Domain.ValueObjects;
 using Reference.Domain.Errors;
+using Reference.Domain.ValueObjects;
 
 namespace Reference.Domain.Entities;
 
@@ -10,30 +10,31 @@ public class Fabric : BaseEntity<FabricId>, IAggregateRoot
 {
     #region Properties
     public string Name { get; private set; } = null!;
-    public int CounterpartyId { get; private set; }
-    public Money Price { get; private set; }
+    public MoneyAmount Price { get; private set; }
+    public SupplierId ProviderId { get; private set; }
     #endregion
 
     #region Constructors
-    private Fabric(){}
-    private Fabric(FabricId id, string name, int counterpartyId, Money price)
+    private Fabric() { }
+
+    private Fabric(FabricId id, string name, MoneyAmount price, SupplierId providerId)
     {
         SetId(id);
         SetName(name);
-        SetCounterpartyId(counterpartyId);
         SetPrice(price);
+        SetProviderId(providerId);
     }
     #endregion
 
     #region Factories
-    public static Fabric Create(FabricId id, string name, int counterpartyId, Money price)
-        => new(id, name, counterpartyId, price);
+    public static Fabric Create(FabricId id, string name, MoneyAmount price, SupplierId providerId)
+        => new(id, name, price, providerId);
 
-    public void Update(string name, int counterpartyId, Money price)
+    public void Update(string name, MoneyAmount price, SupplierId providerId)
     {
         SetName(name);
-        SetCounterpartyId(counterpartyId);
         SetPrice(price);
+        SetProviderId(providerId);
     }
     #endregion
 
@@ -51,23 +52,24 @@ public class Fabric : BaseEntity<FabricId>, IAggregateRoot
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException(FabricErrors.NameIsRequired());
 
-        Name = name;
+        Name = name.Trim();
     }
 
-    private void SetCounterpartyId(int counterpartyId)
+    private void SetPrice(MoneyAmount price)
     {
-        if (counterpartyId < 0)
-            throw new DomainException(FabricErrors.CounterpartyIdIsRequired());
-
-        CounterpartyId = counterpartyId;
-    }
-
-    private void SetPrice(Money price)
-    {
-        if (price.Amount < 0 || price.Amount > 10_000)
+        if (price.Value < 0 || price.Value > 10_000)
             throw new DomainException(FabricErrors.PriceOutOfRange(0, 10_000));
 
         Price = price;
     }
+
+    private void SetProviderId(SupplierId providerId)
+    {
+        if (providerId.Value == default)
+            throw new DomainException(FabricErrors.ProviderIdIsRequired());
+
+        ProviderId = providerId;
+    }
     #endregion
 }
+

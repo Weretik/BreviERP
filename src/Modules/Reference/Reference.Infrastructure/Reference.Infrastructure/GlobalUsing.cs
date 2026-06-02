@@ -18,9 +18,8 @@ global using Microsoft.EntityFrameworkCore.Storage;
 global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.Extensions.Hosting;
 
-
 // Services
 global using Ardalis.Specification.EntityFrameworkCore;
 global using Ardalis.Specification;
 global using Mediator;
-global using NodaMoney;
+global using BuildingBlocks.Domain.ValueObjects;

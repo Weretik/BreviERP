@@ -20,3 +20,6 @@ global using FluentValidation.Results;
 global using Ardalis.Specification;
 global using Ardalis.Result;
 global using Ardalis.Result.FluentValidation;
+
+global using BuildingBlocks.Domain.ValueObjects;
+

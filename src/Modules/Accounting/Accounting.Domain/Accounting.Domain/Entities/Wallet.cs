@@ -7,7 +7,7 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
 {
     #region Properties
     public string Name { get; private set; } = null!;
-    public Money Balance { get; private set; }
+    public MoneyAmount Balance { get; private set; }
     public string? Notes { get; private set; }
     #endregion
 
@@ -15,7 +15,7 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
 
     private Wallet() { }
 
-    private Wallet(WalletId id, string name, Money amount, string? notes, DateTime createdDate)
+    private Wallet(WalletId id, string name, MoneyAmount amount, string? notes, DateTime createdDate)
     {
         SetWalletId(id);
         SetName(name);
@@ -24,7 +24,7 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
         MarkAsCreated(createdDate);
     }
 
-    public static Wallet Create(WalletId id, string name, Money amount, string? notes, DateTime createdDate)
+    public static Wallet Create(WalletId id, string name, MoneyAmount amount, string? notes, DateTime createdDate)
         => new(id, name, amount, notes, createdDate);
 
     public void Update(string name, string? notes, DateTime updatedDate)
@@ -57,7 +57,7 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
         Name = name.Trim();
     }
 
-    private void SetBalance(Money amount)
+    private void SetBalance(MoneyAmount amount)
     {
         Balance = amount;
     }
@@ -71,37 +71,22 @@ public class Wallet : BaseAuditableEntity<WalletId>, IAggregateRoot
 
     #region Domain Operations
 
-    public void Deposit(Money amount, DateTime occurredAtUtc)
+    public void Deposit(MoneyAmount amount, DateTime occurredAtUtc)
     {
-        EnsureSameCurrency(amount);
-
-        if (amount.Amount <= 0)
-            throw new DomainException(WalletErrors.AmountMustBePositive(amount.Amount));
+        if (amount.Value <= 0)
+            throw new DomainException(WalletErrors.AmountMustBePositive(amount.Value));
 
         Balance += amount;
         MarkAsUpdated(occurredAtUtc);
     }
 
-    public void Withdraw(Money amount, DateTime occurredAtUtc)
+    public void Withdraw(MoneyAmount amount, DateTime occurredAtUtc)
     {
-        EnsureSameCurrency(amount);
-
-        if (amount.Amount <= 0)
-            throw new DomainException(WalletErrors.AmountMustBePositive(amount.Amount));
+        if (amount.Value <= 0)
+            throw new DomainException(WalletErrors.AmountMustBePositive(amount.Value));
 
         Balance -= amount;
         MarkAsUpdated(occurredAtUtc);
-    }
-
-    private void EnsureSameCurrency(Money other)
-    {
-        if (Balance.Currency != other.Currency)
-            throw new DomainException(
-                WalletErrors.CurrencyMismatch(
-                    Balance.Currency.Code,
-                    other.Currency.Code
-                )
-            );
     }
 
     #endregion

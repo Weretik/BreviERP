@@ -42,9 +42,10 @@ public static class ReferenceConverters
         );
 
 
-    public static readonly ValueConverter<Money, decimal> MoneyConvert =
+    public static readonly ValueConverter<MoneyAmount, decimal> MoneyAmountConvert =
         new(
-            m => m.Amount,
-            v => new Money(v, "UAH")
+            m => m.Value,
+            v => MoneyAmount.From(v)
         );
 }
+

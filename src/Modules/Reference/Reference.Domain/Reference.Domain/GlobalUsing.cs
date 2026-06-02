@@ -2,8 +2,5 @@
 global using System;
 global using System.Text.RegularExpressions;
 
-global using NodaMoney;
+global using BuildingBlocks.Domain.ValueObjects;
 global using Vogen;
-
-
-

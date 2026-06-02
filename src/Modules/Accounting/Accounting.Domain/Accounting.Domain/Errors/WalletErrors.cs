@@ -21,8 +21,5 @@ public static class WalletErrors
     public static AccountingDomainError AmountMustBePositive(decimal amount) =>
         new("Accounting.Wallet.Amount.Invalid",
             $"Amount must be greater than zero. Actual:{amount}");
-
-    public static AccountingDomainError CurrencyMismatch(string walletCurrency, string operationCurrency) =>
-        new("Accounting.Wallet.Currency.Mismatch",
-            $"Different currencies are not allowed. Wallet:{walletCurrency}, Operation:{operationCurrency}");
 }
+
