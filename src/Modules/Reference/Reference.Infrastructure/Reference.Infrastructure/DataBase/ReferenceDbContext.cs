@@ -9,6 +9,7 @@ public class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
     public DbSet<AdditionalReference> AdditionalReferences => Set<AdditionalReference>();
     public DbSet<Fabric> Fabrics => Set<Fabric>();
     public DbSet<GarmentPart> GarmentParts => Set<GarmentPart>();
+    public DbSet<GarmentPartOperation> GarmentPartOperations => Set<GarmentPartOperation>();
     public void DiscardChanges() => ChangeTracker.Clear();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

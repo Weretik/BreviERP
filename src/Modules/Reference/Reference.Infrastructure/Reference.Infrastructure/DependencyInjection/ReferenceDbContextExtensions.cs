@@ -6,6 +6,7 @@ using Reference.Infrastructure.Repositories;
 using Reference.Infrastructure.Seeders.AdditionalReferences;
 using Reference.Infrastructure.Seeders.Fabrics;
 using Reference.Infrastructure.Seeders.GarmentParts;
+using Reference.Infrastructure.Seeders.GarmentPartOperations;
 
 namespace Reference.Infrastructure.DependencyInjection;
 
@@ -27,6 +28,7 @@ public static class ReferenceDbContextExtensions
         services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
         services.AddScoped<ISeeder, FabricSeeder>();
         services.AddScoped<ISeeder, GarmentPartSeeder>();
+        services.AddScoped<ISeeder, GarmentPartOperationSeeder>();
 
         return services;
     }
