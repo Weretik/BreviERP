@@ -15,7 +15,6 @@
 
     <ItemGroup>
       <Folder Include="Features\Fabric\" />
-      <Folder Include="Shared\Contracts\" />
     </ItemGroup>
 
 </Project>
