@@ -23,6 +23,12 @@ public static class ReferenceConverters
             v => GarmentPartId.From(v)
         );
 
+    public static readonly ValueConverter<GarmentAccessoryId, int> GarmentAccessoryIdConvert =
+        new(
+            id => id.Value,
+            v => GarmentAccessoryId.From(v)
+        );
+
     public static readonly ValueConverter<GarmentPartOperationId, int> GarmentPartOperationIdConvert =
         new(
             id => id.Value,

@@ -8,6 +8,7 @@ public class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
 {
     public DbSet<AdditionalReference> AdditionalReferences => Set<AdditionalReference>();
     public DbSet<Fabric> Fabrics => Set<Fabric>();
+    public DbSet<GarmentAccessory> GarmentAccessories => Set<GarmentAccessory>();
     public DbSet<GarmentPart> GarmentParts => Set<GarmentPart>();
     public DbSet<GarmentPartOperation> GarmentPartOperations => Set<GarmentPartOperation>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();

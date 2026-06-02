@@ -1,0 +1,63 @@
+using BuildingBlocks.Domain.Abstractions;
+using BuildingBlocks.Domain.Entity;
+using BuildingBlocks.Domain.Exceptions;
+using Reference.Domain.Errors;
+using Reference.Domain.ValueObjects;
+
+namespace Reference.Domain.Entities;
+
+public class GarmentAccessory : BaseEntity<GarmentAccessoryId>, IAggregateRoot
+{
+    #region Properties
+    public string Name { get; private set; } = null!;
+    public MoneyAmount Price { get; private set; }
+    #endregion
+
+    #region Constructors
+    private GarmentAccessory() { }
+
+    private GarmentAccessory(GarmentAccessoryId id, string name, MoneyAmount price)
+    {
+        SetId(id);
+        SetName(name);
+        SetPrice(price);
+    }
+    #endregion
+
+    #region Factories
+    public static GarmentAccessory Create(GarmentAccessoryId id, string name, MoneyAmount price)
+        => new(id, name, price);
+
+    public void Update(string name, MoneyAmount price)
+    {
+        SetName(name);
+        SetPrice(price);
+    }
+    #endregion
+
+    #region Setters/Validation
+    private void SetId(GarmentAccessoryId id)
+    {
+        if (id.Value == default)
+            throw new DomainException(GarmentAccessoryErrors.IdIsRequired());
+
+        Id = id;
+    }
+
+    private void SetName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new DomainException(GarmentAccessoryErrors.NameIsRequired());
+
+        Name = name.Trim();
+    }
+
+    private void SetPrice(MoneyAmount price)
+    {
+        if (price.Value < 0 || price.Value > 10_000)
+            throw new DomainException(GarmentAccessoryErrors.PriceOutOfRange(0, 10_000));
+
+        Price = price;
+    }
+    #endregion
+}
