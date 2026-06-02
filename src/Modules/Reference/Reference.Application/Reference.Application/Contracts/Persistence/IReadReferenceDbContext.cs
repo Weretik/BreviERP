@@ -6,4 +6,5 @@ public interface IReadReferenceDbContext
 {
     DbSet<AdditionalReference> AdditionalReferences { get; }
     DbSet<Fabric> Fabrics { get; }
+    DbSet<GarmentPart> GarmentParts { get; }
 }

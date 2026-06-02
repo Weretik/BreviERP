@@ -1,9 +1,10 @@
-﻿using BuildingBlocks.Infrastructure.Seeding;
+using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.Entities;
 using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
+using Reference.Infrastructure.Seeders.AdditionalReferences.Rows;
 
-namespace Reference.Infrastructure.Seeders;
+namespace Reference.Infrastructure.Seeders.AdditionalReferences;
 
 public sealed class AdditionalReferenceSeeder(
     ReferenceDbContext db,
@@ -13,7 +14,7 @@ public sealed class AdditionalReferenceSeeder(
 {
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
-        var path = Path.Combine(env.ContentRootPath, "Seeders", "Data", "additional_reference.json");
+        var path = Path.Combine(env.ContentRootPath, "Seeders", "AdditionalReferences", "Data", "additional_reference.json");
         string json = await File.ReadAllTextAsync(path, cancellationToken);
 
         var rows = JsonSerializer.Deserialize<List<AdditionalSeedRow>>(json)

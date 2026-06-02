@@ -3,7 +3,9 @@ using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Application.Contracts.Persistence;
 using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Repositories;
-using Reference.Infrastructure.Seeders;
+using Reference.Infrastructure.Seeders.AdditionalReferences;
+using Reference.Infrastructure.Seeders.Fabrics;
+using Reference.Infrastructure.Seeders.GarmentParts;
 
 namespace Reference.Infrastructure.DependencyInjection;
 
@@ -24,6 +26,7 @@ public static class ReferenceDbContextExtensions
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
         services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
         services.AddScoped<ISeeder, FabricSeeder>();
+        services.AddScoped<ISeeder, GarmentPartSeeder>();
 
         return services;
     }

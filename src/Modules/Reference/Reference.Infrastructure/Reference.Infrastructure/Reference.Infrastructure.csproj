@@ -11,11 +11,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Seeders\Data\additional_reference.json">
+        <Content Include="Seeders\AdditionalReferences\Data\additional_reference.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
-        <Content Include="Seeders\Data\fabric.json">
+        <Content Include="Seeders\Fabrics\Data\fabric.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Include="Seeders\GarmentParts\Data\garment_part.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>

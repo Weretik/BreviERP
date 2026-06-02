@@ -8,6 +8,7 @@ public class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
 {
     public DbSet<AdditionalReference> AdditionalReferences => Set<AdditionalReference>();
     public DbSet<Fabric> Fabrics => Set<Fabric>();
+    public DbSet<GarmentPart> GarmentParts => Set<GarmentPart>();
     public void DiscardChanges() => ChangeTracker.Clear();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -15,6 +16,6 @@ public class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ReferenceDbContext).Assembly,
-            type => type.Namespace?.StartsWith("Infrastructure.Reference") ?? false);
+            type => type.Namespace?.StartsWith("Reference.Infrastructure") ?? false);
     }
 }

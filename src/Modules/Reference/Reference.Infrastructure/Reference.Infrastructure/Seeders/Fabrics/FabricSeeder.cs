@@ -1,9 +1,10 @@
-﻿using BuildingBlocks.Infrastructure.Seeding;
+using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.Entities;
 using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
+using Reference.Infrastructure.Seeders.Fabrics.Rows;
 
-namespace Reference.Infrastructure.Seeders;
+namespace Reference.Infrastructure.Seeders.Fabrics;
 
 public sealed class FabricSeeder(
     ReferenceDbContext db,
@@ -15,11 +16,11 @@ public sealed class FabricSeeder(
     {
         if (await db.Fabrics.AnyAsync(cancellationToken))
         {
-            logger.LogInformation("ℹ️ Fabric already exists, skip seeding.");
+            logger.LogInformation("Fabric already exists, skip seeding.");
             return;
         }
 
-        var path = Path.Combine(env.ContentRootPath, "Seeders", "Data", "fabric.json");
+        var path = Path.Combine(env.ContentRootPath, "Seeders", "Fabrics", "Data", "fabric.json");
         string json = await File.ReadAllTextAsync(path, cancellationToken);
 
         var rows = JsonSerializer.Deserialize<List<FabricSeedRow>>(json)
@@ -39,6 +40,6 @@ public sealed class FabricSeeder(
         await db.Fabrics.AddRangeAsync(list, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("✅ Seeded {Count} Fabric", list.Count);
+        logger.LogInformation("Seeded {Count} Fabric", list.Count);
     }
 }
