@@ -5,13 +5,14 @@ builder.Services.AddHostServices(builder.Configuration);
 
 var app = builder.Build();
 
+await app.RunStartupTasksAsync();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.MapOpenApi();
+    app.MapOpenApi().AllowAnonymous();
 }
 else
 {
