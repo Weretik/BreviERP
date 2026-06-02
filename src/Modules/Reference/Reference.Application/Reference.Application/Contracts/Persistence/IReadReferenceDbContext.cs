@@ -8,4 +8,5 @@ public interface IReadReferenceDbContext
     DbSet<Fabric> Fabrics { get; }
     DbSet<GarmentPart> GarmentParts { get; }
     DbSet<GarmentPartOperation> GarmentPartOperations { get; }
+    DbSet<Supplier> Suppliers { get; }
 }

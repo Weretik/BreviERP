@@ -29,6 +29,12 @@ public static class ReferenceConverters
             v => GarmentPartOperationId.From(v)
         );
 
+    public static readonly ValueConverter<SupplierId, int> SupplierIdConvert =
+        new(
+            id => id.Value,
+            v => SupplierId.From(v)
+        );
+
     public static readonly ValueConverter<Percent, decimal> PercentConvert =
         new(
             p => p.Value,
