@@ -1,11 +1,11 @@
-﻿using Application.Reference.GetAdditionalReference;
 using Reference.Application.Contracts.Persistence;
-using Reference.Application.GetAdditionalReference.Specifications;
-using Reference.Domain.Entities;
+using Reference.Application.Features.AdditionalReference.GetList.DTOs;
+using Reference.Application.Features.AdditionalReference.GetList.Specifications;
+using AdditionalReferenceEntity = Reference.Domain.Entities.AdditionalReference;
 
-namespace Reference.Application.GetAdditionalReference;
+namespace Reference.Application.Features.AdditionalReference.GetList;
 
-public class GetAdditionalReferenceQueryHandler(IReferenceReadRepository<AdditionalReference> repository)
+public class GetAdditionalReferenceQueryHandler(IReferenceReadRepository<AdditionalReferenceEntity> repository)
     : IQueryHandler<GetAdditionalReferenceQuery, Result<List<AdditionalReferenceRowDTO>>>
 {
     public async ValueTask<Result<List<AdditionalReferenceRowDTO>>> Handle(
