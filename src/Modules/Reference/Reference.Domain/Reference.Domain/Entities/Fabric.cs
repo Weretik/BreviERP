@@ -9,7 +9,7 @@ namespace Reference.Domain.Entities;
 public class Fabric : BaseEntity<FabricId>, IAggregateRoot
 {
     #region Properties
-    public string Name { get; private set; }
+    public string Name { get; private set; } = null!;
     public int CounterpartyId { get; private set; }
     public Money Price { get; private set; }
     #endregion
