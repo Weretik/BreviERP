@@ -1,4 +1,4 @@
-using BuildingBlocks.Infrastructure.Seeding;
+﻿using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.Entities;
 using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
@@ -14,32 +14,43 @@ public sealed class FabricSeeder(
 {
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
-        if (await db.Fabrics.AnyAsync(cancellationToken))
-        {
-            logger.LogInformation("Fabric already exists, skip seeding.");
-            return;
-        }
-
         var path = Path.Combine(env.ContentRootPath, "Seeders", "Fabrics", "Data", "fabric.json");
-        string json = await File.ReadAllTextAsync(path, cancellationToken);
+        var json = await File.ReadAllTextAsync(path, cancellationToken);
 
         var rows = JsonSerializer.Deserialize<List<FabricSeedRow>>(json)
                    ?? new List<FabricSeedRow>();
 
-        var list = new List<Fabric>();
+        var existingById = await db.Fabrics
+            .ToDictionaryAsync(x => x.Id.Value, cancellationToken);
+
+        var added = 0;
+        var updated = 0;
 
         foreach (var row in rows)
         {
-            var id = FabricId.From(row.Id);
-            var price = new Money(row.Price, "UAH");
-            var entity = Fabric.Create(id, row.Name, row.CounterpartyId, price);
+            var name = row.Name.Trim();
+            var price = MoneyAmount.From(row.Price);
+            var providerId = SupplierId.From(row.ProviderId);
 
-            list.Add(entity);
+            if (existingById.TryGetValue(row.Id, out var existing))
+            {
+                existing.Update(name, price, providerId);
+                updated++;
+                continue;
+            }
+
+            var entity = Fabric.Create(FabricId.From(row.Id), name, price, providerId);
+
+            await db.Fabrics.AddAsync(entity, cancellationToken);
+            added++;
         }
 
-        await db.Fabrics.AddRangeAsync(list, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Seeded {Count} Fabric", list.Count);
+        logger.LogInformation(
+            "Seeded Fabric. Added: {AddedCount}, Updated: {UpdatedCount}",
+            added,
+            updated);
     }
 }
+

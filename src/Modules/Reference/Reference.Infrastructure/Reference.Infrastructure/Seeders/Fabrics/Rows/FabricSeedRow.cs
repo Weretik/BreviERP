@@ -1,3 +1,3 @@
-namespace Reference.Infrastructure.Seeders.Fabrics.Rows;
+﻿namespace Reference.Infrastructure.Seeders.Fabrics.Rows;
 
-public sealed record FabricSeedRow(int Id, string Name, int CounterpartyId, decimal Price);
+public sealed record FabricSeedRow(int Id, string Name, decimal Price, int ProviderId);
