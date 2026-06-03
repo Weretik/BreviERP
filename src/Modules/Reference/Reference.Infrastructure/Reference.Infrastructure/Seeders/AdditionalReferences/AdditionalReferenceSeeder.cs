@@ -3,13 +3,14 @@ using Reference.Domain.Entities;
 using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Seeders.AdditionalReferences.Rows;
+using Microsoft.Extensions.Hosting;
 
 namespace Reference.Infrastructure.Seeders.AdditionalReferences;
 
 public sealed class AdditionalReferenceSeeder(
     ReferenceDbContext db,
     ILogger<AdditionalReferenceSeeder> logger,
-    IWebHostEnvironment env)
+    IHostEnvironment env)
     : ISeeder
 {
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
@@ -51,3 +52,6 @@ public sealed class AdditionalReferenceSeeder(
             updated);
     }
 }
+
+
+

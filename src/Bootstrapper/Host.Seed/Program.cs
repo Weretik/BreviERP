@@ -3,7 +3,12 @@ using Host.Seed;
 using Microsoft.Extensions.Configuration;
 
 
-var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(args);
+var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(
+    new Microsoft.Extensions.Hosting.HostApplicationBuilderSettings
+    {
+        Args = args,
+        ContentRootPath = AppContext.BaseDirectory
+    });
 
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)

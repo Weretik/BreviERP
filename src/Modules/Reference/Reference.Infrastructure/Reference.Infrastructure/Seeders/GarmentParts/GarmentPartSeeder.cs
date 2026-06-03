@@ -1,15 +1,16 @@
-﻿using BuildingBlocks.Infrastructure.Seeding;
+using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.Entities;
 using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Seeders.GarmentParts.Rows;
+using Microsoft.Extensions.Hosting;
 
 namespace Reference.Infrastructure.Seeders.GarmentParts;
 
 public sealed class GarmentPartSeeder(
     ReferenceDbContext db,
     ILogger<GarmentPartSeeder> logger,
-    IWebHostEnvironment env)
+    IHostEnvironment env)
     : ISeeder
 {
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
@@ -51,3 +52,6 @@ public sealed class GarmentPartSeeder(
             updated);
     }
 }
+
+
+

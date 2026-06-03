@@ -3,13 +3,14 @@ using Reference.Domain.Entities;
 using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Seeders.GarmentAccessories.Rows;
+using Microsoft.Extensions.Hosting;
 
 namespace Reference.Infrastructure.Seeders.GarmentAccessories;
 
 public sealed class GarmentAccessorySeeder(
     ReferenceDbContext db,
     ILogger<GarmentAccessorySeeder> logger,
-    IWebHostEnvironment env)
+    IHostEnvironment env)
     : ISeeder
 {
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
@@ -28,7 +29,19 @@ public sealed class GarmentAccessorySeeder(
 
         foreach (var row in rows)
         {
-            var name = row.Name.Trim();
+            if (row is null)
+            {
+                logger.LogWarning("Skipped empty GarmentAccessory seed row.");
+                continue;
+            }
+
+            var name = row.Name?.Trim();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                logger.LogWarning("Skipped GarmentAccessory seed row {Id} because name is empty.", row.Id);
+                continue;
+            }
+
             var price = MoneyAmount.From(row.Price);
 
             if (existingById.TryGetValue(row.Id, out var existing))
@@ -52,3 +65,6 @@ public sealed class GarmentAccessorySeeder(
             updated);
     }
 }
+
+
+

@@ -1,15 +1,16 @@
-﻿using BuildingBlocks.Infrastructure.Seeding;
+using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Domain.Entities;
 using Reference.Domain.ValueObjects;
 using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Seeders.Suppliers.Rows;
+using Microsoft.Extensions.Hosting;
 
 namespace Reference.Infrastructure.Seeders.Suppliers;
 
 public sealed class SupplierSeeder(
     ReferenceDbContext db,
     ILogger<SupplierSeeder> logger,
-    IWebHostEnvironment env)
+    IHostEnvironment env)
     : ISeeder
 {
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
@@ -51,3 +52,6 @@ public sealed class SupplierSeeder(
             updated);
     }
 }
+
+
+

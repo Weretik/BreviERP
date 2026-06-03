@@ -13,6 +13,36 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>Always</CopyToPublishDirectory>
         </Content>
+        <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\AdditionalReferences\Data\additional_reference.json">
+            <Link>Seeders\AdditionalReferences\Data\additional_reference.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\Fabrics\Data\fabric.json">
+            <Link>Seeders\Fabrics\Data\fabric.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\GarmentAccessories\Data\garment-accessory.json">
+            <Link>Seeders\GarmentAccessories\Data\garment-accessory.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\GarmentParts\Data\garment_part.json">
+            <Link>Seeders\GarmentParts\Data\garment_part.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\GarmentPartOperations\Data\garment_part_operation.json">
+            <Link>Seeders\GarmentPartOperations\Data\garment_part_operation.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+        <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\Suppliers\Data\supplier.json">
+            <Link>Seeders\Suppliers\Data\supplier.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
     </ItemGroup>
     
     <ItemGroup>

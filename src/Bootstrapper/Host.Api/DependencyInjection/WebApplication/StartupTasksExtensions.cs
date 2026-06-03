@@ -7,7 +7,6 @@ public static class StartupTasksExtensions
     public static async Task<AspNetWebApplication> RunStartupTasksAsync(this AspNetWebApplication app)
     {
         await app.UseAppMigrations();
-        await app.UseAppSeeders();
 
         return app;
     }

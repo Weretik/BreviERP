@@ -28,11 +28,12 @@ public static class ReferenceDbContextExtensions
 
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
         services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
+        services.AddScoped<ISeeder, SupplierSeeder>();
         services.AddScoped<ISeeder, FabricSeeder>();
         services.AddScoped<ISeeder, GarmentAccessorySeeder>();
         services.AddScoped<ISeeder, GarmentPartSeeder>();
         services.AddScoped<ISeeder, GarmentPartOperationSeeder>();
-        services.AddScoped<ISeeder, SupplierSeeder>();
+
 
         return services;
     }
