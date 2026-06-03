@@ -7,14 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="Configurations\" />
+      <Folder Include="DataBase\" />
+      <Folder Include="DependencyInjection\" />
       <Folder Include="Migrations\" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="Seeders\Data\counterparties.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </Content>
+      <Folder Include="Repositories\" />
+      <Folder Include="Seeders\Data\" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,5 +1,4 @@
 using Accounting.Infrastructure.DependencyInjection;
-using Crm.Infrastructure.DependencyInjection;
 using Host.Api.DependencyInjection.ServiceRegistration.Options;
 using Identity.Infrastructure.DependencyInjection;
 using Reference.Infrastructure.DependencyInjection;
@@ -18,7 +17,6 @@ public static class ModuleRegistrationsExtensions
         services.AddInfrastructureServices(configuration);
 
         services.AddReferenceInfrastructureServices(configuration);
-        services.AddCrmInfrastructureServices(configuration);
         services.AddAccountingInfrastructureServices(configuration);
 
         return services;

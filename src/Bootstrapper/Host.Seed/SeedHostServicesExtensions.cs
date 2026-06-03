@@ -1,6 +1,5 @@
 ﻿using Accounting.Infrastructure.DependencyInjection;
 using BuildingBlocks.Infrastructure.DependencyInjection;
-using Crm.Infrastructure.DependencyInjection;
 using Identity.Infrastructure.Configuration;
 using Identity.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +20,6 @@ public static class SeedHostServicesExtensions
         services.AddInfrastructureServices(configuration);
 
         services.AddReferenceDbContextServices(configuration);
-        services.AddCrmDbContextServices(configuration);
         services.AddAccountingDbContextServices(configuration);
 
         return services;
