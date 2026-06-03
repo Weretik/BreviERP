@@ -16,6 +16,6 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(AccountingDbContext).Assembly,
-            type => type.Namespace?.StartsWith("Infrastructure.Accounting") ?? false);
+            type => type.Namespace?.StartsWith("Accounting.Infrastructure") ?? false);
     }
 }
