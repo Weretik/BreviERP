@@ -10,6 +10,7 @@ using Reference.Api.Contracts.AdditionalReferences;
 namespace Reference.Api.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/reference/additional-references")]
 public sealed class AdditionalReferencesController(ISender sender) : ControllerBase
 {
