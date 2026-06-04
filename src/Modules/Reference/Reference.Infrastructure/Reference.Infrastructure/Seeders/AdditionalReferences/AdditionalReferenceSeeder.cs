@@ -16,40 +16,36 @@ public sealed class AdditionalReferenceSeeder(
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var path = Path.Combine(env.ContentRootPath, "Seeders", "AdditionalReferences", "Data", "additional_reference.json");
+        if (await db.AdditionalReferences.AnyAsync(cancellationToken))
+        {
+            logger.LogInformation("Skipped AdditionalReference seeding because table already contains data.");
+            return;
+        }
+
         string json = await File.ReadAllTextAsync(path, cancellationToken);
 
-        var rows = JsonSerializer.Deserialize<List<AdditionalSeedRow>>(json)
+        var rows = JsonSerializer.Deserialize<List<AdditionalSeedRow>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        })
                    ?? new List<AdditionalSeedRow>();
-
-        var existingById = await db.AdditionalReferences
-            .ToDictionaryAsync(x => x.Id.Value, cancellationToken);
-
-        var added = 0;
-        var updated = 0;
 
         foreach (var row in rows)
         {
-            var id = AdditionalReferenceId.From(row.Id);
-
-            if (existingById.TryGetValue(row.Id, out var existing))
-            {
-                existing.Update(row.Name, row.Key, row.Value, row.Unit, row.Description);
-                updated++;
-                continue;
-            }
-
-            var entity = AdditionalReference.Create(id, row.Name, row.Key, row.Value, row.Unit, row.Description);
+            var entity = AdditionalReference.Create(
+                AdditionalReferenceId.From(row.Id),
+                row.Name,
+                row.Key,
+                row.Value,
+                row.Unit,
+                row.Description);
 
             await db.AdditionalReferences.AddAsync(entity, cancellationToken);
-            added++;
         }
 
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation(
-            "Seeded AdditionalReference. Added: {AddedCount}, Updated: {UpdatedCount}",
-            added,
-            updated);
+        logger.LogInformation("Seeded AdditionalReference. Added: {AddedCount}", rows.Count);
     }
 }
 

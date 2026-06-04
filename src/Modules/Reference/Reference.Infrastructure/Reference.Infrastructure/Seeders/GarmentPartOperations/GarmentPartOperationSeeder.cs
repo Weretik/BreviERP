@@ -16,28 +16,24 @@ public sealed class GarmentPartOperationSeeder(
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var path = Path.Combine(env.ContentRootPath, "Seeders", "GarmentPartOperations", "Data", "garment_part_operation.json");
+        if (await db.GarmentPartOperations.AnyAsync(cancellationToken))
+        {
+            logger.LogInformation("Skipped GarmentPartOperation seeding because table already contains data.");
+            return;
+        }
+
         var json = await File.ReadAllTextAsync(path, cancellationToken);
 
-        var rows = JsonSerializer.Deserialize<List<GarmentPartOperationSeedRow>>(json)
+        var rows = JsonSerializer.Deserialize<List<GarmentPartOperationSeedRow>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        })
                    ?? new List<GarmentPartOperationSeedRow>();
-
-        var existingById = await db.GarmentPartOperations
-            .ToDictionaryAsync(x => x.Id.Value, cancellationToken);
-
-        var added = 0;
-        var updated = 0;
 
         foreach (var row in rows)
         {
             var name = row.Name.Trim();
             var garmentPartId = GarmentPartId.From(row.GarmentPartId);
-
-            if (existingById.TryGetValue(row.Id, out var existing))
-            {
-                existing.Update(garmentPartId, name, row.Min);
-                updated++;
-                continue;
-            }
 
             var entity = GarmentPartOperation.Create(
                 GarmentPartOperationId.From(row.Id),
@@ -46,15 +42,11 @@ public sealed class GarmentPartOperationSeeder(
                 row.Min);
 
             await db.GarmentPartOperations.AddAsync(entity, cancellationToken);
-            added++;
         }
 
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation(
-            "Seeded GarmentPartOperation. Added: {AddedCount}, Updated: {UpdatedCount}",
-            added,
-            updated);
+        logger.LogInformation("Seeded GarmentPartOperation. Added: {AddedCount}", rows.Count);
     }
 }
 

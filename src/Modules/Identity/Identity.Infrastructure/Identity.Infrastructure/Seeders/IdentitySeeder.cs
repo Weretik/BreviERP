@@ -18,6 +18,12 @@ public class IdentitySeeder(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        if (await userManager.Users.AnyAsync(cancellationToken))
+        {
+            logger.LogInformation("Skipped identity seeding because users table already contains data.");
+            return;
+        }
+
         await SeedAdminUserAsync(cancellationToken);
     }
 

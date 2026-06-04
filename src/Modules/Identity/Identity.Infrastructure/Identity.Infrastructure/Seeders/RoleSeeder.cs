@@ -10,6 +10,12 @@ public class RoleSeeder(RoleManager<AppRole> roleManager, ILogger<RoleSeeder> lo
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        if (await roleManager.Roles.AnyAsync(cancellationToken))
+        {
+            logger.LogInformation("Skipped role seeding because roles table already contains data.");
+            return;
+        }
+
         var roles = new List<AppRole>
         {
             new() { Name = AppRoles.Admin, Description = "Адміністратор системи", Scope = "system", IsSystemRole = true, AccessLevel = 100 },
@@ -37,5 +43,4 @@ public class RoleSeeder(RoleManager<AppRole> roleManager, ILogger<RoleSeeder> lo
         }
     }
 }
-
 

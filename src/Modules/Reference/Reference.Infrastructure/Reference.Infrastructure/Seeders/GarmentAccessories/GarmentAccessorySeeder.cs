@@ -16,16 +16,19 @@ public sealed class GarmentAccessorySeeder(
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var path = Path.Combine(env.ContentRootPath, "Seeders", "GarmentAccessories", "Data", "garment-accessory.json");
+        if (await db.GarmentAccessories.AnyAsync(cancellationToken))
+        {
+            logger.LogInformation("Skipped GarmentAccessory seeding because table already contains data.");
+            return;
+        }
+
         var json = await File.ReadAllTextAsync(path, cancellationToken);
 
-        var rows = JsonSerializer.Deserialize<List<GarmentAccessorySeedRow>>(json)
+        var rows = JsonSerializer.Deserialize<List<GarmentAccessorySeedRow>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        })
                    ?? new List<GarmentAccessorySeedRow>();
-
-        var existingById = await db.GarmentAccessories
-            .ToDictionaryAsync(x => x.Id.Value, cancellationToken);
-
-        var added = 0;
-        var updated = 0;
 
         foreach (var row in rows)
         {
@@ -44,25 +47,14 @@ public sealed class GarmentAccessorySeeder(
 
             var price = MoneyAmount.From(row.Price);
 
-            if (existingById.TryGetValue(row.Id, out var existing))
-            {
-                existing.Update(name, price);
-                updated++;
-                continue;
-            }
-
             var entity = GarmentAccessory.Create(GarmentAccessoryId.From(row.Id), name, price);
 
             await db.GarmentAccessories.AddAsync(entity, cancellationToken);
-            added++;
         }
 
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation(
-            "Seeded GarmentAccessory. Added: {AddedCount}, Updated: {UpdatedCount}",
-            added,
-            updated);
+        logger.LogInformation("Seeded GarmentAccessory. Added: {AddedCount}", rows.Count);
     }
 }
 

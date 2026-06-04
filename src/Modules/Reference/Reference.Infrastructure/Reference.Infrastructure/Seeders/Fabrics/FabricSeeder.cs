@@ -16,16 +16,19 @@ public sealed class FabricSeeder(
     public async Task SeedAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var path = Path.Combine(env.ContentRootPath, "Seeders", "Fabrics", "Data", "fabric.json");
+        if (await db.Fabrics.AnyAsync(cancellationToken))
+        {
+            logger.LogInformation("Skipped Fabric seeding because table already contains data.");
+            return;
+        }
+
         var json = await File.ReadAllTextAsync(path, cancellationToken);
 
-        var rows = JsonSerializer.Deserialize<List<FabricSeedRow>>(json)
+        var rows = JsonSerializer.Deserialize<List<FabricSeedRow>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        })
                    ?? new List<FabricSeedRow>();
-
-        var existingById = await db.Fabrics
-            .ToDictionaryAsync(x => x.Id.Value, cancellationToken);
-
-        var added = 0;
-        var updated = 0;
 
         foreach (var row in rows)
         {
@@ -33,25 +36,14 @@ public sealed class FabricSeeder(
             var price = MoneyAmount.From(row.Price);
             var providerId = SupplierId.From(row.ProviderId);
 
-            if (existingById.TryGetValue(row.Id, out var existing))
-            {
-                existing.Update(name, price, providerId);
-                updated++;
-                continue;
-            }
-
             var entity = Fabric.Create(FabricId.From(row.Id), name, price, providerId);
 
             await db.Fabrics.AddAsync(entity, cancellationToken);
-            added++;
         }
 
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation(
-            "Seeded Fabric. Added: {AddedCount}, Updated: {UpdatedCount}",
-            added,
-            updated);
+        logger.LogInformation("Seeded Fabric. Added: {AddedCount}", rows.Count);
     }
 }
 
