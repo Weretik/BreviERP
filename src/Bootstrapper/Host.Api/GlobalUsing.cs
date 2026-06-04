@@ -2,7 +2,6 @@
 global using BuildingBlocks.Infrastructure.Extensions;
 
 global using Host.Api.DependencyInjection;
-global using Host.Api.DependencyInjection.WebApplication;
 global using Host.Api.DependencyInjection.ServiceRegistration;
 global using Host.Api.DependencyInjection.ServiceRegistration.Observability;
 
