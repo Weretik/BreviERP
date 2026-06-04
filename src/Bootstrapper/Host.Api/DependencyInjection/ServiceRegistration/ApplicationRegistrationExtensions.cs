@@ -1,4 +1,3 @@
-using BuildingBlocks.Application.Behaviors;
 using Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;

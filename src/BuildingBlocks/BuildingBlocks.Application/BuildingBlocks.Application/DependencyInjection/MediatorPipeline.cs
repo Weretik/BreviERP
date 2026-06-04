@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Behaviors;
+using BuildingBlocks.Application.Behaviors;
 
 namespace BuildingBlocks.Application.DependencyInjection;
 
