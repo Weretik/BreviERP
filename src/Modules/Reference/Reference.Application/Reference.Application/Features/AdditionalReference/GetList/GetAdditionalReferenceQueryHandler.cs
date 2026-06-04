@@ -5,7 +5,7 @@ using AdditionalReferenceEntity = Reference.Domain.Entities.AdditionalReference;
 
 namespace Reference.Application.Features.AdditionalReference.GetList;
 
-public class GetAdditionalReferenceQueryHandler(IReferenceReadRepository<AdditionalReferenceEntity> repository)
+public sealed class GetAdditionalReferenceQueryHandler(IReferenceReadRepository<AdditionalReferenceEntity> repository)
     : IQueryHandler<GetAdditionalReferenceQuery, Result<List<AdditionalReferenceRowDTO>>>
 {
     public async ValueTask<Result<List<AdditionalReferenceRowDTO>>> Handle(
