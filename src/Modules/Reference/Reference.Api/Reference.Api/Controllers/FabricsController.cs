@@ -10,7 +10,9 @@ using Reference.Application.Features.Fabric.Update.DTOs;
 namespace Reference.Api.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/reference/fabrics")]
+
 public sealed class FabricsController(ISender sender) : ControllerBase
 {
     [HttpGet]

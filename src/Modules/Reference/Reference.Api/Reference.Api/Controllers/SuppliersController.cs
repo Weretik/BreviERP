@@ -10,6 +10,7 @@ using Reference.Application.Features.Supplier.Update.DTOs;
 namespace Reference.Api.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/reference/suppliers")]
 public sealed class SuppliersController(ISender sender) : ControllerBase
 {

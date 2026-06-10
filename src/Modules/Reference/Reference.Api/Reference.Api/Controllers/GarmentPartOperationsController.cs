@@ -10,6 +10,7 @@ using Reference.Application.Features.GarmentPartOperation.Update.DTOs;
 namespace Reference.Api.Controllers;
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/reference/garment-part-operations")]
 public sealed class GarmentPartOperationsController(ISender sender) : ControllerBase
 {
