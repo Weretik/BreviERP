@@ -8,7 +8,7 @@ internal sealed class AllFabricsSpec : Specification<FabricEntity, FabricProject
     public AllFabricsSpec()
     {
         Query.AsNoTracking()
-            .OrderBy(x => x.Id.Value)
+            .OrderBy(x => x.Id)
             .Select(x => new FabricProjectionDTO(x.Id.Value, x.Name, x.Price.Value, x.ProviderId.Value));
     }
 }

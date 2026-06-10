@@ -8,7 +8,7 @@ public sealed class GetSuppliersSpec : Specification<SupplierEntity, SupplierRow
     public GetSuppliersSpec()
     {
         Query.AsNoTracking()
-            .OrderBy(x => x.Id.Value)
+            .OrderBy(x => x.Id)
             .Select(x => new SupplierRowDTO(x.Id.Value, x.Name, x.Link));
     }
 }

@@ -8,7 +8,7 @@ public sealed class GetGarmentAccessoriesSpec : Specification<GarmentAccessoryEn
     public GetGarmentAccessoriesSpec()
     {
         Query.AsNoTracking()
-            .OrderBy(x => x.Id.Value)
+            .OrderBy(x => x.Id)
             .Select(x => new GarmentAccessoryRowDTO(x.Id.Value, x.Name, x.Price.Value));
     }
 }
