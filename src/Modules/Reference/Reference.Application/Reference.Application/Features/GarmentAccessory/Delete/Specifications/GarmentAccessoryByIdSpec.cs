@@ -1,4 +1,5 @@
 using GarmentAccessoryEntity = Reference.Domain.Entities.GarmentAccessory;
+using Reference.Domain.ValueObjects;
 
 namespace Reference.Application.Features.GarmentAccessory.Delete.Specifications;
 
@@ -6,6 +7,6 @@ public sealed class GarmentAccessoryByIdSpec : Specification<GarmentAccessoryEnt
 {
     public GarmentAccessoryByIdSpec(int id)
     {
-        Query.Where(x => x.Id.Value == id);
+        Query.Where(x => x.Id == GarmentAccessoryId.From(id));
     }
 }
