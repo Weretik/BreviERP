@@ -1,4 +1,5 @@
-﻿using GarmentPartEntity = Reference.Domain.Entities.GarmentPart;
+using GarmentPartEntity = Reference.Domain.Entities.GarmentPart;
+using Reference.Domain.ValueObjects;
 
 namespace Reference.Application.Features.GarmentPart.Update.Specifications;
 
@@ -6,6 +7,6 @@ public sealed class GarmentPartByIdSpec : Specification<GarmentPartEntity>
 {
     public GarmentPartByIdSpec(int id)
     {
-        Query.Where(x => x.Id.Value == id);
+        Query.Where(x => x.Id == GarmentPartId.From(id));
     }
 }
