@@ -1,4 +1,5 @@
 using AdditionalReferenceEntity = Reference.Domain.Entities.AdditionalReference;
+using Reference.Domain.ValueObjects;
 
 namespace Reference.Application.Features.AdditionalReference.Delete.Specifications;
 
@@ -6,6 +7,6 @@ public sealed class AdditionalReferenceByIdSpec : Specification<AdditionalRefere
 {
     public AdditionalReferenceByIdSpec(int id)
     {
-        Query.Where(x => x.Id.Value == id);
+        Query.Where(x => x.Id == AdditionalReferenceId.From(id));
     }
 }
