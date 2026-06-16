@@ -4,6 +4,7 @@ using Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
 using Reference.Application.Features.GarmentPartOperation.GetList.Specifications;
 using GarmentPartEntity = Reference.Domain.Entities.GarmentPart;
 using GarmentPartOperationEntity = Reference.Domain.Entities.GarmentPartOperation;
+using Reference.Domain.ValueObjects;
 
 namespace Reference.Application.Features.GarmentPartOperation.GetList;
 
@@ -25,11 +26,18 @@ public sealed class GetGarmentPartOperationsQueryHandler(
         var garmentPartNamesById = garmentParts.ToDictionary(x => x.Id, x => x.Name);
 
         var result = operations
-            .Select(x => new GarmentPartOperationRowDTO(
-                x.Id,
-                garmentPartNamesById.GetValueOrDefault(x.GarmentPartId, string.Empty),
-                x.Name,
-                x.Min))
+            .Select(x =>
+            {
+                var garmentPartName = garmentPartNamesById.TryGetValue(GarmentPartId.From(x.GarmentPartId), out var name)
+                    ? name
+                    : string.Empty;
+
+                return new GarmentPartOperationRowDTO(
+                    x.Id,
+                    garmentPartName,
+                    x.Name,
+                    x.Min);
+            })
             .ToList();
 
         return Result.Success(result);

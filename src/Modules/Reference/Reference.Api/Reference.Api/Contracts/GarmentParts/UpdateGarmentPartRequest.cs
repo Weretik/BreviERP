@@ -1,3 +1,7 @@
-﻿namespace Reference.Api.Contracts.GarmentParts;
+namespace Reference.Api.Contracts.GarmentParts;
 
-public sealed record UpdateGarmentPartRequest(string Name);
+public sealed record UpdateGarmentPartRequest(
+    string Name,
+    int SupplierId = 1,
+    string? ContactPerson = null,
+    string? PhoneNumber = null);
