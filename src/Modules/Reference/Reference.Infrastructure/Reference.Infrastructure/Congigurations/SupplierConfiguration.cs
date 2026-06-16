@@ -24,5 +24,11 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
 
         builder.Property(x => x.Link)
             .HasMaxLength(2048);
+
+        builder.Property(x => x.ContactPerson)
+            .HasMaxLength(200);
+
+        builder.Property(x => x.PhoneNumber)
+            .HasMaxLength(32);
     }
 }

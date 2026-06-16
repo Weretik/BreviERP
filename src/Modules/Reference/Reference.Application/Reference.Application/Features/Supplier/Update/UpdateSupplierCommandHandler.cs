@@ -1,4 +1,5 @@
-﻿using Reference.Application.Contracts.Persistence;
+using BuildingBlocks.Application.Helpers;
+using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Supplier.Update.Specifications;
 using SupplierEntity = Reference.Domain.Entities.Supplier;
 
@@ -18,6 +19,15 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
 
         var request = command.Request;
         var name = request.Name.Trim();
+        var link = string.IsNullOrWhiteSpace(request.Link) ? null : request.Link.Trim();
+        var contactPerson = string.IsNullOrWhiteSpace(request.ContactPerson) ? null : request.ContactPerson.Trim();
+
+        var phoneNumber = (string?)null;
+        if (!string.IsNullOrWhiteSpace(request.PhoneNumber)
+            && PhoneNumberHelper.TryParse(request.PhoneNumber, out var normalizedPhone))
+        {
+            phoneNumber = normalizedPhone;
+        }
 
         var duplicateExists = await repository.AnyAsync(
             new SupplierByNameExceptIdSpec(command.Id, name), cancellationToken);
@@ -25,7 +35,7 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
         if (duplicateExists)
             return Result.Conflict("Supplier with the same name already exists.");
 
-        entity.Update(name, request.Link);
+        entity.Update(name, link, contactPerson, phoneNumber);
 
         await repository.UpdateAsync(entity, cancellationToken);
 

@@ -11,26 +11,41 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
     #region Properties
     public string Name { get; private set; } = null!;
     public string? Link { get; private set; }
+    public string? ContactPerson { get; private set; }
+    public string? PhoneNumber { get; private set; }
     #endregion
 
     #region Constructors
     private Supplier() { }
 
-    private Supplier(SupplierId id, string name, string? link)
+    private Supplier(SupplierId id, string name, string? link, string? contactPerson, string? phoneNumber)
     {
         SetId(id);
         SetName(name);
         SetLink(link);
+        SetContactPerson(contactPerson);
+        SetPhoneNumber(phoneNumber);
     }
     #endregion
 
     #region Factories
-    public static Supplier Create(SupplierId id, string name, string? link = null) => new(id, name, link);
+    public static Supplier Create(
+        SupplierId id,
+        string name,
+        string? link = null,
+        string? contactPerson = null,
+        string? phoneNumber = null) => new(id, name, link, contactPerson, phoneNumber);
 
-    public void Update(string name, string? link = null)
+    public void Update(
+        string name,
+        string? link = null,
+        string? contactPerson = null,
+        string? phoneNumber = null)
     {
         SetName(name);
         SetLink(link);
+        SetContactPerson(contactPerson);
+        SetPhoneNumber(phoneNumber);
     }
     #endregion
 
@@ -54,6 +69,16 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
     private void SetLink(string? link)
     {
         Link = string.IsNullOrWhiteSpace(link) ? null : link.Trim();
+    }
+
+    private void SetContactPerson(string? contactPerson)
+    {
+        ContactPerson = string.IsNullOrWhiteSpace(contactPerson) ? null : contactPerson.Trim();
+    }
+
+    private void SetPhoneNumber(string? phoneNumber)
+    {
+        PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber.Trim();
     }
     #endregion
 }

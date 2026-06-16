@@ -35,7 +35,12 @@ public sealed class SuppliersController(ISender sender) : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new CreateSupplierCommand(
-            new CreateSupplierCommandRequest(request.Id, request.Name, request.Link));
+            new CreateSupplierCommandRequest(
+                request.Id,
+                request.Name,
+                request.Link,
+                request.ContactPerson,
+                request.PhoneNumber));
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -55,7 +60,11 @@ public sealed class SuppliersController(ISender sender) : ControllerBase
     {
         var command = new UpdateSupplierCommand(
             id,
-            new UpdateSupplierCommandRequest(request.Name, request.Link));
+            new UpdateSupplierCommandRequest(
+                request.Name,
+                request.Link,
+                request.ContactPerson,
+                request.PhoneNumber));
 
         var result = await sender.Send(command, cancellationToken);
 

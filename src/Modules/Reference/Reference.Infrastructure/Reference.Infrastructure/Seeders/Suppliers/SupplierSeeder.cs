@@ -33,8 +33,16 @@ public sealed class SupplierSeeder(
         foreach (var row in rows)
         {
             var name = row.Name.Trim();
+            var link = string.IsNullOrWhiteSpace(row.Link) ? null : row.Link.Trim();
+            var contactPerson = string.IsNullOrWhiteSpace(row.ContactPerson) ? null : row.ContactPerson.Trim();
+            var phoneNumber = string.IsNullOrWhiteSpace(row.PhoneNumber) ? null : row.PhoneNumber.Trim();
 
-            var entity = Supplier.Create(SupplierId.From(row.Id), name, row.Link);
+            var entity = Supplier.Create(
+                SupplierId.From(row.Id),
+                name,
+                link,
+                contactPerson,
+                phoneNumber);
 
             await db.Suppliers.AddAsync(entity, cancellationToken);
         }

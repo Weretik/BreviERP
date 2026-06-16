@@ -1,3 +1,7 @@
-﻿namespace Reference.Application.Features.Supplier.Update.DTOs;
+namespace Reference.Application.Features.Supplier.Update.DTOs;
 
-public sealed record UpdateSupplierCommandRequest(string Name, string? Link);
+public sealed record UpdateSupplierCommandRequest(
+    string Name,
+    string? Link,
+    string? ContactPerson = null,
+    string? PhoneNumber = null);

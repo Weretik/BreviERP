@@ -1,4 +1,6 @@
-﻿namespace Reference.Application.Features.Supplier.Update.Validators;
+using BuildingBlocks.Application.Helpers;
+
+namespace Reference.Application.Features.Supplier.Update.Validators;
 
 public sealed class UpdateSupplierCommandValidator : AbstractValidator<UpdateSupplierCommand>
 {
@@ -15,5 +17,13 @@ public sealed class UpdateSupplierCommandValidator : AbstractValidator<UpdateSup
 
         RuleFor(x => x.Request.Link)
             .MaximumLength(2048);
+
+        RuleFor(x => x.Request.ContactPerson)
+            .MaximumLength(200)
+            .When(x => x.Request is not null && !string.IsNullOrWhiteSpace(x.Request.ContactPerson));
+
+        RuleFor(x => x.Request.PhoneNumber)
+            .Must(phone => string.IsNullOrWhiteSpace(phone) || PhoneNumberHelper.TryParse(phone, out _))
+            .WithMessage("Phone number is invalid.");
     }
 }
