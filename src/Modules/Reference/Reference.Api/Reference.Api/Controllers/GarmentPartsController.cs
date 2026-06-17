@@ -35,12 +35,7 @@ public sealed class GarmentPartsController(ISender sender) : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new CreateGarmentPartCommand(
-            new CreateGarmentPartCommandRequest(
-                request.Id,
-                request.Name,
-                request.SupplierId,
-                request.ContactPerson,
-                request.PhoneNumber));
+            new CreateGarmentPartCommandRequest(request.Id, request.Name));
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -60,11 +55,7 @@ public sealed class GarmentPartsController(ISender sender) : ControllerBase
     {
         var command = new UpdateGarmentPartCommand(
             id,
-            new UpdateGarmentPartCommandRequest(
-                request.Name,
-                request.SupplierId,
-                request.ContactPerson,
-                request.PhoneNumber));
+            new UpdateGarmentPartCommandRequest(request.Name));
 
         var result = await sender.Send(command, cancellationToken);
 
