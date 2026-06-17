@@ -26,5 +26,15 @@ public sealed class GarmentAccessoryConfiguration : IEntityTypeConfiguration<Gar
             .HasConversion(ReferenceConverters.MoneyAmountConvert)
             .HasPrecision(18, 2)
             .IsRequired();
+
+        builder.Property(x => x.SupplierId)
+            .HasConversion(ReferenceConverters.SupplierIdConvert)
+            .HasDefaultValueSql("1")
+            .IsRequired();
+
+        builder.HasOne<Supplier>()
+            .WithMany()
+            .HasForeignKey(x => x.SupplierId)
+            .IsRequired();
     }
 }

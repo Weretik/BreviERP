@@ -3,12 +3,16 @@ using GarmentAccessoryEntity = Reference.Domain.Entities.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.GetList.Specifications;
 
-public sealed class GetGarmentAccessoriesSpec : Specification<GarmentAccessoryEntity, GarmentAccessoryRowDTO>
+internal sealed class GetGarmentAccessoriesSpec : Specification<GarmentAccessoryEntity, GarmentAccessoryProjectionDTO>
 {
     public GetGarmentAccessoriesSpec()
     {
         Query.AsNoTracking()
             .OrderBy(x => x.Id)
-            .Select(x => new GarmentAccessoryRowDTO(x.Id.Value, x.Name, x.Price.Value));
+            .Select(x => new GarmentAccessoryProjectionDTO(
+                x.Id.Value,
+                x.Name,
+                x.Price.Value,
+                x.SupplierId.Value));
     }
 }

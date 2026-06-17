@@ -15,5 +15,9 @@ public sealed class CreateGarmentAccessoryCommandValidator : AbstractValidator<C
 
         RuleFor(x => x.Request.Price)
             .InclusiveBetween(0, 10_000);
+
+        RuleFor(x => x.Request.SupplierName)
+            .NotEmpty()
+            .MaximumLength(200);
     }
 }

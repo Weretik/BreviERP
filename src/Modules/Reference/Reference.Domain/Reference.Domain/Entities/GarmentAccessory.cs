@@ -11,27 +11,34 @@ public class GarmentAccessory : BaseEntity<GarmentAccessoryId>, IAggregateRoot
     #region Properties
     public string Name { get; private set; } = null!;
     public MoneyAmount Price { get; private set; }
+    public SupplierId SupplierId { get; private set; }
     #endregion
 
     #region Constructors
     private GarmentAccessory() { }
 
-    private GarmentAccessory(GarmentAccessoryId id, string name, MoneyAmount price)
+    private GarmentAccessory(GarmentAccessoryId id, string name, MoneyAmount price, int supplierId = 1)
     {
         SetId(id);
         SetName(name);
         SetPrice(price);
+        SetSupplierId(supplierId);
     }
     #endregion
 
     #region Factories
-    public static GarmentAccessory Create(GarmentAccessoryId id, string name, MoneyAmount price)
-        => new(id, name, price);
+    public static GarmentAccessory Create(
+        GarmentAccessoryId id,
+        string name,
+        MoneyAmount price,
+        int supplierId = 1)
+        => new(id, name, price, supplierId);
 
-    public void Update(string name, MoneyAmount price)
+    public void Update(string name, MoneyAmount price, int supplierId = 1)
     {
         SetName(name);
         SetPrice(price);
+        SetSupplierId(supplierId);
     }
     #endregion
 
@@ -58,6 +65,14 @@ public class GarmentAccessory : BaseEntity<GarmentAccessoryId>, IAggregateRoot
             throw new DomainException(GarmentAccessoryErrors.PriceOutOfRange(0, 10_000));
 
         Price = price;
+    }
+
+    private void SetSupplierId(int supplierId)
+    {
+        if (supplierId <= 0)
+            throw new DomainException(GarmentAccessoryErrors.SupplierIdIsRequired());
+
+        SupplierId = Reference.Domain.ValueObjects.SupplierId.From(supplierId);
     }
     #endregion
 }
