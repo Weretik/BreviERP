@@ -28,6 +28,7 @@ public sealed class GetGarmentPartsQueryHandler(
             .Select(x => new GarmentPartRowDTO(
                 x.Id.Value,
                 x.Name,
+                x.SupplierId.Value,
                 supplierNamesById.GetValueOrDefault(x.SupplierId.Value, "-"),
                 x.ContactPerson,
                 x.PhoneNumber))
