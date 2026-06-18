@@ -16,6 +16,7 @@ public sealed class CreateSupplierCommandHandler(IReferenceRepository<SupplierEn
         var name = request.Name.Trim();
         var link = string.IsNullOrWhiteSpace(request.Link) ? null : request.Link.Trim();
         var contactPerson = string.IsNullOrWhiteSpace(request.ContactPerson) ? null : request.ContactPerson.Trim();
+        var notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
 
         var phoneNumber = (string?)null;
         if (!string.IsNullOrWhiteSpace(request.PhoneNumber)
@@ -34,7 +35,8 @@ public sealed class CreateSupplierCommandHandler(IReferenceRepository<SupplierEn
             name,
             link,
             contactPerson,
-            phoneNumber);
+            phoneNumber,
+            notes);
 
         await repository.AddAsync(entity, cancellationToken);
 

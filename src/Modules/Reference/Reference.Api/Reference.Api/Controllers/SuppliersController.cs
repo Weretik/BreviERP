@@ -40,7 +40,8 @@ public sealed class SuppliersController(ISender sender) : ControllerBase
                 request.Name,
                 request.Link,
                 request.ContactPerson,
-                request.PhoneNumber));
+                request.PhoneNumber,
+                request.Notes));
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -64,7 +65,8 @@ public sealed class SuppliersController(ISender sender) : ControllerBase
                 request.Name,
                 request.Link,
                 request.ContactPerson,
-                request.PhoneNumber));
+                request.PhoneNumber,
+                request.Notes));
 
         var result = await sender.Send(command, cancellationToken);
 

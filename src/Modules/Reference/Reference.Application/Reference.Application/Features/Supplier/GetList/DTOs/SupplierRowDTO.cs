@@ -5,4 +5,5 @@ public sealed record SupplierRowDTO(
     string Name,
     string? Link,
     string? ContactPerson,
-    string? PhoneNumber);
+    string? PhoneNumber,
+    string? Notes);

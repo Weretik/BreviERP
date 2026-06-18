@@ -25,5 +25,9 @@ public sealed class CreateSupplierCommandValidator : AbstractValidator<CreateSup
         RuleFor(x => x.Request.PhoneNumber)
             .Must(phone => string.IsNullOrWhiteSpace(phone) || PhoneNumberHelper.TryParse(phone, out _))
             .WithMessage("Phone number is invalid.");
+
+        RuleFor(x => x.Request.Notes)
+            .MaximumLength(500)
+            .When(x => x.Request is not null && !string.IsNullOrWhiteSpace(x.Request.Notes));
     }
 }

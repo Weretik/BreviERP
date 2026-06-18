@@ -21,6 +21,7 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
         var name = request.Name.Trim();
         var link = string.IsNullOrWhiteSpace(request.Link) ? null : request.Link.Trim();
         var contactPerson = string.IsNullOrWhiteSpace(request.ContactPerson) ? null : request.ContactPerson.Trim();
+        var notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
 
         var phoneNumber = (string?)null;
         if (!string.IsNullOrWhiteSpace(request.PhoneNumber)
@@ -35,7 +36,7 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
         if (duplicateExists)
             return Result.Conflict("Supplier with the same name already exists.");
 
-        entity.Update(name, link, contactPerson, phoneNumber);
+        entity.Update(name, link, contactPerson, phoneNumber, notes);
 
         await repository.UpdateAsync(entity, cancellationToken);
 

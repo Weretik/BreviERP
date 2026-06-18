@@ -2,131 +2,157 @@
     {
         "Id":  1,
         "Name":  "Не указан",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  2,
         "Name":  "Временный поставщик",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  3,
         "Name":  "СТАНДАРТ НПП",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  4,
         "Name":  "ТОП ТАЙМ, ТОВ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  5,
         "Name":  "Професійні рішення - ТЕКСТАЙМ ТМ, ТОВ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  6,
         "Name":  "Скай Текс, ТОВ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  7,
         "Name":  "ВИВА трейд",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  8,
         "Name":  "ЛДС ГРУП ТОВ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  9,
         "Name":  "Торговый дом \"ФЛОАРЕ\" ООО",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  10,
         "Name":  "ТРЄЛЄ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  11,
         "Name":  "ІНСАІТ, ТОВ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  12,
         "Name":  "Аделия",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  13,
         "Name":  "Разнобытпродукт",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  14,
         "Name":  "Спецтекстиль",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  15,
         "Name":  "СПЕШЛ ТЕКСТАЙЛ ГРУП",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  16,
         "Name":  "Хіммельтек-Україна",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  17,
         "Name":  "Приват Текс",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  18,
         "Name":  "Мельникова ФОП",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  19,
         "Name":  "ВЕЛТЕКС ХАРЬКОВ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  20,
         "Name":  "ТЕКСІКА",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  21,
         "Name":  "ТЕКСТИЛЬ-КОНТАКТ, ТОВ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  22,
         "Name":  "ЗС Маркет",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  23,
         "Name":  "АВ Центр",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  24,
         "Name":  "КОДАР ВКФ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  25,
         "Name":  "ТК спецодежда",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     },
     {
         "Id":  26,
         "Name":  "Індзахист, ТОВ",
-        "Link":  null
+        "Link":  null,
+        "Notes":  null
     }
 ]

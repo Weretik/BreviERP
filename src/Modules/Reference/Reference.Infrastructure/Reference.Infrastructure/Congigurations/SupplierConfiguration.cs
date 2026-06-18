@@ -30,5 +30,8 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
 
         builder.Property(x => x.PhoneNumber)
             .HasMaxLength(32);
+
+        builder.Property(x => x.Notes)
+            .HasMaxLength(500);
     }
 }
