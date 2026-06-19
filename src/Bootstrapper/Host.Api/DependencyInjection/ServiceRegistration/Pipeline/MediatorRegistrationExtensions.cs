@@ -1,5 +1,5 @@
 using BuildingBlocks.Application;
-using BuildingBlocks.Application.DependencyInjection;
+using BuildingBlocks.Application.Behaviors;
 using Identity.Application;
 using Reference.Application;
 
@@ -20,7 +20,14 @@ public static class MediatorRegistrationExtensions
                 typeof(ApplicationAssemblyMarker).Assembly
             ];
 
-            options.PipelineBehaviors = MediatorPipeline.PipelineBehaviors;
+            options.PipelineBehaviors =
+            [
+                typeof(RequestLoggingBehavior<,>),
+                typeof(PerformanceBehavior<,>),
+                typeof(ValidationBehavior<,>),
+                typeof(ExceptionBehavior<,>),
+                typeof(DomainEventDispatcherBehavior<,>)
+            ];
         });
 
         return services;

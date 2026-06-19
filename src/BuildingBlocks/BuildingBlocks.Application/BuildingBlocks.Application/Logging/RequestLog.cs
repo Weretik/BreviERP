@@ -2,11 +2,11 @@
 
 internal static partial class RequestLog
 {
-    [LoggerMessage(EventId = 1001, Level = LogLevel.Information,
+    [LoggerMessage(EventId = 1001, Level = LogLevel.Debug,
         Message = "ℹ️ Handling {requestName}")]
     public static partial void Handling(ILogger logger, string requestName);
 
-    [LoggerMessage(EventId = 1002, Level = LogLevel.Information,
+    [LoggerMessage(EventId = 1002, Level = LogLevel.Debug,
         Message = "ℹ️ Handled {requestName} in {elapsedMs} ms")]
     public static partial void Handled(ILogger logger, string requestName, long elapsedMs);
 
