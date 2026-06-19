@@ -11,6 +11,7 @@ public class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
     public DbSet<GarmentAccessory> GarmentAccessories => Set<GarmentAccessory>();
     public DbSet<GarmentPart> GarmentParts => Set<GarmentPart>();
     public DbSet<GarmentPartOperation> GarmentPartOperations => Set<GarmentPartOperation>();
+    public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
     public DbSet<Supplier> Suppliers => Set<Supplier>();
     public void DiscardChanges() => ChangeTracker.Clear();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
