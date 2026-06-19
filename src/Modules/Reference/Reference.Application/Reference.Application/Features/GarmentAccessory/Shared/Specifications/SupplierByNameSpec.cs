@@ -1,6 +1,6 @@
 using SupplierEntity = Reference.Domain.Entities.Supplier;
 
-namespace Reference.Application.Features.GarmentAccessory.Create.Specifications;
+namespace Reference.Application.Features.GarmentAccessory.Shared.Specifications;
 
 public sealed class SupplierByNameSpec : Specification<SupplierEntity>
 {

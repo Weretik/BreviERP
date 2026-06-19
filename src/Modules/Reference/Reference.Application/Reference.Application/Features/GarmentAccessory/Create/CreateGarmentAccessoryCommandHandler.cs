@@ -1,5 +1,6 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentAccessory.Create.Specifications;
+using Reference.Application.Features.GarmentAccessory.Shared.Specifications;
 using Reference.Domain.ValueObjects;
 using SupplierEntity = Reference.Domain.Entities.Supplier;
 using GarmentAccessoryEntity = Reference.Domain.Entities.GarmentAccessory;
