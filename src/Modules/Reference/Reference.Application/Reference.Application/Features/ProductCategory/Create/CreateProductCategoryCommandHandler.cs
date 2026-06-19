@@ -19,27 +19,59 @@ public sealed class CreateProductCategoryCommandHandler(IReferenceRepository<Pro
         var slug = request.Slug.Trim();
 
         var idExists = await repository.AnyAsync(new ProductCategoryByIdSpec(request.Id), cancellationToken);
-        if (idExists)
-            return Result.Conflict("Product category with the same id already exists.");
+        var nameExists = await repository.AnyAsync(new ProductCategoryByNameSpec(name), cancellationToken);
+
+        if (idExists || nameExists)
+        {
+            var validationErrors = new List<ValidationError>();
+
+            if (idExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Id",
+                    "Категорія товарів з таким ідентифікатором уже існує."));
+            }
+
+            if (nameExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Name",
+                    "Категорія товарів з такою назвою уже існує."));
+            }
+
+            return Result.Invalid(validationErrors);
+        }
 
         ProductCategoryEntity? parent = null;
         if (request.ParentId.HasValue)
         {
             if (request.ParentId.Value == request.Id)
-                return Result.Conflict("Product category cannot be its own parent.");
+            {
+                return Result.Invalid([new ValidationError(
+                    "Request.ParentId",
+                    "Категорія товарів не може бути власною батьківською категорією.")]);
+            }
 
             parent = await repository.FirstOrDefaultAsync(
                 new ProductCategoryByIdSpec(request.ParentId.Value), cancellationToken);
 
             if (parent is null)
-                return Result.NotFound("Parent product category was not found.");
+            {
+                return Result.Invalid([new ValidationError(
+                    "Request.ParentId",
+                    "Батьківську категорію товарів не знайдено.")]);
+            }
         }
 
         var duplicateSlugExists = await repository.AnyAsync(
             new ProductCategoryByParentAndSlugSpec(request.ParentId, slug), cancellationToken);
 
         if (duplicateSlugExists)
-            return Result.Conflict("Product category with the same parent and slug already exists.");
+        {
+            return Result.Invalid([new ValidationError(
+                "Request.Slug",
+                "Категорія товарів з таким slug уже існує в цій батьківській категорії.")]);
+        }
 
         var entity = ProductCategoryEntity.Create(
             id,

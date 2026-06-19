@@ -15,17 +15,45 @@ public sealed class CreateAdditionalReferenceCommandHandler(
     {
         var request = command.Request;
         var id = AdditionalReferenceId.From(request.Id);
+        var name = request.Name.Trim();
+        var key = request.Key.Trim();
 
-        var exists = await repository.AnyAsync(
-            new AdditionalReferenceByIdKeyOrNameSpec(request.Id, request.Key, request.Name), cancellationToken);
+        var idExists = await repository.AnyAsync(new AdditionalReferenceByIdSpec(request.Id), cancellationToken);
+        var nameExists = await repository.AnyAsync(new AdditionalReferenceByNameSpec(name), cancellationToken);
+        var keyExists = await repository.AnyAsync(new AdditionalReferenceByKeySpec(key), cancellationToken);
 
-        if (exists)
-            return Result.Conflict("Additional reference with the same id, key, or name already exists.");
+        if (idExists || nameExists || keyExists)
+        {
+            var validationErrors = new List<ValidationError>();
+
+            if (idExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Id",
+                    "Додатковий довідник з таким ідентифікатором уже існує."));
+            }
+
+            if (nameExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Name",
+                    "Додатковий довідник з такою назвою уже існує."));
+            }
+
+            if (keyExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Key",
+                    "Додатковий довідник з таким ключем уже існує."));
+            }
+
+            return Result.Invalid(validationErrors);
+        }
 
         var entity = AdditionalReferenceEntity.Create(
             id,
-            request.Name,
-            request.Key,
+            name,
+            key,
             request.Value,
             request.Unit,
             request.Description);

@@ -23,12 +23,35 @@ public sealed class CreateGarmentAccessoryCommandHandler(
             new SupplierByNameSpec(supplierName), cancellationToken);
 
         if (supplier is null)
-            return Result.NotFound("Garment accessory supplier was not found.");
+        {
+            return Result.Invalid([new ValidationError(
+                "Request.SupplierName",
+                "Постачальника фурнітури з такою назвою не знайдено.")]);
+        }
 
-        var exists = await repository.AnyAsync(new GarmentAccessoryByIdOrNameSpec(request.Id, name), cancellationToken);
+        var idExists = await repository.AnyAsync(new GarmentAccessoryByIdSpec(request.Id), cancellationToken);
+        var nameExists = await repository.AnyAsync(new GarmentAccessoryByNameSpec(name), cancellationToken);
 
-        if (exists)
-            return Result.Conflict("Garment accessory with the same id or name already exists.");
+        if (idExists || nameExists)
+        {
+            var validationErrors = new List<ValidationError>();
+
+            if (idExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Id",
+                    "Фурнітура з таким ідентифікатором уже існує."));
+            }
+
+            if (nameExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Name",
+                    "Фурнітура з такою назвою уже існує."));
+            }
+
+            return Result.Invalid(validationErrors);
+        }
 
         var entity = GarmentAccessoryEntity.Create(
             GarmentAccessoryId.From(request.Id),

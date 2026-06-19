@@ -30,7 +30,6 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<int>> Create(
         [FromBody] CreateGarmentPartOperationRequest request,
         CancellationToken cancellationToken)
@@ -82,4 +81,3 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
         return this.ToActionResult(result);
     }
 }
-

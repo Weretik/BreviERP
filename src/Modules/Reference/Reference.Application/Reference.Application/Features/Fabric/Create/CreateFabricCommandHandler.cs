@@ -22,12 +22,35 @@ public sealed class CreateFabricCommandHandler(
         var supplier = await supplierRepository.FirstOrDefaultAsync(new SupplierByNameSpec(providerName), cancellationToken);
 
         if (supplier is null)
-            return Result.NotFound("Fabric provider was not found.");
+        {
+            return Result.Invalid([new ValidationError(
+                "Request.ProviderName",
+                "Постачальника тканини з такою назвою не знайдено.")]);
+        }
 
-        var exists = await repository.AnyAsync(new FabricByIdOrNameSpec(request.Id, name), cancellationToken);
+        var idExists = await repository.AnyAsync(new FabricByIdSpec(request.Id), cancellationToken);
+        var nameExists = await repository.AnyAsync(new FabricByNameSpec(name), cancellationToken);
 
-        if (exists)
-            return Result.Conflict("Fabric with the same id or name already exists.");
+        if (idExists || nameExists)
+        {
+            var validationErrors = new List<ValidationError>();
+
+            if (idExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Id",
+                    "Тканина з таким ідентифікатором уже існує."));
+            }
+
+            if (nameExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Name",
+                    "Тканина з такою назвою уже існує."));
+            }
+
+            return Result.Invalid(validationErrors);
+        }
 
         var entity = FabricEntity.Create(
             FabricId.From(request.Id),
@@ -40,5 +63,3 @@ public sealed class CreateFabricCommandHandler(
         return Result.Success(entity.Id.Value);
     }
 }
-
-

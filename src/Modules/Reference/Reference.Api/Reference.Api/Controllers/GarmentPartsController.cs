@@ -29,7 +29,6 @@ public sealed class GarmentPartsController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<int>> Create(
         [FromBody] CreateGarmentPartRequest request,
         CancellationToken cancellationToken)

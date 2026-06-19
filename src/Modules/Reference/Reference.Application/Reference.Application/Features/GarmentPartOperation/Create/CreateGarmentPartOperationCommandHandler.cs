@@ -23,13 +23,37 @@ public sealed class CreateGarmentPartOperationCommandHandler(
             new GarmentPartByNameSpec(garmentPartName), cancellationToken);
 
         if (garmentPart is null)
-            return Result.NotFound("Garment part was not found.");
+        {
+            return Result.Invalid([new ValidationError(
+                "Request.GarmentPartName",
+                "Частину виробу з такою назвою не знайдено.")]);
+        }
 
-        var exists = await repository.AnyAsync(
-            new GarmentPartOperationByIdOrPartAndNameSpec(request.Id, garmentPart.Id.Value, name), cancellationToken);
+        var idExists = await repository.AnyAsync(
+            new GarmentPartOperationByIdSpec(request.Id), cancellationToken);
+        var nameExists = await repository.AnyAsync(
+            new GarmentPartOperationByPartAndNameSpec(garmentPart.Id.Value, name), cancellationToken);
 
-        if (exists)
-            return Result.Conflict("Garment part operation with the same id or name for this garment part already exists.");
+        if (idExists || nameExists)
+        {
+            var validationErrors = new List<ValidationError>();
+
+            if (idExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Id",
+                    "Операція частини виробу з таким ідентифікатором уже існує."));
+            }
+
+            if (nameExists)
+            {
+                validationErrors.Add(new ValidationError(
+                    "Request.Name",
+                    "Операція з такою назвою вже існує для цієї частини виробу."));
+            }
+
+            return Result.Invalid(validationErrors);
+        }
 
         var entity = GarmentPartOperationEntity.Create(
             GarmentPartOperationId.From(request.Id),
