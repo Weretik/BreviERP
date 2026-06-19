@@ -5,6 +5,7 @@ public sealed class DeleteGarmentAccessoryCommandValidator : AbstractValidator<D
     public DeleteGarmentAccessoryCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0);
+            .GreaterThan(0)
+            .WithMessage("Ідентифікатор фурнітури має бути більшим за 0.");
     }
 }

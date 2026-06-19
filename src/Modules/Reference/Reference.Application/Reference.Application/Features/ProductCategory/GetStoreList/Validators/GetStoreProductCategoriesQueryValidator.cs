@@ -7,9 +7,11 @@ public sealed class GetStoreProductCategoriesQueryValidator : AbstractValidator<
     public GetStoreProductCategoriesQueryValidator()
     {
         RuleFor(x => x.Language)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty()
+            .WithMessage("Мова категорій товарів є обов'язковою.")
             .Must(language => !string.IsNullOrWhiteSpace(language)
                               && SupportedLanguages.Contains(language.Trim().ToLowerInvariant()))
-            .WithMessage("Language must be 'uk' or 'ru'.");
+            .WithMessage("Мова категорій товарів має бути 'uk' або 'ru'.");
     }
 }

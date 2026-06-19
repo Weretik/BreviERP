@@ -9,28 +9,46 @@ public sealed class UpdateAdditionalReferenceCommandValidator : AbstractValidato
     public UpdateAdditionalReferenceCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0);
+            .GreaterThan(0)
+            .WithMessage("Ідентифікатор додаткового довідника має бути більшим за 0.");
 
-        RuleFor(x => x.Request).NotNull();
+        RuleFor(x => x.Request)
+            .NotNull()
+            .WithMessage("Запит на оновлення додаткового довідника не може бути порожнім.");
 
-        RuleFor(x => x.Request.Name)
-            .NotEmpty()
-            .MaximumLength(100);
+        When(x => x.Request is not null, () =>
+        {
+            RuleFor(x => x.Request.Name)
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty()
+                .WithMessage("Назва додаткового довідника є обов'язковою.")
+                .MaximumLength(100)
+                .WithMessage("Назва додаткового довідника не може перевищувати 100 символів.");
 
-        RuleFor(x => x.Request.Key)
-            .NotEmpty()
-            .MaximumLength(100);
+            RuleFor(x => x.Request.Key)
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty()
+                .WithMessage("Ключ додаткового довідника є обов'язковим.")
+                .MaximumLength(100)
+                .WithMessage("Ключ додаткового довідника не може перевищувати 100 символів.");
 
-        RuleFor(x => x.Request.Value)
-            .GreaterThanOrEqualTo(0);
+            RuleFor(x => x.Request.Value)
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("Значення додаткового довідника не може бути від'ємним.");
 
-        RuleFor(x => x.Request.Unit)
-            .NotEmpty()
-            .MaximumLength(5)
-            .Must(unit => AllowedUnits.Contains(unit))
-            .WithMessage("Unit must be one of: шт., грн., %");
+            RuleFor(x => x.Request.Unit)
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty()
+                .WithMessage("Одиниця виміру є обов'язковою.")
+                .MaximumLength(5)
+                .WithMessage("Одиниця виміру не може перевищувати 5 символів.")
+                .Must(unit => AllowedUnits.Contains(unit))
+                .WithMessage("Одиниця виміру має бути однією з: шт., грн., %.");
 
-        RuleFor(x => x.Request.Description)
-            .MaximumLength(255);
+            RuleFor(x => x.Request.Description)
+                .MaximumLength(255)
+                .WithMessage("Опис додаткового довідника не може перевищувати 255 символів.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Request.Description));
+        });
     }
 }

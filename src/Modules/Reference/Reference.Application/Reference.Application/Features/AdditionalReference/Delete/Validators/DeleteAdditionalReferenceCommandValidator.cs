@@ -7,6 +7,7 @@ public sealed class DeleteAdditionalReferenceCommandValidator : AbstractValidato
     public DeleteAdditionalReferenceCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0);
+            .GreaterThan(0)
+            .WithMessage("Ідентифікатор додаткового довідника має бути більшим за 0.");
     }
 }

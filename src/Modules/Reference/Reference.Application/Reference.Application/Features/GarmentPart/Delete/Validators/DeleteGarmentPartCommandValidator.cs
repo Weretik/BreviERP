@@ -5,6 +5,7 @@ public sealed class DeleteGarmentPartCommandValidator : AbstractValidator<Delete
     public DeleteGarmentPartCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0);
+            .GreaterThan(0)
+            .WithMessage("Ідентифікатор частини виробу має бути більшим за 0.");
     }
 }

@@ -5,6 +5,7 @@ public sealed class DeleteFabricCommandValidator : AbstractValidator<DeleteFabri
     public DeleteFabricCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0);
+            .GreaterThan(0)
+            .WithMessage("Ідентифікатор тканини має бути більшим за 0.");
     }
 }
