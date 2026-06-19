@@ -1,6 +1,7 @@
 using BuildingBlocks.Application.Helpers;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Supplier.Update.Specifications;
+using Ardalis.Result;
 using SupplierEntity = Reference.Domain.Entities.Supplier;
 
 namespace Reference.Application.Features.Supplier.Update;
@@ -34,7 +35,11 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
             new SupplierByNameExceptIdSpec(command.Id, name), cancellationToken);
 
         if (duplicateExists)
-            return Result.Conflict("Supplier with the same name already exists.");
+        {
+            return Result.Invalid([new ValidationError(
+                "Request.Name",
+                "Постачальник з такою назвою уже існує.")]);
+        }
 
         entity.Update(name, link, contactPerson, phoneNumber, notes);
 

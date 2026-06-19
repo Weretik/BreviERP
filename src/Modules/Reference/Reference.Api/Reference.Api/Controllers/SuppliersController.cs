@@ -29,7 +29,6 @@ public sealed class SuppliersController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<int>> Create(
         [FromBody] CreateSupplierRequest request,
         CancellationToken cancellationToken)
@@ -53,7 +52,6 @@ public sealed class SuppliersController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult> Update(
         [FromRoute] int id,
         [FromBody] UpdateSupplierRequest request,

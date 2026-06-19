@@ -3,12 +3,12 @@
 public static class SupplierErrors
 {
     public static ReferenceDomainError IdIsRequired() =>
-        new("Reference.Supplier.Id.Required", "Supplier id must be provided");
+        new("Reference.Supplier.Id.Required", "Ідентифікатор постачальника є обов'язковим.");
 
     public static ReferenceDomainError NameIsRequired() =>
-        new("Reference.Supplier.Name.Required", "Supplier name is required");
+        new("Reference.Supplier.Name.Required", "Назва постачальника є обов'язковою.");
 
     public static ReferenceDomainError NotesLengthInvalid(int length) =>
         new("Reference.Supplier.Notes.LengthInvalid",
-            $"Supplier notes length must be at most 500 characters. Actual:{length}");
+            $"Довжина приміток постачальника не може перевищувати 500 символів. Поточна довжина: {length}");
 }
