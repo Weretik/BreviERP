@@ -1,4 +1,5 @@
 using BuildingBlocks.Application;
+using Catalog.Application;
 using BuildingBlocks.Application.Behaviors;
 using Identity.Application;
 using Reference.Application;
@@ -16,6 +17,7 @@ public static class MediatorRegistrationExtensions
             options.Assemblies =
             [
                 typeof(IdentityApplicationAssemblyMarker).Assembly,
+                typeof(CatalogApplicationAssemblyMarker).Assembly,
                 typeof(ReferenceApplicationAssemblyMarker).Assembly,
                 typeof(ApplicationAssemblyMarker).Assembly
             ];
