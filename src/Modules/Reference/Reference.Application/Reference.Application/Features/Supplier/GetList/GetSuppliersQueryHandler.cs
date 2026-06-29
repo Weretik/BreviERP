@@ -1,7 +1,7 @@
-﻿using Reference.Application.Contracts.Persistence;
+using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Supplier.GetList.DTOs;
 using Reference.Application.Features.Supplier.GetList.Specifications;
-using SupplierEntity = Reference.Domain.Entities.Supplier;
+using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 
 namespace Reference.Application.Features.Supplier.GetList;
 

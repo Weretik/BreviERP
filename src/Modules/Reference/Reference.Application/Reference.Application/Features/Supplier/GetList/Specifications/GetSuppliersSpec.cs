@@ -1,5 +1,5 @@
 using Reference.Application.Features.Supplier.GetList.DTOs;
-using SupplierEntity = Reference.Domain.Entities.Supplier;
+using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 
 namespace Reference.Application.Features.Supplier.GetList.Specifications;
 

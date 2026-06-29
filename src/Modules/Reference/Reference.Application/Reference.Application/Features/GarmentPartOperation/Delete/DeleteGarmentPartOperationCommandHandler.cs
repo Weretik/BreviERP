@@ -1,6 +1,6 @@
-﻿using Reference.Application.Contracts.Persistence;
+using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPartOperation.Delete.Specifications;
-using GarmentPartOperationEntity = Reference.Domain.Entities.GarmentPartOperation;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
 
 namespace Reference.Application.Features.GarmentPartOperation.Delete;
 

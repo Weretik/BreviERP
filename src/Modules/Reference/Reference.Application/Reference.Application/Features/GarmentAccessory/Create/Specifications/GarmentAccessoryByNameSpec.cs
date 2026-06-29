@@ -1,4 +1,4 @@
-using GarmentAccessoryEntity = Reference.Domain.Entities.GarmentAccessory;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.Create.Specifications;
 

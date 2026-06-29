@@ -1,7 +1,11 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.AdditionalReference.Create.Specifications;
-using Reference.Domain.ValueObjects;
-using AdditionalReferenceEntity = Reference.Domain.Entities.AdditionalReference;
+using Reference.Domain.AdditionalReferences.ValueObjects;
+using Reference.Domain.GarmentAccessories.ValueObjects;
+using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.Products.ValueObjects;
+using Reference.Domain.Suppliers.ValueObjects;
+using AdditionalReferenceEntity = Reference.Domain.AdditionalReferences.Entities.AdditionalReference;
 
 namespace Reference.Application.Features.AdditionalReference.Create;
 

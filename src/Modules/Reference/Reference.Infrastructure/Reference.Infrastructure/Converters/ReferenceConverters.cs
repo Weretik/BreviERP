@@ -1,6 +1,9 @@
-﻿using Domain.Reference.ValueObjects;
+using Reference.Domain.GarmentPartOperations.ValueObjects;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Reference.Domain.ValueObjects;
+using Reference.Domain.AdditionalReferences.ValueObjects;
+using Reference.Domain.GarmentAccessories.ValueObjects;
+using Reference.Domain.Products.ValueObjects;
+using Reference.Domain.Suppliers.ValueObjects;
 
 namespace Reference.Infrastructure.Converters;
 

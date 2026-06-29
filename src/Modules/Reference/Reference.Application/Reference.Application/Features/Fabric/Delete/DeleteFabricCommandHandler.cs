@@ -1,6 +1,6 @@
-﻿using Reference.Application.Contracts.Persistence;
+using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Fabric.Delete.Specifications;
-using FabricEntity = Reference.Domain.Entities.Fabric;
+using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
 
 namespace Reference.Application.Features.Fabric.Delete;
 

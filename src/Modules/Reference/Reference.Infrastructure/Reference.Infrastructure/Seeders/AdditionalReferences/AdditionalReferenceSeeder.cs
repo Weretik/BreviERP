@@ -1,6 +1,14 @@
 using BuildingBlocks.Infrastructure.Seeding;
-using Reference.Domain.Entities;
-using Reference.Domain.ValueObjects;
+using Reference.Domain.AdditionalReferences.Entities;
+using Reference.Domain.GarmentAccessories.Entities;
+using Reference.Domain.GarmentPartOperations.Entities;
+using Reference.Domain.Products.Entities;
+using Reference.Domain.Suppliers.Entities;
+using Reference.Domain.AdditionalReferences.ValueObjects;
+using Reference.Domain.GarmentAccessories.ValueObjects;
+using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.Products.ValueObjects;
+using Reference.Domain.Suppliers.ValueObjects;
 using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Seeders.AdditionalReferences.Rows;
 using Microsoft.Extensions.Hosting;

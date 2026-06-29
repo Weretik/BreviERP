@@ -1,5 +1,5 @@
 using Reference.Application.Features.GarmentAccessory.GetList.DTOs;
-using GarmentAccessoryEntity = Reference.Domain.Entities.GarmentAccessory;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.GetList.Specifications;
 

@@ -1,9 +1,9 @@
-﻿using Reference.Application.Contracts.Persistence;
+using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Fabric.GetList.DTOs;
 using Reference.Application.Features.Fabric.GetList.Specifications;
 using Reference.Application.Features.Supplier.GetList.Specifications;
-using SupplierEntity = Reference.Domain.Entities.Supplier;
-using FabricEntity = Reference.Domain.Entities.Fabric;
+using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
+using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
 
 namespace Reference.Application.Features.Fabric.GetList;
 
@@ -29,7 +29,7 @@ public sealed class GetAllFabricQueryHandler(
                 f.Id,
                 f.Name,
                 f.Price,
-                supplierNamesById.GetValueOrDefault(f.ProviderId, "—")))
+                supplierNamesById.GetValueOrDefault(f.ProviderId, "�")))
             .ToList();
 
         return Result.Success(result);

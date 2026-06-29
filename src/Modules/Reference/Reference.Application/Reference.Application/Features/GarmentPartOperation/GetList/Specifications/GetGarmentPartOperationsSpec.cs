@@ -1,5 +1,5 @@
-﻿using Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
-using GarmentPartOperationEntity = Reference.Domain.Entities.GarmentPartOperation;
+using Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
 
 namespace Reference.Application.Features.GarmentPartOperation.GetList.Specifications;
 

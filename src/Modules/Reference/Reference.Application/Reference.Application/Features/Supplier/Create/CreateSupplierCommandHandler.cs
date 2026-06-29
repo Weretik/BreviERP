@@ -2,7 +2,7 @@ using Ardalis.Result;
 using BuildingBlocks.Application.Helpers;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Supplier.Create.Specifications;
-using SupplierEntity = Reference.Domain.Entities.Supplier;
+using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 
 namespace Reference.Application.Features.Supplier.Create;
 
@@ -51,7 +51,7 @@ public sealed class CreateSupplierCommandHandler(IReferenceRepository<SupplierEn
         }
 
         var entity = SupplierEntity.Create(
-            Reference.Domain.ValueObjects.SupplierId.From(request.Id),
+            Reference.Domain.Suppliers.ValueObjects.SupplierId.From(request.Id),
             name,
             link,
             contactPerson,

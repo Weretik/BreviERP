@@ -1,8 +1,12 @@
-﻿using Reference.Application.Contracts.Persistence;
+using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Fabric.Create.Specifications;
-using Reference.Domain.ValueObjects;
-using SupplierEntity = Reference.Domain.Entities.Supplier;
-using FabricEntity = Reference.Domain.Entities.Fabric;
+using Reference.Domain.AdditionalReferences.ValueObjects;
+using Reference.Domain.GarmentAccessories.ValueObjects;
+using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.Products.ValueObjects;
+using Reference.Domain.Suppliers.ValueObjects;
+using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
+using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
 
 namespace Reference.Application.Features.Fabric.Create;
 
@@ -25,7 +29,7 @@ public sealed class CreateFabricCommandHandler(
         {
             return Result.Invalid([new ValidationError(
                 "Request.ProviderName",
-                "Постачальника тканини з такою назвою не знайдено.")]);
+                "������������� ������� � ����� ������ �� ��������.")]);
         }
 
         var idExists = await repository.AnyAsync(new FabricByIdSpec(request.Id), cancellationToken);
@@ -39,14 +43,14 @@ public sealed class CreateFabricCommandHandler(
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Id",
-                    "Тканина з таким ідентифікатором уже існує."));
+                    "������� � ����� �������������� ��� ����."));
             }
 
             if (nameExists)
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Name",
-                    "Тканина з такою назвою уже існує."));
+                    "������� � ����� ������ ��� ����."));
             }
 
             return Result.Invalid(validationErrors);

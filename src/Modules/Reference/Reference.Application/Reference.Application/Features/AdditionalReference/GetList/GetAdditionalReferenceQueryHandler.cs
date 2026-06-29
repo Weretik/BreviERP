@@ -1,7 +1,7 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.AdditionalReference.GetList.DTOs;
 using Reference.Application.Features.AdditionalReference.GetList.Specifications;
-using AdditionalReferenceEntity = Reference.Domain.Entities.AdditionalReference;
+using AdditionalReferenceEntity = Reference.Domain.AdditionalReferences.Entities.AdditionalReference;
 
 namespace Reference.Application.Features.AdditionalReference.GetList;
 

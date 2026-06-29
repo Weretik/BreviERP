@@ -1,6 +1,6 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPart.Update.Specifications;
-using GarmentPartEntity = Reference.Domain.Entities.GarmentPart;
+using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
 
 namespace Reference.Application.Features.GarmentPart.Update;
 

@@ -1,6 +1,6 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.AdditionalReference.Update.Specifications;
-using AdditionalReferenceEntity = Reference.Domain.Entities.AdditionalReference;
+using AdditionalReferenceEntity = Reference.Domain.AdditionalReferences.Entities.AdditionalReference;
 
 namespace Reference.Application.Features.AdditionalReference.Update;
 

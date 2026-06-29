@@ -1,5 +1,9 @@
-﻿using Reference.Application.Contracts.Persistence;
-using Reference.Domain.Entities;
+using Reference.Application.Contracts.Persistence;
+using Reference.Domain.AdditionalReferences.Entities;
+using Reference.Domain.GarmentAccessories.Entities;
+using Reference.Domain.GarmentPartOperations.Entities;
+using Reference.Domain.Products.Entities;
+using Reference.Domain.Suppliers.Entities;
 
 namespace Reference.Infrastructure.DataBase;
 

@@ -1,4 +1,4 @@
-using SupplierEntity = Reference.Domain.Entities.Supplier;
+using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 
 namespace Reference.Application.Features.Supplier.Create.Specifications;
 

@@ -2,8 +2,8 @@ using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentAccessory.GetList.DTOs;
 using Reference.Application.Features.GarmentAccessory.GetList.Specifications;
 using Reference.Application.Features.Supplier.GetList.Specifications;
-using SupplierEntity = Reference.Domain.Entities.Supplier;
-using GarmentAccessoryEntity = Reference.Domain.Entities.GarmentAccessory;
+using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.GetList;
 

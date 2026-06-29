@@ -1,7 +1,7 @@
-﻿using Reference.Application.Contracts.Persistence;
+using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Fabric.Update.Specifications;
-using SupplierEntity = Reference.Domain.Entities.Supplier;
-using FabricEntity = Reference.Domain.Entities.Fabric;
+using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
+using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
 
 namespace Reference.Application.Features.Fabric.Update;
 
