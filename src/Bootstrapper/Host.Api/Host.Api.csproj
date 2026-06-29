@@ -31,6 +31,9 @@
       <ProjectReference Include="..\..\Modules\Accounting\Accounting.Api\Accounting.Api\Accounting.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Accounting\Accounting.Application\Accounting.Application\Accounting.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Accounting\Accounting.Infrastructure\Accounting.Infrastructure\Accounting.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Catalog\Catalog.Api\Catalog.Api\Catalog.Api.csproj" />
+      <ProjectReference Include="..\..\Modules\Catalog\Catalog.Application\Catalog.Application\Catalog.Application.csproj" />
+      <ProjectReference Include="..\..\Modules\Catalog\Catalog.Infrastructure\Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Crm\Crm.Api\Crm.Api\Crm.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Crm\Crm.Application\Crm.Application\Crm.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Crm\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
