@@ -13,7 +13,26 @@ public sealed class GetStoreProductCategoriesQueryHandler(IReferenceReadReposito
         CancellationToken cancellationToken)
     {
         var language = query.Language.Trim().ToLowerInvariant();
-        var result = await repository.ListAsync(new GetStoreProductCategoriesSpec(language), cancellationToken);
+        var categories = await repository.ListAsync(new GetStoreProductCategoriesSpec(language), cancellationToken);
+        var hiddenCategoryIds = new HashSet<int>();
+        var result = new List<StoreProductCategoryRowDTO>();
+
+        foreach (var category in categories)
+        {
+            var parentIsHidden = category.ParentId.HasValue && hiddenCategoryIds.Contains(category.ParentId.Value);
+            if (!category.IsActive || parentIsHidden)
+            {
+                hiddenCategoryIds.Add(category.Id);
+                continue;
+            }
+
+            result.Add(new StoreProductCategoryRowDTO(
+                category.Id,
+                category.Name,
+                category.Slug,
+                category.ParentId,
+                category.Level));
+        }
 
         if (result is { Count: 0 })
             return Result.NotFound();

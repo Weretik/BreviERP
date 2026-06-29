@@ -33,4 +33,7 @@ public static class ProductCategoryErrors
 
     public static ReferenceDomainError PathLengthInvalid(int maxLength) =>
         new("Reference.ProductCategory.Path.LengthInvalid", $"Product category path must be {maxLength} characters or less");
+
+    public static ReferenceDomainError PathAncestorMismatch() =>
+        new("Reference.ProductCategory.Path.AncestorMismatch", "Product category path does not belong to the expected ancestor path");
 }

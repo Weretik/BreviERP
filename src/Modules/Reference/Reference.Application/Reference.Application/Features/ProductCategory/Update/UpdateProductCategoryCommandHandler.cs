@@ -36,23 +36,22 @@ public sealed class UpdateProductCategoryCommandHandler(IReferenceRepository<Pro
 
             if (parent is null)
                 return Result.NotFound("Parent product category was not found.");
+
+            if (parent.Path.StartsWith(entity.Path, StringComparison.Ordinal))
+                return Result.Conflict("Product category cannot be moved under its own descendant.");
         }
 
         var parentChanged = entity.ParentId?.Value != request.ParentId;
-        if (parentChanged)
-        {
-            var hasChildren = await repository.AnyAsync(
-                new ProductCategoryHasChildrenSpec(command.Id), cancellationToken);
-
-            if (hasChildren)
-                return Result.Conflict("Product category with children cannot be moved.");
-        }
-
         var duplicateSlugExists = await repository.AnyAsync(
             new ProductCategoryByParentAndSlugExceptIdSpec(command.Id, request.ParentId, slug), cancellationToken);
 
         if (duplicateSlugExists)
             return Result.Conflict("Product category with the same parent and slug already exists.");
+
+        var oldPath = entity.Path;
+        List<ProductCategoryEntity> descendants = parentChanged
+            ? await repository.ListAsync(new ProductCategoryDescendantsByPathSpec(command.Id, oldPath), cancellationToken)
+            : [];
 
         entity.Update(
             request.Name.Trim(),
@@ -69,7 +68,20 @@ public sealed class UpdateProductCategoryCommandHandler(IReferenceRepository<Pro
                 parent?.Path);
         }
 
-        await repository.UpdateAsync(entity, cancellationToken);
+        if (parentChanged && descendants.Count > 0)
+        {
+            foreach (var descendant in descendants)
+            {
+                descendant.RebasePath(oldPath, entity.Path);
+            }
+
+            descendants.Insert(0, entity);
+            await repository.UpdateRangeAsync(descendants, cancellationToken);
+        }
+        else
+        {
+            await repository.UpdateAsync(entity, cancellationToken);
+        }
 
         return Result.Success();
     }

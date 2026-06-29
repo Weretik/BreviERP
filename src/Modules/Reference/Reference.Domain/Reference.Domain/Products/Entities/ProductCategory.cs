@@ -84,6 +84,22 @@ public class ProductCategory : BaseEntity<ProductCategoryId>, IAggregateRoot
     {
         SetParent(parentId, parentPath);
     }
+
+    public void RebasePath(string oldAncestorPath, string newAncestorPath)
+    {
+        var normalizedOldAncestorPath = NormalizeParentPath(oldAncestorPath);
+        var normalizedNewAncestorPath = NormalizeParentPath(newAncestorPath);
+
+        if (!Path.StartsWith(normalizedOldAncestorPath, StringComparison.Ordinal))
+            throw new DomainException(ProductCategoryErrors.PathAncestorMismatch());
+
+        Path = $"{normalizedNewAncestorPath}{Path[normalizedOldAncestorPath.Length..]}";
+
+        if (Path.Length > PathMaxLength)
+            throw new DomainException(ProductCategoryErrors.PathLengthInvalid(PathMaxLength));
+
+        Level = Path.Count(x => x == '/') - 2;
+    }
     #endregion
 
     #region Setters/Validation
