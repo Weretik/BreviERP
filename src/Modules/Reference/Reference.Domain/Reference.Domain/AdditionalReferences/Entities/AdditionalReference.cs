@@ -8,7 +8,7 @@ namespace Reference.Domain.AdditionalReferences.Entities;
 
 public class AdditionalReference : BaseEntity<AdditionalReferenceId>, IAggregateRoot
 {
-    private static readonly string[] AllowedUnits = ["��.", "���.", "%"];
+    private static readonly string[] AllowedUnits = ["шт.", "грн.", "%"];
 
     #region Properties
     public string Name { get; private set; } = null!;
