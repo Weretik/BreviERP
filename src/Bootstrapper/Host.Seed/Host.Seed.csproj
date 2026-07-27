@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -38,7 +38,7 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>Always</CopyToPublishDirectory>
         </Content>
-        <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\ProductCategories\Data\product_category.json">
+        <Content Include="..\..\Modules\Catalog\Catalog.Infrastructure\Catalog.Infrastructure\Seeders\ProductCategories\Data\product_category.json">
             <Link>Seeders\ProductCategories\Data\product_category.json</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>Always</CopyToPublishDirectory>
@@ -59,6 +59,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Accounting\Accounting.Infrastructure\Accounting.Infrastructure\Accounting.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Catalog\Catalog.Infrastructure\Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Crm\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Identity\Identity.Infrastructure\Identity.Infrastructure\Identity.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Reference.Infrastructure.csproj" />

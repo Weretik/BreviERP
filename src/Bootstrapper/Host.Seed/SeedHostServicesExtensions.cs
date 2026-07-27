@@ -1,5 +1,6 @@
-﻿using Accounting.Infrastructure.DependencyInjection;
+using Accounting.Infrastructure.DependencyInjection;
 using BuildingBlocks.Infrastructure.DependencyInjection;
+using Catalog.Infrastructure.DependencyInjection;
 using Identity.Infrastructure.Configuration;
 using Identity.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,7 @@ public static class SeedHostServicesExtensions
 
         services.AddReferenceDbContextServices(configuration);
         services.AddAccountingDbContextServices(configuration);
+        services.AddCatalogDbContextServices(configuration);
 
         return services;
     }
