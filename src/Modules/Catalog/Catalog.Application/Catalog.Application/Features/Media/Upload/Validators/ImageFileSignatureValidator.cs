@@ -1,4 +1,4 @@
-namespace Catalog.Api.Validation;
+namespace Catalog.Application.Features.Media.Upload.Validators;
 
 internal static class ImageFileSignatureValidator
 {
@@ -11,19 +11,27 @@ internal static class ImageFileSignatureValidator
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        var buffer = new byte[12];
-        var bytesRead = await ReadAtLeastAsync(stream, buffer, cancellationToken);
+        if (!stream.CanSeek)
+            return false;
 
-        if (stream.CanSeek)
-            stream.Position = 0;
-
-        return contentType switch
+        var initialPosition = stream.Position;
+        try
         {
-            "image/jpeg" => StartsWith(buffer, bytesRead, JpegSignature),
-            "image/png" => StartsWith(buffer, bytesRead, PngSignature),
-            "image/webp" => IsWebp(buffer, bytesRead),
-            _ => false
-        };
+            var buffer = new byte[12];
+            var bytesRead = await ReadAtLeastAsync(stream, buffer, cancellationToken);
+
+            return contentType switch
+            {
+                "image/jpeg" => StartsWith(buffer, bytesRead, JpegSignature),
+                "image/png" => StartsWith(buffer, bytesRead, PngSignature),
+                "image/webp" => IsWebp(buffer, bytesRead),
+                _ => false
+            };
+        }
+        finally
+        {
+            stream.Position = initialPosition;
+        }
     }
 
     private static bool IsWebp(byte[] buffer, int bytesRead)
@@ -37,10 +45,8 @@ internal static class ImageFileSignatureValidator
             return false;
 
         for (var i = 0; i < signature.Length; i++)
-        {
             if (buffer[i] != signature[i])
                 return false;
-        }
 
         return true;
     }
@@ -51,10 +57,8 @@ internal static class ImageFileSignatureValidator
             return false;
 
         for (var i = 0; i < signature.Length; i++)
-        {
             if (buffer[offset + i] != signature[i])
                 return false;
-        }
 
         return true;
     }

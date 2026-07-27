@@ -5,4 +5,5 @@ public sealed record UploadMediaFileCommandRequest(
     string FileName,
     string ContentType,
     string BaseFolder,
-    long SizeInBytes);
+    long SizeInBytes,
+    long MaxFileSizeBytes);

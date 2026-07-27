@@ -1,6 +1,5 @@
 using Catalog.Api.Contracts.Media;
 using Catalog.Api.Options;
-using Catalog.Api.Validation;
 using Catalog.Application.Features.Media.Delete;
 using Catalog.Application.Features.Media.GetList;
 using Catalog.Application.Features.Media.Upload;
@@ -15,13 +14,6 @@ public sealed class CatalogMediaController(
     ISender sender,
     IOptions<CatalogMediaUploadOptions> uploadOptions) : ControllerBase
 {
-    private static readonly HashSet<string> AllowedContentTypes =
-    [
-        "image/jpeg",
-        "image/png",
-        "image/webp"
-    ];
-
     [HttpGet]
     [ProducesResponseType(typeof(List<MediaFileListItemResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<MediaFileListItemResponse>>> GetList(CancellationToken cancellationToken)
@@ -51,23 +43,11 @@ public sealed class CatalogMediaController(
         CancellationToken cancellationToken)
     {
         var options = uploadOptions.Value;
-        var maxFileSizeBytes = options.MaxFileSizeBytes;
         var file = request.File;
         if (file is null)
             return BadRequest(new { error = "File is required." });
 
-        if (file.Length <= 0)
-            return BadRequest(new { error = "File size must be greater than zero." });
-
-        if (file.Length > maxFileSizeBytes)
-            return BadRequest(new { error = $"File size must not exceed {maxFileSizeBytes / (1024 * 1024)} MB." });
-
-        if (!AllowedContentTypes.Contains(file.ContentType))
-            return BadRequest(new { error = "Only image/jpeg, image/png, image/webp are allowed." });
-
         await using var stream = file.OpenReadStream();
-        if (!await ImageFileSignatureValidator.IsValidAsync(stream, file.ContentType, cancellationToken))
-            return BadRequest(new { error = "File content does not match the declared image type." });
 
         var result = await sender.Send(
             new UploadMediaFileCommand(
@@ -76,7 +56,8 @@ public sealed class CatalogMediaController(
                     file.FileName,
                     file.ContentType,
                     options.BaseFolder,
-                    file.Length)),
+                    file.Length,
+                    options.MaxFileSizeBytes)),
             cancellationToken);
 
         if (!result.IsSuccess)
