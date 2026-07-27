@@ -3,7 +3,6 @@ using Reference.Application.Features.GarmentPartOperation.Create.Specifications;
 using Reference.Domain.AdditionalReferences.ValueObjects;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Products.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;
 using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
@@ -30,7 +29,7 @@ public sealed class CreateGarmentPartOperationCommandHandler(
         {
             return Result.Invalid([new ValidationError(
                 "Request.GarmentPartName",
-                "������� ������ � ����� ������ �� ��������.")]);
+                "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.")]);
         }
 
         var idExists = await repository.AnyAsync(
@@ -46,14 +45,14 @@ public sealed class CreateGarmentPartOperationCommandHandler(
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Id",
-                    "�������� ������� ������ � ����� �������������� ��� ����."));
+                    "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ."));
             }
 
             if (nameExists)
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Name",
-                    "�������� � ����� ������ ��� ���� ��� ���� ������� ������."));
+                    "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ."));
             }
 
             return Result.Invalid(validationErrors);

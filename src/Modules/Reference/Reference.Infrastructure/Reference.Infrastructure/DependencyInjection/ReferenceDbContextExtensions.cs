@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Infrastructure.Migrations;
+using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Application.Contracts.Persistence;
 using Reference.Infrastructure.DataBase;
@@ -8,7 +8,6 @@ using Reference.Infrastructure.Seeders.Fabrics;
 using Reference.Infrastructure.Seeders.GarmentAccessories;
 using Reference.Infrastructure.Seeders.GarmentParts;
 using Reference.Infrastructure.Seeders.GarmentPartOperations;
-using Reference.Infrastructure.Seeders.ProductCategories;
 using Reference.Infrastructure.Seeders.Suppliers;
 
 namespace Reference.Infrastructure.DependencyInjection;
@@ -34,8 +33,6 @@ public static class ReferenceDbContextExtensions
         services.AddScoped<ISeeder, GarmentAccessorySeeder>();
         services.AddScoped<ISeeder, GarmentPartSeeder>();
         services.AddScoped<ISeeder, GarmentPartOperationSeeder>();
-        services.AddScoped<ISeeder, ProductCategorySeeder>();
-
 
         return services;
     }

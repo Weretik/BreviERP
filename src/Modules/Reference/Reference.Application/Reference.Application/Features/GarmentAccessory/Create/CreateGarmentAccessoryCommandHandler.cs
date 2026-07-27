@@ -4,7 +4,6 @@ using Reference.Application.Features.GarmentAccessory.Shared.Specifications;
 using Reference.Domain.AdditionalReferences.ValueObjects;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Products.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;
 using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
@@ -31,7 +30,7 @@ public sealed class CreateGarmentAccessoryCommandHandler(
         {
             return Result.Invalid([new ValidationError(
                 "Request.SupplierName",
-                "Постачальника фурнітури з такою назвою не знайдено.")]);
+                "РџРѕСЃС‚Р°С‡Р°Р»СЊРЅРёРєР° С„СѓСЂРЅС–С‚СѓСЂРё Р· С‚Р°РєРѕСЋ РЅР°Р·РІРѕСЋ РЅРµ Р·РЅР°Р№РґРµРЅРѕ.")]);
         }
 
         var idExists = await repository.AnyAsync(new GarmentAccessoryByIdSpec(request.Id), cancellationToken);
@@ -45,14 +44,14 @@ public sealed class CreateGarmentAccessoryCommandHandler(
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Id",
-                    "Фурнітура з таким ідентифікатором уже існує."));
+                    "Р¤СѓСЂРЅС–С‚СѓСЂР° Р· С‚Р°РєРёРј С–РґРµРЅС‚РёС„С–РєР°С‚РѕСЂРѕРј СѓР¶Рµ С–СЃРЅСѓС”."));
             }
 
             if (nameExists)
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Name",
-                    "Фурнітура з такою назвою уже існує."));
+                    "Р¤СѓСЂРЅС–С‚СѓСЂР° Р· С‚Р°РєРѕСЋ РЅР°Р·РІРѕСЋ СѓР¶Рµ С–СЃРЅСѓС”."));
             }
 
             return Result.Invalid(validationErrors);

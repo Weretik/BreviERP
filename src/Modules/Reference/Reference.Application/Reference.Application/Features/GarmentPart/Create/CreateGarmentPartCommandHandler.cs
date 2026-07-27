@@ -3,7 +3,6 @@ using Reference.Application.Features.GarmentPart.Create.Specifications;
 using Reference.Domain.AdditionalReferences.ValueObjects;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Products.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;
 using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
 
@@ -31,14 +30,14 @@ public sealed class CreateGarmentPartCommandHandler(IReferenceRepository<Garment
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Id",
-                    "Частина виробу з таким ідентифікатором уже існує."));
+                    "Р§Р°СЃС‚РёРЅР° РІРёСЂРѕР±Сѓ Р· С‚Р°РєРёРј С–РґРµРЅС‚РёС„С–РєР°С‚РѕСЂРѕРј СѓР¶Рµ С–СЃРЅСѓС”."));
             }
 
             if (nameExists)
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Name",
-                    "Частина виробу з такою назвою уже існує."));
+                    "Р§Р°СЃС‚РёРЅР° РІРёСЂРѕР±Сѓ Р· С‚Р°РєРѕСЋ РЅР°Р·РІРѕСЋ СѓР¶Рµ С–СЃРЅСѓС”."));
             }
 
             return Result.Invalid(validationErrors);

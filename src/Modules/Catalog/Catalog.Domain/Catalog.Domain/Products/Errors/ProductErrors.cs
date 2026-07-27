@@ -22,6 +22,15 @@ public static class ProductErrors
     public static CatalogDomainError TypeIsRequired() =>
         new("Catalog.Product.Type.Required", "Product type must be provided");
 
+    public static CatalogDomainError CategoryIdIsRequired() =>
+        new("Catalog.Product.Category.Id.Required", "Product category id must be provided");
+
+    public static CatalogDomainError CategoryAlreadyAttached(int categoryId) =>
+        new("Catalog.Product.Category.AlreadyAttached", $"Product category '{categoryId}' is already attached to the product");
+
+    public static CatalogDomainError CategoryNotFound(int categoryId) =>
+        new("Catalog.Product.Category.NotFound", $"Product category '{categoryId}' was not found");
+
     public static CatalogDomainError PhotoIdIsRequired() =>
         new("Catalog.Product.Photo.Id.Required", "Product photo id must be provided");
 

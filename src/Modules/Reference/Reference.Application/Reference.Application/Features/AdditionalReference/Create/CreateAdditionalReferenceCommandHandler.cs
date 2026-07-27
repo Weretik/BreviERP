@@ -3,7 +3,6 @@ using Reference.Application.Features.AdditionalReference.Create.Specifications;
 using Reference.Domain.AdditionalReferences.ValueObjects;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Products.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;
 using AdditionalReferenceEntity = Reference.Domain.AdditionalReferences.Entities.AdditionalReference;
 
@@ -34,21 +33,21 @@ public sealed class CreateAdditionalReferenceCommandHandler(
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Id",
-                    "Додатковий довідник з таким ідентифікатором уже існує."));
+                    "Р”РѕРґР°С‚РєРѕРІРёР№ РґРѕРІС–РґРЅРёРє Р· С‚Р°РєРёРј С–РґРµРЅС‚РёС„С–РєР°С‚РѕСЂРѕРј СѓР¶Рµ С–СЃРЅСѓС”."));
             }
 
             if (nameExists)
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Name",
-                    "Додатковий довідник з такою назвою уже існує."));
+                    "Р”РѕРґР°С‚РєРѕРІРёР№ РґРѕРІС–РґРЅРёРє Р· С‚Р°РєРѕСЋ РЅР°Р·РІРѕСЋ СѓР¶Рµ С–СЃРЅСѓС”."));
             }
 
             if (keyExists)
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Key",
-                    "Додатковий довідник з таким ключем уже існує."));
+                    "Р”РѕРґР°С‚РєРѕРІРёР№ РґРѕРІС–РґРЅРёРє Р· С‚Р°РєРёРј РєР»СЋС‡РµРј СѓР¶Рµ С–СЃРЅСѓС”."));
             }
 
             return Result.Invalid(validationErrors);
