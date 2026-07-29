@@ -23,7 +23,7 @@ Host.Seed або погоджений startup-процес
 ## Правила змін
 
 - Створюйте міграцію лише коли функціональність змінює persistent schema або контракт даних.
-- Розміщуйте проєктування міграції та кроки rollout/verification у [шаблоні міграції](../../specs/_templates/migration/template-migration.md).
+- Розміщуйте проєктування міграції та кроки rollout/verification у [універсальному шаблоні feature](../../specs/_templates/README.md): baseline і rollback — у `design/`, rollout/verification — у `tasks/`.
 - Не редагуйте вже застосовану міграцію, щоб змінити production-історію.
 - Вважайте зміни seed-даних змінами даних: документуйте ідемпотентність, поведінку з наявними даними та підхід rollback/recovery.
 - Перевіряйте startup або Host.Seed логи після зміни міграції чи seeder-а.

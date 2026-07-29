@@ -14,7 +14,7 @@ https://localhost:7142/swagger
 
 Swagger bearer scheme очікує access token, повернений `POST /api/auth/session/login`. Вставляйте access token в авторизацію Swagger; не вставляйте й не розкривайте refresh token.
 
-Для відтворюваного тесту функціональності заповнюйте [фазу ручного Swagger-тесту](../../specs/_templates/feature/phases/05-swagger-manual-test.md). Вона має зафіксувати маршрут, передумови, вхідні дані, очікуваний статус і випадки помилок.
+Для відтворюваного тесту функціональності додайте конкретну задачу до [фази verification шаблону](../../specs/_templates/feature/tasks/05-verification.md). Вона має зафіксувати маршрут, передумови, вхідні дані, очікуваний статус і випадки помилок.
 
 ## Логи та збої запуску
 

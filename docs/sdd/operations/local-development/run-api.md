@@ -27,4 +27,4 @@ dotnet run --project src/Bootstrapper/Host.Api/Host.Api.csproj --launch-profile 
 
 ## Зупинка та повторна збірка
 
-Зупиніть запущений процес Host.Api перед build, якщо Windows заблокував його output DLL. Потім виконайте потрібні build/test-команди зі [стандартів тестування](../../standards/quality/testing.md).
+Зупиніть запущений процес Host.Api перед build, якщо Windows заблокував його output DLL. Потім виконайте потрібні build/test-команди зі [стандартів тестування](../../standards/testing-rules.md).

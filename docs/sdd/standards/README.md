@@ -1,21 +1,12 @@
-# Інженерні стандарти
+# Інженерні правила backend
 
-Ці правила застосовуються до кожної нової backend-функціональності. Спочатку прочитайте [поставку функціональності](workflow/feature-delivery.md), потім використовуйте розділи, релевантні зміні.
+Ця папка містить сталі правила для кожної backend-зміни. Вона не містить frontend-правил: frontend є окремим проєктом.
 
-```text
-standards/
-├── workflow/     SDD-процес і definition of done
-├── design/       розміщення коду та межі відповідальності
-├── contracts/    HTTP-контракти, правила validation і Result/error
-├── operations/   доступ до даних, безпека та observability
-└── quality/      вибір тестів і команди перевірки
-```
+- [Backend rules](backend-rules.md) — шари, CQRS, DDD, Mediator і організація коду.
+- [API rules](api-rules.md) — HTTP-контракти, валідація, результати й помилки.
+- [Database rules](database-rules.md) — EF Core, читання, транзакції, міграції та дані.
+- [Security and observability rules](security-observability-rules.md) — авторизація, privacy, Serilog і diagnostics.
+- [Testing rules](testing-rules.md) — вибір тестів і обов’язкові команди перевірки.
+- [Delivery rules](delivery-rules.md) — SDD flow, scope та definition of done.
 
-## За призначенням
-
-- [Workflow: поставка функціональності та SDD](workflow/feature-delivery.md)
-- [Design: організація шарів і коду](design/layer-code-organisation.md)
-- [Contracts: API та контракти](contracts/api-contracts.md)
-- [Contracts: validation, результати та помилки](contracts/validation-results.md)
-- [Operations: дані, безпека та observability](operations/data-security-observability.md)
-- [Quality: тестування](quality/testing.md)
+Feature-специфікації посилаються на ці правила, а не дублюють їх.

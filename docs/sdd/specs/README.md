@@ -4,26 +4,29 @@
 
 Багаторазові шаблони задач розміщені в [_templates](_templates/). Спочатку прочитайте його README та оберіть папку за типом роботи.
 
+Для спільних бізнес-термінів Product, Sewing і PPE використовуйте [глосарій](../../product/glossary.md), а не створюйте нові визначення у кожній специфікації.
+
 ## Структура
 
 ```text
 docs/sdd/specs/
   <module>/
-    <feature-slug>/
-      README.md                    батьківський SDD
-      contracts/
-        api-contract.md            коли API споживає клієнт
-      phases/
-        01-domain.md ... 06-frontend-handoff.md
+    <NNN>-<feature-slug>/
+      README.md                    orchestration feature
+      requirements/                поведінка й правила
+      design/                      backend-рішення
+      data-model.md                модель даних
+      contracts/                   API/integration contracts
+      tasks/                       фази та атомарні задачі AI
+      checklist/                   quality gates
   _templates/
-    feature/                       шаблони звичайної функціональності та API-контракту
-    migration/                     шаблони багатофазної міграції
+    feature/                       універсальний шаблон feature або міграції
     git/                           шаблон планування комітів
 ```
 
 Використовуйте папку модуля, наприклад `catalog`, `reference`, `identity`, `accounting`, `crm`, `platform` або `cross-module`. Назви функціональностей і фаз мають бути в нижньому регістрі та kebab-case.
 
-Для звичайної backend-функціональності починайте з `feature/README.md`: він містить стандартний шестифазний потік реалізації. Видаляйте лише незастосовні фази та фіксуйте причину в батьківському SDD. Посилайтеся на архітектуру й стандарти замість їх копіювання.
+Починайте з `_templates/README.md` та копіюйте `feature/`. Для міграції використовуйте той самий шаблон із явними baseline, rollout і rollback задачами. Посилайтеся на архітектуру й стандарти замість їх копіювання.
 
 ## Життєвий цикл
 
