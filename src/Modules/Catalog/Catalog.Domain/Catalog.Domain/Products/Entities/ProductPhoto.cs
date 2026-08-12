@@ -12,6 +12,7 @@ public class ProductPhoto : BaseEntity<ProductPhotoId>
 
     #region Properties
     public MediaFileId MediaFileId { get; private set; }
+    public ProductId ProductId { get; private set; }
     public string? Alt { get; private set; }
     public bool IsVisible { get; private set; }
     public int SortOrder { get; private set; }
@@ -22,6 +23,7 @@ public class ProductPhoto : BaseEntity<ProductPhotoId>
     private ProductPhoto() { }
 
     private ProductPhoto(
+        ProductId productId,
         ProductPhotoId id,
         MediaFileId mediaFileId,
         string? alt,
@@ -29,6 +31,10 @@ public class ProductPhoto : BaseEntity<ProductPhotoId>
         int sortOrder,
         bool isMain)
     {
+        if (productId.Value == default)
+            throw new DomainException(ProductErrors.IdIsRequired());
+
+        ProductId = productId;
         SetId(id);
         SetMediaFileId(mediaFileId);
         SetAlt(alt);
@@ -40,13 +46,14 @@ public class ProductPhoto : BaseEntity<ProductPhotoId>
 
     #region Factories
     public static ProductPhoto Create(
+        ProductId productId,
         ProductPhotoId id,
         MediaFileId mediaFileId,
         string? alt = null,
         bool isVisible = true,
         int sortOrder = 0,
         bool isMain = false)
-        => new(id, mediaFileId, alt, isVisible, sortOrder, isMain);
+        => new(productId, id, mediaFileId, alt, isVisible, sortOrder, isMain);
 
     public void ReplaceMediaFile(MediaFileId mediaFileId)
     {

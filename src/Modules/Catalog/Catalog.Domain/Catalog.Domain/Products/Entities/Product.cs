@@ -10,54 +10,110 @@ using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Domain.Products.Entities;
 
-public class Product : BaseEntity<ProductId>, IAggregateRoot
+public class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
 {
     private const int NameMaxLength = 200;
     private readonly List<ProductPhoto> _photos = [];
     private readonly List<ProductCategoryReference> _categories = [];
+    private readonly List<ProductInformationBlock> _informationBlocks = [];
+    private readonly List<ProductCharacteristicTable> _characteristicTables = [];
 
     public string Name { get; private set; } = null!;
     public string RuName { get; private set; } = null!;
     public ProductSlug Slug { get; private set; }
     public ProductType Type { get; private set; }
+    public string DescriptionUk { get; private set; } = string.Empty;
+    public string DescriptionRu { get; private set; } = string.Empty;
+    public SewingProductDetails? SewingDetails { get; private set; }
+    public PpeProductDetails? PpeDetails { get; private set; }
     public IReadOnlyCollection<ProductPhoto> Photos => _photos.AsReadOnly();
     public IReadOnlyCollection<ProductCategoryReference> Categories => _categories.AsReadOnly();
+    public IReadOnlyCollection<ProductInformationBlock> InformationBlocks => _informationBlocks.AsReadOnly();
+    public IReadOnlyCollection<ProductCharacteristicTable> CharacteristicTables => _characteristicTables.AsReadOnly();
 
     private Product() { }
 
-    private Product(ProductId id, string name, string ruName, string slug, ProductType type)
+    private Product(ProductId id, string name, string ruName, ProductSlug slug, ProductType type, DateTimeOffset createdAt)
     {
         SetId(id);
         SetName(name);
         SetRuName(ruName);
         SetSlug(slug);
         SetType(type);
+        MarkAsCreated(createdAt);
     }
 
-    public static Product Create(ProductId id, string name, string ruName, string slug, ProductType type)
-        => new(id, name, ruName, slug, type);
+    public static Product Create(ProductId id, string name, string ruName, ProductSlug slug, ProductType type, DateTimeOffset createdAt)
+        => new(id, name, ruName, slug, type, createdAt);
 
-    public void Update(string name, string ruName, string slug, ProductType type)
+    public void Update(string name, string ruName, ProductSlug slug, ProductType type, DateTimeOffset updatedAt)
     {
         SetName(name);
         SetRuName(ruName);
         SetSlug(slug);
         SetType(type);
+        ClearDetailsForOtherType();
+        MarkAsUpdated(updatedAt);
     }
 
-    public void AddCategory(ProductCategoryId categoryId)
+    public void SetDescriptions(string descriptionUk, string descriptionRu, DateTimeOffset updatedAt)
+    {
+        DescriptionUk = NormalizeDescription(descriptionUk);
+        DescriptionRu = NormalizeDescription(descriptionRu);
+        MarkAsUpdated(updatedAt);
+    }
+
+    public void ReplaceContent(IEnumerable<ProductInformationBlock> informationBlocks,
+        IEnumerable<ProductCharacteristicTable> characteristicTables, DateTimeOffset updatedAt)
+    {
+        ArgumentNullException.ThrowIfNull(informationBlocks);
+        ArgumentNullException.ThrowIfNull(characteristicTables);
+        var blocks = informationBlocks.ToList();
+        var tables = characteristicTables.ToList();
+        if (blocks.Any(x => x.ProductId != Id) || tables.Any(x => x.ProductId != Id))
+            throw new DomainException(ProductErrors.ContentBelongsToAnotherProduct());
+        _informationBlocks.Clear();
+        _informationBlocks.AddRange(blocks);
+        _characteristicTables.Clear();
+        _characteristicTables.AddRange(tables);
+        MarkAsUpdated(updatedAt);
+    }
+
+    public void ConfigureSewing(SewingProductDetails details, DateTimeOffset updatedAt)
+    {
+        if (Type != ProductType.Sewing) throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
+        ArgumentNullException.ThrowIfNull(details);
+        if (details.ProductId != Id) throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
+        SewingDetails = details;
+        PpeDetails = null;
+        MarkAsUpdated(updatedAt);
+    }
+
+    public void ConfigurePpe(PpeProductDetails details, DateTimeOffset updatedAt)
+    {
+        if (Type != ProductType.Ppe) throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
+        ArgumentNullException.ThrowIfNull(details);
+        if (details.ProductId != Id) throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
+        PpeDetails = details;
+        SewingDetails = null;
+        MarkAsUpdated(updatedAt);
+    }
+
+    public void AddCategory(ProductCategoryId categoryId, DateTimeOffset updatedAt)
     {
         EnsureCategoryNotAttached(categoryId);
-        _categories.Add(ProductCategoryReference.Create(categoryId));
+        _categories.Add(ProductCategoryReference.Create(Id, categoryId));
+        MarkAsUpdated(updatedAt);
     }
 
-    public void RemoveCategory(ProductCategoryId categoryId)
+    public void RemoveCategory(ProductCategoryId categoryId, DateTimeOffset updatedAt)
     {
         var category = GetCategory(categoryId);
         _categories.Remove(category);
+        MarkAsUpdated(updatedAt);
     }
 
-    public void ReplaceCategories(IEnumerable<ProductCategoryId> categoryIds)
+    public void ReplaceCategories(IEnumerable<ProductCategoryId> categoryIds, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(categoryIds);
 
@@ -65,12 +121,14 @@ public class Product : BaseEntity<ProductId>, IAggregateRoot
 
         _categories.Clear();
         foreach (var categoryId in uniqueCategoryIds)
-            _categories.Add(ProductCategoryReference.Create(categoryId));
+            _categories.Add(ProductCategoryReference.Create(Id, categoryId));
+        MarkAsUpdated(updatedAt);
     }
 
     public void AddPhoto(
         ProductPhotoId photoId,
         MediaFileId mediaFileId,
+        DateTimeOffset updatedAt,
         string? alt = null,
         bool isVisible = true,
         int sortOrder = 0,
@@ -85,12 +143,14 @@ public class Product : BaseEntity<ProductId>, IAggregateRoot
         if (shouldBeMain)
             ClearMainPhoto();
 
-        _photos.Add(ProductPhoto.Create(photoId, mediaFileId, alt, isVisible, sortOrder, shouldBeMain));
+        _photos.Add(ProductPhoto.Create(Id, photoId, mediaFileId, alt, isVisible, sortOrder, shouldBeMain));
+        MarkAsUpdated(updatedAt);
     }
 
     public void AddPhoto(
         ProductPhotoId photoId,
         MediaFile mediaFile,
+        DateTimeOffset updatedAt,
         string? alt = null,
         bool isVisible = true,
         int sortOrder = 0,
@@ -98,50 +158,55 @@ public class Product : BaseEntity<ProductId>, IAggregateRoot
     {
         EnsureMediaFileReady(mediaFile);
 
-        AddPhoto(photoId, mediaFile.Id, alt, isVisible, sortOrder, isMain);
+        AddPhoto(photoId, mediaFile.Id, updatedAt, alt, isVisible, sortOrder, isMain);
     }
 
-    public void SetPhotoVisibility(ProductPhotoId photoId, bool isVisible)
+    public void SetPhotoVisibility(ProductPhotoId photoId, bool isVisible, DateTimeOffset updatedAt)
     {
         var photo = GetPhoto(photoId);
         photo.SetVisibility(isVisible);
+        MarkAsUpdated(updatedAt);
     }
 
-    public void SetPhotoAltText(ProductPhotoId photoId, string? alt)
+    public void SetPhotoAltText(ProductPhotoId photoId, string? alt, DateTimeOffset updatedAt)
     {
         var photo = GetPhoto(photoId);
         photo.SetAltText(alt);
+        MarkAsUpdated(updatedAt);
     }
 
-    public void ReplacePhotoMediaFile(ProductPhotoId photoId, MediaFileId mediaFileId)
+    public void ReplacePhotoMediaFile(ProductPhotoId photoId, MediaFileId mediaFileId, DateTimeOffset updatedAt)
     {
         var photo = GetPhoto(photoId);
         EnsureMediaFileNotAttached(mediaFileId, photoId);
         photo.ReplaceMediaFile(mediaFileId);
+        MarkAsUpdated(updatedAt);
     }
 
-    public void ReplacePhotoMediaFile(ProductPhotoId photoId, MediaFile mediaFile)
+    public void ReplacePhotoMediaFile(ProductPhotoId photoId, MediaFile mediaFile, DateTimeOffset updatedAt)
     {
         EnsureMediaFileReady(mediaFile);
 
-        ReplacePhotoMediaFile(photoId, mediaFile.Id);
+        ReplacePhotoMediaFile(photoId, mediaFile.Id, updatedAt);
     }
 
-    public void SetPhotoSortOrder(ProductPhotoId photoId, int sortOrder)
+    public void SetPhotoSortOrder(ProductPhotoId photoId, int sortOrder, DateTimeOffset updatedAt)
     {
         var photo = GetPhoto(photoId);
         photo.SetSortOrder(sortOrder);
+        MarkAsUpdated(updatedAt);
     }
 
-    public void SetMainPhoto(ProductPhotoId photoId)
+    public void SetMainPhoto(ProductPhotoId photoId, DateTimeOffset updatedAt)
     {
         var photo = GetPhoto(photoId);
 
         ClearMainPhoto();
         photo.SetMain(true);
+        MarkAsUpdated(updatedAt);
     }
 
-    public void RemovePhoto(ProductPhotoId photoId)
+    public void RemovePhoto(ProductPhotoId photoId, DateTimeOffset updatedAt)
     {
         var photo = GetPhoto(photoId);
         var removedMainPhoto = photo.IsMain;
@@ -149,6 +214,7 @@ public class Product : BaseEntity<ProductId>, IAggregateRoot
 
         if (removedMainPhoto)
             EnsureMainPhotoSelected();
+        MarkAsUpdated(updatedAt);
     }
 
     private void SetId(ProductId id)
@@ -195,6 +261,21 @@ public class Product : BaseEntity<ProductId>, IAggregateRoot
 
         Type = type;
     }
+
+    private void ClearDetailsForOtherType()
+    {
+        if (Type == ProductType.Sewing) PpeDetails = null;
+        else SewingDetails = null;
+    }
+
+    private static string NormalizeDescription(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) throw new DomainException(ProductErrors.DescriptionIsRequired());
+        var normalized = value.Trim();
+        if (normalized.Length > 20_000) throw new DomainException(ProductErrors.DescriptionLengthInvalid());
+        return normalized;
+    }
+
 
     private ProductPhoto GetPhoto(ProductPhotoId photoId)
     {

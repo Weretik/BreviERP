@@ -1,10 +1,11 @@
 using Reference.Application.Contracts.Persistence;
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Features.GarmentAccessory.Delete.Specifications;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.Delete;
 
-public sealed class DeleteGarmentAccessoryCommandHandler(IReferenceRepository<GarmentAccessoryEntity> repository)
+public sealed class DeleteGarmentAccessoryCommandHandler(IReferenceRepository<GarmentAccessoryEntity> repository, IProductUsageReader productUsageReader)
     : ICommandHandler<DeleteGarmentAccessoryCommand, Result>
 {
     public async ValueTask<Result> Handle(
@@ -15,6 +16,9 @@ public sealed class DeleteGarmentAccessoryCommandHandler(IReferenceRepository<Ga
 
         if (entity is null)
             return Result.NotFound();
+
+        if (await productUsageReader.IsGarmentAccessoryUsedAsync(command.Id, cancellationToken))
+            return Result.Conflict("Garment accessory is used by one or more products.");
 
         await repository.DeleteAsync(entity, cancellationToken);
 

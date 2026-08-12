@@ -1,5 +1,9 @@
 using Accounting.Infrastructure.DependencyInjection;
 using Catalog.Api.DependencyInjection;
+using Catalog.Application.Contracts.Reference;
+using Catalog.Application.Contracts.SlugGeneration;
+using Catalog.Infrastructure.Products.SlugGeneration;
+using Reference.Application.Contracts.Catalog;
 using Catalog.Infrastructure.DependencyInjection;
 using Host.Api.DependencyInjection.ServiceRegistration.Options;
 using Identity.Infrastructure.DependencyInjection;
@@ -22,6 +26,9 @@ public static class ModuleRegistrationsExtensions
         services.AddAccountingInfrastructureServices(configuration);
         services.AddCatalogInfrastructureServices(configuration);
         services.AddCatalogApiOptions(configuration);
+        services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
+        services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();
+        services.AddSingleton<IProductSlugGenerator, ProductSlugGenerator>();
 
         return services;
     }

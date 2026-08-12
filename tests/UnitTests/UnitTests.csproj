@@ -26,4 +26,9 @@
         <Using Include="NUnit.Framework" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Domain\Catalog.Domain\Catalog.Domain.csproj" />
+        <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Application\Catalog.Application\Catalog.Application.csproj" />
+    </ItemGroup>
+
 </Project>

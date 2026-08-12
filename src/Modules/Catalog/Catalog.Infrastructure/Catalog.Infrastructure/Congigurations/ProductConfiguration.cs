@@ -1,6 +1,3 @@
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.ProductCategories.Entities;
-using Catalog.Domain.ProductCategories.ValueObjects;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -35,47 +32,43 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasConversion<int>()
             .IsRequired();
 
-        builder.OwnsMany(x => x.Photos, photoBuilder =>
-        {
-            photoBuilder.ToTable("ProductPhotos", "catalog");
-            photoBuilder.WithOwner().HasForeignKey("ProductId");
-            photoBuilder.HasKey("ProductId", "Id");
+        builder.Property(x => x.DescriptionUk).HasMaxLength(20_000).IsRequired();
+        builder.Property(x => x.DescriptionRu).HasMaxLength(20_000).IsRequired();
+        builder.Property(x => x.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").IsRequired();
+        builder.Property(x => x.UpdatedAt);
+        builder.Property(x => x.IsDeleted).HasDefaultValue(false).IsRequired();
+        builder.HasIndex(x => x.Name).IsUnique();
+        builder.HasIndex(x => x.RuName).IsUnique();
+        builder.HasIndex(x => x.Slug).IsUnique();
 
-            photoBuilder.Property(x => x.Id)
-                .HasConversion(x => x.Value, x => ProductPhotoId.Create(x))
-                .ValueGeneratedNever();
+        builder.HasOne(x => x.SewingDetails)
+            .WithOne()
+            .HasForeignKey<SewingProductDetails>(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            photoBuilder.Property(x => x.MediaFileId)
-                .HasConversion(x => x.Value, x => MediaFileId.Create(x))
-                .IsRequired();
+        builder.HasOne(x => x.PpeDetails)
+            .WithOne()
+            .HasForeignKey<PpeProductDetails>(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            photoBuilder.Property(x => x.Alt)
-                .HasMaxLength(300);
+        builder.HasMany(x => x.Photos)
+            .WithOne()
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            photoBuilder.Property(x => x.IsVisible).IsRequired();
-            photoBuilder.Property(x => x.SortOrder).IsRequired();
-            photoBuilder.Property(x => x.IsMain).IsRequired();
+        builder.HasMany(x => x.Categories)
+            .WithOne()
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-            photoBuilder.HasIndex("ProductId", nameof(ProductPhoto.MediaFileId)).IsUnique();
-        });
+        builder.HasMany(x => x.InformationBlocks)
+            .WithOne()
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        builder.OwnsMany(x => x.Categories, categoryBuilder =>
-        {
-            categoryBuilder.ToTable("ProductCategoryLinks", "catalog");
-            categoryBuilder.WithOwner().HasForeignKey("ProductId");
-            categoryBuilder.HasKey("ProductId", "Id");
-
-            categoryBuilder.Property(x => x.Id)
-                .HasColumnName("CategoryId")
-                .HasConversion(x => x.Value, x => ProductCategoryId.Create(x))
-                .ValueGeneratedNever();
-
-            categoryBuilder.Ignore(x => x.CategoryId);
-
-            categoryBuilder.HasOne<ProductCategory>()
-                .WithMany()
-                .HasForeignKey("Id")
-                .OnDelete(DeleteBehavior.Restrict);
-        });
+        builder.HasMany(x => x.CharacteristicTables)
+            .WithOne()
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

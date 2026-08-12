@@ -18,4 +18,9 @@
       <ProjectReference Include="..\..\Catalog.Application\Catalog.Application\Catalog.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Slugify.Core" Version="5.1.1" />
+      <PackageReference Include="TranslitKit" Version="1.0.3" />
+    </ItemGroup>
+
 </Project>
