@@ -11,6 +11,7 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.HasDefaultSchema("accounting");
 
         modelBuilder.HasPostgresExtension("ltree");
 

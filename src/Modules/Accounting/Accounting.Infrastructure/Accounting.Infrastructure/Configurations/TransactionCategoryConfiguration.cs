@@ -7,7 +7,7 @@ public sealed class TransactionCategoryConfiguration : IEntityTypeConfiguration<
 {
     public void Configure(EntityTypeBuilder<TransactionCategory> builder)
     {
-        builder.ToTable("ProductCategories");
+        builder.ToTable("TransactionCategories");
 
         builder.HasKey(c => c.Id);
 
@@ -35,6 +35,6 @@ public sealed class TransactionCategoryConfiguration : IEntityTypeConfiguration<
 
         builder.HasIndex(c => c.Path)
             .HasMethod("gist")
-            .HasDatabaseName($"IX_ProductCategories_Path_gist");
+            .HasDatabaseName("IX_TransactionCategories_Path_gist");
     }
 }

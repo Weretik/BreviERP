@@ -11,14 +11,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Accounting.Infrastructure.Migrations
 {
     [DbContext(typeof(AccountingDbContext))]
-    [Migration("20260603145717_Initial Accounting Db Context")]
-    partial class InitialAccountingDbContext
+    [Migration("20260810224434_InitialAccountingSchema")]
+    partial class InitialAccountingSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("accounting")
                 .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -45,11 +46,11 @@ namespace Accounting.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Path")
-                        .HasDatabaseName("IX_ProductCategories_Path_gist");
+                        .HasDatabaseName("IX_TransactionCategories_Path_gist");
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Path"), "gist");
 
-                    b.ToTable("ProductCategories", (string)null);
+                    b.ToTable("TransactionCategories", "accounting");
                 });
 #pragma warning restore 612, 618
         }

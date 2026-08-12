@@ -16,6 +16,7 @@ namespace Accounting.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("accounting")
                 .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -42,11 +43,11 @@ namespace Accounting.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Path")
-                        .HasDatabaseName("IX_ProductCategories_Path_gist");
+                        .HasDatabaseName("IX_TransactionCategories_Path_gist");
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Path"), "gist");
 
-                    b.ToTable("ProductCategories", (string)null);
+                    b.ToTable("TransactionCategories", "accounting");
                 });
 #pragma warning restore 612, 618
         }

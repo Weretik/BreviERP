@@ -10,6 +10,7 @@ public class AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        builder.HasDefaultSchema("identity");
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(
             typeof(AppIdentityDbContext).Assembly,

@@ -21,6 +21,7 @@ public class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.HasDefaultSchema("reference");
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ReferenceDbContext).Assembly,

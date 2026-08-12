@@ -5,16 +5,20 @@
 namespace Accounting.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialAccountingDbContext : Migration
+    public partial class InitialAccountingSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "accounting");
+
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:PostgresExtension:ltree", ",,");
 
             migrationBuilder.CreateTable(
-                name: "ProductCategories",
+                name: "TransactionCategories",
+                schema: "accounting",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
@@ -24,12 +28,13 @@ namespace Accounting.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductCategories", x => x.Id);
+                    table.PrimaryKey("PK_TransactionCategories", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductCategories_Path_gist",
-                table: "ProductCategories",
+                name: "IX_TransactionCategories_Path_gist",
+                schema: "accounting",
+                table: "TransactionCategories",
                 column: "Path")
                 .Annotation("Npgsql:IndexMethod", "gist");
         }
@@ -38,7 +43,8 @@ namespace Accounting.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ProductCategories");
+                name: "TransactionCategories",
+                schema: "accounting");
         }
     }
 }
