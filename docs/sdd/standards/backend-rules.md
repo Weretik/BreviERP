@@ -17,6 +17,14 @@
 
 Використовуйте явні імена: `CreateOrderCommand`, `GetPublicProductListQuery`, `GetAdminProductListQueryHandler`. Не створюйте generic folders або names на кшталт `Common`, `Misc`, `Helper`, `Utils`, `Manager`. Не додавайте abstractions без конкретної потреби.
 
+## Якість структури файлів
+
+- Один production-файл має одну основну відповідальність і, як правило, один top-level type. Не об'єднуйте в одному файлі кілька DTO, specifications, handlers або не пов'язані допоміжні типи лише для скорочення кількості файлів.
+- Розташовуйте код у feature-by-folder: command/query, handler, validator, DTO та specification належать конкретному use-case. `Shared` допускається лише для справді спільного коду Product/feature, а не як місце для неструктурованих типів.
+- Назва файла відповідає public top-level type: `CreateProductCommand.cs`, `CreateProductCommandHandler.cs`, `ProductByIdSpec.cs` тощо.
+- Дотримуйтеся наявного форматування проєкту. Не використовують стиснутий однорядковий стиль для namespaces, класів, handlers, validators або складних DTO. Перед завершенням зміни запустіть formatter або перевірте diff на відповідність сусіднім файлам.
+- Спочатку дослідіть наявні conventions, контракти та залежності, потім вносіть мінімальну завершену реалізацію. Заборонені тимчасові заглушки, часткові каркаси й передчасні твердження про завершення, якщо ними не можна закрити task і підтвердити це перевіркою.
+
 ## Domain events і транзакції
 
 Дотримуйтеся наявного lifecycle domain events: `collect → dispatch → clear`. Use-cases з кількома змінами aggregate-ів координують транзакцію через наявний `IUnitOfWork`.

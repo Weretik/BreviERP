@@ -1,10 +1,19 @@
 # Фаза 00 — Уточнення та готовність
 
-- [ ] T001 Прочитати requirements, design, data-model, contracts і spec checklist; виписати суперечності без припущень.
-- [ ] T002 Закрити кожен `[NEEDS CLARIFICATION]` або винести його за scope.
-- [ ] T003 Погодити OpenAPI/integration contract до коду-споживача та зафіксувати шлях `docs/sdd/contracts/<module>/<feature>.openapi.yaml`.
-- [ ] T004 Позначити застосовні пункти spec-readiness checklist.
+> Ця фаза лише створює та впорядковує підфази. Не виконуйте всі readiness-рішення в цьому файлі.
+
+- [ ] T001 Переглянути шаблони підфаз у розділі [Шаблони Readiness](#шаблони-readiness) і вибрати потрібні.
+- [ ] T002 Скопіювати кожен потрібний шаблон у `tasks/readiness/` як окремий файл фактичної підфази: `00.1-<назва>.md`, `00.2-<назва>.md` і далі; замінити `NN` номером, плейсхолдери — конкретними даними.
+
+## Шаблони Readiness
+
+- [00.NN — Scope, рішення та CQRS use cases](readiness/00.NN-scope.template.md)
+- [00.NN — CLI, scripts та generators](readiness/00.NN-tooling.template.md)
 
 ## Checkpoint
 
-Не починати Domain, поки model і contract decisions не прийняті.
+Не починати Domain, поки завершені всі створені підфази `00.N`, погоджені model decisions, повний перелік потрібних і виключених use cases та integration/API-операцій. Для автоматизованих операцій визначено CLI/scripts; повний машиночитаний contract не є умовою цього checkpoint для code-first workflow.
+
+## Наступна фаза
+
+Після завершення всіх створених підфаз `00.N` перейдіть до [01 — Планування Domain](01-domain.md).
