@@ -12,6 +12,8 @@
 
 `Product` уже є aggregate root. Він володіє назвами, slug, type, `ProductPhoto` і `ProductCategoryReference`. `ProductPhoto` посилається на `MediaFileId` і перевіряється aggregate-ом на готовність медіафайлу.
 
+`MediaFile`, який використовується хоча б в одному `ProductPhoto`, не видаляється з Media. Media перевіряє використання в Catalog до видалення й відхиляє операцію, якщо посилання існує; Product не змінюється автоматично.
+
 Поточна технічна база та правила інтеграції з Reference описані в [implementation-baseline.md](implementation-baseline.md).
 
 ## Запропоноване проєктування
@@ -19,7 +21,9 @@
 ```text
 Catalog.Product (aggregate root)
 ├── спільні властивості: Name, RuName, Slug, Type, Photos, Categories
-├── описовий блок: Description, Information, Characteristics      (ще не деталізовано)
+├── Description: Markdown українською та російською
+├── InformationBlocks[]: локалізовані заголовок, текст і порядок
+├── CharacteristicTables[]: локалізовані таблиці та їх рядки
 └── SewingOperations[]                                             (лише для Type = Sewing)
     └── GarmentPartOperationId ──→ Reference.GarmentPartOperation
                                       └── Min
@@ -31,26 +35,18 @@ Catalog.Product (aggregate root)
 
 ```text
 totalOperationMinutes = Σ operation.Min
-theoreticalPiecesPerShift = 480 / totalOperationMinutes
-piecesPerShift = floor(480 / totalOperationMinutes)
-remainingShiftMinutes = 480 - (piecesPerShift × totalOperationMinutes)
+piecesPerShift = 480 / (totalOperationMinutes × 1.25)
 ```
 
-`480` — встановлена тривалість зміни у хвилинах. `piecesPerShift` містить лише повністю завершені вироби; теоретичне дробове значення потрібне для аналітики, а залишок показує невикористані хвилини.
+`480` — встановлена тривалість зміни у хвилинах, а `1.25` — фіксований коефіцієнт до сумарної тривалості операцій. `piecesPerShift` є єдиним показником кількості виробів за зміну: він передається повним дробовим числовим значенням без округлення. Окремі значення для завершених або теоретичних виробів і залишку хвилин не обчислюються.
 
 Sewing-товар може існувати як чернетка без операцій; для нього показники не обчислюються. Розрахунок також не виконується, якщо сума `Min` дорівнює нулю. `Min` завжди читається з актуального `GarmentPartOperation` у Reference; Product не зберігає snapshot, тому зміна довідника змінює наступний розрахунок.
 
-## Синхронізація з довідником Reference
+## Обмеження видалення довідникових даних
 
-Коли `GarmentPartOperation` видаляється, усі `SewingOperations` із цим ID мають бути видалені з Product. Це не прямий EF cascade: Catalog і Reference мають різні модульні DbContext-и та власників даних.
+`GarmentPartOperation`, `Fabric` і `GarmentAccessory` не видаляються з Reference, якщо хоча б один Product містить відповідне посилання. Reference перевіряє наявність посилань у Catalog до видалення; якщо посилання є, видалення відхиляється, а Product не змінюється.
 
-Цільовий механізм: після успішного видалення операції Reference публікує подію `GarmentPartOperationDeleted`; Catalog обробляє її окремим handler-ом, знаходить Product із цим ID і видаляє відповідні links. Доставка має бути ідемпотентною: повторна подія без наявного link не є помилкою. Синхронізація може бути eventually consistent.
-
-## Потрібні рішення перед кодом
-
-1. Контракт події видалення, delivery/retry та observability.
-2. Чи потрібна історія розрахунків, якщо `Min` у довіднику змінюється.
-3. Структура і валідація Description, Information, Characteristics.
+Автоматичне очищення links, міжмодульні події, retry та eventual consistency для цього не використовуються.
 
 ## Критерії приймання для реалізації
 
@@ -58,37 +54,37 @@ Sewing-товар може існувати як чернетка без опе�
 - [ ] Одна операція не додається двічі до одного Product.
 - [ ] Некоректний або відсутній operation ID не потрапляє до aggregate-а.
 - [ ] Sewing-чернетка без операцій дозволена; трудомісткість для неї не обчислюється.
-- [ ] Трудомісткість не ділить на нуль; `piecesPerShift` округлюється вниз.
+- [ ] Трудомісткість не ділить на нуль; `piecesPerShift` передається повним дробовим значенням без округлення.
 - [ ] Зміна `Min` у Reference змінює наступний розрахунок без зміни Product.
-- [ ] Видалення операції прибирає її links із Product через ідемпотентну міжмодульну подію.
+- [ ] Видалення operation, fabric або accessory, що використовується Product, відхиляється без зміни Product.
 - [ ] Catalog не отримує залежність від Reference Infrastructure або entity.
 
 ## Тканини: доповнення до доменної моделі
 
-`Fabrics` буде дочірньою колекцією Product із полями `FabricId`, `IsPrimary` та `SortOrder`. Вона не містить entity `Fabric`, її `Price` або `ProviderId`. Product забезпечує унікальність тканини та правило рівно однієї основної тканини, якщо список не порожній; Application перевіряє існування тканин через Reference abstraction.
+`Fabrics` буде дочірньою колекцією Product із полями `FabricId`, `IsPrimary` та `SortOrder`. Вона не містить entity `Fabric`, її `Price` або `ProviderId`. Product забезпечує унікальність тканини й не більше двох основних тканин; якщо в списку лише одна тканина, вона є основною. Read-model відображає основні тканини першими, а потім застосовує `SortOrder`. Application перевіряє існування тканин через Reference abstraction.
 
 `MetersPerProduct` є одним ручним додатним полем самого Sewing-товару: кількістю метрів тканини на один виріб. Воно не належить `Fabrics[]`, не дублюється для кожної тканини та не застосовується до `Ppe`.
 
-Ціноутворення не належить цій фазі до окремого рішення: витрату вже визначено як product-level `MetersPerProduct`, але потрібні правила трьох цінових діапазонів 1–10 / 11–39 / 40+ шт., валюти та округлення. Видалення Fabric має очистити links із Product через ідемпотентну міжмодульну подію.
+Витрату визначено як product-level `MetersPerProduct`. Правила розрахунку трьох цінових діапазонів 1–10 / 11–39 / 40+ шт. для кожної вибраної тканини визначені в [requirements/pricing.md](../requirements/pricing.md). Результат є обчислюваним read-model, а не snapshot у Product: він використовує актуальні ціни Reference і `AdditionalReference`. Fabric, прив’язану до Product, не можна видалити.
 
-Для Ppe потрібні два цінові рівні — роздрібний та оптовий — і окрема формула, що застосовує вибраний постачальник та Ppe-коефіцієнт. Межі кількості для обох типів мають бути непересічними та без пропусків до появи доменної моделі цін.
+Для Ppe потрібне обов’язкове product-level поле `BasePrice`, яке вводить адміністратор. До нього окремо застосовуються роздрібний і оптовий відсотки; для кожного рівня адміністратор обирає `AdditionalReference` або вводить ручний відсоток. Формули та діапазони визначені в [requirements/pricing.md](../requirements/pricing.md).
 
 ## Фурнітура: доповнення до доменної моделі
 
 `Accessories` буде дочірньою колекцією Product із полями `GarmentAccessoryId`, `Quantity` та `SortOrder`. Вона не містить entity `GarmentAccessory`, його `Price` або `SupplierId`. Product забезпечує унікальність фурнітури та додатну кількість; Application перевіряє існування ID через Reference abstraction.
 
-Майбутній розрахунок вартості використовує актуальну ціну Reference і кількість на виріб, але одиниця Quantity, правила округлення та партійне ціноутворення ще не визначені. Видалення фурнітури має очистити links із Product через ідемпотентну міжмодульну подію.
+Розрахунок вартості використовує актуальну ціну Reference і кількість на виріб відповідно до [requirements/pricing.md](../requirements/pricing.md); дробові результати не округлюються. Фурнітуру, прив’язану до Product, не можна видалити.
 
 ## Межа типу товару
 
 `Fabrics`, `Accessories`, `MetersPerProduct` і `SewingOperations` доступні лише для `ProductType.Sewing`. Product із типом `Ppe` не може створювати, зберігати або змінювати ці дані.
 
-`ProductType.Ppe` має рівно один обов’язковий `SupplierId`, що посилається на `Reference.Supplier`. Product не містить entity Supplier; Application перевіряє існування ID через Reference abstraction. Sewing-товар не може мати `SupplierId` на рівні Product.
+`ProductType.Ppe` має рівно один обов’язковий `SupplierId`, що посилається на `Reference.Supplier`, та обов’язковий додатний `BasePrice`. Product не містить entity Supplier; Application перевіряє існування ID через Reference abstraction. Sewing-товар не може мати `SupplierId` або `BasePrice` на рівні Product.
 
-Ppe також має value object `PpeCoefficient` із двома взаємовиключними станами: `Reference(AdditionalReferenceId)` або `Custom(decimal value)`. У першому випадку Application читає актуальне значення довідника Reference з unit `%`; у другому значення належить Product і є невід’ємним. Product не створює AdditionalReference автоматично. Sewing-товар не може мати `PpeCoefficient`.
+Ppe має два value object-и `RetailPricePercent` і `WholesalePricePercent`, кожен із двома взаємовиключними станами: `Reference(AdditionalReferenceId)` або `Custom(decimal value)`. У першому випадку Application читає актуальне значення довідника Reference з unit `%`; у другому значення належить Product і є невід’ємним. Product не створює AdditionalReference автоматично. Sewing-товар не може мати цих відсотків.
 
 ## Перевірка
 
-- Unit-тести: add/remove/replace operations, duplicate ID, type boundary, zero total, calculation/rounding.
-- Integration-тести: перевірка наявності Reference operation, видалення operation та read-модель сторінки товару.
+- Unit-тести: add/remove/replace operations, duplicate ID, type boundary, zero total, calculation without rounding.
+- Integration-тести: перевірка наявності Reference operation, відхилення видалення використаної operation/fabric/accessory та read-модель сторінки товару.
 - Ризики: cross-module consistency та зміна `Min` у довіднику після прив’язування.

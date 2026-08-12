@@ -1,0 +1,427 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Catalog Product Admin API
+  version: 1.0.0
+  description: Admin-only Product CRUD. Temporarily available anonymously; authorization must be enabled before production.
+paths:
+  /api/v1/products:
+    get:
+      operationId: getAdminProducts
+      summary: Get a paged Product list
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/ProductType'
+        - $ref: '#/components/parameters/CategoryId'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/SortDirection'
+      responses:
+        '200':
+          description: Page of Products; an empty result is a successful page with an empty items array.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductListPage' }
+    post:
+      operationId: createProduct
+      summary: Create a Product with the administrator-supplied ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateProductRequest' }
+            example:
+              id: 101
+              name: Куртка робоча
+              ruName: Куртка рабочая
+              type: Sewing
+              descriptionUk: "## Опис"
+              descriptionRu: "## Описание"
+              categoryIds: [12]
+              photos: [{ mediaFileId: 501, alt: Куртка, isVisible: true, isMain: true, sortOrder: 0 }]
+              informationBlocks: []
+              characteristicTables: []
+              metersPerProduct: 1.8
+              fabrics: [{ fabricId: 31, isPrimary: true, sortOrder: 0 }]
+              accessories: [{ garmentAccessoryId: 44, quantity: 2, sortOrder: 0 }]
+              operationIds: [71, 72]
+      responses:
+        '201':
+          description: Product created.
+          headers:
+            Location:
+              schema: { type: string }
+              example: /api/v1/products/101
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetail' }
+              example:
+                id: 101
+                name: Куртка робоча
+                ruName: Куртка рабочая
+                slug: work-jacket
+                type: Sewing
+                categories: [{ id: 12, name: Спецодяг, ruName: Спецодежда, slug: specodyag }]
+                mainPhoto: { mediaFileId: 501, url: 'https://cdn.example.test/501.jpg' }
+                createdAtUtc: '2026-08-10T09:00:00Z'
+                updatedAtUtc: '2026-08-10T09:00:00Z'
+                descriptionUk: "## Опис"
+                descriptionRu: "## Описание"
+                photos: [{ mediaFileId: 501, url: 'https://cdn.example.test/501.jpg', alt: Куртка, isVisible: true, isMain: true, sortOrder: 0 }]
+                informationBlocks: []
+                characteristicTables: []
+                sewing:
+                  metersPerProduct: 1.8
+                  fabrics: [{ fabricId: 31, isPrimary: true, sortOrder: 0, name: Бавовна, price: 150 }]
+                  accessories: [{ garmentAccessoryId: 44, quantity: 2, sortOrder: 0, name: Блискавка, price: 20 }]
+                  operations: [{ id: 71, name: Пошиття, minutes: 15 }]
+                  piecesPerShift: 25.6
+                  prices:
+                    byFabric: [{ fabricId: 31, price1To10: 400.5, price11To39: 380.4, price40Plus: 360.3 }]
+                    ranges:
+                      price1To10: { minPrice: 400.5, minFabricId: 31, maxPrice: 400.5, maxFabricId: 31 }
+                      price11To39: { minPrice: 380.4, minFabricId: 31, maxPrice: 380.4, maxFabricId: 31 }
+                      price40Plus: { minPrice: 360.3, minFabricId: 31, maxPrice: 360.3, maxFabricId: 31 }
+                ppe: null
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409': { $ref: '#/components/responses/ConflictError' }
+  /api/v1/products/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    get:
+      operationId: getAdminProductById
+      summary: Get the full configurable Product detail
+      responses:
+        '200':
+          description: Product detail with current Reference display data and calculated prices.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetail' }
+        '404': { description: Product was not found. }
+    put:
+      operationId: replaceProduct
+      summary: Fully replace all editable Product data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReplaceProductRequest' }
+      responses:
+        '200':
+          description: Updated current Product detail.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetail' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { description: Product was not found. }
+        '409': { $ref: '#/components/responses/ConflictError' }
+    delete:
+      operationId: deleteProduct
+      summary: Delete a Product and its Product-owned details and links
+      responses:
+        '204': { description: Product deleted. Linked MediaFiles are not deleted. }
+        '404': { description: Product was not found. }
+components:
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, minimum: 1, maximum: 1000000000 }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      schema: { type: integer, enum: [10, 20, 50], default: 20 }
+    Search:
+      name: search
+      in: query
+      description: Exact Product ID search when numeric; otherwise case-insensitive partial search in Ukrainian name, Russian name, and slug.
+      schema: { type: string, minLength: 1, maxLength: 200 }
+    ProductType:
+      name: type
+      in: query
+      schema: { $ref: '#/components/schemas/ProductType' }
+    CategoryId:
+      name: categoryId
+      in: query
+      description: One category. A parent category includes all descendants.
+      schema: { type: integer, minimum: 1 }
+    SortBy:
+      name: sortBy
+      in: query
+      schema: { type: string, enum: [id, name, createdAt, updatedAt], default: name }
+    SortDirection:
+      name: sortDirection
+      in: query
+      schema: { type: string, enum: [asc, desc], default: asc }
+  responses:
+    ValidationError:
+      description: Ardalis.Result validation errors.
+      content:
+        application/json:
+          schema: { type: array, items: { $ref: '#/components/schemas/ValidationError' } }
+    ConflictError:
+      description: Ardalis.Result conflict errors, including duplicate Product ID, Ukrainian/Russian name, or an unavailable Reference ID.
+      content:
+        application/json:
+          schema: { type: array, items: { type: string } }
+  schemas:
+    ProductType:
+      type: string
+      enum: [Sewing, Ppe]
+    ProductListPage:
+      type: object
+      required: [items, page, pageSize, totalCount]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ProductListItem' } }
+        page: { type: integer, example: 1 }
+        pageSize: { type: integer, example: 20 }
+        totalCount: { type: integer, example: 42 }
+    ProductListItem:
+      type: object
+      required: [id, name, slug, type, categories, createdAtUtc, updatedAtUtc]
+      properties:
+        id: { type: integer, example: 101 }
+        name: { type: string, description: Ukrainian name, example: Куртка робоча }
+        slug: { type: string, example: work-jacket }
+        type: { $ref: '#/components/schemas/ProductType' }
+        categories: { type: array, items: { $ref: '#/components/schemas/Category' } }
+        mainPhoto: { oneOf: [{ $ref: '#/components/schemas/MainPhoto' }, { type: 'null' }] }
+        createdAtUtc: { type: string, format: date-time }
+        updatedAtUtc: { type: string, format: date-time }
+    Category:
+      type: object
+      required: [id, name, ruName, slug]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        ruName: { type: string }
+        slug: { type: string }
+    MainPhoto:
+      type: object
+      required: [mediaFileId, url]
+      properties:
+        mediaFileId: { type: integer }
+        url: { type: string, format: uri }
+    ProductWriteBase:
+      type: object
+      required: [name, ruName, type, descriptionUk, descriptionRu, categoryIds, photos]
+      properties:
+        name: { type: string, maxLength: 200 }
+        ruName: { type: string, maxLength: 200 }
+        type: { $ref: '#/components/schemas/ProductType' }
+        descriptionUk: { type: string, maxLength: 20000, description: Sanitized Markdown. }
+        descriptionRu: { type: string, maxLength: 20000, description: Sanitized Markdown. }
+        categoryIds: { type: array, items: { type: integer, minimum: 1 }, uniqueItems: true }
+        photos: { type: array, items: { $ref: '#/components/schemas/ProductPhotoWrite' } }
+        informationBlocks: { type: array, items: { $ref: '#/components/schemas/InformationBlockWrite' } }
+        characteristicTables: { type: array, items: { $ref: '#/components/schemas/CharacteristicTableWrite' } }
+    CreateProductRequest:
+      allOf:
+        - type: object
+          required: [id]
+          properties: { id: { type: integer, minimum: 1, maximum: 1000000000 } }
+        - $ref: '#/components/schemas/ProductWriteBase'
+        - $ref: '#/components/schemas/ProductTypeWrite'
+    ReplaceProductRequest:
+      allOf:
+        - $ref: '#/components/schemas/ProductWriteBase'
+        - $ref: '#/components/schemas/ProductTypeWrite'
+    ProductTypeWrite:
+      oneOf:
+        - $ref: '#/components/schemas/SewingWrite'
+        - $ref: '#/components/schemas/PpeWrite'
+      discriminator: { propertyName: type, mapping: { Sewing: '#/components/schemas/SewingWrite', Ppe: '#/components/schemas/PpeWrite' } }
+    SewingWrite:
+      type: object
+      required: [type, metersPerProduct, fabrics, accessories, operationIds]
+      properties:
+        type: { const: Sewing }
+        metersPerProduct: { type: number, exclusiveMinimum: 0 }
+        fabrics: { type: array, items: { $ref: '#/components/schemas/FabricWrite' } }
+        accessories: { type: array, items: { $ref: '#/components/schemas/AccessoryWrite' } }
+        operationIds: { type: array, items: { type: integer, minimum: 1 }, uniqueItems: true }
+    PpeWrite:
+      type: object
+      required: [type, supplierId, basePrice, retailPercent, wholesalePercent]
+      properties:
+        type: { const: Ppe }
+        supplierId: { type: integer, minimum: 1 }
+        basePrice: { type: number, exclusiveMinimum: 0 }
+        retailPercent: { $ref: '#/components/schemas/PercentWrite' }
+        wholesalePercent: { $ref: '#/components/schemas/PercentWrite' }
+    PercentWrite:
+      oneOf:
+        - type: object
+          required: [source, additionalReferenceId]
+          properties: { source: { const: Reference }, additionalReferenceId: { type: integer, minimum: 1 } }
+        - type: object
+          required: [source, customPercent]
+          properties: { source: { const: Custom }, customPercent: { type: number, minimum: 0 } }
+    ProductPhotoWrite:
+      type: object
+      required: [mediaFileId, isVisible, isMain, sortOrder]
+      properties:
+        mediaFileId: { type: integer, minimum: 1 }
+        alt: { type: [string, 'null'], maxLength: 500 }
+        isVisible: { type: boolean }
+        isMain: { type: boolean }
+        sortOrder: { type: integer, minimum: 0 }
+    FabricWrite:
+      type: object
+      required: [fabricId, isPrimary, sortOrder]
+      properties:
+        fabricId: { type: integer, minimum: 1 }
+        isPrimary: { type: boolean }
+        sortOrder: { type: integer, minimum: 0 }
+    AccessoryWrite:
+      type: object
+      required: [garmentAccessoryId, quantity, sortOrder]
+      properties:
+        garmentAccessoryId: { type: integer, minimum: 1 }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        sortOrder: { type: integer, minimum: 0 }
+    InformationBlockWrite:
+      type: object
+      required: [titleUk, titleRu, textUk, textRu, sortOrder]
+      properties:
+        titleUk: { type: string, maxLength: 200 }
+        titleRu: { type: string, maxLength: 200 }
+        textUk: { type: string, maxLength: 2000 }
+        textRu: { type: string, maxLength: 2000 }
+        sortOrder: { type: integer, minimum: 0 }
+    CharacteristicTableWrite:
+      type: object
+      required: [titleUk, titleRu, sortOrder, rows]
+      properties:
+        titleUk: { type: string, maxLength: 200 }
+        titleRu: { type: string, maxLength: 200 }
+        sortOrder: { type: integer, minimum: 0 }
+        rows: { type: array, items: { $ref: '#/components/schemas/CharacteristicRowWrite' } }
+    CharacteristicRowWrite:
+      type: object
+      required: [labelUk, labelRu, valueUk, valueRu, sortOrder]
+      properties:
+        labelUk: { type: string, maxLength: 200 }
+        labelRu: { type: string, maxLength: 200 }
+        valueUk: { type: string, maxLength: 1000 }
+        valueRu: { type: string, maxLength: 1000 }
+        sortOrder: { type: integer, minimum: 0 }
+    ProductDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProductListItem'
+        - type: object
+          required: [ruName, descriptionUk, descriptionRu, photos, informationBlocks, characteristicTables]
+          properties:
+            ruName: { type: string }
+            descriptionUk: { type: string }
+            descriptionRu: { type: string }
+            photos: { type: array, items: { $ref: '#/components/schemas/ProductPhotoDetail' } }
+            informationBlocks: { type: array, items: { $ref: '#/components/schemas/InformationBlockWrite' } }
+            characteristicTables: { type: array, items: { $ref: '#/components/schemas/CharacteristicTableWrite' } }
+            sewing: { oneOf: [{ $ref: '#/components/schemas/SewingDetail' }, { type: 'null' }] }
+            ppe: { oneOf: [{ $ref: '#/components/schemas/PpeDetail' }, { type: 'null' }] }
+    ProductPhotoDetail:
+      allOf:
+        - $ref: '#/components/schemas/MainPhoto'
+        - type: object
+          required: [isVisible, isMain, sortOrder]
+          properties:
+            alt: { type: [string, 'null'] }
+            isVisible: { type: boolean }
+            isMain: { type: boolean }
+            sortOrder: { type: integer }
+    SewingDetail:
+      type: object
+      required: [metersPerProduct, fabrics, accessories, operations, piecesPerShift, prices]
+      properties:
+        metersPerProduct: { type: number }
+        fabrics: { type: array, items: { $ref: '#/components/schemas/FabricDetail' } }
+        accessories: { type: array, items: { $ref: '#/components/schemas/AccessoryDetail' } }
+        operations: { type: array, items: { $ref: '#/components/schemas/OperationDetail' } }
+        piecesPerShift: { oneOf: [{ type: number }, { type: 'null' }], description: Full unrounded fractional value. }
+        prices: { oneOf: [{ $ref: '#/components/schemas/SewingPrices' }, { type: 'null' }] }
+    FabricDetail:
+      allOf:
+        - $ref: '#/components/schemas/FabricWrite'
+        - type: object
+          required: [name, price]
+          properties: { name: { type: string }, price: { type: number } }
+    AccessoryDetail:
+      allOf:
+        - $ref: '#/components/schemas/AccessoryWrite'
+        - type: object
+          required: [name, price]
+          properties: { name: { type: string }, price: { type: number } }
+    OperationDetail:
+      type: object
+      required: [id, name, minutes]
+      properties: { id: { type: integer }, name: { type: string }, minutes: { type: number } }
+    SewingPrices:
+      type: object
+      required: [byFabric, ranges]
+      properties:
+        byFabric:
+          type: array
+          items:
+            type: object
+            required: [fabricId, price1To10, price11To39, price40Plus]
+            properties:
+              fabricId: { type: integer }
+              price1To10: { type: number }
+              price11To39: { type: number }
+              price40Plus: { type: number }
+        ranges:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/PriceRange' }
+          description: Keys are price1To10, price11To39, price40Plus.
+    PriceRange:
+      type: object
+      required: [minPrice, minFabricId, maxPrice, maxFabricId]
+      properties:
+        minPrice: { type: number }
+        minFabricId: { type: integer }
+        maxPrice: { type: number }
+        maxFabricId: { type: integer }
+    PpeDetail:
+      type: object
+      required: [supplier, basePrice, retailPercent, wholesalePercent, retailPrice, wholesalePrice]
+      properties:
+        supplier: { $ref: '#/components/schemas/ReferenceName' }
+        basePrice: { type: number }
+        retailPercent: { $ref: '#/components/schemas/PercentDetail' }
+        wholesalePercent: { $ref: '#/components/schemas/PercentDetail' }
+        retailPrice: { type: number }
+        wholesalePrice: { type: number }
+    PercentDetail:
+      oneOf:
+        - type: object
+          required: [source, reference]
+          properties: { source: { const: Reference }, reference: { $ref: '#/components/schemas/AdditionalReferenceDetail' } }
+        - type: object
+          required: [source, customPercent]
+          properties: { source: { const: Custom }, customPercent: { type: number } }
+    ReferenceName:
+      type: object
+      required: [id, name]
+      properties: { id: { type: integer }, name: { type: string } }
+    AdditionalReferenceDetail:
+      type: object
+      required: [id, name, key, value, unit]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        key: { type: string }
+        value: { type: number }
+        unit: { type: string, example: '%' }
+    ValidationError:
+      type: object
+      required: [errorMessage]
+      properties:
+        identifier: { type: [string, 'null'] }
+        errorMessage: { type: string }
+        errorCode: { type: [string, 'null'] }

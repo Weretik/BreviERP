@@ -17,7 +17,9 @@
 ```text
 Catalog.Product (aggregate root)
 ├── спільні властивості: Name, RuName, Slug, Type, Photos, Categories
-├── описовий блок: Description, Information, Characteristics      (ще не деталізовано)
+├── Description: Markdown українською та російською
+├── InformationBlocks[]: локалізовані заголовок, текст і порядок
+├── CharacteristicTables[]: локалізовані таблиці та їх рядки
 └── SewingOperations[]                                             (лише для Type = Sewing)
     └── GarmentPartOperationId ──→ Reference.GarmentPartOperation
                                       └── Min
@@ -29,12 +31,10 @@ Catalog.Product (aggregate root)
 
 ```text
 totalOperationMinutes = Σ operation.Min
-theoreticalPiecesPerShift = 480 / totalOperationMinutes
-piecesPerShift = floor(480 / totalOperationMinutes)
-remainingShiftMinutes = 480 - (piecesPerShift × totalOperationMinutes)
+piecesPerShift = 480 / (totalOperationMinutes × 1.25)
 ```
 
-`480` — встановлена тривалість зміни у хвилинах. `piecesPerShift` містить лише повністю завершені вироби; теоретичне дробове значення потрібне для аналітики, а залишок показує невикористані хвилини.
+`480` — встановлена тривалість зміни у хвилинах, а `1.25` — фіксований коефіцієнт до сумарної тривалості операцій. `piecesPerShift` є єдиним показником кількості виробів за зміну: він передається повним дробовим числовим значенням без округлення. Окремі значення для завершених або теоретичних виробів і залишку хвилин не обчислюються.
 
 Sewing-товар може існувати як чернетка без операцій; для нього показники не обчислюються. Розрахунок також не виконується, якщо сума `Min` дорівнює нулю. `Min` завжди читається з актуального `GarmentPartOperation` у Reference; Product не зберігає snapshot, тому зміна довідника змінює наступний розрахунок.
 
@@ -47,8 +47,7 @@ Sewing-товар може існувати як чернетка без опе�
 ## Потрібні рішення перед кодом
 
 1. Контракт події видалення, delivery/retry та observability.
-2. Чи потрібна історія розрахунків, якщо `Min` у довіднику змінюється.
-3. Структура і валідація Description, Information, Characteristics.
+3. Максимальні розміри Description, Information і Characteristics.
 
 ## Критерії приймання для реалізації
 
@@ -56,18 +55,18 @@ Sewing-товар може існувати як чернетка без опе�
 - [ ] Одна операція не додається двічі до одного Product.
 - [ ] Некоректний або відсутній operation ID не потрапляє до aggregate-а.
 - [ ] Sewing-чернетка без операцій дозволена; трудомісткість для неї не обчислюється.
-- [ ] Трудомісткість не ділить на нуль; `piecesPerShift` округлюється вниз.
+- [ ] Трудомісткість не ділить на нуль; `piecesPerShift` передається повним дробовим значенням без округлення.
 - [ ] Зміна `Min` у Reference змінює наступний розрахунок без зміни Product.
 - [ ] Видалення операції прибирає її links із Product через ідемпотентну міжмодульну подію.
 - [ ] Catalog не отримує залежність від Reference Infrastructure або entity.
 
 ## Тканини: доповнення до доменної моделі
 
-`Fabrics` буде дочірньою колекцією Product із полями `FabricId`, `IsPrimary` та `SortOrder`. Вона не містить entity `Fabric`, її `Price` або `ProviderId`. Product забезпечує унікальність тканини та правило рівно однієї основної тканини, якщо список не порожній; Application перевіряє існування тканин через Reference abstraction.
+`Fabrics` буде дочірньою колекцією Product із полями `FabricId`, `IsPrimary` та `SortOrder`. Вона не містить entity `Fabric`, її `Price` або `ProviderId`. Product забезпечує унікальність тканини й не більше двох основних тканин; якщо в списку лише одна тканина, вона є основною. Read-model відображає основні тканини першими, а потім застосовує `SortOrder`. Application перевіряє існування тканин через Reference abstraction.
 
 `MetersPerProduct` є одним ручним додатним полем самого Sewing-товару: кількістю метрів тканини на один виріб. Воно не належить `Fabrics[]`, не дублюється для кожної тканини та не застосовується до `Ppe`.
 
-Ціноутворення не належить цій фазі до окремого рішення: витрату вже визначено як product-level `MetersPerProduct`, але потрібні правила трьох цінових діапазонів 1–10 / 11–39 / 40+ шт., валюти та округлення. Видалення Fabric має очистити links із Product через ідемпотентну міжмодульну подію.
+Витрату визначено як product-level `MetersPerProduct`. Правила розрахунку трьох цінових діапазонів 1–10 / 11–39 / 40+ шт. для кожної вибраної тканини визначені в [актуальній специфікації ціноутворення](../../001-product-page/requirements/pricing.md). Результат є обчислюваним read-model, а не snapshot у Product: він використовує актуальні ціни Reference і `AdditionalReference`. Видалення Fabric має очистити links із Product через ідемпотентну міжмодульну подію.
 
 Для Ppe потрібні два цінові рівні — роздрібний та оптовий — і окрема формула, що застосовує вибраний постачальник та Ppe-коефіцієнт. Межі кількості для обох типів мають бути непересічними та без пропусків до появи доменної моделі цін.
 
@@ -75,7 +74,7 @@ Sewing-товар може існувати як чернетка без опе�
 
 `Accessories` буде дочірньою колекцією Product із полями `GarmentAccessoryId`, `Quantity` та `SortOrder`. Вона не містить entity `GarmentAccessory`, його `Price` або `SupplierId`. Product забезпечує унікальність фурнітури та додатну кількість; Application перевіряє існування ID через Reference abstraction.
 
-Майбутній розрахунок вартості використовує актуальну ціну Reference і кількість на виріб, але одиниця Quantity, правила округлення та партійне ціноутворення ще не визначені. Видалення фурнітури має очистити links із Product через ідемпотентну міжмодульну подію.
+Розрахунок вартості використовує актуальну ціну Reference і кількість на виріб відповідно до [формули Sewing](../../001-product-page/requirements/pricing.md); дробові результати не округлюються. Видалення фурнітури має очистити links із Product через ідемпотентну міжмодульну подію.
 
 ## Межа типу товару
 
@@ -87,6 +86,6 @@ Ppe також має value object `PpeCoefficient` із двома взаємо
 
 ## Перевірка
 
-- Unit-тести: add/remove/replace operations, duplicate ID, type boundary, zero total, calculation/rounding.
+- Unit-тести: add/remove/replace operations, duplicate ID, type boundary, zero total, calculation without rounding.
 - Integration-тести: перевірка наявності Reference operation, видалення operation та read-модель сторінки товару.
 - Ризики: cross-module consistency та зміна `Min` у довіднику після прив’язування.

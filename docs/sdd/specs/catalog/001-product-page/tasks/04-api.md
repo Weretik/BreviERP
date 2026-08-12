@@ -1,15 +1,17 @@
 # Фаза 04 — API
 
-**Залежності:** [03-application.md](03-application.md), погоджений `contracts/product-catalog.openapi.yaml`
+> Фаза лише впорядковує API підфази. Product має HTTP API, тому всі наведені підфази обов'язкові та виконуються послідовно.
 
-- [ ] T028 Створити DTO в `src/Modules/Catalog/Catalog.Api/Catalog.Api/Contracts/Products/` строго за погодженим `contracts/product-catalog.openapi.yaml`.
-- [ ] T029 Створити або розширити `ProductsController` у `src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/`; controller лише мапить HTTP ↔ Mediator і не містить бізнес-правил.
-- [ ] T030 Додати погоджені authorization policies до write endpoints; не послаблювати чинну security-конфігурацію.
-- [ ] T031 Повернути `Ardalis.Result` через наявний API mapping і зберегти стандартний формат validation/error response.
-- [ ] T032 [P] Додати integration/API-тести для create/update, type boundaries, Reference validation, authorization і read-model.
-- [ ] T033 Звірити реалізовані маршрути, DTO, приклади й коди результатів з `contracts/product-catalog.openapi.yaml`; не вважати фазу завершеною за розбіжності контракту й коду.
+- [x] O04-01 Створити API-підфази для controllers, HTTP behavior, OpenAPI та API tests.
+- [ ] O04-02 Завершити controllers/endpoints: [04.1-products-controller.md](api/04.1-products-controller.md).
+- [ ] O04-03 Завершити HTTP contracts, authorization і Result mapping: [04.2-http-contracts-and-behavior.md](api/04.2-http-contracts-and-behavior.md).
+- [ ] O04-04 Синхронізувати OpenAPI після API-коду: [04.3-openapi-documentation.md](api/04.3-openapi-documentation.md).
+- [ ] O04-05 Завершити API/integration tests: [04.4-api-tests.md](api/04.4-api-tests.md).
 
 ## Checkpoint
 
-Усі endpoints відповідають затвердженому контракту, а API не містить доменних правил або залежностей від Reference Infrastructure.
+Product API має окремі завершені підфази controllers → HTTP behavior → OpenAPI → API tests.
 
+## Наступна фаза
+
+[05 — Verification](05-verification.md)

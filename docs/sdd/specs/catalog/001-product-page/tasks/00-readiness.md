@@ -1,16 +1,14 @@
-# Фаза 00 — Уточнення та готовність до реалізації
+# Фаза 00 — Readiness
 
-**Залежності:** немає  
-**Блокує:** усі наступні фази
+> Фаза лише створює та впорядковує підфази. Детальні рішення зафіксовані в окремих файлах `00.N`.
 
-- [ ] T001 Прочитати всі документи `requirements/`, `design/`, `data-model.md` і `checklist/spec-readiness.md`; створити перелік суперечностей та невизначеностей без припущень.
-- [ ] T002 Погодити або виключити з цього delivery: локалізацію Information/Characteristics, Markdown allow-list, ціноутворення, кілька категорій, історію виробничих норм і правила media.
-- [ ] T003 Погодити write-авторизацію, slug uniqueness, pagination/filtering і public read-model; зафіксувати рішення в `contracts/api-contract.md` та відповідних requirement-файлах.
-- [ ] T004 Погодити контракт, ідемпотентність, retry та observability подій видалення `GarmentPartOperation`, `Fabric` і `GarmentAccessory`; оновити `design/domain.md`.
-- [ ] T005 Описати в `contracts/product-catalog.openapi.yaml` точні маршрути, request/response DTO, помилки та приклади до створення API-коду.
-- [ ] T006 Позначити виконані пункти у `checklist/spec-readiness.md`.
+- [x] O00-01 Створити й завершити підфазу scope/CQRS use cases: [00.1-scope-and-use-cases.md](readiness/00.1-scope-and-use-cases.md).
+- [x] O00-02 Створити й завершити підфазу CLI та generators: [00.2-cli-and-generators.md](readiness/00.2-cli-and-generators.md).
 
 ## Checkpoint
 
-Не починати Domain, доки кожне рішення, яке впливає на модель або контракт, не має явного статусу «прийнято» або «поза scope».
+Усі підфази `00.N` завершені; scope, потрібні use cases і CLI-first підхід погоджені.
 
+## Наступна фаза
+
+[01 — Domain](01-domain.md)

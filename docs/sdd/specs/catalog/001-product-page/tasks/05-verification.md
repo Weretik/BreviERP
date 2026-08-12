@@ -1,16 +1,11 @@
-# Фаза 05 — Verification і handoff
+# Фаза 05 — Verification
 
-**Залежності:** [00-readiness.md](00-readiness.md)–[04-api.md](04-api.md)
+> Фаза лише впорядковує Verification підфази. Вона починається після завершення всіх потрібних `04.N` API підфаз.
 
-- [ ] T034 Виконати `dotnet restore BreviERP.sln`.
-- [ ] T035 Виконати `dotnet build BreviERP.sln --no-restore`.
-- [ ] T036 Виконати `dotnet test BreviERP.sln --no-build`.
-- [ ] T037 Виконати міграційний тест і ручні Swagger-сценарії з create/update Sewing, create/update PPE, невалідними комбінаціями і повторною подією видалення.
-- [ ] T038 Пройти кожен застосовний пункт `checklist/delivery-readiness.md`; для пропущеного пункту зафіксувати причину й ризик.
-- [ ] T039 Оновити `README.md`, `contracts/api-contract.md`, `contracts/product-catalog.openapi.yaml`, обидва документи `checklist/` і відповідні requirement/design документи за фактичною реалізацією; не приховувати відхилення від спеки.
-- [ ] T040 Підготувати delivery report: змінені файли, результати restore/build/test, ручні перевірки й залишкові ризики.
+- [x] O05-01 Створити підфази build/tests і delivery documentation/report.
+- [ ] O05-02 Завершити CLI build/tests: [05.1-build-and-tests.md](verification/05.1-build-and-tests.md).
+- [ ] O05-03 Завершити delivery checklist, documentation і report: [05.2-delivery-documentation.md](verification/05.2-delivery-documentation.md).
 
 ## Checkpoint
 
-Feature завершена лише якщо всі застосовні T001–T040 мають `[x]`, а verification не містить невирішених блокерів.
-
+Усі `05.N` підфази завершені; feature має підтверджені build/tests і delivery evidence.

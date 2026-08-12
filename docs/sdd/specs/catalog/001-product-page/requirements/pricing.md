@@ -1,57 +1,79 @@
 # Product page — ціноутворення
 
-### Ціноутворення — поза поточним рішенням
+## Прийняте правило
 
-Ціна товару надалі залежатиме від вибраних тканин. Плануються три цінові діапазони замовлення: до 10 шт., 11–39 шт. та від 40 шт. включно. Валюта, джерело трьох цін і правила округлення ще не визначені, тому вони не реалізуються та не фіксуються як модель даних до окремого уточнення.
+Ціна `Sewing` обчислюється для кожної пари «товар — вибрана тканина». Тому один товар із кількома тканинами має окремі три ціни для кожної тканини. Ціна тканини береться з поточного `Reference.Fabric`, а ціни фурнітури — з поточних `Reference.GarmentAccessory`; Product не зберігає їх snapshot. Зміна довідникових цін або коефіцієнтів змінює наступний розрахунок.
 
+Усі проміжні та кінцеві значення передаються повними дробовими числовими значеннями без округлення. Усі дільники мають бути більшими за нуль; якщо хоча б один з них нульовий або відсутній, ціна не обчислюється.
 
-## Цінові рівні товару
+## Вхідні дані
 
-Ціни є різними для двох типів Product і будуть реалізовані лише після окремого опису формули розрахунку.
+| Позначення | Джерело |
+| --- | --- |
+| `metersPerProduct` | `Product.SewingProductDetails.MetersPerProduct` |
+| `fabricPrice` | поточний `Reference.Fabric.Price` вибраної тканини |
+| `accessoryQuantity`, `accessoryPrice` | відповідно Product link і поточний `Reference.GarmentAccessory.Price` для кожної фурнітури |
+| `totalOperationMinutes` | сума `Min` усіх вибраних `GarmentPartOperation` |
+| `srZpShvei` | `AdditionalReference.Key = sr_zp_shvei` |
+| `workDay` | `AdditionalReference.Key = work_day` |
+| `coefficientSeamstressAward` | `AdditionalReference.Key = coefficient_seamstress_award` |
+| `coefficientFactor` | `AdditionalReference.Key = coefficient_factor` |
+| `coefficientMaster` | `AdditionalReference.Key = coefficient_master` |
+| `coefficientForeman` | `AdditionalReference.Key = coefficient_foreman` |
+| `monthlyExpenses` | `AdditionalReference.Key = monthly_expenses` |
+| `countShvei` | `AdditionalReference.Key = count_shvei` |
 
-### Sewing: три ціни на основі тканин
+Значення кожного рядка `AdditionalReference` читається за його унікальним `Key`; у розрахунок передається його поточне поле `Value`. Для кожного значення з unit `%` використовується правило `percentRatio = Value / 100`: наприклад, `33%` перетворюється на `0.33`.
 
-Sewing-товар має три цінові рівні. Вони залежать від вибраних тканин: кожна тканина надає власні три ціни, які беруть участь у розрахунку ціни Product з урахуванням `MetersPerProduct`.
+## Розрахунок собівартості Sewing
 
 ```text
-Fabric
-├── Sewing price level 1
-├── Sewing price level 2
-└── Sewing price level 3
-       ↓ разом із MetersPerProduct
-Product.Sewing price levels 1–3
+piecesPerShift = 480 / (totalOperationMinutes × 1.25)
+
+seamstressSalary = (srZpShvei / workDay) / piecesPerShift
+seamstressAward = seamstressSalary × (coefficientSeamstressAward / 100)
+cutterSalary = seamstressSalary / (coefficientFactor / 100)
+masterSalary = seamstressSalary / (coefficientMaster / 100)
+foremanSalary = seamstressSalary / (coefficientForeman / 100)
+
+workshopSalary = seamstressSalary + cutterSalary + masterSalary + foremanSalary + seamstressAward
+overheadExpenses = monthlyExpenses / workDay / countShvei / piecesPerShift
+
+accessoriesCost = Σ(accessoryQuantity × accessoryPrice)
+baseCost = (metersPerProduct × fabricPrice) + accessoriesCost + workshopSalary + overheadExpenses
 ```
 
-Затверджені непересічні діапазони Sewing:
+`1.25` є фіксованим коефіцієнтом до загальної трудомісткості. Sewing-чернетка без операцій або товар із нульовою сумою `Min` не має `piecesPerShift` і ціни.
 
-| Рівень | Кількість |
-| --- | --- |
-| 1 | 1–10 шт. |
-| 2 | 11–39 шт. |
-| 3 | 40+ шт. |
+`seamstressSalary`, `seamstressAward`, `cutterSalary`, `masterSalary` і `foremanSalary` є витратами на один виріб. Місячна `srZpShvei` використовується лише для початкового розрахунку `seamstressSalary`.
 
-До окремого рішення не створюються поля цін або розрахунок.
+## Три ціни для кожної тканини
 
-### Ppe: дві ціни
-
-Ppe-товар має два цінові рівні: роздрібний та оптовий.
+Для кожної вибраної тканини формуються такі ціни:
 
 ```text
-Ppe Product
-├── Retail price
-└── Wholesale price
+price1To10 = baseCost × (1 + profit10 / 100)
+price11To39 = baseCost × (1 + profit10To40 / 100)
+price40Plus = baseCost × (1 + profit40 / 100)
 ```
 
-Затверджені непересічні діапазони Ppe:
-
-| Рівень | Кількість |
+| Діапазон замовлення | Ключ `AdditionalReference` |
 | --- | --- |
-| Роздріб | 1–9 шт. |
-| Опт | 10+ шт. |
+| 1–10 шт. | `profit_10` |
+| 11–39 шт. | `profit_10_40` |
+| від 40 шт. | `profit_40` |
 
-Формула Ppe-ціни з постачальником і коефіцієнтом буде додана окремо.
+Кожна ціна використовує поточне `Value` відповідного відсотка. Значення `33` означає націнку `33%`: `baseCost × (1 + 33 / 100) = baseCost × 1.33`. Фурнітура, зарплата цеху та накладні витрати однакові для всіх трьох цін конкретної пари «товар — тканина»; відрізняються лише `fabricPrice` і відсоток цінового діапазону.
 
-### Ціноутворення — поза поточним рішенням
+Read-model також повертає для товару мінімальну й максимальну ціну серед усіх його тканин окремо для кожного діапазону: `price1To10`, `price11To39` і `price40Plus`. Разом із крайніми значеннями повертається `FabricId`, що сформував відповідну ціну, щоб UI міг показати конкретну тканину.
 
-Надалі вартість фурнітури впливатиме на ціну товару: кількість для виробу множиться на актуальну ціну фурнітури. Остаточна формула, одиниця кількості (ціла штука або дробова величина), правила округлення, ціни для партій і поведінка при зміні ціни ще не визначені. Їх буде зафіксовано разом із загальним SDD-рішенням ціноутворення.
+## Ppe
 
+PPE має ручну `basePrice`, яку вводить адміністратор. Роздрібний та оптовий відсотки незалежно обираються з `AdditionalReference` або вводяться вручну:
+
+```text
+retailPrice = basePrice × (1 + retailPercent / 100)
+wholesalePrice = basePrice × (1 + wholesalePercent / 100)
+```
+
+Роздрібна ціна застосовується до 1–9 шт., оптова — від 10 шт. Обидва відсотки мають unit `%` і застосовуються через `/ 100`.
