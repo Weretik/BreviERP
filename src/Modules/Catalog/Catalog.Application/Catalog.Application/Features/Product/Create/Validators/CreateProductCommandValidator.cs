@@ -1,5 +1,6 @@
 using Catalog.Application.Features.Product.Create.DTOs;
-using Catalog.Domain.Products.Enums;
+using Catalog.Application.Features.Product.Shared.Validation;
+using Catalog.Application.Features.Product.Shared.Validation.Resources;
 
 namespace Catalog.Application.Features.Product.Create.Validators;
 
@@ -7,24 +8,12 @@ public sealed class CreateProductCommandValidator : AbstractValidator<CreateProd
 {
     public CreateProductCommandValidator()
     {
-        RuleFor(x => x.Request).NotNull();
+        RuleFor(x => x.Request).NotNull().WithMessage(_ => ProductValidationMessages.Required("Запит", "Запрос"));
         When(x => x.Request is not null, () =>
         {
-            RuleFor(x => x.Request.Id).InclusiveBetween(1, 1_000_000_000);
-            RuleFor(x => x.Request.Name).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Request.RuName).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Request.Type).IsInEnum();
-            RuleFor(x => x.Request.DescriptionUk).NotEmpty().MaximumLength(20_000);
-            RuleFor(x => x.Request.DescriptionRu).NotEmpty().MaximumLength(20_000);
-            RuleFor(x => x.Request.CategoryIds).NotNull();
-            RuleFor(x => x.Request.Photos).NotNull();
-            RuleFor(x => x.Request).Must(HaveDataForSelectedType)
-                .WithMessage("Product must contain data for its selected type only.");
+            RuleFor(x => x.Request.Id).InclusiveBetween(1, 1_000_000_000)
+                .WithMessage(_ => ProductValidationMessages.Localize("ID товару має бути від 1 до 1 000 000 000.", "ID товара должен быть от 1 до 1 000 000 000."));
+            RuleFor(x => x.Request).SetValidator(new ProductRequestValidator());
         });
     }
-
-    private static bool HaveDataForSelectedType(CreateProductCommandRequest request)
-        => request.Type == ProductType.Sewing
-            ? request.Sewing is not null && request.Ppe is null
-            : request.Ppe is not null && request.Sewing is null;
 }

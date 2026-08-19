@@ -1,5 +1,6 @@
 using Accounting.Application;
 using Crm.Application;
+using Catalog.Application;
 using FluentValidation;
 using Identity.Application;
 using Reference.Application;
@@ -20,6 +21,10 @@ public static class FluentValidationRegistrationExtensions
 
         services.AddValidatorsFromAssembly(
             typeof(IdentityApplicationAssemblyMarker).Assembly,
+            includeInternalTypes: true);
+
+        services.AddValidatorsFromAssembly(
+            typeof(CatalogApplicationAssemblyMarker).Assembly,
             includeInternalTypes: true);
 
         services.AddValidatorsFromAssembly(

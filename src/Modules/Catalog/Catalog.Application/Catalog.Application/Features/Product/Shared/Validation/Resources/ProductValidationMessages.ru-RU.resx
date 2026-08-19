@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Required" xml:space="preserve"><value>Поле «{0}» обязательно.</value></data>
+  <data name="Positive" xml:space="preserve"><value>Поле «{0}» должно быть больше нуля.</value></data>
+  <data name="MaximumLength" xml:space="preserve"><value>Поле «{0}» не может превышать {1} символов.</value></data>
+  <data name="Invalid" xml:space="preserve"><value>Поле «{0}» имеет недопустимое значение.</value></data>
+  <data name="Duplicate" xml:space="preserve"><value>Коллекция «{0}» содержит дубликаты.</value></data>
+  <data name="InformationBlock.TitleUk" xml:space="preserve"><value>Украинский заголовок</value></data>
+  <data name="InformationBlock.TitleRu" xml:space="preserve"><value>Русский заголовок</value></data>
+  <data name="InformationBlock.TextUk" xml:space="preserve"><value>Украинский текст</value></data>
+  <data name="InformationBlock.TextRu" xml:space="preserve"><value>Русский текст</value></data>
+</root>

@@ -1,7 +1,17 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilog();
 builder.Services.AddHostServices(builder.Configuration);
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { new CultureInfo("uk-UA"), new CultureInfo("ru-RU") };
+    options.DefaultRequestCulture = new RequestCulture("uk-UA");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 var app = builder.Build();
 
@@ -20,6 +30,7 @@ else
 }
 
 app.UseForwardedHeaders();
+app.UseRequestLocalization();
 app.UseCors("Frontend");
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
