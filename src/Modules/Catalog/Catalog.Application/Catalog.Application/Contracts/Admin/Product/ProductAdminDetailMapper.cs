@@ -14,7 +14,8 @@ public static class ProductAdminDetailMapper
     public static ProductAdminDetail Map(
         ProductAdminDetailReadModel product,
         ProductReferenceData references,
-        IReadOnlyDictionary<int, CategoryAdminDetail> categories) => new(
+        IReadOnlyDictionary<int, CategoryAdminDetail> categories,
+        IReadOnlyDictionary<int, string> mediaUrls) => new(
         product.Id,
         product.Name,
         product.RuName,
@@ -23,7 +24,9 @@ public static class ProductAdminDetailMapper
         product.DescriptionUk,
         product.DescriptionRu,
         product.CategoryIds.Select(id => categories.GetValueOrDefault(id)).OfType<CategoryAdminDetail>().ToList(),
-        product.Photos.OrderBy(x => x.SortOrder).Select(x => new ProductPhotoDetail(x.MediaFileId, x.Alt, x.IsVisible, x.IsMain, x.SortOrder)).ToList(),
+        product.Photos.OrderBy(x => x.SortOrder)
+            .Where(x => mediaUrls.ContainsKey(x.MediaFileId))
+            .Select(x => new ProductPhotoDetail(x.MediaFileId, mediaUrls[x.MediaFileId], x.Alt, x.IsVisible, x.IsMain, x.SortOrder)).ToList(),
         product.InformationBlocks.OrderBy(x => x.SortOrder).Select(x => new InformationBlockAdminDetail(x.TitleUk, x.TitleRu, x.TextUk, x.TextRu, x.SortOrder)).ToList(),
         product.CharacteristicTables.OrderBy(x => x.SortOrder).Select(table => new CharacteristicTableAdminDetail(
             table.TitleUk, table.TitleRu, table.SortOrder, table.Rows.OrderBy(row => row.SortOrder)
@@ -36,7 +39,7 @@ public static class ProductAdminDetailMapper
     private static SewingAdminDetail MapSewing(SewingReadModel sewing, ProductReferenceData references)
     {
         var minutes = sewing.OperationIds.Select(id => references.GarmentPartOperations.GetValueOrDefault(id)?.Minutes ?? 0m).ToList();
-        var prices = CalculatePrices(sewing, references);
+        var prices = CalculateSewingPrices(sewing, references);
         return new SewingAdminDetail(
             sewing.MetersPerProduct,
             sewing.Fabrics.OrderByDescending(x => x.IsPrimary).ThenBy(x => x.SortOrder)
@@ -56,12 +59,23 @@ public static class ProductAdminDetailMapper
     private static PpeAdminDetail? MapPpe(PpeReadModel ppe, ProductReferenceData references)
     {
         if (!references.Suppliers.TryGetValue(ppe.SupplierId, out var supplier)) return null;
+        var retailPrice = CalculatePpeRetailPrice(ppe, references);
+        var wholesalePrice = CalculatePpeWholesalePrice(ppe, references);
+        if (!retailPrice.HasValue || !wholesalePrice.HasValue) return null;
         return new PpeAdminDetail(
             new NamedReferenceAdminDetail(supplier.Id, supplier.Name),
             ppe.BasePrice,
             MapPercent(ppe.RetailSource, ppe.RetailAdditionalReferenceId, ppe.RetailCustomPercent, references),
-            MapPercent(ppe.WholesaleSource, ppe.WholesaleAdditionalReferenceId, ppe.WholesaleCustomPercent, references));
+            MapPercent(ppe.WholesaleSource, ppe.WholesaleAdditionalReferenceId, ppe.WholesaleCustomPercent, references),
+            retailPrice.Value,
+            wholesalePrice.Value);
     }
+
+    public static decimal? CalculatePpeRetailPrice(PpeReadModel ppe, ProductReferenceData references)
+        => CalculatePpePrice(ppe.BasePrice, ppe.RetailSource, ppe.RetailAdditionalReferenceId, ppe.RetailCustomPercent, references);
+
+    public static decimal? CalculatePpeWholesalePrice(PpeReadModel ppe, ProductReferenceData references)
+        => CalculatePpePrice(ppe.BasePrice, ppe.WholesaleSource, ppe.WholesaleAdditionalReferenceId, ppe.WholesaleCustomPercent, references);
 
     private static PpePercentAdminDetail MapPercent(PricePercentSource source, int? referenceId, decimal? customPercent, ProductReferenceData references)
     {
@@ -74,7 +88,7 @@ public static class ProductAdminDetailMapper
             customPercent);
     }
 
-    private static SewingPrices? CalculatePrices(SewingReadModel sewing, ProductReferenceData data)
+    public static SewingPrices? CalculateSewingPrices(SewingReadModel sewing, ProductReferenceData data)
     {
         if (!TryValues(data, out var values) || sewing.Fabrics.Any(x => !data.Fabrics.ContainsKey(x.FabricId)) || sewing.Accessories.Any(x => !data.GarmentAccessories.ContainsKey(x.GarmentAccessoryId))) return null;
         var accessories = sewing.Accessories.Sum(x => x.Quantity * data.GarmentAccessories.GetValueOrDefault(x.GarmentAccessoryId)?.Price ?? 0m);
@@ -90,5 +104,21 @@ public static class ProductAdminDetailMapper
         values = data.AdditionalReferences.Values.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
         var keys = new[] { "sr_zp_shvei", "work_day", "coefficient_seamstress_award", "coefficient_factor", "coefficient_master", "coefficient_foreman", "monthly_expenses", "count_shvei", "profit_10", "profit_10_40", "profit_40" };
         return keys.All(values.ContainsKey) && values["work_day"] > 0 && values["coefficient_factor"] > 0 && values["coefficient_master"] > 0 && values["coefficient_foreman"] > 0 && values["count_shvei"] > 0;
+    }
+
+    private static decimal? CalculatePpePrice(
+        decimal basePrice,
+        PricePercentSource source,
+        int? additionalReferenceId,
+        decimal? customPercent,
+        ProductReferenceData references)
+    {
+        var percent = source == PricePercentSource.Custom
+            ? customPercent
+            : additionalReferenceId is { } id && references.AdditionalReferences.TryGetValue(id, out var reference)
+                ? reference.Value
+                : null;
+
+        return percent.HasValue ? basePrice * (1 + percent.Value / 100) : null;
     }
 }

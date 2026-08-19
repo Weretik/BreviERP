@@ -50,11 +50,13 @@ public sealed class CreateProductCommandHandler(
         product.SetDescriptions(request.DescriptionUk, request.DescriptionRu, now);
         product.ReplaceCategories(request.CategoryIds.Select(ProductCategoryId.Create), now);
 
+        var mediaUrls = new Dictionary<int, string>();
         foreach (var photo in request.Photos)
         {
             var media = await mediaRepository.FirstOrDefaultAsync(new Features.Media.Shared.Specifications.MediaFileByIdSpec(photo.MediaFileId), cancellationToken);
             if (media is null || !media.IsReadyForProductUsage())
                 return Result.Conflict($"Media file {photo.MediaFileId} is not ready for Product usage.");
+            mediaUrls[photo.MediaFileId] = media.PublicUrl!;
         }
         foreach (var (photo, index) in request.Photos.Select((photo, index) => (photo, index)))
             product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(photo.MediaFileId), now,
@@ -90,7 +92,7 @@ public sealed class CreateProductCommandHandler(
         var detail = await repository.FirstOrDefaultAsync(new ProductAdminDetailSpec(product.Id.Value), cancellationToken);
         return detail is null
             ? Result.Error("Created Product could not be read.")
-            : Result.Success(ProductAdminDetailMapper.Map(detail, references, categoryDetails));
+            : Result.Success(ProductAdminDetailMapper.Map(detail, references, categoryDetails, mediaUrls));
     }
 
     private static string? FindMissingReference(CreateProductCommandRequest request, ProductReferenceData references)

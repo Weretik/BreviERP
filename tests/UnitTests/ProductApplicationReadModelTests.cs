@@ -15,7 +15,8 @@ public class ProductApplicationReadModelTests
     [Test]
     public void Admin_detail_sorts_primary_fabrics_before_additional_fabrics()
     {
-        var detail = ProductAdminDetailMapper.Map(SewingReadModel(), SewingReferences(), Categories());
+        var detail = ProductAdminDetailMapper.Map(
+            SewingReadModel(), SewingReferences(), Categories(), new Dictionary<int, string> { [501] = "https://cdn.example.test/501.jpg" });
 
         Assert.Multiple(() =>
         {
@@ -26,6 +27,7 @@ public class ProductApplicationReadModelTests
             Assert.That(detail.Sewing.Operations.Single(), Is.EqualTo(new OperationAdminDetail(5, "Пошиття", 12m)));
             Assert.That(detail.Sewing.Prices!.Ranges.Price1To10.MinFabricId, Is.EqualTo(1));
             Assert.That(detail.Sewing.Prices.Ranges.Price1To10.MaxFabricId, Is.EqualTo(3));
+            Assert.That(detail.Photos.Single(), Is.EqualTo(new ProductPhotoDetail(501, "https://cdn.example.test/501.jpg", "Куртка", true, true, 0)));
         });
     }
 
@@ -38,7 +40,7 @@ public class ProductApplicationReadModelTests
             new Dictionary<int, PricedReferenceItem>(),
             new Dictionary<int, OperationReferenceItem>(),
             new Dictionary<int, AdditionalReferenceItem> { [10] = new(10, "Роздріб", "retail", 12m, "%") });
-        var detail = ProductAdminDetailMapper.Map(PpeReadModel(), references, new Dictionary<int, CategoryAdminDetail>());
+        var detail = ProductAdminDetailMapper.Map(PpeReadModel(), references, new Dictionary<int, CategoryAdminDetail>(), new Dictionary<int, string>());
 
         Assert.Multiple(() =>
         {
@@ -47,6 +49,8 @@ public class ProductApplicationReadModelTests
             Assert.That(detail.Ppe.RetailPercent.CustomPercent, Is.Null);
             Assert.That(detail.Ppe.WholesalePercent.Reference, Is.Null);
             Assert.That(detail.Ppe.WholesalePercent.CustomPercent, Is.EqualTo(15m));
+            Assert.That(detail.Ppe.RetailPrice, Is.EqualTo(112m));
+            Assert.That(detail.Ppe.WholesalePrice, Is.EqualTo(115m));
         });
     }
 
@@ -56,7 +60,7 @@ public class ProductApplicationReadModelTests
     };
 
     private static ProductAdminDetailReadModel SewingReadModel() => new(
-        101, "Куртка", "Куртка", "kurtka", ProductType.Sewing, "Опис", "Описание", [9], [], [], [],
+        101, "Куртка", "Куртка", "kurtka", ProductType.Sewing, "Опис", "Описание", [9], [new ProductPhotoReadModel(501, "Куртка", true, true, 0)], [], [],
         new SewingReadModel(1m,
             [new FabricReadModel(3, false, 0), new FabricReadModel(2, true, 3), new FabricReadModel(1, true, 2)],
             [new AccessoryReadModel(4, 2m, 0)], [5]),

@@ -3,6 +3,8 @@ using Catalog.Application.Features.Product.GetAdminList;
 using Catalog.Application.Features.Product.GetAdminList.Specifications;
 using Catalog.Domain.ProductCategories.Entities;
 using Catalog.Domain.ProductCategories.ValueObjects;
+using Catalog.Domain.Media.Entities;
+using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
@@ -110,6 +112,35 @@ public sealed class GetAdminProductsSpecTests
         {
             Assert.That(items.Select(x => x.Id), Is.EqualTo(new[] { 120 }));
             Assert.That(pageQuery.ToQueryString(), Does.Contain("ORDER BY").And.Contain("\"Id\""));
+        });
+    }
+
+    [Test]
+    public async Task Media_url_projection_reads_only_requested_uploaded_media_files_in_sql()
+    {
+        await using var db = CreateContext();
+        var media = MediaFile.CreatePending(
+            MediaFileId.Create(501),
+            "product.jpg",
+            "image/jpeg",
+            1024,
+            "test",
+            "catalog",
+            "products/501.jpg");
+        media.MarkUploaded("https://cdn.example.test/501.jpg", null, null);
+        db.MediaFiles.Add(media);
+        await db.SaveChangesAsync();
+
+        var query = SpecificationEvaluator.Default.GetQuery(
+            db.MediaFiles.AsQueryable(),
+            new ProductMediaUrlsByIdsSpec([501]));
+        var result = await query.SingleAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.MediaFileId, Is.EqualTo(501));
+            Assert.That(result.Url, Is.EqualTo("https://cdn.example.test/501.jpg"));
+            Assert.That(query.ToQueryString(), Does.Contain("WHERE").And.Contain("MediaFiles"));
         });
     }
 

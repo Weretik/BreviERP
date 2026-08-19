@@ -6,4 +6,6 @@ public sealed record PpeAdminDetail(
     NamedReferenceAdminDetail Supplier,
     decimal BasePrice,
     PpePercentAdminDetail RetailPercent,
-    PpePercentAdminDetail WholesalePercent);
+    PpePercentAdminDetail WholesalePercent,
+    decimal RetailPrice,
+    decimal WholesalePrice);
