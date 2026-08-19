@@ -1,4 +1,4 @@
-namespace Catalog.Application.Contracts.Admin;
+namespace Catalog.Application.Contracts.Admin.Product;
 
 public sealed record CharacteristicTableAdminDetail(
     string TitleUk,

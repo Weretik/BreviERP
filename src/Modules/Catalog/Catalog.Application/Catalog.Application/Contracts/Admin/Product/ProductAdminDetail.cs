@@ -1,6 +1,8 @@
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Contracts.Admin.Ppe;
+using Catalog.Application.Contracts.Admin.Sewing;
 
-namespace Catalog.Application.Contracts.Admin;
+namespace Catalog.Application.Contracts.Admin.Product;
 
 public sealed record ProductAdminDetail(
     int Id,
@@ -10,7 +12,7 @@ public sealed record ProductAdminDetail(
     ProductType Type,
     string DescriptionUk,
     string DescriptionRu,
-    IReadOnlyList<int> CategoryIds,
+    IReadOnlyList<CategoryAdminDetail> Categories,
     IReadOnlyList<ProductPhotoDetail> Photos,
     IReadOnlyList<InformationBlockAdminDetail> InformationBlocks,
     IReadOnlyList<CharacteristicTableAdminDetail> CharacteristicTables,

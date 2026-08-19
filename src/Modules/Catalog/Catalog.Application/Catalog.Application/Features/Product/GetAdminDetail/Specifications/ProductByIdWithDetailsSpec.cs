@@ -1,6 +1,6 @@
 using ProductEntity = Catalog.Domain.Products.Entities.Product;
 
-namespace Catalog.Application.Features.Product.GetAdminDetail;
+namespace Catalog.Application.Features.Product.GetAdminDetail.Specifications;
 
 public sealed class ProductByIdWithDetailsSpec : Specification<ProductEntity>
 {

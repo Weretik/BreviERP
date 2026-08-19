@@ -1,12 +1,15 @@
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Contracts.Admin;
+using Catalog.Application.Contracts.Admin.Product;
 using Catalog.Application.Contracts.SlugGeneration;
 using Catalog.Application.Features.Product.Create.DTOs;
-using Catalog.Application.Features.Product.Specifications;
+using Catalog.Application.Features.Product.Create.Specifications;
+using ProductAdminDetailSpec = Catalog.Application.Features.Product.GetAdminDetail.Specifications.ProductAdminDetailSpec;
 using Catalog.Domain.Media.Entities;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.ProductCategories.ValueObjects;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
@@ -18,6 +21,7 @@ public sealed class CreateProductCommandHandler(
     ICatalogRepository<ProductEntity> repository,
     ICatalogReadRepository<MediaFile> mediaRepository,
     IProductReferenceReader referenceReader,
+    ICatalogReadRepository<ProductCategoryEntity> categoryRepository,
     IProductSlugGenerator slugGenerator)
     : ICommandHandler<CreateProductCommand, Result<ProductAdminDetail>>
 {
@@ -30,6 +34,11 @@ public sealed class CreateProductCommandHandler(
         var exists = await repository.AnyAsync(new ProductByIdOrNameSpec(request.Id, name, ruName, slug), cancellationToken);
         if (exists)
             return Result.Conflict("Product ID, Ukrainian name, Russian name, or slug already exists.");
+
+        var categories = await categoryRepository.ListAsync(
+            new ProductCategoriesByIdsSpec(request.CategoryIds), cancellationToken);
+        if (categories.Count != request.CategoryIds.Distinct().Count())
+            return Result.Conflict("One or more ProductCategory IDs do not exist.");
 
         var references = await referenceReader.GetSnapshotAsync(cancellationToken);
         var missingReference = FindMissingReference(request, references);
@@ -46,16 +55,10 @@ public sealed class CreateProductCommandHandler(
             var media = await mediaRepository.FirstOrDefaultAsync(new Features.Media.Shared.Specifications.MediaFileByIdSpec(photo.MediaFileId), cancellationToken);
             if (media is null || !media.IsReadyForProductUsage())
                 return Result.Conflict($"Media file {photo.MediaFileId} is not ready for Product usage.");
-            // Photo IDs are local to a Product (the persistence key is ProductId + PhotoId).
-            product.AddPhoto(
-                ProductPhotoId.Create(Random.Shared.Next(1, 1_000_000_001)),
-                MediaFileId.Create(photo.MediaFileId),
-                now,
-                photo.Alt,
-                photo.IsVisible,
-                photo.SortOrder,
-                photo.IsMain);
         }
+        foreach (var (photo, index) in request.Photos.Select((photo, index) => (photo, index)))
+            product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(photo.MediaFileId), now,
+                photo.Alt, photo.IsVisible, photo.SortOrder, photo.IsMain);
 
         var blocks = request.InformationBlocks.Select(x => new ProductInformationBlock(product.Id, x.TitleUk, x.TitleRu, x.TextUk, x.TextRu, x.SortOrder));
         var tables = request.CharacteristicTables.Select(x =>
@@ -81,7 +84,13 @@ public sealed class CreateProductCommandHandler(
                 ToRetailPercent(ppe.RetailPercent), ToWholesalePercent(ppe.WholesalePercent)), now);
         }
         await repository.AddAsync(product, cancellationToken);
-        return Result.Success(ProductAdminDetailMapper.Map(product));
+        var categoryDetails = categories.ToDictionary(
+            x => x.Id.Value,
+            x => new CategoryAdminDetail(x.Id.Value, x.Name, x.RuName, x.Slug));
+        var detail = await repository.FirstOrDefaultAsync(new ProductAdminDetailSpec(product.Id.Value), cancellationToken);
+        return detail is null
+            ? Result.Error("Created Product could not be read.")
+            : Result.Success(ProductAdminDetailMapper.Map(detail, references, categoryDetails));
     }
 
     private static string? FindMissingReference(CreateProductCommandRequest request, ProductReferenceData references)
@@ -101,9 +110,8 @@ public sealed class CreateProductCommandHandler(
 
     private static string? ValidatePercent(PercentRequest percent, ProductReferenceData references)
     {
-        if (percent.Source == PricePercentSource.Custom) return percent.CustomPercent is >= 0 && percent.AdditionalReferenceId is null ? null : "Custom percent is invalid.";
-        if (percent.Source != PricePercentSource.Reference || !percent.AdditionalReferenceId.HasValue || percent.CustomPercent.HasValue ||
-            !references.AdditionalReferences.TryGetValue(percent.AdditionalReferenceId.Value, out var item) || item.Unit != "%")
+        if (percent.Source == PricePercentSource.Custom) return null;
+        if (!references.AdditionalReferences.TryGetValue(percent.AdditionalReferenceId!.Value, out var item) || item.Unit != "%")
             return "AdditionalReference percent must exist and use '%' unit.";
         return null;
     }
