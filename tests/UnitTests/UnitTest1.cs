@@ -1,7 +1,7 @@
 using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.Services;
+using Catalog.Domain.Products.Productivity;
 using Catalog.Domain.Products.ValueObjects;
 
 namespace UnitTests;
@@ -28,9 +28,24 @@ public class ProductDomainTests
     }
 
     [Test]
+    public void Sewing_details_reject_duplicate_fabrics_and_accessories()
+    {
+        var duplicateFabrics = () => SewingProductDetails.Create(ProductId.Create(1), 1m,
+            [new ProductFabric(ProductId.Create(1), 10, true, 0), new ProductFabric(ProductId.Create(1), 10, false, 1)], [], []);
+        var duplicateAccessories = () => SewingProductDetails.Create(ProductId.Create(1), 1m, [],
+            [new ProductAccessory(ProductId.Create(1), 20, 1m, 0), new ProductAccessory(ProductId.Create(1), 20, 2m, 1)], []);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(duplicateFabrics, Throws.TypeOf<DomainException>());
+            Assert.That(duplicateAccessories, Throws.TypeOf<DomainException>());
+        });
+    }
+
+    [Test]
     public void Pieces_per_shift_keeps_full_fractional_value()
     {
-        var result = SewingCalculation.CalculatePiecesPerShift([15m]);
+        var result = SewingProductivity.CalculatePiecesPerShift([15m]);
 
         Assert.That(result, Is.EqualTo(25.6m));
     }
@@ -38,8 +53,8 @@ public class ProductDomainTests
     [Test]
     public void Pieces_per_shift_is_null_for_empty_or_zero_operations()
     {
-        Assert.That(SewingCalculation.CalculatePiecesPerShift([]), Is.Null);
-        Assert.That(SewingCalculation.CalculatePiecesPerShift([0m]), Is.Null);
+        Assert.That(SewingProductivity.CalculatePiecesPerShift([]), Is.Null);
+        Assert.That(SewingProductivity.CalculatePiecesPerShift([0m]), Is.Null);
     }
 
     [Test]
@@ -79,6 +94,16 @@ public class ProductDomainTests
         product.Update("Каска", "Каска", ProductSlug.Create("kaska"), ProductType.Sewing, Now);
 
         Assert.That(product.PpeDetails, Is.Null);
+    }
+
+    [Test]
+    public void Sewing_product_rejects_ppe_details()
+    {
+        var product = Product.Create(ProductId.Create(1), "Куртка", "Куртка", ProductSlug.Create("kurtka"), ProductType.Sewing, Now);
+        var ppe = PpeProductDetails.Create(ProductId.Create(1), 1, 100m,
+            RetailPricePercent.FromReference(1), WholesalePricePercent.FromCustom(10m));
+
+        Assert.That(() => product.ConfigurePpe(ppe, Now), Throws.TypeOf<DomainException>());
     }
 
     [Test]

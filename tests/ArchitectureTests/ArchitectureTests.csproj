@@ -4,11 +4,25 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Presentation\Presentation.Client\Presentation.Client.csproj" />
-      <ProjectReference Include="..\..\src\Presentation\Presentation.Shared\Presentation.Shared.csproj" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+        <PackageReference Include="NUnit" Version="4.4.0" />
+        <PackageReference Include="NUnit.Analyzers" Version="4.11.2">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="NUnit3TestAdapter" Version="6.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="NUnit.Framework" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Application\Catalog.Application\Catalog.Application.csproj" />
     </ItemGroup>
 
 </Project>

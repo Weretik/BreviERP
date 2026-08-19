@@ -1,3 +1,10 @@
+using Ardalis.Result;
+using Ardalis.Specification.EntityFrameworkCore;
+using BuildingBlocks.Application.Behaviors;
+using Catalog.Application.Contracts.Admin.Product;
+using Catalog.Application.Features.Product.Create;
+using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
+using Catalog.Application.Features.Product.GetAdminDetail.Specifications;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
@@ -6,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace IntegrationTests;
 
@@ -58,6 +66,7 @@ public sealed class CatalogProductPersistenceTests
     {
         await using var db = CreateContext();
         await db.Database.MigrateAsync();
+        await db.Database.ExecuteSqlRawAsync("DELETE FROM catalog.\"Products\"");
 
         await AssertSchemaContainsPhaseTwoTables(db);
         await AssertProductLifecycleAndConstraints(db);
@@ -71,6 +80,60 @@ public sealed class CatalogProductPersistenceTests
         await Assert.ThatAsync(
             () => db.Database.SqlQueryRaw<string>("SELECT to_regclass('catalog.\"Products\"')::text AS \"Value\"").SingleAsync(),
             Is.EqualTo("catalog.\"Products\""));
+    }
+
+    [Test]
+    public async Task Unique_constraint_race_is_mapped_to_conflict_by_the_command_pipeline()
+    {
+        await using var db = CreateContext();
+        await db.Database.MigrateAsync();
+        var now = DateTimeOffset.UtcNow;
+        db.Products.Add(Product.Create(ProductId.Create(201), "Concurrent product", "Конкурентний товар",
+            ProductSlug.Create("concurrent-product"), ProductType.Sewing, now));
+        await db.SaveChangesAsync();
+
+        var behavior = new ExceptionBehavior<CreateProductCommand, Result<ProductAdminDetail>>(
+            NullLogger<ExceptionBehavior<CreateProductCommand, Result<ProductAdminDetail>>>.Instance);
+
+        var result = await behavior.Handle(
+            new CreateProductCommand(null!),
+            async (_, cancellationToken) =>
+            {
+                db.Products.Add(Product.Create(ProductId.Create(202), "Concurrent product", "Інший товар",
+                    ProductSlug.Create("another-product"), ProductType.Sewing, now));
+                await db.SaveChangesAsync(cancellationToken);
+                return Result.Success<ProductAdminDetail>(null!);
+            },
+            CancellationToken.None);
+
+        Assert.That(result.Status, Is.EqualTo(ResultStatus.Conflict));
+        await db.Database.ExecuteSqlRawAsync("DELETE FROM catalog.\"Products\"");
+    }
+
+    [Test]
+    public async Task Admin_detail_projection_is_translated_to_a_no_tracking_sql_query()
+    {
+        await using var db = CreateContext();
+        await db.Database.MigrateAsync();
+        await db.Database.ExecuteSqlRawAsync("DELETE FROM catalog.\"Products\"");
+        var now = DateTimeOffset.UtcNow;
+        var product = Product.Create(ProductId.Create(301), "Projection product", "Проекційний товар",
+            ProductSlug.Create("projection-product"), ProductType.Sewing, now);
+        product.ConfigureSewing(SewingProductDetails.Create(product.Id, 1m,
+            [new ProductFabric(product.Id, 501, true, 0)], [], []), now);
+        db.Products.Add(product);
+        await db.SaveChangesAsync();
+
+        var query = SpecificationEvaluator.Default.GetQuery(db.Products.AsQueryable(), new ProductAdminDetailSpec(301));
+        var detail = await query.SingleAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(detail, Is.TypeOf<ProductAdminDetailReadModel>());
+            Assert.That(detail.Sewing!.Fabrics.Single().FabricId, Is.EqualTo(501));
+            Assert.That(query.ToQueryString(), Does.Contain("SELECT").And.Contain("Products"));
+        });
+        await db.Database.ExecuteSqlRawAsync("DELETE FROM catalog.\"Products\"");
     }
 
     private CatalogDbContext CreateContext()
