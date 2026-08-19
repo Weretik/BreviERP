@@ -15,15 +15,28 @@
 
 Передавайте `CancellationToken` крізь увесь flow. Cross-cutting concerns залишайте у pipeline behaviors; не переміщуйте business rules у behaviors.
 
+### Ardalis.Result
+
+- Для очікуваних outcomes use case використовуйте `Ardalis.Result`, а не власні
+  success/error wrappers. Для paginated list query базовим результатом є
+  `PagedResult<IReadOnlyList<TItem>>` із `PagedInfo`; не створюйте локальний DTO,
+  що дублює page/page-size/total metadata.
+- Для чистого перетворення `Result<TSource>` у `Result<TTarget>` використовуйте
+  `Map`. Для послідовності операцій, що кожна повертає `Result`, використовуйте
+  `Bind`/`BindAsync`, коли це прибирає повторні перевірки status. Не приховуйте
+  через них write side effects або суттєві DB/state checks.
+
 Використовуйте явні імена: `CreateOrderCommand`, `GetPublicProductListQuery`, `GetAdminProductListQueryHandler`. Не створюйте generic folders або names на кшталт `Common`, `Misc`, `Helper`, `Utils`, `Manager`. Не додавайте abstractions без конкретної потреби.
 
 ## Якість структури файлів
 
 - Один production-файл має одну основну відповідальність і, як правило, один top-level type. Не об'єднуйте в одному файлі кілька DTO, specifications, handlers або не пов'язані допоміжні типи лише для скорочення кількості файлів.
-- Розташовуйте код у feature-by-folder: command/query, handler, validator, DTO та specification належать конкретному use-case. `Shared` допускається лише для справді спільного коду Product/feature, а не як місце для неструктурованих типів.
+- Розташовуйте код у feature-by-folder: command/query, handler, validator, DTO та specification належать конкретному use-case. Specifications завжди зберігайте в `<UseCase>/Specifications/`; заборонено створювати загальну `<Area>/Specifications/` або використовувати specification іншого use-case. `Shared` допускається лише для справді спільного коду Product/feature, а не як місце для неструктурованих типів.
 - Назва файла відповідає public top-level type: `CreateProductCommand.cs`, `CreateProductCommandHandler.cs`, `ProductByIdSpec.cs` тощо.
 - Дотримуйтеся наявного форматування проєкту. Не використовують стиснутий однорядковий стиль для namespaces, класів, handlers, validators або складних DTO. Перед завершенням зміни запустіть formatter або перевірте diff на відповідність сусіднім файлам.
 - Спочатку дослідіть наявні conventions, контракти та залежності, потім вносіть мінімальну завершену реалізацію. Заборонені тимчасові заглушки, часткові каркаси й передчасні твердження про завершення, якщо ними не можна закрити task і підтвердити це перевіркою.
+- Не дублюйте capability уже підключеної бібліотеки власним wrapper/utility, доки
+  не перевірено, що її тип або extension не покриває погоджений use case.
 
 ## Domain events і транзакції
 

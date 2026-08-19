@@ -16,6 +16,11 @@
 - оголошувати релевантні `ProducesResponseType` attributes;
 - не містити validation, business або EF logic.
 
+Для paginated list endpoint controller повинен зберегти весь
+`PagedResult<IReadOnlyList<TItem>>` у response: `value` і `pagedInfo`. Не
+використовуйте generic Result-to-HTTP helper, якщо він повертає лише `result.Value`
+і відкидає `PagedInfo`; додайте або використайте mapping, що зберігає metadata.
+
 ## Валідація, результати та помилки
 
 FluentValidation validators реєструються скануванням Application assembly і запускаються через Mediator validation behavior. Розміщуйте validator у папці відповідного use-case.

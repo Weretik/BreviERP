@@ -29,6 +29,12 @@ AI має скопіювати `feature/` до
 виконуйте підфази `04.N` у порядку: controllers → HTTP behavior → OpenAPI →
 API tests.
 
+Якщо feature створює або змінює сутність, таблицю, event/message чи integration
+contract, **до моделювання або написання коду** AI має прочитати
+[`database-rules.md`](../../../standards/database-rules.md#вибір-ідентифікатора-сутності),
+обрати тип ID за його життєвим циклом і записати рішення та обґрунтування в
+`data-model.md`. Не починати створення сутності, доки цей вибір не зафіксовано.
+
 Якщо feature має HTTP endpoint або integration API, ці фази є обов'язковими:
 controllers → HTTP contracts/authorization/result mapping → OpenAPI → API tests →
 Verification. AI не має пропускати потрібні підфази 04.NN.
