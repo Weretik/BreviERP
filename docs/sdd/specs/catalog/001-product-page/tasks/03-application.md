@@ -8,11 +8,11 @@
 - [x] O03-04 Зафіксувати реалізований delete use case: [03.4-delete-product.md](application/03.4-delete-product.md).
 - [x] O03-05 Завершити validation/handler/projection tests: [03.5-application-tests.md](application/03.5-application-tests.md).
 - [x] O03-06 Локалізувати та повністю покрити validation Product use cases: [03.6-validation-localization.md](application/03.6-validation-localization.md).
-- [ ] O03-07 Закрити production-hardening risks Application: [03.7-production-hardening.md](application/03.7-production-hardening.md).
+- [x] O03-07 Закрити production-hardening risks Application: [03.7-production-hardening.md](application/03.7-production-hardening.md).
 
 ## Checkpoint
 
-Кожен Product use case має окремий handler і `Ardalis.Result`. List виконує filtering/sorting/paging на DB-side; validation, handler та projection test докази зафіксовані у `03.5`, а локалізована validation-модель — у `03.6`. Production hardening для category validation, photo IDs, concurrent conflicts, detail projection і architecture checks лишається відкритим у `03.7`.
+Кожен Product use case має окремий handler і `Ardalis.Result`. List виконує filtering/sorting/paging на DB-side; validation, handler та projection test докази зафіксовані у `03.5`, локалізована validation-модель — у `03.6`, а production hardening для category validation, photo IDs, concurrent conflicts, detail projection і architecture checks — у завершеній `03.7`.
 
 ## Наступна фаза
 
