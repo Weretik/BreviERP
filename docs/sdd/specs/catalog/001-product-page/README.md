@@ -39,7 +39,7 @@
 | [00 — Readiness](tasks/00-readiness.md) | вимоги, відкриті питання | створені й завершені `00.N` scope/tooling підфази |
 | [01 — Domain](tasks/01-domain.md) | 00 | створені й завершені `01.N` Product Domain підфази |
 | [02 — Infrastructure](tasks/02-infrastructure.md) | 01 | створені й завершені `02.N` persistence/migration підфази |
-| [03 — Application](tasks/03-application.md) | 01, 02 | `03.N` CQRS slices; List ще потребує DB-side filtering/sorting/paging, tests відкриті |
+| [03 — Application](tasks/03-application.md) | 01, 02 | `03.N` CQRS slices, зокрема збагачені list/detail Media URL і ціни для admin frontend |
 | [04 — API](tasks/04-api.md) | 03 | `04.N` controllers, HTTP behavior, OpenAPI та API tests — ще відкриті |
 | [05 — Verification](tasks/05-verification.md) | 00–04 | `05.N` build/tests і delivery evidence — ще відкриті |
 
@@ -51,3 +51,4 @@
 - 2026-07-27 — Визначено Description, Information, Characteristics, тканини, фурнітуру, `MetersPerProduct`, PPE-постачальника та коефіцієнт.
 - 2026-07-27 — Зафіксовано три цінові рівні Sewing і два рівні PPE; формули винесено до окремого рішення.
 - 2026-07-27 — Прийнято composition persistence-модель: Products + окремі Sewing/PPE details і Sewing links.
+- 2026-08-19 — Змінено admin frontend read contract: list передає тільки головне фото з URL та `minimumWholesalePrice`; detail передає URL усіх фото й усі ціни. Додано коригувальну підфазу `03.8` і залежні API/OpenAPI/test tasks.

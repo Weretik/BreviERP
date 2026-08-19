@@ -32,12 +32,14 @@
 - [03.5 — Application tests](application/03.5-application-tests.md) — виконано
 - [03.6 — Localized validation](application/03.6-validation-localization.md) — виконано
 - [03.7 — Production hardening](application/03.7-production-hardening.md) — виконано
+- [03.8 — Enriched admin read models](application/03.8-catalog-read-model-enrichment.md) — виконано
 
 ## 04 — API
 
 - [04 — orchestration](04-api.md)
-- [04.1 — ProductsController](api/04.1-products-controller.md) — не виконано
-- [04.2 — HTTP contracts та behavior](api/04.2-http-contracts-and-behavior.md) — не виконано
+- [04.1 — ProductsController](api/04.1-products-controller.md) — виконано
+- [04.2 — HTTP contracts та behavior](api/04.2-http-contracts-and-behavior.md) — виконано
+- [04.2.1 — Write boundary validation та mapper tests](api/04.2.1-write-boundary-validation-and-mapper-tests.md) — не виконано; коригувальна підфаза перед OpenAPI
 - [04.3 — OpenAPI](api/04.3-openapi-documentation.md) — не виконано; YAML існує, але ще не звірений з API-кодом
 - [04.4 — API tests](api/04.4-api-tests.md) — не виконано
 

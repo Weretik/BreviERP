@@ -9,10 +9,11 @@
 - [x] O03-05 Завершити validation/handler/projection tests: [03.5-application-tests.md](application/03.5-application-tests.md).
 - [x] O03-06 Локалізувати та повністю покрити validation Product use cases: [03.6-validation-localization.md](application/03.6-validation-localization.md).
 - [x] O03-07 Закрити production-hardening risks Application: [03.7-production-hardening.md](application/03.7-production-hardening.md).
+- [x] O03-08 Збагатити Product list/detail read models для погодженого admin frontend contract: [03.8-catalog-read-model-enrichment.md](application/03.8-catalog-read-model-enrichment.md).
 
 ## Checkpoint
 
-Кожен Product use case має окремий handler і `Ardalis.Result`. List виконує filtering/sorting/paging на DB-side; validation, handler та projection test докази зафіксовані у `03.5`, локалізована validation-модель — у `03.6`, а production hardening для category validation, photo IDs, concurrent conflicts, detail projection і architecture checks — у завершеній `03.7`.
+Кожен Product use case має окремий handler і `Ardalis.Result`. List виконує filtering/sorting/paging на DB-side; validation, handler та projection test докази зафіксовані у `03.5`, локалізована validation-модель — у `03.6`, production hardening для category validation, photo IDs, concurrent conflicts, detail projection і architecture checks — у `03.7`, а Media URL і list/detail ціни — у завершеній `03.8`.
 
 ## Наступна фаза
 

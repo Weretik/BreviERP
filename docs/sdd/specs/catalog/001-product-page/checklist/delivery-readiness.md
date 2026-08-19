@@ -10,6 +10,8 @@
 - [ ] Sewing-чернетка без операцій дозволена; розрахунок не ділить на нуль і передає `piecesPerShift` повним дробовим значенням без округлення.
 - [ ] Для кожної пари Sewing Product—Fabric read-model повертає три ціни за `requirements/pricing.md`; усі проміжні й кінцеві значення передаються без округлення.
 - [ ] Read-model повертає мінімальну й максимальну Sewing-ціну для кожного цінового діапазону разом з `FabricId`, який сформував значення.
+- [ ] Admin list передає `minimumWholesalePrice`: мінімум усіх наявних Sewing-цін або PPE wholesale price, а за неможливого розрахунку — `0`.
+- [ ] Admin list передає лише вибране головне фото з `mediaFileId` і URL або `null`; admin detail передає URL усіх фото й усі застосовні Sewing/PPE ціни.
 - [ ] Application перевіряє Reference IDs і `%` unit без залежності Catalog від Reference Infrastructure.
 - [ ] Спроба видалити використану operation, fabric або accessory відхиляється без зміни Product і повертає узгоджену помилку конфлікту.
 
