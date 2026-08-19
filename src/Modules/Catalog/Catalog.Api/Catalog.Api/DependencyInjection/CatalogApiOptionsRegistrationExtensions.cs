@@ -10,18 +10,20 @@ public static class CatalogApiOptionsRegistrationExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var section = configuration.GetRequiredSection(CatalogMediaUploadOptions.SectionName);
+        var maxFileSizeBytes = section.GetValue<long?>(nameof(CatalogMediaUploadOptions.MaxFileSizeBytes)) ?? 0;
+
         services
             .AddOptions<CatalogMediaUploadOptions>()
-            .Bind(configuration.GetSection(CatalogMediaUploadOptions.SectionName))
+            .Bind(section)
             .Validate(
                 x => x.MaxFileSizeBytes > 0 && !string.IsNullOrWhiteSpace(x.BaseFolder),
-                "CatalogMediaUpload:MaxFileSizeBytes must be greater than zero and BaseFolder must be configured.");
+                "CatalogMediaUpload:MaxFileSizeBytes must be greater than zero and BaseFolder must be configured.")
+            .ValidateOnStart();
 
         services.Configure<FormOptions>(options =>
         {
-            var configuredValue = configuration.GetValue<long?>($"{CatalogMediaUploadOptions.SectionName}:MaxFileSizeBytes");
-            if (configuredValue.HasValue && configuredValue.Value > 0)
-                options.MultipartBodyLengthLimit = configuredValue.Value;
+            options.MultipartBodyLengthLimit = maxFileSizeBytes;
         });
 
         return services;

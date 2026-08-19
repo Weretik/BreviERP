@@ -16,6 +16,28 @@
 | `Identity:SessionCookies` | Імена cookie, шляхи, lifetime, правила `Secure` і SameSite | ні |
 | `Identity:SessionSecurity` | Обмеження lifetime access/refresh token | ні |
 | `AdmToolsStorage` | Параметри медіасховища Catalog | залежить від конкретного провайдера |
+| `CatalogMediaUpload` | Максимальний розмір upload і базовий шлях оригіналів Product media | ні |
+
+## Catalog media upload
+
+`CatalogMediaUpload` є обов'язковою секцією конфігурації. Значення не мають
+fallback у коді: `MaxFileSizeBytes` і `BaseFolder` задаються в
+`appsettings.json` або в конфігурації deployment. API застосовує один і той
+самий resolved limit і до multipart body, і до upload command.
+
+Перед стартом Host перевіряє, що `MaxFileSizeBytes` більший за нуль, а
+`BaseFolder` не порожній. Некоректна конфігурація блокує запуск, а не перший
+upload-запит.
+
+Production deployment може перевизначити значення без зміни файлу:
+
+```text
+CatalogMediaUpload__MaxFileSizeBytes=104857600
+CatalogMediaUpload__BaseFolder=/products/original
+```
+
+Подвійне підкреслення в назві environment variable відповідає `:` у ключі
+конфігурації .NET.
 
 Приклад локального секрету:
 
