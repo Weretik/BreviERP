@@ -26,10 +26,12 @@
 
 - [03 — orchestration](03-application.md)
 - [03.1 — Contracts та Reference](application/03.1-contracts-and-reference.md) — виконано
-- [03.2 — Create та update](application/03.2-create-and-update.md) — реалізацію виконано; потрібні test докази
-- [03.3 — Admin read model](application/03.3-admin-read-model.md) — list handler треба переробити на DB-side filtering/sorting/paging; потрібні tests
-- [03.4 — Delete Product](application/03.4-delete-product.md) — реалізацію виконано; потрібні tests
-- [03.5 — Application tests](application/03.5-application-tests.md) — не виконано
+- [03.2 — Create та update](application/03.2-create-and-update.md) — виконано
+- [03.3 — Admin read model](application/03.3-admin-read-model.md) — виконано
+- [03.4 — Delete Product](application/03.4-delete-product.md) — виконано
+- [03.5 — Application tests](application/03.5-application-tests.md) — виконано
+- [03.6 — Localized validation](application/03.6-validation-localization.md) — виконано
+- [03.7 — Production hardening](application/03.7-production-hardening.md) — виконано
 
 ## 04 — API
 

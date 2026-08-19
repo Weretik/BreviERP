@@ -21,7 +21,7 @@ paths:
           description: Page of Products; an empty result is a successful page with an empty items array.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/ProductListPage' }
+              schema: { $ref: '#/components/schemas/PagedResultOfProductListItem' }
     post:
       operationId: createProduct
       summary: Create a Product with the administrator-supplied ID
@@ -61,6 +61,7 @@ paths:
                 ruName: Куртка рабочая
                 slug: work-jacket
                 type: Sewing
+                categoryIds: [12]
                 categories: [{ id: 12, name: Спецодяг, ruName: Спецодежда, slug: specodyag }]
                 mainPhoto: { mediaFileId: 501, url: 'https://cdn.example.test/501.jpg' }
                 createdAtUtc: '2026-08-10T09:00:00Z'
@@ -139,7 +140,7 @@ components:
     Search:
       name: search
       in: query
-      description: Exact Product ID search when numeric; otherwise case-insensitive partial search in Ukrainian name, Russian name, and slug.
+      description: One numeric token searches Product ID exactly. Otherwise, space-separated tokens perform case-insensitive partial search in Ukrainian and Russian names; every token must match at least one localized name. Slug is not searched.
       schema: { type: string, minLength: 1, maxLength: 200 }
     ProductType:
       name: type
@@ -173,23 +174,28 @@ components:
     ProductType:
       type: string
       enum: [Sewing, Ppe]
-    ProductListPage:
+    PagedResultOfProductListItem:
       type: object
-      required: [items, page, pageSize, totalCount]
+      required: [value, pagedInfo]
       properties:
-        items: { type: array, items: { $ref: '#/components/schemas/ProductListItem' } }
-        page: { type: integer, example: 1 }
-        pageSize: { type: integer, example: 20 }
-        totalCount: { type: integer, example: 42 }
+        value: { type: array, items: { $ref: '#/components/schemas/ProductListItem' } }
+        pagedInfo:
+          type: object
+          required: [pageNumber, pageSize, totalPages, totalRecords]
+          properties:
+            pageNumber: { type: integer, example: 1 }
+            pageSize: { type: integer, example: 20 }
+            totalPages: { type: integer, example: 3 }
+            totalRecords: { type: integer, example: 42 }
     ProductListItem:
       type: object
-      required: [id, name, slug, type, categories, createdAtUtc, updatedAtUtc]
+      required: [id, name, slug, type, categoryIds, createdAtUtc, updatedAtUtc]
       properties:
         id: { type: integer, example: 101 }
         name: { type: string, description: Ukrainian name, example: Куртка робоча }
         slug: { type: string, example: work-jacket }
         type: { $ref: '#/components/schemas/ProductType' }
-        categories: { type: array, items: { $ref: '#/components/schemas/Category' } }
+        categoryIds: { type: array, items: { type: integer }, description: Category IDs only; use Product detail for display data. }
         mainPhoto: { oneOf: [{ $ref: '#/components/schemas/MainPhoto' }, { type: 'null' }] }
         createdAtUtc: { type: string, format: date-time }
         updatedAtUtc: { type: string, format: date-time }
@@ -315,9 +321,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/ProductListItem'
         - type: object
-          required: [ruName, descriptionUk, descriptionRu, photos, informationBlocks, characteristicTables]
+          required: [ruName, categories, descriptionUk, descriptionRu, photos, informationBlocks, characteristicTables]
           properties:
             ruName: { type: string }
+            categories: { type: array, items: { $ref: '#/components/schemas/Category' } }
             descriptionUk: { type: string }
             descriptionRu: { type: string }
             photos: { type: array, items: { $ref: '#/components/schemas/ProductPhotoDetail' } }
@@ -424,4 +431,3 @@ components:
       properties:
         identifier: { type: [string, 'null'] }
         errorMessage: { type: string }
-        errorCode: { type: [string, 'null'] }

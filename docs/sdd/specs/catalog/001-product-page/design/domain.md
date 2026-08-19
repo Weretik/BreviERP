@@ -73,7 +73,7 @@ Sewing-товар може існувати як чернетка без опе�
 
 `Accessories` буде дочірньою колекцією Product із полями `GarmentAccessoryId`, `Quantity` та `SortOrder`. Вона не містить entity `GarmentAccessory`, його `Price` або `SupplierId`. Product забезпечує унікальність фурнітури та додатну кількість; Application перевіряє існування ID через Reference abstraction.
 
-Розрахунок вартості використовує актуальну ціну Reference і кількість на виріб відповідно до [requirements/pricing.md](../requirements/pricing.md); дробові результати не округлюються. Фурнітуру, прив’язану до Product, не можна видалити.
+Розрахунок вартості використовує актуальну ціну Reference і кількість на виріб відповідно до [requirements/pricing.md](../requirements/pricing.md); дробові результати не округлюються. Чиста формула реалізована в Domain service `SewingPricing`: вона приймає лише значення Product і підготовлені числові входи. Application читає актуальні Reference-дані, формує input і мапить результат у read-model; Domain не залежить від Reference. Фурнітуру, прив’язану до Product, не можна видалити.
 
 ## Межа типу товару
 
