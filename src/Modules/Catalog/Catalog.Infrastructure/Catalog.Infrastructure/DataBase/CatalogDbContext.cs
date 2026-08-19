@@ -18,5 +18,6 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(CatalogDbContext).Assembly,
             type => type.Namespace?.StartsWith("Catalog.Infrastructure") ?? false);
+
     }
 }
