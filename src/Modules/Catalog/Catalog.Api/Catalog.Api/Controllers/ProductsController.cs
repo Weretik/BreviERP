@@ -16,10 +16,14 @@ public sealed class ProductsController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(ProductListPageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ProductListPageResponse>> GetList(
-        [FromQuery] GetAdminProductsQuery query,
+        [FromQuery] GetProductListRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query, cancellationToken);
+        var mappingResult = GetProductListRequestMapper.Map(request);
+        if (mappingResult.Status != Ardalis.Result.ResultStatus.Ok)
+            return BadRequest(mappingResult.ValidationErrors);
+
+        var result = await sender.Send(mappingResult.Value, cancellationToken);
 
         return Ok(ProductListResponseMapper.ToResponse(result));
     }
@@ -45,10 +49,11 @@ public sealed class ProductsController(ISender sender) : ControllerBase
         [FromBody] CreateProductRequest request,
         CancellationToken cancellationToken)
     {
-        if (!ProductWriteRequestMapper.TryMap(request, out var commandRequest))
-            return BadRequest("type must be either Sewing or Ppe.");
+        var mappingResult = ProductWriteRequestMapper.Map(request);
+        if (mappingResult.Status != Ardalis.Result.ResultStatus.Ok)
+            return BadRequest(mappingResult.ValidationErrors);
 
-        var result = await sender.Send(new CreateProductCommand(commandRequest!), cancellationToken);
+        var result = await sender.Send(new CreateProductCommand(mappingResult.Value), cancellationToken);
 
         if (result.Status != Ardalis.Result.ResultStatus.Ok)
             return this.ToActionResult(result);
@@ -67,10 +72,11 @@ public sealed class ProductsController(ISender sender) : ControllerBase
         [FromBody] ProductWriteRequest request,
         CancellationToken cancellationToken)
     {
-        if (!ProductWriteRequestMapper.TryMap(request, out var commandRequest))
-            return BadRequest("type must be either Sewing or Ppe.");
+        var mappingResult = ProductWriteRequestMapper.Map(request);
+        if (mappingResult.Status != Ardalis.Result.ResultStatus.Ok)
+            return BadRequest(mappingResult.ValidationErrors);
 
-        var result = await sender.Send(new ReplaceProductCommand(id, commandRequest!), cancellationToken);
+        var result = await sender.Send(new ReplaceProductCommand(id, mappingResult.Value), cancellationToken);
 
         return result.Status == Ardalis.Result.ResultStatus.Ok
             ? Ok(ProductDetailResponseMapper.ToResponse(result.Value))

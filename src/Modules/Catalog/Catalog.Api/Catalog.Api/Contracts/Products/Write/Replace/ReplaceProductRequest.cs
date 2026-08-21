@@ -1,7 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace Catalog.Api.Contracts.Products;
 
 public sealed record ProductWriteRequest(
-    string Type,
+    [property: JsonConverter(typeof(ProductWriteEnumStringJsonConverter))] string Type,
     string Name,
     string RuName,
     string DescriptionUk,
