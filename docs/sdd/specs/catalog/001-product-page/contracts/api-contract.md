@@ -1,6 +1,6 @@
 # Product page — API contract
 
-**Статус:** погоджено для фази 00. Машинне джерело правди: [product-catalog.openapi.yaml](product-catalog.openapi.yaml).
+**Статус:** реалізовано та перевірено automated tests; ручні Swagger/API сценарії лишаються відкритими. Машинне джерело правди: [product-catalog.openapi.yaml](product-catalog.openapi.yaml).
 
 **Версіонування:** усі endpoints цього delivery мають префікс `/api/v1`.
 
@@ -60,9 +60,31 @@ ID для `POST` вводить адміністратор у request body. Ві
 
 Успішне створення повертає `201 Created` і повний admin detail створеного Product. Читання й повне оновлення повертають `200 OK` і повний актуальний admin detail; це дає frontend усі розрахунки без додаткового `GET`. Видалення повертає `204 No Content`. Відсутній Product повертає `404 Not Found`, невалідний request — `400 Bad Request`, а повторний ID, українська/російська назва або відхилене видалення зв’язаної сутності — `409 Conflict`.
 
-Наявний `ResultToActionResult` already maps `Ardalis.Result.Invalid`, `NotFound` і `Conflict` у `400`, `404` і `409`. До фази API його потрібно розширити або виконати еквівалентне HTTP-мапування в controller для `201 Created` і `204 No Content`, не змінюючи погоджений контракт.
+`ResultToActionResult` мапить `Ardalis.Result.Invalid`, `NotFound` і `Conflict` у `400`, `404` і `409`. `ProductsController` явно повертає `201 Created` для create та `204 No Content` для delete, без зміни погодженого контракту.
 
 Новий error envelope не створюється. API використовує поточний формат `Ardalis.Result`: для `400` — його validation errors, для `409` — його errors, для `404` — порожнє тіло відповіді.
+
+Для `POST` і `PUT` boundary перевіряє string enum до виклику Mediator. Допустимі лише case-sensitive значення `type: "Sewing" | "Ppe"` та `retailPercent.source` / `wholesalePercent.source: "Reference" | "Custom"`; числові, string-numeric, case-variant і невідомі значення є невалідними. Помилка має той самий масив `ValidationError`, що й Application validation, наприклад:
+
+```json
+[
+  {
+    "identifier": "type",
+    "errorMessage": "type must be either Sewing or Ppe."
+  }
+]
+```
+
+або для PPE-відсотка:
+
+```json
+[
+  {
+    "identifier": "retailPercent.source",
+    "errorMessage": "retailPercent.source must be either Reference or Custom."
+  }
+]
+```
 
 ## Що потрібно погодити до API-коду
 

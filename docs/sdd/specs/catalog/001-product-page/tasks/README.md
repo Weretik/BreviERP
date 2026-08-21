@@ -33,18 +33,21 @@
 - [03.6 — Localized validation](application/03.6-validation-localization.md) — виконано
 - [03.7 — Production hardening](application/03.7-production-hardening.md) — виконано
 - [03.8 — Enriched admin read models](application/03.8-catalog-read-model-enrichment.md) — виконано
+- [03.9 — Performance admin Product list query](application/03.9-admin-list-query-performance.md) — виконано
+- [03.10 — Narrow Reference pricing reader](application/03.10-admin-list-pricing-reference-reader.md) — виконано
 
 ## 04 — API
 
 - [04 — orchestration](04-api.md)
 - [04.1 — ProductsController](api/04.1-products-controller.md) — виконано
 - [04.2 — HTTP contracts та behavior](api/04.2-http-contracts-and-behavior.md) — виконано
-- [04.2.1 — Write boundary validation та mapper tests](api/04.2.1-write-boundary-validation-and-mapper-tests.md) — не виконано; коригувальна підфаза перед OpenAPI
-- [04.3 — OpenAPI](api/04.3-openapi-documentation.md) — не виконано; YAML існує, але ще не звірений з API-кодом
-- [04.4 — API tests](api/04.4-api-tests.md) — не виконано
+- [04.2.1 — Write boundary validation та mapper tests](api/04.2.1-write-boundary-validation-and-mapper-tests.md) — виконано
+- [04.3 — OpenAPI](api/04.3-openapi-documentation.md) — виконано
+- [04.4 — API tests](api/04.4-api-tests.md) — виконано
 
 ## 05 — Verification
 
 - [05 — orchestration](05-verification.md)
-- [05.1 — Build та tests](verification/05.1-build-and-tests.md) — не виконано
-- [05.2 — Delivery documentation](verification/05.2-delivery-documentation.md) — не виконано
+- [05.1 — Build та tests](verification/05.1-build-and-tests.md) — виконано
+- [05.2 — Delivery documentation](verification/05.2-delivery-documentation.md) — виконано
+- [05.3 — Verification performance admin Product list](verification/05.3-admin-list-query-performance-verification.md) — виконано

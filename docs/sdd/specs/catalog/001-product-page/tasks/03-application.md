@@ -10,6 +10,8 @@
 - [x] O03-06 Локалізувати та повністю покрити validation Product use cases: [03.6-validation-localization.md](application/03.6-validation-localization.md).
 - [x] O03-07 Закрити production-hardening risks Application: [03.7-production-hardening.md](application/03.7-production-hardening.md).
 - [x] O03-08 Збагатити Product list/detail read models для погодженого admin frontend contract: [03.8-catalog-read-model-enrichment.md](application/03.8-catalog-read-model-enrichment.md).
+- [x] O03-09 Оптимізувати admin Product list query після EF collection warning: [03.9-admin-list-query-performance.md](application/03.9-admin-list-query-performance.md).
+- [x] O03-10 Замінити повний Reference snapshot вузьким pricing reader для admin list: [03.10-admin-list-pricing-reference-reader.md](application/03.10-admin-list-pricing-reference-reader.md).
 
 ## Checkpoint
 

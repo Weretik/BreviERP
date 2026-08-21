@@ -1,7 +1,7 @@
 # 001 — Product page
 
 **Модуль:** Catalog  
-**Статус:** у роботі  
+**Статус:** завершено
 **Власник:** Catalog  
 **Створено:** 2026-07-27
 
@@ -23,6 +23,8 @@
 2. [Infrastructure: persistence, EF Core і міграції](design/infrastructure.md)
 3. [Поточна технічна база](design/implementation-baseline.md)
 4. [Модель даних](data-model.md)
+5. [Оптимізація admin list query](design/admin-list-query-performance.md)
+6. [Вузький Reference pricing reader для admin list](design/admin-list-pricing-reference-reader.md)
 
 ## Delivery
 
@@ -40,8 +42,8 @@
 | [01 — Domain](tasks/01-domain.md) | 00 | створені й завершені `01.N` Product Domain підфази |
 | [02 — Infrastructure](tasks/02-infrastructure.md) | 01 | створені й завершені `02.N` persistence/migration підфази |
 | [03 — Application](tasks/03-application.md) | 01, 02 | `03.N` CQRS slices, зокрема збагачені list/detail Media URL і ціни для admin frontend |
-| [04 — API](tasks/04-api.md) | 03 | `04.N` controllers, HTTP behavior, OpenAPI та API tests — ще відкриті |
-| [05 — Verification](tasks/05-verification.md) | 00–04 | `05.N` build/tests і delivery evidence — ще відкриті |
+| [04 — API](tasks/04-api.md) | 03 | `04.N` controllers, HTTP behavior, OpenAPI та API tests — завершено |
+| [05 — Verification](tasks/05-verification.md) | 00–04 | `05.N` build/tests і delivery evidence — завершено |
 
 ## Журнал рішень
 
