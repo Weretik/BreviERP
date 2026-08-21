@@ -11,6 +11,13 @@ namespace Catalog.Application.Contracts.Admin.Product;
 
 public static class ProductAdminDetailMapper
 {
+    public static IReadOnlyCollection<string> SewingPricingReferenceKeys { get; } =
+    [
+        "sr_zp_shvei", "work_day", "coefficient_seamstress_award", "coefficient_factor",
+        "coefficient_master", "coefficient_foreman", "monthly_expenses", "count_shvei",
+        "profit_10", "profit_10_40", "profit_40"
+    ];
+
     public static ProductAdminDetail Map(
         ProductAdminDetailReadModel product,
         ProductReferenceData references,
@@ -102,8 +109,7 @@ public static class ProductAdminDetailMapper
     private static bool TryValues(ProductReferenceData data, out Dictionary<string, decimal> values)
     {
         values = data.AdditionalReferences.Values.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
-        var keys = new[] { "sr_zp_shvei", "work_day", "coefficient_seamstress_award", "coefficient_factor", "coefficient_master", "coefficient_foreman", "monthly_expenses", "count_shvei", "profit_10", "profit_10_40", "profit_40" };
-        return keys.All(values.ContainsKey) && values["work_day"] > 0 && values["coefficient_factor"] > 0 && values["coefficient_master"] > 0 && values["coefficient_foreman"] > 0 && values["count_shvei"] > 0;
+        return SewingPricingReferenceKeys.All(values.ContainsKey) && values["work_day"] > 0 && values["coefficient_factor"] > 0 && values["coefficient_master"] > 0 && values["coefficient_foreman"] > 0 && values["count_shvei"] > 0;
     }
 
     private static decimal? CalculatePpePrice(

@@ -30,7 +30,9 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Domain\Catalog.Domain\Catalog.Domain.csproj" />
         <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Application\Catalog.Application\Catalog.Application.csproj" />
+        <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Api\Catalog.Api\Catalog.Api.csproj" />
         <ProjectReference Include="..\..\src\Modules\Reference\Reference.Application\Reference.Application\Reference.Application.csproj" />
+        <ProjectReference Include="..\..\src\Modules\Reference\Reference.Domain\Reference.Domain\Reference.Domain.csproj" />
     </ItemGroup>
 
 </Project>

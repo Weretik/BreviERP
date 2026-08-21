@@ -23,7 +23,7 @@ public sealed class ProductAdminListReadModelTests
         var productRepository = new Mock<ICatalogReadRepository<Product>>();
         var categoryRepository = new Mock<ICatalogReadRepository<ProductCategory>>();
         var mediaRepository = new Mock<ICatalogReadRepository<MediaFile>>();
-        var referenceReader = new Mock<IProductReferenceReader>();
+        var pricingReferenceReader = new Mock<IProductListPricingReferenceReader>();
         var rows = new List<ProductListItemReadModel>
         {
             new(1, "Куртка", "kurtka", ProductType.Sewing, [], null, Sewing(), null, DateTimeOffset.UtcNow, null),
@@ -38,12 +38,13 @@ public sealed class ProductAdminListReadModelTests
         mediaRepository.Setup(x => x.ListAsync(
                 It.IsAny<ISpecification<MediaFile, ProductMediaUrl>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new ProductMediaUrl(501, "https://cdn.example.test/501.jpg")]);
-        referenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
+        pricingReferenceReader.Setup(x => x.GetAsync(It.IsAny<ProductListPricingReferenceRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PricingReferences());
         var handler = new GetAdminProductsQueryHandler(
             productRepository.Object,
             categoryRepository.Object,
             mediaRepository.Object,
-            referenceReader.Object);
+            pricingReferenceReader.Object);
 
         var result = await handler.Handle(new GetAdminProductsQuery(), CancellationToken.None);
         var sewing = result.Value.Single(x => x.Id == 1);
@@ -59,6 +60,12 @@ public sealed class ProductAdminListReadModelTests
             Assert.That(ppe.MainPhoto, Is.EqualTo(new ProductMainPhoto(501, "https://cdn.example.test/501.jpg")));
             Assert.That(ppe.MinimumWholesalePrice, Is.EqualTo(115m));
         });
+        pricingReferenceReader.Verify(x => x.GetAsync(
+            It.Is<ProductListPricingReferenceRequest>(request =>
+                request.FabricIds.Count == 1 && request.FabricIds.Contains(10) &&
+                request.GarmentPartOperationIds.Count == 1 && request.GarmentPartOperationIds.Contains(20) &&
+                request.AdditionalReferenceIds.Count == 1 && request.AdditionalReferenceIds.Contains(30)),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -67,7 +74,7 @@ public sealed class ProductAdminListReadModelTests
         var productRepository = new Mock<ICatalogReadRepository<Product>>();
         var categoryRepository = new Mock<ICatalogReadRepository<ProductCategory>>();
         var mediaRepository = new Mock<ICatalogReadRepository<MediaFile>>();
-        var referenceReader = new Mock<IProductReferenceReader>();
+        var pricingReferenceReader = new Mock<IProductListPricingReferenceReader>();
         productRepository.Setup(x => x.CountAsync(It.IsAny<ISpecification<Product>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
         productRepository.Setup(x => x.ListAsync(
@@ -77,12 +84,17 @@ public sealed class ProductAdminListReadModelTests
         mediaRepository.Setup(x => x.ListAsync(
                 It.IsAny<ISpecification<MediaFile, ProductMediaUrl>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        referenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
+        pricingReferenceReader.Setup(x => x.GetAsync(It.IsAny<ProductListPricingReferenceRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ProductListPricingReferenceData(
+                new Dictionary<int, decimal>(),
+                new Dictionary<int, decimal>(),
+                new Dictionary<int, decimal>(),
+                new Dictionary<int, ProductListAdditionalReference>()));
         var handler = new GetAdminProductsQueryHandler(
             productRepository.Object,
             categoryRepository.Object,
             mediaRepository.Object,
-            referenceReader.Object);
+            pricingReferenceReader.Object);
 
         var result = await handler.Handle(new GetAdminProductsQuery(), CancellationToken.None);
         var item = result.Value.Single();
@@ -92,6 +104,7 @@ public sealed class ProductAdminListReadModelTests
             Assert.That(item.MainPhoto, Is.Null);
             Assert.That(item.MinimumWholesalePrice, Is.Zero);
         });
+        pricingReferenceReader.Verify(x => x.GetAsync(It.IsAny<ProductListPricingReferenceRequest>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     private static SewingReadModel Sewing() => new(
@@ -124,5 +137,17 @@ public sealed class ProductAdminListReadModelTests
             new Dictionary<int, PricedReferenceItem>(),
             new Dictionary<int, OperationReferenceItem> { [20] = new(20, "Пошиття", 10m) },
             additional);
+    }
+
+    private static ProductListPricingReferenceData PricingReferences()
+    {
+        var references = References();
+        return new ProductListPricingReferenceData(
+            references.Fabrics.ToDictionary(x => x.Key, x => x.Value.Price),
+            references.GarmentAccessories.ToDictionary(x => x.Key, x => x.Value.Price),
+            references.GarmentPartOperations.ToDictionary(x => x.Key, x => x.Value.Minutes),
+            references.AdditionalReferences.ToDictionary(
+                x => x.Key,
+                x => new ProductListAdditionalReference(x.Value.Id, x.Value.Key, x.Value.Value, x.Value.Unit)));
     }
 }
