@@ -18,7 +18,7 @@ public sealed class GetAdminProductsSpec : Specification<ProductEntity, ProductL
         int? page = null,
         int? pageSize = null)
     {
-        Query.AsNoTracking();
+        Query.AsNoTracking().AsSplitQuery();
 
         if (!string.IsNullOrWhiteSpace(search))
         {

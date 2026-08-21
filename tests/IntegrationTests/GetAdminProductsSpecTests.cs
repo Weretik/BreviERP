@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Application.Features.Product.GetAdminList;
 using Catalog.Application.Features.Product.GetAdminList.Specifications;
@@ -10,6 +11,7 @@ using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
 using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 
 namespace IntegrationTests;
@@ -116,6 +118,53 @@ public sealed class GetAdminProductsSpecTests
     }
 
     [Test]
+    public async Task List_projection_uses_split_queries_for_multiple_collections()
+    {
+        await using var db = CreateContext(throwOnMultipleCollectionIncludeWarning: true);
+        var category = ProductCategory.Create(ProductCategoryId.Create(5), "Категорія", "Категория", "category");
+        var product = CreateProduct(140, "Product", "product", ProductType.Sewing, category.Id);
+        db.ProductCategories.Add(category);
+        db.Products.Add(product);
+        await db.SaveChangesAsync();
+
+        var query = SpecificationEvaluator.Default.GetQuery(
+            db.Products.AsQueryable(),
+            new GetAdminProductsSpec(null, null, null, "name", false, 1, 10));
+
+        var items = await query.ToListAsync();
+
+        Assert.That(items.Select(x => x.Id), Does.Contain(140));
+    }
+
+    [Test]
+    public async Task List_projection_command_count_is_independent_of_page_size()
+    {
+        var counter = new QueryCommandCounter();
+        await using var db = CreateContext(commandInterceptor: counter);
+        var category = ProductCategory.Create(ProductCategoryId.Create(6), "Категорія", "Категория", "category-two");
+        db.ProductCategories.Add(category);
+        db.Products.AddRange(
+            CreateProduct(150, "Product 1", "product-1", ProductType.Sewing, category.Id),
+            CreateProduct(160, "Product 2", "product-2", ProductType.Sewing, category.Id));
+        await db.SaveChangesAsync();
+
+        counter.Reset();
+        var oneItemQuery = SpecificationEvaluator.Default.GetQuery(
+            db.Products.AsQueryable(),
+            new GetAdminProductsSpec(null, null, null, "name", false, 1, 1));
+        await oneItemQuery.ToListAsync();
+        var oneItemCommandCount = counter.ReaderCommandCount;
+
+        counter.Reset();
+        var twoItemQuery = SpecificationEvaluator.Default.GetQuery(
+            db.Products.AsQueryable(),
+            new GetAdminProductsSpec(null, null, null, "name", false, 1, 2));
+        await twoItemQuery.ToListAsync();
+
+        Assert.That(counter.ReaderCommandCount, Is.EqualTo(oneItemCommandCount));
+    }
+
+    [Test]
     public async Task Media_url_projection_reads_only_requested_uploaded_media_files_in_sql()
     {
         await using var db = CreateContext();
@@ -144,10 +193,35 @@ public sealed class GetAdminProductsSpecTests
         });
     }
 
-    private CatalogDbContext CreateContext()
+    private CatalogDbContext CreateContext(
+        bool throwOnMultipleCollectionIncludeWarning = false,
+        DbCommandInterceptor? commandInterceptor = null)
         => new(new DbContextOptionsBuilder<CatalogDbContext>()
             .UseNpgsql(_testConnectionString)
+            .ConfigureWarnings(warnings =>
+            {
+                if (throwOnMultipleCollectionIncludeWarning)
+                    warnings.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
+            })
+            .AddInterceptors(commandInterceptor is null ? [] : [commandInterceptor])
             .Options);
+
+    private sealed class QueryCommandCounter : DbCommandInterceptor
+    {
+        public int ReaderCommandCount { get; private set; }
+
+        public void Reset() => ReaderCommandCount = 0;
+
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            DbCommand command,
+            CommandEventData eventData,
+            InterceptionResult<DbDataReader> result,
+            CancellationToken cancellationToken = default)
+        {
+            ReaderCommandCount++;
+            return ValueTask.FromResult(result);
+        }
+    }
 
     private static Product CreateProduct(
         int id,
