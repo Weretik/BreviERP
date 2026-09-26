@@ -9,6 +9,10 @@
 - Infrastructure містить persistence та integration adapters; не володіє business rules.
 - API виконує тільки HTTP binding, авторизацію та mapping результату; не містить EF або business logic.
 
+## Ідентифікатори сутностей
+
+Перед створенням або зміною ідентифікатора сутності дотримуйтеся [стратегії ідентифікаторів](identifier-strategy.md). Не використовуйте `Guid` автоматично: тип ID визначається життєвим циклом створення та інтеграції. У Domain обгортайте вибраний scalar у типізований value object; не використовуйте raw primitive ID у `BaseEntity`, `BaseAuditableEntity` або Domain foreign keys.
+
 ## CQRS, Mediator і код
 
 Використовуйте feature-by-folder усередині Application. Тримайте command/query, handler, validator і private DTO разом за сценарієм. Один Mediator handler володіє одним use-case; commands змінюють стан, queries не змінюють його.
