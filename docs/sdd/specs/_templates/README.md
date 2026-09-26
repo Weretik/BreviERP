@@ -1,16 +1,39 @@
-# SDD templates
+# SDD-шаблони
 
-Для нової backend-feature або міграції створіть `docs/sdd/specs/<module>/<NNN>-<feature-slug>/` і скопіюйте `feature/`. Не створюйте порожніх документів.
+Цей каталог містить повторно використовувану структуру feature та workflow її виконання AI. Сталі інженерні правила залишаються в `docs/sdd/standards/`.
+
+## Створення специфікації
+
+Скопіюйте `feature/` до `docs/sdd/specs/<module>/<NNN>-<feature-slug>/`. Замініть плейсхолдери й видаліть невикористані необов'язкові документи або task-шаблони; не залишайте порожніх файлів. Користувацький файл [`feature/USAGE.md`](feature/USAGE.md) пояснює, що передати AI, і не копіюється до створеної feature.
 
 ```text
 <NNN>-<feature-slug>/
-├── README.md                 orchestration feature
-├── requirements/             що і навіщо потрібно
-├── design/                   як backend реалізує feature
-├── data-model.md             сутності, зв’язки, інваріанти
-├── contracts/                API та integration contracts
-├── tasks/                    фази й атомарні задачі AI
-└── checklist/                quality gates
+├── README.md                 статус і навігація feature
+├── requirements/             правила та спостережувані сценарії
+├── design/                   технічні рішення конкретної feature
+├── data-model.md             сутності, зв'язки та цілісність
+├── contracts/                зрозумілі людині рішення щодо API й інтеграцій
+├── traceability.md           зв'язок сценаріїв із задачами та доказами
+├── tasks/                    планування й технічні task-файли
+└── checklist/                перевірки готовності специфікації та delivery
 ```
 
-`git/git-commit-batching.md` — окремий шаблон тільки для планування комітів. Для міграції використовуйте цей самий шаблон: baseline/rollback — у `design/`, rollout/verification — у `tasks/`.
+Запит до AI для підготовки специфікації без реалізації:
+
+```text
+Працюй за `docs/sdd/specs/_templates/feature/`.
+Створи feature `<NNN>-<feature-slug>` у модулі `<module>`.
+Мета: <спостережуваний результат для користувача або бізнесу>.
+Scope: <включена й явно виключена поведінка>.
+Підготуй специфікацію; код поки не реалізовуй.
+```
+
+## Реалізація прийнятої специфікації
+
+Дотримуйтеся [AI workflow для feature](ai-feature-workflow/README.md). Можна дозволити всю feature, фазу, вибрані сценарії `SC-*` або названі задачі `TS-*`/`EN-*`. Приклади користувацьких запитів наведені в [`ai-feature-workflow/USAGE.md`](ai-feature-workflow/USAGE.md).
+
+## Наявні специфікації
+
+Використовуйте [інструкцію поступової міграції](MIGRATION.md). Зберігайте ID завершених задач та історію перевірок, якщо користувач явно не попросив повну міграцію.
+
+`git/git-commit-batching.md` є незалежною інструкцією для планування комітів.

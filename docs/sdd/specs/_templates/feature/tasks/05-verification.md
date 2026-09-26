@@ -1,15 +1,17 @@
-# Фаза 05 — Verification
+# Фаза 05 — Планування verification і delivery
 
-> Ця фаза лише створює та впорядковує підфази. Не об'єднуйте build, tests, документацію та delivery report в одну велику задачу.
+> Створіть лише перевірки, потрібні для закриття сценаріїв і дозволеного delivery scope.
 
-- [ ] T021 Переглянути шаблони підфаз у розділі [Шаблони Verification](#шаблони-verification) і вибрати потрібні.
-- [ ] T022 Скопіювати кожен потрібний шаблон у `tasks/verification/` як окремий файл фактичної підфази: `05.1-<назва>.md`, `05.2-<назва>.md` і далі; замінити `NN` номером і плейсхолдери — конкретними командами й шляхами.
+- [ ] Переконатися, що кожен `SC-*` має назване acceptance evidence.
+- [ ] Створити build/regression-задачу з точними командами й зачепленими наборами тестів.
+- [ ] Створити delivery-задачу, коли до scope входить уся feature.
+- [ ] Визначити, як оновлюватимуться `traceability.md` і delivery readiness.
 
-## Шаблони Verification
+## Шаблони
 
-- [05.NN — Build та automated tests](verification/05.NN-build-tests.template.md)
-- [05.NN — Delivery documentation та report](verification/05.NN-delivery.template.md)
-
+- [Build і automated tests](verification/05.NN-build-tests.template.md)
+- [Delivery-документація та report](verification/05.NN-delivery.template.md)
+~~~~
 ## Checkpoint
 
-Усі створені підфази `05.N` завершені; є докази build/tests і delivery documentation синхронізована з реалізацією.
+Кожен сценарій у scope можна перевести в `verified` за конкретними доказами. Delivery усієї feature містить узгоджені документацію, contracts, реалізацію, тести, delivery checklist і залишкові ризики.

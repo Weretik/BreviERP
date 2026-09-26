@@ -17,6 +17,7 @@ docs/sdd/specs/
       design/                      backend-рішення
       data-model.md                модель даних
       contracts/                   API/integration contracts
+      traceability.md              зв'язок сценаріїв, задач і доказів
       tasks/                       фази та атомарні задачі AI
       checklist/                   quality gates
   _templates/
@@ -26,7 +27,7 @@ docs/sdd/specs/
 
 Використовуйте папку модуля, наприклад `catalog`, `reference`, `identity`, `accounting`, `crm`, `platform` або `cross-module`. Назви функціональностей і фаз мають бути в нижньому регістрі та kebab-case.
 
-Починайте з `_templates/README.md` та копіюйте `feature/`. Для міграції використовуйте той самий шаблон із явними baseline, rollout і rollback задачами. Посилайтеся на архітектуру й стандарти замість їх копіювання.
+Починайте з [_templates/README.md](_templates/README.md) та копіюйте `feature/`. Наявні специфікації переводьте на новий формат за [інструкцією поступової міграції](_templates/MIGRATION.md), зберігаючи ID завершених задач і verification history. Для міграції даних або schema використовуйте той самий feature-шаблон із явними baseline, rollout і rollback задачами. Машиночитані публічні API-контракти зберігайте в [`docs/sdd/contracts/`](../contracts/README.md). Посилайтеся на архітектуру й стандарти замість їх копіювання.
 
 ## Життєвий цикл
 

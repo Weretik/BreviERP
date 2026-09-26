@@ -1,24 +1,22 @@
-# Фаза 02 — Планування Infrastructure
+# Фаза 02 — Планування Infrastructure-задач та enablers
 
-> Ця фаза лише створює та впорядковує підфази. Не реалізовуйте весь Infrastructure layer у цьому файлі.
+> Створіть лише файли Infrastructure `TS-*` і спільні `EN-*`, потрібні сценаріям.
 
-- [ ] T009 Перевірити `design/infrastructure.md` і `data-model.md`; визначити потрібні persistence mapping, constraints, indexes, migration та read model.
-- [ ] T010 Визначити, чи є зовнішня інтеграція, integration event, outbox, файл, cache або інший Infrastructure adapter у scope.
-- [ ] T011 Переглянути шаблони підфаз у розділі [Шаблони Infrastructure](#шаблони-infrastructure) і вибрати лише потрібні Infrastructure slices.
-- [ ] T012 Скопіювати кожен потрібний шаблон у `tasks/infrastructure/` як окремий файл фактичної підфази: `02.1-<назва>.md`, `02.2-<назва>.md` і далі; замінити `NN` номером, плейсхолдери — конкретними назвами й шляхами.
+- [ ] Переглянути сценарії, `design/infrastructure.md` і `data-model.md`.
+- [ ] Визначити persistence, constraints, migrations, read models, integrations, outbox-поведінку, configuration та operational prerequisites.
+- [ ] Використовувати `TS-*` для безпосередньо тестованої поведінки, а `EN-*` — для спільної або підготовчої роботи із задокументованим test-first винятком.
+- [ ] Додати `Covers` або `Enables`, залежності, точні шляхи, verification і checkpoint до кожної створеної задачі.
+- [ ] Додати кожну задачу до `traceability.md`.
 
-## Шаблони Infrastructure
+## Шаблони
 
-- [02.NN — Persistence mapping](infrastructure/02.NN-persistence-mapping.template.md)
-- [02.NN — Migration через EF Core CLI](infrastructure/02.NN-migration.template.md)
-- [02.NN — Read model](infrastructure/02.NN-read-model.template.md)
-- [02.NN — Integration або outbox](infrastructure/02.NN-integration-outbox.template.md)
-- [02.NN — Infrastructure tests](infrastructure/02.NN-infrastructure-tests.template.md)
+- [Спільний enabler](enablers/EN-NNN-enabler.template.md)
+- [Persistence mapping](infrastructure/02.NN-persistence-mapping.template.md)
+- [Migration](infrastructure/02.NN-migration.template.md)
+- [Read model](infrastructure/02.NN-read-model.template.md)
+- [Integration або outbox](infrastructure/02.NN-integration-outbox.template.md)
+- [Infrastructure coverage](infrastructure/02.NN-infrastructure-tests.template.md)
 
 ## Checkpoint
 
-Для кожного потрібного Infrastructure-рішення створено окремий файл підфази `02.N`; застосовані migrations не редагуються.
-
-## Наступна фаза
-
-Після завершення всіх створених підфаз `02.N` перейдіть до [03 — Application](03-application.md).
+Кожну потрібну Infrastructure-відповідальність або спільну передумову зіставлено зі сценаріями. Застосовані migrations не редагуються, generated work використовує CLI репозиторію, а кожен виняток `EN-*` має замінну verification.
