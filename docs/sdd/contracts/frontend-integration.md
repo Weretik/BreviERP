@@ -25,7 +25,8 @@ Host використовує authenticated fallback policy. Публічним�
 | Products | `/api/v1/products`, `/api/v1/products/{id}` | Anonymous у поточному controller | [Catalog product contract](catalog/product-catalog.openapi.yaml) |
 | Product categories | `/api/reference/product-categories/...` | Anonymous у поточному controller | ще не додано |
 | Catalog media | `/api/catalog/media/...` | Anonymous у поточному controller | ще не додано |
-| Reference data | `/api/reference/suppliers`, `/fabrics`, `/garment-parts`, `/garment-accessories`, `/garment-part-operations`, `/additional-references` | Anonymous у поточних controllers | ще не додано |
+| Suppliers | `/api/reference/suppliers` | Anonymous у поточному controller | [Reference suppliers contract](reference/suppliers.openapi.yaml) |
+| Other reference data | `/api/reference/fabrics`, `/garment-parts`, `/garment-accessories`, `/garment-part-operations`, `/additional-references` | Anonymous у поточних controllers | ще не додано |
 | Session | `/api/auth/session/login`, `/refresh`, `/logout`, `/me` | login/refresh — Anonymous; logout/me — Bearer | ще не додано |
 
 Перед використанням endpoint без versioned OpenAPI contract frontend і backend мають погодити request, response, status codes і authorization та додати контракт до [агрегованого OpenAPI](openapi.yaml).
