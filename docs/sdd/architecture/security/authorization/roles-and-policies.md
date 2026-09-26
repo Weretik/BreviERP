@@ -8,13 +8,16 @@
 
 ## Ролі
 
-Константи ролей розміщені в `Identity.Domain/Constants/AppRoles.cs`.
+Канонічні константи ролей розміщені в `Identity.Domain/Authorization/RoleNames.cs`; у поточному legacy-коді також існує `Identity.Domain/Constants/AppRoles.cs` із тим самим набором значень.
 
 | Роль | Поточне значення | Створюється seeder-ом |
 | --- | --- | --- |
 | `Admin` | Адміністрування системи | так |
 | `Manager` | Доступ контент-менеджера | так |
 | `User` | Звичайний автентифікований користувач | так |
+| `Guest` | Визначена константа ролі без погодженого бізнес-значення | ні |
+
+Startup `RoleSeeder` наразі створює лише Admin, Manager і User. Не призначайте `Guest`, доки її seeding і бізнес-значення не буде свідомо додано.
 
 ## Політики
 
@@ -25,6 +28,9 @@
 | `RequireAdminRole` / `CanManageUsers` | Admin |
 | `RequireManagerRole` / `CanManageProducts` / `CanManageOrders` | Manager, Admin |
 | `CatalogRead` / `OrderCreate` | User, Manager, Admin |
+| `RequireTenantAccess` | Константу визначено; policy наразі не зареєстровано |
+
+Не використовуйте `RequireTenantAccess` на endpoint, доки не реалізовано реєстрацію в Host і не погоджено семантику policy.
 
 ## Захист endpoint-а
 
