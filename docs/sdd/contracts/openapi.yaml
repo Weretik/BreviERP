@@ -9,6 +9,10 @@ servers:
   - url: /
     description: Origin розгорнутого BreviERP API
 paths:
+  /api/reference/suppliers:
+    $ref: ./reference/suppliers.openapi.yaml#/paths/~1api~1reference~1suppliers
+  /api/reference/suppliers/{id}:
+    $ref: ./reference/suppliers.openapi.yaml#/paths/~1api~1reference~1suppliers~1{id}
   /api/v1/products:
     $ref: ./catalog/product-catalog.openapi.yaml#/paths/~1api~1v1~1products
   /api/v1/products/{id}:
