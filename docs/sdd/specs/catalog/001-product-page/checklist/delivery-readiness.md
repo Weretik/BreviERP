@@ -19,7 +19,7 @@
 
 - [x] EF one-to-one details, link unique constraints, міграція й rollback перевірені на test database.
 - [x] Міграція не змінює таблиці поза scope і не редагує застосовані міграції.
-- [x] Реалізований API відповідає `contracts/product-catalog.openapi.yaml`: маршрути, DTO, status codes, errors, security та приклади.
+- [x] Реалізований API відповідає `docs/sdd/contracts/catalog/product-catalog.openapi.yaml`: маршрути, DTO, status codes, errors, security та приклади.
 - [x] Controller не містить бізнес-правил; усі use-cases проходять через Mediator, FluentValidation, `IUnitOfWork` і `CancellationToken`.
 
 ## Докази завершення

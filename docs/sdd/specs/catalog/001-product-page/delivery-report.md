@@ -21,7 +21,7 @@
 - `dotnet test BreviERP.sln --no-build` із process-scoped `BREVIERP_CATALOG_TEST_CONNECTION` зі значення `Host.Api` `ConnectionStrings:Default` — 47 unit, 1 architecture і 22 integration tests passed.
 - Product migration test — 1 passed.
 - `dotnet test tests/IntegrationTests/IntegrationTests.csproj --no-build --filter FullyQualifiedName~ProductsApiTests` — 8 passed: list, detail, create/update/delete, validation і conflict HTTP behavior.
-- `npx --yes @apidevtools/swagger-cli validate docs/sdd/specs/catalog/001-product-page/contracts/product-catalog.openapi.yaml` — valid.
+- `npx --yes @apidevtools/swagger-cli validate docs/sdd/contracts/catalog/product-catalog.openapi.yaml` — valid.
 
 ## Delivery confirmation
 

@@ -1,12 +1,12 @@
 # Product page — API contract
 
-**Статус:** реалізовано та перевірено automated tests; ручні Swagger/API сценарії лишаються відкритими. Машинне джерело правди: [product-catalog.openapi.yaml](product-catalog.openapi.yaml).
+**Статус:** реалізовано та перевірено automated tests; ручні Swagger/API сценарії лишаються відкритими. Машинне джерело правди: [product-catalog.openapi.yaml](../../../../contracts/catalog/product-catalog.openapi.yaml).
 
 **Версіонування:** усі endpoints цього delivery мають префікс `/api/v1`.
 
 ## Призначення
 
-Цей документ фіксує межі майбутнього контракту. Після виконання T005 машинним джерелом правди для frontend стане `contracts/product-catalog.openapi.yaml`, а цей файл міститиме лише рішення щодо аудиторії, версіонування та сумісності.
+Цей документ фіксує межі контракту. Машинним джерелом правди для frontend є `docs/sdd/contracts/catalog/product-catalog.openapi.yaml`, а цей файл містить рішення щодо аудиторії, версіонування та сумісності.
 
 Swagger UI не є контрактом: це лише інтерфейс для перегляду OpenAPI. Frontend може працювати без нього, використовуючи versioned OpenAPI YAML/JSON для генерації типів і клієнта, contract testing та локальної документації.
 

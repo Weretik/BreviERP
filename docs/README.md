@@ -8,6 +8,7 @@
 - [Інженерні правила](sdd/standards/README.md) — backend, API, data, security, testing і delivery rules.
 - [Експлуатація](sdd/operations/README.md) — локальний запуск, конфігурація, дані, діагностика та jobs.
 - [Специфікації](sdd/specs/README.md) — feature-специфікації та SDD templates.
+- [API-контракти](sdd/contracts/README.md) — версійовані OpenAPI-контракти та правила передачі frontend-команді.
 
 ## Product reference
 

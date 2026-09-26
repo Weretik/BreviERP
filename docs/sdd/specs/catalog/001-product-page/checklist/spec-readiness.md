@@ -21,7 +21,7 @@
 ## Готовність контракту та інтеграцій
 
 - [x] Визначені admin/public API-аудиторії, authorization, idempotency ризики та error contract.
-- [x] `contracts/product-catalog.openapi.yaml` погоджено до створення HTTP-коду.
+- [x] `docs/sdd/contracts/catalog/product-catalog.openapi.yaml` погоджено до створення HTTP-коду.
 - [x] Видалення використаних `GarmentPartOperation`, `Fabric` і `GarmentAccessory` відхиляється; автоматичного очищення посилань і подій немає.
 
 ## Рішення gate

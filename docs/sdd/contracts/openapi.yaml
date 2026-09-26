@@ -5,4 +5,11 @@ info:
   description: >-
     Агрегована точка входу OpenAPI. Контракти функціональностей додаються до
     цього документа через $ref після погодження їхнього API-контракту.
-paths: {}
+servers:
+  - url: /
+    description: Origin розгорнутого BreviERP API
+paths:
+  /api/v1/products:
+    $ref: ./catalog/product-catalog.openapi.yaml#/paths/~1api~1v1~1products
+  /api/v1/products/{id}:
+    $ref: ./catalog/product-catalog.openapi.yaml#/paths/~1api~1v1~1products~1{id}
