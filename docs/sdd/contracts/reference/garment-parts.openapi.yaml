@@ -1,0 +1,106 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Garment Parts Reference API
+  version: 1.0.0
+  description: Garment part reference operations implemented by GarmentPartsController.
+servers:
+  - url: /
+paths:
+  /api/reference/garment-parts:
+    get:
+      operationId: getGarmentParts
+      summary: List garment parts
+      security: []
+      responses:
+        '200':
+          description: Garment parts, including an empty list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/GarmentPartRow' }
+        '401': { description: Unauthorized. }
+        '404': { description: No matching resource. }
+    post:
+      operationId: createGarmentPart
+      summary: Create a garment part with a client supplied ID
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateGarmentPartRequest' }
+      responses:
+        '200':
+          description: Created garment part ID.
+          content:
+            application/json:
+              schema: { type: integer, format: int32, minimum: 1 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+  /api/reference/garment-parts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updateGarmentPart
+      summary: Update a garment part
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateGarmentPartRequest' }
+      responses:
+        '200': { description: Garment part updated. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Garment part not found. }
+        '409': { description: Conflict. }
+    delete:
+      operationId: deleteGarmentPart
+      summary: Delete a garment part
+      security: []
+      responses:
+        '200': { description: Garment part deleted. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Garment part not found. }
+components:
+  responses:
+    ValidationError:
+      description: Validation failures including field identifiers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+  schemas:
+    ValidationError:
+      type: object
+      required: [identifier, errorMessage]
+      properties:
+        identifier: { type: string }
+        errorMessage: { type: string }
+        errorCode: { type: [string, 'null'] }
+        severity: { type: integer }
+    GarmentPartRow:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        name: { type: string }
+    CreateGarmentPartRequest:
+      allOf:
+        - $ref: '#/components/schemas/UpdateGarmentPartRequest'
+        - type: object
+          required: [id]
+          properties:
+            id: { type: integer, format: int32, minimum: 1 }
+    UpdateGarmentPartRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 150 }
