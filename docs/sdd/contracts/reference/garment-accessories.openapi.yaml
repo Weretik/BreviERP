@@ -1,0 +1,110 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Garment Accessories Reference API
+  version: 1.0.0
+  description: Garment accessory reference operations implemented by GarmentAccessoriesController.
+servers:
+  - url: /
+paths:
+  /api/reference/garment-accessories:
+    get:
+      operationId: getGarmentAccessories
+      summary: List garment accessories
+      security: []
+      responses:
+        '200':
+          description: Garment accessories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/GarmentAccessoryRow' }
+        '401': { description: Unauthorized. }
+        '404': { description: No garment accessories found. }
+    post:
+      operationId: createGarmentAccessory
+      summary: Create a garment accessory with a client supplied ID
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateGarmentAccessoryRequest' }
+      responses:
+        '200':
+          description: Created garment accessory ID.
+          content:
+            application/json:
+              schema: { type: integer, format: int32, minimum: 1 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+  /api/reference/garment-accessories/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updateGarmentAccessory
+      summary: Update a garment accessory
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateGarmentAccessoryRequest' }
+      responses:
+        '200': { description: Garment accessory updated. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Garment accessory not found. }
+        '409': { description: Conflict. }
+    delete:
+      operationId: deleteGarmentAccessory
+      summary: Delete a garment accessory
+      security: []
+      responses:
+        '200': { description: Garment accessory deleted. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Garment accessory not found. }
+components:
+  responses:
+    ValidationError:
+      description: Validation failures including field identifiers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+  schemas:
+    ValidationError:
+      type: object
+      required: [identifier, errorMessage]
+      properties:
+        identifier: { type: string }
+        errorMessage: { type: string }
+        errorCode: { type: string, nullable: true }
+        severity: { type: integer }
+    GarmentAccessoryRow:
+      type: object
+      required: [id, name, price, supplierName]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        name: { type: string }
+        price: { type: number, minimum: 0 }
+        supplierName: { type: string }
+    CreateGarmentAccessoryRequest:
+      allOf:
+        - $ref: '#/components/schemas/UpdateGarmentAccessoryRequest'
+        - type: object
+          required: [id]
+          properties:
+            id: { type: integer, format: int32, minimum: 1 }
+    UpdateGarmentAccessoryRequest:
+      type: object
+      required: [name, price, supplierName]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 500 }
+        price: { type: number, minimum: 0, maximum: 10000 }
+        supplierName: { type: string, minLength: 1, maxLength: 200 }
