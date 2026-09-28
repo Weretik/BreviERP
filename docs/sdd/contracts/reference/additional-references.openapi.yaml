@@ -1,0 +1,81 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Additional References API
+  version: 1.0.0
+  description: Read and update operations implemented by AdditionalReferencesController.
+servers:
+  - url: /
+paths:
+  /api/reference/additional-references:
+    get:
+      operationId: getAdditionalReferences
+      summary: List additional references
+      security: []
+      responses:
+        '200':
+          description: Additional references.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AdditionalReferenceRow' }
+        '401': { description: Unauthorized. }
+        '404': { description: No additional references found. }
+  /api/reference/additional-references/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updateAdditionalReference
+      summary: Update an additional reference
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateAdditionalReferenceRequest' }
+      responses:
+        '200': { description: Additional reference updated. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Additional reference not found. }
+        '409': { description: Duplicate key or name. }
+components:
+  responses:
+    ValidationError:
+      description: Validation failures including field identifiers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+  schemas:
+    ValidationError:
+      type: object
+      required: [identifier, errorMessage]
+      properties:
+        identifier: { type: string }
+        errorMessage: { type: string }
+        errorCode: { type: [string, 'null'] }
+        severity: { type: integer }
+    AdditionalReferenceRow:
+      type: object
+      required: [id, name, key, value, unit]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        name: { type: string }
+        key: { type: string }
+        value: { type: number }
+        unit: { type: string }
+        description: { type: [string, 'null'] }
+    UpdateAdditionalReferenceRequest:
+      type: object
+      required: [name, key, value, unit]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        key: { type: string, minLength: 1, maxLength: 100 }
+        value: { type: number, minimum: 0 }
+        unit: { type: string, enum: ['шт.', 'грн.', '%'], maxLength: 5 }
+        description: { type: [string, 'null'], maxLength: 255 }
