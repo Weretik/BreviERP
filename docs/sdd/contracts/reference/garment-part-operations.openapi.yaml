@@ -1,0 +1,111 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Garment Part Operations Reference API
+  version: 1.0.0
+  description: Garment part operation reference operations implemented by GarmentPartOperationsController.
+servers:
+  - url: /
+paths:
+  /api/reference/garment-part-operations:
+    get:
+      operationId: getGarmentPartOperations
+      summary: List garment part operations
+      security: []
+      responses:
+        '200':
+          description: Garment part operations, including an empty list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/GarmentPartOperationRow' }
+        '401': { description: Unauthorized. }
+        '404': { description: No matching resource. }
+    post:
+      operationId: createGarmentPartOperation
+      summary: Create a garment part operation with a client supplied ID
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateGarmentPartOperationRequest' }
+      responses:
+        '200':
+          description: Created garment part operation ID.
+          content:
+            application/json:
+              schema: { type: integer, format: int32, minimum: 1 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Garment part not found. }
+  /api/reference/garment-part-operations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updateGarmentPartOperation
+      summary: Update a garment part operation
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateGarmentPartOperationRequest' }
+      responses:
+        '200': { description: Garment part operation updated. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Garment part operation not found. }
+        '409': { description: Conflict. }
+    delete:
+      operationId: deleteGarmentPartOperation
+      summary: Delete a garment part operation
+      security: []
+      responses:
+        '200': { description: Garment part operation deleted. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Garment part operation not found. }
+components:
+  responses:
+    ValidationError:
+      description: Validation failures including field identifiers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+  schemas:
+    ValidationError:
+      type: object
+      required: [identifier, errorMessage]
+      properties:
+        identifier: { type: string }
+        errorMessage: { type: string }
+        errorCode: { type: [string, 'null'] }
+        severity: { type: integer }
+    GarmentPartOperationRow:
+      type: object
+      required: [id, garmentPartName, name, min]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        garmentPartName: { type: string }
+        name: { type: string }
+        min: { type: number, minimum: 0 }
+    CreateGarmentPartOperationRequest:
+      allOf:
+        - $ref: '#/components/schemas/UpdateGarmentPartOperationRequest'
+        - type: object
+          required: [id]
+          properties:
+            id: { type: integer, format: int32, minimum: 1 }
+    UpdateGarmentPartOperationRequest:
+      type: object
+      required: [garmentPartName, name, min]
+      properties:
+        garmentPartName: { type: string, minLength: 1, maxLength: 150 }
+        name: { type: string, minLength: 1, maxLength: 255 }
+        min: { type: number, minimum: 0 }
