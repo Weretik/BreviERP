@@ -22,7 +22,7 @@ DELETE /api/catalog/media/{id}
 | --- | --- | --- | --- |
 | List | без параметрів | `200` список ID, original file name, public URL, content type, storage key, status | — |
 | Upload | поле form-data `file` | `200` з `mediaFileId`, `storageKey`, `publicUrl`, `contentType`, `originalFileName` | `400` validation/невідповідна сигнатура |
-| Delete | route `id:int` | `204` | `400`, `404` |
+| Delete | route `id:int` | `204` | `400`, `404`, `409` якщо файл використовується Product |
 
 Файл: JPEG/PNG/WebP, позитивний розмір, не більший за `CatalogMediaUpload:MaxFileSizeBytes`; signature має збігатися із заявленим content type.
 

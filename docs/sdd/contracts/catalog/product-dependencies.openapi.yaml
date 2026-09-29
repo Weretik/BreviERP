@@ -46,7 +46,11 @@ paths:
               type: object
               required: [file]
               properties:
-                file: { type: string, format: binary }
+                file:
+                  type: string
+                  format: binary
+                  maxLength: 52428800
+                  description: JPEG, PNG or WebP image up to 50 MiB.
       responses:
         '200':
           description: Uploaded media file.
@@ -54,6 +58,21 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/UploadMediaResponse' }
         '400': { description: Invalid or unsupported image. }
+  /api/catalog/media/{id}:
+    delete:
+      operationId: deleteCatalogMedia
+      summary: Delete an unused catalog image
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '204': { description: Media file deleted. }
+        '400': { description: Invalid media file id. }
+        '404': { description: Media file not found. }
+        '409': { description: Media file is used by one or more products. }
 components:
   schemas:
     AdminProductCategoryRow:
@@ -79,7 +98,9 @@ components:
         publicUrl: { type: string }
         contentType: { type: string }
         storageKey: { type: string }
-        status: { type: string }
+        status:
+          type: string
+          enum: [PendingUpload, Ready]
     UploadMediaResponse:
       type: object
       required: [mediaFileId, storageKey, publicUrl, contentType, originalFileName]
