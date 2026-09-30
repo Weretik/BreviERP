@@ -5,6 +5,8 @@ using Catalog.Application.Contracts.Admin.Product;
 using Catalog.Application.Features.Product.Create;
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
 using Catalog.Application.Features.Product.GetAdminDetail.Specifications;
+using Catalog.Domain.Media.Entities;
+using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
@@ -65,13 +67,37 @@ public sealed class CatalogProductPersistenceTests
     public async Task Migration_maps_constraints_persists_product_and_rolls_back_to_initial_catalog()
     {
         await using var db = CreateContext();
+        var migrator = db.Database.GetService<IMigrator>();
+        await migrator.MigrateAsync(PreviousMigration);
+
+        db.MediaFiles.Add(MediaFile.CreatePending(
+            MediaFileId.Create(700_001),
+            "existing.jpg",
+            "image/jpeg",
+            1,
+            "test",
+            "catalog",
+            "media/existing.jpg"));
+        await db.SaveChangesAsync();
+        db.ChangeTracker.Clear();
+
         await db.Database.MigrateAsync();
         await db.Database.ExecuteSqlRawAsync("DELETE FROM catalog.\"Products\"");
 
+        var generatedMediaFile = MediaFile.CreatePending(
+            "generated.jpg",
+            "image/jpeg",
+            1,
+            "test",
+            "catalog",
+            "media/generated.jpg");
+        db.MediaFiles.Add(generatedMediaFile);
+        await db.SaveChangesAsync();
+
+        Assert.That(generatedMediaFile.Id, Is.EqualTo(MediaFileId.Create(700_002)));
         await AssertSchemaContainsPhaseTwoTables(db);
         await AssertProductLifecycleAndConstraints(db);
 
-        var migrator = db.Database.GetService<IMigrator>();
         await migrator.MigrateAsync(PreviousMigration);
 
         await Assert.ThatAsync(
