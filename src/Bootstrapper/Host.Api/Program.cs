@@ -34,6 +34,18 @@ app.UseRequestLocalization();
 app.UseCors("Frontend");
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next(context);
+    }
+    catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested &&
+                                             !context.Response.HasStarted)
+    {
+        context.Response.StatusCode = 499;
+    }
+});
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();

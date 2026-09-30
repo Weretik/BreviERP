@@ -27,6 +27,11 @@ public sealed class RequestLoggingBehavior<TMessage, TResponse>(
 
             return response;
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            timer.Stop();
+            throw;
+        }
         catch (Exception ex)
         {
             timer.Stop();
