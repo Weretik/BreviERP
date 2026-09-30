@@ -14,8 +14,13 @@ public readonly record struct MediaFileId
         if (value <= 0)
             throw new ArgumentOutOfRangeException(nameof(value), value, "Media file id must be positive.");
 
-        if (value > 1_000_000_000)
-            throw new ArgumentOutOfRangeException(nameof(value), value, "Media file id is too large.");
+        return new MediaFileId(value);
+    }
+
+    internal static MediaFileId CreateTemporary(int value)
+    {
+        if (value >= 0)
+            throw new ArgumentOutOfRangeException(nameof(value), value, "Temporary media file id must be negative.");
 
         return new MediaFileId(value);
     }

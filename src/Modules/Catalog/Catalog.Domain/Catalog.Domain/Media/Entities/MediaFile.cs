@@ -30,7 +30,6 @@ public sealed class MediaFile : BaseEntity<MediaFileId>, IAggregateRoot
     private MediaFile() { }
 
     private MediaFile(
-        MediaFileId id,
         string fileName,
         string contentType,
         long sizeInBytes,
@@ -38,7 +37,6 @@ public sealed class MediaFile : BaseEntity<MediaFileId>, IAggregateRoot
         string bucketName,
         string storageKey)
     {
-        SetId(id);
         SetFileName(fileName);
         SetContentType(contentType);
         SetSizeInBytes(sizeInBytes);
@@ -47,6 +45,28 @@ public sealed class MediaFile : BaseEntity<MediaFileId>, IAggregateRoot
         SetStorageKey(storageKey);
         Status = MediaFileStatus.PendingUpload;
     }
+
+    private MediaFile(
+        MediaFileId id,
+        string fileName,
+        string contentType,
+        long sizeInBytes,
+        string storageProvider,
+        string bucketName,
+        string storageKey)
+        : this(fileName, contentType, sizeInBytes, storageProvider, bucketName, storageKey)
+    {
+        SetId(id);
+    }
+
+    public static MediaFile CreatePending(
+        string fileName,
+        string contentType,
+        long sizeInBytes,
+        string storageProvider,
+        string bucketName,
+        string storageKey)
+        => new(fileName, contentType, sizeInBytes, storageProvider, bucketName, storageKey);
 
     public static MediaFile CreatePending(
         MediaFileId id,

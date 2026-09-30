@@ -1,16 +1,13 @@
 using Catalog.Application.Contracts.Storage;
 using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Features.Media.Shared.Specifications;
 using Catalog.Application.Features.Media.Upload.DTOs;
 using Catalog.Domain.Media.Entities;
-using Catalog.Domain.Media.ValueObjects;
 
 namespace Catalog.Application.Features.Media.Upload;
 
 public sealed class UploadMediaFileCommandHandler(
     IMediaStorageService mediaStorageService,
-    ICatalogRepository<MediaFile> repository,
-    ICatalogReadRepository<MediaFile> readRepository)
+    ICatalogRepository<MediaFile> repository)
     : ICommandHandler<UploadMediaFileCommand, Result<UploadMediaFileResultDto>>
 {
     public async ValueTask<Result<UploadMediaFileResultDto>> Handle(
@@ -19,10 +16,8 @@ public sealed class UploadMediaFileCommandHandler(
     {
         var request = command.Request;
         var storageKey = GenerateStorageKey(request.FileName, request.ContentType, request.BaseFolder);
-        var mediaFileId = await GenerateMediaFileIdAsync(cancellationToken);
 
         var mediaFile = MediaFile.CreatePending(
-            mediaFileId,
             request.FileName,
             request.ContentType,
             request.SizeInBytes,
@@ -73,21 +68,5 @@ public sealed class UploadMediaFileCommandHandler(
             normalizedBaseFolder = "/" + normalizedBaseFolder;
 
         return normalizedBaseFolder;
-    }
-
-    private async Task<MediaFileId> GenerateMediaFileIdAsync(CancellationToken cancellationToken)
-    {
-        for (var attempt = 0; attempt < 10; attempt++)
-        {
-            var candidate = Random.Shared.Next(1, int.MaxValue);
-            var exists = await readRepository.AnyAsync(
-                new MediaFileByIdSpec(candidate),
-                cancellationToken);
-
-            if (!exists)
-                return MediaFileId.Create(candidate);
-        }
-
-        throw new InvalidOperationException("Failed to generate a unique media file id.");
     }
 }

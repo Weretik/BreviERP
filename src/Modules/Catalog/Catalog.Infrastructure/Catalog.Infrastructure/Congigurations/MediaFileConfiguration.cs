@@ -1,4 +1,5 @@
 using Catalog.Domain.Media.Entities;
+using Catalog.Infrastructure.ValueGeneration;
 
 namespace Catalog.Infrastructure.Congigurations;
 
@@ -12,7 +13,8 @@ public sealed class MediaFileConfiguration : IEntityTypeConfiguration<MediaFile>
 
         builder.Property(x => x.Id)
             .HasConversion(x => x.Value, x => Catalog.Domain.Media.ValueObjects.MediaFileId.Create(x))
-            .ValueGeneratedNever();
+            .UseIdentityByDefaultColumn()
+            .HasValueGenerator<MediaFileIdValueGenerator>();
 
         builder.Property(x => x.FileName)
             .HasMaxLength(255)
