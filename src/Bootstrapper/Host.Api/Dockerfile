@@ -14,6 +14,11 @@ COPY ["src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/
 COPY ["src/BuildingBlocks/BuildingBlocks.Domain/BuildingBlocks.Domain/BuildingBlocks.Domain.csproj", "src/BuildingBlocks/BuildingBlocks.Domain/BuildingBlocks.Domain/"]
 COPY ["src/BuildingBlocks/BuildingBlocks.Infrastructure/BuildingBlocks.Infrastructure/BuildingBlocks.Infrastructure.csproj", "src/BuildingBlocks/BuildingBlocks.Infrastructure/BuildingBlocks.Infrastructure/"]
 
+COPY ["src/Modules/Catalog/Catalog.Api/Catalog.Api/Catalog.Api.csproj", "src/Modules/Catalog/Catalog.Api/Catalog.Api/"]
+COPY ["src/Modules/Catalog/Catalog.Application/Catalog.Application/Catalog.Application.csproj", "src/Modules/Catalog/Catalog.Application/Catalog.Application/"]
+COPY ["src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Catalog.Domain.csproj", "src/Modules/Catalog/Catalog.Domain/Catalog.Domain/"]
+COPY ["src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Catalog.Infrastructure.csproj", "src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/"]
+
 COPY ["src/Modules/Accounting/Accounting.Api/Accounting.Api/Accounting.Api.csproj", "src/Modules/Accounting/Accounting.Api/Accounting.Api/"]
 COPY ["src/Modules/Accounting/Accounting.Application/Accounting.Application/Accounting.Application.csproj", "src/Modules/Accounting/Accounting.Application/Accounting.Application/"]
 COPY ["src/Modules/Accounting/Accounting.Domain/Accounting.Domain/Accounting.Domain.csproj", "src/Modules/Accounting/Accounting.Domain/Accounting.Domain/"]

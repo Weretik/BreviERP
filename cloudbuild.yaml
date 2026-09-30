@@ -89,6 +89,7 @@ steps:
       - --region=${_REGION}
       - --platform=managed
       - --allow-unauthenticated
+      - --update-secrets=AdmToolsStorage__Login=storage-login:latest,AdmToolsStorage__Password=storage-password:latest
       - --quiet
 
 images:
