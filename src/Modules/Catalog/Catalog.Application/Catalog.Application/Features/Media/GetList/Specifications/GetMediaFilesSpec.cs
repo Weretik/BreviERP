@@ -7,7 +7,7 @@ public sealed class GetMediaFilesSpec : Specification<MediaFile, MediaFileListIt
 {
     public GetMediaFilesSpec()
     {
-        Query.OrderByDescending(x => x.Id.Value);
+        Query.OrderByDescending(x => x.Id);
 
         Query.Select(x => new MediaFileListItemDto(
             x.Id.Value,
