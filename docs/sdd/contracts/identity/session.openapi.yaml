@@ -1,0 +1,259 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Session API
+  version: 1.0.0
+  description: >-
+    Versioned contract for the existing cookie-backed refresh session API. Access
+    tokens are opaque Bearer tokens; refresh tokens are never returned in JSON.
+paths:
+  /api/auth/session/login:
+    post:
+      operationId: loginSession
+      summary: Create an authenticated session
+      description: >-
+        Authenticates with email and password. The AuthLogin policy permits 10
+        requests per minute per client IP and rejects excess requests with 429.
+        On success, the response sets the HTTP-only `kedr.rt` refresh cookie and
+        the script-readable `kedr.csrf` cookie. Cross-origin browser clients must
+        use credentials mode `include` so the browser stores both cookies.
+      tags:
+        - Session
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionLoginRequest'
+      responses:
+        '200':
+          description: Authenticated session created and refresh/CSRF cookies issued.
+          headers:
+            Set-Cookie:
+              description: >-
+                Sets `kedr.rt` with HttpOnly, Secure, SameSite=None,
+                Path=/api/auth/session/refresh and `kedr.csrf` with Secure,
+                SameSite=None, Path=/. Both cookies have a default Max-Age of 14 days.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTokenResponse'
+        '400':
+          description: Request JSON is malformed or required request fields are null or missing.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetails'
+        '401':
+          description: Email or password is empty, invalid, or cannot be used to sign in.
+        '415':
+          description: Request content type is not supported; send JSON.
+        '429':
+          description: AuthLogin rate limit exceeded.
+  /api/auth/session/refresh:
+    post:
+      operationId: refreshSession
+      summary: Rotate and refresh an authenticated session
+      description: >-
+        Requires the HTTP-only `kedr.rt` cookie and a double-submit CSRF value:
+        header `X-CSRF-Token` must exactly equal cookie `kedr.csrf`. Browser clients
+        must use credentials mode `include`. The AuthRefresh policy permits 30
+        requests per minute per client IP. A successful refresh revokes the old
+        refresh session, creates a replacement, and rotates both cookies.
+      tags:
+        - Session
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/CsrfHeader'
+        - $ref: '#/components/parameters/RefreshCookie'
+        - $ref: '#/components/parameters/CsrfCookie'
+      responses:
+        '200':
+          description: Session refreshed and replacement refresh/CSRF cookies issued.
+          headers:
+            Set-Cookie:
+              description: >-
+                Rotates `kedr.rt` and `kedr.csrf` with the attributes documented by
+                the login response.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTokenResponse'
+        '400':
+          description: CSRF cookie/header is missing, blank, or does not match.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Invalid CSRF token.
+        '401':
+          description: Refresh cookie is missing, expired, revoked, reused, or otherwise invalid.
+        '429':
+          description: AuthRefresh rate limit exceeded.
+  /api/auth/session/logout:
+    post:
+      operationId: logoutSession
+      summary: End the current session
+      description: >-
+        Requires an access token. Revokes every active refresh session for the
+        authenticated user, updates the user's security stamp, and expires both
+        `kedr.rt` and `kedr.csrf`. Cross-origin browser clients must use credentials
+        mode `include` so the browser applies the Set-Cookie deletion headers.
+      tags:
+        - Session
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Session ended and refresh/CSRF cookies cleared.
+          headers:
+            Set-Cookie:
+              description: Expires `kedr.rt` at its refresh path and `kedr.csrf` at `/`.
+              schema:
+                type: string
+        '401':
+          description: Access token is missing or invalid, or its user can no longer sign in.
+  /api/auth/session/me:
+    get:
+      operationId: getCurrentSession
+      summary: Get the current authenticated user
+      description: >-
+        Returns the authenticated user's identifier, email, and roles. Permissions
+        are not included in this response.
+      tags:
+        - Session
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current authenticated user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionMeResponse'
+        '401':
+          description: Access token is missing or invalid, or its user can no longer sign in.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Opaque
+      description: Opaque access token returned by login or refresh.
+  parameters:
+    CsrfHeader:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      description: Must exactly match the `kedr.csrf` cookie value.
+      schema:
+        type: string
+        minLength: 1
+    RefreshCookie:
+      name: kedr.rt
+      in: cookie
+      required: true
+      description: >-
+        HTTP-only refresh token cookie. Browser requests must include credentials;
+        frontend code cannot read this value.
+      schema:
+        type: string
+        minLength: 1
+    CsrfCookie:
+      name: kedr.csrf
+      in: cookie
+      required: true
+      description: Script-readable double-submit CSRF cookie.
+      schema:
+        type: string
+        minLength: 1
+  schemas:
+    SessionLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          writeOnly: true
+    SessionTokenResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - tokenType
+        - accessToken
+        - expiresIn
+      properties:
+        tokenType:
+          type: string
+          example: Bearer
+        accessToken:
+          type: string
+          description: Opaque Bearer access token. This is not the refresh token.
+          example: opaque-access-token
+        expiresIn:
+          type: integer
+          format: int32
+          description: Access-token lifetime in seconds.
+          minimum: 1
+          example: 900
+    SessionMeResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - userId
+        - email
+        - roles
+      properties:
+        userId:
+          type: string
+          description: String representation of the backend user identifier.
+          example: '42'
+        email:
+          type: string
+          example: user@example.com
+        roles:
+          type: array
+          description: Current ASP.NET Core Identity role names; permissions are not returned.
+          items:
+            type: string
+          example:
+            - User
+    ValidationProblemDetails:
+      type: object
+      description: ASP.NET Core automatic model-validation response.
+      required:
+        - errors
+      properties:
+        type:
+          type:
+            - string
+            - 'null'
+        title:
+          type:
+            - string
+            - 'null'
+        status:
+          type:
+            - integer
+            - 'null'
+          format: int32
+        traceId:
+          type:
+            - string
+            - 'null'
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string

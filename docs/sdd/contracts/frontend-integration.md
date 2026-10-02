@@ -4,9 +4,9 @@
 
 ## Authentication
 
-`POST /api/auth/session/login` повертає opaque Bearer access token і встановлює дві cookies: HTTP-only refresh cookie `kedr.rt`, яка надсилається лише на refresh route, та доступну для читання CSRF cookie `kedr.csrf`. Ці назви є поточною legacy-конфігурацією BreviERP; frontend має використовувати їх як runtime contract, доки окрема міграція не змінить назви.
+`POST /api/auth/session/login` повертає opaque Bearer access token і встановлює дві cookies: HTTP-only refresh cookie `kedr.rt`, яка надсилається лише на refresh route, та доступну для читання CSRF cookie `kedr.csrf`. Ці назви є поточною legacy-конфігурацією BreviERP; frontend має використовувати їх як runtime contract, доки окрема міграція не змінить назви. Для cross-origin login frontend має використати `credentials: 'include'`, інакше browser не збереже cookies з response.
 
-Для захищених операцій надсилайте `Authorization: Bearer <accessToken>`. Щоб поновити сесію, викликайте `POST /api/auth/session/refresh` із `credentials: 'include'` і передавайте в header `X-CSRF-Token` поточне значення cookie `kedr.csrf`. Refresh endpoint обертає обидві cookies і повертає новий access token. `POST /api/auth/session/logout` також потребує Bearer authentication і видаляє обидві cookies. `GET /api/auth/session/me` повертає поточного authenticated користувача.
+Для захищених операцій надсилайте `Authorization: Bearer <accessToken>`. Щоб поновити сесію, викликайте `POST /api/auth/session/refresh` із `credentials: 'include'` і передавайте в header `X-CSRF-Token` поточне значення cookie `kedr.csrf`. Refresh endpoint обертає обидві cookies і повертає новий access token. `POST /api/auth/session/logout` також потребує Bearer authentication, відкликає всі активні refresh-сесії користувача і видаляє обидві cookies; для cross-origin logout використовуйте `credentials: 'include'`, щоб browser застосував cookie deletion headers. `GET /api/auth/session/me` повертає `userId`, `email` і `roles`; permissions цей response не містить.
 
 Host використовує authenticated fallback policy. Публічними є лише endpoints, явно позначені `AllowAnonymous` у controller.
 
@@ -27,6 +27,6 @@ Host використовує authenticated fallback policy. Публічним�
 | Catalog media | `/api/catalog/media/...` | Anonymous у поточному controller | ще не додано |
 | Suppliers | `/api/reference/suppliers` | Anonymous у поточному controller | [Reference suppliers contract](reference/suppliers.openapi.yaml) |
 | Other reference data | `/api/reference/fabrics`, `/garment-parts`, `/garment-accessories`, `/garment-part-operations`, `/additional-references` | Anonymous у поточних controllers | ще не додано |
-| Session | `/api/auth/session/login`, `/refresh`, `/logout`, `/me` | login/refresh — Anonymous; logout/me — Bearer | ще не додано |
+| Session | `/api/auth/session/login`, `/refresh`, `/logout`, `/me` | login/refresh — Anonymous; logout/me — Bearer | [Identity session contract](identity/session.openapi.yaml) |
 
 Перед використанням endpoint без versioned OpenAPI contract frontend і backend мають погодити request, response, status codes і authorization та додати контракт до [агрегованого OpenAPI](openapi.yaml).
