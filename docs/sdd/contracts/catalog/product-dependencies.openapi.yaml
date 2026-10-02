@@ -54,6 +54,21 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/UploadMediaResponse' }
         '400': { description: Invalid or unsupported image. }
+  /api/catalog/media/{id}:
+    delete:
+      operationId: deleteCatalogMedia
+      summary: Delete an unused catalog image
+      security: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '204': { description: Media file deleted. }
+        '400': { description: Invalid media file id. }
+        '404': { description: Media file not found. }
+        '409': { description: Media file is used by one or more products. }
 components:
   schemas:
     AdminProductCategoryRow:

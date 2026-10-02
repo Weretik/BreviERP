@@ -21,6 +21,8 @@ paths:
     $ref: ./catalog/product-dependencies.openapi.yaml#/paths/~1api~1reference~1product-categories~1admin
   /api/catalog/media:
     $ref: ./catalog/product-dependencies.openapi.yaml#/paths/~1api~1catalog~1media
+  /api/catalog/media/{id}:
+    $ref: ./catalog/product-dependencies.openapi.yaml#/paths/~1api~1catalog~1media~1{id}
   /api/reference/additional-references:
     $ref: ./reference/additional-references.openapi.yaml#/paths/~1api~1reference~1additional-references
   /api/reference/additional-references/{id}:
