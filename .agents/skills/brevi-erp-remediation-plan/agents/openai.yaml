@@ -1,0 +1,6 @@
+interface:
+  display_name: "BreviERP Remediation Plan"
+  short_description: "Plan systemic architecture remediation"
+  default_prompt: "Use $brevi-erp-remediation-plan for the requested BreviERP work."
+policy:
+  allow_implicit_invocation: true

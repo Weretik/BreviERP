@@ -1,24 +1,12 @@
-# Як доручити AI створити frontend-сценарій
-
-Вкажіть точну feature, актора, потрібні дії та межі. AI має самостійно знайти релевантні вимоги, OpenAPI і контракти залежностей. Для прикладу готового результату можна вказати `docs/sdd/frontend-scenario/catalog/001-product-page/admin-product-scenario.md`.
+# Frontend scenario
 
 ```text
-Працюй за `docs/sdd/specs/_templates/frontend-scenario/`.
-Feature: `docs/sdd/specs/<module>/<NNN>-<feature>/`.
-Актор: <наприклад, менеджер каталогу>.
-Scope: <список, створення, перегляд, редагування, видалення або інші потрібні дії>.
-Поза scope: <наприклад, публічна сторінка й frontend-код>.
-
-Створи SDD-сценарій у
-`docs/sdd/frontend-scenario/<module>/<NNN>-<feature>/<actor>-<entity>-scenario.md`
-за шаблоном. Онови індекс модуля та посилання з README feature.
-Описуй зрозумілі для AI екрани, блоки, кроки користувача, умовні поля,
-джерела вибору, відображення розрахунків, стани й помилки.
-Для кожної дії вкажи наявний API та звір точні DTO, enum, маршрути й відповіді
-з versioned OpenAPI. Якщо read і write моделі різні, покажи їхнє зіставлення.
-Не дублюй контракт і не вигадуй backend-поведінку. Невідомі бізнес-рішення
-познач `[NEEDS CLARIFICATION]`; запропоновані UX-рішення назви пропозиціями.
-Додай acceptance-сценарії й посилання на джерела. Код frontend/backend не реалізовуй.
+Працюй за docs/sdd/specs/_templates/frontend-scenario/.
+Feature: docs/sdd/specs/<module>/<NNN>-<feature>/.
+Актор: <public | admin | manager | інший>.
+Мета: <що користувач має зробити>.
+У scope: <дії та стани>.
+Поза scope: <виключена поведінка>.
 ```
 
-Якщо потрібна реалізація frontend після погодження сценарію, доручіть її окремо в репозиторії frontend, передавши створений сценарій та OpenAPI. Ця інструкція створює handoff-документ.
+Збережи результат у `docs/sdd/frontend-scenario/<module>/<NNN>-<feature>/<actor>-<entity>-scenario.md`. Використовуй canonical OpenAPI з `docs/sdd/contracts/`.

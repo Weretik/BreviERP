@@ -1,0 +1,6 @@
+interface:
+  display_name: "BreviERP API Contract Sync"
+  short_description: "Align HTTP behavior and OpenAPI"
+  default_prompt: "Use $brevi-erp-api-contract-sync for the requested BreviERP work."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "BreviERP Feature Orchestrator"
+  short_description: "Coordinate multi-agent feature delivery"
+  default_prompt: "Use $brevi-erp-feature-orchestrator for the requested BreviERP work."
+policy:
+  allow_implicit_invocation: true

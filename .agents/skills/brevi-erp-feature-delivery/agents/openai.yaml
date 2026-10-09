@@ -1,0 +1,6 @@
+interface:
+  display_name: "BreviERP Feature Delivery"
+  short_description: "Implement accepted backend specifications"
+  default_prompt: "Use $brevi-erp-feature-delivery for the requested BreviERP work."
+policy:
+  allow_implicit_invocation: true

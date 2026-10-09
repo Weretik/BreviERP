@@ -1,0 +1,6 @@
+interface:
+  display_name: "BreviERP Documentation Sync"
+  short_description: "Repair confirmed documentation drift"
+  default_prompt: "Use $brevi-erp-docs-sync for the requested BreviERP work."
+policy:
+  allow_implicit_invocation: true
