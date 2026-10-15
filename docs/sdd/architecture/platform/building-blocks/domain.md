@@ -21,14 +21,14 @@ BuildingBlocks.Domain/
 
 ## Доступні підходи
 
-- `BaseEntity` надає identity, equality за concrete type та non-transient ID, а також methods collection доменних подій.
-- `BaseAuditableEntity` додає audit fields і явні mark methods.
-- `DomainException` переносить `IDomainError`; `ExceptionBehavior` мапить його до `Result.Invalid` для Result-based handlers.
-- `IAggregateRoot` є marker для aggregate roots; `IHasDomainEvents` — контракт event lifecycle.
-- `MoneyAmount` і `CategoryPath` — наявні спільні value objects, які не слід дублювати з тією ж семантикою.
+- `BaseEntity` надає ідентичність і порівняння за конкретним типом та неперехідним ID, а також методи збирання доменних подій.
+- `BaseAuditableEntity` додає поля аудиту й явні методи позначення змін.
+- `DomainException` переносить `IDomainError`; `ExceptionBehavior` перетворює його на `Result.Invalid` для обробників, що повертають Result.
+- `IAggregateRoot` є маркером коренів агрегатів; `IHasDomainEvents` — контрактом життєвого циклу подій.
+- `MoneyAmount` і `CategoryPath` — наявні спільні об'єкти-значення, які не слід дублювати з тією ж семантикою.
 
 ## Використання
 
-Наслідуйте aggregate/entity від відповідної бази лише коли її ID та event lifecycle підходять. Підіймайте event через `AddDomainEvent` усередині завершеної domain operation. Не dispatch-те його в Domain.
+Наслідуйте агрегат або сутність від відповідної бази лише коли її ID та життєвий цикл подій підходять. Додавайте подію через `AddDomainEvent` усередині завершеної доменної операції. Не публікуйте її з Domain.
 
-Не додавайте сюди EF attributes, HTTP concepts, repository implementations або transport DTO.
+Не додавайте сюди атрибути EF, поняття HTTP, реалізації репозиторіїв або транспортні DTO.

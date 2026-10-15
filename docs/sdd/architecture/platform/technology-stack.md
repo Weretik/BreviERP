@@ -2,18 +2,26 @@
 
 | Сфера | Поточний вибір | Правило для нової роботи |
 | --- | --- | --- |
-| Runtime | .NET 10 / C# | Дотримуйтеся nullable annotations і налаштованих analyzers. |
-| HTTP | ASP.NET Core controllers | Тримайте контролери тонкими та використовуйте Mediator. |
-| Mediator | Mediator 3.x | Використовуйте request/handler пари та наявний pipeline. |
-| Mediator pipeline | RequestLogging, Performance, Validation, Exception, DomainEventDispatcher | Зберігайте порядок реєстрації; не розміщуйте бізнес-правила у behaviors. |
-| Валідація | FluentValidation | Розміщуйте input validators поряд зі сценарієм. |
-| Контракт результату | Ardalis.Result | Повертайте `Result` або `Result<T>`; використовуйте усталений API mapping. |
-| Доступ до даних | EF Core 10 + Npgsql/PostgreSQL | Тримайте EF configuration та міграції в Infrastructure. |
-| Репозиторії | Ardalis.Specification | Повторно використовуйте наявний стиль repository/specification, де застосовно. |
-| Identity | ASP.NET Core Identity | Зберігайте conventions ролей/політик і fallback-auth. |
-| Логування | Serilog | Лише структуровані, нечутливі логи. |
-| Фонові задачі | наявні job abstractions | Не вводьте прямий scheduler coupling у Application. |
+| Середовище виконання | .NET 10 / C# | Дотримуйтеся правил анотацій nullable і налаштованих аналізаторів. |
+| HTTP | Контролери ASP.NET Core | Тримайте контролери тонкими та використовуйте Mediator. |
+| Mediator | Mediator 3.x | Використовуйте пари запит/обробник та наявний конвеєр. |
+| Конвеєр Mediator | RequestLogging, Performance, Validation, Exception, DomainEventDispatcher | Зберігайте порядок реєстрації; не розміщуйте бізнес-правила в поведінках конвеєра. |
+| Валідація | FluentValidation | Розміщуйте валідатори вхідних даних поряд зі сценарієм. |
+| Контракт результату | Ardalis.Result | Повертайте `Result` або `Result<T>`; використовуйте усталене відображення в API. |
+| Доступ до даних | EF Core 10 + Npgsql/PostgreSQL | Тримайте конфігурацію EF та міграції в Infrastructure. |
+| Репозиторії | Ardalis.Specification | Повторно використовуйте наявний стиль репозиторіїв і специфікацій, де застосовно. |
+| Identity | ASP.NET Core Identity | Зберігайте правила ролей/політик і резервної автентифікації. |
+| Журналювання | Serilog | Лише структуровані журнали без чутливих даних. |
+| Фонові задачі | Реєстрація `AddBackgroundJobRegistrations()` поки порожня; планувальник і сервіс задач не реалізовані | Спершу визначте контракт і спосіб запуску у специфікації; не прив'язуйте Application напряму до планувальника. |
 | Медіасховище каталогу | `AdmToolsMediaStorageService` | Тримайте зовнішній адаптер за Infrastructure-межою. |
-| Тести | NUnit unit/integration/architecture проєкти | Додавайте тести пропорційно зміненій межі. |
+| Тести | Проєкти NUnit для модульних, інтеграційних і архітектурних тестів | Додавайте тести пропорційно зміненій межі. |
 
-Не вводьте пакет для заміни чинної project convention без явного рішення у специфікації функціональності та погодження.
+Не вводьте пакет для заміни чинного правила проєкту без явного рішення у специфікації функціональності та погодження.
+
+Повний перелік прямих залежностей, їхніх версій та проєктів-власників наведено в [каталозі NuGet-пакетів](nuget-packages.md). Фактичні версії визначають `.csproj`; при зміні залежності оновлюйте каталог у тій самій зміні.
+
+## Інструменти поза NuGet
+
+- Проєкти в `src/` і `tests/` вказують `TargetFramework=net10.0`; Dockerfile обох хостів використовують образи .NET `10.0`. У репозиторії немає `global.json`, тому точний рівень виправлення SDK тут не закріплений.
+- `BreviERP.sln` є точкою входу для `dotnet restore`, `dotnet build` і `dotnet test`; актуальні команди наведено в [правилах тестування](../../standards/testing-rules.md).
+- Dockerfile двох хостів і `cloudbuild.yaml` визначають збирання образів та порядок Cloud Run Job → сервіс API. Перевірені конфігураційні факти й межі наведено в [інструкції розгортання](../../operations/deployment/cloud-build.md). Фактичний стан зовнішнього хмарного середовища цим оглядом не підтверджено.

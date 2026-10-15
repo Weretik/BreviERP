@@ -20,14 +20,14 @@ DELETE /api/catalog/media/{id}
 
 | Операція | Запит | Успішна відповідь | Помилки |
 | --- | --- | --- | --- |
-| List | без параметрів | `200` список ID, original file name, public URL, content type, storage key, status | — |
+| Список | без параметрів | `200` список ID, початкова назва файла, публічний URL, тип вмісту, ключ сховища, статус | — |
 | Upload | поле form-data `file` | `200` з `mediaFileId`, `storageKey`, `publicUrl`, `contentType`, `originalFileName` | `400` validation/невідповідна сигнатура |
 | Delete | route `id:int` | `204` | `400`, `404` |
 
-Файл: JPEG/PNG/WebP, позитивний розмір, не більший за `CatalogMediaUpload:MaxFileSizeBytes`; signature має збігатися із заявленим content type.
+Файл: JPEG/PNG/WebP, додатний розмір, не більший за `CatalogMediaUpload:MaxFileSizeBytes`; сигнатура має збігатися із заявленим типом вмісту.
 
 ## Безпека та побічні ефекти
 
 - Поточний доступ: `AllowAnonymous`.
-- Upload не ідемпотентний: кожен успішний повтор створює новий storage key.
-- Delete має side effect у зовнішньому сховищі та БД.
+- Завантаження не ідемпотентне: кожен успішний повтор створює новий ключ сховища.
+- Видалення має побічний ефект у зовнішньому сховищі та БД.

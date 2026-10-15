@@ -30,12 +30,12 @@ BuildingBlocks.Infrastructure/
 - `IDomainEventDispatcher` як `MediatorDomainEventDispatcher`;
 - спільні технічні сервіси, передбачені поточною композицією хоста.
 
-## Підхід до startup і даних
+## Підхід до запуску й даних
 
-`DbMigrator` застосовує EF migrations через provider execution strategy. `UseAppMigrations` запускає всі зареєстровані `IDatabaseMigrator`; `UseAppSeeders` запускає кожен унікальний зареєстрований `ISeeder` у scoped startup operation.
+`DbMigrator` застосовує міграції EF через стратегію виконання провайдера. `UseAppMigrations` запускає всі зареєстровані `IDatabaseMigrator`; `UseAppSeeders` запускає кожен унікальний зареєстрований `ISeeder` в операції запуску з окремою областю залежностей.
 
-Ці startup extensions — host-level operations. Feature handler не може самостійно застосовувати migrations або seed data.
+Ці розширення запуску виконуються на рівні хоста. Обробник фічі не може самостійно застосовувати міграції або дані початкового наповнення.
 
 ## Поведінка безпеки
 
-Поточний користувач і permissions мають споживатися через application-facing abstractions. Не обходьте їх, читаючи `HttpContext` усередині Application.
+Поточний користувач і дозволи мають споживатися через абстракції Application. Не обходьте їх, читаючи `HttpContext` усередині Application.

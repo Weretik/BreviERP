@@ -1,4 +1,4 @@
-# Product page — checklist: готовність delivery
+# Сторінка товару — чеклист готовності постачання
 
 Це фінальна перевірка результату. Статус реалізації відмічається у `tasks/`, а тут перевіряється фактична відповідність коду, контракту й вимог.
 
@@ -17,10 +17,10 @@
 
 ## Persistence та API
 
-- [x] EF one-to-one details, link unique constraints, міграція й rollback перевірені на test database.
-- [x] Міграція не змінює таблиці поза scope і не редагує застосовані міграції.
+- [x] Деталі EF зі зв’язком один до одного, обмеження унікальності зв’язків, міграція й відкат перевірені на тестовій базі даних.
+- [x] Міграція не змінює таблиці поза межами задачі й не редагує застосовані міграції.
 - [x] Реалізований API відповідає `docs/sdd/contracts/catalog/product-catalog.openapi.yaml`: маршрути, DTO, status codes, errors, security та приклади.
-- [x] Controller не містить бізнес-правил; усі use-cases проходять через Mediator, FluentValidation, `IUnitOfWork` і `CancellationToken`.
+- [x] Controller не містить бізнес-правил; відповідні use-cases проходять через Mediator, FluentValidation і `CancellationToken`. Попередня згадка `IUnitOfWork` у цьому пункті була помилковою: станом на перевірку 2026-10-15 такого спільного контракту в коді немає.
 
 ## Докази завершення
 

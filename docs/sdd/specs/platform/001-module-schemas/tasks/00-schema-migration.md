@@ -1,23 +1,23 @@
-# Phase 00 — module schema migration
+# Фаза 00 — міграція схем модулів
 
-- [x] Define table ownership and confirm deletion of obsolete `public.ProductCategories`.
-- [x] Configure each DbContext for its module schema.
-- [x] Generate migrations through EF CLI only.
-- [x] Generate and review idempotent SQL scripts.
-- [x] Apply migrations to an isolated empty test database, verify schema, rollback and re-apply.
-- [x] Apply verified migrations to the local database and verify rows/schema.
+- [x] Визначити власників таблиць і підтвердити видалення застарілої `public.ProductCategories`.
+- [x] Налаштувати кожний DbContext на схему його модуля.
+- [x] Генерувати міграції лише через EF CLI.
+- [x] Згенерувати та перевірити ідемпотентні SQL-скрипти.
+- [x] Застосувати міграції до ізольованої порожньої тестової БД, перевірити схеми, rollback і повторне застосування.
+- [x] Застосувати перевірені міграції до локальної БД і перевірити рядки та схеми.
 
-## Rollout order
+## Порядок впровадження
 
 1. Reference
 2. Identity
 3. Accounting
-4. Catalog (already in `catalog`)
+4. Catalog (уже в `catalog`)
 
-Rollback of Reference or Identity is a PostgreSQL schema move back to `public`, performed through the migration `Down` path. Accounting has no existing table to move; its first verified migration creates `accounting.TransactionCategories`.
+Rollback для Reference або Identity переміщує схеми PostgreSQL назад у `public` через шлях `Down` міграції. Accounting не має наявної таблиці для переміщення; його перша перевірена міграція створює `accounting.TransactionCategories`.
 
-## Verification
+## Перевірка
 
-- `brevidb_schema_verify`: all Catalog, Reference, Identity and Accounting migrations applied; Reference, Identity and Accounting rollback/re-apply completed successfully.
-- `brevidb`: Reference rows before and after move were identical: AdditionalReferences 14, Fabrics 44, Accessories 37, Operations 151, Parts 34, Suppliers 27. Identity retained 1 user, 3 roles and 0 refresh sessions.
-- Final local structure has module-owned tables in `catalog`, `reference`, `identity` and `accounting`; `public` retains only `__EFMigrationsHistory`.
+- `brevidb_schema_verify`: усі міграції Catalog, Reference, Identity та Accounting застосовано; rollback і повторне застосування Reference, Identity та Accounting завершилися успішно.
+- `brevidb`: кількість рядків Reference до й після переміщення була однакова: AdditionalReferences 14, Fabrics 44, Accessories 37, Operations 151, Parts 34, Suppliers 27. Identity зберіг 1 користувача, 3 ролі та 0 refresh-сесій.
+- Підсумкова локальна структура має таблиці модулів у `catalog`, `reference`, `identity` та `accounting`; у `public` залишається лише `__EFMigrationsHistory`.

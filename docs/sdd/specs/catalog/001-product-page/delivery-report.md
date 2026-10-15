@@ -1,4 +1,4 @@
-# Delivery report — 001 Product page
+# Звіт про постачання — 001 Сторінка товару
 
 **Дата:** 2026-08-21
 **Статус:** готово до handoff.
@@ -6,29 +6,29 @@
 ## Реалізовано
 
 - Підфази `00.1`–`05.3` завершені: Product Domain, persistence/migration, CQRS, admin Product CRUD API, OpenAPI та automated tests.
-- Admin list повертає `minimumWholesalePrice` і лише `mainPhoto` з URL або `null`; detail повертає всі фото з URL і застосовні Sewing/PPE ціни.
-- Write boundary приймає лише канонічні строкові enum `Sewing`/`Ppe` та `Reference`/`Custom`; невалідні комбінації повертають `ValidationError[]`.
+- Список адміністратора повертає `minimumWholesalePrice` і лише `mainPhoto` з URL або `null`; детальна відповідь повертає всі фото з URL і застосовні ціни Sewing/PPE.
+- Межа запису приймає лише канонічні рядкові значення enum `Sewing`/`Ppe` та `Reference`/`Custom`; невалідні комбінації повертають `ValidationError[]`.
 
 ## Змінені матеріали
 
-- Catalog Product Domain, Application, Infrastructure й API проєкти; unit, PostgreSQL integration та HTTP API tests.
-- Feature requirements/design/contracts/OpenAPI, task records і delivery checklist.
+- Проєкти Catalog Product Domain, Application, Infrastructure й API; модульні тести, інтеграційні тести PostgreSQL та тести HTTP API.
+- Вимоги, проєктні рішення, контракти й OpenAPI фічі, записи завдань і контрольний список поставки.
 
-## Докази verification
+## Свідчення перевірки
 
 - `dotnet restore BreviERP.sln` — успішно.
 - `dotnet build BreviERP.sln --no-restore` — успішно, 0 errors; 2 warnings поза Catalog.
-- `dotnet test BreviERP.sln --no-build` із process-scoped `BREVIERP_CATALOG_TEST_CONNECTION` зі значення `Host.Api` `ConnectionStrings:Default` — 47 unit, 1 architecture і 22 integration tests passed.
-- Product migration test — 1 passed.
-- `dotnet test tests/IntegrationTests/IntegrationTests.csproj --no-build --filter FullyQualifiedName~ProductsApiTests` — 8 passed: list, detail, create/update/delete, validation і conflict HTTP behavior.
+- `dotnet test BreviERP.sln --no-build` із `BREVIERP_CATALOG_TEST_CONNECTION`, заданою лише для процесу зі значення `Host.Api` `ConnectionStrings:Default`, — успішно пройшли 47 модульних, 1 архітектурний і 22 інтеграційні тести.
+- Тест міграції Product — 1 успішний.
+- `dotnet test tests/IntegrationTests/IntegrationTests.csproj --no-build --filter FullyQualifiedName~ProductsApiTests` — пройшли 8 тестів: список, деталі, створення/оновлення/видалення, валідація та поведінка HTTP при конфлікті.
 - `npx --yes @apidevtools/swagger-cli validate docs/sdd/contracts/catalog/product-catalog.openapi.yaml` — valid.
 
-## Delivery confirmation
+## Підтвердження постачання
 
 - Користувач підтвердив ручні Swagger/API-сценарії Sewing/PPE create/update, list/detail,
   invalid combinations і Reference delete conflict 2026-08-21.
 
 ## Ризики
 
-- Product endpoints тимчасово мають `AllowAnonymous`; перед production необхідно погодити й увімкнути authorization policy.
-- Перший ручний `GET /api/v1/products` після старту Host API зафіксував EF `MultipleCollectionIncludeWarning` і 7740 ms у `GetAdminProductsQuery`. Після warm-up порожній list відповів за 323.7063 ms і 172.2967 ms без slow warning. `03.9` усуває EF warning, а `03.10` замінює повний Reference snapshot вузьким pricing reader. Числовий benchmark на representative dataset не зафіксовано, тому не є performance-SLA.
+- Кінцеві точки Product тимчасово мають `AllowAnonymous`; перед виробничим запуском необхідно погодити й увімкнути політику авторизації.
+- Перший ручний `GET /api/v1/products` після старту Host API зафіксував EF `MultipleCollectionIncludeWarning` і 7740 мс у `GetAdminProductsQuery`. Після прогрівання порожній список відповів за 323.7063 мс і 172.2967 мс без попередження про повільний запит. `03.9` усуває попередження EF, а `03.10` замінює повний знімок Reference вузьким читачем даних ціноутворення. Числове вимірювання на репрезентативному наборі даних не зафіксовано, тому це не є гарантованим показником швидкодії.

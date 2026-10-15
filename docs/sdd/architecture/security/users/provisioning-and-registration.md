@@ -2,7 +2,7 @@
 
 ## Що існує зараз
 
-У поточному API немає public self-registration endpoint-а. Session API підтримує лише login, refresh, logout і `me`.
+У поточному API немає публічної кінцевої точки самостійної реєстрації. API сеансів підтримує лише вхід, оновлення, вихід і `me`.
 
 Поточні шляхи створення користувача:
 
@@ -26,21 +26,21 @@ Identity.Api endpoint
 
 Мінімальні рішення для специфікації функціональності:
 
-- Хто може створювати користувача: anonymous self-registration, Admin-only, import-only або інша policy.
-- Identity fields і validation: email uniqueness, normalized input, full name і password rules.
+- Хто може створювати користувача: анонімна самостійна реєстрація, лише Admin, лише імпорт або інша політика.
+- Поля Identity та валідація: унікальність email, нормалізоване введення, повне ім’я та правила паролів.
 - Початкова роль і чи може її обирати викликач. Public request ніколи не може надати Admin або Manager.
-- Account activation: immediate login, email confirmation, invitation або administrator approval.
-- Password setup/reset і recovery design.
-- Abuse controls: rate limit, audit logs і вимоги CAPTCHA/email-verification.
-- Що відбувається з active sessions, коли змінюються roles, password або account state.
-- API response shape: ніколи не повертайте password, refresh token, password-reset token або внутрішні Identity errors.
+- Активація облікового запису: негайний вхід, підтвердження email, запрошення або схвалення адміністратором.
+- Налаштування й скидання пароля та сценарій відновлення.
+- Захист від зловживань: обмеження частоти, журнали аудиту та вимоги CAPTCHA/підтвердження email.
+- Що відбувається з активними сеансами, коли змінюються ролі, пароль або стан облікового запису.
+- Форма відповіді API: ніколи не повертайте пароль, токен оновлення, токен скидання пароля або внутрішні помилки Identity.
 
 ## Межі реалізації
 
 - Розміщуйте HTTP contract і controller в `Identity.Api`.
 - Розміщуйте command/query, FluentValidation validator, Ardalis.Result contract і application-facing interface в `Identity.Application`.
-- Розміщуйте ASP.NET Core Identity calls, `AppUser` persistence, role assignment і token-provider calls в `Identity.Infrastructure`.
-- Тримайте лише сталі role constants в `Identity.Domain`; не розміщуйте там HTTP DTO, `UserManager` або EF concerns.
-- Реєструйте новий service через наявний Identity module registration flow; Host.Api компонує його через `AddHostServices`.
+- Розміщуйте виклики ASP.NET Core Identity, збереження `AppUser`, призначення ролей і виклики провайдера токенів в `Identity.Infrastructure`.
+- Тримайте лише сталі константи ролей в `Identity.Domain`; не розміщуйте там HTTP DTO, `UserManager` або залежностей від EF.
+- Реєструйте новий сервіс через наявний порядок реєстрації модуля Identity; Host.Api компонує його через `AddHostServices`.
 
-Використовуйте помилки `UserManager` для створення безпечного, узгодженого application result. Не розкривайте необроблену Identity diagnostics анонімним викликачам.
+Використовуйте помилки `UserManager` для створення безпечного, узгодженого результату Application. Не розкривайте необроблену діагностику Identity анонімним викликачам.

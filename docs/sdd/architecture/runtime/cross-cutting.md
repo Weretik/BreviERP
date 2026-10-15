@@ -1,10 +1,10 @@
 # Кросфункціональний pipeline
 
-## Mediator
+## Обробка запитів через Mediator
 
 Host.Api сканує Application assemblies Identity, Catalog, Reference і BuildingBlocks. Налаштований порядок pipeline:
 
-1. request logging;
+1. request журналювання;
 2. performance measurement;
 3. FluentValidation;
 4. exception handling;
@@ -18,7 +18,7 @@ Validators розміщуються поряд зі сценарієм у `Valid
 
 Domain-код перевіряє бізнес-інваріанти й переходи стану. Не дублюйте правило між шарами без свідомої захисної причини.
 
-`ValidationBehavior` перетворює validation failures на `Ardalis.Result.Invalid`, коли відповідь є `Result` або `Result<T>`. Контролери зберігають наявний result-to-HTTP mapping.
+`ValidationBehavior` перетворює помилки валідації на `Ardalis.Result.Invalid`, коли відповідь є `Result` або `Result<T>`. Контролери зберігають наявне відображення результату в HTTP.
 
 ## Доменні події
 
@@ -26,4 +26,4 @@ Domain-код перевіряє бізнес-інваріанти й перех
 
 ## Спостережуваність і безпека
 
-Використовуйте структуровані шаблони Serilog без секретів, токенів, connection strings або чутливих payload-ів. Зберігайте correlation і cancellation. Авторизація налаштована політиками в хості; анонімний endpoint потребує явного `AllowAnonymous`, оскільки хост має fallback policy для автентифікованих.
+Використовуйте структуровані шаблони Serilog без секретів, токенів, рядків підключення або конфіденційних даних запитів. Зберігайте кореляцію й скасування. Авторизація налаштована політиками в хості; анонімна кінцева точка потребує явного `AllowAnonymous`, оскільки хост має резервну політику для автентифікованих.

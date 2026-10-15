@@ -2,7 +2,7 @@
 
 ## Поточний механізм
 
-BreviERP використовує ASP.NET Core Identity із bearer-token scheme (`IdentityConstants.BearerScheme`). Дані Identity та refresh-session records зберігаються через `AppIdentityDbContext` у PostgreSQL. `Host.Api` вмикає authentication middleware перед authorization.
+BreviERP використовує ASP.NET Core Identity зі схемою токенів Bearer (`IdentityConstants.BearerScheme`). Дані Identity та записи сеансів оновлення зберігаються через `AppIdentityDbContext` у PostgreSQL. `Host.Api` вмикає проміжне програмне забезпечення автентифікації перед авторизацією.
 
 ```text
 Client
@@ -14,44 +14,44 @@ SessionLoginCommand → Mediator behaviors → IdentitySessionService
   ▼
 UserManager + SignInManager → AppUserClaimsPrincipalFactory
   ▼
-access token у JSON response + refresh token у HttpOnly cookie
+токен доступу у відповіді JSON + токен оновлення у файлі cookie HttpOnly
 ```
 
-`AppUserClaimsPrincipalFactory` поміщає user id, user name, email, security stamp, user claims і roles до authenticated principal. Тому roles доступні authorization policies.
+`AppUserClaimsPrincipalFactory` додає ID й ім’я користувача, email, мітку безпеки, твердження користувача та ролі до автентифікованого принципала. Тому ролі доступні політикам авторизації.
 
-## Session endpoints
+## Маршрути сесії
 
-| Endpoint | Доступ | Input і результат |
+| Кінцева точка | Доступ | Вхідні дані й результат |
 | --- | --- | --- |
-| `POST /api/auth/session/login` | `AllowAnonymous`, `AuthLogin` rate limit | Email/password. Повертає token type, access token і lifetime; записує refresh та CSRF cookies. |
-| `POST /api/auth/session/refresh` | `AllowAnonymous`, `AuthRefresh` rate limit | Потребує refresh-token cookie та налаштований CSRF header, що збігається з CSRF cookie. Ротує refresh session і повертає новий access token. |
-| `POST /api/auth/session/logout` | authenticated | Відкликає активні refresh sessions, оновлює security stamp, потім очищує refresh і CSRF cookies. |
-| `GET /api/auth/session/me` | authenticated | Повертає current user id, email і roles. |
+| `POST /api/auth/session/login` | `AllowAnonymous`, обмеження частоти `AuthLogin` | Email/пароль. Повертає тип токена, токен доступу і строк дії; записує файли cookie для оновлення та CSRF. |
+| `POST /api/auth/session/refresh` | `AllowAnonymous`, обмеження частоти `AuthRefresh` | Потребує файлу cookie з токеном оновлення та налаштованого CSRF-заголовка, що збігається з CSRF-cookie. Замінює сеанс оновлення й повертає новий токен доступу. |
+| `POST /api/auth/session/logout` | автентифікований користувач | Відкликає активні сеанси оновлення, оновлює мітку безпеки, потім очищує файли cookie оновлення та CSRF. |
+| `GET /api/auth/session/me` | автентифікований користувач | Повертає ID поточного користувача, email і ролі. |
 
-Refresh token ніколи не повертається в JSON response. Його cookie має `HttpOnly`; CSRF cookie читабельний браузером, щоб frontend міг надіслати його значення в налаштованому header для refresh requests.
+Токен оновлення ніколи не повертається у відповіді JSON. Його файл cookie має `HttpOnly`; CSRF-cookie читається браузером, щоб frontend міг надіслати його значення в налаштованому заголовку для запитів оновлення.
 
 ## Правила токенів і сесій
 
-- Access-token і refresh-token lifetimes походять з `IdentitySessionSecurityOptions` під час `AddBearerToken` registration.
-- Кожен refresh token зберігається лише як SHA-256 hash у `RefreshSessions` разом із timestamps та обмеженим client context.
-- Refresh sessions мають absolute й idle expiry.
-- Успішний refresh ротує session: стару відкликано та пов’язано з replacement.
-- Reuse відкликаного або replaced refresh token відкликає всі active refresh sessions цього користувача.
-- Logout також змінює user security stamp, інвалідуючи refresh tokens, прив’язані до старого stamp.
+- Строки дії токенів доступу й оновлення походять з `IdentitySessionSecurityOptions` під час реєстрації `AddBearerToken`.
+- Кожен токен оновлення зберігається лише як хеш SHA-256 у `RefreshSessions` разом із часовими позначками та обмеженим контекстом клієнта.
+- Сеанси оновлення мають абсолютний строк дії та строк бездіяльності.
+- Успішне оновлення замінює сеанс: попередній відкликано та пов’язано із заміною.
+- Повторне використання відкликаного або заміненого токена оновлення відкликає всі активні сеанси оновлення цього користувача.
+- Вихід також змінює мітку безпеки користувача, роблячи недійсними токени оновлення, прив’язані до старої мітки.
 
-## Поточні Identity options
+## Поточні параметри Identity
 
 - Потрібен унікальний email.
-- Password length щонайменше 5 символів.
-- Digit, lowercase, uppercase та non-alphanumeric characters зараз не є обов’язковими.
+- Довжина пароля — щонайменше 5 символів.
+- Цифри, малі й великі літери та небуквено-цифрові символи зараз не є обов’язковими.
 
-Це поточні runtime settings, а не рекомендація для public-registration feature. Будь-яке public registration design має явно перевірити password policy, email confirmation, abuse protection і recovery flow до реалізації.
+Це поточні параметри виконання, а не рекомендація для фічі публічної реєстрації. Будь-яке проєктне рішення публічної реєстрації має явно перевірити політику паролів, підтвердження email, захист від зловживань і сценарій відновлення до реалізації.
 
 ## Використання frontend
 
-1. Викличте `login`; зберігайте повернений access token згідно з frontend security design.
-2. Надсилайте його як `Authorization: Bearer <access-token>` для protected API requests.
-3. Під час refresh дозвольте браузеру надіслати cookies і додайте налаштоване CSRF-header value з CSRF cookie.
-4. Під час logout викличте `logout`, поки access token ще валідний, потім відкиньте access token на клієнті.
+1. Викличте `login`; зберігайте повернений токен доступу згідно з проєктним рішенням безпеки frontend.
+2. Надсилайте його як `Authorization: Bearer <access-token>` для захищених запитів API.
+3. Під час оновлення дозвольте браузеру надіслати файли cookie й додайте налаштоване значення CSRF-заголовка з CSRF-cookie.
+4. Під час виходу викличте `logout`, поки токен доступу ще дійсний, потім відкиньте токен доступу на клієнті.
 
-Не розміщуйте refresh token у local storage, application logs або frontend request body.
+Не розміщуйте токен оновлення в локальному сховищі, журналах застосунку або тілі запиту frontend.

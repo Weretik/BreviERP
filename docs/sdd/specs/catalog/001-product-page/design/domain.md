@@ -1,4 +1,4 @@
-# Product page — design: Domain
+# Сторінка товару — дизайн Domain
 
 **Статус:** у проєктуванні  
 **Залежить від:** прийнятого рішення щодо правил Sewing  
@@ -85,6 +85,6 @@ Ppe має два value object-и `RetailPricePercent` і `WholesalePricePercent
 
 ## Перевірка
 
-- Unit-тести: add/remove/replace operations, duplicate ID, type boundary, zero total, calculation without rounding.
+- Модульні тести: додавання, видалення й заміна операцій; дубльований ID; межа типу; нульова сума; обчислення без округлення.
 - Integration-тести: перевірка наявності Reference operation, відхилення видалення використаної operation/fabric/accessory та read-модель сторінки товару.
 - Ризики: cross-module consistency та зміна `Min` у довіднику після прив’язування.

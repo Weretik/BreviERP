@@ -23,7 +23,7 @@ dotnet run --project src/Bootstrapper/Host.Api/Host.Api.csproj --launch-profile 
 dotnet run --project src/Bootstrapper/Host.Api/Host.Api.csproj --launch-profile http
 ```
 
-Перед запуском операцій, які застосовують міграції або seed-дані до не-локальної БД, прочитайте [міграції та seeders](../data/migrations-and-seeding.md).
+Перед запуском операцій, які застосовують міграції або seed-дані до не-локальної БД, прочитайте [міграції та початкове наповнення](../data/migrations-and-seeding.md).
 
 ## Зупинка та повторна збірка
 

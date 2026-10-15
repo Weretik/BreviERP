@@ -1,73 +1,73 @@
-# Product page — вузький Reference reader для цін admin list
+# Сторінка товару — вузький Reference reader для цін адміністративного списку
 
-**Статус:** реалізовано без cache; performance verification непорожньої page очікує `05.3`
-**Scope:** внутрішній read path `GET /api/v1/products`; публічний HTTP/OpenAPI contract,
-Product schema та правила розрахунку не змінюються.
+**Статус:** реалізовано без кешування; перевірка швидкодії непорожньої сторінки очікує `05.3`
+**Межі:** внутрішній шлях читання `GET /api/v1/products`; публічний HTTP/OpenAPI-контракт,
+схема Product та правила розрахунку не змінюються.
 
 ## Проблема
 
-Поточний list handler після завантаження page викликає повний
-`IProductReferenceReader.GetSnapshotAsync()`. Host adapter послідовно запускає загальні
-Reference UI queries для suppliers, fabrics, accessories, operations і additional
-references. Частина цих queries виконує додаткові lookup-запити для відображуваних імен.
+Поточний обробник списку після завантаження сторінки викликає повний
+`IProductReferenceReader.GetSnapshotAsync()`. Адаптер Host послідовно запускає загальні
+запити інтерфейсу користувача Reference для постачальників, тканин, фурнітури, операцій і додаткових
+довідників. Частина цих запитів виконує додаткові пошукові запити для відображуваних імен.
 
-Admin list не показує supplier або garment-part names і для ціни потребує тільки:
+Адміністративний список не показує назви постачальників або частин одягу й для ціни потребує тільки:
 
 - `Fabric`: `Id`, `Price`;
 - `GarmentAccessory`: `Id`, `Price`;
 - `GarmentPartOperation`: `Id`, `Min`;
 - `AdditionalReference`: `Id`, `Key`, `Value`, `Unit` лише для відсотків поточного PPE
-  page і allowlisted ключів Sewing pricing.
+  сторінки й дозволених ключів ціноутворення Sewing.
 
-Завантаження повних UI DTO та всіх довідникових записів є over-fetching і додає серію
-послідовних database round trips до кожного page request.
+Завантаження повних DTO інтерфейсу користувача й усіх довідникових записів отримує зайві дані та додає серію
+послідовних звернень до бази даних для кожного запиту сторінки.
 
-Для порожнього списку цей шлях не виконується: handler повертається до виклику
-`GetSnapshotAsync()`. Перший повільний empty-list request виявився cold start, тому
-підфаза не є виправленням already-verified warm empty-list latency.
+Для порожнього списку цей шлях не виконується: обробник повертається до виклику
+`GetSnapshotAsync()`. Перший повільний запит порожнього списку виявився холодним стартом, тому
+підфаза не виправляє вже перевірену затримку прогрітого запиту порожнього списку.
 
-## Production design
+## Проєктне рішення для промислового середовища
 
-1. Після page projection Catalog збирає distinct IDs тільки з Product rows цієї сторінки:
+1. Після проєкції сторінки Catalog збирає унікальні ID тільки з рядків Product цієї сторінки:
    fabrics, accessories, operations і AdditionalReferences. Для порожнього набору не
    виконується відповідний запит.
 2. Catalog Application вводить вузьку абстракцію
-   `IProductListPricingReferenceReader`; вона повертає лише числові pricing inputs,
+   `IProductListPricingReferenceReader`; вона повертає лише числові вхідні дані для ціноутворення,
    потрібні `MinimumWholesalePrice`.
-3. Host adapter мапить primitive ID sets у спеціалізований Reference Application query.
-   Reference не залежить від Catalog DTO або entities.
-4. Reference query виконує set-based projections (`WHERE id IN (...)`) без UI lookups,
-   supplier names або garment-part names. Кількість database commands bounded типами
-   reference data, а не Product rows у page.
-5. Handler будує `ProductReferenceData` або еквівалентний list-only pricing model у пам’яті
+3. Адаптер Host мапить множини примітивних ID у спеціалізований запит Reference Application.
+   Reference не залежить від DTO або сутностей Catalog.
+4. Запит Reference виконує проєкції за множинами (`WHERE id IN (...)`) без пошукових запитів інтерфейсу,
+   назв постачальників або частин одягу. Кількість команд до бази даних обмежена типами
+   довідникових даних, а не кількістю рядків Product на сторінці.
+5. Обробник будує `ProductReferenceData` або еквівалентну модель ціноутворення лише для списку в пам’яті
    й застосовує наявні формули без зміни значень/округлення.
 
 ## Кешування
 
-Основна оптимізація — data narrowing, а не cache. Cache дозволений лише для маленького,
-allowlisted набору стабільних Sewing pricing coefficients (`AdditionalReference`), а не для
-повного Reference snapshot. Перед додаванням cache реалізація має підтвердити:
+Основна оптимізація — звуження вибірки даних. Кешування дозволено лише для малого,
+явно дозволеного набору стабільних коефіцієнтів ціноутворення Sewing (`AdditionalReference`), а не для
+повного знімка Reference. Перед додаванням кешування реалізація має підтвердити:
 
 - TTL є коротким і явно задокументованим;
-- існує наявний механізм invalidation після Reference write, або cache **не додається**;
+- існує механізм інвалідації після запису в Reference, або кеш **не додається**;
 - кеш не приховує зміну `Fabric.Price`, accessory price, operation minutes або PPE percent;
-- поведінка в кількох Host instances визначена (distributed invalidation або TTL-only
-  компроміс з погодженим допустимим staleness).
+- поведінка в кількох екземплярах Host визначена (розподілена інвалідація або компроміс лише з TTL
+  й погодженим допустимим строком застарівання даних).
 
-Не додавайте `IMemoryCache` або distributed cache «про всяк випадок». За відсутності
-погодженої invalidation strategy вузькі DB projections залишаються єдиною реалізацією.
+Не додавайте `IMemoryCache` або розподілений кеш «про всяк випадок». За відсутності
+погодженої стратегії інвалідації вузькі проєкції БД залишаються єдиною реалізацією.
 
-Пошук поточної codebase не виявив Reference cache invalidation або distributed cache
-semantics для Fabric, GarmentAccessory, GarmentPartOperation чи AdditionalReference writes.
-Тому реалізація свідомо не додає cache: кожна list page читає актуальні, але вузькі
-pricing projections.
+Пошук у поточній кодовій базі не виявив інвалідації кешу Reference або семантики розподіленого кешу
+для запису Fabric, GarmentAccessory, GarmentPartOperation чи AdditionalReference.
+Тому реалізація свідомо не додає кешування: кожна сторінка списку читає актуальні, але вузькі
+проєкції для ціноутворення.
 
 ## Незмінні властивості та критерії
 
-- List повертає незмінні filtering, sorting, paging, `categoryIds`, `mainPhoto` і
+- Список зберігає фільтрацію, сортування й пагінацію, `categoryIds`, `mainPhoto` і
   `minimumWholesalePrice` для Sewing/PPE/fallback `0`.
-- Для одного page не існує запитів на кожен Product; SQL command count bounded.
-- Full `IProductReferenceReader` залишається для create/update/detail, де повні
+- Для однієї сторінки немає запитів на кожен Product; кількість SQL-команд обмежена.
+- Повний `IProductReferenceReader` залишається для create/update/detail, де повні
   довідникові дані справді потрібні.
-- Integration tests порівнюють ціни старого повного snapshot і нового вузького reader
+- Інтеграційні тести порівнюють ціни старого повного знімка й нового вузького читача
   на тому самому наборі Product/Reference data.

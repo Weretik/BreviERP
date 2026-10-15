@@ -1,54 +1,37 @@
-# BreviERP: інструкції для AI
+# AI-навігація: BreviERP
 
-Ці інструкції застосовуються до всього репозиторію.
+Це коротка точка входу для роботи в backend-репозиторії. Фактичні правила, архітектуру, інструменти й команди визначають його код і документація. Читай джерела, потрібні для конкретного завдання. Цей файл діє в усьому репозиторії, якщо вкладений `AGENTS.md` не уточнює окрему ділянку.
 
-## Навігація репозиторієм
+## Контекст проєкту
 
-1. Перед зміною меж модулів або шарів прочитайте `docs/sdd/architecture/README.md`.
-2. Прочитайте релевантні файли з `docs/sdd/standards/README.md`. Перед створенням або зміною ідентифікатора сутності обов'язково прочитайте `docs/sdd/standards/identifier-strategy.md`.
-3. Для нової feature або міграції до реалізації створіть чи оновіть специфікацію в `docs/sdd/specs/`.
-4. Для публічної HTTP-поведінки дотримуйтеся `docs/sdd/contracts/README.md` і синхронізуйте feature contract, versioned OpenAPI, runtime-поведінку та тести.
-5. Для запуску, конфігурації, міграцій, діагностики або seed/jobs прочитайте `docs/sdd/operations/README.md`.
-6. Сталі бізнес-терміни беріть із `docs/product/glossary.md`.
+- [Архітектура](docs/sdd/architecture/README.md) — модулі, шари та межі залежностей.
+- [Стандарти](docs/sdd/standards/README.md) — сталі правила розробки, delivery та перевірок.
+- [Специфікації](docs/sdd/specs/README.md) — вимоги, рішення, завдання й докази виконання фіч.
+- [Контракти](docs/sdd/contracts/README.md) — публічна API-поведінка та її синхронізація.
+- [Операційна документація](docs/sdd/operations/README.md) — запуск, конфігурація, міграції, seed/jobs і діагностика.
+- [Глосарій](docs/product/glossary.md) — сталі бізнес-терміни.
 
-`docs/sdd/` є канонічною backend-документацією. `docs/new/` містить неадаптовані матеріали іншого проєкту й не є джерелом правил або шаблонів BreviERP; не змінюйте та не використовуйте його без окремого запиту користувача.
+Визнач модуль і зачеплені документи за запитом та кодом; не припускай однакової реалізації в іншому backend-проєкті.
 
-## Архітектура та delivery
+`docs/sdd/` — канонічна backend-документація. `docs/new/` містить неадаптовані матеріали іншого проєкту; не використовуй і не змінюй їх без окремого запиту користувача.
 
-- Зберігайте межі модульного моноліту: бізнес-модулі не залежать від внутрішньої реалізації інших модулів, а залежності спрямовані до Domain.
-- Не розміщуйте бізнес-правила в controllers, EF mappings, hosts або `BuildingBlocks`.
-- Реалізуйте погоджену поведінку через dependency-ready задачі `TS-*` і `EN-*`. Виконуйте Red → Green → Refactor → Regression і записуйте свіже evidence.
-- Зміни схеми та seed-даних проходять через погоджений механізм `IDatabaseMigrator`/`ISeeder` і окремий `Host.Seed`; не запускайте state-changing операції проти непогодженої БД.
-- Оновлюйте документацію та контракти в тому самому change set, що й описану ними поведінку.
-- Зберігайте сторонні зміни користувача в dirty worktree.
+## Маршрутизація завдань
 
-## Межі виконання для AI
+| Завдання | Навичка | Джерело правил проєкту |
+| --- | --- | --- |
+| Нова або змінена фіча: специфікація | `$backend-feature-spec` | [Правила delivery](docs/sdd/standards/delivery-rules.md) |
+| Реалізація прийнятої специфікації | `$backend-feature-delivery` | [Правила delivery](docs/sdd/standards/delivery-rules.md) |
+| Кілька агентів на прямий запит користувача | `$backend-feature-orchestrator` | [Специфікації та залежності](docs/sdd/specs/README.md) |
+| Аудит коду / план системного виправлення | `$backend-code-audit` / `$backend-remediation-plan` | [Архітектура](docs/sdd/architecture/README.md) і [стандарти](docs/sdd/standards/README.md) |
+| HTTP/API та зовнішні контракти | `$backend-api-contract-sync` | [Контракти](docs/sdd/contracts/README.md) |
+| Схема БД, міграції та seed-дані | `$backend-database-change` | [Правила БД](docs/sdd/standards/database-rules.md) і [операції з даними](docs/sdd/operations/data/migrations-and-seeding.md) |
+| Перевірка змін / передача на review | `$backend-change-verification` / `$backend-pr-handoff` | [Правила тестування](docs/sdd/standards/testing-rules.md) |
+| Розбіжності між кодом і документацією | `$backend-docs-sync` | [Індекс стандартів](docs/sdd/standards/README.md) |
 
-Коли користувач дозволив реалізацію feature, фази, сценарію або впорядкованого набору задач, виконуйте всі готові задачі в погоджених межах без окремої команди для кожного task-файла. Зупиняйтеся на межі дозволеного scope, невирішеному product-рішенні, задокументованому blocker-і або перед дією, що потребує нових повноважень.
+## Межі роботи й перевірка
 
-## Git
+Виконуй усі готові завдання в погодженому обсязі фічі, фази, сценарію або завдання без окремої команди для кожного файла; зупиняйся на межі обсягу, невирішеному продуктовому рішенні чи конкретній перешкоді. Детальний порядок — у [правилах delivery](docs/sdd/standards/delivery-rules.md). Обирай перевірки за [правилами тестування](docs/sdd/standards/testing-rules.md) і конфігурацією зачеплених проєктів. Для нових ідентифікаторів читай [стратегію ID](docs/sdd/standards/identifier-strategy.md).
 
-- Не створюйте commits, не push-те, не створюйте pull request і не змінюйте remote state без явного запиту користувача.
-- Якщо commits дозволено, дотримуйтеся `docs/sdd/specs/_templates/git/git-commit-batching.md`: робіть невеликі reviewable commits за наміром, тримайте нерозривні model/configuration/migration зміни разом і не включайте сторонні зміни worktree.
+Для `Host.Seed`, міграцій та інших дій зі станом БД звіряй [проєктний порядок](docs/sdd/operations/data/migrations-and-seeding.md) та дозволене середовище.
 
-## Repo-local skills
-
-Використовуйте відповідний skill із `.agents/skills/`, коли спрацьовує його trigger:
-
-- `brevi-erp-feature-spec` — створення або оновлення feature specification до коду.
-- `brevi-erp-feature-delivery` — реалізація погодженої специфікації.
-- `brevi-erp-feature-orchestrator` — координація явно запитаної multi-agent реалізації.
-- `brevi-erp-change-verification` — вибір і запуск risk-appropriate перевірок.
-- `brevi-erp-code-audit` — аудит архітектури та implementation evidence.
-- `brevi-erp-remediation-plan` — планування системного виправлення архітектури.
-- `brevi-erp-api-contract-sync` — синхронізація HTTP-поведінки та OpenAPI.
-- `brevi-erp-database-change` — проєктування й перевірка EF Core migration або seed change.
-- `brevi-erp-pr-handoff` — підготовка review-ready handoff.
-- `brevi-erp-docs-sync` — пошук і виправлення підтвердженого documentation drift.
-
-## Правила документації
-
-- `docs/sdd/architecture/` і `docs/sdd/standards/` містять сталі правила; feature-specific рішення належать у `docs/sdd/specs/<module>/<NNN>-<feature>/`.
-- Машиночитані публічні API-контракти зберігайте в `docs/sdd/contracts/`.
-- Один документ відповідає за одну тему. Не створюйте порожні, дублюючі або монолітні файли.
-- Перевіряйте відносні Markdown-посилання після переміщення чи перейменування файлів.
+Коміти, push, створення гілки чи PR та інші дії зі станом remote виконуй лише за прямим дорученням користувача. Зберігай сторонні зміни робочого дерева. Усі посилання тут ведуть лише до файлів цього репозиторію; назви навичок доступні глобально за іменем; локальних копій навичок у репозиторії немає.

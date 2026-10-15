@@ -21,20 +21,20 @@ BuildingBlocks.Application/
 └── ApplicationAssemblyMarker.cs
 ```
 
-## Behaviors
+## Поведінки
 
-Хост реєструє RequestLogging, Performance, Validation, Exception і DomainEventDispatcher саме в такому порядку. Точну семантику описано в [Mediator behaviors](../../runtime/mediator-behaviors.md).
+Хост реєструє RequestLogging, Performance, Validation, Exception і DomainEventDispatcher саме в такому порядку. Точну семантику описано в [поведінках Mediator](../../runtime/mediator-behaviors.md).
 
-## Notifications
+## Сповіщення
 
-`IDomainEventContext` відкриває сутності з накопиченими events. `IDomainEventDispatcher` публікує events. `DomainEventNotification` є Mediator notification wrapper. Default notification handler навмисно порожній; module-specific handlers підписуються на notification/event pattern, де це потрібно.
+`IDomainEventContext` відкриває сутності з накопиченими подіями. `IDomainEventDispatcher` публікує події. `DomainEventNotification` є оболонкою сповіщення Mediator. Обробник сповіщень за замовчуванням навмисно порожній; обробники окремих модулів підписуються на шаблон сповіщень/подій, де це потрібно.
 
-## Підхід до logging і helpers
+## Підхід до журналювання й допоміжних функцій
 
-Папка Logging містить стабільні structured templates для requests, validation, performance, domain events, cancellation і unhandled failures. Використовуйте їх через наявні behaviors; не логуйте raw sensitive request data.
+Папка Logging містить сталі шаблони структурованих записів для запитів, валідації, швидкодії, доменних подій, скасування й необроблених збоїв. Використовуйте їх через наявні поведінки; не журналюйте сирі конфіденційні дані запиту.
 
-`PhoneNumberHelper` — спільна утиліта normalisation/validation номера телефону. Повторно використовуйте її замість дублювання phone parsing.
+`PhoneNumberHelper` — спільна утиліта нормалізації й валідації номера телефону. Повторно використовуйте її замість дублювання розбору номерів.
 
 ## Доступність контрактів
 
-`ICurrentUserService` та `IPermissionService` мають shared Infrastructure implementations. Не впроваджуйте application abstraction у нову функціональність, доки module owner не надасть і не зареєструє її реалізацію.
+`ICurrentUserService` та `IPermissionService` мають спільні реалізації в Infrastructure. Не впроваджуйте абстракцію Application у нову функціональність, доки власник модуля не надасть і не зареєструє її реалізацію.

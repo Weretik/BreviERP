@@ -1,4 +1,4 @@
-# 001 — Product page
+# 001 — Сторінка товару
 
 **Модуль:** Catalog  
 **Статус:** завершено
@@ -26,13 +26,13 @@
 5. [Оптимізація admin list query](design/admin-list-query-performance.md)
 6. [Вузький Reference pricing reader для admin list](design/admin-list-pricing-reference-reader.md)
 
-## Delivery
+## Постачання
 
 1. [API contract](contracts/api-contract.md)
 2. [Checklist: готовність специфікації](checklist/spec-readiness.md)
 3. [Checklist: готовність delivery](checklist/delivery-readiness.md)
 
-## Frontend
+## Передача у frontend
 
 - [Адміністративний сценарій товару: екрани, блоки, дії та API](../../../frontend-scenario/catalog/001-product-page/admin-product-scenario.md)
 
@@ -42,12 +42,12 @@
 
 | Фаза | Вхід | Результат |
 | --- | --- | --- |
-| [00 — Readiness](tasks/00-readiness.md) | вимоги, відкриті питання | створені й завершені `00.N` scope/tooling підфази |
+| [00 — Готовність](tasks/00-readiness.md) | вимоги, відкриті питання | створені й завершені підфази `00.N` щодо меж та інструментів |
 | [01 — Domain](tasks/01-domain.md) | 00 | створені й завершені `01.N` Product Domain підфази |
 | [02 — Infrastructure](tasks/02-infrastructure.md) | 01 | створені й завершені `02.N` persistence/migration підфази |
 | [03 — Application](tasks/03-application.md) | 01, 02 | `03.N` CQRS slices, зокрема збагачені list/detail Media URL і ціни для admin frontend |
 | [04 — API](tasks/04-api.md) | 03 | `04.N` controllers, HTTP behavior, OpenAPI та API tests — завершено |
-| [05 — Verification](tasks/05-verification.md) | 00–04 | `05.N` build/tests і delivery evidence — завершено |
+| [05 — Перевірка](tasks/05-verification.md) | 00–04 | підфази `05.N` щодо збирання, тестів і доказів постачання завершено |
 
 ## Журнал рішень
 

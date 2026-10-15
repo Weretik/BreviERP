@@ -5,9 +5,9 @@
 - [x] O02-01 Завершити EF persistence mapping: [02.1-product-persistence.md](infrastructure/02.1-product-persistence.md).
 - [x] O02-02 Завершити generated migration та її перевірку: [02.2-product-migration.md](infrastructure/02.2-product-migration.md).
 
-## Checkpoint
+## Контрольна точка
 
-Усі потрібні Infrastructure підфази завершені; schema відповідає scope і не містить physical FK до Reference DbContext.
+Усі потрібні підфази Infrastructure завершені; схема відповідає межам задачі й не містить фізичного зовнішнього ключа до Reference DbContext.
 
 ## Наступна фаза
 

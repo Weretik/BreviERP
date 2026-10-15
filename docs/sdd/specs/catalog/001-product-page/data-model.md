@@ -1,4 +1,4 @@
-# Product page — data model
+# Сторінка товару — модель даних
 
 ## Прийнята стратегія зберігання
 
@@ -61,7 +61,7 @@ catalog.PpeProductDetails                лише Type = Ppe
 - Кожен зв’язок, що належить Product, має явний CLR-FK (`ProductId`, а для рядків характеристик — `TableId`). EF Core shadow properties для цієї моделі не використовуються. Link-таблиці Sewing мають складений первинний ключ з `ProductId` та ID довідника.
 - `Products.Slug` унікальний у межах Catalog.
 - `Products.Name` та `Products.RuName` кожне унікальне у межах Catalog.
-- Product успадковує audit-поля `CreatedAt`, nullable `UpdatedAt` та `IsDeleted` із `BaseAuditableEntity<ProductId>`. Час надходить до Domain із Application/clock: у Domain немає викликів `DateTimeOffset.UtcNow`. `CreatedAt` встановлюється сервером під час створення, `UpdatedAt` — під час кожної успішної зміни. Дати використовуються для admin-сортування; поточний delete Product залишається фізичним, тому `IsDeleted` у цьому delivery не встановлюється.
+- Product успадковує поля аудиту `CreatedAt`, необов’язкове `UpdatedAt` та `IsDeleted` із `BaseAuditableEntity<ProductId>`. Час надходить до Domain із Application/годинника: у Domain немає викликів `DateTimeOffset.UtcNow`. `CreatedAt` встановлюється сервером під час створення, `UpdatedAt` — під час кожної успішної зміни. Дати використовуються для сортування адміністративного списку; поточне видалення Product залишається фізичним, тому `IsDeleted` у цій поставці не встановлюється.
 - Для одного Product не більше двох `SewingProductFabrics.IsPrimary = true`; порядок read-model: `IsPrimary` за спаданням, потім `SortOrder` за зростанням.
 - `ProductInformationBlocks` і `ProductCharacteristicTables` належать одному Product; `ProductCharacteristicRows` належить одній таблиці. Порядок у кожній колекції визначає `SortOrder`.
 - Перевірки `Type` і взаємовиключних полів залишаються у Domain/Application; БД забезпечує ключі, FK та унікальність зв’язків.

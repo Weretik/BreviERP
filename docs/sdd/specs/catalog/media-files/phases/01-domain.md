@@ -2,6 +2,6 @@
 
 **Статус:** перевірено
 
-`MediaFile` — aggregate root із `MediaFileId`, metadata storage і статусом `PendingUpload`/`Ready`. `CreatePending` створює лише валідний запис; `MarkUploaded` можливий тільки з `PendingUpload` та вимагає public URL і коректних dimensions. `IsReadyForProductUsage()` є доменною межею для Product.
+`MediaFile` — корінь агрегату з `MediaFileId`, метаданими сховища й статусом `PendingUpload`/`Ready`. `CreatePending` створює лише валідний запис; `MarkUploaded` можливий тільки з `PendingUpload` та вимагає публічний URL і коректні розміри. `IsReadyForProductUsage()` є доменною межею для Product.
 
-Критерії: ID, ім’я, content type, розмір, provider, bucket і storage key перевіряються в Domain; Domain не залежить від HTTP чи storage adapter.
+Критерії: ID, ім’я, тип вмісту, розмір, постачальник сховища, кошик і ключ сховища перевіряються в Domain; Domain не залежить від HTTP чи адаптера сховища.

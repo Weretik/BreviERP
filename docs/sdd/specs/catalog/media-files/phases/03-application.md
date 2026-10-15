@@ -2,10 +2,10 @@
 
 **Статус:** перевірено
 
-| Операція | Тип | Result |
+| Операція | Тип | Результат |
 | --- | --- | --- |
-| UploadMediaFile | command | ID, storage key, URL, content type |
-| GetMediaFiles | query | list projection |
-| DeleteMediaFile | command | status/not found |
+| UploadMediaFile | команда | ID, ключ сховища, URL, тип вмісту |
+| GetMediaFiles | запит | проєкція списку |
+| DeleteMediaFile | команда | статус/не знайдено |
 
-`UploadMediaFileCommandValidator` перевіряє request, розмір, MIME type та сигнатуру JPEG/PNG/WebP; validator повертає позицію seekable stream. Upload створює pending record, викликає storage та позначає файл Ready. Read використовує projection. Delete видаляє storage object, потім persistence record.
+`UploadMediaFileCommandValidator` перевіряє запит, розмір, тип MIME та сигнатуру JPEG/PNG/WebP; валідатор відновлює позицію потоку з підтримкою пошуку. Завантаження створює запис в очікуванні, викликає сховище та позначає файл як `Ready`. Читання використовує проєкцію. Видалення спочатку прибирає об’єкт зі сховища, а потім запис у базі даних.

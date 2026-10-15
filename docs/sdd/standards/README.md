@@ -2,12 +2,12 @@
 
 Ця папка містить сталі правила для кожної backend-зміни. Вона не містить frontend-правил: frontend є окремим проєктом.
 
-- [Backend rules](backend-rules.md) — шари, CQRS, DDD, Mediator і організація коду.
+- [Правила backend](backend-rules.md) — шари, CQRS, DDD, Mediator і організація коду.
 - [Стратегія ідентифікаторів](identifier-strategy.md) — обов'язкові правила вибору ID перед створенням або зміною сутності.
-- [API rules](api-rules.md) — HTTP-контракти, валідація, результати й помилки.
-- [Database rules](database-rules.md) — EF Core, читання, транзакції, міграції та дані.
-- [Security and observability rules](security-observability-rules.md) — авторизація, privacy, Serilog і diagnostics.
-- [Testing rules](testing-rules.md) — покриття сценаріїв, Red → Green → Refactor, вибір тестів, винятки та обов’язкові команди перевірки.
-- [Delivery rules](delivery-rules.md) — behavior-first SDD flow, traceability, scope та definition of done.
+- [Правила API](api-rules.md) — HTTP-контракти, валідація, результати й помилки.
+- [Правила бази даних](database-rules.md) — EF Core, читання, транзакції, міграції та дані.
+- [Правила безпеки та спостережуваності](security-observability-rules.md) — авторизація, приватність, Serilog і діагностика.
+- [Правила тестування](testing-rules.md) — покриття сценаріїв, Red → Green → Refactor, вибір тестів, винятки та обов’язкові команди перевірки.
+- [Правила постачання](delivery-rules.md) — порядок SDD від поведінки, простежуваність, межі та критерії завершення.
 
 Feature-специфікації посилаються на ці правила, а не дублюють їх.

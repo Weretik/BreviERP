@@ -23,11 +23,11 @@
 
 ## EF Core правила
 
-- `SewingProductDetails` і `PpeProductDetails` мапляться як one-to-one detail record із `ProductId` одночасно PK/FK.
-- Sewing collections мають composite unique keys: `(ProductId, FabricId)`, `(ProductId, GarmentAccessoryId)`, `(ProductId, GarmentPartOperationId)`.
-- Reference IDs зберігаються як типізовані value objects/скаляри. Між module DbContext-ами не додаються EF navigation properties до Reference entities.
+- `SewingProductDetails` і `PpeProductDetails` мапляться як записи деталей зі зв’язком один до одного, де `ProductId` одночасно є первинним і зовнішнім ключем.
+- Sewing колекції мають складені унікальні ключі: `(ProductId, FabricId)`, `(ProductId, GarmentAccessoryId)`, `(ProductId, GarmentPartOperationId)`.
+- Ідентифікатори Reference зберігаються як типізовані об’єкти-значення/скаляри. Між контекстами DbContext різних модулів не додаються навігаційні властивості EF до сутностей Reference.
 - Посилання на Reference не отримують фізичний FK cascade. Видалення Reference data синхронізується ідемпотентними подіями.
-- Detail table не може замінити Domain/Application перевірку відповідності `Product.Type`.
+- Таблиця деталей не може замінити Domain/Application перевірку відповідності `Product.Type`.
 
 ## Міграція
 
@@ -38,11 +38,11 @@
 - [ ] У схемі немає Sewing-specific колонок у `PpeProductDetails` та Ppe-specific колонок у `SewingProductDetails`.
 - [ ] Один Product не може мати два detail records одного типу.
 - [ ] Унікальність link-таблиць підтримується БД.
-- [ ] Міграція застосовується на порожній БД і не змінює наявні таблиці не за scope.
+- [ ] Міграція застосовується на порожній БД і не змінює наявні таблиці поза межами задачі.
 - [ ] Domain/Application не залежить від Infrastructure або Reference EF entities.
 
 ## Перевірка
 
-- Integration-тести EF mapping, unique constraints і lifecycle aggregate-а.
-- Migration test на порожній test database.
+- Інтеграційні тести відображення EF, унікальні обмеження і життєвий цикл агрегату.
+- Тест міграції на порожній тестовій базі даних.
 - Ручна перевірка схеми та rollback до rollout.

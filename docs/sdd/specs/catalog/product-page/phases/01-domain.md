@@ -42,7 +42,7 @@ Sewing-товар може існувати як чернетка без опе�
 
 Коли `GarmentPartOperation` видаляється, усі `SewingOperations` із цим ID мають бути видалені з Product. Це не прямий EF cascade: Catalog і Reference мають різні модульні DbContext-и та власників даних.
 
-Цільовий механізм: після успішного видалення операції Reference публікує подію `GarmentPartOperationDeleted`; Catalog обробляє її окремим handler-ом, знаходить Product із цим ID і видаляє відповідні links. Доставка має бути ідемпотентною: повторна подія без наявного link не є помилкою. Синхронізація може бути eventually consistent.
+Цільовий механізм: після успішного видалення операції Reference публікує подію `GarmentPartOperationDeleted`; Catalog обробляє її окремим обробником, знаходить Product із цим ID і видаляє відповідні зв’язки. Доставка має бути ідемпотентною: повторна подія без наявного зв’язку не є помилкою. Синхронізація може бути зрештою узгодженою.
 
 ## Потрібні рішення перед кодом
 
@@ -86,6 +86,6 @@ Ppe також має value object `PpeCoefficient` із двома взаємо
 
 ## Перевірка
 
-- Unit-тести: add/remove/replace operations, duplicate ID, type boundary, zero total, calculation without rounding.
+- Модульні тести: додавання, видалення й заміна операцій; дубльований ID; межа типу; нульова сума; обчислення без округлення.
 - Integration-тести: перевірка наявності Reference operation, видалення operation та read-модель сторінки товару.
 - Ризики: cross-module consistency та зміна `Min` у довіднику після прив’язування.

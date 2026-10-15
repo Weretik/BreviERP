@@ -1,4 +1,4 @@
-# Product page — design: Infrastructure
+# Сторінка товару — дизайн Infrastructure
 
 **Статус:** реалізовано у фазі 02
 **Залежить від:** [Domain design](domain.md)  
@@ -23,16 +23,16 @@
 
 ## EF Core правила
 
-- `SewingProductDetails` і `PpeProductDetails` мапляться як one-to-one detail record із `ProductId` одночасно PK/FK.
+- `SewingProductDetails` і `PpeProductDetails` мапляться як записи деталей зі зв’язком один до одного, де `ProductId` одночасно є первинним і зовнішнім ключем.
 - Усі FK у Product-моделі є властивостями CLR-сутностей; рядкові `HasForeignKey("ProductId")`, shadow `ProductId` та shadow surrogate `Id` не допускаються. Для link-таблиць Sewing застосовується складений PK, а не штучний EF-ключ.
 - `RetailPricePercent` і `WholesalePricePercent` мапляться як EF Core complex types у `PpeProductDetails`; вони не є окремими таблицями та не дублюють одне одного. Єдиний стан кожного відсотка: `Source`, `AdditionalReferenceId` або `CustomPercent`.
-- Sewing collections мають composite unique keys: `(ProductId, FabricId)`, `(ProductId, GarmentAccessoryId)`, `(ProductId, GarmentPartOperationId)`.
+- Sewing колекції мають складені унікальні ключі: `(ProductId, FabricId)`, `(ProductId, GarmentAccessoryId)`, `(ProductId, GarmentPartOperationId)`.
 - `Products.Slug` має унікальний індекс у межах schema `catalog`.
-- Reference IDs зберігаються як типізовані value objects/скаляри. Між module DbContext-ами не додаються EF navigation properties до Reference entities.
+- Ідентифікатори Reference зберігаються як типізовані об’єкти-значення/скаляри. Між контекстами DbContext різних модулів не додаються навігаційні властивості EF до сутностей Reference.
 - Посилання на Reference не отримують фізичний FK cascade. Перед видаленням `GarmentPartOperation`, `Fabric` або `GarmentAccessory` Reference перевіряє їх використання в Catalog і відхиляє видалення, якщо є хоча б одне посилання.
-- Detail table не може замінити Domain/Application перевірку відповідності `Product.Type`.
+- Таблиця деталей не може замінити Domain/Application перевірку відповідності `Product.Type`.
 
-## Read projections
+## Проєкції читання
 
 Admin list використовує `GetAdminProductsSpec : Specification<Product, ProductListItem>` з
 `AsNoTracking`, SQL-side filters/sorting/pagination і `Select` у `ProductListItem`.
@@ -52,12 +52,12 @@ Repository materialize-ить лише поля рядка списку та п�
 - [x] У схемі немає Sewing-specific колонок у `PpeProductDetails` та Ppe-specific колонок у `SewingProductDetails`.
 - [x] Один Product не може мати два detail records одного типу.
 - [x] Унікальність link-таблиць підтримується БД.
-- [x] Міграція застосовується на порожній БД і не змінює наявні таблиці не за scope.
+- [x] Міграція застосовується на порожній БД і не змінює наявні таблиці поза межами задачі.
 - [x] Domain/Application не залежить від Infrastructure або Reference EF entities.
 
 ## Перевірка
 
-- Integration-тест `CatalogProductPersistenceTests` перевіряє EF mapping, PK/FK, unique constraints і lifecycle aggregate-а.
+- Інтеграційний тест `CatalogProductPersistenceTests` перевіряє відображення EF, PK/FK, унікальні обмеження і життєвий цикл агрегату.
 - Тест створює порожню тимчасову PostgreSQL БД, застосовує міграції та перевіряє цільові таблиці.
 - Тест відкочує Catalog до `20260727004045_InitialCatalog`, перевіряє зникнення нових таблиць і видаляє тимчасову БД.
 - `GetAdminProductsSpecTests` підтверджує SQL filters, sorting, стабільний secondary sort за `Id`, pagination і projection у тимчасовій PostgreSQL БД.

@@ -5,7 +5,7 @@
 - [x] O01-01 Завершити aggregate/value-object підфазу: [01.1-product-aggregate.md](domain/01.1-product-aggregate.md).
 - [x] O01-02 Завершити Domain tests підфазу: [01.2-domain-tests.md](domain/01.2-domain-tests.md).
 
-## Checkpoint
+## Контрольна точка
 
 Усі потрібні Domain підфази завершені; Product Domain не залежить від Infrastructure або Reference entities.
 

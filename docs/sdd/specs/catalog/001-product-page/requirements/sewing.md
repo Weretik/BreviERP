@@ -1,4 +1,4 @@
-# Product page — Sewing
+# Сторінка товару — Sewing
 
 ### Sewing: операції та трудомісткість
 

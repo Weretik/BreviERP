@@ -22,13 +22,18 @@ BreviERP — модульний ASP.NET Core backend на .NET 10. Він вик
 
 - [Потік сценарію](runtime/use-case-flow.md)
 - [Mediator behaviors](runtime/mediator-behaviors.md)
-- [Кросфункціональний pipeline](runtime/cross-cutting.md)
+- [Кросфункціональний конвеєр](runtime/cross-cutting.md)
 - [Persistence та інтеграції](runtime/persistence-and-integrations.md)
 
 ### Потрібна довідка платформи
 
 - [Технологічний стек](platform/technology-stack.md)
+- [Каталог прямих NuGet-залежностей](platform/nuget-packages.md)
 - [Довідка BuildingBlocks](platform/building-blocks/README.md)
+
+### Потрібна причина довготривалого рішення
+
+- [Архітектурні рішення](decisions/README.md)
 
 ### Потрібна ідентичність або контроль доступу
 

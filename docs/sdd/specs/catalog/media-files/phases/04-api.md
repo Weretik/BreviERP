@@ -2,6 +2,6 @@
 
 **Статус:** перевірено
 
-`CatalogMediaController` зв’язує `multipart/form-data`, створює command із stream і конфігурованим max size, передає `CancellationToken` у `ISender` та мапить `Result`. Контролер не перевіряє format/signature — це відповідальність Application validator.
+`CatalogMediaController` зв’язує `multipart/form-data`, створює команду з потоком і налаштовуваним максимальним розміром, передає `CancellationToken` у `ISender` та мапить `Result`. Контролер не перевіряє формат/сигнатуру — це відповідальність валідатора Application.
 
-`DisableRequestSizeLimit` активний; фактичний ліміт контролює validator. Авторизація лишається `AllowAnonymous` за поточним рішенням.
+`DisableRequestSizeLimit` активний; фактичний ліміт контролює валідатор. Авторизація лишається `AllowAnonymous` за поточним рішенням.

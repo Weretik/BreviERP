@@ -8,7 +8,7 @@ HTTP request
   → ISender.Send(request, cancellationToken)
   → Mediator pipeline
   → Command/query handler
-  → Domain + application abstractions
+  → Domain + абстракції Application
   → Infrastructure adapter / database
   → Ardalis.Result
   → ToActionResult HTTP response
@@ -16,10 +16,10 @@ HTTP request
 
 ## Правила CQRS
 
-- Command змінює стан і повертає лише потрібний identifier, status або Result.
-- Query не змінює стан і проєктує лише потрібні поля.
-- Не приховуйте writes у query handlers або background read operations.
-- Поширюйте `CancellationToken` через кожну async operation.
+- Команда змінює стан і повертає лише потрібний ідентифікатор, стан або Result.
+- Запит не змінює стан і проєктує лише потрібні поля.
+- Не приховуйте записи в обробниках запитів або фонових операціях читання.
+- Передавайте `CancellationToken` через кожну асинхронну операцію.
 - Робіть команди, чутливі до retry, ідемпотентними, коли можливі дубльовані побічні ефекти. Якщо endpoint використовує `Idempotency-Key`, документуйте ключ, scope і retention.
 
 ## Розміщення функціональності

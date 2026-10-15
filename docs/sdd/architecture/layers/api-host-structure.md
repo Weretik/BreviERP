@@ -11,7 +11,7 @@
 └── <Module>.Api.csproj
 ```
 
-Контролери зв’язують HTTP input, викликають `ISender.Send` із `CancellationToken` та повертають усталений Result mapping. Вони не виконують EF query, не конструюють repositories і не містять domain rules.
+Контролери зв’язують вхідні дані HTTP, викликають `ISender.Send` із `CancellationToken` та повертають усталене відображення Result. Вони не виконують запити EF, не створюють репозиторіїв і не містять доменних правил.
 
 ## Структура хоста
 
@@ -28,16 +28,16 @@ Bootstrapper/Host.Api/
 └── appsettings*.json
 ```
 
-## Request pipeline
+## Конвеєр HTTP-запиту
 
 ```text
 HTTP
-  → developer diagnostics або exception handler
-  → forwarded headers, CORS, HTTPS, Serilog request logging, rate limiter
-  → authentication → authorization
+  → діагностика розробника або обробник винятків
+  → переслані заголовки, CORS, HTTPS, журналювання HTTP-запитів Serilog, обмеження частоти
+  → автентифікація → авторизація
   → controller → ISender
-  → request logging → performance → validation → exception → domain events
-  → handler → Result-to-HTTP mapping
+  → журналювання запиту → вимірювання швидкодії → валідація → обробка винятків → доменні події
+  → обробник → відображення Result у HTTP
 ```
 
-Host є composition root. Він може реєструвати модулі та middleware, але не має реалізовувати бізнес-сценарій.
+Host є точкою складання залежностей. Він може реєструвати модулі та проміжне програмне забезпечення, але не має реалізовувати бізнес-сценарій.

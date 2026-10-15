@@ -2,7 +2,7 @@
 
 ## Відповідальність
 
-Infrastructure — шар адаптерів. Він реалізує Application contracts і зберігає/передає дані до технологічно специфічних систем.
+Infrastructure — шар адаптерів. Він реалізує контракти Application і зберігає та передає дані до технологічно специфічних систем.
 
 ## Цільова структура модуля
 
@@ -11,30 +11,30 @@ Infrastructure — шар адаптерів. Він реалізує Applicatio
 ├── DataBase/
 │   └── <Module>DbContext.cs
 ├── Configurations/          EF IEntityTypeConfiguration класи
-├── Migrations/              EF migrations і model snapshot
-├── Repositories/            EF repository implementations
-├── Projections/             побудова та persistence read-моделі
-├── Integrations/            HTTP/queue/storage adapter implementations
-├── Services/                storage, export, notification adapters
-├── DependencyInjection/     Add<Module>... extension methods
+├── Migrations/              міграції EF і знімок моделі
+├── Repositories/            реалізації репозиторіїв EF
+├── Projections/             побудова моделей читання зі збережених даних
+├── Integrations/            адаптери HTTP, черг і сховищ
+├── Services/                адаптери сховища, експорту й сповіщень
+├── DependencyInjection/     методи розширення Add<Module>...
 └── <Module>.Infrastructure.csproj
 ```
 
 ## Візуалізація адаптера
 
 ```text
-Application abstraction
+Абстракція Application
           ▲
           │ реалізує
-Infrastructure adapter
+Адаптер Infrastructure
      ├── EF Core DbContext ──→ PostgreSQL
-     ├── external client ────→ storage / інший сервіс
-     └── projection builder ─→ read model
+     ├── зовнішній клієнт ────→ сховище / інший сервіс
+     └── побудова проєкції ──→ модель читання
 ```
 
 ## Правила
 
-- EF configurations і migrations ніколи не переносяться в Domain або Application.
-- Реєструйте адаптери через наявний module DI extension.
+- Конфігурації EF та міграції ніколи не переносяться в Domain або Application.
+- Реєструйте адаптери через наявний метод розширення DI модуля.
 - Infrastructure може посилатися на Application та Domain; зворотний напрямок заборонено.
-- Тримайте мапінг зовнішнього payload на межі адаптера та не допускайте generated client types усередину.
+- Тримайте відображення зовнішніх даних на межі адаптера та не допускайте всередину згенеровані типи клієнта.
