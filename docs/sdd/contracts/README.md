@@ -17,7 +17,9 @@ docs/sdd/contracts/
 
 - [Інструкція інтеграції frontend](frontend-integration.md) описує автентифікацію, CSRF, пагінацію, помилки й поточне покриття контрактом.
 - [Агрегований контракт OpenAPI 3.1](openapi.yaml) охоплює API, для яких уже створено й перевірено версійований контракт.
-- Контракти модулів: [Identity session](identity/session.openapi.yaml), [Catalog products](catalog/product-catalog.openapi.yaml), [Reference suppliers](reference/suppliers.openapi.yaml).
+- Identity: [сеанс](identity/session.openapi.yaml).
+- Catalog: [товари](catalog/product-catalog.openapi.yaml), [категорії та медіа](catalog/product-dependencies.openapi.yaml).
+- Reference: [постачальники](reference/suppliers.openapi.yaml), [тканини](reference/fabrics.openapi.yaml), [фурнітура](reference/garment-accessories.openapi.yaml), [частини виробу](reference/garment-parts.openapi.yaml), [операції](reference/garment-part-operations.openapi.yaml), [додаткові довідники](reference/additional-references.openapi.yaml).
 
 Файли OpenAPI описують контракт фактичного коду. Вони не надають кінцевій точці публічного доступу: авторизаційні атрибути й резервна політика хоста залишаються визначальними.
 
