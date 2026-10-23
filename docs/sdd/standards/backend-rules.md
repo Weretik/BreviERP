@@ -1,47 +1,40 @@
-# Правила backend
+# Backend rules
 
-## Шари та залежності
+## Layers and dependencies
 
-Дотримуйтеся напрямку залежностей `API → Application → Domain`. Infrastructure залежить від внутрішніх шарів, але не навпаки.
+Follow the `API → Application → Domain` dependency direction. Infrastructure depends on inner layers, never the reverse.
 
-- Domain володіє бізнес-інваріантами, сутностями, об’єктами-значеннями й доменними сервісами; у ньому немає транспортних DTO або залежностей від Infrastructure.
-- Application оркеструє сценарії через абстракції, а не реалізації Infrastructure.
-- Infrastructure містить збереження та інтеграційні адаптери; не володіє бізнес-правилами.
-- API виконує лише прив'язку HTTP, авторизацію та відображення результату; не містить EF або бізнес-логіки.
+- Domain owns business invariants, entities, value objects, and domain services; it contains no transport DTOs or Infrastructure dependencies.
+- Application orchestrates scenarios through abstractions, not Infrastructure implementations.
+- Infrastructure contains persistence and integration adapters; it does not own business rules.
+- API performs only HTTP binding, authorization, and result mapping; it contains no EF or business logic.
 
-## Ідентифікатори сутностей
+## Entity identifiers
 
-Перед створенням або зміною ідентифікатора сутності дотримуйтеся [стратегії ідентифікаторів](identifier-strategy.md). Не використовуйте `Guid` автоматично: тип ID визначається життєвим циклом створення та інтеграції. У Domain обгортайте вибране скалярне значення в типізований об'єкт-значення; не використовуйте примітивний ID без обгортки в `BaseEntity`, `BaseAuditableEntity` або зовнішніх ключах Domain.
+Before creating or changing an entity identifier, follow the [identifier strategy](identifier-strategy.md). Do not use `Guid` automatically: the ID type depends on the creation and integration lifecycle. In Domain, wrap the chosen scalar value in a typed value object; do not use an unwrapped primitive ID in `BaseEntity`, `BaseAuditableEntity`, or Domain foreign keys.
 
-## CQRS, Mediator і код
+## CQRS, Mediator, and code
 
-Використовуйте структуру за фічами всередині Application. Тримайте команду/запит, обробник, валідатор і приватні DTO разом за сценарієм. Один обробник Mediator відповідає за один сценарій; команди змінюють стан, запити не змінюють його.
+Organize Application by feature. Keep a command/query, handler, validator, and private DTOs together by scenario. One Mediator handler owns one scenario; commands change state, while queries do not.
 
-Передавайте `CancellationToken` крізь увесь потік виконання. Кросфункціональні потреби залишайте в поведінках конвеєра; не переміщуйте бізнес-правила в ці поведінки.
+Pass `CancellationToken` through the entire execution flow. Keep cross-cutting concerns in pipeline behaviors; do not move business rules into those behaviors.
 
 ### Ardalis.Result
 
-- Для очікуваних результатів сценарію використовуйте `Ardalis.Result`, а не власні
-  оболонки успіху/помилки. Для запиту списку з пагінацією базовим результатом є
-  `PagedResult<IReadOnlyList<TItem>>` із `PagedInfo`; не створюйте локальний DTO,
-  що дублює метадані сторінки, розміру сторінки й загальної кількості.
-- Для чистого перетворення `Result<TSource>` у `Result<TTarget>` використовуйте
-  `Map`. Для послідовності операцій, що кожна повертає `Result`, використовуйте
-  `Bind`/`BindAsync`, коли це прибирає повторні перевірки стану. Не приховуйте
-  через них побічні ефекти запису або суттєві перевірки БД і стану.
+- Use `Ardalis.Result` for expected scenario outcomes rather than custom success/error wrappers. For a paginated list query, the default result is `PagedResult<IReadOnlyList<TItem>>` with `PagedInfo`; do not create a local DTO that duplicates page, page-size, and total-count metadata.
+- Use `Map` for a pure conversion from `Result<TSource>` to `Result<TTarget>`. For a sequence of operations that each return `Result`, use `Bind`/`BindAsync` when they remove repeated status checks. Do not use them to hide write side effects or important database and state checks.
 
-Використовуйте явні імена: `CreateOrderCommand`, `GetPublicProductListQuery`, `GetAdminProductListQueryHandler`. Не створюйте загальних папок або назв на кшталт `Common`, `Misc`, `Helper`, `Utils`, `Manager`. Не додавайте абстракцій без конкретної потреби.
+Use explicit names such as `CreateOrderCommand`, `GetPublicProductListQuery`, and `GetAdminProductListQueryHandler`. Do not create generic directories or names such as `Common`, `Misc`, `Helper`, `Utils`, or `Manager`. Do not add abstractions without a concrete need.
 
-## Якість структури файлів
+## File structure quality
 
-- Один файл виробничого коду має одну основну відповідальність і, як правило, один тип верхнього рівня. Не об'єднуйте в одному файлі кілька DTO, специфікацій, обробників або не пов'язані допоміжні типи лише для скорочення кількості файлів.
-- Розташовуйте код за фічами: команда/запит, обробник, валідатор, DTO та специфікація належать конкретному сценарію. Специфікації завжди зберігайте в `<UseCase>/Specifications/`; заборонено створювати загальну `<Area>/Specifications/` або використовувати специфікацію іншого сценарію. `Shared` допускається лише для справді спільного коду Product/фічі, а не як місце для неструктурованих типів.
-- Назва файла відповідає публічному типу верхнього рівня: `CreateProductCommand.cs`, `CreateProductCommandHandler.cs`, `ProductByIdSpec.cs` тощо.
-- Дотримуйтеся наявного форматування проєкту. Не використовуйте стиснутий однорядковий стиль для просторів імен, класів, обробників, валідаторів або складних DTO. Перед завершенням зміни запустіть засіб форматування або перевірте відмінності на відповідність сусіднім файлам.
-- Спочатку дослідіть наявні conventions, контракти та залежності, потім вносіть мінімальну завершену реалізацію. Заборонені тимчасові заглушки, часткові каркаси й передчасні твердження про завершення, якщо ними не можна закрити task і підтвердити це перевіркою.
-- Не дублюйте можливість уже підключеної бібліотеки власною оболонкою чи утилітою, доки
-  не перевірено, що її тип або розширення не покриває погоджений сценарій.
+- One production code file has one primary responsibility and generally one top-level type. Do not combine multiple DTOs, specifications, handlers, or unrelated helper types in one file merely to reduce file count.
+- Organize code by feature: command/query, handler, validator, DTO, and specification belong to a particular scenario. Always keep specifications in `<UseCase>/Specifications/`; a generic `<Area>/Specifications/` directory or a specification reused from another scenario is forbidden. `Shared` is allowed only for genuinely shared Product/feature code, not as a dumping ground for unstructured types.
+- Match the filename to its public top-level type: `CreateProductCommand.cs`, `CreateProductCommandHandler.cs`, `ProductByIdSpec.cs`, and so on.
+- Follow the project's existing formatting. Do not use compressed one-line style for namespaces, classes, handlers, validators, or complex DTOs. Before completing a change, run the formatter or compare the diff with adjacent files.
+- Investigate existing conventions, contracts, and dependencies first, then make the smallest complete implementation. Temporary stubs, partial scaffolds, and premature completion claims are forbidden when they cannot close the task and be verified.
+- Do not duplicate a capability of an already installed library with a custom wrapper or utility until you have checked that its type or extension does not cover the agreed scenario.
 
-## Доменні події та транзакції
+## Domain events and transactions
 
-Дотримуйтеся наявного життєвого циклу доменних подій: `collect → dispatch → clear`. У поточному коді немає спільного `IUnitOfWork`. Для сценарію з кількома змінами агрегатів визначте межу транзакції, можливість часткового виконання та перевірку у специфікації; не припускайте автоматичної атомарності між контекстами.
+Follow the existing domain event lifecycle: `collect → dispatch → clear`. The current code has no shared `IUnitOfWork`. For a scenario changing multiple aggregates, define the transaction boundary, possibility of partial completion, and verification in the specification; do not assume automatic atomicity across contexts.

@@ -1,5 +1,5 @@
-# Модуль авторизації
+# Authorization Module
 
-Використовуйте цей модуль, коли API endpoint потрібно захистити або необхідно змінити роль/політику.
+Use this module when an API endpoint needs protection or a role/policy needs to change.
 
-- [Ролі, політики та захист endpoint-ів](roles-and-policies.md)
+- [Roles, policies, and endpoint protection](roles-and-policies.md)

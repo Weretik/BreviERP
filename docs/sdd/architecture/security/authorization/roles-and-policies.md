@@ -1,48 +1,48 @@
-# Авторизація
+# Authorization
 
-## Базове правило
+## Baseline rule
 
-`Host.Api` налаштовує резервну політику авторизації, що вимагає автентифікованого користувача. Отже кінцева точка захищена, якщо вона свідомо не оголошує `[AllowAnonymous]`. Анонімний доступ має бути явним в API-контракті та перевірятися в межах функціональності.
+`Host.Api` configures a fallback authorization policy requiring an authenticated user. An endpoint is therefore protected unless it explicitly declares `[AllowAnonymous]`. Anonymous access must be explicit in the API contract and verified as part of the feature.
 
-Автентифікація відповідає на питання **хто викликає**. Авторизація відповідає, **чи може цей викликач виконати операцію**.
+Authentication answers **who is calling**. Authorization answers **whether that caller may perform the operation**.
 
-## Ролі
+## Roles
 
-Канонічні константи ролей розміщені в `Identity.Domain/Authorization/RoleNames.cs`; у поточному успадкованому коді також існує `Identity.Domain/Constants/AppRoles.cs` із тим самим набором значень.
+Canonical role constants are in `Identity.Domain/Authorization/RoleNames.cs`; inherited code also contains `Identity.Domain/Constants/AppRoles.cs` with the same set of values.
 
-| Роль | Поточне значення | Створюється початковим наповненням |
+| Role | Current meaning | Created by seeding |
 | --- | --- | --- |
-| `Admin` | Адміністрування системи | так |
-| `Manager` | Доступ контент-менеджера | так |
-| `User` | Звичайний автентифікований користувач | так |
-| `Guest` | Визначена константа ролі без погодженого бізнес-значення | ні |
+| `Admin` | System administration | yes |
+| `Manager` | Content manager access | yes |
+| `User` | Regular authenticated user | yes |
+| `Guest` | Role constant defined without an agreed business meaning | no |
 
-Під час запуску `RoleSeeder` наразі створює лише Admin, Manager і User. Не призначайте `Guest`, доки її початкове створення та бізнес-значення не буде свідомо додано.
+At startup, `RoleSeeder` currently creates only Admin, Manager, and User. Do not assign `Guest` until its seeding and business meaning are deliberately added.
 
-## Політики
+## Policies
 
-Назви політик розміщено в `Identity.Application/Security/Policies/PolicyNames.cs`; їхні вимоги до ролей компонуються у `Host.Api/AuthorizationPoliciesRegistrationExtensions`.
+Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; their role requirements are composed in `Host.Api/AuthorizationPoliciesRegistrationExtensions`.
 
-| Політика | Дозволені ролі |
+| Policy | Allowed roles |
 | --- | --- |
 | `RequireAdminRole` / `CanManageUsers` | Admin |
 | `RequireManagerRole` / `CanManageProducts` / `CanManageOrders` | Manager, Admin |
 | `CatalogRead` / `OrderCreate` | User, Manager, Admin |
-| `RequireTenantAccess` | Константу визначено; політику наразі не зареєстровано |
+| `RequireTenantAccess` | Constant is defined; policy is not currently registered |
 
-Не використовуйте `RequireTenantAccess` на кінцевій точці, доки не реалізовано реєстрацію в Host і не погоджено семантику політики.
+Do not use `RequireTenantAccess` on an endpoint until it is registered in Host and its policy semantics are agreed.
 
-## Захист кінцевої точки
+## Protecting an endpoint
 
-Віддавайте перевагу наявній іменованій політиці, що виражає операцію. Контролер лише оголошує доступ; команда або запит усе одно проходить через `ISender`, а бізнес-інваріанти залишаються у Domain/Application. Не використовуйте перевірку ролі в контролері як заміну політиці.
+Prefer an existing named policy that expresses the operation. The controller declares access only; the command or query still goes through `ISender`, and business invariants remain in Domain/Application. Do not use a role check in a controller instead of a policy.
 
-Для публічної кінцевої точки використовуйте `[AllowAnonymous]` і зафіксуйте причину в контракті функціональності. Це перевизначає резервну політику.
+For a public endpoint, use `[AllowAnonymous]` and record the reason in the feature contract. This overrides the fallback policy.
 
-## Додавання політики або ролі
+## Adding a policy or role
 
-1. Перевірте, чи наявна політика вже охоплює бізнес-операцію.
-2. Якщо ні, визначте назву політики в Identity Application та вимогу до ролі в Host.Api.
-3. Якщо потрібна нова роль, додайте константу в Identity Domain і свідомо налаштуйте її початкове створення; визначте, які наявні й майбутні користувачі її отримають.
-4. Захистіть кінцеву точку новою політикою, оновіть API-контракт і вручну перевірте заборонені та дозволені запити.
+1. Check whether an existing policy already covers the business operation.
+2. If not, define the policy name in Identity Application and its role requirement in Host.Api.
+3. If a new role is needed, add its constant in Identity Domain and deliberately configure seeding; define which existing and future users receive it.
+4. Protect the endpoint with the new policy, update the API contract, and manually verify denied and allowed requests.
 
-Додавання ролі — це зміна авторизації, а не просто зміна рядка: вона впливає на початкове налаштування, призначення користувачів, документацію та розгортання.
+Adding a role is an authorization change, not just a string change: it affects seeding, user assignment, documentation, and deployment.

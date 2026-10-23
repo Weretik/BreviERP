@@ -1,30 +1,30 @@
-# Локальний запуск Host.Api
+# Running Host.Api locally
 
-## Передумови
+## Prerequisites
 
-- .NET SDK, що відповідає target solution (`net10.0`).
-- PostgreSQL, досяжний через `ConnectionStrings:Default`.
-- Налаштовані потрібні локальні секрети; див. [конфігурацію та секрети](../configuration/configuration-and-secrets.md).
+- A .NET SDK matching the solution target (`net10.0`).
+- PostgreSQL reachable through `ConnectionStrings:Default`.
+- Required local secrets configured; see [configuration and secrets](../configuration/configuration-and-secrets.md).
 
-## Запуск
+## Start
 
-З кореня репозиторію:
+From the repository root:
 
 ```powershell
 dotnet restore BreviERP.sln
 dotnet run --project src/Bootstrapper/Host.Api/Host.Api.csproj --launch-profile https
 ```
 
-Профіль `https` слухає `https://localhost:7142` і `http://localhost:5231`. Використовуйте HTTPS-адресу для перевірки автентифікації/refresh: refresh cookie налаштований для безпечного використання.
+The `https` profile listens on `https://localhost:7142` and `http://localhost:5231`. Use the HTTPS address when checking authentication/refresh: the refresh cookie is configured for secure use.
 
-Для HTTP-only перевірки endpoint-а використовуйте профіль `http`:
+For an HTTP-only endpoint check, use the `http` profile:
 
 ```powershell
 dotnet run --project src/Bootstrapper/Host.Api/Host.Api.csproj --launch-profile http
 ```
 
-Перед запуском операцій, які застосовують міграції або seed-дані до не-локальної БД, прочитайте [міграції та початкове наповнення](../data/migrations-and-seeding.md).
+Before running operations that apply migrations or seed data to a nonlocal database, read [migrations and seeding](../data/migrations-and-seeding.md).
 
-## Зупинка та повторна збірка
+## Stop and rebuild
 
-Зупиніть запущений процес Host.Api перед build, якщо Windows заблокував його output DLL. Потім виконайте потрібні build/test-команди зі [стандартів тестування](../../standards/testing-rules.md).
+Stop the running Host.Api process before building if Windows has locked its output DLL. Then run the needed build/test commands from the [testing standards](../../standards/testing-rules.md).

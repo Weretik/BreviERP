@@ -1,9 +1,9 @@
-# Frontend-сценарії SDD
+# Frontend SDD Scenarios
 
-Тут зберігаються сценарії інтерфейсу, згруповані за модулем і фічею: `<module>/<NNN>-<feature>/<actor>-<entity>-scenario.md`. Вони описують дії користувача й використання наявних API; вимоги та проєктні рішення backend залишаються в `docs/sdd/specs/`, а машиночитані HTTP-контракти — в `docs/sdd/contracts/`.
+This directory contains UI scenarios grouped by module and feature: `<module>/<NNN>-<feature>/<actor>-<entity>-scenario.md`. They describe user actions and use of existing APIs; backend requirements and design decisions remain in `docs/sdd/specs/`, and machine-readable HTTP contracts remain in `docs/sdd/contracts/`.
 
-Новий сценарій створюйте за прикладом [адміністративного сценарію товару](catalog/001-product-page/admin-product-scenario.md), додавайте до індексу модуля й пов'язуйте з README відповідної фічі. Один сценарій має одну аудиторію й визначений обсяг; публічний та адміністративний потоки описуйте окремо, коли потрібні обидва.
+Create a scenario using the [admin product scenario](catalog/001-product-page/admin-product-scenario.md) as a reference, add it to the module index, and link it from the corresponding feature README. Each scenario has one audience and a defined scope; document public and administrative flows separately when both are needed.
 
-## Модулі
+## Modules
 
 - [Catalog](catalog/README.md)

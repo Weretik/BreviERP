@@ -1,22 +1,22 @@
-# Документація BreviERP
+# BreviERP documentation
 
-Цей каталог містить версіоновану інженерну документацію BreviERP. Backend-документація ведеться разом зі змінами коду за принципом docs-as-code.
+This directory contains versioned BreviERP engineering documentation. Backend documentation is maintained alongside code changes as docs-as-code.
 
 ## Backend SDD
 
-Почніть із [карти SDD-документації](sdd/README.md), якщо ще не знаєте, який розділ потрібен.
+Start with the [SDD documentation map](sdd/README.md) if you do not yet know which section you need.
 
-- [Архітектура](sdd/architecture/README.md) — фактична топологія backend, модулі та межі шарів.
-- [Інженерні правила](sdd/standards/README.md) — правила backend, API, даних, безпеки, тестування та постачання.
-- [Експлуатація](sdd/operations/README.md) — локальний запуск, конфігурація, дані, діагностика та стан фонових задач.
-- [Специфікації](sdd/specs/README.md) — специфікації функціональностей і докази їх виконання.
-- [Карта фіч](sdd/features/README.md) — реалізовані сценарії за модулями, потоки й точки входу в коді.
-- [API-контракти](sdd/contracts/README.md) — версійовані OpenAPI-контракти та правила передачі frontend-команді.
+- [Architecture](sdd/architecture/README.md) — actual backend topology, modules, and layer boundaries.
+- [Engineering rules](sdd/standards/README.md) — backend, API, data, security, testing, and delivery rules.
+- [Operations](sdd/operations/README.md) — local startup, configuration, data, diagnostics, and background job status.
+- [Specifications](sdd/specs/README.md) — feature specifications and evidence of completion.
+- [Feature map](sdd/features/README.md) — implemented scenarios by module, flows, and code entry points.
+- [API contracts](sdd/contracts/README.md) — versioned OpenAPI contracts and handoff rules for the frontend team.
 
-## Довідка про продукт
+## Product reference
 
-- [Глосарій](product/glossary.md) — сталі бізнес-терміни, спільні для кількох функціональностей.
+- [Glossary](product/glossary.md) — stable business terms shared across features.
 
-## Принцип розміщення
+## Placement principle
 
-Стале правило належить у `sdd/architecture` або `sdd/standards`. Поточна будова фічі та навігація кодом належать до `sdd/features/`; рішення, вимоги, задачі й докази перевірки — до папки в `sdd/specs/`. Публічні машиночитані API-контракти зберігаються окремо в `sdd/contracts/`.
+Stable rules belong in `sdd/architecture` or `sdd/standards`. Current feature structure and code navigation belong in `sdd/features/`; decisions, requirements, tasks, and verification evidence belong in the corresponding `sdd/specs/` directory. Public machine-readable API contracts are stored separately in `sdd/contracts/`.

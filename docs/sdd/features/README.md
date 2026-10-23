@@ -1,28 +1,28 @@
-# Карта backend-фіч BreviERP
+# BreviERP backend feature map
 
-**Статичну звірку з кодом проведено:** 2026-10-16. Карта охоплює чинні HTTP-сценарії за модулями. Кожен опис пояснює вхід, компоненти, дані та міжмодульні зв'язки; [SDD](../specs/README.md) містить рішення й історію delivery. При новій фічі або зміні її будови оновлюй опис та індекс у тій самій зміні.
+**Static code check completed:** 2026-10-16. This map covers current HTTP scenarios by module. Each description explains the entry point, components, data, and cross-module relationships; [SDD](../specs/README.md) holds decisions and delivery history. When adding a feature or changing its structure, update its description and this index in the same change.
 
-Фактичні шляхи й ролі файлів дивись у картці фічі під заголовком «Структура в коді»; потік між складовими — під заголовком «Схема будови».
+See the feature card's “Code structure” section for actual file paths and roles, and “Structure diagram” for the flow between parts.
 
 ## Catalog
 
-- [Товари Catalog](catalog/products.md) — створення, читання, заміна й видалення Sewing/PPE-товарів.
-- [Категорії товарів](catalog/categories.md) — Admin CRUD та список для Storefront.
-- [Медіафайли каталогу](catalog/media.md) — Завантаження, список і видалення файлів для товарів.
+- [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products.
+- [Product categories](catalog/categories.md) — Admin CRUD and Storefront list.
+- [Catalog media](catalog/media.md) — upload, list, and delete product files.
 
 ## Reference
 
-- [Постачальники](reference/suppliers.md) — CRUD і читання списку.
-- [Тканини](reference/fabrics.md) — CRUD і читання списку.
-- [Фурнітура](reference/garment-accessories.md) — CRUD і читання списку.
-- [Частини виробу](reference/garment-parts.md) — CRUD і читання списку.
-- [Операції пошиття](reference/garment-part-operations.md) — CRUD і читання списку.
-- [Додаткові довідники](reference/additional-references.md) — CRUD і читання списку.
+- [Suppliers](reference/suppliers.md) — CRUD and list reads.
+- [Fabrics](reference/fabrics.md) — CRUD and list reads.
+- [Garment accessories](reference/garment-accessories.md) — CRUD and list reads.
+- [Garment parts](reference/garment-parts.md) — CRUD and list reads.
+- [Sewing operations](reference/garment-part-operations.md) — CRUD and list reads.
+- [Additional reference data](reference/additional-references.md) — CRUD and list reads.
 
 ## Identity
 
-- [Сеанс користувача](identity/session.md) — Login, refresh, logout і me.
+- [User session](identity/session.md) — login, refresh, logout, and me.
 
-## Інші модулі
+## Other modules
 
-[Accounting і Crm](../architecture/overview/modules.md) присутні у структурі; на дату звірки окремих HTTP-сценаріїв для них у контролерах немає. Їх не позначено готовими фічами. Підготовку схем і seed дивись у [операціях](../operations/data/migrations-and-seeding.md).
+[Accounting and Crm](../architecture/overview/modules.md) exist in the structure; as of the check date, they have no separate HTTP scenarios in controllers. They are not marked as completed features. See [operations](../operations/data/migrations-and-seeding.md) for schema preparation and seed.

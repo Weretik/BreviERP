@@ -1,43 +1,43 @@
-# Медіафайли каталогу
+# Catalog Media Files
 
-**Статична звірка з кодом:** 2026-10-16. **Модуль:** catalog.
+**Static code review:** 2026-10-16. **Module:** catalog.
 
-Завантаження, список і видалення файлів для товарів.
+Upload, list, and delete files for products.
 
-## Будова й зв'язки
+## Structure and relationships
 
-[CatalogMediaController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/CatalogMediaController.cs) викликає [upload handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Media/Upload/UploadMediaFileCommandHandler.cs): створює pending [MediaFile](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Media/Entities/MediaFile.cs), завантажує в storage через адаптер і позначає uploaded. Метадані зберігає [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs); файл і запис БД мають різні життєві цикли.
+[CatalogMediaController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/CatalogMediaController.cs) calls the [upload handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Media/Upload/UploadMediaFileCommandHandler.cs): it creates a pending [MediaFile](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Media/Entities/MediaFile.cs), uploads it to storage through an adapter, and marks it as uploaded. [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs) stores metadata; the file and database record have separate lifecycles.
 
-## Структура в коді
+## Code structure
 
-Наведено перевірені точки входу та ключові складові фічі; дерево не перелічує всі допоміжні файли.
+The following are verified entry points and key feature components; the tree does not list every supporting file.
 
 ```text
 src/
 └── Modules/Catalog/
-    ├── Catalog.Api/Catalog.Api/Controllers/CatalogMediaController.cs  # HTTP-вхід
+    ├── Catalog.Api/Catalog.Api/Controllers/CatalogMediaController.cs  # HTTP entry point
     ├── Catalog.Application/Catalog.Application/Features/Media/
-    │   ├── Delete/DeleteMediaFileCommandHandler.cs  # обробник сценарію
-    │   ├── GetList/GetMediaFilesQueryHandler.cs  # обробник сценарію
-    │   └── Upload/UploadMediaFileCommandHandler.cs  # обробник сценарію
-    ├── Catalog.Domain/Catalog.Domain/Media/Entities/MediaFile.cs  # доменна модель
-    └── Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs  # контекст даних
+    │   ├── Delete/DeleteMediaFileCommandHandler.cs  # use-case handler
+    │   ├── GetList/GetMediaFilesQueryHandler.cs  # use-case handler
+    │   └── Upload/UploadMediaFileCommandHandler.cs  # use-case handler
+    ├── Catalog.Domain/Catalog.Domain/Media/Entities/MediaFile.cs  # domain model
+    └── Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs  # data context
 ```
 
-## Схема будови
+## Structure diagram
 
 ```mermaid
 flowchart LR
     A["CatalogMediaController"] --> B["UploadMediaFileCommandHandler"]
     B --> C["MediaFile: pending"]
     B --> D["IMediaStorageService"]
-    D --> E["Файл у сховищі"]
+    D --> E["File in storage"]
     B --> F["MediaFile: uploaded"]
     B --> G["ICatalogRepository<MediaFile>"]
     G -.-> H["CatalogEfRepository"]
     H --> I["CatalogDbContext"]
 ```
 
-## Пов'язані джерела
+## Related sources
 
-[OpenAPI](../../contracts/catalog/product-dependencies.openapi.yaml) · [SDD](../../specs/catalog/media-files/README.md).
+[OpenAPI](../../contracts/catalog/product-dependencies.openapi.yaml) · [Media files SDD](../../specs/catalog/media-files/README.md).

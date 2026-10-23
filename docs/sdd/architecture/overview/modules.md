@@ -1,25 +1,25 @@
-# Модулі
+# Modules
 
-## Модуль Identity
+## Identity module
 
-Володіє користувачами, ролями, сеансами оновлення, автентифікацією та політиками доступу. Реалізовано маршрути `api/auth/session` для входу, оновлення, виходу й поточного користувача.
+Owns users, roles, refresh sessions, authentication, and access policies. The `api/auth/session` routes for login, refresh, logout, and the current user are implemented.
 
-## Модуль Catalog
+## Catalog module
 
-Володіє товарами, категоріями товарів і медіафайлами каталогу. Публікує API категорій та медіа; зберігання медіа адаптовано через Infrastructure.
+Owns products, product categories, and catalog media. Publishes category and media APIs; media storage is adapted through Infrastructure.
 
-## Модуль Reference
+## Reference module
 
-Володіє довідниками постачальників, тканин, фурнітури, частин виробу, операцій над частинами та додаткових довідників.
+Owns reference data for suppliers, fabrics, accessories, garment parts, operations on parts, and additional reference data.
 
-## Модуль Accounting
+## Accounting module
 
-Володіє гаманцями, транзакціями й категоріями транзакцій. На момент аудиту API-сценарії модуля ще не представлені контролерами.
+Owns wallets, transactions, and transaction categories. At the audit date, the module's API scenarios are not yet represented by controllers.
 
-## Модуль Crm
+## Crm module
 
-Модуль присутній у рішенні з чотирма шарами, але предметні сценарії ще не реалізовані. Не вважайте його контрактом готової CRM-функціональності.
+The module exists in the solution with four layers, but domain scenarios are not implemented yet. Do not treat it as a contract for completed CRM functionality.
 
-## Спільні BuildingBlocks
+## Shared BuildingBlocks
 
-Спільні доменні примітиви, поведінки Application, обробка доменних подій, результатів і технічні адаптери.
+Shared domain primitives, Application behaviors, domain event and result handling, and technical adapters.

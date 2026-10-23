@@ -1,6 +1,6 @@
-# Потік сценарію
+# Use-Case Flow
 
-## Стандартний HTTP-потік
+## Standard HTTP flow
 
 ```text
 HTTP request
@@ -8,29 +8,29 @@ HTTP request
   → ISender.Send(request, cancellationToken)
   → Mediator pipeline
   → Command/query handler
-  → Domain + абстракції Application
+  → Domain + Application abstractions
   → Infrastructure adapter / database
   → Ardalis.Result
   → ToActionResult HTTP response
 ```
 
-## Правила CQRS
+## CQRS rules
 
-- Команда змінює стан і повертає лише потрібний ідентифікатор, стан або Result.
-- Запит не змінює стан і проєктує лише потрібні поля.
-- Не приховуйте записи в обробниках запитів або фонових операціях читання.
-- Передавайте `CancellationToken` через кожну асинхронну операцію.
-- Робіть команди, чутливі до retry, ідемпотентними, коли можливі дубльовані побічні ефекти. Якщо endpoint використовує `Idempotency-Key`, документуйте ключ, scope і retention.
+- A command changes state and returns only the required identifier, state, or Result.
+- A query does not change state and projects only the required fields.
+- Do not hide writes in query handlers or background read operations.
+- Pass `CancellationToken` through every asynchronous operation.
+- Make retry-sensitive commands idempotent when duplicate side effects are possible. If an endpoint uses `Idempotency-Key`, document the key, scope, and retention.
 
-## Розміщення функціональності
+## Feature placement
 
 ```text
 <Module>.Application/Features/<Area>/<UseCase>/
   <UseCase>Command|Query.cs
   <UseCase>Command|QueryHandler.cs
-  DTOs/                 лише якщо приватні для сценарію
+  DTOs/                 only when private to this use case
   Validators/
-  Extensions/           лише цілісні query/mapping helpers
+  Extensions/           cohesive query/mapping helpers only
 ```
 
-Розділяйте файл, коли його відповідальності розвиваються незалежно. Не створюйте універсальні папки-звалища, як `Common`, `Helpers` або `Utils`.
+Split a file when its responsibilities evolve independently. Do not create generic dump folders such as `Common`, `Helpers`, or `Utils`.

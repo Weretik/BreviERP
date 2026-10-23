@@ -1,45 +1,45 @@
-# Категорії товарів
+# Product Categories
 
-**Статична звірка з кодом:** 2026-10-16. **Модуль:** catalog.
+**Static code review:** 2026-10-16. **Module:** catalog.
 
-Admin CRUD та список для Storefront.
+Admin CRUD and list for Storefront.
 
-## Будова й зв'язки
+## Structure and relationships
 
-[ProductCategoriesController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductCategoriesController.cs) направляє запити до [admin query](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/GetAdminList/GetAdminProductCategoriesQueryHandler.cs), store query та command handlers. [ProductCategory](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/ProductCategories/Entities/ProductCategory.cs) зберігається через [CatalogEfRepository](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Repositories/CatalogEfRepository.cs). Категорія належить Catalog, хоча маршрут API починається з `/api/reference/`.
+[ProductCategoriesController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductCategoriesController.cs) routes requests to the [admin query](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/GetAdminList/GetAdminProductCategoriesQueryHandler.cs), store query, and command handlers. [ProductCategory](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/ProductCategories/Entities/ProductCategory.cs) is persisted through [CatalogEfRepository](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Repositories/CatalogEfRepository.cs). The category belongs to Catalog even though the API route starts with `/api/reference/`.
 
-## Структура в коді
+## Code structure
 
-Наведено перевірені точки входу та ключові складові фічі; дерево не перелічує всі допоміжні файли.
+The following are verified entry points and key feature components; the tree does not list every supporting file.
 
 ```text
 src/
 └── Modules/Catalog/
-    ├── Catalog.Api/Catalog.Api/Controllers/ProductCategoriesController.cs  # HTTP-вхід
+    ├── Catalog.Api/Catalog.Api/Controllers/ProductCategoriesController.cs  # HTTP entry point
     ├── Catalog.Application/Catalog.Application/Features/ProductCategory/
-    │   ├── Create/CreateProductCategoryCommandHandler.cs  # обробник сценарію
-    │   ├── Delete/DeleteProductCategoryCommandHandler.cs  # обробник сценарію
-    │   ├── GetAdminList/GetAdminProductCategoriesQueryHandler.cs  # обробник сценарію
-    │   ├── GetStoreList/GetStoreProductCategoriesQueryHandler.cs  # обробник сценарію
-    │   └── Update/UpdateProductCategoryCommandHandler.cs  # обробник сценарію
-    ├── Catalog.Domain/Catalog.Domain/ProductCategories/Entities/ProductCategory.cs  # доменна модель
-    └── Catalog.Infrastructure/Catalog.Infrastructure/Repositories/CatalogEfRepository.cs  # доступ до даних
+    │   ├── Create/CreateProductCategoryCommandHandler.cs  # use-case handler
+    │   ├── Delete/DeleteProductCategoryCommandHandler.cs  # use-case handler
+    │   ├── GetAdminList/GetAdminProductCategoriesQueryHandler.cs  # use-case handler
+    │   ├── GetStoreList/GetStoreProductCategoriesQueryHandler.cs  # use-case handler
+    │   └── Update/UpdateProductCategoryCommandHandler.cs  # use-case handler
+    ├── Catalog.Domain/Catalog.Domain/ProductCategories/Entities/ProductCategory.cs  # domain model
+    └── Catalog.Infrastructure/Catalog.Infrastructure/Repositories/CatalogEfRepository.cs  # data access
 ```
 
-## Схема будови
+## Structure diagram
 
 ```mermaid
 flowchart LR
-    A["ProductCategoriesController"] --> B["Admin та store query handlers"]
+    A["ProductCategoriesController"] --> B["Admin and store query handlers"]
     A --> C["Command handlers"]
     B --> D["ProductCategory"]
     C --> D
-    B --> E["Контракти репозиторіїв Catalog"]
+    B --> E["Catalog repository contracts"]
     C --> E
-    E -.-> F["CatalogEfRepository та CatalogReadEfRepository"]
+    E -.-> F["CatalogEfRepository and CatalogReadEfRepository"]
     F --> D
 ```
 
-## Пов'язані джерела
+## Related sources
 
-[OpenAPI](../../contracts/catalog/product-dependencies.openapi.yaml) · [SDD списку](../../specs/catalog/admin-product-list/README.md).
+[OpenAPI](../../contracts/catalog/product-dependencies.openapi.yaml) · [Admin product list SDD](../../specs/catalog/admin-product-list/README.md).

@@ -1,24 +1,24 @@
-# Експлуатація
+# Operations
 
-Цей розділ пояснює, як налаштовано, запускається та діагностується серверний застосунок. Він описує експлуатаційні факти, а не проєктування функціональності; перевірки, специфічні для функціональності, залишаються у її специфікації.
+This section explains how the server application is configured, started, and diagnosed. It describes operational facts rather than feature design; feature-specific checks remain in the corresponding specification.
 
 ```text
 operations/
-├── local-development/  запуск API та локальні URL
-├── configuration/      джерела конфігурації й робота з секретами
-├── data/               запуск міграцій і початкове наповнення через Host.Seed
-├── diagnostics/        перевірки стану, Swagger і журнали
-├── deployment/         конфігурація контейнерів і Cloud Build
-└── jobs/               стан фонових задач і вимоги до майбутніх інструкцій
+├── local-development/  API startup and local URLs
+├── configuration/      configuration sources and secret handling
+├── data/               migrations and seeding through Host.Seed
+├── diagnostics/        health checks, Swagger, and logs
+├── deployment/         container and Cloud Build configuration
+└── jobs/               background job status and requirements for future runbooks
 ```
 
-## Читайте відповідно до задачі
+## Read by task
 
-- Запустити серверний застосунок локально: [локальна розробка](local-development/run-api.md)
-- Налаштувати машину або виправити відсутні параметри: [конфігурація та секрети](configuration/configuration-and-secrets.md)
-- Підготувати окремий запуск `Host.Seed`, який змінює базу: [міграції та початкове наповнення](data/migrations-and-seeding.md)
-- Перевірити запущений API або відтворити кінцеву точку: [діагностика](diagnostics/health-logs-swagger.md)
-- Зрозуміти налаштований конвеєр контейнерів і розгортання: [Cloud Build](deployment/cloud-build.md)
-- Перевірити стан підтримки фонових задач: [задачі та інструкції](jobs/README.md)
+- Start the server application locally: [local development](local-development/run-api.md)
+- Configure a machine or fix missing settings: [configuration and secrets](configuration/configuration-and-secrets.md)
+- Prepare a separate `Host.Seed` run that changes the database: [migrations and seeding](data/migrations-and-seeding.md)
+- Check a running API or reproduce an endpoint: [diagnostics](diagnostics/health-logs-swagger.md)
+- Understand the configured container and deployment pipeline: [Cloud Build](deployment/cloud-build.md)
+- Check background job support: [jobs and runbooks](jobs/README.md)
 
-Не розміщуйте в цій документації пароль, токен, повний рядок підключення або виробничу кінцеву точку.
+Do not place passwords, tokens, full connection strings, or production endpoints in this documentation.

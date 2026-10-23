@@ -1,6 +1,6 @@
 # BuildingBlocks.Application
 
-## Структура
+## Structure
 
 ```text
 BuildingBlocks.Application/
@@ -16,25 +16,25 @@ BuildingBlocks.Application/
 ├── Notifications/
 │   ├── IDomainEventContext, IDomainEventDispatcher
 │   └── DomainEventNotification + handler
-├── Logging/                  стабільні structured log helpers
+├── Logging/                  stable structured log helpers
 ├── Helpers/PhoneNumberHelper.cs
 └── ApplicationAssemblyMarker.cs
 ```
 
-## Поведінки
+## Behaviors
 
-Хост реєструє RequestLogging, Performance, Validation, Exception і DomainEventDispatcher саме в такому порядку. Точну семантику описано в [поведінках Mediator](../../runtime/mediator-behaviors.md).
+The host registers RequestLogging, Performance, Validation, Exception, and DomainEventDispatcher in exactly this order. Their precise semantics are described in [Mediator behaviors](../../runtime/mediator-behaviors.md).
 
-## Сповіщення
+## Notifications
 
-`IDomainEventContext` відкриває сутності з накопиченими подіями. `IDomainEventDispatcher` публікує події. `DomainEventNotification` є оболонкою сповіщення Mediator. Обробник сповіщень за замовчуванням навмисно порожній; обробники окремих модулів підписуються на шаблон сповіщень/подій, де це потрібно.
+`IDomainEventContext` exposes entities with accumulated events. `IDomainEventDispatcher` publishes events. `DomainEventNotification` is a Mediator notification wrapper. The default notification handler is intentionally empty; individual module handlers subscribe to the notification/event pattern where needed.
 
-## Підхід до журналювання й допоміжних функцій
+## Logging and helper approach
 
-Папка Logging містить сталі шаблони структурованих записів для запитів, валідації, швидкодії, доменних подій, скасування й необроблених збоїв. Використовуйте їх через наявні поведінки; не журналюйте сирі конфіденційні дані запиту.
+The Logging folder contains stable structured log templates for requests, validation, performance, domain events, cancellation, and unhandled failures. Use them through existing behaviors; do not log raw sensitive request data.
 
-`PhoneNumberHelper` — спільна утиліта нормалізації й валідації номера телефону. Повторно використовуйте її замість дублювання розбору номерів.
+`PhoneNumberHelper` is a shared utility for phone number normalization and validation. Reuse it instead of duplicating number parsing.
 
-## Доступність контрактів
+## Contract availability
 
-`ICurrentUserService` та `IPermissionService` мають спільні реалізації в Infrastructure. Не впроваджуйте абстракцію Application у нову функціональність, доки власник модуля не надасть і не зареєструє її реалізацію.
+`ICurrentUserService` and `IPermissionService` have shared implementations in Infrastructure. Do not introduce an Application abstraction into new functionality until the module owner provides and registers its implementation.

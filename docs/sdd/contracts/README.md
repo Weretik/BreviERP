@@ -1,28 +1,28 @@
-# API-контракти
+# API Contracts
 
-`docs/sdd/contracts/` — канонічне, версіоноване джерело машиночитаних контрактів публічного API.
+`docs/sdd/contracts/` is the canonical, versioned source for machine-readable public API contracts.
 
-## Структура
+## Structure
 
 ```text
 docs/sdd/contracts/
-├── openapi.yaml                         # агрегована точка входу для всіх публічних API
+├── openapi.yaml                         # aggregate entry point for all public APIs
 └── <module>/
-    └── <feature>.openapi.yaml           # контракт, яким володіє одна функціональність
+    └── <feature>.openapi.yaml           # contract owned by one feature
 ```
 
-`openapi.yaml` є точкою входу для Swagger UI, генерації клієнтів фронтенду та контрактних тестів. Він посилається на контракти модулів через `$ref`; не дублюйте операції або схеми в агрегованому файлі.
+`openapi.yaml` is the entry point for Swagger UI, frontend client generation, and contract tests. It references module contracts through `$ref`; do not duplicate operations or schemas in the aggregate file.
 
-## Поточна передача frontend-команді
+## Current frontend handoff
 
-- [Інструкція інтеграції frontend](frontend-integration.md) описує автентифікацію, CSRF, пагінацію, помилки й поточне покриття контрактом.
-- [Агрегований контракт OpenAPI 3.1](openapi.yaml) охоплює API, для яких уже створено й перевірено версійований контракт.
-- Identity: [сеанс](identity/session.openapi.yaml).
-- Catalog: [товари](catalog/product-catalog.openapi.yaml), [категорії та медіа](catalog/product-dependencies.openapi.yaml).
-- Reference: [постачальники](reference/suppliers.openapi.yaml), [тканини](reference/fabrics.openapi.yaml), [фурнітура](reference/garment-accessories.openapi.yaml), [частини виробу](reference/garment-parts.openapi.yaml), [операції](reference/garment-part-operations.openapi.yaml), [додаткові довідники](reference/additional-references.openapi.yaml).
+- [Frontend integration guide](frontend-integration.md) describes authentication, CSRF, pagination, errors, and current contract coverage.
+- [Aggregated OpenAPI 3.1 contract](openapi.yaml) covers APIs for which a versioned contract has been created and verified.
+- Identity: [session](identity/session.openapi.yaml).
+- Catalog: [products](catalog/product-catalog.openapi.yaml), [categories and media](catalog/product-dependencies.openapi.yaml).
+- Reference: [suppliers](reference/suppliers.openapi.yaml), [fabrics](reference/fabrics.openapi.yaml), [garment accessories](reference/garment-accessories.openapi.yaml), [garment parts](reference/garment-parts.openapi.yaml), [operations](reference/garment-part-operations.openapi.yaml), [additional references](reference/additional-references.openapi.yaml).
 
-Файли OpenAPI описують контракт фактичного коду. Вони не надають кінцевій точці публічного доступу: авторизаційні атрибути й резервна політика хоста залишаються визначальними.
+OpenAPI files describe the contract of the actual code. They do not make an endpoint publicly accessible: authorization attributes and the host fallback policy remain authoritative.
 
-Кожна SDD-специфікація функціональності містить `contracts/api-contract.md` для опису рішень, призначених для людей: меж, споживачів, сумісності, безпеки, помилок, ідемпотентності та розгортання. Для нової або зміненої HTTP-поведінки, коли це практично, погодьте ці рішення й створіть або оновіть машиночитаний контракт до реалізації транспортного рівня. На основі погодженого контракту додайте сфокусовані контрактні/API тести Red, а потім реалізуйте транспорт. Документ фічі має посилатися на `docs/sdd/contracts/<module>/<feature>.openapi.yaml`, а агрегований `openapi.yaml` потрібно оновити в межах тієї самої зміни.
+Each feature SDD contains `contracts/api-contract.md` for human-readable decisions: boundaries, consumers, compatibility, security, errors, idempotency, and deployment. For new or changed HTTP behavior, agree on these decisions and create or update the machine-readable contract before implementing the transport layer where practical. Add focused Red contract/API tests based on the agreed contract, then implement the transport. The feature document must link to `docs/sdd/contracts/<module>/<feature>.openapi.yaml`, and the aggregate `openapi.yaml` must be updated in the same change.
 
-Не створюйте публічний OpenAPI-документ для змін, що використовуються лише всередині системи. Перш ніж додати HTTP-контракт, погодьте маршрут, метод, ідентифікатор операції, DTO, приклади, помилки, безпеку, ідемпотентність для записів із побічними ефектами та шлях міграції для несумісних змін.
+Do not create a public OpenAPI document for internal-only changes. Before adding an HTTP contract, agree on the route, method, operation ID, DTOs, examples, errors, security, idempotency for side-effecting writes, and migration path for breaking changes.

@@ -1,13 +1,13 @@
-# Структури проєкту та шарів
+# Project and Layer Structure
 
-## Карта рішення
+## Solution Map
 
 ```text
 BreviERP.sln
 ├── src/
 │   ├── Bootstrapper/
-│   │   ├── Host.Api/                 composition root і HTTP-хост
-│   │   └── Host.Seed/                хост початкового наповнення
+│   │   ├── Host.Api/                 composition root and HTTP host
+│   │   └── Host.Seed/                seeding host
 │   ├── BuildingBlocks/
 │   │   ├── BuildingBlocks.Domain/
 │   │   ├── BuildingBlocks.Application/
@@ -16,10 +16,10 @@ BreviERP.sln
 │   └── Modules/{Identity,Catalog,Reference,Accounting,Crm}/
 │       └── <Module>.{Api,Application,Domain,Infrastructure}/
 ├── tests/{UnitTests,IntegrationTests,ArchitectureTests}/
-└── docs/sdd/                         активна документація
+└── docs/sdd/                         active documentation
 ```
 
-## Візуалізація залежностей
+## Dependency Diagram
 
 ```text
                          Host.Api / Host.Seed
@@ -36,4 +36,4 @@ BreviERP.sln
                        <Module>.Domain
 ```
 
-Не кожен модуль зобов’язаний використовувати кожен проєкт, але він має зберігати показаний напрямок.
+Not every module must use every project, but it must preserve the direction shown.

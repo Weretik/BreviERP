@@ -1,32 +1,32 @@
-# API BreviERP — інструкція інтеграції frontend
+# BreviERP API — Frontend Integration Guide
 
-Версійована точка входу OpenAPI — [openapi.yaml](openapi.yaml). Генеруйте типи й клієнти з цього файла; не копіюйте DTO з вихідного коду backend. Агрегований контракт наразі містить лише API, для яких уже створено та перевірено окремий версійований контракт. Відсутність кінцевої точки в цьому файлі означає прогалину в покритті контрактом, а не відсутність кінцевої точки під час виконання.
+The versioned OpenAPI entry point is [openapi.yaml](openapi.yaml). Generate types and clients from this file; do not copy DTOs from backend source code. The aggregate contract currently includes only APIs with a separately created and verified versioned contract. An endpoint missing from this file indicates a contract coverage gap, not that the endpoint is absent at runtime.
 
-## Автентифікація
+## Authentication
 
-`POST /api/auth/session/login` повертає непрозорий Bearer-токен доступу й встановлює два файли cookie: HttpOnly-файл cookie оновлення `kedr.rt`, який надсилається лише маршрутом оновлення, та доступний для читання CSRF-файл cookie `kedr.csrf`. Ці назви є поточною успадкованою конфігурацією BreviERP; frontend має використовувати їх як контракт під час виконання, доки окрема міграція не змінить назви. Для входу з іншого джерела frontend має використати `credentials: 'include'`, інакше браузер не збереже файли cookie з відповіді.
+`POST /api/auth/session/login` returns an opaque Bearer access token and sets two cookies: the HttpOnly refresh cookie `kedr.rt`, sent only to the refresh route, and the browser-readable CSRF cookie `kedr.csrf`. These names are the current legacy BreviERP configuration; the frontend must use them as the runtime contract until a separate migration changes them. For a cross-origin login, the frontend must use `credentials: 'include'`, otherwise the browser will not store the response cookies.
 
-Для захищених операцій надсилайте `Authorization: Bearer <accessToken>`. Щоб поновити сесію, викликайте `POST /api/auth/session/refresh` із `credentials: 'include'` і передавайте в заголовку `X-CSRF-Token` поточне значення файлу cookie `kedr.csrf`. Кінцева точка оновлення змінює обидва файли cookie й повертає новий токен доступу. `POST /api/auth/session/logout` також потребує автентифікації Bearer, відкликає всі активні сеанси оновлення користувача й видаляє обидва файли cookie; для виходу з іншого джерела використовуйте `credentials: 'include'`, щоб браузер застосував заголовки видалення cookie. `GET /api/auth/session/me` повертає `userId`, `email` і `roles`; дозволів ця відповідь не містить.
+For protected operations, send `Authorization: Bearer <accessToken>`. To refresh the session, call `POST /api/auth/session/refresh` with `credentials: 'include'` and send the current value of the `kedr.csrf` cookie in the `X-CSRF-Token` header. The refresh endpoint rotates both cookies and returns a new access token. `POST /api/auth/session/logout` also requires Bearer authentication, revokes all of the user's active refresh sessions, and deletes both cookies; for cross-origin logout, use `credentials: 'include'` so the browser applies the cookie deletion headers. `GET /api/auth/session/me` returns `userId`, `email`, and `roles`; the response does not include permissions.
 
-Хост використовує резервну політику з вимогою автентифікації. Публічними є лише кінцеві точки, явно позначені `AllowAnonymous` у контролері.
+The host uses a fallback policy that requires authentication. Only endpoints explicitly marked `AllowAnonymous` in the controller are public.
 
-## HTTP-конвенції
+## HTTP Conventions
 
-- JSON використовує назви властивостей ASP.NET Core у форматі camelCase.
-- Відповіді з пагінацією використовують `{ pagedInfo, value }`. `pagedInfo` містить `pageNumber`, `pageSize`, `totalPages` і `totalRecords`; `value` містить масив рядків.
-- Помилки валідації повертають `400` у чинному форматі помилок валідації Ardalis. Не покладайтеся на локалізований текст повідомлення.
-- `404` не має тіла відповіді. `409` повертає масив повідомлень про конфлікт. `401` означає відсутню або недійсну автентифікацію, а `403` — автентифікованого користувача без потрібного доступу.
-- Десяткові значення передаються як числа JSON. Ідентифікатори є цілими числами, якщо схема явно не визначає `uuid` або `string`.
+- JSON uses ASP.NET Core camelCase property names.
+- Paginated responses use `{ pagedInfo, value }`. `pagedInfo` contains `pageNumber`, `pageSize`, `totalPages`, and `totalRecords`; `value` contains the row array.
+- Validation errors return `400` in the current Ardalis validation error format. Do not rely on localized message text.
+- `404` has no response body. `409` returns an array of conflict messages. `401` means authentication is missing or invalid; `403` means the authenticated user lacks the required access.
+- Decimal values are sent as JSON numbers. IDs are integers unless the schema explicitly defines `uuid` or `string`.
 
-## Поточна карта API
+## Current API Map
 
-| Область | Маршрут | Доступ | Покриття OpenAPI |
+| Area | Route | Access | OpenAPI coverage |
 | --- | --- | --- | --- |
-| Товари | `/api/v1/products`, `/api/v1/products/{id}` | Анонімний доступ у поточному контролері | [Контракт товарів Catalog](catalog/product-catalog.openapi.yaml) |
-| Категорії товарів | `/api/reference/product-categories/...` | Анонімний доступ у поточному контролері | ще не додано |
-| Медіафайли Catalog | `/api/catalog/media/...` | Анонімний доступ у поточному контролері | ще не додано |
-| Постачальники | `/api/reference/suppliers` | Анонімний доступ у поточному контролері | [Контракт постачальників Reference](reference/suppliers.openapi.yaml) |
-| Інші довідникові дані | `/api/reference/fabrics`, `/garment-parts`, `/garment-accessories`, `/garment-part-operations`, `/additional-references` | Анонімний доступ у поточних контролерах | ще не додано |
-| Сеанс | `/api/auth/session/login`, `/refresh`, `/logout`, `/me` | вхід/оновлення — анонімно; вихід/профіль — Bearer | [Контракт сеансу Identity](identity/session.openapi.yaml) |
+| Products | `/api/v1/products`, `/api/v1/products/{id}` | Anonymous in the current controller | [Catalog product contract](catalog/product-catalog.openapi.yaml) |
+| Product categories | `/api/reference/product-categories/...` | Anonymous in the current controller | not yet added |
+| Catalog media | `/api/catalog/media/...` | Anonymous in the current controller | not yet added |
+| Suppliers | `/api/reference/suppliers` | Anonymous in the current controller | [Reference supplier contract](reference/suppliers.openapi.yaml) |
+| Other reference data | `/api/reference/fabrics`, `/garment-parts`, `/garment-accessories`, `/garment-part-operations`, `/additional-references` | Anonymous in the current controllers | not yet added |
+| Session | `/api/auth/session/login`, `/refresh`, `/logout`, `/me` | Login/refresh are anonymous; logout/profile require Bearer | [Identity session contract](identity/session.openapi.yaml) |
 
-Перед використанням кінцевої точки без версійованого контракту OpenAPI frontend і backend мають погодити запит, відповідь, коди стану й авторизацію та додати контракт до [агрегованого OpenAPI](openapi.yaml).
+Before using an endpoint without a versioned OpenAPI contract, frontend and backend must agree on the request, response, status codes, and authorization, then add the contract to [aggregate OpenAPI](openapi.yaml).

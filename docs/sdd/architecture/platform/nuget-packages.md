@@ -1,134 +1,134 @@
-# Прямі NuGet-залежності BreviERP
+# BreviERP direct NuGet dependencies
 
-**Перевірено:** 2026-10-15 за файлами `.csproj` у `src/` і `tests/`. Нижче наведено всі 61 пряме оголошення `PackageReference` (45 унікальних пар назва/версія), а не транзитивні залежності. Версії в `.csproj` є джерелом істини; після оновлення пакета змінюйте цей каталог у тому самому коміті. Проєкт-власник вказаний заголовком таблиці. Призначення описує роль пакета, але саме оголошення залежності не доводить її використання під час виконання. Позначка «підтверджено в коді» стосується використання в репозиторії, а не обов'язково в кожному проєкті-власнику.
+**Verified:** 2026-10-15 against the `.csproj` files in `src/` and `tests/`. All 61 direct `PackageReference` declarations (45 unique name/version pairs) are listed below, not transitive dependencies. Versions in `.csproj` are the source of truth; update this catalog in the same commit when a package changes. The owning project is identified by each table heading. The purpose describes the package role, but the dependency declaration alone does not prove runtime use. The “verified in code” label refers to use in the repository, not necessarily in every owning project.
 
-## Роль груп залежностей
+## Dependency group roles
 
-- **Host.Api:** ASP.NET Core, генератор вихідного коду Mediator, OpenAPI/Swagger, Serilog, інструменти EF Core та шаблонізатор Scriban. Конкретну поведінку перевіряйте в `src/Bootstrapper/Host.Api/Program.cs` і реєстраціях залежностей.
-- **Host.Seed:** окремий хост міграцій і початкового наповнення; його запуск описано в [операційній інструкції](../../operations/data/migrations-and-seeding.md).
-- **BuildingBlocks.Domain:** типізовані значення й доменні примітиви; **BuildingBlocks.Application:** результати, специфікації, валідація, Mediator, EF/Npgsql та спільні сервіси; **BuildingBlocks.Api:** відображення результатів у HTTP.
-- **Catalog.Infrastructure:** нормалізація slug і транслітерація для адаптерів модуля.
-- **Тести:** NUnit, SDK й адаптер тестування, імітатори, покриття, API TestHost та перевірка YAML/OpenAPI. Пакети тестів не слід видавати за залежності під час виконання.
+- **Host.Api:** ASP.NET Core, Mediator source generator, OpenAPI/Swagger, Serilog, EF Core tools, and Scriban templating. Check concrete behavior in `src/Bootstrapper/Host.Api/Program.cs` and dependency registrations.
+- **Host.Seed:** a separate migration and seeding host; its startup is described in the [operational instructions](../../operations/data/migrations-and-seeding.md).
+- **BuildingBlocks.Domain:** typed values and domain primitives; **BuildingBlocks.Application:** results, specifications, validation, Mediator, EF/Npgsql, and shared services; **BuildingBlocks.Api:** map results to HTTP.
+- **Catalog.Infrastructure:** slug normalization and transliteration for module adapters.
+- **Tests:** NUnit, the test SDK and adapter, mocks, coverage, API TestHost, and YAML/OpenAPI validation. Test packages must not be presented as runtime dependencies.
 
-## Приклади перевіреного використання
+## Examples of verified usage
 
-| Підхід | Джерело в коді |
+| Pattern | Source in code |
 | --- | --- |
-| Mediator і порядок поведінок | [реєстрація конвеєра](../../../../src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/Pipeline/MediatorRegistrationExtensions.cs) |
-| FluentValidation | [реєстрація валідаторів](../../../../src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/Pipeline/FluentValidationRegistrationExtensions.cs) |
-| EF Core з PostgreSQL | [реєстрація Catalog DbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DependencyInjection/CatalogDbContextExtensions.cs) |
-| Serilog, Swagger і OpenAPI | [HTTP-хост](../../../../src/Bootstrapper/Host.Api/Program.cs) |
-| Slugify.Core і TranslitKit | [генератор slug Catalog](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Products/SlugGeneration/ProductSlugGenerator.cs) |
-| libphonenumber-csharp | [допоміжний сервіс телефонних номерів](../../../../src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/Helpers/PhoneNumberHelper.cs) |
-| Moq і NUnit | [модульні тести Product](../../../../tests/UnitTests/ProductCommandHandlerTests.cs) |
-| YamlDotNet | [перевірка OpenAPI-контракту сесії](../../../../tests/UnitTests/SessionOpenApiContractTests.cs) |
+| Mediator and behavior ordering | [pipeline registration](../../../../src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/Pipeline/MediatorRegistrationExtensions.cs) |
+| FluentValidation | [validator registration](../../../../src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/Pipeline/FluentValidationRegistrationExtensions.cs) |
+| EF Core with PostgreSQL | [Catalog DbContext registration](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DependencyInjection/CatalogDbContextExtensions.cs) |
+| Serilog, Swagger, and OpenAPI | [HTTP host](../../../../src/Bootstrapper/Host.Api/Program.cs) |
+| Slugify.Core and TranslitKit | [Catalog slug generator](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Products/SlugGeneration/ProductSlugGenerator.cs) |
+| libphonenumber-csharp | [phone number helper service](../../../../src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/Helpers/PhoneNumberHelper.cs) |
+| Moq and NUnit | [Product unit tests](../../../../tests/UnitTests/ProductCommandHandlerTests.cs) |
+| YamlDotNet | [session OpenAPI contract validation](../../../../tests/UnitTests/SessionOpenApiContractTests.cs) |
 
-Для пакета зі статусом «оголошено» перед твердженням про його фактичне використання знайдіть виклик, тип або конфігурацію в коді. Якщо пакет виявиться непотрібним, його видалення потребує окремої перевірки збірки й тестів.
+For a package marked “declared,” find a call, type, or configuration in the code before claiming it is actually used. If a package appears unnecessary, removing it requires a separate build and test check.
 
 ## [Host.Api.csproj](../../../../src/Bootstrapper/Host.Api/Host.Api.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `Mediator.SourceGenerator` | `3.0.1` | Генерація реалізації Mediator | Використання підтверджено в коді |
-| `Microsoft.AspNetCore.OpenApi` | `10.0.2` | Генерація OpenAPI у хості | Використання підтверджено в коді |
-| `Microsoft.EntityFrameworkCore.Tools` | `10.0.2` | Інструменти команд EF Core | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.OpenApi` | `2.7.5` | Модель OpenAPI | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Scriban` | `7.2.3` | Шаблонізатор тексту | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog.AspNetCore` | `10.0.0` | Інтеграція Serilog з ASP.NET Core | Використання підтверджено в коді |
-| `Serilog.Enrichers.Environment` | `3.0.1` | Поля середовища для журналів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog.Enrichers.Process` | `3.0.0` | Поля процесу для логів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog.Settings.Configuration` | `10.0.0` | Налаштування Serilog з конфігурації | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog` | `4.3.0` | Структуроване логування | Використання підтверджено в коді |
-| `Swashbuckle.AspNetCore` | `10.0.0` | Інструменти Swagger UI та OpenAPI | Використання підтверджено в коді |
+| `Mediator.SourceGenerator` | `3.0.1` | Generate the Mediator implementation | Verified in code |
+| `Microsoft.AspNetCore.OpenApi` | `10.0.2` | Generate OpenAPI in the host | Verified in code |
+| `Microsoft.EntityFrameworkCore.Tools` | `10.0.2` | EF Core command-line tools | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.OpenApi` | `2.7.5` | OpenAPI model | Declared in `.csproj`; actual use not independently verified |
+| `Scriban` | `7.2.3` | Text templating engine | Declared in `.csproj`; actual use not independently verified |
+| `Serilog.AspNetCore` | `10.0.0` | Serilog integration with ASP.NET Core | Verified in code |
+| `Serilog.Enrichers.Environment` | `3.0.1` | Environment properties for logs | Declared in `.csproj`; actual use not independently verified |
+| `Serilog.Enrichers.Process` | `3.0.0` | Process properties for logs | Declared in `.csproj`; actual use not independently verified |
+| `Serilog.Settings.Configuration` | `10.0.0` | Configure Serilog from configuration | Declared in `.csproj`; actual use not independently verified |
+| `Serilog` | `4.3.0` | Structured logging | Verified in code |
+| `Swashbuckle.AspNetCore` | `10.0.0` | Swagger UI and OpenAPI tooling | Verified in code |
 
 ## [Host.Seed.csproj](../../../../src/Bootstrapper/Host.Seed/Host.Seed.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `Serilog.AspNetCore` | `10.0.0` | Інтеграція Serilog з ASP.NET Core | Використання підтверджено в коді |
+| `Serilog.AspNetCore` | `10.0.0` | Serilog integration with ASP.NET Core | Verified in code |
 
 ## [BuildingBlocks.Api.csproj](../../../../src/BuildingBlocks/BuildingBlocks.Api/BuildingBlocks.Api.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `Ardalis.Result` | `10.1.0` | Стандартизовані результати сценаріїв та їх відображення в HTTP | Використання підтверджено в коді |
+| `Ardalis.Result` | `10.1.0` | Standardized use-case results and their HTTP mapping | Verified in code |
 
 ## [BuildingBlocks.Application.csproj](../../../../src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/BuildingBlocks.Application.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `Ardalis.Result.FluentValidation` | `10.1.0` | Перетворення помилок FluentValidation у результати | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Ardalis.Result` | `10.1.0` | Стандартизовані результати сценаріїв та їх відображення в HTTP | Використання підтверджено в коді |
-| `Ardalis.Specification.EntityFrameworkCore` | `9.3.1` | Виконання специфікацій у EF Core | Використання підтверджено в коді |
-| `Ardalis.Specification` | `9.3.1` | Опис правил вибірки та специфікацій читання | Використання підтверджено в коді |
-| `DotNetEnv` | `3.1.1` | Завантаження `.env`-конфігурації | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `FluentValidation.DependencyInjectionExtensions` | `12.1.1` | Реєстрація валідаторів у контейнері залежностей | Використання підтверджено в коді |
-| `FluentValidation` | `12.1.1` | Валідація вхідних команд і запитів | Використання підтверджено в коді |
-| `libphonenumber-csharp` | `9.0.23` | Нормалізація та перевірка телефонних номерів | Використання підтверджено в коді |
-| `Mediator.Abstractions` | `3.0.1` | Контракти запитів та обробників Mediator | Використання підтверджено в коді |
-| `Microsoft.AspNetCore.Components.Authorization` | `10.0.2` | Контракти авторизації ASP.NET Core | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.AspNetCore.Http.Abstractions` | `2.3.9` | Абстракції HTTP | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` | `10.0.2` | Збереження даних Identity через EF Core | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.EntityFrameworkCore.Design` | `10.0.2` | Підтримка EF Core під час проєктування | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.EntityFrameworkCore.Relational` | `10.0.2` | Реляційні можливості EF Core | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.EntityFrameworkCore` | `10.0.2` | ORM і DbContext | Використання підтверджено в коді |
-| `Microsoft.Extensions.Logging.Abstractions` | `10.0.2` | Абстракції журналювання | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Npgsql.EntityFrameworkCore.PostgreSQL` | `10.0.0` | Провайдер EF Core для PostgreSQL | Використання підтверджено в коді |
-| `Serilog.AspNetCore` | `10.0.0` | Інтеграція Serilog з ASP.NET Core | Використання підтверджено в коді |
-| `Serilog.Enrichers.Environment` | `3.0.1` | Поля середовища для логів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog.Enrichers.Process` | `3.0.0` | Поля процесу для логів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog.Enrichers.Thread` | `4.0.0` | Поля потоку для логів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog.Settings.Configuration` | `10.0.0` | Налаштування Serilog з конфігурації | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog.Sinks.Console` | `6.1.1` | Виведення журналів у консоль | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Serilog.Sinks.Seq` | `9.0.0` | Виведення логів у Seq | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Unidecode.NET` | `2.2.1` | Транслітерація Unicode | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
+| `Ardalis.Result.FluentValidation` | `10.1.0` | Convert FluentValidation errors into results | Declared in `.csproj`; actual use not independently verified |
+| `Ardalis.Result` | `10.1.0` | Standardized use-case results and their HTTP mapping | Verified in code |
+| `Ardalis.Specification.EntityFrameworkCore` | `9.3.1` | Execute specifications in EF Core | Verified in code |
+| `Ardalis.Specification` | `9.3.1` | Describe query rules and read specifications | Verified in code |
+| `DotNetEnv` | `3.1.1` | Load `.env` configuration | Declared in `.csproj`; actual use not independently verified |
+| `FluentValidation.DependencyInjectionExtensions` | `12.1.1` | Register validators in the dependency-injection container | Verified in code |
+| `FluentValidation` | `12.1.1` | Validate incoming commands and queries | Verified in code |
+| `libphonenumber-csharp` | `9.0.23` | Normalize and validate phone numbers | Verified in code |
+| `Mediator.Abstractions` | `3.0.1` | Mediator request and handler contracts | Verified in code |
+| `Microsoft.AspNetCore.Components.Authorization` | `10.0.2` | ASP.NET Core authorization contracts | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.AspNetCore.Http.Abstractions` | `2.3.9` | HTTP abstractions | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` | `10.0.2` | Persist Identity data through EF Core | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.EntityFrameworkCore.Design` | `10.0.2` | EF Core design-time support | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.EntityFrameworkCore.Relational` | `10.0.2` | EF Core relational features | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.EntityFrameworkCore` | `10.0.2` | ORM and DbContext | Verified in code |
+| `Microsoft.Extensions.Logging.Abstractions` | `10.0.2` | Logging abstractions | Declared in `.csproj`; actual use not independently verified |
+| `Npgsql.EntityFrameworkCore.PostgreSQL` | `10.0.0` | EF Core provider for PostgreSQL | Verified in code |
+| `Serilog.AspNetCore` | `10.0.0` | Serilog integration with ASP.NET Core | Verified in code |
+| `Serilog.Enrichers.Environment` | `3.0.1` | Environment properties for logs | Declared in `.csproj`; actual use not independently verified |
+| `Serilog.Enrichers.Process` | `3.0.0` | Process properties for logs | Declared in `.csproj`; actual use not independently verified |
+| `Serilog.Enrichers.Thread` | `4.0.0` | Thread properties for logs | Declared in `.csproj`; actual use not independently verified |
+| `Serilog.Settings.Configuration` | `10.0.0` | Configure Serilog from configuration | Declared in `.csproj`; actual use not independently verified |
+| `Serilog.Sinks.Console` | `6.1.1` | Write logs to the console | Declared in `.csproj`; actual use not independently verified |
+| `Serilog.Sinks.Seq` | `9.0.0` | Write logs to Seq | Declared in `.csproj`; actual use not independently verified |
+| `Unidecode.NET` | `2.2.1` | Unicode transliteration | Declared in `.csproj`; actual use not independently verified |
 
 ## [BuildingBlocks.Domain.csproj](../../../../src/BuildingBlocks/BuildingBlocks.Domain/BuildingBlocks.Domain/BuildingBlocks.Domain.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `Ardalis.SmartEnum` | `8.2.0` | Типізовані доменні переліки | Використання підтверджено в коді |
-| `Vogen` | `8.0.4` | Типізовані об'єкти-значення | Використання підтверджено в коді |
+| `Ardalis.SmartEnum` | `8.2.0` | Typed domain enums | Verified in code |
+| `Vogen` | `8.0.4` | Typed value objects | Verified in code |
 
 ## [Catalog.Infrastructure.csproj](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Catalog.Infrastructure.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `Slugify.Core` | `5.1.1` | Генерація короткої назви для URL | Використання підтверджено в коді |
-| `TranslitKit` | `1.0.3` | Транслітерація назви перед генерацією короткої назви для URL | Використання підтверджено в коді |
+| `Slugify.Core` | `5.1.1` | Generate a URL slug | Verified in code |
+| `TranslitKit` | `1.0.3` | Transliterate the name before generating a URL slug | Verified in code |
 
 ## [ArchitectureTests.csproj](../../../../tests/ArchitectureTests/ArchitectureTests.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `Microsoft.NET.Test.Sdk` | `18.0.1` | Запуск .NET-тестів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `NUnit.Analyzers` | `4.11.2` | Аналізатори NUnit | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `NUnit` | `4.4.0` | Середовище тестування | Використання підтверджено в коді |
-| `NUnit3TestAdapter` | `6.1.0` | Підключення NUnit до засобу запуску тестів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
+| `Microsoft.NET.Test.Sdk` | `18.0.1` | Run .NET tests | Declared in `.csproj`; actual use not independently verified |
+| `NUnit.Analyzers` | `4.11.2` | NUnit analyzers | Declared in `.csproj`; actual use not independently verified |
+| `NUnit` | `4.4.0` | Test framework | Verified in code |
+| `NUnit3TestAdapter` | `6.1.0` | Connect NUnit to the test runner | Declared in `.csproj`; actual use not independently verified |
 
 ## [IntegrationTests.csproj](../../../../tests/IntegrationTests/IntegrationTests.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `coverlet.collector` | `6.0.4` | Збір покриття тестів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.AspNetCore.TestHost` | `10.0.2` | Тестовий HTTP-хост | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.NET.Test.Sdk` | `18.0.1` | Запуск .NET-тестів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Moq` | `4.20.72` | Тестові об'єкти-імітації | Використання підтверджено в коді |
-| `NUnit.Analyzers` | `4.11.2` | Аналізатори NUnit | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `NUnit` | `4.4.0` | Середовище тестування | Використання підтверджено в коді |
-| `NUnit3TestAdapter` | `6.1.0` | Підключення NUnit до засобу запуску тестів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
+| `coverlet.collector` | `6.0.4` | Collect test coverage | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.AspNetCore.TestHost` | `10.0.2` | HTTP test host | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.NET.Test.Sdk` | `18.0.1` | Run .NET tests | Declared in `.csproj`; actual use not independently verified |
+| `Moq` | `4.20.72` | Mock objects for tests | Verified in code |
+| `NUnit.Analyzers` | `4.11.2` | NUnit analyzers | Declared in `.csproj`; actual use not independently verified |
+| `NUnit` | `4.4.0` | Test framework | Verified in code |
+| `NUnit3TestAdapter` | `6.1.0` | Connect NUnit to the test runner | Declared in `.csproj`; actual use not independently verified |
 
 ## [UnitTests.csproj](../../../../tests/UnitTests/UnitTests.csproj)
 
-| Пакет | Версія з `.csproj` | Призначення пакета | Статус перевірки |
+| Package | Version from `.csproj` | Package purpose | Verification status |
 | --- | --- | --- | --- |
-| `coverlet.collector` | `6.0.4` | Збір покриття тестів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.NET.Test.Sdk` | `18.0.1` | Запуск .NET-тестів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Microsoft.OpenApi.YamlReader` | `2.7.5` | Читання OpenAPI YAML у тестах | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `Moq` | `4.20.72` | Тестові об'єкти-імітації | Використання підтверджено в коді |
-| `NUnit.Analyzers` | `4.11.2` | Аналізатори NUnit | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `NUnit` | `4.4.0` | Середовище тестування | Використання підтверджено в коді |
-| `NUnit3TestAdapter` | `6.1.0` | Підключення NUnit до засобу запуску тестів | Оголошено в `.csproj`; фактичне використання окремо не перевірено |
-| `YamlDotNet` | `16.3.0` | Парсинг YAML у тестах | Використання підтверджено в коді |
+| `coverlet.collector` | `6.0.4` | Collect test coverage | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.NET.Test.Sdk` | `18.0.1` | Run .NET tests | Declared in `.csproj`; actual use not independently verified |
+| `Microsoft.OpenApi.YamlReader` | `2.7.5` | Read OpenAPI YAML in tests | Declared in `.csproj`; actual use not independently verified |
+| `Moq` | `4.20.72` | Mock objects for tests | Verified in code |
+| `NUnit.Analyzers` | `4.11.2` | NUnit analyzers | Declared in `.csproj`; actual use not independently verified |
+| `NUnit` | `4.4.0` | Test framework | Verified in code |
+| `NUnit3TestAdapter` | `6.1.0` | Connect NUnit to the test runner | Declared in `.csproj`; actual use not independently verified |
+| `YamlDotNet` | `16.3.0` | Parse YAML in tests | Verified in code |
 
-Після додавання нового пакета зафіксуйте в специфікації функціональності, яку потребу він вирішує, чому наявних засобів недостатньо, як він впливає на архітектуру, безпеку, розгортання й перевірку. [Технологічний стек](technology-stack.md) описує чинні підходи без дублювання цього переліку.
+When adding a package, record in the feature specification what need it addresses, why existing tools are insufficient, and how it affects architecture, security, deployment, and verification. [Technology stack](technology-stack.md) describes current approaches without duplicating this list.

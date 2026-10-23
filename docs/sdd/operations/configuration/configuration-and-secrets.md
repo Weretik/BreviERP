@@ -1,52 +1,46 @@
-# Конфігурація та секрети
+# Configuration and secrets
 
-## Джерела
+## Sources
 
-`Host.Api` використовує стандартний стек конфігурації ASP.NET Core. У середовищі Development проєкт має ідентифікатор User Secrets; для локальних чутливих значень використовуйте User Secrets. Конфігурація розгортання має передавати чутливі значення через погоджений механізм секретів або змінних середовища.
+`Host.Api` uses the standard ASP.NET Core configuration stack. In Development, the project has a User Secrets ID; use User Secrets for sensitive local values. Deployment configuration should pass sensitive values through an approved secret mechanism or environment variables.
 
-Ключі змінних середовища використовують подвійне підкреслення, наприклад `ConnectionStrings__Default` для `ConnectionStrings:Default`.
+Environment variable keys use double underscores, for example `ConnectionStrings__Default` for `ConnectionStrings:Default`.
 
-## Важливі налаштування
+## Important settings
 
-| Налаштування | Призначення | Секрет |
+| Setting | Purpose | Secret |
 | --- | --- | --- |
-| `ConnectionStrings:Default` | PostgreSQL-підключення для Identity та модульних контекстів | так |
-| `ADMIN_DEFAULT_PASSWORD` | Пароль, який використовується лише якщо потрібно створити bootstrap-адміністратора | так |
-| `Cors:AllowedOrigins` / `AllowedOriginsCsv` | Джерела браузера, яким дозволено викликати API | ні, але залежить від розгортання |
-| `Identity:SessionCookies` | Імена файлів cookie, шляхи, строки дії, правила `Secure` і SameSite | ні |
-| `Identity:SessionSecurity` | Обмеження строку дії токенів доступу й оновлення | ні |
-| `AdmToolsStorage` | Параметри медіасховища Catalog | залежить від конкретного провайдера |
-| `CatalogMediaUpload` | Максимальний розмір завантаження й базовий шлях оригіналів медіафайлів Product | ні |
+| `ConnectionStrings:Default` | PostgreSQL connection for Identity and module contexts | Yes |
+| `ADMIN_DEFAULT_PASSWORD` | Password used only if a bootstrap administrator must be created | Yes |
+| `Cors:AllowedOrigins` / `AllowedOriginsCsv` | Browser origins allowed to call the API | No, but deployment-specific |
+| `Identity:SessionCookies` | Cookie names, paths, lifetimes, `Secure` and SameSite rules | No |
+| `Identity:SessionSecurity` | Access and refresh token lifetime limits | No |
+| `AdmToolsStorage` | Catalog media storage settings | Depends on the provider |
+| `CatalogMediaUpload` | Maximum upload size and base path for original Product media | No |
 
-## Завантаження медіафайлів Catalog
+## Catalog media uploads
 
-`CatalogMediaUpload` є обов'язковою секцією конфігурації. У коді немає значень
-за замовчуванням: `MaxFileSizeBytes` і `BaseFolder` задаються в
-`appsettings.json` або в конфігурації розгортання. API застосовує одне
-визначене обмеження і до тіла multipart-запиту, і до команди завантаження.
+`CatalogMediaUpload` is a required configuration section. The code has no defaults: `MaxFileSizeBytes` and `BaseFolder` are set in `appsettings.json` or deployment configuration. The API applies one defined limit both to the multipart request body and the upload command.
 
-Перед запуском Host перевіряє, що `MaxFileSizeBytes` більший за нуль, а
-`BaseFolder` не порожній. Некоректна конфігурація блокує запуск, а не перший
-запит завантаження.
+Before startup, the Host verifies that `MaxFileSizeBytes` is greater than zero and `BaseFolder` is not empty. Invalid configuration blocks startup rather than the first upload request.
 
-Виробниче розгортання може перевизначити значення без зміни файлу:
+A production deployment can override these values without changing the file:
 
 ```text
 CatalogMediaUpload__MaxFileSizeBytes=104857600
 CatalogMediaUpload__BaseFolder=/products/original
 ```
 
-Подвійне підкреслення в назві змінної середовища відповідає `:` у ключі
-конфігурації .NET.
+The double underscore in an environment variable name corresponds to `:` in a .NET configuration key.
 
-Приклад локального секрету:
+Example local secret:
 
 ```powershell
-dotnet user-secrets set "ADMIN_DEFAULT_PASSWORD" "<лише-локальне-значення>" --project src/Bootstrapper/Host.Api/Host.Api.csproj
+dotnet user-secrets set "ADMIN_DEFAULT_PASSWORD" "<local-only-value>" --project src/Bootstrapper/Host.Api/Host.Api.csproj
 ```
 
-Ніколи не додавайте реальні паролі, токени чи виробничі рядки підключення до `appsettings*.json`, Markdown, вихідного коду або логів. Не виводьте значення конфігурації під час діагностики проблеми запуску.
+Never add real passwords, tokens, or production connection strings to `appsettings*.json`, Markdown, source code, or logs. Do not print configuration values while diagnosing startup problems.
 
-## Примітка щодо файлів cookie та CORS
+## Cookie and CORS note
 
-Автентифікація через оновлення використовує файли cookie з обліковими даними, тому CORS має явний список дозволених джерел; шаблонні джерела не використовуються. Перевіряйте оновлення через HTTPS або створюйте свідоме локальне перевизначення, яке ніколи не переноситься до спільного середовища.
+Refresh authentication uses credential-bearing cookies, so CORS requires an explicit allowlist of origins; wildcard origins are not used. Check refresh over HTTPS or create an intentional local override that is never promoted to a shared environment.

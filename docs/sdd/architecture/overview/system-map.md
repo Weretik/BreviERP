@@ -1,20 +1,20 @@
-# Карта системи
+# System map
 
-## Виконувані хости
+## Executable hosts
 
-- `src/Bootstrapper/Host.Api` компонує DI, middleware, контролери, автентифікацію та OpenAPI.
-- `src/Bootstrapper/Host.Seed` є console-хостом для підтверджених операцій початкового наповнення.
+- `src/Bootstrapper/Host.Api` composes DI, middleware, controllers, authentication, and OpenAPI.
+- `src/Bootstrapper/Host.Seed` is a console host for approved seed operations.
 
-## Бізнес-модулі
+## Business modules
 
-- Catalog володіє товарами, категоріями та медіафайлами каталогу.
-- Reference володіє довідниками постачальників, тканин, фурнітури, частин виробу й операцій.
-- Identity володіє ASP.NET Identity, ролями, політиками, інтеграцією поточного користувача/сеансу та початковим наповненням.
-- Accounting володіє гаманцями, транзакціями й категоріями транзакцій.
-- Crm присутній як модульна межа, але не має реалізованих предметних endpoint-ів.
-- BuildingBlocks володіє спільними абстракціями та кросфункціональною реалізацією; він не може набувати бізнес-правил.
+- Catalog owns products, categories, and catalog media.
+- Reference owns supplier, fabric, accessory, garment-part, and operation reference data.
+- Identity owns ASP.NET Identity, roles, policies, current user/session integration, and seed data.
+- Accounting owns wallets, transactions, and transaction categories.
+- Crm is present as a module boundary but has no implemented domain endpoints.
+- BuildingBlocks owns shared abstractions and cross-cutting implementations; it must not acquire business rules.
 
-## Напрямок залежностей
+## Dependency direction
 
 ```text
 Host.Api / Host.Seed
@@ -22,7 +22,7 @@ Host.Api / Host.Seed
         ├── Module.Api ──→ Module.Application ──→ Module.Domain
         └── Module.Infrastructure ──────────────→ Module.Application + Module.Domain
 
-BuildingBlocks.* постачає спільні примітиви; він не залежить від бізнес-модулів.
+BuildingBlocks.* supplies shared primitives; it does not depend on business modules.
 ```
 
-Немає прямої залежності Domain від Application чи Infrastructure, а також залежності Application від конкретного DbContext, HTTP-клієнта, планувальника або репозиторію EF.
+Domain does not depend directly on Application or Infrastructure, and Application does not depend on a concrete DbContext, HTTP client, scheduler, or EF repository.

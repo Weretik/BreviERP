@@ -1,33 +1,29 @@
-# Правила API
+# API rules
 
-## Стабільність контракту
+## Contract stability
 
-Публічні маршрути, назви дій і поля відповіді стабільні за замовчуванням. Надавайте перевагу адитивним змінам. Несумісну зміну, зачеплених клієнтів, шлях міграції та план розгортання документуйте у специфікації фічі й контракті.
+Public routes, action names, and response fields are stable by default. Prefer additive changes. Document a breaking change, affected clients, migration path, and rollout plan in the feature specification and contract.
 
-Для нової або зміненої HTTP-поведінки пов'яжіть кожну операцію з її сценаріями приймання `SC-*`. Коли це практично, погодьте зрозумілий людині контракт і версійований документ OpenAPI до реалізації транспортного рівня. На основі погодженого контракту створіть сфокусовані тести Red, реалізуйте транспорт і перед передачею споживачеві перевірте поведінку під час виконання за OpenAPI.
+For new or changed HTTP behavior, link each operation to its `SC-*` acceptance scenarios. Where practical, agree on a human-readable contract and a versioned OpenAPI document before implementing the transport layer. Use the agreed contract to create focused Red tests, implement transport, and verify runtime behavior against OpenAPI before handing it to consumers.
 
-Використовуйте DTO, специфічні для задачі. Не розкривайте сутності, типи збереження, секрети або внутрішні винятки. Для операцій запису з ризиком повторного виконання визначайте семантику `Idempotency-Key` до реалізації.
+Use task-specific DTOs. Do not expose entities, persistence types, secrets, or internal exceptions. Define `Idempotency-Key` semantics before implementing write operations that might be retried.
 
-## Контролери
+## Controllers
 
-Контролери мають:
+Controllers must:
 
-- приймати явні моделі запиту;
-- передавати `CancellationToken` до Mediator;
-- повертати усталене відображення Ardalis.Result у HTTP;
-- оголошувати релевантні атрибути `ProducesResponseType`;
-- не містити валідації, бізнес-логіки або логіки EF.
+- accept explicit request models;
+- pass `CancellationToken` to Mediator;
+- use the established Ardalis.Result-to-HTTP mapping;
+- declare relevant `ProducesResponseType` attributes;
+- contain no validation, business logic, or EF logic.
 
-Для кінцевої точки списку з пагінацією контролер повинен зберегти весь
-`PagedResult<IReadOnlyList<TItem>>` у відповіді: `value` і `pagedInfo`. Не
-використовуйте загальну допоміжну функцію перетворення Result у HTTP, якщо вона
-повертає лише `result.Value` і відкидає `PagedInfo`; додайте або використайте
-відображення, що зберігає метадані.
+For a paginated list endpoint, the controller must preserve the entire `PagedResult<IReadOnlyList<TItem>>` in the response: both `value` and `pagedInfo`. Do not use a generic Result-to-HTTP helper if it returns only `result.Value` and drops `PagedInfo`; add or use a mapping that preserves the metadata.
 
-## Валідація, результати та помилки
+## Validation, results, and errors
 
-Валідатори FluentValidation реєструються скануванням збірки Application і запускаються через поведінку валідації Mediator. Розміщуйте валідатор у папці відповідного сценарію.
+FluentValidation validators are registered by scanning the Application assembly and run through the Mediator validation behavior. Place each validator in the corresponding scenario directory.
 
-Валідуйте форму вхідних даних: обов'язкові поля, діапазони, формати, значення enum, довжину та комбінації полів. Інваріанти стану й бізнес-інваріанти перевіряйте в логіці сценарію Domain або Application.
+Validate input shape: required fields, ranges, formats, enum values, length, and field combinations. Check state and business invariants in Domain or Application scenario logic.
 
-Для очікуваних збоїв повертайте Ardalis.Result. Зберігайте чинне відображення помилок API. Не використовуйте винятки для звичайного керування потоком валідації чи відсутності ресурсу і не розкривайте внутрішні деталі у відповіді.
+Return Ardalis.Result for expected failures. Preserve the current API error mapping. Do not use exceptions for ordinary validation or missing-resource control flow, and do not expose internal details in responses.

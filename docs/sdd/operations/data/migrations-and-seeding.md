@@ -1,29 +1,29 @@
-# Міграції та початкове наповнення
+# Migrations and seeding
 
-## Порядок запуску
+## Execution order
 
-У BreviERP міграції та початкове наповнення запускаються механізмом `IDatabaseMigrator`/`ISeeder` через окремий `Host.Seed`. `Host.Api` самостійно не запускає ці операції. У [конфігурації Cloud Build](../deployment/cloud-build.md) Job `Host.Seed` виконується перед деплоєм API; успішність конкретного запуску потрібно перевіряти за його результатом.
+In BreviERP, migrations and seeding run through `IDatabaseMigrator`/`ISeeder` in a separate `Host.Seed`. `Host.Api` does not run these operations itself. In the [Cloud Build configuration](../deployment/cloud-build.md), the `Host.Seed` Job runs before API deployment; check the result of a specific run to confirm success.
 
 ```text
 Host.Seed
-  → зареєстровані IDatabaseMigrator / DbContext
-  → зареєстровані ISeeder (один екземпляр кожного типу seeder-а)
-  → завершення операції
+  → registered IDatabaseMigrator / DbContext
+  → registered ISeeder (one instance of each seeder type)
+  → operation complete
 ```
 
-Реалізовані контексти модулів Catalog, Identity, Reference та Accounting. Запуск мігратора або засобу початкового наповнення може змінити схему БД і вставити чи оновити початкові дані. Не спрямовуйте локальний процес на БД, якщо цей ефект не є очікуваним.
+Catalog, Identity, Reference, and Accounting module contexts are implemented. Running a migrator or seeder can change the database schema and insert or update seed data. Do not point a local process at a database unless that effect is intended.
 
-## Поточні Identity початкове наповнення
+## Current Identity seeding
 
-- `RoleSeeder` забезпечує наявність ролей `Admin`, `Manager` і `User`.
-- `IdentitySeeder` створює налаштованого адміністратора лише коли його немає та задано `ADMIN_DEFAULT_PASSWORD`.
+- `RoleSeeder` ensures the `Admin`, `Manager`, and `User` roles exist.
+- `IdentitySeeder` creates the configured administrator only when absent and `ADMIN_DEFAULT_PASSWORD` is set.
 
-Пароль не читається з поля `Identity:AdminUser:DefaultPassword`: seeder читає `ADMIN_DEFAULT_PASSWORD`. Відсутнє значення пропускає створення адміністратора й журналює цей стан.
+The password is not read from `Identity:AdminUser:DefaultPassword`; the seeder reads `ADMIN_DEFAULT_PASSWORD`. If the value is absent, administrator creation is skipped and this state is logged.
 
-## Правила змін
+## Change rules
 
-- Створюйте міграцію лише коли функціональність змінює схему збереження або контракт даних.
-- Розміщуйте проєктування міграції та кроки rollout/verification у [специфікації feature](../../specs/README.md): baseline і rollback — у `design/`, rollout/verification — у `tasks/`.
-- Не редагуйте вже застосовану міграцію, щоб змінити виробничу історію.
-- Вважайте зміни seed-даних змінами даних: документуйте ідемпотентність, поведінку з наявними даними та підхід rollback/recovery.
-- Перевіряйте startup або Host.Seed логи після зміни міграції чи seeder-а.
+- Create a migration only when a feature changes the persistence schema or data contract.
+- Put migration design and rollout/verification steps in the [feature specification](../../specs/README.md): baseline and rollback in `design/`, rollout/verification in `tasks/`.
+- Do not edit an applied migration to alter production history.
+- Treat seed data changes as data changes: document idempotency, behavior with existing data, and the rollback/recovery approach.
+- Check startup or Host.Seed logs after changing a migration or seeder.

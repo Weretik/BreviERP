@@ -1,13 +1,13 @@
-# CLI фонових задач
+# Background job CLI
 
-Окремий `Host.Jobs` CLI або набір команд задач у поточному BreviERP не реалізований. Не використовуйте цей документ як інструкцію з вигаданими параметрами `dotnet run`.
+A separate `Host.Jobs` CLI or set of job commands is not implemented in current BreviERP. Do not use this document as a runbook with invented `dotnet run` parameters.
 
-Якщо такий хост буде додано, документація має зафіксувати:
+If such a host is added, its documentation must record:
 
-- точний шлях проєкту та спосіб завантаження конфігурації;
-- усі назви задач, обов’язкові аргументи та exit codes;
-- окремі secrets для локального запуску;
-- правила паралельного виконання, повторів і ідемпотентності;
-- перевірку результату після завершення.
+- the exact project path and how configuration is loaded;
+- every job name, required argument, and exit code;
+- separate secrets for local execution;
+- concurrency, retry, and idempotency rules;
+- verification of the result after completion.
 
-До появи реалізації для операцій початкових даних використовуйте лише підтверджений `Host.Seed`.
+Until it exists, use only the verified `Host.Seed` for initial data operations.

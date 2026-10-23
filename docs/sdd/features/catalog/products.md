@@ -1,49 +1,49 @@
-# Товари Catalog
+# Catalog Products
 
-**Статична звірка з кодом:** 2026-10-16. **Модуль:** catalog.
+**Static code review:** 2026-10-16. **Module:** catalog.
 
-Створення, читання, повна заміна й видалення товарів типів Sewing і PPE.
+Create, read, full replacement, and deletion of Sewing and PPE products.
 
-## Будова й зв'язки
+## Structure and Relationships
 
-[ProductsController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductsController.cs) викликає [create handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Create/CreateProductCommandHandler.cs), handlers заміни/видалення і читання. [Product](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Entities/Product.cs) володіє категоріями, фото, описом та [Sewing](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Entities/Sewing/SewingProductDetails.cs) або [PPE](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Entities/Ppe/PpeProductDetails.cs) деталями. Handler перевіряє ID у Reference через межу читання, а [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs) зберігає композицію.
+[ProductsController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductsController.cs) invokes the [create handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Create/CreateProductCommandHandler.cs) and the replace/delete/read handlers. [Product](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Entities/Product.cs) owns categories, photos, description, and either [Sewing](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Entities/Sewing/SewingProductDetails.cs) or [PPE](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Entities/Ppe/PpeProductDetails.cs) details. The handler validates IDs in Reference through the read boundary, and [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs) persists the aggregate.
 
-## Структура в коді
+## Code Structure
 
-Наведено перевірені точки входу та ключові складові фічі; дерево не перелічує всі допоміжні файли.
+Verified entry points and key feature components are shown; the tree does not list every supporting file.
 
 ```text
 src/
 └── Modules/Catalog/
-    ├── Catalog.Api/Catalog.Api/Controllers/ProductsController.cs  # HTTP-вхід
+    ├── Catalog.Api/Catalog.Api/Controllers/ProductsController.cs  # HTTP entry point
     ├── Catalog.Application/Catalog.Application/Features/Product/
-    │   ├── Create/CreateProductCommandHandler.cs  # обробник сценарію
-    │   ├── Delete/DeleteProductCommandHandler.cs  # обробник сценарію
-    │   ├── GetAdminDetail/GetAdminProductDetailQueryHandler.cs  # обробник сценарію
-    │   ├── GetAdminList/GetAdminProductsQueryHandler.cs  # обробник сценарію
-    │   └── Update/ReplaceProductCommandHandler.cs  # обробник сценарію
+    │   ├── Create/CreateProductCommandHandler.cs  # use case handler
+    │   ├── Delete/DeleteProductCommandHandler.cs  # use case handler
+    │   ├── GetAdminDetail/GetAdminProductDetailQueryHandler.cs  # use case handler
+    │   ├── GetAdminList/GetAdminProductsQueryHandler.cs  # use case handler
+    │   └── Update/ReplaceProductCommandHandler.cs  # use case handler
     ├── Catalog.Domain/Catalog.Domain/Products/Entities/
-    │   ├── Ppe/PpeProductDetails.cs  # доменна модель
-    │   ├── Product.cs  # доменна модель
-    │   └── Sewing/SewingProductDetails.cs  # доменна модель
-    └── Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs  # контекст даних
+    │   ├── Ppe/PpeProductDetails.cs  # domain model
+    │   ├── Product.cs  # domain model
+    │   └── Sewing/SewingProductDetails.cs  # domain model
+    └── Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs  # data context
 ```
 
-## Схема будови
+## Structure Diagram
 
 ```mermaid
 flowchart LR
-    A["ProductsController"] --> B["Create, replace, delete та read handlers"]
-    B --> C["Перевірка ID у Reference"]
+    A["ProductsController"] --> B["Create, replace, delete, and read handlers"]
+    B --> C["Reference ID validation"]
     B --> D["Product"]
-    D --> E["Категорії, фото та опис"]
-    D --> F["Sewing або PPE details"]
-    B --> G["Контракти репозиторіїв Catalog"]
-    G -.-> H["CatalogEfRepository та CatalogReadEfRepository"]
+    D --> E["Categories, photos, and description"]
+    D --> F["Sewing or PPE details"]
+    B --> G["Catalog repository contracts"]
+    G -.-> H["CatalogEfRepository and CatalogReadEfRepository"]
     H --> I["CatalogDbContext"]
     H --> D
 ```
 
-## Пов'язані джерела
+## Related Sources
 
-[OpenAPI](../../contracts/catalog/product-catalog.openapi.yaml) · [Чинна SDD](../../specs/catalog/001-product-page/README.md).
+[OpenAPI](../../contracts/catalog/product-catalog.openapi.yaml) · [Current SDD](../../specs/catalog/001-product-page/README.md).

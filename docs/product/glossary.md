@@ -1,47 +1,47 @@
-# Глосарій BreviERP
+# BreviERP Glossary
 
-Цей документ містить лише сталі бізнес-терміни, що повторюються між feature-специфікаціями. Детальні правила конкретної можливості залишаються в її `requirements/`.
+This document contains only stable business terms that recur across feature specifications. Detailed rules for a specific capability remain in its `requirements/` directory.
 
-## Product / Товар
+## Product
 
-Одиниця каталогу, яку менеджер створює та підтримує. Товар має один тип: Sewing або PPE.
+A catalog item created and maintained by a manager. A product has one type: Sewing or PPE.
 
-## Sewing / Швейний товар
+## Sewing product
 
-Товар власного пошиття. Для нього ведуться операції пошиття, тканини, фурнітура та витрата тканини на один виріб.
+A product made in-house. Its sewing operations, fabrics, accessories, and fabric usage per item are tracked.
 
-## PPE / ЗІЗ
+## PPE
 
-Засіб індивідуального захисту. Для нього визначаються постачальник і коефіцієнт.
+Personal protective equipment. A supplier and coefficient are defined for it.
 
-## Операція пошиття
+## Sewing operation
 
-Окрема операція, потрібна для виготовлення швейного товару. Має тривалість, яка бере участь у розрахунку трудомісткості та виробітку за зміну.
+A separate operation required to make a Sewing product. It has a duration used to calculate labor intensity and output per shift.
 
-## Трудомісткість
+## Labor intensity
 
-Сумарна тривалість усіх операцій пошиття одного товару.
+The total duration of all sewing operations for one product.
 
-## Основна тканина
+## Main fabric
 
-Єдина основна тканина в непорожньому переліку тканин швейного товару. Інші тканини є додатковими.
+The single primary fabric in a non-empty list of fabrics for a Sewing product. Other fabrics are additional.
 
-## Фурнітура
+## Accessory
 
-Матеріал або компонент, потрібний для виготовлення швейного товару, з кількістю на один виріб.
+A material or component needed to make a Sewing product, with a quantity per item.
 
-## Метри на виріб
+## Meters per item
 
-Кількість метрів тканини, потрібна для одного швейного виробу.
+The number of meters of fabric required for one Sewing item.
 
-## Постачальник
+## Supplier
 
-Контрагент, що постачає PPE або довідникові матеріали. Дані постачальника є спільними довідниковими даними й не дублюються в товарі.
+A counterparty supplying PPE or reference materials. Supplier data is shared reference data and is not duplicated on a product.
 
-## Коефіцієнт PPE
+## PPE coefficient
 
-Значення для PPE-товару, задане або через спільний довідник, або вручну лише для конкретного товару.
+A value for a PPE product, supplied either by a shared reference entry or manually for that product only.
 
 ## Description, Information, Characteristics
 
-Три види описових даних товару: багатомовний Markdown-опис; впорядковані інформаційні блоки; впорядковані таблиці характеристик.
+Three kinds of product descriptive data: a multilingual Markdown description, ordered information blocks, and ordered characteristic tables.

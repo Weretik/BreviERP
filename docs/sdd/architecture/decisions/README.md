@@ -1,13 +1,13 @@
-# Архітектурні рішення
+# Architecture decisions
 
-У цьому каталозі зберігайте прийняті рішення, які змінюють довготривалі межі, контракти або підходи кількох модулів. На дату перевірки 2026-10-15 окремих ADR тут ще немає; це не означає, що у проєкті немає рішень. Рішення конкретних функціональностей описані в [специфікаціях](../../specs/README.md), а чинні архітектурні правила — в [огляді архітектури](../README.md).
+Keep accepted decisions that change long-term boundaries, contracts, or approaches across multiple modules in this directory. As of the 2026-10-15 check, there are no separate ADRs here; this does not mean the project has no decisions. Feature-specific decisions are in [specifications](../../specs/README.md), while current architecture rules are in the [architecture overview](../README.md).
 
-Для нового рішення створіть файл `NNNN-коротка-назва.md` і зафіксуйте:
+For a new decision, create `NNNN-short-name.md` and record:
 
-1. Статус і дату рішення, учасників або відповідальну команду.
-2. Контекст і перевірені джерела в коді, конфігурації чи чинних документах.
-3. Розглянуті варіанти та причини вибору.
-4. Наслідки для модулів, даних, API, безпеки, операцій і тестів.
-5. План впровадження, зворотної сумісності та перегляду, якщо він потрібен.
+1. Decision status and date, participants or responsible team.
+2. Context and verified sources in code, configuration, or current documents.
+3. Options considered and reasons for the choice.
+4. Consequences for modules, data, API, security, operations, and tests.
+5. Rollout, backward-compatibility, and review plan if needed.
 
-Після прийняття оновіть відповідний документ архітектури або стандарту; ADR пояснює причину рішення, а чинне правило має залишатися в одному місці. Не створюйте ADR заднім числом без джерел.
+After acceptance, update the corresponding architecture or standards document; the ADR explains why, while the current rule should remain in one place. Do not create retrospective ADRs without sources.

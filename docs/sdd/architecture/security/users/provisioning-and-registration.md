@@ -1,20 +1,20 @@
-# Користувачі, bootstrap і registration
+# Users, Bootstrap, and Registration
 
-## Що існує зараз
+## What Exists Today
 
-У поточному API немає публічної кінцевої точки самостійної реєстрації. API сеансів підтримує лише вхід, оновлення, вихід і `me`.
+The current API has no public self-registration endpoint. The session API supports only login, refresh, logout, and `me`.
 
-Поточні шляхи створення користувача:
+Current user creation paths:
 
-| Шлях | Поведінка |
+| Path | Behavior |
 | --- | --- |
-| Startup bootstrap | `RoleSeeder` створює seed-ролі. `IdentitySeeder` створює налаштованого адміністратора лише коли його ще немає та задано `ADMIN_DEFAULT_PASSWORD`. |
+| Startup bootstrap | `RoleSeeder` creates the seed roles. `IdentitySeeder` creates the configured administrator only when one does not already exist and `ADMIN_DEFAULT_PASSWORD` is set. |
 
-Адміністратор за замовчуванням конфігурується через `AdminUserConfig`; його пароль читається з `ADMIN_DEFAULT_PASSWORD`. Ніколи не комітьте це значення в конфігурацію або документацію.
+The default administrator is configured through `AdminUserConfig`; its password is read from `ADMIN_DEFAULT_PASSWORD`. Never commit this value to configuration or documentation.
 
-## Проєктування нової registration або user-management функціональності
+## Designing New Registration or User Management Features
 
-Розглядайте це як функціональність Identity-модуля. Це не деталь реалізації Catalog, Reference або API-контролера.
+Treat this as Identity module functionality. It is not an implementation detail of Catalog, Reference, or an API controller.
 
 ```text
 Identity.Api endpoint
@@ -24,23 +24,23 @@ Identity.Api endpoint
   → UserManager<AppUser> / RoleManager<AppRole> / AppIdentityDbContext
 ```
 
-Мінімальні рішення для специфікації функціональності:
+Minimum decisions for the feature specification:
 
-- Хто може створювати користувача: анонімна самостійна реєстрація, лише Admin, лише імпорт або інша політика.
-- Поля Identity та валідація: унікальність email, нормалізоване введення, повне ім’я та правила паролів.
-- Початкова роль і чи може її обирати викликач. Public request ніколи не може надати Admin або Manager.
-- Активація облікового запису: негайний вхід, підтвердження email, запрошення або схвалення адміністратором.
-- Налаштування й скидання пароля та сценарій відновлення.
-- Захист від зловживань: обмеження частоти, журнали аудиту та вимоги CAPTCHA/підтвердження email.
-- Що відбувається з активними сеансами, коли змінюються ролі, пароль або стан облікового запису.
-- Форма відповіді API: ніколи не повертайте пароль, токен оновлення, токен скидання пароля або внутрішні помилки Identity.
+- Who can create users: anonymous self-registration, Admin only, import only, or another policy.
+- Identity fields and validation: email uniqueness, normalized input, full name, and password rules.
+- The initial role and whether the caller can choose it. A public request must never grant Admin or Manager.
+- Account activation: immediate sign-in, email verification, invitation, or administrator approval.
+- Password setup and reset, and the recovery flow.
+- Abuse protection: rate limits, audit logs, and CAPTCHA/email verification requirements.
+- What happens to active sessions when roles, passwords, or account status change.
+- API response shape: never return a password, refresh token, password reset token, or internal Identity errors.
 
-## Межі реалізації
+## Implementation Boundaries
 
-- Розміщуйте HTTP contract і controller в `Identity.Api`.
-- Розміщуйте command/query, FluentValidation validator, Ardalis.Result contract і application-facing interface в `Identity.Application`.
-- Розміщуйте виклики ASP.NET Core Identity, збереження `AppUser`, призначення ролей і виклики провайдера токенів в `Identity.Infrastructure`.
-- Тримайте лише сталі константи ролей в `Identity.Domain`; не розміщуйте там HTTP DTO, `UserManager` або залежностей від EF.
-- Реєструйте новий сервіс через наявний порядок реєстрації модуля Identity; Host.Api компонує його через `AddHostServices`.
+- Place the HTTP contract and controller in `Identity.Api`.
+- Place commands/queries, FluentValidation validators, Ardalis.Result contracts, and application-facing interfaces in `Identity.Application`.
+- Place ASP.NET Core Identity calls, `AppUser` persistence, role assignment, and token provider calls in `Identity.Infrastructure`.
+- Keep only stable role constants in `Identity.Domain`; do not put HTTP DTOs, `UserManager`, or EF dependencies there.
+- Register the new service through the existing Identity module registration order; Host.Api composes it through `AddHostServices`.
 
-Використовуйте помилки `UserManager` для створення безпечного, узгодженого результату Application. Не розкривайте необроблену діагностику Identity анонімним викликачам.
+Use `UserManager` errors to produce a safe, consistent Application result. Do not expose raw Identity diagnostics to anonymous callers.

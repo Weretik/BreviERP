@@ -1,25 +1,25 @@
-# Контейнеризація та конфігурація Cloud Build
+# Containerization and Cloud Build configuration
 
-**Статус перевірки:** 2026-10-15, статичний огляд файлів репозиторію. Цей документ описує налаштований конвеєр; фактичний стан ресурсів Google Cloud і останнє успішне розгортання не перевірялися.
+**Verification status:** Static review of repository files on 2026-10-15. This document describes the configured pipeline; actual Google Cloud resource state and the most recent successful deployment were not checked.
 
-## Джерела
+## Sources
 
-- [`cloudbuild.yaml`](../../../../cloudbuild.yaml) визначає порядок збирання, публікації образів, міграцій і розгортання.
-- [Dockerfile Host.Api](../../../../src/Bootstrapper/Host.Api/Dockerfile) та [Dockerfile Host.Seed](../../../../src/Bootstrapper/Host.Seed/Dockerfile) визначають образи на базі .NET 10 SDK/runtime.
-- [`Host.Seed/Program.cs`](../../../../src/Bootstrapper/Host.Seed/Program.cs) викликає `MigrateAppAsync()` і `SeedAppAsync()`; [`Host.Api/Program.cs`](../../../../src/Bootstrapper/Host.Api/Program.cs) запускає HTTP-хост.
+- [`cloudbuild.yaml`](../../../../cloudbuild.yaml) defines build, image publication, migration, and deployment order.
+- The [Host.Api Dockerfile](../../../../src/Bootstrapper/Host.Api/Dockerfile) and [Host.Seed Dockerfile](../../../../src/Bootstrapper/Host.Seed/Dockerfile) define images based on .NET 10 SDK/runtime.
+- [`Host.Seed/Program.cs`](../../../../src/Bootstrapper/Host.Seed/Program.cs) calls `MigrateAppAsync()` and `SeedAppAsync()`; [`Host.Api/Program.cs`](../../../../src/Bootstrapper/Host.Api/Program.cs) starts the HTTP host.
 
-## Налаштована послідовність
+## Configured sequence
 
-1. Docker збирає образи `host-api` та `host-seed` із відповідних Dockerfile і публікує їх до Artifact Registry з тегом `$COMMIT_SHA`.
-2. Cloud Build створює або оновлює Cloud Run Job `Host.Seed`: одне завдання, паралельність 1, максимум один повтор.
-3. Cloud Build виконує Job і чекає завершення. Лише після цього запускає крок розгортання `Host.Api` у Cloud Run.
-4. Крок розгортання API додає два посилання на Secret Manager для `AdmToolsStorage__Login` і `AdmToolsStorage__Password`; інші потрібні змінні й секрети слід перевіряти в конфігурації середовища. Сам файл не доводить, що вони вже налаштовані.
+1. Docker builds `host-api` and `host-seed` images from their Dockerfiles and publishes them to Artifact Registry with the `$COMMIT_SHA` tag.
+2. Cloud Build creates or updates the `Host.Seed` Cloud Run Job: one task, concurrency 1, at most one retry.
+3. Cloud Build executes the Job and waits for completion. Only then does it deploy `Host.Api` to Cloud Run.
+4. The API deployment step adds two Secret Manager references for `AdmToolsStorage__Login` and `AdmToolsStorage__Password`; verify other required variables and secrets in the environment configuration. The file alone does not prove they are already configured.
 
-Стандартні значення параметрів підстановки у `cloudbuild.yaml`: регіон `europe-central2`, репозиторій Artifact Registry `api`, сервіс Cloud Run `brevierp-api`, Job `brevierp-seed`. Це значення **конфігурації**, а не перевірка фактичного хмарного середовища. Для іншого середовища перевірте параметри підстановки й права доступу до Artifact Registry, Cloud Run, Secret Manager та PostgreSQL.
+Default substitution values in `cloudbuild.yaml`: region `europe-central2`, Artifact Registry repository `api`, Cloud Run service `brevierp-api`, Job `brevierp-seed`. These are **configuration values**, not a check of the actual cloud environment. For another environment, verify substitution parameters and access to Artifact Registry, Cloud Run, Secret Manager, and PostgreSQL.
 
-## Межі й перевірка
+## Boundaries and verification
 
-- Dockerfile API виставляє порт `8080`; локальні профілі `https` і `http` описані окремо в [інструкції запуску](../local-development/run-api.md).
-- Запуск `Host.Seed` може змінити схему й дані БД. Перед повторним запуском перевірте цільову БД, резервне копіювання, результати попереднього Job та [правила міграцій](../data/migrations-and-seeding.md).
-- У конфігурації Cloud Build немає кроку запуску тестів. Потрібні команди перевірки визначають [правила тестування](../../standards/testing-rules.md); їх виконання не слід припускати за самим фактом запуску конвеєра.
-- Після розгортання перевірте статус Cloud Build, Cloud Run Job і сервісу, журнали обох хостів, `GET /health` та контрактні сценарії відповідної функціональності. Без результатів цих перевірок не заявляйте про успішний запуск.
+- The API Dockerfile exposes port `8080`; local `https` and `http` profiles are documented separately in the [run guide](../local-development/run-api.md).
+- Running `Host.Seed` can change the database schema and data. Before rerunning it, check the target database, backups, previous Job result, and [migration rules](../data/migrations-and-seeding.md).
+- The Cloud Build configuration has no test step. The [testing rules](../../standards/testing-rules.md) define required verification commands; do not assume they ran merely because the pipeline executed.
+- After deployment, check Cloud Build, Cloud Run Job, and service status, logs from both hosts, `GET /health`, and the relevant feature contract scenarios. Do not claim a successful rollout without these results.

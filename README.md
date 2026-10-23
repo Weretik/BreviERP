@@ -1,32 +1,32 @@
 # BreviERP
 
-Backend-система ERP для Brevi. Репозиторій містить модульний ASP.NET Core API, бізнес-модулі та інфраструктуру для роботи з каталогом, довідниками, користувачами й обліком.
+An ERP backend for Brevi. The repository contains a modular ASP.NET Core API, business modules, and infrastructure for catalog, reference data, users, and accounting.
 
-> Проєкт перебуває в активній розробці. API-контракти та реалізовані можливості описані в [документації](docs/README.md).
+> This project is under active development. API contracts and implemented capabilities are described in the [documentation](docs/README.md).
 
-## Технології
+## Technology
 
-- .NET 10 та C#
+- .NET 10 and C#
 - ASP.NET Core Web API
-- PostgreSQL та Entity Framework Core
-- Clean Architecture, DDD і CQRS
-- Mediator, FluentValidation та Ardalis.Result
-- ASP.NET Core Identity, Serilog і OpenAPI/Swagger
-- NUnit для unit, integration та architecture тестів
+- PostgreSQL and Entity Framework Core
+- Clean Architecture, DDD, and CQRS
+- Mediator, FluentValidation, and Ardalis.Result
+- ASP.NET Core Identity, Serilog, and OpenAPI/Swagger
+- NUnit for unit, integration, and architecture tests
 
-## Модулі
+## Modules
 
-| Модуль | Відповідальність |
+| Module | Responsibility |
 | --- | --- |
-| Identity | Користувачі, ролі, сесії та авторизація. |
-| Catalog | Товари, категорії та медіафайли каталогу. |
-| Reference | Постачальники, тканини, фурнітура, частини виробів та операції. |
-| Accounting | Гаманці, транзакції та їхні категорії. |
-| Crm | Виділена модульна межа для CRM; предметні API-сценарії ще в роботі. |
+| Identity | Users, roles, sessions, and authorization. |
+| Catalog | Products, categories, and catalog media. |
+| Reference | Suppliers, fabrics, accessories, garment parts, and operations. |
+| Accounting | Wallets, transactions, and transaction categories. |
+| Crm | A dedicated CRM module boundary; domain API scenarios are still in progress. |
 
-## Архітектура
+## Architecture
 
-Проєкт дотримується модульної Clean Architecture. Залежності спрямовані до домену:
+The project follows modular Clean Architecture. Dependencies point toward the domain:
 
 ```text
 Host.Api / Host.Seed
@@ -35,54 +35,54 @@ Host.Api / Host.Seed
         └── Module.Infrastructure ──────────────→ Module.Application + Module.Domain
 ```
 
-`BuildingBlocks` містить спільні технічні та доменні примітиви й не залежить від бізнес-модулів.
+`BuildingBlocks` contains shared technical and domain primitives and does not depend on business modules.
 
-## Швидкий старт
+## Quick start
 
-### Передумови
+### Prerequisites
 
 - .NET SDK 10
-- PostgreSQL, доступний із локального середовища
-- локальні секрети та рядок підключення до бази даних
+- PostgreSQL accessible from the local environment
+- Local secrets and a database connection string
 
-Клонуйте репозиторій і виконайте:
+Clone the repository and run:
 
 ```powershell
 dotnet restore BreviERP.sln
 dotnet run --project src/Bootstrapper/Host.Api/Host.Api.csproj --launch-profile https
 ```
 
-API буде доступний за адресою `https://localhost:7142`, а health-check — за `https://localhost:7142/health`.
+The API will be available at `https://localhost:7142`, and the health check at `https://localhost:7142/health`.
 
-У середовищі `Development` Swagger UI доступний за адресою `https://localhost:7142/swagger`.
+In the `Development` environment, Swagger UI is available at `https://localhost:7142/swagger`.
 
-Для запуску без HTTPS:
+To run without HTTPS:
 
 ```powershell
 dotnet run --project src/Bootstrapper/Host.Api/Host.Api.csproj --launch-profile http
 ```
 
-## Конфігурація
+## Configuration
 
-`Host.Api` використовує стандартну конфігурацію ASP.NET Core. Для чутливих локальних значень використовуйте User Secrets або змінні середовища, наприклад `ConnectionStrings__Default`.
+`Host.Api` uses standard ASP.NET Core configuration. For sensitive local values, use User Secrets or environment variables such as `ConnectionStrings__Default`.
 
 ```powershell
-dotnet user-secrets set "ADMIN_DEFAULT_PASSWORD" "<локальний-пароль>" --project src/Bootstrapper/Host.Api/Host.Api.csproj
+dotnet user-secrets set "ADMIN_DEFAULT_PASSWORD" "<local-password>" --project src/Bootstrapper/Host.Api/Host.Api.csproj
 ```
 
-Не додавайте паролі, токени або production connection strings до репозиторію. Повний перелік налаштувань є в [документації з конфігурації](docs/sdd/operations/configuration/configuration-and-secrets.md).
+Do not commit passwords, tokens, or production connection strings. The full settings list is in the [configuration documentation](docs/sdd/operations/configuration/configuration-and-secrets.md).
 
-## Міграції та початкові дані
+## Migrations and seed data
 
-Для контрольованого застосування міграцій і початкового наповнення використовується окремий хост:
+A separate host applies migrations and seed data in a controlled way:
 
 ```powershell
 dotnet run --project src/Bootstrapper/Host.Seed/Host.Seed.csproj
 ```
 
-Ця команда може змінити схему та дані бази. Перед запуском, особливо не на локальній БД, прочитайте [інструкцію про міграції та seeders](docs/sdd/operations/data/migrations-and-seeding.md).
+This command can change the database schema and data. Before running it, especially against a nonlocal database, read the [migrations and seeders guide](docs/sdd/operations/data/migrations-and-seeding.md).
 
-## Перевірка
+## Verification
 
 ```powershell
 dotnet restore BreviERP.sln
@@ -90,26 +90,26 @@ dotnet build BreviERP.sln --no-restore
 dotnet test BreviERP.sln --no-build
 ```
 
-## Структура репозиторію
+## Repository structure
 
 ```text
 BreviERP.sln
 ├── src/
-│   ├── Bootstrapper/       # HTTP API та хост початкового наповнення
-│   ├── BuildingBlocks/     # спільні абстракції та кросфункціональний код
-│   └── Modules/            # бізнес-модулі та їхні шари
-├── tests/                  # unit, integration та architecture тести
+│   ├── Bootstrapper/       # HTTP API and seed host
+│   ├── BuildingBlocks/     # shared abstractions and cross-cutting code
+│   └── Modules/            # business modules and their layers
+├── tests/                  # unit, integration, and architecture tests
 └── docs/                   # versioned engineering documentation
 ```
 
-## Документація
+## Documentation
 
-- [Архітектура](docs/sdd/architecture/README.md)
-- [Інженерні правила](docs/sdd/standards/README.md)
-- [Локальний запуск і експлуатація](docs/sdd/operations/README.md)
-- [Специфікації функціональностей](docs/sdd/specs/README.md)
-- [OpenAPI-контракт](docs/sdd/contracts/openapi.yaml)
+- [Architecture](docs/sdd/architecture/README.md)
+- [Engineering rules](docs/sdd/standards/README.md)
+- [Local startup and operations](docs/sdd/operations/README.md)
+- [Feature specifications](docs/sdd/specs/README.md)
+- [OpenAPI contract](docs/sdd/contracts/openapi.yaml)
 
-## Ліцензія
+## License
 
-Дивіться [LICENSE.txt](LICENSE.txt).
+See [LICENSE.txt](LICENSE.txt).

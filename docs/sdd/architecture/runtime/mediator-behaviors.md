@@ -1,6 +1,6 @@
-# Поведінки Mediator
+# Mediator Behaviors
 
-Хост реєструє такі поведінки конвеєра для всіх запитів Mediator у точному порядку:
+The host registers these pipeline behaviors for all Mediator requests in this exact order:
 
 ```text
 ISender.Send(...)
@@ -15,26 +15,26 @@ ISender.Send(...)
 
 ## 1. RequestLoggingBehavior
 
-Журналює початок, завершення та контекст збою запиту Mediator за наявними правилами структурованого журналювання. Це забезпечує лише спостережуваність; поведінка не змінює бізнес-логіку і не журналює конфіденційні дані запиту.
+Logs the start, completion, and failure context of a Mediator request using existing structured logging conventions. This provides observability only; the behavior does not change business logic or log sensitive request data.
 
 ## 2. PerformanceBehavior
 
-Вимірює тривалість запиту через налаштовані параметри `PerformanceBehavior` та видає діагностику для повільних запитів. Не змінює семантику запиту чи команди.
+Measures request duration using configured `PerformanceBehavior` settings and emits diagnostics for slow requests. It does not change request or command semantics.
 
 ## 3. ValidationBehavior
 
-Запускає всі валідатори FluentValidation для запиту перед обробником. Для відповідей `Result` або `Result<T>` помилки валідації стають `Result.Invalid`; обробник не викликається. Валідатори перевіряють вхідні контракти, а не правила стану агрегату.
+Runs all FluentValidation validators for a request before the handler. For `Result` or `Result<T>` responses, validation failures become `Result.Invalid`; the handler is not called. Validators check input contracts, not aggregate state rules.
 
 ## 4. ExceptionBehavior
 
-Надає усталений шлях обробки винятків навколо запиту. Очікувані бізнес-наслідки все одно представляються через Ardalis.Result, а не через винятки.
+Provides the established exception handling path around a request. Expected business outcomes are still represented through Ardalis.Result, not exceptions.
 
 ## 5. DomainEventDispatcherBehavior
 
-Працює після успішного обробника. Він отримує накопичені події з `IDomainEventContext`, очищує їх та публікує кожну через `IDomainEventDispatcher`/Mediator. Сутності накопичують події; контролери та обробники не обходять цей життєвий цикл.
+Runs after a successful handler. It retrieves collected events from `IDomainEventContext`, clears them, and publishes each through `IDomainEventDispatcher`/Mediator. Entities collect events; controllers and handlers do not bypass this lifecycle.
 
-## Правила для нової поведінки
+## Rules for new behaviors
 
-- Додавайте поведінку лише для справді кросфункціональної потреби, що застосовується до кількох сценаріїв.
-- Зберігайте порядок свідомо; документуйте будь-яку його зміну в ADR і відповідній специфікації.
-- Ніколи не розміщуйте доменну політику, авторизацію окремої кінцевої точки або оркестрацію сценарію в такій поведінці.
+- Add a behavior only for a genuinely cross-cutting need that applies to multiple use cases.
+- Keep the order intentional; document any change in an ADR and the relevant specification.
+- Never put domain policy, endpoint-specific authorization, or use-case orchestration in a behavior.

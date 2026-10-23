@@ -1,142 +1,142 @@
-# Адміністративний сценарій товару для frontend
+# Frontend Admin Product Scenario
 
-**Аудиторія:** розробник або AI, який створює адміністративний frontend каталогу.
-**Обсяг:** список, створення, перегляд, редагування й видалення товарів `Sewing` (швейний товар) і `Ppe` (ЗІЗ). Публічна сторінка товару до цього сценарію не входить.
+**Audience:** a developer or AI building the catalog admin frontend.
+**Scope:** list, create, view, edit, and delete `Sewing` and `Ppe` products. The public product page is outside this scenario.
 
-Цей документ визначає видимі блоки й послідовність дій менеджера. Він не дублює DTO або дизайн-систему. Точні назви полів, типи, обов'язковість, коди відповіді та приклади запитів беріть із [Product OpenAPI](../../../contracts/catalog/product-catalog.openapi.yaml). Правила даних наведені в [огляді](../../../specs/catalog/001-product-page/requirements/overview.md), [описовому контенті](../../../specs/catalog/001-product-page/requirements/product-content.md), [Sewing](../../../specs/catalog/001-product-page/requirements/sewing.md), [PPE](../../../specs/catalog/001-product-page/requirements/ppe.md) і [ціноутворенні](../../../specs/catalog/001-product-page/requirements/pricing.md). Якщо тут і в OpenAPI є розбіжність щодо HTTP, дотримуйтесь OpenAPI й уточніть сценарій перед реалізацією.
+This document defines the visible sections and the manager's action sequence. It does not duplicate DTOs or the design system. Get exact field names, types, required status, response codes, and request examples from [Product OpenAPI](../../../contracts/catalog/product-catalog.openapi.yaml). Data rules are in the [overview](../../../specs/catalog/001-product-page/requirements/overview.md), [product content](../../../specs/catalog/001-product-page/requirements/product-content.md), [Sewing](../../../specs/catalog/001-product-page/requirements/sewing.md), [PPE](../../../specs/catalog/001-product-page/requirements/ppe.md), and [pricing](../../../specs/catalog/001-product-page/requirements/pricing.md). If this scenario and OpenAPI differ on HTTP behavior, follow OpenAPI and clarify the scenario before implementation.
 
-## 1. Екрани й навігація
+## 1. Screens and Navigation
 
-| Екран | Що менеджер бачить | Основні дії |
+| Screen | What the manager sees | Main actions |
 | --- | --- | --- |
-| Список | Пошук, фільтр типу й категорії, сортування, сторінки та рядки товарів | Створити товар; відкрити товар; змінити параметри списку |
-| Створення | Єдина форма зі спільними й залежними від типу блоками | Заповнити дані, вибрати `Sewing` або `Ppe`, зберегти, скасувати |
-| Перегляд | Повна admin-картка товару з усіма даними, довідниковими назвами й розрахованими показниками | Перейти до редагування або видалити товар |
-| Редагування | Та сама структура блоків, заповнена з повного admin detail | Змінити дані, зокрема тип; зберегти повний стан або скасувати |
+| List | Search, type and category filters, sorting, pagination, and product rows | Create a product; open a product; change list options |
+| Create | One form with shared and type-specific sections | Enter data, choose `Sewing` or `Ppe`, save, cancel |
+| View | Full admin product detail with all data, reference names, and calculated values | Edit or delete the product |
+| Edit | The same section structure, populated from full admin detail | Change data, including type; save the full state or cancel |
 
-Назви маршрутів frontend, компонування колонок, вигляд вкладок і візуальний стиль цей SDD не задає. Наведені нижче блоки мають бути доступні незалежно від обраного компонування.
+This SDD does not define frontend route names, column layout, tab appearance, or visual style. The sections below must be available regardless of the chosen layout.
 
-## 2. Список товарів
+## 2. Product List
 
-1. Завантажити `GET /api/v1/products`. Показати в рядку ID, українську назву, тип, головне фото або місце без фото, категорії за наявним `categoryIds`, `minimumWholesalePrice`, дати створення та зміни. `slug` доступний у відповіді, але не є полем пошуку. Для показу назв категорій потрібен список категорій; Product list повертає лише їхні ID.
-2. Один рядок відкриває повний перегляд через `GET /api/v1/products/{id}`. Не будувати картку з короткого об'єкта списку.
-3. Пошук надсилається як єдиний параметр: backend шукає точний ID для одного числового токена або часткові збіги токенів у назвах `uk`/`ru`. Фільтри: один тип (`Sewing`/`Ppe`) та одна категорія; для батьківської категорії backend включає нащадків.
-4. Сортування: ID, назва, дата створення або дата зміни, `asc`/`desc`. За замовчуванням назва за зростанням. Показувати пагінацію з `value` і `pagedInfo`: `pageSize` за замовчуванням 20, дозволені 10/20/50. При зміні пошуку чи фільтрів повернутися на першу сторінку.
-5. `minimumWholesalePrice = 0` означає, що ціна для списку не розрахована; не подавати цей нуль як підтверджену комерційну ціну. Детальні ціни відкривати в картці.
+1. Load `GET /api/v1/products`. Show the ID, Ukrainian name, type, main photo or empty-photo placeholder, categories from the available `categoryIds`, `minimumWholesalePrice`, and creation/update dates in each row. `slug` is available in the response but is not a search field. Displaying category names requires a category list; Product list returns only category IDs.
+2. A row opens the full detail using `GET /api/v1/products/{id}`. Do not build the detail view from the abbreviated list object.
+3. Send search as a single parameter: the backend searches for an exact ID when given one numeric token, or partial token matches in `uk`/`ru` names. Filters: one type (`Sewing`/`Ppe`) and one category; for a parent category, the backend includes descendants.
+4. Sort by ID, name, creation date, or update date, in `asc`/`desc` order. Default to name ascending. Show pagination using `value` and `pagedInfo`: default `pageSize` is 20, allowed sizes are 10/20/50. Return to the first page when search or filters change.
+5. `minimumWholesalePrice = 0` means the list price has not been calculated; do not present zero as a confirmed commercial price. Show detailed prices on the product detail page.
 
-## 3. Створення товару
+## 3. Create a Product
 
-Форма може бути одним екраном або кроками, але зберігає товар одним `POST /api/v1/products`. Послідовність блоків нижче визначає залежності; перехід між ними не створює часткових Product-записів.
+The form may be one screen or a sequence of steps, but it saves the product in one `POST /api/v1/products` request. The sections below define dependencies; moving between them does not create partial Product records.
 
-### Блок 1 — Ідентифікація
+### Section 1 — Identification
 
-- Менеджер вводить додатний унікальний ID нового товару, українську та російську назви й вибирає тип `Sewing` або `Ppe`. Обидві назви обов'язкові, кожна унікальна й не довша за 200 символів.
-- `slug` не вводиться та не надсилається. Backend генерує його з української назви; показати результат після успішного збереження.
-- Після вибору типу показати лише відповідний блок 4. Поле `type` в API передавати точно як `Sewing` або `Ppe`.
+- The manager enters a positive, unique ID for the new product, Ukrainian and Russian names, and selects `Sewing` or `Ppe`. Both names are required, each must be unique, and neither may exceed 200 characters.
+- Do not enter or send `slug`. The backend generates it from the Ukrainian name; show it after a successful save.
+- After the type is selected, show only the corresponding Section 4. Send the API `type` field exactly as `Sewing` or `Ppe`.
 
-### Блок 2 — Категорії та фото
+### Section 2 — Categories and Photos
 
-- Менеджер вибирає нуль або більше категорій без повторення однієї ID. Дані для вибору надходять із `GET /api/reference/product-categories/admin` за [контрактом залежностей](../../../contracts/catalog/product-dependencies.openapi.yaml).
-- Менеджер вибирає наявні фото через `GET /api/catalog/media` або завантажує нове через `POST /api/catalog/media` (`multipart/form-data`). До Product прив'язувати лише медіафайл у стані `Ready`; не вважати сам upload створенням зв'язку з товаром.
-- Для кожного вибраного фото налаштувати `alt`, видимість, порядок і ознаку головного. Якщо фото є, одне з них має бути головним. Показувати його прев'ю за готовим URL; у запит передавати `mediaFileId` та поля зв'язку, а не URL. Не додавати той самий медіафайл двічі.
+- The manager selects zero or more categories without duplicate IDs. Load options using `GET /api/reference/product-categories/admin` as described by the [dependency contract](../../../contracts/catalog/product-dependencies.openapi.yaml).
+- The manager selects existing photos through `GET /api/catalog/media` or uploads a new one through `POST /api/catalog/media` (`multipart/form-data`). Link only media files in the `Ready` state to Product; the upload alone does not create a product link.
+- Configure `alt`, visibility, order, and main-photo status for each selected photo. If there are photos, exactly one must be main. Show its preview using the ready URL; send `mediaFileId` and link fields in the request, not the URL. Do not add the same media file twice.
 
-### Блок 3 — Описовий контент
+### Section 3 — Descriptive Content
 
-- `Description`: обов'язкові український і російський тексти до 20 000 символів кожен. Це Markdown з дозволеними конструкціями із [вимог до контенту](../../../specs/catalog/001-product-page/requirements/product-content.md); не вводити raw HTML, зображення чи Markdown-таблиці. Прев'ю показувати через санітизований renderer.
-- `Information`: упорядкований список окремих локалізованих блоків «заголовок + plain text». Дати додати, змінити, видалити й переставити блоки.
-- `Characteristics`: упорядкований список локалізованих таблиць; у кожній — упорядковані рядки «параметр + значення». Дати керувати таблицями та рядками. Зберігати порядок у `sortOrder`, а не лише у візуальному розміщенні.
+- `Description`: Ukrainian and Russian text are required, up to 20,000 characters each. Use Markdown with the constructs allowed by the [content requirements](../../../specs/catalog/001-product-page/requirements/product-content.md); do not enter raw HTML, images, or Markdown tables. Render previews with a sanitized renderer.
+- `Information`: an ordered list of separate localized “heading + plain text” blocks. Allow adding, editing, deleting, and reordering blocks.
+- `Characteristics`: an ordered list of localized tables, each containing ordered “property + value” rows. Allow managing both tables and rows. Persist order in `sortOrder`, not only in visual placement.
 
-### Блок 4A — Лише `Sewing`
+### Section 4A — `Sewing` Only
 
-- Ввести `metersPerProduct` — додатну кількість метрів тканини на один виріб.
-- Вибрати тканини з [довідника Fabric](../../../contracts/reference/fabrics.openapi.yaml). Для кожної задати `isPrimary` та `sortOrder`. Одна тканина не додається двічі; якщо вибрана рівно одна, вона основна; максимум дві основні, інші додаткові. Основні показувати першими, у групі — за `sortOrder`.
-- Вибрати фурнітуру з [довідника GarmentAccessory](../../../contracts/reference/garment-accessories.openapi.yaml). Для кожної задати додатну `quantity` на один виріб і `sortOrder`, без повторення ID.
-- Вибрати операції з [довідника GarmentPartOperation](../../../contracts/reference/garment-part-operations.openapi.yaml), без повторення ID. Тривалість береться з довідника, а не вводиться у Product. Товар може бути створений без операцій як чернетка; тоді `piecesPerShift` і залежні розрахунки можуть бути відсутні.
-- Три ціни для кожної тканини та продуктивність не вводяться вручну. Після збереження показати їх із детальної відповіді Product, якщо backend зміг їх обчислити. До першого збереження не представляти локальну оцінку як серверну ціну.
+- Enter `metersPerProduct`, a positive number of fabric meters per product.
+- Select fabrics from the [Fabric reference](../../../contracts/reference/fabrics.openapi.yaml). Set `isPrimary` and `sortOrder` for each. Do not add a fabric twice; if exactly one is selected, it is primary; at most two may be primary, with the rest additional. Show primary fabrics first, ordered within each group by `sortOrder`.
+- Select accessories from the [GarmentAccessory reference](../../../contracts/reference/garment-accessories.openapi.yaml). Set a positive per-product `quantity` and `sortOrder` for each, without duplicate IDs.
+- Select operations from the [GarmentPartOperation reference](../../../contracts/reference/garment-part-operations.openapi.yaml), without duplicate IDs. Get duration from the reference data rather than entering it on Product. A product may be created as a draft without operations; `piecesPerShift` and dependent calculations may then be absent.
+- Do not manually enter the three prices for each fabric or productivity. After saving, show them from the Product detail response if the backend calculated them. Before the first save, do not present a local estimate as a server price.
 
-### Блок 4B — Лише `Ppe` / ЗІЗ
+### Section 4B — `Ppe` Only
 
-- Вибрати рівно одного постачальника з [довідника Supplier](../../../contracts/reference/suppliers.openapi.yaml).
-- Ввести додатну `basePrice` вручну.
-- Окремо для роздрібного й оптового відсотка вибрати режим `Reference` або `Custom`. У `Reference` вибрати запис з [AdditionalReference](../../../contracts/reference/additional-references.openapi.yaml) з одиницею `%` та передати його ID. У `Custom` ввести невід'ємний відсоток; довідниковий запис при цьому не створюється.
-- Роздрібну й оптову ціну не вводити вручну. Після збереження показати обчислені `retailPrice` і `wholesalePrice` з відповіді.
+- Select exactly one supplier from the [Supplier reference](../../../contracts/reference/suppliers.openapi.yaml).
+- Enter a positive `basePrice` manually.
+- Choose `Reference` or `Custom` separately for retail and wholesale percentages. For `Reference`, select an [AdditionalReference](../../../contracts/reference/additional-references.openapi.yaml) entry with unit `%` and send its ID. For `Custom`, enter a non-negative percentage; no reference record is created.
+- Do not enter retail or wholesale prices manually. After saving, show the calculated `retailPrice` and `wholesalePrice` from the response.
 
-### Збереження
+### Save
 
-1. Перевірити обов'язкові поля, додатні значення, відсутність дублікатів, наявність тільки полів вибраного типу та готовність фото. Це попередня перевірка зручності; рішення backend лишається остаточним.
-2. Надіслати один `POST /api/v1/products` із `CreateProductRequest`. ID є тільки в create body. Дозволити лише одне активне надсилання форми; `Idempotency-Key` контрактом не передбачений.
-3. При `201 Created` використати повернутий повний `ProductDetail` для перегляду товару: slug, URL фото, довідникові назви й актуальні розрахунки вже містяться у відповіді. Додатковий `GET` за кожним вибраним ID не потрібний.
+1. Check required fields, positive values, duplicates, presence of fields for only the selected type, and photo readiness. This is a client-side usability check; the backend remains authoritative.
+2. Send one `POST /api/v1/products` with `CreateProductRequest`. The ID appears only in the create body. Allow only one active form submission; the contract does not define an `Idempotency-Key`.
+3. On `201 Created`, use the returned full `ProductDetail` to show the product: the slug, photo URLs, reference names, and current calculations are already in the response. No additional `GET` for each selected ID is needed.
 
-## 4. Перегляд товару
+## 4. View a Product
 
-Завантажити `GET /api/v1/products/{id}` і показати:
+Load `GET /api/v1/products/{id}` and show:
 
-1. **Заголовок:** ID, назви `uk`/`ru`, тип, згенерований slug, дати.
-2. **Галерею та категорії:** всі фото з URL, `alt`, видимістю, головним фото й порядком; категорії з деталями, що вже є в `ProductDetail`.
-3. **Контент:** локалізовані Description, Information та Characteristics з їхнім порядком. Вибір мови інтерфейсу визначає, який з двох текстів показувати; дані обох мов залишаються доступними для редагування.
-4. **Для `Sewing`:** метри на виріб, тканини з ознакою основної й поточною довідниковою ціною, фурнітуру з кількістю й поточною ціною, операції з поточною тривалістю, `piecesPerShift`, ціни `1–10`, `11–39`, `40+` для кожної тканини та min/max за діапазонами. Якщо розрахунку немає (`null`), показати стан «ще не розраховано» без вигаданих значень. Дробове `piecesPerShift` не округляти як значення API.
-5. **Для `Ppe`:** постачальника, базову ціну, джерело й значення кожного відсотка, обчислені роздрібну та оптову ціни.
+1. **Header:** ID, `uk`/`ru` names, type, generated slug, and dates.
+2. **Gallery and categories:** all photos with URLs, `alt`, visibility, main-photo status, and order; categories with the details already available in `ProductDetail`.
+3. **Content:** localized Description, Information, and Characteristics in their defined order. The interface language determines which of the two texts is shown; both languages remain available for editing.
+4. **For `Sewing`:** meters per product, fabrics with primary flags and current reference prices, accessories with quantities and current prices, operations with current durations, `piecesPerShift`, prices for `1–10`, `11–39`, and `40+` for each fabric, and min/max by range. If a calculation is absent (`null`), show a “not calculated yet” state without inventing values. Do not round fractional `piecesPerShift` values from the API.
+5. **For `Ppe`:** supplier, base price, source and value for each percentage, and calculated retail and wholesale prices.
 
-Поля довідників у детальній відповіді є актуальними на момент читання. Не зберігати їхні назви, ціни або хвилини як власні поля Product і не очікувати історичного знімка.
+Reference fields in the detail response are current at read time. Do not store their names, prices, or minutes as Product-owned fields, and do not expect a historical snapshot.
 
-## 5. Редагування та зміна типу
+## 5. Edit and Change Type
 
-1. Заповнити форму з повного `ProductDetail`, не з рядка списку. ID показати без редагування: `PUT /api/v1/products/{id}` бере його з маршруту і не приймає у body.
-2. Змінювати ті самі блоки, що й при створенні. При переході між `Sewing` і `Ppe` попередити, що після збереження попередні дані іншого типу будуть видалені. Перед надсиланням очистити невідповідні поля й вимагати заповнення обов'язкового блоку нового типу.
-3. Передати **весь** актуальний редагований стан одним `ReplaceProductRequest`: спільні поля, фото, категорії, контент і дані одного типу. Не робити частковий PATCH і не пропускати незмінені колекції лише тому, що менеджер їх не відкривав.
-4. При `200 OK` замінити локальну картку повернутим `ProductDetail`; він містить новий slug і перераховані ціни. Якщо менеджер скасував редагування, не надсилати `PUT`.
+1. Populate the form from full `ProductDetail`, not the list row. Show the ID as read-only: `PUT /api/v1/products/{id}` gets it from the route and does not accept it in the body.
+2. Edit the same sections as in creation. When switching between `Sewing` and `Ppe`, warn that saving will delete the previous type's data. Clear irrelevant fields before submitting and require the new type's required section.
+3. Send the **entire** current editable state in one `ReplaceProductRequest`: shared fields, photos, categories, content, and data for one type. Do not use a partial PATCH or omit unchanged collections just because the manager did not open them.
+4. On `200 OK`, replace the local detail with the returned `ProductDetail`; it contains the new slug and recalculated prices. If the manager cancels editing, do not send `PUT`.
 
-`ProductDetail` — проєкція для читання, а не готовий `ReplaceProductRequest`. При ініціалізації форми й перед `PUT` зіставити дані так:
+`ProductDetail` is a read projection, not a ready-made `ReplaceProductRequest`. Map the data as follows when initializing the form and before `PUT`:
 
-| У `ProductDetail` | У `ReplaceProductRequest` |
+| In `ProductDetail` | In `ReplaceProductRequest` |
 | --- | --- |
 | `categories[].id` | `categoryIds[]` |
-| `photos[]` з URL | `photos[]` з `mediaFileId`, `alt`, `isVisible`, `isMain`, `sortOrder`; URL не передавати |
-| `sewing.metersPerProduct` | `metersPerProduct` у вибраному `Sewing` request |
-| `sewing.fabrics[]`, `sewing.accessories[]` з довідниковими назвами й цінами | `fabrics[]`, `accessories[]` з ID, ознакою основної/кількістю й порядком; довідникові назви та ціни не передавати |
-| `sewing.operations[].id` | `operationIds[]`; назви й хвилини не передавати |
+| `photos[]` with URLs | `photos[]` with `mediaFileId`, `alt`, `isVisible`, `isMain`, and `sortOrder`; do not send URLs |
+| `sewing.metersPerProduct` | `metersPerProduct` in the selected `Sewing` request |
+| `sewing.fabrics[]`, `sewing.accessories[]` with reference names and prices | `fabrics[]`, `accessories[]` with IDs, primary flag/quantity, and order; do not send reference names or prices |
+| `sewing.operations[].id` | `operationIds[]`; do not send names or minutes |
 | `ppe.supplier.id` | `supplierId` |
-| `ppe.basePrice` | `basePrice` у вибраному `Ppe` request |
-| `ppe.retailPercent` / `ppe.wholesalePercent` у режимі `Reference` з `reference.id` | Відповідний об'єкт `{ source: "Reference", additionalReferenceId }` |
-| Ті самі відсотки у режимі `Custom` | Відповідний об'єкт `{ source: "Custom", customPercent }` |
-| `slug`, `piecesPerShift`, `prices`, `retailPrice`, `wholesalePrice` | Не передавати: ці значення формує backend |
+| `ppe.basePrice` | `basePrice` in the selected `Ppe` request |
+| `ppe.retailPercent` / `ppe.wholesalePercent` in `Reference` mode with `reference.id` | Corresponding object `{ source: "Reference", additionalReferenceId }` |
+| The same percentages in `Custom` mode | Corresponding object `{ source: "Custom", customPercent }` |
+| `slug`, `piecesPerShift`, `prices`, `retailPrice`, `wholesalePrice` | Do not send: these values are generated by the backend |
 
-При зміні режиму відсотка очищати значення попереднього режиму, щоб надіслати лише один із `additionalReferenceId` або `customPercent`.
+When changing the percentage mode, clear the previous mode's value so that only one of `additionalReferenceId` or `customPercent` is sent.
 
-## 6. Видалення
+## 6. Delete
 
-Показати підтвердження повного видалення Product. Після `DELETE /api/v1/products/{id}` і `204 No Content` повернутися до списку й прибрати товар з нього. Видаляються деталі та зв'язки самого Product; медіафайли в Media залишаються. Не викликати видалення медіафайлів як частину цієї дії.
+Show a confirmation for permanent Product deletion. After `DELETE /api/v1/products/{id}` returns `204 No Content`, return to the list and remove the product. Product details and links are deleted; media files in Media remain. Do not delete media files as part of this action.
 
-## 7. Стан інтерфейсу й помилки
+## 7. UI States and Errors
 
-| Ситуація | Поведінка frontend |
+| Situation | Frontend behavior |
 | --- | --- |
-| Завантаження списку, detail або довідника | Показати стан завантаження; не трактувати ще не отримані дані як порожній список. |
-| Порожній список або порожня відповідь довідника | Пояснити, що товарів або варіантів вибору немає. Для обов'язкового довідника не дозволяти зберегти невалідний вибір. |
-| `400 Bad Request` | Показати `ValidationError[]`, прив'язати `identifier` до відповідного поля чи блоку, якщо можливо; зберегти введені дані. |
-| `409 Conflict` | Показати повідомлення API; типові причини — зайняті ID/назва/slug або конфлікт пов'язаної сутності. Зберегти форму для виправлення. |
-| `404 Not Found` для detail/update/delete | Повідомити, що товар більше недоступний; дати повернутися до списку. |
-| Помилка мережі або сервера | Залишити введені дані, дати повторити дію; не показувати успіх без підтвердженої відповіді API. |
+| Loading list, detail, or reference data | Show a loading state; do not treat data that has not arrived as an empty list. |
+| Empty list or empty reference response | Explain that there are no products or selectable options. For required reference data, prevent saving an invalid selection. |
+| `400 Bad Request` | Show `ValidationError[]`, map `identifier` to the relevant field or section when possible, and preserve entered data. |
+| `409 Conflict` | Show the API message; typical causes include duplicate ID/name/slug or a related entity conflict. Keep the form available for correction. |
+| `404 Not Found` for detail/update/delete | Explain that the product is no longer available and allow returning to the list. |
+| Network or server error | Preserve entered data and allow retry; do not show success without a confirmed API response. |
 
-Формат HTTP-помилок брати з Product OpenAPI та [людинозрозумілого контракту](../../../specs/catalog/001-product-page/contracts/api-contract.md). `404` не вимагає тіла відповіді; не вигадувати для нього error envelope.
+Get HTTP error formats from Product OpenAPI and the [human-readable contract](../../../specs/catalog/001-product-page/contracts/api-contract.md). `404` does not require a response body; do not invent an error envelope for it.
 
-## 8. Матриця дій та API
+## 8. Actions and API Matrix
 
-| Дія менеджера | API / джерело |
+| Manager action | API / source |
 | --- | --- |
-| Переглянути, знайти й відфільтрувати товари | `GET /api/v1/products` |
-| Створити товар | `POST /api/v1/products` |
-| Відкрити повну картку | `GET /api/v1/products/{id}` |
-| Зберегти редагування або зміну типу | `PUT /api/v1/products/{id}` |
-| Видалити товар | `DELETE /api/v1/products/{id}` |
-| Вибрати категорії, отримати/завантажити фото | [Product form dependencies](../../../contracts/catalog/product-dependencies.openapi.yaml) |
-| Вибрати тканини, фурнітуру, операції, постачальника й довідникові відсотки | Відповідні [Reference OpenAPI](../../../contracts/reference/) |
+| View, search, and filter products | `GET /api/v1/products` |
+| Create a product | `POST /api/v1/products` |
+| Open full detail | `GET /api/v1/products/{id}` |
+| Save edits or a type change | `PUT /api/v1/products/{id}` |
+| Delete a product | `DELETE /api/v1/products/{id}` |
+| Select categories and fetch/upload photos | [Product form dependencies](../../../contracts/catalog/product-dependencies.openapi.yaml) |
+| Select fabrics, accessories, operations, supplier, and reference percentages | Corresponding [Reference OpenAPI](../../../contracts/reference/) |
 
-## 9. Перевірювані сценарії приймання frontend
+## 9. Verifiable Frontend Acceptance Scenarios
 
-- Менеджер створює `Sewing` з одним основним Fabric, фурнітурою та операціями; після `201` бачить усі вибрані дані, `piecesPerShift` і доступні ціни з відповіді. `Sewing` без операцій зберігається як чернетка, а відсутні розрахунки не замінюються нулем у detail.
-- Менеджер створює `Ppe` з постачальником, базовою ціною, одним відсотком `Reference` і другим `Custom`; після `201` бачить обидва джерела та обчислені роздрібну й оптову ціни.
-- У списку менеджер шукає ID або назву, змінює тип/категорію, сортування й розмір сторінки; бачить лише головне фото та `minimumWholesalePrice` з list response.
-- Редагування зберігає також незмінені колекції. Зміна `Sewing` на `Ppe` попереджає про втрату Sewing-даних і надсилає повний PPE-стан без Sewing-полів.
-- Невалідний запит і конфлікт показують помилку без втрати введеної форми; повторне натискання «Зберегти» під час активного запиту не створює другого запиту.
-- Після видалення Product його немає у списку, а прикріплені раніше MediaFile не видаляються автоматично.
+- The manager creates a `Sewing` product with one primary Fabric, accessories, and operations; after `201`, the manager sees all selected data, `piecesPerShift`, and available prices from the response. A `Sewing` product without operations is saved as a draft, and missing calculations are not replaced with zero in detail.
+- The manager creates a `Ppe` product with a supplier, base price, one `Reference` percentage, and one `Custom` percentage; after `201`, both sources and the calculated retail and wholesale prices are shown.
+- In the list, the manager searches by ID or name and changes type/category, sorting, and page size; the list shows only the main photo and `minimumWholesalePrice` from the list response.
+- Editing preserves unchanged collections. Switching from `Sewing` to `Ppe` warns about losing Sewing data and sends the complete PPE state without Sewing fields.
+- Invalid requests and conflicts show an error without losing form input; clicking Save again during an active request does not create a second request.
+- After deleting a Product, it is absent from the list and previously attached MediaFiles are not deleted automatically.

@@ -1,47 +1,47 @@
-# Фурнітура
+# Garment Accessories
 
-**Статична звірка з кодом:** 2026-10-16. **Модуль:** reference.
+**Static code review:** 2026-10-16. **Module:** reference.
 
-CRUD-операції та читання списку для довідника «Фурнітура».
+CRUD operations and list retrieval for the “Garment Accessories” lookup.
 
-## Будова й зв'язки
+## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs) відкриває CRUD. [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentAccessory/Create/CreateGarmentAccessoryCommandHandler.cs) і сусідні query/update/delete handlers перевіряють дані; [GarmentAccessory](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/Entities/GarmentAccessory.cs) є доменною сутністю. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) та [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) зберігають її. Фурнітура має постачальника; Sewing-товар посилається на її ID та власну кількість.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentAccessory/Create/CreateGarmentAccessoryCommandHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentAccessory](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/Entities/GarmentAccessory.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. A garment accessory has a supplier; a Sewing product references its ID and its own quantity.
 
-## Структура в коді
+## Code Structure
 
-Наведено перевірені точки входу та ключові складові фічі; дерево не перелічує всі допоміжні файли.
+Verified entry points and key feature components are shown; the tree does not list every supporting file.
 
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs  # HTTP-вхід
+    ├── Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/GarmentAccessory/
-    │   ├── Create/CreateGarmentAccessoryCommandHandler.cs  # обробник сценарію
-    │   ├── Delete/DeleteGarmentAccessoryCommandHandler.cs  # обробник сценарію
-    │   ├── GetList/GetGarmentAccessoriesQueryHandler.cs  # обробник сценарію
-    │   └── Update/UpdateGarmentAccessoryCommandHandler.cs  # обробник сценарію
-    ├── Reference.Domain/Reference.Domain/GarmentAccessories/Entities/GarmentAccessory.cs  # доменна модель
+    │   ├── Create/CreateGarmentAccessoryCommandHandler.cs  # use case handler
+    │   ├── Delete/DeleteGarmentAccessoryCommandHandler.cs  # use case handler
+    │   ├── GetList/GetGarmentAccessoriesQueryHandler.cs  # use case handler
+    │   └── Update/UpdateGarmentAccessoryCommandHandler.cs  # use case handler
+    ├── Reference.Domain/Reference.Domain/GarmentAccessories/Entities/GarmentAccessory.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
-        ├── DataBase/ReferenceDbContext.cs  # контекст даних
-        └── Repositories/ReferenceEfRepository.cs  # доступ до даних
+        ├── DataBase/ReferenceDbContext.cs  # data context
+        └── Repositories/ReferenceEfRepository.cs  # data access
 ```
 
-## Схема будови
+## Structure Diagram
 
 ```mermaid
 flowchart LR
     A["GarmentAccessoriesController"] --> B["CRUD handlers"]
     B --> C["GarmentAccessory"]
-    B --> D["Контракти репозиторіїв Reference"]
-    D -.-> E["ReferenceEfRepository та ReferenceReadEfRepository"]
+    B --> D["Reference repository contracts"]
+    D -.-> E["ReferenceEfRepository and ReferenceReadEfRepository"]
     E --> F["ReferenceDbContext"]
     E --> C
-    C --> G["Постачальник"]
-    H["Sewing товар"] --> I["ID фурнітури та кількість"]
+    C --> G["Supplier"]
+    H["Sewing product"] --> I["Garment accessory ID and quantity"]
     I --> C
 ```
 
-## Пов'язані джерела
+## Related Sources
 
-[OpenAPI](../../contracts/reference/garment-accessories.openapi.yaml) · [Межі Reference](../../architecture/overview/modules.md).
+[OpenAPI](../../contracts/reference/garment-accessories.openapi.yaml) · [Reference boundaries](../../architecture/overview/modules.md).

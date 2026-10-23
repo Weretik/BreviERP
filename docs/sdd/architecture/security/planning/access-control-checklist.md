@@ -1,45 +1,45 @@
-# Чекліст функціональності контролю доступу
+# Access Control Feature Checklist
 
-Використовуйте цей чекліст у папці функціональності з [проєктними специфікаціями](../../../specs/README.md).
+Use this checklist in the feature folder alongside the [project specifications](../../../specs/README.md).
 
-## Шлях рішення
+## Decision Path
 
 ```text
-Чи покриває операцію наявна політика?
-  | так → захистіть кінцеву точку нею; не додавайте роль або новий сценарій користувача
+Does an existing policy cover the operation?
+  | yes → protect the endpoint with it; do not add a role or new user type
   |
-  ні
+  no
   ▼
-Це новий бізнес-дозвіл чи новий вид користувача?
-  | дозвіл → додайте іменовану політику та зіставте її з наявними ролями
-  | вид користувача → додайте роль, свідомо створіть і призначайте її, потім за потреби додайте політику
+Is this a new business permission or a new user type?
+  | permission → add a named policy and map it to existing roles
+  | user type → add a role, deliberately create and assign it, then add a policy if needed
   |
   ▼
-Чи може анонімний викликач створити цього користувача?
-  | ні  → фіча адміністративного створення, запрошення або імпорту
-  | так → фіча реєстрації з підтвердженням і захистом від зловживань
+Can an anonymous caller create this user?
+  | no  → an admin creation, invitation, or import feature
+  | yes → a registration feature with verification and abuse protection
 ```
 
-## Чекліст специфікації
+## Specification Checklist
 
-- [ ] Назвіть захищену операцію в бізнес-термінах.
-- [ ] Повторно використайте наявну політику або задокументуйте, чому потрібна нова.
-- [ ] Для нової політики: назвіть її в `PolicyNames` та визначте вимоги до ролей у Host.Api.
-- [ ] Для нової ролі: додайте її константу, план початкового створення й розгортання та правила призначення; не залишайте роль оголошеною, але недоступною.
-- [ ] Вкажіть, хто може викликати кінцеву точку, та свідомо позначте анонімні кінцеві точки `AllowAnonymous`.
-- [ ] Якщо користувачі створюються або їм призначаються ролі, оформіть функціональність як сценарій модуля Identity.
-- [ ] Визначте, чи потрібно відкликати наявні сеанси оновлення після зміни ролі, пароля або стану облікового запису.
-- [ ] Додайте обмеження частоти та безпечні відповіді про помилки для анонімних кінцевих точок або операцій з обліковими даними.
-- [ ] Включіть `401 Unauthorized`, `403 Forbidden` та успішні випадки в контракт API й план тестування Swagger.
+- [ ] Name the protected operation in business terms.
+- [ ] Reuse an existing policy or document why a new one is needed.
+- [ ] For a new policy: name it in `PolicyNames` and define role requirements in Host.Api.
+- [ ] For a new role: add its constant, seeding and deployment plan, and assignment rules; do not leave the role declared but unavailable.
+- [ ] State who can call the endpoint, and deliberately mark anonymous endpoints with `AllowAnonymous`.
+- [ ] If users are created or assigned roles, define the functionality as an Identity module use case.
+- [ ] Decide whether existing refresh sessions must be revoked after a role, password, or account status change.
+- [ ] Add rate limits and safe error responses for anonymous endpoints or credential operations.
+- [ ] Include `401 Unauthorized`, `403 Forbidden`, and success cases in the API contract and Swagger test plan.
 
-## Матриця ручного тесту
+## Manual Test Matrix
 
-| Випадок | Очікуваний результат |
+| Case | Expected result |
 | --- | --- |
-| Немає токена Bearer на захищеному маршруті | `401` |
-| Автентифікований користувач без потрібної ролі | `403` |
-| Потрібна роль і валідний запит | Успішний результат за контрактом |
-| Явна анонімна кінцева точка | Працює без токена Bearer лише там, де це дозволяє її валідація |
-| Оновлення без CSRF-значення або з невідповідним значенням | `400` |
+| No Bearer token on a protected route | `401` |
+| Authenticated user without the required role | `403` |
+| Required role and valid request | Success according to the contract |
+| Explicitly anonymous endpoint | Works without a Bearer token only as allowed by its validation |
+| Refresh without a CSRF value or with a mismatched value | `400` |
 
-Після зміни ролей або політик перевірте новий вхід. Токени містять твердження про ролі на момент видачі, тому окремо перевіряйте сеанси, створені до зміни, якщо розгортання потребує негайного ефекту.
+After changing roles or policies, verify a new login. Tokens contain role claims from the time they were issued, so separately check sessions created before the change if deployment requires an immediate effect.

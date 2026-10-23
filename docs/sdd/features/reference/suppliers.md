@@ -1,46 +1,46 @@
-# Постачальники
+# Suppliers
 
-**Статична звірка з кодом:** 2026-10-16. **Модуль:** reference.
+**Static code review:** 2026-10-16. **Module:** reference.
 
-CRUD-операції та читання списку для довідника «Постачальники».
+CRUD operations and list retrieval for the “Suppliers” lookup.
 
-## Будова й зв'язки
+## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/SuppliersController.cs) відкриває CRUD. [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Supplier/Create/CreateSupplierCommandHandler.cs) і сусідні query/update/delete handlers перевіряють дані; [Supplier](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/Suppliers/Entities/Supplier.cs) є доменною сутністю. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) та [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) зберігають її. Постачальник використовується як зовнішній довідник для PPE-товарів і фурнітури.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/SuppliersController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Supplier/Create/CreateSupplierCommandHandler.cs) and adjacent query/update/delete handlers validate the data; [Supplier](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/Suppliers/Entities/Supplier.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. Suppliers are external reference data for PPE products and garment accessories.
 
-## Структура в коді
+## Code Structure
 
-Наведено перевірені точки входу та ключові складові фічі; дерево не перелічує всі допоміжні файли.
+Verified entry points and key feature components are shown; the tree does not list every supporting file.
 
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Controllers/SuppliersController.cs  # HTTP-вхід
+    ├── Reference.Api/Reference.Api/Controllers/SuppliersController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/Supplier/
-    │   ├── Create/CreateSupplierCommandHandler.cs  # обробник сценарію
-    │   ├── Delete/DeleteSupplierCommandHandler.cs  # обробник сценарію
-    │   ├── GetList/GetSuppliersQueryHandler.cs  # обробник сценарію
-    │   └── Update/UpdateSupplierCommandHandler.cs  # обробник сценарію
-    ├── Reference.Domain/Reference.Domain/Suppliers/Entities/Supplier.cs  # доменна модель
+    │   ├── Create/CreateSupplierCommandHandler.cs  # use case handler
+    │   ├── Delete/DeleteSupplierCommandHandler.cs  # use case handler
+    │   ├── GetList/GetSuppliersQueryHandler.cs  # use case handler
+    │   └── Update/UpdateSupplierCommandHandler.cs  # use case handler
+    ├── Reference.Domain/Reference.Domain/Suppliers/Entities/Supplier.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
-        ├── DataBase/ReferenceDbContext.cs  # контекст даних
-        └── Repositories/ReferenceEfRepository.cs  # доступ до даних
+        ├── DataBase/ReferenceDbContext.cs  # data context
+        └── Repositories/ReferenceEfRepository.cs  # data access
 ```
 
-## Схема будови
+## Structure Diagram
 
 ```mermaid
 flowchart LR
     A["SuppliersController"] --> B["CRUD handlers"]
     B --> C["Supplier"]
-    B --> D["Контракти репозиторіїв Reference"]
-    D -.-> E["ReferenceEfRepository та ReferenceReadEfRepository"]
+    B --> D["Reference repository contracts"]
+    D -.-> E["ReferenceEfRepository and ReferenceReadEfRepository"]
     E --> F["ReferenceDbContext"]
     E --> C
-    G["PPE товар"] --> C
-    H["Фурнітура"] --> C
+    G["PPE product"] --> C
+    H["Garment accessory"] --> C
 ```
 
-## Пов'язані джерела
+## Related Sources
 
-[OpenAPI](../../contracts/reference/suppliers.openapi.yaml) · [Межі Reference](../../architecture/overview/modules.md).
+[OpenAPI](../../contracts/reference/suppliers.openapi.yaml) · [Reference boundaries](../../architecture/overview/modules.md).

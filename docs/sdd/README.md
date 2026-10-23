@@ -1,16 +1,16 @@
-# Карта backend SDD-документації BreviERP
+# BreviERP backend SDD documentation map
 
-Цей розділ містить факти та правила саме BreviERP. Для нового завдання спочатку виберіть відповідний розділ, а потім перевірте чинні код, конфігурацію й контракти. Статус специфікації не дорівнює статусу реалізації.
+This section contains facts and rules specific to BreviERP. For a new task, choose the relevant section first, then check current code, configuration, and contracts. Specification status is not implementation status.
 
-| Питання | Джерело |
+| Question | Source |
 | --- | --- |
-| Які модулі, хости, межі шарів і потоки виконання існують? | [Архітектура](architecture/README.md) |
-| Які технології й прямі NuGet-залежності підключені? | [Технологічний стек](architecture/platform/technology-stack.md) і [каталог пакетів](architecture/platform/nuget-packages.md) |
-| Які сталі інженерні правила діють? | [Стандарти](standards/README.md) |
-| Як запустити, налаштувати, перевірити й обслуговувати систему? | [Експлуатація](operations/README.md) |
-| Який публічний HTTP-контракт реалізований і що передавати frontend? | [API-контракти](contracts/README.md) |
-| Які вимоги, рішення, задачі й докази стосуються конкретної функціональності? | [Специфікації](specs/README.md) |
-| Які фічі реалізовані та де їхній код і дані? | [Карта фіч](features/README.md) |
-| Який backend-сценарій передається frontend? | [Frontend-сценарії](frontend-scenario/README.md) |
+| Which modules, hosts, layer boundaries, and execution flows exist? | [Architecture](architecture/README.md) |
+| Which technologies and direct NuGet dependencies are installed? | [Technology stack](architecture/platform/technology-stack.md) and [package catalog](architecture/platform/nuget-packages.md) |
+| Which stable engineering rules apply? | [Standards](standards/README.md) |
+| How do I start, configure, verify, and operate the system? | [Operations](operations/README.md) |
+| Which public HTTP contract is implemented, and what should be handed to frontend? | [API contracts](contracts/README.md) |
+| Which requirements, decisions, tasks, and evidence belong to a specific feature? | [Specifications](specs/README.md) |
+| Which features are implemented, and where are their code and data? | [Feature map](features/README.md) |
+| Which backend scenario is handed to frontend? | [Frontend scenarios](frontend-scenario/README.md) |
 
-Рішення, що змінює кілька модулів або довготривале правило, фіксуйте у [журналі архітектурних рішень](architecture/decisions/README.md). Локальні рішення конкретної функціональності залишаються в її специфікації. У цьому репозиторії не дублюйте загальні шаблони; документи мають посилатися тільки на власні файли та доступні за назвою навички.
+Record a decision that changes multiple modules or a long-term rule in the [architecture decision log](architecture/decisions/README.md). Local decisions for a particular feature stay in its specification. Do not duplicate general templates in this repository; documents should link only to their own files and skills available by name.

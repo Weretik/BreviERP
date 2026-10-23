@@ -1,19 +1,19 @@
-# Правила використання BuildingBlocks
+# BuildingBlocks Usage Rules
 
-## Повторно використовуйте перед створенням
+## Reuse Before Creating
 
-| Потреба | Спочатку використовуйте | Не робіть |
+| Need | Use first | Do not |
 | --- | --- | --- |
-| Очікуваний збій сценарію | Ardalis.Result і наявне відображення Result | не кидайте звичайні винятки валідації чи відсутності ресурсу |
-| Валідація вхідних даних | FluentValidation плюс ValidationBehavior | не перевіряйте лише в контролері |
-| Бізнес-інваріант | `IDomainError`/`DomainException` або поведінка агрегату | не переносіть доменне правило в поведінку конвеєра |
-| Поточний користувач/дозволи | `ICurrentUserService` або `IPermissionService` | не впроваджуйте `IHttpContextAccessor` в Application |
-| Доменна подія | колекція `BaseEntity` плюс поведінка диспетчеризації | не публікуйте напряму з контролера |
-| Міграція БД/початкове наповнення | розширення запуску `IDatabaseMigrator`/`ISeeder` | не виконуйте їх усередині обробника |
-| Діагностика запитів | наявні поведінки й допоміжні функції журналювання | не журналюйте сирі конфіденційні дані |
+| Expected use case failure | Ardalis.Result and the existing Result mapping | do not throw ordinary validation or resource-not-found exceptions |
+| Input validation | FluentValidation plus ValidationBehavior | do not validate only in the controller |
+| Business invariant | `IDomainError`/`DomainException` or aggregate behavior | do not move a domain rule into a pipeline behavior |
+| Current user/permissions | `ICurrentUserService` or `IPermissionService` | do not inject `IHttpContextAccessor` into Application |
+| Domain event | `BaseEntity` collection plus dispatch behavior | do not publish directly from a controller |
+| Database migration/seeding | startup extensions `IDatabaseMigrator`/`ISeeder` | do not run them inside a handler |
+| Request diagnostics | existing behaviors and logging helpers | do not log raw sensitive data |
 
-## Правило розширення
+## Extension Rule
 
-Додавайте спільний примітив лише коли щонайменше два модулі потребують однакової сталої технічної абстракції. Абстракція окремої фічі залишається у власному модулі Application. Бізнес-концепт ніколи не переноситься до BuildingBlocks.
+Add a shared primitive only when at least two modules need the same stable technical abstraction. A feature-specific abstraction stays in its own module's Application. A business concept must never move into BuildingBlocks.
 
-Документуйте додавання або зміну порядку кросфункціональної інфраструктури в ADR і специфікації функціональності.
+Document additions to or ordering changes in cross-cutting infrastructure in an ADR and the feature specification.

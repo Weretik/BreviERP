@@ -1,46 +1,46 @@
-# Додаткові довідники
+# Additional References
 
-**Статична звірка з кодом:** 2026-10-16. **Модуль:** reference.
+**Static code review:** 2026-10-16. **Module:** reference.
 
-CRUD-операції та читання списку для довідника «Додаткові довідники».
+CRUD operations and list retrieval for the “Additional References” lookup.
 
-## Будова й зв'язки
+## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/AdditionalReferencesController.cs) відкриває CRUD. [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/AdditionalReference/Create/CreateAdditionalReferenceCommandHandler.cs) і сусідні query/update/delete handlers перевіряють дані; [AdditionalReference](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/AdditionalReferences/Entities/AdditionalReference.cs) є доменною сутністю. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) та [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) зберігають її. Значення AdditionalReference читаються під час обчислень цін товару через Reference reader.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/AdditionalReferencesController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/AdditionalReference/Create/CreateAdditionalReferenceCommandHandler.cs) and adjacent query/update/delete handlers validate the data; [AdditionalReference](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/AdditionalReferences/Entities/AdditionalReference.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. AdditionalReference values are read through the Reference reader during product price calculations.
 
-## Структура в коді
+## Code Structure
 
-Наведено перевірені точки входу та ключові складові фічі; дерево не перелічує всі допоміжні файли.
+Verified entry points and key feature components are shown; the tree does not list every supporting file.
 
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Controllers/AdditionalReferencesController.cs  # HTTP-вхід
+    ├── Reference.Api/Reference.Api/Controllers/AdditionalReferencesController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/AdditionalReference/
-    │   ├── Create/CreateAdditionalReferenceCommandHandler.cs  # обробник сценарію
-    │   ├── Delete/DeleteAdditionalReferenceCommandHandler.cs  # обробник сценарію
-    │   ├── GetList/GetAdditionalReferenceQueryHandler.cs  # обробник сценарію
-    │   └── Update/UpdateAdditionalReferenceCommandHandler.cs  # обробник сценарію
-    ├── Reference.Domain/Reference.Domain/AdditionalReferences/Entities/AdditionalReference.cs  # доменна модель
+    │   ├── Create/CreateAdditionalReferenceCommandHandler.cs  # use case handler
+    │   ├── Delete/DeleteAdditionalReferenceCommandHandler.cs  # use case handler
+    │   ├── GetList/GetAdditionalReferenceQueryHandler.cs  # use case handler
+    │   └── Update/UpdateAdditionalReferenceCommandHandler.cs  # use case handler
+    ├── Reference.Domain/Reference.Domain/AdditionalReferences/Entities/AdditionalReference.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
-        ├── DataBase/ReferenceDbContext.cs  # контекст даних
-        └── Repositories/ReferenceEfRepository.cs  # доступ до даних
+        ├── DataBase/ReferenceDbContext.cs  # data context
+        └── Repositories/ReferenceEfRepository.cs  # data access
 ```
 
-## Схема будови
+## Structure Diagram
 
 ```mermaid
 flowchart LR
     A["AdditionalReferencesController"] --> B["CRUD handlers"]
     B --> C["AdditionalReference"]
-    B --> D["Контракти репозиторіїв Reference"]
-    D -.-> E["ReferenceEfRepository та ReferenceReadEfRepository"]
+    B --> D["Reference repository contracts"]
+    D -.-> E["ReferenceEfRepository and ReferenceReadEfRepository"]
     E --> F["ReferenceDbContext"]
     E --> C
-    G["Обчислення цін товару"] --> H["Reference reader"]
+    G["Product price calculations"] --> H["Reference reader"]
     H --> C
 ```
 
-## Пов'язані джерела
+## Related Sources
 
-[OpenAPI](../../contracts/reference/additional-references.openapi.yaml) · [Межі Reference](../../architecture/overview/modules.md).
+[OpenAPI](../../contracts/reference/additional-references.openapi.yaml) · [Reference boundaries](../../architecture/overview/modules.md).

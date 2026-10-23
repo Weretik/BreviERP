@@ -1,13 +1,13 @@
-# Усунення проблем фонових задач
+# Background job troubleshooting
 
-Для конкретної реалізованої задачі runbook має містити перевірки, які можна виконати без розкриття чутливих даних.
+A runbook for an implemented job should contain checks that can be performed without exposing sensitive data.
 
-| Симптом | Перші перевірки | Не робити |
+| Symptom | First checks | Do not |
 | --- | --- | --- |
-| Відсутня конфігурація | середовище та погоджене сховище секретів | вставляти рядки підключення або credentials у логи |
-| Помилка автентифікації зовнішнього сервісу | секрети та досяжність endpoint-а | логувати headers, паролі чи Authorization values |
-| Отримано нуль записів | фільтр, параметри, середовище, доступність джерела | ручне очищення або повторні руйнівні імпорти |
-| Отримано записи, але не збережено | мапер, валідація, обмеження та логи помилок | повторювати запуск, доки дані змінюються |
-| Заблоковано DLL під час build | зупинити локальний Host.Api, повторити | видаляти output запущеного хоста |
+| Missing configuration | Environment and approved secret store | Put connection strings or credentials in logs |
+| External service authentication failure | Secrets and endpoint reachability | Log headers, passwords, or Authorization values |
+| Zero records received | Filter, parameters, environment, source availability | Manually clear data or repeat destructive imports |
+| Records received but not saved | Mapper, validation, constraints, and error logs | Rerun while data is changing |
+| DLL locked during build | Stop local Host.Api and retry | Delete the running host's output |
 
-Зберігайте назву задачі, середовище, безпечні ідентифікатори, тривалість, лічильники, тип винятку та версію міграції БД. Це підтримує діагностику без збереження повних payload-ів або секретів.
+Record the job name, environment, safe identifiers, duration, counters, exception type, and database migration version. This supports diagnosis without storing full payloads or secrets.

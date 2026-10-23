@@ -1,40 +1,42 @@
-# Правила тестування
+# Testing rules
 
-## Вибір тестів від поведінки
+## Selecting tests by behavior
 
-Кожна нова або змінена спостережувана поведінка має посилатися на acceptance-сценарій, наприклад `SC-001`. Обирайте найвужчий рівень тестування, який доводить відповідний ризик:
+Every new or changed observable behavior must link to an acceptance scenario such as `SC-001`. Choose the narrowest test level that proves the relevant risk:
 
-- Доменні правила й переходи стану — модульні тести Domain;
-- оркестрація сценарію, валідація й результати — тести Application;
-- обмеження збереження, транзакції й адаптери — інтеграційні тести;
-- статуси HTTP, серіалізація, авторизація та поведінка OpenAPI — інтеграційні або контрактні тести API;
-- зміни шарів чи залежностей — architecture-тести.
+- Domain rules and state transitions: Domain unit tests;
+- scenario orchestration, validation, and results: Application tests;
+- persistence constraints, transactions, and adapters: integration tests;
+- HTTP status codes, serialization, authorization, and OpenAPI behavior: API integration or contract tests;
+- layer or dependency changes: architecture tests.
 
-Не повторюйте повний сценарій на кожному рівні без окремого ризику. Один сценарій може підтверджуватися кількома сфокусованими тестами.
+Do not repeat an entire scenario at every level without a separate risk. Several focused tests can support one scenario.
 
 ## Red → Green → Refactor
 
-Для нової поведінки:
+For new behavior:
 
-1. **Red**: додайте найменший тест, що виражає вибране правило або сценарій, запустіть його й переконайтеся, що він падає саме через відсутню поведінку.
-2. **Green**: реалізуйте найменшу завершену поведінку, яка робить тест успішним, не реалізуючи сторонні сценарії.
-3. **Refactor**: поліпшіть назви й структуру, зберігаючи архітектурні межі, та повторно запустіть сфокусовані тести.
-4. **Regression**: запустіть набір зачеплених тестів і зафіксуйте команду та результат.
+1. **Red**: add the smallest test expressing the selected rule or scenario, run it, and confirm it fails specifically because the behavior is missing.
+2. **Green**: implement the smallest complete behavior that makes the test pass without implementing unrelated scenarios.
+3. **Refactor**: improve names and structure while preserving architecture boundaries, then rerun the focused tests.
+4. **Regression**: run the affected test set and record the command and result.
 
-Задача не завершена, доки її докази не містять назву тесту та результати Red, Green і regression. Compilation errors, зламане тестове оточення або не пов'язані з поведінкою failures не є коректним результатом Red.
+A task is not complete until its evidence includes the test name and Red, Green, and regression results. Compilation errors, a broken test environment, or unrelated failures are not valid Red results.
 
-## Винятки
+## Exceptions
 
-Тест, написаний до реалізації, можна пропустити для змін лише в документації, згенерованих міграцій, дослідницьких прототипів або інфраструктурних змін, які неможливо змістовно спостерігати до появи передумови. Зафіксуйте причину, замінну перевірку й сценарії, які цей виняток уможливлює або покриває. Виняток не дозволяє пропускати фінальну перевірку.
+A test written before implementation can be omitted for documentation-only changes, generated migrations, exploratory prototypes, or infrastructure changes that cannot be meaningfully observed before a prerequisite exists. Record the reason, replacement check, and scenarios the exception enables or covers. The exception does not permit skipping final verification.
 
-## Перевірка репозиторію
+## Verification scope during implementation
 
-Перед завершенням feature виконуйте, де застосовно:
+| When | Minimum action |
+| --- | --- |
+| Local change | Run `dotnet test tests/<Project>/<Project>.csproj --filter <name>` for the affected behavior; for documentation, check links and run `git diff --check`. |
+| Boundary or database change | Add the relevant `ArchitectureTests` or `IntegrationTests` project/filter; integration tests need a separate PostgreSQL instance through `BREVIERP_CATALOG_TEST_CONNECTION`. |
+| Full CI | The [workflow](../../../.github/workflows/ci.yml) runs builds and tests for PRs/pushes; rerun the full suite locally only on explicit request. |
 
-```powershell
-dotnet restore BreviERP.sln
-dotnet build BreviERP.sln --no-restore
-dotnet test BreviERP.sln --no-build
-```
+Check project names and available filters under `tests/` before running them.
 
-Якщо перевірка заблокована або не пройшла, вкажіть точну команду, точку збою та чи є failure передіснуючим або спричиненим зміною. Не приховуйте не пов'язані failures.
+While implementing a feature, run only automated tests for the changed feature and directly related components and contracts. Choose the narrowest available projects, filters, and commands that test the specific risk. Record commands run, results, and unverified risks.
+
+Run a general module, application, or repository test suite, full `restore` and `build`, broad regression, coverage, or a full audit only at the user's explicit request. An unrequested full run is not a completion condition. If a required focused check is blocked or fails, name the exact command, failure point, and known impact on the result; do not hide unrelated errors.

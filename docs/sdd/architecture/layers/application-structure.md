@@ -1,10 +1,10 @@
-# Структура Application
+# Application Structure
 
-## Відповідальність
+## Responsibility
 
-Application виконує один сценарій за раз. Вона координує Domain та абстракції; не володіє реалізацією збереження даних або транспорту.
+Application executes one use case at a time. It coordinates Domain and abstractions; it does not own persistence or transport implementations.
 
-## Цільова структура на функціональність
+## Target feature structure
 
 ```text
 <Module>.Application/
@@ -12,24 +12,24 @@ Application виконує один сценарій за раз. Вона ко�
 │   └── <Area>/<UseCase>/
 │       ├── <UseCase>Command.cs | <UseCase>Query.cs
 │       ├── <UseCase>CommandHandler.cs | <UseCase>QueryHandler.cs
-│       ├── DTOs/               приватні DTO сценарію, лише за потреби
+│       ├── DTOs/               use-case-private DTOs, when needed
 │       ├── Validators/
 │       │   └── <UseCase>Validator.cs
-│       ├── Specifications/     EF/Ardalis specifications лише цього сценарію
-│       └── Extensions/         лише цілісні LINQ/mapping helpers
+│       ├── Specifications/     EF/Ardalis specifications for this use case only
+│       └── Extensions/         cohesive LINQ/mapping helpers only
 ├── Contracts/
-│   ├── Persistence/            абстракції DbContext/read/repository
-│   ├── Integrations/           абстракції зовнішніх сервісів
+│   ├── Persistence/            DbContext/read/repository abstractions
+│   ├── Integrations/           external service abstractions
 │   └── Services/
-├── Integrations/               application orchestration зовнішніх потоків
-├── Jobs/                       логіка job-сценарію, ніколи не планувальник wiring
+├── Integrations/               application orchestration of external flows
+├── Jobs/                       job use-case logic, never scheduler wiring
 └── <Module>ApplicationAssemblyMarker.cs
 ```
 
-## Візуалізація сценарію
+## Use-case flow
 
 ```text
-Command або Query
+Command or Query
        │
        ▼
 FluentValidation validator ── invalid ──→ Result.Invalid
@@ -40,17 +40,12 @@ Handler ──→ Domain aggregate / Application abstraction
        └──→ Result.Success | Result.NotFound | Result.Conflict | Result.Invalid
 ```
 
-## Правила
+## Rules
 
-- Команди змінюють стан; запити лише читають.
-- Обробник має один сценарій та отримує лише абстракції.
-- Запит, що повертає модель читання списку/деталей без доменної поведінки, використовує
-  `Specification<TEntity, TResult>` з `AsNoTracking` і SQL `Select` у DTO; обробник
-  не матеріалізує агрегат для подальшого ручного відображення.
-- Запит списку з пагінацією повертає `PagedResult<IReadOnlyList<TItem>>` з `PagedInfo`,
-  а не локальну оболонку сторінки. Чисте перетворення одного Result в інший виконуйте через
-  `Result.Map`; послідовність кроків, що повертають Result, — через `Bind`/`BindAsync`,
-  коли це не приховує перевірок стану.
-- Валідатори відповідають за валідацію вхідних даних; Domain володіє бізнес-інваріантами.
-- Кожна специфікація належить одному сценарію і лежить у його `Specifications/`. Не створюйте спільний `<Area>/Specifications/` і не імпортуйте специфікацію з іншого сценарію. Якщо два сценарії мають однакову просту умову, кожен має власну локальну специфікацію; виняток — лише справді спільний код у явно названому `Shared/`, після підтвердженої потреби.
-- Публічні міжмодульні DTO розміщуйте в контракті модуля, не поряд з обробником.
+- Commands change state; queries only read.
+- A handler implements one use case and receives abstractions only.
+- A query returning a list/detail read model without domain behavior uses `Specification<TEntity, TResult>` with `AsNoTracking` and a SQL `Select` into a DTO; the handler does not materialize an aggregate for manual mapping afterward.
+- A paged list query returns `PagedResult<IReadOnlyList<TItem>>` with `PagedInfo`, not a local page wrapper. Use `Result.Map` for a pure mapping from one Result to another; use `Bind`/`BindAsync` for a sequence of Result-returning steps when that does not hide state checks.
+- Validators handle input validation; Domain owns business invariants.
+- Each specification belongs to one use case and lives in its `Specifications/`. Do not create a shared `<Area>/Specifications/` or import a specification from another use case. If two use cases share the same simple condition, each gets its own local specification; the only exception is truly shared code in an explicitly named `Shared/`, after the need is confirmed.
+- Put public cross-module DTOs in the module contract, not next to a handler.
