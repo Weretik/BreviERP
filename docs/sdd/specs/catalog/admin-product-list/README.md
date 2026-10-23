@@ -1,45 +1,45 @@
-# Адміністративний список категорій товарів
+# Admin product category list
 
-**Модуль:** catalog  
-**Статус:** перевірено станом на 2026-07-27  
-**Пов’язано:** `ProductCategoriesController`, сценарії `Catalog.Application/Features/ProductCategory`
+**Module:** catalog\
+**Status:** verified as of 2026-07-27\
+**Related:** `ProductCategoriesController`, `Catalog.Application/Features/ProductCategory` scenarios
 
-Термінологію Product і категорій див. у [глосарії продукту](../../../../product/glossary.md).
+See the [product glossary](../../../../product/glossary.md) for Product and category terminology.
 
-## Мета
+## Goal
 
-Надати адміністративний API для перегляду категорій товарів разом зі сценаріями створення, оновлення, видалення та store-представлення.
+Provide an admin API for viewing product categories, together with create, update, delete, and store-view scenarios.
 
-## Межі
+## Scope
 
-- У межах: категорії товарів Catalog, ієрархія/шлях категорій, CRUD-контракти та адміністративне читання.
-- Поза межами: товари, медіа, зміна схеми без окремої специфікації, перенесення категорій до модуля Reference.
+- In scope: Catalog product categories, category hierarchy/path, CRUD contracts, and admin reads.
+- Out of scope: products, media, schema changes without a separate specification, and moving categories to the Reference module.
 
-## Контракт і сумісність
+## Contract and compatibility
 
-- `GET /api/reference/product-categories/admin` — адміністративний список.
-- `GET /api/reference/product-categories/store/{language}` — store-представлення.
-- `POST`, `PUT {id:int}`, `DELETE {id:int}` — write-сценарії категорій.
-- Префікс маршруту історично містить `reference`, але власником доменної моделі та application-сценаріїв є `Catalog`; не змінюйте маршрут без плану сумісності для споживачів.
+- `GET /api/reference/product-categories/admin` — admin list.
+- `GET /api/reference/product-categories/store/{language}` — store view.
+- `POST`, `PUT {id:int}`, `DELETE {id:int}` — category write scenarios.
+- The route prefix historically contains `reference`, but `Catalog` owns the domain model and Application scenarios; do not change the route without a consumer compatibility plan.
 
-## Реалізація за шарами
+## Layer implementation
 
-- Domain: `Catalog.Domain/ProductCategories` володіє моделлю та помилками категорій.
-- Application: сфокусовані CQRS-команди/запити, валідатори, DTO та специфікації в `Catalog.Application`.
-- Infrastructure: `CatalogDbContext`, конфігурація EF та початкове наповнення категорій.
-- API: `ProductCategoriesController` лише зв’язує HTTP-контракт, Mediator і мапінг результату.
+- Domain: `Catalog.Domain/ProductCategories` owns the model and category errors.
+- Application: focused CQRS commands/queries, validators, DTOs, and specifications in `Catalog.Application`.
+- Infrastructure: `CatalogDbContext`, EF configuration, and category seeding.
+- API: `ProductCategoriesController` only binds the HTTP contract, Mediator, and result mapping.
 
-## Критерії приймання
+## Acceptance criteria
 
-- [x] Категорії належать Catalog, а не Reference.
-- [x] API містить адміністративне та store-читання, а також CRUD-операції.
-- [ ] Будь-яка подальша зміна маршруту або полів відповіді має окремо перевірити сумісність споживачів.
+- [x] Categories belong to Catalog, not Reference.
+- [x] The API includes admin and store reads, as well as CRUD operations.
+- [ ] Any future change to routes or response fields must separately verify consumer compatibility.
 
-## Перевірка
+## Verification
 
-- Ручна: перевірити авторизацію, ієрархію, негативні випадки та стабільність полів відповіді.
-- Автоматизована: `dotnet test .\BreviERP.sln`.
+- Manual: verify authorization, hierarchy, negative cases, and response-field stability.
+- Automated: `dotnet test .\BreviERP.sln`.
 
-## Журнал змін
+## Change log
 
-- 2026-07-27 — Документацію адаптовано до фактичного розташування категорій у Catalog.
+- 2026-07-27 — Documentation adapted to the actual location of categories in Catalog.

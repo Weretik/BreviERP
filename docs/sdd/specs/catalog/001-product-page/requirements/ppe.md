@@ -1,21 +1,21 @@
-# Сторінка товару — PPE
+# Product page — PPE
 
-### Ppe: постачальник
+### PPE: supplier
 
-PPE-товар має рівно одного постачальника:
+A PPE product has exactly one supplier:
 
 ```text
 Ppe Product
 └── SupplierId → Reference.Supplier
 ```
 
-Постачальник містить назву та контактні дані. Для PPE він обов’язковий, а для Sewing не застосовується; дані постачальника не дублюються в товарі.
+The supplier has a name and contact details. It is required for PPE and does not apply to Sewing; supplier data is not duplicated on the product.
 
-PPE-товар також має обов’язкове ручне поле `BasePrice`: базову ціну, яку вводить адміністратор. Вона належить самому Product, має бути більшою за нуль і не береться з довідника постачальника.
+A PPE product also has a required manual `BasePrice` field, entered by an administrator. It belongs to the Product, must be greater than zero, and is not taken from the supplier reference.
 
-### Ppe: роздрібний та оптовий відсотки
+### PPE: retail and wholesale percentages
 
-Ppe-товар має два незалежні відсотки: роздрібний для 1–9 шт. і оптовий від 10 шт. Для кожного рівня адміністратор окремо обирає довідникове значення або вводить власне:
+A PPE product has two independent percentages: retail for 1–9 units and wholesale from 10 units. For each tier, the administrator independently selects a reference value or enters a custom value:
 
 ```text
 PpePriceCoefficients
@@ -23,16 +23,14 @@ PpePriceCoefficients
 └── Wholesale: Reference(AdditionalReferenceId) | Custom(Value)
 ```
 
-У режимі `Reference` Product зберігає лише відповідний `AdditionalReferenceId`, а під час розрахунку завжди читає актуальне `AdditionalReference.Value`. Значення з unit `%` застосовується як відсоток через `Value / 100`, а не як готовий числовий множник. Зміна довідникового відсотка автоматично впливає на наступний розрахунок відповідного рівня ціни.
+In `Reference` mode, Product stores only the corresponding `AdditionalReferenceId`; calculation always reads the current `AdditionalReference.Value`. A value with unit `%` is applied as a percentage using `Value / 100`, not as a ready-made multiplier. A change to the reference percentage automatically affects the next calculation for that price tier.
 
-У режимі `Custom` Product зберігає лише власне значення відсотка; адміністратор може змінювати його в картці товару. Це **не** створює `AdditionalReference`: ручний відсоток належить одному товару й не має засмічувати спільний довідник.
+In `Custom` mode, Product stores only its own percentage value; the administrator can change it on the product card. This does **not** create an `AdditionalReference`: the custom percentage belongs to one product and must not clutter the shared reference data.
 
-## Правила відсотків
+## Percentage rules
 
-- Для кожного з роздрібного й оптового рівня задано рівно один режим: `Reference` або `Custom`.
-- У `Reference` задано відсоток з одиницею `%`, а ручне значення цього рівня відсутнє.
-- У `Custom` задано невід’ємне ручне значення відсотка, а `AdditionalReferenceId` цього рівня відсутній.
-- Sewing-товар не має PPE `BasePrice` або роздрібного/оптового відсотка.
-- `BasePrice` обов’язкова та більша за нуль лише для PPE; Sewing-товар не має базової ціни.
-
-#
+- Exactly one mode is set for each of the retail and wholesale tiers: `Reference` or `Custom`.
+- In `Reference` mode, a percentage with unit `%` is set and the tier's manual value is absent.
+- In `Custom` mode, a non-negative manual percentage is set and that tier's `AdditionalReferenceId` is absent.
+- A Sewing product has no PPE `BasePrice` or retail/wholesale percentage.
+- `BasePrice` is required and greater than zero only for PPE; a Sewing product has no base price.

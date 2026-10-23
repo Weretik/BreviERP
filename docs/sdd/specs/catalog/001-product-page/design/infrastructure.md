@@ -1,63 +1,63 @@
-# Сторінка товару — дизайн Infrastructure
+# Product page — Infrastructure design
 
-**Статус:** реалізовано у фазі 02
-**Залежить від:** [Domain design](domain.md)  
-**Блокує:** Application-сценарії створення та оновлення товару
+**Status:** implemented in phase 02\
+**Depends on:** [Domain design](domain.md)\
+**Blocks:** Application product create and update scenarios
 
-## Результат
+## Outcome
 
-Спільні дані Product зберігаються в `catalog.Products`, а типові дані — у таблицях деталей за composition-моделлю без nullable-полів іншого типу товару.
+Shared Product data is stored in `catalog.Products`, and type-specific data is stored in detail tables using the composition model, without nullable fields for the other product type.
 
-## Цільові таблиці
+## Target tables
 
-| Таблиця | Власник | Призначення |
+| Table | Owner | Purpose |
 | --- | --- | --- |
-| `Products` | Catalog | спільні властивості та discriminator `Type` |
-| `ProductPhotos` | Catalog | наявна owned collection фото |
-| `ProductCategoryLinks` | Catalog | наявна owned collection категорій |
-| `SewingProductDetails` | Catalog | `MetersPerProduct`, один запис на Sewing товар |
-| `SewingProductFabrics` | Catalog | тканини, основна ознака, порядок |
-| `SewingProductAccessories` | Catalog | фурнітура, кількість, порядок |
-| `SewingProductOperations` | Catalog | посилання на операції трудомісткості |
-| `PpeProductDetails` | Catalog | постачальник, ручна базова ціна та окремі режими/значення роздрібного й оптового відсотків |
+| `Products` | Catalog | shared properties and `Type` discriminator |
+| `ProductPhotos` | Catalog | existing owned photo collection |
+| `ProductCategoryLinks` | Catalog | existing owned category collection |
+| `SewingProductDetails` | Catalog | `MetersPerProduct`, one record per Sewing product |
+| `SewingProductFabrics` | Catalog | fabrics, primary flag, order |
+| `SewingProductAccessories` | Catalog | accessories, quantity, order |
+| `SewingProductOperations` | Catalog | references to labor-time operations |
+| `PpeProductDetails` | Catalog | supplier, manual base price, and separate modes/values for retail and wholesale percentages |
 
-## EF Core правила
+## EF Core rules
 
-- `SewingProductDetails` і `PpeProductDetails` мапляться як записи деталей зі зв’язком один до одного, де `ProductId` одночасно є первинним і зовнішнім ключем.
-- Усі FK у Product-моделі є властивостями CLR-сутностей; рядкові `HasForeignKey("ProductId")`, shadow `ProductId` та shadow surrogate `Id` не допускаються. Для link-таблиць Sewing застосовується складений PK, а не штучний EF-ключ.
-- `RetailPricePercent` і `WholesalePricePercent` мапляться як EF Core complex types у `PpeProductDetails`; вони не є окремими таблицями та не дублюють одне одного. Єдиний стан кожного відсотка: `Source`, `AdditionalReferenceId` або `CustomPercent`.
-- Sewing колекції мають складені унікальні ключі: `(ProductId, FabricId)`, `(ProductId, GarmentAccessoryId)`, `(ProductId, GarmentPartOperationId)`.
-- `Products.Slug` має унікальний індекс у межах schema `catalog`.
-- Ідентифікатори Reference зберігаються як типізовані об’єкти-значення/скаляри. Між контекстами DbContext різних модулів не додаються навігаційні властивості EF до сутностей Reference.
-- Посилання на Reference не отримують фізичний FK cascade. Перед видаленням `GarmentPartOperation`, `Fabric` або `GarmentAccessory` Reference перевіряє їх використання в Catalog і відхиляє видалення, якщо є хоча б одне посилання.
-- Таблиця деталей не може замінити Domain/Application перевірку відповідності `Product.Type`.
+- `SewingProductDetails` and `PpeProductDetails` are mapped as detail records in one-to-one relationships, where `ProductId` is both the primary and foreign key.
+- All FKs in the Product model are CLR entity properties; string-based `HasForeignKey("ProductId")`, shadow `ProductId`, and shadow surrogate `Id` are disallowed. Sewing link tables use composite PKs, not artificial EF keys.
+- `RetailPricePercent` and `WholesalePricePercent` are mapped as EF Core complex types in `PpeProductDetails`; they are not separate tables and do not duplicate one another. Each percentage has one state: `Source`, `AdditionalReferenceId`, or `CustomPercent`.
+- Sewing collections have composite unique keys: `(ProductId, FabricId)`, `(ProductId, GarmentAccessoryId)`, `(ProductId, GarmentPartOperationId)`.
+- `Products.Slug` has a unique index within the `catalog` schema.
+- Reference IDs are stored as typed value objects/scalars. EF navigation properties to Reference entities are not added across DbContext contexts for different modules.
+- Reference links do not have physical cascading FKs. Before deleting a `GarmentPartOperation`, `Fabric`, or `GarmentAccessory`, Reference checks whether Catalog uses it and rejects deletion if any link exists.
+- A detail table cannot replace the Domain/Application check that it matches `Product.Type`.
 
-## Проєкції читання
+## Read projections
 
-Admin list використовує `GetAdminProductsSpec : Specification<Product, ProductListItem>` з
-`AsNoTracking`, SQL-side filters/sorting/pagination і `Select` у `ProductListItem`.
-Repository materialize-ить лише поля рядка списку та потрібні значення owned collections
-(`CategoryIds`, ID головного фото), а не повний `Product` aggregate. `COUNT` виконується
-тим самим параметризованим specification до pagination. List use case повертає
-`Ardalis.Result.PagedResult<IReadOnlyList<ProductListItem>>` з metadata у `PagedInfo`.
-Для неунікальних полів сортування (`Name`, `CreatedAt`, `UpdatedAt`) specification додає
-`Id` як вторинний ключ у тому самому напрямку, щоб сторінки `Skip`/`Take` мали сталий порядок.
+The admin list uses `GetAdminProductsSpec : Specification<Product, ProductListItem>` with
+`AsNoTracking`, SQL-side filters/sorting/pagination, and a `Select` into `ProductListItem`.
+The repository materializes only list-row fields and required owned collection values
+(`CategoryIds`, primary photo ID), not the full `Product` aggregate. `COUNT` uses the same
+parameterized specification before pagination. The list use case returns
+`Ardalis.Result.PagedResult<IReadOnlyList<ProductListItem>>` with metadata in `PagedInfo`.
+For non-unique sort fields (`Name`, `CreatedAt`, `UpdatedAt`), the specification adds
+`Id` as a secondary key in the same direction so `Skip`/`Take` pages have a stable order.
 
-## Міграція
+## Migration
 
-Потрібна нова погоджена EF migration після реалізації Domain-моделі та EF configurations. Не редагувати застосовані міграції. Rollback має видаляти лише нові таблиці до моменту появи production-даних.
+A new approved EF migration is required after implementing the Domain model and EF configurations. Do not edit applied migrations. Rollback must remove only the new tables until production data exists.
 
-## Критерії приймання
+## Acceptance criteria
 
-- [x] У схемі немає Sewing-specific колонок у `PpeProductDetails` та Ppe-specific колонок у `SewingProductDetails`.
-- [x] Один Product не може мати два detail records одного типу.
-- [x] Унікальність link-таблиць підтримується БД.
-- [x] Міграція застосовується на порожній БД і не змінює наявні таблиці поза межами задачі.
-- [x] Domain/Application не залежить від Infrastructure або Reference EF entities.
+- [x] The schema has no Sewing-specific columns in `PpeProductDetails` or PPE-specific columns in `SewingProductDetails`.
+- [x] A Product cannot have two detail records of the same type.
+- [x] The database enforces uniqueness of link tables.
+- [x] The migration applies to an empty database and does not change existing tables outside the task scope.
+- [x] Domain/Application does not depend on Infrastructure or Reference EF entities.
 
-## Перевірка
+## Verification
 
-- Інтеграційний тест `CatalogProductPersistenceTests` перевіряє відображення EF, PK/FK, унікальні обмеження і життєвий цикл агрегату.
-- Тест створює порожню тимчасову PostgreSQL БД, застосовує міграції та перевіряє цільові таблиці.
-- Тест відкочує Catalog до `20260727004045_InitialCatalog`, перевіряє зникнення нових таблиць і видаляє тимчасову БД.
-- `GetAdminProductsSpecTests` підтверджує SQL filters, sorting, стабільний secondary sort за `Id`, pagination і projection у тимчасовій PostgreSQL БД.
+- Integration test `CatalogProductPersistenceTests` verifies EF mapping, PK/FK, unique constraints, and aggregate lifecycle.
+- The test creates an empty temporary PostgreSQL database, applies migrations, and verifies target tables.
+- The test rolls Catalog back to `20260727004045_InitialCatalog`, verifies that the new tables are gone, and removes the temporary database.
+- `GetAdminProductsSpecTests` verifies SQL filters, sorting, stable secondary sort by `Id`, pagination, and projection in a temporary PostgreSQL database.

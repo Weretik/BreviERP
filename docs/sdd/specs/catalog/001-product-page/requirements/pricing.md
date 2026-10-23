@@ -1,19 +1,19 @@
-# Сторінка товару — ціноутворення
+# Product page — pricing
 
-## Прийняте правило
+## Accepted rule
 
-Ціна `Sewing` обчислюється для кожної пари «товар — вибрана тканина». Тому один товар із кількома тканинами має окремі три ціни для кожної тканини. Ціна тканини береться з поточного `Reference.Fabric`, а ціни фурнітури — з поточних `Reference.GarmentAccessory`; Product не зберігає їх snapshot. Зміна довідникових цін або коефіцієнтів змінює наступний розрахунок.
+The `Sewing` price is calculated for each `product — selected fabric` pair. A product with multiple fabrics therefore has three separate prices for each fabric. Fabric price comes from the current `Reference.Fabric`, and accessory prices come from current `Reference.GarmentAccessory`; Product does not store their snapshots. A change to reference prices or coefficients changes the next calculation.
 
-Усі проміжні та кінцеві значення передаються повними дробовими числовими значеннями без округлення. Усі дільники мають бути більшими за нуль; якщо хоча б один з них нульовий або відсутній, ціна не обчислюється.
+All intermediate and final values are passed as full fractional numeric values without rounding. All divisors must be greater than zero; if any is zero or missing, the price is not calculated.
 
-## Вхідні дані
+## Inputs
 
-| Позначення | Джерело |
+| Name | Source |
 | --- | --- |
 | `metersPerProduct` | `Product.SewingProductDetails.MetersPerProduct` |
-| `fabricPrice` | поточний `Reference.Fabric.Price` вибраної тканини |
-| `accessoryQuantity`, `accessoryPrice` | відповідно Product link і поточний `Reference.GarmentAccessory.Price` для кожної фурнітури |
-| `totalOperationMinutes` | сума `Min` усіх вибраних `GarmentPartOperation` |
+| `fabricPrice` | current `Reference.Fabric.Price` for the selected fabric |
+| `accessoryQuantity`, `accessoryPrice` | Product link and current `Reference.GarmentAccessory.Price`, respectively, for each accessory |
+| `totalOperationMinutes` | sum of `Min` for all selected `GarmentPartOperation` records |
 | `srZpShvei` | `AdditionalReference.Key = sr_zp_shvei` |
 | `workDay` | `AdditionalReference.Key = work_day` |
 | `coefficientSeamstressAward` | `AdditionalReference.Key = coefficient_seamstress_award` |
@@ -23,9 +23,9 @@
 | `monthlyExpenses` | `AdditionalReference.Key = monthly_expenses` |
 | `countShvei` | `AdditionalReference.Key = count_shvei` |
 
-Значення кожного рядка `AdditionalReference` читається за його унікальним `Key`; у розрахунок передається його поточне поле `Value`. Для кожного значення з unit `%` використовується правило `percentRatio = Value / 100`: наприклад, `33%` перетворюється на `0.33`.
+Each `AdditionalReference` value is read by its unique `Key`; its current `Value` field is passed into the calculation. For each value with unit `%`, use `percentRatio = Value / 100`: for example, `33%` becomes `0.33`.
 
-## Розрахунок собівартості Sewing
+## Sewing cost calculation
 
 ```text
 piecesPerShift = 480 / (totalOperationMinutes × 1.25)
@@ -43,13 +43,13 @@ accessoriesCost = Σ(accessoryQuantity × accessoryPrice)
 baseCost = (metersPerProduct × fabricPrice) + accessoriesCost + workshopSalary + overheadExpenses
 ```
 
-`1.25` є фіксованим коефіцієнтом до загальної трудомісткості. Sewing-чернетка без операцій або товар із нульовою сумою `Min` не має `piecesPerShift` і ціни.
+`1.25` is a fixed coefficient applied to total labor time. A Sewing draft without operations or a product whose total `Min` is zero has no `piecesPerShift` or price.
 
-`seamstressSalary`, `seamstressAward`, `cutterSalary`, `masterSalary` і `foremanSalary` є витратами на один виріб. Місячна `srZpShvei` використовується лише для початкового розрахунку `seamstressSalary`.
+`seamstressSalary`, `seamstressAward`, `cutterSalary`, `masterSalary`, and `foremanSalary` are costs per product. Monthly `srZpShvei` is used only to initially calculate `seamstressSalary`.
 
-## Три ціни для кожної тканини
+## Three prices per fabric
 
-Для кожної вибраної тканини формуються такі ціни:
+For each selected fabric, the following prices are calculated:
 
 ```text
 price1To10 = baseCost × (1 + profit10 / 100)
@@ -57,36 +57,33 @@ price11To39 = baseCost × (1 + profit10To40 / 100)
 price40Plus = baseCost × (1 + profit40 / 100)
 ```
 
-| Діапазон замовлення | Ключ `AdditionalReference` |
+| Order range | `AdditionalReference` key |
 | --- | --- |
-| 1–10 шт. | `profit_10` |
-| 11–39 шт. | `profit_10_40` |
-| від 40 шт. | `profit_40` |
+| 1–10 units | `profit_10` |
+| 11–39 units | `profit_10_40` |
+| 40 or more | `profit_40` |
 
-Кожна ціна використовує поточне `Value` відповідного відсотка. Значення `33` означає націнку `33%`: `baseCost × (1 + 33 / 100) = baseCost × 1.33`. Фурнітура, зарплата цеху та накладні витрати однакові для всіх трьох цін конкретної пари «товар — тканина»; відрізняються лише `fabricPrice` і відсоток цінового діапазону.
+Each price uses the current `Value` of its corresponding percentage. A value of `33` means a `33%` markup: `baseCost × (1 + 33 / 100) = baseCost × 1.33`. Accessories, workshop salary, and overhead are the same for all three prices of a given `product — fabric` pair; only `fabricPrice` and the price-tier percentage differ.
 
-Read-model також повертає для товару мінімальну й максимальну ціну серед усіх його тканин окремо для кожного діапазону: `price1To10`, `price11To39` і `price40Plus`. Разом із крайніми значеннями повертається `FabricId`, що сформував відповідну ціну, щоб UI міг показати конкретну тканину.
+The read model also returns the minimum and maximum price across all of the product's fabrics separately for each tier: `price1To10`, `price11To39`, and `price40Plus`. The `FabricId` that produced each price is returned with the extrema so the UI can show the specific fabric.
 
-## Тип товару Ppe
+## Ppe product type
 
-PPE має ручну `basePrice`, яку вводить адміністратор. Роздрібний та оптовий відсотки незалежно обираються з `AdditionalReference` або вводяться вручну:
+PPE has a manual `basePrice` entered by the administrator. Retail and wholesale percentages are independently selected from `AdditionalReference` or entered manually:
 
 ```text
 retailPrice = basePrice × (1 + retailPercent / 100)
 wholesalePrice = basePrice × (1 + wholesalePercent / 100)
 ```
 
-Роздрібна ціна застосовується до 1–9 шт., оптова — від 10 шт. Обидва відсотки мають unit `%` і застосовуються через `/ 100`.
+The retail price applies to 1–9 units; the wholesale price applies from 10 units. Both percentages have unit `%` and are applied using `/ 100`.
 
-## Ціна в admin-списку
+## Price in the admin list
 
-Кожен рядок admin Product list передає `minimumWholesalePrice` як числове
-значення для швидкого порівняння товарів:
+Each admin Product list row sends `minimumWholesalePrice` as a numeric value for quick comparison between products:
 
-- для `Sewing` це мінімум серед усіх наявних `price1To10`, `price11To39` і
-  `price40Plus` для всіх вибраних тканин;
-- для `Ppe` це `wholesalePrice` за формулою вище;
-- якщо потрібні вхідні дані відсутні, розрахунок неможливий або товар не має
-  відповідних цін, значення дорівнює `0`.
+- for `Sewing`, it is the minimum across all available `price1To10`, `price11To39`, and `price40Plus` values for all selected fabrics;
+- for `Ppe`, it is `wholesalePrice` from the formula above;
+- if required inputs are missing, calculation is impossible, or the product has no applicable prices, the value is `0`.
 
-Значення є поточним read-model, не зберігається як snapshot і не округлюється.
+The value is a current read model, is not stored as a snapshot, and is not rounded.

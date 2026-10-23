@@ -1,8 +1,8 @@
-# Сторінка товару — модель даних
+# Product page — data model
 
-## Прийнята стратегія зберігання
+## Accepted storage strategy
 
-Використовується composition-модель: спільна таблиця Product із discriminator `Type` та окремі таблиці деталей для кожного типу. Це не дві незалежні сутності товару і не одна широка таблиця з великою кількістю nullable-полів.
+The composition model is used: a shared Product table with a `Type` discriminator and separate detail tables for each type. These are not two independent product entities or one wide table with many nullable fields.
 
 ```text
 catalog.Products
@@ -18,14 +18,14 @@ catalog.ProductCharacteristicTables
 └── ProductCharacteristicRows
     └── Id, TableId, LabelUk, LabelRu, ValueUk, ValueRu, SortOrder
 
-catalog.SewingProductDetails             лише Type = Sewing
+catalog.SewingProductDetails             only Type = Sewing
 ├── ProductId (PK + FK → Products)
 └── MetersPerProduct
 
 catalog.SewingProductFabrics
 ├── ProductId
 ├── FabricId
-├── IsPrimary                              не більше двох `true` на Product
+├── IsPrimary                              no more than two `true` per Product
 └── SortOrder
 
 catalog.SewingProductAccessories
@@ -38,30 +38,30 @@ catalog.SewingProductOperations
 ├── ProductId
 └── GarmentPartOperationId
 
-catalog.PpeProductDetails                лише Type = Ppe
+catalog.PpeProductDetails                only Type = Ppe
 ├── ProductId (PK + FK → Products)
 ├── SupplierId
 ├── BasePrice
 ├── RetailCoefficientSource              Reference | Custom
-├── RetailAdditionalReferenceId?         лише Reference
-├── RetailCustomPercent?                 лише Custom
+├── RetailAdditionalReferenceId?         only Reference
+├── RetailCustomPercent?                 only Custom
 ├── WholesaleCoefficientSource           Reference | Custom
-├── WholesaleAdditionalReferenceId?      лише Reference
-└── WholesaleCustomPercent?              лише Custom
+├── WholesaleAdditionalReferenceId?      only Reference
+└── WholesaleCustomPercent?              only Custom
 ```
 
-Ціни Sewing є обчислюваним read-model для кожної пари «Product — Fabric» і не зберігаються окремими таблицями: формула використовує актуальні ціни Reference та `AdditionalReference`. Історія цін і виробничих норм не зберігається. Поточні `Products`, `ProductPhotos` і `ProductCategoryLinks` уже існують; усі інші структури в схемі вище — цільові та ще не реалізовані.
+Sewing prices are a calculated read model for each `Product — Fabric` pair and are not stored in separate tables: the formula uses current Reference prices and `AdditionalReference`. Price and production-standard history is not stored. `Products`, `ProductPhotos`, and `ProductCategoryLinks` already exist; all other structures in the diagram are target structures and have not yet been implemented.
 
-### Правила цілісності
+### Integrity rules
 
-- `Products.Type` визначає, яка detail-модель дозволена.
-- Sewing має рівно один `SewingProductDetails` і не має `PpeProductDetails`.
-- Ppe має рівно один `PpeProductDetails` і не має жодної Sewing detail/collection.
-- `SewingProductDetails.ProductId` та `PpeProductDetails.ProductId` є одночасно PK і FK: не може існувати більш ніж один запис деталей на товар.
-- Кожен зв’язок, що належить Product, має явний CLR-FK (`ProductId`, а для рядків характеристик — `TableId`). EF Core shadow properties для цієї моделі не використовуються. Link-таблиці Sewing мають складений первинний ключ з `ProductId` та ID довідника.
-- `Products.Slug` унікальний у межах Catalog.
-- `Products.Name` та `Products.RuName` кожне унікальне у межах Catalog.
-- Product успадковує поля аудиту `CreatedAt`, необов’язкове `UpdatedAt` та `IsDeleted` із `BaseAuditableEntity<ProductId>`. Час надходить до Domain із Application/годинника: у Domain немає викликів `DateTimeOffset.UtcNow`. `CreatedAt` встановлюється сервером під час створення, `UpdatedAt` — під час кожної успішної зміни. Дати використовуються для сортування адміністративного списку; поточне видалення Product залишається фізичним, тому `IsDeleted` у цій поставці не встановлюється.
-- Для одного Product не більше двох `SewingProductFabrics.IsPrimary = true`; порядок read-model: `IsPrimary` за спаданням, потім `SortOrder` за зростанням.
-- `ProductInformationBlocks` і `ProductCharacteristicTables` належать одному Product; `ProductCharacteristicRows` належить одній таблиці. Порядок у кожній колекції визначає `SortOrder`.
-- Перевірки `Type` і взаємовиключних полів залишаються у Domain/Application; БД забезпечує ключі, FK та унікальність зв’язків.
+- `Products.Type` determines which detail model is allowed.
+- Sewing has exactly one `SewingProductDetails` and no `PpeProductDetails`.
+- Ppe has exactly one `PpeProductDetails` and no Sewing details or collections.
+- `SewingProductDetails.ProductId` and `PpeProductDetails.ProductId` are both PK and FK: no more than one detail record can exist per product.
+- Every Product-owned relationship has an explicit CLR FK (`ProductId`, and `TableId` for characteristic rows). EF Core shadow properties are not used for this model. Sewing link tables have a composite primary key of `ProductId` and the reference ID.
+- `Products.Slug` is unique within Catalog.
+- `Products.Name` and `Products.RuName` are each unique within Catalog.
+- Product inherits the `CreatedAt`, optional `UpdatedAt`, and `IsDeleted` audit fields from `BaseAuditableEntity<ProductId>`. Time is supplied to Domain by Application/the clock; Domain does not call `DateTimeOffset.UtcNow`. `CreatedAt` is set by the server at creation, and `UpdatedAt` at each successful change. Dates are used to sort the admin list; Product is currently physically deleted, so `IsDeleted` is not set in this delivery.
+- No more than two `SewingProductFabrics.IsPrimary = true` per Product; the read model orders by descending `IsPrimary`, then ascending `SortOrder`.
+- `ProductInformationBlocks` and `ProductCharacteristicTables` belong to one Product; `ProductCharacteristicRows` belongs to one table. `SortOrder` determines order in each collection.
+- `Type` and mutually exclusive field checks remain in Domain/Application; the database enforces keys, FKs, and relationship uniqueness.

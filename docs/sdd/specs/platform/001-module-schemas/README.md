@@ -1,24 +1,24 @@
-# Схеми модулів
+# Module schemas
 
-**Статус:** реалізація
+**Status:** implementation
 
-Ця зміна розділяє постійні дані модульного моноліту за схемами PostgreSQL без втрати наявних даних.
+This change separates the modular monolith's persistent data by PostgreSQL schema without losing existing data.
 
-## Власність даних
+## Data ownership
 
-| Схема | Власник | Таблиці |
+| Schema | Owner | Tables |
 | --- | --- | --- |
-| `catalog` | Catalog | товари, категорії каталогу, медіафайли та деталі товарів |
-| `reference` | Reference | додаткові довідники, тканини, фурнітура, частини виробів, операції, постачальники й довідкові категорії товарів |
-| `identity` | Identity | таблиці ASP.NET Identity та refresh-сесії |
-| `accounting` | Accounting | категорії транзакцій |
-| `public` | PostgreSQL / спільна інфраструктура | наявна `__EFMigrationsHistory`; після впровадження немає таблиць, що належать модулям |
+| `catalog` | Catalog | products, catalog categories, media files, and product details |
+| `reference` | Reference | additional references, fabrics, garment accessories, garment parts, operations, suppliers, and reference product categories |
+| `identity` | Identity | ASP.NET Identity tables and refresh sessions |
+| `accounting` | Accounting | transaction categories |
+| `public` | PostgreSQL / shared infrastructure | existing `__EFMigrationsHistory`; after rollout, no module-owned tables remain |
 
-`public.ProductCategories` — застаріла таблиця без чинного мапінгу сутності Reference. Активна модель Catalog володіє `catalog.ProductCategories`; Accounting не повинен повторно використовувати жодну з цих таблиць і зберігає свій агрегат у `accounting.TransactionCategories`. Якщо застаріла таблиця існує, міграція Reference видаляє її; `DROP TABLE IF EXISTS` також підтримує бази, де її вже видалено.
+`public.ProductCategories` is a legacy table with no current Reference entity mapping. The active Catalog model owns `catalog.ProductCategories`; Accounting must not reuse either table and stores its aggregate in `accounting.TransactionCategories`. If the legacy table exists, the Reference migration drops it; `DROP TABLE IF EXISTS` also supports databases where it has already been removed.
 
-## Безпека міграції
+## Migration safety
 
-- Наявні таблиці Reference та Identity переміщуються між схемами PostgreSQL через згенеровані EF-міграції; це зберігає рядки, індекси й обмеження.
-- Попередня початкова міграція Accounting не застосовна, оскільки намагається створити `public.ProductCategories`, якою вже володів Reference. Її замінюють до застосування будь-якої міграції Accounting.
-- Спільна таблиця історії міграцій залишається в `public`; її переміщення призвело б до втрати кожним DbContext базової інформації про застосовані міграції.
-- Видалення підтверджено застарілої `public.ProductCategories` міграцією Reference незворотне. Її метод `Down` повертає лише переміщення схем активних таблиць Reference.
+- Existing Reference and Identity tables are moved between PostgreSQL schemas through generated EF migrations; this preserves rows, indexes, and constraints.
+- The previous initial Accounting migration cannot be applied because it attempts to create `public.ProductCategories`, which Reference already owned. Replace it before applying any Accounting migration.
+- The shared migration-history table remains in `public`; moving it would deprive each DbContext of baseline information about applied migrations.
+- The Reference migration's confirmed deletion of legacy `public.ProductCategories` is irreversible. Its `Down` method restores only schema moves for active Reference tables.

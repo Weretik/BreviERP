@@ -1,73 +1,70 @@
-# Сторінка товару — вузький Reference reader для цін адміністративного списку
+# Product page — narrow Reference pricing reader for the admin list
 
-**Статус:** реалізовано без кешування; перевірка швидкодії непорожньої сторінки очікує `05.3`
-**Межі:** внутрішній шлях читання `GET /api/v1/products`; публічний HTTP/OpenAPI-контракт,
-схема Product та правила розрахунку не змінюються.
+**Status:** implemented without caching; performance verification for a non-empty page awaits `05.3`\
+**Scope:** internal read path for `GET /api/v1/products`; the public HTTP/OpenAPI contract, Product schema, and calculation rules do not change.
 
-## Проблема
+## Problem
 
-Поточний обробник списку після завантаження сторінки викликає повний
-`IProductReferenceReader.GetSnapshotAsync()`. Адаптер Host послідовно запускає загальні
-запити інтерфейсу користувача Reference для постачальників, тканин, фурнітури, операцій і додаткових
-довідників. Частина цих запитів виконує додаткові пошукові запити для відображуваних імен.
+After loading a page, the current list handler calls the full
+`IProductReferenceReader.GetSnapshotAsync()`. The Host adapter sequentially runs the general
+Reference UI queries for suppliers, fabrics, accessories, operations, and additional references.
+Some of these queries make extra searches to resolve display names.
 
-Адміністративний список не показує назви постачальників або частин одягу й для ціни потребує тільки:
+The admin list does not display supplier or garment-part names and needs only the following for pricing:
 
 - `Fabric`: `Id`, `Price`;
 - `GarmentAccessory`: `Id`, `Price`;
 - `GarmentPartOperation`: `Id`, `Min`;
-- `AdditionalReference`: `Id`, `Key`, `Value`, `Unit` лише для відсотків поточного PPE
-  сторінки й дозволених ключів ціноутворення Sewing.
+- `AdditionalReference`: `Id`, `Key`, `Value`, `Unit` only for percentages used by the current PPE page and allowed Sewing pricing keys.
 
-Завантаження повних DTO інтерфейсу користувача й усіх довідникових записів отримує зайві дані та додає серію
-послідовних звернень до бази даних для кожного запиту сторінки.
+Loading complete UI DTOs and all reference records fetches unnecessary data and adds a series of
+sequential database calls for each page request.
 
-Для порожнього списку цей шлях не виконується: обробник повертається до виклику
-`GetSnapshotAsync()`. Перший повільний запит порожнього списку виявився холодним стартом, тому
-підфаза не виправляє вже перевірену затримку прогрітого запиту порожнього списку.
+For an empty list, this path is not run: the handler falls back to calling
+`GetSnapshotAsync()`. The first slow empty-list request turned out to be a cold start, so this
+subphase does not fix the already verified warmed empty-list request latency.
 
-## Проєктне рішення для промислового середовища
+## Production design decision
 
-1. Після проєкції сторінки Catalog збирає унікальні ID тільки з рядків Product цієї сторінки:
-   fabrics, accessories, operations і AdditionalReferences. Для порожнього набору не
-   виконується відповідний запит.
-2. Catalog Application вводить вузьку абстракцію
-   `IProductListPricingReferenceReader`; вона повертає лише числові вхідні дані для ціноутворення,
-   потрібні `MinimumWholesalePrice`.
-3. Адаптер Host мапить множини примітивних ID у спеціалізований запит Reference Application.
-   Reference не залежить від DTO або сутностей Catalog.
-4. Запит Reference виконує проєкції за множинами (`WHERE id IN (...)`) без пошукових запитів інтерфейсу,
-   назв постачальників або частин одягу. Кількість команд до бази даних обмежена типами
-   довідникових даних, а не кількістю рядків Product на сторінці.
-5. Обробник будує `ProductReferenceData` або еквівалентну модель ціноутворення лише для списку в пам’яті
-   й застосовує наявні формули без зміни значень/округлення.
+1. After Catalog projects the page, collect unique IDs only from Product rows on that page:
+   fabrics, accessories, operations, and AdditionalReferences. Do not issue a query for an empty set.
+2. Catalog Application introduces the narrow abstraction
+   `IProductListPricingReferenceReader`; it returns only the numeric pricing inputs needed for
+   `MinimumWholesalePrice`.
+3. The Host adapter maps sets of primitive IDs to a specialized Reference Application query.
+   Reference does not depend on Catalog DTOs or entities.
+4. The Reference query performs set projections (`WHERE id IN (...)`) without UI search queries,
+   supplier names, or garment-part names. The number of database commands is bounded by reference
+   data types, not by the number of Product rows on the page.
+5. The handler builds `ProductReferenceData` or an equivalent pricing model only for the in-memory
+   page and applies the existing formulas without changing values or rounding.
 
-## Кешування
+## Caching
 
-Основна оптимізація — звуження вибірки даних. Кешування дозволено лише для малого,
-явно дозволеного набору стабільних коефіцієнтів ціноутворення Sewing (`AdditionalReference`), а не для
-повного знімка Reference. Перед додаванням кешування реалізація має підтвердити:
+The primary optimization is narrowing the data retrieved. Caching is allowed only for the small,
+explicitly permitted set of stable Sewing pricing coefficients (`AdditionalReference`), not the full
+Reference snapshot. Before adding caching, the implementation must confirm:
 
-- TTL є коротким і явно задокументованим;
-- існує механізм інвалідації після запису в Reference, або кеш **не додається**;
-- кеш не приховує зміну `Fabric.Price`, accessory price, operation minutes або PPE percent;
-- поведінка в кількох екземплярах Host визначена (розподілена інвалідація або компроміс лише з TTL
-  й погодженим допустимим строком застарівання даних).
+- the TTL is short and explicitly documented;
+- an invalidation mechanism exists after Reference writes, or caching is **not added**;
+- the cache does not hide changes to `Fabric.Price`, accessory price, operation minutes, or PPE percent;
+- behavior across multiple Host instances is defined (distributed invalidation or a TTL-only compromise
+  with an agreed maximum stale-data period).
 
-Не додавайте `IMemoryCache` або розподілений кеш «про всяк випадок». За відсутності
-погодженої стратегії інвалідації вузькі проєкції БД залишаються єдиною реалізацією.
+Do not add `IMemoryCache` or a distributed cache “just in case.” Without an agreed invalidation
+strategy, narrow database projections remain the only implementation.
 
-Пошук у поточній кодовій базі не виявив інвалідації кешу Reference або семантики розподіленого кешу
-для запису Fabric, GarmentAccessory, GarmentPartOperation чи AdditionalReference.
-Тому реалізація свідомо не додає кешування: кожна сторінка списку читає актуальні, але вузькі
-проєкції для ціноутворення.
+A search of the current codebase found no Reference cache invalidation or distributed cache write
+semantics for Fabric, GarmentAccessory, GarmentPartOperation, or AdditionalReference.
+Therefore the implementation deliberately does not add caching: each list page reads current, narrow
+pricing projections.
 
-## Незмінні властивості та критерії
+## Invariants and criteria
 
-- Список зберігає фільтрацію, сортування й пагінацію, `categoryIds`, `mainPhoto` і
-  `minimumWholesalePrice` для Sewing/PPE/fallback `0`.
-- Для однієї сторінки немає запитів на кожен Product; кількість SQL-команд обмежена.
-- Повний `IProductReferenceReader` залишається для create/update/detail, де повні
-  довідникові дані справді потрібні.
-- Інтеграційні тести порівнюють ціни старого повного знімка й нового вузького читача
-  на тому самому наборі Product/Reference data.
+- The list retains filtering, sorting, and pagination, plus `categoryIds`, `mainPhoto`, and
+  `minimumWholesalePrice` for Sewing/PPE/fallback `0`.
+- A single page does not issue one query per Product; the number of SQL commands is bounded.
+- The full `IProductReferenceReader` remains for create/update/detail, where full
+  reference data is actually needed.
+- Integration tests compare prices from the old full snapshot and the new narrow reader
+  using the same Product/Reference data set.

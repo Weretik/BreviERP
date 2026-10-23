@@ -1,16 +1,16 @@
-# Сторінка товару — Sewing
+# Product page — Sewing
 
-### Sewing: операції та трудомісткість
+### Sewing: operations and labor time
 
-Для `Sewing` користувач додає або видаляє операції пошиття. Кожна операція має назву, частину виробу та тривалість у хвилинах.
+For `Sewing`, the user can add or remove sewing operations. Each operation has a name, a garment part, and a duration in minutes.
 
-Sewing-товар також має одне ручне поле `MetersPerProduct`: кількість метрів тканини, потрібна на один виріб. Це властивість самого Product, а не окремої тканини. Поле обов’язкове для Sewing-товару, має бути більшим за нуль і не застосовується до `Ppe`.
+A Sewing product also has one manual `MetersPerProduct` field: the number of meters of fabric required for one product. This is a Product property, not a property of an individual fabric. The field is required for a Sewing product, must be greater than zero, and does not apply to `Ppe`.
 
-Перелік тканин, перелік фурнітури, `MetersPerProduct` і трудові операції є виключно даними `ProductType.Sewing`. `Ppe` не може містити жодної з цих колекцій або полів.
+The fabric list, accessory list, `MetersPerProduct`, and labor operations belong exclusively to `ProductType.Sewing`. `Ppe` cannot contain any of these collections or fields.
 
-## Перелік тканин
+## Fabric list
 
-Product матиме впорядкований перелік посилань на `FabricId` із модуля Reference. До двох тканин позначаються як **основні**, усі інші — додаткові. Основні тканини завжди відображаються першими, а всередині кожної групи порядок визначає `SortOrder`. Кількість додаткових тканин не обмежена бізнес-моделлю: товар може мати дві, п’ять, десять або більше тканин.
+Product will have an ordered list of references to `FabricId` values from the Reference module. Up to two fabrics are marked as **primary**; all others are additional. Primary fabrics are always displayed first, and `SortOrder` determines order within each group. The business model does not limit the number of additional fabrics: a product may have two, five, ten, or more fabrics.
 
 ```text
 Product
@@ -20,19 +20,19 @@ Product
     └── SortOrder
 ```
 
-`Fabric` належить Reference та зараз містить `Name`, поточну `Price` і `ProviderId`. Product зберігатиме лише ID та властивості власного зв’язку; не копіюватиме назву або ціну тканини.
+`Fabric` belongs to Reference and currently contains `Name`, current `Price`, and `ProviderId`. Product stores only the ID and properties of its own link; it does not copy the fabric name or price.
 
-### Прийняті інваріанти
+### Accepted invariants
 
-- одна й та сама `FabricId` не додається двічі до одного Product;
-- у товару з непорожнім переліком тканин є не більше двох основних тканин; якщо тканина лише одна, вона є основною;
-- додаткових тканин може бути довільна кількість;
-- read-model сортує основні тканини перед додатковими, а в межах групи — за `SortOrder`;
-- перелік тканин доступний лише для `Sewing`; `Ppe` не може мати жодної тканини;
+- The same `FabricId` cannot be added twice to one Product.
+- A product with a non-empty fabric list has no more than two primary fabrics; if there is only one fabric, it is primary.
+- Any number of additional fabrics is allowed.
+- The read model sorts primary fabrics before additional fabrics, and by `SortOrder` within each group.
+- The fabric list is available only for `Sewing`; `Ppe` cannot have any fabrics.
 
-## Перелік фурнітури
+## Accessory list
 
-Product матиме впорядкований перелік посилань на `GarmentAccessoryId` із модуля Reference. Для кожної вибраної фурнітури користувач задає кількість, потрібну для одного виробу.
+Product will have an ordered list of references to `GarmentAccessoryId` values from the Reference module. For each selected accessory, the user sets the quantity required for one product.
 
 ```text
 Product
@@ -42,19 +42,19 @@ Product
     └── SortOrder
 ```
 
-`GarmentAccessory` належить Reference та зараз містить `Name`, поточну `Price` і `SupplierId`. Product зберігатиме лише ID, кількість і порядок власного зв’язку; не копіюватиме ціну або назву фурнітури.
+`GarmentAccessory` belongs to Reference and currently contains `Name`, current `Price`, and `SupplierId`. Product stores only the ID, quantity, and order of its own link; it does not copy the accessory price or name.
 
-### Прийняті інваріанти
+### Accepted invariants
 
-- одна й та сама `GarmentAccessoryId` не додається двічі до одного Product;
-- кількість є обов’язковою та має бути більшою за нуль;
-- перелік фурнітури доступний лише для `Sewing`; `Ppe` не може мати жодної фурнітури.
+- The same `GarmentAccessoryId` cannot be added twice to one Product.
+- Quantity is required and must be greater than zero.
+- The accessory list is available only for `Sewing`; `Ppe` cannot have any accessories.
 
-## Розрахунок продуктивності
+## Productivity calculation
 
 ```text
-totalOperationMinutes = Σ тривалість усіх операцій товару
+totalOperationMinutes = Σ duration of all product operations
 piecesPerShift = 480 / (totalOperationMinutes × 1.25)
 ```
 
-Зміна триває `480` хвилин, а до сумарної тривалості операцій застосовується фіксований коефіцієнт `1.25`. `piecesPerShift` завжди передається повним дробовим числовим значенням без округлення та без окремого скороченого варіанта для завершених виробів. Sewing-товар може бути чернеткою без операцій; у цьому стані показники не обчислюються. Для наступних розрахунків використовується актуальна тривалість операції.
+A shift is `480` minutes, and the fixed coefficient `1.25` is applied to the total operation duration. `piecesPerShift` is always passed as the full fractional numeric value, without rounding and without a separate shortened value for completed products. A Sewing product may be a draft without operations; in that state, the metrics are not calculated. Subsequent calculations use the current operation duration.

@@ -1,42 +1,44 @@
-# Специфікації функціональностей
+# Feature specifications
 
-## Наявні специфікації
+This is an index of project decisions and delivery; the [implemented feature map](../features/README.md) points to the architecture of the current code. Check each item's README and code for its status.
 
-Це індекс проєктних рішень і delivery; [карта фактично реалізованих фіч](../features/README.md) веде до архітектури поточного коду. Статус кожної роботи перевіряй у її README та коді.
-
-| Модуль | Специфікації |
+| Module | Specifications |
 | --- | --- |
-| Catalog | [товар і сторінка товару — чинна SDD](catalog/001-product-page/README.md), [ранній історичний знімок товару](catalog/product-page/README.md), [admin список категорій](catalog/admin-product-list/README.md), [медіафайли](catalog/media-files/README.md) |
-| Platform | [схеми модулів](platform/001-module-schemas/README.md) |
+| Catalog | [product and product page — current SDD](catalog/001-product-page/README.md), [early historical product snapshot](catalog/product-page/README.md), [admin product category list](catalog/admin-product-list/README.md), [media files](catalog/media-files/README.md) |
+| Platform | [module schemas](platform/001-module-schemas/README.md) |
 
-Кожна нетривіальна зміна починається тут до початку реалізації.
+Every non-trivial change starts here before implementation.
 
-Для нової або зміненої специфікації застосовуйте `$backend-feature-spec` і [правила постачання](../standards/delivery-rules.md). Структура нижче визначає місце проєктних специфікацій BreviERP; конкретні документи додавайте за змістом feature.
+For a new or changed specification, use `$backend-feature-spec` and the [delivery rules](../standards/delivery-rules.md). The structure below defines where BreviERP project specifications belong; add specific documents according to the feature's content.
 
-Для спільних бізнес-термінів Product, Sewing і PPE використовуйте [глосарій](../../product/glossary.md), а не створюйте нові визначення у кожній специфікації.
+For shared business terms Product, Sewing, and PPE, use the [glossary](../../product/glossary.md) instead of creating new definitions in each specification.
 
-## Структура
+## Structure
 
 ```text
 docs/sdd/specs/
   <module>/
     <NNN>-<feature-slug>/
       README.md                    orchestration feature
-      requirements/                поведінка й правила
-      design/                      backend-рішення
-      data-model.md                модель даних
+      requirements/                behavior and rules
+      design/                      backend decisions
+      data-model.md                data model
       contracts/                   API/integration contracts
-      traceability.md              зв'язок сценаріїв, задач і доказів
-      tasks/                       фази та атомарні задачі AI
+      traceability.md              scenario, task, and evidence links
+      tasks/                       AI phases and atomic tasks
       checklist/                   quality gates
 ```
 
-Використовуйте папку модуля, наприклад `catalog`, `reference`, `identity`, `accounting`, `crm`, `platform` або `cross-module`. Назви функціональностей і фаз мають бути в нижньому регістрі та kebab-case.
+Use the module folder, for example `catalog`, `reference`, `identity`, `accounting`, `crm`, `platform`, or `cross-module`. Feature and phase names must be lowercase kebab-case.
 
-Наявні специфікації переводьте на цю структуру поступово: зберігайте ID завершених задач і verification history, якщо користувач не замовив повне перепроєктування feature. Для міграції даних або schema явно описуйте baseline і rollback у `design/`, а rollout та verification — у `tasks/`. Машиночитані публічні API-контракти зберігайте в [`docs/sdd/contracts/`](../contracts/README.md). Посилайтеся на архітектуру й стандарти замість їх копіювання.
+Gradually migrate existing specifications to this structure: preserve completed task IDs and verification history unless the user requests a complete feature redesign. For data or schema migrations, explicitly describe the baseline and rollback in `design/`; put rollout and verification in `tasks/`. Keep machine-readable public API contracts in [`docs/sdd/contracts/`](../contracts/README.md). Link to architecture and standards instead of copying them.
 
-## Життєвий цикл
+## Lifecycle
 
-Чернетка → прийнято → у роботі → перевірено → завершено.
+Draft → accepted → in progress → verified → complete.
 
-Реалізація не повинна непомітно відхилятися від прийнятої специфікації. Якщо це відбувається, додайте датований запис про зміну з причиною, впливом на межі та новою перевіркою.
+Implementation must not silently diverge from an accepted specification. If that happens, add a dated change entry with the reason, boundary impact, and new verification.
+
+## Planned Catalog migration slice
+
+- [Sewing articles and calculation composition](catalog/002-sewing-articles-and-composition/README.md) — domain/schema design is ready; data import awaits database access.

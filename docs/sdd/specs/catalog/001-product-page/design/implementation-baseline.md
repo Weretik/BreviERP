@@ -1,29 +1,29 @@
-# Сторінка товару — дизайн поточної технічної бази
+# Product page — current technical baseline
 
-## Реалізовано
+## Implemented
 
-- Domain: спільна модель Product, взаємовиключні деталі Sewing/PPE, тканини, фурнітура, операції, ціноутворення та валідація інваріантів.
-- Infrastructure: відображення EF таблиць деталей і зв’язків, міграція Catalog та відкат, проєкції SQL для читання й міжмодульна перевірка використання даних Reference.
-- Application: сценарії CQRS для створення, повної заміни, списку, деталей і видалення; валідація Reference та збагачені адміністративні моделі читання.
-- API: `/api/v1/products` CRUD, строкові enum на write boundary, OpenAPI contract і HTTP/API integration tests.
+- Domain: shared Product model, mutually exclusive Sewing/PPE details, fabrics, accessories, operations, pricing, and invariant validation.
+- Infrastructure: EF mapping for detail and link tables, Catalog migration and rollback, SQL read projections, and cross-module checks for Reference data usage.
+- Application: CQRS scenarios for create, full replacement, list, detail, and delete; Reference validation and enriched admin read models.
+- API: `/api/v1/products` CRUD, string enums at the write boundary, OpenAPI contract, and HTTP/API integration tests.
 
-## Залишкова перевірка
+## Remaining verification
 
-- Ручні Swagger/API сценарії для Sewing/PPE create/update та Reference delete conflict ще не проведені в запущеному Host API; див. `tasks/verification/05.2-delivery-documentation.md`.
+- Manual Swagger/API scenarios for Sewing/PPE create/update and Reference delete conflicts have not yet been run against a started Host API; see `tasks/verification/05.2-delivery-documentation.md`.
 
-## Технічні правила інтеграції з Reference
+## Technical rules for Reference integration
 
-- Application перевіряє існування `SupplierId`, `FabricId`, `GarmentAccessoryId`, `GarmentPartOperationId` і вибраних `AdditionalReferenceId` для роздрібного/оптового відсотків перед зміною товару; для кожного такого значення також перевіряється одиниця `%`.
-- Product зберігає лише ідентифікатори довідникових даних і властивості власних зв’язків; не копіює назви, ціни, контакти або довідникові сутності.
-- Видалення `GarmentPartOperation`, `Fabric` чи `GarmentAccessory` відхиляється, якщо сутність використовується хоча б одним Product. Зв’язки Product не очищуються автоматично й міжмодульні події для цього не публікуються.
-- Видалення `MediaFile` відхиляється, якщо він прив’язаний до Product як фото. Спочатку посилання потрібно прибрати з Product.
-- Розрахунок Sewing читає актуальну тривалість операції; якщо потрібна історична норма, це окрема технічна зміна.
+- Before changing a product, Application checks the existence of `SupplierId`, `FabricId`, `GarmentAccessoryId`, `GarmentPartOperationId`, and selected `AdditionalReferenceId` values for retail/wholesale percentages; it also checks the `%` unit for each such value.
+- Product stores only reference IDs and properties of its own links; it does not copy names, prices, contact details, or reference entities.
+- Deletion of a `GarmentPartOperation`, `Fabric`, or `GarmentAccessory` is rejected if the entity is used by at least one Product. Product links are not automatically cleared and no cross-module events are published for this.
+- Deletion of `MediaFile` is rejected if it is linked to Product as a photo. The link must first be removed from Product.
+- Sewing calculation reads the current operation duration; historical standards would require a separate technical change.
 
-## Відкрита performance-корекція
+## Open performance correction
 
-Під час ручного `GET /api/v1/products` 2026-08-19 зафіксовано
-`MultipleCollectionIncludeWarning`, `GetAdminProductsQuery` 7740 ms і HTTP 9142 ms.
-Реалізація та вимірювана повторна перевірка описані відповідно в
+During manual `GET /api/v1/products` on 2026-08-19, the following were recorded:
+`MultipleCollectionIncludeWarning`, `GetAdminProductsQuery` at 7740 ms, and HTTP at 9142 ms.
+Implementation and repeat measurement are described respectively in
 [admin-list-query-performance.md](admin-list-query-performance.md),
-`tasks/application/03.9-admin-list-query-performance.md` і
+`tasks/application/03.9-admin-list-query-performance.md`, and
 `tasks/verification/05.3-admin-list-query-performance-verification.md`.
