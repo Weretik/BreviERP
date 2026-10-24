@@ -1,6 +1,6 @@
 # 002 — Sewing articles and calculation composition
 
-**Module:** Catalog, with Reference reads. **Status:** ready for domain/schema work; import awaits target database access, 2026-10-23. **Scope:** additive model/article identity and editable calculation inputs for sewing products. This extends the completed [Product page SDD](../001-product-page/README.md); it does not replace its historical evidence.
+**Module:** Catalog, with Reference reads. **Status:** code implemented with focused verification, 2026-10-25; PostgreSQL migration execution and source import remain open. **Scope:** additive model/article identity and editable calculation inputs for sewing products. This extends the completed [Product page SDD](../001-product-page/README.md); it does not replace its historical evidence.
 
 ## Goal and boundary
 
@@ -16,6 +16,7 @@ This slice covers product/article relationships, composition editing, validation
 - [Proposed HTTP contract](contracts/api-contract.md)
 - [Prerequisites and implementation tasks](tasks.md)
 - [Traceability and readiness](traceability.md)
+- [Implementation checkpoint and verification](implementation.md)
 
 ## Evidence and open gates
 
