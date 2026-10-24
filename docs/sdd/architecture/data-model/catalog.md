@@ -17,6 +17,11 @@
 | `SewingProductFabrics` | `ProductId`, `FabricId` | Fabrics for a sewing product, primary flag, and order. |
 | `SewingProductAccessories` | `ProductId`, `GarmentAccessoryId` | Sewing product accessories and quantities. |
 | `SewingProductOperations` | `ProductId`, `GarmentPartOperationId` | Operations for a sewing product. |
+| `SewingArticles` | generated long `Id` | Product-owned immutable globally unique sale SKU, activity and order; alternate key `(ProductId, Id)`. |
+| `SewingMaterialLines` | generated long `Id` | Shared or Article-specific fabric/accessory/non-inventory cost inputs, quantity/unit and review metadata. Composite Article FK prevents cross-parent links. |
+| `SewingOperationLines` | generated long `Id` | Shared operation reference, quantity, optional manual minutes and review metadata. |
+
+Migration `20261024215605_AddSewingComposition` also adds nullable unique `Products.ModelCode` and the `Products.CompositionVersion` concurrency token. These are implemented mappings; PostgreSQL rollout verification remains open. See [Sewing composition](../../features/catalog/sewing-composition.md).
 
 ```mermaid
 erDiagram

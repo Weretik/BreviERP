@@ -29,6 +29,14 @@ public sealed class ReplaceProductCommandHandler(
         var product = await repository.FirstOrDefaultAsync(new ProductByIdSpec(command.Id), cancellationToken);
         if (product is null) return Result.NotFound();
         var request = command.Request;
+        if (product.Type == ProductType.Sewing && request.Type == ProductType.Ppe &&
+            (product.Articles.Count != 0 || product.MaterialLines.Count != 0 || product.OperationLines.Count != 0))
+            return Result.Conflict("Product has Articles or sewing composition and cannot change to PPE.");
+        if (product.MaterialLines.Count != 0 || product.OperationLines.Count != 0)
+        {
+            if (request.Type != ProductType.Sewing || request.Sewing is null || !LegacySewingNormsMatch(product.SewingDetails, request.Sewing))
+                return Result.Conflict("Legacy sewing norms cannot be changed while composition is configured; use the composition API.");
+        }
         var name = request.Name.Trim(); var ruName = request.RuName.Trim();
         var slug = slugGenerator.GenerateFromUkrainianName(name);
         if (await repository.AnyAsync(new ProductByIdOrNameExceptIdSpec(command.Id, name, ruName, slug), cancellationToken))
@@ -76,6 +84,18 @@ public sealed class ReplaceProductCommandHandler(
         return detail is null
             ? Result.Error("Updated Product could not be read.")
             : Result.Success(ProductAdminDetailMapper.Map(detail, references, categoryDetails, mediaUrls));
+    }
+
+    private static bool LegacySewingNormsMatch(SewingProductDetails? details, SewingProductRequest request)
+    {
+        if (details is null || details.MetersPerProduct != request.MetersPerProduct ||
+            details.Fabrics.Count != request.Fabrics.Count || details.Accessories.Count != request.Accessories.Count ||
+            details.Operations.Count != request.OperationIds.Count) return false;
+        return details.Fabrics.All(x => request.Fabrics.Any(y =>
+                   x.FabricId == y.FabricId && x.IsPrimary == y.IsPrimary && x.SortOrder == y.SortOrder)) &&
+               details.Accessories.All(x => request.Accessories.Any(y =>
+                   x.GarmentAccessoryId == y.GarmentAccessoryId && x.Quantity == y.Quantity && x.SortOrder == y.SortOrder)) &&
+               details.Operations.All(x => request.OperationIds.Contains(x.GarmentPartOperationId));
     }
 
     private static string? ValidateReferences(CreateProductCommandRequest r, ProductReferenceData d)

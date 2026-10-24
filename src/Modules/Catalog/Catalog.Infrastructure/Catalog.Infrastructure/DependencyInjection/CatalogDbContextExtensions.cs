@@ -20,6 +20,7 @@ public static class CatalogDbContextExtensions
 
         services.AddScoped(typeof(ICatalogRepository<>), typeof(CatalogEfRepository<>));
         services.AddScoped(typeof(ICatalogReadRepository<>), typeof(CatalogReadEfRepository<>));
+        services.AddScoped<Catalog.Application.Features.Product.Sewing.ISewingCompositionStore, SewingCompositionStore>();
         services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogDbContext>>();
         services.AddScoped<ISeeder, ProductCategorySeeder>();
 

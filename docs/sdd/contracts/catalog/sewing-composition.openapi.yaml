@@ -1,0 +1,334 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Sewing Articles and Composition API
+  version: 1.0.0
+  description: Admin API for Sewing Product Articles and their shared/effective composition.
+servers:
+  - url: /
+paths:
+  /api/v1/products/{productId}/articles:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    get:
+      operationId: listSewingArticles
+      summary: List Articles for a Sewing Product
+      description: Requires CatalogRead. The result is bounded to at most 200 Articles.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Bounded Article list and model composition version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SewingArticleList' }
+        '401': { description: Access token missing or invalid. }
+        '403': { description: Caller does not satisfy CatalogRead. }
+        '404': { description: Product not found or is not a Sewing Product. }
+    post:
+      operationId: createSewingArticle
+      summary: Create a Sewing Product Article
+      description: Requires CanManageProducts. Sale SKU is globally unique, trimmed and compared using ordinal case-sensitive equality; it is immutable after creation.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateSewingArticleRequest' }
+      responses:
+        '201':
+          description: Article created.
+          headers:
+            Location:
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SewingArticle' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Access token missing or invalid. }
+        '403': { description: Caller does not satisfy CanManageProducts. }
+        '404': { description: Product not found or is not a Sewing Product. }
+        '409': { $ref: '#/components/responses/ConflictError' }
+  /api/v1/products/{productId}/composition:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    get:
+      operationId: getSewingComposition
+      summary: Get shared and effective Article composition
+      description: >-
+        Requires CatalogRead. Returns model-wide lines and shared operations when
+        articleId is omitted. When articleId is supplied, also returns that Article's
+        material lines; the effective materials are model-wide plus Article-scoped,
+        and every material line identifies its scope.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: articleId
+          in: query
+          required: false
+          description: When omitted, returns model-wide lines and shared operations without selecting an Article.
+          schema: { type: integer, format: int64, minimum: 1 }
+      responses:
+        '200':
+          description: Composition and readiness blockers for the selected Article.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SewingComposition' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Access token missing or invalid. }
+        '403': { description: Caller does not satisfy CatalogRead. }
+        '404': { description: 'Product not found, is not Sewing, or Article does not belong to Product.' }
+    put:
+      operationId: replaceSewingComposition
+      summary: Replace model-wide Sewing composition
+      description: >-
+        Requires CanManageProducts. Replaces all model-wide materials and operations
+        atomically. A stale expectedVersion returns 409; clients must not replay
+        automatically and should retain the user's draft for resolution.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReplaceSewingCompositionRequest' }
+      responses:
+        '200':
+          description: Updated model-wide and effective composition with the new version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SewingComposition' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Access token missing or invalid. }
+        '403': { description: Caller does not satisfy CanManageProducts. }
+        '404': { description: 'Product not found, is not Sewing, or referenced entity is missing.' }
+        '409': { $ref: '#/components/responses/ConflictError' }
+  /api/v1/products/{productId}/articles/{articleId}/composition:
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+      - $ref: '#/components/parameters/ArticleId'
+    put:
+      operationId: replaceSewingArticleComposition
+      summary: Replace Article-specific material composition
+      description: >-
+        Requires CanManageProducts. Replaces all Article-specific materials atomically.
+        A stale expectedVersion returns 409; clients must not replay automatically
+        and should retain the user's draft for resolution.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReplaceSewingArticleCompositionRequest' }
+      responses:
+        '200':
+          description: Updated effective composition and the new version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SewingComposition' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Access token missing or invalid. }
+        '403': { description: Caller does not satisfy CanManageProducts. }
+        '404': { description: 'Product, Article or referenced entity not found.' }
+        '409': { $ref: '#/components/responses/ConflictError' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Opaque
+      description: Opaque access token returned by the Identity session API.
+  parameters:
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      schema: { type: integer, format: int32, minimum: 1, maximum: 1000000000 }
+    ArticleId:
+      name: articleId
+      in: path
+      required: true
+      schema: { type: integer, format: int64, minimum: 1 }
+  responses:
+    ValidationError:
+      description: Field-specific validation errors; writes are atomic and make no partial changes.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+    ConflictError:
+      description: Stale version, duplicate sale SKU, or conflicting composition lines.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { type: string }
+  schemas:
+    CreateSewingArticleRequest:
+      type: object
+      additionalProperties: false
+      required: [saleSku, active, sortOrder, expectedVersion]
+      properties:
+        saleSku: { type: string, minLength: 1, maxLength: 80 }
+        active: { type: boolean }
+        sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
+        expectedVersion:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Current model composition version used for optimistic concurrency.
+    SewingArticle:
+      type: object
+      additionalProperties: false
+      required: [id, productId, saleSku, active, sortOrder]
+      properties:
+        id: { type: integer, format: int64, minimum: 1 }
+        productId: { type: integer, format: int32, minimum: 1 }
+        saleSku: { type: string, minLength: 1, maxLength: 80 }
+        active: { type: boolean }
+        sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
+    SewingArticleList:
+      type: object
+      additionalProperties: false
+      required: [productId, modelCode, version, articles]
+      properties:
+        productId: { type: integer, format: int32, minimum: 1 }
+        modelCode: { type: [string, 'null'], maxLength: 80 }
+        version: { type: integer, format: int64, minimum: 0 }
+        articles:
+          type: array
+          maxItems: 200
+          items: { $ref: '#/components/schemas/SewingArticle' }
+    ReplaceSewingCompositionRequest:
+      type: object
+      additionalProperties: false
+      required: [modelCode, materials, operations, expectedVersion]
+      properties:
+        modelCode: { type: [string, 'null'], maxLength: 80 }
+        materials:
+          type: array
+          maxItems: 2000
+          items: { $ref: '#/components/schemas/SewingMaterialInput' }
+        operations:
+          type: array
+          maxItems: 2000
+          items: { $ref: '#/components/schemas/SewingOperationInput' }
+        expectedVersion: { type: integer, format: int64, minimum: 0 }
+    ReplaceSewingArticleCompositionRequest:
+      type: object
+      additionalProperties: false
+      required: [materials, expectedVersion]
+      properties:
+        materials:
+          type: array
+          maxItems: 2000
+          items: { $ref: '#/components/schemas/SewingMaterialInput' }
+        expectedVersion: { type: integer, format: int64, minimum: 0 }
+    SewingMaterialInput:
+      type: object
+      additionalProperties: false
+      required: [kind, referenceId, costCode, quantity, unit, required, sortOrder, reviewed]
+      properties:
+        kind: { $ref: '#/components/schemas/SewingMaterialKind' }
+        referenceId:
+          type: [integer, 'null']
+          format: int32
+          minimum: 1
+          description: Required for Fabric and Accessory; null for OtherCost.
+        costCode:
+          type: [string, 'null']
+          maxLength: 80
+          description: Required for OtherCost; null for Fabric and Accessory.
+        quantity: { type: number, exclusiveMinimum: 0, maximum: 999999999999.999999, multipleOf: 0.000001 }
+        unit: { $ref: '#/components/schemas/SewingMaterialUnit' }
+        required: { type: boolean }
+        sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
+        reviewed: { type: boolean }
+    SewingMaterialKind:
+      type: string
+      enum: [Fabric, Accessory, OtherCost]
+      description: Fabric uses Metre, Accessory uses Piece, and OtherCost uses Service.
+    SewingMaterialUnit:
+      type: string
+      enum: [Metre, Piece, Service, Kilogram]
+      description: Kilogram is reserved; no currently supported material kind accepts it.
+    SewingOperationInput:
+      type: object
+      additionalProperties: false
+      required: [operationId, quantity, manualMinutes, sortOrder, reviewed]
+      properties:
+        operationId: { type: integer, format: int32, minimum: 1 }
+        quantity: { type: number, exclusiveMinimum: 0, maximum: 999999999999.999999, multipleOf: 0.000001 }
+        manualMinutes:
+          type: [number, 'null']
+          exclusiveMinimum: 0
+          maximum: 999999999999.999999
+          multipleOf: 0.000001
+        sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
+        reviewed: { type: boolean }
+    SewingComposition:
+      type: object
+      additionalProperties: false
+      required: [productId, articleId, modelCode, version, materials, operations, blockers]
+      properties:
+        productId: { type: integer, format: int32, minimum: 1 }
+        articleId: { type: [integer, 'null'], format: int64, minimum: 1 }
+        modelCode: { type: [string, 'null'], maxLength: 80 }
+        version: { type: integer, format: int64, minimum: 0 }
+        materials:
+          type: array
+          description: Model-wide and selected-Article lines; scope identifies each line. This is the effective set.
+          items: { $ref: '#/components/schemas/SewingMaterial' }
+        operations:
+          type: array
+          description: Shared effective operation lines.
+          items: { $ref: '#/components/schemas/SewingOperation' }
+        blockers:
+          type: array
+          description: Human-readable blockers for review, missing fabric/operations, or unresolved OtherCost.
+          items: { type: string }
+    SewingMaterial:
+      type: object
+      additionalProperties: false
+      required: [id, articleId, scope, kind, referenceId, costCode, quantity, unit, required, sortOrder, reviewed, reviewedBy, reviewedAt]
+      description: Effective line. Identity and review metadata are server-owned.
+      properties:
+        id: { type: integer, format: int64, minimum: 1 }
+        articleId: { type: [integer, 'null'], format: int64, minimum: 1 }
+        scope: { type: string, enum: [Model, Article] }
+        kind: { $ref: '#/components/schemas/SewingMaterialKind' }
+        referenceId: { type: [integer, 'null'], format: int32, minimum: 1 }
+        costCode: { type: [string, 'null'], maxLength: 80 }
+        quantity: { type: number, exclusiveMinimum: 0, maximum: 999999999999.999999, multipleOf: 0.000001 }
+        unit: { $ref: '#/components/schemas/SewingMaterialUnit' }
+        required: { type: boolean }
+        sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
+        reviewed: { type: boolean }
+        reviewedBy: { type: [string, 'null'] }
+        reviewedAt: { type: [string, 'null'], format: date-time }
+    SewingOperation:
+      type: object
+      additionalProperties: false
+      required: [id, operationId, quantity, manualMinutes, sortOrder, reviewed, reviewedBy, reviewedAt]
+      description: Shared effective operation line. Identity and review metadata are server-owned.
+      properties:
+        id: { type: integer, format: int64, minimum: 1 }
+        operationId: { type: integer, format: int32, minimum: 1 }
+        quantity: { type: number, exclusiveMinimum: 0, maximum: 999999999999.999999, multipleOf: 0.000001 }
+        manualMinutes:
+          type: [number, 'null']
+          exclusiveMinimum: 0
+          maximum: 999999999999.999999
+          multipleOf: 0.000001
+        sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
+        reviewed: { type: boolean }
+        reviewedBy: { type: [string, 'null'] }
+        reviewedAt: { type: [string, 'null'], format: date-time }
+    ValidationError:
+      type: object
+      required: [errorMessage]
+      properties:
+        identifier: { type: [string, 'null'] }
+        errorMessage: { type: string }

@@ -1,6 +1,6 @@
 # Proposed HTTP contract
 
-**Status:** design proposal. Update [machine-readable OpenAPI](../../../../contracts/catalog/product-catalog.openapi.yaml) and operation IDs before implementation. Existing product operations remain compatible; this file does not claim the routes exist.
+**Status:** implemented in the Catalog API, 2026-10-25. The canonical [sewing composition OpenAPI](../../../../contracts/catalog/sewing-composition.openapi.yaml) defines exact DTOs, operation IDs, access and errors. Existing Product operations remain available. See the [implementation checkpoint](../implementation.md) for rollout and verification limits.
 
 | Method and proposed route | Proposed operationId | Request/response | Access and failure |
 | --- | --- | --- | --- |
@@ -12,4 +12,4 @@
 
 Use exact DTO schemas, numeric bounds, field names, `ProblemDetails` shape and auth policy already established by Brevi's current contract style. `SaleSku` is a string and remains stable; Article ID is an internal typed ID. `PUT` replacement is idempotent for an identical payload and version. List responses are bounded/paginated if the catalogue permits large article sets. No price amount is returned by this contract until Pricing defines it.
 
-**EN-002:** settle route split, optimistic concurrency and authorization with the current product API owner; then write the OpenAPI operation schema. Frontend must consume the generated/approved contract version, not hand-maintain an assumed DTO.
+**EN-002 decision:** separate protected controller; `CatalogRead` reads and `CanManageProducts` writes; required body `expectedVersion` backed by Product-level EF optimistic concurrency. Article creation also requires the token. Model code is part of shared composition replacement. An identical payload with a stale version returns 409; clients retain the draft and reload explicitly. This replaces the proposal's identical-payload/version retry wording. Frontend consumes a generated contract from a pinned backend commit.

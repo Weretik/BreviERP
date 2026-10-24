@@ -32,6 +32,10 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasConversion<int>()
             .IsRequired();
 
+        builder.Property(x => x.ModelCode).HasMaxLength(80);
+        builder.Property(x => x.CompositionVersion).HasDefaultValue(0L).IsConcurrencyToken();
+        builder.HasIndex(x => x.ModelCode).IsUnique();
+
         builder.Property(x => x.DescriptionUk).HasMaxLength(20_000).IsRequired();
         builder.Property(x => x.DescriptionRu).HasMaxLength(20_000).IsRequired();
         builder.Property(x => x.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP").IsRequired();
@@ -70,5 +74,9 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .WithOne()
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.Articles).HasField("_articles").UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(x => x.MaterialLines).HasField("_materialLines").UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(x => x.OperationLines).HasField("_operationLines").UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

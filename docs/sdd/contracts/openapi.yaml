@@ -51,3 +51,9 @@ paths:
     $ref: ./catalog/product-catalog.openapi.yaml#/paths/~1api~1v1~1products
   /api/v1/products/{id}:
     $ref: ./catalog/product-catalog.openapi.yaml#/paths/~1api~1v1~1products~1{id}
+  /api/v1/products/{productId}/articles:
+    $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles
+  /api/v1/products/{productId}/composition:
+    $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1composition
+  /api/v1/products/{productId}/articles/{articleId}/composition:
+    $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}~1composition

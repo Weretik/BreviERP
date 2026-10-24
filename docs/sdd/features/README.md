@@ -7,6 +7,7 @@ See the feature card's “Code structure” section for actual file paths and ro
 ## Catalog
 
 - [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products.
+- [Sewing Articles and composition](catalog/sewing-composition.md) — sale SKUs, shared/Article material norms, shared operations and review readiness; PostgreSQL rollout verification pending.
 - [Product categories](catalog/categories.md) — Admin CRUD and Storefront list.
 - [Catalog media](catalog/media.md) — upload, list, and delete product files.
 

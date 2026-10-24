@@ -81,4 +81,15 @@ public static class ProductErrors
 
     public static CatalogDomainError DescriptionIsRequired() => new("Catalog.Product.Description.Required", "Product description is required");
     public static CatalogDomainError DescriptionLengthInvalid() => new("Catalog.Product.Description.LengthInvalid", "Product description must be 20000 characters or less");
+    public static CatalogDomainError SaleSkuInvalid() => new("Catalog.Product.Article.Sku.Invalid", "Article sale SKU is required and must be 80 characters or less");
+    public static CatalogDomainError DuplicateSaleSku(string sku) => new("Catalog.Product.Article.Sku.Duplicate", $"Article sale SKU '{sku}' already exists for the product");
+    public static CatalogDomainError ArticleLimitReached() => new("Catalog.Product.Article.LimitReached", "A product cannot have more than 200 articles");
+    public static CatalogDomainError CompositionParentMismatch() => new("Catalog.Product.Composition.ParentMismatch", "Composition line belongs to another product or article");
+    public static CatalogDomainError CompositionScopeConflict() => new("Catalog.Product.Composition.ScopeConflict", "A common composition line conflicts with an article-specific line");
+    public static CatalogDomainError MaterialReferenceInvalid() => new("Catalog.Product.Material.ReferenceInvalid", "Material kind, reference and unit do not match");
+    public static CatalogDomainError ReviewMetadataRequired() => new("Catalog.Product.Composition.ReviewMetadataRequired", "Reviewed lines require reviewer and review time");
+    public static CatalogDomainError DuplicateCompositionLine() => new("Catalog.Product.Composition.Line.Duplicate", "Composition contains a duplicate effective line");
+    public static CatalogDomainError ArticleSpecificOperationsNotSupported() => new("Catalog.Product.Operation.ArticleScope.Unsupported", "Article-specific operations are not supported");
+    public static CatalogDomainError ModelCodeInvalid() => new("Catalog.Product.ModelCode.Invalid", "Model code must be 80 characters or less");
+    public static CatalogDomainError CompositionLineLimitReached() => new("Catalog.Product.Composition.Line.LimitReached", "A product cannot have more than 2000 lines of either composition type");
 }

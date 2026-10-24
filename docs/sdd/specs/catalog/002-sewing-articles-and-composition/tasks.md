@@ -1,6 +1,6 @@
 # Prerequisites and implementation tasks
 
-This is a planned graph; no task is implemented. Focused tests use Red → Green → Refactor within each slice under the repository's [delivery rules](../../../standards/delivery-rules.md). Do not run seeders or migrations against live data from this document.
+The implementation and remaining gates are recorded in the [2026-10-25 checkpoint](implementation.md). The graph below preserves the planned dependencies. Focused tests follow the repository's [delivery rules](../../../standards/delivery-rules.md). No live import or database migration is authorized by this document.
 
 | ID | Depends on | Work and evidence target |
 | --- | --- | --- |

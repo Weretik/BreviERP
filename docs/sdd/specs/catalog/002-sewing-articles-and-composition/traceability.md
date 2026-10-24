@@ -11,4 +11,4 @@
 
 ## Readiness review
 
-Domain and additive schema work can start from this SDD. EN-002 must settle new-route authorization and concurrency before HTTP delivery; EN-001 is a pre-import gate, not a code-design blocker. Full cost parity requires a later Pricing SDD. No implementation or test evidence has been produced. No implementation or test evidence has been produced.
+The [2026-10-25 implementation checkpoint](implementation.md) supersedes the planned statuses above for TS-001–006. Domain/application/HTTP code and additive mappings are implemented; focused tests cover their observable behavior. EN-002 is resolved through existing policies and Product-level optimistic concurrency. EN-001 and TS-007 remain blocked on a target database and frozen source; TS-002 still requires real PostgreSQL empty/upgrade verification. EN-003 remains an explicit OtherCost pricing blocker. No import or deployment acceptance is claimed.

@@ -194,6 +194,12 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("integer");
 
+                    b.Property<long>("CompositionVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -213,6 +219,10 @@ namespace Catalog.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
+
+                    b.Property<string>("ModelCode")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -236,6 +246,9 @@ namespace Catalog.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ModelCode")
+                        .IsUnique();
 
                     b.HasIndex("Name")
                         .IsUnique();
@@ -455,6 +468,167 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("ProductPhotos", "catalog");
                 });
 
+            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingArticle", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SaleSku")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SaleSku")
+                        .IsUnique();
+
+                    b.ToTable("SewingArticles", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("CK_SewingArticles_SortOrder_NonNegative", "\"SortOrder\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingMaterialLine", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("AccessoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("ArticleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CostCode")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int?>("FabricId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsReviewed")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Unit")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "ArticleId");
+
+                    b.ToTable("SewingMaterialLines", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("CK_SewingMaterialLines_Quantity_Positive", "\"Quantity\" > 0");
+
+                            t.HasCheckConstraint("CK_SewingMaterialLines_Reference", "(\"Kind\" = 1 AND \"FabricId\" > 0 AND \"AccessoryId\" IS NULL AND \"CostCode\" IS NULL AND \"Unit\" = 1) OR (\"Kind\" = 2 AND \"FabricId\" IS NULL AND \"AccessoryId\" > 0 AND \"CostCode\" IS NULL AND \"Unit\" = 2) OR (\"Kind\" = 3 AND \"FabricId\" IS NULL AND \"AccessoryId\" IS NULL AND \"CostCode\" IS NOT NULL AND length(trim(\"CostCode\")) > 0 AND \"Unit\" = 3)");
+
+                            t.HasCheckConstraint("CK_SewingMaterialLines_ReviewMetadata", "NOT \"IsReviewed\" OR (\"ReviewedBy\" IS NOT NULL AND length(trim(\"ReviewedBy\")) > 0 AND \"ReviewedAt\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_SewingMaterialLines_SortOrder_NonNegative", "\"SortOrder\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingOperationLine", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ArticleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsReviewed")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal?>("ManualMinutes")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<int>("OperationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("numeric(18,6)");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "OperationId")
+                        .IsUnique();
+
+                    b.ToTable("SewingOperationLines", "catalog", t =>
+                        {
+                            t.HasCheckConstraint("CK_SewingOperationLines_ManualMinutes_Positive", "\"ManualMinutes\" IS NULL OR \"ManualMinutes\" > 0");
+
+                            t.HasCheckConstraint("CK_SewingOperationLines_OperationId_Positive", "\"OperationId\" > 0");
+
+                            t.HasCheckConstraint("CK_SewingOperationLines_Quantity_Positive", "\"Quantity\" > 0");
+
+                            t.HasCheckConstraint("CK_SewingOperationLines_ReviewMetadata", "NOT \"IsReviewed\" OR (\"ReviewedBy\" IS NOT NULL AND length(trim(\"ReviewedBy\")) > 0 AND \"ReviewedAt\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_SewingOperationLines_SharedOnly", "\"ArticleId\" IS NULL");
+
+                            t.HasCheckConstraint("CK_SewingOperationLines_SortOrder_NonNegative", "\"SortOrder\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingProductDetails", b =>
                 {
                     b.Property<int>("ProductId")
@@ -563,6 +737,39 @@ namespace Catalog.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingArticle", b =>
+                {
+                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                        .WithMany("Articles")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingMaterialLine", b =>
+                {
+                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                        .WithMany("MaterialLines")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Catalog.Domain.Products.Entities.SewingArticle", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId", "ArticleId")
+                        .HasPrincipalKey("ProductId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingOperationLine", b =>
+                {
+                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                        .WithMany("OperationLines")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingProductDetails", b =>
                 {
                     b.HasOne("Catalog.Domain.Products.Entities.Product", null)
@@ -574,11 +781,17 @@ namespace Catalog.Infrastructure.Migrations
 
             modelBuilder.Entity("Catalog.Domain.Products.Entities.Product", b =>
                 {
+                    b.Navigation("Articles");
+
                     b.Navigation("Categories");
 
                     b.Navigation("CharacteristicTables");
 
                     b.Navigation("InformationBlocks");
+
+                    b.Navigation("MaterialLines");
+
+                    b.Navigation("OperationLines");
 
                     b.Navigation("Photos");
 
