@@ -20,6 +20,6 @@ public sealed class PpePricingRulesController(ISender sender) : ControllerBase
         var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(actor)) return Forbid();
         return this.ToActionResult(await sender.Send(new CreatePpeRuleVersionCommand(
-            request.ExpectedVersionId, request.RequestId, request.Values, actor), cancellationToken));
+            request.ExpectedVersionId, request.RequestId, request.Values.ToValues(), actor), cancellationToken));
     }
 }

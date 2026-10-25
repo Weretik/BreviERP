@@ -16,6 +16,9 @@ namespace UnitTests;
 public sealed class PpePricingContractTests
 {
     [TestCase(typeof(PpeMarkups))]
+    [TestCase(typeof(PpeMarkupsRequest))]
+    [TestCase(typeof(PpeRuleValuesRequest))]
+    [TestCase(typeof(PpeOfferValuesRequest))]
     [TestCase(typeof(PpePriceTiers))]
     [TestCase(typeof(PpePricingBlocker))]
     [TestCase(typeof(PpePriceCalculation))]
@@ -37,7 +40,7 @@ public sealed class PpePricingContractTests
         yaml.Load(reader);
         var root = (YamlMappingNode)yaml.Documents[0].RootNode;
         var schemas = (YamlMappingNode)((YamlMappingNode)root["components"])["schemas"];
-        var schemaName = type.Name;
+        var schemaName = type.Name is "PpeMarkupsRequest" or "PpeRuleValuesRequest" or "PpeOfferValuesRequest" ? type.Name[..^7] : type.Name;
         var properties = (YamlMappingNode)((YamlMappingNode)schemas[schemaName])["properties"];
         Assert.That(properties.Children.Keys.Cast<YamlScalarNode>().Select(x => x.Value),
             Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));

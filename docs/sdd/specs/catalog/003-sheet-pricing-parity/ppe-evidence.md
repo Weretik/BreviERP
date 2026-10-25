@@ -13,3 +13,11 @@ Initial local boundary review: API binds/authorizes/maps only; Application owns 
 Known existing warning: Microsoft.OpenApi.YamlReader 2.7.5 NU1903. It predates this feature and was not suppressed. Full suite, browser and production build are outside the requested focused verification.
 
 Final checkpoint checks: `PpePricing|SewingPricingContractTests|Aggregate_contract_is_valid_and_all_references_resolve` — 50 passed; affected C# whitespace formatted. Fresh Host.Seed build passed with zero warnings/errors; `dotnet ef migrations has-pending-model-changes --no-build --context CatalogDbContext --project src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Catalog.Infrastructure.csproj --startup-project src/Bootstrapper/Host.Seed/Host.Seed.csproj` reported no changes. Source files are ignored. Only TS-006 files are included in the authorized local checkpoint; pre-existing SDD changes remain unstaged.
+
+## Request completeness follow-up
+
+Red regression `Incomplete_markup_request_is_rejected_before_any_approval_command` observed 404 instead of required 400 because absent numeric constructor properties bound as zero and reached Mediator. API-owned request types now require every documented JSON property and map explicitly to Application values; Domain/Application have no JSON attributes. Valid request, incomplete request and neighboring sewing API checks now pass: 7 integration tests. Serializer/property contract checks include the API request models (53 unit/contract cases in the final filter). The wire schema is unchanged.
+
+## Local execution
+
+Verified localhost:5432 / brevidb; created a custom pg_dump backup and successfully listed it with pg_restore before applying migrations via normal Host.Seed. Then ran the explicit PPE bootstrap and rerun against ignored frozen source: applied-drafts (10 rules, 119 offers), then already-applied (same counts). No input was approved and no price was published by the job. No source/backup/credentials were added to Git.
