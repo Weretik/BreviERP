@@ -1,6 +1,6 @@
 # 003 — Brevi-owned product pricing from approved source arithmetic
 
-**Module:** Catalog/Pricing boundary. **Status:** sewing engine, input-version updates and saved-calculation/publication API implemented locally, 2026-10-25; frontend consumer cutover and PPE remain planned. **Owner:** Catalog pricing, with Reference-owned cost/norm versions. The user selected the workbook's arithmetic as the calculation basis. There is no runtime workbook dependency. See the [implemented slice](sewing-implementation.md) and [execution evidence](sewing-evidence.md).
+**Module:** Catalog/Pricing boundary. **Status:** sewing engine, input-version updates and saved-calculation/publication API implemented locally, 2026-10-25; TS-005 Admin consumer cutover verified; TS-006 PPE backend implemented with frontend integration in progress. **Owner:** Catalog pricing, with Reference-owned cost/norm versions. The user selected the workbook's arithmetic as the calculation basis. There is no runtime workbook dependency. See the [implemented slice](sewing-implementation.md) and [execution evidence](sewing-evidence.md).
 
 This SDD changes the earlier [Product page pricing](../001-product-page/requirements/pricing.md) once implemented. It does not rewrite that completed specification's historical evidence. The preceding [Article and composition SDD](../002-sewing-articles-and-composition/README.md) supplies sellable Article identity and cost inputs.
 
@@ -14,6 +14,8 @@ This SDD changes the earlier [Product page pricing](../001-product-page/requirem
 The first implementation slice is sewing price parity for model `MOD-025`, Articles `246`/`247`. PPE is a separate dependent slice. Quote price snapshots, bank/finance data, and production payroll are outside this SDD.
 
 ## Navigation
+
+- [PPE implementation](ppe-implementation.md) and [verification](ppe-evidence.md)
 
 - [Rules and scenarios](requirements.md)
 - [Verified source-versus-code comparison](comparison.md)

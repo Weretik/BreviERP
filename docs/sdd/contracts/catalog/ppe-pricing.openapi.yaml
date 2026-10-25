@@ -1,0 +1,648 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BreviERP PPE Pricing API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/api/v1/pricing/ppe/products": {
+      "get": {
+        "operationId": "getPpeProductPrices",
+        "description": "CatalogRead. Bounded current PPE calculations from stored input versions; no live Sheet/XML or publication. Missing/non-PPE Products are omitted. Draft inputs yield blockers. Unenrolled Products are identified explicitly.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current data or successfully appended approved version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PpeProductPricing"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "productIds",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100,
+              "uniqueItems": true,
+              "items": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/pricing/ppe/rules": {
+      "get": {
+        "operationId": "getPpePricingRule",
+        "description": "CatalogRead. Latest exact-code rule, including an imported draft.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current data or successfully appended approved version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeRuleVersion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          },
+          "404": {
+            "description": "Rule absent."
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/pricing/ppe/rules/versions": {
+      "post": {
+        "operationId": "createPpeRuleVersion",
+        "description": "CanManageProducts. Append and approve a version using server actor/time. expectedVersionId null only for first enrollment. Request UUID retries are actor/payload-bound.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current data or successfully appended approved version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeRuleVersion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          },
+          "404": {
+            "description": "PPE Product missing."
+          },
+          "409": {
+            "description": "Expected version changed, or request UUID reused with another actor or payload."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePpeRuleVersionRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pricing/ppe/products/{productId}/offer/versions": {
+      "post": {
+        "operationId": "createPpeOfferVersion",
+        "description": "CanManageProducts. Append and approve a version using server actor/time. expectedVersionId null only for first enrollment. Request UUID retries are actor/payload-bound.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current data or successfully appended approved version.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeOfferVersion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          },
+          "404": {
+            "description": "PPE Product missing."
+          },
+          "409": {
+            "description": "Expected version changed, or request UUID reused with another actor or payload."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePpeOfferVersionRequest"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "productId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "PpeMarkups": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "retail",
+          "wholesale",
+          "largeWholesale"
+        ],
+        "properties": {
+          "retail": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "exclusiveMaximum": 1000000000000
+          },
+          "wholesale": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "exclusiveMaximum": 1000000000000
+          },
+          "largeWholesale": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "exclusiveMaximum": 1000000000000
+          }
+        }
+      },
+      "PpePriceTiers": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "retail",
+          "wholesale",
+          "largeWholesale"
+        ],
+        "properties": {
+          "retail": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "wholesale": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "largeWholesale": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "PpePricingBlocker": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "inputKey"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "inputKey": {
+            "type": "string"
+          }
+        }
+      },
+      "PpePriceCalculation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "prices",
+          "blockers",
+          "isCalculated"
+        ],
+        "properties": {
+          "prices": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PpePriceTiers"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PpePricingBlocker"
+            }
+          },
+          "isCalculated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PpeRuleValues": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "markups",
+          "source",
+          "sourceDate"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "markups": {
+            "$ref": "#/components/schemas/PpeMarkups"
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "sourceDate": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      },
+      "PpeOfferValues": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ruleCode",
+          "supplierCost",
+          "externalRetail",
+          "externalWholesale",
+          "source",
+          "sourceDate",
+          "sourceReviewed"
+        ],
+        "properties": {
+          "ruleCode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supplierCost": {
+            "anyOf": [
+              {
+                "type": "number",
+                "format": "decimal",
+                "minimum": 0,
+                "exclusiveMaximum": 1000000000000,
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "externalRetail": {
+            "anyOf": [
+              {
+                "type": "number",
+                "format": "decimal",
+                "minimum": 0,
+                "exclusiveMaximum": 1000000000000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "externalWholesale": {
+            "anyOf": [
+              {
+                "type": "number",
+                "format": "decimal",
+                "minimum": 0,
+                "exclusiveMaximum": 1000000000000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "sourceDate": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "sourceReviewed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PpeRuleVersion": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "values",
+          "isApproved",
+          "approvedBy",
+          "approvedAt",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "values": {
+            "$ref": "#/components/schemas/PpeRuleValues"
+          },
+          "isApproved": {
+            "type": "boolean"
+          },
+          "approvedBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approvedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreatePpeRuleVersionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expectedVersionId",
+          "requestId",
+          "values"
+        ],
+        "properties": {
+          "expectedVersionId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "values": {
+            "$ref": "#/components/schemas/PpeRuleValues"
+          }
+        }
+      },
+      "PpeOfferVersion": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "productId",
+          "values",
+          "isApproved",
+          "approvedBy",
+          "approvedAt",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "values": {
+            "$ref": "#/components/schemas/PpeOfferValues"
+          },
+          "isApproved": {
+            "type": "boolean"
+          },
+          "approvedBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approvedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreatePpeOfferVersionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expectedVersionId",
+          "requestId",
+          "values"
+        ],
+        "properties": {
+          "expectedVersionId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "values": {
+            "$ref": "#/components/schemas/PpeOfferValues"
+          }
+        }
+      },
+      "PpeProductPricing": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "productId",
+          "isEnrolled",
+          "offer",
+          "rule",
+          "calculation"
+        ],
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isEnrolled": {
+            "type": "boolean"
+          },
+          "offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PpeOfferVersion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PpeRuleVersion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "calculation": {
+            "$ref": "#/components/schemas/PpePriceCalculation"
+          }
+        }
+      }
+    }
+  }
+}

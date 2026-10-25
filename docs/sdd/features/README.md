@@ -6,6 +6,8 @@ See the feature card's “Code structure” section for actual file paths and ro
 
 ## Catalog
 
+- [PPE pricing](catalog/ppe-pricing.md) — versioned supplier offers, exact rule scope and three-tier calculation.
+
 - [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products.
 - [Sewing Articles and composition](catalog/sewing-composition.md) — sale SKUs, shared/Article material norms, shared operations and review readiness.
 - [Local catalogue import](catalog/catalog-import.md) — frozen source, transactional model/Article/PPE transfer, provenance and reconciliation.

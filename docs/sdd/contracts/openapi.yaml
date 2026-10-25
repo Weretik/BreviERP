@@ -73,3 +73,11 @@ paths:
     $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1reference~1pricing~1other-costs~1{code}~1versions
   /api/v1/pricing/sewing/published:
     $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1sewing~1published
+  /api/v1/pricing/ppe/products:
+    $ref: ./catalog/ppe-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1ppe~1products
+  /api/v1/pricing/ppe/rules:
+    $ref: ./catalog/ppe-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1ppe~1rules
+  /api/v1/pricing/ppe/rules/versions:
+    $ref: ./catalog/ppe-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1ppe~1rules~1versions
+  /api/v1/pricing/ppe/products/{productId}/offer/versions:
+    $ref: ./catalog/ppe-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1ppe~1products~1{productId}~1offer~1versions

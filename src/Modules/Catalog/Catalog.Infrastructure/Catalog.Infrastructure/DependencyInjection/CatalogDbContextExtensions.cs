@@ -32,6 +32,9 @@ public static class CatalogDbContextExtensions
         services.AddScoped<Catalog.Application.Contracts.Pricing.ISewingPublicationStore, Catalog.Infrastructure.Pricing.History.Publications.SewingPublicationStore>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.ISewingPublishedPriceReader, Catalog.Infrastructure.Pricing.History.Publications.Reading.SewingPublishedPriceReader>();
 
+        services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpePricingInputReader, Catalog.Infrastructure.Pricing.Ppe.Reading.PpePricingInputReader>();
+        services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpeRuleVersionWriter, Catalog.Infrastructure.Pricing.Ppe.Writing.PpeRuleVersionWriter>();
+        services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpeOfferVersionWriter, Catalog.Infrastructure.Pricing.Ppe.Writing.PpeOfferVersionWriter>();
         return services;
     }
 }

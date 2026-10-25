@@ -49,3 +49,7 @@ erDiagram
 `ProductPhotos.MediaFileId` conceptually references `MediaFiles.Id`, but the FK is absent from the snapshot. `PpeProductDetails.SupplierId`, along with `FabricId`, `GarmentAccessoryId`, and `GarmentPartOperationId` in sewing links, reference [Reference](reference.md) lookup data by ID without cross-module FKs.
 
 The [publication stage](../../specs/catalog/003-sheet-pricing-parity/publication-implementation.md) adds immutable calculation/publication records through `AddSewingPriceHistory` and `EnforceSewingCalculationArticleOwnership`. History records cannot be orphaned by Product/Article deletion. Published price consumers still await TS-005; adding these tables does not switch legacy Product price projections.
+
+## PPE pricing versions
+
+`PpePricingRuleVersions` stores long internal IDs, unique public/request UUIDs, exact indexed rule code, typed values in jsonb and approval/source metadata. `PpePricingOfferVersions` stores the same lifecycle per Product, with a restrictive Product FK and `(ProductId, Id)` index. Latest-version selection is deterministic; request hashes bind retries to actor and input. Imported drafts have no approval actor/time. The API appends an approved revision instead of overwriting the baseline. Approved versions become effective immediately; source dates remain provenance and never schedule future activation. See [PPE pricing](../../features/catalog/ppe-pricing.md).

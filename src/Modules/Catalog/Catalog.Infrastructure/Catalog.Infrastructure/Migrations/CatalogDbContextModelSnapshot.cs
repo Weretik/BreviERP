@@ -883,6 +883,106 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("SewingPricePublications", "catalog");
                 });
 
+            modelBuilder.Entity("Catalog.Infrastructure.Pricing.Ppe.Records.PpeOfferVersionRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ValuesJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("ProductId", "Id");
+
+                    b.ToTable("PpePricingOfferVersions", "catalog");
+                });
+
+            modelBuilder.Entity("Catalog.Infrastructure.Pricing.Ppe.Records.PpeRuleVersionRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ApprovedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ValuesJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("Code", "Id");
+
+                    b.ToTable("PpePricingRuleVersions", "catalog");
+                });
+
             modelBuilder.Entity("Catalog.Domain.ProductCategories.Entities.ProductCategory", b =>
                 {
                     b.HasOne("Catalog.Domain.ProductCategories.Entities.ProductCategory", null)
@@ -1054,6 +1154,15 @@ namespace Catalog.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Calculation");
+                });
+
+            modelBuilder.Entity("Catalog.Infrastructure.Pricing.Ppe.Records.PpeOfferVersionRecord", b =>
+                {
+                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Catalog.Domain.Products.Entities.Product", b =>
