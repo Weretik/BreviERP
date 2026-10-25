@@ -1,7 +1,6 @@
-﻿using BuildingBlocks.Infrastructure.Extensions;
 using Host.Seed;
+using Host.Seed.Jobs;
 using Microsoft.Extensions.Configuration;
-
 
 var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(
     new Microsoft.Extensions.Hosting.HostApplicationBuilderSettings
@@ -18,11 +17,9 @@ builder.Configuration
 builder.Services.AddSeedHostServices(builder.Configuration);
 
 using var host = builder.Build();
-
 try
 {
-    await host.Services.MigrateAppAsync();
-    await host.Services.SeedAppAsync();
+    await SeedJobDispatcher.RunAsync(host.Services, builder.Configuration);
     Environment.ExitCode = 0;
 }
 catch (Exception ex)

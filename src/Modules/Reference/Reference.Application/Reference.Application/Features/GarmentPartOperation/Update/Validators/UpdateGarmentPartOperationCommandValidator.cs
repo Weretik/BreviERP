@@ -1,4 +1,4 @@
-﻿namespace Reference.Application.Features.GarmentPartOperation.Update.Validators;
+namespace Reference.Application.Features.GarmentPartOperation.Update.Validators;
 
 public sealed class UpdateGarmentPartOperationCommandValidator : AbstractValidator<UpdateGarmentPartOperationCommand>
 {
@@ -29,6 +29,8 @@ public sealed class UpdateGarmentPartOperationCommandValidator : AbstractValidat
                 .WithMessage("Назва операції не може перевищувати 255 символів.");
 
             RuleFor(x => x.Request.Min)
+                .PrecisionScale(20, 8, true)
+                .WithMessage("Operation minutes must fit numeric(20,8) without rounding.")
                 .GreaterThanOrEqualTo(0)
                 .WithMessage("Тривалість операції не може бути від'ємною.");
         });

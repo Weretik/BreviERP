@@ -1,4 +1,5 @@
 using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Readiness;
 using Catalog.Domain.Products.ValueObjects;
 using Catalog.Domain.Products.Entities;
 
@@ -82,6 +83,32 @@ public sealed class SewingArticleTests
         var blockers = product.GetCalculationReadinessBlockers(article.Id);
         Assert.That(blockers, Has.Some.Contains("has not been reviewed"));
         Assert.That(blockers, Has.Some.Contains("No effective fabric"));
+
+        var projectedBlockers = SewingCompositionReadiness.Evaluate(article.IsActive,
+            product.GetEffectiveMaterials(article.Id).Select(material =>
+                new MaterialReadinessFact(material.Id, material.Kind,
+                    material.IsRequired, material.IsReviewed)),
+            product.OperationLines.Select(line =>
+                new OperationReadinessFact(line.Id, line.IsReviewed)));
+        Assert.That(projectedBlockers, Is.EqualTo(blockers));
+    }
+
+    [Test]
+    public void Import_preserves_metre_accessories_and_repeated_operation_times()
+    {
+        var product = CreateProduct();
+        var material = SewingMaterialLine.Create(CompositionLineId.Create(1), product.Id, null,
+            SewingMaterialKind.Accessory, null, AccessoryReferenceId.Create(2), null,
+            1.9m, SewingMaterialUnit.Metre, true, 0);
+        var first = SewingOperationLine.Create(CompositionLineId.Create(2), product.Id, null,
+            OperationReferenceId.Create(3), 1m, 20m, 0, true);
+        var second = SewingOperationLine.Create(CompositionLineId.Create(3), product.Id, null,
+            OperationReferenceId.Create(3), 1m, 86m, 1, true);
+
+        product.ReplaceComposition([material], [first, second], DateTimeOffset.UtcNow);
+
+        Assert.That(product.MaterialLines.Single().Unit, Is.EqualTo(SewingMaterialUnit.Metre));
+        Assert.That(product.OperationLines.Select(x => x.ManualMinutes), Is.EqualTo(new decimal?[] { 20m, 86m }));
     }
 
     private static Product CreateProduct() => Product.Create(ProductId.Create(101), "Model", "Model RU",

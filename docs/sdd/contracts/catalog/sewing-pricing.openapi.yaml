@@ -1,0 +1,674 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Sewing Pricing API
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /api/v1/products/{productId}/articles/{articleId}/pricing/calculations:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: articleId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    post:
+      operationId: saveSewingCalculation
+      description: Save an immutable calculation using server time. A request UUID is
+        globally unique; retries return the original snapshot, even after inputs
+        change. Blocked results are saved for diagnosis. Requires
+        CanManageProducts.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful result, including an idempotent replay.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedSewingCalculation"
+        "400":
+          description: Invalid body, IDs or setting values.
+        "401":
+          description: Authentication is required.
+        "403":
+          description: The required access policy or authenticated actor claim is missing.
+        "404":
+          description: The scoped resource or published price does not exist.
+        "409":
+          description: Stale or blocked calculation, version conflict, or request UUID
+            reused with another payload.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveSewingCalculationRequest"
+  /api/v1/products/{productId}/articles/{articleId}/pricing/calculations/{calculationId}:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: articleId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: calculationId
+        in: path
+        required: true
+        schema: &a1
+          type: string
+          format: uuid
+    get:
+      operationId: getSewingCalculation
+      description: Read an immutable saved result scoped to its Product and Article.
+        Requires CatalogRead.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful result, including an idempotent replay.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedSewingCalculation"
+        "401":
+          description: Authentication is required.
+        "403":
+          description: The required access policy or authenticated actor claim is missing.
+        "404":
+          description: The scoped resource or published price does not exist.
+  /api/v1/products/{productId}/articles/{articleId}/pricing/calculations/{calculationId}/publication:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: articleId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+      - name: calculationId
+        in: path
+        required: true
+        schema: *a1
+    post:
+      operationId: publishSewingCalculation
+      description: Publish an unblocked current calculation. Replaying an already
+        published calculation returns its original publication without replacing
+        the current price. Requires CanManageProducts.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful result, including an idempotent replay.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishedSewingPrice"
+        "400":
+          description: Invalid body, IDs or setting values.
+        "401":
+          description: Authentication is required.
+        "403":
+          description: The required access policy or authenticated actor claim is missing.
+        "404":
+          description: The scoped resource or published price does not exist.
+        "409":
+          description: Stale or blocked calculation, version conflict, or request UUID
+            reused with another payload.
+  /api/v1/products/{productId}/articles/{articleId}/pricing/published:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: articleId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+    get:
+      operationId: getPublishedSewingPrice
+      description: Read the latest published price. Historical published prices remain
+        stored after input changes. Requires CatalogRead.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful result, including an idempotent replay.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishedSewingPrice"
+        "401":
+          description: Authentication is required.
+        "403":
+          description: The required access policy or authenticated actor claim is missing.
+        "404":
+          description: The scoped resource or published price does not exist.
+  /api/v1/pricing/sewing/settings/versions:
+    parameters: []
+    post:
+      operationId: createSewingSettingsVersion
+      description: Append a complete approved settings revision effective at server
+        time. expectedVersionId must match the latest revision; no partial
+        setting updates. requestId makes retries idempotent. Requires
+        CanManageProducts.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful result, including an idempotent replay.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SewingPricingSettingsSelection"
+        "400":
+          description: Invalid body, IDs or setting values.
+        "401":
+          description: Authentication is required.
+        "403":
+          description: The required access policy or authenticated actor claim is missing.
+        "404":
+          description: The scoped resource or published price does not exist.
+        "409":
+          description: Stale or blocked calculation, version conflict, or request UUID
+            reused with another payload.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSewingSettingsVersionRequest"
+  /api/v1/pricing/sewing/settings:
+    parameters: []
+    get:
+      operationId: getSewingSettings
+      description: Read the current approved effective settings. Requires CatalogRead.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful result, including an idempotent replay.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SewingPricingSettingsSelection"
+        "401":
+          description: Authentication is required.
+        "403":
+          description: The required access policy or authenticated actor claim is missing.
+        "404":
+          description: The scoped resource or published price does not exist.
+        "409":
+          description: Multiple effective settings versions exist at the same instant.
+  /api/reference/pricing/other-costs/{code}/versions:
+    parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 100
+    post:
+      operationId: reviseOtherCost
+      description: Append an approved revision to an existing non-inventory service
+        cost. Unit and source identity are preserved. requestId makes retries
+        idempotent; expectedVersionId prevents lost updates. Requires
+        CanManageProducts.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful result, including an idempotent replay.
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        "400":
+          description: Invalid body, IDs or setting values.
+        "401":
+          description: Authentication is required.
+        "403":
+          description: The required access policy or authenticated actor claim is missing.
+        "404":
+          description: The scoped resource or published price does not exist.
+        "409":
+          description: Stale or blocked calculation, version conflict, or request UUID
+            reused with another payload.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviseOtherCostRequest"
+  /api/v1/pricing/sewing/published:
+    get:
+      operationId: getPublishedSewingProducts
+      description: Requires CatalogRead. Returns active Sewing Products, their active
+        Article count and the latest stored publication per active Article.
+        Missing, inactive and non-Sewing Product IDs are omitted. Empty articles
+        means no published price. No cost or actor data is exposed.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: productIds
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 100
+            uniqueItems: true
+            items:
+              type: integer
+              format: int32
+              minimum: 1
+      responses:
+        "200":
+          description: Bounded published-price projection.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SewingPublishedProductPrices"
+        "400":
+          description: Provide 1–100 unique positive Product IDs.
+        "401":
+          description: Authentication required.
+        "403":
+          description: CatalogRead required.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SaveSewingCalculationRequest:
+      type: object
+      required:
+        - requestId
+      properties:
+        requestId: *a1
+    CreateSewingSettingsVersionRequest:
+      type: object
+      required:
+        - expectedVersionId
+        - requestId
+        - settings
+      properties:
+        expectedVersionId: &a2
+          type: integer
+          format: int64
+        requestId: *a1
+        settings:
+          $ref: "#/components/schemas/SewingCalculationSettings"
+    ReviseOtherCostRequest:
+      type: object
+      required:
+        - expectedVersionId
+        - value
+        - requestId
+      properties:
+        expectedVersionId: *a2
+        value: &a3
+          type: number
+          format: decimal
+        requestId: *a1
+    SewingCalculationSettings:
+      type: object
+      required:
+        - monthlySalary
+        - workDays
+        - shiftMinutes
+        - seamstressCount
+        - assemblyRate
+        - cuttingRate
+        - masterRate
+        - managerRate
+        - bonusRate
+        - monthlyOverhead
+        - retailMultiplier
+        - wholesaleMultiplier
+        - largeWholesaleMultiplier
+      properties:
+        monthlySalary: *a3
+        workDays: *a3
+        shiftMinutes: *a3
+        seamstressCount: *a3
+        assemblyRate: *a3
+        cuttingRate: *a3
+        masterRate: *a3
+        managerRate: *a3
+        bonusRate: *a3
+        monthlyOverhead: *a3
+        retailMultiplier: *a3
+        wholesaleMultiplier: *a3
+        largeWholesaleMultiplier: *a3
+    SewingPricingSettingsSelection:
+      type: object
+      required:
+        - id
+        - revision
+        - effectiveFrom
+        - formulaVersion
+        - settings
+      properties:
+        id: *a2
+        revision: *a2
+        effectiveFrom: &a6
+          type: string
+          format: date-time
+        formulaVersion: &a4
+          type: string
+        settings:
+          $ref: "#/components/schemas/SewingCalculationSettings"
+    SewingCostBreakdown:
+      type: object
+      required:
+        - materials
+        - otherCosts
+        - totalMinutes
+        - minuteCost
+        - seamstress
+        - cutting
+        - master
+        - manager
+        - bonus
+        - overhead
+        - materialsTotal
+        - fullCost
+      properties:
+        materials: *a3
+        otherCosts: *a3
+        totalMinutes: *a3
+        minuteCost: *a3
+        seamstress: *a3
+        cutting: *a3
+        master: *a3
+        manager: *a3
+        bonus: *a3
+        overhead: *a3
+        materialsTotal: *a3
+        fullCost: *a3
+    SewingPriceTiers:
+      type: object
+      required:
+        - retail
+        - wholesale
+        - largeWholesale
+      properties:
+        retail: *a3
+        wholesale: *a3
+        largeWholesale: *a3
+    SewingPricingBlocker:
+      type: object
+      required:
+        - code
+        - inputKey
+        - message
+      properties:
+        code: *a4
+        inputKey:
+          anyOf:
+            - *a4
+            - type: "null"
+        message: *a4
+    SewingArticleCalculation:
+      type: object
+      required:
+        - breakdown
+        - prices
+        - blockers
+        - isCalculated
+      properties:
+        breakdown:
+          anyOf:
+            - $ref: "#/components/schemas/SewingCostBreakdown"
+            - type: "null"
+        prices:
+          anyOf:
+            - $ref: "#/components/schemas/SewingPriceTiers"
+            - type: "null"
+        blockers:
+          type: array
+          items:
+            $ref: "#/components/schemas/SewingPricingBlocker"
+        isCalculated: &a5
+          type: boolean
+    SewingPricingMaterialRow:
+      type: object
+      required:
+        - lineId
+        - referenceKey
+        - quantity
+        - unit
+        - isFabric
+        - isOtherCost
+        - isRequired
+        - isReviewed
+      properties:
+        lineId: *a2
+        referenceKey: *a4
+        quantity: *a3
+        unit:
+          type: string
+          enum:
+            - Metre
+            - Piece
+            - Service
+        isFabric: *a5
+        isOtherCost: *a5
+        isRequired: *a5
+        isReviewed: *a5
+    SewingPricingOperationRow:
+      type: object
+      required:
+        - lineId
+        - operationId
+        - quantity
+        - manualMinutes
+        - isReviewed
+      properties:
+        lineId: *a2
+        operationId: *a2
+        quantity: *a3
+        manualMinutes:
+          anyOf:
+            - *a3
+            - type: "null"
+        isReviewed: *a5
+    SewingArticlePricingSnapshot:
+      type: object
+      required:
+        - productId
+        - articleId
+        - saleSku
+        - compositionVersion
+        - isActive
+        - materials
+        - operations
+      properties:
+        productId: *a2
+        articleId: *a2
+        saleSku: *a4
+        compositionVersion: *a2
+        isActive: *a5
+        materials:
+          type: array
+          items:
+            $ref: "#/components/schemas/SewingPricingMaterialRow"
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SewingPricingOperationRow"
+    PricingReferenceValue:
+      type: object
+      required:
+        - referenceKey
+        - versionId
+        - value
+        - unit
+        - isActive
+        - isApproved
+        - sourceCode
+      properties:
+        referenceKey: *a4
+        versionId: *a2
+        value:
+          anyOf:
+            - *a3
+            - type: "null"
+        unit: *a4
+        isActive: *a5
+        isApproved: *a5
+        sourceCode: *a4
+    SewingArticlePricePreview:
+      type: object
+      required:
+        - productId
+        - articleId
+        - saleSku
+        - compositionVersion
+        - at
+        - settingsVersionId
+        - referenceVersionIds
+        - calculation
+        - inputs
+        - settings
+        - references
+      properties:
+        productId: *a2
+        articleId: *a2
+        saleSku: *a4
+        compositionVersion: *a2
+        at: *a6
+        settingsVersionId:
+          anyOf:
+            - *a2
+            - type: "null"
+        referenceVersionIds:
+          type: array
+          items: *a2
+        calculation:
+          $ref: "#/components/schemas/SewingArticleCalculation"
+        inputs:
+          $ref: "#/components/schemas/SewingArticlePricingSnapshot"
+        settings:
+          anyOf:
+            - $ref: "#/components/schemas/SewingPricingSettingsSelection"
+            - type: "null"
+        references:
+          type: array
+          items:
+            $ref: "#/components/schemas/PricingReferenceValue"
+    SavedSewingCalculation:
+      type: object
+      required:
+        - id
+        - requestId
+        - createdAt
+        - createdBy
+        - snapshot
+      properties:
+        id: *a1
+        requestId: *a1
+        createdAt: *a6
+        createdBy: *a4
+        snapshot:
+          $ref: "#/components/schemas/SewingArticlePricePreview"
+    PublishedSewingPrice:
+      type: object
+      required:
+        - id
+        - calculationId
+        - productId
+        - articleId
+        - publishedAt
+        - publishedBy
+        - prices
+      properties:
+        id: *a1
+        calculationId: *a1
+        productId: *a2
+        articleId: *a2
+        publishedAt: *a6
+        publishedBy: *a4
+        prices:
+          $ref: "#/components/schemas/SewingPriceTiers"
+    SewingPublishedArticlePrice:
+      type: object
+      required:
+        - articleId
+        - saleSku
+        - publicationId
+        - calculationId
+        - publishedAt
+        - prices
+      properties:
+        articleId:
+          type: integer
+          format: int64
+        saleSku:
+          type: string
+        publicationId:
+          type: string
+          format: uuid
+        calculationId:
+          type: string
+          format: uuid
+        publishedAt:
+          type: string
+          format: date-time
+        prices:
+          $ref: "#/components/schemas/SewingPriceTiers"
+    SewingPublishedProductPrices:
+      type: object
+      required:
+        - productId
+        - articleCount
+        - articles
+      properties:
+        productId:
+          type: integer
+          format: int32
+        articleCount:
+          type: integer
+          minimum: 0
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/SewingPublishedArticlePrice"

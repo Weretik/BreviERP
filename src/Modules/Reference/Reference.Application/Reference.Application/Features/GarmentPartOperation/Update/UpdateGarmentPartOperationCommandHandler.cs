@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Pricing;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPartOperation.Update.Specifications;
 using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
@@ -38,7 +39,14 @@ public sealed class UpdateGarmentPartOperationCommandHandler(
 
         entity.Update(garmentPart.Id, name, request.Min);
 
-        await repository.UpdateAsync(entity, cancellationToken);
+        try
+        {
+            await repository.UpdateAsync(entity, cancellationToken);
+        }
+        catch (ReferencePricingConflictException exception)
+        {
+            return Result.Conflict(exception.Message);
+        }
 
         return Result.Success();
     }

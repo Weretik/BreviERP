@@ -6,7 +6,7 @@ using Reference.Domain.Suppliers.Entities;
 
 namespace Reference.Infrastructure.DataBase;
 
-public class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
+public partial class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
     : DbContext(options), IReadReferenceDbContext
 {
     public DbSet<AdditionalReference> AdditionalReferences => Set<AdditionalReference>();

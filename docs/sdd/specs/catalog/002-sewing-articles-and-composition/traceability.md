@@ -11,4 +11,4 @@
 
 ## Readiness review
 
-The [2026-10-25 implementation checkpoint](implementation.md) supersedes the planned statuses above for TS-001–006. Domain/application/HTTP code and additive mappings are implemented; focused tests cover their observable behavior. EN-002 is resolved through existing policies and Product-level optimistic concurrency. EN-001 and TS-007 remain blocked on a target database and frozen source; TS-002 still requires real PostgreSQL empty/upgrade verification. EN-003 remains an explicit OtherCost pricing blocker. No import or deployment acceptance is claimed.
+The [implementation checkpoint](implementation.md) supersedes historical planned statuses above for TS-001–006. The [import revision](catalog-import.md) and [execution evidence](catalog-import-evidence.md) close EN-001/TS-007 for the authorized initial local transfer. The initial [Pricing slice](../003-sheet-pricing-parity/sewing-evidence.md) resolves EN-003 through Reference-owned OtherCost versions. Review and publication remain separate gates; no shared/production deployment or price publication is claimed.

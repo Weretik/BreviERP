@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Pricing;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Fabric.Update.Specifications;
 using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
@@ -36,7 +37,14 @@ public sealed class UpdateFabricCommandHandler(
 
         entity.Update(name, MoneyAmount.From(request.Price), supplier.Id);
 
-        await repository.UpdateAsync(entity, cancellationToken);
+        try
+        {
+            await repository.UpdateAsync(entity, cancellationToken);
+        }
+        catch (ReferencePricingConflictException exception)
+        {
+            return Result.Conflict(exception.Message);
+        }
 
         return Result.Success();
     }

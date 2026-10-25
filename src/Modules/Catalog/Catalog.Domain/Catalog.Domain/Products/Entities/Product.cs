@@ -10,7 +10,7 @@ using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Domain.Products.Entities;
 
-public class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
+public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
 {
     private const int NameMaxLength = 200;
     private readonly List<ProductPhoto> _photos = [];
@@ -65,91 +65,6 @@ public class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         SetType(type);
         ClearDetailsForOtherType();
         MarkAsUpdated(updatedAt);
-    }
-
-    public void SetModelCode(string? modelCode, DateTimeOffset updatedAt)
-    {
-        if (Type != ProductType.Sewing) throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
-        var normalized = string.IsNullOrWhiteSpace(modelCode) ? null : modelCode.Trim();
-        if (normalized?.Length > 80) throw new DomainException(ProductErrors.ModelCodeInvalid());
-        ModelCode = normalized;
-        CompositionVersion++;
-        MarkAsUpdated(updatedAt);
-    }
-
-    public void AddArticle(SewingArticle article, DateTimeOffset updatedAt)
-    {
-        ArgumentNullException.ThrowIfNull(article);
-        if (Type != ProductType.Sewing || article.ProductId != Id) throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
-        if (_articles.Count >= 200) throw new DomainException(ProductErrors.ArticleLimitReached());
-        if (_articles.Any(x => string.Equals(x.SaleSku, article.SaleSku, StringComparison.Ordinal)))
-            throw new DomainException(ProductErrors.DuplicateSaleSku(article.SaleSku));
-        _articles.Add(article);
-        CompositionVersion++;
-        MarkAsUpdated(updatedAt);
-    }
-
-    public void ReplaceComposition(IEnumerable<SewingMaterialLine> materialLines,
-        IEnumerable<SewingOperationLine> operationLines, DateTimeOffset updatedAt)
-    {
-        ArgumentNullException.ThrowIfNull(materialLines);
-        ArgumentNullException.ThrowIfNull(operationLines);
-        if (Type != ProductType.Sewing) throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
-        var materials = materialLines.ToList();
-        var operations = operationLines.ToList();
-        if (materials.Any(x => x.ProductId != Id || (x.ArticleId.HasValue && !_articles.Any(a => a.Id == x.ArticleId))))
-            throw new DomainException(ProductErrors.CompositionParentMismatch());
-        if (operations.Any(x => x.ProductId != Id || (x.ArticleId.HasValue && !_articles.Any(a => a.Id == x.ArticleId))))
-            throw new DomainException(ProductErrors.CompositionParentMismatch());
-        var commonKeys = materials.Where(x => !x.ArticleId.HasValue).Select(x => (x.Kind, x.ReferenceKey)).ToHashSet();
-        if (materials.Where(x => x.ArticleId.HasValue).Any(x => commonKeys.Contains((x.Kind, x.ReferenceKey))))
-            throw new DomainException(ProductErrors.CompositionScopeConflict());
-        if (materials.GroupBy(x => (x.ArticleId, x.Kind, x.ReferenceKey)).Any(g => g.Count() > 1) ||
-            operations.GroupBy(x => x.OperationId).Any(g => g.Count() > 1))
-            throw new DomainException(ProductErrors.DuplicateCompositionLine());
-        if (materials.Count > 2_000 || operations.Count > 2_000)
-            throw new DomainException(ProductErrors.CompositionLineLimitReached());
-        _materialLines.Clear(); _materialLines.AddRange(materials);
-        _operationLines.Clear(); _operationLines.AddRange(operations);
-        CompositionVersion++;
-        MarkAsUpdated(updatedAt);
-    }
-
-    public IReadOnlyList<string> GetCalculationReadinessBlockers(ArticleId? articleId = null)
-    {
-        if (articleId.HasValue && !_articles.Any(a => a.Id == articleId.Value))
-            return ["Article does not belong to this product."];
-        if (articleId.HasValue && !_articles.Single(a => a.Id == articleId.Value).IsActive)
-            return ["Article is inactive."];
-        var materials = _materialLines.Where(x => !x.ArticleId.HasValue || x.ArticleId == articleId);
-        var blockers = materials.Where(x => x.IsRequired && !x.IsReviewed)
-            .Select(x => $"Required material line {x.Id.Value} has not been reviewed.").ToList();
-        blockers.AddRange(_operationLines.Where(x => x.IsRequired && !x.IsReviewed)
-            .Select(x => $"Required operation line {x.Id.Value} has not been reviewed."));
-        blockers.AddRange(materials.Where(x => x.Kind == SewingMaterialKind.OtherCost)
-            .Select(x => $"Other cost line {x.Id.Value} has no costing reference owner."));
-        if (!materials.Any(x => x.Kind == SewingMaterialKind.Fabric)) blockers.Add("No effective fabric line is configured.");
-        if (_operationLines.Count == 0) blockers.Add("No operation lines are configured.");
-        return blockers;
-    }
-
-    public IReadOnlyList<SewingMaterialLine> GetEffectiveMaterials(ArticleId? articleId = null)
-    {
-        if (articleId.HasValue && !_articles.Any(a => a.Id == articleId.Value))
-            throw new DomainException(ProductErrors.CompositionParentMismatch());
-        return _materialLines.Where(x => !x.ArticleId.HasValue || x.ArticleId == articleId)
-            .OrderBy(x => x.SortOrder).ThenBy(x => x.Id.Value).ToArray();
-    }
-
-    public void ReplaceArticleComposition(ArticleId articleId, IEnumerable<SewingMaterialLine> materialLines,
-        DateTimeOffset updatedAt)
-    {
-        ArgumentNullException.ThrowIfNull(materialLines);
-        var articleLines = materialLines.ToList();
-        if (!_articles.Any(a => a.Id == articleId) || articleLines.Any(x => x.ProductId != Id || x.ArticleId != articleId))
-            throw new DomainException(ProductErrors.CompositionParentMismatch());
-        var candidate = _materialLines.Where(x => x.ArticleId != articleId).Concat(articleLines).ToList();
-        ReplaceComposition(candidate, _operationLines, updatedAt);
     }
 
     public void SetDescriptions(string descriptionUk, string descriptionRu, DateTimeOffset updatedAt)

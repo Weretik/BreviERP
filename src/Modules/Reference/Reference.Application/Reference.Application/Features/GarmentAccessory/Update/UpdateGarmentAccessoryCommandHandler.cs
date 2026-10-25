@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Pricing;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentAccessory.Shared.Specifications;
 using Reference.Application.Features.GarmentAccessory.Update.Specifications;
@@ -42,7 +43,14 @@ public sealed class UpdateGarmentAccessoryCommandHandler(
 
         entity.Update(name, MoneyAmount.From(request.Price), supplier.Id.Value);
 
-        await repository.UpdateAsync(entity, cancellationToken);
+        try
+        {
+            await repository.UpdateAsync(entity, cancellationToken);
+        }
+        catch (ReferencePricingConflictException exception)
+        {
+            return Result.Conflict(exception.Message);
+        }
 
         return Result.Success();
     }

@@ -249,7 +249,7 @@ components:
     SewingMaterialKind:
       type: string
       enum: [Fabric, Accessory, OtherCost]
-      description: Fabric uses Metre, Accessory uses Piece, and OtherCost uses Service.
+      description: Fabric uses Metre, Accessory uses Piece or Metre, and OtherCost uses Service.
     SewingMaterialUnit:
       type: string
       enum: [Metre, Piece, Service, Kilogram]

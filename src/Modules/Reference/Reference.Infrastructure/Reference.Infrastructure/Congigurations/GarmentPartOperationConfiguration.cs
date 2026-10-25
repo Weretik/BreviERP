@@ -30,7 +30,7 @@ public sealed class GarmentPartOperationConfiguration : IEntityTypeConfiguration
             .IsRequired();
 
         builder.Property(x => x.Min)
-            .HasPrecision(18, 2)
+            .HasPrecision(24, 8)
             .IsRequired();
     }
 }

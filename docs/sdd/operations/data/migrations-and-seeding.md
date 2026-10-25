@@ -1,5 +1,9 @@
 # Migrations and seeding
 
+The [local catalogue import](catalog-import.md) is an explicit Host.Seed job mode. Normal execution applies migrations and seeders; import modes validate, trial or apply a frozen source without implicit migrations or ordinary seeding.
+
+The [local sewing pricing baseline and verification](sewing-pricing.md) adds explicit pricing-bootstrap and pricing-verify modes. Bootstrap writes versioned settings/cost inputs; verification is read-only and cannot publish.
+
 ## Execution order
 
 In BreviERP, migrations and seeding run through `IDatabaseMigrator`/`ISeeder` in a separate `Host.Seed`. `Host.Api` does not run these operations itself. In the [Cloud Build configuration](../deployment/cloud-build.md), the `Host.Seed` Job runs before API deployment; check the result of a specific run to confirm success.

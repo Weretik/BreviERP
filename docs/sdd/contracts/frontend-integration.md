@@ -26,7 +26,12 @@ The host uses a fallback policy that requires authentication. Only endpoints exp
 | Product categories | `/api/reference/product-categories/...` | Anonymous in the current controller | not yet added |
 | Catalog media | `/api/catalog/media/...` | Anonymous in the current controller | not yet added |
 | Suppliers | `/api/reference/suppliers` | Anonymous in the current controller | [Reference supplier contract](reference/suppliers.openapi.yaml) |
-| Other reference data | `/api/reference/fabrics`, `/garment-parts`, `/garment-accessories`, `/garment-part-operations`, `/additional-references` | Anonymous in the current controllers | not yet added |
+| Pricing Reference data | `/api/reference/fabrics`, `/garment-accessories`, `/garment-part-operations` | Anonymous GET; writes require CanManageProducts | [Fabrics](reference/fabrics.openapi.yaml), [accessories](reference/garment-accessories.openapi.yaml), [operations](reference/garment-part-operations.openapi.yaml) |
+| Other reference data | `/api/reference/garment-parts`, `/additional-references` | Anonymous in the current controllers | [Garment parts](reference/garment-parts.openapi.yaml), [additional references](reference/additional-references.openapi.yaml) |
+| Sewing calculations/publications | `/api/v1/products/{productId}/articles/{articleId}/pricing/...` | CatalogRead for reads; CanManageProducts for writes | [Sewing pricing](catalog/sewing-pricing.openapi.yaml) |
+| Sewing settings / service costs | `/api/v1/pricing/sewing/settings...`, `/api/reference/pricing/other-costs/{code}/versions` | Settings read: CatalogRead; revisions: CanManageProducts | [Pricing settings and costs](catalog/sewing-pricing.openapi.yaml) |
 | Session | `/api/auth/session/login`, `/refresh`, `/logout`, `/me` | Login/refresh are anonymous; logout/profile require Bearer | [Identity session contract](identity/session.openapi.yaml) |
 
 Before using an endpoint without a versioned OpenAPI contract, frontend and backend must agree on the request, response, status codes, and authorization, then add the contract to [aggregate OpenAPI](openapi.yaml).
+
+The pricing contract is implemented in the backend; frontend consumption and the clean backend commit pin are TS-005 work. A saved calculation may contain blockers and no prices. Only explicit successful publication establishes a current Article price; existing Product price fields still use their legacy projection until consumer cutover.

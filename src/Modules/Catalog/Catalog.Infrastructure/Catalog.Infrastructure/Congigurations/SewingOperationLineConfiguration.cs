@@ -26,7 +26,7 @@ public sealed class SewingOperationLineConfiguration : IEntityTypeConfiguration<
         builder.Property(x => x.Quantity).HasPrecision(18, 6).IsRequired();
         builder.Property(x => x.ManualMinutes).HasPrecision(18, 6);
         builder.Property(x => x.ReviewedBy).HasMaxLength(200);
-        builder.HasIndex(x => new { x.ProductId, x.OperationId }).IsUnique();
+        builder.HasIndex(x => new { x.ProductId, x.OperationId });
         builder.HasOne<Product>().WithMany(x => x.OperationLines).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
     }
 }

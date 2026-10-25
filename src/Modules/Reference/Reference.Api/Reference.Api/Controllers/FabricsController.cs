@@ -1,4 +1,4 @@
-﻿using Reference.Api.Contracts.Fabrics;
+using Reference.Api.Contracts.Fabrics;
 using Reference.Application.Features.Fabric.Create;
 using Reference.Application.Features.Fabric.Create.DTOs;
 using Reference.Application.Features.Fabric.Delete;
@@ -10,12 +10,12 @@ using Reference.Application.Features.Fabric.Update.DTOs;
 namespace Reference.Api.Controllers;
 
 [ApiController]
-[AllowAnonymous]
 [Route("api/reference/fabrics")]
 
 public sealed class FabricsController(ISender sender) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(List<FabricRowDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -27,6 +27,7 @@ public sealed class FabricsController(ISender sender) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "CanManageProducts")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -44,6 +45,7 @@ public sealed class FabricsController(ISender sender) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Policy = "CanManageProducts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -64,6 +66,7 @@ public sealed class FabricsController(ISender sender) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = "CanManageProducts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

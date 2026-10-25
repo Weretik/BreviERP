@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "spreadsheetId": "test-workbook",
+  "capturedAt": "2026-10-25",
+  "sheets": {
+    "Постачальники": [
+      [
+        "Id",
+        "Name"
+      ],
+      [
+        "SUP-1",
+        "Source supplier",
+        null,
+        null,
+        null,
+        null,
+        "https://example.invalid"
+      ]
+    ],
+    "Тканини": [
+      [
+        "Id",
+        "Name"
+      ],
+      [
+        "FAB-1",
+        "Fabric",
+        "Source supplier",
+        null,
+        null,
+        12.34,
+        null,
+        true
+      ]
+    ],
+    "Фурнітура": [
+      [
+        "Id",
+        "Name"
+      ],
+      [
+        "FUR-1",
+        "Lining",
+        "Source supplier",
+        2.5,
+        "м",
+        null,
+        true
+      ]
+    ],
+    "Операції": [
+      [
+        "Id",
+        "Part"
+      ],
+      [
+        "OP-1",
+        "Part",
+        null,
+        null,
+        "Operation",
+        3,
+        null,
+        null,
+        null,
+        true
+      ]
+    ],
+    "Типи і розділи": [
+      [
+        "Type",
+        "Category"
+      ]
+    ],
+    "Товари": [
+      [
+        "Id",
+        "Name"
+      ],
+      [
+        "MOD-025",
+        "Test model",
+        "Швейна продукція",
+        "Sewing",
+        "Summer",
+        true,
+        true,
+        "2026-10-25"
+      ]
+    ],
+    "Комплектація виробів": [
+      [
+        "Model",
+        "Sku"
+      ],
+      [
+        "MOD-025",
+        "246",
+        null,
+        null,
+        null,
+        "Тканина",
+        "FAB-1",
+        null,
+        3.6,
+        "м",
+        null,
+        null,
+        true
+      ],
+      [
+        "MOD-025",
+        "247",
+        null,
+        null,
+        null,
+        "Тканина",
+        "FAB-1",
+        null,
+        3.6,
+        "м",
+        null,
+        null,
+        true
+      ],
+      [
+        "MOD-025",
+        null,
+        null,
+        null,
+        null,
+        "Фурнітура",
+        "FUR-1",
+        null,
+        1.9,
+        "м",
+        null,
+        null,
+        true
+      ]
+    ],
+    "Трудовитрати виробів": [
+      [
+        "Label",
+        "Model"
+      ],
+      [
+        "Model",
+        "MOD-025",
+        null,
+        null,
+        null,
+        "OP-1",
+        null,
+        1,
+        20
+      ],
+      [
+        "Model",
+        "MOD-025",
+        null,
+        null,
+        null,
+        "OP-1",
+        null,
+        2,
+        86
+      ]
+    ],
+    "ЗІЗ": [
+      [
+        "Sku",
+        "Name"
+      ],
+      [
+        "724",
+        "PPE",
+        "PPE",
+        "пара",
+        "https://example.invalid/ppe",
+        "Source supplier",
+        "https://example.invalid/offer",
+        null,
+        true,
+        null,
+        false,
+        true,
+        null,
+        "Rule",
+        "Vendor-724",
+        "Description"
+      ]
+    ],
+    "Прайс на сайт": [
+      [
+        "Sku"
+      ],
+      [
+        "246",
+        null,
+        null,
+        "Model RU",
+        null,
+        "Швейна продукція",
+        "MOD-025",
+        null,
+        null,
+        null,
+        true
+      ],
+      [
+        "247",
+        null,
+        null,
+        "Model RU",
+        null,
+        "Швейна продукція",
+        "MOD-025",
+        null,
+        null,
+        null,
+        true
+      ],
+      [
+        "724",
+        null,
+        null,
+        "PPE RU",
+        null,
+        "ЗІЗ",
+        "PPE",
+        null,
+        null,
+        null,
+        true
+      ]
+    ]
+  }
+}

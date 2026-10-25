@@ -17,6 +17,13 @@
 
 New Domain IDs and foreign keys follow the [identifier strategy](../../../standards/identifier-strategy.md). New tables use EF mappings in Catalog Infrastructure and the `catalog` schema. Cross-module Reference IDs follow the current contract approach; a cross-schema FK is not assumed. Index `SaleSku` uniquely and `ProductId`/ArticleId for composition reads. Add a `ProductId`/`ArticleId` consistency check in the write use case and database where representable.
 
+## Implemented code ownership
+
+- `Product` remains the aggregate root. Its `Product.SewingIdentity.cs`, `Product.SewingComposition.cs`, `Product.SewingReadiness.cs` and `Product.CatalogProfile.cs` partials separate the added responsibilities without introducing another aggregate. `Products/Readiness/SewingCompositionReadiness.cs` remains the policy shared with Application's projection assembler.
+- Application scenarios are grouped under `Features/Product/Sewing/{CreateArticle,ListArticles,GetComposition,ReplaceComposition,ReplaceArticleComposition}`. Shared DTOs, validators, and mappings use matching `Shared/DTOs`, `Shared/Validators`, and `Shared/Mapping` folders; persistence interfaces and projection snapshot live in `Contracts/Persistence/Sewing`.
+- Infrastructure keeps tracked writes in `Repositories/SewingCompositionStore.cs` and no-tracking query projections in `Repositories/SewingCompositionReadStore.cs`. Its active/version/line snapshot is assembled by Application using the shared Domain readiness policy, without loading a second tracked aggregate.
+- `SewingMaterialKind` and `SewingMaterialUnit` have their own Domain enum files. This structure change makes no schema or migration change. See the [structure remediation SDD](../004-sewing-composition-structure/README.md) for findings and verification.
+
 ## Compatibility, rollout and rollback
 
 1. Add nullable model code and new tables without dropping columns or changing existing Product IDs. Existing product HTTP contracts and queries continue to work.

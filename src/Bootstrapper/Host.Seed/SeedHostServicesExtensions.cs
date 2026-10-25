@@ -6,6 +6,9 @@ using Identity.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reference.Infrastructure.DependencyInjection;
+using CatalogImport.Persistence;
+using BuildingBlocks.Infrastructure.Migrations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Host.Seed;
 
@@ -23,6 +26,9 @@ public static class SeedHostServicesExtensions
         services.AddReferenceDbContextServices(configuration);
         services.AddAccountingDbContextServices(configuration);
         services.AddCatalogDbContextServices(configuration);
+        services.AddDbContext<CatalogImportDbContext>(options =>
+            options.UseNpgsql(configuration.GetConnectionString("Default")));
+        services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogImportDbContext>>();
 
         return services;
     }

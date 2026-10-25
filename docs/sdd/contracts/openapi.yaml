@@ -57,3 +57,19 @@ paths:
     $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1composition
   /api/v1/products/{productId}/articles/{articleId}/composition:
     $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}~1composition
+  /api/v1/products/{productId}/articles/{articleId}/pricing/calculations:
+    $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}~1pricing~1calculations
+  /api/v1/products/{productId}/articles/{articleId}/pricing/calculations/{calculationId}:
+    $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}~1pricing~1calculations~1{calculationId}
+  /api/v1/products/{productId}/articles/{articleId}/pricing/calculations/{calculationId}/publication:
+    $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}~1pricing~1calculations~1{calculationId}~1publication
+  /api/v1/products/{productId}/articles/{articleId}/pricing/published:
+    $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}~1pricing~1published
+  /api/v1/pricing/sewing/settings/versions:
+    $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1sewing~1settings~1versions
+  /api/v1/pricing/sewing/settings:
+    $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1sewing~1settings
+  /api/reference/pricing/other-costs/{code}/versions:
+    $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1reference~1pricing~1other-costs~1{code}~1versions
+  /api/v1/pricing/sewing/published:
+    $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1sewing~1published

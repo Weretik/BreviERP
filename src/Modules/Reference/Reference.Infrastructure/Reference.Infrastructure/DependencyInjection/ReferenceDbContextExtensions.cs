@@ -18,7 +18,7 @@ public static class ReferenceDbContextExtensions
         this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("Default")
-                               ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");;
+                               ?? throw new InvalidOperationException("Missing ConnectionStrings:Default"); ;
 
         services.AddDbContext<ReferenceDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IReadReferenceDbContext>(sp => sp.GetRequiredService<ReferenceDbContext>());
@@ -27,7 +27,10 @@ public static class ReferenceDbContextExtensions
         services.AddScoped(typeof(IReferenceReadRepository<>), typeof(ReferenceReadEfRepository<>));
 
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
+        services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingVersionReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingVersionReader>();
+        services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingUsageReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingUsageReader>();
         services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
+        services.AddScoped<Reference.Application.Contracts.Pricing.IOtherCostPricingVersionWriter, Reference.Infrastructure.Pricing.OtherCosts.Writing.OtherCostPricingVersionWriter>();
         services.AddScoped<ISeeder, SupplierSeeder>();
         services.AddScoped<ISeeder, FabricSeeder>();
         services.AddScoped<ISeeder, GarmentAccessorySeeder>();

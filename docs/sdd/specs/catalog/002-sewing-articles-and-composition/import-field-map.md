@@ -1,0 +1,24 @@
+# Catalogue import field map
+
+The [import revision](catalog-import.md) owns decisions; this table describes the implemented mapping. Column numbers below are one-based. Source values and six relevant formula tabs are retained unchanged in imports.CatalogImportBatches.SourceJson. Database provenance is audit/source evidence, not a second editable master.
+
+| Source | Operational target | Preserved evidence / handling |
+| --- | --- | --- |
+| Постачальники A:G | Exact-name Supplier match/create; B name, D contact, E phone, G link. Existing notes retained. | KeepinCRM A maps to Brevi Supplier ID. Procurement type, email, tags, activity and update time remain in source provenance. Contact changes are reported. |
+| Тканини A:M | A source mapping; B name; C supplier; F current unit cost. | Composition/density, RU fields, activity and source cost date remain in provenance. Empty inactive unused FAB-087 is an explicit placeholder. Duplicate labels are suffixed with source code and receive separate IDs. Missing supplier uses the verified existing unspecified record. |
+| Фурнітура A:G | A mapping; B name; C supplier; D cost. Physical materials remain Reference accessories, including metre-based lining/insulation. | E preserves the composition unit. Service FUR-032 is OtherCost, not inventory; its source cost is retained for later Pricing ownership. Source date/activity remain provenance. |
+| Операції A:K | A mapping; B group (C fallback) → GarmentPart; E name; F standard minutes. | Group/element/variant and source review/date remain provenance. Absent OP-155 standard uses legacy zero only because every imported usage supplies manual minutes; this is not an approved zero-time norm. |
+| Товари A:K | One Sewing Product per A model code; B name; D category; E season; F activity; G/H source review metadata. Hyperlink in K → profile website URL. | Brevi Product ID is newly allocated, independent of MOD code. Model RU name initially retains the source model label; no translation is invented. |
+| Прайс на сайт A:Y | Sewing A → Article sale SKU; F selects type; G resolves model; K Article activity. PPE D supplies RU name. | All article-specific RU labels, grouping, fabric labels, output costs/prices, dates/comments and formulas remain provenance. Published prices and legacy percentages are not synthesized. |
+| ЗІЗ A:R | One PPE Product per A; B name; C category; D unit; E website; F supplier; G supplier URL; H nullable price; I activity; K manual-price permission; L/M source review; N rule label; O supplier SKU; P description. | PPE identity and offer are stored in ProductCatalogProfiles. Legacy PpeProductDetails is deliberately not populated without approved pricing percentages. Missing SKU 724 cost remains null. Repeated UA names and PPE RU labels are disambiguated by SKU, while original names remain provenance. |
+| Комплектація виробів A:O | A model; B optional Article; G reference/cost code; I quantity; J unit; M required; source order → sort order. | Fabric is Metre; physical Accessory is Piece or Metre; service is OtherCost/Service. All 1,448 rows remain separate. Source review is not a Brevi line approval. |
+| Трудовитрати виробів A:Q | B model; F operation; H quantity; I nullable manual minutes; order → sort order. | Each occurrence is preserved, including repeated operation IDs. Row 1820 has no F but has L description and I=4; it becomes a named manual operation under technical key MANUAL:Трудовитрати виробів!1820. Its unknown default standard remains legacy zero. |
+| Типи і розділи | Product category names are resolved from actual model/PPE rows. Missing exact-name categories are created with Brevi IDs. | Source taxonomy rows and helper lists are retained; they are not copied as arbitrary tables. |
+| Додаткові матеріали моделей | No second composition is created. | This helper/review view is retained in provenance. Authoritative composition is Комплектація виробів, avoiding double quantities. |
+
+## Accuracy and limits
+
+Quantities/manual times are parsed from unformatted numeric values. Ambiguous localized numeric text is rejected. Current reference cost/norm columns support two decimals; the actual source values were checked to fit that precision. PPE supplier offers use numeric(18,6). Source review dates have mixed serial/date-string formats and are preserved as original strings in the profile, with raw typed values retained in provenance; they are separate from Brevi approval actor/time.
+
+The source has 124 models, 248 sewing Articles, 119 PPE identities, 1,448 material rows and 1,822 operation rows in the executed snapshot. The older MOD-025 example had 12 operations; the current source has 13. A complete import means those catalogue identities and composition rows are stored and reconciled, together with source evidence. It does not mean all source-only attributes already have editing screens or that Pricing SDD 003 is implemented.
+

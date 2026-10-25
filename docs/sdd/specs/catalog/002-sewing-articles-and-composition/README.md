@@ -1,6 +1,8 @@
 # 002 — Sewing articles and calculation composition
 
-**Module:** Catalog, with Reference reads. **Status:** code implemented with focused verification, 2026-10-25; PostgreSQL migration execution and source import remain open. **Scope:** additive model/article identity and editable calculation inputs for sewing products. This extends the completed [Product page SDD](../001-product-page/README.md); it does not replace its historical evidence.
+The [full local catalogue import revision](catalog-import.md) extends EN-001/TS-007 under direct user authorization. It imports identity, composition and source offers independently of price calculation.
+
+**Module:** Catalog, with Reference integration. **Status:** code, local PostgreSQL migrations and full local catalogue import verified, 2026-10-25; see [import evidence](catalog-import-evidence.md). **Scope:** additive model/article identity, editable calculation inputs and the authorized local catalogue transfer. This extends the completed [Product page SDD](../001-product-page/README.md); it does not replace its historical evidence.
 
 ## Goal and boundary
 
@@ -22,4 +24,6 @@ This slice covers product/article relationships, composition editing, validation
 
 The repository model has `Products`, one-to-one `SewingProductDetails`, and product-level fabric/accessory/operation links. `SewingProductFabrics` stores no fabric quantity or article; `SewingProductOperations` stores no quantity/manual time. `CreateProductRequest` and full replacement do not contain a model code or article. The user confirmed that Brevi currently has no Product records. Keep the schema additive for API compatibility. Before executing an import, verify that the selected target database is still empty for Products and inspect its applied migrations.
 
-**Product identity decision:** the confirmed empty Product catalogue allows one new Sewing Product per model and child Article per sale SKU, with no existing Product merge. Internal IDs remain distinct from model codes and sale SKUs. **Decision needed before price parity:** the current Brevi sewing tiers are 1–10/11–39/40+, while the migration source uses 1–9/10–40/41+.
+**Product identity decision:** the confirmed empty Product catalogue allows one new Sewing Product per model and child Article per sale SKU, with no existing Product merge. Internal IDs remain distinct from model codes and sale SKUs. **Pricing transition:** the user selected the workbook formula as the target basis. The linked pricing SDD defines sewing tiers 1–9/10–40/41+ and their implementation; the old tiers remain current behavior until that feature is released.
+
+The planned [pricing parity SDD](../003-sheet-pricing-parity/README.md) defines the later formula replacement and three-tier Article prices.

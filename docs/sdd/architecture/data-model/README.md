@@ -4,8 +4,13 @@
 
 ```text
 BreviERP PostgreSQL
-├── catalog / CatalogDbContext — 13 tables
+├── catalog / CatalogDbContext — 18 tables
 │   ├── Products                       # Sewing and PPE products
+│   ├── ProductCatalogProfiles         # activity/season/source review and PPE offers
+│   ├── SewingPricingSettingsVersions # immutable effective pricing settings and source evidence
+│   ├── SewingArticles                # sale SKUs per sewing model
+│   ├── SewingMaterialLines           # shared and Article-specific material norms
+│   ├── SewingOperationLines          # individual shared operation occurrences
 │   ├── ProductCategories              # category tree
 │   ├── ProductCategoryLinks           # product categories
 │   ├── ProductPhotos                  # product photos
@@ -18,8 +23,9 @@ BreviERP PostgreSQL
 │   ├── SewingProductFabrics           # product fabrics
 │   ├── SewingProductAccessories       # product accessories
 │   └── SewingProductOperations        # sewing operations
-├── reference / ReferenceDbContext — 6 tables
+├── reference / ReferenceDbContext — 7 tables
 │   ├── Suppliers                      # suppliers
+│   ├── PricingInputVersions           # effective material/OtherCost costs and operation norms
 │   ├── FabricsReference               # fabrics
 │   ├── GarmentAccessoriesReference    # garment accessories
 │   ├── GarmentParts                   # garment parts
@@ -36,6 +42,9 @@ BreviERP PostgreSQL
 │   └── AppRefreshSessions            # refresh sessions
 ├── accounting / AccountingDbContext — 1 table
 │   └── TransactionCategories          # transaction categories
+├── imports / CatalogImportDbContext — 2 job-owned tables
+│   ├── CatalogImportBatches           # snapshot, report, checksum
+│   └── CatalogSourceMappings          # source-to-Brevi identity mapping
 └── public — operational infrastructure
     └── __EFMigrationsHistory          # EF migration history, per project design
 ```

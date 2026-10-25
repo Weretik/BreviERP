@@ -58,6 +58,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Jobs\CatalogImport\CatalogImport.csproj" />
+      <ProjectReference Include="..\..\Jobs\SewingPricing\SewingPricing.csproj" />
       <ProjectReference Include="..\..\Modules\Accounting\Accounting.Infrastructure\Accounting.Infrastructure\Accounting.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Catalog\Catalog.Infrastructure\Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Crm\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
@@ -67,5 +69,6 @@
 
     <ItemGroup>
       <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2" PrivateAssets="all" />
     </ItemGroup>
 </Project>

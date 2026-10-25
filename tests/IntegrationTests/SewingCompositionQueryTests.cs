@@ -1,3 +1,4 @@
+using Catalog.Application.Features.Product.Sewing;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ public sealed class SewingCompositionQueryTests
     public void Composition_projection_translates_for_shared_and_article_scopes(long? articleId)
     {
         using var db = CreateContext();
-        var query = new SewingCompositionStore(db).CompositionQuery(101, articleId);
+        var query = new SewingCompositionReadStore(db).CompositionQuery(101, articleId);
         Assert.That(query.ToQueryString(), Does.Contain("catalog.\"Products\""));
     }
 
@@ -19,7 +20,7 @@ public sealed class SewingCompositionQueryTests
     public void Article_projection_translates_without_loading_product_entities()
     {
         using var db = CreateContext();
-        var query = new SewingCompositionStore(db).ArticlesQuery(101);
+        var query = new SewingCompositionReadStore(db).ArticlesQuery(101);
         Assert.That(query.ToQueryString(), Does.Contain("catalog.\"Products\""));
     }
 

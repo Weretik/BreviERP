@@ -7,7 +7,9 @@ See the feature card's “Code structure” section for actual file paths and ro
 ## Catalog
 
 - [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products.
-- [Sewing Articles and composition](catalog/sewing-composition.md) — sale SKUs, shared/Article material norms, shared operations and review readiness; PostgreSQL rollout verification pending.
+- [Sewing Articles and composition](catalog/sewing-composition.md) — sale SKUs, shared/Article material norms, shared operations and review readiness.
+- [Local catalogue import](catalog/catalog-import.md) — frozen source, transactional model/Article/PPE transfer, provenance and reconciliation.
+- [Sewing Article pricing](catalog/sewing-pricing.md) — versioned inputs, strict calculation, saved snapshots and publication API; scenarios and persistence grouped by owner; frontend consumer cutover pending.
 - [Product categories](catalog/categories.md) — Admin CRUD and Storefront list.
 - [Catalog media](catalog/media.md) — upload, list, and delete product files.
 
@@ -18,6 +20,7 @@ See the feature card's “Code structure” section for actual file paths and ro
 - [Garment accessories](reference/garment-accessories.md) — CRUD and list reads.
 - [Garment parts](reference/garment-parts.md) — CRUD and list reads.
 - [Sewing operations](reference/garment-part-operations.md) — CRUD and list reads.
+- [Reference pricing versions](reference/pricing-input-versions.md) — atomic numeric-edit history and explicit service-cost revisions.
 - [Additional reference data](reference/additional-references.md) — CRUD and list reads.
 
 ## Identity

@@ -1,4 +1,4 @@
-﻿using Reference.Api.Contracts.GarmentPartOperations;
+using Reference.Api.Contracts.GarmentPartOperations;
 using Reference.Application.Features.GarmentPartOperation.Create;
 using Reference.Application.Features.GarmentPartOperation.Create.DTOs;
 using Reference.Application.Features.GarmentPartOperation.Delete;
@@ -10,11 +10,11 @@ using Reference.Application.Features.GarmentPartOperation.Update.DTOs;
 namespace Reference.Api.Controllers;
 
 [ApiController]
-[AllowAnonymous]
 [Route("api/reference/garment-part-operations")]
 public sealed class GarmentPartOperationsController(ISender sender) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(List<GarmentPartOperationRowDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -26,6 +26,7 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
     }
 
     [HttpPost]
+    [Authorize(Policy = "CanManageProducts")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -47,6 +48,7 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Policy = "CanManageProducts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -70,6 +72,7 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = "CanManageProducts")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

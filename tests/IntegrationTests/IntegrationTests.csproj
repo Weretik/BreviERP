@@ -29,11 +29,17 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Bootstrapper\Host.Api\Host.Api.csproj" />
         <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Infrastructure\Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\src\Jobs\CatalogImport\CatalogImport.csproj" />
+        <ProjectReference Include="..\..\src\Jobs\SewingPricing\SewingPricing.csproj" />
         <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Api\Catalog.Api\Catalog.Api.csproj" />
         <ProjectReference Include="..\..\src\Modules\Catalog\Catalog.Application\Catalog.Application\Catalog.Application.csproj" />
         <ProjectReference Include="..\..\src\Modules\Reference\Reference.Application\Reference.Application\Reference.Application.csproj" />
         <ProjectReference Include="..\..\src\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Reference.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="../Fixtures/catalog-import.json" Link="Fixtures/catalog-import.json" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
 </Project>

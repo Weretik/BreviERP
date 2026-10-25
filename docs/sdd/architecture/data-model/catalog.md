@@ -5,6 +5,10 @@
 | Table | PK | Main data and purpose |
 | --- | --- | --- |
 | `Products` | `Id` | Product: `Name`, `RuName`, `Slug`, `Type`, description, and dates. |
+| `ProductCatalogProfiles` | `ProductId` | Product-owned source activity/season/review metadata and nullable PPE supplier offer, unit, sale SKU and links. Separate from legacy pricing percentages. |
+| `SewingPricingSettingsVersions` | generated long `Id` | Immutable thirteen-input settings revision, effective instant, formula version, approval and source JSON/SHA-256. Unique revision and source hash. |
+| `SewingCalculations` | generated long `Id`; unique UUID `PublicId` / `RequestId` | Immutable full calculation JSON, actor/time and restrictive composite Product/Article ownership. Blocked results retain diagnostic evidence. |
+| `SewingPricePublications` | generated long `Id`; unique UUID `PublicId` | Unique calculation FK, actor/time; exact prices come from retained calculation JSON. Append-only history; highest publication ID is current per Article. |
 | `ProductCategories` | `Id` | Category: `ParentId` (FK), `Path`, `Level`, names, and `Slug`. |
 | `ProductCategoryLinks` | `ProductId`, `Id` | Product-to-category link; `Id` is an FK to the category. |
 | `ProductPhotos` | `ProductId`, `Id` | Product photo: `MediaFileId`, order, and visibility flags. |
@@ -21,7 +25,7 @@
 | `SewingMaterialLines` | generated long `Id` | Shared or Article-specific fabric/accessory/non-inventory cost inputs, quantity/unit and review metadata. Composite Article FK prevents cross-parent links. |
 | `SewingOperationLines` | generated long `Id` | Shared operation reference, quantity, optional manual minutes and review metadata. |
 
-Migration `20261024215605_AddSewingComposition` also adds nullable unique `Products.ModelCode` and the `Products.CompositionVersion` concurrency token. These are implemented mappings; PostgreSQL rollout verification remains open. See [Sewing composition](../../features/catalog/sewing-composition.md).
+Migration `20261024215605_AddSewingComposition` adds nullable unique `Products.ModelCode` and the `Products.CompositionVersion` concurrency token. Migration `20261025093328_AddCatalogImportProfiles` adds profiles, permits metre-based accessories, and replaces the unique operation-reference index with a nonunique index so individual occurrences retain their manual times. Both were applied locally; see [catalogue import](../../features/catalog/catalog-import.md). The job's separate `imports` schema contains batch/source provenance and source-to-target IDs in the same PostgreSQL database.
 
 ```mermaid
 erDiagram
@@ -37,6 +41,11 @@ erDiagram
     SewingProductDetails ||--o{ SewingProductFabrics : "ProductId FK"
     SewingProductDetails ||--o{ SewingProductAccessories : "ProductId FK"
     SewingProductDetails ||--o{ SewingProductOperations : "ProductId FK"
+    Products ||--o{ SewingCalculations : "ProductId FK"
+    SewingArticles ||--o{ SewingCalculations : "ProductId + ArticleId FK"
+    SewingCalculations ||--o| SewingPricePublications : "CalculationId FK"
 ```
 
 `ProductPhotos.MediaFileId` conceptually references `MediaFiles.Id`, but the FK is absent from the snapshot. `PpeProductDetails.SupplierId`, along with `FabricId`, `GarmentAccessoryId`, and `GarmentPartOperationId` in sewing links, reference [Reference](reference.md) lookup data by ID without cross-module FKs.
+
+The [publication stage](../../specs/catalog/003-sheet-pricing-parity/publication-implementation.md) adds immutable calculation/publication records through `AddSewingPriceHistory` and `EnforceSewingCalculationArticleOwnership`. History records cannot be orphaned by Product/Article deletion. Published price consumers still await TS-005; adding these tables does not switch legacy Product price projections.
