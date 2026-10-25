@@ -53,7 +53,7 @@ paths:
                 slug: work-jacket
                 type: Sewing
                 categoryIds: [12]
-                minimumWholesalePrice: 360.3
+                minimumWholesalePrice: 0
                 categories: [{ id: 12, name: Спецодяг, ruName: Спецодежда, slug: specodyag }]
                 mainPhoto: { mediaFileId: 501, url: 'https://cdn.example.test/501.jpg' }
                 createdAtUtc: '2026-08-10T09:00:00Z'
@@ -69,12 +69,7 @@ paths:
                   accessories: [{ garmentAccessoryId: 44, quantity: 2, sortOrder: 0, name: Блискавка, price: 20 }]
                   operations: [{ id: 71, name: Пошиття, minutes: 15 }]
                   piecesPerShift: 25.6
-                  prices:
-                    byFabric: [{ fabricId: 31, price1To10: 400.5, price11To39: 380.4, price40Plus: 360.3 }]
-                    ranges:
-                      price1To10: { minPrice: 400.5, minFabricId: 31, maxPrice: 400.5, maxFabricId: 31 }
-                      price11To39: { minPrice: 380.4, minFabricId: 31, maxPrice: 380.4, maxFabricId: 31 }
-                      price40Plus: { minPrice: 360.3, minFabricId: 31, maxPrice: 360.3, maxFabricId: 31 }
+                  prices: null
                 ppe: null
         '400':
           description: Invalid Product input or a noncanonical write enum.
@@ -218,7 +213,7 @@ components:
         categoryIds: { type: array, items: { type: integer }, description: Category IDs only; use Product detail for display data. }
         mainPhoto: { oneOf: [{ $ref: '#/components/schemas/MainPhoto' }, { type: 'null' }] }
         createdAtUtc: { type: string, format: date-time }
-        minimumWholesalePrice: { type: number, description: Minimum calculated wholesale price; zero when a price cannot be calculated. }
+        minimumWholesalePrice: { type: number, deprecated: true, description: "Retired compatibility placeholder, always zero. Read current Sewing publications or PPE prices through the Pricing API; zero is not a sale price." }
         updatedAtUtc: { type: [string, 'null'], format: date-time }
     Category:
       type: object
@@ -372,7 +367,7 @@ components:
         accessories: { type: array, items: { $ref: '#/components/schemas/AccessoryDetail' } }
         operations: { type: array, items: { $ref: '#/components/schemas/OperationDetail' } }
         piecesPerShift: { oneOf: [{ type: number }, { type: 'null' }], description: Full unrounded fractional value. }
-        prices: { oneOf: [{ $ref: '#/components/schemas/SewingPrices' }, { type: 'null' }] }
+        prices: { oneOf: [{ $ref: '#/components/schemas/SewingPrices' }, { type: 'null' }], deprecated: true, description: 'Retired Product calculation, always null. Read published Article prices through getPublishedSewingProducts.' }
     FabricDetail:
       allOf:
         - $ref: '#/components/schemas/FabricWrite'
@@ -423,8 +418,8 @@ components:
         basePrice: { type: number }
         retailPercent: { $ref: '#/components/schemas/PercentDetail' }
         wholesalePercent: { $ref: '#/components/schemas/PercentDetail' }
-        retailPrice: { type: number }
-        wholesalePrice: { type: number }
+        retailPrice: { type: number, deprecated: true, description: "Retired compatibility placeholder, always zero. Use getPpeProductPrices." }
+        wholesalePrice: { type: number, deprecated: true, description: "Retired compatibility placeholder, always zero. Use getPpeProductPrices." }
     PercentDetail:
       oneOf:
         - type: object

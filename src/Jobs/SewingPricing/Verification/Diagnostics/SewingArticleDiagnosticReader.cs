@@ -35,7 +35,7 @@ public sealed class SewingArticleDiagnosticReader(CatalogDbContext catalog, Work
         var row = source.Rows("Прайс на сайт").Single(row => row.Text(0) == sku);
         return new(sku, SewingArticleCalculation.FormulaVersion, strict.Value.SettingsVersionId,
             strict.Value.ReferenceVersionIds, diagnostic.Breakdown, diagnostic.Prices, strict.Value.Calculation.Blockers,
-            SewingPricingParityComparer.Compare(row, diagnostic));
+            SewingPricingParityComparer.Compare(row, diagnostic), SewingPricingParityComparer.Values(row, diagnostic));
     }
 }
 

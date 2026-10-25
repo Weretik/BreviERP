@@ -6,6 +6,8 @@ See the feature card's “Code structure” section for actual file paths and ro
 
 ## Catalog
 
+- [Current pricing boundaries](catalog/pricing-cutover.md) — TS-007 source reconciliation and metadata-only Product reads.
+
 - [PPE pricing](catalog/ppe-pricing.md) — versioned supplier offers, exact rule scope and three-tier calculation.
 
 - [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products.

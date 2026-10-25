@@ -28,7 +28,6 @@ public static class ModuleRegistrationsExtensions
         services.AddCatalogApiOptions(configuration);
         services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
-        services.AddScoped<IProductListPricingReferenceReader, CatalogProductListPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();
         services.AddSingleton<IProductSlugGenerator, ProductSlugGenerator>();
 

@@ -86,7 +86,7 @@ public sealed class ProductsApiTests
     }
 
     [Test]
-    public async Task Detail_returns_all_photo_urls_and_ppe_prices_or_not_found()
+    public async Task Detail_returns_photo_urls_and_retired_price_placeholders_or_not_found()
     {
         await using var host = await TestHost.CreateAsync();
         host.Sender.Setup(x => x.Send(It.Is<GetAdminProductDetailQuery>(q => q.Id == 1), It.IsAny<CancellationToken>()))
@@ -104,8 +104,8 @@ public sealed class ProductsApiTests
             Assert.That(successBody.GetProperty("type").GetString(), Is.EqualTo("Ppe"));
             Assert.That(successBody.GetProperty("photos").GetArrayLength(), Is.EqualTo(2));
             Assert.That(successBody.GetProperty("photos")[1].GetProperty("url").GetString(), Is.EqualTo("https://cdn.test/second.jpg"));
-            Assert.That(successBody.GetProperty("ppe").GetProperty("retailPrice").GetDecimal(), Is.EqualTo(125.5m));
-            Assert.That(successBody.GetProperty("ppe").GetProperty("wholesalePrice").GetDecimal(), Is.EqualTo(115.25m));
+            Assert.That(successBody.GetProperty("ppe").GetProperty("retailPrice").GetDecimal(), Is.Zero);
+            Assert.That(successBody.GetProperty("ppe").GetProperty("wholesalePrice").GetDecimal(), Is.Zero);
             Assert.That(missing.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         });
     }
@@ -210,7 +210,7 @@ public sealed class ProductsApiTests
     private static ProductAdminDetail Detail(int id = 1)
         => new(id, "Product", "Товар", "product", ProductType.Ppe, "Description", "Описание", [],
             [new(10, "https://cdn.test/main.jpg", null, true, true, 0), new(11, "https://cdn.test/second.jpg", "Second", true, false, 1)], [], [], null,
-            new(new(7, "Supplier"), 100m, new(Catalog.Application.Contracts.Admin.Ppe.PpePercentSource.Custom, null, 25.5m), new(Catalog.Application.Contracts.Admin.Ppe.PpePercentSource.Custom, null, 15.25m), 125.5m, 115.25m), DateTimeOffset.UtcNow, null);
+            new(new(7, "Supplier"), 100m, new(Catalog.Application.Contracts.Admin.Ppe.PpePercentSource.Custom, null, 25.5m), new(Catalog.Application.Contracts.Admin.Ppe.PpePercentSource.Custom, null, 15.25m), 0m, 0m), DateTimeOffset.UtcNow, null);
 
     private sealed class TestHost(WebApplication app, HttpClient client, Mock<ISender> sender) : IAsyncDisposable
     {

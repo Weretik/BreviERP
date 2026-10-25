@@ -41,7 +41,10 @@ public static class SewingPricingVerificationJob
         var reader = new SewingArticleDiagnosticReader(catalog, source, inputReader, settingsReader, referenceReader);
         var reports = new List<SewingPricingDiagnostic>();
         foreach (var sku in saleSkus)
-            reports.Add(await reader.ReadAsync(sku, at, cancellationToken));
+            reports.Add((await reader.ReadAsync(sku, at, cancellationToken)) with
+            {
+                SourceHash = batch.SnapshotHash, SpreadsheetId = batch.SpreadsheetId, SourceCapturedAt = source.CapturedAt
+            });
         return reports;
     }
 

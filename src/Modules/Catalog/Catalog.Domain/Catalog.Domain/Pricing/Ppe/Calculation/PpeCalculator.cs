@@ -1,6 +1,8 @@
 namespace Catalog.Domain.Pricing.Ppe;
+
 public static class PpeCalculator
 {
+    public const string FormulaVersion = "ppe-sheet-v1";
     public static PpePriceCalculation Calculate(PpePricingInput input)
     {
         var blockers = new List<PpePricingBlocker>();
