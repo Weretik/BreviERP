@@ -14,6 +14,7 @@ public sealed class SaveCustomerContactCommandValidator : AbstractValidator<Save
             RuleFor(x => x.Input.Name).NotEmpty().MaximumLength(300);
             RuleFor(x => x.Input.Position).MaximumLength(200);
             RuleFor(x => x.Input.Channels).NotNull().Must(x => x is { Count: <= 10 });
+            RuleForEach(x => x.Input.Channels).NotNull();
         });
     }
 }
