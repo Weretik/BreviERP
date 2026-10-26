@@ -1,6 +1,6 @@
 # TS-001 — Customer domain and persistence
 
-**Status:** client-slice backend implemented; focused checks verified, frontend handoff pending. **Covers:** SC-C01–05. **Depends on:** EN-001.
+**Status:** client-slice implemented; focused backend and frontend checks verified, local migration applied; manual acceptance pending. **Covers:** SC-C01–05. **Depends on:** EN-001.
 
 ## Paths and one responsibility
 

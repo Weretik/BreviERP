@@ -30,7 +30,7 @@ public sealed class CustomerMutationStore(CrmDbContext db) : ICustomerMutationSt
             if (previous is not null)
             {
                 if (previous.PayloadHash != hash) return Result.Conflict("idempotency_conflict");
-                var accessible = await db.Customers.AsNoTracking().AnyAsync(x => x.PublicId == previous.CustomerPublicId
+                var accessible = await db.Customers.AsNoTracking().AnyAsync(x => x.PublicId == previous.CustomerPublicId && x.MergedIntoId == null
                     && (actor.IsAdmin || x.OwnerId == new CrmUserId(actor.UserId)), cancellationToken);
                 if (!accessible) return Result.NotFound();
                 return Result.Success(JsonSerializer.Deserialize<CustomerDetail>(previous.ResponseJson, JsonOptions)!);

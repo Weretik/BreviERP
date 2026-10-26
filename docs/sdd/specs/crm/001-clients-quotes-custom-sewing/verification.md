@@ -1,6 +1,6 @@
 # Verification and acceptance
 
-**Current evidence: documentation/source analysis only.** No Crm runtime scenario is marked verified. Follow [testing rules](../../../standards/testing-rules.md); use existing `tests/UnitTests`, `tests/IntegrationTests`, `tests/ArchitectureTests` projects, inspect actual targets/filters first. Test database must be isolated, never run destructive tests on the user's working database. Use synthetic customer/contact data.
+**Client-slice evidence:** domain, PostgreSQL/HTTP, architecture and Admin automated checks passed; see [execution evidence](evidence/clients-backend-2026-10-26.md). Quote/custom/document/import scenarios remain planned, and manual acceptance is not claimed. Follow [testing rules](../../../standards/testing-rules.md); use existing `tests/UnitTests`, `tests/IntegrationTests`, `tests/ArchitectureTests` projects, inspect actual targets/filters first. Test database must be isolated, never run destructive tests on the user's working database. Use synthetic customer/contact data.
 
 ## Focused test matrix
 

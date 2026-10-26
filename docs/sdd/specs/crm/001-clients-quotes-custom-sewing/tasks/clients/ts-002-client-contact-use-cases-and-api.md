@@ -1,6 +1,6 @@
 # TS-002 — Client/contact use cases and API
 
-**Status:** client-slice backend implemented; focused checks verified, frontend handoff pending. **Covers:** SC-C01–05. **Depends on:** TS-001.
+**Status:** client-slice implemented; focused backend and frontend checks verified, local migration applied; manual acceptance pending. **Covers:** SC-C01–05. **Depends on:** TS-001.
 
 ## Paths and one responsibility
 

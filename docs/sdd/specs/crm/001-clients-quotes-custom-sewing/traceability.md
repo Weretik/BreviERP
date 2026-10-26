@@ -1,6 +1,6 @@
 # Traceability
 
-**Progress:** client-only portions of SC-C01–05 have backend domain/persistence/API evidence; integrated frontend acceptance is pending. Quote recipient immutability and quote-derived access in SC-C03–05 await quote implementation. All nonclient rows remain planned. See [client evidence](evidence/clients-backend-2026-10-26.md). Requirements and tasks carry details; this matrix only links coverage. The frontend counterpart retains the same scenario IDs.
+**Progress:** client-only portions of SC-C01–05 have backend domain/persistence/API evidence; Admin client automation is verified; manual acceptance is pending. Quote recipient immutability and quote-derived access in SC-C03–05 await quote implementation. All nonclient rows remain planned. See [client evidence](evidence/clients-backend-2026-10-26.md). Requirements and tasks carry details; this matrix only links coverage. The frontend counterpart retains the same scenario IDs.
 
 | Rule | Scenario | Backend tasks / prerequisites | Frontend tasks | Required evidence |
 | --- | --- | --- | --- | --- |

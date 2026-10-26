@@ -1,6 +1,6 @@
 # EN-001 — Crm foundation and client contract
 
-**Status:** client-slice backend implemented; focused checks verified, frontend handoff pending. **Enables:** SC-C01–05. **Depends on:** None.
+**Status:** client-slice implemented; focused backend and frontend checks verified, local migration applied; manual acceptance pending. **Enables:** SC-C01–05. **Depends on:** None.
 
 ## Paths and one responsibility
 

@@ -111,6 +111,23 @@ public sealed class CustomerPersistenceTests : CrmDatabaseFixture
     }
 
     [Test]
+    public async Task MutationReplayCannotReadAClientAfterMergeRemovedAccessToThatRoot()
+    {
+        var survivor = await Create();
+        var oldOwner = new CrmActor(18, false);
+        var command = new CreateCustomerCommand(Input("Victim"), Guid.NewGuid(), oldOwner);
+        await using var db = Context();
+        var writer = new CreateCustomerCommandHandler(new CustomerMutationStore(db));
+        var victim = await writer.Handle(command, default);
+        var merge = await new MergeCustomersCommandHandler(new CustomerMutationStore(db))
+            .Handle(new(survivor.PublicId, victim.Value.PublicId, 1, 1, "Verified duplicate", Guid.NewGuid(), Admin), default);
+        Assert.That(merge.IsSuccess, Is.True);
+        var replay = await writer.Handle(command, default);
+        Assert.That(replay.Status, Is.EqualTo(ResultStatus.NotFound));
+        Assert.That(await db.MutationRequests.CountAsync(), Is.EqualTo(3));
+    }
+
+    [Test]
     public async Task ContactPrimarySwitchAndDeactivationRoundTripWithoutUniqueViolation()
     {
         var customer = await Create();

@@ -1,6 +1,6 @@
 # CRM-001 — Clients, quotes and custom sewing
 
-**Status:** client/contact backend slice implemented and verified in isolated tests; frontend integration in progress; later quote/custom/document/import phases planned. **Reviewed:** 2026-10-26. **Owner:** existing Crm module. This is the next customer-facing block after Catalog composition/pricing. It is not a declaration that CRM APIs, tables, screens, imports or integrations already work.
+**Status:** client/contact backend and Admin slice implemented locally with automated verification; manual acceptance pending; later quote/custom/document/import phases planned. **Reviewed:** 2026-10-26. **Owner:** existing Crm module. This is the next customer-facing block after Catalog composition/pricing. It is not a declaration that CRM APIs, tables, screens, imports or integrations already work.
 
 ## Outcome and scope
 
