@@ -1,24 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
     <ItemGroup>
-      <Folder Include="Configurations\" />
-      <Folder Include="DataBase\" />
-      <Folder Include="DependencyInjection\" />
-      <Folder Include="Migrations\" />
-      <Folder Include="Repositories\" />
-      <Folder Include="Seeders\Data\" />
+        <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
+        <ProjectReference Include="..\..\Crm.Application\Crm.Application\Crm.Application.csproj" />
+        <ProjectReference Include="..\..\Crm.Domain\Crm.Domain\Crm.Domain.csproj" />
     </ItemGroup>
-
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
-      <ProjectReference Include="..\..\Crm.Application\Crm.Application\Crm.Application.csproj" />
-      <ProjectReference Include="..\..\Crm.Domain\Crm.Domain\Crm.Domain.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2" PrivateAssets="all" />
     </ItemGroup>
-
 </Project>

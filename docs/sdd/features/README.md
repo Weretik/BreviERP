@@ -40,3 +40,7 @@ See the feature card's “Code structure” section for actual file paths and ro
 ## Other modules
 
 [Accounting and Crm](../architecture/overview/modules.md) exist in the structure; as of the check date, they have no separate HTTP scenarios in controllers. They are not marked as completed features. See [operations](../operations/data/migrations-and-seeding.md) for schema preparation and seed.
+
+## Crm
+
+- [Clients and contacts](crm/clients-and-quotes.md) — scoped customer/contact APIs, source identity, optimistic concurrency and Admin merge; quote workflow remains planned.

@@ -43,3 +43,7 @@ The [full imported pricing readiness report](pricing-readiness.md) is an explici
 The [frozen-source pricing input review](pricing-input-review.md) compares current data before confirmation and is database-enforced read-only.
 
 [Explicit local pricing activation](pricing-activation.md) is a separately authorized state-changing mode with plan, manager attribution, backup and exclusion guards. It never invokes normal migration/seed flow.
+
+## CRM clients
+
+The [CRM-only local migration mode](crm-clients.md) plans/applies only the client schema through Host.Seed without unrelated seeders or data import. Normal deployment migration registration also includes Crm.

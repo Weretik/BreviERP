@@ -18,7 +18,7 @@ Owns wallets, transactions, and transaction categories. At the audit date, the m
 
 ## Crm module
 
-The module exists in the solution with four layers, but domain scenarios are not implemented yet. Do not treat it as a contract for completed CRM functionality.
+The client/contact slice implements scoped customer APIs, exact source identity, revision/idempotency and Admin merge in the existing four layers. See the [feature map](../../features/crm/clients-and-quotes.md). Quotes, custom sewing, document delivery and historical migration remain planned in CRM-001.
 
 ## Shared BuildingBlocks
 

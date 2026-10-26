@@ -1,0 +1,47 @@
+# Proposed Crm data model
+
+**All tables below are planned.** Baseline: no Crm business DbContext or matching tables in the reviewed code/local metadata; recheck target under EN-001. Extend the existing PostgreSQL database with schema `crm` and `CrmDbContext`; do not create a separate database or put business rows in Google Sheets. Follow [module schema SDD](../../platform/001-module-schemas/README.md) and [ID rules](../../../standards/identifier-strategy.md).
+
+## Identifiers and references
+
+Ordinary centrally created business records use **typed long IDs** in Domain and numeric relational keys; separate unique Guid `PublicId` values identify public resources. Child/join keys may be composite where lifecycle permits. Typed Identity actor reference wraps its existing int user ID; Catalog/Reference refs preserve the existing owner's scalar/typed identity behind Application ports. Human document number is a separate immutable string. Source text/UUID IDs are retained in external mapping rows, not reused as database primary keys or blindly cast to another module ID. No cross-module EF navigation or cascade delete.
+
+## Tables by rollout slice
+
+| Slice | Planned table/group | Core fields and integrity |
+| --- | --- | --- |
+| Clients | Customers | PublicId, kind, display/legal names, optional tax identity, owner, active, revision, created/updated audit. Normalized search fields are projections, not identity |
+| Clients | CustomerContacts, ContactChannels | Customer FK, name/position, primary/active, channel kind/raw/normalized. Partial unique index for one active primary per customer; email/phone not globally unique |
+| Clients | CustomerExternalIdentities, CustomerMergeEvents | Unique source/type/externalId; survivor mapping and actor/time. Role association to Reference.Supplier through explicit external owner reference |
+| Quotes | Quotes | PublicId, immutable unique Number when allocated, customer/contact refs, current responsible/creator, CurrentVersionId, IssuedVersionId, lifecycle state, archive audit, revision |
+| Quotes | QuoteVersions | Quote FK, unique (QuoteId,VersionNumber), ParentVersionId same quote, action, immutable recipient/issuer snapshots, currency/tax basis, calculation provenance, actor/time, schema version |
+| Quotes | QuoteVersionItems | Version FK, stable logical item PublicId across versions, sort order, kind, optional Catalog/custom version refs, public/private text, media refs, include flag |
+| Quotes | QuoteItemVariants, QuoteVariantTiers | Item FK, stable logical variant ID, order/title/visible, pricing method, typed basis; unique semantic tier per variant, decimal amount/currency, display flag, quantity range provenance |
+| Quotes | QuoteCalculationLines, QuotePriceOverrides | Variant FK, source line/ref/version, kind/unit, original/effective norm, unit cost, total, reason/actor; override source/effective tier amounts, reason and basis |
+| Quotes | QuoteEvents, QuoteTransfers | Quote/version refs, typed action/changes, actor/time, prior/new owner. Append only |
+| Pricing | CalculationBases | Immutable server input/output payload with schema/engine versions, normalized input hash, refs, blockers, actor/scope and expiry; historical quoted copy remains durable |
+| Custom | CustomSewingDrafts, CustomSewingVersions | Owner/customer, revision; immutable version configuration, composition/application fields, private/public projections, calculation basis |
+| Files | PrivateFiles, CustomVersionFiles, QuoteVersionMedia | Storage key, byte count, MIME, SHA-256, state/owner; version links with quote/production visibility; no arbitrary external download authority |
+| Templates | QuoteTemplates, QuoteTemplateVersions | Owner, discriminated kind (customConfiguration/firstContact), layout/version/season/slots, intro/email-template reference, selections/norms, archive/version, no authoritative current price |
+| Documents | IssuerSettingsVersions, DocumentTemplateVersions | Immutable verified legal/brand/tax wording data and template version; active pointer changes audited |
+| Documents | QuoteDocumentArtifacts | Quote/version/template IDs, render parameters hash, private file ref/hash, status/error, unique successful render identity |
+| Delivery | QuoteDeliveries, DeliveryAttempts, DeliveryOutbox | Version/PDF, explicit recipient, request key, queued/lease/status, provider ID, timestamps, bounded error; inert imported history distinct from queued work |
+| Operations | MutationRequests | Unique actor/operation/requestId, payload hash, committed result, related root/revision |
+| Import | ImportRuns, ImportRows, SourceMappings, ReconciliationIssues | Manifest/hash/version, row source key/status/payload hash, target PublicId, unresolved dependencies and evidence |
+
+The table list describes ownership, not permission to create every table in the first migration. Each slice introduces only required mapping/indexes and tests. Flatten/split value-object columns deliberately in EF configurations; do not expose internal storage JSON as an untyped client write schema.
+
+## Invariants and data precision
+
+- Required FKs within `crm` are restrictive; historical records cannot cascade away. Root current/issued pointers must reference its own version, tested in persistence and application invariants. Parent versions cannot reference another quote or cycle.
+- Item/variant order is unique within its immutable parent. A draft update inserts a whole validated version and then atomically moves the current pointer; partial children are never visible.
+- PostgreSQL numeric columns, C# decimal and explicit currency. Initial design: money numeric(20,4), norms/minutes numeric(20,6), rates numeric(20,8); EN-002 verifies against current engine precision/range and adjusts before first migration. Store computation evidence and final displayed two-decimal amount separately where required. No binary floats or extra VAT/round at presentation.
+- Nonnegative norms are insufficient for required material/operation selections: calculation requires positive quantities; optional inactive/hidden tier is nullable/unavailable, never zero as an error sentinel. Validate overflow before persistence. Imported malformed values remain in staging.
+- UTC instants in `timestamptz`; display dates using configured Europe/Kiev zone. Preserve source raw timestamp and conversion provenance for ambiguous old dates; never guess a missing send time.
+- Enforce unique PublicIds, source keys, quote number, version number, request keys and outbox delivery keys. Index quote owner/archive/updatedAt+ID, customer/number/status filters, client owner/name search, version FK and pending delivery lease. Use bounded SQL projections, stable tie-breaker and tested page/count filters; do not index every JSON field in advance.
+
+## Snapshot schema and compatibility
+
+Snapshot schema v1 holds recipient and issuer snapshots; logical items/variants with visible flags; source product/article/custom IDs and version refs; input lines and revisions; formula/settings IDs; cost breakdown and tiers; override provenance; public text/media; actor/time. Typed immutable records serialize to versioned payloads; normalized children support query/integrity. Store payload hash where useful for reconciliation. An explicit read adapter supports older snapshot schema; no destructive rewrite of issued content.
+
+Changing customer/issuer/master data does not update snapshots. Repricing inserts a new version. Migration maps source keys and preserves raw source payload in restricted staging with completeness status; unresolved history cannot be marked as newly issued.

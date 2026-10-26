@@ -1,3 +1,4 @@
+using Crm.Infrastructure.DependencyInjection;
 using Accounting.Infrastructure.DependencyInjection;
 using BuildingBlocks.Infrastructure.DependencyInjection;
 using Catalog.Infrastructure.DependencyInjection;
@@ -27,6 +28,7 @@ public static class SeedHostServicesExtensions
         services.AddReferenceDbContextServices(configuration);
         services.AddAccountingDbContextServices(configuration);
         services.AddCatalogDbContextServices(configuration);
+        services.AddCrmDbContextServices(configuration);
         services.AddDbContext<CatalogImportDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Default")));
         services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogImportDbContext>>();

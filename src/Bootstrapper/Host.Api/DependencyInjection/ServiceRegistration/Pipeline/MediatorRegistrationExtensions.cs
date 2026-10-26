@@ -1,5 +1,6 @@
 using BuildingBlocks.Application;
 using Catalog.Application;
+using Crm.Application;
 using BuildingBlocks.Application.Behaviors;
 using Identity.Application;
 using Reference.Application;
@@ -18,6 +19,7 @@ public static class MediatorRegistrationExtensions
             [
                 typeof(IdentityApplicationAssemblyMarker).Assembly,
                 typeof(CatalogApplicationAssemblyMarker).Assembly,
+                typeof(CrmApplicationAssemblyMarker).Assembly,
                 typeof(ReferenceApplicationAssemblyMarker).Assembly,
                 typeof(ApplicationAssemblyMarker).Assembly
             ];

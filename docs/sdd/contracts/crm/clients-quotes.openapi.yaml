@@ -1,0 +1,666 @@
+openapi: 3.1.0
+info:
+  title: BreviERP CRM Clients API
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /api/crm/customers:
+    get:
+      operationId: getCrmCustomers
+      security:
+        - bearerAuth: []
+      description: Admin or Manager, server-owned actor. Customer owner scope
+        enforced; merge is Admin-only. Mutation requestId replays the same
+        payload; revisions protect existing roots.
+      responses:
+        "200":
+          description: Successful result; mutation replay returns the original result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomerPage"
+        "400":
+          description: Invalid body/query/domain input; established Ardalis.Result
+            validation mapping.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Role or valid numeric actor claim required.
+        "404":
+          description: Scoped resource does not exist.
+        "409":
+          description: revision_conflict, idempotency_conflict, or unique external
+            identity/primary conflict; errors are an array of strings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+            maxLength: 300
+        - name: active
+          in: query
+          schema:
+            type: boolean
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+            maximum: 1000000
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 25
+            minimum: 1
+            maximum: 100
+    post:
+      operationId: createCrmCustomer
+      security:
+        - bearerAuth: []
+      description: Admin or Manager, server-owned actor. Customer owner scope
+        enforced; merge is Admin-only. Mutation requestId replays the same
+        payload; revisions protect existing roots.
+      responses:
+        "201":
+          description: Successful result; mutation replay returns the original result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomerDetail"
+        "400":
+          description: Invalid body/query/domain input; established Ardalis.Result
+            validation mapping.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Role or valid numeric actor claim required.
+        "404":
+          description: Scoped resource does not exist.
+        "409":
+          description: revision_conflict, idempotency_conflict, or unique external
+            identity/primary conflict; errors are an array of strings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmCreateCustomerRequest"
+  /api/crm/customers/{customerId}:
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getCrmCustomer
+      security:
+        - bearerAuth: []
+      description: Admin or Manager, server-owned actor. Customer owner scope
+        enforced; merge is Admin-only. Mutation requestId replays the same
+        payload; revisions protect existing roots.
+      responses:
+        "200":
+          description: Successful result; mutation replay returns the original result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomerDetail"
+        "400":
+          description: Invalid body/query/domain input; established Ardalis.Result
+            validation mapping.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Role or valid numeric actor claim required.
+        "404":
+          description: Scoped resource does not exist.
+        "409":
+          description: revision_conflict, idempotency_conflict, or unique external
+            identity/primary conflict; errors are an array of strings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+    put:
+      operationId: reviseCrmCustomer
+      security:
+        - bearerAuth: []
+      description: Admin or Manager, server-owned actor. Customer owner scope
+        enforced; merge is Admin-only. Mutation requestId replays the same
+        payload; revisions protect existing roots.
+      responses:
+        "200":
+          description: Successful result; mutation replay returns the original result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomerDetail"
+        "400":
+          description: Invalid body/query/domain input; established Ardalis.Result
+            validation mapping.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Role or valid numeric actor claim required.
+        "404":
+          description: Scoped resource does not exist.
+        "409":
+          description: revision_conflict, idempotency_conflict, or unique external
+            identity/primary conflict; errors are an array of strings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmReviseCustomerRequest"
+  /api/crm/customers/{customerId}/contacts:
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: createCrmCustomerContact
+      security:
+        - bearerAuth: []
+      description: Admin or Manager, server-owned actor. Customer owner scope
+        enforced; merge is Admin-only. Mutation requestId replays the same
+        payload; revisions protect existing roots.
+      responses:
+        "200":
+          description: Successful result; mutation replay returns the original result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomerDetail"
+        "400":
+          description: Invalid body/query/domain input; established Ardalis.Result
+            validation mapping.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Role or valid numeric actor claim required.
+        "404":
+          description: Scoped resource does not exist.
+        "409":
+          description: revision_conflict, idempotency_conflict, or unique external
+            identity/primary conflict; errors are an array of strings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmSaveContactRequest"
+  /api/crm/customers/{customerId}/contacts/{contactId}:
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      operationId: reviseCrmCustomerContact
+      security:
+        - bearerAuth: []
+      description: Admin or Manager, server-owned actor. Customer owner scope
+        enforced; merge is Admin-only. Mutation requestId replays the same
+        payload; revisions protect existing roots.
+      responses:
+        "200":
+          description: Successful result; mutation replay returns the original result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomerDetail"
+        "400":
+          description: Invalid body/query/domain input; established Ardalis.Result
+            validation mapping.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Role or valid numeric actor claim required.
+        "404":
+          description: Scoped resource does not exist.
+        "409":
+          description: revision_conflict, idempotency_conflict, or unique external
+            identity/primary conflict; errors are an array of strings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmSaveContactRequest"
+  /api/crm/customers/{customerId}/merge:
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: mergeCrmCustomers
+      security:
+        - bearerAuth: []
+      description: Admin or Manager, server-owned actor. Customer owner scope
+        enforced; merge is Admin-only. Mutation requestId replays the same
+        payload; revisions protect existing roots.
+      responses:
+        "200":
+          description: Successful result; mutation replay returns the original result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomerDetail"
+        "400":
+          description: Invalid body/query/domain input; established Ardalis.Result
+            validation mapping.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Role or valid numeric actor claim required.
+        "404":
+          description: Scoped resource does not exist.
+        "409":
+          description: revision_conflict, idempotency_conflict, or unique external
+            identity/primary conflict; errors are an array of strings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmMergeCustomersRequest"
+components:
+  schemas:
+    CrmExternalIdentity:
+      type: object
+      properties:
+        source:
+          type: string
+          maxLength: 80
+        type:
+          type: string
+          maxLength: 80
+        externalId:
+          type: string
+          maxLength: 200
+      required:
+        - source
+        - type
+        - externalId
+    CrmCustomerInput:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - organization
+            - person
+        displayName:
+          type: string
+          maxLength: 300
+          minLength: 1
+        legalName:
+          type:
+            - string
+            - "null"
+          maxLength: 500
+        taxIdentity:
+          type:
+            - string
+            - "null"
+          maxLength: 80
+        externalIdentities:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmExternalIdentity"
+          maxItems: 30
+      required:
+        - kind
+        - displayName
+        - legalName
+        - taxIdentity
+        - externalIdentities
+    CrmChannel:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - email
+            - phone
+        value:
+          type: string
+          maxLength: 254
+          minLength: 1
+      required:
+        - kind
+        - value
+    CrmContactInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 300
+          minLength: 1
+        position:
+          type:
+            - string
+            - "null"
+          maxLength: 200
+        active:
+          type: boolean
+        isPrimary:
+          type: boolean
+        channels:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmChannel"
+          maxItems: 10
+      required:
+        - name
+        - position
+        - active
+        - isPrimary
+        - channels
+    CrmCreateCustomerRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        input:
+          $ref: "#/components/schemas/CrmCustomerInput"
+      required:
+        - requestId
+        - input
+    CrmReviseCustomerRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        expectedRevision:
+          type: integer
+          format: int64
+          minimum: 1
+        input:
+          $ref: "#/components/schemas/CrmCustomerInput"
+        active:
+          type: boolean
+      required:
+        - requestId
+        - expectedRevision
+        - input
+        - active
+    CrmSaveContactRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        expectedRevision:
+          type: integer
+          format: int64
+          minimum: 1
+        input:
+          $ref: "#/components/schemas/CrmContactInput"
+      required:
+        - requestId
+        - expectedRevision
+        - input
+    CrmMergeCustomersRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        expectedRevision:
+          type: integer
+          format: int64
+          minimum: 1
+        victimId:
+          type: string
+          format: uuid
+        victimRevision:
+          type: integer
+          format: int64
+          minimum: 1
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 1
+      required:
+        - requestId
+        - expectedRevision
+        - victimId
+        - victimRevision
+        - reason
+    CrmContact:
+      type: object
+      properties:
+        publicId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 300
+        position:
+          type:
+            - string
+            - "null"
+          maxLength: 200
+        active:
+          type: boolean
+        isPrimary:
+          type: boolean
+        channels:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmChannel"
+      required:
+        - publicId
+        - name
+        - position
+        - active
+        - isPrimary
+        - channels
+    CrmCustomerSummary:
+      type: object
+      properties:
+        publicId:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - organization
+            - person
+        displayName:
+          type: string
+          maxLength: 300
+        legalName:
+          type:
+            - string
+            - "null"
+          maxLength: 500
+        taxIdentity:
+          type:
+            - string
+            - "null"
+          maxLength: 80
+        ownerId:
+          type: integer
+          format: int32
+          minimum: 1
+        active:
+          type: boolean
+        revision:
+          type: integer
+          format: int64
+          minimum: 1
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - publicId
+        - kind
+        - displayName
+        - legalName
+        - taxIdentity
+        - ownerId
+        - active
+        - revision
+        - updatedAt
+    CrmCustomerDetail:
+      type: object
+      properties:
+        publicId:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - organization
+            - person
+        displayName:
+          type: string
+          maxLength: 300
+        legalName:
+          type:
+            - string
+            - "null"
+          maxLength: 500
+        taxIdentity:
+          type:
+            - string
+            - "null"
+          maxLength: 80
+        ownerId:
+          type: integer
+          format: int32
+          minimum: 1
+        active:
+          type: boolean
+        revision:
+          type: integer
+          format: int64
+          minimum: 1
+        updatedAt:
+          type: string
+          format: date-time
+        canEdit:
+          type: boolean
+        canMerge:
+          type: boolean
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmContact"
+        externalIdentities:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmExternalIdentity"
+      required:
+        - publicId
+        - kind
+        - displayName
+        - legalName
+        - taxIdentity
+        - ownerId
+        - active
+        - revision
+        - updatedAt
+        - canEdit
+        - canMerge
+        - contacts
+        - externalIdentities
+    CrmPagedInfo:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int64
+        pageSize:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+          format: int64
+        totalRecords:
+          type: integer
+          format: int64
+      required:
+        - pageNumber
+        - pageSize
+        - totalPages
+        - totalRecords
+    CrmCustomerPage:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmCustomerSummary"
+        pagedInfo:
+          $ref: "#/components/schemas/CrmPagedInfo"
+      required:
+        - value
+        - pagedInfo
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

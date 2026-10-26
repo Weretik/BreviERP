@@ -43,4 +43,7 @@
     <ItemGroup>
         <Content Include="../Fixtures/catalog-import.json" Link="Fixtures/catalog-import.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\Modules\Crm\Crm.Domain\Crm.Domain\Crm.Domain.csproj" />
+    </ItemGroup>
 </Project>

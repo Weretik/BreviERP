@@ -1,3 +1,4 @@
+using Crm.Infrastructure.DependencyInjection;
 using Accounting.Infrastructure.DependencyInjection;
 using Catalog.Api.DependencyInjection;
 using Catalog.Application.Contracts.Reference;
@@ -26,6 +27,7 @@ public static class ModuleRegistrationsExtensions
         services.AddAccountingInfrastructureServices(configuration);
         services.AddCatalogInfrastructureServices(configuration);
         services.AddCatalogApiOptions(configuration);
+        services.AddCrmDbContextServices(configuration);
         services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();

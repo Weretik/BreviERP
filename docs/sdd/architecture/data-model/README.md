@@ -58,4 +58,4 @@ BreviERP PostgreSQL
 | `identity` / Identity | [Identity tables, PKs, and FKs](identity.md) |
 | `accounting` / Accounting | [TransactionCategories](accounting.md) |
 
-The module documents cover 28 business and Identity model tables; the [module schema decision](../../specs/platform/001-module-schemas/README.md) describes the operational migration history. The Crm module has no tables in the reviewed snapshots. Module documents explain cross-module IDs without physical FKs. After a schema change, update only the affected module and this tree if the table list or placement changed.
+The module documents cover 28 business and Identity model tables; the [module schema decision](../../specs/platform/001-module-schemas/README.md) describes the operational migration history. The Crm client slice now adds five tables in schema `crm`; see [Crm](crm.md) for its updated ownership and integrity. The earlier counts/tree above are the historical 2026-10-21 snapshot, not a current total. Module documents explain cross-module IDs without physical FKs. After a schema change, update only the affected module and this tree if the table list or placement changed.

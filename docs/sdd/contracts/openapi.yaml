@@ -81,3 +81,13 @@ paths:
     $ref: ./catalog/ppe-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1ppe~1rules~1versions
   /api/v1/pricing/ppe/products/{productId}/offer/versions:
     $ref: ./catalog/ppe-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1ppe~1products~1{productId}~1offer~1versions
+  /api/crm/customers:
+    $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers
+  /api/crm/customers/{customerId}:
+    $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1{customerId}
+  /api/crm/customers/{customerId}/contacts:
+    $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1{customerId}~1contacts
+  /api/crm/customers/{customerId}/contacts/{contactId}:
+    $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1{customerId}~1contacts~1{contactId}
+  /api/crm/customers/{customerId}/merge:
+    $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1{customerId}~1merge

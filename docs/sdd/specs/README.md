@@ -42,3 +42,7 @@ Implementation must not silently diverge from an accepted specification. If that
 ## Planned Catalog migration slice
 
 - [Sewing articles and calculation composition](catalog/002-sewing-articles-and-composition/README.md) — domain/schema design is ready; data import awaits database access.
+
+## Planned Crm block
+
+- [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md) — client/contact backend implemented 2026-10-26; existing Admin integration in progress. Full quote/custom/document/import plan and acceptance remain in the same SDD.
