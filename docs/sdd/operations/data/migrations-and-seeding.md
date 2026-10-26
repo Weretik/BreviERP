@@ -4,6 +4,8 @@ The [local catalogue import](catalog-import.md) is an explicit Host.Seed job mod
 
 The [local sewing pricing baseline and verification](sewing-pricing.md) adds explicit pricing-bootstrap and pricing-verify modes. Bootstrap writes versioned settings/cost inputs; verification is read-only and cannot publish.
 
+The [PPE pricing bootstrap](ppe-pricing.md) adds an explicit `ppe-pricing-bootstrap` mode for imported draft rule/offer versions. It requires prior migrations, preserves source review separately and never approves data automatically.
+
 ## Execution order
 
 In BreviERP, migrations and seeding run through `IDatabaseMigrator`/`ISeeder` in a separate `Host.Seed`. `Host.Api` does not run these operations itself. In the [Cloud Build configuration](../deployment/cloud-build.md), the `Host.Seed` Job runs before API deployment; check the result of a specific run to confirm success.
@@ -31,3 +33,13 @@ The password is not read from `Identity:AdminUser:DefaultPassword`; the seeder r
 - Do not edit an applied migration to alter production history.
 - Treat seed data changes as data changes: document idempotency, behavior with existing data, and the rollback/recovery approach.
 - Check startup or Host.Seed logs after changing a migration or seeder.
+
+## Pricing cutover diagnostics
+
+The explicit Sewing/PPE verification modes are read-only and do not apply migrations, import, approve inputs or publish prices. See [pricing cutover operations](pricing-cutover.md) for commands, source gaps and frontend-first release order. TS-007 has no schema migration.
+
+The [full imported pricing readiness report](pricing-readiness.md) is an explicit read-only mode before input review/activation; it does not approve or publish prices.
+
+The [frozen-source pricing input review](pricing-input-review.md) compares current data before confirmation and is database-enforced read-only.
+
+[Explicit local pricing activation](pricing-activation.md) is a separately authorized state-changing mode with plan, manager attribution, backup and exclusion guards. It never invokes normal migration/seed flow.

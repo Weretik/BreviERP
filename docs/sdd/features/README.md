@@ -17,6 +17,12 @@ See the feature card's “Code structure” section for actual file paths and ro
 - [Product categories](catalog/categories.md) — Admin CRUD and Storefront list.
 - [Catalog media](catalog/media.md) — upload, list, and delete product files.
 
+- [Imported pricing readiness](catalog/pricing-readiness.md) — full strict inventory before review/activation.
+
+- [Frozen-source pricing input review](catalog/pricing-input-review.md) — per-field source checks and activation holds.
+
+- [Explicit local pricing activation](catalog/pricing-activation.md) — reviewed plan, existing backend confirmation/publication and progress.
+
 ## Reference
 
 - [Suppliers](reference/suppliers.md) — CRUD and list reads.

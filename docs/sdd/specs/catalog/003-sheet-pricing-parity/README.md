@@ -1,6 +1,6 @@
 # 003 — Brevi-owned product pricing from approved source arithmetic
 
-**Module:** Catalog/Pricing boundary. **Status:** sewing engine, input-version updates and saved-calculation/publication API implemented locally, 2026-10-25; TS-005 Admin consumer cutover verified; TS-006 PPE backend implemented with frontend integration in progress. **Owner:** Catalog pricing, with Reference-owned cost/norm versions. The user selected the workbook's arithmetic as the calculation basis. There is no runtime workbook dependency. See the [implemented slice](sewing-implementation.md) and [execution evidence](sewing-evidence.md).
+**Module:** Catalog/Pricing boundary. **Status:** sewing engine, input-version updates and saved-calculation/publication API implemented locally, 2026-10-25; TS-005 Admin consumer cutover verified; TS-006 PPE backend and Admin integration implemented and verified locally. **Owner:** Catalog pricing, with Reference-owned cost/norm versions. The user selected the workbook's arithmetic as the calculation basis. There is no runtime workbook dependency. See the [implemented slice](sewing-implementation.md) and [execution evidence](sewing-evidence.md).
 
 This SDD changes the earlier [Product page pricing](../001-product-page/requirements/pricing.md) once implemented. It does not rewrite that completed specification's historical evidence. The preceding [Article and composition SDD](../002-sewing-articles-and-composition/README.md) supplies sellable Article identity and cost inputs.
 
@@ -30,4 +30,8 @@ The first implementation slice is sewing price parity for model `MOD-025`, Artic
 - [Sewing execution and verification](sewing-evidence.md)
 - [Implemented feature structure](../../../features/catalog/sewing-pricing.md)
 
-**Current behavior remains active** until a tested version of this SDD is released. In particular, existing Brevi tiers and two-price PPE output must not be described as already changed.
+TS-007 is implemented and verified locally: [cutover scope](cutover/README.md), [evidence](cutover/evidence.md), [source reconciliation](cutover/reconciliation.md). Product metadata retains deprecated field shapes with zero/null placeholders; Admin uses published Sewing Article prices and versioned PPE calculations without legacy fallback. Release requires the documented frontend-first order. This does not claim a production deployment.
+
+## Next phase
+
+[TS-008 readiness and controlled activation](activation/README.md) defines full inventory checks, task dependencies and acceptance before implementation.

@@ -1,6 +1,6 @@
 # TS-006 evidence — 2026-10-25
 
-Backend implementation checkpoint; frontend integration remains in progress. No production deployment or real-data approval is claimed.
+Backend and Admin implementation verified locally. No production deployment or real-data approval is claimed.
 
 - Red: `dotnet test tests/UnitTests/UnitTests.csproj --no-restore --filter PpePricingTests --verbosity quiet` — 5 failed / 1 passed against the noncalculating baseline. Failures were missing tier outputs/overflow result, not compilation.
 - Green: same filter — 6 passed after Domain implementation.
@@ -21,3 +21,11 @@ Red regression `Incomplete_markup_request_is_rejected_before_any_approval_comman
 ## Local execution
 
 Verified localhost:5432 / brevidb; created a custom pg_dump backup and successfully listed it with pg_restore before applying migrations via normal Host.Seed. Then ran the explicit PPE bootstrap and rerun against ignored frozen source: applied-drafts (10 rules, 119 offers), then already-applied (same counts). No input was approved and no price was published by the job. No source/backup/credentials were added to Git.
+
+## Consumer completion
+
+Admin PPE SDD 007 is implemented and verified against clean backend checkpoint c39c95127125c90b4f77bc00a531f0556cb728a2. Source sync/generate/check passed. Distinct focused client cases: 6 model, 16 data-access, 22 feature and 5 UI. The real RTK store test verifies both card/list cache refresh after an offer revision; component checks cover permission/empty/error/blockers, unchanged and edited retry identities, stale version reload and independent drafts. No client price formula exists. Types, lint, formatting and documentation navigation were checked in that repository. No browser/production deployment is claimed.
+
+Final backend commands: `dotnet test tests/UnitTests/UnitTests.csproj --no-restore --filter 'PpePricing|SewingPricingContractTests|Aggregate_contract_is_valid_and_all_references_resolve' --verbosity quiet` (53 passed); `dotnet test tests/IntegrationTests/IntegrationTests.csproj --no-restore --filter 'PpePricing|SewingPricingApiTests' --verbosity quiet` (7 passed with an isolated local test connection). Readback of the real local target confirmed 10 rules / 119 offers, with zero approved records in either table. Migration/import is separate from business approval.
+
+TS-007 remains the next step: representative catalogue discrepancy checks and retirement of legacy price consumers. No quotation history or production data was migrated by this slice.

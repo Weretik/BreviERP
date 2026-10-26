@@ -1,6 +1,6 @@
 # TS-007 execution evidence — 2026-10-25
 
-Backend checkpoint verified; frontend contract repin/final checks are in progress. Business data was read only.
+Backend checkpoint `0529daf910b837eb808a662695706dda4beaf833` is verified and pinned by Admin; contract sync/generate/check passed against a clean detached checkout. Business data was read only. Final documentation updates remain outside that checkpoint.
 
 - Red: ProductPricingCutoverTests expected deprecated metadata retail price 0 but observed 150. This was reproduced through the public mapper before removal.
 - Green: ProductPricingCutoverTests + ProductAdminListReadModelTests, 3 passed.
@@ -20,3 +20,5 @@ dotnet run --project src/Bootstrapper/Host.Seed/Host.Seed.csproj --no-build --no
 ```
 
 Use DOTNET_ENVIRONMENT=Production for the operational host as in existing local instructions. Integration checks use the configured local test connection only; no credentials are documented. The known pre-existing NU1903 warning for OpenApi.YamlReader was not suppressed. No full suite, browser, production build or deployment was performed. Quote snapshots and Storefront API adoption are not implemented by TS-007.
+
+Admin verification: 23 feature, 5 UI, 15 data-access and 3 model cases passed. Production library types passed for model/data-access/UI/feature. The local business database readback remained 10 rule versions and 119 offer versions, all unapproved; no saved Sewing calculations or publications. The missing source values for PPE SKU 724 remain explicit blockers. Final deployment and manager input approval were not performed.

@@ -23,3 +23,5 @@ Admin removes old price fallback and old-band displays. Current endpoints, gener
 - TS-007D: current maps, source difference classification and exact verification evidence. See [evidence](evidence.md).
 
 No database migration or real-data write is planned. Diagnostic commands use the verified local target and ignored reports. The local backend checkpoint is explicitly authorized after checks; no push/frontend commit is authorized. Quotes and Storefront API adoption remain separate consumers and are not described as completed here.
+
+[Structural audit and responsibility split](audit.md#structural-follow-up--2026-10-25) · [Structural verification](structure-verification.md).

@@ -1,6 +1,6 @@
 # Sewing Article pricing, saved calculations and publication
 
-Implemented sewing engine and backend publication stages of [Pricing SDD 003](../../specs/catalog/003-sheet-pricing-parity/README.md). See the [initial engine design](../../specs/catalog/003-sheet-pricing-parity/sewing-implementation.md), [publication design](../../specs/catalog/003-sheet-pricing-parity/publication-implementation.md), [API contract](../../contracts/catalog/sewing-pricing.openapi.yaml) and [publication evidence](../../specs/catalog/003-sheet-pricing-parity/publication-evidence.md). Existing frontend/Product price consumers await TS-005.
+Implemented sewing engine and backend publication stages of [Pricing SDD 003](../../specs/catalog/003-sheet-pricing-parity/README.md). See the [initial engine design](../../specs/catalog/003-sheet-pricing-parity/sewing-implementation.md), [publication design](../../specs/catalog/003-sheet-pricing-parity/publication-implementation.md), [API contract](../../contracts/catalog/sewing-pricing.openapi.yaml) and [publication evidence](../../specs/catalog/003-sheet-pricing-parity/publication-evidence.md). The React Admin TS-005 consumer is implemented and verified; it reads published prices through the bounded Product projection while legacy Product response fields remain compatible.
 
 ## Current behavior
 
@@ -81,5 +81,9 @@ flowchart LR
 
 Reference input versions use restrictive same-module FKs so history cannot become orphaned. The host's existing usage bridge includes pricing history, preserving a controlled conflict for attempted Reference deletion.
 
-The existing composition-only readiness view remains conservative for OtherCost and directs callers to the versioned Article pricing check. Imported composition review is never automatically granted. All sanctioned pricing writes share a transaction advisory lock; save/publish also lock the Product row. Reference reads use the same transaction, so publication cannot observe partly committed input changes. Existing price consumers and PPE pricing await subsequent stages.
+The existing composition-only readiness view remains conservative for OtherCost and directs callers to the versioned Article pricing check. Imported composition review is never automatically granted. All sanctioned pricing writes share a transaction advisory lock; save/publish also lock the Product row. Reference reads use the same transaction, so publication cannot observe partly committed input changes. React Admin consumes the published-price projection. PPE pricing and future Storefront API adoption remain separate stages.
 
+
+## Current consumer revision
+
+[TS-007 cutover](../../specs/catalog/003-sheet-pricing-parity/cutover/README.md) supersedes earlier legacy Product price fallback descriptions. Current Admin prices use versioned PPE calculations or published Sewing Article prices. Deprecated Product metadata amounts are placeholders, not sale prices.

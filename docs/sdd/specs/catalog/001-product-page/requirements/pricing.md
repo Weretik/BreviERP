@@ -1,5 +1,7 @@
 # Product page — pricing
 
+> Historical specification: current price ownership and consumer behavior are superseded by [SDD 003 TS-007](../../003-sheet-pricing-parity/cutover/README.md). The formula below records the original implementation; it must not be restored as a current sale-price fallback.
+
 ## Accepted rule
 
 The `Sewing` price is calculated for each `product — selected fabric` pair. A product with multiple fabrics therefore has three separate prices for each fabric. Fabric price comes from the current `Reference.Fabric`, and accessory prices come from current `Reference.GarmentAccessory`; Product does not store their snapshots. A change to reference prices or coefficients changes the next calculation.
