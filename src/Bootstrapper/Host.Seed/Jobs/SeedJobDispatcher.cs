@@ -7,7 +7,7 @@ internal static class SeedJobDispatcher
 {
     public static async Task RunAsync(IServiceProvider services, IConfiguration configuration)
     {
-        if (new[] { "catalog-import", "pricing-bootstrap", "pricing-verify", "ppe-pricing-bootstrap", "ppe-pricing-verify", "pricing-readiness", "pricing-input-review" }
+        if (new[] { "catalog-import", "pricing-bootstrap", "pricing-verify", "ppe-pricing-bootstrap", "ppe-pricing-verify", "pricing-readiness", "pricing-input-review", "pricing-activate" }
             .Count(key => configuration[key] is not null) > 1)
             throw new InvalidOperationException("Select exactly one explicit seed job mode.");
         if (configuration["catalog-import"] is not null)
@@ -24,6 +24,8 @@ internal static class SeedJobDispatcher
             await PricingReadinessCommandRunner.RunAsync(configuration);
         else if (configuration["pricing-input-review"] is not null)
             await PricingInputReviewCommandRunner.RunAsync(configuration);
+        else if (configuration["pricing-activate"] is not null)
+            await PricingActivationCommandRunner.RunAsync(services, configuration);
         else
         {
             await services.MigrateAppAsync();

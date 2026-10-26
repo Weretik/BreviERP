@@ -50,7 +50,7 @@ public abstract class SewingPricingDatabaseFixture
         await catalog.Database.MigrateAsync();
         await using var provenance = new CatalogImportDbContext(new DbContextOptionsBuilder<CatalogImportDbContext>().UseNpgsql(_connection).Options);
         await provenance.Database.MigrateAsync();
-        var source = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "catalog-import.json");
+        var source = CatalogueSourcePath();
         await CatalogImportJob.RunAsync(_connection, source, "apply");
         var hash = Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(source)));
         _pricingSource = Path.Combine(TestContext.CurrentContext.WorkDirectory, $"pricing-{Guid.NewGuid():N}.json");
@@ -96,6 +96,8 @@ public abstract class SewingPricingDatabaseFixture
         await using var drop = new NpgsqlCommand($"DROP DATABASE IF EXISTS \"{_database}\" WITH (FORCE)", connection);
         await drop.ExecuteNonQueryAsync();
     }
+
+    protected virtual string CatalogueSourcePath() => Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "catalog-import.json");
 
     protected CatalogDbContext Catalog() => new(new DbContextOptionsBuilder<CatalogDbContext>().UseNpgsql(_connection).Options);
     protected ReferenceDbContext Reference() => new(new DbContextOptionsBuilder<ReferenceDbContext>().UseNpgsql(_connection).Options);

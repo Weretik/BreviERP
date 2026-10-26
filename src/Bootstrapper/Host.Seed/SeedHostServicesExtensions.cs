@@ -9,6 +9,7 @@ using Reference.Infrastructure.DependencyInjection;
 using CatalogImport.Persistence;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
+using SewingPricing.Jobs.Activation;
 
 namespace Host.Seed;
 
@@ -30,6 +31,7 @@ public static class SeedHostServicesExtensions
             options.UseNpgsql(configuration.GetConnectionString("Default")));
         services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogImportDbContext>>();
 
+        services.AddPricingActivationServices();
         return services;
     }
 
