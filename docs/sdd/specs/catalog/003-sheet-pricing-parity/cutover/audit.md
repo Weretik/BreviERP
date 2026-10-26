@@ -11,3 +11,11 @@ API controllers retain binding/auth/result mapping; Domain owns the two current 
 No schema change, destructive data conversion or automatic approval is introduced. Legacy CLR/JSON price fields remain deprecated shape-compatible placeholders; archived input records are not deleted. The release changes their semantics, so frontend current-price consumers must precede backend activation in a production rollout. No deployment is claimed. Existing source metadata editing gaps belong to the Product/profile feature, not a hidden fallback calculation.
 
 See [reconciliation](reconciliation.md) and [evidence](evidence.md).
+
+## Structural follow-up — 2026-10-25
+
+AF-R04 (Low; owner: CatalogImport; TS-007; verified): `src/Jobs/CatalogImport/PpePricing/Verification/PpePricingVerificationJob.cs:19` combined source/EF reading, SKU/input lookup and diagnostic calculation. The former SQL/JSON read block now belongs to `Reading/PpePricingVerificationReader.cs`; its internal result has its own `PpePricingVerificationData.cs`. `Evaluation/PpePricingDiagnosticBuilder.cs` owns the pure per-row strict/diagnostic evaluation and comparison. The public job only orchestrates these parts and assembles report provenance. Current Domain arithmetic and Application evaluator remain the owners of price/readiness rules.
+
+Keep decisions: comparison and diagnostic report types already have separate files in topic directories. Type-specific Product metadata mappers each map one aggregate view. The command runner owns CLI/file output and stays separate from database access. No additional project, interface or generic helper directory is warranted. Existing HTTP contracts, formula versions, source classification, batch size and no-write behavior remain unchanged. This is a structural refactor, so existing focused regression replaces a new behavior Red test. No migration or business-data write is needed.
+
+[Structural verification](structure-verification.md).

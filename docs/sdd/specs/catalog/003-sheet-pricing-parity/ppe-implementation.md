@@ -27,3 +27,5 @@ Add separate `/api/v1/pricing/ppe` operations for Product pricing reads, bounded
 - TS-006E: clean backend checkpoint, generated frontend contract, Admin current three-tier/blocker/review UI and Product projection — focused client tests.
 
 Deployment: migrate with Host.Seed before API; import is an explicit job mode after migration, not API startup. Rollback selects previous versions by appending a corrected version; preserve history. A database backup is required before local real-data execution. Do not drop the additive tables after approvals/edits. Verify empty and upgrade migration paths in isolated test databases. Record exact execution and remaining work in ppe-evidence.md.
+
+[Structural follow-up](structure/ppe/audit.md): contracts are grouped by Rules/Offers/Products; the import keeps orchestration separate from identity/replay/write adapters. No accepted business behavior changes.

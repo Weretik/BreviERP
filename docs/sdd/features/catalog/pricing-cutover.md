@@ -24,7 +24,9 @@ Jobs/SewingPricing/Verification/       # per-component source parity and strict 
 Jobs/CatalogImport/PpePricing/Verification/
   Comparison/                         # expected/actual/delta and missing-source classification
   Diagnostics/                        # provenance/readiness/report types
-  PpePricingVerificationJob.cs         # read-only bounded catalogue diagnostic
+  Reading/                            # local-only source/identity/input reads, batches <=100
+  Evaluation/                         # pure per-row diagnostics, in-memory review override
+  PpePricingVerificationJob.cs         # report orchestration only
 ```
 
 [Specification](../../specs/catalog/003-sheet-pricing-parity/cutover/README.md) · [Reconciliation](../../specs/catalog/003-sheet-pricing-parity/cutover/reconciliation.md) · [Release order](../../operations/data/pricing-cutover.md).

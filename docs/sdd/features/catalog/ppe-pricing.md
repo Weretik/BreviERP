@@ -18,7 +18,10 @@ Catalog.Domain/Pricing/Ppe/
   Calculation/             # tier precedence, rounding and typed blockers
   Results/                 # independent prices and readiness
 Catalog.Application/
-  Contracts/Pricing/Ppe/    # read models and persistence ports
+  Contracts/Pricing/Ppe/
+    Rules/                 # rule values/version and writer port
+    Offers/                # offer values/version and writer port
+    Products/              # Product read inputs/results and reader port
   Features/Pricing/Ppe/
     Products/              # bounded Product pricing query
     Evaluation/            # active/enrolled input selection
@@ -36,9 +39,16 @@ Catalog.Api/
 Jobs/CatalogImport/PpePricing/
   Source/                  # bounded frozen source parsing
   Planning/                # source column map, no price formulas
-  Bootstrap/               # local-only draft import and replay reconciliation
+  Bootstrap/               # local target, source/plan and transaction orchestration
+  Persistence/             # Product identity lookup / replay verification / draft writing
 ```
 
 API source: [PPE OpenAPI](../../contracts/catalog/ppe-pricing.openapi.yaml). [Implementation decisions](../../specs/catalog/003-sheet-pricing-parity/ppe-implementation.md) and [evidence](../../specs/catalog/003-sheet-pricing-parity/ppe-evidence.md).
 
 Legacy Product pricing fields are compatibility outputs; new enrolled consumers use this boundary. Legacy endpoint retirement and representative catalogue comparison belong to TS-007. Current calculation is not a quote or publication snapshot.
+
+[Scoped PPE structural audit](../../specs/catalog/003-sheet-pricing-parity/structure/ppe/audit.md) documents responsibility splits and keep decisions.
+
+## Current consumer revision
+
+[TS-007 cutover](../../specs/catalog/003-sheet-pricing-parity/cutover/README.md) supersedes earlier legacy Product price fallback descriptions. Current Admin prices use versioned PPE calculations or published Sewing Article prices. Deprecated Product metadata amounts are placeholders, not sale prices.
