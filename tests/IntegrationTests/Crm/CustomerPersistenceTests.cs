@@ -148,7 +148,7 @@ public sealed class CustomerPersistenceTests : CrmDatabaseFixture
     [Test]
     public async Task AdminMergeMovesContactAndExternalIdentityAndRetainsVictimAudit()
     {
-        var survivor = await Create();
+        var survivor = await Create(input: new CustomerInput("organization", "Survivor", null, "SYNTHETIC", [new("fixture", "client", "source-survivor")]));
         var victim = await Create(input: Input("Victim", true));
         await using var db = Context();
         var contact = await new SaveCustomerContactCommandHandler(new CustomerMutationStore(db))
@@ -157,7 +157,7 @@ public sealed class CustomerPersistenceTests : CrmDatabaseFixture
             .Handle(new(survivor.PublicId, victim.PublicId, 1, contact.Value.Revision, "Proven duplicate", Guid.NewGuid(), Admin), default);
         Assert.That(merged.IsSuccess, Is.True, string.Join(",", merged.Errors));
         Assert.That(merged.Value.Contacts.Single().PublicId, Is.EqualTo(contact.Value.Contacts.Single().PublicId));
-        Assert.That(merged.Value.ExternalIdentities.Single().ExternalId, Is.EqualTo("source-1"));
+        Assert.That(merged.Value.ExternalIdentities.Select(x => x.ExternalId), Is.EquivalentTo(new[] { "source-survivor", "source-1" }));
         Assert.That((await db.Customers.SingleAsync(x => x.PublicId == victim.PublicId)).MergedIntoId, Is.Not.Null);
         Assert.That(await db.MutationRequests.CountAsync(x => x.Operation == "MergeCustomers"), Is.EqualTo(1));
     }

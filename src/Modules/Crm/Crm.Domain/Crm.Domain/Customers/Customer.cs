@@ -78,7 +78,7 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
         victim.AssertRevision(victimRevision);
         if (PublicId == victim.PublicId) throw new CustomerValidationException("merge: same_customer");
         if (!Active) throw new CustomerValidationException("merge: survivor_inactive");
-        if (ExternalIdentities.Any(a => victim.ExternalIdentities.Any(b => a.Source == b.Source && a.Type == b.Type)))
+        if (ExternalIdentities.Any(a => victim.ExternalIdentities.Any(b => a.Source == b.Source && a.Type == b.Type && a.ExternalId == b.ExternalId)))
             throw new CustomerValidationException("merge: external_identity_conflict");
         if (Contacts.Count + victim.Contacts.Count > 100 || ExternalIdentities.Count + victim.ExternalIdentities.Count > 30)
             throw new CustomerValidationException("merge: limits_exceeded");
