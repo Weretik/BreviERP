@@ -1,11 +1,11 @@
 using Ardalis.Result;
 using BuildingBlocks.Api.Result;
 using Crm.Api.Customers.Requests;
+using Crm.Api.Access;
 using Crm.Application.Customers.CreateCustomer;
 using Crm.Application.Customers.GetCustomer;
 using Crm.Application.Customers.GetCustomers;
 using Crm.Application.Customers.MergeCustomers;
-using Crm.Application.Customers.Models;
 using Crm.Application.Customers.ReviseCustomer;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;

@@ -1,6 +1,6 @@
-# Proposed Crm data model
+# Crm data model by rollout slice
 
-**All tables below are planned.** Baseline: no Crm business DbContext or matching tables in the reviewed code/local metadata; recheck target under EN-001. Extend the existing PostgreSQL database with schema `crm` and `CrmDbContext`; do not create a separate database or put business rows in Google Sheets. Follow [module schema SDD](../../platform/001-module-schemas/README.md) and [ID rules](../../../standards/identifier-strategy.md).
+**Current state (2026-10-26):** the client and P2 draft-quote/pricing tables, `CrmDbContext`, and additive migrations are implemented locally; custom, document, delivery and import rows below are planned. The quote migration has only run on disposable test databases, not the working database. The older no-CRM-tables baseline described the state before EN-001/TS-001 and must not be used as current metadata evidence. Extend the existing PostgreSQL database in schema `crm`; do not create a separate database or put business rows in Google Sheets. Follow [module schema SDD](../../platform/001-module-schemas/README.md) and [ID rules](../../../standards/identifier-strategy.md).
 
 ## Identifiers and references
 
@@ -8,7 +8,9 @@ Ordinary centrally created business records use **typed long IDs** in Domain and
 
 ## Tables by rollout slice
 
-| Slice | Planned table/group | Core fields and integrity |
+The table below is the target model and includes later fields/tables in partially delivered slices. The [actual database map](../../../architecture/data-model/crm.md) lists only implemented tables and constraints. In particular, ready/issued fields, calculation-line tables, transfers and custom/document rows below are future work.
+
+| Slice | Table/group | Core fields and integrity |
 | --- | --- | --- |
 | Clients | Customers | PublicId, kind, display/legal names, optional tax identity, owner, active, revision, created/updated audit. Normalized search fields are projections, not identity |
 | Clients | CustomerContacts, ContactChannels | Customer FK, name/position, primary/active, channel kind/raw/normalized. Partial unique index for one active primary per customer; email/phone not globally unique |

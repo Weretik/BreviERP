@@ -1,9 +1,13 @@
+using Crm.Infrastructure.Persistence.Customers.Writing;
+using Crm.Infrastructure.Persistence.Customers.Reading;
+using Crm.Application.Customers.Contracts.Responses;
+using Crm.Application.Customers.Contracts.Inputs;
+using Crm.Application.Customers.Access;
 using Ardalis.Result;
 using Crm.Application.Customers.CreateCustomer;
 using Crm.Application.Customers.GetCustomer;
 using Crm.Application.Customers.GetCustomers;
 using Crm.Application.Customers.MergeCustomers;
-using Crm.Application.Customers.Models;
 using Crm.Application.Customers.ReviseCustomer;
 using Crm.Application.Customers.SaveCustomerContact;
 using Crm.Infrastructure.Persistence;

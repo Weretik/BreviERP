@@ -1,4 +1,4 @@
-using Crm.Application.Customers.Models;
+using Crm.Application.Customers.GetCustomers.DTOs;
 using Crm.Application.Customers.Persistence;
 using Crm.Application.Customers.GetCustomers.Specifications;
 namespace Crm.Application.Customers.GetCustomers;

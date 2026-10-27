@@ -1,6 +1,6 @@
 # Implementation sequence and phase gates
 
-**Progress:** EN-001/TS-001/TS-002 backend client slice is implemented with focused evidence; its frontend handoff is in progress. Other phases remain planned. Execute a vertical slice end to end before widening scope. Backend `TS-*`/`EN-*` IDs are local to this specification; frontend uses `FE-*` IDs in its counterpart for clarity. Each task below links to a separate executable task document. Within an authorized feature/phase, proceed through ready dependencies without asking permission per file; unresolved business gates stop only their dependent work.
+**Progress:** EN-001/TS-001/TS-002 backend client slice and EN-002/TS-003/TS-004 local backend draft-quote slice are implemented with focused evidence. FE-003/FE-004 and integrated P2 acceptance remain open until an authorized immutable backend revision can be pinned. Backend `TS-*`/`EN-*` IDs are local to this specification; frontend uses `FE-*` IDs in its counterpart for clarity. Each task below links to a separate executable task document. Within an authorized feature/phase, proceed through ready dependencies without asking permission per file; unresolved business gates stop only their dependent work.
 
 | Phase | Backend tasks | Frontend tasks | Exit outcome |
 | --- | --- | --- | --- |

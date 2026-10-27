@@ -14,13 +14,14 @@
 | D-08 | Existing backend price basis and rounding remain authoritative; 452/453 include the approved operation; 724/931 restrictions are respected |
 | D-09 | Private custom files/document projections are separate from public Catalog media; imported sends never enqueue new emails |
 | D-10 | New-flow rollout and archival migration have separate gates. Full source/history gaps do not block basic client/draft functionality |
+| D-11 (2026-10-26) | User confirmed draft quote monetary basis: use the current three Catalog/PPE prices in UAH without an extra VAT calculation; freeze source identity/version in each immutable snapshot. Customer-ready PDF tax wording remains the separate EN-005 decision. Applies to EN-002/TS-003/004 and FE-003/004. |
 
 ## Gates: resolve only before dependent tasks
 
 | Gate | Known gap / required result | Blocks | Does not block |
 | --- | --- | --- | --- |
 | EN-001 | Confirm target Crm schema/DI, role policy and client contract; target database metadata recheck | First client schema/API | Documentation |
-| EN-002 | Freeze quote price-basis port, semantic tier boundaries, currency/tax semantics and numeric precision; reconcile custom additions with workbook engine. Document calculation token lifetime | Quote price adapter/custom arithmetic/ready financial output | Client master and draft text shell |
+| EN-002 | Draft UAH/no-extra-VAT decision is confirmed in D-11. Freeze quote price-basis port, semantic tier boundaries, numeric precision and calculation token lifetime; reconcile custom additions with workbook engine | Quote price adapter/custom arithmetic/ready financial output | Client master and draft text shell |
 | EN-003 | Choose existing usable private storage/renderer adapters, confirm MIME/size and retention linkage with a real round-trip | Private uploads and valid customer PDF | Clients and text/price snapshots |
 | EN-004 | Confirm mail provider, sender identity, credentials and delivery reconciliation capability; no inherited OAuth secrets | Real sending | PDF/download and delivery UI with disabled send |
 | EN-005 | [NEEDS CLARIFICATION: actual issuer requisites, document number format/scope and approved tax/currency wording]. Source tabs have no values. Use verified existing organizational settings if available; otherwise obtain actual values before activation | Ready/customer-ready PDF and number issuance | New clients and saved drafts |

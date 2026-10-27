@@ -91,3 +91,11 @@ paths:
     $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1{customerId}~1contacts~1{contactId}
   /api/crm/customers/{customerId}/merge:
     $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1{customerId}~1merge
+  /api/crm/quotes:
+    $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes
+  /api/crm/quotes/price-previews:
+    $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1price-previews
+  /api/crm/quotes/{quoteId}:
+    $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}
+  /api/crm/quotes/{quoteId}/versions:
+    $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1versions

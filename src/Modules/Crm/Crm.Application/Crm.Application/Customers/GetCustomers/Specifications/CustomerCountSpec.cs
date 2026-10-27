@@ -1,5 +1,5 @@
+using Crm.Application.Customers.Access;
 using Ardalis.Specification;
-using Crm.Application.Customers.Models;
 using Crm.Domain.Customers;
 namespace Crm.Application.Customers.GetCustomers.Specifications;
 

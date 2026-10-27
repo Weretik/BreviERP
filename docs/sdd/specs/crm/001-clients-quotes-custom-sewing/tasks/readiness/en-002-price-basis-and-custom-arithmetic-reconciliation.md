@@ -1,6 +1,6 @@
 # EN-002 — Price-basis and custom arithmetic reconciliation
 
-**Status:** planned. **Enables:** SC-Q01–04, SC-Q07, SC-S01–02. **Depends on:** EN-001.
+**Status:** P2 Catalog price-basis checkpoint implemented locally; [source comparison](../../evidence/en-002-discovery-2026-10-26.md), [protocol](../../design/quote-preview-protocol.md) and [backend evidence](../../evidence/p2-quote-backend-2026-10-26.md) recorded. Custom sewing arithmetic remains a TS-006 gate. **Enables:** SC-Q01–04, SC-Q07, SC-S01–02. **Depends on:** EN-001.
 
 ## Paths and one responsibility
 

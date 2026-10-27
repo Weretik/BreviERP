@@ -1,5 +1,6 @@
+using Crm.Application.Customers.Contracts.Responses;
+using Crm.Application.Customers.Access;
 using Ardalis.Result;
-using Crm.Application.Customers.Models;
 
 namespace Crm.Application.Customers.Persistence;
 

@@ -1,6 +1,6 @@
 # Proposed public and internal contracts
 
-**Client slice status:** the seven customer/contact/merge operations are implemented in canonical [Crm OpenAPI](../../../../contracts/crm/clients-quotes.openapi.yaml). The other quote/custom/document operations below remain proposed and are not registered as available. The operation IDs are reserved by this SDD, not claims of existing endpoints. EN-001/TS-003 and each subsequent slice must freeze the corresponding operation's schemas/examples in canonical `docs/sdd/contracts/crm/clients-quotes.openapi.yaml` (planned), register it in the [aggregate](../../../../contracts/openapi.yaml), then implement and verify that slice. The implemented client schemas use nested input DTOs, server-owned actor, requestId and expectedRevision, plus canEdit/canMerge capabilities. Invalid client input maps to 400 under existing Result mapping; no new 422 middleware was introduced. Do not register future operations as live.
+**Local contract status:** seven customer/contact/merge operations are implemented in canonical [client OpenAPI](../../../../contracts/crm/clients-quotes.openapi.yaml); five P2 draft-quote operations are implemented in [quote OpenAPI](../../../../contracts/crm/quote-drafts.openapi.yaml) and registered in the [aggregate](../../../../contracts/openapi.yaml). Later quote lifecycle/custom/document operations below remain proposed. Their operation IDs are reserved by this SDD, not claims of existing endpoints. Implemented schemas use nested input DTOs, server-owned actor, requestId and expectedRevision where applicable. Invalid input maps to 400 under existing Result mapping; no new 422 middleware was introduced. These local contracts have not been pinned to a frontend-consumable backend commit.
 
 ## Existing dependencies
 
@@ -10,6 +10,8 @@
 - [PPE pricing](../../../../contracts/catalog/ppe-pricing.openapi.yaml): canonical current-price dependency. Confirm resolved operation ID/schema in EN-002; no duplicated quote formula or use of legacy Product.Price fields.
 
 New Crm private calculation needs a server-side Application pricing port: input kind + article/custom selection refs + typed quantities + requested basis; output immutable resolved lines/input versions/settings/formula version, costs/tiers/blockers and basis ID. Extend/reuse the pure Catalog engine through a Host adapter. No direct internal HTTP loopback or cross-context EF query. Draft/quote reads must not trigger that calculation port.
+
+The P2 [basis protocol design](../design/quote-preview-protocol.md) owns token binding, source identity and no-reprice rules. D-11 confirms UAH and no additional VAT calculation for draft prices. This is a design checkpoint, not a live contract. Freeze exact wire fields and errors in canonical OpenAPI when TS-003 is implemented.
 
 ## Operation registry
 

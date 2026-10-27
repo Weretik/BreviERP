@@ -1,4 +1,4 @@
-using Crm.Application.Customers.Models;
+using Crm.Application.Customers.Contracts.Responses;
 using Crm.Application.Customers.Persistence;
 using Crm.Application.Customers.GetCustomer.Specifications;
 namespace Crm.Application.Customers.GetCustomer;

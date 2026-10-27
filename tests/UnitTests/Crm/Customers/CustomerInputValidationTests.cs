@@ -1,5 +1,7 @@
+using Crm.Application.Customers.SaveCustomerContact.Inputs;
+using Crm.Application.Customers.Contracts.Inputs;
+using Crm.Application.Customers.Access;
 using Crm.Application.Customers.CreateCustomer;
-using Crm.Application.Customers.Models;
 using Crm.Application.Customers.SaveCustomerContact;
 
 namespace UnitTests.Crm.Customers;

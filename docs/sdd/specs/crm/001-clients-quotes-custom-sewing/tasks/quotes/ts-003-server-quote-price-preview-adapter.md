@@ -1,6 +1,6 @@
 # TS-003 — Server quote price preview adapter
 
-**Status:** planned. **Covers:** SC-Q01–04, SC-Q07. **Depends on:** EN-002.
+**Status:** implemented locally on backend; frontend handoff pending immutable backend SHA. See [P2 evidence](../../evidence/p2-quote-backend-2026-10-26.md). **Covers:** SC-Q01–04, SC-Q07. **Depends on:** EN-002.
 
 ## Paths and one responsibility
 

@@ -51,3 +51,7 @@ Use case EF read specifications live in `<UseCase>/Specifications/`, e.g. `GetCu
 ## Refactoring and feature map checkpoint
 
 Keep existing Catalog/Reference APIs and engine responsibilities. Add a reusable calculation input adapter only where current engine signatures cannot handle private composition; do not fork the formula or expose private component costs through public Product DTOs. Split each added DTO/interface/handler into a matching file, group by scenario, create directories only when they contain real behavior. Review changed files and dependency tests at each slice. During implementation add `docs/sdd/features/crm/clients-and-quotes.md`, update its feature index and actual database map; do not mark planned paths as implemented now.
+
+## Implemented customer structure after audit
+
+The actual customer map is [clients and contacts](../../../../features/crm/clients-and-quotes.md); [audit](../code-audit/audit.md). Application uses `Customers/Access`, `Contracts/Inputs`, `Contracts/Responses`, `Mapping`, use-case-local `SaveCustomerContact/Inputs` and `GetCustomers/DTOs`. Infrastructure uses `Persistence/Customers/{Reading,Writing,Idempotency}`. `CustomerMutationStore` owns transaction/locks/error mapping; `CustomerMutationJournal` owns payload/replay/audit with the same context and transaction. The P2 quote structure is separately recorded in the [implementation audit](../code-audit/p2-implementation-audit-2026-10-26.md); later custom/document paths above remain planned.
