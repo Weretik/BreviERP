@@ -23,6 +23,136 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomDraftAttachment", b =>
+                {
+                    b.Property<long>("DraftId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("Production")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ShowInQuote")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("DraftId", "FileId");
+
+                    b.ToTable("CustomDraftAttachments", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomPrivateFile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("DraftId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("State")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset?>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("ActorId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("DraftId", "State");
+
+                    b.HasIndex("State", "ExpiresAt");
+
+                    b.ToTable("CustomPrivateFiles", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CustomPrivateFile_Expiry", "\"ExpiresAt\" > \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_CustomPrivateFile_Length", "\"Length\" > 0 AND \"Length\" <= 20971520");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomVersionAttachment", b =>
+                {
+                    b.Property<long>("VersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<long>("DraftId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("Production")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<bool>("ShowInQuote")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("VersionId", "FileId");
+
+                    b.HasIndex("DraftId", "FileId");
+
+                    b.HasIndex("DraftId", "VersionId");
+
+                    b.ToTable("CustomVersionAttachments", "crm");
+                });
+
             modelBuilder.Entity("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", b =>
                 {
                     b.Property<long>("Id")
@@ -1061,6 +1191,50 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("CustomSewingTemplateMutationRequests", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomDraftAttachment", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Attachments.CustomPrivateFile", "File")
+                        .WithMany()
+                        .HasForeignKey("DraftId", "FileId")
+                        .HasPrincipalKey("DraftId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("File");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomPrivateFile", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", "Draft")
+                        .WithMany()
+                        .HasForeignKey("DraftId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Draft");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomVersionAttachment", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Attachments.CustomPrivateFile", "File")
+                        .WithMany()
+                        .HasForeignKey("DraftId", "FileId")
+                        .HasPrincipalKey("DraftId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.CustomSewing.Versions.CustomSewingVersion", "Version")
+                        .WithMany()
+                        .HasForeignKey("DraftId", "VersionId")
+                        .HasPrincipalKey("DraftId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("File");
+
+                    b.Navigation("Version");
                 });
 
             modelBuilder.Entity("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", b =>

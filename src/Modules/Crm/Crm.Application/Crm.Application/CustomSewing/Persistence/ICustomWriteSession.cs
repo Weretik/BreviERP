@@ -18,5 +18,6 @@ public interface ICustomWriteSession
     void AddBasis(CustomSewingDraft draft, int actorId, CustomPriceBasis basis);
     Task<CustomPriceBasis?> FindBasisAsync(Guid token, CustomDraftId draftId, long revision, int actorId, CancellationToken cancellationToken);
     Task FlushAsync(CancellationToken cancellationToken);
+    Task PinFilesAsync(CustomSewingVersion version, CrmActor actor, CancellationToken cancellationToken);
     Task<Crm.Application.CustomSewing.Contracts.CustomDetail> DetailAsync(CustomSewingDraft draft, CancellationToken cancellationToken);
 }

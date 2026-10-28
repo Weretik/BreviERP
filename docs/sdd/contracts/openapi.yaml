@@ -133,3 +133,9 @@ paths:
     $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1{templateId}~1apply
   /api/crm/quote-templates/{templateId}/archive:
     $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1{templateId}~1archive
+  /api/crm/files:
+    $ref: ./crm/private-files.openapi.yaml#/paths/~1api~1crm~1files
+  /api/crm/files/{fileId}/content:
+    $ref: ./crm/private-files.openapi.yaml#/paths/~1api~1crm~1files~1{fileId}~1content
+  /api/crm/custom-sewing/{draftId}/files:
+    $ref: ./crm/private-files.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1files

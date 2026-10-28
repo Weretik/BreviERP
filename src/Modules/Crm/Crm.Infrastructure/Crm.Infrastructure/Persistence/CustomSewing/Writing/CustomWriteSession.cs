@@ -45,6 +45,8 @@ internal sealed class CustomWriteSession(CrmDbContext db, CrmActor actor) : ICus
         => _calculations.FindAsync(token, draftId, revision, actorId, ct);
 
     public Task FlushAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
+    public Task PinFilesAsync(CustomSewingVersion version, CrmActor requestedActor, CancellationToken ct)
+        => new Crm.Infrastructure.Files.Versions.CustomFileVersionWriter(db).PinAsync(version, requestedActor, ct);
     public async Task<CustomDetail> DetailAsync(CustomSewingDraft draft, CancellationToken ct)
         => await db.CustomDrafts.AsNoTracking().Where(CustomAccess.For(actor)).Where(x => x.PublicId == draft.PublicId)
             .Select(CustomDetailProjection.Value).FirstOrDefaultAsync(ct)

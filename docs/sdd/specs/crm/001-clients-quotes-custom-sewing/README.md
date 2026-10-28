@@ -1,6 +1,6 @@
 # CRM-001 — Clients, quotes and custom sewing
 
-**Status:** P1–P3 backend/Admin and P4 backend TS-006, EN-003 and TS-008 are locally automatically verified. Private draft/calculation/version support, private-byte/document adapter proof and versioned configuration templates/suggestions are implemented. Remaining P4 tasks: TS-007 file lifecycle and FE-006/FE-007 consumers. **Reviewed:** 2026-10-28. **Owner:** Crm. [Latest integration evidence](evidence/p4-wave1-2026-10-28.md). No production rollout or working-database migration is claimed.
+**Status:** P1–P3 backend/Admin and P4 backend TS-006, EN-003, TS-007, TS-008 are locally automatically verified. FE-006 editor is verified in the frontend consumer against the committed custom contract. Remaining P4 task: FE-007 files/templates/suggestions UI with immutable file-contract handoff. **Reviewed:** 2026-10-28. **Owner:** Crm. [Latest integration evidence](evidence/p4-wave2-2026-10-28.md). No production rollout or working-database migration is claimed.
 
 ## Outcome and scope
 

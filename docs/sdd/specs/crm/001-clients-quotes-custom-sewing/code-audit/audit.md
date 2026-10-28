@@ -103,3 +103,16 @@ Keep cohesive template root invariants and the small transaction/journal coordin
 ## EN-003 / TS-008 requested follow-up audit — 2026-10-28
 
 AF-CRM-P4-015–018 are **verified fixed**: queued renderer content preparation now shares the single-render resource bound; Host suggestion mapping/reference translation has its own pure mapper; template payload/replay journal is separate from transaction orchestration; five suggestion DTOs are grouped in scenario Contracts. Owner: backend coordinator, dependencies EN-003/TS-008 only. [Exact findings, paths, Red/Green and 40-case regression](../evidence/p4-wave1-audit-refactor-2026-10-28.md). No open finding remains in this audit scope. Existing schema, immutable entity identity, API JSON and contract hashes are unchanged.
+
+## TS-007 implementation boundary review — 2026-10-28
+
+| ID | Severity/status | Evidence/impact | Resolution/owner/verification |
+| --- | --- | --- | --- |
+| AF-CRM-P4-019 | Medium / verified fixed | Infrastructure Files/Cleanup/CustomTemporaryFileCleanup.cs locking SELECT could use an older NOT EXISTS statement snapshot, then mark a newly retained file Deleting. The later reference check prevented physical deletion but could leave bad state. | TS-007 adds a fresh ReferencedAsync statement under the acquired file lock before BeginCleanup. Finalize/cleanup and overlap tests assert retained→Uploaded/readable and no historical deletion. Final29 Files cases passed. |
+| AF-CRM-P4-020 | Low / verified fixed | Domain CustomSewing/Attachments/CustomPrivateFile.cs checked positive metadata length but relied on caller/DB for the 20MiB upper bound; null hash input could throw NRE. | Domain owns MaximumBytes and validates cap/hash inputs; Application PrivateFilePolicy refers to that constant. Inclusive/+1 and null-hash Domain cases pass within final69-unit regression. |
+
+Owner backend coordinator/contributor; accepted TS-007 scope only. [Detailed verified behavior, limits and 120-case checkpoint](../evidence/ts-007-2026-10-28.md). No further open in-scope finding; source/provenance checks, no-artwork availability, exact artwork proof, atomic version pin and private read/projection were reviewed. New files remain grouped by scenario/adapter responsibility; no extra module/library or pricing engine was introduced.
+
+## TS-007 requested audit/refactor — 2026-10-28
+
+**AF-CRM-P4-021 — Low / verified fixed.** Cleanup now separates byte workflow from SQL/state transactions and uses an explicit typed claim. Owner TS-007; existing SC-S03/SC-S05 dependencies unchanged. [Exact paths, split/keep decisions, 9 PostgreSQL and 2 architecture checks](../evidence/ts-007-audit-refactor-2026-10-28.md). No open in-scope finding; schema/API/model identity and transactional/retention guards are preserved.

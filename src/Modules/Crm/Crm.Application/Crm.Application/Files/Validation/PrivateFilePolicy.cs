@@ -2,7 +2,7 @@ namespace Crm.Application.Files.Validation;
 
 public static class PrivateFilePolicy
 {
-    public const int MaximumBytes = 20 * 1024 * 1024;
+    public const int MaximumBytes = Crm.Domain.CustomSewing.Attachments.CustomPrivateFile.MaximumBytes;
     public const int MaximumFilesPerConfiguration = 30;
 
     public static bool MatchesAllowedContent(ReadOnlySpan<byte> content, string declaredContentType)

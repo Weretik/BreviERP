@@ -10,12 +10,16 @@ namespace Host.Api.Crm.CustomSewing.Pricing;
 public sealed class CustomSewingPricing(ISewingPricingSettingsReader settings, IPricingReferenceVersionReader references)
     : ICustomSewingPricing
 {
-    public async Task<CustomPriceBasis> CalculateAsync(CustomConfiguration configuration, DateTimeOffset at, CancellationToken ct)
+    public Task<CustomPriceBasis> CalculateAsync(CustomConfiguration configuration, DateTimeOffset at, CancellationToken ct)
+        => CalculateAsync(configuration, at, ct, artworkVerified: false);
+
+    public async Task<CustomPriceBasis> CalculateAsync(CustomConfiguration configuration, DateTimeOffset at, CancellationToken ct,
+        bool artworkVerified)
     {
         var input = configuration.Freeze();
         var result = await new SewingCustomPricingEvaluator(settings, references)
             .EvaluateAsync(CustomPricingInputMapper.Map(input), at, ct);
         if (!result.IsSuccess) throw new InvalidOperationException("Validated custom composition could not be evaluated.");
-        return CustomPriceBasisMapper.Map(result.Value, input, at);
+        return CustomPriceBasisMapper.Map(result.Value, input, at, artworkVerified);
     }
 }

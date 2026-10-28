@@ -1,10 +1,12 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using Host.Api.Crm.Files;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilog();
 builder.Services.AddHostServices(builder.Configuration);
+builder.Services.AddCrmPrivateFiles(builder.Configuration, builder.Environment);
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { new CultureInfo("uk-UA"), new CultureInfo("ru-RU") };

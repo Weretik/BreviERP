@@ -3,18 +3,35 @@ using System.Text.Json;
 using Ardalis.Result;
 using Crm.Application.Abstractions.Files;
 using Crm.Application.Files.Validation;
+using Crm.Application.Files.Storage;
 
 namespace Crm.Infrastructure.Files.Storage;
 
 // Dedicated private volume adapter. No public URL, deletion or caller controlled filename is exposed.
-public sealed class FileSystemPrivateFileStore : IPrivateFileStore
+public sealed class FileSystemPrivateFileStore : IPrivateFileStore, IReservedPrivateFileStore
 {
     private readonly string root;
-    public FileSystemPrivateFileStore(PrivateFileStorageOptions options) => root = PrivateStorageDirectory.Open(options);
+    private readonly TimeProvider time;
+    public FileSystemPrivateFileStore(PrivateFileStorageOptions options, TimeProvider? clock = null)
+    {
+        root = PrivateStorageDirectory.Open(options);
+        time = clock ?? TimeProvider.System;
+    }
+
+    public Task<Result> PrepareAsync(CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        PrivateStorageDirectory.EnsurePrivate(root);
+        return Task.FromResult(Result.Success());
+    }
 
     public async Task<Result<PrivateStoredFile>> WriteAsync(Guid configurationId, Stream content, string declaredContentType, CancellationToken cancellationToken)
+        => await WriteReservedAsync(configurationId, Guid.NewGuid(), content, declaredContentType, DateTimeOffset.MaxValue, cancellationToken);
+
+    public async Task<Result<PrivateStoredFile>> WriteReservedAsync(Guid configurationId, Guid fileId, Stream content,
+        string declaredContentType, DateTimeOffset expiresAt, CancellationToken cancellationToken)
     {
-        if (configurationId == Guid.Empty) return Result.Invalid(new ValidationError("configurationId", "Configuration is required."));
+        if (configurationId == Guid.Empty || fileId == Guid.Empty) return Result.Invalid(new ValidationError("configurationId", "Configuration is required."));
         var bytes = await ReadBoundedAsync(content, cancellationToken);
         if (bytes is null || !PrivateFilePolicy.MatchesAllowedContent(bytes, declaredContentType))
             return Result.Invalid(new ValidationError("file", "Expected actual PDF, JPEG or PNG content up to 20 MiB matching the declared MIME type."));
@@ -23,20 +40,53 @@ public sealed class FileSystemPrivateFileStore : IPrivateFileStore
         PrivateStorageDirectory.RejectLinks(scope);
         Directory.CreateDirectory(scope);
         await using var quotaLock = await LockAsync(Path.Combine(scope, ".write-lock"), cancellationToken);
+        if (time.GetUtcNow() >= expiresAt) return Result.Conflict("file_upload_expired");
+        if (Directory.Exists(Path.Combine(scope, fileId.ToString("N"))))
+        {
+            var existing = await ReadAsync(configurationId, fileId, cancellationToken);
+            if (!existing.IsSuccess) return Result.Error("Private file integrity check failed.");
+            return existing.Value.File.Length == bytes.Length && existing.Value.File.ContentType == declaredContentType
+                && existing.Value.File.Sha256 == Convert.ToHexString(SHA256.HashData(bytes))
+                ? Result.Success(existing.Value.File) : Result.Conflict("reserved_file_payload_conflict");
+        }
         if (Directory.EnumerateDirectories(scope).Count(x => Guid.TryParseExact(Path.GetFileName(x), "N", out _)) >= PrivateFilePolicy.MaximumFilesPerConfiguration)
             return Result.Invalid(new ValidationError("file", "A configuration permits at most 30 stored files."));
-        var metadata = new PrivateStoredFile(Guid.NewGuid(), configurationId, declaredContentType, bytes.Length, Convert.ToHexString(SHA256.HashData(bytes)));
-        var pending = Path.Combine(scope, ".pending-" + Guid.NewGuid().ToString("N"));
+        var metadata = new PrivateStoredFile(fileId, configurationId, declaredContentType, bytes.Length, Convert.ToHexString(SHA256.HashData(bytes)));
+        var pending = Path.Combine(scope, ".pending-" + fileId.ToString("N"));
+        PrivateStorageDirectory.RejectLinks(pending);
+        if (Directory.Exists(pending)) Directory.Delete(pending, true);
         Directory.CreateDirectory(pending);
         try
         {
             await File.WriteAllBytesAsync(Path.Combine(pending, "content"), bytes, cancellationToken);
             await File.WriteAllTextAsync(Path.Combine(pending, "metadata.json"), JsonSerializer.Serialize(metadata), cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
+            if (time.GetUtcNow() >= expiresAt) return Result.Conflict("file_upload_expired");
             Directory.Move(pending, Path.Combine(scope, metadata.FileId.ToString("N")));
             return Result.Success(metadata);
         }
         finally { if (Directory.Exists(pending)) Directory.Delete(pending, true); }
+    }
+
+    public async Task<Result> DeleteTemporaryAsync(Guid configurationId, Guid fileId, CancellationToken cancellationToken)
+    {
+        if (configurationId == Guid.Empty || fileId == Guid.Empty) return Result.Invalid(new ValidationError("fileId", "Invalid file identity."));
+        PrivateStorageDirectory.EnsurePrivate(root);
+        var scope = Path.Combine(root, configurationId.ToString("N"));
+        PrivateStorageDirectory.RejectLinks(scope);
+        if (!Directory.Exists(scope)) return Result.Success();
+        await using var quotaLock = await LockAsync(Path.Combine(scope, ".write-lock"), cancellationToken);
+        foreach (var name in new[] { fileId.ToString("N"), ".pending-" + fileId.ToString("N") })
+        {
+            var path = Path.Combine(scope, name);
+            PrivateStorageDirectory.RejectLinks(path);
+            if (!Directory.Exists(path)) continue;
+            PrivateStorageDirectory.RejectLinks(Path.Combine(path, "content"));
+            PrivateStorageDirectory.RejectLinks(Path.Combine(path, "metadata.json"));
+            cancellationToken.ThrowIfCancellationRequested();
+            Directory.Delete(path, true);
+        }
+        return Result.Success();
     }
 
     public async Task<Result<PrivateFileContent>> ReadAsync(Guid configurationId, Guid fileId, CancellationToken cancellationToken)

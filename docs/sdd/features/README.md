@@ -47,4 +47,4 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
 ## Crm
 
-- [Clients and contacts](crm/clients-and-quotes.md) — scoped clients, immutable quote lifecycle and private custom drafts/versions, configuration templates/model suggestions and private-byte/render adapter proof; file lifecycle/UI/documents remain separate work.
+- [Clients and contacts](crm/clients-and-quotes.md) — scoped clients, immutable quote lifecycle and private custom drafts/versions, configuration templates/model suggestions and private-byte/render adapter proof; file lifecycle implemented; FE-007 UI/documents remain separate work.
