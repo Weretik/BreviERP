@@ -114,6 +114,7 @@ coverage*.xml
 
 # Директории для публикации
 publish/
+!**/Features/**/Publish/
 *.[Pp]ublish.xml
 *.azurePubxml
 *.pubxml
