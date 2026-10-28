@@ -42,6 +42,7 @@ Implementation must not silently diverge from an accepted specification. If that
 ## Planned Catalog migration slice
 
 - [Sewing articles and calculation composition](catalog/002-sewing-articles-and-composition/README.md) — domain/schema design is ready; data import awaits database access.
+- [Product pricing from approved source arithmetic](catalog/003-sheet-pricing-parity/README.md) — planned comparison and replacement of current pricing.
 
 ## Planned Crm block
 
