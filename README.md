@@ -19,7 +19,7 @@ An ERP backend for Brevi. The repository contains a modular ASP.NET Core API, bu
 | Module | Responsibility |
 | --- | --- |
 | Identity | Users, roles, sessions, and authorization. |
-| Catalog | Products, categories, and catalog media. |
+| Catalog | Products, categories, catalog media, Sewing Articles and composition, and Sewing/PPE pricing. |
 | Reference | Suppliers, fabrics, accessories, garment parts, and operations. |
 | Accounting | Wallets, transactions, and transaction categories. |
 | Crm | A dedicated CRM module boundary; domain API scenarios are still in progress. |

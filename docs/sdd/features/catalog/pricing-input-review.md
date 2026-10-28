@@ -41,3 +41,12 @@ Host.Seed/Jobs/Pricing/PricingInputReviewCommandRunner.cs # paths, serialization
 Existing import mappers/current readers remain the owners of conversion/selection. No global formula, external contract, runtime module reference, schema or UI change is introduced. [Specification](../../specs/catalog/003-sheet-pricing-parity/activation/review.md) · [Evidence](../../specs/catalog/003-sheet-pricing-parity/activation/review-evidence.md) · [Operations](../../operations/data/pricing-input-review.md).
 
 [Scoped structural audit](../../specs/catalog/003-sheet-pricing-parity/activation/review-structure-audit.md) · [Structural verification](../../specs/catalog/003-sheet-pricing-parity/activation/review-structure-verification.md).
+
+## Tests
+
+- `tests/UnitTests/PricingInputReviewTests.cs`
+- `tests/IntegrationTests/Pricing/PricingInputReviewTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingInputReview`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingInputReview` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)

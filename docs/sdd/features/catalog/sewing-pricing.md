@@ -87,3 +87,12 @@ The existing composition-only readiness view remains conservative for OtherCost 
 ## Current consumer revision
 
 [TS-007 cutover](../../specs/catalog/003-sheet-pricing-parity/cutover/README.md) supersedes earlier legacy Product price fallback descriptions. Current Admin prices use versioned PPE calculations or published Sewing Article prices. Deprecated Product metadata amounts are placeholders, not sale prices.
+
+## Tests
+
+- `tests/UnitTests/SewingArticlePricingTests.cs`, `tests/UnitTests/SewingPricingContractTests.cs`, `tests/UnitTests/PublishedSewingProductsQueryTests.cs`
+- `tests/IntegrationTests/Pricing/Sewing/`, `tests/IntegrationTests/SewingArticlePricingPersistenceTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter SewingPricing`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter SewingPricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)

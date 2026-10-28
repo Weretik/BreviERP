@@ -31,3 +31,12 @@ Host.Seed/Jobs/Pricing/
 ```
 
 No migration, HTTP API, frontend change or runtime-to-job dependency is introduced. Every production type owns one file; reader/evaluation behavior remains with existing Catalog/Reference owners. [Specification](../../specs/catalog/003-sheet-pricing-parity/activation/README.md) · [Operations](../../operations/data/pricing-readiness.md) · [Evidence](../../specs/catalog/003-sheet-pricing-parity/activation/evidence.md).
+
+## Tests
+
+- `tests/UnitTests/PricingReadinessTests.cs`
+- `tests/IntegrationTests/Pricing/PricingReadinessTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingReadiness`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingReadiness` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)

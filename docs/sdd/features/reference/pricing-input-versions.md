@@ -45,3 +45,12 @@ flowchart LR
 Save/publish, settings writes and Reference pricing writes acquire the same PostgreSQL transaction advisory lock before reading version state. The Host bridge enlists Reference reads in the Catalog transaction. This protects API workflows; direct SQL that bypasses these write paths must follow the same protocol. Bootstrap is an initial baseline operation and is not an editing/synchronization mechanism.
 
 The [publication structure audit](../../specs/catalog/003-sheet-pricing-parity/structure/audit.md) separates tracked legacy-value discovery from version persistence. The source-specific typed predicates, precision comparison and transaction order are preserved.
+
+## Tests
+
+- `tests/UnitTests/PricingReferenceQueryHandlerTests.cs`
+- `tests/IntegrationTests/Pricing/Sewing/ReferencePricingRevisionTests.cs`, `tests/IntegrationTests/Pricing/Sewing/OtherCostPricingRevisionTests.cs`, `tests/IntegrationTests/PricingReferenceQueryIntegrationTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingReference`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingReference` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [reference schema](../../architecture/data-model/reference.md)

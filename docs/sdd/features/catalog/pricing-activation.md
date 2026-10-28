@@ -32,3 +32,12 @@ Host.Seed/Jobs/Pricing/Activation/
 ```
 
 Every production type has one file. No module/API/project/schema dependency is added; runtime modules do not reference jobs. Numeric values/manual operations are unchanged by review confirmation. Original draft/version/publication history remains. Exclusions are an authorized operational scope, not special Domain formulas. [SDD](../../specs/catalog/003-sheet-pricing-parity/activation/execution.md) · [Operations](../../operations/data/pricing-activation.md) · [Evidence](../../specs/catalog/003-sheet-pricing-parity/activation/execution-evidence.md).
+
+## Tests
+
+- `tests/UnitTests/PricingActivationTests.cs`
+- `tests/IntegrationTests/Pricing/PricingActivationTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingActivation`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingActivation` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)
