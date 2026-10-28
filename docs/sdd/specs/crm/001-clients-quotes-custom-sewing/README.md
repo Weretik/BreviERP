@@ -1,6 +1,6 @@
 # CRM-001 — Clients, quotes and custom sewing
 
-**Status:** client/contact and P2 draft-quote backend/Admin slices implemented locally with focused automated verification. manual/browser acceptance remains pending; TS-005 lifecycle/history is implemented locally and FE-005 handoff is pending; custom/document/import phases are planned. **Reviewed:** 2026-10-27. **Owner:** existing Crm module. [P2 contract handoff](evidence/p2-handoff-2026-10-27.md) records the pinned revision and frontend evidence. Local implementation does not mean deployment or migration of a working database.
+**Status:** P1–P3 backend/Admin and P4 backend TS-006, EN-003 and TS-008 are locally automatically verified. Private draft/calculation/version support, private-byte/document adapter proof and versioned configuration templates/suggestions are implemented. Remaining P4 tasks: TS-007 file lifecycle and FE-006/FE-007 consumers. **Reviewed:** 2026-10-28. **Owner:** Crm. [Latest integration evidence](evidence/p4-wave1-2026-10-28.md). No production rollout or working-database migration is claimed.
 
 ## Outcome and scope
 
@@ -24,7 +24,7 @@ Frontend counterpart: repository `Weretik/brevi-web`, specification `docs/specs/
 
 ## Readiness and completion
 
-P3 TS-005 is implemented locally with [backend lifecycle evidence](evidence/ts-005-2026-10-28.md); FE-005 requires a new authorized immutable contract revision. P3 is not complete until frontend integration and its acceptance evidence are recorded.
+P3 TS-005 and frontend FE-005 implementation/automated audit are complete locally. Frontend consumes the pinned backend revision recorded in its contract manifest. Manual acceptance remains pending at the final acceptance stage; it does not gate P4 development.
 
 EN-001/TS-001/TS-002 and the local backend implementation of EN-002/TS-003/TS-004 have focused checks. Frontend FE-003/FE-004 requires an immutable backend contract revision before generated-client sync. On 2026-10-27 the user authorized the local backend commit without push; the resulting SHA is recorded in frontend handoff provenance. Missing email setup or incomplete historic exports do not prevent new client/quote development. Unresolved business decisions are named gates, not invented defaults. See [client-slice evidence](evidence/clients-backend-2026-10-26.md) and [P2 backend evidence](evidence/p2-quote-backend-2026-10-26.md).
 

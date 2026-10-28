@@ -1,6 +1,6 @@
 # EN-003 — Private storage and document adapter readiness
 
-**Status:** planned. **Enables:** SC-S05, SC-D02, SC-D04. **Depends on:** EN-001.
+**Status:** implemented and locally verified — 2026-10-28. **Enables:** SC-S05, SC-D02, SC-D04. **Depends on:** EN-001. [Actual adapter proof](../../evidence/en-003-2026-10-28.md). This closes adapter readiness; TS-007 ownership/link APIs and TS-010 issuance remain separate tasks.
 
 ## Paths and one responsibility
 

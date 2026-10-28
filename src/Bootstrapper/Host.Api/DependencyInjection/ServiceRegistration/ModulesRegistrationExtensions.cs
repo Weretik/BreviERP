@@ -1,3 +1,5 @@
+using Host.Api.Crm.CustomSewing.Pricing;
+using Host.Api.Crm.CustomSewing.Suggestions;
 using Crm.Infrastructure.DependencyInjection;
 using Crm.Application.Quotes.Pricing;
 using Crm.Application.Quotes.Ownership;
@@ -31,6 +33,8 @@ public static class ModuleRegistrationsExtensions
         services.AddCatalogInfrastructureServices(configuration);
         services.AddCatalogApiOptions(configuration);
         services.AddCrmDbContextServices(configuration);
+        services.AddScoped<global::Crm.Application.CustomSewing.Pricing.ICustomSewingPricing, CustomSewingPricing>();
+        services.AddCrmSewingSuggestions();
         services.AddScoped<IQuoteCatalogPriceReader, QuoteCatalogPriceReader>();
         services.AddScoped<IQuoteAssigneeReader, QuoteAssigneeReader>();
         services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();

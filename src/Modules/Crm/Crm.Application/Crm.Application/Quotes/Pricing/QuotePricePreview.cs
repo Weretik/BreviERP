@@ -10,4 +10,5 @@ public sealed record QuotePricePreview(
     decimal? LargeWholesale,
     IReadOnlyList<string> Blockers,
     string Currency,
-    string TaxBasis);
+    string TaxBasis,
+    QuoteCustomVersionSnapshot? CustomVersion = null);

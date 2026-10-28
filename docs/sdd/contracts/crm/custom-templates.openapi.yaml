@@ -1,0 +1,647 @@
+openapi: 3.1.0
+info:
+  title: Crm custom configuration templates and approved model suggestions
+  version: 1.0.0
+security:
+  - Bearer: []
+paths:
+  /api/crm/quote-templates:
+    get:
+      operationId: getCrmQuoteTemplates
+      tags:
+        - CrmTemplates
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmTemplatePage"
+        "400":
+          description: Invalid request or unsupported kind/filter
+        "401":
+          description: Unauthenticated
+        "403":
+          description: Role denied
+        "404":
+          description: Missing or inaccessible template/version
+        "409":
+          description: Revision, requestId payload, archive or concurrent mutation conflict
+      parameters:
+        - name: includeArchived
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 25
+    post:
+      operationId: createCrmQuoteTemplate
+      tags:
+        - CrmTemplates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmCreateTemplateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmTemplateDetail"
+        "400":
+          description: Invalid request or unsupported kind/filter
+        "401":
+          description: Unauthenticated
+        "403":
+          description: Role denied
+        "404":
+          description: Missing or inaccessible template/version
+        "409":
+          description: Revision, requestId payload, archive or concurrent mutation conflict
+  /api/crm/quote-templates/{templateId}:
+    parameters:
+      - name: templateId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getCrmQuoteTemplate
+      tags:
+        - CrmTemplates
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmTemplateDetail"
+        "400":
+          description: Invalid request or unsupported kind/filter
+        "401":
+          description: Unauthenticated
+        "403":
+          description: Role denied
+        "404":
+          description: Missing or inaccessible template/version
+        "409":
+          description: Revision, requestId payload, archive or concurrent mutation conflict
+      parameters:
+        - name: versionId
+          in: query
+          schema:
+            type: string
+            format: uuid
+    put:
+      operationId: reviseCrmQuoteTemplate
+      tags:
+        - CrmTemplates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmReviseTemplateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmTemplateDetail"
+        "400":
+          description: Invalid request or unsupported kind/filter
+        "401":
+          description: Unauthenticated
+        "403":
+          description: Role denied
+        "404":
+          description: Missing or inaccessible template/version
+        "409":
+          description: Revision, requestId payload, archive or concurrent mutation conflict
+  /api/crm/quote-templates/{templateId}/archive:
+    parameters:
+      - name: templateId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    put:
+      operationId: setCrmQuoteTemplateArchived
+      tags:
+        - CrmTemplates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmArchiveTemplateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmTemplateDetail"
+        "400":
+          description: Invalid request or unsupported kind/filter
+        "401":
+          description: Unauthenticated
+        "403":
+          description: Role denied
+        "404":
+          description: Missing or inaccessible template/version
+        "409":
+          description: Revision, requestId payload, archive or concurrent mutation conflict
+  /api/crm/quote-templates/{templateId}/apply:
+    parameters:
+      - name: templateId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: applyCrmQuoteTemplate
+      tags:
+        - CrmTemplates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmApplyTemplateRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmAppliedTemplate"
+        "400":
+          description: Invalid request or unsupported kind/filter
+        "401":
+          description: Unauthenticated
+        "403":
+          description: Role denied
+        "404":
+          description: Missing or inaccessible template/version
+        "409":
+          description: Revision, requestId payload, archive or concurrent mutation conflict
+      description: Explicitly applies an immutable selected version to a NEW private TS-006 draft, without
+        calculation. No historical supplier prices/private notes/artwork are copied. Applications require
+        fresh sale approval. The selected customer-facing introduction is returned alongside the draft; the
+        immutable version remains its source.
+  /api/crm/custom-sewing/suggestions:
+    get:
+      operationId: getCrmSewingSuggestions
+      tags:
+        - CrmTemplates
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmSewingSuggestions"
+        "400":
+          description: Invalid request or unsupported kind/filter
+        "401":
+          description: Unauthenticated
+        "403":
+          description: Role denied
+        "404":
+          description: Missing or inaccessible template/version
+        "409":
+          description: Revision, requestId payload, archive or concurrent mutation conflict
+      description: Price-free source-style norms from active source-reviewed Catalog unique model codes and approved
+        exact references. Six garment groups use the confirmed legacy uk-UA lowercased, whitespace-collapsed
+        exact model-name or type-plus-space prefix rule; unknown names excluded. summer/winter explicitly map
+        to legacy profile Літо/Зима. Requires two unique models and each suggested reference in at least
+        max(2,ceil(model count*0.7)) models. Quantity is upper median, varyingNorm uses legacy tolerance
+        0.0001. Duplicated identical articles count once per model; conflicting or missing references exclude
+        the model. No automatic application. sourceLimitReached=true yields no partial norms. Only accessory
+        and operation norms are suggested, matching the legacy source; fabric article choices and OtherCost
+        rows do not enter the norm fingerprint.
+      parameters:
+        - name: productType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - Напівкомбінезон
+              - Комбінезон
+              - Куртка
+              - Штани
+              - Жилет
+              - Костюм
+        - name: season
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - summer
+              - winter
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CrmTemplateApplication:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - location
+      properties:
+        kind:
+          type: string
+          enum:
+            - embroidery
+            - print
+        location:
+          type: string
+          maxLength: 200
+    CrmTemplateSelections:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - productType
+        - season
+        - description
+        - clientComment
+        - fabrics
+        - accessories
+        - operations
+        - applications
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 300
+        productType:
+          type: string
+          minLength: 1
+          maxLength: 100
+        season:
+          type: string
+          enum:
+            - summer
+            - winter
+        description:
+          type: string
+          maxLength: 5000
+        clientComment:
+          type: string
+          maxLength: 5000
+        fabrics:
+          type: array
+          items:
+            $ref: ./custom-sewing.openapi.yaml#/components/schemas/CrmCustomMaterial
+          maxItems: 40
+        accessories:
+          type: array
+          items:
+            $ref: ./custom-sewing.openapi.yaml#/components/schemas/CrmCustomMaterial
+          maxItems: 100
+        operations:
+          type: array
+          items:
+            $ref: ./custom-sewing.openapi.yaml#/components/schemas/CrmCustomOperation
+          maxItems: 100
+        applications:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmTemplateApplication"
+          maxItems: 20
+    CrmCreateTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - kind
+        - introduction
+        - selections
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - customConfiguration
+        introduction:
+          type: string
+          maxLength: 4000
+        selections:
+          $ref: "#/components/schemas/CrmTemplateSelections"
+    CrmReviseTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - expectedRevision
+        - kind
+        - introduction
+        - selections
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        expectedRevision:
+          type: integer
+          format: int64
+          minimum: 1
+        kind:
+          type: string
+          enum:
+            - customConfiguration
+        introduction:
+          type: string
+          maxLength: 4000
+        selections:
+          $ref: "#/components/schemas/CrmTemplateSelections"
+    CrmArchiveTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - expectedRevision
+        - archived
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        expectedRevision:
+          type: integer
+          format: int64
+          minimum: 1
+        archived:
+          type: boolean
+    CrmApplyTemplateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - expectedRevision
+        - versionId
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        expectedRevision:
+          type: integer
+          format: int64
+          minimum: 1
+        versionId:
+          type: string
+          format: uuid
+        customerPublicId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        quotePublicId:
+          type:
+            - string
+            - "null"
+          format: uuid
+    CrmTemplateDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - publicId
+        - ownerId
+        - revision
+        - archived
+        - kind
+        - versionId
+        - versionNumber
+        - introduction
+        - selections
+        - updatedAt
+        - canEdit
+      properties:
+        publicId:
+          type: string
+          format: uuid
+        ownerId:
+          type: integer
+          minimum: 1
+        revision:
+          type: integer
+          format: int64
+          minimum: 1
+        archived:
+          type: boolean
+        kind:
+          type: string
+          enum:
+            - customConfiguration
+        versionId:
+          type: string
+          format: uuid
+        versionNumber:
+          type: integer
+          minimum: 1
+        introduction:
+          type: string
+          maxLength: 4000
+        selections:
+          $ref: "#/components/schemas/CrmTemplateSelections"
+        updatedAt:
+          type: string
+          format: date-time
+        canEdit:
+          type: boolean
+    CrmTemplateSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - publicId
+        - ownerId
+        - revision
+        - archived
+        - kind
+        - versionNumber
+        - name
+        - productType
+        - season
+        - updatedAt
+      properties:
+        publicId:
+          type: string
+          format: uuid
+        ownerId:
+          type: integer
+          minimum: 1
+        revision:
+          type: integer
+          format: int64
+          minimum: 1
+        archived:
+          type: boolean
+        kind:
+          type: string
+          enum:
+            - customConfiguration
+        versionNumber:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+          maxLength: 300
+        productType:
+          type: string
+          maxLength: 100
+        season:
+          type: string
+          maxLength: 20
+        updatedAt:
+          type: string
+          format: date-time
+    CrmTemplatePage:
+      type: object
+      additionalProperties: false
+      required:
+        - value
+        - pagedInfo
+      properties:
+        value:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmTemplateSummary"
+        pagedInfo:
+          type: object
+          additionalProperties: false
+          required:
+            - pageNumber
+            - pageSize
+            - totalPages
+            - totalRecords
+          properties:
+            pageNumber:
+              type: integer
+            pageSize:
+              type: integer
+            totalPages:
+              type: integer
+            totalRecords:
+              type: integer
+    CrmAppliedTemplate:
+      type: object
+      additionalProperties: false
+      required:
+        - draft
+        - templateVersionId
+        - introduction
+      properties:
+        draft:
+          $ref: ./custom-sewing.openapi.yaml#/components/schemas/CrmCustomDetail
+        templateVersionId:
+          type: string
+          format: uuid
+        introduction:
+          type: string
+          maxLength: 4000
+    CrmSuggestionNorm:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - referenceId
+        - unit
+        - manualMinutes
+        - sampleSize
+        - minimumQuantity
+        - maximumQuantity
+        - varyingNorm
+        - quantity
+      properties:
+        kind:
+          type: string
+          enum:
+            - accessory
+            - operation
+        referenceId:
+          type: integer
+          minimum: 1
+        unit:
+          type: string
+          maxLength: 50
+          description: For operations, Operations means the operation quantity multiplier; manualMinutes is a separate
+            explicit duration override. Accessory units come from approved reference rows.
+        manualMinutes:
+          type:
+            - number
+            - "null"
+        sampleSize:
+          type: integer
+          minimum: 1
+        minimumQuantity:
+          type: number
+          exclusiveMinimum: 0
+        maximumQuantity:
+          type: number
+          exclusiveMinimum: 0
+        varyingNorm:
+          type: boolean
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+    CrmSewingSuggestions:
+      type: object
+      additionalProperties: false
+      required:
+        - productType
+        - season
+        - sampleSize
+        - norms
+        - sourceLimitReached
+      properties:
+        productType:
+          type: string
+          enum:
+            - Напівкомбінезон
+            - Комбінезон
+            - Куртка
+            - Штани
+            - Жилет
+            - Костюм
+        season:
+          type: string
+          enum:
+            - summer
+            - winter
+        sampleSize:
+          type: integer
+          minimum: 0
+        norms:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmSuggestionNorm"
+        sourceLimitReached:
+          type: boolean

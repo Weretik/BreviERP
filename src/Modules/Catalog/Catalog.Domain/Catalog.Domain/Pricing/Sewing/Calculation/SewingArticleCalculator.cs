@@ -21,10 +21,7 @@ public static class SewingArticleCalculator
                 labor * settings.BonusRate,
                 minutes * (1m + settings.AssemblyRate) * settings.MonthlyOverhead
                     / (settings.WorkDays * settings.ShiftMinutes * settings.SeamstressCount));
-            var tiers = new SewingPriceTiers(
-                Round(breakdown.FullCost * settings.RetailMultiplier),
-                Round(breakdown.FullCost * settings.WholesaleMultiplier),
-                Round(breakdown.FullCost * settings.LargeWholesaleMultiplier));
+            var tiers = SewingTierPricing.Calculate(breakdown.FullCost, settings);
             return new SewingArticleCalculation(breakdown, tiers, []);
         }
         catch (OverflowException)
@@ -33,6 +30,5 @@ public static class SewingArticleCalculator
         }
     }
 
-    private static decimal Round(decimal value) => decimal.Round(value, 2, MidpointRounding.AwayFromZero);
 }
 

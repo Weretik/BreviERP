@@ -1,6 +1,6 @@
 # CRM clients, contacts and draft quotes
 
-**Implemented local slices:** customer/contact foundation and P2 draft quotes. Backend was verified 2026-10-26; the matching Admin frontend was implemented and automatically checked 2026-10-27 against pinned backend `1c1f51dc7837f3d5e3a0da7326cb17b48d23e4d9`. See [handoff evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p2-handoff-2026-10-27.md). P3 backend lifecycle is implemented locally (2026-10-28); FE-005 handoff and manual acceptance remain pending. Custom/document/import phases remain planned. This card does not claim production rollout.
+**Implemented local slices:** clients, P2/P3 quotes, TS-006 private custom drafts/calculations/versions/quote hydration, EN-003 private-byte/render adapter proof and TS-008 configuration templates/model suggestions. Automatically verified 2026-10-28. File lifecycle, custom frontend, document issuance and import remain separate planned work; no production rollout is claimed.
 
 Authenticated Admin/Manager can create, read, search/page, revise and deactivate customers and contacts. Admin-only merge retains victim roots/audit while moving contacts/external identities to the survivor. Exact external identities are unique; similar names/shared emails never auto-merge. Manager reads/writes owned clients; draft quotes are owner-scoped. Every mutation has requestId replay and a root revision; successful intent/result audit is stored in the same transaction. No destructive customer/contact delete API.
 
@@ -133,3 +133,62 @@ flowchart LR
 ```
 
 Reprice confirms an unchanged current graph using all fresh scoped variant tokens. Copy selects any authorized saved version, records its provenance and preserves prices without a Catalog call. Transfer atomically changes current access; former Managers cannot read history or replay prior mutations after losing scope. Archive/restore preserve business state and versions. Ready/sent edits create a draft and retain the issued-version pointer; actual ready/send operations and human numbering remain later phases. [TS-005 evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-005-2026-10-28.md). Frontend lifecycle integration is pending.
+
+## Private custom sewing
+
+Existing Admin/Manager authentication protects every custom operation. Structured draft input stores name/type/season, public/private text, approved application sale intent and component selections/norms. Explicit server calculation records approved source versions and a scoped expiring basis token; confirmation freezes a new immutable version. Quote selection uses the saved version ID and never posted costs. History/copy/text edits preserve the old configuration and prices. [Protocol](../../specs/crm/001-clients-quotes-custom-sewing/design/custom-sewing-protocol.md).
+
+```text
+Crm.Domain/Crm.Domain/CustomSewing/
+  Composition/, Drafts/, Versions/, Identifiers/, Pricing/  bounded configuration and immutable source basis
+Crm.Application/Crm.Application/CustomSewing/
+  CreateDraft/, SaveDraft/, Calculate/, SaveVersion/        independent commands, handlers, validators
+  GetDraft/, GetVersion/, GetVersions/                     scenario-local SQL projections and paging
+  ResolveQuoteVersions/Specifications/                    quote-selected private version scope
+  Mapping/CustomDetailProjection.cs                       pure shared response projection
+  Access/, Contracts/, Persistence/, Pricing/              policies, views and ports
+Crm.Infrastructure/Crm.Infrastructure/Persistence/
+  CustomSewing/{Reading,Writing,Pricing,Idempotency}/        SQL, locking, basis storage and replay journal
+  Configurations/CustomSewing/                             typed JSONB converters and constraints
+  Migrations/*AddCustomSewingVersions*, *EnforceCustomSewingHistory*
+Crm.Api/Crm.Api/CustomSewing/                               strict request binding and scoped controller
+Host.Api/Crm/CustomSewing/
+  Pricing/CustomSewingPricing.cs                           Catalog evaluator coordinator
+  Mapping/{CustomPricingInputMapper,CustomPriceBasisMapper}.cs  typed input/result translation
+Crm.Domain/Crm.Domain/CustomSewing/Pricing/CustomCalculationReadiness.cs  eligibility and tier bounds
+Crm.Infrastructure/Crm.Infrastructure/Persistence/CustomSewing/Pricing/CustomCalculationStore.cs  scoped token persistence
+Crm.Application/Crm.Application/Quotes/                    custom preview and server-side snapshot hydration
+```
+
+```mermaid
+flowchart LR
+  HTTP[CustomSewingController] --> CQRS[Draft / calculate / version handlers]
+  CQRS --> Tx[Custom mutation transaction and replay journal]
+  CQRS --> Pricing[Host pricing bridge]
+  Pricing --> Catalog[Catalog custom evaluator and shared arithmetic]
+  Pricing --> Mapping[Typed input and result mappers]
+  Mapping --> Policy[Crm Domain calculation readiness]
+  Tx --> Tokens[Scoped custom calculation store]
+  Tx --> Root[Mutable custom draft]
+  Tx --> Version[Immutable custom version and protected history]
+  HTTP --> Reads[Scoped projected history]
+  Version --> Select[Quote custom intent with version ID]
+  Select --> Batch[Scoped batch hydration]
+  Batch --> Snapshot[Quote numeric FK and saved configuration / prices]
+```
+
+Additional focused tests: `tests/UnitTests/Crm/CustomSewing/CustomSewingDraftTests.cs`, `CustomSewingContractTests.cs`, `tests/UnitTests/Crm/Quotes/QuoteTierProjectionTests.cs`; `tests/IntegrationTests/Crm/CustomSewing/{CustomSewingPersistenceTests,CustomSewingApiTests,CustomSewingPricingBridgeTests}.cs`. Run `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~CustomSewing` with the isolated local CRM test connection. Existing quote draft/lifecycle/access/migration regressions are also covered. [Dated verification](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-006-2026-10-28.md).
+
+[TS-006 functional audit and decomposition](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-006-audit-refactor-2026-10-28.md): confirmation rechecks expiry after source validation, Host mapping/orchestration is split, eligibility belongs to Domain and calculation-token persistence has its own store. Current audit verification: 36 unit, 17 integration/API and 2 architecture tests passed.
+
+## Configuration templates, suggestions and private adapter readiness
+
+TS-008 implements scoped versioned customConfiguration templates with introduction/selections/norms, archive/restore and exact request replay. Apply creates a new private draft with retained TemplateOrigin and no implicit pricing. Source-style suggestions use approved unique models, six exact garment groups, sample coverage and varying norms; four bounded Catalog SQL reads plus one reference resolution avoid per-article queries. No supplier costs or private notes enter the reusable/public projection. [Contract](../../contracts/crm/custom-templates.openapi.yaml), [evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-008-2026-10-28.md).
+
+Code structure: Domain CustomSewing/Templates and Drafts/CustomTemplateOrigin; Application CustomSewing/{CreateTemplate,ReviseTemplate,ArchiveTemplate,GetTemplate,GetTemplates,ApplyTemplate,GetSuggestions}, with suggestion DTOs in GetSuggestions/Contracts; Infrastructure Persistence/Templates/{Reading,Writing,Idempotency} and Configurations/Templates; API Templates/{controllers,Requests}; Catalog Contracts/Suggestions and Infrastructure/Suggestions; Host.Api/Crm/CustomSewing/Suggestions with pure translation in Mapping/SewingSuggestionInputMapper.cs. Shared DI wires these capabilities. AddCustomSewingTemplates adds three tables and nullable draft origin; immutable template history rejects updates/deletes.
+
+EN-003 separates Application Abstractions/{Files,Documents} and Files/{Access,Validation} from Infrastructure Files/Storage and Documents/Rendering. Real private bytes, allowlist/limits/hash/ACL and a six-page Ukrainian PDF are proven; registration is opt-in until dependent workflows supply authoritative access and issuance. [Configuration/runtime/retention design](../../specs/crm/001-clients-quotes-custom-sewing/design/private-adapters.md). Existing public Catalog storage is unchanged.
+
+Focused tests: CustomTemplateRulesTests, SewingSuggestionRulesTests, PrivateFilePolicyTests; CustomTemplatePersistenceTests, CustomTemplateApiTests, TemplateQueryTranslationTests, SewingSuggestionBridgeTests, SewingSuggestionBatchBoundaryTests, PrivateFileStoreTests and ChromiumDocumentRendererTests. [Latest wave evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p4-wave1-2026-10-28.md): 58 unit, 40 integration/API/adapter and 2 architecture checks passed, with explicit runtime/database configuration. Remaining P4 implementation: TS-007, FE-006, FE-007.
+
+[Follow-up functional/structure audit](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p4-wave1-audit-refactor-2026-10-28.md): 40 focused checks passed after mapping/journal separation and DTO grouping. Renderer admission now also bounds font/HTML preparation; cancelled queued calls do not prepare content. No schema/API change.

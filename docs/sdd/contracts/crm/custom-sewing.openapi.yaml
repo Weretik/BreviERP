@@ -1,0 +1,715 @@
+openapi: 3.1.0
+info:
+  title: BreviERP private custom sewing
+  version: 1.0.0
+servers:
+  - url: /
+paths:
+  /api/crm/custom-sewing:
+    post:
+      operationId: createCrmCustomSewingDraft
+      security:
+        - bearerAuth: []
+      description: Authenticated Admin/Manager private scope. Mutations use
+        actor-scoped requestId replay; stale revisions, source or tokens never
+        overwrite. No publication or outgoing delivery.
+      responses:
+        "201":
+          description: Scoped immutable or draft result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomDetail"
+        "400":
+          description: Malformed request or pagination.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Admin/Manager role required.
+        "404":
+          description: Missing or inaccessible resource.
+        "409":
+          description: Revision, replay, expired token or changed source conflict.
+        "422":
+          description: Invalid composition or blocked calculation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmCreateCustomDraftRequest"
+  /api/crm/custom-sewing/{draftId}:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema: &a1
+          type: string
+          format: uuid
+    get:
+      operationId: getCrmCustomSewingDraft
+      security:
+        - bearerAuth: []
+      description: Authenticated Admin/Manager private scope. Mutations use
+        actor-scoped requestId replay; stale revisions, source or tokens never
+        overwrite. No publication or outgoing delivery.
+      responses:
+        "200":
+          description: Scoped immutable or draft result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomDetail"
+        "400":
+          description: Malformed request or pagination.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Admin/Manager role required.
+        "404":
+          description: Missing or inaccessible resource.
+        "409":
+          description: Revision, replay, expired token or changed source conflict.
+        "422":
+          description: Invalid composition or blocked calculation.
+    put:
+      operationId: saveCrmCustomSewingDraft
+      security:
+        - bearerAuth: []
+      description: Authenticated Admin/Manager private scope. Mutations use
+        actor-scoped requestId replay; stale revisions, source or tokens never
+        overwrite. No publication or outgoing delivery.
+      responses:
+        "200":
+          description: Scoped immutable or draft result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomDetail"
+        "400":
+          description: Malformed request or pagination.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Admin/Manager role required.
+        "404":
+          description: Missing or inaccessible resource.
+        "409":
+          description: Revision, replay, expired token or changed source conflict.
+        "422":
+          description: Invalid composition or blocked calculation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmSaveCustomDraftRequest"
+  /api/crm/custom-sewing/{draftId}/calculations:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema: *a1
+    post:
+      operationId: calculateCrmCustomSewing
+      security:
+        - bearerAuth: []
+      description: Authenticated Admin/Manager private scope. Mutations use
+        actor-scoped requestId replay; stale revisions, source or tokens never
+        overwrite. No publication or outgoing delivery.
+      responses:
+        "200":
+          description: Scoped immutable or draft result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomDetail"
+        "400":
+          description: Malformed request or pagination.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Admin/Manager role required.
+        "404":
+          description: Missing or inaccessible resource.
+        "409":
+          description: Revision, replay, expired token or changed source conflict.
+        "422":
+          description: Invalid composition or blocked calculation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmCalculateCustomRequest"
+  /api/crm/custom-sewing/{draftId}/versions:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema: *a1
+    post:
+      operationId: saveCrmCustomSewingVersion
+      security:
+        - bearerAuth: []
+      description: Authenticated Admin/Manager private scope. Mutations use
+        actor-scoped requestId replay; stale revisions, source or tokens never
+        overwrite. No publication or outgoing delivery.
+      responses:
+        "200":
+          description: Scoped immutable or draft result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomDetail"
+        "400":
+          description: Malformed request or pagination.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Admin/Manager role required.
+        "404":
+          description: Missing or inaccessible resource.
+        "409":
+          description: Revision, replay, expired token or changed source conflict.
+        "422":
+          description: Invalid composition or blocked calculation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmSaveCustomVersionRequest"
+    get:
+      operationId: getCrmCustomSewingVersions
+      security:
+        - bearerAuth: []
+      description: Authenticated Admin/Manager private scope. Mutations use
+        actor-scoped requestId replay; stale revisions, source or tokens never
+        overwrite. No publication or outgoing delivery.
+      responses:
+        "200":
+          description: Scoped immutable or draft result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomVersionPage"
+        "400":
+          description: Malformed request or pagination.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Admin/Manager role required.
+        "404":
+          description: Missing or inaccessible resource.
+        "409":
+          description: Revision, replay, expired token or changed source conflict.
+        "422":
+          description: Invalid composition or blocked calculation.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 25
+  /api/crm/custom-sewing/{draftId}/versions/{versionId}:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema: *a1
+      - name: versionId
+        in: path
+        required: true
+        schema: *a1
+    get:
+      operationId: getCrmCustomSewingVersion
+      security:
+        - bearerAuth: []
+      description: Authenticated Admin/Manager private scope. Mutations use
+        actor-scoped requestId replay; stale revisions, source or tokens never
+        overwrite. No publication or outgoing delivery.
+      responses:
+        "200":
+          description: Scoped immutable or draft result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmCustomVersion"
+        "400":
+          description: Malformed request or pagination.
+        "401":
+          description: Authentication required.
+        "403":
+          description: Admin/Manager role required.
+        "404":
+          description: Missing or inaccessible resource.
+        "409":
+          description: Revision, replay, expired token or changed source conflict.
+        "422":
+          description: Invalid composition or blocked calculation.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    CrmCustomMaterial:
+      type: object
+      additionalProperties: false
+      required:
+        - referenceId
+        - quantity
+        - unit
+      properties:
+        referenceId:
+          type: integer
+          minimum: 1
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 100000
+          multipleOf: 0.000001
+        unit:
+          type: string
+          minLength: 1
+          maxLength: 50
+    CrmCustomOperation:
+      type: object
+      additionalProperties: false
+      required:
+        - referenceId
+        - quantity
+      properties:
+        referenceId:
+          type: integer
+          minimum: 1
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 100000
+          multipleOf: 0.000001
+        manualMinutes:
+          type:
+            - number
+            - "null"
+          exclusiveMinimum: 0
+          maximum: 100000
+          multipleOf: 0.000001
+    CrmCustomApplication:
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - location
+        - cost
+        - saleAmount
+        - saleApproved
+      properties:
+        kind:
+          type: string
+          enum:
+            - embroidery
+            - print
+        location:
+          type: string
+          maxLength: 200
+        artworkFileId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        cost: &a2
+          type: number
+          minimum: 0
+          maximum: 10000000
+          multipleOf: 0.01
+        saleAmount: *a2
+        saleApproved:
+          type: boolean
+    CrmCustomConfiguration:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - productType
+        - season
+        - description
+        - clientComment
+        - internalNote
+        - fabrics
+        - accessories
+        - operations
+        - applications
+        - delivery
+        - packaging
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 300
+        productType:
+          type: string
+          minLength: 1
+          maxLength: 100
+        season:
+          type: string
+          enum:
+            - summer
+            - winter
+        description:
+          type: string
+          maxLength: 5000
+        clientComment:
+          type: string
+          maxLength: 5000
+        internalNote:
+          type: string
+          maxLength: 5000
+        fabrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmCustomMaterial"
+          maxItems: 40
+        accessories:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmCustomMaterial"
+          maxItems: 100
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmCustomOperation"
+          maxItems: 100
+        applications:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmCustomApplication"
+          maxItems: 20
+        delivery: *a2
+        packaging: *a2
+    CrmCustomReferenceBasis:
+      type: object
+      additionalProperties: false
+      required:
+        - key
+        - versionId
+        - value
+        - unit
+        - sourceCode
+      properties:
+        key:
+          type: string
+        versionId:
+          type: integer
+          format: int64
+        value:
+          type:
+            - number
+            - "null"
+        unit:
+          type: string
+        sourceCode:
+          type: string
+    CrmCustomCostBreakdown:
+      type: object
+      additionalProperties: false
+      required:
+        - materials
+        - otherCosts
+        - totalMinutes
+        - minuteCost
+        - seamstress
+        - cutting
+        - master
+        - manager
+        - bonus
+        - overhead
+        - delivery
+        - packaging
+        - applicationCost
+        - applicationSale
+      properties:
+        materials: &a3
+          type: number
+        otherCosts: *a3
+        totalMinutes: *a3
+        minuteCost: *a3
+        seamstress: *a3
+        cutting: *a3
+        master: *a3
+        manager: *a3
+        bonus: *a3
+        overhead: *a3
+        delivery: *a3
+        packaging: *a3
+        applicationCost: *a3
+        applicationSale: *a3
+    CrmCustomPriceBasis:
+      type: object
+      additionalProperties: false
+      required:
+        - token
+        - calculatedAt
+        - expiresAt
+        - formulaVersion
+        - settingsVersionId
+        - references
+        - breakdown
+        - internalCost
+        - retail
+        - wholesale
+        - largeWholesale
+        - blockers
+        - isCalculated
+      properties:
+        token: *a1
+        calculatedAt: &a4
+          type: string
+          format: date-time
+        expiresAt: *a4
+        formulaVersion:
+          type: string
+          const: custom-sewing-sheet-v1
+        settingsVersionId:
+          type:
+            - integer
+            - "null"
+          format: int64
+        references:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmCustomReferenceBasis"
+          maxItems: 240
+        breakdown:
+          oneOf:
+            - $ref: "#/components/schemas/CrmCustomCostBreakdown"
+            - type: "null"
+        internalCost:
+          type:
+            - number
+            - "null"
+        retail:
+          type:
+            - number
+            - "null"
+        wholesale:
+          type:
+            - number
+            - "null"
+        largeWholesale:
+          type:
+            - number
+            - "null"
+        blockers:
+          type: array
+          items:
+            type: string
+        isCalculated:
+          type: boolean
+    CrmCustomVersion:
+      type: object
+      additionalProperties: false
+      required:
+        - publicId
+        - number
+        - parentVersionId
+        - configuration
+        - basis
+        - actorId
+        - createdAt
+      properties:
+        publicId: *a1
+        number:
+          type: integer
+          minimum: 1
+        parentVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        configuration:
+          $ref: "#/components/schemas/CrmCustomConfiguration"
+        basis:
+          $ref: "#/components/schemas/CrmCustomPriceBasis"
+        actorId:
+          type: integer
+        createdAt: *a4
+    CrmCustomDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - publicId
+        - revision
+        - ownerId
+        - customerPublicId
+        - quotePublicId
+        - configuration
+        - currentVersion
+        - preview
+        - updatedAt
+        - canEdit
+      properties:
+        publicId: *a1
+        revision:
+          type: integer
+          format: int64
+          minimum: 1
+        ownerId:
+          type: integer
+        customerPublicId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        quotePublicId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        configuration:
+          $ref: "#/components/schemas/CrmCustomConfiguration"
+        currentVersion:
+          oneOf:
+            - $ref: "#/components/schemas/CrmCustomVersion"
+            - type: "null"
+        preview:
+          oneOf:
+            - $ref: "#/components/schemas/CrmCustomPriceBasis"
+            - type: "null"
+        updatedAt: *a4
+        canEdit:
+          type: boolean
+        templateOrigin:
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [templatePublicId, versionPublicId, introduction]
+              properties:
+                templatePublicId: *a1
+                versionPublicId: *a1
+                introduction:
+                  type: string
+                  maxLength: 4000
+            - type: "null"
+    CrmCustomVersionSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - publicId
+        - number
+        - parentVersionId
+        - name
+        - actorId
+        - createdAt
+      properties:
+        publicId: *a1
+        number:
+          type: integer
+          minimum: 1
+        parentVersionId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        name:
+          type: string
+        actorId:
+          type: integer
+        createdAt: *a4
+    CrmCustomVersionPage:
+      type: object
+      additionalProperties: false
+      required:
+        - value
+        - pagedInfo
+      properties:
+        value:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrmCustomVersionSummary"
+        pagedInfo:
+          $ref: ./clients-quotes.openapi.yaml#/components/schemas/CrmPagedInfo
+    CrmCreateCustomDraftRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - configuration
+      properties:
+        requestId: *a1
+        customerPublicId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        quotePublicId:
+          type:
+            - string
+            - "null"
+          format: uuid
+        configuration:
+          $ref: "#/components/schemas/CrmCustomConfiguration"
+    CrmSaveCustomDraftRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - expectedRevision
+        - configuration
+      properties:
+        requestId: *a1
+        expectedRevision: &a5
+          type: integer
+          format: int64
+          minimum: 1
+        configuration:
+          $ref: "#/components/schemas/CrmCustomConfiguration"
+    CrmCalculateCustomRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - expectedRevision
+      properties:
+        requestId: *a1
+        expectedRevision: *a5
+    CrmSaveCustomVersionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - expectedRevision
+        - basisToken
+      properties:
+        requestId: *a1
+        expectedRevision: *a5
+        basisToken: *a1
+    CrmQuoteCustomVersionSnapshot:
+      type: object
+      additionalProperties: false
+      required:
+        - draftPublicId
+        - versionPublicId
+        - number
+        - configuration
+        - basis
+      properties:
+        draftPublicId: *a1
+        versionPublicId: *a1
+        number:
+          type: integer
+          minimum: 1
+        configuration:
+          $ref: "#/components/schemas/CrmCustomConfiguration"
+        basis:
+          $ref: "#/components/schemas/CrmCustomPriceBasis"

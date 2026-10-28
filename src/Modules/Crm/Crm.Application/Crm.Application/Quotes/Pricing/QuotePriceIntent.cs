@@ -7,4 +7,5 @@ public sealed record QuotePriceIntent(
     int? ProductId,
     long? ArticleId,
     QuotePriceOverride? Override,
-    QuoteManualPrices? ManualPrices);
+    QuoteManualPrices? ManualPrices,
+    Guid? CustomVersionPublicId = null);

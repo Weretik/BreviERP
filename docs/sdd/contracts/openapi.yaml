@@ -113,3 +113,23 @@ paths:
     $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1transfer
   /api/crm/quotes/{quoteId}/archive:
     $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1archive
+  /api/crm/custom-sewing:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing
+  /api/crm/custom-sewing/{draftId}:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}
+  /api/crm/custom-sewing/{draftId}/calculations:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1calculations
+  /api/crm/custom-sewing/{draftId}/versions:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1versions
+  /api/crm/custom-sewing/{draftId}/versions/{versionId}:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1versions~1{versionId}
+  /api/crm/custom-sewing/suggestions:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1suggestions
+  /api/crm/quote-templates:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates
+  /api/crm/quote-templates/{templateId}:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1{templateId}
+  /api/crm/quote-templates/{templateId}/apply:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1{templateId}~1apply
+  /api/crm/quote-templates/{templateId}/archive:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1{templateId}~1archive

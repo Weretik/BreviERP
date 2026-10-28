@@ -1,6 +1,6 @@
 # EN-002 — Price-basis and custom arithmetic reconciliation
 
-**Status:** P2 Catalog price-basis checkpoint implemented locally; [source comparison](../../evidence/en-002-discovery-2026-10-26.md), [protocol](../../design/quote-preview-protocol.md) and [backend evidence](../../evidence/p2-quote-backend-2026-10-26.md) recorded. Custom sewing arithmetic remains a TS-006 gate. **Enables:** SC-Q01–04, SC-Q07, SC-S01–02. **Depends on:** EN-001.
+**Status:** P2 price-basis and P4 custom arithmetic checkpoints implemented locally. [Custom adapter proof](../../evidence/en-002-custom-pricing-2026-10-28.md): shared Catalog engine, versioned input resolution and golden fixtures verified. Private draft/version persistence and quote hydration remain TS-006. **Enables:** SC-Q01–04, SC-Q07, SC-S01–02. **Depends on:** EN-001.
 
 ## Paths and one responsibility
 
@@ -23,3 +23,7 @@ For behavior implementation record Red → Green → Refactor → focused Regres
 Price rules have reproducible fixtures and one engine owner; no extra VAT, fallback constants or threshold guessing.
 
 Do not advance a dependent task on an unresolved prerequisite. See [sequence](../implementation-plan.md) and the feature's verification/decision documents before declaring this task complete.
+
+## P4 executed checkpoint — 2026-10-28
+
+Common tier arithmetic is owned by Catalog Domain SewingTierPricing, reused by Article and custom calculations. SewingCustomPricingEvaluator resolves approved settings/reference versions, validates bounded selections and retains the typed calculation evidence. 41 focused unit/Application tests and 2 architecture checks passed. No HTTP schema or database state changed. [Evidence and exact commands](../../evidence/en-002-custom-pricing-2026-10-28.md).

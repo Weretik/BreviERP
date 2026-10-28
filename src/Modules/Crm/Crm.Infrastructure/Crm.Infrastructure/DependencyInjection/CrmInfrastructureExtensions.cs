@@ -25,8 +25,12 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<IQuotePriceBasisStore, QuotePriceBasisStore>();
         services.AddScoped<IQuoteMutationStore, QuoteMutationStore>();
         services.AddScoped<IQuoteReadRepository, QuoteReadRepository>();
+        services.AddScoped<IQuoteCustomVersionReader, Crm.Infrastructure.Persistence.CustomSewing.Reading.QuoteCustomVersionReader>();
         services.AddScoped<QuoteVersionBuilder>();
         services.AddScoped<QuotePriceBasisResolver>();
+        services.AddScoped<Crm.Application.CustomSewing.Persistence.ICustomMutationStore, Crm.Infrastructure.Persistence.CustomSewing.Writing.CustomMutationStore>();
+        services.AddScoped<Crm.Application.CustomSewing.Persistence.ICustomReadRepository, Crm.Infrastructure.Persistence.CustomSewing.Reading.CustomReadRepository>();
+        services.AddCrmTemplates();
         services.AddScoped<IDatabaseMigrator, DbMigrator<CrmDbContext>>();
         return services;
     }

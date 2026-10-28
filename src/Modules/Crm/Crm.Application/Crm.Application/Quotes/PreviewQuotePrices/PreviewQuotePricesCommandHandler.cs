@@ -7,7 +7,8 @@ using Mediator;
 namespace Crm.Application.Quotes.PreviewQuotePrices;
 
 public sealed class PreviewQuotePricesCommandHandler(
-    IQuotePriceBasisStore store, IQuoteCatalogPriceReader catalog, IQuoteReadRepository quotes)
+    IQuotePriceBasisStore store, IQuoteCatalogPriceReader catalog, IQuoteReadRepository quotes,
+    IQuoteCustomVersionReader? customs = null)
     : ICommandHandler<PreviewQuotePricesCommand, Result<QuotePricePreview>>
 {
     public async ValueTask<Result<QuotePricePreview>> Handle(
@@ -23,12 +24,34 @@ public sealed class PreviewQuotePricesCommandHandler(
             if (quote.Archived)
                 return Result.Conflict("quote_not_editable");
         }
+        ResolvedCustomQuoteVersion? custom = null;
+        if (command.Intent.Kind == "customSewing")
+        {
+            if (command.Intent.CustomVersionPublicId is not { } versionId || versionId == Guid.Empty || customs is null)
+                return Result.Invalid(new ValidationError("intent", "invalid_custom_selection"));
+            custom = await customs.ReadAsync(versionId, command.QuoteId, command.Actor, cancellationToken);
+            if (custom is null) return Result.NotFound();
+        }
         return await store.ExecuteAsync(command.RequestId, command.QuoteId, command.Actor, command.Intent,
-            ct => CalculateAsync(command.Intent, ct), cancellationToken);
+            ct => CalculateAsync(command.Intent, custom, ct), cancellationToken);
     }
 
-    private async Task<Result<QuotePricePreview>> CalculateAsync(QuotePriceIntent intent, CancellationToken cancellationToken)
+    private async Task<Result<QuotePricePreview>> CalculateAsync(QuotePriceIntent intent, ResolvedCustomQuoteVersion? custom, CancellationToken cancellationToken)
     {
+        if (intent.Kind == "customSewing")
+        {
+            if (intent.CustomVersionPublicId is not { } versionId || versionId == Guid.Empty || intent.ProductId is not null
+                || intent.ArticleId is not null || intent.Override is not null || intent.ManualPrices is not null || customs is null)
+                return Result.Invalid(new ValidationError("intent", "invalid_custom_selection"));
+            var saved = custom;
+            if (saved is null) return Result.NotFound();
+            var basis = saved.Snapshot.Basis;
+            return Result.Success(new QuotePricePreview(Guid.NewGuid(), DateTimeOffset.UtcNow.AddMinutes(15), intent,
+                null, basis.Retail, basis.Wholesale, basis.LargeWholesale, basis.Blockers,
+                "UAH", "custom_no_extra_vat", saved.Snapshot));
+        }
+        if (intent.CustomVersionPublicId is not null)
+            return Result.Invalid(new ValidationError("intent", "unexpected_custom_version"));
         if (intent.Kind == "oneOffPpe")
         {
             if (intent.ProductId is not null || intent.ArticleId is not null || intent.Override is not null ||

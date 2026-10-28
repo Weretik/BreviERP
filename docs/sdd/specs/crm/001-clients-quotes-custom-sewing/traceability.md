@@ -1,8 +1,6 @@
 # Traceability
 
-P3 backend checkpoint (2026-10-28): TS-005 covers SC-Q02/Q04–05 locally with [focused evidence](evidence/ts-005-2026-10-28.md). FE-005 and immutable contract handoff remain pending; this does not close integrated/manual acceptance or actual delivery scenarios owned by later tasks.
-
-**Progress:** client portions of SC-C01–05 and draft-quote portions of SC-Q01/Q03–04/Q06–07 have local backend domain/persistence/API evidence; Admin client automation is verified. Frontend quote integration and manual acceptance are pending. Later quote lifecycle, custom, document and import rows remain planned. See [client evidence](evidence/clients-backend-2026-10-26.md) and [P2 backend evidence](evidence/p2-quote-backend-2026-10-26.md). Requirements and tasks carry details; this matrix only links coverage. The frontend counterpart retains the same scenario IDs.
+Current checkpoint (2026-10-28): P1–P3 backend/Admin, EN-002 arithmetic, TS-006 custom drafts/versions/quote hydration, EN-003 private adapter proof and TS-008 configuration templates/suggestions are locally automatically verified. File lifecycle, custom UI, document issuance, delivery and imports retain their separate tasks. This matrix links requirements/scenarios; detailed runtime evidence is in the dated records below and current task statuses.
 
 | Rule                          | Scenario | Backend tasks / prerequisites                                                                                                                                                                                                                                                                        | Frontend tasks | Required evidence                                   |
 | ----------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------- |
@@ -41,3 +39,11 @@ P3 backend checkpoint (2026-10-28): TS-005 covers SC-Q02/Q04–05 locally with [
 | R-I03 | SC-I03   | TS-010, TS-011, TS-016                                              | FE-008, FE-009, FE-011 | Rendered seasonal PDF and explicit pinned send          |
 
 SC-M01–03 are defined in [migration](migration.md). Requirements: [clients](requirements/clients.md), [quotes](requirements/quotes.md), [custom sewing](requirements/custom-sewing.md), [documents](requirements/documents-delivery.md). TS-015 performs whole-block acceptance only after dependencies; no test passing is inferred from this matrix.
+
+TS-006 → backend SC-S01/SC-S02/SC-S03 configuration/version and quote-independence portions → CustomSewingDraftTests, CustomSewingContractTests, CustomSewingPersistenceTests, CustomSewingApiTests, CustomSewingPricingBridgeTests and QuoteTierProjectionTests → [verified execution](evidence/ts-006-2026-10-28.md). File bytes/visibility remain TS-007; FE-006/007 and final manual acceptance are not claimed complete.
+
+TS-006 audit: SC-S01–03 backend → AF-CRM-P4-005–008 → CustomVersionConfirmationTests, existing custom persistence/API/bridge targets and architecture checks → [fresh evidence](evidence/ts-006-audit-refactor-2026-10-28.md). Verified locally; final manual acceptance remains pending.
+
+P4 wave 1: EN-003 → SC-S05/SC-D02/SC-D04 adapter prerequisite → PrivateFilePolicyTests, PrivateFileStoreTests and configured ChromiumDocumentRendererTests → [real byte/PDF proof](evidence/en-003-2026-10-28.md). File link/ownership workflow remains TS-007 and document issuance remains TS-010.
+
+TS-008 → backend SC-S04/R-S05 → CustomTemplateRulesTests, SewingSuggestionRulesTests, CustomTemplatePersistenceTests, CustomTemplateApiTests, TemplateQueryTranslationTests, SewingSuggestionBridgeTests and SewingSuggestionBatchBoundaryTests → [verified execution](evidence/ts-008-2026-10-28.md). Coordinator audit AF-CRM-P4-009–014 and aggregate regression → [wave evidence](evidence/p4-wave1-2026-10-28.md). FE-007 and firstContact TS-016 are separate consumers. Remaining P4 implementation tasks: TS-007, FE-006 and FE-007.

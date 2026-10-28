@@ -15,7 +15,7 @@ Products:
 
 Pricing API (start with Sewing or PPE pricing):
 
-- [Sewing Article pricing](catalog/sewing-pricing.md) — versioned inputs, strict calculation, saved snapshots and publication API.
+- [Sewing Article pricing](catalog/sewing-pricing.md) — versioned inputs, strict calculation, saved snapshots/publication API and private custom arithmetic adapter.
 - [PPE pricing](catalog/ppe-pricing.md) — versioned supplier offers, exact rule scope and three-tier calculation.
 - [Current pricing boundaries](catalog/pricing-cutover.md) — Product reads carry metadata only; prices come from the pricing APIs.
 - [Reference pricing versions](reference/pricing-input-versions.md) — Reference-owned cost and norm versions used by pricing.
@@ -47,4 +47,4 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
 ## Crm
 
-- [Clients and contacts](crm/clients-and-quotes.md) — scoped customer/contact APIs, source identity, optimistic concurrency and Admin merge; quote workflow remains planned.
+- [Clients and contacts](crm/clients-and-quotes.md) — scoped clients, immutable quote lifecycle and private custom drafts/versions, configuration templates/model suggestions and private-byte/render adapter proof; file lifecycle/UI/documents remain separate work.
