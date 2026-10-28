@@ -2,6 +2,8 @@
 
 Versioned three-tier PPE calculation from Brevi-owned rule/offer snapshots. Domain arithmetic reproduces approved workbook precedence and rounding; no live workbook or XML access occurs at runtime. Imported source review remains evidence; only an explicit manager write creates a Brevi-approved version. Missing required data returns blockers and no prices.
 
+## Structure diagram
+
 ```mermaid
 flowchart LR
   API[Protected PPE pricing controllers] --> UseCases[Product batch read / rule read / append versions]
@@ -11,6 +13,8 @@ flowchart LR
   Job[Explicit Host.Seed PPE bootstrap] --> DB
   Source[Frozen bounded workbook reads] --> Job
 ```
+
+## Code structure
 
 ```text
 Catalog.Domain/Pricing/Ppe/
@@ -43,6 +47,8 @@ Jobs/CatalogImport/PpePricing/
   Persistence/             # Product identity lookup / replay verification / draft writing
 ```
 
+## Related sources
+
 API source: [PPE OpenAPI](../../contracts/catalog/ppe-pricing.openapi.yaml). [Implementation decisions](../../specs/catalog/003-sheet-pricing-parity/ppe-implementation.md) and [evidence](../../specs/catalog/003-sheet-pricing-parity/ppe-evidence.md).
 
 Legacy Product pricing fields are compatibility outputs; new enrolled consumers use this boundary. Legacy endpoint retirement and representative catalogue comparison belong to TS-007. Current calculation is not a quote or publication snapshot.
@@ -52,3 +58,12 @@ Legacy Product pricing fields are compatibility outputs; new enrolled consumers 
 ## Current consumer revision
 
 [TS-007 cutover](../../specs/catalog/003-sheet-pricing-parity/cutover/README.md) supersedes earlier legacy Product price fallback descriptions. Current Admin prices use versioned PPE calculations or published Sewing Article prices. Deprecated Product metadata amounts are placeholders, not sale prices.
+
+## Tests
+
+- `tests/UnitTests/PpePricing*Tests.cs`
+- `tests/IntegrationTests/Pricing/Ppe/`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PpePricing`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PpePricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)

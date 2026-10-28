@@ -38,6 +38,12 @@ Prefer an existing named policy that expresses the operation. The controller dec
 
 For a public endpoint, use `[AllowAnonymous]` and record the reason in the feature contract. This overrides the fallback policy.
 
+## Current anonymous exceptions
+
+As of 2026-10-28, these controllers declare `[AllowAnonymous]` on the whole class, so all their operations, including create, update, and delete, are public: `ProductsController`, `ProductCategoriesController`, `CatalogMediaController`, `SuppliersController`, `GarmentPartsController`, and `AdditionalReferencesController`. `FabricsController`, `GarmentAccessoriesController`, and `GarmentPartOperationsController` allow anonymous reads only; their writes require `CanManageProducts`. `AuthSessionController` allows anonymous login and refresh. The per-endpoint list is in the [frontend integration table](../../../contracts/frontend-integration.md).
+
+A class-level `[AllowAnonymous]` also overrides any `[Authorize]` on its methods. To protect a write, move `[AllowAnonymous]` to the read methods instead of adding a policy next to it. Update this list when an exception is added or removed.
+
 ## Adding a policy or role
 
 1. Check whether an existing policy already covers the business operation.

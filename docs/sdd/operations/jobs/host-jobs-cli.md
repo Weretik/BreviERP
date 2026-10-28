@@ -1,8 +1,8 @@
 # Background job CLI
 
-A separate `Host.Jobs` CLI or set of job commands is not implemented in current BreviERP. Do not use this document as a runbook with invented `dotnet run` parameters.
+A separate `Host.Jobs` CLI is not implemented. Existing operational jobs from `src/Jobs` run through `Host.Seed` flags; their exact commands are in the runbooks listed in [Background jobs and runbooks](README.md). Do not invent `dotnet run` parameters.
 
-If such a host is added, its documentation must record:
+If a separate jobs host is added, its documentation must record:
 
 - the exact project path and how configuration is loaded;
 - every job name, required argument, and exit code;
@@ -10,4 +10,4 @@ If such a host is added, its documentation must record:
 - concurrency, retry, and idempotency rules;
 - verification of the result after completion.
 
-Until it exists, use only the verified `Host.Seed` for initial data operations.
+Until it exists, use only the verified `Host.Seed` commands.

@@ -2,10 +2,20 @@
 
 This is an index of project decisions and delivery; the [implemented feature map](../features/README.md) points to the architecture of the current code. Check each item's README and code for its status.
 
-| Module | Specifications |
-| --- | --- |
-| Catalog | [product and product page — current SDD](catalog/001-product-page/README.md), [early historical product snapshot](catalog/product-page/README.md), [admin product category list](catalog/admin-product-list/README.md), [media files](catalog/media-files/README.md) |
-| Platform | [module schemas](platform/001-module-schemas/README.md) |
+| Module | Specification | Status |
+| --- | --- | --- |
+| Catalog | [001 product and product page](catalog/001-product-page/README.md) | complete |
+| Catalog | [002 Sewing Articles and calculation composition](catalog/002-sewing-articles-and-composition/README.md) | implemented; local migrations and catalogue import verified 2026-10-25 |
+| Catalog | [003 Brevi-owned product pricing (sheet parity)](catalog/003-sheet-pricing-parity/README.md) | Sewing and PPE pricing implemented and verified locally 2026-10-25 |
+| Catalog | [004 Sewing composition structure](catalog/004-sewing-composition-structure/README.md) | structural remediation complete 2026-10-25 |
+| Catalog | [005 Import and pricing responsibility decomposition](catalog/005-import-pricing-structure/README.md) | structural remediation verified |
+| Catalog | [Admin product category list](catalog/admin-product-list/README.md) | verified 2026-07-27 |
+| Catalog | [Media files](catalog/media-files/README.md) | verified |
+| Catalog | [Early product snapshot](catalog/product-page/README.md) | history; superseded by 001 |
+| Crm | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md) | client/draft slices and backend lifecycle implemented; frontend lifecycle and manual acceptance pending |
+| Platform | [001 module schemas](platform/001-module-schemas/README.md) | implementation |
+
+When a specification's status changes, update its row here in the same change.
 
 Every non-trivial change starts here before implementation.
 
@@ -38,12 +48,3 @@ Gradually migrate existing specifications to this structure: preserve completed 
 Draft → accepted → in progress → verified → complete.
 
 Implementation must not silently diverge from an accepted specification. If that happens, add a dated change entry with the reason, boundary impact, and new verification.
-
-## Planned Catalog migration slice
-
-- [Sewing articles and calculation composition](catalog/002-sewing-articles-and-composition/README.md) — domain/schema design is ready; data import awaits database access.
-- [Product pricing from approved source arithmetic](catalog/003-sheet-pricing-parity/README.md) — planned comparison and replacement of current pricing.
-
-## Planned Crm block
-
-- [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md) — client/contact backend implemented 2026-10-26; existing Admin integration in progress. Full quote/custom/document/import plan and acceptance remain in the same SDD.

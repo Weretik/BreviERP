@@ -18,8 +18,11 @@ Keep a feature's current scope and navigation in its `README.md`, requirements i
 
 ## Documentation granularity
 
-Describe a new feature with a brief card for its actual architecture in `docs/sdd/features/<module>/` and link to it from the index. The card contains a tree of key files with their roles and a compact Mermaid diagram of the verified flow between entry point, handlers, model, data, and integrations. Update the map after a substantial change to these facts; an internal detail that does not affect it needs no repeated description. The SDD records decisions and evidence; the map describes the current implementation.
+Describe a new feature with a brief card for its actual architecture in `docs/sdd/features/<module>/` and link to it from the index. The card contains a tree of key files with their roles and a compact Mermaid diagram of the verified flow between entry point, handlers, model, data, and integrations. It ends with a `## Tests` section (test files and the focused run command, or “No automated tests cover this feature yet.”) and an optional `**Data:**` link to the owner's [database map](../architecture/data-model/README.md) file. Keep environment state, such as “migration applied” or “imported locally”, out of cards; it belongs in SDD evidence. Update the map after a substantial change to these facts; an internal detail that does not affect it needs no repeated description. The SDD records decisions and evidence; the map describes the current implementation.
 
+- When a specification's status changes, update its row in the [specification index](../specs/README.md) in the same change.
+- When a feature's test files are added or moved, update the card's `## Tests` section.
+- Small changes (styles, texts, a refactoring inside a file) do not touch the card.
 - One feature SDD has one coordinating `README.md`; a brief description of the actual implementation lives separately in `features/`.
 - Each document covers one topic; do not create empty or duplicate files.
 - Acceptance scenarios describe externally observable behavior without implementation details.

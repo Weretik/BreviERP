@@ -8,6 +8,8 @@ Operation minutes retain up to eight decimal places after the precision migratio
 
 Existing Reference GET operations remain anonymous. Their POST/PUT/DELETE operations now require CanManageProducts. OtherCost revision is a separate protected command: it accepts an existing code, expected latest version ID, nonnegative value and request UUID, preserves its unit/activity/source identity and returns the new version ID. Retrying the same request returns the original ID; changed payloads or stale expected versions conflict. Creating entirely new cost codes is outside this revision workflow.
 
+## Code structure
+
 ```text
 src/Modules/Reference/
   Reference.Domain/Reference.Domain/Pricing/InputVersions/
@@ -30,6 +32,8 @@ src/Modules/Reference/
     Contracts/Pricing/ReviseOtherCostRequest.cs
 ```
 
+## Structure diagram
+
 ```mermaid
 flowchart LR
   Manager[Authorized manager] --> Edit[Reference edit handler]
@@ -42,6 +46,17 @@ flowchart LR
   Reader --> Catalog[Catalog calculation/publication]
 ```
 
+## Rules and boundaries
+
 Save/publish, settings writes and Reference pricing writes acquire the same PostgreSQL transaction advisory lock before reading version state. The Host bridge enlists Reference reads in the Catalog transaction. This protects API workflows; direct SQL that bypasses these write paths must follow the same protocol. Bootstrap is an initial baseline operation and is not an editing/synchronization mechanism.
 
 The [publication structure audit](../../specs/catalog/003-sheet-pricing-parity/structure/audit.md) separates tracked legacy-value discovery from version persistence. The source-specific typed predicates, precision comparison and transaction order are preserved.
+
+## Tests
+
+- `tests/UnitTests/PricingReferenceQueryHandlerTests.cs`
+- `tests/IntegrationTests/Pricing/Sewing/ReferencePricingRevisionTests.cs`, `tests/IntegrationTests/Pricing/Sewing/OtherCostPricingRevisionTests.cs`, `tests/IntegrationTests/PricingReferenceQueryIntegrationTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingReference`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingReference` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [reference schema](../../architecture/data-model/reference.md)

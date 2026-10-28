@@ -2,6 +2,8 @@
 
 Product list/detail/create/replace responses map catalogue metadata, not sale-price formulas. Deprecated sale-price fields remain shape-compatible placeholders. Current prices come from published Sewing Article tiers or versioned PPE input calculation; missing/blocked data is explicit in those contracts. Archived Product inputs remain stored for compatibility/onboarding, not current price ownership.
 
+## Structure diagram
+
 ```mermaid
 flowchart LR
   ProductAPI[Product metadata API] --> Metadata[Metadata projection / type-specific mapping]
@@ -11,6 +13,8 @@ flowchart LR
   Verify[Explicit read-only diagnostic jobs] --> Engines
   Verify --> Source[Immutable imported source / expected values]
 ```
+
+## Code structure
 
 ```text
 Catalog.Application/
@@ -29,4 +33,14 @@ Jobs/CatalogImport/PpePricing/Verification/
   PpePricingVerificationJob.cs         # report orchestration only
 ```
 
+## Related sources
+
 [Specification](../../specs/catalog/003-sheet-pricing-parity/cutover/README.md) · [Reconciliation](../../specs/catalog/003-sheet-pricing-parity/cutover/reconciliation.md) · [Release order](../../operations/data/pricing-cutover.md).
+
+## Tests
+
+- `tests/UnitTests/ProductPricingCutoverTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter ProductPricingCutover`.
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)

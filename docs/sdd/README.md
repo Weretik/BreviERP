@@ -5,7 +5,7 @@ This section contains facts and rules specific to BreviERP. For a new task, choo
 | Question | Source |
 | --- | --- |
 | Which modules, hosts, layer boundaries, and execution flows exist? | [Architecture](architecture/README.md) |
-| Which technologies and direct NuGet dependencies are installed? | [Technology stack](architecture/platform/technology-stack.md) and [package catalog](architecture/platform/nuget-packages.md) |
+| Which technologies and direct NuGet dependencies are installed? | [Technology stack](architecture/platform/technology-stack.md) and [NuGet dependency roles](architecture/platform/nuget-packages.md) |
 | Which stable engineering rules apply? | [Standards](standards/README.md) |
 | How do I start, configure, verify, and operate the system? | [Operations](operations/README.md) |
 | Which public HTTP contract is implemented, and what should be handed to frontend? | [API contracts](contracts/README.md) |

@@ -18,7 +18,7 @@
 
 Do not introduce a package to replace an existing project convention without an explicit decision in the feature specification and approval.
 
-The [NuGet package catalog](nuget-packages.md) lists all direct dependencies, their versions, and owning projects. The `.csproj` files define the actual versions; update the catalog in the same change when a dependency changes.
+The [NuGet dependency roles](nuget-packages.md) describe dependency groups and verified usage. Versions are defined only in the `.csproj` files.
 
 ## Tooling Outside NuGet
 

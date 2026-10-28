@@ -4,6 +4,8 @@
 
 One Sewing Product owns sale Articles, shared material/operation norms and Article-specific materials. Effective composition combines shared materials with the selected Article's materials. No new price formula is published by these operations.
 
+## Code structure
+
 ```text
 src/Modules/Catalog/
 ├── Catalog.Api/Catalog.Api/Controllers/
@@ -36,6 +38,8 @@ src/Modules/Catalog/
     └── Migrations/20261024215605_AddSewingComposition.cs              # additive rollout
 ```
 
+## Structure diagram
+
 ```mermaid
 flowchart LR
     API[SewingCompositionController] --> Policies[CatalogRead / CanManageProducts]
@@ -53,10 +57,23 @@ flowchart LR
     ReadEF --> DB
 ```
 
+## Rules and boundaries
+
 The Product version serializes composition changes across all Articles. Validation occurs before mutation; EF maps stale versions and global uniqueness races to conflicts. Reads use projections and bounded aggregate collections. `CatalogProductUsageReader` includes the new lines so Reference delete guards see their use.
 
 Legacy Product editing preserves these records and rejects changes to legacy norms once the new composition is configured. Existing price consumers continue to use the previously accepted behavior until cutover. The composition-only view remains conservative for OtherCost; the new [versioned Article pricing calculation](sewing-pricing.md) validates its Reference-owned cost. Unreviewed required inputs remain blockers in both paths.
 
+## Related sources
+
 [Canonical API](../../contracts/catalog/sewing-composition.openapi.yaml) · [Product feature](products.md) · [Database map](../../architecture/data-model/catalog.md).
 
 [Responsibility audit](../../specs/catalog/002-sewing-articles-and-composition/code-audit/audit.md) · [Structural remediation](../../specs/catalog/004-sewing-composition-structure/README.md). Readiness is assembled from the same projection snapshot as its version and lines, without a second tracked Product load. Both replacement responses use the same Domain policy as GET, so required-review blockers remain visible after a successful save.
+
+## Tests
+
+- `tests/UnitTests/SewingArticleTests.cs`, `tests/UnitTests/SewingComposition*Tests.cs`
+- `tests/IntegrationTests/SewingComposition*Tests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter SewingComposition`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter SewingComposition` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)

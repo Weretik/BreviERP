@@ -47,3 +47,11 @@ flowchart LR
 
 An initial import requires an empty Product catalogue; existing Reference rows are preserved and source-matched fields are updated with a change report. The same snapshot is verified and skipped on a rerun. A different snapshot requires a separate reviewed update workflow. Profile data contains source identity, activity/season/review and nullable PPE supplier offers; it does not synthesize legacy pricing percentages. Line reviews remain unapproved by Brevi users even when the source row is marked reviewed.
 
+## Tests
+
+- `tests/UnitTests/CatalogImportSourceTests.cs`
+- `tests/IntegrationTests/CatalogImportPersistenceTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter CatalogImport`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter CatalogImport` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)
