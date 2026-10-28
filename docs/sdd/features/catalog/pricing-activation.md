@@ -2,6 +2,8 @@
 
 The operational job turns reviewed inputs into current prices through existing Application handlers. The plan/journal are local files, not a second price database. Actor and backup validation belong to Host.Seed; Catalog keeps Domain rules, concurrency, versioning, saved calculations and publication ownership.
 
+## Structure diagram
+
 ```mermaid
 flowchart LR
     Host[Authorized local Host.Seed command] --> Guards[Actor / local target / plan hash / backup]
@@ -14,6 +16,8 @@ flowchart LR
     Publication --> Current
     Preflight --> Journal[Local progress / stable request IDs]
 ```
+
+## Code structure
 
 ```text
 Jobs/SewingPricing/Activation/
@@ -30,6 +34,8 @@ Host.Seed/Jobs/Pricing/Activation/
   ActivationFileGuard.cs                # immutable plan and backup checks
   PricingActivationCommandRunner.cs     # explicit plan/apply configuration and atomic report
 ```
+
+## Rules and boundaries
 
 Every production type has one file. No module/API/project/schema dependency is added; runtime modules do not reference jobs. Numeric values/manual operations are unchanged by review confirmation. Original draft/version/publication history remains. Exclusions are an authorized operational scope, not special Domain formulas. [SDD](../../specs/catalog/003-sheet-pricing-parity/activation/execution.md) · [Operations](../../operations/data/pricing-activation.md) · [Evidence](../../specs/catalog/003-sheet-pricing-parity/activation/execution-evidence.md).
 

@@ -29,7 +29,7 @@ BreviERP is a modular ASP.NET Core backend on .NET 10. It uses Clean Architectur
 ### Need a platform reference
 
 - [Technology stack](platform/technology-stack.md)
-- [Direct NuGet dependency catalog](platform/nuget-packages.md)
+- [NuGet dependency roles](platform/nuget-packages.md)
 - [BuildingBlocks reference](platform/building-blocks/README.md)
 
 ### Need the reason for a long-term decision

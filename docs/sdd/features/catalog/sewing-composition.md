@@ -4,6 +4,8 @@
 
 One Sewing Product owns sale Articles, shared material/operation norms and Article-specific materials. Effective composition combines shared materials with the selected Article's materials. No new price formula is published by these operations.
 
+## Code structure
+
 ```text
 src/Modules/Catalog/
 ├── Catalog.Api/Catalog.Api/Controllers/
@@ -36,6 +38,8 @@ src/Modules/Catalog/
     └── Migrations/20261024215605_AddSewingComposition.cs              # additive rollout
 ```
 
+## Structure diagram
+
 ```mermaid
 flowchart LR
     API[SewingCompositionController] --> Policies[CatalogRead / CanManageProducts]
@@ -53,9 +57,13 @@ flowchart LR
     ReadEF --> DB
 ```
 
+## Rules and boundaries
+
 The Product version serializes composition changes across all Articles. Validation occurs before mutation; EF maps stale versions and global uniqueness races to conflicts. Reads use projections and bounded aggregate collections. `CatalogProductUsageReader` includes the new lines so Reference delete guards see their use.
 
 Legacy Product editing preserves these records and rejects changes to legacy norms once the new composition is configured. Existing price consumers continue to use the previously accepted behavior until cutover. The composition-only view remains conservative for OtherCost; the new [versioned Article pricing calculation](sewing-pricing.md) validates its Reference-owned cost. Unreviewed required inputs remain blockers in both paths.
+
+## Related sources
 
 [Canonical API](../../contracts/catalog/sewing-composition.openapi.yaml) · [Product feature](products.md) · [Database map](../../architecture/data-model/catalog.md).
 
