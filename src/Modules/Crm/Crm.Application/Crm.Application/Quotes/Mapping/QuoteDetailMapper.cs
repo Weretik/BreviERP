@@ -15,7 +15,10 @@ public static class QuoteDetailMapper
         => new(quote.PublicId, version.CustomerPublicId, quote.ContactPublicId, quote.RecipientName,
             quote.Revision, quote.State, quote.Archived, quote.Number, quote.OwnerId.Value,
             quote.CreatedAt, quote.UpdatedAt, canEdit,
-            new QuoteVersionView(version.PublicId, version.VersionNumber, version.Action,
+            MapVersion(version), quote.SourceQuotePublicId, quote.SourceVersionPublicId);
+
+    public static QuoteVersionView MapVersion(QuoteVersion version)
+        => new QuoteVersionView(version.PublicId, version.VersionNumber, version.Action,
                 version.RecipientName, version.CustomerPublicId, version.ContactPublicId,
                 version.Currency, version.TaxBasis, version.ActorId, version.CreatedAt,
                 version.Items.OrderBy(x => x.SortOrder).Select(item =>
@@ -27,5 +30,5 @@ public static class QuoteDetailMapper
                                 JsonSerializer.Deserialize<QuotePricePreview>(variant.PriceBasisJson, JsonOptions)!,
                                 variant.Tiers.Select(tier => new QuoteTierView(
                                     tier.Code, tier.Amount, tier.Visible, tier.Currency)).ToArray())).ToArray()))
-                    .ToArray()));
+                    .ToArray());
 }

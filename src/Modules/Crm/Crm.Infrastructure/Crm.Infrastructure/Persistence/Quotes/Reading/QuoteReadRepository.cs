@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Crm.Infrastructure.Persistence.Quotes.Reading;
 
-public sealed class QuoteReadRepository(CrmDbContext db) : RepositoryBase<Quote>(db), IQuoteReadRepository
+public sealed partial class QuoteReadRepository(CrmDbContext db) : RepositoryBase<Quote>(db), IQuoteReadRepository
 {
     public Task<QuoteVersion?> FindVersionAsync(long id, CancellationToken cancellationToken)
         => db.QuoteVersions.AsNoTracking().AsSplitQuery()

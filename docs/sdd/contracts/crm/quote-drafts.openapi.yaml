@@ -5,6 +5,30 @@ info:
 servers:
   - url: /
 paths:
+  /api/crm/quote-assignees:
+    get:
+      operationId: getCrmQuoteAssignees
+      security: [{ bearerAuth: [] }]
+      description: Bounded eligible unlocked Manager/Admin names for explicit ownership transfer. No email or authentication fields.
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string, maxLength: 200 }
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 1000000, default: 1 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        "200":
+          description: Paged eligible users.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteAssigneePage" }
+        "400": { description: "Invalid search or pagination." }
+        "401": { description: "Authentication required." }
+        "403": { description: "Manager or Admin role required." }
   /api/crm/quotes:
     get:
       operationId: getCrmQuotes
@@ -24,7 +48,20 @@ paths:
         - name: ownerId
           in: query
           schema: { type: integer, minimum: 1 }
+        - name: createdFrom
+          in: query
+          schema: { type: string, format: date-time }
+          description: Inclusive UTC creation instant.
+        - name: createdBefore
+          in: query
+          schema: { type: string, format: date-time }
+          description: Exclusive UTC creation instant.
+        - name: sourceQuoteId
+          in: query
+          schema: { type: string, format: uuid }
+          description: Copies originating from this quote.
         - name: page
+          description: One-based page.
           in: query
           schema: { type: integer, minimum: 1, maximum: 1000000, default: 1 }
         - name: pageSize
@@ -36,9 +73,12 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/CrmQuotePage" }
-        "400": { description: Invalid filter or page. }
-        "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role and numeric actor ID required. }
+        "400": { description: "Invalid filter or page." }
+        "401": { description: "Authentication required." }
+        "403":
+          {
+            description: "Admin or Manager role and numeric actor ID required.",
+          }
     post:
       operationId: createCrmQuote
       security:
@@ -55,11 +95,17 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/CrmQuoteDetail" }
-        "400": { description: Invalid recipient, contact, content or body. }
-        "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role and numeric actor ID required. }
-        "404": { description: Customer missing or inaccessible. }
-        "409": { description: Price basis missing, expired or changed; requestId payload conflict. }
+        "400": { description: "Invalid recipient, contact, content or body." }
+        "401": { description: "Authentication required." }
+        "403":
+          {
+            description: "Admin or Manager role and numeric actor ID required.",
+          }
+        "404": { description: "Customer missing or inaccessible." }
+        "409":
+          {
+            description: "Price basis missing, expired or changed; requestId payload conflict.",
+          }
   /api/crm/quotes/price-previews:
     post:
       operationId: previewCrmQuotePrices
@@ -73,7 +119,8 @@ paths:
         required: true
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/CrmPreviewQuotePricesRequest" }
+            schema:
+              { $ref: "#/components/schemas/CrmPreviewQuotePricesRequest" }
             example:
               requestId: 11111111-1111-4111-8111-111111111111
               quoteId: null
@@ -89,11 +136,18 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/CrmQuotePricePreview" }
-        "400": { description: Invalid kind, reference, amount, reason or body. }
-        "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role and numeric actor ID required. }
-        "404": { description: Bound quote missing or inaccessible. }
-        "409": { description: Bound quote is not editable or requestId payload differs. }
+        "400":
+          { description: "Invalid kind, reference, amount, reason or body." }
+        "401": { description: "Authentication required." }
+        "403":
+          {
+            description: "Admin or Manager role and numeric actor ID required.",
+          }
+        "404": { description: "Bound quote missing or inaccessible." }
+        "409":
+          {
+            description: "Bound quote is not editable or requestId payload differs.",
+          }
   /api/crm/quotes/{quoteId}:
     parameters:
       - name: quoteId
@@ -111,10 +165,33 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/CrmQuoteDetail" }
-        "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role and numeric actor ID required. }
-        "404": { description: Quote missing or inaccessible. }
+        "401": { description: "Authentication required." }
+        "403":
+          {
+            description: "Admin or Manager role and numeric actor ID required.",
+          }
+        "404": { description: "Quote missing or inaccessible." }
   /api/crm/quotes/{quoteId}/versions:
+    get:
+      operationId: getCrmQuoteVersions
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 1000000, default: 1 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        "200":
+          description: Paged immutable version history with parent, action, actor and time.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteVersionPage" }
+        "400": { description: "Invalid pagination." }
+        "401": { description: "Authentication required." }
+        "403": { description: "Manager or Admin required." }
+        "404": { description: "Missing or inaccessible quote." }
     parameters:
       - name: quoteId
         in: path
@@ -139,13 +216,325 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/CrmQuoteDetail" }
-        "400": { description: Invalid content or body. }
-        "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role and numeric actor ID required. }
-        "404": { description: Quote missing or inaccessible. }
-        "409": { description: Revision, source-basis or requestId conflict. }
+        "400": { description: "Invalid content or body." }
+        "401": { description: "Authentication required." }
+        "403":
+          {
+            description: "Admin or Manager role and numeric actor ID required.",
+          }
+        "404": { description: "Quote missing or inaccessible." }
+        "409": { description: "Revision, source-basis or requestId conflict." }
+  /api/crm/quotes/{quoteId}/versions/{versionId}:
+    parameters:
+      - name: quoteId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getCrmQuoteVersion
+      security: [{ bearerAuth: [] }]
+      description: Reads the specified saved version without pricing.
+      parameters:
+        - name: versionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Scoped immutable history.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteVersionView" }
+
+        "400": { description: "Invalid request or pagination." }
+        "401": { description: "Authentication required." }
+        "403": { description: "Admin or Manager role required." }
+        "404": { description: "Missing or inaccessible quote or version." }
+        "409":
+          {
+            description: "Revision, price source, blocked basis or requestId conflict.",
+          }
+  /api/crm/quotes/{quoteId}/events:
+    parameters:
+      - name: quoteId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getCrmQuoteEvents
+      security: [{ bearerAuth: [] }]
+      description: Bounded actor and ownership history under current quote access.
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 1000000, default: 1 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        "200":
+          description: Scoped immutable history.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteEventPage" }
+
+        "400": { description: "Invalid request or pagination." }
+        "401": { description: "Authentication required." }
+        "403": { description: "Admin or Manager role required." }
+        "404": { description: "Missing or inaccessible quote or version." }
+        "409":
+          {
+            description: "Revision, price source, blocked basis or requestId conflict.",
+          }
+  /api/crm/quotes/{quoteId}/reprice:
+    parameters:
+      - name: quoteId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      operationId: repriceCrmQuote
+      security: [{ bearerAuth: [] }]
+      description: Confirms fresh previews for every current variant; exact version and revision required. Blockers abort the whole write.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmRepriceQuoteRequest" }
+      responses:
+        "200":
+          description: Committed result. Identical accessible requestId replay returns original response.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteDetail" }
+
+        "400": { description: "Invalid request or pagination." }
+        "401": { description: "Authentication required." }
+        "403": { description: "Admin or Manager role required." }
+        "404": { description: "Missing or inaccessible quote or version." }
+        "409":
+          {
+            description: "Revision, price source, blocked basis or requestId conflict.",
+          }
+  /api/crm/quotes/{quoteId}/copy:
+    parameters:
+      - name: quoteId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      operationId: copyCrmQuote
+      security: [{ bearerAuth: [] }]
+      description: Copies a selected immutable version to a new draft root owned by the actor without repricing. Number is null pending EN-005 and no delivery event is copied.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmCopyQuoteRequest" }
+      responses:
+        "201":
+          description: Committed result. Identical accessible requestId replay returns original response.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteDetail" }
+
+        "400": { description: "Invalid request or pagination." }
+        "401": { description: "Authentication required." }
+        "403": { description: "Admin or Manager role required." }
+        "404": { description: "Missing or inaccessible quote or version." }
+        "409":
+          {
+            description: "Revision, price source, blocked basis or requestId conflict.",
+          }
+  /api/crm/quotes/{quoteId}/transfer:
+    parameters:
+      - name: quoteId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      operationId: transferCrmQuote
+      security: [{ bearerAuth: [] }]
+      description: Transfers current responsibility to an unlocked Manager or Admin. Former Manager loses access; replay after that loss returns 404 without revealing subsequent data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmTransferQuoteRequest" }
+      responses:
+        "200":
+          description: Committed result. Identical accessible requestId replay returns original response.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteDetail" }
+
+        "400": { description: "Invalid request or pagination." }
+        "401": { description: "Authentication required." }
+        "403": { description: "Admin or Manager role required." }
+        "404": { description: "Missing or inaccessible quote or version." }
+        "409":
+          {
+            description: "Revision, price source, blocked basis or requestId conflict.",
+          }
+  /api/crm/quotes/{quoteId}/archive:
+    parameters:
+      - name: quoteId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    put:
+      operationId: setCrmQuoteArchived
+      security: [{ bearerAuth: [] }]
+      description: Archives or restores without deleting versions. State and monetary history are retained.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmArchiveQuoteRequest" }
+      responses:
+        "200":
+          description: Committed result. Identical accessible requestId replay returns original response.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteDetail" }
+
+        "400": { description: "Invalid request or pagination." }
+        "401": { description: "Authentication required." }
+        "403": { description: "Admin or Manager role required." }
+        "404": { description: "Missing or inaccessible quote or version." }
+        "409":
+          {
+            description: "Revision, price source, blocked basis or requestId conflict.",
+          }
 components:
   schemas:
+    CrmQuoteAssignee:
+      type: object
+      required: [userId, displayName]
+      properties:
+        userId: { type: integer, minimum: 1 }
+        displayName: { type: string }
+    CrmQuoteAssigneePage:
+      type: object
+      required: [value, pagedInfo]
+      properties:
+        value:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteAssignee" }
+        pagedInfo:
+          $ref: ./clients-quotes.openapi.yaml#/components/schemas/CrmPagedInfo
+    CrmCopyQuoteRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, expectedRevision, versionId]
+      properties:
+        requestId: { type: string, format: uuid }
+        expectedRevision: { type: integer, format: int64, minimum: 1 }
+        versionId: { type: string, format: uuid }
+    CrmArchiveQuoteRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, expectedRevision, archived, reason]
+      properties:
+        requestId: { type: string, format: uuid }
+        expectedRevision: { type: integer, format: int64, minimum: 1 }
+        archived: { type: boolean }
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+    CrmTransferQuoteRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, expectedRevision, ownerId, reason]
+      properties:
+        requestId: { type: string, format: uuid }
+        expectedRevision: { type: integer, format: int64, minimum: 1 }
+        ownerId: { type: integer, minimum: 1 }
+        reason: { type: string, minLength: 1, maxLength: 1000 }
+    CrmRepriceQuoteRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, expectedRevision, versionId, bases]
+      properties:
+        requestId: { type: string, format: uuid }
+        expectedRevision: { type: integer, format: int64, minimum: 1 }
+        versionId: { type: string, format: uuid }
+        bases:
+          type: array
+          minItems: 1
+          maxItems: 3000
+          items: { $ref: "#/components/schemas/CrmQuoteRepriceBasis" }
+    CrmQuoteRepriceBasis:
+      type: object
+      additionalProperties: false
+      required: [variantId, basisToken]
+      properties:
+        variantId: { type: string, format: uuid }
+        basisToken: { type: string, format: uuid }
+    CrmQuoteVersionSummary:
+      type: object
+      required:
+        [publicId, versionNumber, action, actorId, createdAt, parentVersionId]
+      properties:
+        publicId: { type: string, format: uuid }
+        versionNumber: { type: integer, minimum: 1 }
+        action: { type: string, enum: [created, edited, recalculated, copied] }
+        actorId: { type: integer, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        parentVersionId: { type: [string, "null"], format: uuid }
+    CrmQuoteEvent:
+      type: object
+      required:
+        [
+          publicId,
+          revision,
+          versionNumber,
+          action,
+          actorId,
+          ownerId,
+          previousOwnerId,
+          reason,
+          createdAt,
+        ]
+      properties:
+        publicId: { type: string, format: uuid }
+        revision: { type: integer, format: int64, minimum: 1 }
+        versionNumber: { type: integer, minimum: 1 }
+        action:
+          {
+            type: string,
+            enum:
+              [
+                created,
+                edited,
+                recalculated,
+                copied,
+                transferred,
+                archived,
+                restored,
+              ],
+          }
+        actorId: { type: integer, minimum: 1 }
+        ownerId: { type: integer, minimum: 1 }
+        previousOwnerId: { type: [integer, "null"], minimum: 1 }
+        reason: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+    CrmQuoteVersionPage:
+      type: object
+      required: [value, pagedInfo]
+      properties:
+        value:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteVersionSummary" }
+        pagedInfo:
+          $ref: ./clients-quotes.openapi.yaml#/components/schemas/CrmPagedInfo
+    CrmQuoteEventPage:
+      type: object
+      required: [value, pagedInfo]
+      properties:
+        value:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteEvent" }
+        pagedInfo:
+          $ref: ./clients-quotes.openapi.yaml#/components/schemas/CrmPagedInfo
     CrmQuotePriceOverride:
       type: object
       additionalProperties: false
@@ -185,7 +574,18 @@ components:
             - { type: "null" }
     CrmQuoteCatalogPrice:
       type: object
-      required: [kind, productId, sourceId, referenceVersionIds, formulaVersion, retail, wholesale, largeWholesale, blockers]
+      required:
+        [
+          kind,
+          productId,
+          sourceId,
+          referenceVersionIds,
+          formulaVersion,
+          retail,
+          wholesale,
+          largeWholesale,
+          blockers,
+        ]
       properties:
         kind: { type: string, enum: [sewing, ppe] }
         productId: { type: integer }
@@ -207,7 +607,18 @@ components:
           items: { type: string }
     CrmQuotePricePreview:
       type: object
-      required: [basisToken, expiresAt, intent, retail, wholesale, largeWholesale, blockers, currency, taxBasis]
+      required:
+        [
+          basisToken,
+          expiresAt,
+          intent,
+          retail,
+          wholesale,
+          largeWholesale,
+          blockers,
+          currency,
+          taxBasis,
+        ]
       properties:
         basisToken: { type: string, format: uuid }
         expiresAt: { type: string, format: date-time }
@@ -223,7 +634,8 @@ components:
           type: array
           items: { type: string }
         currency: { type: string, const: UAH }
-        taxBasis: { type: string, enum: [catalog_no_extra_vat, manual_no_extra_vat] }
+        taxBasis:
+          { type: string, enum: [catalog_no_extra_vat, manual_no_extra_vat] }
     CrmPreviewQuotePricesRequest:
       type: object
       additionalProperties: false
@@ -251,7 +663,8 @@ components:
         visible: { type: boolean }
         priceIntent: { $ref: "#/components/schemas/CrmQuotePriceIntent" }
         basisToken: { type: [string, "null"], format: uuid }
-        tierVisibility: { $ref: "#/components/schemas/CrmQuoteTierVisibilityInput" }
+        tierVisibility:
+          { $ref: "#/components/schemas/CrmQuoteTierVisibilityInput" }
     CrmQuoteItemInput:
       type: object
       additionalProperties: false
@@ -336,11 +749,22 @@ components:
           items: { $ref: "#/components/schemas/CrmQuoteVariantView" }
     CrmQuoteVersionView:
       type: object
-      required: [publicId, versionNumber, action, recipientName, currency, taxBasis, actorId, createdAt, items]
+      required:
+        [
+          publicId,
+          versionNumber,
+          action,
+          recipientName,
+          currency,
+          taxBasis,
+          actorId,
+          createdAt,
+          items,
+        ]
       properties:
         publicId: { type: string, format: uuid }
         versionNumber: { type: integer, minimum: 1 }
-        action: { type: string, enum: [created, edited] }
+        action: { type: string, enum: [created, edited, recalculated, copied] }
         recipientName: { type: string }
         customerPublicId: { type: [string, "null"], format: uuid }
         contactPublicId: { type: [string, "null"], format: uuid }
@@ -353,7 +777,19 @@ components:
           items: { $ref: "#/components/schemas/CrmQuoteItemView" }
     CrmQuoteDetail:
       type: object
-      required: [publicId, recipientName, revision, state, archived, ownerId, createdAt, updatedAt, canEdit, version]
+      required:
+        [
+          publicId,
+          recipientName,
+          revision,
+          state,
+          archived,
+          ownerId,
+          createdAt,
+          updatedAt,
+          canEdit,
+          version,
+        ]
       properties:
         publicId: { type: string, format: uuid }
         customerPublicId: { type: [string, "null"], format: uuid }
@@ -368,9 +804,21 @@ components:
         updatedAt: { type: string, format: date-time }
         canEdit: { type: boolean }
         version: { $ref: "#/components/schemas/CrmQuoteVersionView" }
+        sourceQuoteId: { type: [string, "null"], format: uuid }
+        sourceVersionId: { type: [string, "null"], format: uuid }
     CrmQuoteSummary:
       type: object
-      required: [publicId, recipientName, revision, versionNumber, state, archived, ownerId, updatedAt]
+      required:
+        [
+          publicId,
+          recipientName,
+          revision,
+          versionNumber,
+          state,
+          archived,
+          ownerId,
+          updatedAt,
+        ]
       properties:
         publicId: { type: string, format: uuid }
         recipientName: { type: string }

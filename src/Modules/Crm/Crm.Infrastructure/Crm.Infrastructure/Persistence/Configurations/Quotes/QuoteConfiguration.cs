@@ -35,8 +35,14 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
             .HasPrincipalKey(x => new { x.QuoteId, x.Id })
             .OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(x => x.PublicId).IsUnique();
+        builder.HasOne<QuoteVersion>().WithMany()
+            .HasForeignKey(x => new { x.Id, x.IssuedVersionId })
+            .HasPrincipalKey(x => new { x.QuoteId, x.Id })
+            .OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(x => x.Number).IsUnique().HasFilter("\"Number\" IS NOT NULL");
         builder.HasIndex(x => new { x.OwnerId, x.Archived, x.UpdatedAt, x.Id });
+        builder.HasIndex(x => new { x.SourceQuotePublicId, x.Id });
+        builder.HasIndex(x => new { x.CreatedAt, x.Id });
         builder.Ignore(x => x.DomainEvents);
     }
 }

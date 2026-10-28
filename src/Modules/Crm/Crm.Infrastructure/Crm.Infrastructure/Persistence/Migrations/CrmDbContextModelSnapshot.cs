@@ -214,6 +214,52 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("CustomerExternalIdentities", "crm");
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.Events.QuoteLifecycleEvent", b =>
+                {
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PreviousOwnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<long>("Revision")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PublicId");
+
+                    b.HasIndex("QuoteId", "Revision")
+                        .IsUnique();
+
+                    b.ToTable("QuoteLifecycleEvents", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteLifecycleEvents_Revision", "\"Revision\" > 0 AND \"VersionNumber\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItem", b =>
                 {
                     b.Property<long>("Id")
@@ -327,6 +373,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<long?>("CustomerId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("IssuedVersionId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Number")
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
@@ -345,6 +394,12 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<long>("Revision")
                         .IsConcurrencyToken()
                         .HasColumnType("bigint");
+
+                    b.Property<Guid?>("SourceQuotePublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SourceVersionPublicId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -365,7 +420,13 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasIndex("PublicId")
                         .IsUnique();
 
+                    b.HasIndex("CreatedAt", "Id");
+
                     b.HasIndex("Id", "CurrentVersionId");
+
+                    b.HasIndex("Id", "IssuedVersionId");
+
+                    b.HasIndex("SourceQuotePublicId", "Id");
 
                     b.HasIndex("OwnerId", "Archived", "UpdatedAt", "Id");
 
@@ -677,6 +738,15 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.Events.QuoteLifecycleEvent", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany("History")
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItem", b =>
                 {
                     b.HasOne("Crm.Domain.Quotes.Versions.QuoteVersion", null)
@@ -705,6 +775,12 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasOne("Crm.Domain.Quotes.Versions.QuoteVersion", null)
                         .WithMany()
                         .HasForeignKey("Id", "CurrentVersionId")
+                        .HasPrincipalKey("QuoteId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Crm.Domain.Quotes.Versions.QuoteVersion", null)
+                        .WithMany()
+                        .HasForeignKey("Id", "IssuedVersionId")
                         .HasPrincipalKey("QuoteId", "Id")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
@@ -748,6 +824,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItem", b =>
                 {
                     b.Navigation("Variants");
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Quote", b =>
+                {
+                    b.Navigation("History");
                 });
 
             modelBuilder.Entity("Crm.Domain.Quotes.Variants.QuoteVariant", b =>

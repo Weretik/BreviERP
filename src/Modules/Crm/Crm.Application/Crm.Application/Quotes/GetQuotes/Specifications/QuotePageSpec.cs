@@ -9,8 +9,11 @@ namespace Crm.Application.Quotes.GetQuotes.Specifications;
 public sealed class QuotePageSpec : Specification<Quote, QuoteSummary>
 {
     public QuotePageSpec(CrmActor actor, string? search, string? state, bool? archived,
-        int? ownerId, int page, int pageSize)
+        int? ownerId, int page, int pageSize,
+        DateTimeOffset? createdFrom = null, DateTimeOffset? createdBefore = null, Guid? sourceQuoteId = null)
     {
+        createdFrom = createdFrom?.ToUniversalTime();
+        createdBefore = createdBefore?.ToUniversalTime();
         Query.AsNoTracking().Where(x => actor.IsAdmin || x.OwnerId == new CrmUserId(actor.UserId));
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -21,6 +24,9 @@ public sealed class QuotePageSpec : Specification<Quote, QuoteSummary>
         if (state is not null) Query.Where(x => x.State == state);
         if (archived is not null) Query.Where(x => x.Archived == archived);
         if (ownerId is not null) Query.Where(x => x.OwnerId == new CrmUserId(ownerId.Value));
+        if (createdFrom is not null) Query.Where(x => x.CreatedAt >= createdFrom);
+        if (createdBefore is not null) Query.Where(x => x.CreatedAt < createdBefore);
+        if (sourceQuoteId is not null) Query.Where(x => x.SourceQuotePublicId == sourceQuoteId);
         Query.OrderByDescending(x => x.UpdatedAt).ThenBy(x => x.PublicId)
             .Skip((page - 1) * pageSize).Take(pageSize);
         Query.Select(x => new QuoteSummary(x.PublicId, x.RecipientName, x.Revision,

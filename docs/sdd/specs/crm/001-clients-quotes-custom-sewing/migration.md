@@ -13,15 +13,15 @@ The workbook's five quote tabs are header-only; do not schedule an import of non
 
 ## Ordered execution
 
-| Step | Transfer | Reconciliation and stop condition |
-| --- | --- | --- |
-| M0 | Backup target database and private storage; dry-run manifest | Verify target/environment, restore procedure, schema version, candidate counts, access and mapping gates |
-| M1 | Role-filtered customers/contacts/source identities | Every input has imported/already-mapped/needs-review/excluded status; duplicate source keys stop affected batch |
-| M2 | Private file bytes + custom versions/dependencies | Hash/size/MIME/owner/visibility match; missing byte state explicit; no usable-file claim from metadata |
-| M3 | Quote roots, versions, items, variants, calculation lines, overrides | Exact parent/version graph, source number collision report, ordered children and original monetary values; missing mandatory graphs quarantined |
-| M4 | Transfer/change events, inert email history and document artifacts | Timestamps/actors/source hashes retained; no pending send and no current-master recalculation |
-| M5 | Rebuild scoped search projection | Search/count respects access; source search index is not copied as history |
-| M6 | Reconciliation report and controlled activation | All row/file counts classified, no unresolved required FK, sampled public PDF/content parity, restore rehearsal and accepted gap ledger |
+| Step | Transfer                                                             | Reconciliation and stop condition                                                                                                               |
+| ---- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0   | Backup target database and private storage; dry-run manifest         | Verify target/environment, restore procedure, schema version, candidate counts, access and mapping gates                                        |
+| M1   | Role-filtered customers/contacts/source identities                   | Every input has imported/already-mapped/needs-review/excluded status; duplicate source keys stop affected batch                                 |
+| M2   | Private file bytes + custom versions/dependencies                    | Hash/size/MIME/owner/visibility match; missing byte state explicit; no usable-file claim from metadata                                          |
+| M3   | Quote roots, versions, items, variants, calculation lines, overrides | Exact parent/version graph, source number collision report, ordered children and original monetary values; missing mandatory graphs quarantined |
+| M4   | Transfer/change events, inert email history and document artifacts   | Timestamps/actors/source hashes retained; no pending send and no current-master recalculation                                                   |
+| M5   | Rebuild scoped search projection                                     | Search/count respects access; source search index is not copied as history                                                                      |
+| M6   | Reconciliation report and controlled activation                      | All row/file counts classified, no unresolved required FK, sampled public PDF/content parity, restore rehearsal and accepted gap ledger         |
 
 Process bounded transactions per graph, not an all-tables transaction or unbounded load. SourceMappings are unique `(sourceDataset,sourceEntity,sourceId)`; same source key/hash replays as a no-op. Changed source payload is a review conflict, not overwrite of an issued target version. Failed batch does not commit a half quote. Record per-run created IDs for a reversible pre-activation import. A quote imported with incomplete parts is visible only as explicitly read-only/incomplete history if the accepted gap policy permits; it cannot be treated as newly ready or sent.
 
@@ -32,6 +32,8 @@ For each dataset: source manifest count = staged count; staged = imported + alre
 SC-M01: given staged mixed-role counterparties and exact mappings, when dry-run/import repeats, then only clients are created once, no supplier-only duplicates, changes conflict visibly. SC-M02: given missing quote children/blob bytes, when reconciling, then records are quarantined or explicitly incomplete, with no fabricated prices/files/sends. SC-M03: given a successful import batch and backup, when rollback rehearses, then target-owned existing Catalog/Reference/client changes and prior issued history survive, restored bytes/hash/counts match.
 
 ## Rollout
+
+P3 adds `20261028000852_AddQuoteLifecycle` (nullable copy provenance, creation/source indexes, append-only event table/trigger) then `20261028001043_PreserveIssuedQuoteVersion` (nullable issued-version pointer and restrictive composite FK/index). Apply both through Host.Seed before P3 API/UI activation. Existing versions and numeric/tax snapshots are not rewritten; historical actions remain available in QuoteVersions and no historical transfer is fabricated. Verify fresh migration, repeat no-op and upgrade from P2 in disposable databases. Down removes P3 audit/provenance and issued pointers, so it is only for disposable rehearsal; after use prefer disabling the new UI/actions and forward recovery or coordinated backup restore. No shared/production database was migrated in this task.
 
 Apply additive Crm migrations in an isolated test database first. Deploy API/contract before enabling each frontend slice. Use existing authorized admin access and a capability/route availability mechanism selected under EN-001; do not invent a new configuration framework. Enable clients, then draft quotes, then custom sewing, then verified ready/PDF, then explicitly configured sending. Historical import activates separately after M6. Monitor denied requests, revision conflicts, render/outbox failures and import unresolved counts without leaking payloads.
 

@@ -29,7 +29,7 @@ public sealed class QuoteVersion
         int actorId, IEnumerable<QuoteItem> items)
     {
         if (quoteId.Value <= 0 || number <= 0 || actorId <= 0 ||
-            action is not ("created" or "edited"))
+            action is not ("created" or "edited" or "recalculated" or "copied"))
             throw new QuoteValidationException("invalid_version");
         var version = new QuoteVersion
         {

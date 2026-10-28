@@ -1,5 +1,6 @@
 using Crm.Infrastructure.DependencyInjection;
 using Crm.Application.Quotes.Pricing;
+using Crm.Application.Quotes.Ownership;
 using Host.Api.Crm;
 using Accounting.Infrastructure.DependencyInjection;
 using Catalog.Api.DependencyInjection;
@@ -31,6 +32,7 @@ public static class ModuleRegistrationsExtensions
         services.AddCatalogApiOptions(configuration);
         services.AddCrmDbContextServices(configuration);
         services.AddScoped<IQuoteCatalogPriceReader, QuoteCatalogPriceReader>();
+        services.AddScoped<IQuoteAssigneeReader, QuoteAssigneeReader>();
         services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();

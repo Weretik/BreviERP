@@ -15,12 +15,14 @@ public sealed class GetQuotesQueryHandler(IQuoteReadRepository repository)
         if (query.Actor.UserId <= 0 || query.Page is < 1 or > 1_000_000 ||
             query.PageSize is < 1 or > 100 || query.Search?.Length > 300 ||
             query.State is not (null or "draft" or "ready" or "sent") ||
-            query.OwnerId is <= 0)
+            query.OwnerId is <= 0 || query.SourceQuoteId == Guid.Empty ||
+            (query.CreatedFrom is not null && query.CreatedBefore is not null && query.CreatedFrom >= query.CreatedBefore))
             throw new ArgumentOutOfRangeException(nameof(query), "invalid_pagination_or_filter");
         var count = await repository.CountAsync(new QuoteCountSpec(query.Actor, query.Search,
-            query.State, query.Archived, query.OwnerId), cancellationToken);
+            query.State, query.Archived, query.OwnerId, query.CreatedFrom, query.CreatedBefore, query.SourceQuoteId), cancellationToken);
         var rows = await repository.ListAsync(new QuotePageSpec(query.Actor, query.Search,
-            query.State, query.Archived, query.OwnerId, query.Page, query.PageSize), cancellationToken);
+            query.State, query.Archived, query.OwnerId, query.Page, query.PageSize,
+            query.CreatedFrom, query.CreatedBefore, query.SourceQuoteId), cancellationToken);
         return new PagedResult<IReadOnlyList<QuoteSummary>>(new PagedInfo(
             query.Page, query.PageSize, (long)Math.Ceiling(count / (double)query.PageSize), count), rows);
     }

@@ -1,5 +1,7 @@
 # Backend boundaries and planned file map
 
+P3 implementation detail: transfer uses bounded `getCrmQuoteAssignees` name search, returning only eligible unlocked Manager/Admin IDs and display names through an Application port and Host Identity adapter. Crm does not reference Identity persistence. Reprice confirmation carries the current version/revision and all variant tokens from existing explicit previews; server copies the saved nonprice graph and accepts no replacement content. [TS-005 evidence](../evidence/ts-005-2026-10-28.md).
+
 Follow [layer rules](../../../../standards/backend-rules.md), [database rules](../../../../standards/database-rules.md) and [ID strategy](../../../../standards/identifier-strategy.md). Crm already exists; this feature does not introduce a new Sales module. Paths below are **planned**, except explicitly marked existing.
 
 ```mermaid
@@ -28,23 +30,23 @@ flowchart LR
 
 `src/Modules/Crm/Crm.<Layer>/Crm.<Layer>/` is the existing project root pattern.
 
-| Path under project root | Responsibility | Scenarios |
-| --- | --- | --- |
-| Domain/`Customers/Customer.cs`, `Contacts/CustomerContact.cs`, respective `Identifiers/` and `ValueObjects/` | Each entity/value object in its own matching file; customer/contact invariants | SC-C01–05 |
-| Domain/`Quotes/Quote.cs`, `Versions/QuoteVersion.cs`, `Items/QuoteItem.cs`, `Variants/QuoteVariant.cs` | Root lifecycle, immutable version, one item and one variant; no mega aggregate file | SC-Q01–05 |
-| Domain/`Quotes/Pricing/`, `Quotes/Ownership/`, `Quotes/Events/` | Snapshot values, override/transfer invariants, typed events, each primary type separate | SC-Q02–07 |
-| Domain/`CustomSewing/{Drafts,Versions,Composition,Attachments,Templates}/` | Private configuration/version, line and visibility rules | SC-S01–05 |
-| Domain/`Documents/{Issuer,Artifacts}/`, `Delivery/` | Issuer version, PDF metadata and delivery state | SC-D01–04 |
-| Application/`Customers/{CreateCustomer,GetCustomers,GetCustomer,ReviseCustomer,MergeCustomers}/` | One CQRS scenario per folder, command/query, handler, validator and DTO each own file | SC-C01–05 |
-| Application/`Quotes/{CreateQuote,SaveQuoteVersion,GetQuotes,GetQuote,PreviewQuotePrices,RepriceQuote,CopyQuote,TransferQuote,ArchiveQuote,PrepareQuote}/` | Independent orchestration, no all-purpose QuoteService | SC-Q01–07 |
-| Application/`CustomSewing/{SaveDraft,Calculate,SaveVersion,GetSuggestions,ApplyTemplate,ExportProductionPackage}/` | One custom use case per folder | SC-S01–06 |
-| Application/`Documents/{ReviseIssuer,RenderQuotePdf,GetQuoteArtifact}/`, `Delivery/{EnqueueQuote,GetDeliveries}/` | Separate document/delivery operations | SC-D01–04 |
-| Application/`Abstractions/{Pricing,Identity,Files,Documents,Delivery,Persistence}/` | Only concrete required ports, one interface per file | Cross-module scenarios |
-| Infrastructure/`Persistence/{CrmDbContext.cs,Configurations,Converters,Migrations}/` | EF mapping and migrations; one entity configuration per file | Persistence |
-| Infrastructure/`Documents/`, `Delivery/`, `Files/`, `Imports/{Staging,Mapping,Reconciliation}/` | Renderer, worker/provider, private storage, isolated import adapters | SC-D*, SC-M* |
-| Api/`Customers/`, `Quotes/`, `CustomSewing/`, `Documents/` | Thin controllers and individual request/response mapping files | HTTP |
-| `src/Bootstrapper/Host/.../Crm/` (exact host folder selected in EN-001) | DI and cross-module port adapters; no business formulas | Integration |
-| `tests/{UnitTests,IntegrationTests,ArchitectureTests}/Crm/` | Existing test projects extended by scenario, not new ad hoc test harness | All |
+| Path under project root                                                                                                                                   | Responsibility                                                                          | Scenarios              |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------- |
+| Domain/`Customers/Customer.cs`, `Contacts/CustomerContact.cs`, respective `Identifiers/` and `ValueObjects/`                                              | Each entity/value object in its own matching file; customer/contact invariants          | SC-C01–05              |
+| Domain/`Quotes/Quote.cs`, `Versions/QuoteVersion.cs`, `Items/QuoteItem.cs`, `Variants/QuoteVariant.cs`                                                    | Root lifecycle, immutable version, one item and one variant; no mega aggregate file     | SC-Q01–05              |
+| Domain/`Quotes/Pricing/`, `Quotes/Ownership/`, `Quotes/Events/`                                                                                           | Snapshot values, override/transfer invariants, typed events, each primary type separate | SC-Q02–07              |
+| Domain/`CustomSewing/{Drafts,Versions,Composition,Attachments,Templates}/`                                                                                | Private configuration/version, line and visibility rules                                | SC-S01–05              |
+| Domain/`Documents/{Issuer,Artifacts}/`, `Delivery/`                                                                                                       | Issuer version, PDF metadata and delivery state                                         | SC-D01–04              |
+| Application/`Customers/{CreateCustomer,GetCustomers,GetCustomer,ReviseCustomer,MergeCustomers}/`                                                          | One CQRS scenario per folder, command/query, handler, validator and DTO each own file   | SC-C01–05              |
+| Application/`Quotes/{CreateQuote,SaveQuoteVersion,GetQuotes,GetQuote,PreviewQuotePrices,RepriceQuote,CopyQuote,TransferQuote,ArchiveQuote,PrepareQuote}/` | Independent orchestration, no all-purpose QuoteService                                  | SC-Q01–07              |
+| Application/`CustomSewing/{SaveDraft,Calculate,SaveVersion,GetSuggestions,ApplyTemplate,ExportProductionPackage}/`                                        | One custom use case per folder                                                          | SC-S01–06              |
+| Application/`Documents/{ReviseIssuer,RenderQuotePdf,GetQuoteArtifact}/`, `Delivery/{EnqueueQuote,GetDeliveries}/`                                         | Separate document/delivery operations                                                   | SC-D01–04              |
+| Application/`Abstractions/{Pricing,Identity,Files,Documents,Delivery,Persistence}/`                                                                       | Only concrete required ports, one interface per file                                    | Cross-module scenarios |
+| Infrastructure/`Persistence/{CrmDbContext.cs,Configurations,Converters,Migrations}/`                                                                      | EF mapping and migrations; one entity configuration per file                            | Persistence            |
+| Infrastructure/`Documents/`, `Delivery/`, `Files/`, `Imports/{Staging,Mapping,Reconciliation}/`                                                           | Renderer, worker/provider, private storage, isolated import adapters                    | SC-D*, SC-M*           |
+| Api/`Customers/`, `Quotes/`, `CustomSewing/`, `Documents/`                                                                                                | Thin controllers and individual request/response mapping files                          | HTTP                   |
+| `src/Bootstrapper/Host/.../Crm/` (exact host folder selected in EN-001)                                                                                   | DI and cross-module port adapters; no business formulas                                 | Integration            |
+| `tests/{UnitTests,IntegrationTests,ArchitectureTests}/Crm/`                                                                                               | Existing test projects extended by scenario, not new ad hoc test harness                | All                    |
 
 Use case EF read specifications live in `<UseCase>/Specifications/`, e.g. `GetCustomers/Specifications/CustomersPageSpec.cs`; do not use one generic shared Specifications directory. Paged reads use SQL projection with Ardalis.Specification and `PagedResult<IReadOnlyList<T>>`. Cross-cutting authentication/errors stay in existing pipelines. Pass CancellationToken throughout.
 

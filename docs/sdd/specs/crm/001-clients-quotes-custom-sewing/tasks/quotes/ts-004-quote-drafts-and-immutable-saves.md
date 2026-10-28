@@ -1,6 +1,6 @@
 # TS-004 — Quote drafts and immutable saves
 
-**Status:** implemented locally on backend; frontend integration and manual acceptance pending. See [P2 evidence](../../evidence/p2-quote-backend-2026-10-26.md). **Covers:** SC-Q01, SC-Q03–04, SC-Q06–07. **Depends on:** TS-002, TS-003.
+**Status:** backend and matching frontend draft slice implemented locally; automated checks verified, manual acceptance pending. See [backend evidence](../../evidence/p2-quote-backend-2026-10-26.md) and [handoff](../../evidence/p2-handoff-2026-10-27.md). **Covers:** P2 portions of SC-Q01, SC-Q03–04, SC-Q06–07. **Depends on:** TS-002, TS-003.
 
 ## Paths and one responsibility
 

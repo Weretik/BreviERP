@@ -7,5 +7,6 @@ namespace Crm.Application.Quotes.GetQuotes;
 
 public sealed record GetQuotesQuery(
     CrmActor Actor, string? Search, string? State, bool? Archived,
-    int? OwnerId, int Page, int PageSize)
+    int? OwnerId, int Page, int PageSize,
+    DateTimeOffset? CreatedFrom = null, DateTimeOffset? CreatedBefore = null, Guid? SourceQuoteId = null)
     : IQuery<PagedResult<IReadOnlyList<QuoteSummary>>>;

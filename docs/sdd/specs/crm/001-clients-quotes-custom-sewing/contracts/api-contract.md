@@ -1,6 +1,6 @@
 # Proposed public and internal contracts
 
-**Local contract status:** seven customer/contact/merge operations are implemented in canonical [client OpenAPI](../../../../contracts/crm/clients-quotes.openapi.yaml); five P2 draft-quote operations are implemented in [quote OpenAPI](../../../../contracts/crm/quote-drafts.openapi.yaml) and registered in the [aggregate](../../../../contracts/openapi.yaml). Later quote lifecycle/custom/document operations below remain proposed. Their operation IDs are reserved by this SDD, not claims of existing endpoints. Implemented schemas use nested input DTOs, server-owned actor, requestId and expectedRevision where applicable. Invalid input maps to 400 under existing Result mapping; no new 422 middleware was introduced. These local contracts have not been pinned to a frontend-consumable backend commit.
+**Local contract status:** seven customer/contact/merge operations are implemented in canonical [client OpenAPI](../../../../contracts/crm/clients-quotes.openapi.yaml); five P2 draft-quote operations are implemented in [quote OpenAPI](../../../../contracts/crm/quote-drafts.openapi.yaml) and registered in the [aggregate](../../../../contracts/openapi.yaml). Later quote lifecycle/custom/document operations below remain proposed. Their operation IDs are reserved by this SDD, not claims of existing endpoints. Implemented schemas use nested input DTOs, server-owned actor, requestId and expectedRevision where applicable. Invalid input maps to 400 under existing Result mapping; no new 422 middleware was introduced. The frontend snapshot pins these contracts at `1c1f51dc7837f3d5e3a0da7326cb17b48d23e4d9`; see [handoff](../evidence/p2-handoff-2026-10-27.md).
 
 ## Existing dependencies
 
@@ -17,50 +17,49 @@ The P2 [basis protocol design](../design/quote-preview-protocol.md) owns token b
 
 Paths below are proposed under `/api/crm`. All resource IDs in URLs are PublicId UUIDs. Literal routes (`suggestions`, `price-previews`) must not conflict with parameter routes; constrain UUID route parameters. One implementation task may contain several transport operations for a single capability; each command/query/handler still has one primary responsibility.
 
-| Method | Proposed path | Proposed operationId | Boundary shape | Owner task | Scenarios |
-| --- | --- | --- | --- | --- | --- |
-| GET | `/api/crm/customers` | `getCrmCustomers` | CustomerListQuery → paged CustomerSummary | TS-002 | SC-C01, SC-C04 |
-| POST | `/api/crm/customers` | `createCrmCustomer` | CreateCustomerRequest → CustomerDetail | TS-002 | SC-C01, SC-C02 |
-| GET | `/api/crm/customers/{customerId}` | `getCrmCustomer` | PublicId → CustomerDetail | TS-002 | SC-C01, SC-C04 |
-| PUT | `/api/crm/customers/{customerId}` | `reviseCrmCustomer` | ReviseCustomerRequest → CustomerDetail | TS-002 | SC-C03, SC-C04 |
-| POST | `/api/crm/customers/{customerId}/contacts` | `createCrmCustomerContact` | CreateContactRequest → ContactDetail | TS-002 | SC-C01, SC-C03 |
-| PUT | `/api/crm/customers/{customerId}/contacts/{contactId}` | `reviseCrmCustomerContact` | ReviseContactRequest → ContactDetail | TS-002 | SC-C03 |
-| POST | `/api/crm/customers/{customerId}/merge` | `mergeCrmCustomers` | MergeCustomersRequest → CustomerDetail | TS-002 | SC-C05 |
-| GET | `/api/crm/quotes` | `getCrmQuotes` | QuoteListQuery → paged QuoteSummary | TS-004 | SC-Q05 |
-| POST | `/api/crm/quotes` | `createCrmQuote` | CreateQuoteRequest → QuoteDetail | TS-004 | SC-Q01 |
-| GET | `/api/crm/quotes/{quoteId}` | `getCrmQuote` | PublicId → QuoteDetail + capabilities | TS-004 | SC-Q01, SC-Q05 |
-| POST | `/api/crm/quotes/price-previews` | `previewCrmQuotePrices` | QuotePriceInput → PricePreview/basisToken/blockers | TS-003 | SC-Q02, SC-Q03, SC-Q07 |
-| POST | `/api/crm/quotes/{quoteId}/versions` | `saveCrmQuoteVersion` | SaveQuoteVersionRequest → QuoteDetail | TS-004 | SC-Q01, SC-Q03, SC-Q04 |
-| GET | `/api/crm/quotes/{quoteId}/versions` | `getCrmQuoteVersions` | VersionListQuery → paged VersionSummary | TS-005 | SC-Q02, SC-Q05 |
-| GET | `/api/crm/quotes/{quoteId}/versions/{versionId}` | `getCrmQuoteVersion` | Version PublicId → QuoteVersionDetail | TS-005 | SC-Q02 |
-| POST | `/api/crm/quotes/{quoteId}/reprice` | `repriceCrmQuote` | Confirmed preview token + expectedRevision → new version | TS-005 | SC-Q02, SC-Q04 |
-| POST | `/api/crm/quotes/{quoteId}/copy` | `copyCrmQuote` | CopyQuoteRequest → new QuoteDetail | TS-005 | SC-Q05 |
-| POST | `/api/crm/quotes/{quoteId}/transfer` | `transferCrmQuote` | TransferQuoteRequest → QuoteDetail | TS-005 | SC-Q05 |
-| PUT | `/api/crm/quotes/{quoteId}/archive` | `setCrmQuoteArchived` | Archived boolean + reason → QuoteDetail | TS-005 | SC-Q05 |
-| POST | `/api/crm/quotes/{quoteId}/ready` | `prepareCrmQuote` | Pinned version + expectedRevision → QuoteDetail | TS-010 | SC-D01, SC-Q07 |
-| GET | `/api/crm/custom-sewing` | `getCrmCustomSewingDrafts` | Scoped list query → paged CustomDraftSummary | TS-006 | SC-S01 |
-| POST | `/api/crm/custom-sewing` | `createCrmCustomSewingDraft` | CreateCustomDraftRequest → CustomDraftDetail | TS-006 | SC-S01 |
-| GET | `/api/crm/custom-sewing/{draftId}` | `getCrmCustomSewingDraft` | PublicId → CustomDraftDetail | TS-006 | SC-S03 |
-| PUT | `/api/crm/custom-sewing/{draftId}` | `saveCrmCustomSewingDraft` | Custom configuration + revision → draft | TS-006 | SC-S01, SC-S03 |
-| POST | `/api/crm/custom-sewing/{draftId}/calculations` | `calculateCrmCustomSewing` | Selections/revision → price basis/blockers | TS-006 | SC-S01, SC-S02 |
-| POST | `/api/crm/custom-sewing/{draftId}/versions` | `saveCrmCustomSewingVersion` | basis token/revision → immutable version | TS-006 | SC-S03 |
-| GET | `/api/crm/custom-sewing/suggestions` | `getCrmSewingSuggestions` | Type/season → IDs/norms/confidence | TS-008 | SC-S04 |
-| GET | `/api/crm/quote-templates` | `getCrmQuoteTemplates` | List query → paged TemplateSummary | TS-008 | SC-S04 |
-| POST | `/api/crm/quote-templates` | `createCrmQuoteTemplate` | Selections/introduction → TemplateDetail | TS-008 | SC-S04 |
-| PUT | `/api/crm/quote-templates/{templateId}` | `reviseCrmQuoteTemplate` | Template/revision → new TemplateVersion | TS-008 | SC-S04 |
-| POST | `/api/crm/quote-templates/{templateId}/apply` | `applyCrmQuoteTemplate` | Version/target kind → new quote or private custom draft | TS-008 | SC-S04 |
-| POST | `/api/crm/files` | `uploadCrmPrivateFile` | Multipart file + owner/requestId → validated PrivateFile | TS-007 | SC-S05 |
-| GET | `/api/crm/files/{fileId}/content` | `getCrmPrivateFileContent` | Scoped file PublicId → private bytes | TS-007 | SC-S05, SC-D04 |
-| GET | `/api/crm/issuer-settings` | `getCrmIssuerSettings` | Approved active version → IssuerDetail | TS-009 | SC-D01 |
-| POST | `/api/crm/issuer-settings/versions` | `createCrmIssuerSettingsVersion` | Verified settings → version | TS-009 | SC-D01 |
-| PUT | `/api/crm/issuer-settings/active` | `activateCrmIssuerSettings` | Version/revision → active settings | TS-009 | SC-D01 |
-| POST | `/api/crm/quotes/{quoteId}/documents` | `renderCrmQuoteDocument` | Version/template/render options → artifact/status | TS-010 | SC-D02, SC-D04 |
-| GET | `/api/crm/quotes/{quoteId}/documents/{artifactId}` | `getCrmQuoteDocument` | Scoped artifact → status/metadata | TS-010 | SC-D02 |
-| GET | `/api/crm/quotes/{quoteId}/documents/{artifactId}/content` | `downloadCrmQuoteDocument` | Scoped artifact → private application/pdf bytes | TS-010 | SC-D02, SC-D04 |
-| POST | `/api/crm/quotes/{quoteId}/deliveries` | `enqueueCrmQuoteDelivery` | Version/PDF/explicit recipient → DeliveryDetail | TS-011 | SC-D03 |
-| GET | `/api/crm/quotes/{quoteId}/deliveries` | `getCrmQuoteDeliveries` | List query → paged DeliveryDetail | TS-011 | SC-D03 |
-| POST | `/api/crm/quotes/{quoteId}/production-packages` | `exportCrmProductionPackage` | Pinned version/selected variants → Package artifact | TS-012 | SC-S06 |
-
+| Method | Proposed path                                              | Proposed operationId             | Boundary shape                                           | Owner task | Scenarios              |
+| ------ | ---------------------------------------------------------- | -------------------------------- | -------------------------------------------------------- | ---------- | ---------------------- |
+| GET    | `/api/crm/customers`                                       | `getCrmCustomers`                | CustomerListQuery → paged CustomerSummary                | TS-002     | SC-C01, SC-C04         |
+| POST   | `/api/crm/customers`                                       | `createCrmCustomer`              | CreateCustomerRequest → CustomerDetail                   | TS-002     | SC-C01, SC-C02         |
+| GET    | `/api/crm/customers/{customerId}`                          | `getCrmCustomer`                 | PublicId → CustomerDetail                                | TS-002     | SC-C01, SC-C04         |
+| PUT    | `/api/crm/customers/{customerId}`                          | `reviseCrmCustomer`              | ReviseCustomerRequest → CustomerDetail                   | TS-002     | SC-C03, SC-C04         |
+| POST   | `/api/crm/customers/{customerId}/contacts`                 | `createCrmCustomerContact`       | CreateContactRequest → ContactDetail                     | TS-002     | SC-C01, SC-C03         |
+| PUT    | `/api/crm/customers/{customerId}/contacts/{contactId}`     | `reviseCrmCustomerContact`       | ReviseContactRequest → ContactDetail                     | TS-002     | SC-C03                 |
+| POST   | `/api/crm/customers/{customerId}/merge`                    | `mergeCrmCustomers`              | MergeCustomersRequest → CustomerDetail                   | TS-002     | SC-C05                 |
+| GET    | `/api/crm/quotes`                                          | `getCrmQuotes`                   | QuoteListQuery → paged QuoteSummary                      | TS-004     | SC-Q05                 |
+| POST   | `/api/crm/quotes`                                          | `createCrmQuote`                 | CreateQuoteRequest → QuoteDetail                         | TS-004     | SC-Q01                 |
+| GET    | `/api/crm/quotes/{quoteId}`                                | `getCrmQuote`                    | PublicId → QuoteDetail + capabilities                    | TS-004     | SC-Q01, SC-Q05         |
+| POST   | `/api/crm/quotes/price-previews`                           | `previewCrmQuotePrices`          | QuotePriceInput → PricePreview/basisToken/blockers       | TS-003     | SC-Q02, SC-Q03, SC-Q07 |
+| POST   | `/api/crm/quotes/{quoteId}/versions`                       | `saveCrmQuoteVersion`            | SaveQuoteVersionRequest → QuoteDetail                    | TS-004     | SC-Q01, SC-Q03, SC-Q04 |
+| GET    | `/api/crm/quotes/{quoteId}/versions`                       | `getCrmQuoteVersions`            | VersionListQuery → paged VersionSummary                  | TS-005     | SC-Q02, SC-Q05         |
+| GET    | `/api/crm/quotes/{quoteId}/versions/{versionId}`           | `getCrmQuoteVersion`             | Version PublicId → QuoteVersionDetail                    | TS-005     | SC-Q02                 |
+| POST   | `/api/crm/quotes/{quoteId}/reprice`                        | `repriceCrmQuote`                | Confirmed preview token + expectedRevision → new version | TS-005     | SC-Q02, SC-Q04         |
+| POST   | `/api/crm/quotes/{quoteId}/copy`                           | `copyCrmQuote`                   | CopyQuoteRequest → new QuoteDetail                       | TS-005     | SC-Q05                 |
+| POST   | `/api/crm/quotes/{quoteId}/transfer`                       | `transferCrmQuote`               | TransferQuoteRequest → QuoteDetail                       | TS-005     | SC-Q05                 |
+| PUT    | `/api/crm/quotes/{quoteId}/archive`                        | `setCrmQuoteArchived`            | Archived boolean + reason → QuoteDetail                  | TS-005     | SC-Q05                 |
+| POST   | `/api/crm/quotes/{quoteId}/ready`                          | `prepareCrmQuote`                | Pinned version + expectedRevision → QuoteDetail          | TS-010     | SC-D01, SC-Q07         |
+| GET    | `/api/crm/custom-sewing`                                   | `getCrmCustomSewingDrafts`       | Scoped list query → paged CustomDraftSummary             | TS-006     | SC-S01                 |
+| POST   | `/api/crm/custom-sewing`                                   | `createCrmCustomSewingDraft`     | CreateCustomDraftRequest → CustomDraftDetail             | TS-006     | SC-S01                 |
+| GET    | `/api/crm/custom-sewing/{draftId}`                         | `getCrmCustomSewingDraft`        | PublicId → CustomDraftDetail                             | TS-006     | SC-S03                 |
+| PUT    | `/api/crm/custom-sewing/{draftId}`                         | `saveCrmCustomSewingDraft`       | Custom configuration + revision → draft                  | TS-006     | SC-S01, SC-S03         |
+| POST   | `/api/crm/custom-sewing/{draftId}/calculations`            | `calculateCrmCustomSewing`       | Selections/revision → price basis/blockers               | TS-006     | SC-S01, SC-S02         |
+| POST   | `/api/crm/custom-sewing/{draftId}/versions`                | `saveCrmCustomSewingVersion`     | basis token/revision → immutable version                 | TS-006     | SC-S03                 |
+| GET    | `/api/crm/custom-sewing/suggestions`                       | `getCrmSewingSuggestions`        | Type/season → IDs/norms/confidence                       | TS-008     | SC-S04                 |
+| GET    | `/api/crm/quote-templates`                                 | `getCrmQuoteTemplates`           | List query → paged TemplateSummary                       | TS-008     | SC-S04                 |
+| POST   | `/api/crm/quote-templates`                                 | `createCrmQuoteTemplate`         | Selections/introduction → TemplateDetail                 | TS-008     | SC-S04                 |
+| PUT    | `/api/crm/quote-templates/{templateId}`                    | `reviseCrmQuoteTemplate`         | Template/revision → new TemplateVersion                  | TS-008     | SC-S04                 |
+| POST   | `/api/crm/quote-templates/{templateId}/apply`              | `applyCrmQuoteTemplate`          | Version/target kind → new quote or private custom draft  | TS-008     | SC-S04                 |
+| POST   | `/api/crm/files`                                           | `uploadCrmPrivateFile`           | Multipart file + owner/requestId → validated PrivateFile | TS-007     | SC-S05                 |
+| GET    | `/api/crm/files/{fileId}/content`                          | `getCrmPrivateFileContent`       | Scoped file PublicId → private bytes                     | TS-007     | SC-S05, SC-D04         |
+| GET    | `/api/crm/issuer-settings`                                 | `getCrmIssuerSettings`           | Approved active version → IssuerDetail                   | TS-009     | SC-D01                 |
+| POST   | `/api/crm/issuer-settings/versions`                        | `createCrmIssuerSettingsVersion` | Verified settings → version                              | TS-009     | SC-D01                 |
+| PUT    | `/api/crm/issuer-settings/active`                          | `activateCrmIssuerSettings`      | Version/revision → active settings                       | TS-009     | SC-D01                 |
+| POST   | `/api/crm/quotes/{quoteId}/documents`                      | `renderCrmQuoteDocument`         | Version/template/render options → artifact/status        | TS-010     | SC-D02, SC-D04         |
+| GET    | `/api/crm/quotes/{quoteId}/documents/{artifactId}`         | `getCrmQuoteDocument`            | Scoped artifact → status/metadata                        | TS-010     | SC-D02                 |
+| GET    | `/api/crm/quotes/{quoteId}/documents/{artifactId}/content` | `downloadCrmQuoteDocument`       | Scoped artifact → private application/pdf bytes          | TS-010     | SC-D02, SC-D04         |
+| POST   | `/api/crm/quotes/{quoteId}/deliveries`                     | `enqueueCrmQuoteDelivery`        | Version/PDF/explicit recipient → DeliveryDetail          | TS-011     | SC-D03                 |
+| GET    | `/api/crm/quotes/{quoteId}/deliveries`                     | `getCrmQuoteDeliveries`          | List query → paged DeliveryDetail                        | TS-011     | SC-D03                 |
+| POST   | `/api/crm/quotes/{quoteId}/production-packages`            | `exportCrmProductionPackage`     | Pinned version/selected variants → Package artifact      | TS-012     | SC-S06                 |
 
 ## Template lifecycle and introduction extension
 
@@ -83,5 +82,9 @@ Use current cookie/session auth, CSRF protections, Ardalis.Result and establishe
 Mutation replay and revisions follow [consistency design](../design/security-and-consistency.md). Domain retries are explicit requestId replays, not blind transport retry with a new key. Reads may cancel/retry with existing client policy; aborted browser requests do not guarantee a server write was rolled back. PDF downloads are private and should not be cached publicly. Delivery POST returns queued status, not a false success/sent promise.
 
 ## Cross-repository handoff
+
+P3 transfer UI also uses `getCrmQuoteAssignees`, a bounded eligible-user search returning only IDs and display names. The Host Identity adapter excludes locked users and non-Manager/Admin roles and revalidates eligibility on transfer.
+
+TS-005 local implementation (2026-10-28) extends canonical `crm/quote-drafts.openapi.yaml` with getCrmQuoteVersions, getCrmQuoteVersion, getCrmQuoteEvents, repriceCrmQuote, copyCrmQuote, transferCrmQuote and setCrmQuoteArchived. The aggregate references each path. List adds createdFrom (inclusive), createdBefore (exclusive), ownerId and sourceQuoteId filters; timestamps normalize to UTC before SQL. History is paged with the existing envelope, actor/action/parent data; version detail retains typed saved content. Reprice accepts current versionId, expectedRevision and exactly one fresh scoped basis token for every variant; it does not accept edited content or browser prices. Existing per-variant preview supplies old/new comparison inputs. Source drift, expiry, missing token, changed revision or blockers abort confirmation without a version. Identical accessible writes replay; after transfer a former Manager's replay is 404 under current-scope authorization. Copy response has sourceQuoteId/sourceVersionId and a null number until EN-005.
 
 After each implemented API slice passes focused tests, backend must provide a **clean immutable commit** with matching canonical OpenAPI. Frontend records full SHA/source path, runs existing sync/generate/check tooling and implements only pinned operations. The old snapshot does not satisfy this prerequisite. Commit authorization must follow the user's current instruction; this SDD does not itself authorize a future commit/push. No handwritten generated DTOs or canonical contract for unimplemented operations in this change.

@@ -1,6 +1,7 @@
 using Crm.Application.Quotes.Persistence;
 using Crm.Domain.Customers;
 using Crm.Domain.Quotes;
+using Crm.Domain.Quotes.Identifiers;
 using Crm.Domain.Quotes.Versions;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,10 @@ public sealed class QuoteWriteSession(CrmDbContext db) : IQuoteWriteSession
             .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public void Add(Quote quote) => db.Quotes.Add(quote);
+    public Task<QuoteVersion?> FindVersionAsync(QuoteId quoteId, Guid publicId, CancellationToken cancellationToken)
+        => db.QuoteVersions.AsSplitQuery()
+            .Include(x => x.Items).ThenInclude(x => x.Variants).ThenInclude(x => x.Tiers)
+            .SingleOrDefaultAsync(x => x.QuoteId == quoteId && x.PublicId == publicId, cancellationToken);
     public void Add(QuoteVersion version) => db.QuoteVersions.Add(version);
     public Task FlushAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 }

@@ -46,6 +46,7 @@ public sealed class CreateQuoteCommandHandler(
                 session.Add(version);
                 await session.FlushAsync(ct);
                 quote.SetInitialVersion(version.Id);
+                quote.Record("created", command.Actor.UserId);
                 await session.FlushAsync(ct);
                 return Result.Success(QuoteDetailMapper.Map(quote, version, true));
             }, cancellationToken);

@@ -36,7 +36,7 @@ public sealed class SaveQuoteVersionCommandHandler(
                     previous.ContactPublicId, command.Actor.UserId, built.Value);
                 session.Add(version);
                 await session.FlushAsync(ct);
-                quote.AppendVersion(command.ExpectedRevision, version.Id);
+                quote.AppendVersion(command.ExpectedRevision, version.Id, command.Actor.UserId);
                 await session.FlushAsync(ct);
                 return Result.Success(QuoteDetailMapper.Map(quote, version, true));
             }, cancellationToken);

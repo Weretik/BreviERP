@@ -20,7 +20,7 @@ public sealed class PreviewQuotePricesCommandHandler(
             var quote = await quotes.FirstOrDefaultAsync(
                 new QuoteForPricePreviewSpec(quoteId, command.Actor), cancellationToken);
             if (quote is null) return Result.NotFound();
-            if (quote.State != "draft" || quote.Archived)
+            if (quote.Archived)
                 return Result.Conflict("quote_not_editable");
         }
         return await store.ExecuteAsync(command.RequestId, command.QuoteId, command.Actor, command.Intent,

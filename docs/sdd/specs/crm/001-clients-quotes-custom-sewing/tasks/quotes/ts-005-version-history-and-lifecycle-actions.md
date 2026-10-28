@@ -1,6 +1,6 @@
 # TS-005 — Version history and lifecycle actions
 
-**Status:** planned. **Covers:** SC-Q02, SC-Q04–05. **Depends on:** TS-004.
+**Status:** implemented locally; focused automated evidence recorded, immutable contract handoff to FE-005 pending. **Covers:** SC-Q02, SC-Q04–05. **Depends on:** TS-004.
 
 ## Paths and one responsibility
 
@@ -20,6 +20,10 @@ For behavior implementation record Red → Green → Refactor → focused Regres
 
 ## Checkpoint
 
+Follow-up [functional/structural audit — 2026-10-28](../../evidence/p3-audit-refactor-2026-10-28.md): AF-CRM-P3-001–005 verified fixed; 41 integration + 11 domain/OpenAPI + 1 architecture tests passed. User authorized one local backend TS-005 commit without push.
+
 View/text edit/copy cannot refresh prices; explicit reprice is attributable and historical amounts stay intact.
+
+[Execution evidence — 2026-10-28](../../evidence/ts-005-2026-10-28.md). New history/events/copy/transfer/archive/reprice operations use current actor scope, revision and the existing mutation journal. Fresh per-variant previews are compared by the consumer before submitting the exact current version and all tokens; the server accepts no replacement content or totals in the confirmation.
 
 Do not advance a dependent task on an unresolved prerequisite. See [sequence](../implementation-plan.md) and the feature's verification/decision documents before declaring this task complete.
