@@ -2,6 +2,8 @@
 
 Versioned three-tier PPE calculation from Brevi-owned rule/offer snapshots. Domain arithmetic reproduces approved workbook precedence and rounding; no live workbook or XML access occurs at runtime. Imported source review remains evidence; only an explicit manager write creates a Brevi-approved version. Missing required data returns blockers and no prices.
 
+## Structure diagram
+
 ```mermaid
 flowchart LR
   API[Protected PPE pricing controllers] --> UseCases[Product batch read / rule read / append versions]
@@ -11,6 +13,8 @@ flowchart LR
   Job[Explicit Host.Seed PPE bootstrap] --> DB
   Source[Frozen bounded workbook reads] --> Job
 ```
+
+## Code structure
 
 ```text
 Catalog.Domain/Pricing/Ppe/
@@ -42,6 +46,8 @@ Jobs/CatalogImport/PpePricing/
   Bootstrap/               # local target, source/plan and transaction orchestration
   Persistence/             # Product identity lookup / replay verification / draft writing
 ```
+
+## Related sources
 
 API source: [PPE OpenAPI](../../contracts/catalog/ppe-pricing.openapi.yaml). [Implementation decisions](../../specs/catalog/003-sheet-pricing-parity/ppe-implementation.md) and [evidence](../../specs/catalog/003-sheet-pricing-parity/ppe-evidence.md).
 

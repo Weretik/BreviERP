@@ -2,6 +2,8 @@
 
 The local operational review checks current input data against immutable imported sources before manager confirmation. It compares 124 model compositions, their material/operation lines, current PPE offers/rules and effective Reference/settings values. Source matches, current approvals/reviews and unresolved hold reasons remain separate.
 
+## Structure diagram
+
 ```mermaid
 flowchart LR
     Host[Host.Seed explicit review] --> Job[Read-only snapshot orchestration]
@@ -16,6 +18,8 @@ flowchart LR
     FullParity[Existing full Sewing diagnostic] --> Decision[Recorded numerical differences and activation holds]
     Report --> Decision
 ```
+
+## Code structure
 
 ```text
 Jobs/SewingPricing/Review/
@@ -38,7 +42,11 @@ Jobs/SewingPricing/Review/
 Host.Seed/Jobs/Pricing/PricingInputReviewCommandRunner.cs # paths, serialization and exit status
 ```
 
+## Rules and boundaries
+
 Existing import mappers/current readers remain the owners of conversion/selection. No global formula, external contract, runtime module reference, schema or UI change is introduced. [Specification](../../specs/catalog/003-sheet-pricing-parity/activation/review.md) · [Evidence](../../specs/catalog/003-sheet-pricing-parity/activation/review-evidence.md) · [Operations](../../operations/data/pricing-input-review.md).
+
+## Related sources
 
 [Scoped structural audit](../../specs/catalog/003-sheet-pricing-parity/activation/review-structure-audit.md) · [Structural verification](../../specs/catalog/003-sheet-pricing-parity/activation/review-structure-verification.md).
 
