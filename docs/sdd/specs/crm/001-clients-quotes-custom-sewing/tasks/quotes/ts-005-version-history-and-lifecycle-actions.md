@@ -20,6 +20,8 @@ For behavior implementation record Red → Green → Refactor → focused Regres
 
 ## Checkpoint
 
+Post-commit [P3 handoff](../../evidence/p3-handoff-2026-10-28.md) verified frontend sync/generate/check at `f185138fc1cfc6c71cf94fe4e7103652e6719b5b`. No repeated commit authorization is needed for the already completed local TS-005 commit; FE-005 connected UI remains pending.
+
 Follow-up [functional/structural audit — 2026-10-28](../../evidence/p3-audit-refactor-2026-10-28.md): AF-CRM-P3-001–005 verified fixed; 41 integration + 11 domain/OpenAPI + 1 architecture tests passed. User authorized one local backend TS-005 commit without push.
 
 View/text edit/copy cannot refresh prices; explicit reprice is attributable and historical amounts stay intact.
