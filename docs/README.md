@@ -17,6 +17,10 @@ Start with the [SDD documentation map](sdd/README.md) if you do not yet know whi
 
 - [Glossary](product/glossary.md) — stable business terms shared across features.
 
+## Ideas
+
+- [Sign-in and access like Kedr](ideas/auth-like-kedr.md) — auth audit and a step-by-step plan (Russian; not an accepted decision).
+
 ## Placement principle
 
 Stable rules belong in `sdd/architecture` or `sdd/standards`. Current feature structure and code navigation belong in `sdd/features/`; decisions, requirements, tasks, and verification evidence belong in the corresponding `sdd/specs/` directory. Public machine-readable API contracts are stored separately in `sdd/contracts/`.
