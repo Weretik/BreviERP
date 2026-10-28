@@ -4,10 +4,11 @@
 
 - `src/Bootstrapper/Host.Api` composes DI, middleware, controllers, authentication, and OpenAPI.
 - `src/Bootstrapper/Host.Seed` is a console host for approved seed operations.
+- `src/Jobs/CatalogImport` and `src/Jobs/SewingPricing` are operational job libraries (catalogue import, pricing verification and activation). Only `Host.Seed` references and runs them; Domain, Application, and `Host.Api` do not. See the [jobs overview](../../../../src/Jobs/README.md).
 
 ## Business modules
 
-- Catalog owns products, categories, and catalog media.
+- Catalog owns products, categories, catalog media, Sewing Articles and composition, and Sewing/PPE pricing.
 - Reference owns supplier, fabric, accessory, garment-part, and operation reference data.
 - Identity owns ASP.NET Identity, roles, policies, current user/session integration, and seed data.
 - Accounting owns wallets, transactions, and transaction categories.
@@ -17,7 +18,7 @@
 ## Dependency direction
 
 ```text
-Host.Api / Host.Seed
+Host.Api / Host.Seed ──→ Jobs.* (Host.Seed only)
         │
         ├── Module.Api ──→ Module.Application ──→ Module.Domain
         └── Module.Infrastructure ──────────────→ Module.Application + Module.Domain

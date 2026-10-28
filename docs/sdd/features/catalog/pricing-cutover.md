@@ -30,3 +30,11 @@ Jobs/CatalogImport/PpePricing/Verification/
 ```
 
 [Specification](../../specs/catalog/003-sheet-pricing-parity/cutover/README.md) · [Reconciliation](../../specs/catalog/003-sheet-pricing-parity/cutover/reconciliation.md) · [Release order](../../operations/data/pricing-cutover.md).
+
+## Tests
+
+- `tests/UnitTests/ProductPricingCutoverTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter ProductPricingCutover`.
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)

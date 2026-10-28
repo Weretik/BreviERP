@@ -46,6 +46,15 @@ flowchart LR
     H --> D
 ```
 
+## Tests
+
+- `tests/UnitTests/Product*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests)
+- `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter Product` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)
+
 ## Related Sources
 
 [OpenAPI](../../contracts/catalog/product-catalog.openapi.yaml) · [Current SDD](../../specs/catalog/001-product-page/README.md).

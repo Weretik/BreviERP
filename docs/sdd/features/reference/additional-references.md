@@ -41,6 +41,12 @@ flowchart LR
     H --> C
 ```
 
+## Tests
+
+No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+
+**Data:** [reference schema](../../architecture/data-model/reference.md)
+
 ## Related Sources
 
 [OpenAPI](../../contracts/reference/additional-references.openapi.yaml) · [Reference boundaries](../../architecture/overview/modules.md).

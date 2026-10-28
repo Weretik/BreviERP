@@ -52,3 +52,12 @@ Legacy Product pricing fields are compatibility outputs; new enrolled consumers 
 ## Current consumer revision
 
 [TS-007 cutover](../../specs/catalog/003-sheet-pricing-parity/cutover/README.md) supersedes earlier legacy Product price fallback descriptions. Current Admin prices use versioned PPE calculations or published Sewing Article prices. Deprecated Product metadata amounts are placeholders, not sale prices.
+
+## Tests
+
+- `tests/UnitTests/PpePricing*Tests.cs`
+- `tests/IntegrationTests/Pricing/Ppe/`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PpePricing`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PpePricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)

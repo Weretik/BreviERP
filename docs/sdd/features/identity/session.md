@@ -36,6 +36,14 @@ flowchart LR
     A --> E["Cookie and CSRF"]
 ```
 
+## Tests
+
+- `tests/UnitTests/SessionOpenApiContractTests.cs` (contract shape only; no behavior tests for login, `refresh`, `or logout yet)`
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter SessionOpenApiContract`.
+
+**Data:** [identity schema](../../architecture/data-model/identity.md)
+
 ## Related sources
 
 [OpenAPI](../../contracts/identity/session.openapi.yaml).

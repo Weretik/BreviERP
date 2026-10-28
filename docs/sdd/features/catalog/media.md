@@ -38,6 +38,16 @@ flowchart LR
     H --> I["CatalogDbContext"]
 ```
 
+## Tests
+
+- `tests/IntegrationTests/GetMediaFilesSpecTests.cs`
+- `tests/IntegrationTests/MediaFileByIdSpecTests.cs`
+- `tests/IntegrationTests/MediaFilePersistenceConfigurationTests.cs`
+
+Focused run: `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter MediaFile` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)
+
 ## Related sources
 
 [OpenAPI](../../contracts/catalog/product-dependencies.openapi.yaml) · [Media files SDD](../../specs/catalog/media-files/README.md).

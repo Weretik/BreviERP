@@ -40,6 +40,12 @@ flowchart LR
     F --> D
 ```
 
+## Tests
+
+No automated tests cover this feature yet.
+
+**Data:** [catalog schema](../../architecture/data-model/catalog.md)
+
 ## Related sources
 
 [OpenAPI](../../contracts/catalog/product-dependencies.openapi.yaml) · [Admin product list SDD](../../specs/catalog/admin-product-list/README.md).
