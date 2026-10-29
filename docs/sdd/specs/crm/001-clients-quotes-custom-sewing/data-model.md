@@ -1,6 +1,6 @@
 # Crm data model by rollout slice
 
-**Current state (2026-10-28):** client, P2/P3 quote/history, TS-006 private custom draft/version/calculation, TS-008 configuration-template and TS-007 file/link/history tables are implemented locally. Document/delivery/import tables below remain target design. Custom migrations are verified only on disposable local databases; no working-database application is claimed. Crm owns schema `crm` in the existing PostgreSQL database; [actual database map](../../../architecture/data-model/crm.md) lists implemented constraints. Follow the module schema and identifier rules; operational data stays in PostgreSQL.
+**Current state (2026-10-29):** client, P2/P3 quote/history, TS-006 private custom draft/version/calculation, TS-008 configuration-template, TS-007 file/link/history and TS-009 issuer/template/number tables are implemented locally. TS-009 PostgreSQL integration is still pending; ready/PDF, delivery and import tables remain target design. Earlier custom migrations were verified only on disposable local databases; no working-database application is claimed. Crm owns schema `crm` in the existing PostgreSQL database; [actual database map](../../../architecture/data-model/crm.md) lists implemented constraints. Follow the module schema and identifier rules; operational data stays in PostgreSQL.
 
 ## Identifiers and references
 
@@ -8,7 +8,7 @@ Ordinary centrally created business records use **typed long IDs** in Domain and
 
 ## Tables by rollout slice
 
-The table below is the target model and includes later fields/tables in partially delivered slices. The [actual database map](../../../architecture/data-model/crm.md) lists only implemented tables and constraints. Target rows below may include future fields: client/quote lifecycle and custom draft/version/calculation storage are implemented; document/delivery/import and first-contact template rows remain planned.
+The table below is the target model and includes later fields/tables in partially delivered slices. The [actual database map](../../../architecture/data-model/crm.md) lists only implemented tables and constraints. Client/quote lifecycle, custom draft/version/calculation and issuer/template settings are implemented locally; document artifacts, delivery, import and first-contact template rows remain planned.
 
 | Slice      | Table/group                                                  | Core fields and integrity                                                                                                                                                                    |
 | ---------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -25,7 +25,7 @@ The table below is the target model and includes later fields/tables in partiall
 | Custom     | CustomSewingDrafts, CustomSewingVersions                     | Owner/customer, revision; immutable version configuration, composition/application fields, private/public projections, calculation basis                                                     |
 | Files      | PrivateFiles, CustomVersionFiles, QuoteVersionMedia          | Storage key, byte count, MIME, SHA-256, state/owner; version links with quote/production visibility; no arbitrary external download authority                                                |
 | Templates  | QuoteTemplates, QuoteTemplateVersions                        | Owner, discriminated kind (customConfiguration/firstContact), layout/version/season/slots, intro/email-template reference, selections/norms, archive/version, no authoritative current price |
-| Documents  | IssuerSettingsVersions, DocumentTemplateVersions             | Immutable verified legal/brand/tax wording data and template version; active pointer changes audited                                                                                         |
+| Documents  | IssuerSettingsVersions, DocumentTemplateVersions, DocumentSettingsState, DocumentSettingsMutations, DocumentNumberSequences | Immutable verified legal/brand/tax wording versions; audited active pointer, idempotent mutations and atomic monthly number sequence |
 | Documents  | QuoteDocumentArtifacts                                       | Quote/version/template IDs, render parameters hash, private file ref/hash, status/error, unique successful render identity                                                                   |
 | Delivery   | QuoteDeliveries, DeliveryAttempts, DeliveryOutbox            | Version/PDF, explicit recipient, request key, queued/lease/status, provider ID, timestamps, bounded error; inert imported history distinct from queued work                                  |
 | Operations | MutationRequests                                             | Unique actor/operation/requestId, payload hash, committed result, related root/revision                                                                                                      |

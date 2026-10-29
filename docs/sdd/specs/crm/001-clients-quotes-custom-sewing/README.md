@@ -1,6 +1,6 @@
 # CRM-001 — Clients, quotes and custom sewing
 
-**Status:** P1–P3 backend/Admin and P4 backend TS-006, EN-003, TS-007, TS-008 are locally automatically verified. FE-006 editor is verified in the frontend consumer against the committed custom contract. Remaining P4 task: FE-007 files/templates/suggestions UI with immutable file-contract handoff. **Reviewed:** 2026-10-28. **Owner:** Crm. [Latest integration evidence](evidence/p4-wave2-2026-10-28.md). No production rollout or working-database migration is claimed.
+**Status:** P1–P4 implementation is locally automatically verified, including FE-006/007 in the consumer repository. P5 EN-005, TS-009 and TS-010 backend are locally verified; their CRM migrations are applied to local `brevidb`. [TS-010 evidence and hosted-run limits](evidence/ts-010-2026-10-29.md). Current immutable frontend-consumed backend contract: `fdb8095d4dfd52a9680b5a2768c706aea1aa8c4b`; new P5 contract/implementation is uncommitted and not handed to frontend. **Reviewed:** 2026-10-29. **Owner:** Crm. No production rollout is claimed.
 
 ## Outcome and scope
 

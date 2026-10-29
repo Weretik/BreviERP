@@ -1,6 +1,6 @@
 # CRM clients, contacts and draft quotes
 
-**Implemented local slices:** clients, P2/P3 quotes, TS-006 private custom drafts/calculations/versions/quote hydration, EN-003 private-byte/render adapter proof, TS-008 configuration templates/model suggestions and TS-007 staged/scoped private file lifecycle. Automatically verified 2026-10-28. The consumer's FE-006 editor is verified; FE-007 file/template/suggestion UI, document issuance and import remain separate work. No production rollout is claimed.
+**Implemented local slices:** clients, P2/P3 quotes, P4 custom drafts/files/templates/suggestions and P5 TS-009 issuer settings plus TS-010 ready/private PDF artifact backend, verified locally 2026-10-29. Consumer FE-006/007 is automatically verified against backend `fdb8095d4dfd52a9680b5a2768c706aea1aa8c4b`; the newer P5 API has not been handed to frontend. [P4 checkpoint](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p4-complete-2026-10-28.md), [P5 TS-010 evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-010-2026-10-29.md). Import, send and production rollout remain future phases.
 
 Authenticated Admin/Manager can create, read, search/page, revise and deactivate customers and contacts. Admin-only merge retains victim roots/audit while moving contacts/external identities to the survivor. Exact external identities are unique; similar names/shared emails never auto-merge. Manager reads/writes owned clients; draft quotes are owner-scoped. Every mutation has requestId replay and a root revision; successful intent/result audit is stored in the same transaction. No destructive customer/contact delete API.
 
@@ -132,7 +132,7 @@ flowchart LR
   History --> PG
 ```
 
-Reprice confirms an unchanged current graph using all fresh scoped variant tokens. Copy selects any authorized saved version, records its provenance and preserves prices without a Catalog call. Transfer atomically changes current access; former Managers cannot read history or replay prior mutations after losing scope. Archive/restore preserve business state and versions. Ready/sent edits create a draft and retain the issued-version pointer; actual ready/send operations and human numbering remain later phases. [TS-005 evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-005-2026-10-28.md). Frontend lifecycle integration is pending.
+Reprice confirms an unchanged current graph using all fresh scoped variant tokens. Copy selects any authorized saved version, records its provenance and preserves prices without a Catalog call. Transfer atomically changes current access; former Managers cannot read history or replay prior mutations after losing scope. Archive/restore preserve business state and versions. Ready/sent edits create a draft and retain the issued-version pointer. The ready operation and human numbering are implemented in P5; sending remains a later phase. [TS-005 evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-005-2026-10-28.md). Frontend lifecycle integration is pending.
 
 ## Private custom sewing
 
@@ -202,3 +202,80 @@ Code structure: Domain CustomSewing/Attachments; Application Files/{Upload,Final
 Host.Api/Crm/Files/CrmFileServices wires lazy private storage from the actual environment public root and Crm:PrivateFiles:RootPath; no writable-volume default. Missing configuration yields safe 503 only for file operations. TemporaryLifetimeMinutes defaults1440 for unattached uploads, with accepted range1–10080; historical retention remains EN-006. No public media fallback, new package or pricing formula. [Task/configuration and 120-case evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-007-2026-10-28.md).
 
 [Requested follow-up audit](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-007-audit-refactor-2026-10-28.md): Files/Cleanup/CustomTemporaryFileCleanup coordinates bounded byte deletion; TemporaryFileCleanupStore owns claim/reference/complete SQL transitions; TemporaryFileCleanupClaim holds typed identity/provenance. Same context/locks and no byte deletion inside transactions. Fresh9 PostgreSQL +2 architecture checks passed; no EF model/API change.
+
+## Issuer and document settings — TS-009
+
+Admin creates immutable paired versions of seller requisites and structured document text, then activates the pair with expected revision and idempotent requestId. Manager can read the active pair. No settings are seeded or active by default. The logo field is a logical allowlisted key; its bytes and ready/PDF validation belong to TS-010. A monthly UTC allocator, called inside the future ready transaction, serializes numbers `N/M/YYYY` with a database advisory lock and accounts for quote numbers already present in either legacy or new format. [Contract](../../contracts/crm/issuer-settings.openapi.yaml), [checkpoint](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-009-2026-10-29.md).
+
+```text
+Crm.Domain/Crm.Domain/Documents/{Issuer,Templates}/       immutable versions and typed IDs
+Crm.Domain/Crm.Domain/Documents/                    active pair and revision
+Crm.Application/Crm.Application/Documents/{GetIssuerSettings,CreateIssuerSettingsVersion,ActivateIssuerSettings}/
+Crm.Application/Crm.Application/Documents/{Contracts,Persistence,Numbering}/
+Crm.Infrastructure/Crm.Infrastructure/Persistence/Documents/
+  Writing/IssuerSettingsStore.cs                     create/activate transactions
+  Reading/DocumentSettingsReadStore.cs               active pair read
+  Mapping/DocumentSettingsMapper.cs                  response projection
+  Idempotency/DocumentSettingsMutationJournal.cs     request hash/replay and journal
+  Numbering/DocumentNumberAllocator.cs               transactional monthly allocation
+Crm.Infrastructure/Crm.Infrastructure/Persistence/Configurations/Documents/  EF mappings and constraints
+Crm.Infrastructure/Crm.Infrastructure/Persistence/Migrations/*AddIssuerSettingsAndNumberSequence*
+Crm.Api/Crm.Api/Documents/                         role-protected settings controller and requests
+```
+
+```mermaid
+flowchart LR
+  API[Issuer settings API] --> Cases[Get / create / activate handlers]
+  Cases --> Store[Settings store and replay journal]
+  Store --> Versions[Immutable issuer and template versions]
+  Store --> Active[Active pair revision]
+  Ready[Ready transaction] --> Allocator[Monthly number allocator]
+  Allocator --> Quotes[Known quote numbers and sequence]
+```
+
+**Data:** [Crm schema](../../architecture/data-model/crm.md). TS-009 isolated PostgreSQL integration passed five focused tests; its migration is applied to local `brevidb` only.
+
+## P5 ready and private PDF artifact — TS-010
+
+The ready command validates an existing saved version and visible public price selection, checks active issuer/template settings and server-managed logo availability, and atomically pins a `QuoteIssue` with the human number. Rendering is a separate explicit request: it queues one versioned private artifact and returns status. Authorized metadata/content reads use the pinned issue and saved PDF bytes; download does not render, reprice or mark sent. The hosted worker and real Chromium PDF are tested as separate boundaries in [TS-010 evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-010-2026-10-29.md). [Structural audit](../../specs/crm/001-clients-quotes-custom-sewing/code-audit/ts-010-functional-audit-2026-10-29.md) records the controller split and file-role review.
+
+```mermaid
+flowchart LR
+  ReadyApi[Quote ready API] --> Prepare[PrepareQuote handler]
+  Prepare --> Check[Ready validator and brand asset]
+  Prepare --> Tx[Quote mutation transaction and number allocator]
+  Tx --> Issue[Immutable QuoteIssue pin]
+  PdfApi[Quote PDF API] --> Source[Authorized pinned document source]
+  Source --> Artifact[Private artifact queue and status]
+  Artifact --> Worker[Configured renderer worker]
+  Worker --> Projection[Allowlisted quote and issuer projection]
+  Projection --> Pdf[Saved PDF bytes and SHA-256]
+  PdfApi --> Pdf
+```
+
+```text
+src/Modules/Crm/
+  Crm.Domain/Crm.Domain/Quotes/{Quote.cs,Issues/QuoteIssue.cs}            ready transition and immutable pin
+  Crm.Application/Crm.Application/Quotes/PrepareQuote/                 command, validation and transaction orchestration
+  Crm.Application/Crm.Application/Documents/{Projection,Source}/       public allowlist and pinned source port
+  Crm.Application/Crm.Application/Documents/{RenderQuotePdf,GetQuoteArtifact,Artifacts}/
+                                                                      queue/read use cases and private artifact contract
+  Crm.Infrastructure/Crm.Infrastructure/Persistence/Documents/{Reading,QuoteArtifacts}/
+                                                                      scoped issue source and artifact lifecycle/bytes
+  Crm.Infrastructure/Crm.Infrastructure/Persistence/Configurations/{Quotes,Documents}/
+                                                                      EF relationships and constraints
+  Crm.Infrastructure/Crm.Infrastructure/Persistence/Migrations/*AddQuoteIssues*,*AddQuoteArtifactIssuePin*
+  Crm.Api/Crm.Api/Quotes/QuoteReadyController.cs                       ready HTTP boundary
+  Crm.Api/Crm.Api/Quotes/Requests/PrepareQuoteRequest.cs               ready request
+  Crm.Api/Crm.Api/Documents/QuotePdfController.cs                      PDF artifact HTTP boundary
+```
+
+Canonical [quote and ready](../../contracts/crm/quote-drafts.openapi.yaml) and [PDF artifact](../../contracts/crm/quote-pdf.openapi.yaml) operations are local, uncommitted P5 changes. The frontend still pins the P4 backend SHA. Local `brevidb` has both additive TS-010 migrations applied after backup; production and FE-008 integration remain separate.
+
+PDF runtime configuration requires `Crm:Documents:{ChromiumPath,FontPath,PrivateWorkingRootPath}`. A selected `brevi-wordmark` additionally requires a provisioned local PNG/JPEG at `Crm:Documents:WordmarkPath`; ready blocks if it is unavailable. No arbitrary image URL is fetched.
+
+## Tests
+
+TS-009: `tests/UnitTests/Crm/Documents/IssuerSettingsRulesTests.cs`, `tests/IntegrationTests/Crm/Documents/IssuerSettingsRequestContractTests.cs` and `IssuerSettingsPersistenceTests.cs`. Focused commands: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~IssuerSettingsRulesTests` and `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IssuerSettings`. The request contract test runs without PostgreSQL; persistence tests require the isolated local CRM test connection. [Audit](../../specs/crm/001-clients-quotes-custom-sewing/code-audit/ts-009-functional-audit-2026-10-29.md). Earlier client, quote, custom and file test paths are recorded in their sections above.
+
+TS-010: `tests/UnitTests/Crm/{Quotes,Documents}/`, `tests/IntegrationTests/Crm/Quotes/{QuoteReadyApiTests,QuoteReadyPersistenceTests}.cs` and `tests/IntegrationTests/Crm/Documents/Quote{PdfApi,PdfArtifactPersistence,PdfArtifactState,PdfProjectionRenderer,PdfWorker,DocumentSource}Tests.cs`. Focused HTTP regression after the controller split: `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~QuoteReadyApiTests`. PostgreSQL and Chromium tests require their local test connection and runtime paths; exact combined verification is in [TS-010 evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-010-2026-10-29.md).

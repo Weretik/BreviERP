@@ -22,7 +22,7 @@ public sealed class QuoteLifecycleEvent
         CrmUserId actor, CrmUserId owner, CrmUserId? previousOwner, string? reason)
     {
         if (actor.Value <= 0 || revision <= 0 || version <= 0 ||
-            action is not ("created" or "edited" or "recalculated" or "copied" or "transferred" or "archived" or "restored"))
+            action is not ("created" or "edited" or "recalculated" or "copied" or "transferred" or "archived" or "restored" or "readied"))
             throw new QuoteValidationException("invalid_history_event");
         return new QuoteLifecycleEvent
         {

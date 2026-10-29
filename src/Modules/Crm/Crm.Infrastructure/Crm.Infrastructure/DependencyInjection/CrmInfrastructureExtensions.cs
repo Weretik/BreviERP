@@ -6,6 +6,15 @@ using Crm.Application.Quotes.Pricing;
 using Crm.Infrastructure.Persistence.Quotes.Pricing;
 using Crm.Application.Quotes.Persistence;
 using Crm.Application.Quotes.Mapping;
+using Crm.Application.Documents.Persistence;
+using Crm.Application.Documents.Numbering;
+using Crm.Application.Documents.Artifacts;
+using Crm.Application.Documents.Source;
+using Crm.Application.Abstractions.Documents;
+using Crm.Infrastructure.Documents.Assets;
+using Crm.Infrastructure.Persistence.Documents.Artifacts;
+using Crm.Infrastructure.Persistence.Documents.Reading;
+using Crm.Infrastructure.Persistence.Documents;
 using Crm.Infrastructure.Persistence.Quotes.Writing;
 using Crm.Infrastructure.Persistence.Quotes.Reading;
 using Crm.Infrastructure.Persistence;
@@ -25,6 +34,12 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<IQuotePriceBasisStore, QuotePriceBasisStore>();
         services.AddScoped<IQuoteMutationStore, QuoteMutationStore>();
         services.AddScoped<IQuoteReadRepository, QuoteReadRepository>();
+        services.AddScoped<IDocumentSettingsStore, IssuerSettingsStore>();
+        services.AddScoped<IDocumentNumberAllocator, DocumentNumberAllocator>();
+        services.AddScoped<IQuotePdfArtifactStore, QuotePdfArtifactStore>();
+        services.AddScoped<IQuoteDocumentSource, QuoteDocumentSource>();
+        services.AddSingleton<IQuoteBrandAssetResolver>(_ =>
+            new ConfiguredQuoteBrandAssetResolver(configuration["Crm:Documents:WordmarkPath"]));
         services.AddScoped<IQuoteCustomVersionReader, Crm.Infrastructure.Persistence.CustomSewing.Reading.QuoteCustomVersionReader>();
         services.AddScoped<QuoteVersionBuilder>();
         services.AddScoped<QuotePriceBasisResolver>();

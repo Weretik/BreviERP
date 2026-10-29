@@ -113,6 +113,14 @@ paths:
     $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1transfer
   /api/crm/quotes/{quoteId}/archive:
     $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1archive
+  /api/crm/quotes/{quoteId}/ready:
+    $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1ready
+  /api/crm/quotes/{quoteId}/documents:
+    $ref: ./crm/quote-pdf.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1documents
+  /api/crm/quotes/{quoteId}/documents/{artifactId}:
+    $ref: ./crm/quote-pdf.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1documents~1{artifactId}
+  /api/crm/quotes/{quoteId}/documents/{artifactId}/content:
+    $ref: ./crm/quote-pdf.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1documents~1{artifactId}~1content
   /api/crm/custom-sewing:
     $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing
   /api/crm/custom-sewing/{draftId}:
@@ -139,3 +147,9 @@ paths:
     $ref: ./crm/private-files.openapi.yaml#/paths/~1api~1crm~1files~1{fileId}~1content
   /api/crm/custom-sewing/{draftId}/files:
     $ref: ./crm/private-files.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1files
+  /api/crm/issuer-settings:
+    $ref: ./crm/issuer-settings.openapi.yaml#/paths/~1api~1crm~1issuer-settings
+  /api/crm/issuer-settings/versions:
+    $ref: ./crm/issuer-settings.openapi.yaml#/paths/~1api~1crm~1issuer-settings~1versions
+  /api/crm/issuer-settings/active:
+    $ref: ./crm/issuer-settings.openapi.yaml#/paths/~1api~1crm~1issuer-settings~1active

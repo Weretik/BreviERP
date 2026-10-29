@@ -71,6 +71,22 @@ public sealed class Quote : BaseEntity<QuoteId>, IAggregateRoot
         Record(action, actorId);
     }
 
+    public void PrepareReady(long expectedRevision, string number, int actorId, bool isAdmin)
+    {
+        AssertEditable(expectedRevision, actorId, isAdmin);
+        if (CurrentVersionId is null || State != "draft")
+            throw new QuoteRevisionException();
+        if (string.IsNullOrWhiteSpace(number) || number.Length > 80 ||
+            (Number is not null && Number != number))
+            throw new QuoteValidationException("invalid_quote_number");
+        Number ??= number;
+        IssuedVersionId = CurrentVersionId;
+        State = "ready";
+        Revision++;
+        UpdatedAt = DateTimeOffset.UtcNow;
+        Record("readied", actorId);
+    }
+
     public void AssertEditable(long expectedRevision, int actorId, bool isAdmin)
     {
         if (actorId <= 0) throw new QuoteValidationException("invalid_actor");

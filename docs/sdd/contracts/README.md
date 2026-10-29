@@ -27,4 +27,4 @@ Each feature SDD contains `contracts/api-contract.md` for human-readable decisio
 
 Do not create a public OpenAPI document for internal-only changes. Before adding an HTTP contract, agree on the route, method, operation ID, DTOs, examples, errors, security, idempotency for side-effecting writes, and migration path for breaking changes.
 
-- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml) — first seven CRM operations only; quote/custom/document operations remain planned.
+- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml), [quote drafts, lifecycle and ready](crm/quote-drafts.openapi.yaml), [custom sewing](crm/custom-sewing.openapi.yaml), [templates and suggestions](crm/custom-templates.openapi.yaml), [private files](crm/private-files.openapi.yaml), [issuer settings](crm/issuer-settings.openapi.yaml), [private quote PDF artifacts](crm/quote-pdf.openapi.yaml). Delivery operations remain planned. The new P5 contract is local and uncommitted; frontend provenance still points to the earlier P4 SHA.

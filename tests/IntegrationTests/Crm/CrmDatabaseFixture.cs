@@ -36,7 +36,7 @@ public abstract class CrmDatabaseFixture
         if (!_database.StartsWith("brevi_crm_test_", StringComparison.Ordinal)) throw new InvalidOperationException();
         await using var db = Context();
         await db.Database.ExecuteSqlRawAsync(
-            "TRUNCATE crm.\"Customers\", crm.\"MutationRequests\", crm.\"CalculationBases\", crm.\"QuoteMutationRequests\", crm.\"CustomSewingDrafts\", crm.\"CustomSewingCalculations\", crm.\"CustomSewingMutationRequests\", crm.\"CustomSewingTemplates\", crm.\"CustomSewingTemplateMutationRequests\" RESTART IDENTITY CASCADE");
+            "TRUNCATE crm.\"Customers\", crm.\"MutationRequests\", crm.\"CalculationBases\", crm.\"QuoteMutationRequests\", crm.\"CustomSewingDrafts\", crm.\"CustomSewingCalculations\", crm.\"CustomSewingMutationRequests\", crm.\"CustomSewingTemplates\", crm.\"CustomSewingTemplateMutationRequests\", crm.\"DocumentSettingsState\", crm.\"IssuerSettingsVersions\", crm.\"DocumentTemplateVersions\", crm.\"DocumentSettingsMutations\", crm.\"DocumentNumberSequences\" RESTART IDENTITY CASCADE");
     }
 
     [OneTimeTearDown]
