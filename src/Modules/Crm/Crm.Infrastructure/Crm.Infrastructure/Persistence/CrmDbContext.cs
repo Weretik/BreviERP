@@ -20,6 +20,11 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<QuoteIssue> QuoteIssues => Set<QuoteIssue>();
     public DbSet<QuoteMutationRecord> QuoteMutationRequests => Set<QuoteMutationRecord>();
 
+    public DbSet<Crm.Domain.Quotes.Introductions.IntroductionTemplate> IntroductionTemplates => Set<Crm.Domain.Quotes.Introductions.IntroductionTemplate>();
+    public DbSet<Crm.Domain.Quotes.Introductions.IntroductionTemplateVersion> IntroductionTemplateVersions => Set<Crm.Domain.Quotes.Introductions.IntroductionTemplateVersion>();
+    public DbSet<Crm.Domain.Quotes.Introductions.IntroductionFeaturedMappingVersion> IntroductionFeaturedMappingVersions => Set<Crm.Domain.Quotes.Introductions.IntroductionFeaturedMappingVersion>();
+    public DbSet<Crm.Domain.Quotes.Introductions.IntroductionFeaturedMappingState> IntroductionFeaturedMappingStates => Set<Crm.Domain.Quotes.Introductions.IntroductionFeaturedMappingState>();
+
     public DbSet<Crm.Domain.Documents.DocumentSettingsState> DocumentSettingsStates => Set<Crm.Domain.Documents.DocumentSettingsState>();
     public DbSet<Crm.Domain.Documents.Issuer.IssuerSettingsVersion> IssuerSettingsVersions => Set<Crm.Domain.Documents.Issuer.IssuerSettingsVersion>();
     public DbSet<Crm.Domain.Documents.Templates.DocumentTemplateVersion> DocumentTemplateVersions => Set<Crm.Domain.Documents.Templates.DocumentTemplateVersion>();

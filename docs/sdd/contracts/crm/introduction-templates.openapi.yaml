@@ -1,0 +1,702 @@
+"openapi": "3.1.0"
+"info":
+  "title": "Crm owned first-contact selections and featured mapping"
+  "version": "1.0.0"
+"security":
+  -
+    "Bearer": []
+"paths":
+  "/api/crm/quote-templates/introductions":
+    "get":
+      "operationId": "getCrmIntroductionTemplates"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Manager may access own templates; Admin may access all. Foreign template/version is 404."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/CrmIntroductionTemplatePage"
+        "400":
+          "description": "Malformed input or business validation blockers; existing Result mapping uses 400."
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+      "parameters":
+        -
+          "name": "includeArchived"
+          "in": "query"
+          "schema":
+            "type": "boolean"
+            "default": false
+        -
+          "name": "page"
+          "in": "query"
+          "schema":
+            "type": "integer"
+            "minimum": 1
+            "maximum": 1000000
+            "default": 1
+        -
+          "name": "pageSize"
+          "in": "query"
+          "schema":
+            "type": "integer"
+            "minimum": 1
+            "maximum": 100
+            "default": 25
+    "post":
+      "operationId": "createCrmIntroductionTemplate"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Manager may access own templates; Admin may access all. Foreign template/version is 404."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/CrmIntroductionTemplateDetail"
+        "400":
+          "description": "Malformed input or business validation blockers; existing Result mapping uses 400."
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+        "409":
+          "description": "Revision, requestId payload, archive, active mapping or price source conflict"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CrmCreateIntroductionTemplateRequest"
+  "/api/crm/quote-templates/introductions/{templateId}":
+    "parameters":
+      -
+        "name": "templateId"
+        "in": "path"
+        "required": true
+        "schema":
+          "type": "string"
+          "format": "uuid"
+    "get":
+      "operationId": "getCrmIntroductionTemplate"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Manager may access own templates; Admin may access all. Foreign template/version is 404."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/CrmIntroductionTemplateDetail"
+        "400":
+          "description": "Malformed input or business validation blockers; existing Result mapping uses 400."
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+        "404":
+          "description": "Absent or inaccessible resource"
+      "parameters":
+        -
+          "name": "versionId"
+          "in": "query"
+          "schema":
+            "type": "string"
+            "format": "uuid"
+          "description": "Optional exact immutable version; absent selects current."
+    "put":
+      "operationId": "reviseCrmIntroductionTemplate"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Manager may access own templates; Admin may access all. Foreign template/version is 404."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/CrmIntroductionTemplateDetail"
+        "400":
+          "description": "Malformed input or business validation blockers; existing Result mapping uses 400."
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+        "404":
+          "description": "Absent or inaccessible resource"
+        "409":
+          "description": "Revision, requestId payload, archive, active mapping or price source conflict"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CrmReviseIntroductionTemplateRequest"
+  "/api/crm/quote-templates/introductions/{templateId}/archive":
+    "parameters":
+      -
+        "name": "templateId"
+        "in": "path"
+        "required": true
+        "schema":
+          "type": "string"
+          "format": "uuid"
+    "put":
+      "operationId": "setCrmIntroductionTemplateArchived"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Manager may access own templates; Admin may access all. Foreign template/version is 404."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/CrmIntroductionTemplateDetail"
+        "400":
+          "description": "Malformed input or business validation blockers; existing Result mapping uses 400."
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+        "404":
+          "description": "Absent or inaccessible resource"
+        "409":
+          "description": "Revision, requestId payload, archive, active mapping or price source conflict"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CrmArchiveIntroductionTemplateRequest"
+  "/api/crm/quote-templates/introductions/{templateId}/check":
+    "parameters":
+      -
+        "name": "templateId"
+        "in": "path"
+        "required": true
+        "schema":
+          "type": "string"
+          "format": "uuid"
+    "get":
+      "operationId": "checkCrmIntroductionTemplate"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Read-only current offer validation. Returns current prices and public metadata; creates no quote and sends nothing."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/CrmIntroductionPreparedDraft"
+        "400":
+          "description": "Malformed input or business validation blockers; existing Result mapping uses 400."
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+        "404":
+          "description": "Absent or inaccessible resource"
+        "409":
+          "description": "Revision, requestId payload, archive, active mapping or price source conflict"
+      "parameters":
+        -
+          "name": "versionId"
+          "in": "query"
+          "schema":
+            "type": "string"
+            "format": "uuid"
+          "description": "Optional exact immutable version; absent selects current."
+  "/api/crm/quote-templates/introductions/{templateId}/apply":
+    "parameters":
+      -
+        "name": "templateId"
+        "in": "path"
+        "required": true
+        "schema":
+          "type": "string"
+          "format": "uuid"
+    "post":
+      "operationId": "applyCrmIntroductionTemplate"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Explicitly creates a new draft quote with current server price basis and pinned introduction snapshot; no ready transition or send. Actor-bound requestId replay and payload-conflict rules apply."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "./quote-drafts.openapi.yaml#/components/schemas/CrmQuoteDetail"
+        "400":
+          "description": "Malformed input or business validation blockers; existing Result mapping uses 400."
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+        "404":
+          "description": "Absent or inaccessible resource"
+        "409":
+          "description": "Revision, requestId payload, archive, active mapping or price source conflict"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CrmApplyIntroductionTemplateRequest"
+  "/api/crm/introductions/featured-mapping":
+    "get":
+      "operationId": "getCrmIntroductionFeaturedMapping"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Manager/Admin read active reviewed mapping. Missing configuration is 404."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/CrmIntroductionFeaturedMapping"
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+        "404":
+          "description": "Absent or inaccessible resource"
+    "put":
+      "operationId": "activateCrmIntroductionFeaturedMapping"
+      "tags":
+        - "CrmIntroductionTemplates"
+      "description": "Admin only. Resolves exact imported snapshot/source codes. Repeating the same active source triple and resolved IDs returns the existing active version; no requestId is accepted."
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "$ref": "#/components/schemas/CrmIntroductionFeaturedMapping"
+        "400":
+          "description": "Malformed input or business validation blockers; existing Result mapping uses 400."
+        "401":
+          "description": "Unauthenticated"
+        "403":
+          "description": "Role or actor denied"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "#/components/schemas/CrmIntroductionFeaturedMappingRequest"
+"components":
+  "securitySchemes":
+    "Bearer":
+      "type": "http"
+      "scheme": "bearer"
+      "bearerFormat": "JWT"
+  "schemas":
+    "CrmIntroductionSlotInput":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "slotUid"
+        - "productId"
+        - "articleId"
+      "properties":
+        "slotUid":
+          "type": "integer"
+          "enum":
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+        "productId":
+          "type": "integer"
+          "minimum": 1
+        "articleId":
+          "type": "integer"
+          "format": "int64"
+          "minimum": 1
+    "CrmCreateIntroductionTemplateRequest":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "requestId"
+        - "name"
+        - "layout"
+        - "emailTemplateVersionId"
+        - "selections"
+      "properties":
+        "requestId":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 300
+        "layout":
+          "type": "string"
+          "enum":
+            - "general"
+            - "summer"
+            - "winter"
+        "emailTemplateVersionId":
+          "type": "string"
+          "format": "uuid"
+        "selections":
+          "type": "array"
+          "minItems": 4
+          "maxItems": 8
+          "items":
+            "$ref": "#/components/schemas/CrmIntroductionSlotInput"
+        "expectedRevision":
+          "type": "null"
+    "CrmReviseIntroductionTemplateRequest":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "requestId"
+        - "name"
+        - "layout"
+        - "emailTemplateVersionId"
+        - "selections"
+        - "expectedRevision"
+      "properties":
+        "requestId":
+          "type": "string"
+          "format": "uuid"
+        "name":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 300
+        "layout":
+          "type": "string"
+          "enum":
+            - "general"
+            - "summer"
+            - "winter"
+        "emailTemplateVersionId":
+          "type": "string"
+          "format": "uuid"
+        "selections":
+          "type": "array"
+          "minItems": 4
+          "maxItems": 8
+          "items":
+            "$ref": "#/components/schemas/CrmIntroductionSlotInput"
+        "expectedRevision":
+          "type": "integer"
+          "format": "int64"
+          "minimum": 1
+    "CrmArchiveIntroductionTemplateRequest":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "requestId"
+        - "expectedRevision"
+        - "archived"
+      "properties":
+        "requestId":
+          "type": "string"
+          "format": "uuid"
+        "expectedRevision":
+          "type": "integer"
+          "format": "int64"
+          "minimum": 1
+        "archived":
+          "type": "boolean"
+    "CrmApplyIntroductionTemplateRequest":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "requestId"
+      "properties":
+        "requestId":
+          "type": "string"
+          "format": "uuid"
+        "versionId":
+          "type":
+            - "string"
+            - "null"
+          "format": "uuid"
+        "customerPublicId":
+          "type":
+            - "string"
+            - "null"
+          "format": "uuid"
+        "contactPublicId":
+          "type":
+            - "string"
+            - "null"
+          "format": "uuid"
+        "recipientName":
+          "type":
+            - "string"
+            - "null"
+    "CrmIntroductionFeaturedMappingRequest":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "snapshotHash"
+        - "summerModelCode"
+        - "winterModelCode"
+      "properties":
+        "snapshotHash":
+          "type": "string"
+          "pattern": "^[0-9a-fA-F]{64}$"
+        "summerModelCode":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 80
+        "winterModelCode":
+          "type": "string"
+          "minLength": 1
+          "maxLength": 80
+    "CrmIntroductionFeaturedMapping":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "versionId"
+        - "summerProductId"
+        - "winterProductId"
+      "properties":
+        "versionId":
+          "type": "string"
+          "format": "uuid"
+        "summerProductId":
+          "type": "integer"
+          "minimum": 1
+        "winterProductId":
+          "type": "integer"
+          "minimum": 1
+    "CrmIntroductionSlot":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "season"
+        - "position"
+        - "uid"
+      "properties":
+        "season":
+          "type": "integer"
+          "enum":
+            - 0
+            - 1
+          "description": "Runtime numeric enum: 0=Summer, 1=Winter."
+        "position":
+          "type": "integer"
+          "minimum": 0
+          "maximum": 3
+        "uid":
+          "type": "integer"
+          "enum":
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+    "CrmIntroductionSelection":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "slot"
+        - "productId"
+        - "articleId"
+      "properties":
+        "slot":
+          "$ref": "#/components/schemas/CrmIntroductionSlot"
+        "productId":
+          "type": "integer"
+          "minimum": 1
+        "articleId":
+          "type": "integer"
+          "format": "int64"
+          "minimum": 1
+    "CrmIntroductionSelectionSnapshot":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "layout"
+        - "mappingVersionId"
+        - "emailTemplateVersionId"
+        - "selections"
+      "properties":
+        "layout":
+          "type": "integer"
+          "enum":
+            - 0
+            - 1
+            - 2
+          "description": "Runtime numeric enum: 0=General, 1=Summer, 2=Winter."
+        "mappingVersionId":
+          "type": "string"
+          "format": "uuid"
+        "emailTemplateVersionId":
+          "type": "string"
+          "format": "uuid"
+        "selections":
+          "type": "array"
+          "minItems": 4
+          "maxItems": 8
+          "items":
+            "$ref": "#/components/schemas/CrmIntroductionSelection"
+    "CrmIntroductionTemplateSummary":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "templatePublicId"
+        - "ownerId"
+        - "revision"
+        - "archived"
+        - "versionPublicId"
+        - "versionNumber"
+        - "name"
+        - "updatedAt"
+      "properties":
+        "templatePublicId":
+          "type": "string"
+          "format": "uuid"
+        "ownerId":
+          "type": "integer"
+          "minimum": 1
+        "revision":
+          "type": "integer"
+          "format": "int64"
+          "minimum": 1
+        "archived":
+          "type": "boolean"
+        "versionPublicId":
+          "type": "string"
+          "format": "uuid"
+        "versionNumber":
+          "type": "integer"
+          "minimum": 1
+        "name":
+          "type": "string"
+        "updatedAt":
+          "type": "string"
+          "format": "date-time"
+    "CrmIntroductionTemplateDetail":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "templatePublicId"
+        - "ownerId"
+        - "revision"
+        - "archived"
+        - "versionPublicId"
+        - "versionNumber"
+        - "name"
+        - "updatedAt"
+        - "snapshot"
+      "properties":
+        "templatePublicId":
+          "type": "string"
+          "format": "uuid"
+        "ownerId":
+          "type": "integer"
+          "minimum": 1
+        "revision":
+          "type": "integer"
+          "format": "int64"
+          "minimum": 1
+        "archived":
+          "type": "boolean"
+        "versionPublicId":
+          "type": "string"
+          "format": "uuid"
+        "versionNumber":
+          "type": "integer"
+          "minimum": 1
+        "name":
+          "type": "string"
+        "updatedAt":
+          "type": "string"
+          "format": "date-time"
+        "snapshot":
+          "$ref": "#/components/schemas/CrmIntroductionSelectionSnapshot"
+    "CrmIntroductionTemplatePage":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "value"
+        - "pagedInfo"
+      "properties":
+        "value":
+          "type": "array"
+          "items":
+            "$ref": "#/components/schemas/CrmIntroductionTemplateSummary"
+        "pagedInfo":
+          "$ref": "./clients-quotes.openapi.yaml#/components/schemas/CrmPagedInfo"
+    "CrmIntroductionPreparedSlot":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "selection"
+        - "modelName"
+        - "fabricName"
+        - "fabricComposition"
+        - "fabricDensity"
+        - "productUrl"
+        - "largeWholesale"
+        - "currentPrice"
+      "properties":
+        "selection":
+          "$ref": "#/components/schemas/CrmIntroductionSelection"
+        "modelName":
+          "type": "string"
+        "fabricName":
+          "type": "string"
+        "fabricComposition":
+          "type": "string"
+        "fabricDensity":
+          "type": "string"
+        "productUrl":
+          "type": "string"
+        "largeWholesale":
+          "type": "number"
+          "exclusiveMinimum": 0
+        "currentPrice":
+          "$ref": "./quote-drafts.openapi.yaml#/components/schemas/CrmQuoteCatalogPrice"
+    "CrmIntroductionPreparedDraft":
+      "type": "object"
+      "additionalProperties": false
+      "required":
+        - "layout"
+        - "mappingVersionId"
+        - "emailTemplateVersionId"
+        - "slots"
+      "properties":
+        "layout":
+          "type": "integer"
+          "enum":
+            - 0
+            - 1
+            - 2
+          "description": "Runtime numeric enum: 0=General, 1=Summer, 2=Winter."
+        "mappingVersionId":
+          "type": "string"
+          "format": "uuid"
+        "emailTemplateVersionId":
+          "type": "string"
+          "format": "uuid"
+        "slots":
+          "type": "array"
+          "minItems": 4
+          "maxItems": 8
+          "items":
+            "$ref": "#/components/schemas/CrmIntroductionPreparedSlot"

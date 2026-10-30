@@ -29,6 +29,8 @@ public sealed class SaveQuoteVersionCommandHandler(
                     : null;
                 if (previous is null)
                     return Result.Conflict("missing_current_version");
+                if (previous.IntroductionPublicSnapshot is not null)
+                    return Result.Conflict("introduction_requires_new_from_template");
                 var built = await builder.BuildAsync(command.Content, previous, quote.PublicId, command.Actor, ct);
                 if (!built.IsSuccess) return QuoteBuildResult.Failure(built);
                 var version = QuoteVersion.Create(quote.Id, quote.CurrentVersionNumber + 1,

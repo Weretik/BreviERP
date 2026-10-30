@@ -25,6 +25,8 @@ public sealed class CopyQuoteCommandHandler(IQuoteMutationStore store)
                 if (source.Revision != command.ExpectedRevision) return Result.Conflict("revision_conflict");
                 var version = await session.FindVersionAsync(source.Id, command.VersionId, ct);
                 if (version is null) return Result.NotFound();
+                if (version.IntroductionPublicSnapshot is not null)
+                    return Result.Conflict("introduction_requires_new_from_template");
                 var copy = Quote.Create(source.CustomerId, version.ContactPublicId,
                     version.RecipientName, new CrmUserId(command.Actor.UserId));
                 copy.SetCopySource(source.PublicId, version.PublicId);

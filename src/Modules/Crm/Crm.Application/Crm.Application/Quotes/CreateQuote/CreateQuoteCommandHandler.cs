@@ -18,7 +18,8 @@ public sealed class CreateQuoteCommandHandler(
     {
         if (command.RequestId == Guid.Empty || command.Actor.UserId <= 0 || command.Content is null)
             return Result.Invalid(new ValidationError("requestId", "invalid_request"));
-        return await store.ExecuteAsync("CreateQuote", command.RequestId, command.Actor, command,
+        return await store.ExecuteAsync("CreateQuote", command.RequestId, command.Actor,
+            (object?)command.IntroductionApplicationIntent ?? command,
             async (session, ct) =>
             {
                 var customer = command.CustomerPublicId is { } customerId
@@ -41,8 +42,12 @@ public sealed class CreateQuoteCommandHandler(
                 await session.FlushAsync(ct);
                 var built = await builder.BuildAsync(command.Content, null, null, command.Actor, ct);
                 if (!built.IsSuccess) return QuoteBuildResult.Failure(built);
+                if (command.IntroductionPublicSnapshot is { } pin &&
+                    !IntroductionQuotePinValidator.Matches(pin, built.Value))
+                    return Result.Conflict("introduction_price_or_selection_changed");
                 var version = QuoteVersion.Create(quote.Id, 1, null, "created", recipient,
-                    customer?.PublicId, command.ContactPublicId, command.Actor.UserId, built.Value);
+                    customer?.PublicId, command.ContactPublicId, command.Actor.UserId, built.Value,
+                    command.IntroductionPublicSnapshot);
                 session.Add(version);
                 await session.FlushAsync(ct);
                 quote.SetInitialVersion(version.Id);

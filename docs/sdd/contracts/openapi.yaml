@@ -133,6 +133,18 @@ paths:
     $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1versions~1{versionId}
   /api/crm/custom-sewing/suggestions:
     $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1suggestions
+  /api/crm/quote-templates/introductions:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions
+  /api/crm/quote-templates/introductions/{templateId}:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}
+  /api/crm/quote-templates/introductions/{templateId}/archive:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}~1archive
+  /api/crm/quote-templates/introductions/{templateId}/check:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}~1check
+  /api/crm/quote-templates/introductions/{templateId}/apply:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}~1apply
+  /api/crm/introductions/featured-mapping:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1introductions~1featured-mapping
   /api/crm/quote-templates:
     $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates
   /api/crm/quote-templates/{templateId}:

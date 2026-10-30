@@ -18,6 +18,9 @@ using Crm.Infrastructure.Persistence.Documents;
 using Crm.Infrastructure.Persistence.Quotes.Writing;
 using Crm.Infrastructure.Persistence.Quotes.Reading;
 using Crm.Infrastructure.Persistence;
+using Crm.Application.Quotes.Introductions;
+using Crm.Application.Quotes.BuildIntroduction;
+using Crm.Infrastructure.Persistence.Introductions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,6 +49,12 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<Crm.Application.CustomSewing.Persistence.ICustomMutationStore, Crm.Infrastructure.Persistence.CustomSewing.Writing.CustomMutationStore>();
         services.AddScoped<Crm.Application.CustomSewing.Persistence.ICustomReadRepository, Crm.Infrastructure.Persistence.CustomSewing.Reading.CustomReadRepository>();
         services.AddCrmTemplates();
+        services.AddScoped<IIntroductionFeaturedMappingStore, IntroductionFeaturedMappingStore>();
+        services.AddScoped<IIntroductionTemplateStore, IntroductionTemplateStore>();
+        services.AddScoped<IIntroductionQuoteReplayReader, IntroductionQuoteReplayReader>();
+        services.AddScoped<IntroductionDraftBuilder>();
+        services.AddScoped<IntroductionTemplateService>();
+        services.AddScoped<Crm.Application.Quotes.Introductions.IntroductionQuoteCreator>();
         services.AddScoped<IDatabaseMigrator, DbMigrator<CrmDbContext>>();
         return services;
     }

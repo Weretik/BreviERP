@@ -53,7 +53,7 @@ public sealed class QuotePdfWorker(IServiceScopeFactory scopeFactory, ILogger<Qu
             var logo = source.Issuer.LogoAssetKey is { } key
                 ? await services.GetRequiredService<IQuoteBrandAssetResolver>()
                     .ResolveAsync(key, cancellationToken) : null;
-            var projection = QuotePublicDocumentProjectionBuilder.Build(source.Version,
+            var projection = QuoteDocumentProjectionSelector.Build(source.Version,
                 source.Issuer, source.Template, source.Issue.Number,
                 source.PublicContactName, logo);
             var pdf = await renderer.RenderAsync(projection, cancellationToken);

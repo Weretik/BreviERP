@@ -51,13 +51,14 @@ public sealed class PrepareQuoteCommandHandler(IQuoteMutationStore store, IDocum
                 // The source worker uses this same builder and the same verified issuer contact.
                 try
                 {
-                    QuotePublicDocumentProjectionBuilder.Build(version, settings.Issuer,
+                    QuoteDocumentProjectionSelector.Build(version, settings.Issuer,
                         settings.Template, quote.Number ?? "10/10/2026", settings.Issuer.LegalName, logo);
                 }
                 catch (InvalidOperationException exception) when (exception.Message is
                     "public_document_input_invalid" or "public_logo_asset_missing_or_unexpected" or
                     "public_items_missing" or "public_variants_missing" or "public_tier_price_missing" or
-                    "public_tiers_missing" or "public_document_too_large")
+                    "public_tiers_missing" or "public_document_too_large" or
+                    "introduction_public_snapshot_invalid" or "introduction_public_header_invalid")
                 {
                     return Result.Invalid(new ValidationError("document", exception.Message));
                 }
