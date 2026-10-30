@@ -122,3 +122,13 @@ The settings input includes no arbitrary media URL. `logoAssetKey` is null or th
 Canonical [quote OpenAPI](../../../../contracts/crm/quote-drafts.openapi.yaml) defines `prepareCrmQuote` for the current saved version and expected revision/requestId. Ready validates public prices/settings and pins the version and number; it does not send a document. Canonical [PDF OpenAPI](../../../../contracts/crm/quote-pdf.openapi.yaml) defines `renderCrmQuotePdf` to queue or reuse a versioned artifact, `getCrmQuotePdfArtifact` for status and `downloadCrmQuotePdfArtifact` for authorized saved bytes. A queued response is 202; success returns metadata or PDF content. Missing/foreign resources are not disclosed through the content route. The artifact records its own state and hash; a download does not render again.
 
 These P5 operations are a local working-tree contract. FE-008 may sync only after an authorized clean immutable backend SHA and the remaining TS-010 verification gate. The frontend must generate types from that exact revision, validate responses and keep PDF Blob bytes outside persistent cache. [Current backend evidence](../evidence/ts-010-2026-10-29.md).
+
+## P6 local backend contracts — 2026-10-30
+
+Canonical [email templates](../../../../contracts/crm/email-templates.openapi.yaml) adds getCrmEmailTemplates, getCrmEmailTemplateVersion, getCrmActiveEmailTemplate, createCrmEmailTemplateVersion and activateCrmEmailTemplate. Admin creates/activates; Manager reads. New introduction references must resolve the registry; an unchanged accessible legacy reference is preserved. No issuer-document ID substitution or seeded email content.
+
+Canonical [production packages](../../../../contracts/crm/production-packages.openapi.yaml) implements exportCrmProductionPackage, getCrmProductionPackage and downloadCrmProductionPackage. POST returns200 pinned metadata, content is private application/zip with no-store/nosniff. RequestId/revision/visibility/provenance errors and maximum sizes follow the canonical source. No Workshop call or automatic order/send. These changes remain local and require a separately authorized immutable backend handoff before frontend synchronization.
+
+## Explicit delivery queue — TS-011
+
+Canonical [delivery contract](../../../../contracts/crm/quote-deliveries.openapi.yaml) adds authorized explicit enqueue202 and paged/detail history200. The request pins current issued version, successful PDF and email-template version; unavailable provider configuration returns503. Queue/unknown is never sent, and replay never creates another delivery. No frontend sync or actual provider consent is claimed.

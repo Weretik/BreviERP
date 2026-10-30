@@ -6,4 +6,5 @@ public sealed record PublicDocumentProjection(
     IReadOnlyList<string> Paragraphs,
     IReadOnlyList<PublicDocumentImage> Images,
     PublicDocumentImage? HeaderLogo = null,
-    IReadOnlyList<PublicDocumentPage>? Pages = null);
+    IReadOnlyList<PublicDocumentPage>? Pages = null,
+    IReadOnlyList<PublicDocumentTextGroup>? TextGroups = null);

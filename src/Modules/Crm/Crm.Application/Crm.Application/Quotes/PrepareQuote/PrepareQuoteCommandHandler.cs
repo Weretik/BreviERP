@@ -58,7 +58,8 @@ public sealed class PrepareQuoteCommandHandler(IQuoteMutationStore store, IDocum
                     "public_document_input_invalid" or "public_logo_asset_missing_or_unexpected" or
                     "public_items_missing" or "public_variants_missing" or "public_tier_price_missing" or
                     "public_tiers_missing" or "public_document_too_large" or
-                    "introduction_public_snapshot_invalid" or "introduction_public_header_invalid")
+                    "introduction_public_snapshot_invalid" or "introduction_public_header_invalid" or
+                    "introduction_public_layout_too_large")
                 {
                     return Result.Invalid(new ValidationError("document", exception.Message));
                 }

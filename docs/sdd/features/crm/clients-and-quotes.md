@@ -283,3 +283,88 @@ TS-010: `tests/UnitTests/Crm/{Quotes,Documents}/`, `tests/IntegrationTests/Crm/Q
 ## First-contact selections — TS-016 backend checkpoint 2026-10-30
 
 Domain `Quotes/Introductions/` owns layouts, versioned selections/featured mappings and public snapshots. Application `Quotes/Introductions/` owns template operations, current-price quote creation, separate IntroductionPriceBasisIssuer for per-slot basis issuance, and stable application intent/replay port. Infrastructure `Persistence/Introductions/` separates reads, writes and mutation journal; public snapshots map to QuoteVersions jsonb. API `Templates/Introduction*Controller.cs` exposes owned template operations and Admin featured activation; Host `Crm/IntroductionSourceMappingReader.cs` resolves exact imported source identities. Documents use the shared projection/Chromium pipeline. [Canonical contract](../../contracts/crm/introduction-templates.openapi.yaml), [verification and rollout](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-016-backend-gates-2026-10-30.md). Consumer integration and rendered acceptance remain open.
+
+P5 rendered acceptance adds allowlisted `PublicDocumentTextGroup` for ordinary item/CTA pagination and `IntroductionDocumentLayoutPolicy` for fixed seasonal capacity before ready. Actual PDFs1/7 ordinary and1/1/2 seasonal with/without logo, plus persisted4-case journey, are verified in [local acceptance](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p5-local-acceptance-2026-10-30.md). No text is silently cut; oversized seasonal content blocks before numbering.
+
+P5 PDF responsibility audit separated HTML composition (`PublicDocumentHtmlWriter`), input/image policy (`PublicDocumentProjectionValidator`), CSS (`PublicDocumentStyles`) and seasonal markup (`IntroductionDocumentHtmlWriter`) within Infrastructure `Documents/Rendering/`. The fixed-layout capacity rule stays in Application. [Audit and16-page raster equivalence](../../specs/crm/001-clients-quotes-custom-sewing/code-audit/p5-pdf-functional-audit-2026-10-30.md).
+
+## P6 email registry and production exports — local backend
+
+Admin creates and explicitly activates immutable email subject/body versions. Manager reads versions and new selection references resolve this registry. Production export uses the exact issued quote/custom versions, a production-only allowlist and verified private files; repeated requests preserve one immutable ZIP and an append-only request journal. Downloads check current quote ownership and never rebuild or mark sent.
+
+```text
+Crm.Domain/Documents/EmailTemplates/                         immutable template rules and active state
+Crm.Application/Documents/EmailTemplates/                    template use cases, renderer and ports
+Crm.Application/CustomSewing/Production/{Contracts,Projection,Export,Reading,Persistence}/
+                                                            typed manifest, projection and use cases
+Crm.Infrastructure/Persistence/Documents/{EmailTemplates,Production}/
+                                                            transactional registry/artifact stores and journals
+Crm.Infrastructure/Documents/Production/                     bounded private ZIP composition
+Crm.Infrastructure/Persistence/Configurations/{EmailTemplates,Production}/
+                                                            schema and integrity constraints
+Crm.Api/Documents/EmailTemplates/                            registry HTTP boundary
+Crm.Api/Quotes/ProductionPackagesController.cs                export/metadata/content HTTP boundary
+Crm.Application/Delivery/{Readiness,Provider}/                 readiness, submission and reconciliation ports
+Crm.Infrastructure/Delivery/{Readiness,Gmail}/                 fail-closed policy and one-attempt Gmail adapter
+Crm.Infrastructure/Delivery/Gmail/GmailSentMessageLookup.cs     read-only Sent reconciliation
+Crm.Infrastructure/DependencyInjection/Crm{EmailTemplate,ProductionPackage,QuoteDelivery}ServiceExtensions.cs
+                                                            independent feature registrations
+```
+
+```mermaid
+flowchart LR
+  Admin[Admin] --> Registry[Immutable email versions and active revision]
+  Selections[Selection reference validation] --> Registry
+  API[Production package API] --> ACL[Current quote authorization]
+  ACL --> Pin[Exact issued version and custom snapshots]
+  Pin --> Allowlist[Production allowlist and verified files]
+  Allowlist --> ZIP[Private immutable ZIP and request journal]
+  API --> ZIP
+  Gmail[Gmail adapter] --> Readiness[Disabled until reviewed OAuth and sandbox test]
+```
+
+Contracts: [email registry](../../contracts/crm/email-templates.openapi.yaml), [production packages](../../contracts/crm/production-packages.openapi.yaml). Data: [Crm schema](../../architecture/data-model/crm.md). Tests: UnitTests `EmailTemplateVersionTests`, `ProductionPackageProjectionTests`; IntegrationTests `EmailTemplateRegistry*`, `ProductionPackage*`, `QuoteDeliveryReadinessPolicyTests`, `GmailQuoteDeliveryProviderTests`. [Unified evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p6-backend-checkpoint-2026-10-30.md). Frontend P6 integration and live Gmail acceptance remain pending; the outbox is described below.
+
+[P6 responsibility and functional audit](../../specs/crm/001-clients-quotes-custom-sewing/code-audit/p6-functional-audit-2026-10-30.md) records the Gmail stream-interruption fix and separation of reconciliation/module registrations.
+
+## P6 explicit email outbox and delegated OAuth
+
+Owner/Admin explicitly queues a current issued version with an intact pinned PDF and immutable email-template version. Queue pins the rendered public message and provider/sender identity. A hosted scoped processor claims a durable lease before provider IO. Expired/unknown attempts use read-only reconciliation, with no automatic repost. Confirmed provider success records the exact delivered version; a newer draft is never marked sent. Current quote access protects all replay/history reads.
+
+```text
+Crm.Domain/Delivery/                            pure lease/outcome state and typed ID
+Crm.Domain/Quotes/Quote.cs                      confirmed current-version sent transition
+Crm.Application/Delivery/{EnqueueQuote,GetDeliveries,Outbox,Processing}/
+                                               explicit enqueue, safe reads, ports and processor
+Crm.Infrastructure/Persistence/Delivery/        immutable pins/receipts/events; separate enqueue/reads/claims/completion files
+Crm.Infrastructure/Persistence/Configurations/Delivery/  data constraints
+Crm.Infrastructure/Delivery/Gmail/OAuth/        bounded refresh/profile verification/token cache
+Crm.Infrastructure/Delivery/Readiness/ConfiguredQuoteDeliveryIdentity.cs
+                                               configured provider/sender/lease identity
+Crm.Api/Delivery/                              queue and authorized paged/detail history
+Host.Api/Crm/Delivery/                         scoped hosted polling
+tools/gmail-oauth-setup.py                      explicit user-run local settings orchestration
+tools/gmail_oauth/{validation,transport,consent}.py
+                                               pure checks, fixed HTTP and browser/loopback receiver
+```
+
+```mermaid
+flowchart LR
+  API[Explicit enqueue API] --> ACL[Current owner and revision]
+  ACL --> Pins[Issued version / PDF / email template]
+  Pins --> Queue[Immutable message and request receipt]
+  Worker[Scoped worker] --> Lease[Committed lease and attempt]
+  Queue --> Lease
+  Lease --> Provider[Gmail submit or read-only reconciliation]
+  Provider --> Token[OAuth refresh and sender profile proof]
+  Provider --> Outcome[Version-specific outcome event]
+  Outcome --> Current[Mark sent only for matching current issued version]
+```
+
+Contract: [delivery queue/history](../../contracts/crm/quote-deliveries.openapi.yaml). Data: [Crm map](../../architecture/data-model/crm.md). OAuth provisioning: [setup runbook](../../operations/crm-gmail-oauth.md). Runtime sending requires explicit enabled configuration and delegated consent; automatic tests use fake HTTP/providers. No live send, frontend integration or provider round-trip acceptance is inferred.
+
+## P6 delivery tests
+
+Focused IntegrationTests filter `FullyQualifiedName~QuoteDelivery|FullyQualifiedName~GmailOAuth` covers outbox persistence/API, worker composition, readiness, Gmail adapter and OAuth source. UnitTests delivery state and confirmed-version transition checks are in `tests/UnitTests/Crm/Delivery/`. [Actual verification](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p6-outbox-oauth-checkpoint-2026-10-30.md).
+
+[Outbox/OAuth functional audit](../../specs/crm/001-clients-quotes-custom-sewing/code-audit/p6-outbox-oauth-audit-2026-10-30.md) records sandbox queue selection before candidate limits, immediate verified consent refusal and the responsibility split.

@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Host.Api.Crm.Files;
 using Host.Api.Crm.Documents;
+using Host.Api.Crm.Delivery;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.AddSerilog();
 builder.Services.AddHostServices(builder.Configuration);
 builder.Services.AddCrmPrivateFiles(builder.Configuration, builder.Environment);
 builder.Services.AddCrmQuoteDocuments(builder.Configuration, builder.Environment);
+builder.Services.AddCrmDeliveryWorker();
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { new CultureInfo("uk-UA"), new CultureInfo("ru-RU") };

@@ -73,3 +73,7 @@ CustomDraftAttachments is keyed by typed (DraftId,FileId), with independent Show
 Byte IO is outside upload reservation/completion transactions. Known reserved IDs and deterministic pending paths permit crash cleanup; filesystem expiration validation prevents a delayed write after an expired reservation is cleaned. Finalization/verification performs bounded local reads before accepting links. Cleanup is an explicit bounded service, never an enabled historical deletion job: claim only expired uploads with no current/historical references, delete known temporary bytes, retain a tombstone. Configurable temporary lifetime defaults to 24 hours; historical retention policy remains EN-006.
 
 Migration AddCustomPrivateFileLifecycle is additive and precedes file API activation. Down drops file metadata/version references, so it is only for unused disposable/undeployed data; after use retain metadata/history/bytes and roll back application code. The frontend FE-006 snapshot remains pinned to the preceding custom contract; file operations are a separate FE-007 handoff.
+
+## P6 additive models
+
+EmailTemplateVersions/active state/mutation journal are specified in [email registry design](design/email-templates-p6.md). ProductionPackageArtifacts/ProductionPackageMutationRequests retain immutable ZIP bytes, typed quote/version FK, canonical selected-ID hash, actor-bound request hash and audit timestamp; [production v1 design](design/production-package-v1.md) defines content/limits/recovery. Neither table is a second quote store.

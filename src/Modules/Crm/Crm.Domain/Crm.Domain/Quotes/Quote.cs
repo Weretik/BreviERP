@@ -87,6 +87,16 @@ public sealed class Quote : BaseEntity<QuoteId>, IAggregateRoot
         Record("readied", actorId);
     }
 
+    // Confirmed delivery is version-specific; a later draft must never be marked sent by an old worker.
+    public void MarkDeliverySent(long deliveredVersionId)
+    {
+        if (deliveredVersionId <= 0) throw new QuoteValidationException("invalid_delivery_version");
+        if (CurrentVersionId != deliveredVersionId || IssuedVersionId != deliveredVersionId || State != "ready") return;
+        State = "sent";
+        Revision++;
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     public void AssertEditable(long expectedRevision, int actorId, bool isAdmin)
     {
         if (actorId <= 0) throw new QuoteValidationException("invalid_actor");

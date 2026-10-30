@@ -49,7 +49,9 @@ public static class IntroductionPublicDocumentProjectionBuilder
                     template.CtaContactTemplate.Replace("{managerName}", managerName.Trim(), StringComparison.Ordinal),
                     $"{issuer.LegalName} · {issuer.Phone} · {issuer.Email}"]))
             .ToArray();
-        return new PublicDocumentProjection($"{template.Title} № {number.Trim()}", [], [], logo, pages);
+        var document = new PublicDocumentProjection($"{template.Title} № {number.Trim()}", [], [], logo, pages);
+        IntroductionDocumentLayoutPolicy.Validate(document);
+        return document;
     }
 
     private static void Validate(IntroductionPublicSnapshot snapshot)

@@ -46,10 +46,12 @@ public static class QuotePublicDocumentProjectionBuilder
         if (!string.IsNullOrWhiteSpace(issuer.BankName)) paragraphs.Add($"Банк: {issuer.BankName}");
         if (!string.IsNullOrWhiteSpace(issuer.Mfo)) paragraphs.Add($"МФО: {issuer.Mfo}");
 
+        var groups = new List<PublicDocumentTextGroup> { new(paragraphs.ToArray()) };
         var included = version.Items.Where(x => x.Included).OrderBy(x => x.SortOrder).ToArray();
         if (included.Length == 0) throw new InvalidOperationException("public_items_missing");
         foreach (var item in included)
         {
+            var firstParagraph = paragraphs.Count;
             var visible = item.Variants.Where(x => x.Visible).OrderBy(x => x.SortOrder).ToArray();
             if (visible.Length == 0) throw new InvalidOperationException("public_variants_missing");
             paragraphs.Add(item.Title);
@@ -70,13 +72,16 @@ public static class QuotePublicDocumentProjectionBuilder
                 }
                 if (visibleTiers == 0) throw new InvalidOperationException("public_tiers_missing");
             }
+            groups.Add(new PublicDocumentTextGroup(paragraphs.Skip(firstParagraph).ToArray()));
         }
 
+        var ctaStart = paragraphs.Count;
         paragraphs.Add(template.CtaTitle);
         paragraphs.Add(template.CtaText);
         paragraphs.Add(template.CtaContactTemplate.Replace("{managerName}", publicContactName.Trim(), StringComparison.Ordinal));
         if (paragraphs.Count > 500 || paragraphs.Any(x => x.Length > 8000))
             throw new InvalidOperationException("public_document_too_large");
-        return new PublicDocumentProjection($"{template.Title} № {number}", paragraphs, [], logo);
+        groups.Add(new PublicDocumentTextGroup(paragraphs.Skip(ctaStart).ToArray()));
+        return new PublicDocumentProjection($"{template.Title} № {number}", paragraphs, [], logo, TextGroups: groups);
     }
 }

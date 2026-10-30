@@ -65,6 +65,32 @@ public sealed class IntroductionPublicDocumentProjectionBuilderTests
             Throws.InvalidOperationException.With.Message.EqualTo("introduction_public_snapshot_invalid"));
     }
 
+    [Test]
+    public void Oversized_template_paragraph_is_rejected_before_ready_instead_of_in_renderer()
+    {
+        var longTemplate = DocumentTemplateVersion.Create(2, "standard", "КП",
+            "Усі ціни в грн", new string('а', 1001), "Контакт", "Напишіть нам",
+            "{managerName}", new CrmUserId(7));
+        var pin = IntroductionPublicDocumentProjectionBuilder.Freeze(Prepared(IntroductionLayout.Summer));
+        Assert.That(() => IntroductionPublicDocumentProjectionBuilder.Build(pin, Issuer,
+            longTemplate, "10/10/2026", "Клієнт", "Олена"),
+            Throws.InvalidOperationException.With.Message.EqualTo("introduction_public_layout_too_large"));
+    }
+
+    [Test]
+    public void Combined_legal_template_text_and_line_breaks_block_fixed_seasonal_layout()
+    {
+        var pin = IntroductionPublicDocumentProjectionBuilder.Freeze(Prepared(IntroductionLayout.General));
+        foreach (var opening in new[] { new string('а', 600), string.Join("\n", Enumerable.Repeat("Рядок", 20)) })
+        {
+            var template = DocumentTemplateVersion.Create(2, "standard", "КП", "Ціни в грн",
+                opening, "Контакт", new string('б', 600), "{managerName}", new CrmUserId(7));
+            Assert.That(() => IntroductionPublicDocumentProjectionBuilder.Build(pin, Issuer,
+                template, "10/10/2026", "Клієнт", "Олена"),
+                Throws.InvalidOperationException.With.Message.EqualTo("introduction_public_layout_too_large"));
+        }
+    }
+
     private static IntroductionPreparedDraft Prepared(IntroductionLayout layout)
     {
         var slots = IntroductionSlot.Required(layout).Select((slot, index) =>

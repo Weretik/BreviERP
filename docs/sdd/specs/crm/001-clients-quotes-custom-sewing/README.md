@@ -1,6 +1,6 @@
 # CRM-001 — Clients, quotes and custom sewing
 
-**Status:** P1–P4 implementation is locally automatically verified, including FE-006/007 in the consumer repository. P5 EN-005, TS-009 and TS-010 backend are locally verified; their CRM migrations are applied to local `brevidb`. [TS-010 evidence and hosted-run limits](evidence/ts-010-2026-10-29.md). Current immutable frontend-consumed backend contract: `fdb8095d4dfd52a9680b5a2768c706aea1aa8c4b`; new P5 contract/implementation is uncommitted and not handed to frontend. **Reviewed:** 2026-10-29. **Owner:** Crm. No production rollout is claimed.
+**Status:** P1–P5 locally verified within recorded acceptance boundaries. P6 backend email templates, production export and outbox/OAuth code are locally verified; actual Gmail consent/test and frontend FE-009 remain pending. [Current P6 checkpoint](evidence/p6-outbox-oauth-checkpoint-2026-10-30.md). Frontend continues to use its existing pinned backend contract; new P6 changes are uncommitted. **Reviewed:** 2026-10-30. **Owner:** Crm. No production rollout is claimed.
 
 ## Outcome and scope
 

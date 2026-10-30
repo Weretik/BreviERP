@@ -49,6 +49,9 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<Crm.Application.CustomSewing.Persistence.ICustomMutationStore, Crm.Infrastructure.Persistence.CustomSewing.Writing.CustomMutationStore>();
         services.AddScoped<Crm.Application.CustomSewing.Persistence.ICustomReadRepository, Crm.Infrastructure.Persistence.CustomSewing.Reading.CustomReadRepository>();
         services.AddCrmTemplates();
+        services.AddCrmEmailTemplates();
+        services.AddCrmProductionPackages();
+        services.AddCrmQuoteDelivery(configuration);
         services.AddScoped<IIntroductionFeaturedMappingStore, IntroductionFeaturedMappingStore>();
         services.AddScoped<IIntroductionTemplateStore, IntroductionTemplateStore>();
         services.AddScoped<IIntroductionQuoteReplayReader, IntroductionQuoteReplayReader>();

@@ -1,3 +1,4 @@
+using Crm.Application.Documents.EmailTemplates;
 using Ardalis.Result;
 using Crm.Application.Customers.Access;
 using Crm.Application.Quotes.BuildIntroduction;
@@ -8,7 +9,8 @@ namespace Crm.Application.Quotes.Introductions;
 public sealed class IntroductionTemplateService(
     IIntroductionTemplateStore templates,
     IIntroductionFeaturedMappingStore mappings,
-    IntroductionDraftBuilder builder)
+    IntroductionDraftBuilder builder,
+    IEmailTemplateVersionReader emailTemplates)
 {
     public async Task<Result<IntroductionTemplateDetail>> CreateAsync(CrmActor actor, Guid requestId, string name,
         IntroductionLayout layout, Guid emailTemplateVersionId,
@@ -16,6 +18,8 @@ public sealed class IntroductionTemplateService(
     {
         if (actor.UserId <= 0) return Result<IntroductionTemplateDetail>.Forbidden();
         if (requestId == Guid.Empty) return Result<IntroductionTemplateDetail>.Invalid(new ValidationError("requestId", "invalid_request"));
+        if (!await emailTemplates.ExistsAsync(emailTemplateVersionId, cancellationToken))
+            return Result<IntroductionTemplateDetail>.Invalid(new ValidationError("emailTemplateVersionId", "email_template_version_missing"));
         var payload = await PreparePayloadAsync(layout, emailTemplateVersionId, selections, cancellationToken);
         return payload.IsSuccess ? await templates.CreateAsync(actor, requestId, name, payload.Value, cancellationToken)
             : PayloadFailure(payload);
@@ -27,6 +31,12 @@ public sealed class IntroductionTemplateService(
     {
         if (actor.UserId <= 0) return Result<IntroductionTemplateDetail>.Forbidden();
         if (requestId == Guid.Empty) return Result<IntroductionTemplateDetail>.Invalid(new ValidationError("requestId", "invalid_request"));
+        var current = await templates.ReadAsync(actor, templatePublicId, null, cancellationToken);
+        if (current is null) return Result<IntroductionTemplateDetail>.NotFound();
+        // Historical local selections may retain the exact old reference; changing it requires a real registry version.
+        if (current.Snapshot.EmailTemplateVersionId != emailTemplateVersionId &&
+            !await emailTemplates.ExistsAsync(emailTemplateVersionId, cancellationToken))
+            return Result<IntroductionTemplateDetail>.Invalid(new ValidationError("emailTemplateVersionId", "email_template_version_missing"));
         var payload = await PreparePayloadAsync(layout, emailTemplateVersionId, selections, cancellationToken);
         return payload.IsSuccess
             ? await templates.ReviseAsync(actor, requestId, templatePublicId, expectedRevision, name, payload.Value, cancellationToken)

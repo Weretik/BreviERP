@@ -22,3 +22,5 @@ operations/
 - Check background job support: [jobs and runbooks](jobs/README.md)
 
 Do not place passwords, tokens, full connection strings, or production endpoints in this documentation.
+
+- Configure delegated Gmail OAuth without enabling delivery: [Gmail setup](crm-gmail-oauth.md).

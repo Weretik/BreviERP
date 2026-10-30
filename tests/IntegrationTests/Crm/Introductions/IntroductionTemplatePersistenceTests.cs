@@ -107,7 +107,8 @@ public sealed class IntroductionTemplatePersistenceTests : CrmDatabaseFixture
                     "Модель", "Тканина", "60% бавовна", "235", "https://brevi.com.ua/model",
                     new QuoteCatalogPrice("sewing", productId, articleId, Guid.NewGuid(), null, null,
                         1, 1, [], "v1", 200m, 150m, currentLarge, [])));
-        var service = new IntroductionTemplateService(store, mappings, new IntroductionDraftBuilder(catalog.Object));
+        var service = new IntroductionTemplateService(store, mappings, new IntroductionDraftBuilder(catalog.Object),
+            new global::Crm.Infrastructure.Persistence.Documents.EmailTemplates.EmailTemplateStore(db));
         var firstApply = await service.ApplyAsync(Owner, created.Value.TemplatePublicId, null, default);
         currentLarge = 140m;
         var secondApply = await service.ApplyAsync(Owner, created.Value.TemplatePublicId, null, default);

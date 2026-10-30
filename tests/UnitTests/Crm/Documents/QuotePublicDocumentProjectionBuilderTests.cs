@@ -57,6 +57,7 @@ public sealed class QuotePublicDocumentProjectionBuilderTests
             Assert.That(text, Does.Not.Contain("PRIVATE_BASIS_SENTINEL"));
             Assert.That(text, Does.Not.Contain("HIDDEN_VARIANT_SENTINEL"));
             Assert.That(text, Does.Not.Contain("HIDDEN_ITEM_SENTINEL"));
+            Assert.That(document.TextGroups!.SelectMany(group => group.Paragraphs), Is.EqualTo(document.Paragraphs));
             Assert.That(document.Images, Is.Empty);
             Assert.That(document.HeaderLogo, Is.Null);
         });
@@ -102,6 +103,7 @@ public sealed class QuotePublicDocumentProjectionBuilderTests
         Assert.Multiple(() =>
         {
             Assert.That(document.HeaderLogo, Is.SameAs(logo));
+            Assert.That(document.TextGroups!.SelectMany(group => group.Paragraphs), Is.EqualTo(document.Paragraphs));
             Assert.That(document.Images, Is.Empty);
         });
     }

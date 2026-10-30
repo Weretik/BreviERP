@@ -10,7 +10,7 @@
 | P3 — history and actions         | TS-005                                    | FE-005 history/reprice/copy/transfer/archive                | Explicit reprice creates new version; old/sent prices and ownership history safe                   |
 | P4 — custom sewing               | EN-003, TS-006, TS-007, TS-008            | FE-006 custom editor, FE-007 files/templates/suggestions    | Private versioned custom configurations/alternatives, real private files, reusable selections      |
 | P5 — ready/PDF                   | EN-005, TS-009, TS-010, TS-016            | FE-008 issuer/ready/PDF, FE-011 first-contact               | Verified seller/tax/numbering and public projection; rendered document parity                      |
-| P6 — delivery/production package | EN-004, TS-011, TS-012                    | FE-009 explicit send/history/package                        | Truthful outbox states and pinned production artifact, no automatic external Workshop integration  |
+| P6 — delivery/production package | EN-004, TS-011, TS-012, TS-017            | FE-009 explicit send/history/package                        | Truthful outbox states and pinned production artifact, no automatic external Workshop integration  |
 | P7 — archive migration           | EN-006, TS-013, TS-014                    | FE-010 reconciliation UI and integrated acceptance          | Controlled import with row/file accounting, idempotency, restore evidence                          |
 | P8 — full acceptance             | TS-015                                    | FE-010                                                      | All scenarios/evidence, architecture and feature maps match delivered scope                        |
 
@@ -35,7 +35,8 @@ P7 source-completeness discovery may start early; its write/activation depends o
 | [TS-009](documents/ts-009-versioned-issuer-and-template-settings.md)            | Versioned issuer and template settings           | EN-003, EN-005                                                                         |
 | [TS-010](documents/ts-010-ready-validation-and-pdf-artifacts.md)                | Ready validation and PDF artifacts               | TS-005, TS-007, TS-009                                                                 |
 | [EN-004](readiness/en-004-delivery-provider-readiness.md)                       | Delivery provider readiness                      | EN-003                                                                                 |
-| [TS-011](documents/ts-011-explicit-email-outbox-and-history.md)                 | Explicit email outbox and history                | TS-010, EN-004                                                                         |
+| [TS-011](documents/ts-011-explicit-email-outbox-and-history.md)                 | Explicit email outbox and history                | TS-010, TS-017, EN-004                                                                 |
+| [TS-017](documents/ts-017-versioned-email-templates.md) | Immutable email subject/body registry and selection references | TS-009, TS-016 |
 | [TS-012](custom-sewing/ts-012-pinned-production-package-export.md)              | Pinned production package export                 | TS-007, TS-010                                                                         |
 | [EN-006](readiness/en-006-complete-history-and-retention-evidence.md)           | Complete history and retention evidence          | None                                                                                   |
 | [TS-013](migration/ts-013-staging-mapping-and-dry-run-pipeline.md)              | Staging, mapping and dry-run pipeline            | TS-002, TS-007, EN-006                                                                 |
@@ -55,3 +56,13 @@ P7 source-completeness discovery may start early; its write/activation depends o
 3. Frontend syncs/generates that exact SHA, validates responses/maps at data-access, then connects the existing menu route and screens. A future SHA is recorded only after it exists, never a placeholder presented as provenance.
 4. Test integrated scenario, privacy/revision errors and narrow/wide UI. Update task evidence/traceability and actual feature map. Incompatible deployed UI/API order needs a documented compatibility window before activation.
 5. Keep current source snapshots, Catalog imports/pricing and unrelated working changes intact. No schema/import job or real email executes merely because an SDD was written.
+
+## P5 local acceptance — 2026-10-30
+
+[Rendered and persisted acceptance](../evidence/p5-local-acceptance-2026-10-30.md) closes the three remaining local P5 checks with actual Chromium PDF artifacts and isolated PostgreSQL journey tests. User-created new selection templates are explicitly deferred to P6; no automatic mail/deployment is authorized. P5 is locally technically accepted in those agreed boundaries, not a claim of live rollout.
+
+## P6 backend checkpoint — 2026-10-30
+
+[TS-017](documents/ts-017-versioned-email-templates.md) provides the distinct email-template registry deferred from P5. TS-012 provides a private production artifact API. [Unified verification](../evidence/p6-backend-checkpoint-2026-10-30.md) records final tests and local migration results. These are backend slices; FE-009 and new-selection frontend integration require an authorized immutable backend handoff. EN-004 remains partial until delegated Gmail OAuth and a controlled sandbox round-trip; TS-011 outbox/history is not implemented by this checkpoint.
+
+P6 continuation: [TS-011 backend and EN-004 OAuth code](../evidence/p6-outbox-oauth-checkpoint-2026-10-30.md) are locally verified. User consent/controlled Gmail test remain EN-004; FE-009 remains pending. No uncommitted contract is handed to frontend.

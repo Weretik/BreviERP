@@ -36,6 +36,9 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<Crm.Infrastructure.Persistence.CustomSewing.Pricing.CustomCalculationRecord> CustomCalculations => Set<Crm.Infrastructure.Persistence.CustomSewing.Pricing.CustomCalculationRecord>();
     public DbSet<Crm.Infrastructure.Persistence.CustomSewing.Writing.CustomMutationRecord> CustomMutations => Set<Crm.Infrastructure.Persistence.CustomSewing.Writing.CustomMutationRecord>();
 
+    public DbSet<Crm.Domain.Documents.EmailTemplates.EmailTemplateVersion> EmailTemplateVersions => Set<Crm.Domain.Documents.EmailTemplates.EmailTemplateVersion>();
+    public DbSet<Crm.Domain.Documents.EmailTemplates.EmailTemplateState> EmailTemplateStates => Set<Crm.Domain.Documents.EmailTemplates.EmailTemplateState>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema("crm");

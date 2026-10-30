@@ -12,7 +12,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |
 | Catalog  | [Media files](catalog/media-files/README.md)                                                             | verified                                                                                                           |
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |
-| Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md)                      | P1–P4 verified; P5 EN-005 confirmed, TS-009 local implementation with PostgreSQL check pending |
+| Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md)                      | P1–P5 locally verified; P6 backend verified, Gmail consent/test and FE-009 pending |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
 
 When a specification's status changes, update its row here in the same change.

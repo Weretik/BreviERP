@@ -145,6 +145,24 @@ paths:
     $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}~1apply
   /api/crm/introductions/featured-mapping:
     $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1introductions~1featured-mapping
+  /api/crm/email-templates:
+    $ref: ./crm/email-templates.openapi.yaml#/paths/~1api~1crm~1email-templates
+  /api/crm/email-templates/versions:
+    $ref: ./crm/email-templates.openapi.yaml#/paths/~1api~1crm~1email-templates~1versions
+  /api/crm/email-templates/{versionId}:
+    $ref: ./crm/email-templates.openapi.yaml#/paths/~1api~1crm~1email-templates~1{versionId}
+  /api/crm/email-templates/active:
+    $ref: ./crm/email-templates.openapi.yaml#/paths/~1api~1crm~1email-templates~1active
+  /api/crm/quotes/{quoteId}/production-packages:
+    $ref: ./crm/production-packages.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1production-packages
+  /api/crm/quotes/{quoteId}/production-packages/{packageId}:
+    $ref: ./crm/production-packages.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1production-packages~1{packageId}
+  /api/crm/quotes/{quoteId}/production-packages/{packageId}/content:
+    $ref: ./crm/production-packages.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1production-packages~1{packageId}~1content
+  /api/crm/quotes/{quoteId}/deliveries:
+    $ref: ./crm/quote-deliveries.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1deliveries
+  /api/crm/quotes/{quoteId}/deliveries/{deliveryId}:
+    $ref: ./crm/quote-deliveries.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1deliveries~1{deliveryId}
   /api/crm/quote-templates:
     $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates
   /api/crm/quote-templates/{templateId}:

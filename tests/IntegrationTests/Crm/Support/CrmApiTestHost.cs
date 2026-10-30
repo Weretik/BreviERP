@@ -18,7 +18,7 @@ internal sealed class CrmApiTestHost(WebApplication app, HttpClient client, Mock
     public HttpClient Client { get; } = client;
     public Mock<ISender> Sender { get; } = sender;
 
-    public static async Task<CrmApiTestHost> CreateAsync()
+    public static async Task<CrmApiTestHost> CreateAsync(Action<IServiceCollection>? configure = null)
     {
         var sender = new Mock<ISender>();
         var builder = WebApplication.CreateBuilder();
@@ -33,6 +33,7 @@ internal sealed class CrmApiTestHost(WebApplication app, HttpClient client, Mock
         });
         builder.Services.AddControllers().AddApplicationPart(typeof(CrmApiAssemblyMarker).Assembly);
 
+        configure?.Invoke(builder.Services);
         var app = builder.Build();
         app.UseAuthentication();
         app.UseAuthorization();

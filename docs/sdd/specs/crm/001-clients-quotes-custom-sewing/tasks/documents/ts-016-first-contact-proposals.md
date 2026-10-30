@@ -21,3 +21,7 @@ Manager can save/reuse their own first-contact selection; correct 4/8-model docu
 ## Backend gates completed — 2026-10-30
 
 Owned template/config persistence, quote creation with pinned public snapshot, stable apply replay, canonical API contract and local CRM migrations are implemented and verified. [Evidence](../../evidence/ts-016-backend-gates-2026-10-30.md): 28 focused unit/contract tests and 8 PostgreSQL tests. Frontend handoff/integration and actual rendered PDF acceptance remain; TS-016 is still partial overall.
+
+## Local rendered acceptance — 2026-10-30
+
+P5 ordinary/seasonal PDFs and saved-selection/ready/artifact/reopen journey are locally verified after pagination and early capacity fixes. [Combined evidence](../../evidence/p5-local-acceptance-2026-10-30.md). P6 send/new-selection deferral and deployed/business approval remain outside this checkpoint.

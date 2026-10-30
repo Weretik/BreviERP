@@ -29,3 +29,7 @@ Do not advance a dependent task on an unresolved prerequisite. See [sequence](..
 `Quote.PrepareReady` and immutable `QuoteIssue` pin quote version, seller version, template version, number and UTC ready time. `PrepareQuote` validates recipient, included/visible content, supported UAH/tax basis, positive visible tier prices, pricing blockers, active settings and provisioned logo. It allocates the number and writes the issue in the same quote mutation transaction. `Documents/Projection` constructs an allowlisted customer projection from those pinned rows. `RenderQuotePdf` queues a versioned private artifact; `GetQuoteArtifact` reads metadata or saved PDF bytes after quote-scope authorization. Artifact state/byte storage and document source are separate Infrastructure responsibilities. HTTP ready and artifact operations are defined by canonical `crm/quote-drafts.openapi.yaml` and `crm/quote-pdf.openapi.yaml`.
 
 Two additive Crm migrations, `20261029135919_AddQuoteIssues` and `20261029140410_AddQuoteArtifactIssuePin`, were applied only to local `brevidb` after a CRM-only backup. The frontend still consumes the older immutable P4 backend SHA; no FE-008 ready/PDF consumer handoff is claimed.
+
+## Local rendered acceptance — 2026-10-30
+
+P5 ordinary/seasonal PDFs and saved-selection/ready/artifact/reopen journey are locally verified after pagination and early capacity fixes. [Combined evidence](../../evidence/p5-local-acceptance-2026-10-30.md). P6 send/new-selection deferral and deployed/business approval remain outside this checkpoint.

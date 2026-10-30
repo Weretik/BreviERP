@@ -1,0 +1,333 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Crm quote deliveries",
+    "version": "1.0.0"
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/crm/quotes/{quoteId}/deliveries": {
+      "parameters": [
+        {
+          "name": "quoteId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "enqueueCrmQuoteDelivery",
+        "summary": "Explicitly queue one pinned public email and PDF",
+        "description": "Current owner/Admin; exact current issued version and intact successful private PDF. Subject/body/PDF/provider/sender are server-owned. Replay verifies current authorization, returns the same delivery with its current status; changed input conflicts. Queue is not sent. Disabled or missing OAuth readiness returns503. No implicit retry after uncertain outcome. A fresh requestId cannot bypass a pending or unknown delivery for the same quote/version and case-insensitive recipient: returns409 delivery_unresolved_attempt_exists. Exact-key replay is allowed; only confirmed terminal outcomes permit a fresh explicit same-recipient request.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnqueueQuoteDeliveryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "One queued or replayed delivery",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDeliveryDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid bounded request or pagination"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Role denied"
+          },
+          "404": {
+            "description": "Missing or inaccessible quote/delivery"
+          },
+          "409": {
+            "description": "Revision, source or idempotency conflict"
+          },
+          "503": {
+            "description": "Sending readiness unavailable; no queue insertion"
+          }
+        }
+      },
+      "get": {
+        "operationId": "getCrmQuoteDeliveries",
+        "summary": "Read authorized bounded version-specific delivery history",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded delivery state history; no email body/PDF/token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "value",
+                    "pagedInfo"
+                  ],
+                  "properties": {
+                    "value": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/QuoteDeliveryDetail"
+                      }
+                    },
+                    "pagedInfo": {
+                      "type": "object",
+                      "properties": {
+                        "pageNumber": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "pageSize": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "totalRecords": {
+                          "type": "integer",
+                          "format": "int64"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid bounded request or pagination"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Role denied"
+          },
+          "404": {
+            "description": "Missing or inaccessible quote/delivery"
+          }
+        }
+      }
+    },
+    "/api/crm/quotes/{quoteId}/deliveries/{deliveryId}": {
+      "parameters": [
+        {
+          "name": "quoteId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "deliveryId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getCrmQuoteDelivery",
+        "summary": "Read current authorized state for one immutable delivery",
+        "responses": {
+          "200": {
+            "description": "Current state; succeeded means provider acceptance, not recipient receipt/read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDeliveryDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Role denied"
+          },
+          "404": {
+            "description": "Missing or inaccessible quote/delivery"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "EnqueueQuoteDeliveryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "expectedRevision",
+          "versionId",
+          "artifactId",
+          "emailTemplateVersionId",
+          "recipientAddress",
+          "managerName"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "versionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "artifactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "emailTemplateVersionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "recipientAddress": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "managerName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "QuoteDeliveryDetail": {
+        "type": "object",
+        "required": [
+          "deliveryId",
+          "quoteId",
+          "versionId",
+          "artifactId",
+          "emailTemplateVersionId",
+          "recipientAddress",
+          "status",
+          "attempt",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "deliveryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quoteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "versionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "artifactId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "emailTemplateVersionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipientAddress": {
+            "type": "string",
+            "maxLength": 254
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "sending",
+              "reconciling",
+              "unknown",
+              "succeeded",
+              "failed"
+            ]
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 80
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      }
+    }
+  }
+}
