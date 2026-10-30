@@ -19,6 +19,40 @@ Code model reviewed 2026-10-26. `Crm.Infrastructure.Persistence.CrmDbContext` ow
 | CalculationBases           | Opaque token/PublicId, actor/requestId uniqueness, input hash and optional quote scope, server snapshot JSON, expiry greater than creation; indexed expiry                                                                                                  |
 | QuoteMutationRequests      | Actor/operation/requestId uniqueness, payload hash, quote PublicId and committed response JSON; journal shares the graph transaction                                                                                                                        |
 
-No physical FK or EF navigation to Identity/Reference/Catalog. Role claims supply current actor; there is no supplier-to-customer auto-copy. Clients are not Identity users. Draft quote snapshots and P3 lifecycle history are implemented; document, custom and archival import tables remain planned.
+No physical FK or EF navigation to Identity/Reference/Catalog. Role claims supply current actor; there is no supplier-to-customer auto-copy. Clients are not Identity users. Draft quote snapshots, P3 lifecycle history, custom drafts/versions and configuration templates are implemented; file links, document and archival import tables remain planned.
 
 Customer root row locks serialize writes; request advisory locks serialize idempotency; revisions are concurrency tokens. Merge locks both roots in deterministic PublicId order and transfers persisted contact/source identities, retaining the victim inactive with survivor link. Quote graph insertion and pointer/revision update commit together. Tests verify races, source/actor/expiry checks, scoped paging and composite version integrity. P3 retains the issued-version pointer on ready/sent edits; actual ready/send transitions belong to later tasks.
+
+## Custom sewing — TS-006
+
+Four Crm-owned tables are implemented: CustomSewingDrafts (typed long root, unique Guid PublicId, owner/customer/quote, optimistic revision, private typed JSONB configuration and indexed scalar name/type/season); CustomSewingVersions (typed long ID/PublicId, same-draft parent and unique number, frozen typed configuration/basis, actor/time); CustomSewingCalculations (long key, opaque unique token, actor/draft/revision/expiry and private JSONB basis); CustomSewingMutationRequests (long key, actor/operation/requestId uniqueness, payload hash and exact scoped response).
+
+Root current-version and version parent FKs are composite within the same draft. Versions reject UPDATE/DELETE and invalid predecessor insertion. QuoteItemVariants adds a restrictive nullable typed CustomVersionId FK, allowed only for customSewing kind. Existing tier amounts retain numeric(20,2); no Catalog/Reference/Identity table or FK was added. Migrations: AddCustomSewingVersions, EnforceCustomSewingHistory. [Task and disposable verification](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-006-2026-10-28.md). These migrations have not been applied to a working database in this task.
+
+## Configuration templates — TS-008
+
+`AddCustomSewingTemplates` adds CustomSewingTemplates (typed long identity, Guid PublicId, owner, revision, archive/current version number), CustomSewingTemplateVersions (typed long identity, restrictive template FK, unique template/number and PublicId, frozen price-free selections and introduction) and CustomSewingTemplateMutationRequests (actor/operation/requestId uniqueness, payload hash and committed response). A database trigger rejects UPDATE/DELETE of template versions. The root revision is an optimistic concurrency token; mutation and replay journal commit in one transaction.
+
+CustomSewingDrafts adds nullable typed JSONB TemplateOrigin containing source template/version public IDs and the selected immutable introduction. This is provenance, not a current template lookup: later template edits/archive never rewrite an applied draft. Apply holds a template row lock in the existing draft transaction, creates an independent draft and persists no calculation or price basis. EN-003 uses a separate private byte volume and transient renderer scratch; relational file ownership/version links remain TS-007. [Wave verification](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p4-wave1-2026-10-28.md).
+
+## Private file lifecycle — TS-007
+
+AddCustomPrivateFileLifecycle implements CustomPrivateFiles (typed long ID/public Guid byte identity, root/actor/request hash, verified metadata, expiry/state concurrency), CustomDraftAttachments (root/file key and independent quote/production flags) and CustomVersionAttachments (version/file key, same-draft restrictive FKs, frozen metadata/flags). A trigger rejects history UPDATE/DELETE. Upload request actor/ID is unique; root/state and expiry indexes support quota/maintenance. Actual bytes remain on the private volume, never a public URL.
+
+Version files pin in the existing custom transaction before pointer movement; quote CustomVersionId already retains the selected version. Byte reservation/writeback/completion and explicitly bounded cleanup separate external IO from short upload/claim transactions. Cleanup's fresh reference recheck under file lock prevents stale-snapshot state corruption and excludes current/historical links. No deletion worker or working-database application. [TS-007 execution and rollout](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-007-2026-10-28.md).
+
+## Issuer settings and document numbering — TS-009
+
+`AddIssuerSettingsAndNumberSequence` adds `IssuerSettingsVersions` and `DocumentTemplateVersions` (typed long IDs, unique Guid PublicIds and version numbers, immutable validated values), singleton `DocumentSettingsState` (revision and restrictive active-version FKs), `DocumentSettingsMutations` (actor/operation/requestId unique replay journal) and `DocumentNumberSequences` (unique UTC year/month and next numeric slot). A database trigger rejects UPDATE/DELETE of both version tables. The active pointer may be absent until Admin explicitly activates a verified pair; creating a version does not activate it.
+
+The number allocator requires the caller's quote-ready transaction and a period advisory lock. It considers known quote numbers with slash or legacy hyphen separators, then advances the sequence atomically. Future historical imports must reconcile unknown source numbers before activation. The migration was generated and checked against the EF model but has not been applied to a working database or a disposable PostgreSQL in this checkpoint. [Evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-009-2026-10-29.md).
+
+## P6 email templates and production packages
+
+`AddEmailTemplateRegistry` adds immutable EmailTemplateVersions (typed long PK, public UUID, unique version number), singleton EmailTemplateState with active-version FK/revision, and EmailTemplateMutations with actor/operation/request uniqueness. Registry writes and replay commit in one transaction; version rows reject UPDATE/DELETE.
+
+`AddProductionPackages` adds Infrastructure-owned ProductionPackageArtifacts (long PK, UUID, exact same-quote version FK, unique quote/version/selection hash, bounded ZIP bytes/length/SHA-256) and ProductionPackageRequests (actor/request uniqueness, intent hash, same-quote artifact FK). Both reject UPDATE/DELETE. Current owner/Admin access applies to cached artifacts. No external Workshop table or transport is added. [Local migration and tests](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p6-backend-checkpoint-2026-10-30.md).
+
+## P6 delivery outbox
+
+`AddQuoteDeliveryOutbox` adds immutable private QuoteDeliveries pins, mutable QuoteDeliveryStates lease/outcome, append-only QuoteDeliveryEvents and actor/request receipts. The exact quote/version/PDF relationship uses composite foreign keys; EmailTemplateVersion is restrictive. Provider IO occurs outside committed claim/finalization transactions. Immutable message/event/receipt triggers retain evidence; no OAuth credential is stored in these tables. [Verification and recovery](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p6-outbox-oauth-checkpoint-2026-10-30.md).

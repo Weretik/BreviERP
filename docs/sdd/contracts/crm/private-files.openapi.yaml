@@ -1,0 +1,241 @@
+openapi: 3.1.0
+info:
+  title: Crm private file lifecycle
+  version: 1.0.0
+security:
+  - Bearer: []
+paths:
+  /api/crm/files:
+    post:
+      operationId: uploadCrmPrivateFile
+      tags:
+        - CrmFiles
+      description: Stage one actual private file under an accessible draft. Actor is server-owned. Upload does not
+        finalize/link the file. Reuse the same requestId and identical content after an uncertain response.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - draftId
+                - requestId
+                - file
+              properties:
+                draftId: &a1
+                  type: string
+                  format: uuid
+                requestId: *a1
+                file: &a2
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmPrivateFile"
+        "400": &a3
+          description: Malformed request, invalid selection or file limit.
+        "401": &a4
+          description: Unauthenticated.
+        "403": &a5
+          description: Role denied.
+        "404": &a6
+          description: Missing or inaccessible root/file/version; unfinalized files are not downloadable.
+        "409": &a7
+          description: Revision, requestId payload, expiration or lifecycle conflict.
+        "413":
+          description: File exceeds inclusive20MiB.
+        "415":
+          description: Only actual PDF/JPEG/PNG bytes matching canonical declared MIME are allowed.
+        "503": &a8
+          description: Private byte storage unavailable; no public-media fallback.
+  /api/crm/files/{fileId}/content:
+    parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema: *a1
+    get:
+      operationId: getCrmPrivateFileContent
+      tags:
+        - CrmFiles
+      description: Only finalized current or exact immutable version content. quoteId requires versionId and authorizes only
+        that version pinned in the currently assigned quote. Private/no-store and nosniff headers; generic GUID
+        filename.
+      parameters: &a9
+        - name: versionId
+          in: query
+          required: false
+          schema: *a1
+        - name: quoteId
+          in: query
+          required: false
+          schema: *a1
+      responses:
+        "200":
+          description: Verified private bytes, no-store.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: private, no-store
+            X-Content-Type-Options:
+              schema:
+                type: string
+                const: nosniff
+          content:
+            application/pdf:
+              schema: *a2
+            image/jpeg:
+              schema: *a2
+            image/png:
+              schema: *a2
+        "400": *a3
+        "401": *a4
+        "403": *a5
+        "404": *a6
+        "409": *a7
+        "503": *a8
+  /api/crm/custom-sewing/{draftId}/files:
+    parameters:
+      - name: draftId
+        in: path
+        required: true
+        schema: *a1
+    get:
+      operationId: getCrmCustomSewingFiles
+      tags:
+        - CrmFiles
+      parameters: *a9
+      description: At most30 finalized file selections. Optional versionId returns immutable flags and metadata; optional
+        quoteId limits access to that exact version pinned in an assigned quote.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 30
+                items:
+                  $ref: "#/components/schemas/CrmPrivateFile"
+        "400": *a3
+        "401": *a4
+        "403": *a5
+        "404": *a6
+        "409": *a7
+        "503": *a8
+    put:
+      operationId: setCrmCustomSewingFiles
+      tags:
+        - CrmFiles
+      description: Explicitly finalize/replace current draft links with independent showInQuote/production flags. Root
+        revision and journal update atomically; existing versions remain unchanged. Actual verified uploaded bytes are
+        required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmSetCustomFilesRequest"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: ./custom-sewing.openapi.yaml#/components/schemas/CrmCustomDetail
+        "400": *a3
+        "401": *a4
+        "403": *a5
+        "404": *a6
+        "409": *a7
+        "503": *a8
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CrmPrivateFile:
+      type: object
+      additionalProperties: false
+      required:
+        - publicId
+        - draftId
+        - contentType
+        - length
+        - sha256
+        - state
+        - expiresAt
+        - showInQuote
+        - production
+        - isFinalized
+      properties:
+        publicId: *a1
+        draftId: *a1
+        contentType:
+          type: string
+          enum:
+            - application/pdf
+            - image/jpeg
+            - image/png
+        length:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 20971520
+        sha256:
+          type: string
+          pattern: ^[A-F0-9]{64}$
+        state:
+          type: string
+          enum:
+            - Uploaded
+        expiresAt:
+          type: string
+          format: date-time
+          description: Temporary unattached expiry only. Finalized or historical referenced bytes are retained.
+        showInQuote:
+          type: boolean
+        production:
+          type: boolean
+        isFinalized:
+          type: boolean
+    CrmCustomFileSelection:
+      type: object
+      additionalProperties: false
+      required:
+        - fileId
+        - showInQuote
+        - production
+      properties:
+        fileId: *a1
+        showInQuote:
+          type: boolean
+        production:
+          type: boolean
+    CrmSetCustomFilesRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - expectedRevision
+        - files
+      properties:
+        requestId: *a1
+        expectedRevision:
+          type: integer
+          format: int64
+          minimum: 1
+        files:
+          type: array
+          maxItems: 30
+          items:
+            $ref: "#/components/schemas/CrmCustomFileSelection"

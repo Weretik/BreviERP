@@ -1,0 +1,144 @@
+openapi: 3.1.0
+info:
+  title: Crm issuer and document settings
+  version: 1.0.0
+security:
+  - Bearer: []
+paths:
+  /api/crm/issuer-settings:
+    get:
+      operationId: getCrmIssuerSettings
+      tags: [CrmDocuments]
+      summary: Get the active verified issuer and document template pair
+      description: Admin and Manager can read approved active settings. Active is null until an Admin creates and activates a pair.
+      responses:
+        "200":
+          description: Active settings state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmActiveIssuerSettings"
+        "401": { description: Unauthenticated }
+        "403": { description: Role denied }
+  /api/crm/issuer-settings/versions:
+    post:
+      operationId: createCrmIssuerSettingsVersion
+      tags: [CrmDocuments]
+      summary: Create immutable issuer and document template versions
+      description: Admin only. Creating a version does not activate it or make a draft ready.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmCreateIssuerSettingsVersionRequest"
+      responses:
+        "200":
+          description: Immutable version pair
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmIssuerSettingsDetail"
+        "400": { description: Malformed request or invalid verified values }
+        "401": { description: Unauthenticated }
+        "403": { description: Admin required }
+        "409": { description: requestId replay conflict or duplicate version }
+  /api/crm/issuer-settings/active:
+    put:
+      operationId: activateCrmIssuerSettings
+      tags: [CrmDocuments]
+      summary: Activate a matching issuer and template version pair
+      description: Admin only. Expected revision arbitrates concurrent active pointer changes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmActivateIssuerSettingsRequest"
+      responses:
+        "200":
+          description: Active settings state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmActiveIssuerSettings"
+        "400": { description: Malformed request or version pair mismatch }
+        "401": { description: Unauthenticated }
+        "403": { description: Admin required }
+        "404": { description: Version missing }
+        "409": { description: Revision or requestId replay conflict }
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    CrmIssuerSettingsInput:
+      type: object
+      additionalProperties: false
+      required: [legalName, edrpou, taxId, iban, address, phone, email, site]
+      properties:
+        legalName: { type: string, maxLength: 200 }
+        edrpou: { type: string, maxLength: 50 }
+        taxId: { type: string, maxLength: 50 }
+        iban: { type: string, maxLength: 80 }
+        address: { type: string, maxLength: 500 }
+        phone: { type: string, maxLength: 80 }
+        email: { type: string, format: email, maxLength: 200 }
+        site: { type: string, format: uri, maxLength: 500 }
+        bankName: { type: [string, "null"], maxLength: 200 }
+        mfo: { type: [string, "null"], maxLength: 20 }
+        logoAssetKey:
+          type: [string, "null"]
+          enum: [brevi-wordmark, null]
+          description: Server-managed logical asset key; no arbitrary URL or path is accepted.
+    CrmDocumentTemplateInput:
+      type: object
+      additionalProperties: false
+      required: [layoutKey, title, vatNotice, openingText, ctaTitle, ctaText, ctaContactTemplate]
+      properties:
+        layoutKey: { type: string, enum: [standard] }
+        title: { type: string, maxLength: 200 }
+        vatNotice: { type: string, maxLength: 300 }
+        openingText: { type: string, maxLength: 3000 }
+        ctaTitle: { type: string, maxLength: 500 }
+        ctaText: { type: string, maxLength: 3000 }
+        ctaContactTemplate: { type: string, maxLength: 2000 }
+    CrmCreateIssuerSettingsVersionRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, issuer, template]
+      properties:
+        requestId: { type: string, format: uuid }
+        issuer: { $ref: "#/components/schemas/CrmIssuerSettingsInput" }
+        template: { $ref: "#/components/schemas/CrmDocumentTemplateInput" }
+    CrmActivateIssuerSettingsRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, expectedRevision, issuerVersionId, templateVersionId]
+      properties:
+        requestId: { type: string, format: uuid }
+        expectedRevision: { type: integer, format: int64, minimum: 1 }
+        issuerVersionId: { type: string, format: uuid }
+        templateVersionId: { type: string, format: uuid }
+    CrmIssuerSettingsDetail:
+      type: object
+      required: [revision, isActive, issuerVersionId, templateVersionId, versionNumber, issuer, template, createdAt]
+      properties:
+        revision: { type: integer, format: int64 }
+        isActive: { type: boolean }
+        issuerVersionId: { type: string, format: uuid }
+        templateVersionId: { type: string, format: uuid }
+        versionNumber: { type: integer }
+        issuer: { $ref: "#/components/schemas/CrmIssuerSettingsInput" }
+        template: { $ref: "#/components/schemas/CrmDocumentTemplateInput" }
+        createdAt: { type: string, format: date-time }
+    CrmActiveIssuerSettings:
+      type: object
+      required: [revision, active]
+      properties:
+        revision: { type: integer, format: int64 }
+        active:
+          oneOf:
+            - $ref: "#/components/schemas/CrmIssuerSettingsDetail"
+            - type: "null"

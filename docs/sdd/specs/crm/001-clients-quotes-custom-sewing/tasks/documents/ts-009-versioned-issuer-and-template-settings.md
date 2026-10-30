@@ -1,6 +1,6 @@
 # TS-009 — Versioned issuer and template settings
 
-**Status:** planned. **Covers:** SC-D01. **Depends on:** EN-003, EN-005.
+**Status:** locally implemented and PostgreSQL verified (2026-10-29); local CRM migration applied. **Covers:** SC-D01. **Depends on:** EN-003, EN-005. [Checkpoint evidence](../../evidence/ts-009-2026-10-29.md).
 
 ## Paths and one responsibility
 
@@ -22,4 +22,4 @@ For behavior implementation record Red → Green → Refactor → focused Regres
 
 Verified active issuer settings can be pinned; no old quote legal details drift.
 
-Do not advance a dependent task on an unresolved prerequisite. See [sequence](../implementation-plan.md) and the feature's verification/decision documents before declaring this task complete.
+EN-005 is confirmed. All five isolated PostgreSQL persistence tests pass; TS-009's local verification gate is closed. Ready/PDF remains TS-010. See [sequence](../implementation-plan.md) and the feature's verification/decision documents.

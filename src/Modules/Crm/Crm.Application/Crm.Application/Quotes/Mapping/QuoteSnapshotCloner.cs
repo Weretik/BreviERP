@@ -15,5 +15,5 @@ public static class QuoteSnapshotCloner
                     QuoteVariant.Create(Guid.Empty, variant.SortOrder, variant.Title, variant.Kind,
                         variant.ProductId, variant.ArticleId, variant.Visible, variant.BasisToken,
                         variant.PriceBasisJson, variant.Tiers.Select(tier =>
-                            QuoteTier.Create(tier.Code, tier.Amount, tier.Visible)))))).ToArray();
+                            QuoteTier.Create(tier.Code, tier.Amount, tier.Visible)), variant.CustomVersionId)))).ToArray();
 }

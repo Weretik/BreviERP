@@ -9,7 +9,14 @@ public sealed class QuoteVariantConfiguration : IEntityTypeConfiguration<QuoteVa
     public void Configure(EntityTypeBuilder<QuoteVariant> builder)
     {
         builder.ToTable("QuoteItemVariants", table =>
-            table.HasCheckConstraint("CK_QuoteItemVariants_Kind", "\"Kind\" IN ('sewing','ppe','oneOffPpe')"));
+        {
+            table.HasCheckConstraint("CK_QuoteItemVariants_Kind", "\"Kind\" IN ('sewing','ppe','oneOffPpe','customSewing')");
+            table.HasCheckConstraint("CK_QuoteItemVariants_CustomVersion", "(\"Kind\" = 'customSewing') = (\"CustomVersionId\" IS NOT NULL)");
+        });
+        builder.Property(x => x.CustomVersionId).HasConversion(x => x.HasValue ? x.Value.Value : (long?)null,
+            x => x.HasValue ? new Crm.Domain.CustomSewing.Identifiers.CustomVersionId(x.Value) : null);
+        builder.HasOne<Crm.Domain.CustomSewing.Versions.CustomSewingVersion>().WithMany()
+            .HasForeignKey(x => x.CustomVersionId).OnDelete(DeleteBehavior.Restrict);
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
         builder.Property(x => x.Title).HasMaxLength(300).IsRequired();

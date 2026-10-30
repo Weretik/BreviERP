@@ -1,4 +1,5 @@
 using Crm.Domain.Quotes.Identifiers;
+using Crm.Domain.Quotes.Introductions;
 using Crm.Domain.Quotes.Items;
 
 namespace Crm.Domain.Quotes.Versions;
@@ -18,6 +19,7 @@ public sealed class QuoteVersion
     public string TaxBasis { get; private set; } = "no_extra_vat";
     public int ActorId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
+    public IntroductionPublicSnapshot? IntroductionPublicSnapshot { get; private set; }
     private readonly List<QuoteItem> _items = [];
     public IReadOnlyCollection<QuoteItem> Items => _items;
 
@@ -26,7 +28,8 @@ public sealed class QuoteVersion
     public static QuoteVersion Create(
         QuoteId quoteId, int number, long? parentVersionId, string action,
         string recipientName, Guid? customerPublicId, Guid? contactPublicId,
-        int actorId, IEnumerable<QuoteItem> items)
+        int actorId, IEnumerable<QuoteItem> items,
+        IntroductionPublicSnapshot? introductionPublicSnapshot = null)
     {
         if (quoteId.Value <= 0 || number <= 0 || actorId <= 0 ||
             action is not ("created" or "edited" or "recalculated" or "copied"))
@@ -40,7 +43,12 @@ public sealed class QuoteVersion
             RecipientName = recipientName,
             CustomerPublicId = customerPublicId,
             ContactPublicId = contactPublicId,
-            ActorId = actorId
+            ActorId = actorId,
+            IntroductionPublicSnapshot = introductionPublicSnapshot is null ? null :
+                introductionPublicSnapshot with
+                {
+                    Slots = Array.AsReadOnly(introductionPublicSnapshot.Slots.ToArray())
+                }
         };
         version._items.AddRange(items);
         if (version._items.Count > 100 || version._items.Select(x => x.SortOrder).Distinct().Count() != version._items.Count)

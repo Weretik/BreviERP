@@ -27,4 +27,8 @@ Each feature SDD contains `contracts/api-contract.md` for human-readable decisio
 
 Do not create a public OpenAPI document for internal-only changes. Before adding an HTTP contract, agree on the route, method, operation ID, DTOs, examples, errors, security, idempotency for side-effecting writes, and migration path for breaking changes.
 
-- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml) — first seven CRM operations only; quote/custom/document operations remain planned.
+- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml), [quote drafts, lifecycle and ready](crm/quote-drafts.openapi.yaml), [custom sewing](crm/custom-sewing.openapi.yaml), [templates and suggestions](crm/custom-templates.openapi.yaml), [first-contact selections](crm/introduction-templates.openapi.yaml), [private files](crm/private-files.openapi.yaml), [issuer settings](crm/issuer-settings.openapi.yaml), [private quote PDF artifacts](crm/quote-pdf.openapi.yaml). Delivery operations remain planned. TS-009/010 frontend provenance is pinned to e5f563456efd1b29a67a36805c2b3775ce2f9d06. The TS-016 extension is a local uncommitted checkpoint awaiting a separately authorized immutable consumer handoff.
+
+P6 local backend contracts: [versioned email templates](crm/email-templates.openapi.yaml) and [pinned private production packages](crm/production-packages.openapi.yaml). Gmail provider is fail-closed until reviewed OAuth and controlled provider proof; delivery outbox operations remain planned. These new contracts are not yet an immutable frontend consumer handoff.
+
+P6 [explicit quote delivery queue/history](crm/quote-deliveries.openapi.yaml): enqueueCrmQuoteDelivery, getCrmQuoteDeliveries and getCrmQuoteDelivery. Local implementation; frontend consumption requires a separately authorized immutable backend handoff.

@@ -1,10 +1,12 @@
 # TS-011 — Explicit email outbox and history
 
-**Status:** planned. **Covers:** SC-D03. **Depends on:** TS-010, EN-004.
+**Status:** backend implemented and locally verified; live acceptance depends on EN-004. **Covers:** SC-D03. **Depends on:** TS-010, TS-017, EN-004 for runtime activation.
 
 ## Paths and one responsibility
 
 Planned roots/areas: `Crm.Domain/Crm.Domain/Delivery/; Crm.Application/Crm.Application/Delivery/{EnqueueQuote,GetDeliveries}/; Crm.Infrastructure/Crm.Infrastructure/Delivery/; Host worker registration`. Paths beginning `Crm.<Layer>/` are relative to `src/Modules/Crm/`; project source root repeats the project name. Each use case separates command/query, handler, validator, DTO and scenario-local specification files. Determine adjacent concrete filenames before edits; do not combine unrelated types into a catch-all file.
+
+[Detailed implementation design](../../design/delivery-outbox-p6.md) permits fake-provider implementation while EN-004 runtime activation remains blocked; it does not waive real-provider acceptance.
 
 ## Work
 
@@ -23,3 +25,5 @@ For behavior implementation record Red → Green → Refactor → focused Regres
 Queued/downloaded is never displayed as sent, uncertain attempts never blindly resent.
 
 Do not advance a dependent task on an unresolved prerequisite. See [sequence](../implementation-plan.md) and the feature's verification/decision documents before declaring this task complete.
+
+[Unified outbox/OAuth evidence](../../evidence/p6-outbox-oauth-checkpoint-2026-10-30.md) records tests, migration, disabled configuration and pending real-provider acceptance.

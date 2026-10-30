@@ -1,6 +1,6 @@
 # EN-005 — Issuer, numbering and tax policy values
 
-**Status:** planned. **Enables:** SC-D01–02. **Depends on:** EN-002.
+**Status:** decision complete 2026-10-29; runtime settings and number allocator belong to TS-009. **Enables:** SC-D01–02. **Depends on:** EN-002. [Decision evidence](../../evidence/en-005-2026-10-29.md).
 
 ## Paths and one responsibility
 
@@ -22,4 +22,4 @@ For behavior implementation record Red → Green → Refactor → focused Regres
 
 Ready/PDF can be enabled legally and technically without fabricated company data; drafts remain usable independently.
 
-Do not advance a dependent task on an unresolved prerequisite. See [sequence](../implementation-plan.md) and the feature's verification/decision documents before declaring this task complete.
+EN-005 business decisions are confirmed in D-12. TS-009 may proceed; ready/PDF remains unavailable until verified settings are activated and TS-010 passes its checks. See [sequence](../implementation-plan.md) and the feature's verification/decision documents.

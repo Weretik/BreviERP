@@ -1,0 +1,272 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Crm pinned private production package export",
+    "version": "1.0.0"
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ],
+  "paths": {
+    "/api/crm/quotes/{quoteId}/production-packages": {
+      "parameters": [
+        {
+          "name": "quoteId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "exportCrmProductionPackage",
+        "tags": [
+          "CrmProduction"
+        ],
+        "description": "Manager owns quote; Admin may access all. Requires an exact issued quote version and explicit unique included/visible custom variant IDs. Actor-bound requestId replay checks current access before intent hash; same selected version/variants returns a stored package without current master/file reads. Export records an audit receipt but never marks sent, creates an order or calls Workshop. ZIP contains versioned allowlisted manifest and only verified production-flagged files. Max manifest1MiB/package64MiB/30 production files; deterministic internal archive paths.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrmExportProductionPackageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pinned immutable production artifact; no Workshop call/order creation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrmProductionPackageDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid selection, no eligible custom version, missing immutable operation basis, invalid/missing source file or package bounds exceeded."
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Role denied"
+          },
+          "404": {
+            "description": "Missing or inaccessible quote, version or artifact."
+          },
+          "409": {
+            "description": "RequestId payload conflict, archived quote, unissued version or stored artifact integrity conflict."
+          }
+        }
+      }
+    },
+    "/api/crm/quotes/{quoteId}/production-packages/{packageId}": {
+      "parameters": [
+        {
+          "name": "quoteId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "packageId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getCrmProductionPackage",
+        "tags": [
+          "CrmProduction"
+        ],
+        "responses": {
+          "200": {
+            "description": "Pinned immutable production artifact; no Workshop call/order creation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrmProductionPackageDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid selection, no eligible custom version, missing immutable operation basis, invalid/missing source file or package bounds exceeded."
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Role denied"
+          },
+          "404": {
+            "description": "Missing or inaccessible quote, version or artifact."
+          },
+          "409": {
+            "description": "RequestId payload conflict, archived quote, unissued version or stored artifact integrity conflict."
+          }
+        }
+      }
+    },
+    "/api/crm/quotes/{quoteId}/production-packages/{packageId}/content": {
+      "parameters": [
+        {
+          "name": "quoteId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "name": "packageId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "downloadCrmProductionPackage",
+        "tags": [
+          "CrmProduction"
+        ],
+        "description": "Private application/zip bytes, no-store/private and nosniff, opaque production-{packageId}.zip filename. Length/hash are reverified. Historical download never recalculates or fetches current masters.",
+        "responses": {
+          "200": {
+            "description": "Pinned immutable production artifact; no Workshop call/order creation.",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid selection, no eligible custom version, missing immutable operation basis, invalid/missing source file or package bounds exceeded."
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Role denied"
+          },
+          "404": {
+            "description": "Missing or inaccessible quote, version or artifact."
+          },
+          "409": {
+            "description": "RequestId payload conflict, archived quote, unissued version or stored artifact integrity conflict."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CrmExportProductionPackageRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "versionId",
+          "variantIds"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "versionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "variantIds": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "CrmProductionPackageDetail": {
+        "type": "object",
+        "required": [
+          "packageId",
+          "quoteId",
+          "versionId",
+          "schemaVersion",
+          "sha256",
+          "length",
+          "contentType",
+          "createdAt"
+        ],
+        "properties": {
+          "packageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "quoteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "versionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "const": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[A-Fa-f0-9]{64}$"
+          },
+          "length": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 67108864
+          },
+          "contentType": {
+            "type": "string",
+            "const": "application/zip"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

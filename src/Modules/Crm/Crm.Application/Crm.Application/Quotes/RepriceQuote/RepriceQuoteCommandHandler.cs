@@ -28,6 +28,8 @@ public sealed class RepriceQuoteCommandHandler(IQuoteMutationStore store, QuoteV
                 var previous = await session.FindVersionAsync(quote.CurrentVersionId!.Value, ct);
                 if (previous is null || previous.PublicId != command.VersionId)
                     return Result.Conflict("version_changed");
+                if (previous.IntroductionPublicSnapshot is not null)
+                    return Result.Conflict("introduction_requires_new_from_template");
                 var tokens = command.Bases.ToDictionary(x => x.VariantId, x => x.BasisToken);
                 var variants = previous.Items.SelectMany(x => x.Variants).ToArray();
                 if (variants.Length != tokens.Count || variants.Any(x => !tokens.ContainsKey(x.PublicId)))

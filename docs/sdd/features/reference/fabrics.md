@@ -2,7 +2,7 @@
 
 **Static code review:** 2026-10-16. **Module:** reference.
 
-CRUD operations and list retrieval for the “Fabrics” lookup.
+CRUD operations and list retrieval for the “Fabrics” lookup. Optional composition and density are stored for first-contact proposals; missing metadata blocks a proposal. Existing CRUD payloads do not edit these fields. The frozen catalogue import populates them from `Тканини`.
 
 ## Structure and Relationships
 
@@ -24,6 +24,8 @@ src/
     ├── Reference.Domain/Reference.Domain/GarmentAccessories/Entities/Fabric.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
         ├── DataBase/ReferenceDbContext.cs  # data context
+        ├── Congigurations/FabricConfiguration.cs  # nullable bounded public metadata mapping
+        ├── Migrations/20261029153930_AddFabricPresentationMetadata.cs  # additive schema
         └── Repositories/ReferenceEfRepository.cs  # data access
 ```
 
@@ -42,7 +44,7 @@ flowchart LR
 
 ## Tests
 
-No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+`tests/UnitTests/Reference/FabricPresentationMetadataTests.cs` covers metadata normalization and bounds. No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

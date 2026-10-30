@@ -286,6 +286,37 @@ paths:
           {
             description: "Revision, price source, blocked basis or requestId conflict.",
           }
+  /api/crm/quotes/{quoteId}/ready:
+    parameters:
+      - name: quoteId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      operationId: prepareCrmQuote
+      security: [{ bearerAuth: [] }]
+      description: >
+        Admin or owning Manager prepares exactly the saved current version. The
+        server validates public recipient, visible prices, active verified
+        seller/template and provisioned logo, allocates a monthly number once,
+        and pins the immutable issue. Identical requestId replays the result.
+        This does not render, download, queue or mark a document sent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmPrepareQuoteRequest" }
+      responses:
+        "200":
+          description: Current ready quote and pinned version/number.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteDetail" }
+        "400": { description: "Invalid request or ready blocker (recipient, settings, price or logo)." }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Missing or inaccessible quote. }
+        "409": { description: "Revision, version, state or requestId conflict." }
   /api/crm/quotes/{quoteId}/reprice:
     parameters:
       - name: quoteId
@@ -423,6 +454,14 @@ components:
           items: { $ref: "#/components/schemas/CrmQuoteAssignee" }
         pagedInfo:
           $ref: ./clients-quotes.openapi.yaml#/components/schemas/CrmPagedInfo
+    CrmPrepareQuoteRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, expectedRevision, versionId]
+      properties:
+        requestId: { type: string, format: uuid }
+        expectedRevision: { type: integer, format: int64, minimum: 1 }
+        versionId: { type: string, format: uuid }
     CrmCopyQuoteRequest:
       type: object
       additionalProperties: false
@@ -510,6 +549,7 @@ components:
                 transferred,
                 archived,
                 restored,
+                readied,
               ],
           }
         actorId: { type: integer, minimum: 1 }
@@ -559,15 +599,16 @@ components:
       description: >
         sewing requires productId and articleId; ppe requires productId and no
         articleId; oneOffPpe requires manualPrices and no catalog reference.
-        Only ppe may carry an override. Server validates discriminator rules.
+        Only ppe may carry an override. customSewing requires customVersionPublicId only; the server hydrates its immutable saved composition and prices. Server validates discriminator rules.
       properties:
-        kind: { type: string, enum: [sewing, ppe, oneOffPpe] }
+        kind: { type: string, enum: [sewing, ppe, oneOffPpe, customSewing] }
         productId: { type: [integer, "null"], minimum: 1 }
         articleId: { type: [integer, "null"], format: int64, minimum: 1 }
         override:
           oneOf:
             - { $ref: "#/components/schemas/CrmQuotePriceOverride" }
             - { type: "null" }
+        customVersionPublicId: { type: [string, "null"], format: uuid }
         manualPrices:
           oneOf:
             - { $ref: "#/components/schemas/CrmQuoteManualPrices" }
@@ -623,6 +664,10 @@ components:
         basisToken: { type: string, format: uuid }
         expiresAt: { type: string, format: date-time }
         intent: { $ref: "#/components/schemas/CrmQuotePriceIntent" }
+        customVersion:
+          oneOf:
+            - $ref: "./custom-sewing.openapi.yaml#/components/schemas/CrmQuoteCustomVersionSnapshot"
+            - { type: "null" }
         source:
           oneOf:
             - { $ref: "#/components/schemas/CrmQuoteCatalogPrice" }
@@ -635,7 +680,7 @@ components:
           items: { type: string }
         currency: { type: string, const: UAH }
         taxBasis:
-          { type: string, enum: [catalog_no_extra_vat, manual_no_extra_vat] }
+          { type: string, enum: [catalog_no_extra_vat, manual_no_extra_vat, custom_no_extra_vat] }
     CrmPreviewQuotePricesRequest:
       type: object
       additionalProperties: false

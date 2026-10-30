@@ -28,7 +28,8 @@ public static class QuoteDetailMapper
                             new QuoteVariantView(variant.PublicId, variant.SortOrder, variant.Title,
                                 variant.Kind, variant.ProductId, variant.ArticleId, variant.Visible,
                                 JsonSerializer.Deserialize<QuotePricePreview>(variant.PriceBasisJson, JsonOptions)!,
-                                variant.Tiers.Select(tier => new QuoteTierView(
+                                variant.Tiers.OrderBy(tier => tier.Code == "retail" ? 0 : tier.Code == "wholesale" ? 1 : 2)
+                                .Select(tier => new QuoteTierView(
                                     tier.Code, tier.Amount, tier.Visible, tier.Currency)).ToArray())).ToArray()))
                     .ToArray());
 }

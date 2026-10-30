@@ -1,6 +1,6 @@
 # TS-007 — Private file lifecycle
 
-**Status:** planned. **Covers:** SC-S03, SC-S05. **Depends on:** EN-003, TS-006.
+**Status:** implemented and locally automatically verified — 2026-10-28. **Covers:** backend SC-S03, SC-S05. **Depends on:** EN-003, TS-006. [Actual 120-case combined backend evidence](../../evidence/ts-007-2026-10-28.md). File UI remains FE-007; no working-database migration or scheduled cleanup is enabled.
 
 ## Paths and one responsibility
 

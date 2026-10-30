@@ -10,7 +10,7 @@ using Crm.Domain.Quotes.Versions;
 
 namespace Crm.Application.Quotes.Mapping;
 
-public sealed class QuoteVersionBuilder(QuotePriceBasisResolver basisResolver)
+public sealed class QuoteVersionBuilder(QuotePriceBasisResolver basisResolver, IQuoteCustomVersionReader? customs = null)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -20,11 +20,17 @@ public sealed class QuoteVersionBuilder(QuotePriceBasisResolver basisResolver)
     {
         if (content.Items is null || content.Items.Count > 100 || content.Items.Any(x => x is null))
             return Result.Invalid(new ValidationError("items", "invalid_items"));
+        if (content.Items.Any(item => item.Variants is null || item.Variants.Count > 30 || item.Variants.Any(x => x is null)))
+            return Result.Invalid(new ValidationError("variants", "invalid_variants"));
+        var customIds = content.Items.SelectMany(item => item.Variants)
+            .Where(variant => variant.BasisToken is not null && variant.PriceIntent?.Kind == "customSewing")
+            .Select(variant => variant.PriceIntent.CustomVersionPublicId).OfType<Guid>().Distinct().ToArray();
+        var customVersions = customs is null || customIds.Length == 0 ? []
+            : await customs.ReadManyAsync(customIds, quoteId, actor, cancellationToken);
+        var customsById = customVersions.ToDictionary(x => x.Snapshot.VersionPublicId);
         var items = new List<QuoteItem>(content.Items.Count);
         foreach (var item in content.Items)
         {
-            if (item.Variants is null || item.Variants.Count > 30 || item.Variants.Any(x => x is null))
-                return Result.Invalid(new ValidationError("variants", "invalid_variants"));
             var previousItem = item.PublicId is { } itemId
                 ? previous?.Items.SingleOrDefault(x => x.PublicId == itemId)
                 : null;
@@ -45,6 +51,20 @@ public sealed class QuoteVersionBuilder(QuotePriceBasisResolver basisResolver)
                 if (!resolved.IsSuccess)
                     return Result.Conflict(resolved.Errors.ToArray());
                 var preview = resolved.Value;
+                Crm.Domain.CustomSewing.Identifiers.CustomVersionId? customVersionId = null;
+                if (preview.Intent.Kind == "customSewing")
+                {
+                    if (variant.BasisToken is null && previousVariant is not null)
+                        customVersionId = previousVariant.CustomVersionId;
+                    else
+                    {
+                        var custom = preview.Intent.CustomVersionPublicId is { } sourceVersion
+                            ? customsById.GetValueOrDefault(sourceVersion) : null;
+                        if (custom is null || preview.CustomVersion?.VersionPublicId != custom.Snapshot.VersionPublicId)
+                            return Result.Conflict("custom_version_inaccessible");
+                        customVersionId = custom.Id;
+                    }
+                }
                 var visibility = variant.TierVisibility;
                 var tiers = new[]
                 {
@@ -54,7 +74,7 @@ public sealed class QuoteVersionBuilder(QuotePriceBasisResolver basisResolver)
                 };
                 variants.Add(QuoteVariant.Create(variant.PublicId ?? Guid.Empty, variant.SortOrder,
                     variant.Title, preview.Intent.Kind, preview.Intent.ProductId, preview.Intent.ArticleId,
-                    variant.Visible, preview.BasisToken, JsonSerializer.Serialize(preview, JsonOptions), tiers));
+                    variant.Visible, preview.BasisToken, JsonSerializer.Serialize(preview, JsonOptions), tiers, customVersionId));
             }
             items.Add(QuoteItem.Create(item.PublicId ?? Guid.Empty, item.SortOrder, item.Title,
                 item.PublicDescription, item.PublicComment, item.InternalNote, item.Included, variants));

@@ -25,6 +25,9 @@ public sealed class FabricConfiguration : IEntityTypeConfiguration<Fabric>
             .HasMaxLength(500)
             .IsRequired();
 
+        builder.Property(x => x.Composition).HasMaxLength(500);
+        builder.Property(x => x.Density).HasMaxLength(100);
+
         builder.Property(x => x.Price)
             .HasConversion(ReferenceConverters.MoneyAmountConvert)
             .HasPrecision(18, 2)

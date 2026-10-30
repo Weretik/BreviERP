@@ -113,3 +113,73 @@ paths:
     $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1transfer
   /api/crm/quotes/{quoteId}/archive:
     $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1archive
+  /api/crm/quotes/{quoteId}/ready:
+    $ref: ./crm/quote-drafts.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1ready
+  /api/crm/quotes/{quoteId}/documents:
+    $ref: ./crm/quote-pdf.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1documents
+  /api/crm/quotes/{quoteId}/documents/{artifactId}:
+    $ref: ./crm/quote-pdf.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1documents~1{artifactId}
+  /api/crm/quotes/{quoteId}/documents/{artifactId}/content:
+    $ref: ./crm/quote-pdf.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1documents~1{artifactId}~1content
+  /api/crm/custom-sewing:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing
+  /api/crm/custom-sewing/{draftId}:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}
+  /api/crm/custom-sewing/{draftId}/calculations:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1calculations
+  /api/crm/custom-sewing/{draftId}/versions:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1versions
+  /api/crm/custom-sewing/{draftId}/versions/{versionId}:
+    $ref: ./crm/custom-sewing.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1versions~1{versionId}
+  /api/crm/custom-sewing/suggestions:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1suggestions
+  /api/crm/quote-templates/introductions:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions
+  /api/crm/quote-templates/introductions/{templateId}:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}
+  /api/crm/quote-templates/introductions/{templateId}/archive:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}~1archive
+  /api/crm/quote-templates/introductions/{templateId}/check:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}~1check
+  /api/crm/quote-templates/introductions/{templateId}/apply:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1introductions~1{templateId}~1apply
+  /api/crm/introductions/featured-mapping:
+    $ref: ./crm/introduction-templates.openapi.yaml#/paths/~1api~1crm~1introductions~1featured-mapping
+  /api/crm/email-templates:
+    $ref: ./crm/email-templates.openapi.yaml#/paths/~1api~1crm~1email-templates
+  /api/crm/email-templates/versions:
+    $ref: ./crm/email-templates.openapi.yaml#/paths/~1api~1crm~1email-templates~1versions
+  /api/crm/email-templates/{versionId}:
+    $ref: ./crm/email-templates.openapi.yaml#/paths/~1api~1crm~1email-templates~1{versionId}
+  /api/crm/email-templates/active:
+    $ref: ./crm/email-templates.openapi.yaml#/paths/~1api~1crm~1email-templates~1active
+  /api/crm/quotes/{quoteId}/production-packages:
+    $ref: ./crm/production-packages.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1production-packages
+  /api/crm/quotes/{quoteId}/production-packages/{packageId}:
+    $ref: ./crm/production-packages.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1production-packages~1{packageId}
+  /api/crm/quotes/{quoteId}/production-packages/{packageId}/content:
+    $ref: ./crm/production-packages.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1production-packages~1{packageId}~1content
+  /api/crm/quotes/{quoteId}/deliveries:
+    $ref: ./crm/quote-deliveries.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1deliveries
+  /api/crm/quotes/{quoteId}/deliveries/{deliveryId}:
+    $ref: ./crm/quote-deliveries.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1deliveries~1{deliveryId}
+  /api/crm/quote-templates:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates
+  /api/crm/quote-templates/{templateId}:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1{templateId}
+  /api/crm/quote-templates/{templateId}/apply:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1{templateId}~1apply
+  /api/crm/quote-templates/{templateId}/archive:
+    $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates~1{templateId}~1archive
+  /api/crm/files:
+    $ref: ./crm/private-files.openapi.yaml#/paths/~1api~1crm~1files
+  /api/crm/files/{fileId}/content:
+    $ref: ./crm/private-files.openapi.yaml#/paths/~1api~1crm~1files~1{fileId}~1content
+  /api/crm/custom-sewing/{draftId}/files:
+    $ref: ./crm/private-files.openapi.yaml#/paths/~1api~1crm~1custom-sewing~1{draftId}~1files
+  /api/crm/issuer-settings:
+    $ref: ./crm/issuer-settings.openapi.yaml#/paths/~1api~1crm~1issuer-settings
+  /api/crm/issuer-settings/versions:
+    $ref: ./crm/issuer-settings.openapi.yaml#/paths/~1api~1crm~1issuer-settings~1versions
+  /api/crm/issuer-settings/active:
+    $ref: ./crm/issuer-settings.openapi.yaml#/paths/~1api~1crm~1issuer-settings~1active

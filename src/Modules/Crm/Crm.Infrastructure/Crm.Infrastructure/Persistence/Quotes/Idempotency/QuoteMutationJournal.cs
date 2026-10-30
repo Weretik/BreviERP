@@ -30,11 +30,11 @@ internal sealed class QuoteMutationJournal(CrmDbContext db)
             x => x.ActorId == actor.UserId && x.Operation == operation && x.RequestId == requestId,
             cancellationToken);
         if (replay is null) return null;
-        if (replay.IntentHash != encoded.Hash) return Result.Conflict("request_id_payload_conflict");
         var accessible = await db.Quotes.AsNoTracking().AnyAsync(x =>
             x.PublicId == replay.QuotePublicId &&
             (actor.IsAdmin || x.OwnerId == new CrmUserId(actor.UserId)), cancellationToken);
         if (!accessible) return Result.NotFound();
+        if (replay.IntentHash != encoded.Hash) return Result.Conflict("request_id_payload_conflict");
         return Result.Success(JsonSerializer.Deserialize<QuoteDetail>(replay.ResponseJson, JsonOptions)
             ?? throw new InvalidOperationException("Invalid quote mutation replay."));
     }

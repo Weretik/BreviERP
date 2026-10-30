@@ -40,6 +40,7 @@ public sealed class FabricCatalogImporter(
                 report.ReferenceChanges.Add($"Fabric {row.Text(0)} ID {entity.Id.Value}: cost {entity.Price.Value} -> {cost}; supplier {entity.ProviderId.Value} -> {supplierId}.");
                 entity.Update(entity.Name, MoneyAmount.From(cost), SupplierId.From(supplierId));
             }
+            entity.SetPresentationMetadata(row.Text(3), row.Text(4));
             result.Add(row.Text(0), entity.Id.Value);
             mappings.Add("Fabric", row.Text(0), "Fabric", entity.Id.Value);
         }

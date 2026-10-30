@@ -13,6 +13,8 @@ public class Fabric : BaseEntity<FabricId>, IAggregateRoot
     public string Name { get; private set; } = null!;
     public MoneyAmount Price { get; private set; }
     public SupplierId ProviderId { get; private set; }
+    public string? Composition { get; private set; }
+    public string? Density { get; private set; }
     #endregion
 
     #region Constructors
@@ -36,6 +38,20 @@ public class Fabric : BaseEntity<FabricId>, IAggregateRoot
         SetName(name);
         SetPrice(price);
         SetProviderId(providerId);
+    }
+
+    public void SetPresentationMetadata(string? composition, string? density)
+    {
+        Composition = NormalizeMetadata(composition, 500);
+        Density = NormalizeMetadata(density, 100);
+    }
+
+    private static string? NormalizeMetadata(string? value, int maxLength)
+    {
+        var normalized = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        if (normalized?.Length > maxLength)
+            throw new ArgumentOutOfRangeException(nameof(value));
+        return normalized;
     }
     #endregion
 

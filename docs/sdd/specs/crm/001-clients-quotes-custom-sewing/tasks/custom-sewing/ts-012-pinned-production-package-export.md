@@ -1,10 +1,10 @@
 # TS-012 — Pinned production package export
 
-**Status:** planned. **Covers:** SC-S06. **Depends on:** TS-007, TS-010.
+**Status:** backend implemented; see [unified verification](../../evidence/p6-backend-checkpoint-2026-10-30.md). **Covers:** SC-S06. **Depends on:** TS-007, TS-010.
 
 ## Paths and one responsibility
 
-Planned roots/areas: `Crm.Application/Crm.Application/CustomSewing/ExportProductionPackage/; Crm.Infrastructure/Crm.Infrastructure/Documents/Production/; Crm.Api/Crm.Api/Quotes/`. Paths beginning `Crm.<Layer>/` are relative to `src/Modules/Crm/`; project source root repeats the project name. Each use case separates command/query, handler, validator, DTO and scenario-local specification files. Determine adjacent concrete filenames before edits; do not combine unrelated types into a catch-all file.
+Planned roots/areas: `Crm.Application/Crm.Application/CustomSewing/Production/; Crm.Infrastructure/Crm.Infrastructure/Documents/Production/; Crm.Api/Crm.Api/Quotes/`. Paths beginning `Crm.<Layer>/` are relative to `src/Modules/Crm/`; project source root repeats the project name. Each use case separates command/query, handler, validator, DTO and scenario-local specification files. Determine adjacent concrete filenames before edits; do not combine unrelated types into a catch-all file.
 
 ## Work
 

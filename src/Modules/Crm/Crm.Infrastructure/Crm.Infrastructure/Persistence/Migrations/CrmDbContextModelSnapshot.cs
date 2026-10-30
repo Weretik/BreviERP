@@ -23,6 +23,364 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomDraftAttachment", b =>
+                {
+                    b.Property<long>("DraftId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("Production")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("ShowInQuote")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("DraftId", "FileId");
+
+                    b.ToTable("CustomDraftAttachments", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomPrivateFile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("DraftId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("State")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset?>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("ActorId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("DraftId", "State");
+
+                    b.HasIndex("State", "ExpiresAt");
+
+                    b.ToTable("CustomPrivateFiles", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CustomPrivateFile_Expiry", "\"ExpiresAt\" > \"CreatedAt\"");
+
+                            t.HasCheckConstraint("CK_CustomPrivateFile_Length", "\"Length\" > 0 AND \"Length\" <= 20971520");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomVersionAttachment", b =>
+                {
+                    b.Property<long>("VersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("FileId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<long>("DraftId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("Production")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<bool>("ShowInQuote")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("VersionId", "FileId");
+
+                    b.HasIndex("DraftId", "FileId");
+
+                    b.HasIndex("DraftId", "VersionId");
+
+                    b.ToTable("CustomVersionAttachments", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Configuration")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("CurrentVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CustomerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProductType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long?>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Season")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TemplateOrigin")
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("QuoteId");
+
+                    b.HasIndex("Id", "CurrentVersionId");
+
+                    b.HasIndex("OwnerId", "UpdatedAt", "Id");
+
+                    b.ToTable("CustomSewingDrafts", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CustomDraft_Revision", "\"Revision\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Templates.CustomTemplate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("Archived")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "Archived", "UpdatedAt", "Id");
+
+                    b.ToTable("CustomSewingTemplates", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CustomTemplate_Revision", "\"Revision\" > 0");
+
+                            t.HasCheckConstraint("CK_CustomTemplate_Version", "\"VersionNumber\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Templates.CustomTemplateVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Introduction")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProductType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Season")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Selections")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<long>("TemplateId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("TemplateId", "Number")
+                        .IsUnique();
+
+                    b.ToTable("CustomSewingTemplateVersions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CustomTemplateVersion_Number", "\"Number\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Versions.CustomSewingVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Basis")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Configuration")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("DraftId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("ParentVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("DraftId", "Number")
+                        .IsUnique();
+
+                    b.HasIndex("DraftId", "ParentVersionId");
+
+                    b.ToTable("CustomSewingVersions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_CustomVersion_Number", "\"Number\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Crm.Domain.Customers.Contacts.CustomerChannel", b =>
                 {
                     b.Property<long>("Id")
@@ -214,6 +572,321 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("CustomerExternalIdentities", "crm");
                 });
 
+            modelBuilder.Entity("Crm.Domain.Delivery.QuoteDeliveryState", b =>
+                {
+                    b.Property<long>("DeliveryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid?>("LeaseToken")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LeaseUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("NextCheckAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ProviderMessageId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Status")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("DeliveryId");
+
+                    b.HasIndex("Status", "LeaseUntil", "NextCheckAt", "UpdatedAt");
+
+                    b.ToTable("QuoteDeliveryStates", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteDeliveryStates_Attempt", "\"Attempt\" >= 0");
+
+                            t.HasCheckConstraint("CK_QuoteDeliveryStates_Lease", "(\"Status\" IN ('sending','reconciling') AND \"LeaseToken\" IS NOT NULL AND \"LeaseUntil\" IS NOT NULL) OR (\"Status\" NOT IN ('sending','reconciling') AND \"LeaseToken\" IS NULL AND \"LeaseUntil\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_QuoteDeliveryStates_Status", "\"Status\" IN ('queued','sending','reconciling','unknown','succeeded','failed')");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Documents.DocumentSettingsState", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ActiveIssuerVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ActiveTemplateVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActiveIssuerVersionId");
+
+                    b.HasIndex("ActiveTemplateVersionId");
+
+                    b.ToTable("DocumentSettingsState", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_DocumentSettingsState_Revision", "\"Revision\" > 0");
+
+                            t.HasCheckConstraint("CK_DocumentSettingsState_Singleton", "\"Id\" = 1");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Documents.EmailTemplates.EmailTemplateState", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ActiveVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActiveVersionId");
+
+                    b.ToTable("EmailTemplateState", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_EmailTemplateState_Revision", "\"Revision\" > 0");
+
+                            t.HasCheckConstraint("CK_EmailTemplateState_Singleton", "\"Id\" = 1");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Documents.EmailTemplates.EmailTemplateVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("VerifiedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("EmailTemplateVersions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_EmailTemplateVersions_Number", "\"Number\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Documents.Issuer.IssuerSettingsVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("BankName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Edrpou")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Iban")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("LegalName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("LogoAssetKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Mfo")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Site")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("TaxId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("VerifiedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("IssuerSettingsVersions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_IssuerSettingsVersion_Number", "\"Number\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Documents.Templates.DocumentTemplateVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CtaContactTemplate")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("CtaText")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)");
+
+                    b.Property<string>("CtaTitle")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("LayoutKey")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OpeningText")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("VatNotice")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("VerifiedBy")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Number")
+                        .IsUnique();
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("DocumentTemplateVersions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_DocumentTemplateVersion_Number", "\"Number\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Events.QuoteLifecycleEvent", b =>
                 {
                     b.Property<Guid>("PublicId")
@@ -257,6 +930,209 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("QuoteLifecycleEvents", "crm", t =>
                         {
                             t.HasCheckConstraint("CK_QuoteLifecycleEvents_Revision", "\"Revision\" > 0 AND \"VersionNumber\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Introductions.IntroductionFeaturedMappingState", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("ActiveVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActiveVersionId");
+
+                    b.ToTable("IntroductionFeaturedMappingState", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_IntroductionFeaturedMappingState_Id", "\"Id\" = 1");
+
+                            t.HasCheckConstraint("CK_IntroductionFeaturedMappingState_Revision", "\"Revision\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Introductions.IntroductionFeaturedMappingVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ApprovedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SourceSnapshotHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("SummerModelCode")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("SummerProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("WinterModelCode")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("WinterProductId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("SourceSnapshotHash");
+
+                    b.ToTable("IntroductionFeaturedMappingVersions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_IntroductionFeaturedMappingVersion_Products", "\"SummerProductId\" > 0 AND \"WinterProductId\" > 0 AND \"SummerProductId\" <> \"WinterProductId\"");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Introductions.IntroductionTemplate", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("Archived")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "Archived", "UpdatedAt", "Id");
+
+                    b.ToTable("IntroductionTemplates", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_IntroductionTemplate_Revision", "\"Revision\" > 0");
+
+                            t.HasCheckConstraint("CK_IntroductionTemplate_Version", "\"VersionNumber\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Introductions.IntroductionTemplateVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("TemplateId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("PublicId");
+
+                    b.HasIndex("TemplateId", "Number")
+                        .IsUnique();
+
+                    b.ToTable("IntroductionTemplateVersions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_IntroductionTemplateVersion_Number", "\"Number\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Issues.QuoteIssue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("IssuerVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("QuoteVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("ReadyAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("TemplateVersionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssuerVersionId");
+
+                    b.HasIndex("TemplateVersionId");
+
+                    b.HasIndex("QuoteId", "QuoteVersionId")
+                        .IsUnique();
+
+                    b.ToTable("QuoteIssues", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteIssues_Number", "length(\"Number\") > 0");
+
+                            t.HasCheckConstraint("CK_QuoteIssues_QuoteVersionId", "\"QuoteVersionId\" > 0");
                         });
                 });
 
@@ -452,6 +1328,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("BasisToken")
                         .HasColumnType("uuid");
 
+                    b.Property<long?>("CustomVersionId")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("ItemId")
                         .HasColumnType("bigint");
 
@@ -483,12 +1362,16 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CustomVersionId");
+
                     b.HasIndex("ItemId", "SortOrder")
                         .IsUnique();
 
                     b.ToTable("QuoteItemVariants", "crm", t =>
                         {
-                            t.HasCheckConstraint("CK_QuoteItemVariants_Kind", "\"Kind\" IN ('sewing','ppe','oneOffPpe')");
+                            t.HasCheckConstraint("CK_QuoteItemVariants_CustomVersion", "(\"Kind\" = 'customSewing') = (\"CustomVersionId\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_QuoteItemVariants_Kind", "\"Kind\" IN ('sewing','ppe','oneOffPpe','customSewing')");
                         });
                 });
 
@@ -521,6 +1404,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid?>("CustomerPublicId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("IntroductionPublicSnapshot")
+                        .HasColumnType("jsonb");
 
                     b.Property<long?>("ParentVersionId")
                         .HasColumnType("bigint");
@@ -558,6 +1444,87 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_QuoteVersions_Number", "\"VersionNumber\" > 0");
                         });
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.CustomSewing.Pricing.CustomCalculationRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BasisJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<long>("DraftId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Revision")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("Token")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("DraftId", "Revision", "ActorId");
+
+                    b.ToTable("CustomSewingCalculations", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.CustomSewing.Writing.CustomMutationRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DraftPublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResponseJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DraftPublicId");
+
+                    b.HasIndex("ActorId", "Operation", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("CustomSewingMutationRequests", "crm");
                 });
 
             modelBuilder.Entity("Crm.Infrastructure.Persistence.CustomerMutationRecord", b =>
@@ -606,6 +1573,519 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("MutationRequests", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDelivery", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("ArtifactId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("EmailTemplateVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("PdfBytes")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("PdfSha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("PlainText")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("character varying(3000)");
+
+                    b.Property<string>("ProviderKey")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("QuoteVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RecipientAddress")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<string>("SenderAddress")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmailTemplateVersionId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("QuoteId", "CreatedAt");
+
+                    b.HasIndex("QuoteId", "QuoteVersionId", "ArtifactId");
+
+                    b.ToTable("QuoteDeliveries", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteDeliveries_Bytes", "octet_length(\"PdfBytes\") BETWEEN 5 AND 20971520");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDeliveryEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("DeliveryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("ProviderMessageId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("QuoteVersionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryId", "CreatedAt");
+
+                    b.HasIndex("DeliveryId", "Kind")
+                        .IsUnique()
+                        .HasFilter("\"Kind\" = 'succeeded'");
+
+                    b.HasIndex("QuoteId", "QuoteVersionId", "DeliveryId");
+
+                    b.ToTable("QuoteDeliveryEvents", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteDeliveryEvents_Kind", "\"Kind\" IN ('queued','submit_started','reconcile_started','succeeded','failed','unknown','cancelled')");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDeliveryRequest", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("DeliveryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("QuoteId", "DeliveryId");
+
+                    b.ToTable("QuoteDeliveryRequests", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.Artifacts.QuotePdfArtifact", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset?>("GeneratedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("IssuerVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("LeaseToken")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LeaseUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("PdfBytes")
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("QuoteVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("RenderKey")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Sha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Status")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("TemplateVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssuerVersionId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("TemplateVersionId");
+
+                    b.HasIndex("Status", "LeaseUntil", "CreatedAt");
+
+                    b.HasIndex("QuoteId", "QuoteVersionId", "IssuerVersionId", "TemplateVersionId", "RenderKey")
+                        .IsUnique();
+
+                    b.ToTable("QuotePdfArtifacts", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuotePdfArtifacts_Bytes", "(\"PdfBytes\" IS NULL OR octet_length(\"PdfBytes\") <= 20971520)");
+
+                            t.HasCheckConstraint("CK_QuotePdfArtifacts_ContentState", "(\"Status\" = 'succeeded' AND \"PdfBytes\" IS NOT NULL AND \"Sha256\" IS NOT NULL AND \"Length\" > 0 AND \"GeneratedAt\" IS NOT NULL) OR (\"Status\" <> 'succeeded' AND \"PdfBytes\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_QuotePdfArtifacts_Status", "\"Status\" IN ('queued','processing','succeeded','failed')");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.DocumentNumberSequence", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Month")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("NextNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Year", "Month")
+                        .IsUnique();
+
+                    b.ToTable("DocumentNumberSequences", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_DocumentNumberSequence_Month", "\"Month\" BETWEEN 1 AND 12");
+
+                            t.HasCheckConstraint("CK_DocumentNumberSequence_Next", "\"NextNumber\" >= 10");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.DocumentSettingsMutationRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResponseJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId", "Operation", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("DocumentSettingsMutations", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.EmailTemplates.EmailTemplateMutationRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResponseJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId", "Operation", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("EmailTemplateMutations", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.Production.ProductionPackageArtifact", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<byte[]>("Bytes")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("QuoteVersionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("SchemaVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SelectionHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("QuoteId", "QuoteVersionId", "SelectionHash")
+                        .IsUnique();
+
+                    b.ToTable("ProductionPackageArtifacts", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_ProductionPackageArtifacts_Content", "octet_length(\"Bytes\") = \"Length\" AND \"Length\" > 0 AND \"Length\" <= 67108864");
+
+                            t.HasCheckConstraint("CK_ProductionPackageArtifacts_Schema", "\"SchemaVersion\" = 1");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.Production.ProductionPackageMutationRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long>("PackageArtifactId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorId", "RequestId")
+                        .IsUnique();
+
+                    b.HasIndex("QuoteId", "PackageArtifactId");
+
+                    b.ToTable("ProductionPackageRequests", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_ProductionPackageRequests_Actor", "\"ActorId\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Introductions.IntroductionTemplateMutationRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResponseJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("TemplatePublicId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplatePublicId");
+
+                    b.HasIndex("ActorId", "Operation", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("IntroductionTemplateMutationRequests", "crm");
                 });
 
             modelBuilder.Entity("Crm.Infrastructure.Persistence.Quotes.Pricing.QuotePriceBasisRecord", b =>
@@ -703,6 +2183,149 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("QuoteMutationRequests", "crm");
                 });
 
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Templates.Writing.TemplateMutationRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IntentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResponseJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("TemplatePublicId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplatePublicId");
+
+                    b.HasIndex("ActorId", "Operation", "RequestId")
+                        .IsUnique();
+
+                    b.ToTable("CustomSewingTemplateMutationRequests", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomDraftAttachment", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Attachments.CustomPrivateFile", "File")
+                        .WithMany()
+                        .HasForeignKey("DraftId", "FileId")
+                        .HasPrincipalKey("DraftId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("File");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomPrivateFile", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", "Draft")
+                        .WithMany()
+                        .HasForeignKey("DraftId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Draft");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Attachments.CustomVersionAttachment", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Attachments.CustomPrivateFile", "File")
+                        .WithMany()
+                        .HasForeignKey("DraftId", "FileId")
+                        .HasPrincipalKey("DraftId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.CustomSewing.Versions.CustomSewingVersion", "Version")
+                        .WithMany()
+                        .HasForeignKey("DraftId", "VersionId")
+                        .HasPrincipalKey("DraftId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("File");
+
+                    b.Navigation("Version");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", b =>
+                {
+                    b.HasOne("Crm.Domain.Customers.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Crm.Domain.Quotes.Quote", "Quote")
+                        .WithMany()
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Crm.Domain.CustomSewing.Versions.CustomSewingVersion", "CurrentVersion")
+                        .WithMany()
+                        .HasForeignKey("Id", "CurrentVersionId")
+                        .HasPrincipalKey("DraftId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CurrentVersion");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Quote");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Templates.CustomTemplateVersion", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Templates.CustomTemplate", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("Crm.Domain.CustomSewing.Versions.CustomSewingVersion", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", "Draft")
+                        .WithMany()
+                        .HasForeignKey("DraftId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.CustomSewing.Versions.CustomSewingVersion", "ParentVersion")
+                        .WithMany()
+                        .HasForeignKey("DraftId", "ParentVersionId")
+                        .HasPrincipalKey("DraftId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Draft");
+
+                    b.Navigation("ParentVersion");
+                });
+
             modelBuilder.Entity("Crm.Domain.Customers.Contacts.CustomerChannel", b =>
                 {
                     b.HasOne("Crm.Domain.Customers.Contacts.CustomerContact", null)
@@ -738,11 +2361,88 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Crm.Domain.Delivery.QuoteDeliveryState", b =>
+                {
+                    b.HasOne("Crm.Infrastructure.Persistence.Delivery.QuoteDelivery", null)
+                        .WithOne()
+                        .HasForeignKey("Crm.Domain.Delivery.QuoteDeliveryState", "DeliveryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Domain.Documents.DocumentSettingsState", b =>
+                {
+                    b.HasOne("Crm.Domain.Documents.Issuer.IssuerSettingsVersion", null)
+                        .WithMany()
+                        .HasForeignKey("ActiveIssuerVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Crm.Domain.Documents.Templates.DocumentTemplateVersion", null)
+                        .WithMany()
+                        .HasForeignKey("ActiveTemplateVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Crm.Domain.Documents.EmailTemplates.EmailTemplateState", b =>
+                {
+                    b.HasOne("Crm.Domain.Documents.EmailTemplates.EmailTemplateVersion", null)
+                        .WithMany()
+                        .HasForeignKey("ActiveVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Events.QuoteLifecycleEvent", b =>
                 {
                     b.HasOne("Crm.Domain.Quotes.Quote", null)
                         .WithMany("History")
                         .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Introductions.IntroductionFeaturedMappingState", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Introductions.IntroductionFeaturedMappingVersion", null)
+                        .WithMany()
+                        .HasForeignKey("ActiveVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Introductions.IntroductionTemplateVersion", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Introductions.IntroductionTemplate", "Template")
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Issues.QuoteIssue", b =>
+                {
+                    b.HasOne("Crm.Domain.Documents.Issuer.IssuerSettingsVersion", null)
+                        .WithMany()
+                        .HasForeignKey("IssuerVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Documents.Templates.DocumentTemplateVersion", null)
+                        .WithMany()
+                        .HasForeignKey("TemplateVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Quotes.Versions.QuoteVersion", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "QuoteVersionId")
+                        .HasPrincipalKey("QuoteId", "Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -787,6 +2487,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Crm.Domain.Quotes.Variants.QuoteVariant", b =>
                 {
+                    b.HasOne("Crm.Domain.CustomSewing.Versions.CustomSewingVersion", null)
+                        .WithMany()
+                        .HasForeignKey("CustomVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Crm.Domain.Quotes.Items.QuoteItem", null)
                         .WithMany("Variants")
                         .HasForeignKey("ItemId")
@@ -807,6 +2512,161 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasForeignKey("QuoteId", "ParentVersionId")
                         .HasPrincipalKey("QuoteId", "Id")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.CustomSewing.Pricing.CustomCalculationRecord", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", null)
+                        .WithMany()
+                        .HasForeignKey("DraftId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.CustomSewing.Writing.CustomMutationRecord", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Drafts.CustomSewingDraft", null)
+                        .WithMany()
+                        .HasForeignKey("DraftPublicId")
+                        .HasPrincipalKey("PublicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDelivery", b =>
+                {
+                    b.HasOne("Crm.Domain.Documents.EmailTemplates.EmailTemplateVersion", null)
+                        .WithMany()
+                        .HasForeignKey("EmailTemplateVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Quotes.Versions.QuoteVersion", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "QuoteVersionId")
+                        .HasPrincipalKey("QuoteId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Infrastructure.Persistence.Documents.Artifacts.QuotePdfArtifact", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "QuoteVersionId", "ArtifactId")
+                        .HasPrincipalKey("QuoteId", "QuoteVersionId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDeliveryEvent", b =>
+                {
+                    b.HasOne("Crm.Infrastructure.Persistence.Delivery.QuoteDelivery", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "QuoteVersionId", "DeliveryId")
+                        .HasPrincipalKey("QuoteId", "QuoteVersionId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDeliveryRequest", b =>
+                {
+                    b.HasOne("Crm.Infrastructure.Persistence.Delivery.QuoteDelivery", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "DeliveryId")
+                        .HasPrincipalKey("QuoteId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.Artifacts.QuotePdfArtifact", b =>
+                {
+                    b.HasOne("Crm.Domain.Documents.Issuer.IssuerSettingsVersion", null)
+                        .WithMany()
+                        .HasForeignKey("IssuerVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Documents.Templates.DocumentTemplateVersion", null)
+                        .WithMany()
+                        .HasForeignKey("TemplateVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Quotes.Versions.QuoteVersion", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "QuoteVersionId")
+                        .HasPrincipalKey("QuoteId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Quotes.Issues.QuoteIssue", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "QuoteVersionId", "IssuerVersionId", "TemplateVersionId")
+                        .HasPrincipalKey("QuoteId", "QuoteVersionId", "IssuerVersionId", "TemplateVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.Production.ProductionPackageArtifact", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Domain.Quotes.Versions.QuoteVersion", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "QuoteVersionId")
+                        .HasPrincipalKey("QuoteId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.Production.ProductionPackageMutationRecord", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Crm.Infrastructure.Persistence.Documents.Production.ProductionPackageArtifact", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "PackageArtifactId")
+                        .HasPrincipalKey("QuoteId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Introductions.IntroductionTemplateMutationRecord", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Introductions.IntroductionTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("TemplatePublicId")
+                        .HasPrincipalKey("PublicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Templates.Writing.TemplateMutationRecord", b =>
+                {
+                    b.HasOne("Crm.Domain.CustomSewing.Templates.CustomTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("TemplatePublicId")
+                        .HasPrincipalKey("PublicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Crm.Domain.Customers.Contacts.CustomerContact", b =>

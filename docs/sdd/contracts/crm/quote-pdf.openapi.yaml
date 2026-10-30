@@ -1,0 +1,101 @@
+openapi: 3.1.0
+info:
+  title: CRM quote PDF artifacts
+  version: 1.0.0
+security:
+  - Bearer: []
+paths:
+  /api/crm/quotes/{quoteId}/documents:
+    post:
+      operationId: renderCrmQuotePdf
+      summary: Queue a PDF for one pinned ready quote version
+      description: Admin or owner Manager. Repeating the same version/template/render request returns the existing artifact; a failed artifact is retried. No email is sent.
+      parameters:
+        - $ref: '#/components/parameters/QuoteId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [versionId]
+              properties:
+                versionId: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Existing successful artifact
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuotePdfArtifact' }
+        '202':
+          description: Queued or processing artifact
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuotePdfArtifact' }
+        '400': { description: Invalid request }
+        '401': { description: Unauthenticated }
+        '403': { description: Admin or Manager role required }
+        '404': { description: Quote or issued version not found in actor scope }
+        '409': { description: Conflicting artifact request }
+  /api/crm/quotes/{quoteId}/documents/{artifactId}:
+    get:
+      operationId: getCrmQuotePdfArtifact
+      summary: Read private generation status and hash
+      parameters:
+        - $ref: '#/components/parameters/QuoteId'
+        - $ref: '#/components/parameters/ArtifactId'
+      responses:
+        '200':
+          description: Artifact metadata; PDF bytes are excluded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuotePdfArtifact' }
+        '401': { description: Unauthenticated }
+        '403': { description: Admin or Manager role required }
+        '404': { description: Artifact not found in actor quote scope }
+  /api/crm/quotes/{quoteId}/documents/{artifactId}/content:
+    get:
+      operationId: downloadCrmQuotePdfArtifact
+      summary: Download stored PDF bytes without recalculating
+      parameters:
+        - $ref: '#/components/parameters/QuoteId'
+        - $ref: '#/components/parameters/ArtifactId'
+      responses:
+        '200':
+          description: Exact stored successful PDF
+          content:
+            application/pdf:
+              schema: { type: string, format: binary }
+        '401': { description: Unauthenticated }
+        '403': { description: Admin or Manager role required }
+        '404': { description: Artifact or stored bytes not found in actor quote scope }
+        '409': { description: Generation is incomplete }
+components:
+  securitySchemes:
+    Bearer: { type: http, scheme: bearer }
+  parameters:
+    QuoteId:
+      name: quoteId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ArtifactId:
+      name: artifactId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    QuotePdfArtifact:
+      type: object
+      additionalProperties: false
+      required: [artifactId, status, sha256, length, errorCode, createdAt, updatedAt, generatedAt]
+      properties:
+        artifactId: { type: string, format: uuid }
+        status: { type: string, enum: [queued, processing, succeeded, failed] }
+        sha256: { type: [string, 'null'], maxLength: 64 }
+        length: { type: [integer, 'null'], format: int64, minimum: 0 }
+        errorCode: { type: [string, 'null'], maxLength: 80 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        generatedAt: { type: [string, 'null'], format: date-time }

@@ -11,7 +11,11 @@ public static class SewingPricingInputResolution
 
     public static IReadOnlyList<SewingMaterialCostInput> Materials(SewingArticlePricingSnapshot snapshot,
         IReadOnlyDictionary<string, PricingReferenceValue> references) =>
-        snapshot.Materials.Select(line =>
+        Materials(snapshot.Materials, references);
+
+    public static IReadOnlyList<SewingMaterialCostInput> Materials(IReadOnlyList<SewingPricingMaterialRow> materials,
+        IReadOnlyDictionary<string, PricingReferenceValue> references) =>
+        materials.Select(line =>
         {
             references.TryGetValue(line.ReferenceKey, out var value);
             return new SewingMaterialCostInput($"Material:{line.LineId}", line.Quantity, value?.Value,
@@ -21,7 +25,11 @@ public static class SewingPricingInputResolution
 
     public static IReadOnlyList<SewingOperationCostInput> Operations(SewingArticlePricingSnapshot snapshot,
         IReadOnlyDictionary<string, PricingReferenceValue> references) =>
-        snapshot.Operations.Select(line =>
+        Operations(snapshot.Operations, references);
+
+    public static IReadOnlyList<SewingOperationCostInput> Operations(IReadOnlyList<SewingPricingOperationRow> operations,
+        IReadOnlyDictionary<string, PricingReferenceValue> references) =>
+        operations.Select(line =>
         {
             references.TryGetValue($"Operation:{line.OperationId}", out var value);
             return new SewingOperationCostInput($"Operation:{line.LineId}", line.Quantity, value?.Value,

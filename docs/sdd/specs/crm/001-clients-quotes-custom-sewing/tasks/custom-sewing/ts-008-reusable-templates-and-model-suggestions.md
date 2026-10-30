@@ -1,6 +1,6 @@
 # TS-008 — Reusable templates and model suggestions
 
-**Status:** planned. **Covers:** SC-S04. **Depends on:** TS-006.
+**Status:** implemented and locally automatically verified — 2026-10-28. **Covers:** backend SC-S04. **Depends on:** TS-006. [Execution evidence](../../evidence/ts-008-2026-10-28.md), [shared integration](../../evidence/p4-wave1-2026-10-28.md). Frontend consumption remains FE-007; firstContact remains TS-016.
 
 ## Paths and one responsibility
 
