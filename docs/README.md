@@ -20,7 +20,7 @@ Start with the [SDD documentation map](sdd/README.md) if you do not yet know whi
 ## Ideas
 
 - [Sign-in and access like Kedr](ideas/auth-like-kedr.md) — auth audit and a step-by-step plan (Russian; not an accepted decision).
-- [Public catalog for the new brevi.com.ua site](ideas/public-site-catalog.md) — backend requirements and OpenCart import for the Next.js site (Russian; not an accepted decision).
+- [Public catalog for the new Brevi storefront](ideas/public-site-catalog.md) — backend requirements for the Next.js site (Russian; not an accepted decision).
 
 ## Placement principle
 
