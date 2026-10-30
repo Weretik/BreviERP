@@ -25,8 +25,7 @@ public class ProductApplicationReadModelTests
             Assert.That(detail.Sewing.Fabrics.Single(x => x.FabricId == 1).Name, Is.EqualTo("Тканина 1"));
             Assert.That(detail.Sewing.Accessories.Single(), Is.EqualTo(new AccessoryAdminDetail(4, "Блискавка", 25m, 2m, 0)));
             Assert.That(detail.Sewing.Operations.Single(), Is.EqualTo(new OperationAdminDetail(5, "Пошиття", 12m)));
-            Assert.That(detail.Sewing.Prices!.Ranges.Price1To10.MinFabricId, Is.EqualTo(1));
-            Assert.That(detail.Sewing.Prices.Ranges.Price1To10.MaxFabricId, Is.EqualTo(3));
+            Assert.That(detail.Sewing.Prices, Is.Null, "Current Sewing prices come from published Article tiers.");
             Assert.That(detail.Photos.Single(), Is.EqualTo(new ProductPhotoDetail(501, "https://cdn.example.test/501.jpg", "Куртка", true, true, 0)));
         });
     }
@@ -49,8 +48,8 @@ public class ProductApplicationReadModelTests
             Assert.That(detail.Ppe.RetailPercent.CustomPercent, Is.Null);
             Assert.That(detail.Ppe.WholesalePercent.Reference, Is.Null);
             Assert.That(detail.Ppe.WholesalePercent.CustomPercent, Is.EqualTo(15m));
-            Assert.That(detail.Ppe.RetailPrice, Is.EqualTo(112m));
-            Assert.That(detail.Ppe.WholesalePrice, Is.EqualTo(115m));
+            Assert.That(detail.Ppe.RetailPrice, Is.Zero, "Retired placeholder; current PPE prices come from the Pricing API.");
+            Assert.That(detail.Ppe.WholesalePrice, Is.Zero, "Retired placeholder; current PPE prices come from the Pricing API.");
         });
     }
 
