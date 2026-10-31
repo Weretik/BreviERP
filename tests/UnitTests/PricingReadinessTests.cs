@@ -44,9 +44,9 @@ public sealed class PricingReadinessTests
     }
 
     [Test]
-    public void Nonlocal_target_is_rejected_before_connecting()
+    public async Task Nonlocal_target_is_rejected_before_connecting()
     {
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await PricingReadinessJob.RunAsync("Host=example.invalid;Database=not-used", DateTimeOffset.UtcNow));
     }
 

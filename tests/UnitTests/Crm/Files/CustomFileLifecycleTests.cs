@@ -31,7 +31,7 @@ public sealed class CustomFileLifecycleTests
     [TestCase(20971521, false)]
     public void Domain_metadata_enforces_inclusive_twentieth_mib(long length, bool valid)
     {
-        TestDelegate create = () => CustomPrivateFile.Reserve(new(1), new(17), Guid.NewGuid(),
+        Action create = () => CustomPrivateFile.Reserve(new(1), new(17), Guid.NewGuid(),
             new string('A', 64), "application/pdf", length, new string('B', 64), At, At.AddHours(24));
         if (valid) Assert.DoesNotThrow(create);
         else Assert.Throws<CustomSewingValidationException>(create);

@@ -13,9 +13,9 @@ public sealed class PricingInputReviewTests
     }
 
     [Test]
-    public void Nonlocal_review_target_is_rejected_before_reading_source_files()
+    public async Task Nonlocal_review_target_is_rejected_before_reading_source_files()
     {
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await PricingInputReviewJob.RunAsync(
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await PricingInputReviewJob.RunAsync(
             "Host=example.invalid;Database=unused", "missing-settings.json", "missing-ppe.json"));
     }
 
