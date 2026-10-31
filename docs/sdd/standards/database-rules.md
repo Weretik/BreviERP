@@ -16,6 +16,6 @@ Respect existing transaction and concurrency boundaries. Do not add automatic re
 
 ## EF Core, migrations, and data
 
-EF Core mapping belongs in Infrastructure. Domain entities have no persistence-mechanism dependencies. Create a migration only when the feature scope requires it; do not edit applied migrations. Verify a new migration against an empty test database and document rollback and deployment risks.
+EF Core mapping belongs in Infrastructure. Each new module keeps its tables and migration history in its own schema and does not reference another module's tables; see the [module rules](module-rules.md#database-schema-per-module). Domain entities have no persistence-mechanism dependencies. Create a migration only when the feature scope requires it; do not edit applied migrations. Verify a new migration against an empty test database and document rollback and deployment risks.
 
 Preserve query semantics and database contracts. Change reference and seed data through the existing mechanism, not hidden runtime writes.
