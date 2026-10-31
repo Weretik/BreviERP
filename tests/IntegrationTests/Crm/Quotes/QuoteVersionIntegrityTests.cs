@@ -35,7 +35,7 @@ public sealed class QuoteVersionIntegrityTests : CrmDatabaseFixture
         var firstVersion = quotes[0].CurrentVersionId!.Value;
         var foreignVersion = quotes[1].CurrentVersionId!.Value;
 
-        var exception = Assert.ThrowsAsync<PostgresException>(async () =>
+        var exception = await Assert.ThrowsAsync<PostgresException>(async () =>
         {
             if (currentPointer)
                 await db.Database.ExecuteSqlInterpolatedAsync(

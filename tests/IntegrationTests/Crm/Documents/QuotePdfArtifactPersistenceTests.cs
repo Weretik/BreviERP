@@ -44,10 +44,10 @@ public sealed class QuotePdfArtifactPersistenceTests : CrmDatabaseFixture
         Assert.That(read.Value.Artifact.Sha256, Is.EqualTo(completed.Value.Sha256));
         Assert.That((await store.RetryAsync(first.Value.PublicId, default)).IsSuccess, Is.False);
         Assert.That((await store.CompleteAsync(first.Value.PublicId, claim.LeaseToken, bytes, default)).IsSuccess, Is.False);
-        var update = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        var update = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE crm.\"QuotePdfArtifacts\" SET \"Sha256\" = 'changed' WHERE \"PublicId\" = {first.Value.PublicId}"));
         Assert.That(update!.SqlState, Is.EqualTo("55000"));
-        var delete = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        var delete = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"DELETE FROM crm.\"QuotePdfArtifacts\" WHERE \"PublicId\" = {first.Value.PublicId}"));
         Assert.That(delete!.SqlState, Is.EqualTo("55000"));
     }
@@ -97,7 +97,7 @@ public sealed class QuotePdfArtifactPersistenceTests : CrmDatabaseFixture
         db.DocumentTemplateVersions.Add(other);
         await db.SaveChangesAsync();
         var store = new QuotePdfArtifactStore(db);
-        Assert.ThrowsAsync<DbUpdateException>(async () => await store.QueueAsync(issue.QuoteId,
+        await Assert.ThrowsAsync<DbUpdateException>(async () => await store.QueueAsync(issue.QuoteId,
             issue.QuoteVersionId, issue.IssuerVersionId, other.Id, "wrong-template", default));
     }
 

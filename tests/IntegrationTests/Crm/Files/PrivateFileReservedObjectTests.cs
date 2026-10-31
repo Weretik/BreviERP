@@ -58,13 +58,13 @@ public sealed class PrivateFileReservedObjectTests
     }
 
     [Test]
-    public void Lazy_unconfigured_storage_does_not_swallow_cancellation()
+    public async Task Lazy_unconfigured_storage_does_not_swallow_cancellation()
     {
         var store = new ConfiguredPrivateFileStore(new PrivateFileStorageOptions());
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
-        Assert.CatchAsync<OperationCanceledException>(async () => await store.PrepareAsync(cancellation.Token));
-        Assert.CatchAsync<OperationCanceledException>(async () => await store.ReadAsync(Guid.NewGuid(), Guid.NewGuid(), cancellation.Token));
+        await Assert.CatchAsync<OperationCanceledException>(async () => await store.PrepareAsync(cancellation.Token));
+        await Assert.CatchAsync<OperationCanceledException>(async () => await store.ReadAsync(Guid.NewGuid(), Guid.NewGuid(), cancellation.Token));
     }
 
     private sealed class ExpiringClock : TimeProvider

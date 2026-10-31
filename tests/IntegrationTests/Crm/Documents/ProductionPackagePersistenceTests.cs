@@ -146,10 +146,10 @@ public sealed class ProductionPackagePersistenceTests : CrmDatabaseFixture
         var first = await new ProductionPackageStore(db).ExportAsync(request, Owner,
             (source, _) => Archive(source, request.VariantIds), default);
         Assert.That(first.IsSuccess, Is.True);
-        var artifactUpdate = Assert.ThrowsAsync<PostgresException>(async () =>
+        var artifactUpdate = await Assert.ThrowsAsync<PostgresException>(async () =>
             await db.Database.ExecuteSqlRawAsync("UPDATE crm.\"ProductionPackageArtifacts\" SET \"SchemaVersion\"=1"));
         Assert.That(artifactUpdate!.SqlState, Is.EqualTo(PostgresErrorCodes.RaiseException));
-        var receiptDelete = Assert.ThrowsAsync<PostgresException>(async () =>
+        var receiptDelete = await Assert.ThrowsAsync<PostgresException>(async () =>
             await db.Database.ExecuteSqlRawAsync("DELETE FROM crm.\"ProductionPackageRequests\""));
         Assert.That(receiptDelete!.SqlState, Is.EqualTo(PostgresErrorCodes.RaiseException));
     }

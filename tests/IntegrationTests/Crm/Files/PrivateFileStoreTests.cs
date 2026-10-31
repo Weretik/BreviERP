@@ -125,7 +125,7 @@ public class PrivateFileStoreTests
     public async Task Cancellation_is_propagated_without_committing_a_file()
     {
         using var cancellation = new CancellationTokenSource(); cancellation.Cancel();
-        Assert.ThrowsAsync<TaskCanceledException>(async () => await store.WriteAsync(scope, new MemoryStream(Pdf), "application/pdf", cancellation.Token));
+        await Assert.ThrowsAsync<TaskCanceledException>(async () => await store.WriteAsync(scope, new MemoryStream(Pdf), "application/pdf", cancellation.Token));
         Assert.That(Directory.GetDirectories(privateRoot), Is.Empty);
         await Task.CompletedTask;
     }

@@ -105,7 +105,7 @@ public sealed class CatalogImportPersistenceTests
         try
         {
             await File.WriteAllTextAsync(modified, (await File.ReadAllTextAsync(_source)).Replace("Test model", "Changed model"));
-            Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 await CatalogImportJob.RunAsync(_connection, modified, "apply"));
         }
         finally

@@ -103,10 +103,10 @@ public sealed class CustomTemplatePersistenceTests : CrmDatabaseFixture
     {
         await using var db = Context();
         var template = (await Creator(db).Handle(new(Guid.NewGuid(), "Immutable", Selections, Manager), default)).Value;
-        var update = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        var update = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE crm.\"CustomSewingTemplateVersions\" SET \"Introduction\" = 'Wrong' WHERE \"PublicId\" = {template.VersionId}"));
         Assert.That(update!.SqlState, Is.EqualTo(PostgresErrorCodes.RaiseException));
-        Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"DELETE FROM crm.\"CustomSewingTemplateVersions\" WHERE \"PublicId\" = {template.VersionId}"));
     }
 }

@@ -35,7 +35,7 @@ public sealed class SewingPricingMigrationTests : SewingPricingDatabaseFixture
         }
         Assert.That(await calculations.FindRequestAsync(request, CancellationToken.None), Is.Null);
         var otherProduct = await catalog.Products.Where(x => x.ModelCode == null).Select(x => x.Id.Value).SingleAsync();
-        var mismatch = Assert.ThrowsAsync<PostgresException>(async () =>
+        var mismatch = await Assert.ThrowsAsync<PostgresException>(async () =>
             await catalog.Database.ExecuteSqlInterpolatedAsync($"""
                 INSERT INTO catalog."SewingCalculations"
                     ("PublicId", "RequestId", "ProductId", "ArticleId", "SnapshotJson", "CreatedAt", "CreatedBy")

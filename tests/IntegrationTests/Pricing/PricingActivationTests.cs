@@ -70,12 +70,12 @@ public sealed class PricingActivationTests : SewingPricingDatabaseFixture
             var plan = await PricingActivationPlanner.BuildAsync(services, _connection, "1", []);
             await using var db = Catalog();
             var initialRules = await db.Set<PpeRuleVersionRecord>().CountAsync();
-            Assert.ThrowsAsync<IOException>(async () => await PricingActivationJob.RunAsync(services, _connection, plan,
+            await Assert.ThrowsAsync<IOException>(async () => await PricingActivationJob.RunAsync(services, _connection, plan,
                 _ => throw new IOException("Progress path is unavailable.")));
             Assert.That(await db.Set<PpeRuleVersionRecord>().CountAsync(), Is.EqualTo(initialRules), "Reject an unusable journal before any confirmation.");
             var lineId = (await db.Set<SewingMaterialLine>().FirstAsync()).Id.Value;
             await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE catalog.\"SewingMaterialLines\" SET \"Quantity\" = \"Quantity\" + 1 WHERE \"Id\" = {lineId}");
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await PricingActivationJob.RunAsync(services, _connection, plan, _ => Task.CompletedTask));
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await PricingActivationJob.RunAsync(services, _connection, plan, _ => Task.CompletedTask));
             Assert.That(await db.Set<PpeRuleVersionRecord>().CountAsync(), Is.EqualTo(initialRules));
             await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE catalog.\"SewingMaterialLines\" SET \"Quantity\" = \"Quantity\" - 1 WHERE \"Id\" = {lineId}");
             var excluded = plan with { Id = Guid.NewGuid(), Rules = [], Offers = [], ExcludedSkus = ["724", "931"] };

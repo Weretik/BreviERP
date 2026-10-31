@@ -34,7 +34,7 @@ public class ChromiumDocumentRendererTests
             await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
             using var queuedCancellation = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
             var queuedContent = new ObservedParagraphs(() => throw new InvalidOperationException("Queued content was prepared before admission."));
-            Assert.CatchAsync<OperationCanceledException>(async () =>
+            await Assert.CatchAsync<OperationCanceledException>(async () =>
                 await renderer.RenderAsync(new("Queued", queuedContent, []), queuedCancellation.Token));
         }
         finally
@@ -79,10 +79,10 @@ public class ChromiumDocumentRendererTests
             var pdf = await renderer.RenderAsync(new PublicDocumentProjection("Перевірка українського документа", paragraphs, new[] { image }), default);
             Assert.That(pdf.AsSpan().StartsWith("%PDF-"u8), Is.True);
             Assert.That(Directory.GetDirectories(Path.Combine(workspace, "private")), Is.Empty, "Fresh browser profile and transient source must be removed.");
-            Assert.ThrowsAsync<ArgumentException>(async () => await renderer.RenderAsync(new PublicDocumentProjection("Null image", Array.Empty<string>(), new PublicDocumentImage[] { null! }), default));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await renderer.RenderAsync(new PublicDocumentProjection("Null image", Array.Empty<string>(), new PublicDocumentImage[] { null! }), default));
             var output = Environment.GetEnvironmentVariable("BREVIERP_CHROMIUM_PROOF_OUTPUT");
             if (!string.IsNullOrEmpty(output)) await File.WriteAllBytesAsync(output, pdf);
-            Assert.ThrowsAsync<ArgumentException>(async () => await renderer.RenderAsync(new PublicDocumentProjection("Invalid", Array.Empty<string>(), new[] { new PublicDocumentImage("Invalid", "image/png", "<html>"u8.ToArray()) }), default));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await renderer.RenderAsync(new PublicDocumentProjection("Invalid", Array.Empty<string>(), new[] { new PublicDocumentImage("Invalid", "image/png", "<html>"u8.ToArray()) }), default));
         }
         finally { if (Directory.Exists(workspace)) Directory.Delete(workspace, true); }
     }

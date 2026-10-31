@@ -55,10 +55,10 @@ public sealed class IssuerSettingsPersistenceTests : CrmDatabaseFixture
     {
         await using var db = Context();
         var created = (await new IssuerSettingsStore(db).CreateVersionAsync(Guid.NewGuid(), Issuer, Template, Admin, default)).Value;
-        var change = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        var change = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE crm.\"IssuerSettingsVersions\" SET \"LegalName\" = 'Other' WHERE \"PublicId\" = {created.IssuerVersionId}"));
         Assert.That(change!.SqlState, Is.EqualTo("55000"));
-        var deletion = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        var deletion = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"DELETE FROM crm.\"DocumentTemplateVersions\" WHERE \"PublicId\" = {created.TemplateVersionId}"));
         Assert.That(deletion!.SqlState, Is.EqualTo("55000"));
     }

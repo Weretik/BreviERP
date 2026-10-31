@@ -110,7 +110,7 @@ public sealed class GmailOAuthAccessTokenSourceTests
         var http = new FakeHttp(_ => throw new AssertionException("Unexpected HTTP."));
         using var cancel = new CancellationTokenSource();
         cancel.Cancel();
-        Assert.ThrowsAsync<OperationCanceledException>(async () => await Source(http).GetAccessTokenAsync(cancel.Token));
+        await Assert.ThrowsAsync<OperationCanceledException>(async () => await Source(http).GetAccessTokenAsync(cancel.Token));
         Assert.That(http.Calls, Is.Empty);
         await Task.CompletedTask;
     }

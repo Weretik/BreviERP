@@ -232,11 +232,11 @@ public sealed class CustomSewingPersistenceTests : CrmDatabaseFixture
         await using var db = Context();
         var first = await Freeze(db, await Create(db));
         var second = await Freeze(db, await Create(db));
-        var exception = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        var exception = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE crm.\"CustomSewingVersions\" SET \"Name\" = 'changed' WHERE \"PublicId\" = {first.CurrentVersion!.PublicId}"));
         Assert.That(exception!.SqlState, Is.EqualTo("55000"));
         var version = await db.CustomVersions.SingleAsync(x => x.PublicId == second.CurrentVersion!.PublicId);
-        exception = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        exception = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE crm.\"CustomSewingDrafts\" SET \"CurrentVersionId\" = {version.Id.Value} WHERE \"PublicId\" = {first.PublicId}"));
         Assert.That(exception!.SqlState, Is.EqualTo(PostgresErrorCodes.ForeignKeyViolation));
     }

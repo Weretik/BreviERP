@@ -69,7 +69,7 @@ public sealed class QuoteReadyPersistenceTests : CrmDatabaseFixture
             Assert.That(issue.TemplateVersionId, Is.EqualTo(db.DocumentTemplateVersions.Single().Id));
             Assert.That(issue.Number, Is.EqualTo(ready.Value.Number));
         });
-        var rewrite = Assert.ThrowsAsync<PostgresException>(async () =>
+        var rewrite = await Assert.ThrowsAsync<PostgresException>(async () =>
             await db.Database.ExecuteSqlInterpolatedAsync(
                 $"UPDATE crm.\"QuoteIssues\" SET \"Number\" = 'changed' WHERE \"Id\" = {issue.Id}"));
         Assert.That(rewrite!.SqlState, Is.EqualTo("55000"));

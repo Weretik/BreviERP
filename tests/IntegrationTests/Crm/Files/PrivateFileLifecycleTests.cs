@@ -146,10 +146,10 @@ public sealed class PrivateFileLifecycleTests : FileLifecycleFixture
         Assert.That((await Bytes.ReadAsync(draft.PublicId, temporary.PublicId, default)).Status, Is.EqualTo(ResultStatus.NotFound));
         Assert.That((await Bytes.ReadAsync(draft.PublicId, firstFile.PublicId, default)).IsSuccess, Is.True);
         Assert.That(await db.Set<CustomPrivateFile>().CountAsync(x => x.State == CustomFileState.Expired), Is.EqualTo(1));
-        var rewritten = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
+        var rewritten = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync(
             $"""UPDATE crm."CustomVersionAttachments" SET "ShowInQuote"=false WHERE "VersionId" IN (SELECT "Id" FROM crm."CustomSewingVersions" WHERE "PublicId"={first.CurrentVersion.PublicId})"""));
         Assert.That(rewritten!.SqlState, Is.EqualTo("55000"));
-        Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlRawAsync("DELETE FROM crm.\"CustomVersionAttachments\""));
+        await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlRawAsync("DELETE FROM crm.\"CustomVersionAttachments\""));
     }
 
     [Test]

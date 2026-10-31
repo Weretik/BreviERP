@@ -62,7 +62,7 @@ public sealed class PpePricingPersistenceTests : SewingPricingDatabaseFixture
             row[7]=200m;
             await File.WriteAllTextAsync(path,JsonSerializer.Serialize(new { version=1,spreadsheetId="test-workbook",capturedAt="2026-10-25",
                 rules=new object?[][] { ["Code","Retail","Wholesale","Large"],["Rule",.5m,.36m,.3m] }, products=new object?[][] { ["Sku"],row } }));
-            Assert.ThrowsAsync<InvalidOperationException>(()=>PpePricingBootstrapJob.RunAsync(_connection,path));
+            await Assert.ThrowsAsync<InvalidOperationException>(()=>PpePricingBootstrapJob.RunAsync(_connection,path));
         }
         finally { File.Delete(path); }
     }

@@ -31,7 +31,7 @@ public sealed class ReferencePricingRevisionTests : SewingPricingDatabaseFixture
         fabric.Update(fabric.Name, MoneyAmount.From(20), fabric.ProviderId);
         await reference.SaveChangesAsync();
         originalFabric.Update(originalFabric.Name, MoneyAmount.From(30), originalFabric.ProviderId);
-        Assert.ThrowsAsync<ReferencePricingConflictException>(async () => await stale.SaveChangesAsync());
+        await Assert.ThrowsAsync<ReferencePricingConflictException>(async () => await stale.SaveChangesAsync());
         await using (var check = Reference())
         {
             Assert.That((await check.Fabrics.SingleAsync()).Price.Value, Is.EqualTo(20));
@@ -54,7 +54,7 @@ public sealed class ReferencePricingRevisionTests : SewingPricingDatabaseFixture
         await reference.SaveChangesAsync();
         operation.Update(operation.GarmentPartId, operation.Name, 9);
         Assert.Throws<InvalidOperationException>(() => reference.SaveChanges());
-        Assert.ThrowsAsync<ReferencePricingConflictException>(async () => await reference.SaveChangesAsync());
+        await Assert.ThrowsAsync<ReferencePricingConflictException>(async () => await reference.SaveChangesAsync());
         await using var final = Reference();
         Assert.That((await final.GarmentPartOperations.SingleAsync()).Min, Is.EqualTo(7.12345678m));
     }

@@ -135,10 +135,10 @@ public sealed class IntroductionTemplatePersistenceTests : CrmDatabaseFixture
                 115, 118, new CrmUserId(Admin.UserId)), default);
         var created = await new IntroductionTemplateStore(db).CreateAsync(Owner, Guid.NewGuid(),
             "Знайомство", Payload(mapping), default);
-        var templateRewrite = Assert.ThrowsAsync<PostgresException>(async () =>
+        var templateRewrite = await Assert.ThrowsAsync<PostgresException>(async () =>
             await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE crm.\"IntroductionTemplateVersions\" SET \"Name\"='Wrong' WHERE \"PublicId\"={created.Value.VersionPublicId}"));
         Assert.That(templateRewrite!.SqlState, Is.EqualTo(PostgresErrorCodes.RaiseException));
-        var mappingRewrite = Assert.ThrowsAsync<PostgresException>(async () =>
+        var mappingRewrite = await Assert.ThrowsAsync<PostgresException>(async () =>
             await db.Database.ExecuteSqlRawAsync("DELETE FROM crm.\"IntroductionFeaturedMappingVersions\""));
         Assert.That(mappingRewrite!.SqlState, Is.EqualTo(PostgresErrorCodes.RaiseException));
     }

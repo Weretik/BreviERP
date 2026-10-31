@@ -153,7 +153,7 @@ public sealed class QuoteDeliveryOutboxPersistenceTests : CrmDatabaseFixture
             "UPDATE crm.\"QuoteDeliveryEvents\" SET \"CreatedAt\"=\"CreatedAt\"",
             "UPDATE crm.\"QuoteDeliveryRequests\" SET \"CreatedAt\"=\"CreatedAt\"" })
         {
-            var exception = Assert.ThrowsAsync<PostgresException>(async () =>
+            var exception = await Assert.ThrowsAsync<PostgresException>(async () =>
                 await db.Database.ExecuteSqlRawAsync(sql));
             Assert.That(exception!.SqlState, Is.EqualTo("P0001"));
         }

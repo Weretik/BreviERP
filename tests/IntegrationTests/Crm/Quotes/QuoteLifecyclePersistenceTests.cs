@@ -224,7 +224,7 @@ public sealed class QuoteLifecyclePersistenceTests : CrmDatabaseFixture
     {
         await using var db = Context();
         await Create(db, new Prices());
-        var exception = Assert.ThrowsAsync<Npgsql.PostgresException>(async () =>
+        var exception = await Assert.ThrowsAsync<Npgsql.PostgresException>(async () =>
             await db.Database.ExecuteSqlRawAsync("UPDATE crm.\"QuoteLifecycleEvents\" SET \"Reason\" = 'changed'"));
         Assert.That(exception!.SqlState, Is.EqualTo(Npgsql.PostgresErrorCodes.CheckViolation));
     }

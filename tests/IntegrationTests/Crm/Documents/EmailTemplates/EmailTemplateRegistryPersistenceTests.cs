@@ -58,9 +58,9 @@ public sealed class EmailTemplateRegistryPersistenceTests : CrmDatabaseFixture
     {
         await using var db = Context();
         var v = await new EmailTemplateStore(db).CreateAsync(Admin, Guid.NewGuid(), "Тест", "Тема", "Текст", default);
-        var ex = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE crm.\"EmailTemplateVersions\" SET \"Body\"='wrong' WHERE \"PublicId\"={v.Value.VersionId}"));
+        var ex = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE crm.\"EmailTemplateVersions\" SET \"Body\"='wrong' WHERE \"PublicId\"={v.Value.VersionId}"));
         Assert.That(ex!.SqlState, Is.EqualTo(PostgresErrorCodes.RaiseException));
-        ex = Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlRawAsync("DELETE FROM crm.\"EmailTemplateVersions\""));
+        ex = await Assert.ThrowsAsync<PostgresException>(async () => await db.Database.ExecuteSqlRawAsync("DELETE FROM crm.\"EmailTemplateVersions\""));
         Assert.That(ex!.SqlState, Is.EqualTo(PostgresErrorCodes.RaiseException));
     }
 
