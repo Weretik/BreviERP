@@ -48,3 +48,5 @@ Gradually migrate existing specifications to this structure: preserve completed 
 Draft → accepted → in progress → verified → complete.
 
 Implementation must not silently diverge from an accepted specification. If that happens, add a dated change entry with the reason, boundary impact, and new verification.
+
+- [Platform: temporary anonymous API access](platform/002-temporary-anonymous-api/README.md) — implemented locally; 16 focused HTTP tests passed; temporary public access to all APIs enabled in configuration, deployment not performed.

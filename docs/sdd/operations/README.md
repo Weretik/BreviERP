@@ -24,3 +24,5 @@ operations/
 Do not place passwords, tokens, full connection strings, or production endpoints in this documentation.
 
 - Configure delegated Gmail OAuth without enabling delivery: [Gmail setup](crm-gmail-oauth.md).
+
+- Temporary public access to every API and restoration: [anonymous API mode](configuration/temporary-anonymous-api.md).

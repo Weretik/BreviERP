@@ -48,3 +48,7 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 ## Crm
 
 - [Clients and contacts](crm/clients-and-quotes.md) — P1–P4 scoped clients, immutable quotes/custom versions, private files, templates and suggestions; consumer FE-006/007 verified. P5 issuer/template settings, ready and private PDF artifact backend passed focused local checks; frontend consumer and deployment remain separate.
+
+## Platform access
+
+- [Temporary anonymous API access](platform/temporary-anonymous-api.md) — startup switch for every controller, shared actor attribution and public documentation.

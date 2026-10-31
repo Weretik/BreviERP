@@ -6,13 +6,13 @@
 
 ## Swagger and OpenAPI
 
-Swagger UI is enabled only when `ASPNETCORE_ENVIRONMENT=Development`. With the HTTPS launch profile, open:
+Swagger UI is enabled when `ASPNETCORE_ENVIRONMENT=Development` or the [temporary anonymous API mode](../configuration/temporary-anonymous-api.md) is enabled. The repository currently enables that mode. With the HTTPS launch profile, open:
 
 ```text
 https://localhost:7142/swagger
 ```
 
-The Swagger Bearer authorization scheme expects the access token returned by `POST /api/auth/session/login`. Put the access token in Swagger authorization; do not paste or disclose the refresh token.
+With anonymous API mode disabled, the Swagger Bearer authorization scheme expects the access token returned by `POST /api/auth/session/login`. Put the access token in Swagger authorization; do not paste or disclose the refresh token.
 
 For a reproducible feature test, add a specific task to the verification phase of the [feature specification](../../specs/README.md). It should record the route, prerequisites, input, expected status, and failure cases.
 
