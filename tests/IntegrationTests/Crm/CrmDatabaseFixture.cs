@@ -47,8 +47,21 @@ public abstract class CrmDatabaseFixture
         NpgsqlConnection.ClearAllPools();
         await using var admin = new NpgsqlConnection(_adminConnection);
         await admin.OpenAsync();
-        await using var drop = new NpgsqlCommand($"DROP DATABASE IF EXISTS \"{_database}\" WITH (FORCE)", admin);
-        await drop.ExecuteNonQueryAsync();
+        // Pool shutdown/background activity can finish just after the fixture is disposed.
+        // Wait for it instead of requiring permission to terminate other PostgreSQL backends.
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                await using var drop = new NpgsqlCommand($"DROP DATABASE IF EXISTS \"{_database}\"", admin);
+                await drop.ExecuteNonQueryAsync();
+                break;
+            }
+            catch (PostgresException error) when (error.SqlState == PostgresErrorCodes.ObjectInUse && attempt < 20)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(500));
+            }
+        }
     }
 
     protected CrmDbContext Context() => new(new DbContextOptionsBuilder<CrmDbContext>()

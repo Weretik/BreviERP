@@ -246,11 +246,13 @@ public sealed class CustomSewingPersistenceTests : CrmDatabaseFixture
     {
         await using var db = Context();
         var migrator = db.GetService<IMigrator>();
+        // Seed a P3-compatible quote while the current EF model still matches the schema.
+        var quote = (await new CreateQuoteCommandHandler(new QuoteMutationStore(db), Builder(db)).Handle(
+            new(null, null, "Before custom migration", new([]), Guid.NewGuid(), Manager), default)).Value;
         await migrator.MigrateAsync("20261028001043_PreserveIssuedQuoteVersion");
         try
         {
-            var quote = (await new CreateQuoteCommandHandler(new QuoteMutationStore(db), Builder(db)).Handle(
-                new(null, null, "Before custom migration", new([]), Guid.NewGuid(), Manager), default)).Value;
+            Assert.That(await db.Quotes.CountAsync(x => x.PublicId == quote.PublicId), Is.EqualTo(1));
             await migrator.MigrateAsync();
             await migrator.MigrateAsync();
             Assert.That(await db.Quotes.CountAsync(x => x.PublicId == quote.PublicId), Is.EqualTo(1));

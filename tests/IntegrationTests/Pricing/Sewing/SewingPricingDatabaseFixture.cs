@@ -93,8 +93,21 @@ public abstract class SewingPricingDatabaseFixture
         NpgsqlConnection.ClearAllPools();
         await using var connection = new NpgsqlConnection(_maintenance);
         await connection.OpenAsync();
-        await using var drop = new NpgsqlCommand($"DROP DATABASE IF EXISTS \"{_database}\" WITH (FORCE)", connection);
-        await drop.ExecuteNonQueryAsync();
+        // Pool shutdown/background activity can finish just after the fixture is disposed.
+        // Wait for it instead of requiring permission to terminate other PostgreSQL backends.
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                await using var drop = new NpgsqlCommand($"DROP DATABASE IF EXISTS \"{_database}\"", connection);
+                await drop.ExecuteNonQueryAsync();
+                break;
+            }
+            catch (PostgresException error) when (error.SqlState == PostgresErrorCodes.ObjectInUse && attempt < 20)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(500));
+            }
+        }
     }
 
     protected virtual string CatalogueSourcePath() => Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "catalog-import.json");
