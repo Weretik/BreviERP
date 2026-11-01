@@ -31,6 +31,10 @@ Describe a new feature with a brief card for its actual architecture in `docs/sd
 - An ADR is needed only for a lasting architecture change; ordinary scenario decisions belong in the feature design.
 - Feature specifications link to `standards/` rather than copying stable backend, API, security, or testing rules.
 
+## Staged structure check
+
+Implement a feature in stages (one scenario, task slice, or layer at a time). After each stage, run a short structure check on the files that stage touched: split files and classes that mix responsibilities, and move crowded folders into logical folders or modules under the [backend rules](backend-rules.md). Do not leave this for the end of the feature. The check is local to changed files and is not the full code audit. After the last stage, do a short final pass over the whole feature and compare the planned map with the actual tree in the feature map.
+
 ## Completion criteria
 
 Every scenario in scope is implemented or explicitly deferred, all required technical tasks are complete, and automated or documented manual evidence passed. Contracts and implementation are aligned. Focused tests for the changed feature and related components are run, or the reason they could not be run is recorded; general tests and a full suite run only at the user's explicit request under the [testing rules](testing-rules.md). The delivery report lists changed files, verification evidence, unrun checks, and residual risks.
