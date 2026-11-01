@@ -8,6 +8,8 @@ namespace Crm.Application.Delivery.Outbox;
 
 public interface IQuoteDeliveryStore
 {
+    Task<Result<QuoteDeliveryDetail>> ResolveAsync(Crm.Application.Delivery.ResolveOutcome.ResolveQuoteDeliveryCommand command,
+        CrmActor actor, CancellationToken ct);
     Task<Result<QuoteDeliveryDetail>> EnqueueAsync(EnqueueQuoteDeliveryCommand command, CrmActor actor,
         IQuoteDeliveryIdentity identity, IQuoteDeliveryReadiness readiness, CancellationToken ct);
     Task<Result<PagedResult<IReadOnlyList<QuoteDeliveryDetail>>>> ListAsync(Guid quoteId, CrmActor actor, int page, int pageSize, CancellationToken ct);

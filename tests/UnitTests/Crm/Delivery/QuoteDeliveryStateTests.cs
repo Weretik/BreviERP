@@ -19,7 +19,8 @@ public sealed class QuoteDeliveryStateTests
         Assert.That(state.Complete(first.Token, "succeeded", null, "msg1", Now.AddSeconds(122)), Is.False);
         Assert.That(state.Complete(second.Token, "unknown", "lookup_empty", null, Now.AddSeconds(122)), Is.True);
         Assert.That(state.IsClaimable(Now.AddSeconds(123)), Is.False);
-        Assert.That(state.Claim(Now.AddMinutes(8), TimeSpan.FromSeconds(120)).Reconcile, Is.True);
+        Assert.That(state.IsClaimable(Now.AddDays(1)), Is.False);
+        Assert.That(state.NextCheckAt, Is.Null);
     }
 
     [TestCase("succeeded")]

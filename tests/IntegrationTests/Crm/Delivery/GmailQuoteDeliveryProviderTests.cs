@@ -61,34 +61,17 @@ public sealed class GmailQuoteDeliveryProviderTests
     }
 
     [Test]
-    public async Task Empty_sent_lookup_is_unknown_and_never_submits()
+    public async Task Send_only_unknown_requires_manual_review_without_token_or_HTTP()
     {
-        var handler = new FakeHttp(_ => Json(HttpStatusCode.OK, "{\"messages\":[]}"));
-        var result = await Provider(handler).ReconcileAsync(DeliveryId, default);
+        var handler = new FakeHttp(_ => throw new AssertionException("Mail must not be read."));
+        var tokens = new FakeToken("fixture-token");
+        var provider = Provider(handler, tokens);
+        Assert.That(provider.Capabilities.SupportsLookupBySendKey, Is.False);
+        var result = await provider.ReconcileAsync(DeliveryId, default);
         Assert.That(result.Outcome, Is.EqualTo(QuoteDeliveryProviderOutcome.Unknown));
-        Assert.That(handler.Calls, Has.Count.EqualTo(1));
-        Assert.That(handler.Calls[0].Method, Is.EqualTo(HttpMethod.Get));
-        var query = Uri.UnescapeDataString(handler.Calls[0].Uri);
-        Assert.That(query, Does.Contain("labelIds=SENT"));
-        Assert.That(query, Does.Contain("rfc822msgid:<" + Identity + ">"));
-    }
-
-    [TestCase(true, QuoteDeliveryProviderOutcome.ConfirmedSuccess)]
-    [TestCase(false, QuoteDeliveryProviderOutcome.Unknown)]
-    public async Task Reconciliation_verifies_sent_label_and_exact_message_identity(bool matches,
-        QuoteDeliveryProviderOutcome outcome)
-    {
-        var identity = matches ? Identity : "different@example.test";
-        var metadata = JsonSerializer.Serialize(new { id = "msg123", labelIds = new[] { "SENT" },
-            payload = new { headers = new[] { new { name = "Message-ID", value = "<" + identity + ">" } } } });
-        var index = 0;
-        var handler = new FakeHttp(_ => Json(HttpStatusCode.OK,
-            index++ == 0 ? "{\"messages\":[{\"id\":\"msg123\"}]}" : metadata));
-        var result = await Provider(handler).ReconcileAsync(DeliveryId, default);
-        Assert.That(result.Outcome, Is.EqualTo(outcome));
-        Assert.That(handler.Calls, Has.Count.EqualTo(2));
-        Assert.That(handler.Calls.All(x => x.Method == HttpMethod.Get), Is.True);
-        Assert.That(handler.Calls[1].Uri, Does.Contain("format=metadata&metadataHeaders=Message-ID"));
+        Assert.That(result.ErrorCode, Is.EqualTo("delivery_manual_review_required"));
+        Assert.That(tokens.Calls, Is.Zero);
+        Assert.That(handler.Calls, Is.Empty);
     }
 
     [Test]
@@ -130,19 +113,16 @@ public sealed class GmailQuoteDeliveryProviderTests
         Assert.That(handler.Calls, Has.Count.EqualTo(1));
     }
 
-    [TestCase(false)]
-    [TestCase(true)]
-    public async Task Interrupted_response_body_is_unknown_without_retry(bool reconcile)
+    [Test]
+    public async Task Interrupted_response_body_is_unknown_without_retry()
     {
         var handler = new FakeHttp(_ => new HttpResponseMessage(HttpStatusCode.OK)
             { Content = new StreamContent(new InterruptedResponseStream()) });
         var provider = Provider(handler);
-        var result = reconcile
-            ? await provider.ReconcileAsync(DeliveryId, default)
-            : await provider.SubmitAsync(Submission, default);
+        var result = await provider.SubmitAsync(Submission, default);
         Assert.That(result.Outcome, Is.EqualTo(QuoteDeliveryProviderOutcome.Unknown));
         Assert.That(handler.Calls, Has.Count.EqualTo(1));
-        Assert.That(handler.Calls[0].Method, Is.EqualTo(reconcile ? HttpMethod.Get : HttpMethod.Post));
+        Assert.That(handler.Calls[0].Method, Is.EqualTo(HttpMethod.Post));
     }
 
     private sealed class InterruptedResponseStream() : MemoryStream(new byte[1])

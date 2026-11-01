@@ -197,6 +197,53 @@
           }
         }
       }
+    },
+    "/api/crm/quotes/{quoteId}/deliveries/{deliveryId}/resolution": {
+      "post": {
+        "operationId": "resolveCrmQuoteDelivery",
+        "tags": [
+          "CrmQuoteDeliveries"
+        ],
+        "description": "Current owner Manager or Admin. Explicit checked manual result for unknown/expired attempt; never sends/reads Gmail. Actor/time immutable and separate from provider confirmation. Same actor/requestId/input replays, changed intent409. Active or terminal attempts409.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveQuoteDeliveryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recorded or replayed manual result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteDeliveryDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or unknown JSON field"
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Non-staff actor"
+          },
+          "404": {
+            "description": "Not found or inaccessible"
+          },
+          "409": {
+            "description": "Attempt/state/intent conflict"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -325,6 +372,89 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "canResolveManually": {
+            "type": "boolean",
+            "description": "Server-owned: unknown or expired attempt eligible for explicit manual result."
+          },
+          "manualResolution": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/QuoteDeliveryManualResolution"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ResolveQuoteDeliveryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "expectedAttempt",
+          "outcome",
+          "evidenceNote"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedAttempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "not_sent"
+            ]
+          },
+          "evidenceNote": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      },
+      "QuoteDeliveryManualResolution": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outcome",
+          "actorId",
+          "attempt",
+          "evidenceNote",
+          "createdAt"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "not_sent"
+            ]
+          },
+          "actorId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "evidenceNote": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

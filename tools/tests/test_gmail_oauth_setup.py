@@ -31,17 +31,32 @@ class GmailOAuthSetupTests(unittest.TestCase):
             with self.subTest(path=path), self.assertRaises(oauth.SetupError):
                 oauth.callback_code(path, "s")
 
-    def test_initial_grant_requires_both_scopes_and_offline_token(self):
+    def test_initial_grant_requires_send_identity_scopes_and_offline_token(self):
         grant = dict(access_token="fixture-access", refresh_token="fixture-refresh", token_type="Bearer", scope=" ".join(oauth.SCOPES))
         self.assertEqual(oauth.validated_grant(grant), ("fixture-access", "fixture-refresh"))
         for patch in ({"scope": "https://www.googleapis.com/auth/gmail.send"}, {"refresh_token": ""}, {"token_type": "Basic"}):
             with self.subTest(patch=patch), self.assertRaises(oauth.SetupError):
                 oauth.validated_grant(dict(grant, **patch))
 
+    def test_consent_never_requests_mail_reading(self):
+        self.assertEqual(oauth.SCOPES, {"https://www.googleapis.com/auth/gmail.send", "openid", "email"})
+
     def test_refresh_token_matches_runtime_credential_bound(self):
         grant = dict(access_token="fixture-access", refresh_token="x" * 4097, token_type="Bearer", scope=" ".join(oauth.SCOPES))
         with self.assertRaises(oauth.SetupError):
             oauth.validated_grant(grant)
+
+    def test_sender_requires_matching_verified_identity_and_subject(self):
+        identity = dict(sub="fixture-subject", email="sender@example.test", email_verified=True)
+        oauth.verified_sender(identity, "sender@example.test")
+        for patch in ({"email_verified": False}, {"email_verified": "true"}, {"sub": ""}, {"sub": None}, {"email": "other@example.test"}):
+            with self.subTest(patch=patch), self.assertRaises(oauth.SetupError):
+                oauth.verified_sender(dict(identity, **patch), "sender@example.test")
+
+    def test_google_email_scope_alias_is_accepted(self):
+        grant = dict(access_token="fixture-access", refresh_token="fixture-refresh", token_type="Bearer",
+                     scope="openid https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email")
+        self.assertEqual(oauth.validated_grant(grant), ("fixture-access", "fixture-refresh"))
 
     def test_mailbox_rejects_headers_display_names_and_extra_addresses(self):
         self.assertEqual(oauth.mailbox("sandbox@example.test"), "sandbox@example.test")

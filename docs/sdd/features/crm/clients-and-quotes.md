@@ -306,7 +306,6 @@ Crm.Api/Documents/EmailTemplates/                            registry HTTP bound
 Crm.Api/Quotes/ProductionPackagesController.cs                export/metadata/content HTTP boundary
 Crm.Application/Delivery/{Readiness,Provider}/                 readiness, submission and reconciliation ports
 Crm.Infrastructure/Delivery/{Readiness,Gmail}/                 fail-closed policy and one-attempt Gmail adapter
-Crm.Infrastructure/Delivery/Gmail/GmailSentMessageLookup.cs     read-only Sent reconciliation
 Crm.Infrastructure/DependencyInjection/Crm{EmailTemplate,ProductionPackage,QuoteDelivery}ServiceExtensions.cs
                                                             independent feature registrations
 ```
@@ -329,7 +328,7 @@ Contracts: [email registry](../../contracts/crm/email-templates.openapi.yaml), [
 
 ## P6 explicit email outbox and delegated OAuth
 
-Owner/Admin explicitly queues a current issued version with an intact pinned PDF and immutable email-template version. Queue pins the rendered public message and provider/sender identity. A hosted scoped processor claims a durable lease before provider IO. Expired/unknown attempts use read-only reconciliation, with no automatic repost. Confirmed provider success records the exact delivered version; a newer draft is never marked sent. Current quote access protects all replay/history reads.
+Owner/Admin explicitly queues a current issued version with an intact pinned PDF and immutable email-template version. Queue pins the rendered public message and provider/sender identity. A hosted scoped processor claims a durable lease before provider IO. Expired send-only attempts become manual unknown without provider IO; unknown completion has no scheduled check and no automatic repost. Legacy scheduled unknowns are parked once without reading Gmail. Confirmed provider success records the exact delivered version; a newer draft is never marked sent. Current quote access protects all replay/history reads.
 
 ```text
 Crm.Domain/Delivery/                            pure lease/outcome state and typed ID
@@ -338,7 +337,7 @@ Crm.Application/Delivery/{EnqueueQuote,GetDeliveries,Outbox,Processing}/
                                                explicit enqueue, safe reads, ports and processor
 Crm.Infrastructure/Persistence/Delivery/        immutable pins/receipts/events; separate enqueue/reads/claims/completion files
 Crm.Infrastructure/Persistence/Configurations/Delivery/  data constraints
-Crm.Infrastructure/Delivery/Gmail/OAuth/        bounded refresh/profile verification/token cache
+Crm.Infrastructure/Delivery/Gmail/OAuth/        bounded refresh/verified UserInfo identity/token cache
 Crm.Infrastructure/Delivery/Readiness/ConfiguredQuoteDeliveryIdentity.cs
                                                configured provider/sender/lease identity
 Crm.Api/Delivery/                              queue and authorized paged/detail history
@@ -355,8 +354,8 @@ flowchart LR
   Pins --> Queue[Immutable message and request receipt]
   Worker[Scoped worker] --> Lease[Committed lease and attempt]
   Queue --> Lease
-  Lease --> Provider[Gmail submit or read-only reconciliation]
-  Provider --> Token[OAuth refresh and sender profile proof]
+  Lease --> Provider[Single Gmail send / manual unknown]
+  Provider --> Token[OAuth refresh and verified UserInfo identity]
   Provider --> Outcome[Version-specific outcome event]
   Outcome --> Current[Mark sent only for matching current issued version]
 ```
@@ -368,3 +367,31 @@ Contract: [delivery queue/history](../../contracts/crm/quote-deliveries.openapi.
 Focused IntegrationTests filter `FullyQualifiedName~QuoteDelivery|FullyQualifiedName~GmailOAuth` covers outbox persistence/API, worker composition, readiness, Gmail adapter and OAuth source. UnitTests delivery state and confirmed-version transition checks are in `tests/UnitTests/Crm/Delivery/`. [Actual verification](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p6-outbox-oauth-checkpoint-2026-10-30.md).
 
 [Outbox/OAuth functional audit](../../specs/crm/001-clients-quotes-custom-sewing/code-audit/p6-outbox-oauth-audit-2026-10-30.md) records sandbox queue selection before candidate limits, immediate verified consent refusal and the responsibility split.
+
+Current send-only revision: [design and scope](../../specs/crm/001-clients-quotes-custom-sewing/design/delivery-outbox-p6.md), [verification](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p6-send-only-2026-11-01.md). OAuth/helper require send + OpenID/email, never Gmail read permission. Manual outcome resolution and live provider acceptance remain separate.
+
+## Manual delivery outcome
+
+Current owner/Admin can record checked sent/not_sent evidence for unknown/expired attempts. Active leases and terminal outcomes cannot be overwritten. Manual resolution is independent of provider readiness and never sends/reads mail. Immutable note, actual actor, attempt and server time are returned separately from provider confirmation. Same actor/key/intent replays; source ownership is rechecked. Sent transition applies only to the matching current issued version.
+
+```text
+Crm.Domain/Delivery/QuoteDeliveryState.cs                 manual eligibility and terminal transition
+Crm.Application/Delivery/ResolveOutcome/                 command, FluentValidation and handler
+Crm.Application/Delivery/Outbox/QuoteDeliveryManualResolution.cs   safe provenance DTO
+Crm.Infrastructure/Persistence/Delivery/QuoteDeliveryStore.Resolution.cs  atomic ACL/replay/evidence
+Crm.Infrastructure/Persistence/Delivery/QuoteDeliveryResolution.cs        immutable record
+Crm.Infrastructure/Persistence/Configurations/Delivery/QuoteDeliveryResolutionConfiguration.cs
+Crm.Api/Delivery/Resolution/                             strict HTTP request and controller
+```
+
+```mermaid
+flowchart LR
+  Operator[Explicit operator review] --> API[Resolution API / current actor]
+  API --> UseCase[Validated use case]
+  UseCase --> Tx[State then quote locks / current ACL / request replay]
+  Tx --> Evidence[Immutable note / resolver / time / event]
+  Tx --> State[Terminal manual outcome / no dispatch]
+  State --> Quote[Mark sent only for matching current issued version]
+```
+
+Tests: UnitTests QuoteDeliveryManualResolutionTests; IntegrationTests QuoteDeliveryResolutionApiTests and QuoteDeliveryOutboxPersistenceTests.Manual. Focused filter FullyQualifiedName~QuoteDelivery covers the shared delivery regressions; isolated PostgreSQL is required for persistence. [Evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p6-manual-outcome-2026-11-01.md). [API](../../contracts/crm/quote-deliveries.openapi.yaml).

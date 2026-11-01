@@ -36,7 +36,6 @@ public sealed class QuoteDeliveryReadinessPolicyTests
     }
 
     [TestCase(false, true, "delivery_stable_send_key_required")]
-    [TestCase(true, false, "delivery_send_key_lookup_required")]
     public void Provider_must_support_crash_reconciliation(bool stableKey, bool lookup, string blocker)
     {
         var result = new QuoteDeliveryReadinessPolicy(Options(),
@@ -71,6 +70,14 @@ public sealed class QuoteDeliveryReadinessPolicyTests
         var result = new QuoteDeliveryReadinessPolicy(Options(sandbox: false), Capabilities, true)
             .Assess("customer@example.test");
         Assert.That(result.CanSubmit, Is.True);
+    }
+
+    [Test]
+    public void Send_only_provider_can_submit_without_mail_reading_capability()
+    {
+        var policy = new QuoteDeliveryReadinessPolicy(Options(),
+            Capabilities with { SupportsLookupBySendKey = false }, true);
+        Assert.That(policy.Assess("sandbox@example.test").CanSubmit, Is.True);
     }
 
     private static QuoteDeliveryProviderOptions Options(string provider = "fixture-provider",

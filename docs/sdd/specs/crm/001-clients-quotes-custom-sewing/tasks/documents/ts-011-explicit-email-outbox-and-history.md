@@ -27,3 +27,11 @@ Queued/downloaded is never displayed as sent, uncertain attempts never blindly r
 Do not advance a dependent task on an unresolved prerequisite. See [sequence](../implementation-plan.md) and the feature's verification/decision documents before declaring this task complete.
 
 [Unified outbox/OAuth evidence](../../evidence/p6-outbox-oauth-checkpoint-2026-10-30.md) records tests, migration, disabled configuration and pending real-provider acceptance.
+
+## Send-only revision — 2026-11-01
+
+The owner-selected send-only OAuth/runtime/helper and manual unknown parking replace earlier Gmail read/automatic lookup requirements. [Current evidence](../../evidence/p6-send-only-2026-11-01.md). Runtime activation, actual consent/send and an operator outcome-resolution API/UI remain separate; code verification does not establish these gates.
+
+## Manual outcome backend — 2026-11-01
+
+[Implementation and verification](../../evidence/p6-manual-outcome-2026-11-01.md): immutable operator evidence, current ACL/replay, unknown/expired-only resolution and version-safe state transition. Canonical resolveCrmQuoteDelivery is implemented. Frontend handoff and EN-004 actual consent/send remain separate.

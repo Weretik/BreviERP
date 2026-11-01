@@ -77,3 +77,7 @@ Migration AddCustomPrivateFileLifecycle is additive and precedes file API activa
 ## P6 additive models
 
 EmailTemplateVersions/active state/mutation journal are specified in [email registry design](design/email-templates-p6.md). ProductionPackageArtifacts/ProductionPackageMutationRequests retain immutable ZIP bytes, typed quote/version FK, canonical selected-ID hash, actor-bound request hash and audit timestamp; [production v1 design](design/production-package-v1.md) defines content/limits/recovery. Neither table is a second quote store.
+
+## P6 manual resolution identity — 2026-11-01
+
+QuoteDeliveryResolutions uses the existing typed long QuoteDeliveryId as its one-to-one primary/foreign key plus typed QuoteId scope FK. API routes reuse delivery PublicId (Guid); there is no second public identity. Actor is the existing int CRM actor, note/outcome/attempt/time are immutable evidence. Existing quote version/content/request history is preserved. [Transaction/migration design](design/delivery-outbox-p6.md).

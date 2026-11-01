@@ -1,6 +1,6 @@
 # CRM-001 — Clients, quotes and custom sewing
 
-**Status:** P1–P5 locally verified within recorded acceptance boundaries. P6 backend email templates, production export and outbox/OAuth code are locally verified; actual Gmail consent/test and frontend FE-009 remain pending. [Current P6 checkpoint](evidence/p6-outbox-oauth-checkpoint-2026-10-30.md). Frontend continues to use its existing pinned backend contract; new P6 changes are uncommitted. **Reviewed:** 2026-10-30. **Owner:** Crm. No production rollout is claimed.
+**Status:** P1–P5 locally technically accepted within recorded boundaries. P6 registry/export/send-only queue and manual outcome backend are locally verified. [Manual outcome evidence](evidence/p6-manual-outcome-2026-11-01.md). Paired frontend registry/new selections exist; manual-result UI handoff is in progress. EN-004 real consent/send is blocked on the missing owner OAuth configuration. No production rollout or live send is claimed. **Reviewed:** 2026-11-01. **Owner:** Crm.
 
 ## Outcome and scope
 

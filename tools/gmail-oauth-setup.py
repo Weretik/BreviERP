@@ -4,15 +4,15 @@ import json
 from pathlib import Path
 import subprocess
 import sys
-from gmail_oauth.validation import SetupError, SCOPES, mailbox, desktop_client, validated_grant, callback_code
-from gmail_oauth.transport import TOKEN_URL, PROFILE_URL, json_request
+from gmail_oauth.validation import SetupError, SCOPES, mailbox, desktop_client, validated_grant, callback_code, verified_sender
+from gmail_oauth.transport import TOKEN_URL, USERINFO_URL, json_request
 from gmail_oauth.consent import receive_code
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client-json", type=Path, required=True, help="Downloaded Google Desktop client JSON; never pass secret values.")
-    parser.add_argument("--sender", help="Expected Gmail account, must equal Google profile.")
+    parser.add_argument("--sender", help="Expected Gmail account, must equal verified Google identity.")
     parser.add_argument("--test-recipient", help="Only approved sandbox recipient.")
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[1]
@@ -25,9 +25,8 @@ def main():
     grant = json_request(TOKEN_URL, {"client_id": client["client_id"], "client_secret": client["client_secret"],
         "grant_type": "authorization_code", "code": code, "redirect_uri": redirect, "code_verifier": verifier})
     access, refresh = validated_grant(grant)
-    profile = json_request(PROFILE_URL, access_token=access)
-    if not isinstance(profile, dict) or str(profile.get("emailAddress", "")).lower() != sender.lower():
-        raise SetupError("sender_account_mismatch")
+    identity = json_request(USERINFO_URL, access_token=access)
+    verified_sender(identity, sender)
     settings = {"Crm:Delivery:Enabled": False, "Crm:Delivery:SandboxOnly": True,
         "Crm:Delivery:ProviderKey": "gmail", "Crm:Delivery:SenderAddress": sender,
         "Crm:Delivery:TestRecipientAddress": recipient, "Crm:Delivery:Gmail:OAuth:ClientId": client["client_id"],

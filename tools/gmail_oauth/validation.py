@@ -3,7 +3,7 @@ import json
 import secrets
 import urllib.parse
 
-SCOPES = {"https://www.googleapis.com/auth/gmail.send", "https://www.googleapis.com/auth/gmail.readonly"}
+SCOPES = {"https://www.googleapis.com/auth/gmail.send", "openid", "email"}
 
 class SetupError(Exception):
     """Bounded public error code only; never include a provider response or secret."""
@@ -40,9 +40,20 @@ def validated_grant(grant):
         if not isinstance(token, str) or not token or len(token) > (8192 if field == "access_token" else 4096) or any(c.isspace() or ord(c) < 32 for c in token):
             raise SetupError("offline_grant_required")
     scope = grant.get("scope")
-    if not isinstance(scope, str) or not SCOPES.issubset(set(scope.split())):
+    if not isinstance(scope, str) or not SCOPES.issubset({"email" if s == "https://www.googleapis.com/auth/userinfo.email" else s for s in scope.split()}):
         raise SetupError("required_scopes_not_granted")
     return grant["access_token"], grant["refresh_token"]
+
+
+def verified_sender(identity, sender):
+    if not isinstance(identity, dict) or identity.get("email_verified") is not True:
+        raise SetupError("sender_identity_unverified")
+    subject = identity.get("sub")
+    email = identity.get("email")
+    if not isinstance(subject, str) or not 1 <= len(subject) <= 255 or any(c.isspace() or ord(c) < 32 for c in subject):
+        raise SetupError("sender_identity_invalid")
+    if not isinstance(email, str) or email.lower() != sender.lower():
+        raise SetupError("sender_account_mismatch")
 
 
 def callback_code(path, state):

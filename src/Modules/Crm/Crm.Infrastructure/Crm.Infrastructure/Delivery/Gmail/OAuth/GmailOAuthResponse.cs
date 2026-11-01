@@ -36,7 +36,8 @@ internal static class GmailOAuthResponse
             if (granted.ValueKind != JsonValueKind.String) return null;
             var scopes = granted.GetString()!.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToHashSet(StringComparer.Ordinal);
             if (!scopes.Contains("https://www.googleapis.com/auth/gmail.send") ||
-                !scopes.Contains("https://www.googleapis.com/auth/gmail.readonly")) return null;
+                !scopes.Contains("openid") ||
+                !(scopes.Contains("email") || scopes.Contains("https://www.googleapis.com/auth/userinfo.email"))) return null;
         }
         return (token, seconds);
     }

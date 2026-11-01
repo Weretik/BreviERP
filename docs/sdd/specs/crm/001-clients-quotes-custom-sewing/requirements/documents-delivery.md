@@ -17,3 +17,7 @@
 | SC-D02 | Ready quote with hidden options/internal notes/costs | Generates/reopens a PDF after masters change | Document uses pinned public content, retains checksum, contains no internal data and does not reprice |
 | SC-D03 | Explicit recipient, provider available, repeated request | Sends then retries the same action | One outbox delivery is created; only provider-confirmed success marks that version sent; failure/unknown remains visible |
 | SC-D04 | Malicious text, foreign private file or broken media | Renders/downloads document | Escaping, ACL and media validation prevent data leakage/remote fetch; failure preserves the good prior artifact |
+
+## R-D04–05 / SC-D03 send-only revision — 2026-11-01
+
+The owner chose Gmail sending with manual inspection of unknown outcomes. This supersedes automatic Gmail lookup requirements for the Gmail provider: no Gmail read scope or message-reading IO, no automatic resend, unknown remains unresolved and is not marked sent. [Current design](../design/delivery-outbox-p6.md) and [verification/remaining scope](../evidence/p6-send-only-2026-11-01.md).

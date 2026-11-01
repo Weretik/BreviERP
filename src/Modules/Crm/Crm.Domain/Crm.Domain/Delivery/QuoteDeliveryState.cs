@@ -1,6 +1,6 @@
 namespace Crm.Domain.Delivery;
 
-/// <summary>Only the first queued claim may submit; every uncertain claim is read-only reconciliation.</summary>
+/// <summary>Only the first queued claim may submit. Unknown parks for manual inspection without automatic retry.</summary>
 public sealed class QuoteDeliveryState
 {
     public QuoteDeliveryId DeliveryId { get; private set; }
@@ -52,8 +52,26 @@ public sealed class QuoteDeliveryState
         ProviderMessageId = providerMessageId;
         LeaseToken = null;
         LeaseUntil = null;
-        NextCheckAt = outcome == "unknown" ? now.AddMinutes(5) : null;
+        // Unknown requires explicit manual inspection; never schedule a background retry.
+        NextCheckAt = null;
         ConfirmedAt = outcome == "succeeded" ? now : null;
+        UpdatedAt = now;
+        return true;
+    }
+
+    public bool CanResolveManually(DateTimeOffset now) => Attempt > 0 &&
+        (Status == "unknown" || (Status is "sending" or "reconciling" && LeaseUntil <= now));
+
+    public bool ResolveManually(int expectedAttempt, string outcome, DateTimeOffset now)
+    {
+        if (expectedAttempt != Attempt || outcome is not ("sent" or "not_sent") || !CanResolveManually(now)) return false;
+        Status = outcome == "sent" ? "succeeded" : "failed";
+        ErrorCode = outcome == "sent" ? "delivery_manually_confirmed_sent" : "delivery_manually_confirmed_not_sent";
+        ProviderMessageId = null;
+        LeaseToken = null;
+        LeaseUntil = null;
+        NextCheckAt = null;
+        ConfirmedAt = outcome == "sent" ? now : null;
         UpdatedAt = now;
         return true;
     }

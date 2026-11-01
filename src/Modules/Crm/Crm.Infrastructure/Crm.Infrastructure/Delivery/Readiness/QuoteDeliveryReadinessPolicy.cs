@@ -24,7 +24,6 @@ public sealed class QuoteDeliveryReadinessPolicy(QuoteDeliveryProviderOptions op
             if (!string.Equals(provider, capabilities.ProviderKey, StringComparison.Ordinal))
                 blockers.Add("delivery_provider_mismatch");
             if (!capabilities.SupportsStableSendKey) blockers.Add("delivery_stable_send_key_required");
-            if (!capabilities.SupportsLookupBySendKey) blockers.Add("delivery_send_key_lookup_required");
         }
         if (!credentialConfigured) blockers.Add("delivery_credential_missing");
         if (!ValidMailbox(configuration.SenderAddress)) blockers.Add("delivery_sender_invalid");

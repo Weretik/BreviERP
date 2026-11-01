@@ -163,6 +163,8 @@ paths:
     $ref: ./crm/quote-deliveries.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1deliveries
   /api/crm/quotes/{quoteId}/deliveries/{deliveryId}:
     $ref: ./crm/quote-deliveries.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1deliveries~1{deliveryId}
+  /api/crm/quotes/{quoteId}/deliveries/{deliveryId}/resolution:
+    $ref: ./crm/quote-deliveries.openapi.yaml#/paths/~1api~1crm~1quotes~1{quoteId}~1deliveries~1{deliveryId}~1resolution
   /api/crm/quote-templates:
     $ref: ./crm/custom-templates.openapi.yaml#/paths/~1api~1crm~1quote-templates
   /api/crm/quote-templates/{templateId}:

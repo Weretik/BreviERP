@@ -8,12 +8,12 @@ using Crm.Infrastructure.Delivery.Readiness;
 
 namespace Crm.Infrastructure.Delivery.Gmail;
 
-/// <summary>One-attempt Gmail transport. Message-ID lookup correlates outcomes; empty lookup never permits resend.</summary>
+/// <summary>Send-only Gmail transport. Uncertain outcomes require manual inspection; never reads mail or resends.</summary>
 public sealed class GmailQuoteDeliveryProvider(HttpClient http, IQuoteDeliveryAccessTokenSource tokens,
     QuoteDeliveryProviderOptions options) : IQuoteDeliveryProvider
 {
     private const string Root = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
-    public QuoteDeliveryProviderCapabilities Capabilities { get; } = new("gmail", true, true);
+    public QuoteDeliveryProviderCapabilities Capabilities { get; } = new("gmail", true, false);
 
     public async Task<QuoteDeliveryProviderResult> SubmitAsync(QuoteDeliverySubmission submission, CancellationToken cancellationToken)
     {
@@ -46,7 +46,10 @@ public sealed class GmailQuoteDeliveryProvider(HttpClient http, IQuoteDeliveryAc
     }
 
     public Task<QuoteDeliveryProviderResult> ReconcileAsync(Guid deliveryId, CancellationToken cancellationToken)
-        => new GmailSentMessageLookup(http, tokens, options).ReconcileAsync(deliveryId, cancellationToken);
+        {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(Unknown("delivery_manual_review_required"));
+    }
 
     private static QuoteDeliveryProviderResult Rejected(HttpStatusCode status) =>
         (int)status >= 500 || status is HttpStatusCode.TooManyRequests or HttpStatusCode.RequestTimeout

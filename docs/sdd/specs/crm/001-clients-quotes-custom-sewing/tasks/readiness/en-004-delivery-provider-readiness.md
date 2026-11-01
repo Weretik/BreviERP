@@ -27,3 +27,11 @@ Provider integration supports truthful succeeded/failed/unknown states and a con
 Do not advance a dependent task on an unresolved prerequisite. See [sequence](../implementation-plan.md) and the feature's verification/decision documents before declaring this task complete.
 
 [OAuth implementation and queue integration](../../evidence/p6-outbox-oauth-checkpoint-2026-10-30.md); [setup instructions](../../../../../operations/crm-gmail-oauth.md). No OAuth client exists yet per user confirmation.
+
+## Send-only revision — 2026-11-01
+
+The owner-selected send-only OAuth/runtime/helper and manual unknown parking replace earlier Gmail read/automatic lookup requirements. [Current evidence](../../evidence/p6-send-only-2026-11-01.md). Runtime activation, actual consent/send and an operator outcome-resolution API/UI remain separate; code verification does not establish these gates.
+
+## Current live-send gate — 2026-11-01
+
+Owner confirmed no downloaded OAuth client JSON. Local checks found no configured client/secret/refresh token. [Concrete owner steps](../../../../../operations/gmail-client-owner-setup.md) prepare the existing helper; real acceptance remains blocked on actual account configuration/consent. Manual outcome recording works without provider credentials.

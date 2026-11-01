@@ -16,12 +16,14 @@ public sealed class QuoteDeliveryProcessor(IQuoteDeliveryStore store, IQuoteDeli
         try
         {
             result = claim.Reconcile
-                ? await provider.ReconcileAsync(claim.DeliveryId, ct)
+                ? provider.Capabilities.SupportsLookupBySendKey
+                    ? await provider.ReconcileAsync(claim.DeliveryId, ct)
+                    : new QuoteDeliveryProviderResult(QuoteDeliveryProviderOutcome.Unknown, null, "delivery_manual_review_required")
                 : await provider.SubmitAsync(claim.Submission, ct);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            // Leave the committed lease uncertain. A later worker reconciles instead of resubmitting.
+            // Leave the committed lease uncertain. A later worker records manual unknown for send-only providers instead of resubmitting.
             throw;
         }
         catch (Exception)

@@ -38,11 +38,19 @@ public sealed partial class QuoteDeliveryStore
         => Project(db.Set<QuoteDelivery>().AsNoTracking().Where(x => x.Id == id), quoteId).SingleAsync(ct);
 
     private IQueryable<QuoteDeliveryDetail> Project(IQueryable<QuoteDelivery> deliveries, Guid quoteId)
-        => from delivery in deliveries
+    {
+        var now = time.GetUtcNow();
+        return from delivery in deliveries
             join state in db.Set<QuoteDeliveryState>().AsNoTracking() on delivery.Id equals state.DeliveryId
             join version in db.QuoteVersions.AsNoTracking() on delivery.QuoteVersionId equals version.Id
             join pdf in db.Set<QuotePdfArtifact>().AsNoTracking() on delivery.ArtifactId equals pdf.Id
             join template in db.Set<EmailTemplateVersion>().AsNoTracking() on delivery.EmailTemplateVersionId equals template.Id
+            join resolution in db.Set<QuoteDeliveryResolution>().AsNoTracking() on delivery.Id equals resolution.DeliveryId into resolutions
+            from resolution in resolutions.DefaultIfEmpty()
             select new QuoteDeliveryDetail(delivery.PublicId, quoteId, version.PublicId, pdf.PublicId, template.PublicId,
-                delivery.RecipientAddress, state.Status, state.Attempt, state.ErrorCode, delivery.CreatedAt, state.UpdatedAt, state.ConfirmedAt);
+                delivery.RecipientAddress, state.Status, state.Attempt, state.ErrorCode, delivery.CreatedAt, state.UpdatedAt, state.ConfirmedAt,
+                state.Attempt > 0 && (state.Status == "unknown" || ((state.Status == "sending" || state.Status == "reconciling") && state.LeaseUntil <= now)),
+                resolution == null ? null : new QuoteDeliveryManualResolution(resolution.Outcome, resolution.ActorId,
+                    resolution.Attempt, resolution.EvidenceNote, resolution.CreatedAt));
+    }
 }

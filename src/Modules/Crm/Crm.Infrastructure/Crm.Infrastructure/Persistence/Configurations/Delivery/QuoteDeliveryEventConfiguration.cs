@@ -10,7 +10,7 @@ public sealed class QuoteDeliveryEventConfiguration : IEntityTypeConfiguration<Q
 {
     public void Configure(EntityTypeBuilder<QuoteDeliveryEvent> b)
     {
-        b.ToTable("QuoteDeliveryEvents", "crm", t => t.HasCheckConstraint("CK_QuoteDeliveryEvents_Kind", "\"Kind\" IN ('queued','submit_started','reconcile_started','succeeded','failed','unknown','cancelled')"));
+        b.ToTable("QuoteDeliveryEvents", "crm", t => t.HasCheckConstraint("CK_QuoteDeliveryEvents_Kind", "\"Kind\" IN ('queued','submit_started','reconcile_started','succeeded','failed','unknown','cancelled','manual_succeeded','manual_failed')"));
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).ValueGeneratedOnAdd();
         b.Property(x => x.DeliveryId).HasConversion(x => x.Value, x => new QuoteDeliveryId(x));

@@ -31,12 +31,13 @@ public static class CrmQuoteDeliveryServiceExtensions
         services.AddHttpClient<GmailQuoteDeliveryProvider>()
             .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AllowAutoRedirect = false });
         services.AddTransient<IQuoteDeliveryProvider>(provider => provider.GetRequiredService<GmailQuoteDeliveryProvider>());
-        // Presence permits enqueue; the source still verifies the actual Gmail profile before returning a token.
+        // Presence permits enqueue; the source still verifies the verified Google identity before returning a token.
         services.AddSingleton<IQuoteDeliveryReadiness>(_ => new QuoteDeliveryReadinessPolicy(delivery,
-            new QuoteDeliveryProviderCapabilities("gmail", true, true), credentialConfigured: oauth.IsConfigured));
+            new QuoteDeliveryProviderCapabilities("gmail", true, false), credentialConfigured: oauth.IsConfigured));
         services.AddSingleton<IQuoteDeliveryIdentity, ConfiguredQuoteDeliveryIdentity>();
         services.AddScoped<IQuoteDeliveryStore, QuoteDeliveryStore>();
         services.AddScoped<EnqueueQuoteDeliveryHandler>();
+        services.AddScoped<Crm.Application.Delivery.ResolveOutcome.ResolveQuoteDeliveryHandler>();
         services.AddScoped<QuoteDeliveryReader>();
         services.AddScoped<QuoteDeliveryProcessor>();
         return services;

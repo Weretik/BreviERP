@@ -18,7 +18,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("crm")
-                .HasAnnotation("ProductVersion", "10.0.2")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -1706,7 +1706,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.ToTable("QuoteDeliveryEvents", "crm", t =>
                         {
-                            t.HasCheckConstraint("CK_QuoteDeliveryEvents_Kind", "\"Kind\" IN ('queued','submit_started','reconcile_started','succeeded','failed','unknown','cancelled')");
+                            t.HasCheckConstraint("CK_QuoteDeliveryEvents_Kind", "\"Kind\" IN ('queued','submit_started','reconcile_started','succeeded','failed','unknown','cancelled','manual_succeeded','manual_failed')");
                         });
                 });
 
@@ -1746,6 +1746,47 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasIndex("QuoteId", "DeliveryId");
 
                     b.ToTable("QuoteDeliveryRequests", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDeliveryResolution", b =>
+                {
+                    b.Property<long>("DeliveryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Attempt")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EvidenceNote")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("DeliveryId");
+
+                    b.HasIndex("QuoteId", "DeliveryId");
+
+                    b.ToTable("QuoteDeliveryResolutions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteDeliveryResolutions_ActorAttempt", "\"ActorId\" > 0 AND \"Attempt\" > 0");
+
+                            t.HasCheckConstraint("CK_QuoteDeliveryResolutions_Evidence", "length(btrim(\"EvidenceNote\")) > 0");
+
+                            t.HasCheckConstraint("CK_QuoteDeliveryResolutions_Outcome", "\"Outcome\" IN ('sent','not_sent')");
+                        });
                 });
 
             modelBuilder.Entity("Crm.Infrastructure.Persistence.Documents.Artifacts.QuotePdfArtifact", b =>
@@ -2573,6 +2614,16 @@ namespace Crm.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDeliveryRequest", b =>
+                {
+                    b.HasOne("Crm.Infrastructure.Persistence.Delivery.QuoteDelivery", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId", "DeliveryId")
+                        .HasPrincipalKey("QuoteId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Delivery.QuoteDeliveryResolution", b =>
                 {
                     b.HasOne("Crm.Infrastructure.Persistence.Delivery.QuoteDelivery", null)
                         .WithMany()

@@ -5,7 +5,7 @@ import urllib.request
 from .validation import SetupError
 
 TOKEN_URL = "https://oauth2.googleapis.com/token"
-PROFILE_URL = "https://gmail.googleapis.com/gmail/v1/users/me/profile"
+USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo"
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, message, headers, new_url):
@@ -13,7 +13,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def json_request(url, fields=None, access_token=None):
     # Endpoints are fixed constants. Never follow a redirect carrying the refresh/client secret form.
-    if url not in (TOKEN_URL, PROFILE_URL):
+    if url not in (TOKEN_URL, USERINFO_URL):
         raise SetupError("endpoint_invalid")
     headers = {"Accept": "application/json"}
     if access_token:

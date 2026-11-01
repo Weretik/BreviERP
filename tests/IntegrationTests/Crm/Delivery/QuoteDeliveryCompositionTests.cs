@@ -40,9 +40,10 @@ public sealed class QuoteDeliveryCompositionTests
             Is.Null);
     }
 
-    [TestCase(false)]
-    [TestCase(true)]
-    public async Task Hosted_worker_processes_one_claim_and_uses_only_the_authorized_provider_operation(bool reconcile)
+    [TestCase(false, false)]
+    [TestCase(true, true)]
+    [TestCase(true, false)]
+    public async Task Hosted_worker_processes_one_claim_and_uses_only_the_authorized_provider_operation(bool reconcile, bool lookup)
     {
         var identity = new Mock<IQuoteDeliveryIdentity>();
         identity.SetupGet(x => x.ProviderKey).Returns("gmail");
@@ -53,7 +54,9 @@ public sealed class QuoteDeliveryCompositionTests
         var submission = new QuoteDeliverySubmission(deliveryId, DateTimeOffset.UtcNow,
             "sandbox@example.test", "Synthetic quote", "Public fixture", "%PDF-fixture"u8.ToArray());
         var claim = new QuoteDeliveryClaim(deliveryId, leaseToken, reconcile, submission);
-        var outcome = new QuoteDeliveryProviderResult(QuoteDeliveryProviderOutcome.ConfirmedSuccess, "fixture123", null);
+        var outcome = reconcile && !lookup
+            ? new QuoteDeliveryProviderResult(QuoteDeliveryProviderOutcome.Unknown, null, "delivery_manual_review_required")
+            : new QuoteDeliveryProviderResult(QuoteDeliveryProviderOutcome.ConfirmedSuccess, "fixture123", null);
         var completed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var store = new Mock<IQuoteDeliveryStore>(MockBehavior.Strict);
         store.SetupSequence(x => x.ClaimAsync(identity.Object, It.IsAny<Func<string, bool>>(), It.IsAny<CancellationToken>()))
@@ -61,10 +64,10 @@ public sealed class QuoteDeliveryCompositionTests
         store.Setup(x => x.CompleteAsync(deliveryId, leaseToken, outcome, It.IsAny<CancellationToken>()))
             .Callback(() => completed.TrySetResult()).ReturnsAsync(true);
         var transport = new Mock<IQuoteDeliveryProvider>(MockBehavior.Strict);
-        transport.SetupGet(x => x.Capabilities).Returns(new QuoteDeliveryProviderCapabilities("gmail", true, true));
-        if (reconcile)
+        transport.SetupGet(x => x.Capabilities).Returns(new QuoteDeliveryProviderCapabilities("gmail", true, lookup));
+        if (reconcile && lookup)
             transport.Setup(x => x.ReconcileAsync(deliveryId, It.IsAny<CancellationToken>())).ReturnsAsync(outcome);
-        else
+        else if (!reconcile)
             transport.Setup(x => x.SubmitAsync(submission, It.IsAny<CancellationToken>())).ReturnsAsync(outcome);
 
         var services = new ServiceCollection();
@@ -90,6 +93,6 @@ public sealed class QuoteDeliveryCompositionTests
         transport.Verify(x => x.SubmitAsync(It.IsAny<QuoteDeliverySubmission>(), It.IsAny<CancellationToken>()),
             reconcile ? Times.Never() : Times.Once());
         transport.Verify(x => x.ReconcileAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
-            reconcile ? Times.Once() : Times.Never());
+            reconcile && lookup ? Times.Once() : Times.Never());
     }
 }

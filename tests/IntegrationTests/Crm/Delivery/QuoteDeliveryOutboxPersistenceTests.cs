@@ -22,7 +22,7 @@ using Npgsql;
 namespace IntegrationTests.Crm.Delivery;
 
 [NonParallelizable]
-public sealed class QuoteDeliveryOutboxPersistenceTests : CrmDatabaseFixture
+public sealed partial class QuoteDeliveryOutboxPersistenceTests : CrmDatabaseFixture
 {
     private static readonly CrmActor Owner = new(17, false);
     private static readonly CrmActor Stranger = new(18, false);
@@ -71,7 +71,7 @@ public sealed class QuoteDeliveryOutboxPersistenceTests : CrmDatabaseFixture
     }
 
     [Test]
-    public async Task Expired_attempt_reconciles_only_late_finalizer_cannot_mark_sent_and_unknown_backs_off()
+    public async Task Expired_attempt_reconciles_only_late_finalizer_cannot_mark_sent_and_unknown_requires_manual_review()
     {
         var request = await SeedAsync();
         var clock = new Clock();
@@ -90,9 +90,42 @@ public sealed class QuoteDeliveryOutboxPersistenceTests : CrmDatabaseFixture
         Assert.That((await db.Quotes.SingleAsync()).State, Is.EqualTo("ready"));
         clock.Advance(TimeSpan.FromMinutes(6));
         var provider = new Provider();
-        Assert.That(await new QuoteDeliveryProcessor(store, provider, Settings, Readiness).ProcessOneAsync(default), Is.True);
+        Assert.That(await new QuoteDeliveryProcessor(store, provider, Settings, Readiness).ProcessOneAsync(default), Is.False);
         Assert.That(provider.Submits, Is.Zero);
-        Assert.That(provider.Lookups, Is.EqualTo(1));
+        Assert.That(provider.Lookups, Is.Zero);
+        Assert.That((await db.Set<QuoteDeliveryState>().SingleAsync()).NextCheckAt, Is.Null);
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Send_only_expired_or_legacy_unknown_claim_is_parked_without_provider_IO(bool legacyUnknown)
+    {
+        var request = await SeedAsync();
+        var clock = new Clock();
+        await using var db = Context();
+        var store = new QuoteDeliveryStore(db, clock);
+        await store.EnqueueAsync(request, Owner, Settings, Readiness, default);
+        var first = await store.ClaimAsync(Settings, _ => true, default);
+        if (legacyUnknown)
+        {
+            await store.CompleteAsync(first!.DeliveryId, first.LeaseToken,
+                new QuoteDeliveryProviderResult(QuoteDeliveryProviderOutcome.Unknown, null, "legacy_unknown"), default);
+            // Reproduce an already scheduled unknown from the previous application version.
+            await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE crm.\"QuoteDeliveryStates\" SET \"NextCheckAt\"={clock.GetUtcNow()}");
+        }
+        else clock.Advance(TimeSpan.FromSeconds(121));
+        var provider = new Moq.Mock<IQuoteDeliveryProvider>(Moq.MockBehavior.Strict);
+        provider.SetupGet(x => x.Capabilities).Returns(new QuoteDeliveryProviderCapabilities("gmail", true, false));
+        var processor = new QuoteDeliveryProcessor(store, provider.Object, Settings, Readiness);
+        Assert.That(await processor.ProcessOneAsync(default), Is.True);
+        var state = await db.Set<QuoteDeliveryState>().SingleAsync();
+        Assert.That(state.Status, Is.EqualTo("unknown"));
+        Assert.That(state.ErrorCode, Is.EqualTo("delivery_manual_review_required"));
+        Assert.That(state.NextCheckAt, Is.Null);
+        clock.Advance(TimeSpan.FromDays(1));
+        Assert.That(await processor.ProcessOneAsync(default), Is.False);
+        provider.VerifyGet(x => x.Capabilities, Moq.Times.AtLeastOnce());
+        provider.VerifyNoOtherCalls();
     }
 
     [Test]
@@ -180,14 +213,10 @@ public sealed class QuoteDeliveryOutboxPersistenceTests : CrmDatabaseFixture
         var otherRecipient = await store.EnqueueAsync(request with { RequestId = Guid.NewGuid(), RecipientAddress = "another@example.test" }, Owner, Settings, Readiness, default);
         Assert.That(otherRecipient.IsSuccess, Is.True);
         clock.Advance(TimeSpan.FromMinutes(6));
-        var lookup = await store.ClaimAsync(Settings, _ => true, default);
-        Assert.That(lookup!.DeliveryId, Is.EqualTo(first.Value.DeliveryId));
-        Assert.That(lookup.Reconcile, Is.True);
-        Assert.That(await store.CompleteAsync(lookup.DeliveryId, lookup.LeaseToken, Success, default), Is.True);
-        var revision = (await db.Quotes.SingleAsync()).Revision;
-        var explicitResend = await store.EnqueueAsync(changedKey with { ExpectedRevision = revision }, Owner, Settings, Readiness, default);
-        Assert.That(explicitResend.IsSuccess, Is.True);
-        Assert.That(explicitResend.Value.DeliveryId, Is.Not.EqualTo(first.Value.DeliveryId));
+        var next = await store.ClaimAsync(Settings, _ => true, default);
+        Assert.That(next!.DeliveryId, Is.EqualTo(otherRecipient.Value.DeliveryId));
+        Assert.That(next.Reconcile, Is.False);
+        Assert.That((await store.EnqueueAsync(changedKey, Owner, Settings, Readiness, default)).Status, Is.EqualTo(ResultStatus.Conflict));
     }
 
     [Test]

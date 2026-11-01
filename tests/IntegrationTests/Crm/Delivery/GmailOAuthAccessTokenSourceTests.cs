@@ -8,7 +8,7 @@ namespace IntegrationTests.Crm.Delivery;
 public sealed class GmailOAuthAccessTokenSourceTests
 {
     private const string Sender = "sender@example.test";
-    private const string Scopes = "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly";
+    private const string Scopes = "https://www.googleapis.com/auth/gmail.send openid email";
     private static string Token(string access = "fixture-access", string? scopes = Scopes, int expires = 3600)
         => System.Text.Json.JsonSerializer.Serialize(new { access_token = access, token_type = "Bearer", expires_in = expires, scope = scopes });
     private static HttpResponseMessage Json(string body, HttpStatusCode status = HttpStatusCode.OK)
@@ -17,7 +17,7 @@ public sealed class GmailOAuthAccessTokenSourceTests
     [Test]
     public async Task Refresh_verifies_same_account_and_caches_only_validated_token()
     {
-        var http = new FakeHttp(index => Json(index % 2 == 0 ? Token() : "{\"emailAddress\":\"" + Sender + "\"}"));
+        var http = new FakeHttp(index => Json(index % 2 == 0 ? Token() : "{\"sub\":\"fixture-subject\",\"email_verified\":true,\"email\":\"" + Sender + "\"}"));
         var source = Source(http);
         Assert.That(await source.GetAccessTokenAsync(default), Is.EqualTo("fixture-access"));
         Assert.That(await source.GetAccessTokenAsync(default), Is.EqualTo("fixture-access"));
@@ -25,14 +25,14 @@ public sealed class GmailOAuthAccessTokenSourceTests
         Assert.That(http.Calls[0].Method, Is.EqualTo(HttpMethod.Post));
         Assert.That(http.Calls[0].Uri, Is.EqualTo("https://oauth2.googleapis.com/token"));
         Assert.That(http.Calls[0].Body, Does.Contain("grant_type=refresh_token"));
-        Assert.That(http.Calls[1].Uri, Is.EqualTo("https://gmail.googleapis.com/gmail/v1/users/me/profile"));
+        Assert.That(http.Calls[1].Uri, Is.EqualTo("https://openidconnect.googleapis.com/v1/userinfo"));
         Assert.That(http.Calls[1].Authorization, Is.EqualTo("Bearer fixture-access"));
     }
 
     [Test]
     public async Task Concurrent_callers_share_one_refresh_and_profile_check()
     {
-        var http = new FakeHttp(index => Json(index == 0 ? Token() : "{\"emailAddress\":\"" + Sender + "\"}"));
+        var http = new FakeHttp(index => Json(index == 0 ? Token() : "{\"sub\":\"fixture-subject\",\"email_verified\":true,\"email\":\"" + Sender + "\"}"));
         var source = Source(http);
         var tokens = await Task.WhenAll(Enumerable.Range(0, 12).Select(_ => source.GetAccessTokenAsync(default).AsTask()));
         Assert.That(tokens.All(x => x == "fixture-access"), Is.True);
@@ -43,7 +43,7 @@ public sealed class GmailOAuthAccessTokenSourceTests
     public async Task Expired_cache_refreshes_and_rechecks_account()
     {
         var time = new ManualTime();
-        var http = new FakeHttp(index => Json(index % 2 == 0 ? Token("access-" + index) : "{\"emailAddress\":\"" + Sender + "\"}"));
+        var http = new FakeHttp(index => Json(index % 2 == 0 ? Token("access-" + index) : "{\"sub\":\"fixture-subject\",\"email_verified\":true,\"email\":\"" + Sender + "\"}"));
         var source = Source(http, time: time);
         Assert.That(await source.GetAccessTokenAsync(default), Is.EqualTo("access-0"));
         time.Now += TimeSpan.FromSeconds(3540);
@@ -55,7 +55,7 @@ public sealed class GmailOAuthAccessTokenSourceTests
     [TestCase("")]
     public async Task Wrong_or_missing_profile_never_returns_token(string email)
     {
-        var http = new FakeHttp(index => Json(index == 0 ? Token() : "{\"emailAddress\":\"" + email + "\"}"));
+        var http = new FakeHttp(index => Json(index == 0 ? Token() : "{\"sub\":\"fixture-subject\",\"email_verified\":true,\"email\":\"" + email + "\"}"));
         Assert.That(await Source(http).GetAccessTokenAsync(default), Is.Null);
         Assert.That(http.Calls, Has.Count.EqualTo(2));
     }
@@ -70,10 +70,13 @@ public sealed class GmailOAuthAccessTokenSourceTests
         Assert.That(http.Calls, Has.Count.EqualTo(1));
     }
 
-    [Test]
-    public async Task Explicit_insufficient_scopes_are_rejected()
+    [TestCase("https://www.googleapis.com/auth/gmail.send")]
+    [TestCase("openid email")]
+    [TestCase("https://www.googleapis.com/auth/gmail.send openid")]
+    [TestCase("https://www.googleapis.com/auth/gmail.send email")]
+    public async Task Explicit_insufficient_scopes_are_rejected(string scopes)
     {
-        var http = new FakeHttp(_ => Json(Token(scopes: "https://www.googleapis.com/auth/gmail.send")));
+        var http = new FakeHttp(_ => Json(Token(scopes: scopes)));
         Assert.That(await Source(http).GetAccessTokenAsync(default), Is.Null);
         Assert.That(http.Calls, Has.Count.EqualTo(1));
     }
@@ -81,7 +84,7 @@ public sealed class GmailOAuthAccessTokenSourceTests
     [Test]
     public async Task Omitted_scope_preserves_original_grant_and_still_requires_profile()
     {
-        var http = new FakeHttp(index => Json(index == 0 ? "{\"access_token\":\"fixture-access\",\"token_type\":\"Bearer\",\"expires_in\":3600}" : "{\"emailAddress\":\"" + Sender + "\"}"));
+        var http = new FakeHttp(index => Json(index == 0 ? "{\"access_token\":\"fixture-access\",\"token_type\":\"Bearer\",\"expires_in\":3600}" : "{\"sub\":\"fixture-subject\",\"email_verified\":true,\"email\":\"" + Sender + "\"}"));
         Assert.That(await Source(http).GetAccessTokenAsync(default), Is.EqualTo("fixture-access"));
     }
 
@@ -156,6 +159,27 @@ public sealed class GmailOAuthAccessTokenSourceTests
         var http = new FakeHttp(_ => throw new TaskCanceledException());
         Assert.That(await Source(http).GetAccessTokenAsync(default), Is.Null);
         Assert.That(http.Calls, Has.Count.EqualTo(1));
+    }
+
+    [TestCase("{\"email\":\"sender@example.test\",\"sub\":\"subject\",\"email_verified\":false}")]
+    [TestCase("{\"email\":\"sender@example.test\",\"sub\":\"subject\"}")]
+    [TestCase("{\"email\":\"sender@example.test\",\"email_verified\":true}")]
+    [TestCase("{\"email\":\"sender@example.test\",\"sub\":\"\",\"email_verified\":true}")]
+    [TestCase("{\"email\":\"sender@example.test\",\"sub\":\"subject\",\"email_verified\":\"true\"}")]
+    public async Task Unverified_or_missing_identity_never_returns_token(string identity)
+    {
+        var http = new FakeHttp(index => Json(index == 0 ? Token() : identity));
+        Assert.That(await Source(http).GetAccessTokenAsync(default), Is.Null);
+    }
+
+    [Test]
+    public async Task Google_email_scope_alias_is_accepted_without_reading_mail()
+    {
+        var http = new FakeHttp(index => Json(index == 0
+            ? Token(scopes: "https://www.googleapis.com/auth/gmail.send openid https://www.googleapis.com/auth/userinfo.email")
+            : "{\"sub\":\"subject\",\"email\":\"sender@example.test\",\"email_verified\":true}"));
+        Assert.That(await Source(http).GetAccessTokenAsync(default), Is.EqualTo("fixture-access"));
+        Assert.That(http.Calls[1].Uri, Is.EqualTo("https://openidconnect.googleapis.com/v1/userinfo"));
     }
 
     private sealed class BrokenStream() : MemoryStream(new byte[1])

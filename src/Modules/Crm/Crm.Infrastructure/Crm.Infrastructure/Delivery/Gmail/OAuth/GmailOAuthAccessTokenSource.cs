@@ -67,13 +67,16 @@ public sealed class GmailOAuthAccessTokenSource(HttpClient http, GmailOAuthOptio
 
     private async Task<bool> MatchesSenderAsync(string token, CancellationToken ct)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, "https://gmail.googleapis.com/gmail/v1/users/me/profile");
+        using var request = new HttpRequestMessage(HttpMethod.Get, "https://openidconnect.googleapis.com/v1/userinfo");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct);
         if (!response.IsSuccessStatusCode) return false;
         using var json = await GmailOAuthResponse.ReadAsync(response, ct);
         return json.RootElement.ValueKind == JsonValueKind.Object &&
-            json.RootElement.TryGetProperty("emailAddress", out var email) && email.ValueKind == JsonValueKind.String &&
+            json.RootElement.TryGetProperty("sub", out var subject) && subject.ValueKind == JsonValueKind.String &&
+            subject.GetString() is { Length: > 0 and <= 255 } subjectId && !subjectId.Any(char.IsWhiteSpace) &&
+            json.RootElement.TryGetProperty("email_verified", out var verified) && verified.ValueKind == JsonValueKind.True &&
+            json.RootElement.TryGetProperty("email", out var email) && email.ValueKind == JsonValueKind.String &&
             string.Equals(email.GetString(), delivery.SenderAddress, StringComparison.OrdinalIgnoreCase);
     }
 }
