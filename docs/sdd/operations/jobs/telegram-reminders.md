@@ -32,10 +32,8 @@ Check: Cloud Run Job executions and logs show `Reminders <date>: working day Tru
 2. In the admin, Нагадування → Чати → «Підключити бота» (calls `POST /api/reminders/telegram/connect`, which calls Telegram `setWebhook`).
 3. Add the bot to the group (or send /start in a private chat). The chat appears as not approved; approve it, optionally send a test message, and assign it to the organizations.
 
-## Cutover from Make
+## Existing bot
 
-1. Test first with a separate test bot and test group (one bot has only one webhook).
-2. On a Friday after the Make run: switch the token secret to the real bot, redeploy, press «Підключити бота» (this replaces the Make webhook), approve the group and assign tasks.
-3. Disable the Make scenario. On Monday check the first run.
+Use the existing bot @brevibuhtime_bot and its current group; no separate bot or group is needed. «Підключити бота» replaces any webhook set earlier (for example by Make), so the old Make scenario stops receiving updates and can be deleted.
 
-Rollback: pause the Cloud Scheduler job and set the Make webhook URL again in Telegram; reminder data stays.
+Rollback: pause the Cloud Scheduler job; reminder data stays.

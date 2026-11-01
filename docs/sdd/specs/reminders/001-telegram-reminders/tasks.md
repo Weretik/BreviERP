@@ -11,4 +11,4 @@
 | RM-07 | Cloud Build: bot token and webhook secret wiring for the job and API | RM-06 | done |
 | RM-08 | Contract, feature card, database map, operations runbook | RM-04 | done |
 | RM-09 | Admin UI in brevi-web | RM-08 | separate frontend PR |
-| RM-10 | Deploy, connect a test bot, cut over from Make | RM-09 | waiting for the owner |
+| RM-10 | Deploy and connect the existing bot and group | RM-09 | waiting for the owner |

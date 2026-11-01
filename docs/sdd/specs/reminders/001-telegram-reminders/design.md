@@ -21,7 +21,7 @@ The run also checks the Kyiv working day itself, so a misconfigured schedule (fo
 
 Telegram delivers button presses to one webhook per bot. `POST /api/reminders/telegram/webhook` in Host.Api handles them; a job cannot. The endpoint is anonymous, hidden from OpenAPI and accepts only requests with the `X-Telegram-Bot-Api-Secret-Token` header equal to the configured secret (constant-time compare). The webhook URL is configuration, and the admin "connect" action calls `setWebhook` with `allowed_updates` message, callback_query and my_chat_member.
 
-One bot has one webhook. Testing uses a separate test bot; cutover from Make happens in one day (see the [runbook](../../../operations/jobs/telegram-reminders.md)).
+One bot has one webhook. The existing bot and group are connected directly; «Підключити бота» replaces the old Make webhook (see the [runbook](../../../operations/jobs/telegram-reminders.md)).
 
 ## D-04 Periods and idempotency
 
@@ -50,4 +50,4 @@ Domain (pure): `WorkingCalendar`, `ReminderPeriod`, `DueRule`, `ReminderSchedule
 
 ## Rollback
 
-Disable the Cloud Scheduler job and, if needed, point the bot webhook back to Make (`setWebhook` with the Make URL). The schema is additive; removing it needs a separate migration decision.
+Disable the Cloud Scheduler job. The schema is additive; removing it needs a separate migration decision.
