@@ -1,6 +1,6 @@
 # CRM-001 — Clients, quotes and custom sewing
 
-**Status:** P1–P5 locally technically accepted within recorded boundaries. P6 registry/export/send-only queue and manual outcome backend are locally verified. [Manual outcome evidence](evidence/p6-manual-outcome-2026-11-01.md). Paired frontend registry/new selections exist; manual-result UI handoff is in progress. EN-004 real consent/send is blocked on the missing owner OAuth configuration. No production rollout or live send is claimed. **Reviewed:** 2026-11-01. **Owner:** Crm.
+**Status:** P1–P5 locally technically accepted within recorded boundaries. P6 registry/export/send-only queue and manual outcome backend are locally verified. [Manual outcome evidence](evidence/p6-manual-outcome-2026-11-01.md). Paired frontend registry/new selections exist; manual-result UI is locally verified with52 scoped frontend tests. EN-004 real consent/send is deferred by the owner; OAuth configuration remains absent. No production rollout or live send is claimed. **Reviewed:** 2026-11-01. **Owner:** Crm.
 
 ## Outcome and scope
 

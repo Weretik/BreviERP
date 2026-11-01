@@ -116,3 +116,7 @@ Owner backend coordinator/contributor; accepted TS-007 scope only. [Detailed ver
 ## TS-007 requested audit/refactor — 2026-10-28
 
 **AF-CRM-P4-021 — Low / verified fixed.** Cleanup now separates byte workflow from SQL/state transactions and uses an explicit typed claim. Owner TS-007; existing SC-S03/SC-S05 dependencies unchanged. [Exact paths, split/keep decisions, 9 PostgreSQL and 2 architecture checks](../evidence/ts-007-audit-refactor-2026-10-28.md). No open in-scope finding; schema/API/model identity and transactional/retention guards are preserved.
+
+## TS-011 manual-result audit — 2026-11-01
+
+[Scoped backend review](p6-manual-functional-audit-2026-11-01.md) found no confirmed in-scope backend defect. Atomic transaction and separate Domain/Application/Infrastructure/API owners remain coherent; no runtime/schema change was needed. Existing7 PostgreSQL/93 Delivery-OAuth cases are reused for unchanged code; fresh10-case domain regression verifies the guards. Frontend-only fixes are documented in its repository.
