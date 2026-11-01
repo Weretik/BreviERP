@@ -27,6 +27,9 @@ COPY ["src/Modules/Reference/Reference.Application/Reference.Application/Referen
 COPY ["src/Modules/Reference/Reference.Domain/Reference.Domain/Reference.Domain.csproj", "src/Modules/Reference/Reference.Domain/Reference.Domain/"]
 COPY ["src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Reference.Infrastructure.csproj", "src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/"]
 
+COPY ["src/Jobs/CatalogImport/CatalogImport.csproj", "src/Jobs/CatalogImport/"]
+COPY ["src/Jobs/SewingPricing/SewingPricing.csproj", "src/Jobs/SewingPricing/"]
+
 RUN dotnet restore "src/Bootstrapper/Host.Seed/Host.Seed.csproj"
 COPY . .
 RUN dotnet publish "src/Bootstrapper/Host.Seed/Host.Seed.csproj" -c $BUILD_CONFIGURATION -o /app/publish --no-restore /p:UseAppHost=false
