@@ -16,6 +16,7 @@ using Catalog.Infrastructure.DependencyInjection;
 using Host.Api.DependencyInjection.ServiceRegistration.Options;
 using Identity.Infrastructure.DependencyInjection;
 using Reference.Infrastructure.DependencyInjection;
+using Reminders.Infrastructure.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 
@@ -35,6 +36,7 @@ public static class ModuleRegistrationsExtensions
         services.AddCatalogInfrastructureServices(configuration);
         services.AddCatalogApiOptions(configuration);
         services.AddCrmDbContextServices(configuration);
+        services.AddRemindersInfrastructure(configuration);
         services.AddScoped<global::Crm.Application.CustomSewing.Pricing.ICustomSewingPricing, CustomSewingPricing>();
         services.AddCrmSewingSuggestions();
         services.AddScoped<IQuoteCatalogPriceReader, QuoteCatalogPriceReader>();

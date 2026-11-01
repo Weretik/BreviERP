@@ -39,6 +39,11 @@ COPY ["src/Modules/Reference/Reference.Application/Reference.Application/Referen
 COPY ["src/Modules/Reference/Reference.Domain/Reference.Domain/Reference.Domain.csproj", "src/Modules/Reference/Reference.Domain/Reference.Domain/"]
 COPY ["src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Reference.Infrastructure.csproj", "src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/"]
 
+COPY ["src/Modules/Reminders/Reminders.Api/Reminders.Api/Reminders.Api.csproj", "src/Modules/Reminders/Reminders.Api/Reminders.Api/"]
+COPY ["src/Modules/Reminders/Reminders.Application/Reminders.Application/Reminders.Application.csproj", "src/Modules/Reminders/Reminders.Application/Reminders.Application/"]
+COPY ["src/Modules/Reminders/Reminders.Domain/Reminders.Domain/Reminders.Domain.csproj", "src/Modules/Reminders/Reminders.Domain/Reminders.Domain/"]
+COPY ["src/Modules/Reminders/Reminders.Infrastructure/Reminders.Infrastructure/Reminders.Infrastructure.csproj", "src/Modules/Reminders/Reminders.Infrastructure/Reminders.Infrastructure/"]
+
 RUN dotnet restore "src/Bootstrapper/Host.Api/Host.Api.csproj"
 COPY . .
 RUN dotnet publish "src/Bootstrapper/Host.Api/Host.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish --no-restore /p:UseAppHost=false
