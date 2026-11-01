@@ -13,6 +13,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [Media files](catalog/media-files/README.md)                                                             | verified                                                                                                           |
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |
 | Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md)                      | P1–P5 locally verified; P6 backend verified, Gmail consent/test and FE-009 pending |
+| Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
 
 When a specification's status changes, update its row here in the same change.
@@ -39,7 +40,7 @@ docs/sdd/specs/
       checklist/                   quality gates
 ```
 
-Use the module folder, for example `catalog`, `reference`, `identity`, `accounting`, `crm`, `platform`, or `cross-module`. Feature and phase names must be lowercase kebab-case.
+Use the module folder, for example `catalog`, `reference`, `identity`, `accounting`, `crm`, `reminders`, `platform`, or `cross-module`. Feature and phase names must be lowercase kebab-case.
 
 Gradually migrate existing specifications to this structure: preserve completed task IDs and verification history unless the user requests a complete feature redesign. For data or schema migrations, explicitly describe the baseline and rollback in `design/`; put rollout and verification in `tasks/`. Keep machine-readable public API contracts in [`docs/sdd/contracts/`](../contracts/README.md). Link to architecture and standards instead of copying them.
 

@@ -42,6 +42,13 @@ BreviERP PostgreSQL
 │   └── AppRefreshSessions            # refresh sessions
 ├── accounting / AccountingDbContext — 1 table
 │   └── TransactionCategories          # transaction categories
+├── reminders / RemindersDbContext — 6 tables + own history
+│   ├── Tasks                          # reminder tasks and schedule
+│   ├── Occurrences                    # one period per task: deadline, status, who closed
+│   ├── OccurrenceActions              # done / postponed / reopened journal
+│   ├── Chats                          # Telegram chats and approval
+│   ├── SentMessages                   # cards sent per period and day
+│   └── NonWorkingDays                 # extra days off
 ├── imports / CatalogImportDbContext — 2 job-owned tables
 │   ├── CatalogImportBatches           # snapshot, report, checksum
 │   └── CatalogSourceMappings          # source-to-Brevi identity mapping

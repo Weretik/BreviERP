@@ -33,6 +33,8 @@ P6 local backend contracts: [versioned email templates](crm/email-templates.open
 
 P6 [explicit quote delivery queue/history](crm/quote-deliveries.openapi.yaml): enqueueCrmQuoteDelivery, getCrmQuoteDeliveries and getCrmQuoteDelivery. Local implementation; frontend consumption requires a separately authorized immutable backend handoff.
 
+- Reminders: [Telegram reminders admin API](reminders/telegram-reminders.openapi.yaml) — tasks, periods, chats, non-working days and bot connection. The Telegram webhook is intentionally not in the contract.
+
 ## Temporary anonymous deployment mode
 
 The host currently enables [temporary anonymous access](../operations/configuration/temporary-anonymous-api.md) through ApiAccess:AnonymousEnabled=true. All controller operations accept requests without bearer authorization in that mode, including previously protected writes/files. Actor-dependent operations use an existing shared Admin; no eligible actor produces 503 with code anonymous_api_actor_unavailable. Login/refresh still validate credentials/refresh cookies/CSRF as inputs to those operations.

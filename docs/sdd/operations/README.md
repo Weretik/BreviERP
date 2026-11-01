@@ -20,6 +20,7 @@ operations/
 - Check a running API or reproduce an endpoint: [diagnostics](diagnostics/health-logs-swagger.md)
 - Understand the configured container and deployment pipeline: [Cloud Build](deployment/cloud-build.md)
 - Check background job support: [jobs and runbooks](jobs/README.md)
+- Configure the Telegram bot, the daily reminder run and the cutover from Make: [Telegram reminders](jobs/telegram-reminders.md)
 
 Do not place passwords, tokens, full connection strings, or production endpoints in this documentation.
 

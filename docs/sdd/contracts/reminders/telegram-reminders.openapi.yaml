@@ -1,0 +1,755 @@
+openapi: 3.1.0
+info:
+  title: 'Reminders: Telegram reminders admin API'
+  version: 1.0.0
+  description: 'Admin-only management of reminder tasks, periods, Telegram chats and non-working days. The Telegram webhook
+    (POST /api/reminders/telegram/webhook) is hidden from this contract: Telegram calls it with the X-Telegram-Bot-Api-Secret-Token
+    header.'
+security:
+- Bearer: []
+paths:
+  /api/reminders/non-working-days:
+    get:
+      tags:
+      - Reminders
+      operationId: getReminderNonWorkingDays
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NonWorkingDayResponse'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NonWorkingDayResponse'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NonWorkingDayResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+    post:
+      tags:
+      - Reminders
+      operationId: addReminderNonWorkingDay
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NonWorkingDayInput'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/NonWorkingDayInput'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/NonWorkingDayInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/NonWorkingDayResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NonWorkingDayResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/NonWorkingDayResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/non-working-days/{date}:
+    delete:
+      tags:
+      - Reminders
+      operationId: removeReminderNonWorkingDay
+      parameters:
+      - name: date
+        in: path
+        required: true
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/chats:
+    get:
+      tags:
+      - Reminders
+      operationId: getReminderChats
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderChatResponse'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderChatResponse'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderChatResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/chats/{id}:
+    put:
+      tags:
+      - Reminders
+      operationId: updateReminderChat
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderChatInput'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ReminderChatInput'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ReminderChatInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ReminderChatResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderChatResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ReminderChatResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/chats/{id}/test-message:
+    post:
+      tags:
+      - Reminders
+      operationId: sendReminderChatTest
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/occurrences:
+    get:
+      tags:
+      - Reminders
+      operationId: getReminderOccurrences
+      parameters:
+      - name: status
+        in: query
+        schema:
+          type: string
+      - name: taskId
+        in: query
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 50
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrencePage'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrencePage'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrencePage'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/occurrences/{id}/close:
+    post:
+      tags:
+      - Reminders
+      operationId: closeReminderOccurrence
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrenceResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrenceResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrenceResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/occurrences/{id}/reopen:
+    post:
+      tags:
+      - Reminders
+      operationId: reopenReminderOccurrence
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrenceResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrenceResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ReminderOccurrenceResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/tasks:
+    get:
+      tags:
+      - Reminders
+      operationId: getReminderTasks
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderTaskResponse'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderTaskResponse'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderTaskResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+    post:
+      tags:
+      - Reminders
+      operationId: createReminderTask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderTaskInput'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ReminderTaskInput'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ReminderTaskInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ReminderTaskResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderTaskResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ReminderTaskResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/tasks/{id}:
+    put:
+      tags:
+      - Reminders
+      operationId: updateReminderTask
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderTaskInput'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ReminderTaskInput'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ReminderTaskInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ReminderTaskResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderTaskResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ReminderTaskResponse'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+    delete:
+      tags:
+      - Reminders
+      operationId: archiveReminderTask
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/tasks/preview:
+    post:
+      tags:
+      - Reminders
+      operationId: previewReminderDueDates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreviewReminderDueDatesRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PreviewReminderDueDatesRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PreviewReminderDueDatesRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DueDatePreview'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DueDatePreview'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DueDatePreview'
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/tasks/assign-chat:
+    post:
+      tags:
+      - Reminders
+      operationId: assignReminderChat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignReminderChatRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AssignReminderChatRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AssignReminderChatRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: integer
+                format: int32
+            application/json:
+              schema:
+                type: integer
+                format: int32
+            text/json:
+              schema:
+                type: integer
+                format: int32
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+  /api/reminders/telegram/connect:
+    post:
+      tags:
+      - Reminders
+      operationId: connectTelegramWebhook
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+        '401':
+          description: Unauthenticated (normal mode)
+        '403':
+          description: Admin role required (normal mode)
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    AssignReminderChatRequest:
+      type: object
+      properties:
+        chatId:
+          type: integer
+          format: int64
+        organizations:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    DueDatePreview:
+      type: object
+      properties:
+        period:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          format: date
+        remindFrom:
+          type: string
+          format: date
+      additionalProperties: false
+    NonWorkingDayInput:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        note:
+          type: string
+          nullable: true
+      additionalProperties: false
+    NonWorkingDayResponse:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        note:
+          type: string
+          nullable: true
+      additionalProperties: false
+    PreviewReminderDueDatesRequest:
+      type: object
+      properties:
+        schedule:
+          $ref: '#/components/schemas/ReminderScheduleInput'
+        from:
+          type: string
+          format: date
+          nullable: true
+      additionalProperties: false
+    ReminderActionResponse:
+      type: object
+      properties:
+        kind:
+          type: string
+          nullable: true
+        actor:
+          $ref: '#/components/schemas/ReminderActorResponse'
+        at:
+          type: string
+          format: date-time
+        snoozedUntil:
+          type: string
+          format: date
+          nullable: true
+      additionalProperties: false
+    ReminderActorResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        telegramUserId:
+          type: integer
+          format: int64
+          nullable: true
+        adminUserId:
+          type: integer
+          format: int32
+          nullable: true
+      additionalProperties: false
+    ReminderChatInput:
+      type: object
+      properties:
+        displayName:
+          type: string
+          nullable: true
+        isApproved:
+          type: boolean
+      additionalProperties: false
+    ReminderChatResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        telegramChatId:
+          type: integer
+          format: int64
+        kind:
+          type: string
+          nullable: true
+        telegramTitle:
+          type: string
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        isApproved:
+          type: boolean
+        isBotMember:
+          type: boolean
+        discoveredAt:
+          type: string
+          format: date-time
+      additionalProperties: false
+    ReminderOccurrencePage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReminderOccurrenceResponse'
+          nullable: true
+        total:
+          type: integer
+          format: int32
+      additionalProperties: false
+    ReminderOccurrenceResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        taskId:
+          type: integer
+          format: int64
+        taskTitle:
+          type: string
+          nullable: true
+        organization:
+          type: string
+          nullable: true
+        period:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          format: date
+        remindFrom:
+          type: string
+          format: date
+        status:
+          type: string
+          nullable: true
+        snoozedUntil:
+          type: string
+          format: date
+          nullable: true
+        closedBy:
+          $ref: '#/components/schemas/ReminderActorResponse'
+        closedAt:
+          type: string
+          format: date-time
+          nullable: true
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReminderActionResponse'
+          nullable: true
+      additionalProperties: false
+    ReminderScheduleInput:
+      type: object
+      properties:
+        periodicity:
+          type: string
+          nullable: true
+        dueRule:
+          type: string
+          nullable: true
+        day:
+          type: integer
+          format: int32
+        monthOffset:
+          type: integer
+          format: int32
+        leadDays:
+          type: integer
+          format: int32
+      additionalProperties: false
+    ReminderTaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+        organization:
+          type: string
+          nullable: true
+        schedule:
+          $ref: '#/components/schemas/ReminderScheduleInput'
+        chatId:
+          type: integer
+          format: int64
+          nullable: true
+        activeFrom:
+          type: string
+          format: date
+          nullable: true
+        isEnabled:
+          type: boolean
+      additionalProperties: false
+    ReminderTaskResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          nullable: true
+        organization:
+          type: string
+          nullable: true
+        schedule:
+          $ref: '#/components/schemas/ReminderScheduleInput'
+        chatId:
+          type: integer
+          format: int64
+          nullable: true
+        chatName:
+          type: string
+          nullable: true
+        activeFrom:
+          type: string
+          format: date
+        isEnabled:
+          type: boolean
+        nextDueDates:
+          type: array
+          items:
+            $ref: '#/components/schemas/DueDatePreview'
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
