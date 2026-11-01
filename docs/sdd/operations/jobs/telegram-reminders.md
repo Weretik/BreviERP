@@ -22,7 +22,7 @@ Cloud Scheduler job (HTTP target, once):
 - Schedule `0 9 * * 1-5`, time zone `Europe/Kyiv`.
 - URL `https://run.googleapis.com/v2/projects/<project>/locations/europe-central2/jobs/brevierp-seed:run`, method POST.
 - Body `{"overrides":{"containerOverrides":[{"args":["--reminders-dispatch=true"]}]}}`.
-- Auth: OAuth token of a service account with `roles/run.invoker` (or `run.jobs.runWithOverrides`) on the job.
+- Auth: OAuth token (scope `https://www.googleapis.com/auth/cloud-platform`) of a service account with `roles/run.jobsExecutorWithOverrides` on the job; `roles/run.invoker` alone cannot pass overrides.
 
 Check: Cloud Run Job executions and logs show `Reminders <date>: working day True, new periods N, sent N, failed 0`.
 
