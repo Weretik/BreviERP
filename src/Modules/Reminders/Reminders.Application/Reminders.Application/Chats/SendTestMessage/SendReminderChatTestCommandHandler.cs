@@ -10,8 +10,8 @@ public sealed class SendReminderChatTestCommandHandler(IRemindersDbContext db, I
     {
         var chat = await db.Chats.AsNoTracking().FirstOrDefaultAsync(x => x.Id == new ReminderChatId(command.Id), cancellationToken);
         if (chat is null) return Result.NotFound();
-        if (!telegram.IsConfigured) return Result.Conflict("Telegram bot token is not configured.");
-        if (!chat.IsBotMember) return Result.Conflict("The bot is not a member of this chat.");
+        if (!telegram.IsConfigured) return Result.Conflict("Токен Telegram-бота не налаштовано.");
+        if (!chat.IsBotMember) return Result.Conflict("Бота немає в цьому чаті.");
         await telegram.SendMessageAsync(chat.TelegramChatId,
             "✅ Тестове повідомлення від Brevi. Нагадування для цього чату працюють.", null, cancellationToken);
         return Result.Success();

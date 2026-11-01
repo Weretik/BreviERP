@@ -9,9 +9,9 @@ public sealed class ReminderScheduleInputValidator : AbstractValidator<ReminderS
     public ReminderScheduleInputValidator()
     {
         RuleFor(x => x.Periodicity).NotEmpty().Must(ReminderCodes.Periodicities.ContainsKey)
-            .WithMessage("Periodicity must be monthly, quarterly or yearly.");
+            .WithMessage("Періодичність: monthly, quarterly або yearly.");
         RuleFor(x => x.DueRule).NotEmpty().Must(ReminderCodes.DueRules.ContainsKey)
-            .WithMessage("DueRule must be dayOfMonth, lastWorkingDayOfMonth or daysAfterPeriodEnd.");
+            .WithMessage("Правило терміну: dayOfMonth, lastWorkingDayOfMonth або daysAfterPeriodEnd.");
         RuleFor(x => x.LeadDays).InclusiveBetween(0, ReminderSchedule.MaxLeadDays);
         RuleFor(x => x).Custom((input, context) =>
         {

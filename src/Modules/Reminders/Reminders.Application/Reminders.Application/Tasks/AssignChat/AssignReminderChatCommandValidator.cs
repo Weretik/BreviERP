@@ -9,6 +9,6 @@ public sealed class AssignReminderChatCommandValidator : AbstractValidator<Assig
         RuleFor(x => x.ChatId).GreaterThan(0);
         RuleFor(x => x.Organizations).NotEmpty();
         RuleForEach(x => x.Organizations).Must(ReminderCodes.Organizations.ContainsKey)
-            .WithMessage("Organization must be none, ppBrevi or fopSohokon.");
+            .WithMessage("Організація: none, ppBrevi або fopSohokon.");
     }
 }

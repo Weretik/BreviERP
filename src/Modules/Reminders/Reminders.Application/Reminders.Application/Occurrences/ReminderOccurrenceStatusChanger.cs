@@ -22,7 +22,7 @@ public sealed class ReminderOccurrenceStatusChanger(
         var actor = ReminderActor.Admin(admin.UserId, admin.Name);
         var changed = close ? occurrence.Close(actor, clock.Now) : occurrence.Reopen(actor, clock.Now);
         if (!changed)
-            return Result<ReminderOccurrenceResponse>.Conflict(close ? "The period is already closed." : "The period is already open.");
+            return Result<ReminderOccurrenceResponse>.Conflict(close ? "Період уже закрито." : "Період уже відкрито.");
         await db.SaveChangesAsync(cancellationToken);
         if (close) await UpdateLiveCardsAsync(task, occurrence, cancellationToken);
         return Result.Success(ReminderOccurrenceMapper.ToResponse(occurrence, task));

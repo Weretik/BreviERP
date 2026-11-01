@@ -20,17 +20,17 @@ public sealed record DueRule(DueRuleKind Kind, int Day, int MonthOffset)
         switch (kind)
         {
             case DueRuleKind.DayOfMonth:
-                if (day is < 1 or > 31) errors.Add("Day must be between 1 and 31.");
-                if (monthOffset is < 0 or > MaxMonthOffset) errors.Add($"MonthOffset must be between 0 and {MaxMonthOffset}.");
+                if (day is < 1 or > 31) errors.Add("Число місяця: від 1 до 31.");
+                if (monthOffset is < 0 or > MaxMonthOffset) errors.Add($"Зсув місяців: від 0 до {MaxMonthOffset}.");
                 break;
             case DueRuleKind.LastWorkingDayOfMonth:
-                if (monthOffset is < 0 or > MaxMonthOffset) errors.Add($"MonthOffset must be between 0 and {MaxMonthOffset}.");
+                if (monthOffset is < 0 or > MaxMonthOffset) errors.Add($"Зсув місяців: від 0 до {MaxMonthOffset}.");
                 break;
             case DueRuleKind.DaysAfterPeriodEnd:
-                if (day is < 1 or > MaxDaysAfterPeriodEnd) errors.Add($"Day must be between 1 and {MaxDaysAfterPeriodEnd}.");
+                if (day is < 1 or > MaxDaysAfterPeriodEnd) errors.Add($"Кількість днів: від 1 до {MaxDaysAfterPeriodEnd}.");
                 break;
             default:
-                errors.Add("Unknown due rule kind.");
+                errors.Add("Невідоме правило терміну.");
                 break;
         }
         return errors;
@@ -45,7 +45,7 @@ public sealed record DueRule(DueRuleKind Kind, int Day, int MonthOffset)
                 Math.Min(Day, DateTime.DaysInMonth(month.Year, month.Month))),
             DueRuleKind.LastWorkingDayOfMonth => calendar.LastWorkingDayOfMonth(month.Year, month.Month),
             DueRuleKind.DaysAfterPeriodEnd => period.End.AddDays(Day),
-            _ => throw new InvalidOperationException("Unknown due rule kind.")
+            _ => throw new InvalidOperationException("Невідоме правило терміну.")
         };
     }
 }

@@ -8,7 +8,7 @@ public sealed class ConnectTelegramWebhookCommandHandler(ITelegramGateway telegr
     public async ValueTask<Result<string>> Handle(ConnectTelegramWebhookCommand command, CancellationToken cancellationToken)
     {
         if (!telegram.IsConfigured || string.IsNullOrWhiteSpace(settings.WebhookUrl) || string.IsNullOrWhiteSpace(settings.WebhookSecret))
-            return Result<string>.Conflict("Telegram bot token, webhook URL and webhook secret must be configured.");
+            return Result<string>.Conflict("Налаштуйте токен бота, адресу вебхука та секрет.");
         await telegram.SetWebhookAsync(settings.WebhookUrl, settings.WebhookSecret, cancellationToken);
         return Result<string>.Success(settings.WebhookUrl);
     }
