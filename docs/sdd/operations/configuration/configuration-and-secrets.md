@@ -17,6 +17,7 @@ Environment variable keys use double underscores, for example `ConnectionStrings
 | `Identity:SessionSecurity` | Access and refresh token lifetime limits | No |
 | `AdmToolsStorage` | Catalog media storage settings | Depends on the provider |
 | `CatalogMediaUpload` | Maximum upload size and base path for original Product media | No |
+| `Reminders:Telegram` | Bot token, webhook secret and public webhook URL for [Telegram reminders](../jobs/telegram-reminders.md) | Token and secret: yes |
 
 ## Catalog media uploads
 

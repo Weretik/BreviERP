@@ -43,6 +43,9 @@
       <ProjectReference Include="..\..\Modules\Reference\Reference.Api\Reference.Api\Reference.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Reference\Reference.Application\Reference.Application\Reference.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Reference.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Reminders\Reminders.Api\Reminders.Api\Reminders.Api.csproj" />
+      <ProjectReference Include="..\..\Modules\Reminders\Reminders.Application\Reminders.Application\Reminders.Application.csproj" />
+      <ProjectReference Include="..\..\Modules\Reminders\Reminders.Infrastructure\Reminders.Infrastructure\Reminders.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

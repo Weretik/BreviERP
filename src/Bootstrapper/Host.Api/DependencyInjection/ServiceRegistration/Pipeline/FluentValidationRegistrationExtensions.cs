@@ -4,6 +4,7 @@ using Catalog.Application;
 using FluentValidation;
 using Identity.Application;
 using Reference.Application;
+using Reminders.Application;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 
@@ -29,6 +30,10 @@ public static class FluentValidationRegistrationExtensions
 
         services.AddValidatorsFromAssembly(
             typeof(ReferenceApplicationAssemblyMarker).Assembly,
+            includeInternalTypes: true);
+
+        services.AddValidatorsFromAssembly(
+            typeof(RemindersApplicationAssemblyMarker).Assembly,
             includeInternalTypes: true);
         return services;
     }

@@ -183,3 +183,29 @@ paths:
     $ref: ./crm/issuer-settings.openapi.yaml#/paths/~1api~1crm~1issuer-settings~1versions
   /api/crm/issuer-settings/active:
     $ref: ./crm/issuer-settings.openapi.yaml#/paths/~1api~1crm~1issuer-settings~1active
+  /api/reminders/non-working-days:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1non-working-days
+  /api/reminders/non-working-days/{date}:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1non-working-days~1{date}
+  /api/reminders/chats:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1chats
+  /api/reminders/chats/{id}:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1chats~1{id}
+  /api/reminders/chats/{id}/test-message:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1chats~1{id}~1test-message
+  /api/reminders/occurrences:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1occurrences
+  /api/reminders/occurrences/{id}/close:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1occurrences~1{id}~1close
+  /api/reminders/occurrences/{id}/reopen:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1occurrences~1{id}~1reopen
+  /api/reminders/tasks:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1tasks
+  /api/reminders/tasks/{id}:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1tasks~1{id}
+  /api/reminders/tasks/preview:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1tasks~1preview
+  /api/reminders/tasks/assign-chat:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1tasks~1assign-chat
+  /api/reminders/telegram/connect:
+    $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1telegram~1connect

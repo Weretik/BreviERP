@@ -26,6 +26,10 @@ Catalog, Identity, Reference, and Accounting module contexts are implemented. Ru
 
 The password is not read from `Identity:AdminUser:DefaultPassword`; the seeder reads `ADMIN_DEFAULT_PASSWORD`. If the value is absent, administrator creation is skipped and this state is logged.
 
+## Reminders
+
+Normal Host.Seed runs apply the `reminders` schema migrations (history in `reminders.__EFMigrationsHistory`). `DefaultReminderTaskSeeder` adds the 25 default reminder tasks only when the task table is empty, without a chat, so nothing is sent until a chat is approved and assigned. The `--reminders-dispatch=true` mode skips migrations and seeding; see the [Telegram reminders runbook](../jobs/telegram-reminders.md).
+
 ## Change rules
 
 - Create a migration only when a feature changes the persistence schema or data contract.

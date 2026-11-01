@@ -65,6 +65,7 @@
       <ProjectReference Include="..\..\Modules\Crm\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Identity\Identity.Infrastructure\Identity.Infrastructure\Identity.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Reference.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Reminders\Reminders.Infrastructure\Reminders.Infrastructure\Reminders.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -13,6 +13,8 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.14" />
+        <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.11.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
         <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="2.13.0" />
         <PackageReference Include="Moq" Version="4.21.0" />
@@ -48,5 +50,8 @@
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\..\src\Modules\Crm\Crm.Application\Crm.Application\Crm.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Reminders\Reminders.Domain\Reminders.Domain\Reminders.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Reminders\Reminders.Application\Reminders.Application\Reminders.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Reminders\Reminders.Infrastructure\Reminders.Infrastructure\Reminders.Infrastructure.csproj" />
     </ItemGroup>
 </Project>

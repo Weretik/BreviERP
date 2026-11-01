@@ -30,6 +30,10 @@ COPY ["src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/R
 COPY ["src/Jobs/CatalogImport/CatalogImport.csproj", "src/Jobs/CatalogImport/"]
 COPY ["src/Jobs/SewingPricing/SewingPricing.csproj", "src/Jobs/SewingPricing/"]
 
+COPY ["src/Modules/Reminders/Reminders.Application/Reminders.Application/Reminders.Application.csproj", "src/Modules/Reminders/Reminders.Application/Reminders.Application/"]
+COPY ["src/Modules/Reminders/Reminders.Domain/Reminders.Domain/Reminders.Domain.csproj", "src/Modules/Reminders/Reminders.Domain/Reminders.Domain/"]
+COPY ["src/Modules/Reminders/Reminders.Infrastructure/Reminders.Infrastructure/Reminders.Infrastructure.csproj", "src/Modules/Reminders/Reminders.Infrastructure/Reminders.Infrastructure/"]
+
 RUN dotnet restore "src/Bootstrapper/Host.Seed/Host.Seed.csproj"
 COPY . .
 RUN dotnet publish "src/Bootstrapper/Host.Seed/Host.Seed.csproj" -c $BUILD_CONFIGURATION -o /app/publish --no-restore /p:UseAppHost=false
