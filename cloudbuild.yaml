@@ -6,6 +6,8 @@ substitutions:
   _AR_REPO: api
   _API_SERVICE: brevierp-api
   _SEED_JOB: brevierp-seed
+  # Gmail activation is a separate release decision; preserve a send-disabled deployment by default.
+  _CRM_DELIVERY_ENABLED: 'false'
   _TELEGRAM_TOKEN_SECRET: telegram-reminders-bot-token
   _TELEGRAM_WEBHOOK_SECRET: telegram-reminders-webhook-secret
 
@@ -106,6 +108,7 @@ steps:
           --region="${_REGION}" \
           --platform=managed \
           --allow-unauthenticated \
+          --update-env-vars="Crm__Delivery__Enabled=${_CRM_DELIVERY_ENABLED}" \
           --update-secrets="$${SECRETS}" \
           --quiet
 
