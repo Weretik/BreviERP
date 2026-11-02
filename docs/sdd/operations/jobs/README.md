@@ -1,6 +1,6 @@
 # Background jobs and runbooks
 
-BreviERP has no in-process scheduler, queue, delayed retry mechanism or distributed lock. Periodic executions are the [Telegram reminders](telegram-reminders.md) daily run (Cloud Scheduler executes the `brevierp-reminders` job, the seed image with `--reminders-dispatch=true`) and the [KeepinCRM suppliers](keepin-suppliers.md) refresh (`brevierp-keepin-suppliers`, `--keepin-suppliers-sync=true`). `Host.Api` calls `AddBackgroundJobRegistrations()`, but that method currently registers no services.
+BreviERP has no in-process scheduler, queue, delayed retry mechanism or distributed lock. Periodic executions are the [Telegram reminders](telegram-reminders.md) daily run (Cloud Scheduler executes the `brevierp-reminders` job, the seed image with `--reminders-dispatch=true`) and the [daily sync job](sync-job.md) (`brevierp-sync`, `--sync=true`: external refreshes and imports one step after another, now the KeepinCRM suppliers refresh). `Host.Api` calls `AddBackgroundJobRegistrations()`, but that method currently registers no services.
 
 One-off operational jobs exist as libraries in `src/Jobs` ([overview](../../../../src/Jobs/README.md)): `CatalogImport` (catalogue import and PPE pricing bootstrap) and `SewingPricing` (pricing baseline, verification, readiness, input review, and activation). Only `Host.Seed` references and runs them, through command-line flags. Runbooks with exact commands:
 

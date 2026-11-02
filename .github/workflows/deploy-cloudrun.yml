@@ -25,7 +25,7 @@ env:
   API_SERVICE: brevierp-api
   SEED_JOB: brevierp-seed
   REMINDERS_JOB: brevierp-reminders
-  KEEPIN_SUPPLIERS_JOB: brevierp-keepin-suppliers
+  SYNC_JOB: brevierp-sync
   CATALOG_IMPORT_BUCKET: brevistoreapi-catalog-import
   CATALOG_IMPORT_SOURCE_SHA256: 24ea80bd240f95d468396a1c1c87c7cfba31058b422d0b4012cbb4825f5ff687
   CATALOG_IMPORT_DB_SECRET_VERSION: '1'
@@ -144,21 +144,22 @@ jobs:
             --update-secrets "Reminders__Telegram__BotToken=${TELEGRAM_TOKEN_SECRET}:latest" \
             --quiet
 
-      - name: Create or update KeepinCRM suppliers job
+      - name: Create or update daily sync job
         run: |
           set -euo pipefail
-          # Daily KeepinCRM -> Brevi supplier refresh (Cloud Scheduler). Same image as the seed job, but it only
-          # runs the sync: no migrations or seed. Created from the seed job like the reminders job.
-          if ! gcloud run jobs describe "$KEEPIN_SUPPLIERS_JOB" --region "$GCP_REGION" >/dev/null 2>&1; then
-            gcloud run jobs describe "$SEED_JOB" --region "$GCP_REGION" --format export > "$RUNNER_TEMP/keepin-job.yaml"
-            sed -i "0,/^  name: ${SEED_JOB}$/s//  name: ${KEEPIN_SUPPLIERS_JOB}/" "$RUNNER_TEMP/keepin-job.yaml"
-            sed -i -E '/run\.googleapis\.com\/(creator|lastModifier|operation-id):/d' "$RUNNER_TEMP/keepin-job.yaml"
-            gcloud run jobs replace "$RUNNER_TEMP/keepin-job.yaml" --region "$GCP_REGION" --quiet
+          # Shared daily sync job (Cloud Scheduler): external refreshes and imports, one step after another
+          # (Host.Seed/Jobs/Sync). Same image as the seed job, but no migrations or seed. Created from the seed
+          # job like the reminders job. Every step's secrets are attached here.
+          if ! gcloud run jobs describe "$SYNC_JOB" --region "$GCP_REGION" >/dev/null 2>&1; then
+            gcloud run jobs describe "$SEED_JOB" --region "$GCP_REGION" --format export > "$RUNNER_TEMP/sync-job.yaml"
+            sed -i "0,/^  name: ${SEED_JOB}$/s//  name: ${SYNC_JOB}/" "$RUNNER_TEMP/sync-job.yaml"
+            sed -i -E '/run\.googleapis\.com\/(creator|lastModifier|operation-id):/d' "$RUNNER_TEMP/sync-job.yaml"
+            gcloud run jobs replace "$RUNNER_TEMP/sync-job.yaml" --region "$GCP_REGION" --quiet
           fi
-          gcloud run jobs update "$KEEPIN_SUPPLIERS_JOB" \
+          gcloud run jobs update "$SYNC_JOB" \
             --image "$SEED_IMAGE" \
             --region "$GCP_REGION" \
-            --args=--keepin-suppliers-sync=true \
+            --args=--sync=true \
             --max-retries 1 \
             --tasks 1 \
             --parallelism 1 \

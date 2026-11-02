@@ -2,7 +2,7 @@
 
 **Static code review:** 2026-10-16. **Module:** reference.
 
-CRUD operations and list retrieval for the “Suppliers” lookup. Suppliers come from KeepinCRM: the `brevierp-keepin-suppliers` job and «Оновити з KeepinCRM» refresh them ([runbook](../../operations/jobs/keepin-suppliers.md)). A linked supplier's card (name, «Що закуповуємо», contacts, site, tags) is read-only in Brevi; activity («Використовувати в проєкті») and notes are always edited in Brevi. Manual suppliers can still be added. Specification: [REF-001](../../specs/reference/001-suppliers-keepincrm/README.md).
+CRUD operations and list retrieval for the “Suppliers” lookup. Suppliers come from KeepinCRM: the daily `brevierp-sync` job and «Оновити з KeepinCRM» refresh them ([runbook](../../operations/jobs/sync-job.md)). A linked supplier's card (name, «Що закуповуємо», contacts, site, tags) is read-only in Brevi; activity («Використовувати в проєкті») and notes are always edited in Brevi. Manual suppliers can still be added. Specification: [REF-001](../../specs/reference/001-suppliers-keepincrm/README.md).
 
 ## Structure and Relationships
 

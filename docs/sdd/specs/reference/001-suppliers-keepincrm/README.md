@@ -14,7 +14,7 @@ Sheet «Постачальники» (export 2026-11-02): 43 rows, columns `ID K
 - **R-02:** For a supplier with `KeepinCrmId`, KeepinCRM owns name, purchase categories, site, contact person, phones, email and tags (as in the sheet). The full update returns 400 for such a supplier.
 - **R-03:** Brevi always owns activity and notes, edited through `updateSupplierBreviFields` for any supplier; synchronization never overwrites them.
 - **R-04:** A supplier without `KeepinCrmId` is managed manually, as before; it can be added by hand at any time.
-- **R-05:** Synchronization reads all KeepinCRM suppliers, refreshes linked suppliers by `KeepinCrmId`, links an unlinked supplier whose name matches ignoring case, punctuation and legal form words, and creates the rest with the next Brevi ID. A name already used by another supplier gets ` (KeepinCRM <id>)`. Nothing is deleted; linked suppliers KeepinCRM no longer returns are reported. An error or an empty answer changes nothing. It runs daily as the `brevierp-keepin-suppliers` Cloud Run job and on demand from the admin page.
+- **R-05:** Synchronization reads all KeepinCRM suppliers, refreshes linked suppliers by `KeepinCrmId`, links an unlinked supplier whose name matches ignoring case, punctuation and legal form words, and creates the rest with the next Brevi ID. A name already used by another supplier gets ` (KeepinCRM <id>)`. Nothing is deleted; linked suppliers KeepinCRM no longer returns are reported. An error or an empty answer changes nothing. It runs daily as the `keepin-suppliers` step of the shared `brevierp-sync` Cloud Run job and on demand from the admin page.
 
 ## Scenarios
 
@@ -28,7 +28,7 @@ Sheet «Постачальники» (export 2026-11-02): 43 rows, columns `ID K
 - Domain: `Supplier.Update` rejects card changes for linked suppliers; `SetActive` / `SetNotes` change Brevi-owned fields; `ApplyKeepinCrmSnapshot` / `CreateFromKeepinCrm` take a `KeepinCrmSupplierSnapshot` and truncate oversized external values to column limits.
 - Application: `Features/Supplier/KeepinCrmSync/` (sync service, name key, command), `Features/Supplier/UpdateBreviFields/`, port `Contracts/KeepinCrm/IKeepinCrmSupplierSource`. Create/update requests gain `Email`, `PurchaseCategories`, `IsActive`.
 - Infrastructure: `KeepinCrm/` (options, HTTP client, parser of the script's field rules), `DependencyInjection/ReferenceKeepinCrmExtensions.cs` used by Host.Api and Host.Seed.
-- Host.Seed: `Jobs/KeepinSuppliersSyncCommandRunner.cs`, mode `--keepin-suppliers-sync=true`; deploy workflow job `brevierp-keepin-suppliers`; [runbook](../../../operations/jobs/keepin-suppliers.md).
+- Host.Seed: `Jobs/Sync/KeepinSuppliersSyncTask.cs`, step of `--sync=true` (`Jobs/Sync/SyncJobRunner.cs`); deploy workflow job `brevierp-sync`; [runbook](../../../operations/jobs/sync-job.md).
 - Data: migration `AddSupplierKeepinCrmFields` adds nullable columns, `IsActive` default true, a filtered unique index on `KeepinCrmId`, and widens `PhoneNumber` to 100 for several KeepinCRM phones. Rollback: the migration `Down`; existing rows are unaffected.
 - Contract: [suppliers.openapi.yaml](../../../contracts/reference/suppliers.openapi.yaml) 1.2.0, additive except that `updateSupplier` now returns 400 for KeepinCRM suppliers (none exist before the first sync).
 
