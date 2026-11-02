@@ -1,5 +1,4 @@
 using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
-using Reference.Domain.AdditionalReferences.ValueObjects;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;
