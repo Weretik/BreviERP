@@ -1,0 +1,194 @@
+name: Deploy to Cloud Run
+
+# Pull requests: build and tests only.
+# Push to master: build and tests, then images are built here, pushed to Artifact Registry
+# and Cloud Run deploys the ready containers (no build on the Google side).
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT_ID: brevistoreapi
+  GCP_REGION: europe-central2
+  AR_REPO: api
+  API_SERVICE: brevierp-api
+  SEED_JOB: brevierp-seed
+  REMINDERS_JOB: brevierp-reminders
+  CATALOG_IMPORT_BUCKET: brevistoreapi-catalog-import
+  CATALOG_IMPORT_SOURCE_SHA256: 24ea80bd240f95d468396a1c1c87c7cfba31058b422d0b4012cbb4825f5ff687
+  CATALOG_IMPORT_DB_SECRET_VERSION: '1'
+  # Gmail activation is a separate release decision; preserve a send-disabled deployment by default.
+  CRM_DELIVERY_ENABLED: 'false'
+  TELEGRAM_TOKEN_SECRET: telegram-reminders-bot-token
+  TELEGRAM_WEBHOOK_SECRET: telegram-reminders-webhook-secret
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      BREVIERP_CATALOG_TEST_CONNECTION: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
+      BREVIERP_CRM_TEST_CONNECTION: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore BreviERP.sln
+      - run: dotnet build BreviERP.sln --no-restore --configuration Release
+      - run: dotnet test BreviERP.sln --no-build --configuration Release
+
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: verify
+    permissions:
+      contents: read
+    env:
+      HAS_GCP_KEY: ${{ secrets.GCP_SA_KEY != '' }}
+
+    steps:
+      # Until the GCP_SA_KEY secret is added the job only reports why it skipped, so merging this
+      # workflow cannot deploy twice while the old Cloud Build trigger is still switched on.
+      - name: Check deploy key
+        if: env.HAS_GCP_KEY != 'true'
+        run: echo "::notice::GCP_SA_KEY secret is not set; deploy skipped. See docs/sdd/operations/deployment/cloud-run-deploy.md."
+
+      - name: Checkout
+        if: env.HAS_GCP_KEY == 'true'
+        uses: actions/checkout@v5
+
+      - name: Auth to Google Cloud
+        if: env.HAS_GCP_KEY == 'true'
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Setup gcloud
+        if: env.HAS_GCP_KEY == 'true'
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        if: env.HAS_GCP_KEY == 'true'
+        run: |
+          gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+          REGISTRY="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}"
+          echo "API_IMAGE=${REGISTRY}/host-api:${GITHUB_SHA}" >> "$GITHUB_ENV"
+          echo "SEED_IMAGE=${REGISTRY}/host-seed:${GITHUB_SHA}" >> "$GITHUB_ENV"
+
+      - name: Build & push Host.Api image
+        if: env.HAS_GCP_KEY == 'true'
+        run: |
+          docker build -f src/Bootstrapper/Host.Api/Dockerfile -t "$API_IMAGE" .
+          docker push "$API_IMAGE"
+
+      - name: Build & push Host.Seed image
+        if: env.HAS_GCP_KEY == 'true'
+        run: |
+          docker build -f src/Bootstrapper/Host.Seed/Dockerfile -t "$SEED_IMAGE" .
+          docker push "$SEED_IMAGE"
+
+      - name: Create or update Host.Seed job
+        if: env.HAS_GCP_KEY == 'true'
+        run: |
+          set -euo pipefail
+          if gcloud run jobs describe "$SEED_JOB" --region "$GCP_REGION" >/dev/null 2>&1; then
+            ACTION=update
+          else
+            ACTION=create
+          fi
+          gcloud run jobs "$ACTION" "$SEED_JOB" \
+            --image "$SEED_IMAGE" \
+            --region "$GCP_REGION" \
+            --max-retries 1 \
+            --tasks 1 \
+            --parallelism 1 \
+            --quiet
+
+      - name: Create or update Telegram reminders job
+        if: env.HAS_GCP_KEY == 'true'
+        run: |
+          set -euo pipefail
+          # Daily reminders run (Cloud Scheduler, weekdays 09:00 Kyiv). Same image as the seed job, but it only
+          # dispatches reminders: no migrations or seed. If it does not exist yet it is copied from the seed job,
+          # so it gets the same database connection, service account and Cloud SQL settings.
+          if ! gcloud run jobs describe "$REMINDERS_JOB" --region "$GCP_REGION" >/dev/null 2>&1; then
+            gcloud run jobs describe "$SEED_JOB" --region "$GCP_REGION" --format export > "$RUNNER_TEMP/reminders-job.yaml"
+            sed -i "0,/^  name: ${SEED_JOB}$/s//  name: ${REMINDERS_JOB}/" "$RUNNER_TEMP/reminders-job.yaml"
+            # Drop who/when annotations of the seed job; they belong to that job only.
+            sed -i -E '/run\.googleapis\.com\/(creator|lastModifier|operation-id):/d' "$RUNNER_TEMP/reminders-job.yaml"
+            gcloud run jobs replace "$RUNNER_TEMP/reminders-job.yaml" --region "$GCP_REGION" --quiet
+          fi
+          gcloud run jobs update "$REMINDERS_JOB" \
+            --image "$SEED_IMAGE" \
+            --region "$GCP_REGION" \
+            --args=--reminders-dispatch=true \
+            --max-retries 1 \
+            --tasks 1 \
+            --parallelism 1 \
+            --update-secrets "Reminders__Telegram__BotToken=${TELEGRAM_TOKEN_SECRET}:latest" \
+            --quiet
+
+      - name: Run database migrations and seed data
+        if: env.HAS_GCP_KEY == 'true'
+        run: gcloud run jobs execute "$SEED_JOB" --region "$GCP_REGION" --wait --quiet
+
+      - name: Deploy Host.Api to Cloud Run
+        if: env.HAS_GCP_KEY == 'true'
+        run: |
+          set -euo pipefail
+          # Telegram reminders secrets are always attached: they exist in production, and a missing secret should
+          # fail the deploy loudly instead of being skipped silently.
+          SECRETS="AdmToolsStorage__Login=storage-login:latest,AdmToolsStorage__Password=storage-password:latest"
+          SECRETS="${SECRETS},Reminders__Telegram__BotToken=${TELEGRAM_TOKEN_SECRET}:latest"
+          SECRETS="${SECRETS},Reminders__Telegram__WebhookSecret=${TELEGRAM_WEBHOOK_SECRET}:latest"
+          gcloud run deploy "$API_SERVICE" \
+            --image "$API_IMAGE" \
+            --region "$GCP_REGION" \
+            --platform managed \
+            --allow-unauthenticated \
+            --update-env-vars "Crm__Delivery__Enabled=${CRM_DELIVERY_ENABLED}" \
+            --update-secrets "$SECRETS" \
+            --quiet
+
+      - name: Create or update catalogue import job
+        if: env.HAS_GCP_KEY == 'true'
+        run: |
+          set -euo pipefail
+          # Configuration only: no migration/import execution and no secret value read.
+          gcloud run jobs describe "$SEED_JOB" --region "$GCP_REGION" --format=json > "$RUNNER_TEMP/catalog-import-seed.json"
+          # Ensure the report prefix exists before mounting it with GCS FUSE only-dir.
+          printf 'catalogue import reports\n' > "$RUNNER_TEMP/catalog-import-report-prefix"
+          gcloud storage cp --no-clobber "$RUNNER_TEMP/catalog-import-report-prefix" \
+            "gs://${CATALOG_IMPORT_BUCKET}/catalog-import/${CATALOG_IMPORT_SOURCE_SHA256}/reports/.keep" --quiet
+          python3 deployment/render-catalog-import-job.py \
+            --seed-config "$RUNNER_TEMP/catalog-import-seed.json" \
+            --image "$SEED_IMAGE" \
+            --bucket "$CATALOG_IMPORT_BUCKET" \
+            --source-sha256 "$CATALOG_IMPORT_SOURCE_SHA256" \
+            --secret-version "$CATALOG_IMPORT_DB_SECRET_VERSION" \
+            --report-id "$GITHUB_SHA" \
+            --output "$RUNNER_TEMP/catalog-import-job.json"
+          gcloud run jobs replace "$RUNNER_TEMP/catalog-import-job.json" --region "$GCP_REGION" --quiet

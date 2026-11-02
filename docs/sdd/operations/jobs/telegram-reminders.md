@@ -11,11 +11,11 @@ Feature: [Telegram reminders](../../features/reminders/telegram-reminders.md). D
 | `Reminders:Telegram:WebhookUrl` | API environment variable: public API origin + `/api/reminders/telegram/webhook` | No |
 | `Reminders:Telegram:ApiBaseUrl` | Optional, default `https://api.telegram.org` | No |
 
-`cloudbuild.yaml` always attaches both secrets to the API and the token to the `brevierp-reminders` job; a deploy fails if a secret is missing. The Cloud Run service account needs Secret Manager Secret Accessor.
+The [deploy workflow](../deployment/cloud-run-deploy.md) always attaches both secrets to the API and the token to the `brevierp-reminders` job; a deploy fails if a secret is missing. The Cloud Run service account needs Secret Manager Secret Accessor.
 
 ## Daily run
 
-The separate Cloud Run Job `brevierp-reminders` runs `Host.Seed --reminders-dispatch=true`: the seed image with this argument baked in, so it only dispatches (no migrations or seed). Cloud Build creates it on the first build by copying `brevierp-seed` (database connection, service account, Cloud SQL), then updates its image, argument and token on every build. It is safe to repeat on the same day: each period gets at most one card per Kyiv date. On a non-working day it exits without sending. Exit code 1 means at least one card failed; the next run retries it.
+The separate Cloud Run Job `brevierp-reminders` runs `Host.Seed --reminders-dispatch=true`: the seed image with this argument baked in, so it only dispatches (no migrations or seed). The deploy workflow creates it if missing by copying `brevierp-seed` (database connection, service account, Cloud SQL), then updates its image, argument and token on every deploy. It is safe to repeat on the same day: each period gets at most one card per Kyiv date. On a non-working day it exits without sending. Exit code 1 means at least one card failed; the next run retries it.
 
 Cloud Scheduler job (HTTP target, once):
 

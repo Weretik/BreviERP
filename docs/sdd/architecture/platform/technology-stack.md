@@ -24,4 +24,4 @@ The [NuGet dependency roles](nuget-packages.md) describe dependency groups and v
 
 - Projects in `src/` and `tests/` specify `TargetFramework=net10.0`; both host Dockerfiles use .NET `10.0` images. The repository has no `global.json`, so the exact SDK patch level is not pinned here.
 - `BreviERP.sln` is the entry point for `dotnet restore`, `dotnet build`, and `dotnet test`; current commands are listed in the [testing rules](../../standards/testing-rules.md).
-- The two host Dockerfiles and `cloudbuild.yaml` define image builds and the Cloud Run Job → API service order. Verified configuration facts and limits are described in the [deployment guide](../../operations/deployment/cloud-build.md). This overview does not confirm the actual state of the external cloud environment.
+- The two host Dockerfiles and the GitHub Actions deploy workflow define image builds and the Cloud Run Job → API service order. Verified configuration facts and limits are described in the [deployment guide](../../operations/deployment/cloud-run-deploy.md). This overview does not confirm the actual state of the external cloud environment.

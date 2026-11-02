@@ -33,7 +33,7 @@ A test written before implementation can be omitted for documentation-only chang
 | --- | --- |
 | Local change | Run `dotnet test tests/<Project>/<Project>.csproj --filter <name>` for the affected behavior; for documentation, check links and run `git diff --check`. |
 | Boundary or database change | Add the relevant `ArchitectureTests` or `IntegrationTests` project/filter; integration tests need a separate PostgreSQL instance through `BREVIERP_CATALOG_TEST_CONNECTION`. |
-| Full CI | The [workflow](../../../.github/workflows/ci.yml) runs builds and tests for PRs/pushes; rerun the full suite locally only on explicit request. |
+| Full CI | The [workflow](../../../.github/workflows/deploy-cloudrun.yml) runs builds and tests for PRs/pushes; rerun the full suite locally only on explicit request. |
 
 Check project names and available filters under `tests/` before running them.
 

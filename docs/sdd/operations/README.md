@@ -8,7 +8,7 @@ operations/
 ├── configuration/      configuration sources and secret handling
 ├── data/               migrations and seeding through Host.Seed
 ├── diagnostics/        health checks, Swagger, and logs
-├── deployment/         container and Cloud Build configuration
+├── deployment/         containers and Cloud Run deployment
 └── jobs/               background job status and requirements for future runbooks
 ```
 
@@ -18,7 +18,7 @@ operations/
 - Configure a machine or fix missing settings: [configuration and secrets](configuration/configuration-and-secrets.md)
 - Prepare a separate `Host.Seed` run that changes the database: [migrations and seeding](data/migrations-and-seeding.md)
 - Check a running API or reproduce an endpoint: [diagnostics](diagnostics/health-logs-swagger.md)
-- Understand the configured container and deployment pipeline: [Cloud Build](deployment/cloud-build.md)
+- Understand the configured container and deployment pipeline: [Cloud Run deployment](deployment/cloud-run-deploy.md)
 - Check background job support: [jobs and runbooks](jobs/README.md)
 - Configure the Telegram bot and the daily reminder run: [Telegram reminders](jobs/telegram-reminders.md)
 
