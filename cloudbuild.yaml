@@ -6,6 +6,7 @@ substitutions:
   _AR_REPO: api
   _API_SERVICE: brevierp-api
   _SEED_JOB: brevierp-seed
+  _REMINDERS_JOB: brevierp-reminders
   # Gmail activation is a separate release decision; preserve a send-disabled deployment by default.
   _CRM_DELIVERY_ENABLED: 'false'
   _TELEGRAM_TOKEN_SECRET: telegram-reminders-bot-token
@@ -52,12 +53,6 @@ steps:
       - |
         set -euo pipefail
         IMAGE="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/host-seed:$COMMIT_SHA"
-        # The same job runs the daily reminders (--reminders-dispatch=true from Cloud Scheduler).
-        # The bot token is attached once the secret exists, so deploys keep working before Telegram is set up.
-        SECRETS=()
-        if gcloud secrets describe "${_TELEGRAM_TOKEN_SECRET}" >/dev/null 2>&1; then
-          SECRETS=(--update-secrets "Reminders__Telegram__BotToken=${_TELEGRAM_TOKEN_SECRET}:latest")
-        fi
         if gcloud run jobs describe "${_SEED_JOB}" --region "${_REGION}" >/dev/null 2>&1; then
           gcloud run jobs update "${_SEED_JOB}" \
             --image "$${IMAGE}" \
@@ -65,7 +60,6 @@ steps:
             --max-retries 1 \
             --tasks 1 \
             --parallelism 1 \
-            "$${SECRETS[@]}" \
             --quiet
         else
           gcloud run jobs create "${_SEED_JOB}" \
@@ -74,9 +68,36 @@ steps:
             --max-retries 1 \
             --tasks 1 \
             --parallelism 1 \
-            "$${SECRETS[@]}" \
             --quiet
         fi
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    id: Create or update Telegram reminders Cloud Run Job
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        IMAGE="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/host-seed:$COMMIT_SHA"
+        # Daily reminders run (Cloud Scheduler, weekdays 09:00 Kyiv). Same image as the seed job, but it only
+        # dispatches reminders: no migrations or seed. The first build copies the seed job, so the reminders job
+        # gets the same database connection, service account and Cloud SQL settings.
+        if ! gcloud run jobs describe "${_REMINDERS_JOB}" --region "${_REGION}" >/dev/null 2>&1; then
+          gcloud run jobs describe "${_SEED_JOB}" --region "${_REGION}" --format export > /workspace/reminders-job.yaml
+          sed -i "0,/^  name: ${_SEED_JOB}$$/s//  name: ${_REMINDERS_JOB}/" /workspace/reminders-job.yaml
+          # Drop who/when annotations of the seed job; they belong to that job only.
+          sed -i -E '/run\.googleapis\.com\/(creator|lastModifier|operation-id):/d' /workspace/reminders-job.yaml
+          gcloud run jobs replace /workspace/reminders-job.yaml --region "${_REGION}" --quiet
+        fi
+        gcloud run jobs update "${_REMINDERS_JOB}" \
+          --image "$${IMAGE}" \
+          --region "${_REGION}" \
+          --args=--reminders-dispatch=true \
+          --max-retries 1 \
+          --tasks 1 \
+          --parallelism 1 \
+          --update-secrets "Reminders__Telegram__BotToken=${_TELEGRAM_TOKEN_SECRET}:latest" \
+          --quiet
 
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     id: Run database migrations and seed data
@@ -97,12 +118,11 @@ steps:
       - -c
       - |
         set -euo pipefail
+        # Telegram reminders secrets are always attached: they exist in production, and a missing secret should
+        # fail the deploy loudly instead of being skipped silently.
         SECRETS="AdmToolsStorage__Login=storage-login:latest,AdmToolsStorage__Password=storage-password:latest"
-        # Telegram reminders: token and webhook secret are added only after they are created in Secret Manager.
-        if gcloud secrets describe "${_TELEGRAM_TOKEN_SECRET}" >/dev/null 2>&1 \
-          && gcloud secrets describe "${_TELEGRAM_WEBHOOK_SECRET}" >/dev/null 2>&1; then
-          SECRETS="$${SECRETS},Reminders__Telegram__BotToken=${_TELEGRAM_TOKEN_SECRET}:latest,Reminders__Telegram__WebhookSecret=${_TELEGRAM_WEBHOOK_SECRET}:latest"
-        fi
+        SECRETS="$${SECRETS},Reminders__Telegram__BotToken=${_TELEGRAM_TOKEN_SECRET}:latest"
+        SECRETS="$${SECRETS},Reminders__Telegram__WebhookSecret=${_TELEGRAM_WEBHOOK_SECRET}:latest"
         gcloud run deploy "${_API_SERVICE}" \
           --image="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/host-api:$COMMIT_SHA" \
           --region="${_REGION}" \

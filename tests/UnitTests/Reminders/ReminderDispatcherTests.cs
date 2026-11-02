@@ -22,7 +22,10 @@ public sealed class ReminderDispatcherTests
         var second = await h.Dispatcher().RunAsync(CancellationToken.None);
 
         Assert.That(first.Sent, Is.EqualTo(2));
+        Assert.That(first.ActiveTasks, Is.EqualTo(3));
+        Assert.That(first.NotDueYet, Is.EqualTo(1), "ПДВ window opens on 15.11");
         Assert.That(second.Sent, Is.Zero);
+        Assert.That(second.AlreadySent, Is.EqualTo(2));
         Assert.That(h.Telegram.Sent, Has.Count.EqualTo(2));
         Assert.That(h.Telegram.Sent.All(x => x.ChatId == ReminderTestHarness.GroupTelegramId), Is.True);
         Assert.That(h.Telegram.Sent[0].Text, Does.Contain("Прострочено на 1 дн.")); // due Sunday 01.11
@@ -66,8 +69,9 @@ public sealed class ReminderDispatcherTests
         chat.Configure(null, false, h.Clock.Now);
         await h.Db.SaveChangesAsync();
         await h.TaskAsync(chat, DueRule.DayOfMonth(5, 1), new DateOnly(2026, 10, 25));
-        await h.Dispatcher().RunAsync(CancellationToken.None);
+        var summary = await h.Dispatcher().RunAsync(CancellationToken.None);
         Assert.That(h.Telegram.Sent, Is.Empty);
+        Assert.That(summary.ChatUnavailable, Is.EqualTo(1));
         Assert.That(await h.Db.Occurrences.CountAsync(x => x.Status == ReminderOccurrenceStatus.Open), Is.EqualTo(1));
     }
 }
