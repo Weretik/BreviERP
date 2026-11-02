@@ -29,3 +29,5 @@ Do not place passwords, tokens, full connection strings, or production endpoints
 - Temporary public access to every API and restoration: [anonymous API mode](configuration/temporary-anonymous-api.md).
 
 [CRM archive offline dry-run](data/crm-history-dry-run.md) documents frozen inputs, private diagnostic/staging outputs, no-write guarantees and the EN-006 source/ownership gates.
+
+- Import the catalogue into an explicitly selected cloud database: [dedicated catalogue Cloud Run Job](data/catalog-import-cloud.md).

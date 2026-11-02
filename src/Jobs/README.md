@@ -9,3 +9,5 @@ Host.Seed owns command selection and normal migration/seed lifecycle. Job projec
 The [Telegram reminders](../../docs/sdd/operations/jobs/telegram-reminders.md) daily run (`--reminders-dispatch=true`) is a Host.Seed mode that calls the Reminders module dispatcher, deployed as the `brevierp-reminders` Cloud Run Job; it is not a project in `src/Jobs`.
 
 The [CRM history offline dry-run](../../docs/sdd/operations/data/crm-history-dry-run.md) is an explicit Host.Seed mode using the owning Crm Application/Infrastructure adapters. It has no separate job project and never opens a target database or calls migration/seed/dispatch.
+
+The [dedicated cloud catalogue import](../../docs/sdd/operations/data/catalog-import-cloud.md) runs the same owning job in a separate Cloud Run Job with explicit target/source pins and private persistent reports; it is independent of normal deployment migrations and scheduled reminders.

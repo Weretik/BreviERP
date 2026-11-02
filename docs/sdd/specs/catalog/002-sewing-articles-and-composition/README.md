@@ -27,3 +27,5 @@ The repository model has `Products`, one-to-one `SewingProductDetails`, and prod
 **Product identity decision:** the confirmed empty Product catalogue allows one new Sewing Product per model and child Article per sale SKU, with no existing Product merge. Internal IDs remain distinct from model codes and sale SKUs. **Pricing transition:** the user selected the workbook formula as the target basis. The linked pricing SDD defines sewing tiers 1–9/10–40/41+ and their implementation; the old tiers remain current behavior until that feature is released.
 
 The planned [pricing parity SDD](../003-sheet-pricing-parity/README.md) defines the later formula replacement and three-tier Article prices.
+
+[Dedicated cloud import](cloud-import.md) extends the initial importer with explicit remote target/source pins, native workbook preparation and a separate Cloud Run Job. [Operational procedure](../../../operations/data/catalog-import-cloud.md). It does not implement changed-snapshot merge or historical CRM writes.

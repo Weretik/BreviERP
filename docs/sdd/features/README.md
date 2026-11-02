@@ -22,7 +22,7 @@ Pricing API (start with Sewing or PPE pricing):
 
 Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
-- [Local catalogue import](catalog/catalog-import.md) — frozen source, transactional model/Article/PPE transfer, provenance and reconciliation.
+- [Catalogue import](catalog/catalog-import.md) — frozen source, transactional model/Article/PPE transfer, provenance, reconciliation and dedicated cloud job with target/source pins.
 - [Imported pricing readiness](catalog/pricing-readiness.md) — full strict inventory before review/activation.
 - [Frozen-source pricing input review](catalog/pricing-input-review.md) — per-field source checks and activation holds.
 - [Explicit local pricing activation](catalog/pricing-activation.md) — reviewed plan, confirmation/publication and progress.

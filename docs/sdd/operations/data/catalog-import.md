@@ -1,10 +1,10 @@
-# Local catalogue import
+# Catalogue import
 
 [Feature map](../../features/catalog/catalog-import.md) · [SDD](../../specs/catalog/002-sewing-articles-and-composition/catalog-import.md) · [Field map](../../specs/catalog/002-sewing-articles-and-composition/import-field-map.md).
 
 ## Inputs and target
 
-Only an explicitly requested local transfer is supported. The job rejects a non-loopback PostgreSQL host. ConnectionStrings:Default is resolved by Host.Seed; never print or commit credentials. The version-1 snapshot contains spreadsheet ID, capture date, sheet values, model website URLs and optional raw formula evidence. The snapshot is a frozen sequence of bounded reads, not a transactional Google backup. It excludes account/session credentials.
+Local transfer remains the default. A remote transfer requires explicit matching CatalogImport:TargetHost, TargetDatabase and SourceSha256; without these pins the job rejects a non-loopback host. See the [dedicated cloud job](catalog-import-cloud.md). ConnectionStrings:Default is resolved by Host.Seed; never print or commit credentials. The version-1 snapshot contains spreadsheet ID, capture date, sheet values, model website URLs and optional raw formula evidence. The snapshot is a frozen sequence of bounded reads, not a transactional Google backup. It excludes account/session credentials.
 
 Keep source files, pg_dump archives and detailed contact-bearing reports in ignored local storage. The completed run used .local/catalog-import/; this path is excluded through local Git configuration, not a committed data bundle.
 
