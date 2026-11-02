@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Shared.Dates;
 using Reference.Application.Features.PricingParameter.Shared;
@@ -10,7 +11,8 @@ namespace Reference.Application.Features.PricingParameter.Update;
 /// <summary>Edits a parameter card. The code stays; «Дата оновлення» becomes today when the value changes.</summary>
 public sealed class UpdatePricingParameterCommandHandler(
     IReferenceRepository<PricingParameterEntity> repository,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IPricingSettingsChangeNotifier pricingSettingsChanged)
     : ICommandHandler<UpdatePricingParameterCommand, Result>
 {
     public async ValueTask<Result> Handle(
@@ -35,6 +37,7 @@ public sealed class UpdatePricingParameterCommandHandler(
         }
 
         await repository.UpdateAsync(entity, cancellationToken);
+        await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);
 
         return Result.Success();
     }

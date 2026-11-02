@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PpeMarkupRule.Shared;
 using Reference.Application.Features.PpeMarkupRule.Shared.Specifications;
@@ -7,7 +8,9 @@ using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRu
 
 namespace Reference.Application.Features.PpeMarkupRule.Create;
 
-public sealed class CreatePpeMarkupRuleCommandHandler(IReferenceRepository<PpeMarkupRuleEntity> repository)
+public sealed class CreatePpeMarkupRuleCommandHandler(
+    IReferenceRepository<PpeMarkupRuleEntity> repository,
+    IPricingSettingsChangeNotifier pricingSettingsChanged)
     : ICommandHandler<CreatePpeMarkupRuleCommand, Result<int>>
 {
     public async ValueTask<Result<int>> Handle(
@@ -35,6 +38,7 @@ public sealed class CreatePpeMarkupRuleCommandHandler(IReferenceRepository<PpeMa
         }
 
         await repository.AddAsync(entity, cancellationToken);
+        await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);
 
         return Result.Success(entity.Id.Value);
     }

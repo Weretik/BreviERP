@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingSettingsImport.DTOs;
 using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
@@ -12,7 +13,8 @@ namespace Reference.Application.Features.PricingSettingsImport;
 /// </summary>
 public sealed class ImportPricingSettingsCommandHandler(
     IReferenceRepository<PricingParameterEntity> parameterRepository,
-    IReferenceRepository<PpeMarkupRuleEntity> ruleRepository)
+    IReferenceRepository<PpeMarkupRuleEntity> ruleRepository,
+    IPricingSettingsChangeNotifier pricingSettingsChanged)
     : ICommandHandler<ImportPricingSettingsCommand, Result<PricingSettingsImportResult>>
 {
     public async ValueTask<Result<PricingSettingsImportResult>> Handle(
@@ -39,6 +41,7 @@ public sealed class ImportPricingSettingsCommandHandler(
                 await ruleRepository.DeleteRangeAsync(rules.Deleted, cancellationToken);
             // Both repositories share one Reference DbContext, so this saves both tables in one transaction.
             await parameterRepository.SaveChangesAsync(cancellationToken);
+            await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);
         }
 
         return Result.Success(new PricingSettingsImportResult(applied, parameters.Section, rules.Section));

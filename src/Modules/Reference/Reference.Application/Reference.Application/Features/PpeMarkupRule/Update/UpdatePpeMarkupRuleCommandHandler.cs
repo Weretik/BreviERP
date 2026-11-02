@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PpeMarkupRule.Shared;
 using Reference.Application.Features.PpeMarkupRule.Shared.Specifications;
@@ -7,7 +8,9 @@ using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRu
 namespace Reference.Application.Features.PpeMarkupRule.Update;
 
 /// <summary>Edits markups and notes. The name stays: PPE supplier offers refer to the rule by it.</summary>
-public sealed class UpdatePpeMarkupRuleCommandHandler(IReferenceRepository<PpeMarkupRuleEntity> repository)
+public sealed class UpdatePpeMarkupRuleCommandHandler(
+    IReferenceRepository<PpeMarkupRuleEntity> repository,
+    IPricingSettingsChangeNotifier pricingSettingsChanged)
     : ICommandHandler<UpdatePpeMarkupRuleCommand, Result>
 {
     public async ValueTask<Result> Handle(
@@ -29,6 +32,7 @@ public sealed class UpdatePpeMarkupRuleCommandHandler(IReferenceRepository<PpeMa
         }
 
         await repository.UpdateAsync(entity, cancellationToken);
+        await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);
 
         return Result.Success();
     }

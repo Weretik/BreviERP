@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingParameter.Shared.Specifications;
 using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
@@ -5,7 +6,8 @@ using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.Prici
 namespace Reference.Application.Features.PricingParameter.Delete;
 
 public sealed class DeletePricingParameterCommandHandler(
-    IReferenceRepository<PricingParameterEntity> repository)
+    IReferenceRepository<PricingParameterEntity> repository,
+    IPricingSettingsChangeNotifier pricingSettingsChanged)
     : ICommandHandler<DeletePricingParameterCommand, Result>
 {
     public async ValueTask<Result> Handle(
@@ -19,6 +21,7 @@ public sealed class DeletePricingParameterCommandHandler(
             return Result.NotFound();
 
         await repository.DeleteAsync(entity, cancellationToken);
+        await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);
 
         return Result.Success();
     }
