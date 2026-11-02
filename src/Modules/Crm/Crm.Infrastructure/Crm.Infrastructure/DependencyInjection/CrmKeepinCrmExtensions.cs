@@ -1,0 +1,24 @@
+using Crm.Application.Customers.KeepinCrmSync;
+using Crm.Domain.Customers.Identifiers;
+using Crm.Infrastructure.KeepinCrm;
+using Crm.Infrastructure.Persistence.Customers.KeepinCrmSync;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
+namespace Crm.Infrastructure.DependencyInjection;
+
+public static class CrmKeepinCrmExtensions
+{
+    /// <summary>KeepinCRM client source, store and sync service; used by Host.Api and the Host.Seed sync job.</summary>
+    public static IServiceCollection AddCrmKeepinCrmSync(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<KeepinCrmClientOptions>(configuration.GetSection(KeepinCrmClientOptions.Section));
+        services.AddHttpClient<IKeepinCrmClientSource, KeepinCrmClientHttpSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.AddSingleton(provider => new KeepinCrmClientSyncSettings(
+            new CrmUserId(provider.GetRequiredService<IOptions<KeepinCrmClientOptions>>().Value.ClientOwnerUserId)));
+        services.AddScoped<ICustomerKeepinSyncStore, CustomerKeepinSyncStore>();
+        services.AddScoped<KeepinCrmClientSync>();
+        return services;
+    }
+}

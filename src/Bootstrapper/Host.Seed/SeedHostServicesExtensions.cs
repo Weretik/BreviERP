@@ -31,6 +31,7 @@ public static class SeedHostServicesExtensions
         services.AddAccountingDbContextServices(configuration);
         services.AddCatalogDbContextServices(configuration);
         services.AddCrmDbContextServices(configuration);
+        services.AddCrmKeepinCrmSync(configuration);
         services.AddRemindersInfrastructure(configuration);
         services.AddRemindersSeeders();
         services.AddDbContext<CatalogImportDbContext>(options =>

@@ -16,6 +16,7 @@ internal static class SyncJobRunner
     private static readonly ISyncTask[] Tasks =
     [
         new KeepinSuppliersSyncTask(),
+        new KeepinClientsSyncTask(),
     ];
 
     public static async Task RunAsync(IServiceProvider services, IConfiguration configuration)

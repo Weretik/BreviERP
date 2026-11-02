@@ -99,6 +99,8 @@ paths:
     $ref: ./catalog/ppe-pricing.openapi.yaml#/paths/~1api~1v1~1pricing~1ppe~1products~1{productId}~1offer~1versions
   /api/crm/customers:
     $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers
+  /api/crm/customers/keepin-sync:
+    $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1keepin-sync
   /api/crm/customers/{customerId}:
     $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1{customerId}
   /api/crm/customers/{customerId}/contacts:

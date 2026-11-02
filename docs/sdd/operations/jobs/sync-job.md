@@ -7,6 +7,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | Step | What it does | Secret | Details |
 | --- | --- | --- | --- |
 | `keepin-suppliers` | KeepinCRM → Brevi supplier refresh | `keepincrm-api-key` → `KeepinCrm__ApiKey` | [below](#keepin-suppliers) |
+| `keepin-clients` | KeepinCRM → Brevi client refresh | the same key | [below](#keepin-clients) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
 
@@ -39,3 +40,13 @@ A run calls `GET /suppliers?page=N` with header `X-Auth-Token`, 25 per page, unt
 Step log: `Received N, created N, linked N, updated N, missing in KeepinCRM: ...`.
 
 On demand: admin page «Постачальники» → «Оновити з KeepinCRM» calls `POST /api/reference/suppliers/keepin-sync` (same use case, runs in the API, not the job). 503 means the key is missing, KeepinCRM did not answer, or it returned no suppliers.
+
+## keepin-clients
+
+Feature: [Clients and quotes](../../features/crm/clients-and-quotes.md), specification [CRM-002](../../specs/crm/002-keepincrm-clients/README.md). Uses the same `KeepinCrm:ApiKey`; optional `KeepinCrm:ClientOwnerUserId` (default 1) owns new clients and `KeepinCrm:ClientMaxPages` (default 1000) stops runaway paging.
+
+A run calls `GET /clients?page=N&q[lead_false]=true` until `pagination.total_pages`. Then, in one save: a client linked by `keepincrm/client/<id>` is refreshed (name, kind, active from `archived`, the «KeepinCRM» contact with phones and e-mails); a new one is created; a linked client missing from KeepinCRM is marked not used. The daily step never deletes. An error or an empty answer changes nothing.
+
+Step log: `Received N, created N, updated N, unchanged N, marked not used: ...`.
+
+On demand: `POST /api/crm/customers/keepin-sync` with `{"dryRun": true}` previews and `{"dryRun": false}` applies. The one-time transfer adds `"removeUnlinked": true` (Admin only): Brevi clients without a KeepinCRM link are deleted, those used by quotes are hidden. Always run the preview first.

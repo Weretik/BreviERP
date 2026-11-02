@@ -36,6 +36,7 @@ public static class ModuleRegistrationsExtensions
         services.AddCatalogInfrastructureServices(configuration);
         services.AddCatalogApiOptions(configuration);
         services.AddCrmDbContextServices(configuration);
+        services.AddCrmKeepinCrmSync(configuration);
         services.AddRemindersInfrastructure(configuration);
         services.AddScoped<global::Crm.Application.CustomSewing.Pricing.ICustomSewingPricing, CustomSewingPricing>();
         services.AddCrmSewingSuggestions();

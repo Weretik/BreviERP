@@ -5,10 +5,12 @@ using Crm.Api.Access;
 using Crm.Application.Customers.CreateCustomer;
 using Crm.Application.Customers.GetCustomer;
 using Crm.Application.Customers.GetCustomers;
+using Crm.Application.Customers.KeepinCrmSync;
 using Crm.Application.Customers.MergeCustomers;
 using Crm.Application.Customers.ReviseCustomer;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 namespace Crm.Api.Customers;
 
@@ -59,5 +61,19 @@ public sealed class CustomersController(ISender sender) : ControllerBase
         var actor = CrmActorClaims.Read(User);
         return actor is null ? Forbid() : this.ToActionResult(await sender.Send(new MergeCustomersCommand(customerId,
             request.VictimId, request.ExpectedRevision, request.VictimRevision, request.Reason, request.RequestId, actor), cancellationToken));
+    }
+
+    /// <summary>«Оновити з KeepinCRM»: the same run as the daily job; removeUnlinked deletes, so it is admin-only.</summary>
+    [HttpPost("keepin-sync", Name = "syncCrmCustomersFromKeepinCrm")]
+    public async Task<ActionResult> SyncKeepinCrm(SyncKeepinCrmClientsRequest? request, CancellationToken cancellationToken)
+    {
+        var actor = CrmActorClaims.Read(User);
+        if (actor is null) return Forbid();
+        request ??= new SyncKeepinCrmClientsRequest();
+        if (request.RemoveUnlinked && !actor.IsAdmin) return Forbid();
+        var result = await sender.Send(new SyncKeepinCrmClientsCommand(request.DryRun, request.RemoveUnlinked), cancellationToken);
+        return result.Status == ResultStatus.Unavailable
+            ? StatusCode(StatusCodes.Status503ServiceUnavailable, new { errors = result.Errors })
+            : this.ToActionResult(result);
     }
 }
