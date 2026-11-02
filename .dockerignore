@@ -1,4 +1,4 @@
-﻿# Исходники IDE и временные файлы
+# Исходники IDE и временные файлы
 **/[Oo]bj/
 **/[Bb]in/
 **/.git/
@@ -27,3 +27,6 @@ docker-compose*
 **/.env
 **/secrets.json
 **/appsettings.*.local.json
+
+# Private imports, backups and verification artifacts
+**/.local/

@@ -7,6 +7,10 @@ internal static class SeedJobDispatcher
 {
     public static async Task RunAsync(IServiceProvider services, IConfiguration configuration)
     {
+        if (configuration["catalog-import"] is null &&
+            new[] { "CatalogImport:TargetHost", "CatalogImport:TargetDatabase", "CatalogImport:SourceSha256", "CatalogImport:ApprovedConnection" }
+                .Any(key => configuration[key] is not null))
+            throw new InvalidOperationException("Catalogue target approval requires the explicit import mode.");
         if (configuration["crm-history-dry-run"] is null &&
             (configuration["source-root"] is not null || configuration["staging-ledger"] is not null))
             throw new InvalidOperationException("CRM history paths require the explicit dry-run mode.");

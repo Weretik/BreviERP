@@ -1,5 +1,4 @@
 using System.Data;
-using System.Net;
 using System.Text.Json;
 using Catalog.Infrastructure.DataBase;
 using CatalogImport.Persistence;
@@ -14,14 +13,14 @@ namespace CatalogImport.Execution;
 public static class CatalogImportJob
 {
     public static async Task<CatalogImportReport> RunAsync(string connectionString, string sourcePath, string mode,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default, CatalogImportTarget? approvedTarget = null)
     {
         if (mode is not ("validate" or "trial" or "apply"))
             throw new InvalidDataException("Import mode must be validate, trial or apply.");
         var settings = new NpgsqlConnectionStringBuilder(connectionString);
-        if (!(settings.Host == "localhost" || IPAddress.TryParse(settings.Host, out var ip) && IPAddress.IsLoopback(ip)))
-            throw new InvalidOperationException("The catalogue import job only permits a loopback PostgreSQL target.");
+        CatalogImportTargetGuard.ValidateConnection(settings, approvedTarget);
         var (snapshot, hash, json) = await WorkbookSnapshot.LoadAsync(sourcePath, cancellationToken);
+        CatalogImportTargetGuard.ValidateSourceHash(hash, approvedTarget);
         var plan = CatalogImportPlanner.Build(snapshot);
         var report = new CatalogImportReport
         {
