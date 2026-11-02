@@ -27,6 +27,7 @@ public static class SeedHostServicesExtensions
         services.AddInfrastructureServices(configuration);
 
         services.AddReferenceDbContextServices(configuration);
+        services.AddReferenceKeepinCrmSync(configuration);
         services.AddAccountingDbContextServices(configuration);
         services.AddCatalogDbContextServices(configuration);
         services.AddCrmDbContextServices(configuration);

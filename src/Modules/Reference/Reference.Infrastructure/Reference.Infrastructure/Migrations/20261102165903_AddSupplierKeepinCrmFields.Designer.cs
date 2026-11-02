@@ -12,8 +12,8 @@ using Reference.Infrastructure.DataBase;
 namespace Reference.Infrastructure.Migrations
 {
     [DbContext(typeof(ReferenceDbContext))]
-    [Migration("20261102164922_AddSupplierKeepinCrmAndPurchasing")]
-    partial class AddSupplierKeepinCrmAndPurchasing
+    [Migration("20261102165903_AddSupplierKeepinCrmFields")]
+    partial class AddSupplierKeepinCrmFields
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -289,8 +289,8 @@ namespace Reference.Infrastructure.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PurchaseCategories")
                         .HasMaxLength(200)

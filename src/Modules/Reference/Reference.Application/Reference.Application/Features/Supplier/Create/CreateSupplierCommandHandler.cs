@@ -58,8 +58,8 @@ public sealed class CreateSupplierCommandHandler(IReferenceRepository<SupplierEn
             contactPerson,
             phoneNumber,
             notes);
-        entity.Update(name, link, contactPerson, phoneNumber, notes, email);
-        entity.UpdatePurchasing(request.PurchaseCategories, request.IsActive);
+        entity.Update(name, link, contactPerson, phoneNumber, notes, email, request.PurchaseCategories);
+        entity.SetActive(request.IsActive);
 
         await repository.AddAsync(entity, cancellationToken);
 

@@ -19,6 +19,13 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
         if (entity is null)
             return Result.NotFound();
 
+        if (entity.IsManagedByKeepinCrm)
+        {
+            return Result.Invalid([new ValidationError(
+                "Request",
+                "Картка цього постачальника оновлюється з KeepinCRM. У Brevi змінюються лише активність і нотатки.")]);
+        }
+
         var request = command.Request;
         var name = request.Name.Trim();
         var link = string.IsNullOrWhiteSpace(request.Link) ? null : request.Link.Trim();
@@ -45,14 +52,14 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
 
         try
         {
-            entity.Update(name, link, contactPerson, phoneNumber, notes, email);
+            entity.Update(name, link, contactPerson, phoneNumber, notes, email, request.PurchaseCategories);
         }
         catch (DomainException exception)
         {
             return Result.Invalid([new ValidationError("Request", exception.Message)]);
         }
 
-        entity.UpdatePurchasing(request.PurchaseCategories, request.IsActive);
+        entity.SetActive(request.IsActive);
 
         await repository.UpdateAsync(entity, cancellationToken);
 

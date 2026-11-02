@@ -4,6 +4,7 @@ namespace Reference.Domain.Suppliers.ValueObjects;
 public sealed record KeepinCrmSupplierSnapshot(
     string KeepinCrmId,
     string Name,
+    string? PurchaseCategories,
     string? Link,
     string? ContactPerson,
     string? PhoneNumber,

@@ -286,8 +286,8 @@ namespace Reference.Infrastructure.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PurchaseCategories")
                         .HasMaxLength(200)

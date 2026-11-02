@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BreviERP Supplier Reference API
-  version: 1.1.0
+  version: 1.2.0
   description: Supplier reference operations implemented by SuppliersController.
 servers:
   - url: /
@@ -38,6 +38,32 @@ paths:
               schema: { type: integer, format: int32, minimum: 1 }
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { description: Unauthorized. }
+  /api/reference/suppliers/keepin-sync:
+    post:
+      operationId: syncSuppliersFromKeepinCrm
+      summary: Refresh suppliers from KeepinCRM
+      description: >-
+        Reads GET /v1/suppliers from KeepinCRM page by page. A linked supplier is refreshed by keepinCrmId,
+        an unlinked supplier with the same name (ignoring case, punctuation and ТОВ/ФОП) is linked, the rest
+        are created. isActive and notes are never changed; nothing is deleted. Safe to repeat. The daily
+        Cloud Run job runs the same use case.
+      security: []
+      responses:
+        '200':
+          description: Sync summary.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/KeepinCrmSupplierSyncResult' }
+        '401': { description: Unauthorized. }
+        '503':
+          description: KeepinCRM is not configured, unavailable, or returned no suppliers. Nothing changed.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [errors]
+                properties:
+                  errors: { type: array, items: { type: string } }
   /api/reference/suppliers/{id}:
     parameters:
       - name: id
@@ -47,7 +73,7 @@ paths:
     put:
       operationId: updateSupplier
       summary: Update a supplier
-      description: For a KeepinCRM supplier, the contact fields must equal the stored values (400 otherwise); notes, purchaseCategories and isActive can change.
+      description: Manual suppliers only. For a KeepinCRM supplier (keepinCrmId set) it returns 400; use updateSupplierBreviFields.
       security: []
       requestBody:
         required: true
@@ -65,6 +91,27 @@ paths:
       security: []
       responses:
         '200': { description: Supplier deleted. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '404': { description: Supplier not found. }
+  /api/reference/suppliers/{id}/brevi-fields:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updateSupplierBreviFields
+      summary: Change the fields Brevi always owns
+      description: isActive («Використовувати в проєкті») and notes, for any supplier including a KeepinCRM one.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateSupplierBreviFieldsRequest' }
+      responses:
+        '200': { description: Saved. }
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { description: Unauthorized. }
         '404': { description: Supplier not found. }
@@ -94,12 +141,12 @@ components:
         name: { type: string }
         link: { type: [string, 'null'] }
         contactPerson: { type: [string, 'null'] }
-        phoneNumber: { type: [string, 'null'] }
+        phoneNumber: { type: [string, 'null'], description: 'One or more phones; KeepinCRM phones are joined with ", ".' }
         notes: { type: [string, 'null'] }
         email: { type: [string, 'null'] }
         purchaseCategories:
           type: [string, 'null']
-          description: What Brevi buys from the supplier («Що закуповуємо»). Always owned by Brevi.
+          description: What Brevi buys from the supplier («Що закуповуємо»); from KeepinCRM for a linked supplier.
         tags:
           type: [string, 'null']
           description: KeepinCRM tags, read-only.
@@ -108,7 +155,7 @@ components:
           description: «Використовувати в проєкті». Always owned by Brevi.
         keepinCrmId:
           type: [string, 'null']
-          description: KeepinCRM client ID. When set, name, link, contactPerson, phoneNumber, email and tags come from KeepinCRM and cannot be changed through updateSupplier.
+          description: KeepinCRM supplier ID. When set, name, purchaseCategories, link, contactPerson, phoneNumber, email and tags come from KeepinCRM and change only through syncSuppliersFromKeepinCrm.
         keepinSyncedAt: { type: [string, 'null'], format: date-time }
     CreateSupplierRequest:
       allOf:
@@ -129,3 +176,22 @@ components:
         email: { type: [string, 'null'], format: email, maxLength: 254 }
         purchaseCategories: { type: [string, 'null'], maxLength: 200 }
         isActive: { type: boolean, default: true }
+    UpdateSupplierBreviFieldsRequest:
+      type: object
+      required: [isActive]
+      properties:
+        isActive: { type: boolean }
+        notes: { type: [string, 'null'], maxLength: 500 }
+    KeepinCrmSupplierSyncResult:
+      type: object
+      required: [received, created, linked, updated, missingInKeepinCrm, syncedAt]
+      properties:
+        received: { type: integer, format: int32 }
+        created: { type: integer, format: int32 }
+        linked: { type: integer, format: int32 }
+        updated: { type: integer, format: int32 }
+        missingInKeepinCrm:
+          type: array
+          description: Names of linked suppliers KeepinCRM no longer returns; they are kept in Brevi.
+          items: { type: string }
+        syncedAt: { type: string, format: date-time }

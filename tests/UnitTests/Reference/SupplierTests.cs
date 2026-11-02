@@ -9,7 +9,7 @@ public sealed class SupplierTests
     private static readonly DateTimeOffset SyncedAt = new(2026, 11, 2, 10, 0, 0, TimeSpan.Zero);
 
     private static KeepinCrmSupplierSnapshot Snapshot(string name = "Тексика") =>
-        new("104551", name, "https://teksika.ua/", "Анна", "+380501112233", "a@teksika.com", "тканина, опт");
+        new("104551", name, "тканина", "https://teksika.ua/", "Анна", "+380501112233, 0532671109", "a@teksika.com", "опт");
 
     [Test]
     public void New_manual_supplier_is_active_and_not_linked_to_keepin()
@@ -29,8 +29,8 @@ public sealed class SupplierTests
     {
         var supplier = Supplier.Create(SupplierId.From(7), "Спецтекстиль");
 
-        supplier.Update("Спецтекстиль", "spectex.ua", "Олег", "+380501112233", "нотатка", " info@spectex.ua ");
-        supplier.UpdatePurchasing(" тканина ", false);
+        supplier.Update("Спецтекстиль", "spectex.ua", "Олег", "+380501112233", "нотатка", " info@spectex.ua ", " тканина ");
+        supplier.SetActive(false);
 
         Assert.Multiple(() =>
         {
@@ -41,10 +41,10 @@ public sealed class SupplierTests
     }
 
     [Test]
-    public void Keepin_snapshot_overwrites_contacts_and_keeps_brevi_fields()
+    public void Keepin_snapshot_overwrites_card_and_keeps_brevi_fields()
     {
         var supplier = Supplier.Create(SupplierId.From(7), "Тексика, ТОВ", notes: "домовились про знижку");
-        supplier.UpdatePurchasing("тканина", true);
+        supplier.SetActive(false);
 
         supplier.ApplyKeepinCrmSnapshot(Snapshot(), SyncedAt);
 
@@ -53,23 +53,34 @@ public sealed class SupplierTests
             Assert.That(supplier.KeepinCrmId, Is.EqualTo("104551"));
             Assert.That(supplier.Name, Is.EqualTo("Тексика"));
             Assert.That(supplier.Email, Is.EqualTo("a@teksika.com"));
-            Assert.That(supplier.Tags, Is.EqualTo("тканина, опт"));
+            Assert.That(supplier.PhoneNumber, Is.EqualTo("+380501112233, 0532671109"));
+            Assert.That(supplier.Tags, Is.EqualTo("опт"));
             Assert.That(supplier.KeepinSyncedAt, Is.EqualTo(SyncedAt));
             Assert.That(supplier.Notes, Is.EqualTo("домовились про знижку"));
             Assert.That(supplier.PurchaseCategories, Is.EqualTo("тканина"));
+            Assert.That(supplier.IsActive, Is.False);
         });
     }
 
     [Test]
-    public void Keepin_supplier_rejects_contact_changes_but_accepts_notes()
+    public void Keepin_supplier_rejects_card_changes_but_accepts_notes_and_activity()
     {
         var supplier = Supplier.CreateFromKeepinCrm(SupplierId.From(7), Snapshot(), SyncedAt);
 
-        Assert.Throws<DomainException>(() =>
-            supplier.Update("Інша назва", supplier.Link, supplier.ContactPerson, supplier.PhoneNumber, null, supplier.Email));
+        Assert.Throws<DomainException>(() => supplier.Update(
+            "Інша назва", supplier.Link, supplier.ContactPerson, supplier.PhoneNumber, null, supplier.Email,
+            supplier.PurchaseCategories));
+        Assert.Throws<DomainException>(() => supplier.Update(
+            supplier.Name, supplier.Link, supplier.ContactPerson, supplier.PhoneNumber, null, supplier.Email, "фурнітура"));
 
-        supplier.Update(supplier.Name, supplier.Link, supplier.ContactPerson, supplier.PhoneNumber, "нова нотатка", supplier.Email);
-        Assert.That(supplier.Notes, Is.EqualTo("нова нотатка"));
+        supplier.SetNotes("нова нотатка");
+        supplier.SetActive(false);
+        Assert.Multiple(() =>
+        {
+            Assert.That(supplier.Notes, Is.EqualTo("нова нотатка"));
+            Assert.That(supplier.IsActive, Is.False);
+            Assert.That(supplier.PurchaseCategories, Is.EqualTo("тканина"));
+        });
     }
 
     [Test]

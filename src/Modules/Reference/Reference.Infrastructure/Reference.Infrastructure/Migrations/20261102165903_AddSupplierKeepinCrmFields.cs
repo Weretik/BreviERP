@@ -6,11 +6,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Reference.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddSupplierKeepinCrmAndPurchasing : Migration
+    public partial class AddSupplierKeepinCrmFields : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterColumn<string>(
+                name: "PhoneNumber",
+                schema: "reference",
+                table: "Suppliers",
+                type: "character varying(100)",
+                maxLength: 100,
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "character varying(32)",
+                oldMaxLength: 32,
+                oldNullable: true);
+
             migrationBuilder.AddColumn<string>(
                 name: "Email",
                 schema: "reference",
@@ -104,6 +116,18 @@ namespace Reference.Infrastructure.Migrations
                 name: "Tags",
                 schema: "reference",
                 table: "Suppliers");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "PhoneNumber",
+                schema: "reference",
+                table: "Suppliers",
+                type: "character varying(32)",
+                maxLength: 32,
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "character varying(100)",
+                oldMaxLength: 100,
+                oldNullable: true);
         }
     }
 }

@@ -7,16 +7,16 @@ using Reference.Domain.Suppliers.ValueObjects;
 namespace Reference.Domain.Suppliers.Entities;
 
 /// <summary>
-/// A supplier of fabrics, accessories, PPE or services. Contacts of a supplier linked to KeepinCRM
-/// are owned by KeepinCRM and change only through synchronization; purchase categories, activity and
-/// notes are always owned by Brevi.
+/// A supplier of fabrics, accessories, PPE or services. For a supplier linked to KeepinCRM, the card fields
+/// (name, purchase categories, contacts, site, tags) are owned by KeepinCRM and change only through
+/// synchronization; activity («Використовувати в проєкті») and notes are always owned by Brevi.
 /// </summary>
 public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
 {
     public const int NameMaxLength = 200;
     public const int LinkMaxLength = 2048;
     public const int ContactPersonMaxLength = 200;
-    public const int PhoneNumberMaxLength = 32;
+    public const int PhoneNumberMaxLength = 100;
     public const int EmailMaxLength = 254;
     public const int PurchaseCategoriesMaxLength = 200;
     public const int TagsMaxLength = 500;
@@ -51,7 +51,7 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         string? notes)
     {
         SetId(id);
-        SetContacts(name, link, contactPerson, phoneNumber, Email);
+        SetCard(name, PurchaseCategories, link, contactPerson, phoneNumber, Email);
         SetNotes(notes);
     }
     #endregion
@@ -72,45 +72,58 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         return supplier;
     }
 
-    /// <summary>Updates a manually managed supplier. Contacts of a KeepinCRM supplier cannot change here.</summary>
+    /// <summary>
+    /// Updates the card from the admin. For a KeepinCRM supplier the card fields must stay as they are;
+    /// only notes change here.
+    /// </summary>
     public void Update(
         string name,
         string? link = null,
         string? contactPerson = null,
         string? phoneNumber = null,
         string? notes = null,
-        string? email = null)
+        string? email = null,
+        string? purchaseCategories = null)
     {
-        if (IsManagedByKeepinCrm && ContactsDiffer(name, link, contactPerson, phoneNumber, email))
+        if (IsManagedByKeepinCrm && CardDiffers(name, purchaseCategories, link, contactPerson, phoneNumber, email))
             throw new DomainException(SupplierErrors.ContactsManagedByKeepinCrm());
 
-        SetContacts(name, link, contactPerson, phoneNumber, email);
+        SetCard(name, purchaseCategories, link, contactPerson, phoneNumber, email);
         SetNotes(notes);
     }
 
-    /// <summary>Updates the fields Brevi always owns.</summary>
-    public void UpdatePurchasing(string? purchaseCategories, bool isActive)
-    {
-        PurchaseCategories = Normalize(purchaseCategories, PurchaseCategoriesMaxLength);
-        IsActive = isActive;
-    }
+    /// <summary>«Використовувати в проєкті»: always owned by Brevi.</summary>
+    public void SetActive(bool isActive) => IsActive = isActive;
 
-    /// <summary>Overwrites KeepinCRM-owned fields with the current KeepinCRM state.</summary>
+    /// <summary>Overwrites KeepinCRM-owned fields with the current KeepinCRM state. Activity and notes stay.</summary>
     public void ApplyKeepinCrmSnapshot(KeepinCrmSupplierSnapshot snapshot, DateTimeOffset syncedAt)
     {
         if (string.IsNullOrWhiteSpace(snapshot.KeepinCrmId))
             throw new DomainException(SupplierErrors.KeepinCrmIdIsRequired());
 
         KeepinCrmId = Normalize(snapshot.KeepinCrmId, KeepinCrmIdMaxLength);
-        SetContacts(snapshot.Name, snapshot.Link, snapshot.ContactPerson, snapshot.PhoneNumber, snapshot.Email);
+        SetCard(
+            snapshot.Name,
+            snapshot.PurchaseCategories,
+            snapshot.Link,
+            snapshot.ContactPerson,
+            snapshot.PhoneNumber,
+            snapshot.Email);
         Tags = Normalize(snapshot.Tags, TagsMaxLength);
         KeepinSyncedAt = syncedAt;
     }
     #endregion
 
     #region Setters/Validation
-    private bool ContactsDiffer(string name, string? link, string? contactPerson, string? phoneNumber, string? email) =>
-        !string.Equals(Name, name?.Trim(), StringComparison.Ordinal)
+    private bool CardDiffers(
+        string name,
+        string? purchaseCategories,
+        string? link,
+        string? contactPerson,
+        string? phoneNumber,
+        string? email) =>
+        !string.Equals(Name, Normalize(name, NameMaxLength), StringComparison.Ordinal)
+        || PurchaseCategories != Normalize(purchaseCategories, PurchaseCategoriesMaxLength)
         || Link != Normalize(link, LinkMaxLength)
         || ContactPerson != Normalize(contactPerson, ContactPersonMaxLength)
         || PhoneNumber != Normalize(phoneNumber, PhoneNumberMaxLength)
@@ -124,19 +137,27 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         Id = id;
     }
 
-    private void SetContacts(string name, string? link, string? contactPerson, string? phoneNumber, string? email)
+    private void SetCard(
+        string name,
+        string? purchaseCategories,
+        string? link,
+        string? contactPerson,
+        string? phoneNumber,
+        string? email)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException(SupplierErrors.NameIsRequired());
 
-        Name = Truncate(name.Trim(), NameMaxLength);
+        Name = Normalize(name, NameMaxLength)!;
+        PurchaseCategories = Normalize(purchaseCategories, PurchaseCategoriesMaxLength);
         Link = Normalize(link, LinkMaxLength);
         ContactPerson = Normalize(contactPerson, ContactPersonMaxLength);
         PhoneNumber = Normalize(phoneNumber, PhoneNumberMaxLength);
         Email = Normalize(email, EmailMaxLength);
     }
 
-    private void SetNotes(string? notes)
+    /// <summary>Notes are always owned by Brevi.</summary>
+    public void SetNotes(string? notes)
     {
         if (string.IsNullOrWhiteSpace(notes))
         {
@@ -157,10 +178,7 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
             return null;
 
         var trimmed = value.Trim();
-        return Truncate(trimmed, maxLength);
+        return trimmed.Length <= maxLength ? trimmed : trimmed[..maxLength].TrimEnd();
     }
-
-    private static string Truncate(string value, int maxLength) =>
-        value.Length <= maxLength ? value : value[..maxLength];
     #endregion
 }

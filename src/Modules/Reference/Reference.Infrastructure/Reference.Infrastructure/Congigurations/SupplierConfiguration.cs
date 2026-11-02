@@ -32,7 +32,7 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
             .HasMaxLength(200);
 
         builder.Property(x => x.PhoneNumber)
-            .HasMaxLength(32);
+            .HasMaxLength(Supplier.PhoneNumberMaxLength);
 
         builder.Property(x => x.Notes)
             .HasMaxLength(Supplier.NotesMaxLength);
