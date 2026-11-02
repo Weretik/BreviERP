@@ -2,7 +2,7 @@
 
 **Status:** implemented and verified with unit tests 2026-11-02. **Date:** 2026-11-02. **Module:** Reference, schema `reference`, no new module.
 
-Step 2 of moving the client's Calculator into Brevi after [REF-001 suppliers](../001-suppliers-keepincrm/README.md): the sheets «Тканини» and «Фурнітура» become the Brevi fabric and accessory references, loaded through an admin import with a preview.
+Step 2 of moving the client's Calculator into Brevi after [REF-001 suppliers](../001-suppliers-keepincrm/README.md): the sheets «Тканини» and «Фурнітура» become the Brevi fabric and accessory references, loaded once through an import endpoint with a preview. The product owner decided on 2026-11-02 that the Admin needs no import window: the team sends the sheet rows once (preview, then apply).
 
 ## Source
 
@@ -33,7 +33,7 @@ Brevi already had 44 fabrics and 36 accessories without codes (older seed data, 
 
 - Domain: `Fabric` / `GarmentAccessory` gain `ApplyDetails(FabricDetails | GarmentAccessoryDetails)`, `SetPrice(price, date)`, `NormalizeCode`; accessory `NormalizeUnit`.
 - Application: `Features/Fabric/Import/`, `Features/GarmentAccessory/Import/`, shared `Features/Shared/SheetImport/` (result DTOs, name key, supplier resolver, diff) and `Features/Shared/Dates/KyivDate.cs`. Create/update requests gain the new optional fields; name uniqueness checks are replaced by code uniqueness.
-- API: `POST /api/reference/fabrics/import`, `POST /api/reference/garment-accessories/import` (CanManageProducts). The admin reads the .xlsx in the browser and sends rows.
+- API: `POST /api/reference/fabrics/import`, `POST /api/reference/garment-accessories/import` (CanManageProducts). The caller sends the sheet rows as JSON; the one-time transfer used the client's .xlsx (86 fabrics, 43 accessories). The endpoints stay for a repeat transfer if the sheet is still used in parallel.
 - Data: migration `AddFabricAccessorySheetFields` adds nullable columns, defaults `IsActive=true` and `Unit='шт.'`, replaces unique name indexes with plain ones and adds filtered unique `Code` indexes. Rollback: the migration `Down` (fails if duplicate names were saved meanwhile).
 - The older `CatalogImport` job matches by code before name, so it does not duplicate imported rows.
 - Contract: [fabrics](../../../contracts/reference/fabrics.openapi.yaml) and [garment accessories](../../../contracts/reference/garment-accessories.openapi.yaml) 1.1.0, additive; a missing supplier on update now returns 400 instead of 404, duplicate names are allowed.
@@ -42,7 +42,7 @@ Brevi already had 44 fabrics and 36 accessories without codes (older seed data, 
 
 - **TS-01 (done):** fields, migration, create/update, list. Tests: `tests/UnitTests/Reference/FabricPresentationMetadataTests.cs`.
 - **TS-02 (done):** import use cases and endpoints. Tests: `tests/UnitTests/Reference/ReferenceSheetImportTests.cs`.
-- **TS-03:** Admin pages and import dialog in brevi-web (spec `admin/references/013-fabrics-accessories-sheet`).
+- **TS-03:** Admin pages in brevi-web (no import window) (spec `admin/references/013-fabrics-accessories-sheet`).
 
 ## Verification 2026-11-02
 
