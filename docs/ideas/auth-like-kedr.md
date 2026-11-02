@@ -75,7 +75,7 @@
 
 ### Шаг 1. Укрепление без изменений во фронтенде
 
-1. Сохранять ключи Data Protection в базе: `AppIdentityDbContext` реализует `IDataProtectionKeyContext`, миграция таблицы `DataProtectionKeys`, `AddDataProtection().PersistKeysToDbContext<AppIdentityDbContext>().SetApplicationName("BreviERP")` (находка 5). Миграцию выполняет job `brevierp-seed` до деплоя API; это уже так в `cloudbuild.yaml`.
+1. Сохранять ключи Data Protection в базе: `AppIdentityDbContext` реализует `IDataProtectionKeyContext`, миграция таблицы `DataProtectionKeys`, `AddDataProtection().PersistKeysToDbContext<AppIdentityDbContext>().SetApplicationName("BreviERP")` (находка 5). Миграцию выполняет job `brevierp-seed` до деплоя API; это уже так в deploy-workflow.
 2. Блокировка: 5 неверных попыток → 15 минут, для всех, включая администратора (`LockoutEnabled = true` по умолчанию, сидер выравнивает уже созданного админа) (находка 7). Пароль сотрудников не короче 8 символов.
 3. Refresh: окно 60 секунд на повтор и защита от гонки (`xmin` как concurrency token в `AppRefreshSession`) (находка 8).
 4. Выход завершает только текущую сессию и не меняет security stamp (находка 9).

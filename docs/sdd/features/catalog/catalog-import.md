@@ -22,7 +22,7 @@ src/Jobs/CatalogImport/
     Provenance/{Records,Configuration,Data,Writing}/ # source audit data and individual EF mappings
   Migrations/                             # imports schema, independent of Catalog schema
 deployment/{prepare-catalog-source,import-catalog}.ps1 # source preparation and operator execution
-deployment/render-catalog-import-job.py    # automatic Cloud Build job configuration
+deployment/render-catalog-import-job.py    # job configuration rendered by the deploy workflow
 src/Modules/Catalog/
   Catalog.Domain/.../Products/Entities/ProductCatalogProfile.cs
   Catalog.Infrastructure/.../Congigurations/ProductCatalogProfileConfiguration.cs

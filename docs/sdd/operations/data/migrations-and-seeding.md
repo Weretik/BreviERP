@@ -8,7 +8,7 @@ The [PPE pricing bootstrap](ppe-pricing.md) adds an explicit `ppe-pricing-bootst
 
 ## Execution order
 
-In BreviERP, migrations and seeding run through `IDatabaseMigrator`/`ISeeder` in a separate `Host.Seed`. `Host.Api` does not run these operations itself. In the [Cloud Build configuration](../deployment/cloud-build.md), the `Host.Seed` Job runs before API deployment; check the result of a specific run to confirm success.
+In BreviERP, migrations and seeding run through `IDatabaseMigrator`/`ISeeder` in a separate `Host.Seed`. `Host.Api` does not run these operations itself. In the [deploy workflow](../deployment/cloud-run-deploy.md), the `Host.Seed` Job runs before API deployment; check the result of a specific run to confirm success.
 
 ```text
 Host.Seed
