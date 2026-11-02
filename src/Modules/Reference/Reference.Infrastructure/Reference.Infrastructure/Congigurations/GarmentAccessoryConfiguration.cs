@@ -18,12 +18,24 @@ public sealed class GarmentAccessoryConfiguration : IEntityTypeConfiguration<Gar
             .HasConversion(ReferenceConverters.GarmentAccessoryIdConvert)
             .ValueGeneratedNever();
 
-        builder.HasIndex(x => x.Name)
-            .IsUnique();
+        builder.HasIndex(x => x.Name);
+        builder.HasIndex(x => x.Code)
+            .IsUnique()
+            .HasFilter("\"Code\" IS NOT NULL");
+
+        builder.Property(x => x.Code).HasMaxLength(GarmentAccessory.CodeMaxLength);
 
         builder.Property(x => x.Name)
-            .HasMaxLength(500)
+            .HasMaxLength(GarmentAccessory.NameMaxLength)
             .IsRequired();
+
+        builder.Property(x => x.Unit)
+            .HasMaxLength(20)
+            .HasDefaultValue(GarmentAccessory.DefaultUnit)
+            .IsRequired();
+        builder.Property(x => x.IsActive).HasDefaultValue(true);
+        builder.Property(x => x.Comment).HasMaxLength(GarmentAccessory.CommentMaxLength);
+        builder.Property(x => x.PriceUpdatedAt);
 
         builder.Property(x => x.Price)
             .HasConversion(ReferenceConverters.MoneyAmountConvert)

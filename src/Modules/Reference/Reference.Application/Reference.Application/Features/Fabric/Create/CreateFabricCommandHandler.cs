@@ -1,9 +1,9 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Fabric.Create.Specifications;
-using Reference.Domain.AdditionalReferences.ValueObjects;
+using Reference.Application.Features.Fabric.Shared;
+using Reference.Application.Features.Fabric.Shared.Specifications;
+using Reference.Application.Features.Shared.Dates;
 using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
 using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
 
@@ -11,7 +11,8 @@ namespace Reference.Application.Features.Fabric.Create;
 
 public sealed class CreateFabricCommandHandler(
     IReferenceRepository<FabricEntity> repository,
-    IReferenceReadRepository<SupplierEntity> supplierRepository)
+    IReferenceReadRepository<SupplierEntity> supplierRepository,
+    TimeProvider timeProvider)
     : ICommandHandler<CreateFabricCommand, Result<int>>
 {
     public async ValueTask<Result<int>> Handle(
@@ -19,47 +20,25 @@ public sealed class CreateFabricCommandHandler(
         CancellationToken cancellationToken)
     {
         var request = command.Request;
-        var name = request.Name.Trim();
-        var providerName = request.ProviderName.Trim();
+        var supplier = await supplierRepository.FirstOrDefaultAsync(
+            new SupplierByNameSpec(request.ProviderName.Trim()), cancellationToken);
+        var code = FabricEntity.NormalizeCode(request.Code);
 
-        var supplier = await supplierRepository.FirstOrDefaultAsync(new SupplierByNameSpec(providerName), cancellationToken);
-
+        var errors = new List<ValidationError>();
         if (supplier is null)
-        {
-            return Result.Invalid([new ValidationError(
-                "Request.ProviderName",
-                "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.")]);
-        }
-
-        var idExists = await repository.AnyAsync(new FabricByIdSpec(request.Id), cancellationToken);
-        var nameExists = await repository.AnyAsync(new FabricByNameSpec(name), cancellationToken);
-
-        if (idExists || nameExists)
-        {
-            var validationErrors = new List<ValidationError>();
-
-            if (idExists)
-            {
-                validationErrors.Add(new ValidationError(
-                    "Request.Id",
-                    "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ."));
-            }
-
-            if (nameExists)
-            {
-                validationErrors.Add(new ValidationError(
-                    "Request.Name",
-                    "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ."));
-            }
-
-            return Result.Invalid(validationErrors);
-        }
+            errors.Add(new ValidationError("Request.ProviderName", "Постачальника з такою назвою не знайдено."));
+        if (await repository.AnyAsync(new FabricByIdSpec(request.Id), cancellationToken))
+            errors.Add(new ValidationError("Request.Id", "Тканина з таким ідентифікатором уже існує."));
+        if (code is not null && await repository.AnyAsync(new FabricByCodeSpec(code), cancellationToken))
+            errors.Add(new ValidationError("Request.Code", "Тканина з таким кодом уже існує."));
+        if (errors.Count > 0)
+            return Result.Invalid(errors);
 
         var entity = FabricEntity.Create(
             FabricId.From(request.Id),
-            name,
+            FabricDetailsFactory.From(request, supplier!.Id),
             MoneyAmount.From(request.Price),
-            supplier.Id);
+            KyivDate.Today(timeProvider));
 
         await repository.AddAsync(entity, cancellationToken);
 

@@ -4,6 +4,8 @@ using Reference.Application.Features.GarmentAccessory.Create.DTOs;
 using Reference.Application.Features.GarmentAccessory.Delete;
 using Reference.Application.Features.GarmentAccessory.GetList;
 using Reference.Application.Features.GarmentAccessory.GetList.DTOs;
+using Reference.Application.Features.GarmentAccessory.Import;
+using Reference.Application.Features.Shared.SheetImport;
 using Reference.Application.Features.GarmentAccessory.Update;
 using Reference.Application.Features.GarmentAccessory.Update.DTOs;
 
@@ -39,9 +41,33 @@ public sealed class GarmentAccessoriesController(ISender sender) : ControllerBas
                 request.Id,
                 request.Name,
                 request.Price,
-                request.SupplierName));
+                request.SupplierName,
+                request.Code,
+                request.Unit,
+                request.IsActive,
+                request.Comment));
 
         var result = await sender.Send(command, cancellationToken);
+
+        return this.ToActionResult(result);
+    }
+
+    /// <summary>
+    /// Imports the Calculator sheet «Фурнітура» read by the admin: dryRun returns the preview; otherwise the rows are
+    /// saved when none has an error.
+    /// </summary>
+    [HttpPost("import")]
+    [Authorize(Policy = "CanManageProducts")]
+    [ProducesResponseType(typeof(ReferenceImportResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<ReferenceImportResult>> Import(
+        [FromBody] ImportGarmentAccessoriesRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(
+            new ImportGarmentAccessoriesCommand(request.Rows, request.DryRun, request.DeactivateMissing), cancellationToken);
 
         return this.ToActionResult(result);
     }
@@ -63,7 +89,11 @@ public sealed class GarmentAccessoriesController(ISender sender) : ControllerBas
             new UpdateGarmentAccessoryCommandRequest(
                 request.Name,
                 request.Price,
-                request.SupplierName));
+                request.SupplierName,
+                request.Code,
+                request.Unit,
+                request.IsActive,
+                request.Comment));
 
         var result = await sender.Send(command, cancellationToken);
 

@@ -1,10 +1,9 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentAccessory.Create.Specifications;
+using Reference.Application.Features.GarmentAccessory.Shared;
 using Reference.Application.Features.GarmentAccessory.Shared.Specifications;
-using Reference.Domain.AdditionalReferences.ValueObjects;
+using Reference.Application.Features.Shared.Dates;
 using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
 using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
 
@@ -12,7 +11,8 @@ namespace Reference.Application.Features.GarmentAccessory.Create;
 
 public sealed class CreateGarmentAccessoryCommandHandler(
     IReferenceRepository<GarmentAccessoryEntity> repository,
-    IReferenceReadRepository<SupplierEntity> supplierRepository)
+    IReferenceReadRepository<SupplierEntity> supplierRepository,
+    TimeProvider timeProvider)
     : ICommandHandler<CreateGarmentAccessoryCommand, Result<int>>
 {
     public async ValueTask<Result<int>> Handle(
@@ -20,48 +20,25 @@ public sealed class CreateGarmentAccessoryCommandHandler(
         CancellationToken cancellationToken)
     {
         var request = command.Request;
-        var name = request.Name.Trim();
-        var supplierName = request.SupplierName.Trim();
-
         var supplier = await supplierRepository.FirstOrDefaultAsync(
-            new SupplierByNameSpec(supplierName), cancellationToken);
+            new SupplierByNameSpec(request.SupplierName.Trim()), cancellationToken);
+        var code = GarmentAccessoryEntity.NormalizeCode(request.Code);
 
+        var errors = new List<ValidationError>();
         if (supplier is null)
-        {
-            return Result.Invalid([new ValidationError(
-                "Request.SupplierName",
-                "РџРѕСЃС‚Р°С‡Р°Р»СЊРЅРёРєР° С„СѓСЂРЅС–С‚СѓСЂРё Р· С‚Р°РєРѕСЋ РЅР°Р·РІРѕСЋ РЅРµ Р·РЅР°Р№РґРµРЅРѕ.")]);
-        }
-
-        var idExists = await repository.AnyAsync(new GarmentAccessoryByIdSpec(request.Id), cancellationToken);
-        var nameExists = await repository.AnyAsync(new GarmentAccessoryByNameSpec(name), cancellationToken);
-
-        if (idExists || nameExists)
-        {
-            var validationErrors = new List<ValidationError>();
-
-            if (idExists)
-            {
-                validationErrors.Add(new ValidationError(
-                    "Request.Id",
-                    "Р¤СѓСЂРЅС–С‚СѓСЂР° Р· С‚Р°РєРёРј С–РґРµРЅС‚РёС„С–РєР°С‚РѕСЂРѕРј СѓР¶Рµ С–СЃРЅСѓС”."));
-            }
-
-            if (nameExists)
-            {
-                validationErrors.Add(new ValidationError(
-                    "Request.Name",
-                    "Р¤СѓСЂРЅС–С‚СѓСЂР° Р· С‚Р°РєРѕСЋ РЅР°Р·РІРѕСЋ СѓР¶Рµ С–СЃРЅСѓС”."));
-            }
-
-            return Result.Invalid(validationErrors);
-        }
+            errors.Add(new ValidationError("Request.SupplierName", "Постачальника з такою назвою не знайдено."));
+        if (await repository.AnyAsync(new GarmentAccessoryByIdSpec(request.Id), cancellationToken))
+            errors.Add(new ValidationError("Request.Id", "Фурнітура з таким ідентифікатором уже існує."));
+        if (code is not null && await repository.AnyAsync(new GarmentAccessoryByCodeSpec(code), cancellationToken))
+            errors.Add(new ValidationError("Request.Code", "Фурнітура з таким кодом уже існує."));
+        if (errors.Count > 0)
+            return Result.Invalid(errors);
 
         var entity = GarmentAccessoryEntity.Create(
             GarmentAccessoryId.From(request.Id),
-            name,
+            GarmentAccessoryDetailsFactory.From(request, supplier!.Id),
             MoneyAmount.From(request.Price),
-            supplier.Id.Value);
+            KyivDate.Today(timeProvider));
 
         await repository.AddAsync(entity, cancellationToken);
 

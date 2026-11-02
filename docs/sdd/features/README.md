@@ -30,8 +30,8 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 ## Reference
 
 - [Suppliers](reference/suppliers.md) — CRUD, list reads and KeepinCRM refresh.
-- [Fabrics](reference/fabrics.md) — CRUD and list reads.
-- [Garment accessories](reference/garment-accessories.md) — CRUD and list reads.
+- [Fabrics](reference/fabrics.md) — CRUD, list reads and import of the Calculator sheet «Тканини».
+- [Garment accessories](reference/garment-accessories.md) — CRUD, list reads and import of the Calculator sheet «Фурнітура».
 - [Garment parts](reference/garment-parts.md) — CRUD and list reads.
 - [Sewing operations](reference/garment-part-operations.md) — CRUD and list reads.
 - [Reference pricing versions](reference/pricing-input-versions.md) — atomic numeric-edit history and explicit service-cost revisions (also listed under Catalog pricing).

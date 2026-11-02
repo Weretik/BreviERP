@@ -24,7 +24,8 @@ public sealed class AccessoryCatalogImporter(
                 continue;
             }
             var supplierId = suppliers.Resolve(row.Text(2));
-            var entity = accessories.SingleOrDefault(x => x.Name == row.Text(1));
+            // Accessories imported from the sheet in the admin carry the FUR- code; match it before the name.
+            var entity = accessories.FirstOrDefault(x => x.Code == row.Text(0)) ?? accessories.FirstOrDefault(x => x.Name == row.Text(1));
             var cost = row.Decimal(3)!.Value;
             if (entity is null)
             {

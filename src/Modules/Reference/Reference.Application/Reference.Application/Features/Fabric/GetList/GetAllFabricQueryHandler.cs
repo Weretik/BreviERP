@@ -29,7 +29,16 @@ public sealed class GetAllFabricQueryHandler(
                 f.Id,
                 f.Name,
                 f.Price,
-                supplierNamesById.GetValueOrDefault(f.ProviderId, "�")))
+                supplierNamesById.GetValueOrDefault(f.ProviderId, "-"),
+                f.Code,
+                f.NameRu,
+                f.Composition,
+                f.CompositionRu,
+                f.Density,
+                f.PriceUpdatedAt,
+                f.IsActive,
+                f.Comment,
+                f.ProposalDescription))
             .ToList();
 
         return Result.Success(result);

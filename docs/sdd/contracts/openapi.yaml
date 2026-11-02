@@ -37,10 +37,14 @@ paths:
     $ref: ./reference/garment-parts.openapi.yaml#/paths/~1api~1reference~1garment-parts~1{id}
   /api/reference/fabrics:
     $ref: ./reference/fabrics.openapi.yaml#/paths/~1api~1reference~1fabrics
+  /api/reference/fabrics/import:
+    $ref: ./reference/fabrics.openapi.yaml#/paths/~1api~1reference~1fabrics~1import
   /api/reference/fabrics/{id}:
     $ref: ./reference/fabrics.openapi.yaml#/paths/~1api~1reference~1fabrics~1{id}
   /api/reference/garment-accessories:
     $ref: ./reference/garment-accessories.openapi.yaml#/paths/~1api~1reference~1garment-accessories
+  /api/reference/garment-accessories/import:
+    $ref: ./reference/garment-accessories.openapi.yaml#/paths/~1api~1reference~1garment-accessories~1import
   /api/reference/garment-accessories/{id}:
     $ref: ./reference/garment-accessories.openapi.yaml#/paths/~1api~1reference~1garment-accessories~1{id}
   /api/reference/suppliers:
