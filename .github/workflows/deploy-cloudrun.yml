@@ -1,8 +1,9 @@
 name: Deploy to Cloud Run
 
-# Pull requests: build and tests only.
-# Push to master: build and tests, then images are built here, pushed to Artifact Registry
-# and Cloud Run deploys the ready containers (no build on the Google side).
+# Pull requests and pushes: build and tests.
+# Deploy runs only in the deploy fork (DEPLOY_REPOSITORY) after its master is synced from Weretik/BreviERP:
+# images are built here, pushed to Artifact Registry, and Cloud Run deploys the ready containers
+# (no build on the Google side).
 on:
   push:
     branches: [master]
@@ -59,7 +60,8 @@ jobs:
       - run: dotnet test BreviERP.sln --no-build --configuration Release
 
   deploy:
-    if: github.event_name == 'push'
+    # Only the deploy fork deploys; the same workflow in Weretik/BreviERP stops after verify.
+    if: github.event_name == 'push' && github.repository == 'pnevman-creator/brevi-api'
     runs-on: ubuntu-latest
     needs: verify
     permissions:

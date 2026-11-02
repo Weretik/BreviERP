@@ -4,13 +4,13 @@
 
 ## Sources
 
-- [`.github/workflows/deploy-cloudrun.yml`](../../../../.github/workflows/deploy-cloudrun.yml) defines verification, image build and publication, migration, and deployment order. It follows the same scheme as KedrStore: GitHub Actions builds the images, Cloud Run deploys the ready containers.
+- [`.github/workflows/deploy-cloudrun.yml`](../../../../.github/workflows/deploy-cloudrun.yml) defines verification, image build and publication, migration, and deployment order. It follows the same scheme as KedrStore: GitHub Actions builds the images, Cloud Run deploys the ready containers. Deployment runs from the deploy fork `pnevman-creator/brevi-api`: changes land in `Weretik/BreviERP`, the fork's `master` is synced from it, and that push starts the deploy.
 - The [Host.Api Dockerfile](../../../../src/Bootstrapper/Host.Api/Dockerfile) and [Host.Seed Dockerfile](../../../../src/Bootstrapper/Host.Seed/Dockerfile) define images based on .NET 10 SDK/runtime.
 - [`Host.Seed/Program.cs`](../../../../src/Bootstrapper/Host.Seed/Program.cs) calls `MigrateAppAsync()` and `SeedAppAsync()`; [`Host.Api/Program.cs`](../../../../src/Bootstrapper/Host.Api/Program.cs) starts the HTTP host.
 
 ## Configured sequence
 
-Every pull request and push runs the `verify` job: restore, Release build, and the full solution test run against a PostgreSQL service. The `deploy` job runs only on a push to `master` after `verify` passes:
+Every pull request and push runs the `verify` job: restore, Release build, and the full solution test run against a PostgreSQL service. The `deploy` job runs only on a push to `master` of `pnevman-creator/brevi-api` (normally the fork sync) after `verify` passes; in `Weretik/BreviERP` it is skipped:
 
 1. Docker builds `host-api` and `host-seed` images from their Dockerfiles and pushes them to Artifact Registry `europe-central2-docker.pkg.dev/brevistoreapi/api` with the commit SHA tag.
 2. The workflow creates or updates the `brevierp-seed` Cloud Run Job: one task, concurrency 1, at most one retry. It then creates `brevierp-reminders` if missing (copied from the seed job) and updates its image, `--reminders-dispatch=true` argument and bot token. The workflow never executes the reminders job.
@@ -22,7 +22,7 @@ Region, project, Artifact Registry repository, service and job names are `env` v
 
 ## Google Cloud access
 
-The deploy job signs in with a service account JSON key stored in the GitHub repository secret `GCP_SA_KEY`, as KedrStore does. Until that secret exists, the deploy job only logs a notice and skips; build and tests still run. The service account needs, in project `brevistoreapi`:
+The deploy job signs in with a service account JSON key stored in the secret `GCP_SA_KEY` of the fork repository (Settings → Secrets and variables → Actions), as KedrStore does. GitHub Actions must be enabled in the fork. Until that secret exists, the deploy job only logs a notice and skips; build and tests still run. The service account needs, in project `brevistoreapi`:
 
 - Artifact Registry Writer — push images;
 - Cloud Run Admin — create, update and execute jobs, deploy the service;
@@ -31,7 +31,7 @@ The deploy job signs in with a service account JSON key stored in the GitHub rep
 
 Secret values are never read by the workflow; Cloud Run resolves the references with the runtime service account, which needs Secret Manager Secret Accessor.
 
-Only one pipeline may deploy at a time. The previous Cloud Build trigger (source fork with `cloudbuild.yaml`) must stay disabled; `cloudbuild.yaml` was removed from the repository.
+Only one pipeline may deploy at a time. The previous Cloud Build trigger on the fork (`cloudbuild.yaml`) must stay disabled; `cloudbuild.yaml` was removed from the repository.
 
 ## Boundaries and verification
 
