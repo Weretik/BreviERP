@@ -11,11 +11,11 @@
 ## Configured sequence
 
 1. Docker builds `host-api` and `host-seed` images from their Dockerfiles and publishes them to Artifact Registry with the `$COMMIT_SHA` tag.
-2. Cloud Build creates or updates the `Host.Seed` Cloud Run Job: one task, concurrency 1, at most one retry.
+2. Cloud Build creates or updates the `Host.Seed` Cloud Run Job: one task, concurrency 1, at most one retry. It then creates `brevierp-reminders` (first build only, copied from the seed job) and updates its image, `--reminders-dispatch=true` argument and bot token. The build never executes the reminders job.
 3. Cloud Build executes the Job and waits for completion. Only then does it deploy `Host.Api` to Cloud Run.
-4. The API deployment step adds two Secret Manager references for `AdmToolsStorage__Login` and `AdmToolsStorage__Password`; verify other required variables and secrets in the environment configuration. If Secret Manager has `telegram-reminders-bot-token` and `telegram-reminders-webhook-secret`, the API also gets `Reminders__Telegram__BotToken` and `Reminders__Telegram__WebhookSecret`, and the Job gets the bot token; missing secrets are skipped ([Telegram reminders](../jobs/telegram-reminders.md)). The file alone does not prove they are already configured.
+4. The API deployment step adds two Secret Manager references for `AdmToolsStorage__Login` and `AdmToolsStorage__Password`; verify other required variables and secrets in the environment configuration. It always adds `Reminders__Telegram__BotToken` and `Reminders__Telegram__WebhookSecret` from `telegram-reminders-bot-token` and `telegram-reminders-webhook-secret`; a missing secret fails the deploy ([Telegram reminders](../jobs/telegram-reminders.md)). The file alone does not prove they are already configured.
 
-Default substitution values in `cloudbuild.yaml`: region `europe-central2`, Artifact Registry repository `api`, Cloud Run service `brevierp-api`, Job `brevierp-seed`. These are **configuration values**, not a check of the actual cloud environment. For another environment, verify substitution parameters and access to Artifact Registry, Cloud Run, Secret Manager, and PostgreSQL.
+Default substitution values in `cloudbuild.yaml`: region `europe-central2`, Artifact Registry repository `api`, Cloud Run service `brevierp-api`, Jobs `brevierp-seed` (migrations and seed, executed by the build) and `brevierp-reminders` (daily Telegram reminders, created from the seed job on the first build and run only by Cloud Scheduler). These are **configuration values**, not a check of the actual cloud environment. For another environment, verify substitution parameters and access to Artifact Registry, Cloud Run, Secret Manager, and PostgreSQL.
 
 ## Boundaries and verification
 

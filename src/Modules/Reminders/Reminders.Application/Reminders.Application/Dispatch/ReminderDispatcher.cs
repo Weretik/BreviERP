@@ -1,8 +1,10 @@
 using Reminders.Application.Abstractions;
 using Reminders.Application.Calendar;
+using Reminders.Application.Dispatch.Logging;
 using Reminders.Application.Messages;
 using Reminders.Domain.Dispatching;
 using Reminders.Domain.Occurrences;
+using Reminders.Domain.Tasks;
 
 namespace Reminders.Application.Dispatch;
 
@@ -21,10 +23,18 @@ public sealed class ReminderDispatcher(
     {
         var today = clock.Today;
         var calendar = await db.LoadCalendarAsync(cancellationToken);
-        if (!calendar.IsWorkingDay(today)) return new ReminderDispatchSummary(today, false, 0, 0, 0);
+        if (!calendar.IsWorkingDay(today))
+        {
+            ReminderDispatchLog.NonWorkingDay(logger, today);
+            return new ReminderDispatchSummary(today, false, 0, 0, 0);
+        }
         if (!telegram.IsConfigured) throw new InvalidOperationException("Telegram bot token is not configured.");
 
-        var tasks = await db.Tasks.Where(x => x.IsEnabled && !x.IsDeleted && x.ChatId != null).ToListAsync(cancellationToken);
+        var active = await db.Tasks.Where(x => x.IsEnabled && !x.IsDeleted).ToListAsync(cancellationToken);
+        var tasks = active.Where(x => x.ChatId != null).ToList();
+        var withoutChat = active.Where(x => x.ChatId == null).ToList();
+        ReminderDispatchLog.TasksFound(logger, today, tasks.Count, withoutChat.Count);
+        foreach (var task in withoutChat) ReminderDispatchLog.TaskWithoutChat(logger, task.Title);
         var created = await generator.EnsureAsync(tasks, today, calendar, clock.Now, cancellationToken);
 
         var chatIds = tasks.Select(x => x.ChatId!.Value).Distinct().ToArray();
@@ -37,15 +47,32 @@ public sealed class ReminderDispatcher(
             .Select(x => x.OccurrenceId).ToListAsync(cancellationToken)).ToHashSet();
         var byId = tasks.ToDictionary(x => x.Id);
 
-        int sent = 0, failed = 0;
+        int sent = 0, failed = 0, notDue = 0, alreadySent = 0, chatUnavailable = 0;
         foreach (var occurrence in open)
         {
             var task = byId[occurrence.TaskId];
-            if (!ReminderPlanner.ShouldRemind(task, occurrence, today, calendar) || sentToday.Contains(occurrence.Id)) continue;
-            if (!chats.TryGetValue(task.ChatId!.Value, out var chat)) continue;
+            if (!ReminderPlanner.ShouldRemind(task, occurrence, today, calendar))
+            {
+                notDue++;
+                ReminderDispatchLog.NotDueYet(logger, task.Title, occurrence.DueDate);
+                continue;
+            }
+            if (sentToday.Contains(occurrence.Id))
+            {
+                alreadySent++;
+                ReminderDispatchLog.AlreadySent(logger, task.Title, occurrence.DueDate);
+                continue;
+            }
+            if (!chats.TryGetValue(task.ChatId!.Value, out var chat))
+            {
+                chatUnavailable++;
+                ReminderDispatchLog.ChatUnavailable(logger, task.Title, occurrence.DueDate);
+                continue;
+            }
+            var chatName = chat.DisplayName ?? chat.TelegramTitle;
             try
             {
-                await RemoveOldButtonsAsync(occurrence, cancellationToken);
+                await RemoveOldButtonsAsync(task, occurrence, cancellationToken);
                 var notice = ReminderPlanner.Notice(occurrence.DueDate, today, calendar);
                 var messageId = await telegram.SendMessageAsync(chat.TelegramChatId,
                     ReminderMessageFormatter.Text(task, occurrence, notice, today),
@@ -53,18 +80,28 @@ public sealed class ReminderDispatcher(
                 db.SentMessages.Add(new SentReminderMessage(occurrence.Id, chat.Id, chat.TelegramChatId, messageId, today, clock.Now));
                 await db.SaveChangesAsync(cancellationToken);
                 sent++;
+                ReminderDispatchLog.Sent(logger, task.Title, occurrence.DueDate, chatName);
             }
             catch (Exception error) when (error is not OperationCanceledException)
             {
                 failed++;
-                logger.LogError("Reminder {OccurrenceId} was not sent: {ErrorType}", occurrence.Id.Value, error.GetType().Name);
+                // Only Telegram's own reason is logged: other exception messages could carry request details.
+                var reason = error is TelegramGatewayException ? error.Message : "see the error type";
+                ReminderDispatchLog.SendFailed(logger, task.Title, occurrence.DueDate, chatName, error.GetType().Name, reason);
             }
         }
-        return new ReminderDispatchSummary(today, true, created, sent, failed);
+        var withOpenPeriod = open.Select(x => x.TaskId).ToHashSet();
+        foreach (var task in tasks.Where(x => !withOpenPeriod.Contains(x.Id)))
+        {
+            notDue++;
+            ReminderDispatchLog.NothingDue(logger, task.Title);
+        }
+        return new ReminderDispatchSummary(today, true, created, sent, failed,
+            tasks.Count, withoutChat.Count, notDue, alreadySent, chatUnavailable);
     }
 
     /// <summary>Only today's card keeps buttons, so the chat never shows several live copies of one task.</summary>
-    private async Task RemoveOldButtonsAsync(ReminderOccurrence occurrence, CancellationToken cancellationToken)
+    private async Task RemoveOldButtonsAsync(ReminderTask task, ReminderOccurrence occurrence, CancellationToken cancellationToken)
     {
         var previous = await db.SentMessages.Where(x => x.OccurrenceId == occurrence.Id && x.HasButtons).ToListAsync(cancellationToken);
         foreach (var message in previous)
@@ -73,7 +110,7 @@ public sealed class ReminderDispatcher(
             catch (Exception error) when (error is not OperationCanceledException)
             {
                 // A message deleted in the chat cannot be edited; the new card still goes out.
-                logger.LogWarning("Old reminder buttons were not removed: {ErrorType}", error.GetType().Name);
+                ReminderDispatchLog.OldButtonsKept(logger, task.Title, error.GetType().Name);
             }
             message.ButtonsRemoved();
         }

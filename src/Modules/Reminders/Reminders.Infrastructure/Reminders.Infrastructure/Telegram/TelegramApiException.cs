@@ -1,6 +1,8 @@
+using Reminders.Application.Abstractions;
+
 namespace Reminders.Infrastructure.Telegram;
 
-public sealed class TelegramApiException(string method, string? description) : Exception($"Telegram {method} failed: {description}")
+public sealed class TelegramApiException(string method, string? description) : TelegramGatewayException($"Telegram {method} failed: {description}")
 {
     public string? Description { get; } = description;
 }

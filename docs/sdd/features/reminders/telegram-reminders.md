@@ -38,7 +38,7 @@ src/Bootstrapper/Host.Seed/Jobs/RemindersDispatchCommandRunner.cs
 
 ```mermaid
 flowchart LR
-  Scheduler[Cloud Scheduler 09:00 Mon–Fri] --> Job[brevierp-seed --reminders-dispatch]
+  Scheduler[Cloud Scheduler 09:00 Mon–Fri] --> Job[brevierp-reminders job: Host.Seed --reminders-dispatch]
   Job --> Dispatcher[ReminderDispatcher]
   Dispatcher --> Generator[Occurrence generator]
   Dispatcher --> Gateway[Telegram gateway]

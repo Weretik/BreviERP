@@ -8,7 +8,7 @@ Rejected: putting it into Crm (unrelated aggregate, would widen Crm's schema) or
 
 ## D-02 Daily run through the existing Host.Seed job
 
-`Host.Seed --reminders-dispatch=true` runs only the dispatcher: no migrations or seed. Cloud Scheduler executes the existing `brevierp-seed` Cloud Run Job on weekdays at 09:00 Europe/Kyiv with an argument override. The job already has the image, database connection and service account, so no new job or secret wiring is needed besides the bot token.
+`Host.Seed --reminders-dispatch=true` runs only the dispatcher: no migrations or seed. Cloud Scheduler executes the `brevierp-reminders` Cloud Run Job on weekdays at 09:00 Europe/Kyiv. It uses the seed image with the argument baked in and is created from `brevierp-seed` on the first build, so it shares the database connection and service account (changed 2026-11-02 from an argument override on `brevierp-seed`, at the owner's request, so the runs are listed separately).
 
 Rejected:
 - A separate `brevierp-reminders` Cloud Run Job (first plan): duplicates image and database configuration for the same binary.
@@ -41,7 +41,7 @@ All calendar decisions use Kyiv local date (`Europe/Kyiv`) from an injected `Tim
 ## Components
 
 ```text
-Cloud Scheduler ──► brevierp-seed job (--reminders-dispatch) ──► ReminderDispatcher ──► Telegram sendMessage
+Cloud Scheduler ──► brevierp-reminders job (--reminders-dispatch) ──► ReminderDispatcher ──► Telegram sendMessage
 Telegram ──► POST /api/reminders/telegram/webhook ──► HandleTelegramUpdate ──► ReminderButtonHandler / ReminderChatTracker
 Admin UI ──► /api/reminders/{tasks,occurrences,chats,non-working-days} ──► Mediator use cases ──► RemindersDbContext
 ```
