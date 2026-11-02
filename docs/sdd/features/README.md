@@ -43,11 +43,11 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
 ## Other modules
 
-[Accounting and Crm](../architecture/overview/modules.md) exist in the structure; as of the check date, they have no separate HTTP scenarios in controllers. They are not marked as completed features. See [operations](../operations/data/migrations-and-seeding.md) for schema preparation and seed.
+The [module map](../architecture/overview/modules.md) describes Accounting/Crm boundaries; implemented Crm workflows are listed below.
 
 ## Crm
 
-- [Clients and contacts](crm/clients-and-quotes.md) — P1–P4 scoped clients, immutable quotes/custom versions, private files, templates and suggestions; consumer FE-006/007 verified. P5 issuer/template settings, ready and private PDF artifact backend passed focused local checks; frontend consumer and deployment remain separate.
+- [Clients, quotes and archive planning](crm/clients-and-quotes.md) — versioned CRM/customer/custom/document/delivery workflows plus offline frozen-source history staging and dry-run reconciliation. Controlled historical writes remain separate.
 
 ## Reminders
 

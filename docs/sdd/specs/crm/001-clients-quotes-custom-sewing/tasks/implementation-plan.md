@@ -66,3 +66,13 @@ P7 source-completeness discovery may start early; its write/activation depends o
 [TS-017](documents/ts-017-versioned-email-templates.md) provides the distinct email-template registry deferred from P5. TS-012 provides a private production artifact API. [Unified verification](../evidence/p6-backend-checkpoint-2026-10-30.md) records final tests and local migration results. These are backend slices; FE-009 and new-selection frontend integration require an authorized immutable backend handoff. EN-004 remains partial until delegated Gmail OAuth and a controlled sandbox round-trip; TS-011 outbox/history is not implemented by this checkpoint.
 
 P6 continuation: [TS-011 backend and EN-004 OAuth code](../evidence/p6-outbox-oauth-checkpoint-2026-10-30.md) are locally verified. User consent/controlled Gmail test remain EN-004; FE-009 remains pending. No uncommitted contract is handed to frontend.
+
+## P7 offline checkpoint — 2026-11-02
+
+EN-006 source audit/freeze and no-auto-deletion decision recorded. TS-013 read-only tooling implemented: exact hashes/counts, explicit roles/maps, graph/blob gaps, staging replay/conflicts and a protected Host.Seed mode. [Evidence](../evidence/ts-013-dry-run-2026-11-02.md). Current source is blocked:2088selected rows=1672review+88excluded+328invalid. EN-006 source scope/ownership gates and TS-014 controlled writes remain separate; P7 is not marked complete.
+
+Owner decision2026-11-02: require a full export before target transfer; do not accept the current incomplete copy as the migration source. Archive client owner/custodian assignment is deferred. Read-only analysis can continue; EN-006 and TS-014 remain gated. No automatic archive deletion.
+
+Latest owner correction2026-11-02: export and work with all currently available source data, including the approved project Google workbook. Do not wait for a fuller Calculator export; the earlier full-export requirement above is superseded. Preserve missing/truncated-source evidence without inventing rows or file bodies. Identity/custodian assignment is still deferred. Export artifacts are not target-import receipts and do not activate delivery.
+
+[Available-source export and current Google workbook reconciliation](../evidence/p7-available-sources-2026-11-02.md) verify all22 exported tabs and the existing local catalogue. New workbook deltas are measured but not applied; changed-snapshot catalogue updates are separate from the initial importer and historical CRM transfer.

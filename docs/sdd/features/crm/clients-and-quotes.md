@@ -1,6 +1,6 @@
 # CRM clients, contacts and draft quotes
 
-**Implemented local slices:** clients, P2/P3 quotes, P4 custom drafts/files/templates/suggestions and P5 TS-009 issuer settings plus TS-010 ready/private PDF artifact backend, verified locally 2026-10-29. Consumer FE-006/007 is automatically verified against backend `fdb8095d4dfd52a9680b5a2768c706aea1aa8c4b`; the newer P5 API has not been handed to frontend. [P4 checkpoint](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p4-complete-2026-10-28.md), [P5 TS-010 evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-010-2026-10-29.md). Import, send and production rollout remain future phases.
+**Implemented:** customer/contact master, versioned quotes/custom configurations/files, issuer/ready/PDF, send-only outbox/history/manual outcomes, production export and immutable templates. P7 adds offline archive verification and dry-run planning; controlled historical writes remain a separate use case.
 
 Authenticated Admin/Manager can create, read, search/page, revise and deactivate customers and contacts. Admin-only merge retains victim roots/audit while moving contacts/external identities to the survivor. Exact external identities are unique; similar names/shared emails never auto-merge. Manager reads/writes owned clients; draft quotes are owner-scoped. Every mutation has requestId replay and a root revision; successful intent/result audit is stored in the same transaction. No destructive customer/contact delete API.
 
@@ -395,3 +395,32 @@ flowchart LR
 ```
 
 Tests: UnitTests QuoteDeliveryManualResolutionTests; IntegrationTests QuoteDeliveryResolutionApiTests and QuoteDeliveryOutboxPersistenceTests.Manual. Focused filter FullyQualifiedName~QuoteDelivery covers the shared delivery regressions; isolated PostgreSQL is required for persistence. [Evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/p6-manual-outcome-2026-11-01.md). [API](../../contracts/crm/quote-deliveries.openapi.yaml).
+
+## Offline archive planning
+
+The explicit Host.Seed history mode verifies frozen local inputs and generates a private diagnostic report plus optional dataset-bound staging ledger. It never resolves database services or invokes migration/seed/dispatch. Explicit CLIENT role, opaque source keys/hashes, reviewed supplied mappings and dependency/blob evidence determine disjoint row classifications. Unknown/damaged input stays invalid/review-only. Staging no-op/conflict is separate from target-import provenance. Reports always expose databaseWrites0/importAuthorizedfalse; all historical sends stay inert.
+
+~~~text
+Crm.Application/Crm.Application/Imports/History/
+  Contracts/       metadata, reviewed options, decisions/report and staging receipts
+  Validation/      bounded input shape and FluentValidation
+  Planning/        classifier, queue graph propagation, counts and report builder
+Crm.Infrastructure/Crm.Infrastructure/Imports/History/
+  Source/          frozen inputs, bounded path/hash/native JSON checks
+  Staging/         legacy normalization, payload/graph evidence
+Host.Seed/Jobs/
+  CrmHistoryDryRunCommandRunner.cs
+  CrmHistory/      protected output paths and report/ledger writer
+~~~
+
+~~~mermaid
+flowchart LR
+  CLI[Explicit history dry-run mode] --> Source[Bounded frozen source adapter]
+  Source --> Metadata[Typed metadata only]
+  Metadata --> Plan[Role / identity / owner / graph classifier]
+  Ledger[Same-dataset staging receipts] --> Plan
+  Plan --> Report[Counts and fixed gap reasons]
+  Report --> Files[New private report and staging ledger]
+~~~
+
+Tests: tests/UnitTests/Crm/Imports/CrmHistoryDryRunPlannerTests.cs and CrmHistoryDryRunValidationTests.cs; tests/IntegrationTests/Crm/Imports/CrmHistorySourceReaderTests*.cs and CrmHistoryDryRunCommandTests.cs. Commands use the CrmHistoryDryRun and CrmHistorySourceReader filters in [the execution evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-013-dry-run-2026-11-02.md). Architecture filters: CrmDependencyTests, JobDependencyTests, ContainerRestoreCoverageTests. [Operations](../../operations/data/crm-history-dry-run.md). No database tables or public HTTP contracts are added.
