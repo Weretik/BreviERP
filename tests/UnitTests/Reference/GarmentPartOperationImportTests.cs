@@ -9,7 +9,7 @@ using Reference.Domain.GarmentPartOperations.ValueObjects;
 
 namespace UnitTests.Reference;
 
-/// <summary>Import of the Calculator sheet «Операції» (REF-003).</summary>
+/// <summary>Import of the Calculator sheet «Операції» (REF-004).</summary>
 public sealed class GarmentPartOperationImportTests
 {
     private static readonly DateOnly CheckedAt = new(2026, 8, 30);

@@ -1,9 +1,7 @@
 using BuildingBlocks.Infrastructure.Seeding;
-using Reference.Domain.AdditionalReferences.Entities;
 using Reference.Domain.GarmentAccessories.Entities;
 using Reference.Domain.GarmentPartOperations.Entities;
 using Reference.Domain.Suppliers.Entities;
-using Reference.Domain.AdditionalReferences.ValueObjects;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;

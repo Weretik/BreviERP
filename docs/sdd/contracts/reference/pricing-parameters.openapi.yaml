@@ -1,0 +1,325 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Pricing Parameters API
+  version: 2.0.0
+  description: >-
+    «Параметри ціноутворення»: the Calculator sheet «Налаштування цін» in Brevi (REF-004). Parameters
+    (PricingParametersController) and PPE markup rules (PpeMarkupRulesController). Replaces the old
+    /api/reference/additional-references (breaking). Percentages and markups are fractions: 0.25 = 25 %.
+servers:
+  - url: /
+paths:
+  /api/reference/pricing-parameters:
+    get:
+      operationId: getPricingParameters
+      summary: List pricing parameters in sheet order
+      description: >-
+        Anonymous. A calculated parameter (isCalculated) has its value computed from other parameters, for example
+        MINUTE_COST_SEAMSTRESS = SALARY_SEAMSTRESS / (WORK_DAYS_MONTH × MINUTES_SHIFT); null when an input is missing.
+        An empty list when there are none.
+      security: []
+      responses:
+        '200':
+          description: Parameters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PricingParameterRow' }
+    post:
+      operationId: createPricingParameter
+      summary: Add a pricing parameter
+      description: Requires CanManageProducts. The ID is assigned by Brevi; updatedOn becomes today (Kyiv).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePricingParameterRequest' }
+      responses:
+        '200':
+          description: The new parameter ID.
+          content:
+            application/json:
+              schema: { type: integer, format: int32 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+  /api/reference/pricing-parameters/import:
+    post:
+      operationId: importPricingSettings
+      summary: Import both tables of the Calculator sheet «Налаштування цін»
+      description: >-
+        Requires CanManageProducts. Parameters are matched by code, PPE markup rules by name; the row number becomes
+        the display order. dryRun (default) returns the preview only. Otherwise nothing is saved when any row has an
+        error. deleteMissing deletes parameters and rules that are not in the sheet. Repeating the same file changes
+        nothing.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImportPricingSettingsRequest' }
+      responses:
+        '200':
+          description: Preview or result; applied tells whether anything was saved.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PricingSettingsImportResult' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+  /api/reference/pricing-parameters/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updatePricingParameter
+      summary: Update a pricing parameter
+      description: >-
+        Requires CanManageProducts. The code cannot change. When the value or type changes, updatedOn becomes today
+        (Kyiv). A calculated parameter takes no value.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdatePricingParameterRequest' }
+      responses:
+        '200': { description: Parameter updated. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+        '404': { description: Parameter not found. }
+    delete:
+      operationId: deletePricingParameter
+      summary: Delete a pricing parameter
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { description: Parameter deleted. }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+        '404': { description: Parameter not found. }
+  /api/reference/ppe-markup-rules:
+    get:
+      operationId: getPpeMarkupRules
+      summary: List PPE markup rules in sheet order
+      security: []
+      responses:
+        '200':
+          description: Rules.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PpeMarkupRuleRow' }
+    post:
+      operationId: createPpeMarkupRule
+      summary: Add a PPE markup rule
+      description: Requires CanManageProducts. The name is unique and cannot change later; PPE offers refer to it.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePpeMarkupRuleRequest' }
+      responses:
+        '200':
+          description: The new rule ID.
+          content:
+            application/json:
+              schema: { type: integer, format: int32 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+  /api/reference/ppe-markup-rules/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updatePpeMarkupRule
+      summary: Update a PPE markup rule
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdatePpeMarkupRuleRequest' }
+      responses:
+        '200': { description: Rule updated. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+        '404': { description: Rule not found. }
+    delete:
+      operationId: deletePpeMarkupRule
+      summary: Delete a PPE markup rule
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { description: Rule deleted. }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+        '404': { description: Rule not found. }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    ValidationError:
+      description: Validation failures including field identifiers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+  schemas:
+    ValidationError:
+      type: object
+      required: [identifier, errorMessage]
+      properties:
+        identifier: { type: string }
+        errorMessage: { type: string }
+        errorCode: { type: [string, 'null'] }
+        severity: { type: integer }
+    PricingParameterRow:
+      type: object
+      required: [id, code, group, name, value, unit, isCalculated, updatedOn, comment, sortOrder]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        code: { type: string }
+        group: { type: string }
+        name: { type: string }
+        value: { type: [number, 'null'] }
+        unit: { type: string }
+        isCalculated: { type: boolean }
+        updatedOn: { type: [string, 'null'], format: date }
+        comment: { type: [string, 'null'] }
+        sortOrder: { type: integer, format: int32 }
+    PricingParameterFields:
+      type: object
+      required: [group, name, unit]
+      properties:
+        group: { type: string, minLength: 1, maxLength: 100 }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        value: { type: [number, 'null'], minimum: 0, description: Required unless isCalculated. }
+        unit: { type: string, minLength: 1, maxLength: 30 }
+        isCalculated: { type: boolean, default: false }
+        comment: { type: [string, 'null'], maxLength: 1000 }
+        sortOrder: { type: integer, format: int32, minimum: 0, default: 0 }
+    CreatePricingParameterRequest:
+      allOf:
+        - $ref: '#/components/schemas/PricingParameterFields'
+        - type: object
+          required: [code]
+          properties:
+            code: { type: string, pattern: '^[A-Za-z][A-Za-z0-9_]*$', maxLength: 64, description: Stored upper-case. }
+    UpdatePricingParameterRequest:
+      $ref: '#/components/schemas/PricingParameterFields'
+    PpeMarkupRuleRow:
+      type: object
+      required: [id, name, retailMarkup, wholesaleMarkup, largeWholesaleMarkup, priceNote, appliesTo, sortOrder]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        name: { type: string }
+        retailMarkup: { type: number }
+        wholesaleMarkup: { type: number }
+        largeWholesaleMarkup: { type: number }
+        priceNote: { type: [string, 'null'] }
+        appliesTo: { type: [string, 'null'] }
+        sortOrder: { type: integer, format: int32 }
+    PpeMarkupRuleFields:
+      type: object
+      required: [retailMarkup, wholesaleMarkup, largeWholesaleMarkup]
+      properties:
+        retailMarkup: { type: number, minimum: 0, maximum: 10 }
+        wholesaleMarkup: { type: number, minimum: 0, maximum: 10 }
+        largeWholesaleMarkup: { type: number, minimum: 0, maximum: 10 }
+        priceNote: { type: [string, 'null'], maxLength: 500 }
+        appliesTo: { type: [string, 'null'], maxLength: 500 }
+        sortOrder: { type: integer, format: int32, minimum: 0, default: 0 }
+    CreatePpeMarkupRuleRequest:
+      allOf:
+        - $ref: '#/components/schemas/PpeMarkupRuleFields'
+        - type: object
+          required: [name]
+          properties:
+            name: { type: string, minLength: 1, maxLength: 200 }
+    UpdatePpeMarkupRuleRequest:
+      $ref: '#/components/schemas/PpeMarkupRuleFields'
+    PricingParameterImportRow:
+      type: object
+      required: [rowNumber, code, group, name, unit, isCalculated]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        code: { type: string }
+        group: { type: string }
+        name: { type: string }
+        value: { type: [number, 'null'] }
+        unit: { type: string }
+        isCalculated: { type: boolean }
+        updatedOn: { type: [string, 'null'], format: date }
+        comment: { type: [string, 'null'] }
+    PpeMarkupRuleImportRow:
+      type: object
+      required: [rowNumber, name, retailMarkup, wholesaleMarkup, largeWholesaleMarkup]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        name: { type: string }
+        retailMarkup: { type: number }
+        wholesaleMarkup: { type: number }
+        largeWholesaleMarkup: { type: number }
+        priceNote: { type: [string, 'null'] }
+        appliesTo: { type: [string, 'null'] }
+    ImportPricingSettingsRequest:
+      type: object
+      required: [parameters, ppeMarkupRules]
+      properties:
+        parameters:
+          type: array
+          maxItems: 1000
+          items: { $ref: '#/components/schemas/PricingParameterImportRow' }
+        ppeMarkupRules:
+          type: array
+          maxItems: 1000
+          items: { $ref: '#/components/schemas/PpeMarkupRuleImportRow' }
+        dryRun: { type: boolean, default: true }
+        deleteMissing: { type: boolean, default: false }
+    ReferenceImportRowResult:
+      type: object
+      required: [rowNumber, code, name, action, changes]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        code: { type: string }
+        name: { type: string }
+        action: { type: string, enum: [create, update, unchanged, error] }
+        changes: { type: array, items: { type: string } }
+        error: { type: [string, 'null'] }
+    PricingSettingsImportSection:
+      type: object
+      required: [created, updated, unchanged, errors, deleted, rows]
+      properties:
+        created: { type: integer }
+        updated: { type: integer }
+        unchanged: { type: integer }
+        errors: { type: integer }
+        deleted: { type: array, items: { type: string } }
+        rows: { type: array, items: { $ref: '#/components/schemas/ReferenceImportRowResult' } }
+    PricingSettingsImportResult:
+      type: object
+      required: [applied, parameters, ppeMarkupRules]
+      properties:
+        applied: { type: boolean }
+        parameters: { $ref: '#/components/schemas/PricingSettingsImportSection' }
+        ppeMarkupRules: { $ref: '#/components/schemas/PricingSettingsImportSection' }

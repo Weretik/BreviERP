@@ -30,7 +30,8 @@ BreviERP PostgreSQL
 │   ├── GarmentAccessoriesReference    # garment accessories
 │   ├── GarmentParts                   # garment parts
 │   ├── GarmentPartOperations          # operations on garment parts
-│   └── AdditionalReferences           # additional references
+│   ├── PricingParameters              # «Параметри ціноутворення»: sheet «Налаштування цін», left table
+│   └── PpeMarkupRules                 # PPE markup rules: right table of the same sheet
 ├── identity / AppIdentityDbContext — 8 tables
 │   ├── AspNetUsers                    # users
 │   ├── AspNetRoles                    # roles

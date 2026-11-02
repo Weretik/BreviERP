@@ -12,7 +12,7 @@ public sealed class JobProductReferenceReader(ReferenceDbContext db) : IProductR
         var fabrics = await db.Fabrics.AsNoTracking().Select(x => new PricedReferenceItem(x.Id.Value, x.Name, x.Price.Value)).ToListAsync(cancellationToken);
         var accessories = await db.GarmentAccessories.AsNoTracking().Select(x => new PricedReferenceItem(x.Id.Value, x.Name, x.Price.Value)).ToListAsync(cancellationToken);
         var operations = await db.GarmentPartOperations.AsNoTracking().Select(x => new OperationReferenceItem(x.Id.Value, x.Name, x.Min)).ToListAsync(cancellationToken);
-        var additional = await db.AdditionalReferences.AsNoTracking().Select(x => new AdditionalReferenceItem(x.Id.Value, x.Name, x.Key, x.Value, x.Unit)).ToListAsync(cancellationToken);
+        var additional = await db.PricingParameters.AsNoTracking().Select(x => new AdditionalReferenceItem(x.Id.Value, x.Name, x.Code, x.Value ?? 0m, x.Unit)).ToListAsync(cancellationToken);
         return new(suppliers.ToDictionary(x => x.Id), fabrics.ToDictionary(x => x.Id), accessories.ToDictionary(x => x.Id),
             operations.ToDictionary(x => x.Id), additional.ToDictionary(x => x.Id));
     }

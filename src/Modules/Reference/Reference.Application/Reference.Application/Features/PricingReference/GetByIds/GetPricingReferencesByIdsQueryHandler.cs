@@ -1,6 +1,6 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingReference.GetByIds.Specifications;
-using AdditionalReferenceEntity = Reference.Domain.AdditionalReferences.Entities.AdditionalReference;
+using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
 using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
@@ -11,7 +11,7 @@ public sealed class GetPricingReferencesByIdsQueryHandler(
     IReferenceReadRepository<FabricEntity> fabricRepository,
     IReferenceReadRepository<GarmentAccessoryEntity> garmentAccessoryRepository,
     IReferenceReadRepository<GarmentPartOperationEntity> garmentPartOperationRepository,
-    IReferenceReadRepository<AdditionalReferenceEntity> additionalReferenceRepository)
+    IReferenceReadRepository<PricingParameterEntity> pricingParameterRepository)
     : IQueryHandler<GetPricingReferencesByIdsQuery, PricingReferenceSnapshot>
 {
     public async ValueTask<PricingReferenceSnapshot> Handle(
@@ -29,14 +29,14 @@ public sealed class GetPricingReferencesByIdsQueryHandler(
             ? []
             : await garmentPartOperationRepository.ListAsync(
                 new PricingGarmentPartOperationsByIdsSpec(query.GarmentPartOperationIds), cancellationToken);
-        var additionalReferences = query.AdditionalReferenceIds.Count == 0 && query.AdditionalReferenceKeys.Count == 0
+        var pricingParameters = query.PricingParameterIds.Count == 0 && query.PricingParameterCodes.Count == 0
             ? []
-            : await additionalReferenceRepository.ListAsync(
-                new PricingAdditionalReferencesByIdsOrKeysSpec(
-                    query.AdditionalReferenceIds,
-                    query.AdditionalReferenceKeys),
+            : await pricingParameterRepository.ListAsync(
+                new PricingParametersByIdsOrCodesSpec(
+                    query.PricingParameterIds,
+                    query.PricingParameterCodes),
                 cancellationToken);
 
-        return new PricingReferenceSnapshot(fabrics, accessories, operations, additionalReferences);
+        return new PricingReferenceSnapshot(fabrics, accessories, operations, pricingParameters);
     }
 }
