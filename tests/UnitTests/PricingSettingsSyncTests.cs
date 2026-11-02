@@ -63,6 +63,20 @@ public sealed class PricingSettingsSyncTests
     }
 
     [Test]
+    public async Task With_no_sewing_version_yet_the_sync_creates_the_first_one()
+    {
+        var handler = Handler();
+        sewingReader.Setup(x => x.ReadCandidatesAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var result = (await handler.Handle(new SyncPricingSettingsCommand(Sheet(Current), [], "t"),
+            CancellationToken.None)).Value;
+
+        Assert.That((result.SewingUpdated, result.Skipped.Count), Is.EqualTo((true, 0)));
+        sewingWriter.Verify(x => x.AppendAsync(0, It.IsAny<Guid>(), Current, "t", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Test]
     public async Task Unchanged_values_append_nothing_and_missing_codes_are_reported()
     {
         var handler = Handler();
