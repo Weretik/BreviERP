@@ -4,6 +4,8 @@ using Reference.Application.Features.GarmentPartOperation.Create.DTOs;
 using Reference.Application.Features.GarmentPartOperation.Delete;
 using Reference.Application.Features.GarmentPartOperation.GetList;
 using Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
+using Reference.Application.Features.GarmentPartOperation.Import;
+using Reference.Application.Features.GarmentPartOperation.Import.DTOs;
 using Reference.Application.Features.GarmentPartOperation.Update;
 using Reference.Application.Features.GarmentPartOperation.Update.DTOs;
 
@@ -40,9 +42,38 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
                 request.Id,
                 request.GarmentPartName,
                 request.Name,
-                request.Min));
+                request.Min,
+                request.Code,
+                request.Element,
+                request.Variant,
+                request.MinutesPerProduct,
+                request.NormCheckedAt,
+                request.IsActive,
+                request.Notes));
 
         var result = await sender.Send(command, cancellationToken);
+
+        return this.ToActionResult(result);
+    }
+
+    /// <summary>
+    /// Imports the Calculator sheet «Операції»: dryRun returns the preview; otherwise the rows are saved when none
+    /// has an error. With deleteMissing, operations and groups that are not in the sheet are deleted; an operation
+    /// still used by products or price history is marked «Не використовується» instead.
+    /// </summary>
+    [HttpPost("import")]
+    [Authorize(Policy = "CanManageProducts")]
+    [ProducesResponseType(typeof(GarmentPartOperationImportResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<GarmentPartOperationImportResult>> Import(
+        [FromBody] ImportGarmentPartOperationsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(
+            new ImportGarmentPartOperationsCommand(request.Rows, request.DryRun, request.DeleteMissing),
+            cancellationToken);
 
         return this.ToActionResult(result);
     }
@@ -64,7 +95,14 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
             new UpdateGarmentPartOperationCommandRequest(
                 request.GarmentPartName,
                 request.Name,
-                request.Min));
+                request.Min,
+                request.Code,
+                request.Element,
+                request.Variant,
+                request.MinutesPerProduct,
+                request.NormCheckedAt,
+                request.IsActive,
+                request.Notes));
 
         var result = await sender.Send(command, cancellationToken);
 

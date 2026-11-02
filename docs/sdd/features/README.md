@@ -33,7 +33,7 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 - [Fabrics](reference/fabrics.md) — CRUD, list reads and import of the Calculator sheet «Тканини».
 - [Garment accessories](reference/garment-accessories.md) — CRUD, list reads and import of the Calculator sheet «Фурнітура».
 - [Garment parts](reference/garment-parts.md) — CRUD and list reads.
-- [Sewing operations](reference/garment-part-operations.md) — CRUD and list reads.
+- [Sewing operations](reference/garment-part-operations.md) — CRUD, list reads, and import of the Calculator sheet «Операції».
 - [Reference pricing versions](reference/pricing-input-versions.md) — atomic numeric-edit history and explicit service-cost revisions (also listed under Catalog pricing).
 - [Additional reference data](reference/additional-references.md) — CRUD and list reads.
 

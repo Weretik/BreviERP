@@ -1,9 +1,8 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPartOperation.Create.Specifications;
-using Reference.Domain.AdditionalReferences.ValueObjects;
-using Reference.Domain.GarmentAccessories.ValueObjects;
+using Reference.Application.Features.GarmentPartOperation.Shared;
+using Reference.Application.Features.GarmentPartOperation.Shared.Specifications;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
 using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
 
@@ -20,52 +19,28 @@ public sealed class CreateGarmentPartOperationCommandHandler(
     {
         var request = command.Request;
         var name = request.Name.Trim();
-        var garmentPartName = request.GarmentPartName.Trim();
-
+        var code = GarmentPartOperationEntity.NormalizeCode(request.Code);
         var garmentPart = await garmentPartRepository.FirstOrDefaultAsync(
-            new GarmentPartByNameSpec(garmentPartName), cancellationToken);
+            new GarmentPartByNameSpec(request.GarmentPartName.Trim()), cancellationToken);
 
+        var errors = new List<ValidationError>();
         if (garmentPart is null)
-        {
-            return Result.Invalid([new ValidationError(
-                "Request.GarmentPartName",
-                "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.")]);
-        }
-
-        var idExists = await repository.AnyAsync(
-            new GarmentPartOperationByIdSpec(request.Id), cancellationToken);
-        var nameExists = await repository.AnyAsync(
-            new GarmentPartOperationByPartAndNameSpec(garmentPart.Id.Value, name), cancellationToken);
-
-        if (idExists || nameExists)
-        {
-            var validationErrors = new List<ValidationError>();
-
-            if (idExists)
-            {
-                validationErrors.Add(new ValidationError(
-                    "Request.Id",
-                    "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ."));
-            }
-
-            if (nameExists)
-            {
-                validationErrors.Add(new ValidationError(
-                    "Request.Name",
-                    "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ."));
-            }
-
-            return Result.Invalid(validationErrors);
-        }
+            errors.Add(new ValidationError("Request.GarmentPartName", "Групу деталей з такою назвою не знайдено."));
+        if (await repository.AnyAsync(new GarmentPartOperationByIdSpec(request.Id), cancellationToken))
+            errors.Add(new ValidationError("Request.Id", "Операція з таким ідентифікатором уже існує."));
+        if (garmentPart is not null && await repository.AnyAsync(
+                new GarmentPartOperationByPartAndNameSpec(garmentPart.Id.Value, name), cancellationToken))
+            errors.Add(new ValidationError("Request.Name", "У цій групі вже є операція з такою назвою."));
+        if (code is not null && await repository.AnyAsync(new GarmentPartOperationByCodeSpec(code), cancellationToken))
+            errors.Add(new ValidationError("Request.Code", "Операція з таким кодом уже існує."));
+        if (errors.Count > 0)
+            return Result.Invalid(errors);
 
         var entity = GarmentPartOperationEntity.Create(
             GarmentPartOperationId.From(request.Id),
-            garmentPart.Id,
-            name,
-            request.Min);
+            GarmentPartOperationDetailsFactory.From(request, garmentPart!.Id));
 
         await repository.AddAsync(entity, cancellationToken);
-
         return Result.Success(entity.Id.Value);
     }
 }

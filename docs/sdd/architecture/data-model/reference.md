@@ -7,8 +7,8 @@
 | `Suppliers` | `Id` | Suppliers and contacts; optional unique `KeepinCrmId`, Brevi-owned `PurchaseCategories`, `IsActive`, `Notes`. |
 | `FabricsReference` | `Id` | Fabrics: `Code` (FAB-…, unique when set), `Name`, `NameRu`, `Price`, `PriceUpdatedAt`, `ProviderId` (FK to `Suppliers`), `Composition`, `CompositionRu`, `Density`, `IsActive`, `Comment`, `ProposalDescription`. |
 | `GarmentAccessoriesReference` | `Id` | Accessories: `Code` (FUR-…, unique when set), `Name`, `Price`, `PriceUpdatedAt`, `SupplierId` (FK), `Unit` (шт./м/послуга), `IsActive`, `Comment`. |
-| `GarmentParts` | `Id` | Garment parts. |
-| `GarmentPartOperations` | `Id` | Operations: `GarmentPartId`, `Name`, `Min` numeric(24,8); the pricing revision workflow accepts values fitting numeric(20,8). |
+| `GarmentParts` | `Id` | «Група деталей» of operations: `Name`. |
+| `GarmentPartOperations` | `Id` | Operations: `Code` (OP-…, unique when set), `GarmentPartId`, `Element`, `Variant`, `Name` (unique within a group), `Min` numeric(24,8) (0 when `MinutesPerProduct`), `MinutesPerProduct`, `NormCheckedAt`, `IsActive`, `Notes`; the pricing revision workflow accepts values fitting numeric(20,8). |
 | `AdditionalReferences` | `Id` | Additional reference values: `Key`, `Name`, `Value`, `Unit`. |
 | `PricingInputVersions` | generated long `Id` | Immutable effective Fabric/Accessory/Operation input or OtherCost code, decimal value/unit, revision, approval/activity and source provenance. Exactly one reference; same-module FKs retain history. |
 

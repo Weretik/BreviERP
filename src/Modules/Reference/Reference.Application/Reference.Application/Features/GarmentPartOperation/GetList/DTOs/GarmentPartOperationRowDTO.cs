@@ -1,5 +1,28 @@
-﻿namespace Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
+namespace Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
 
-public sealed record GarmentPartOperationRowDTO(int Id, string GarmentPartName, string Name, decimal Min);
+/// <summary>An operation row of the «Операції» list. Labour cost is computed by the client from the sewing settings.</summary>
+public sealed record GarmentPartOperationRowDTO(
+    int Id,
+    string GarmentPartName,
+    string Name,
+    decimal Min,
+    string? Code,
+    string? Element,
+    string? Variant,
+    bool MinutesPerProduct,
+    DateOnly? NormCheckedAt,
+    bool IsActive,
+    string? Notes);
 
-internal sealed record GarmentPartOperationProjectionDTO(int Id, int GarmentPartId, string Name, decimal Min);
+internal sealed record GarmentPartOperationProjectionDTO(
+    int Id,
+    int GarmentPartId,
+    string Name,
+    decimal Min,
+    string? Code,
+    string? Element,
+    string? Variant,
+    bool MinutesPerProduct,
+    DateOnly? NormCheckedAt,
+    bool IsActive,
+    string? Notes);
