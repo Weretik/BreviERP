@@ -31,18 +31,19 @@ Brevi had 14 old «Додаткові довідники» rows (Russian names, 
 
 ## Design
 
-- Domain: `PricingParameters/` (`PricingParameter`, `PricingParameterDetails`, `PricingParameterFormulas`), `PpeMarkupRules/` (`PpeMarkupRule`, `PpeMarkupRuleDetails`). `AdditionalReference` is renamed; an empty legacy namespace stays until the operations work stops importing it.
+- Domain: `PricingParameters/` (`PricingParameter`, `PricingParameterDetails`, `PricingParameterFormulas`), `PpeMarkupRules/` (`PpeMarkupRule`, `PpeMarkupRuleDetails`). `AdditionalReference` is renamed; the legacy namespace was removed after the operations work merged.
 - Application: `Features/PricingParameter/`, `Features/PpeMarkupRule/` (CRUD, FluentValidation), `Features/PricingSettingsImport/` (one import for both tables). IDs are assigned by Brevi (next free).
 - API: `api/reference/pricing-parameters` (+ `/import`) and `api/reference/ppe-markup-rules`; reads anonymous, writes `CanManageProducts`. Replaces `api/reference/additional-references` (breaking; the Admin is updated in the same step).
 - Data: migration `PricingSettingsFromSheet` renames `AdditionalReferences` to `PricingParameters` (Key → Code, Description → Comment), widens columns, drops the unique name index, adds `Group` (old rows «Старі довідники»), `IsCalculated`, `UpdatedOn`, `SortOrder`, and creates `PpeMarkupRules`. The old JSON seeder is removed: data comes only from the sheet import. Rollback: the migration `Down` (drops `PpeMarkupRules`).
 - Catalog keeps reading parameters as `AdditionalReferenceItem` for old PPE percent links.
+- Sync to Catalog (TS-04): after every saved create, update, delete or applied import, Reference calls the Catalog-owned port `IPricingSettingsChangeNotifier`. Host.Api implements it (`CatalogPricingSettingsSync`): it reads both lists and sends Catalog `SyncPricingSettingsCommand`. Catalog maps the 13 sheet codes (`SewingSettingsCodes`) to `SewingCalculationSettings` and appends a new approved sewing settings version only when a value changed; each PPE markup rule appends a PPE rule version by name (source «Параметри ціноутворення») only when its markups changed. History stays: old versions are never edited. The Reference save is not undone if the sync fails; a missing code, invalid value or missing base sewing version is logged as a warning and that part is skipped. The «Операції» page and prices read the Catalog current settings, so they show the new numbers after the next read.
 
 ## Tasks
 
 - **TS-01 (done):** domain, migration, CRUD, list with calculated value. Tests: `tests/UnitTests/Reference/PricingSettingsTests.cs`, `PricingReferenceQueryHandlerTests`, integration `PricingReferenceQueryIntegrationTests`.
 - **TS-02 (done):** sheet import with preview. Tests: `PricingSettingsTests`.
-- **TS-03:** Admin page «Параметри ціноутворення» in brevi-web (two tabs, reference list pattern).
-- **TS-04:** Catalog sewing settings and PPE rule versions take their values from these tables, after the operations work (BreviERP #15) is merged.
+- **TS-03 (done, brevi-web #20):** Admin page «Параметри ціноутворення» in brevi-web (two tabs, reference list pattern).
+- **TS-04 (done):** Catalog sewing settings and PPE rule versions take their values from these tables. Tests: `tests/UnitTests/PricingSettingsSyncTests.cs`, notifier calls in `PricingSettingsTests`.
 - **TS-05:** One-time transfer to production: preview, owner's «да», apply.
 
 ## Verification 2026-11-02
@@ -50,3 +51,8 @@ Brevi had 14 old «Додаткові довідники» rows (Russian names, 
 - `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~PricingSettingsTests|FullyQualifiedName~PricingReferenceQueryHandlerTests|FullyQualifiedName~ReferenceSheetImportTests"`: 9 passed. `dotnet test tests/ArchitectureTests/ArchitectureTests.csproj`: 7 passed. Integration `PricingReferenceQueryIntegrationTests` on a local PostgreSQL 16: 4 passed.
 - `dotnet ef migrations has-pending-model-changes` (ReferenceDbContext, Host.Seed startup, Production): no changes.
 - Local PostgreSQL: migration up keeps two old rows as «Старі довідники»; down and up again keep them. Host.Api on that database: the sheet preview reports 40 + 10 to create and the 2 old rows to delete; apply saves them; a second apply reports 40 + 10 unchanged; the list returns the minute cost 1.7785 грн/хв.
+
+## Verification TS-04, 2026-11-02
+
+- `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~PricingSettings|FullyQualifiedName~Reference|FullyQualifiedName~SewingPricing|FullyQualifiedName~PpePricing"`: 99 passed. ArchitectureTests: 7 passed.
+- Local Host.Api with one old sewing version (salary 16 500): applying the sheet import appended sewing version 2 (17 500, 20,5 days, cutting 21,74 %) and 10 PPE rule versions with source «Параметри ціноутворення»; a second apply appended nothing; editing the salary to 18 000 on the page appended version 3, and `GET api/v1/pricing/sewing/settings` returned it.

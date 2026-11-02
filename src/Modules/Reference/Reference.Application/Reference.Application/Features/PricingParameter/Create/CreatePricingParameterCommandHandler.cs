@@ -1,3 +1,4 @@
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Shared.Dates;
 using Reference.Application.Features.PricingParameter.Shared;
@@ -11,7 +12,8 @@ namespace Reference.Application.Features.PricingParameter.Create;
 /// <summary>Adds a parameter with the next free ID; «Дата оновлення» is today (Kyiv).</summary>
 public sealed class CreatePricingParameterCommandHandler(
     IReferenceRepository<PricingParameterEntity> repository,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    IPricingSettingsChangeNotifier pricingSettingsChanged)
     : ICommandHandler<CreatePricingParameterCommand, Result<int>>
 {
     public async ValueTask<Result<int>> Handle(
@@ -39,6 +41,7 @@ public sealed class CreatePricingParameterCommandHandler(
         }
 
         await repository.AddAsync(entity, cancellationToken);
+        await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);
 
         return Result.Success(entity.Id.Value);
     }

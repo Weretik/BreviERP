@@ -1,10 +1,13 @@
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PpeMarkupRule.Shared.Specifications;
 using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
 
 namespace Reference.Application.Features.PpeMarkupRule.Delete;
 
-public sealed class DeletePpeMarkupRuleCommandHandler(IReferenceRepository<PpeMarkupRuleEntity> repository)
+public sealed class DeletePpeMarkupRuleCommandHandler(
+    IReferenceRepository<PpeMarkupRuleEntity> repository,
+    IPricingSettingsChangeNotifier pricingSettingsChanged)
     : ICommandHandler<DeletePpeMarkupRuleCommand, Result>
 {
     public async ValueTask<Result> Handle(
@@ -17,6 +20,7 @@ public sealed class DeletePpeMarkupRuleCommandHandler(IReferenceRepository<PpeMa
             return Result.NotFound();
 
         await repository.DeleteAsync(entity, cancellationToken);
+        await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);
 
         return Result.Success();
     }

@@ -1,5 +1,6 @@
 using BuildingBlocks.Domain.Exceptions;
 using Moq;
+using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingParameter.GetList;
 using Reference.Application.Features.PricingSettingsImport;
@@ -16,6 +17,10 @@ namespace UnitTests.Reference;
 public sealed class PricingSettingsTests
 {
     private static readonly DateOnly SheetDate = new(2026, 8, 30);
+    private Mock<IPricingSettingsChangeNotifier> notifier = new();
+
+    [SetUp]
+    public void ResetNotifier() => notifier = new();
 
     private static PricingParameterImportRow Parameter(int row, string code, decimal? value, string unit = "%",
         bool calculated = false) =>
@@ -88,7 +93,7 @@ public sealed class PricingSettingsTests
             new List<PricingParameter>(), new List<PpeMarkupRule>(), new List<PpeMarkupRule>());
         var parameters = Repository([assembly, legacy], addedParameters, deletedParameters);
         var rules = Repository([oldRule], addedRules, deletedRules);
-        var handler = new ImportPricingSettingsCommandHandler(parameters.Object, rules.Object);
+        var handler = new ImportPricingSettingsCommandHandler(parameters.Object, rules.Object, notifier.Object);
 
         var result = (await handler.Handle(new ImportPricingSettingsCommand(
             [
@@ -113,6 +118,7 @@ public sealed class PricingSettingsTests
             Assert.That(deletedRules, Is.EqualTo(new[] { oldRule }));
         });
         parameters.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        notifier.Verify(x => x.PricingSettingsChangedAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -121,7 +127,7 @@ public sealed class PricingSettingsTests
         var assembly = Stored(5, "ASSEMBLY_RATE", 0.2m);
         var parameters = Repository([assembly], [], []);
         var rules = Repository(new List<PpeMarkupRule>(), [], []);
-        var handler = new ImportPricingSettingsCommandHandler(parameters.Object, rules.Object);
+        var handler = new ImportPricingSettingsCommandHandler(parameters.Object, rules.Object, notifier.Object);
         var rows = new[] { Parameter(7, "ASSEMBLY_RATE", 0.25m) };
 
         var preview = (await handler.Handle(new ImportPricingSettingsCommand(rows, [], DryRun: true, DeleteMissing: true),
@@ -139,5 +145,6 @@ public sealed class PricingSettingsTests
             Assert.That(assembly.Value, Is.EqualTo(0.2m));
         });
         parameters.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        notifier.Verify(x => x.PricingSettingsChangedAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

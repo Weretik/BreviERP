@@ -47,6 +47,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();
+        services.AddScoped<IPricingSettingsChangeNotifier, CatalogPricingSettingsSync>();
         services.AddSingleton<IProductSlugGenerator, ProductSlugGenerator>();
 
         return services;
