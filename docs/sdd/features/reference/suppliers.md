@@ -2,7 +2,7 @@
 
 **Static code review:** 2026-10-16. **Module:** reference.
 
-CRUD operations and list retrieval for the “Suppliers” lookup.
+CRUD operations and list retrieval for the “Suppliers” lookup. A supplier linked to KeepinCRM (`KeepinCrmId`) gets its contacts from KeepinCRM and rejects contact edits; purchase categories («Що закуповуємо»), activity and notes are always edited in Brevi. Specification: [REF-001](../../specs/reference/001-suppliers-keepincrm/README.md).
 
 ## Structure and Relationships
 
@@ -43,7 +43,7 @@ flowchart LR
 
 ## Tests
 
-No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+`tests/UnitTests/Reference/SupplierTests.cs` covers the KeepinCRM ownership rules and Brevi-owned fields. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

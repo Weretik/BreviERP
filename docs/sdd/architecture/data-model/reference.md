@@ -4,7 +4,7 @@
 
 | Table | PK | Main data and purpose |
 | --- | --- | --- |
-| `Suppliers` | `Id` | Suppliers and contacts. |
+| `Suppliers` | `Id` | Suppliers and contacts; optional unique `KeepinCrmId`, Brevi-owned `PurchaseCategories`, `IsActive`, `Notes`. |
 | `FabricsReference` | `Id` | Fabrics: `Name`, `Price`, `ProviderId` (FK to `Suppliers`). |
 | `GarmentAccessoriesReference` | `Id` | Accessories: `Name`, `Price`, `SupplierId` (FK). |
 | `GarmentParts` | `Id` | Garment parts. |

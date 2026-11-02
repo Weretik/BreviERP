@@ -13,6 +13,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [Media files](catalog/media-files/README.md)                                                             | verified                                                                                                           |
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |
 | Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md)                      | P1–P5 locally verified; P6 Gmail deferred; P7 offline tooling verified, historical source/gap/owner readiness remains gated |
+| Reference | [001 Suppliers from the Calculator and KeepinCRM](reference/001-suppliers-keepincrm/README.md) | fields implemented 2026-11-02; KeepinCRM sync pending |
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
 

@@ -2,6 +2,7 @@ using BuildingBlocks.Application.Helpers;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Supplier.Update.Specifications;
 using Ardalis.Result;
+using BuildingBlocks.Domain.Exceptions;
 using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 
 namespace Reference.Application.Features.Supplier.Update;
@@ -23,6 +24,7 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
         var link = string.IsNullOrWhiteSpace(request.Link) ? null : request.Link.Trim();
         var contactPerson = string.IsNullOrWhiteSpace(request.ContactPerson) ? null : request.ContactPerson.Trim();
         var notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes.Trim();
+        var email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
 
         var phoneNumber = (string?)null;
         if (!string.IsNullOrWhiteSpace(request.PhoneNumber)
@@ -41,7 +43,16 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
                 "Постачальник з такою назвою уже існує.")]);
         }
 
-        entity.Update(name, link, contactPerson, phoneNumber, notes);
+        try
+        {
+            entity.Update(name, link, contactPerson, phoneNumber, notes, email);
+        }
+        catch (DomainException exception)
+        {
+            return Result.Invalid([new ValidationError("Request", exception.Message)]);
+        }
+
+        entity.UpdatePurchasing(request.PurchaseCategories, request.IsActive);
 
         await repository.UpdateAsync(entity, cancellationToken);
 

@@ -6,4 +6,10 @@ public sealed record SupplierRowDTO(
     string? Link,
     string? ContactPerson,
     string? PhoneNumber,
-    string? Notes);
+    string? Notes,
+    string? Email,
+    string? PurchaseCategories,
+    string? Tags,
+    bool IsActive,
+    string? KeepinCrmId,
+    DateTimeOffset? KeepinSyncedAt);
