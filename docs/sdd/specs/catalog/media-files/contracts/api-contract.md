@@ -22,7 +22,7 @@ DELETE /api/catalog/media/{id}
 | --- | --- | --- | --- |
 | List | no parameters | `200` list of IDs, original file name, public URL, content type, storage key, and status | — |
 | Upload | form-data field `file` | `200` with `mediaFileId`, `storageKey`, `publicUrl`, `contentType`, `originalFileName` | `400` validation/signature mismatch |
-| Delete | route `id:int` | `204` | `400`, `404` |
+| Delete | route `id:int` | `204` | `400`, `404`, `409` when the image is used by a Product |
 
 File requirements: JPEG/PNG/WebP, positive size, no larger than `CatalogMediaUpload:MaxFileSizeBytes`; the signature must match the declared content type.
 
