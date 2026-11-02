@@ -3,7 +3,6 @@ using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Application.Contracts.Persistence;
 using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Repositories;
-using Reference.Infrastructure.Seeders.AdditionalReferences;
 using Reference.Infrastructure.Seeders.Fabrics;
 using Reference.Infrastructure.Seeders.GarmentAccessories;
 using Reference.Infrastructure.Seeders.GarmentParts;
@@ -29,7 +28,6 @@ public static class ReferenceDbContextExtensions
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
         services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingVersionReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingVersionReader>();
         services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingUsageReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingUsageReader>();
-        services.AddScoped<ISeeder, AdditionalReferenceSeeder>();
         services.AddScoped<Reference.Application.Contracts.Pricing.IOtherCostPricingVersionWriter, Reference.Infrastructure.Pricing.OtherCosts.Writing.OtherCostPricingVersionWriter>();
         services.AddScoped<ISeeder, SupplierSeeder>();
         services.AddScoped<ISeeder, FabricSeeder>();

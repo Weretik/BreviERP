@@ -9,7 +9,8 @@
 | `GarmentAccessoriesReference` | `Id` | Accessories: `Code` (FUR-…, unique when set), `Name`, `Price`, `PriceUpdatedAt`, `SupplierId` (FK), `Unit` (шт./м/послуга), `IsActive`, `Comment`. |
 | `GarmentParts` | `Id` | «Група деталей» of operations: `Name`. |
 | `GarmentPartOperations` | `Id` | Operations: `Code` (OP-…, unique when set), `GarmentPartId`, `Element`, `Variant`, `Name` (unique within a group), `Min` numeric(24,8) (0 when `MinutesPerProduct`), `MinutesPerProduct`, `NormCheckedAt`, `IsActive`, `Notes`; the pricing revision workflow accepts values fitting numeric(20,8). |
-| `AdditionalReferences` | `Id` | Additional reference values: `Key`, `Name`, `Value`, `Unit`. |
+| `PricingParameters` | `Id` | «Параметри ціноутворення» from the sheet «Налаштування цін»: unique `Code`, `Group`, `Name`, `Value` (fraction for %, null when `IsCalculated`), `Unit`, `UpdatedOn`, `Comment`, `SortOrder`. Old PPE products may hold its `Id` in `RetailAdditionalReferenceId`/`WholesaleAdditionalReferenceId` (no FK). |
+| `PpeMarkupRules` | `Id` | PPE markup rules: unique `Name` (the rule code of PPE offers), `RetailMarkup`, `WholesaleMarkup`, `LargeWholesaleMarkup` (fractions), `PriceNote`, `AppliesTo`, `SortOrder`. |
 | `PricingInputVersions` | generated long `Id` | Immutable effective Fabric/Accessory/Operation input or OtherCost code, decimal value/unit, revision, approval/activity and source provenance. Exactly one reference; same-module FKs retain history. |
 
 ```mermaid
@@ -18,7 +19,7 @@ erDiagram
     Suppliers ||--o{ GarmentAccessoriesReference : "SupplierId FK"
 ```
 
-`GarmentPartOperations.GarmentPartId` refers conceptually to `GarmentParts`, but the snapshot has no FK. The module's tables are described in [suppliers](../../features/reference/suppliers.md), [fabrics](../../features/reference/fabrics.md), [accessories](../../features/reference/garment-accessories.md), [garment parts](../../features/reference/garment-parts.md), [operations](../../features/reference/garment-part-operations.md), and [additional references](../../features/reference/additional-references.md).
+`GarmentPartOperations.GarmentPartId` refers conceptually to `GarmentParts`, but the snapshot has no FK. The module's tables are described in [suppliers](../../features/reference/suppliers.md), [fabrics](../../features/reference/fabrics.md), [accessories](../../features/reference/garment-accessories.md), [garment parts](../../features/reference/garment-parts.md), [operations](../../features/reference/garment-part-operations.md), and [pricing parameters](../../features/reference/pricing-parameters.md).
 
 The [Sewing pricing feature](../../features/catalog/sewing-pricing.md) documents the cross-module cost/norm version contract. Versions are indexed by each owner reference and effective date; source code/revision and source hash/code are unique. Missing standard time is nullable; OtherCost uses an explicit UAH-per-service value. Effective reads normalize instants to UTC and reject ambiguous latest versions rather than selecting one arbitrarily.
 

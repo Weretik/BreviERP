@@ -23,10 +23,16 @@ paths:
     $ref: ./catalog/product-dependencies.openapi.yaml#/paths/~1api~1catalog~1media
   /api/catalog/media/{id}:
     $ref: ./catalog/product-dependencies.openapi.yaml#/paths/~1api~1catalog~1media~1{id}
-  /api/reference/additional-references:
-    $ref: ./reference/additional-references.openapi.yaml#/paths/~1api~1reference~1additional-references
-  /api/reference/additional-references/{id}:
-    $ref: ./reference/additional-references.openapi.yaml#/paths/~1api~1reference~1additional-references~1{id}
+  /api/reference/pricing-parameters:
+    $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1pricing-parameters
+  /api/reference/pricing-parameters/import:
+    $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1pricing-parameters~1import
+  /api/reference/pricing-parameters/{id}:
+    $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1pricing-parameters~1{id}
+  /api/reference/ppe-markup-rules:
+    $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1ppe-markup-rules
+  /api/reference/ppe-markup-rules/{id}:
+    $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1ppe-markup-rules~1{id}
   /api/reference/garment-part-operations:
     $ref: ./reference/garment-part-operations.openapi.yaml#/paths/~1api~1reference~1garment-part-operations
   /api/reference/garment-part-operations/import:

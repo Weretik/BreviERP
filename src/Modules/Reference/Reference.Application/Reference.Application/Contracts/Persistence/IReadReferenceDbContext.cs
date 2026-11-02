@@ -1,4 +1,5 @@
-using Reference.Domain.AdditionalReferences.Entities;
+using Reference.Domain.PpeMarkupRules.Entities;
+using Reference.Domain.PricingParameters.Entities;
 using Reference.Domain.GarmentAccessories.Entities;
 using Reference.Domain.GarmentPartOperations.Entities;
 using Reference.Domain.Suppliers.Entities;
@@ -7,7 +8,8 @@ namespace Reference.Application.Contracts.Persistence;
 
 public interface IReadReferenceDbContext
 {
-    DbSet<AdditionalReference> AdditionalReferences { get; }
+    DbSet<PricingParameter> PricingParameters { get; }
+    DbSet<PpeMarkupRule> PpeMarkupRules { get; }
     DbSet<Fabric> Fabrics { get; }
     DbSet<GarmentAccessory> GarmentAccessories { get; }
     DbSet<GarmentPart> GarmentParts { get; }

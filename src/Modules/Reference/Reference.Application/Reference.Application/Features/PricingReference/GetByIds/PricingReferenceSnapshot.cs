@@ -4,4 +4,4 @@ public sealed record PricingReferenceSnapshot(
     IReadOnlyList<PricingReferenceItem> Fabrics,
     IReadOnlyList<PricingReferenceItem> GarmentAccessories,
     IReadOnlyList<PricingReferenceItem> GarmentPartOperations,
-    IReadOnlyList<PricingReferenceItem> AdditionalReferences);
+    IReadOnlyList<PricingReferenceItem> PricingParameters);

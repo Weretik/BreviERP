@@ -1,5 +1,6 @@
 using Reference.Application.Contracts.Persistence;
-using Reference.Domain.AdditionalReferences.Entities;
+using Reference.Domain.PpeMarkupRules.Entities;
+using Reference.Domain.PricingParameters.Entities;
 using Reference.Domain.GarmentAccessories.Entities;
 using Reference.Domain.GarmentPartOperations.Entities;
 using Reference.Domain.Suppliers.Entities;
@@ -9,7 +10,8 @@ namespace Reference.Infrastructure.DataBase;
 public partial class ReferenceDbContext(DbContextOptions<ReferenceDbContext> options)
     : DbContext(options), IReadReferenceDbContext
 {
-    public DbSet<AdditionalReference> AdditionalReferences => Set<AdditionalReference>();
+    public DbSet<PricingParameter> PricingParameters => Set<PricingParameter>();
+    public DbSet<PpeMarkupRule> PpeMarkupRules => Set<PpeMarkupRule>();
     public DbSet<Fabric> Fabrics => Set<Fabric>();
     public DbSet<GarmentAccessory> GarmentAccessories => Set<GarmentAccessory>();
     public DbSet<GarmentPart> GarmentParts => Set<GarmentPart>();

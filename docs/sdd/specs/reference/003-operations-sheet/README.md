@@ -1,4 +1,4 @@
-# REF-003 — Operations from the Calculator sheet
+# REF-004 — Operations from the Calculator sheet
 
 **Status:** implemented and verified with unit tests 2026-11-02. **Date:** 2026-11-02. **Module:** Reference, schema `reference`, no new module.
 

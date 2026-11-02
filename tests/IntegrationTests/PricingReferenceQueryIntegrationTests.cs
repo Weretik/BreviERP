@@ -6,8 +6,8 @@ using Npgsql;
 using System.Data.Common;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingReference.GetByIds;
-using Reference.Domain.AdditionalReferences.Entities;
-using Reference.Domain.AdditionalReferences.ValueObjects;
+using Reference.Domain.PricingParameters.Entities;
+using Reference.Domain.PricingParameters.ValueObjects;
 using Reference.Domain.GarmentAccessories.Entities;
 using Reference.Domain.GarmentPartOperations.Entities;
 using Reference.Infrastructure.DataBase;
@@ -51,22 +51,24 @@ public sealed class PricingReferenceQueryIntegrationTests
     }
 
     [Test]
-    public async Task Additional_reference_projection_reads_only_requested_ids_or_keys()
+    public async Task Pricing_parameter_projection_reads_only_requested_ids_or_codes()
     {
         await using var db = CreateContext();
-        db.AdditionalReferences.AddRange(
-            AdditionalReference.Create(AdditionalReferenceId.From(10), "Profit", "profit_10", 30m, "%"),
-            AdditionalReference.Create(AdditionalReferenceId.From(20), "Unused", "unused", 99m, "%"));
+        db.PricingParameters.AddRange(
+            PricingParameter.Create(PricingParameterId.From(10), "SEWING_PRICE_COEF_1",
+                new PricingParameterDetails("Прибуток", "Коефіцієнт ціни", 30m, "%", false, null, 1), null),
+            PricingParameter.Create(PricingParameterId.From(20), "UNUSED",
+                new PricingParameterDetails("Прибуток", "Інший", 99m, "%", false, null, 2), null));
         await db.SaveChangesAsync();
 
         var handler = new GetPricingReferencesByIdsQueryHandler(
             new TestReferenceReadRepository<Fabric>(db),
             new TestReferenceReadRepository<GarmentAccessory>(db),
             new TestReferenceReadRepository<GarmentPartOperation>(db),
-            new TestReferenceReadRepository<AdditionalReference>(db));
+            new TestReferenceReadRepository<PricingParameter>(db));
 
         var result = await handler.Handle(
-            new GetPricingReferencesByIdsQuery([], [], [], [10], ["profit_10"]),
+            new GetPricingReferencesByIdsQuery([], [], [], [10], ["SEWING_PRICE_COEF_1"]),
             CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -74,7 +76,7 @@ public sealed class PricingReferenceQueryIntegrationTests
             Assert.That(result.Fabrics, Is.Empty);
             Assert.That(result.GarmentAccessories, Is.Empty);
             Assert.That(result.GarmentPartOperations, Is.Empty);
-            Assert.That(result.AdditionalReferences, Is.EqualTo([new PricingReferenceItem(10, 30m, "profit_10", "%")]));
+            Assert.That(result.PricingParameters, Is.EqualTo([new PricingReferenceItem(10, 30m, "SEWING_PRICE_COEF_1", "%")]));
         });
     }
 
@@ -90,7 +92,7 @@ public sealed class PricingReferenceQueryIntegrationTests
             new TestReferenceReadRepository<Fabric>(db),
             new TestReferenceReadRepository<GarmentAccessory>(db),
             new TestReferenceReadRepository<GarmentPartOperation>(db),
-            new TestReferenceReadRepository<AdditionalReference>(db));
+            new TestReferenceReadRepository<PricingParameter>(db));
 
         await handler.Handle(
             new GetPricingReferencesByIdsQuery(ids, ids, ids, ids, []),

@@ -1,6 +1,5 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPart.Create.Specifications;
-using Reference.Domain.AdditionalReferences.ValueObjects;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;

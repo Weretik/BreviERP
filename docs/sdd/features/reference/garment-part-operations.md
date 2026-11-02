@@ -2,7 +2,7 @@
 
 **Static code review:** 2026-11-02. **Module:** reference.
 
-CRUD operations, list retrieval and the import of the Calculator sheet «Операції» for the sewing operations lookup ([REF-003](../../specs/reference/003-operations-sheet/README.md)).
+CRUD operations, list retrieval and the import of the Calculator sheet «Операції» for the sewing operations lookup ([REF-004](../../specs/reference/003-operations-sheet/README.md)).
 
 ## Structure and Relationships
 

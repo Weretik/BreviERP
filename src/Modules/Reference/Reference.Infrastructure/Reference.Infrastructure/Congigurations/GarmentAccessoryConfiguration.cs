@@ -1,4 +1,3 @@
-using Reference.Domain.AdditionalReferences.Entities;
 using Reference.Domain.GarmentAccessories.Entities;
 using Reference.Domain.GarmentPartOperations.Entities;
 using Reference.Domain.Suppliers.Entities;

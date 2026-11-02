@@ -13,11 +13,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>Always</CopyToPublishDirectory>
         </Content>
-        <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\AdditionalReferences\Data\additional_reference.json">
-            <Link>Seeders\AdditionalReferences\Data\additional_reference.json</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-        </Content>
         <Content Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Seeders\Fabrics\Data\fabric.json">
             <Link>Seeders\Fabrics\Data\fabric.json</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
