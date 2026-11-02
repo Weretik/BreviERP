@@ -43,9 +43,8 @@ public sealed class GarmentPartOperationSeeder(
 
             var entity = GarmentPartOperation.Create(
                 GarmentPartOperationId.From(row.Id),
-                garmentPartId,
-                name,
-                row.Min);
+                new GarmentPartOperationDetails(row.Code, garmentPartId, row.Element, row.Variant, name, row.Min,
+                    row.MinutesPerProduct, row.NormCheckedAt, row.IsActive, row.Notes));
 
             await db.GarmentPartOperations.AddAsync(entity, cancellationToken);
         }

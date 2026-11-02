@@ -15,4 +15,10 @@ public static class GarmentPartOperationErrors
 
     public static ReferenceDomainError MinMustBeNonNegative() =>
         new("Reference.GarmentPartOperation.Min.Invalid", "Garment part operation minutes must be non-negative");
+
+    public static ReferenceDomainError MinOutOfRange(decimal max) =>
+        new("Reference.GarmentPartOperation.Min.OutOfRange", $"Garment part operation minutes must be from 0 to {max}");
+
+    public static ReferenceDomainError TextTooLong(int maxLength) =>
+        new("Reference.GarmentPartOperation.Text.TooLong", $"Garment part operation text field must not exceed {maxLength} characters");
 }

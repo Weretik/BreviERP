@@ -1,5 +1,7 @@
-using Reference.Application.Contracts.Pricing;
 using Reference.Application.Contracts.Persistence;
+using Reference.Application.Contracts.Pricing;
+using Reference.Application.Features.GarmentPartOperation.Shared;
+using Reference.Application.Features.GarmentPartOperation.Shared.Specifications;
 using Reference.Application.Features.GarmentPartOperation.Update.Specifications;
 using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
@@ -17,28 +19,25 @@ public sealed class UpdateGarmentPartOperationCommandHandler(
     {
         var entity = await repository.FirstOrDefaultAsync(
             new GarmentPartOperationByIdSpec(command.Id), cancellationToken);
-
         if (entity is null)
             return Result.NotFound();
 
         var request = command.Request;
         var name = request.Name.Trim();
-        var garmentPartName = request.GarmentPartName.Trim();
-
+        var code = GarmentPartOperationEntity.NormalizeCode(request.Code);
         var garmentPart = await garmentPartRepository.FirstOrDefaultAsync(
-            new GarmentPartByNameSpec(garmentPartName), cancellationToken);
-
+            new GarmentPartByNameSpec(request.GarmentPartName.Trim()), cancellationToken);
         if (garmentPart is null)
-            return Result.NotFound("Garment part was not found.");
+            return Result.Invalid([new ValidationError("Request.GarmentPartName", "Групу деталей з такою назвою не знайдено.")]);
 
-        var duplicateExists = await repository.AnyAsync(
-            new GarmentPartOperationByPartAndNameExceptIdSpec(command.Id, garmentPart.Id.Value, name), cancellationToken);
+        if (await repository.AnyAsync(
+                new GarmentPartOperationByPartAndNameExceptIdSpec(command.Id, garmentPart.Id.Value, name), cancellationToken))
+            return Result.Conflict("У цій групі вже є операція з такою назвою.");
+        if (code is not null && await repository.AnyAsync(
+                new GarmentPartOperationByCodeSpec(code, command.Id), cancellationToken))
+            return Result.Invalid([new ValidationError("Request.Code", "Операція з таким кодом уже існує.")]);
 
-        if (duplicateExists)
-            return Result.Conflict("Garment part operation with the same name for this garment part already exists.");
-
-        entity.Update(garmentPart.Id, name, request.Min);
-
+        entity.ApplyDetails(GarmentPartOperationDetailsFactory.From(request, garmentPart.Id));
         try
         {
             await repository.UpdateAsync(entity, cancellationToken);

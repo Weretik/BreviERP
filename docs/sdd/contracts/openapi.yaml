@@ -29,6 +29,8 @@ paths:
     $ref: ./reference/additional-references.openapi.yaml#/paths/~1api~1reference~1additional-references~1{id}
   /api/reference/garment-part-operations:
     $ref: ./reference/garment-part-operations.openapi.yaml#/paths/~1api~1reference~1garment-part-operations
+  /api/reference/garment-part-operations/import:
+    $ref: ./reference/garment-part-operations.openapi.yaml#/paths/~1api~1reference~1garment-part-operations~1import
   /api/reference/garment-part-operations/{id}:
     $ref: ./reference/garment-part-operations.openapi.yaml#/paths/~1api~1reference~1garment-part-operations~1{id}
   /api/reference/garment-parts:

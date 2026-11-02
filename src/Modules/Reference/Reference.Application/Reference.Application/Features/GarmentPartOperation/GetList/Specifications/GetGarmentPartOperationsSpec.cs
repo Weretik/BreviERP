@@ -9,8 +9,10 @@ internal sealed class GetGarmentPartOperationsSpec
     public GetGarmentPartOperationsSpec()
     {
         Query.AsNoTracking()
-            .OrderBy(x => x.GarmentPartId)
+            .OrderBy(x => x.Code == null)
+            .ThenBy(x => x.Code)
             .ThenBy(x => x.Id)
-            .Select(x => new GarmentPartOperationProjectionDTO(x.Id.Value, x.GarmentPartId.Value, x.Name, x.Min));
+            .Select(x => new GarmentPartOperationProjectionDTO(x.Id.Value, x.GarmentPartId.Value, x.Name, x.Min,
+                x.Code, x.Element, x.Variant, x.MinutesPerProduct, x.NormCheckedAt, x.IsActive, x.Notes));
     }
 }

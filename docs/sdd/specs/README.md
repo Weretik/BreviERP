@@ -15,6 +15,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md)                      | P1–P5 locally verified; P6 Gmail deferred; P7 offline tooling verified, historical source/gap/owner readiness remains gated |
 | Reference | [001 Suppliers from the Calculator and KeepinCRM](reference/001-suppliers-keepincrm/README.md) | implemented 2026-11-02; live KeepinCRM run pending secret |
 | Reference | [002 Fabrics and accessories from the Calculator sheet](reference/002-fabrics-accessories-sheet/README.md) | implemented 2026-11-02 |
+| Reference | [003 Operations from the Calculator sheet](reference/003-operations-sheet/README.md) | implemented 2026-11-02 |
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
 

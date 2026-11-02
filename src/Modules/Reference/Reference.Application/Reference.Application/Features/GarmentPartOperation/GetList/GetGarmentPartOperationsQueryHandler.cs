@@ -31,11 +31,8 @@ public sealed class GetGarmentPartOperationsQueryHandler(
                     ? name
                     : string.Empty;
 
-                return new GarmentPartOperationRowDTO(
-                    x.Id,
-                    garmentPartName,
-                    x.Name,
-                    x.Min);
+                return new GarmentPartOperationRowDTO(x.Id, garmentPartName, x.Name, x.Min, x.Code, x.Element,
+                    x.Variant, x.MinutesPerProduct, x.NormCheckedAt, x.IsActive, x.Notes);
             })
             .ToList();
 

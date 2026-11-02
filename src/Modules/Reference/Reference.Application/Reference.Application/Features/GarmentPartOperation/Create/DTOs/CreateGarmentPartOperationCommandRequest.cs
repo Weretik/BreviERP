@@ -1,3 +1,16 @@
-﻿namespace Reference.Application.Features.GarmentPartOperation.Create.DTOs;
+using Reference.Application.Features.GarmentPartOperation.Shared.DTOs;
 
-public sealed record CreateGarmentPartOperationCommandRequest(int Id, string GarmentPartName, string Name, decimal Min);
+namespace Reference.Application.Features.GarmentPartOperation.Create.DTOs;
+
+public sealed record CreateGarmentPartOperationCommandRequest(
+    int Id,
+    string GarmentPartName,
+    string Name,
+    decimal Min,
+    string? Code = null,
+    string? Element = null,
+    string? Variant = null,
+    bool MinutesPerProduct = false,
+    DateOnly? NormCheckedAt = null,
+    bool IsActive = true,
+    string? Notes = null) : IGarmentPartOperationFields;
