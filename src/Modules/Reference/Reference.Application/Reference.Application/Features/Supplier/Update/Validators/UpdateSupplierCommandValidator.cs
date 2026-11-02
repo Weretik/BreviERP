@@ -42,6 +42,18 @@ public sealed class UpdateSupplierCommandValidator : AbstractValidator<UpdateSup
                 .MaximumLength(500)
                 .WithMessage("Примітки не можуть перевищувати 500 символів.")
                 .When(x => !string.IsNullOrWhiteSpace(x.Request.Notes));
+
+            RuleFor(x => x.Request.Email)
+                .MaximumLength(254)
+                .WithMessage("Email постачальника не може перевищувати 254 символи.")
+                .EmailAddress()
+                .WithMessage("Email постачальника має бути у коректному форматі.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Request.Email));
+
+            RuleFor(x => x.Request.PurchaseCategories)
+                .MaximumLength(200)
+                .WithMessage("Поле «Що закуповуємо» не може перевищувати 200 символів.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Request.PurchaseCategories));
         });
     }
 }

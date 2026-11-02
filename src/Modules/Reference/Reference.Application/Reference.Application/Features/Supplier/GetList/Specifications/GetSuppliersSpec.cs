@@ -15,6 +15,12 @@ public sealed class GetSuppliersSpec : Specification<SupplierEntity, SupplierRow
                 x.Link,
                 x.ContactPerson,
                 x.PhoneNumber,
-                x.Notes));
+                x.Notes,
+                x.Email,
+                x.PurchaseCategories,
+                x.Tags,
+                x.IsActive,
+                x.KeepinCrmId,
+                x.KeepinSyncedAt));
     }
 }

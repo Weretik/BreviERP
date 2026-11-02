@@ -11,6 +11,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <InternalsVisibleTo Include="UnitTests" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Content Include="Seeders\AdditionalReferences\Data\additional_reference.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

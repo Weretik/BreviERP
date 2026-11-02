@@ -2,7 +2,7 @@
 
 **Static code review:** 2026-10-16. **Module:** reference.
 
-CRUD operations and list retrieval for the “Suppliers” lookup.
+CRUD operations and list retrieval for the “Suppliers” lookup. Suppliers come from KeepinCRM: the daily `brevierp-sync` job and «Оновити з KeepinCRM» refresh them ([runbook](../../operations/jobs/sync-job.md)). A linked supplier's card (name, «Що закуповуємо», contacts, site, tags) is read-only in Brevi; activity («Використовувати в проєкті») and notes are always edited in Brevi. Manual suppliers can still be added. Specification: [REF-001](../../specs/reference/001-suppliers-keepincrm/README.md).
 
 ## Structure and Relationships
 
@@ -20,9 +20,12 @@ src/
     │   ├── Create/CreateSupplierCommandHandler.cs  # use case handler
     │   ├── Delete/DeleteSupplierCommandHandler.cs  # use case handler
     │   ├── GetList/GetSuppliersQueryHandler.cs  # use case handler
+    │   ├── KeepinCrmSync/KeepinCrmSupplierSync.cs  # KeepinCRM → Brevi refresh
+    │   ├── UpdateBreviFields/  # activity and notes for any supplier
     │   └── Update/UpdateSupplierCommandHandler.cs  # use case handler
     ├── Reference.Domain/Reference.Domain/Suppliers/Entities/Supplier.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
+        ├── KeepinCrm/  # KeepinCRM HTTP client and response parser
         ├── DataBase/ReferenceDbContext.cs  # data context
         └── Repositories/ReferenceEfRepository.cs  # data access
 ```
@@ -43,7 +46,7 @@ flowchart LR
 
 ## Tests
 
-No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+`tests/UnitTests/Reference/SupplierTests.cs`, `KeepinCrmSupplierParserTests.cs`, `KeepinCrmSupplierSyncTests.cs`: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Reference`. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

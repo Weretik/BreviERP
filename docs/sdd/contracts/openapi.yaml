@@ -45,8 +45,12 @@ paths:
     $ref: ./reference/garment-accessories.openapi.yaml#/paths/~1api~1reference~1garment-accessories~1{id}
   /api/reference/suppliers:
     $ref: ./reference/suppliers.openapi.yaml#/paths/~1api~1reference~1suppliers
+  /api/reference/suppliers/keepin-sync:
+    $ref: ./reference/suppliers.openapi.yaml#/paths/~1api~1reference~1suppliers~1keepin-sync
   /api/reference/suppliers/{id}:
     $ref: ./reference/suppliers.openapi.yaml#/paths/~1api~1reference~1suppliers~1{id}
+  /api/reference/suppliers/{id}/brevi-fields:
+    $ref: ./reference/suppliers.openapi.yaml#/paths/~1api~1reference~1suppliers~1{id}~1brevi-fields
   /api/v1/products:
     $ref: ./catalog/product-catalog.openapi.yaml#/paths/~1api~1v1~1products
   /api/v1/products/{id}:

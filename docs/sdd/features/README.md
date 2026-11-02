@@ -29,7 +29,7 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
 ## Reference
 
-- [Suppliers](reference/suppliers.md) — CRUD and list reads.
+- [Suppliers](reference/suppliers.md) — CRUD, list reads and KeepinCRM refresh.
 - [Fabrics](reference/fabrics.md) — CRUD and list reads.
 - [Garment accessories](reference/garment-accessories.md) — CRUD and list reads.
 - [Garment parts](reference/garment-parts.md) — CRUD and list reads.

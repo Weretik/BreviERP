@@ -32,9 +32,33 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
             .HasMaxLength(200);
 
         builder.Property(x => x.PhoneNumber)
-            .HasMaxLength(32);
+            .HasMaxLength(Supplier.PhoneNumberMaxLength);
 
         builder.Property(x => x.Notes)
-            .HasMaxLength(500);
+            .HasMaxLength(Supplier.NotesMaxLength);
+
+        builder.Property(x => x.Email)
+            .HasMaxLength(Supplier.EmailMaxLength);
+
+        builder.Property(x => x.PurchaseCategories)
+            .HasMaxLength(Supplier.PurchaseCategoriesMaxLength);
+
+        builder.Property(x => x.Tags)
+            .HasMaxLength(Supplier.TagsMaxLength);
+
+        builder.Property(x => x.IsActive)
+            .HasDefaultValue(true)
+            .IsRequired();
+
+        builder.Property(x => x.KeepinCrmId)
+            .HasMaxLength(Supplier.KeepinCrmIdMaxLength);
+
+        builder.HasIndex(x => x.KeepinCrmId)
+            .IsUnique()
+            .HasFilter("\"KeepinCrmId\" IS NOT NULL");
+
+        builder.Property(x => x.KeepinSyncedAt);
+
+        builder.Ignore(x => x.IsManagedByKeepinCrm);
     }
 }
