@@ -1,8 +1,8 @@
 # Fabrics
 
-**Static code review:** 2026-10-16. **Module:** reference.
+**Static code review:** 2026-10-16; Calculator sheet fields and import 2026-11-02 ([REF-002](../../specs/reference/002-fabrics-accessories-sheet/README.md)). **Module:** reference.
 
-CRUD operations and list retrieval for the “Fabrics” lookup. Optional composition and density are stored for first-contact proposals; missing metadata blocks a proposal. Existing CRUD payloads do not edit these fields. The frozen catalogue import populates them from `Тканини`.
+CRUD operations and list retrieval for the “Fabrics” lookup, with the fields of the Calculator sheet «Тканини»: code (FAB-…), UA/RU name and composition, density, price and its date, activity, comment and the short description for proposals. Composition and density are also used by first-contact proposals; missing metadata blocks a proposal. `POST /api/reference/fabrics/import` loads the sheet rows sent by the admin, with a preview; rows match by code, then by name for older rows without a code.
 
 ## Structure and Relationships
 
@@ -20,12 +20,15 @@ src/
     │   ├── Create/CreateFabricCommandHandler.cs  # use case handler
     │   ├── Delete/DeleteFabricCommandHandler.cs  # use case handler
     │   ├── GetList/GetAllFabricQueryHandler.cs  # use case handler
+    │   ├── Import/ImportFabricsCommandHandler.cs  # sheet import with preview
+    │   ├── Shared/  # fields contract, validator, code spec
     │   └── Update/UpdateFabricCommandHandler.cs  # use case handler
     ├── Reference.Domain/Reference.Domain/GarmentAccessories/Entities/Fabric.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
         ├── DataBase/ReferenceDbContext.cs  # data context
         ├── Congigurations/FabricConfiguration.cs  # nullable bounded public metadata mapping
         ├── Migrations/20261029153930_AddFabricPresentationMetadata.cs  # additive schema
+        ├── Migrations/*_AddFabricAccessorySheetFields.cs  # sheet fields, code index
         └── Repositories/ReferenceEfRepository.cs  # data access
 ```
 
@@ -44,7 +47,7 @@ flowchart LR
 
 ## Tests
 
-`tests/UnitTests/Reference/FabricPresentationMetadataTests.cs` covers metadata normalization and bounds. No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+`tests/UnitTests/Reference/FabricPresentationMetadataTests.cs` covers metadata normalization and bounds; `tests/UnitTests/Reference/ReferenceSheetImportTests.cs` covers the sheet import. No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

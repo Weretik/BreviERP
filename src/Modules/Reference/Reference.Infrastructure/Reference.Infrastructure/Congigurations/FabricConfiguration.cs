@@ -18,15 +18,26 @@ public sealed class FabricConfiguration : IEntityTypeConfiguration<Fabric>
             .HasConversion(ReferenceConverters.FabricIdConvert)
             .ValueGeneratedNever();
 
-        builder.HasIndex(x => x.Name)
-            .IsUnique();
+        // The Calculator sheet has fabrics with the same name; the code is the unique key.
+        builder.HasIndex(x => x.Name);
+        builder.HasIndex(x => x.Code)
+            .IsUnique()
+            .HasFilter("\"Code\" IS NOT NULL");
+
+        builder.Property(x => x.Code).HasMaxLength(Fabric.CodeMaxLength);
 
         builder.Property(x => x.Name)
-            .HasMaxLength(500)
+            .HasMaxLength(Fabric.NameMaxLength)
             .IsRequired();
 
-        builder.Property(x => x.Composition).HasMaxLength(500);
-        builder.Property(x => x.Density).HasMaxLength(100);
+        builder.Property(x => x.NameRu).HasMaxLength(Fabric.NameMaxLength);
+        builder.Property(x => x.Composition).HasMaxLength(Fabric.CompositionMaxLength);
+        builder.Property(x => x.CompositionRu).HasMaxLength(Fabric.CompositionMaxLength);
+        builder.Property(x => x.Density).HasMaxLength(Fabric.DensityMaxLength);
+        builder.Property(x => x.IsActive).HasDefaultValue(true);
+        builder.Property(x => x.Comment).HasMaxLength(Fabric.CommentMaxLength);
+        builder.Property(x => x.ProposalDescription).HasMaxLength(Fabric.ProposalDescriptionMaxLength);
+        builder.Property(x => x.PriceUpdatedAt);
 
         builder.Property(x => x.Price)
             .HasConversion(ReferenceConverters.MoneyAmountConvert)

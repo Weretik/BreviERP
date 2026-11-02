@@ -15,4 +15,7 @@ public static class FabricErrors
 
     public static ReferenceDomainError ProviderIdIsRequired() =>
         new("Reference.Fabric.ProviderId.Required", "Fabric provider id must be provided");
+
+    public static ReferenceDomainError TextTooLong(int maxLength) =>
+        new("Reference.Fabric.Text.TooLong", $"Fabric text field must not exceed {maxLength} characters");
 }

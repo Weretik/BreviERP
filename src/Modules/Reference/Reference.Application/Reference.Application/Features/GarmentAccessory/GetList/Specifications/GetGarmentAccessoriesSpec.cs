@@ -13,6 +13,11 @@ internal sealed class GetGarmentAccessoriesSpec : Specification<GarmentAccessory
                 x.Id.Value,
                 x.Name,
                 x.Price.Value,
-                x.SupplierId.Value));
+                x.SupplierId.Value,
+                x.Code,
+                x.Unit,
+                x.PriceUpdatedAt,
+                x.IsActive,
+                x.Comment));
     }
 }

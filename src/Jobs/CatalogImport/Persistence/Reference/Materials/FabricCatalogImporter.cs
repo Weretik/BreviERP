@@ -26,7 +26,8 @@ public sealed class FabricCatalogImporter(
             var name = duplicateName ? $"{row.Text(1)} [{row.Text(0)}]" : row.Text(1);
             if (duplicateName)
                 report.Warnings.Add($"{row.Key}: duplicate fabric label disambiguated by source code.");
-            var entity = fabrics.SingleOrDefault(x => x.Name == name);
+            // Fabrics imported from the sheet in the admin carry the FAB- code; match it before the name.
+            var entity = fabrics.FirstOrDefault(x => x.Code == row.Text(0)) ?? fabrics.FirstOrDefault(x => x.Name == name);
             var cost = row.Decimal(5)!.Value;
             if (entity is null)
             {

@@ -1,8 +1,8 @@
 # Garment Accessories
 
-**Static code review:** 2026-10-16. **Module:** reference.
+**Static code review:** 2026-10-16; Calculator sheet fields and import 2026-11-02 ([REF-002](../../specs/reference/002-fabrics-accessories-sheet/README.md)). **Module:** reference.
 
-CRUD operations and list retrieval for the “Garment Accessories” lookup.
+CRUD operations and list retrieval for the “Garment Accessories” lookup, with the fields of the Calculator sheet «Фурнітура»: code (FUR-…), unit (шт., м, послуга), price and its date, activity and comment. `POST /api/reference/garment-accessories/import` loads the sheet rows sent by the admin, with a preview; rows match by code, then by name for older rows without a code.
 
 ## Structure and Relationships
 
@@ -20,6 +20,8 @@ src/
     │   ├── Create/CreateGarmentAccessoryCommandHandler.cs  # use case handler
     │   ├── Delete/DeleteGarmentAccessoryCommandHandler.cs  # use case handler
     │   ├── GetList/GetGarmentAccessoriesQueryHandler.cs  # use case handler
+    │   ├── Import/ImportGarmentAccessoriesCommandHandler.cs  # sheet import with preview
+    │   ├── Shared/  # fields contract, validator, code spec
     │   └── Update/UpdateGarmentAccessoryCommandHandler.cs  # use case handler
     ├── Reference.Domain/Reference.Domain/GarmentAccessories/Entities/GarmentAccessory.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
@@ -44,7 +46,7 @@ flowchart LR
 
 ## Tests
 
-No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+`tests/UnitTests/Reference/ReferenceSheetImportTests.cs` covers the sheet import (units, row errors). `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

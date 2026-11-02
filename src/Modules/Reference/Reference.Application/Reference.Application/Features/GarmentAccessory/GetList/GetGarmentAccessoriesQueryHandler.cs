@@ -29,7 +29,12 @@ public sealed class GetGarmentAccessoriesQueryHandler(
                 x.Id,
                 x.Name,
                 x.Price,
-                supplierNamesById.GetValueOrDefault(x.SupplierId, "-")))
+                supplierNamesById.GetValueOrDefault(x.SupplierId, "-"),
+                x.Code,
+                x.Unit,
+                x.PriceUpdatedAt,
+                x.IsActive,
+                x.Comment))
             .ToList();
 
         return Result.Success(result);

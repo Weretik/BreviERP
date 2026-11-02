@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Exceptions;
 using BuildingBlocks.Domain.ValueObjects;
 using Reference.Domain.GarmentAccessories.Entities;
 using Reference.Domain.GarmentAccessories.ValueObjects;
@@ -29,7 +30,7 @@ public sealed class FabricPresentationMetadataTests
     {
         var fabric = Fabric.Create(FabricId.From(57), "Адванта", MoneyAmount.From(150), SupplierId.From(1));
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => fabric.SetPresentationMetadata(new string('a', 501), "235"));
-        Assert.Throws<ArgumentOutOfRangeException>(() => fabric.SetPresentationMetadata("бавовна", new string('a', 101)));
+        Assert.Throws<DomainException>(() => fabric.SetPresentationMetadata(new string('a', 501), "235"));
+        Assert.Throws<DomainException>(() => fabric.SetPresentationMetadata("бавовна", new string('a', 101)));
     }
 }

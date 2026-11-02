@@ -1,6 +1,9 @@
 using Reference.Application.Contracts.Pricing;
 using Reference.Application.Contracts.Persistence;
+using Reference.Application.Features.Fabric.Shared;
+using Reference.Application.Features.Fabric.Shared.Specifications;
 using Reference.Application.Features.Fabric.Update.Specifications;
+using Reference.Application.Features.Shared.Dates;
 using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
 
@@ -8,7 +11,8 @@ namespace Reference.Application.Features.Fabric.Update;
 
 public sealed class UpdateFabricCommandHandler(
     IReferenceRepository<FabricEntity> repository,
-    IReferenceReadRepository<SupplierEntity> supplierRepository)
+    IReferenceReadRepository<SupplierEntity> supplierRepository,
+    TimeProvider timeProvider)
     : ICommandHandler<UpdateFabricCommand, Result>
 {
     public async ValueTask<Result> Handle(
@@ -21,21 +25,20 @@ public sealed class UpdateFabricCommandHandler(
             return Result.NotFound();
 
         var request = command.Request;
-        var name = request.Name.Trim();
-        var providerName = request.ProviderName.Trim();
-
-        var supplier = await supplierRepository.FirstOrDefaultAsync(new SupplierByNameSpec(providerName), cancellationToken);
+        var supplier = await supplierRepository.FirstOrDefaultAsync(
+            new SupplierByNameSpec(request.ProviderName.Trim()), cancellationToken);
 
         if (supplier is null)
-            return Result.NotFound("Fabric provider was not found.");
+            return Result.Invalid([new ValidationError("Request.ProviderName", "Постачальника з такою назвою не знайдено.")]);
 
-        var duplicateExists = await repository.AnyAsync(
-            new FabricByNameExceptIdSpec(command.Id, name), cancellationToken);
+        var code = FabricEntity.NormalizeCode(request.Code);
+        if (code is not null && await repository.AnyAsync(new FabricByCodeSpec(code, command.Id), cancellationToken))
+            return Result.Invalid([new ValidationError("Request.Code", "Тканина з таким кодом уже існує.")]);
 
-        if (duplicateExists)
-            return Result.Conflict("Fabric with the same name already exists.");
-
-        entity.Update(name, MoneyAmount.From(request.Price), supplier.Id);
+        entity.ApplyDetails(FabricDetailsFactory.From(request, supplier.Id));
+        var price = MoneyAmount.From(request.Price);
+        if (entity.Price != price)
+            entity.SetPrice(price, KyivDate.Today(timeProvider));
 
         try
         {
@@ -49,5 +52,3 @@ public sealed class UpdateFabricCommandHandler(
         return Result.Success();
     }
 }
-
-

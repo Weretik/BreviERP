@@ -1,3 +1,17 @@
-﻿namespace Reference.Application.Features.Fabric.Create.DTOs;
+using Reference.Application.Features.Fabric.Shared.DTOs;
 
-public sealed record CreateFabricCommandRequest(int Id, string Name, decimal Price, string ProviderName);
+namespace Reference.Application.Features.Fabric.Create.DTOs;
+
+public sealed record CreateFabricCommandRequest(
+    int Id,
+    string Name,
+    decimal Price,
+    string ProviderName,
+    string? Code = null,
+    string? NameRu = null,
+    string? Composition = null,
+    string? CompositionRu = null,
+    string? Density = null,
+    bool IsActive = true,
+    string? Comment = null,
+    string? ProposalDescription = null) : IFabricFields;

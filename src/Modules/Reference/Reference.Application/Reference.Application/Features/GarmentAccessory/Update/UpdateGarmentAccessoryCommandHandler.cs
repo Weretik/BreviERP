@@ -1,11 +1,9 @@
 using Reference.Application.Contracts.Pricing;
 using Reference.Application.Contracts.Persistence;
+using Reference.Application.Features.GarmentAccessory.Shared;
 using Reference.Application.Features.GarmentAccessory.Shared.Specifications;
 using Reference.Application.Features.GarmentAccessory.Update.Specifications;
-using Reference.Domain.AdditionalReferences.ValueObjects;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Application.Features.Shared.Dates;
 using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
 
@@ -13,7 +11,8 @@ namespace Reference.Application.Features.GarmentAccessory.Update;
 
 public sealed class UpdateGarmentAccessoryCommandHandler(
     IReferenceRepository<GarmentAccessoryEntity> repository,
-    IReferenceReadRepository<SupplierEntity> supplierRepository)
+    IReferenceReadRepository<SupplierEntity> supplierRepository,
+    TimeProvider timeProvider)
     : ICommandHandler<UpdateGarmentAccessoryCommand, Result>
 {
     public async ValueTask<Result> Handle(
@@ -26,22 +25,20 @@ public sealed class UpdateGarmentAccessoryCommandHandler(
             return Result.NotFound();
 
         var request = command.Request;
-        var name = request.Name.Trim();
-        var supplierName = request.SupplierName.Trim();
-
         var supplier = await supplierRepository.FirstOrDefaultAsync(
-            new SupplierByNameSpec(supplierName), cancellationToken);
+            new SupplierByNameSpec(request.SupplierName.Trim()), cancellationToken);
 
         if (supplier is null)
-            return Result.NotFound("Garment accessory supplier was not found.");
+            return Result.Invalid([new ValidationError("Request.SupplierName", "Постачальника з такою назвою не знайдено.")]);
 
-        var duplicateExists = await repository.AnyAsync(
-            new GarmentAccessoryByNameExceptIdSpec(command.Id, name), cancellationToken);
+        var code = GarmentAccessoryEntity.NormalizeCode(request.Code);
+        if (code is not null && await repository.AnyAsync(new GarmentAccessoryByCodeSpec(code, command.Id), cancellationToken))
+            return Result.Invalid([new ValidationError("Request.Code", "Фурнітура з таким кодом уже існує.")]);
 
-        if (duplicateExists)
-            return Result.Conflict("Garment accessory with the same name already exists.");
-
-        entity.Update(name, MoneyAmount.From(request.Price), supplier.Id.Value);
+        entity.ApplyDetails(GarmentAccessoryDetailsFactory.From(request, supplier.Id));
+        var price = MoneyAmount.From(request.Price);
+        if (entity.Price != price)
+            entity.SetPrice(price, KyivDate.Today(timeProvider));
 
         try
         {

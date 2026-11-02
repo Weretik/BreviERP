@@ -5,8 +5,8 @@
 | Table | PK | Main data and purpose |
 | --- | --- | --- |
 | `Suppliers` | `Id` | Suppliers and contacts; optional unique `KeepinCrmId`, Brevi-owned `PurchaseCategories`, `IsActive`, `Notes`. |
-| `FabricsReference` | `Id` | Fabrics: `Name`, `Price`, `ProviderId` (FK to `Suppliers`). |
-| `GarmentAccessoriesReference` | `Id` | Accessories: `Name`, `Price`, `SupplierId` (FK). |
+| `FabricsReference` | `Id` | Fabrics: `Code` (FAB-…, unique when set), `Name`, `NameRu`, `Price`, `PriceUpdatedAt`, `ProviderId` (FK to `Suppliers`), `Composition`, `CompositionRu`, `Density`, `IsActive`, `Comment`, `ProposalDescription`. |
+| `GarmentAccessoriesReference` | `Id` | Accessories: `Code` (FUR-…, unique when set), `Name`, `Price`, `PriceUpdatedAt`, `SupplierId` (FK), `Unit` (шт./м/послуга), `IsActive`, `Comment`. |
 | `GarmentParts` | `Id` | Garment parts. |
 | `GarmentPartOperations` | `Id` | Operations: `GarmentPartId`, `Name`, `Min` numeric(24,8); the pricing revision workflow accepts values fitting numeric(20,8). |
 | `AdditionalReferences` | `Id` | Additional reference values: `Key`, `Name`, `Value`, `Unit`. |
