@@ -1,6 +1,6 @@
 # Containers and Cloud Run deployment
 
-**Verification status:** Static review of repository files on 2026-11-02. This document describes the configured pipeline; actual Google Cloud resource state and the most recent successful deployment were not checked.
+**Verification status:** First deploy from `pnevman-creator/brevi-api` through this workflow succeeded on 2026-11-02 (verify + deploy green), after enabling the Cloud Resource Manager API. Later runs are checked in the fork's Actions tab.
 
 ## Sources
 
@@ -28,6 +28,8 @@ The deploy job signs in without a key, through Workload Identity Federation: Git
 - Cloud Run Admin — create, update and execute jobs, deploy the service;
 - Service Account User — run jobs and the service as their runtime service account;
 - Storage Object Admin on bucket `brevistoreapi-catalog-import` — create the report folder marker.
+
+The Cloud Resource Manager API (`cloudresourcemanager.googleapis.com`) must be enabled in the project: `gcloud run jobs replace`, used for the reminders and catalogue import jobs, fails with `SERVICE_DISABLED` without it when called from outside Google Cloud.
 
 Secret values are never read by the workflow; Cloud Run resolves the references with the runtime service account, which needs Secret Manager Secret Accessor.
 
