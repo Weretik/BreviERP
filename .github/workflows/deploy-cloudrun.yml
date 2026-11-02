@@ -19,6 +19,8 @@ concurrency:
 env:
   GCP_PROJECT_ID: brevistoreapi
   GCP_REGION: europe-central2
+  GCP_WORKLOAD_IDENTITY_PROVIDER: projects/443622778364/locations/global/workloadIdentityPools/github/providers/github-oidc
+  GCP_DEPLOY_SERVICE_ACCOUNT: github-deploy@brevistoreapi.iam.gserviceaccount.com
   AR_REPO: api
   API_SERVICE: brevierp-api
   SEED_JOB: brevierp-seed
@@ -66,34 +68,25 @@ jobs:
     needs: verify
     permissions:
       contents: read
-    env:
-      HAS_GCP_KEY: ${{ secrets.GCP_SA_KEY != '' }}
+      id-token: write
 
     steps:
-      # Until the GCP_SA_KEY secret is added the job only reports why it skipped, so merging this
-      # workflow cannot deploy twice while the old Cloud Build trigger is still switched on.
-      - name: Check deploy key
-        if: env.HAS_GCP_KEY != 'true'
-        run: echo "::notice::GCP_SA_KEY secret is not set; deploy skipped. See docs/sdd/operations/deployment/cloud-run-deploy.md."
-
       - name: Checkout
-        if: env.HAS_GCP_KEY == 'true'
         uses: actions/checkout@v5
 
       - name: Auth to Google Cloud
-        if: env.HAS_GCP_KEY == 'true'
         uses: google-github-actions/auth@v3
+        # Keyless sign-in (Workload Identity Federation): service account keys are blocked by organization policy.
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_DEPLOY_SERVICE_ACCOUNT }}
 
       - name: Setup gcloud
-        if: env.HAS_GCP_KEY == 'true'
         uses: google-github-actions/setup-gcloud@v3
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
 
       - name: Configure Docker for Artifact Registry
-        if: env.HAS_GCP_KEY == 'true'
         run: |
           gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
           REGISTRY="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}"
@@ -101,19 +94,16 @@ jobs:
           echo "SEED_IMAGE=${REGISTRY}/host-seed:${GITHUB_SHA}" >> "$GITHUB_ENV"
 
       - name: Build & push Host.Api image
-        if: env.HAS_GCP_KEY == 'true'
         run: |
           docker build -f src/Bootstrapper/Host.Api/Dockerfile -t "$API_IMAGE" .
           docker push "$API_IMAGE"
 
       - name: Build & push Host.Seed image
-        if: env.HAS_GCP_KEY == 'true'
         run: |
           docker build -f src/Bootstrapper/Host.Seed/Dockerfile -t "$SEED_IMAGE" .
           docker push "$SEED_IMAGE"
 
       - name: Create or update Host.Seed job
-        if: env.HAS_GCP_KEY == 'true'
         run: |
           set -euo pipefail
           if gcloud run jobs describe "$SEED_JOB" --region "$GCP_REGION" >/dev/null 2>&1; then
@@ -130,7 +120,6 @@ jobs:
             --quiet
 
       - name: Create or update Telegram reminders job
-        if: env.HAS_GCP_KEY == 'true'
         run: |
           set -euo pipefail
           # Daily reminders run (Cloud Scheduler, weekdays 09:00 Kyiv). Same image as the seed job, but it only
@@ -154,11 +143,9 @@ jobs:
             --quiet
 
       - name: Run database migrations and seed data
-        if: env.HAS_GCP_KEY == 'true'
         run: gcloud run jobs execute "$SEED_JOB" --region "$GCP_REGION" --wait --quiet
 
       - name: Deploy Host.Api to Cloud Run
-        if: env.HAS_GCP_KEY == 'true'
         run: |
           set -euo pipefail
           # Telegram reminders secrets are always attached: they exist in production, and a missing secret should
@@ -176,7 +163,6 @@ jobs:
             --quiet
 
       - name: Create or update catalogue import job
-        if: env.HAS_GCP_KEY == 'true'
         run: |
           set -euo pipefail
           # Configuration only: no migration/import execution and no secret value read.

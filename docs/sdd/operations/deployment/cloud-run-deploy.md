@@ -22,7 +22,7 @@ Region, project, Artifact Registry repository, service and job names are `env` v
 
 ## Google Cloud access
 
-The deploy job signs in with a service account JSON key stored in the secret `GCP_SA_KEY` of the fork repository (Settings → Secrets and variables → Actions), as KedrStore does. GitHub Actions must be enabled in the fork. Until that secret exists, the deploy job only logs a notice and skips; build and tests still run. The service account needs, in project `brevistoreapi`:
+The deploy job signs in without a key, through Workload Identity Federation: GitHub issues a short-lived OIDC token, the pool `github` / provider `github-oidc` in project `brevistoreapi` accepts it only for repository `pnevman-creator/brevi-api`, and the job acts as service account `github-deploy@brevistoreapi.iam.gserviceaccount.com`. Service account keys are blocked by the organization policy `iam.disableServiceAccountKeyCreation`. GitHub Actions must be enabled in the fork. The service account needs `roles/iam.workloadIdentityUser` for that repository principal set and, in project `brevistoreapi`:
 
 - Artifact Registry Writer — push images;
 - Cloud Run Admin — create, update and execute jobs, deploy the service;
