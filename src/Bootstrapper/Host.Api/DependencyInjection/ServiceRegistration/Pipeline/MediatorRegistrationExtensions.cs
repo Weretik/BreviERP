@@ -5,6 +5,7 @@ using BuildingBlocks.Application.Behaviors;
 using Identity.Application;
 using Reference.Application;
 using Reminders.Application;
+using Media.Application;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 
@@ -23,6 +24,7 @@ public static class MediatorRegistrationExtensions
                 typeof(CrmApplicationAssemblyMarker).Assembly,
                 typeof(ReferenceApplicationAssemblyMarker).Assembly,
                 typeof(RemindersApplicationAssemblyMarker).Assembly,
+                typeof(MediaApplicationAssemblyMarker).Assembly,
                 typeof(ApplicationAssemblyMarker).Assembly
             ];
 

@@ -43,6 +43,10 @@ COPY ["src/Modules/Reminders/Reminders.Api/Reminders.Api/Reminders.Api.csproj", 
 COPY ["src/Modules/Reminders/Reminders.Application/Reminders.Application/Reminders.Application.csproj", "src/Modules/Reminders/Reminders.Application/Reminders.Application/"]
 COPY ["src/Modules/Reminders/Reminders.Domain/Reminders.Domain/Reminders.Domain.csproj", "src/Modules/Reminders/Reminders.Domain/Reminders.Domain/"]
 COPY ["src/Modules/Reminders/Reminders.Infrastructure/Reminders.Infrastructure/Reminders.Infrastructure.csproj", "src/Modules/Reminders/Reminders.Infrastructure/Reminders.Infrastructure/"]
+COPY ["src/Modules/Media/Media.Api/Media.Api/Media.Api.csproj", "src/Modules/Media/Media.Api/Media.Api/"]
+COPY ["src/Modules/Media/Media.Application/Media.Application/Media.Application.csproj", "src/Modules/Media/Media.Application/Media.Application/"]
+COPY ["src/Modules/Media/Media.Domain/Media.Domain/Media.Domain.csproj", "src/Modules/Media/Media.Domain/Media.Domain/"]
+COPY ["src/Modules/Media/Media.Infrastructure/Media.Infrastructure/Media.Infrastructure.csproj", "src/Modules/Media/Media.Infrastructure/Media.Infrastructure/"]
 
 RUN dotnet restore "src/Bootstrapper/Host.Api/Host.Api.csproj"
 COPY . .

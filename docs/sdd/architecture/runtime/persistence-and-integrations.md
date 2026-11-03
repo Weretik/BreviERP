@@ -12,7 +12,7 @@ Catalog, Reference, Identity, and Accounting use separate EF Core contexts on Po
 
 ## External adapters
 
-Catalog media storage and other external adapters live in Infrastructure. Application owns only the abstraction and use-case orchestration.
+Media CDN storage and other external adapters live in Infrastructure. Application owns only the abstraction and use-case orchestration.
 
 There is no shared `IBackgroundJobService` abstraction or implemented scheduler in the current code. For new background work, first define its contract and boundaries in the specification. Do not couple Application code directly to a scheduler.
 

@@ -53,6 +53,9 @@
       <ProjectReference Include="..\..\src\Modules\Reminders\Reminders.Domain\Reminders.Domain\Reminders.Domain.csproj" />
       <ProjectReference Include="..\..\src\Modules\Reminders\Reminders.Application\Reminders.Application\Reminders.Application.csproj" />
       <ProjectReference Include="..\..\src\Modules\Reminders\Reminders.Infrastructure\Reminders.Infrastructure\Reminders.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Media\Media.Domain\Media.Domain\Media.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Media\Media.Application\Media.Application\Media.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Media\Media.Infrastructure\Media.Infrastructure\Media.Infrastructure.csproj" />
       <ProjectReference Include="..\..\src\Modules\Crm\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
     </ItemGroup>
 </Project>

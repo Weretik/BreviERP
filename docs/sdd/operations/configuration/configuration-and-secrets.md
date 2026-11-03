@@ -15,21 +15,19 @@ Environment variable keys use double underscores, for example `ConnectionStrings
 | `Cors:AllowedOrigins` / `AllowedOriginsCsv` | Browser origins allowed to call the API | No, but deployment-specific |
 | `Identity:SessionCookies` | Cookie names, paths, lifetimes, `Secure` and SameSite rules | No |
 | `Identity:SessionSecurity` | Access and refresh token lifetime limits | No |
-| `AdmToolsStorage` | Catalog media storage settings | Depends on the provider |
-| `CatalogMediaUpload` | Maximum upload size and base path for original Product media | No |
+| `AdmToolsStorage` | Photo library CDN storage (Media module); login and password come from secrets | Login, password: yes |
+| `MediaUpload` | Maximum photo size and CDN folder for new originals | No |
 | `Reminders:Telegram` | Bot token, webhook secret and public webhook URL for [Telegram reminders](../jobs/telegram-reminders.md) | Token and secret: yes |
 
-## Catalog media uploads
+## Photo library uploads
 
-`CatalogMediaUpload` is a required configuration section. The code has no defaults: `MaxFileSizeBytes` and `BaseFolder` are set in `appsettings.json` or deployment configuration. The API applies one defined limit both to the multipart request body and the upload command.
-
-Before startup, the Host verifies that `MaxFileSizeBytes` is greater than zero and `BaseFolder` is not empty. Invalid configuration blocks startup rather than the first upload request.
+`MediaUpload` configures the [photo library](../../features/media/library.md). `MaxFileSizeBytes` (15 MiB in `appsettings.json`) is the largest accepted photo; `BaseFolder` (`/library/original`) is the CDN folder for new originals. Both are required: an invalid section fails the first upload with an options validation error. The multipart request itself is capped at 32 MiB by the upload endpoint. It replaces the former `CatalogMediaUpload` section; remove that one from deployment overrides if it was set.
 
 A production deployment can override these values without changing the file:
 
 ```text
-CatalogMediaUpload__MaxFileSizeBytes=104857600
-CatalogMediaUpload__BaseFolder=/products/original
+MediaUpload__MaxFileSizeBytes=15728640
+MediaUpload__BaseFolder=/library/original
 ```
 
 The double underscore in an environment variable name corresponds to `:` in a .NET configuration key.

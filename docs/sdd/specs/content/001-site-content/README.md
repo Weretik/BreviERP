@@ -23,7 +23,7 @@ These exist today in schema `catalog` and are hidden on the «Товари» pag
 | --- | --- |
 | `Products.RuName`, `Products.Slug`, `Products.DescriptionUk`, `Products.DescriptionRu` | product page texts per language |
 | `ProductInformationBlocks`, `ProductCharacteristicTables` / rows | product page blocks |
-| `ProductPhotos`, `MediaFiles` | gallery and media |
+| `ProductPhotos` | gallery (photo ids from the Media library) |
 | `ProductCategories`, `ProductCategoryLinks` | site categories (rebuilt from sections) |
 
 Content refers to products by Catalog product ID and to sections by Reference section ID, without cross-module foreign keys.
@@ -32,7 +32,7 @@ Content refers to products by Catalog product ID and to sections by Reference se
 
 - Who writes texts: manual in Admin only, or a one-time import from the current site?
 - Do category slugs follow the current site URLs (301 redirects are planned in brevi-web site migration)?
-- Does Content own media files, or does Catalog keep `MediaFiles` and Content only refers to them?
+- ~~Does Content own media files?~~ Decided 2026-11-03: photos live in the separate Media module ([MED-001](../../media/001-media-library/README.md)); Content stores photo ids only.
 
 ## What to implement (when the owner starts it)
 

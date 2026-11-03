@@ -26,6 +26,10 @@ Catalog, Identity, Reference, and Accounting module contexts are implemented. Ru
 
 The password is not read from `Identity:AdminUser:DefaultPassword`; the seeder reads `ADMIN_DEFAULT_PASSWORD`. If the value is absent, administrator creation is skipped and this state is logged.
 
+## Media
+
+Normal Host.Seed runs apply the `media` schema migrations (history in `media.__EFMigrationsHistory`). `InitialMedia` copies uploaded photos from `catalog."MediaFiles"` with the same ids into the folder «Товари» once; the old table stays as a fallback copy ([MED-001](../../specs/media/001-media-library/README.md)).
+
 ## Reminders
 
 Normal Host.Seed runs apply the `reminders` schema migrations (history in `reminders.__EFMigrationsHistory`). `DefaultReminderTaskSeeder` adds the 25 default reminder tasks only when the task table is empty, without a chat, so nothing is sent until a chat is approved and assigned. The `--reminders-dispatch=true` mode skips migrations and seeding; see the [Telegram reminders runbook](../jobs/telegram-reminders.md).

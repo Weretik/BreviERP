@@ -42,7 +42,7 @@ A new module follows the same clean architecture as the existing ones:
 
 ## BreviERP specifics
 
-- Business modules: `Accounting`, `Catalog`, `Crm`, `Identity`, `Reference`, `Reminders`. Projects live in `src/Modules/<Module>/<Module>.<Layer>/<Module>.<Layer>/`.
+- Business modules: `Accounting`, `Catalog`, `Crm`, `Identity`, `Media`, `Reference`, `Reminders`. Projects live in `src/Modules/<Module>/<Module>.<Layer>/<Module>.<Layer>/`.
 - Hosts are `src/Bootstrapper/Host.Api` and `src/Bootstrapper/Host.Seed`; register a new module in both when it has jobs or seed data.
 - Architecture tests check each module's references in `tests/ArchitectureTests/` (see `CrmDependencyTests.cs`); add the same test for a new module.
 - `Crm` is the reference implementation of a module schema: `HasDefaultSchema("crm")` and `MigrationsHistoryTable("__EFMigrationsHistory", "crm")`.

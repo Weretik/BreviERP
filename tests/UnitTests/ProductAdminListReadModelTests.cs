@@ -2,8 +2,7 @@ using Ardalis.Specification;
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.Product.GetAdminList;
 using Catalog.Application.Features.Product.GetAdminList.DTOs;
-using Catalog.Application.Features.Product.Shared.DTOs;
-using Catalog.Domain.Media.Entities;
+using Catalog.Application.Contracts.Media;
 using Catalog.Domain.ProductCategories.Entities;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
@@ -18,13 +17,13 @@ public sealed class ProductAdminListReadModelTests
     {
         var products = new Mock<ICatalogReadRepository<Product>>();
         var categories = new Mock<ICatalogReadRepository<ProductCategory>>();
-        var media = new Mock<ICatalogReadRepository<MediaFile>>();
+        var media = new Mock<IProductMediaReader>();
         products.Setup(x => x.CountAsync(It.IsAny<ISpecification<Product>>(), It.IsAny<CancellationToken>())).ReturnsAsync(2);
         products.Setup(x => x.ListAsync(It.IsAny<ISpecification<Product, ProductListItemReadModel>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new(1, "Sewing", "sewing", ProductType.Sewing, [], null, DateTimeOffset.UtcNow, null),
                 new(2, "PPE", "ppe", ProductType.Ppe, [], 501, DateTimeOffset.UtcNow, null)]);
-        media.Setup(x => x.ListAsync(It.IsAny<ISpecification<MediaFile, ProductMediaUrl>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new ProductMediaUrl(501, "https://cdn.example.test/501.jpg")]);
+        media.Setup(x => x.GetUrlsAsync(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<int, string> { [501] = "https://cdn.example.test/501.jpg" });
         var result = await new GetAdminProductsQueryHandler(products.Object, categories.Object, media.Object)
             .Handle(new GetAdminProductsQuery(), CancellationToken.None);
         Assert.That(result.Value.Select(x => x.MinimumWholesalePrice), Is.All.Zero);
@@ -37,7 +36,7 @@ public sealed class ProductAdminListReadModelTests
     {
         var products = new Mock<ICatalogReadRepository<Product>>();
         var categories = new Mock<ICatalogReadRepository<ProductCategory>>();
-        var media = new Mock<ICatalogReadRepository<MediaFile>>();
+        var media = new Mock<IProductMediaReader>();
         products.Setup(x => x.CountAsync(It.IsAny<ISpecification<Product>>(), It.IsAny<CancellationToken>())).ReturnsAsync(0);
         products.Setup(x => x.ListAsync(It.IsAny<ISpecification<Product, ProductListItemReadModel>>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
         var result = await new GetAdminProductsQueryHandler(products.Object, categories.Object, media.Object)

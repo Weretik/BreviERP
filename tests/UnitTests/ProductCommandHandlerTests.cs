@@ -8,7 +8,7 @@ using Catalog.Application.Features.Product.Create;
 using Catalog.Application.Features.Product.Create.DTOs;
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
 using Catalog.Application.Features.Product.Update;
-using Catalog.Domain.Media.Entities;
+using Catalog.Application.Contracts.Media;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.ProductCategories.Entities;
 using Catalog.Domain.Products.Entities;
@@ -89,8 +89,9 @@ public sealed class ProductCommandHandlerTests
         fixture.ProductRepository.Setup(x => x.AddAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()))
             .Callback<Product, CancellationToken>((product, _) => savedProduct = product)
             .ReturnsAsync((Product product, CancellationToken _) => product);
-        fixture.MediaRepository.Setup(x => x.FirstOrDefaultAsync(It.IsAny<ISpecification<MediaFile>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ReadyMediaFile(77));
+        fixture.MediaReader.Setup(x => x.GetUrlsAsync(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyCollection<int> ids, CancellationToken _) =>
+                ids.ToDictionary(id => id, id => $"https://example.test/{id}.jpg"));
 
         var result = await fixture.CreateHandler.Handle(new CreateProductCommand(SewingRequest() with
         {
@@ -153,17 +154,10 @@ public sealed class ProductCommandHandlerTests
         new Dictionary<int, ReferenceItem>(), new Dictionary<int, PricedReferenceItem> { [10] = new(10, "Тканина", 100m) },
         new Dictionary<int, PricedReferenceItem>(), new Dictionary<int, OperationReferenceItem>(), new Dictionary<int, AdditionalReferenceItem>());
 
-    private static MediaFile ReadyMediaFile(int id)
-    {
-        var media = MediaFile.CreatePending(MediaFileId.Create(id), "photo.jpg", "image/jpeg", 1, "test", "catalog", $"products/{id}.jpg");
-        media.MarkUploaded($"https://example.test/{id}.jpg", null, null);
-        return media;
-    }
-
     private sealed class Fixture
     {
         public Mock<ICatalogRepository<Product>> ProductRepository { get; } = new();
-        public Mock<ICatalogReadRepository<MediaFile>> MediaRepository { get; } = new();
+        public Mock<IProductMediaReader> MediaReader { get; } = new();
         public Mock<IProductReferenceReader> ReferenceReader { get; } = new();
         public Mock<ICatalogReadRepository<ProductCategory>> CategoryRepository { get; } = new();
         private Mock<IProductSlugGenerator> SlugGenerator { get; } = new();
@@ -173,13 +167,15 @@ public sealed class ProductCommandHandlerTests
         public Fixture()
         {
             ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
+            MediaReader.Setup(x => x.GetUrlsAsync(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Dictionary<int, string>());
             ProductRepository.Setup(x => x.FirstOrDefaultAsync(
                     It.IsAny<ISpecification<Product, ProductAdminDetailReadModel>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(ReadModel());
             CategoryRepository.Setup(x => x.ListAsync(It.IsAny<ISpecification<ProductCategory>>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
             SlugGenerator.Setup(x => x.GenerateFromUkrainianName(It.IsAny<string>())).Returns("kurtka");
-            CreateHandler = new(ProductRepository.Object, MediaRepository.Object, ReferenceReader.Object, CategoryRepository.Object, SlugGenerator.Object);
-            ReplaceHandler = new(ProductRepository.Object, MediaRepository.Object, ReferenceReader.Object, CategoryRepository.Object, SlugGenerator.Object);
+            CreateHandler = new(ProductRepository.Object, MediaReader.Object, ReferenceReader.Object, CategoryRepository.Object, SlugGenerator.Object);
+            ReplaceHandler = new(ProductRepository.Object, MediaReader.Object, ReferenceReader.Object, CategoryRepository.Object, SlugGenerator.Object);
         }
 
         private static ProductAdminDetailReadModel ReadModel() => new(
