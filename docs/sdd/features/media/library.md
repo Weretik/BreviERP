@@ -1,0 +1,52 @@
+# Photo library («Фото»)
+
+Folders and subfolders of photos on the Brevi CDN: upload, search by name or folder, rename, move and delete. Products keep the photo id and read the URL through the host. [SDD](../../specs/media/001-media-library/README.md), [contract](../../contracts/media/media-library.openapi.yaml), [tables](../../architecture/data-model/media.md).
+
+## Code structure
+
+```text
+src/Modules/Media/
+  Media.Domain/Media.Domain/
+    Folders/           # MediaFolder, MediaFolderTree (depth, branch, move checks)
+    Files/MediaFile.cs # photo row created after the CDN upload
+    MediaNames.cs      # name normalization shared by folders and photos
+  Media.Application/Media.Application/
+    Abstractions/      # IMediaDbContext, IMediaStorage (CDN), IMediaUsageReader, MediaUploadSettings
+    Contracts/         # request/response DTOs
+    Folders/           # GetFolders, CreateFolder, UpdateFolder (rename/move), DeleteFolder; shared messages and validator
+    Files/             # SearchFiles, GetFile (+usages), UploadFile (signature check), UpdateFile, MoveFiles, DeleteFile, GetFilesByIds
+  Media.Infrastructure/Media.Infrastructure/
+    Persistence/       # MediaDbContext (schema media), configurations, migrations
+    Storage/           # AdmToolsMediaStorage (CDN adapter), options
+    DependencyInjection/
+  Media.Api/Media.Api/
+    Folders/MediaFoldersController.cs   # /api/media/folders
+    Files/MediaFilesController.cs       # /api/media/files
+src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/
+  CatalogProductMediaReader.cs   # Catalog IProductMediaReader → Media GetMediaFilesByIdsQuery
+  MediaProductUsageReader.cs     # Media IMediaUsageReader → Catalog GetProductMediaUsagesQuery
+```
+
+## Structure diagram
+
+```mermaid
+flowchart LR
+  Admin[Brevi Admin] --> Controllers[Media controllers]
+  Controllers --> UseCases[Mediator use cases]
+  UseCases --> Db[(media schema)]
+  UseCases --> Cdn[AdmToolsMediaStorage → CDN]
+  UseCases --> Usage[IMediaUsageReader]
+  Usage -.host adapter.-> CatalogQuery[Catalog GetProductMediaUsagesQuery]
+  CatalogHandlers[Catalog product handlers] --> Reader[IProductMediaReader]
+  Reader -.host adapter.-> MediaQuery[Media GetMediaFilesByIdsQuery]
+```
+
+## Tests
+
+- `tests/UnitTests/Media/` — folder tree and handler scenarios on SQLite in memory with a fake CDN.
+- `tests/ArchitectureTests/MediaDependencyTests.cs` — layer references, own schema and history.
+- `tests/IntegrationTests/MediaLibraryMigrationTests.cs` — copy of old Catalog photos (needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Media`.
+
+**Data:** [media schema](../../architecture/data-model/media.md)

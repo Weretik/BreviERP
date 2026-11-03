@@ -37,7 +37,7 @@ The form may be one screen or a sequence of steps, but it saves the product in o
 ### Section 2 — Categories and Photos
 
 - The manager selects zero or more categories without duplicate IDs. Load options using `GET /api/reference/product-categories/admin` as described by the [dependency contract](../../../contracts/catalog/product-dependencies.openapi.yaml).
-- The manager selects existing photos through `GET /api/catalog/media` or uploads a new one through `POST /api/catalog/media` (`multipart/form-data`). Link only media files in the `Ready` state to Product; the upload alone does not create a product link.
+- (Updated 2026-11-03: photos now come from the [Media library](../../../contracts/media/media-library.openapi.yaml), `searchMediaFiles` / `uploadMediaFile`.) The manager selects existing photos through `GET /api/catalog/media` or uploads a new one through `POST /api/catalog/media` (`multipart/form-data`). Link only media files in the `Ready` state to Product; the upload alone does not create a product link.
 - Configure `alt`, visibility, order, and main-photo status for each selected photo. If there are photos, exactly one must be main. Show its preview using the ready URL; send `mediaFileId` and link fields in the request, not the URL. Do not add the same media file twice.
 
 ### Section 3 — Descriptive Content

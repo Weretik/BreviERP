@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: BreviERP Product Form Dependencies
   version: 1.0.0
-  description: Existing category lookup and catalog media endpoints used by Product forms.
+  description: Existing category lookup used by Product forms. Photos moved to the Media library contract (../media/media-library.openapi.yaml).
 servers:
   - url: /
 paths:
@@ -21,58 +21,6 @@ paths:
                 items: { $ref: '#/components/schemas/AdminProductCategoryRow' }
         '401': { description: Unauthorized. }
         '404': { description: No categories found. }
-  /api/catalog/media:
-    get:
-      operationId: getCatalogMedia
-      summary: List catalog media files
-      security: []
-      responses:
-        '200':
-          description: Media files.
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/MediaFileListItem' }
-    post:
-      operationId: uploadCatalogMedia
-      summary: Upload a catalog image
-      security: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [file]
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  maxLength: 52428800
-                  description: JPEG, PNG or WebP image up to 50 MiB.
-      responses:
-        '200':
-          description: Uploaded media file.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/UploadMediaResponse' }
-        '400': { description: Invalid or unsupported image. }
-  /api/catalog/media/{id}:
-    delete:
-      operationId: deleteCatalogMedia
-      summary: Delete an unused catalog image
-      security: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema: { type: integer, minimum: 1 }
-      responses:
-        '204': { description: Media file deleted. }
-        '400': { description: Invalid media file id. }
-        '404': { description: Media file not found. }
-        '409': { description: Media file is used by one or more products. }
 components:
   schemas:
     AdminProductCategoryRow:
@@ -89,24 +37,3 @@ components:
         sortOrder: { type: integer }
         isActive: { type: boolean }
         description: { type: [string, 'null'] }
-    MediaFileListItem:
-      type: object
-      required: [id, originalFileName, publicUrl, contentType, storageKey, status]
-      properties:
-        id: { type: integer, minimum: 1 }
-        originalFileName: { type: string }
-        publicUrl: { type: string }
-        contentType: { type: string }
-        storageKey: { type: string }
-        status:
-          type: string
-          enum: [PendingUpload, Ready]
-    UploadMediaResponse:
-      type: object
-      required: [mediaFileId, storageKey, publicUrl, contentType, originalFileName]
-      properties:
-        mediaFileId: { type: integer, minimum: 1 }
-        storageKey: { type: string }
-        publicUrl: { type: string }
-        contentType: { type: string }
-        originalFileName: { type: string }

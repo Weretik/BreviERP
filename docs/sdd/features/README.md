@@ -10,7 +10,6 @@ Products:
 
 - [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products; the «Товари» page overview (section, season, check, current site link, quote description). Planned modules: [«Контент сайту»](../specs/content/001-site-content/README.md), [«Розрахунок КП»](../specs/quotes/001-quote-calculation/README.md).
 - [Product categories](catalog/categories.md) — Admin CRUD and Storefront list.
-- [Catalog media](catalog/media.md) — upload, list, and delete product files.
 - [Sewing Articles and composition](catalog/sewing-composition.md) — sale SKUs, shared/Article material norms, shared operations and review readiness.
 
 Pricing API (start with Sewing or PPE pricing):
@@ -49,6 +48,10 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 ## Crm
 
 - [Clients, quotes and archive planning](crm/clients-and-quotes.md) — versioned CRM/customer/custom/document/delivery workflows, clients from KeepinCRM plus offline frozen-source history staging and dry-run reconciliation. Controlled historical writes remain separate.
+
+## Media
+
+- [Photo library «Фото»](media/library.md) — folders and subfolders on the Brevi CDN, upload, search by name or folder, move and delete; products keep the photo id.
 
 ## Reminders
 

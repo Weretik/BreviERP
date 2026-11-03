@@ -1,6 +1,6 @@
 # `catalog` — Catalog Module Data
 
-**Source:** [Catalog snapshot](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Migrations/CatalogDbContextModelSnapshot.cs) and [configurations](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Congigurations/), reviewed on 2026-10-21. [Back to the database map](README.md). Related features: [products](../../features/catalog/products.md), [categories](../../features/catalog/categories.md), [media](../../features/catalog/media.md).
+**Source:** [Catalog snapshot](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Migrations/CatalogDbContextModelSnapshot.cs) and [configurations](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Congigurations/), reviewed on 2026-10-21. [Back to the database map](README.md). Related features: [products](../../features/catalog/products.md), [categories](../../features/catalog/categories.md), [photo library](../../features/media/library.md).
 
 | Table | PK | Main data and purpose |
 | --- | --- | --- |
@@ -12,7 +12,7 @@
 | `ProductCategories` | `Id` | Category: `ParentId` (FK), `Path`, `Level`, names, and `Slug`. |
 | `ProductCategoryLinks` | `ProductId`, `Id` | Product-to-category link; `Id` is an FK to the category. |
 | `ProductPhotos` | `ProductId`, `Id` | Product photo: `MediaFileId`, order, and visibility flags. |
-| `MediaFiles` | `Id` | File metadata: bucket, storage key, URL, type, and size. |
+| `MediaFiles` | `Id` | Legacy copy kept after the move to the [Media schema](media.md); not mapped by `CatalogDbContext`. |
 | `ProductInformationBlocks` | `Id` | Product text blocks; `ProductId` (FK). |
 | `ProductCharacteristicTables` | `Id` | Product characteristic tables; `ProductId` (FK). |
 | `ProductCharacteristicRows` | `Id` | Characteristic rows; `TableId` (FK). |
@@ -46,7 +46,7 @@ erDiagram
     SewingCalculations ||--o| SewingPricePublications : "CalculationId FK"
 ```
 
-`ProductPhotos.MediaFileId` conceptually references `MediaFiles.Id`, but the FK is absent from the snapshot. `PpeProductDetails.SupplierId`, along with `FabricId`, `GarmentAccessoryId`, and `GarmentPartOperationId` in sewing links, reference [Reference](reference.md) lookup data by ID without cross-module FKs.
+`ProductPhotos.MediaFileId` stores a `media.Files.Id` as a value, without a foreign key. `PpeProductDetails.SupplierId`, along with `FabricId`, `GarmentAccessoryId`, and `GarmentPartOperationId` in sewing links, reference [Reference](reference.md) lookup data by ID without cross-module FKs.
 
 The [publication stage](../../specs/catalog/003-sheet-pricing-parity/publication-implementation.md) adds immutable calculation/publication records through `AddSewingPriceHistory` and `EnforceSewingCalculationArticleOwnership`. History records cannot be orphaned by Product/Article deletion. Published price consumers still await TS-005; adding these tables does not switch legacy Product price projections.
 

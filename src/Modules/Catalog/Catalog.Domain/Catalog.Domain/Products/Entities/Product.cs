@@ -1,7 +1,6 @@
 using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Exceptions;
-using Catalog.Domain.Media.Entities;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.ProductCategories.ValueObjects;
 using Catalog.Domain.Products.Enums;
@@ -158,20 +157,6 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         MarkAsUpdated(updatedAt);
     }
 
-    public void AddPhoto(
-        ProductPhotoId photoId,
-        MediaFile mediaFile,
-        DateTimeOffset updatedAt,
-        string? alt = null,
-        bool isVisible = true,
-        int sortOrder = 0,
-        bool isMain = false)
-    {
-        EnsureMediaFileReady(mediaFile);
-
-        AddPhoto(photoId, mediaFile.Id, updatedAt, alt, isVisible, sortOrder, isMain);
-    }
-
     public void SetPhotoVisibility(ProductPhotoId photoId, bool isVisible, DateTimeOffset updatedAt)
     {
         var photo = GetPhoto(photoId);
@@ -192,13 +177,6 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         EnsureMediaFileNotAttached(mediaFileId, photoId);
         photo.ReplaceMediaFile(mediaFileId);
         MarkAsUpdated(updatedAt);
-    }
-
-    public void ReplacePhotoMediaFile(ProductPhotoId photoId, MediaFile mediaFile, DateTimeOffset updatedAt)
-    {
-        EnsureMediaFileReady(mediaFile);
-
-        ReplacePhotoMediaFile(photoId, mediaFile.Id, updatedAt);
     }
 
     public void SetPhotoSortOrder(ProductPhotoId photoId, int sortOrder, DateTimeOffset updatedAt)
@@ -341,13 +319,5 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         var alreadyAttached = _categories.Any(x => x.CategoryId == categoryId);
         if (alreadyAttached)
             throw new DomainException(ProductErrors.CategoryAlreadyAttached(categoryId.Value));
-    }
-
-    private static void EnsureMediaFileReady(MediaFile mediaFile)
-    {
-        ArgumentNullException.ThrowIfNull(mediaFile);
-
-        if (!mediaFile.IsReadyForProductUsage())
-            throw new DomainException(ProductErrors.PhotoMediaFileNotReady(mediaFile.Id.Value));
     }
 }

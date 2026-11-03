@@ -18,7 +18,8 @@ docs/sdd/contracts/
 - [Frontend integration guide](frontend-integration.md) describes authentication, CSRF, pagination, errors, and current contract coverage.
 - [Aggregated OpenAPI 3.1 contract](openapi.yaml) covers APIs for which a versioned contract has been created and verified.
 - Identity: [session](identity/session.openapi.yaml).
-- Catalog: [products](catalog/product-catalog.openapi.yaml), [«Товари» page overview](catalog/product-overview.openapi.yaml), [categories and media](catalog/product-dependencies.openapi.yaml).
+- Catalog: [products](catalog/product-catalog.openapi.yaml), [«Товари» page overview](catalog/product-overview.openapi.yaml), [categories](catalog/product-dependencies.openapi.yaml).
+- Media: [photo library with folders](media/media-library.openapi.yaml).
 - Reference: [suppliers](reference/suppliers.openapi.yaml), [fabrics](reference/fabrics.openapi.yaml), [garment accessories](reference/garment-accessories.openapi.yaml), [garment parts](reference/garment-parts.openapi.yaml), [operations](reference/garment-part-operations.openapi.yaml), [pricing parameters and PPE markup rules](reference/pricing-parameters.openapi.yaml), [product sections](reference/product-sections.openapi.yaml).
 
 OpenAPI files describe the contract of the actual code. They do not make an endpoint publicly accessible: the host endpoint conventions, authorization attributes and fallback policy determine runtime access.

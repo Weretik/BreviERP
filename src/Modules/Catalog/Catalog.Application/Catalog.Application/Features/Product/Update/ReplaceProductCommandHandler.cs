@@ -6,7 +6,7 @@ using Catalog.Application.Contracts.SlugGeneration;
 using Catalog.Application.Features.Product.Create.DTOs;
 using ProductAdminDetailSpec = Catalog.Application.Features.Product.GetAdminDetail.Specifications.ProductAdminDetailSpec;
 using Catalog.Application.Features.Product.Update.Specifications;
-using Catalog.Domain.Media.Entities;
+using Catalog.Application.Contracts.Media;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.ProductCategories.ValueObjects;
 using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
@@ -19,7 +19,7 @@ namespace Catalog.Application.Features.Product.Update;
 
 public sealed class ReplaceProductCommandHandler(
     ICatalogRepository<ProductEntity> repository,
-    ICatalogReadRepository<MediaFile> mediaRepository,
+    IProductMediaReader mediaReader,
     IProductReferenceReader referenceReader,
     ICatalogReadRepository<ProductCategoryEntity> categoryRepository,
     IProductSlugGenerator slugGenerator) : ICommandHandler<ReplaceProductCommand, Result<ProductAdminDetail>>
@@ -53,13 +53,10 @@ public sealed class ReplaceProductCommandHandler(
         product.SetDescriptions(request.DescriptionUk, request.DescriptionRu, now);
         product.ReplaceCategories(request.CategoryIds.Select(ProductCategoryId.Create), now);
         foreach (var existing in product.Photos.ToList()) product.RemovePhoto(existing.Id, now);
-        var mediaUrls = new Dictionary<int, string>();
-        foreach (var photo in request.Photos)
-        {
-            var media = await mediaRepository.FirstOrDefaultAsync(new Features.Media.Shared.Specifications.MediaFileByIdSpec(photo.MediaFileId), cancellationToken);
-            if (media is null || !media.IsReadyForProductUsage()) return Result.Conflict($"Media file {photo.MediaFileId} is not ready for Product usage.");
-            mediaUrls[photo.MediaFileId] = media.PublicUrl!;
-        }
+        var mediaUrls = await mediaReader.GetUrlsAsync(request.Photos.Select(x => x.MediaFileId).ToList(), cancellationToken);
+        var missingPhoto = request.Photos.FirstOrDefault(x => !mediaUrls.ContainsKey(x.MediaFileId));
+        if (missingPhoto is not null)
+            return Result.Conflict($"Фото {missingPhoto.MediaFileId} не знайдено в медіатеці.");
         foreach (var (photo, index) in request.Photos.Select((photo, index) => (photo, index)))
             product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(photo.MediaFileId), now,
                 photo.Alt, photo.IsVisible, photo.SortOrder, photo.IsMain);

@@ -1,11 +1,10 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using BuildingBlocks.Application.Behaviors;
 using Catalog.Application.Contracts.Admin.Product;
 using Catalog.Application.Features.Product.Create;
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
 using Catalog.Application.Features.Product.GetAdminDetail.Specifications;
-using Catalog.Domain.Media.Entities;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
@@ -70,31 +69,19 @@ public sealed class CatalogProductPersistenceTests
         var migrator = db.Database.GetService<IMigrator>();
         await migrator.MigrateAsync(PreviousMigration);
 
-        db.MediaFiles.Add(MediaFile.CreatePending(
-            MediaFileId.Create(700_001),
-            "existing.jpg",
-            "image/jpeg",
-            1,
-            "test",
-            "catalog",
-            "media/existing.jpg"));
-        await db.SaveChangesAsync();
-        db.ChangeTracker.Clear();
+        await db.Database.ExecuteSqlRawAsync("""
+            INSERT INTO catalog."MediaFiles" ("Id", "FileName", "ContentType", "SizeInBytes", "StorageProvider", "BucketName", "StorageKey", "Status")
+            VALUES (700001, 'existing.jpg', 'image/jpeg', 1, 'test', 'catalog', 'media/existing.jpg', 1)
+            """);
 
         await db.Database.MigrateAsync();
         await db.Database.ExecuteSqlRawAsync("DELETE FROM catalog.\"Products\"");
 
-        var generatedMediaFile = MediaFile.CreatePending(
-            "generated.jpg",
-            "image/jpeg",
-            1,
-            "test",
-            "catalog",
-            "media/generated.jpg");
-        db.MediaFiles.Add(generatedMediaFile);
-        await db.SaveChangesAsync();
-
-        Assert.That(generatedMediaFile.Id, Is.EqualTo(MediaFileId.Create(700_002)));
+        // The photo library moved to the Media module; Catalog keeps the old table untouched as a fallback copy.
+        var keptMediaRows = await db.Database
+            .SqlQueryRaw<int>("SELECT count(*)::int AS \"Value\" FROM catalog.\"MediaFiles\"")
+            .SingleAsync();
+        Assert.That(keptMediaRows, Is.EqualTo(1));
         await AssertSchemaContainsPhaseTwoTables(db);
         await AssertProductLifecycleAndConstraints(db);
 

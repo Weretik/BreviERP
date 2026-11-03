@@ -1,0 +1,254 @@
+openapi: 3.1.0
+info:
+  title: 'Media: photo library'
+  version: 1.0.0
+  description: >-
+    Photo library of the Media module (MED-001): folders and subfolders, upload to the Brevi CDN, search by name or folder,
+    rename, move and delete. Folders exist only in the database, so moving a folder or a photo never changes the CDN URL.
+    Product photos (Catalog) keep the library photo id. Access: Manager or Admin (policy CanManageProducts).
+servers:
+  - url: /
+security:
+  - Bearer: []
+paths:
+  /api/media/folders:
+    get:
+      tags: [Media]
+      operationId: getMediaFolders
+      summary: All folders as a flat list sorted by name; the client builds the tree from parentId
+      responses:
+        '200':
+          description: Folders.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/MediaFolderResponse' }
+        '401': { description: Unauthenticated (normal mode). }
+        '403': { description: Manager or Admin role required (normal mode). }
+    post:
+      tags: [Media]
+      operationId: createMediaFolder
+      summary: Create a folder at the top level or inside another folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MediaFolderInput' }
+      responses:
+        '200':
+          description: Created folder.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaFolderResponse' }
+        '400': { description: Invalid name or parent id. }
+        '404': { description: Parent folder not found. }
+        '409': { description: A sibling folder has the same name (case-insensitive) or the depth limit (8 levels) is reached. }
+  /api/media/folders/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer, minimum: 1 } }
+    put:
+      tags: [Media]
+      operationId: updateMediaFolder
+      summary: Rename the folder and/or move it under another parent (null = top level)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MediaFolderInput' }
+      responses:
+        '200':
+          description: Updated folder.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaFolderResponse' }
+        '400': { description: Invalid name or parent id. }
+        '404': { description: Folder or parent folder not found. }
+        '409': { description: 'Duplicate sibling name, move into itself or its subfolder, or depth limit.' }
+    delete:
+      tags: [Media]
+      operationId: deleteMediaFolder
+      summary: Delete an empty folder
+      responses:
+        '204': { description: Folder deleted. }
+        '404': { description: Folder not found. }
+        '409': { description: The folder still has photos or subfolders. }
+  /api/media/files:
+    get:
+      tags: [Media]
+      operationId: searchMediaFiles
+      summary: Photos by name and/or folder, newest first, one page at a time
+      parameters:
+        - { in: query, name: folderId, schema: { type: integer, minimum: 1 }, description: Omit to search the whole library. }
+        - { in: query, name: includeSubfolders, schema: { type: boolean, default: true }, description: 'With folderId, also search its subfolders.' }
+        - { in: query, name: search, schema: { type: string, maxLength: 255 }, description: 'Part of the photo name, case-insensitive.' }
+        - { in: query, name: page, schema: { type: integer, minimum: 1, default: 1 } }
+        - { in: query, name: pageSize, schema: { type: integer, minimum: 1, maximum: 100, default: 48 } }
+      responses:
+        '200':
+          description: One page of photos.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaFilePage' }
+        '400': { description: Invalid paging or search. }
+        '404': { description: Folder not found. }
+    post:
+      tags: [Media]
+      operationId: uploadMediaFile
+      summary: Upload one photo into a folder
+      description: >-
+        The file is stored on the CDN first; the library row is created only after the CDN accepted it.
+        Upload several photos with several requests.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: JPEG, PNG or WebP; the bytes must match the type. Limit from MediaUpload:MaxFileSizeBytes (15 MiB).
+                folderId:
+                  type: integer
+                  minimum: 1
+                  description: Target folder; omit for the library root.
+      responses:
+        '200':
+          description: Uploaded photo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaFileResponse' }
+        '400': { description: 'Missing, too large, unsupported or fake image.' }
+        '404': { description: Folder not found. }
+  /api/media/files/move:
+    post:
+      tags: [Media]
+      operationId: moveMediaFiles
+      summary: Move up to 200 photos into one folder (null = library root)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoveMediaFilesInput' }
+      responses:
+        '204': { description: Photos moved. }
+        '400': { description: Invalid ids. }
+        '404': { description: Folder or one of the photos not found. }
+  /api/media/files/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer, minimum: 1 } }
+    get:
+      tags: [Media]
+      operationId: getMediaFile
+      summary: One photo and the places that use it
+      responses:
+        '200':
+          description: Photo with usages.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaFileDetailResponse' }
+        '404': { description: Photo not found. }
+    put:
+      tags: [Media]
+      operationId: updateMediaFile
+      summary: Rename the photo, change its default alt text or folder; the CDN URL stays the same
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MediaFileInput' }
+      responses:
+        '200':
+          description: Updated photo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaFileResponse' }
+        '400': { description: 'Invalid name, alt or folder id.' }
+        '404': { description: Photo or folder not found. }
+    delete:
+      tags: [Media]
+      operationId: deleteMediaFile
+      summary: Delete an unused photo from the CDN and the library
+      responses:
+        '204': { description: Photo deleted. }
+        '404': { description: Photo not found. }
+        '409': { description: 'The photo is used, for example by a product; the message names where.' }
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    MediaFolderInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120, description: 'Trimmed; must not contain / or \.' }
+        parentId: { type: [integer, 'null'], minimum: 1 }
+    MediaFolderResponse:
+      type: object
+      required: [id, name, fileCount]
+      properties:
+        id: { type: integer, minimum: 1 }
+        name: { type: string }
+        parentId: { type: [integer, 'null'] }
+        fileCount: { type: integer, minimum: 0, description: 'Photos directly in this folder, without subfolders.' }
+    MediaFileResponse:
+      type: object
+      required: [id, fileName, publicUrl, contentType, sizeInBytes, createdAt]
+      properties:
+        id: { type: integer, minimum: 1 }
+        fileName: { type: string }
+        alt: { type: [string, 'null'] }
+        folderId: { type: [integer, 'null'], description: Null for the library root. }
+        publicUrl: { type: string }
+        contentType: { type: string }
+        sizeInBytes: { type: integer, format: int64 }
+        width: { type: [integer, 'null'] }
+        height: { type: [integer, 'null'] }
+        createdAt: { type: string, format: date-time }
+    MediaFilePage:
+      type: object
+      required: [items, total, page, pageSize]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/MediaFileResponse' }
+        total: { type: integer, minimum: 0 }
+        page: { type: integer, minimum: 1 }
+        pageSize: { type: integer, minimum: 1 }
+    MediaUsageResponse:
+      type: object
+      required: [area, ownerId, title]
+      properties:
+        area: { type: string, description: 'Where the photo is used, for example «Товари».' }
+        ownerId: { type: integer, description: 'Id of the owner, for example the product id.' }
+        title: { type: string, description: 'For example the product name.' }
+    MediaFileDetailResponse:
+      type: object
+      required: [file, usages]
+      properties:
+        file: { $ref: '#/components/schemas/MediaFileResponse' }
+        usages:
+          type: array
+          items: { $ref: '#/components/schemas/MediaUsageResponse' }
+    MediaFileInput:
+      type: object
+      required: [fileName]
+      properties:
+        fileName: { type: string, minLength: 1, maxLength: 255 }
+        alt: { type: [string, 'null'], maxLength: 300 }
+        folderId: { type: [integer, 'null'], minimum: 1 }
+    MoveMediaFilesInput:
+      type: object
+      required: [fileIds]
+      properties:
+        fileIds:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items: { type: integer, minimum: 1 }
+        folderId: { type: [integer, 'null'], minimum: 1 }

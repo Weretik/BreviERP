@@ -1,8 +1,7 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.Product.Delete;
-using Catalog.Domain.Media.Entities;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
@@ -60,18 +59,15 @@ public sealed class ProductDeletionTests
     }
 
     [Test]
-    public async Task Handler_deletes_product_and_owned_photo_but_preserves_media_file()
+    public async Task Handler_deletes_product_and_owned_photo_links()
     {
         const int productId = 701;
         const int mediaFileId = 801;
         await using var db = CreateContext();
-        var mediaFile = MediaFile.CreatePending(
-            MediaFileId.Create(mediaFileId), "product.jpg", "image/jpeg", 1024,
-            "test", "catalog", "products/product.jpg");
         var product = Product.Create(ProductId.Create(productId), "Product", "Товар",
             ProductSlug.Create("product"), ProductType.Sewing, DateTimeOffset.UtcNow);
-        product.AddPhoto(ProductPhotoId.Create(1), mediaFile.Id, DateTimeOffset.UtcNow);
-        db.AddRange(mediaFile, product);
+        product.AddPhoto(ProductPhotoId.Create(1), MediaFileId.Create(mediaFileId), DateTimeOffset.UtcNow);
+        db.Add(product);
         await db.SaveChangesAsync();
 
         var handler = new DeleteProductCommandHandler(new TestCatalogRepository(db));
@@ -81,7 +77,6 @@ public sealed class ProductDeletionTests
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
         Assert.That(await db.Products.AnyAsync(x => x.Id == ProductId.Create(productId)), Is.False);
         Assert.That(await db.Set<ProductPhoto>().AnyAsync(x => x.ProductId == ProductId.Create(productId)), Is.False);
-        Assert.That(await db.MediaFiles.AnyAsync(x => x.Id == MediaFileId.Create(mediaFileId)), Is.True);
     }
 
     [Test]

@@ -236,7 +236,7 @@ public sealed class SewingCompositionHandlerTests
     private sealed class ReplaceFixture
     {
         public Mock<ICatalogRepository<Product>> Repository { get; } = new();
-        private readonly Mock<ICatalogReadRepository<Catalog.Domain.Media.Entities.MediaFile>> _media = new();
+        private readonly Mock<Catalog.Application.Contracts.Media.IProductMediaReader> _media = new();
         private readonly Mock<IProductReferenceReader> _references = new();
         private readonly Mock<ICatalogReadRepository<ProductCategory>> _categories = new();
         private readonly Mock<IProductSlugGenerator> _slug = new();

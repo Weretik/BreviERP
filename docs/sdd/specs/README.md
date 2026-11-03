@@ -19,7 +19,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Content  | [001 «Контент сайту» site content](content/001-site-content/README.md) | planned only (draft) |
 | Quotes   | [001 «Розрахунок КП» quote calculation](quotes/001-quote-calculation/README.md) | planned only (draft) |
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |
-| Catalog  | [Media files](catalog/media-files/README.md)                                                             | verified                                                                                                           |
+| Catalog  | [Media files](catalog/media-files/README.md)                                                             | history; moved to Media MED-001                                                                                    |
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |
 | Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md)                      | P1–P5 locally verified; P6 Gmail deferred; P7 offline tooling verified, historical source/gap/owner readiness remains gated |
 | Crm      | [002 Clients from KeepinCRM](crm/002-keepincrm-clients/README.md) | backend implemented 2026-11-02 |
@@ -28,6 +28,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Reference | [003 Operations from the Calculator sheet](reference/003-operations-sheet/README.md) | implemented 2026-11-02 |
 | Reference | [004 Pricing parameters from the Calculator sheet](reference/004-pricing-parameters-sheet/README.md) | backend implemented 2026-11-02 |
 | Reference | [005 Product sections from the Calculator sheet](reference/005-product-sections-sheet/README.md) | backend implemented 2026-11-03 |
+| Media | [001 «Фото» photo library with folders](media/001-media-library/README.md) | stage 1 backend implemented 2026-11-03 |
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
 
