@@ -153,7 +153,7 @@ public sealed class SewingCompositionHandlerTests
         fixture.ReadStore.Setup(x => x.ReadCompositionAsync(101, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new SewingCompositionReadSnapshot(101, null, null, 1, true,
             [new SewingMaterialView(1, null, "Model", "Fabric", 10, null, 1m, "Metre", true, 0,
-                false, null, null)], []));
+                false, null, null, null)], []));
 
         var result = await fixture.CompositionHandler.Handle(new ReplaceSewingCompositionCommand(101,
             new(null, [FabricInput(10)], [], 0), "authenticated-manager"), CancellationToken.None);

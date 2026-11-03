@@ -31,6 +31,8 @@ internal static class SewingMaterialInputValidator
                 errors.Add(new(field + ".quantity", "Use a positive value with at most six decimal places."));
             if (line.SortOrder < 0)
                 errors.Add(new(field + ".sortOrder", "Order must be nonnegative."));
+            if (line.Comment?.Trim().Length > Catalog.Domain.Products.Entities.SewingMaterialLine.CommentMaxLength)
+                errors.Add(new(field + ".comment", "Comment must be at most 500 characters."));
 
             var unit = kind switch
             {

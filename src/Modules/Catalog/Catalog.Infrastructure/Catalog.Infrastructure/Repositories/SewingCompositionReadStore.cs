@@ -51,11 +51,11 @@ internal sealed class SewingCompositionReadStore(CatalogDbContext db) : ISewingC
                         line.FabricId.HasValue ? line.FabricId.Value.Value
                             : line.AccessoryId.HasValue ? line.AccessoryId.Value.Value : null,
                         line.CostCode, line.Quantity, line.Unit.ToString(), line.IsRequired, line.SortOrder,
-                        line.IsReviewed, line.ReviewedBy, line.ReviewedAt)).ToList(),
+                        line.IsReviewed, line.ReviewedBy, line.ReviewedAt, line.Comment)).ToList(),
                 product.OperationLines.OrderBy(line => line.SortOrder).ThenBy(line => line.Id)
                     .Select(line => new SewingOperationView(line.Id.Value, line.OperationId.Value,
                         line.Quantity, line.ManualMinutes, line.SortOrder, line.IsReviewed,
-                        line.ReviewedBy, line.ReviewedAt)).ToList()))
+                        line.ReviewedBy, line.ReviewedAt, line.Comment)).ToList()))
             .AsSplitQuery();
     }
 }

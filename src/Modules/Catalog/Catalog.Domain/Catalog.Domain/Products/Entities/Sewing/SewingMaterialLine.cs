@@ -21,6 +21,8 @@ public sealed class SewingMaterialLine
     public bool IsReviewed { get; private set; }
     public string? ReviewedBy { get; private set; }
     public DateTimeOffset? ReviewedAt { get; private set; }
+    public string? Comment { get; private set; }
+    public const int CommentMaxLength = 500;
     public string ReferenceKey => Kind switch
     {
         SewingMaterialKind.Fabric => $"F:{FabricId?.Value}",
@@ -32,7 +34,7 @@ public sealed class SewingMaterialLine
     public static SewingMaterialLine Create(CompositionLineId id, ProductId productId, ArticleId? articleId,
         SewingMaterialKind kind, FabricReferenceId? fabricId, AccessoryReferenceId? accessoryId, string? costCode,
         decimal quantity, SewingMaterialUnit unit, bool isRequired, int sortOrder, bool isReviewed = false,
-        string? reviewedBy = null, DateTimeOffset? reviewedAt = null)
+        string? reviewedBy = null, DateTimeOffset? reviewedAt = null, string? comment = null)
     {
         if (id.Value < 0 || productId.Value <= 0)
             throw new DomainException(ProductErrors.IdIsRequired());
@@ -54,6 +56,9 @@ public sealed class SewingMaterialLine
         if (isReviewed && (string.IsNullOrWhiteSpace(reviewedBy) || reviewedBy.Trim().Length > 200
             || !reviewedAt.HasValue))
             throw new DomainException(ProductErrors.ReviewMetadataRequired());
+        var note = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
+        if (note?.Length > CommentMaxLength)
+            throw new DomainException(ProductErrors.CommentTooLong(CommentMaxLength));
         return new SewingMaterialLine
         {
             Id = id,
@@ -69,7 +74,8 @@ public sealed class SewingMaterialLine
             SortOrder = sortOrder,
             IsReviewed = isReviewed,
             ReviewedBy = isReviewed ? reviewedBy!.Trim() : null,
-            ReviewedAt = isReviewed ? reviewedAt : null
+            ReviewedAt = isReviewed ? reviewedAt : null,
+            Comment = note
         };
     }
 }

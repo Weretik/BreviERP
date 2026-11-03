@@ -28,6 +28,7 @@ public sealed class SewingMaterialLineConfiguration : IEntityTypeConfiguration<S
         builder.Property(x => x.Quantity).HasPrecision(18, 6).IsRequired();
         builder.Property(x => x.Unit).HasConversion<int>().IsRequired();
         builder.Property(x => x.ReviewedBy).HasMaxLength(200);
+        builder.Property(x => x.Comment).HasMaxLength(SewingMaterialLine.CommentMaxLength);
         builder.HasOne<Product>().WithMany(x => x.MaterialLines).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne<SewingArticle>().WithMany().HasForeignKey(x => new { x.ProductId, x.ArticleId }).HasPrincipalKey(x => new { x.ProductId, ArticleId = x.Id }).OnDelete(DeleteBehavior.Cascade);
     }

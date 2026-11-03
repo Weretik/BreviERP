@@ -8,6 +8,8 @@ The pure engine computes applicable material/OtherCost amounts, weighted operati
 
 Catalog settings and Reference costs/norms are immutable effective versions. Calculation identifies settings and Reference version IDs plus Product composition version and is strict about activity, approval, units and composition review. Protected HTTP operations save full immutable snapshots, read them, publish current successful calculations and read the latest published tiers. Blocked and stale calculations cannot publish. Repeated requests retain their original calculation/publication; republishing an old result does not replace the current publication.
 
+The sewing product card ([CAT-007](../../specs/catalog/007-sewing-product-card/README.md)) reads `GET /api/v1/products/{productId}/articles/pricing-summary`: a live, non-saving calculation of every Article with blockers and the latest published tiers (`Features/Pricing/Sewing/ArticleSummary/`, `SewingArticleSummaryController`).
+
 Complete settings revisions and OtherCost revisions use expected-current-version IDs and request UUIDs. Numeric edits to previously versioned fabrics, accessories and operation norms append approved input revisions atomically. Existing Reference reads remain anonymous; those writes require CanManageProducts. See [Reference version ownership](../reference/pricing-input-versions.md).
 
 ## Code structure
@@ -28,6 +30,7 @@ src/Modules/Catalog/
       Calculations/{Save,Get}/                     # immutable saved-calculation scenarios
       Publications/{Publish,GetCurrent}/           # publication / current published-price scenarios
       Publications/GetProducts/                   # bounded Product-page published-price projection
+      ArticleSummary/                             # live per-Article card summary (CAT-007)
       Settings/{CreateVersion,GetCurrent}/         # complete settings revision / current read
   Catalog.Infrastructure/Catalog.Infrastructure/Pricing/
     SewingSettings/{Configuration,Reading,Writing}/ # settings versions and expected-version writes
@@ -89,7 +92,7 @@ The existing composition-only readiness view remains conservative for OtherCost 
 
 ## Tests
 
-- `tests/UnitTests/SewingArticlePricingTests.cs`, `tests/UnitTests/SewingPricingContractTests.cs`, `tests/UnitTests/PublishedSewingProductsQueryTests.cs`
+- `tests/UnitTests/SewingArticlePricingTests.cs`, `tests/UnitTests/SewingPricingContractTests.cs`, `tests/UnitTests/PublishedSewingProductsQueryTests.cs`, `tests/UnitTests/SewingArticleSummaryTests.cs`
 - `tests/IntegrationTests/Pricing/Sewing/`, `tests/IntegrationTests/SewingArticlePricingPersistenceTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter SewingPricing`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter SewingPricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).

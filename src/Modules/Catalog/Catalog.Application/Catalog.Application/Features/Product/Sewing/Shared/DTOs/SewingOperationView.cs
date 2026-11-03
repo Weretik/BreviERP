@@ -8,5 +8,6 @@ public sealed record SewingOperationView(
     int SortOrder,
     bool Reviewed,
     string? ReviewedBy,
-    DateTimeOffset? ReviewedAt);
+    DateTimeOffset? ReviewedAt,
+    string? Comment);
 

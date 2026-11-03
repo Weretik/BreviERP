@@ -92,5 +92,6 @@ public static class ProductErrors
     public static CatalogDomainError ArticleSpecificOperationsNotSupported() => new("Catalog.Product.Operation.ArticleScope.Unsupported", "Article-specific operations are not supported");
     public static CatalogDomainError ModelCodeInvalid() => new("Catalog.Product.ModelCode.Invalid", "Model code must be 80 characters or less");
     public static CatalogDomainError OverviewInvalid(string message) => new("Catalog.Product.Overview.Invalid", message);
+    public static CatalogDomainError CommentTooLong(int max) => new("Catalog.Product.Composition.CommentTooLong", $"Comment must be at most {max} characters.");
     public static CatalogDomainError CompositionLineLimitReached() => new("Catalog.Product.Composition.Line.LimitReached", "A product cannot have more than 2000 lines of either composition type");
 }

@@ -8,5 +8,6 @@ public sealed record SewingMaterialInput(
     string Unit,
     bool Required,
     int SortOrder,
-    bool Reviewed);
+    bool Reviewed,
+    string? Comment = null);
 

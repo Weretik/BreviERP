@@ -14,7 +14,7 @@ internal static class CompositionLineFactory
             kind == SewingMaterialKind.Fabric ? FabricReferenceId.Create(line.ReferenceId!.Value) : null,
             kind == SewingMaterialKind.Accessory ? AccessoryReferenceId.Create(line.ReferenceId!.Value) : null,
             line.CostCode, line.Quantity, Enum.Parse<SewingMaterialUnit>(line.Unit), line.Required, line.SortOrder,
-            line.Reviewed, line.Reviewed ? actor : null, line.Reviewed ? now : null);
+            line.Reviewed, line.Reviewed ? actor : null, line.Reviewed ? now : null, line.Comment);
     }
 
     internal static SewingOperationLine Operation(
@@ -24,6 +24,6 @@ internal static class CompositionLineFactory
         DateTimeOffset now)
         => SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(line.OperationId),
             line.Quantity, line.ManualMinutes, line.SortOrder, true, line.Reviewed,
-            line.Reviewed ? actor : null, line.Reviewed ? now : null);
+            line.Reviewed ? actor : null, line.Reviewed ? now : null, line.Comment);
 }
 

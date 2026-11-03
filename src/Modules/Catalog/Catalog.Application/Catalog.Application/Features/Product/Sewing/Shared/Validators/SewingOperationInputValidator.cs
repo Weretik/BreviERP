@@ -33,6 +33,8 @@ internal static class SewingOperationInputValidator
                 errors.Add(new(field + ".manualMinutes", "Manual minutes must be positive with at most six decimal places."));
             if (line.SortOrder < 0)
                 errors.Add(new(field + ".sortOrder", "Order must be nonnegative."));
+            if (line.Comment?.Trim().Length > Catalog.Domain.Products.Entities.SewingMaterialLine.CommentMaxLength)
+                errors.Add(new(field + ".comment", "Comment must be at most 500 characters."));
         }
 
         return errors;

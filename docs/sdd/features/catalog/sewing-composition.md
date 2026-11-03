@@ -2,7 +2,7 @@
 
 **Implemented code:** 2026-10-25. Local PostgreSQL upgrade, disposable-database import and the [full local catalogue transfer](catalog-import.md) are verified. Shared/production rollout remains separate. [SDD and evidence](../../specs/catalog/002-sewing-articles-and-composition/implementation.md).
 
-One Sewing Product owns sale Articles, shared material/operation norms and Article-specific materials. Effective composition combines shared materials with the selected Article's materials. No new price formula is published by these operations.
+One Sewing Product owns sale Articles, shared material/operation norms and Article-specific materials. Every line keeps an optional comment ([CAT-007](../../specs/catalog/007-sewing-product-card/README.md)). Effective composition combines shared materials with the selected Article's materials. No new price formula is published by these operations.
 
 ## Code structure
 
