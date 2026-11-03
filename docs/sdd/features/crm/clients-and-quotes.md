@@ -2,7 +2,7 @@
 
 **Implemented:** customer/contact master, versioned quotes/custom configurations/files, issuer/ready/PDF, send-only outbox/history/manual outcomes, production export and immutable templates. P7 adds offline archive verification and dry-run planning; controlled historical writes remain a separate use case.
 
-Authenticated Admin/Manager can create, read, search/page, revise and deactivate customers and contacts. Admin-only merge retains victim roots/audit while moving contacts/external identities to the survivor. Exact external identities are unique; similar names/shared emails never auto-merge. Manager reads/writes owned clients; draft quotes are owner-scoped. Every mutation has requestId replay and a root revision; successful intent/result audit is stored in the same transaction. No destructive customer/contact delete API.
+Authenticated Admin/Manager can create, read, search/page, revise and deactivate customers and contacts. Admin-only merge retains victim roots/audit while moving contacts/external identities to the survivor. Exact external identities are unique; similar names/shared emails never auto-merge. Manager reads/writes owned clients; draft quotes are owner-scoped. Every mutation has requestId replay and a root revision; successful intent/result audit is stored in the same transaction. No destructive customer/contact delete API. Clients come from KeepinCRM: the daily `keepin-clients` step and `POST /api/crm/customers/keepin-sync` refresh them by KeepinCRM ID; the one-time transfer deletes unlinked Brevi clients unless quotes use them ([CRM-002](../../specs/crm/002-keepincrm-clients/README.md), [runbook](../../operations/jobs/sync-job.md#keepin-clients)).
 
 ## Code structure
 
@@ -27,12 +27,15 @@ src/Modules/Crm/
     ReviseCustomer/                   command, handler, validator
     SaveCustomerContact/              create/revise contact use case
     MergeCustomers/                   Admin merge orchestration
+    KeepinCrmSync/                    KeepinCRM → Brevi client sync, ports and command
   Crm.Infrastructure/Crm.Infrastructure/
     Persistence/                      EF context, entity configurations/migrations
     Persistence/Customers/Reading/     scoped read repository
     Persistence/Customers/Writing/     transaction coordinator and root locks
     Persistence/Customers/Idempotency/ payload encoding, replay/access and journal
-    DependencyInjection/              existing host/seed registration
+    KeepinCrm/                        KeepinCRM clients HTTP source, parser, options
+    Persistence/Customers/KeepinCrmSync/ bulk load/delete/save for the sync
+    DependencyInjection/              existing host/seed registration; CrmKeepinCrmExtensions
   Crm.Api/Crm.Api/Customers/
     CustomersController.cs            client reads/writes/merge
     CustomerContactsController.cs     contact writes
@@ -275,6 +278,8 @@ Canonical [quote and ready](../../contracts/crm/quote-drafts.openapi.yaml) and [
 PDF runtime configuration requires `Crm:Documents:{ChromiumPath,FontPath,PrivateWorkingRootPath}`. A selected `brevi-wordmark` additionally requires a provisioned local PNG/JPEG at `Crm:Documents:WordmarkPath`; ready blocks if it is unavailable. No arbitrary image URL is fetched.
 
 ## Tests
+
+KeepinCRM clients: `tests/UnitTests/Crm/Customers/KeepinCrmClientSyncTests.cs` (`--filter FullyQualifiedName~KeepinCrmClientSync`).
 
 TS-009: `tests/UnitTests/Crm/Documents/IssuerSettingsRulesTests.cs`, `tests/IntegrationTests/Crm/Documents/IssuerSettingsRequestContractTests.cs` and `IssuerSettingsPersistenceTests.cs`. Focused commands: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~IssuerSettingsRulesTests` and `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IssuerSettings`. The request contract test runs without PostgreSQL; persistence tests require the isolated local CRM test connection. [Audit](../../specs/crm/001-clients-quotes-custom-sewing/code-audit/ts-009-functional-audit-2026-10-29.md). Earlier client, quote, custom and file test paths are recorded in their sections above.
 

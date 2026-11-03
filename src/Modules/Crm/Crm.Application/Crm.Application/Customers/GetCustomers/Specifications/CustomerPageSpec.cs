@@ -2,6 +2,7 @@ using Crm.Application.Customers.GetCustomers.DTOs;
 using Crm.Application.Customers.Access;
 using Ardalis.Specification;
 using Crm.Domain.Customers;
+using Crm.Application.Customers.KeepinCrmSync;
 namespace Crm.Application.Customers.GetCustomers.Specifications;
 
 public sealed class CustomerPageSpec : Specification<Customer, CustomerSummary>
@@ -16,6 +17,10 @@ public sealed class CustomerPageSpec : Specification<Customer, CustomerSummary>
             || x.Contacts.Any(c => c.Channels.Any(v => (v.NormalizedValue.Contains(term) || (v.Kind == "phone" && digits != null && digits.Length >= 5 && v.NormalizedValue.Contains(digits))))));
         Query.OrderByDescending(x => x.UpdatedAt).ThenBy(x => x.PublicId).Skip((page - 1) * pageSize).Take(pageSize);
         Query.Select(x => new CustomerSummary(x.PublicId, x.Kind, x.DisplayName, x.LegalName, x.TaxIdentity,
-            x.OwnerId.Value, x.Active, x.Revision, x.UpdatedAt));
+            x.OwnerId.Value, x.Active, x.Revision, x.UpdatedAt,
+            x.ExternalIdentities.Where(i => i.Source == KeepinCrmClientIdentity.Source && i.Type == KeepinCrmClientIdentity.Type)
+                .Select(i => i.ExternalId).FirstOrDefault(),
+            x.Contacts.Where(c => c.Active).OrderByDescending(c => c.IsPrimary).Select(c => c.Name).FirstOrDefault(),
+            x.Contacts.Where(c => c.Active).SelectMany(c => c.Channels).Where(v => v.Kind == "phone").Select(v => v.Value).ToList()));
     }
 }

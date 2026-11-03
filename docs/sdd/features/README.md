@@ -47,7 +47,7 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 
 ## Crm
 
-- [Clients, quotes and archive planning](crm/clients-and-quotes.md) — versioned CRM/customer/custom/document/delivery workflows plus offline frozen-source history staging and dry-run reconciliation. Controlled historical writes remain separate.
+- [Clients, quotes and archive planning](crm/clients-and-quotes.md) — versioned CRM/customer/custom/document/delivery workflows, clients from KeepinCRM plus offline frozen-source history staging and dry-run reconciliation. Controlled historical writes remain separate.
 
 ## Reminders
 

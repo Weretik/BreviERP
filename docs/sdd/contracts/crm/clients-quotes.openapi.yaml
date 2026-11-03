@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BreviERP CRM Clients API
-  version: 1.0.0
+  version: 1.1.0
 servers:
   - url: /
 paths:
@@ -100,6 +100,39 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/CrmCreateCustomerRequest"
+  /api/crm/customers/keepin-sync:
+    post:
+      operationId: syncCrmCustomersFromKeepinCrm
+      security:
+        - bearerAuth: []
+      description: Admin or Manager. Reads every KeepinCRM client (GET /clients,
+        q[lead_false]=true) and brings Brevi clients in line, matched only by the
+        external identity keepincrm/client/id. dryRun (default true) saves
+        nothing. removeUnlinked is Admin-only and is for the one-time transfer
+        - Brevi clients without a KeepinCRM link are deleted, those used by
+        quotes or custom sewing are hidden. The daily brevierp-sync step
+        keepin-clients runs the same use case with dryRun false and
+        removeUnlinked false.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmKeepinSyncRequest"
+      responses:
+        "200":
+          description: Preview or applied result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmKeepinSyncResult"
+        "401":
+          description: Authentication required.
+        "403":
+          description: Role, numeric actor claim, or Admin for removeUnlinked required.
+        "503":
+          description: KeepinCRM key missing, KeepinCRM unavailable, or no clients
+            returned. Nothing changed.
   /api/crm/customers/{customerId}:
     parameters:
       - name: customerId
@@ -554,6 +587,23 @@ components:
         updatedAt:
           type: string
           format: date-time
+        keepinCrmId:
+          type:
+            - string
+            - "null"
+          description: KeepinCRM client ID; null for a client created in Brevi.
+        contactName:
+          type:
+            - string
+            - "null"
+          description: Active contact, the primary one first.
+        phones:
+          type:
+            - array
+            - "null"
+          items:
+            type: string
+          description: Phones of the active contacts.
       required:
         - publicId
         - kind
@@ -564,6 +614,50 @@ components:
         - active
         - revision
         - updatedAt
+    CrmKeepinSyncRequest:
+      type: object
+      properties:
+        dryRun:
+          type: boolean
+          default: true
+        removeUnlinked:
+          type: boolean
+          default: false
+    CrmKeepinSyncResult:
+      type: object
+      properties:
+        applied:
+          type: boolean
+        received:
+          type: integer
+        created:
+          type: integer
+        updated:
+          type: integer
+        unchanged:
+          type: integer
+        deactivated:
+          type: array
+          items:
+            type: string
+          description: Linked clients missing from KeepinCRM, marked not used.
+        deleted:
+          type: array
+          items:
+            type: string
+        hiddenInUse:
+          type: array
+          items:
+            type: string
+      required:
+        - applied
+        - received
+        - created
+        - updated
+        - unchanged
+        - deactivated
+        - deleted
+        - hiddenInUse
     CrmCustomerDetail:
       type: object
       properties:
