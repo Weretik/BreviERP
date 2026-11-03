@@ -684,6 +684,10 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<long?>("ArticleId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("CostCode")
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
@@ -746,6 +750,10 @@ namespace Catalog.Infrastructure.Migrations
 
                     b.Property<long?>("ArticleId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<bool>("IsRequired")
                         .HasColumnType("boolean");

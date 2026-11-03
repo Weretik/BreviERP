@@ -22,8 +22,8 @@
 | `SewingProductAccessories` | `ProductId`, `GarmentAccessoryId` | Sewing product accessories and quantities. |
 | `SewingProductOperations` | `ProductId`, `GarmentPartOperationId` | Operations for a sewing product. |
 | `SewingArticles` | generated long `Id` | Product-owned immutable globally unique sale SKU, activity and order; alternate key `(ProductId, Id)`. |
-| `SewingMaterialLines` | generated long `Id` | Shared or Article-specific fabric/accessory/non-inventory cost inputs, quantity/unit and review metadata. Composite Article FK prevents cross-parent links. |
-| `SewingOperationLines` | generated long `Id` | Shared operation reference, quantity, optional manual minutes and review metadata. |
+| `SewingMaterialLines` | generated long `Id` | Shared or Article-specific fabric/accessory/non-inventory cost inputs, quantity/unit and review metadata and an optional comment. Composite Article FK prevents cross-parent links. |
+| `SewingOperationLines` | generated long `Id` | Shared operation reference, quantity, optional manual minutes, review metadata and an optional comment. |
 
 Migration `20261024215605_AddSewingComposition` adds nullable unique `Products.ModelCode` and the `Products.CompositionVersion` concurrency token. Migration `20261025093328_AddCatalogImportProfiles` adds profiles, permits metre-based accessories, and replaces the unique operation-reference index with a nonunique index so individual occurrences retain their manual times. Both were applied locally; see [catalogue import](../../features/catalog/catalog-import.md). The job's separate `imports` schema contains batch/source provenance and source-to-target IDs in the same PostgreSQL database.
 

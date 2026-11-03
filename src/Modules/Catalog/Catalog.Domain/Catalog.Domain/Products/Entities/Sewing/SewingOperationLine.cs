@@ -17,18 +17,24 @@ public sealed class SewingOperationLine
     public bool IsReviewed { get; private set; }
     public string? ReviewedBy { get; private set; }
     public DateTimeOffset? ReviewedAt { get; private set; }
+    public string? Comment { get; private set; }
     private SewingOperationLine() { }
     public static SewingOperationLine Create(CompositionLineId id, ProductId productId, ArticleId? articleId,
         OperationReferenceId operationId, decimal quantity, decimal? manualMinutes, int sortOrder, bool isRequired,
-        bool isReviewed = false, string? reviewedBy = null, DateTimeOffset? reviewedAt = null)
+        bool isReviewed = false, string? reviewedBy = null, DateTimeOffset? reviewedAt = null,
+        string? comment = null)
     {
         if (id.Value < 0 || productId.Value <= 0 || operationId.Value <= 0) throw new DomainException(ProductErrors.IdIsRequired());
         if (articleId.HasValue) throw new DomainException(ProductErrors.ArticleSpecificOperationsNotSupported());
         if (quantity <= 0 || (manualMinutes.HasValue && manualMinutes <= 0) || sortOrder < 0)
             throw new DomainException(ProductErrors.PositiveValueRequired(nameof(Quantity)));
         if (isReviewed && (string.IsNullOrWhiteSpace(reviewedBy) || reviewedBy.Trim().Length > 200 || !reviewedAt.HasValue)) throw new DomainException(ProductErrors.ReviewMetadataRequired());
+        var note = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
+        if (note?.Length > SewingMaterialLine.CommentMaxLength)
+            throw new DomainException(ProductErrors.CommentTooLong(SewingMaterialLine.CommentMaxLength));
         return new SewingOperationLine { Id = id, ProductId = productId, ArticleId = articleId, OperationId = operationId,
             Quantity = quantity, ManualMinutes = manualMinutes, SortOrder = sortOrder, IsRequired = true,
-            IsReviewed = isReviewed, ReviewedBy = isReviewed ? reviewedBy!.Trim() : null, ReviewedAt = isReviewed ? reviewedAt : null };
+            IsReviewed = isReviewed, ReviewedBy = isReviewed ? reviewedBy!.Trim() : null, ReviewedAt = isReviewed ? reviewedAt : null,
+            Comment = note };
     }
 }

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Catalog.Api.Contracts.Pricing.Sewing.Calculations;
 using Catalog.Api.Contracts.Pricing.Sewing.Settings;
 using Catalog.Application.Contracts.Pricing;
+using Catalog.Application.Features.Pricing.Sewing.ArticleSummary;
 using Catalog.Application.Features.Pricing.Sewing.Preview;
 using Catalog.Domain.Pricing.Sewing;
 using YamlDotNet.RepresentationModel;
@@ -30,6 +31,9 @@ public sealed class SewingPricingContractTests
     [TestCase(typeof(SaveSewingCalculationRequest))]
     [TestCase(typeof(CreateSewingSettingsVersionRequest))]
     [TestCase(typeof(SewingSettingsValuesRequest))]
+    [TestCase(typeof(SewingArticleSummary))]
+    [TestCase(typeof(SewingArticleSummaryRow))]
+    [TestCase(typeof(SewingArticlePublishedSummary))]
     public void Serialized_properties_match_the_machine_contract(Type type)
     {
         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
@@ -54,6 +58,7 @@ public sealed class SewingPricingContractTests
     [TestCase("createSewingSettingsVersion", "CanManageProducts")]
     [TestCase("getSewingSettings", "CatalogRead")]
     [TestCase("getPublishedSewingProducts", "CatalogRead")]
+    [TestCase("getSewingArticleSummary", "CatalogRead")]
     public void Pricing_operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
         var methods = typeof(Catalog.Api.Controllers.SewingArticlesController).Assembly.GetTypes()

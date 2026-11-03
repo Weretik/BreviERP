@@ -246,6 +246,7 @@ components:
         required: { type: boolean }
         sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
         reviewed: { type: boolean }
+        comment: { type: [string, 'null'], maxLength: 500, description: 'Free note, for example which garment part an operation belongs to.' }
     SewingMaterialKind:
       type: string
       enum: [Fabric, Accessory, OtherCost]
@@ -268,6 +269,7 @@ components:
           multipleOf: 0.000001
         sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
         reviewed: { type: boolean }
+        comment: { type: [string, 'null'], maxLength: 500, description: 'Free note, for example which garment part an operation belongs to.' }
     SewingComposition:
       type: object
       additionalProperties: false
@@ -292,7 +294,7 @@ components:
     SewingMaterial:
       type: object
       additionalProperties: false
-      required: [id, articleId, scope, kind, referenceId, costCode, quantity, unit, required, sortOrder, reviewed, reviewedBy, reviewedAt]
+      required: [id, articleId, scope, kind, referenceId, costCode, quantity, unit, required, sortOrder, reviewed, reviewedBy, reviewedAt, comment]
       description: Effective line. Identity and review metadata are server-owned.
       properties:
         id: { type: integer, format: int64, minimum: 1 }
@@ -308,10 +310,11 @@ components:
         reviewed: { type: boolean }
         reviewedBy: { type: [string, 'null'] }
         reviewedAt: { type: [string, 'null'], format: date-time }
+        comment: { type: [string, 'null'], maxLength: 500, description: 'Free note, for example which garment part an operation belongs to.' }
     SewingOperation:
       type: object
       additionalProperties: false
-      required: [id, operationId, quantity, manualMinutes, sortOrder, reviewed, reviewedBy, reviewedAt]
+      required: [id, operationId, quantity, manualMinutes, sortOrder, reviewed, reviewedBy, reviewedAt, comment]
       description: Shared effective operation line. Identity and review metadata are server-owned.
       properties:
         id: { type: integer, format: int64, minimum: 1 }
@@ -326,6 +329,7 @@ components:
         reviewed: { type: boolean }
         reviewedBy: { type: [string, 'null'] }
         reviewedAt: { type: [string, 'null'], format: date-time }
+        comment: { type: [string, 'null'], maxLength: 500, description: 'Free note, for example which garment part an operation belongs to.' }
     ValidationError:
       type: object
       required: [errorMessage]
