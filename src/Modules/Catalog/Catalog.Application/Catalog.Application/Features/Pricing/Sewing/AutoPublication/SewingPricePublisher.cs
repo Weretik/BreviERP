@@ -1,7 +1,7 @@
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Contracts.Pricing;
 using Catalog.Application.Features.Pricing.Sewing.Evaluation;
-using Catalog.Application.Features.Product.Overview.Prices.Specifications;
+using Catalog.Application.Features.Pricing.Sewing.AutoPublication.Specifications;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products.Enums;
 using ProductEntity = Catalog.Domain.Products.Entities.Product;

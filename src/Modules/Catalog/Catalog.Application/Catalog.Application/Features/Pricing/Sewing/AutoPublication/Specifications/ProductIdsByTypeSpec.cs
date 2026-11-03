@@ -1,7 +1,7 @@
 using Catalog.Domain.Products.Enums;
 using ProductEntity = Catalog.Domain.Products.Entities.Product;
 
-namespace Catalog.Application.Features.Product.Overview.Prices.Specifications;
+namespace Catalog.Application.Features.Pricing.Sewing.AutoPublication.Specifications;
 
 public sealed class ProductIdsByTypeSpec : Specification<ProductEntity, int>
 {

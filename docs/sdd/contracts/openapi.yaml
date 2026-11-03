@@ -77,8 +77,6 @@ paths:
     $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1overview
   /api/v1/products/overview/code-check:
     $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1overview~1code-check
-  /api/v1/products/overview/prices:
-    $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1overview~1prices
   /api/v1/products/{id}/overview:
     $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1{id}~1overview
   /api/v1/products/sheet-import:

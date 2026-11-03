@@ -4,8 +4,7 @@ using Catalog.Application.Features.Product.Overview.CodeCheck;
 using Catalog.Application.Features.Product.Overview.Create;
 using Catalog.Application.Features.Product.Overview.GetList;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
-using Catalog.Application.Features.Product.Overview.Prices;
-using Catalog.Application.Features.Product.Overview.Prices.DTOs;
+using Catalog.Application.Features.Product.Overview.GetOne;
 using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Application.Features.Product.Overview.Update;
 using Catalog.Application.Features.Product.SheetImport;
@@ -19,23 +18,48 @@ namespace Catalog.Api.Controllers;
 [Route("api/v1/products")]
 public sealed class ProductOverviewController(ISender sender) : ControllerBase
 {
-    [HttpGet("overview")]
-    [AllowAnonymous]
-    [ProducesResponseType(typeof(IReadOnlyList<ProductOverviewRow>), StatusCodes.Status200OK)]
+    /// <summary>
+    /// One page of a «Товари» tab (CAT-013): searched, filtered, sorted and paged on the server, with published prices
+    /// and fabric variants. section is a section ID or "none".
+    /// </summary>
+    [HttpGet("overview", Name = "getProductOverview")]
+    [Authorize(Policy = "CatalogRead")]
+    [ProducesResponseType(typeof(ProductOverviewPage), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IReadOnlyList<ProductOverviewRow>>> Get(
-        [FromQuery] string? type, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProductOverviewPage>> Get(
+        [FromQuery] string? type, [FromQuery] string? search, [FromQuery] string? section,
+        [FromQuery] bool withoutPrice = false, [FromQuery] string? sort = null, [FromQuery] string? direction = null,
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 25, CancellationToken cancellationToken = default)
     {
-        ProductType? productType = null;
-        if (!string.IsNullOrEmpty(type))
+        if (!ProductOverviewTypes.TryParse(type, out var productType))
+            return BadRequest("type must be Sewing or Ppe.");
+        int? sectionId = null;
+        var withoutSection = string.Equals(section, "none", StringComparison.OrdinalIgnoreCase);
+        if (!string.IsNullOrEmpty(section) && !withoutSection)
         {
-            if (!ProductOverviewTypes.TryParse(type, out var parsed))
-                return BadRequest("type must be Sewing or Ppe.");
-            productType = parsed;
+            if (!int.TryParse(section, out var parsedSection))
+                return BadRequest("section must be a section ID or none.");
+            sectionId = parsedSection;
         }
 
-        return this.ToActionResult(await sender.Send(new GetProductOverviewQuery(productType), cancellationToken));
+        if (!Enum.TryParse<ProductOverviewSort>(sort ?? nameof(ProductOverviewSort.Code), true, out var order)
+            || !Enum.IsDefined(order) || int.TryParse(sort, out _))
+            return BadRequest("sort must be code, name, price or updated.");
+        if (direction is not (null or "asc" or "desc"))
+            return BadRequest("direction must be asc or desc.");
+
+        return this.ToActionResult(await sender.Send(new GetProductOverviewPageQuery(productType, search, sectionId,
+            withoutSection, withoutPrice, order, direction == "desc", page, pageSize), cancellationToken));
     }
+
+    /// <summary>One «Товари» row with its prices and fabric variants, for the product card (CAT-013).</summary>
+    [HttpGet("{id:int}/overview", Name = "getProductOverviewItem")]
+    [Authorize(Policy = "CatalogRead")]
+    [ProducesResponseType(typeof(ProductOverviewItem), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProductOverviewItem>> GetOne([FromRoute] int id, CancellationToken cancellationToken)
+        => this.ToActionResult(await sender.Send(new GetProductOverviewItemQuery(id), cancellationToken));
 
     [HttpPut("{id:int}/overview")]
     [Authorize(Policy = "CanManageProducts")]
@@ -100,14 +124,4 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
     public async Task<ActionResult<ProductCodeCheck>> CheckCode(
         [FromQuery] string type, [FromQuery] string? code, CancellationToken cancellationToken)
         => this.ToActionResult(await sender.Send(new GetProductCodeCheckQuery(type, code), cancellationToken));
-
-    [HttpGet("overview/prices", Name = "getProductOverviewPrices")]
-    [Authorize(Policy = "CatalogRead")]
-    [ProducesResponseType(typeof(IReadOnlyList<ProductOverviewPrices>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IReadOnlyList<ProductOverviewPrices>>> GetPrices(
-        [FromQuery] string type, CancellationToken cancellationToken)
-        => ProductOverviewTypes.TryParse(type, out var productType)
-            ? this.ToActionResult(await sender.Send(new GetProductOverviewPricesQuery(productType), cancellationToken))
-            : BadRequest("type must be Sewing or Ppe.");
 }

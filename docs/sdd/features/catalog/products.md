@@ -10,7 +10,7 @@ The pages «Новий ЗІЗ» and «Нова модель» ([CAT-009](../../s
 
 The one-time sheet import ([CAT-010](../../specs/catalog/010-sheet-product-import/README.md)) `POST /api/v1/products/sheet-import` brings all models and PPE of the Calculator sheet: it matches by code then name, creates the rest, replaces sewing articles and composition, appends PPE price versions only on change and, with `deleteMissing`, deletes products that are not in the sheet. A preview (`dryRun`) writes nothing; any problem stops the write.
 
-The «Товари» list shows prices ([CAT-011](../../specs/catalog/011-product-list-prices/README.md)): `GET /api/v1/products/overview/prices` returns per model the published and live price of each Article, «від …» and a status (Ready, Stale, Unpublished, Blocked); PPE rows get the live rule price. Sewing prices are published automatically after every change of their inputs ([CAT-012](../../specs/catalog/012-sewing-price-auto-publication/README.md), see [Sewing pricing](sewing-pricing.md)).
+The «Товари» list is one server request per page ([CAT-013](../../specs/catalog/013-product-list-page/README.md)): `GET /api/v1/products/overview` searches, filters, sorts and pages the rows and returns them with their published prices, fabric variants (with fabric names) and, only when a price is missing, the reasons; `GET /api/v1/products/{id}/overview` returns one row for the card. Nothing is recalculated for the list; PPE rows get the live rule price. Sewing prices are published automatically after every change of their inputs ([CAT-012](../../specs/catalog/012-sewing-price-auto-publication/README.md), see [Sewing pricing](sewing-pricing.md)).
 
 The [Sewing Article/composition extension](sewing-composition.md) adds multiple sale SKUs, shared and Article-specific material inputs, and shared operation norms through separate protected operations. Legacy replacement preserves these children and rejects a second editable norm set once new composition is configured.
 
@@ -34,8 +34,10 @@ src/
     │   ├── GetAdminList/GetAdminProductsQueryHandler.cs  # use case handler
     │   ├── Overview/CodeCheck/GetProductCodeCheckQueryHandler.cs  # free code and next MOD-XXX
     │   ├── Overview/Create/CreateCatalogProductCommandHandler.cs  # «Новий ЗІЗ» / «Нова модель»
-    │   ├── Overview/GetList/GetProductOverviewQueryHandler.cs  # «Товари» page list
-    │   ├── Overview/Prices/GetProductOverviewPricesQueryHandler.cs  # list prices (CAT-011)
+    │   ├── Overview/GetList/GetProductOverviewPageQueryHandler.cs  # «Товари» page (CAT-013)
+    │   ├── Overview/GetList/ProductOverviewListing.cs  # search, filters, sort, page
+    │   ├── Overview/GetOne/GetProductOverviewItemQueryHandler.cs  # one row for the card
+    │   ├── Overview/Shared/Items/ProductOverviewItemReader.cs  # rows with published prices
     │   ├── Overview/Shared/SewingModelCodes.cs  # next MOD-XXX
     │   ├── Overview/Update/UpdateProductOverviewCommandHandler.cs  # «Товари» page fields
     │   ├── Overview/Shared/ProductSlugCandidates.cs  # slug choices for a new product
@@ -49,6 +51,7 @@ src/
     │   ├── ProductCatalogProfile.cs  # sheet row fields, section ID
     │   └── Sewing/SewingProductDetails.cs  # domain model
     ├── Catalog.Infrastructure/Catalog.Infrastructure/Products/SheetImport/SheetProductImportStore.cs  # one-transaction import write
+    ├── Catalog.Infrastructure/Catalog.Infrastructure/Products/Overview/ProductOverviewVariantReader.cs  # variants, fabrics, prices in one query
     └── Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs  # data context
 ```
 
@@ -69,8 +72,8 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`), `tests/UnitTests/CatalogProductCreation*Tests.cs`, `tests/UnitTests/CatalogSheetImport*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests)
-- `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`, `tests/IntegrationTests/CatalogSheetImportStoreTests.cs` (list prices and automatic publication)
+- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`, `ProductOverviewListingTests.cs`), `tests/UnitTests/CatalogProductCreation*Tests.cs`, `tests/UnitTests/CatalogSheetImport*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests)
+- `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`, `tests/IntegrationTests/CatalogSheetImportStoreTests.cs` (list page, prices and automatic publication)
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product` (covers `CatalogProductCreation`); `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter Product` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 

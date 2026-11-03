@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
@@ -101,9 +102,27 @@ public sealed class CatalogSheetImportRealFileTests
             Assert.That(await database.FingerprintAsync(), Is.EqualTo(after));
         });
 
+        // The «Товари» list is one request without recalculation (CAT-013).
+        await host.Client.GetAsync("api/v1/products/overview?type=Sewing&pageSize=25"); // warm-up
+        clock.Restart();
+        var sewingPage = await host.Client.GetFromJsonAsync<JsonElement>("api/v1/products/overview?type=Sewing&pageSize=25");
+        var listTime = clock.Elapsed;
+        clock.Restart();
+        var ppePage = await host.Client.GetFromJsonAsync<JsonElement>("api/v1/products/overview?type=Ppe&pageSize=25&sort=price");
+        var ppeListTime = clock.Elapsed;
+        Assert.Multiple(() =>
+        {
+            Assert.That(sewingPage.GetProperty("total").GetInt32(), Is.EqualTo(124));
+            Assert.That(sewingPage.GetProperty("items").GetArrayLength(), Is.EqualTo(25));
+            Assert.That(sewingPage.GetProperty("withoutPrice").GetInt32(), Is.Zero, "every model has a published price");
+            Assert.That(sewingPage.GetProperty("items").EnumerateArray().SelectMany(x => x.GetProperty("variants").EnumerateArray())
+                .Select(x => x.GetProperty("fabricName").GetString()), Has.All.Not.Null.And.All.Not.Empty);
+            Assert.That(ppePage.GetProperty("total").GetInt32(), Is.EqualTo(119));
+        });
+
         TestContext.Progress.WriteLine(
             $"Sheet import (legacy catalogue {legacyCatalogue}): preview {previewTime.TotalMilliseconds:F0} ms, apply {importTime.TotalMilliseconds:F0} ms, " +
-            $"repeat {repeatTime.TotalMilliseconds:F0} ms; warnings {report.Warnings.Count}: " +
+            $"repeat {repeatTime.TotalMilliseconds:F0} ms; list sewing {listTime.TotalMilliseconds:F0} ms, PPE {ppeListTime.TotalMilliseconds:F0} ms; warnings {report.Warnings.Count}: " +
             string.Join("; ", report.Warnings.GroupBy(x => x.Message).Select(x => $"{x.Count()}× {x.Key}")));
 
         Task<long> Count(string table, string? where = null)

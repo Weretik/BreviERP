@@ -47,6 +47,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IQuoteAssigneeReader, QuoteAssigneeReader>();
         services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
         services.AddScoped<IProductSectionReader, CatalogProductSectionReader>();
+        services.AddScoped<IFabricNameReader, CatalogFabricNameReader>();
         services.AddScoped<IProductReferenceCodeReader, CatalogProductReferenceCodeReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();
