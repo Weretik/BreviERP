@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BreviERP CRM Clients API
-  version: 1.1.0
+  version: 1.2.0
 servers:
   - url: /
 paths:
@@ -604,6 +604,13 @@ components:
           items:
             type: string
           description: Phones of the active contacts.
+        keepinSyncedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Last applied KeepinCRM sync that saw this client; null for
+            a client without a KeepinCRM link.
       required:
         - publicId
         - kind
@@ -649,6 +656,12 @@ components:
           type: array
           items:
             type: string
+        syncedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Time stamped on linked clients; null for a preview.
       required:
         - applied
         - received

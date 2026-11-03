@@ -16,6 +16,7 @@ public sealed class KeepinCrmClientSync(
     IKeepinCrmClientSource source,
     ICustomerKeepinSyncStore store,
     KeepinCrmClientSyncSettings settings,
+    TimeProvider timeProvider,
     ILogger<KeepinCrmClientSync> logger)
 {
     public async Task<KeepinCrmClientSyncResult> RunAsync(bool dryRun, bool removeUnlinked, CancellationToken cancellationToken)
@@ -83,11 +84,12 @@ public sealed class KeepinCrmClientSync(
             }
         }
 
+        var syncedAt = timeProvider.GetUtcNow();
         if (!dryRun)
-            await store.SaveAsync(cancellationToken);
+            await store.SaveAsync(syncedAt, cancellationToken);
 
         var result = new KeepinCrmClientSyncResult(!dryRun, snapshots.Count, created, updated, unchanged,
-            deactivated, deleted, hidden);
+            deactivated, deleted, hidden, dryRun ? null : syncedAt);
         logger.LogInformation(
             "KeepinCRM clients sync (applied {Applied}): received {Received}, created {Created}, updated {Updated}, unchanged {Unchanged}, deactivated {Deactivated}, deleted {Deleted}, hidden in use {Hidden}",
             result.Applied, result.Received, created, updated, unchanged, deactivated.Count, deleted.Count, hidden.Count);

@@ -4,6 +4,7 @@ using Crm.Infrastructure.KeepinCrm;
 using Crm.Infrastructure.Persistence.Customers.KeepinCrmSync;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Crm.Infrastructure.DependencyInjection;
@@ -17,6 +18,7 @@ public static class CrmKeepinCrmExtensions
         services.AddHttpClient<IKeepinCrmClientSource, KeepinCrmClientHttpSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddSingleton(provider => new KeepinCrmClientSyncSettings(
             new CrmUserId(provider.GetRequiredService<IOptions<KeepinCrmClientOptions>>().Value.ClientOwnerUserId)));
+        services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<ICustomerKeepinSyncStore, CustomerKeepinSyncStore>();
         services.AddScoped<KeepinCrmClientSync>();
         return services;
