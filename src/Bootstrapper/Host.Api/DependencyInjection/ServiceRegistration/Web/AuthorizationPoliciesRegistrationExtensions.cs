@@ -33,6 +33,10 @@ public static class AuthorizationPoliciesRegistrationExtensions
             options.AddPolicy(PolicyNames.CatalogRead, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Accountant, RoleNames.Manager, RoleNames.Admin));
 
+            // «Мій кабінет»: every staff account; the director also holds Admin.
+            options.AddPolicy(PolicyNames.OwnProfile, policy =>
+                policy.RequireRole(RoleNames.Accountant, RoleNames.Manager, RoleNames.Admin));
+
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));
         });

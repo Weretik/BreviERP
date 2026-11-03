@@ -36,6 +36,9 @@ internal sealed class IdentityApiHost : IAsyncDisposable
 
     public WebApplication App { get; }
 
+    /// <summary>Avatar files the API saved, instead of the CDN.</summary>
+    public InMemoryAvatarStorage Avatars { get; private init; } = null!;
+
     public static async Task<IdentityApiHost> CreateAsync()
     {
         var baseConnectionString = Environment.GetEnvironmentVariable("BREVIERP_CATALOG_TEST_CONNECTION");
@@ -57,6 +60,8 @@ internal sealed class IdentityApiHost : IAsyncDisposable
             ["ADMIN_DEFAULT_PASSWORD"] = AdminPassword
         });
         builder.Services.AddIdentityConfiguration(builder.Configuration);
+        var avatars = new InMemoryAvatarStorage();
+        builder.Services.AddSingleton<global::Identity.Application.Services.IAvatarStorage>(avatars);
         builder.Services.AddIdentityInfrastructureServices(builder.Configuration);
         builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddMediatorPipeline();
@@ -79,7 +84,7 @@ internal sealed class IdentityApiHost : IAsyncDisposable
         }
 
         await app.StartAsync();
-        return new IdentityApiHost(app, databaseName, maintenance);
+        return new IdentityApiHost(app, databaseName, maintenance) { Avatars = avatars };
     }
 
     /// <summary>A new browser: its own cookie jar, HTTPS so Secure and __Host- cookies are kept.</summary>
@@ -99,6 +104,27 @@ internal sealed class IdentityApiHost : IAsyncDisposable
         await using var command = new NpgsqlCommand(sql, connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+
+internal sealed class InMemoryAvatarStorage : global::Identity.Application.Services.IAvatarStorage
+{
+    public System.Collections.Concurrent.ConcurrentDictionary<string, byte[]> Files { get; } = new();
+
+    public bool IsConfigured => true;
+
+    public Task SaveAsync(string key, byte[] content, CancellationToken cancellationToken = default)
+    {
+        Files[key] = content;
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(string key, CancellationToken cancellationToken = default)
+    {
+        Files.TryRemove(key, out _);
+        return Task.CompletedTask;
+    }
+
+    public string? BuildUrl(string? key) => key is null ? null : $"https://cdn.brevi.test/avatars/{key}";
 }
 
 internal sealed class BrowserClient : IDisposable

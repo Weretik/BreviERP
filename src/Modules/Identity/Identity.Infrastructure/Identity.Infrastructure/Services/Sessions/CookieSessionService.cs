@@ -8,6 +8,7 @@ public sealed class CookieSessionService(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
     IHttpContextAccessor httpContextAccessor,
+    IAvatarStorage avatarStorage,
     ILogger<CookieSessionService> logger) : ICookieSessionService
 {
     public async Task<SessionMeResult?> SignInAsync(string email, string password, CancellationToken cancellationToken = default)
@@ -55,6 +56,7 @@ public sealed class CookieSessionService(
     private async Task<SessionMeResult> ToResultAsync(AppUser user)
     {
         var roles = await userManager.GetRolesAsync(user);
-        return new SessionMeResult(user.Id.ToString(CultureInfo.InvariantCulture), user.Email ?? string.Empty, user.FullName, roles.ToArray());
+        return new SessionMeResult(user.Id.ToString(CultureInfo.InvariantCulture), user.Email ?? string.Empty, user.FullName, roles.ToArray(),
+            avatarStorage.BuildUrl(user.AvatarPath));
     }
 }

@@ -17,7 +17,7 @@ Environment variable keys use double underscores, for example `ConnectionStrings
 | `Identity:CookieSession` | Session cookie name `__Host-brevi.session`, sliding lifetime, security-stamp check interval | No |
 | `Identity:SessionCookies` | CSRF cookie name, header, lifetime; `CsrfCookieDomain=brevi.com.ua` in `appsettings.Production.json` | No |
 | `TrustedProxy:SharedSecret` | Secret the [Cloudflare Worker](../deployment/cloudflare-api-proxy.md) sends; only then the client IP from the Worker is trusted. Production: Secret Manager `api-proxy-shared-secret` | Yes |
-| `AdmToolsStorage` | Photo library CDN storage (Media module); login and password come from secrets | Login, password: yes |
+| `AdmToolsStorage` | Photo library CDN storage (Media module); staff avatars use it too, folder `/avatars`. Without a login avatars are off (upload answers 503) | Login, password: yes |
 | `MediaUpload` | Maximum photo size and CDN folder for new originals | No |
 | `Reminders:Telegram` | Bot token, webhook secret and public webhook URL for [Telegram reminders](../jobs/telegram-reminders.md) | Token and secret: yes |
 
