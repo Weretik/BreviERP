@@ -1,0 +1,112 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Product Overview API
+  version: 1.0.0
+  description: >-
+    The «Товари» page (CAT-006): one row per sewing model or PPE site article with its working fields from the
+    Calculator sheet tabs «Товари» and «ЗІЗ». The fields live in the product catalog profile. Site texts, SEO and
+    photos are not here; they move to the future Content module.
+servers:
+  - url: /
+paths:
+  /api/v1/products/overview:
+    get:
+      operationId: getProductOverview
+      summary: List products for the «Товари» page
+      description: >-
+        Anonymous. All products of the type, sorted by code (MOD-2 before MOD-10, article 9 before 17) then name;
+        products without a code come last. An empty list when there are none.
+      security: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema: { type: string, enum: [Sewing, Ppe] }
+      responses:
+        '200':
+          description: Rows.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ProductOverviewRow' }
+        '400': { description: Unknown type. }
+  /api/v1/products/{id}/overview:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updateProductOverview
+      summary: Replace the «Товари» page fields of a product
+      description: >-
+        Requires CanManageProducts (open while temporary anonymous access is on). Every field is replaced. A PPE
+        product needs a code (site article). The section must exist in Reference «Типи і розділи» and belong to the
+        product type. Season is for sewing only. When isVerified is true and verifiedOn is empty, the stored date is
+        kept or today (Kyiv) is set; when isVerified is false, the date is cleared. Only the director sets the check
+        (an agreement while the API is anonymous, not enforced).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateProductOverviewRequest' }
+      responses:
+        '200': { description: Saved. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+        '404': { description: Product not found. }
+        '409': { description: Another product of the same type has this code. }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    ValidationError:
+      description: Validation failures including field identifiers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+  schemas:
+    ValidationError:
+      type: object
+      required: [identifier, errorMessage]
+      properties:
+        identifier: { type: string }
+        errorMessage: { type: string }
+        errorCode: { type: [string, 'null'] }
+        severity: { type: integer }
+    ProductOverviewRow:
+      type: object
+      required: [id, type, code, name, sectionId, season, isActive, isVerified, verifiedOn, currentSiteUrl, quoteDescription, updatedAtUtc]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        type: { type: string, enum: [Sewing, Ppe] }
+        code: { type: [string, 'null'], description: Model ID (MOD-…) for sewing, site article for PPE. }
+        name: { type: string }
+        sectionId: { type: [integer, 'null'], format: int32, description: ID from /api/reference/product-sections. }
+        season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
+        isActive: { type: boolean }
+        isVerified: { type: boolean }
+        verifiedOn: { type: [string, 'null'], description: 'Check date as dd.MM.yyyy; older imported rows may hold other text.' }
+        currentSiteUrl: { type: [string, 'null'], description: Product page on the current public site; quotes take photos from it (temporary). }
+        quoteDescription: { type: [string, 'null'], description: Short description for a quote (КП). }
+        updatedAtUtc: { type: string, format: date-time }
+    UpdateProductOverviewRequest:
+      type: object
+      required: [isActive, isVerified]
+      properties:
+        code: { type: [string, 'null'], maxLength: 80 }
+        sectionId: { type: [integer, 'null'], format: int32, minimum: 1 }
+        season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
+        isActive: { type: boolean }
+        isVerified: { type: boolean }
+        verifiedOn: { type: [string, 'null'], pattern: '^\d{2}\.\d{2}\.\d{4}$' }
+        currentSiteUrl: { type: [string, 'null'], maxLength: 500, format: uri }
+        quoteDescription: { type: [string, 'null'], maxLength: 2000 }

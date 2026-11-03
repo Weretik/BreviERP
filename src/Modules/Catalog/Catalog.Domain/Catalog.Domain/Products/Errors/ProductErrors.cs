@@ -91,5 +91,6 @@ public static class ProductErrors
     public static CatalogDomainError DuplicateCompositionLine() => new("Catalog.Product.Composition.Line.Duplicate", "Composition contains a duplicate effective line");
     public static CatalogDomainError ArticleSpecificOperationsNotSupported() => new("Catalog.Product.Operation.ArticleScope.Unsupported", "Article-specific operations are not supported");
     public static CatalogDomainError ModelCodeInvalid() => new("Catalog.Product.ModelCode.Invalid", "Model code must be 80 characters or less");
+    public static CatalogDomainError OverviewInvalid(string message) => new("Catalog.Product.Overview.Invalid", message);
     public static CatalogDomainError CompositionLineLimitReached() => new("Catalog.Product.Composition.Line.LimitReached", "A product cannot have more than 2000 lines of either composition type");
 }

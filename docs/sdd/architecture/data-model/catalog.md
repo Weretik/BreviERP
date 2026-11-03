@@ -5,7 +5,7 @@
 | Table | PK | Main data and purpose |
 | --- | --- | --- |
 | `Products` | `Id` | Product: `Name`, `RuName`, `Slug`, `Type`, description, and dates. |
-| `ProductCatalogProfiles` | `ProductId` | Product-owned source activity/season/review metadata and nullable PPE supplier offer, unit, sale SKU and links. Separate from legacy pricing percentages. |
+| `ProductCatalogProfiles` | `ProductId` | Product-owned «Товари» page fields: section ID from `reference.ProductSections` (no FK), season, activity, director check and date, link to the current public site, short description for a quote; plus nullable PPE supplier offer, unit, sale SKU (PPE site article). Separate from legacy pricing percentages. |
 | `SewingPricingSettingsVersions` | generated long `Id` | Immutable thirteen-input settings revision, effective instant, formula version, approval and source JSON/SHA-256. Unique revision and source hash. |
 | `SewingCalculations` | generated long `Id`; unique UUID `PublicId` / `RequestId` | Immutable full calculation JSON, actor/time and restrictive composite Product/Article ownership. Blocked results retain diagnostic evidence. |
 | `SewingPricePublications` | generated long `Id`; unique UUID `PublicId` | Unique calculation FK, actor/time; exact prices come from retained calculation JSON. Append-only history; highest publication ID is current per Article. |

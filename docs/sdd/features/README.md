@@ -8,7 +8,7 @@ See the feature card's “Code structure” section for actual file paths and ro
 
 Products:
 
-- [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products.
+- [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products; the «Товари» page overview (section, season, check, current site link, quote description). Planned modules: [«Контент сайту»](../specs/content/001-site-content/README.md), [«Розрахунок КП»](../specs/quotes/001-quote-calculation/README.md).
 - [Product categories](catalog/categories.md) — Admin CRUD and Storefront list.
 - [Catalog media](catalog/media.md) — upload, list, and delete product files.
 - [Sewing Articles and composition](catalog/sewing-composition.md) — sale SKUs, shared/Article material norms, shared operations and review readiness.

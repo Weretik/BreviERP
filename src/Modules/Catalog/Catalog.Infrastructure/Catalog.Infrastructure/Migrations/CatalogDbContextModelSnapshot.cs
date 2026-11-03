@@ -18,7 +18,7 @@ namespace Catalog.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.2")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -403,6 +403,9 @@ namespace Catalog.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int?>("SectionId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ShortDescription")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
@@ -438,6 +441,8 @@ namespace Catalog.Infrastructure.Migrations
 
                     b.HasIndex("SaleSku")
                         .IsUnique();
+
+                    b.HasIndex("SectionId");
 
                     b.ToTable("ProductCatalogProfiles", "catalog", t =>
                         {

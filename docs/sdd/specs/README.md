@@ -9,6 +9,9 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [003 Brevi-owned product pricing (sheet parity)](catalog/003-sheet-pricing-parity/README.md)             | Sewing and PPE pricing implemented and verified locally 2026-10-25                                                 |
 | Catalog  | [004 Sewing composition structure](catalog/004-sewing-composition-structure/README.md)                   | structural remediation complete 2026-10-25                                                                         |
 | Catalog  | [005 Import and pricing responsibility decomposition](catalog/005-import-pricing-structure/README.md)    | structural remediation verified                                                                                    |
+| Catalog  | [006 «Товари» page from the Calculator sheet](catalog/006-products-page/README.md) | backend implemented 2026-11-03 |
+| Content  | [001 «Контент сайту» site content](content/001-site-content/README.md) | planned only (draft) |
+| Quotes   | [001 «Розрахунок КП» quote calculation](quotes/001-quote-calculation/README.md) | planned only (draft) |
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |
 | Catalog  | [Media files](catalog/media-files/README.md)                                                             | verified                                                                                                           |
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |

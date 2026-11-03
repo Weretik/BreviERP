@@ -24,6 +24,8 @@ public sealed class ProductCatalogProfileConfiguration : IEntityTypeConfiguratio
         builder.Property(x => x.SupplierPrice).HasPrecision(18, 6);
         builder.Property(x => x.PricingRuleCode).HasMaxLength(200);
         builder.Property(x => x.ShortDescription).HasMaxLength(4000);
+        builder.Property(x => x.SectionId);
+        builder.HasIndex(x => x.SectionId);
         builder.Property(x => x.SupplierId).HasConversion(
             new ValueConverter<SupplierReferenceId?, int?>(
                 x => x.HasValue ? x.Value.Value : null,
