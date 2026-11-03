@@ -82,6 +82,8 @@ flowchart LR
     Verify --> Report[Non-publishable parity report]
 ```
 
+Every fabric, accessory and operation has input versions: Reference writes revision 1 when a row is added and the next one when its price, minutes, unit or activity changes, and removes them with the row ([CAT-011](../../specs/catalog/011-product-list-prices/README.md) R-06, `Reference.Infrastructure/Pricing/InputVersions/Changes/`). «Перерахувати всі» (`Features/Pricing/Sewing/Recalculation/`) saves and publishes every changed Article price in one step per model.
+
 Reference input versions use restrictive same-module FKs so history cannot become orphaned. The host's existing usage bridge includes pricing history, preserving a controlled conflict for attempted Reference deletion.
 
 The existing composition-only readiness view remains conservative for OtherCost and directs callers to the versioned Article pricing check. Imported composition review is never automatically granted. All sanctioned pricing writes share a transaction advisory lock; save/publish also lock the Product row. Reference reads use the same transaction, so publication cannot observe partly committed input changes. React Admin consumes the published-price projection. PPE pricing and future Storefront API adoption remain separate stages.

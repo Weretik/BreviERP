@@ -82,6 +82,35 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ProductCodeCheck' }
         '400': { $ref: '#/components/responses/ValidationError' }
+  /api/v1/products/overview/prices:
+    get:
+      operationId: getProductOverviewPrices
+      summary: Prices of every «Товари» row (CAT-011)
+      description: >-
+        CatalogRead. Sewing: for every Article the published (fixed) prices and the live prices calculated from
+        today's inputs; isStale when they differ. from is the lowest published price of each tier among active
+        Articles. status is Ready (all published and current), Stale (a published price differs from the live one),
+        Unpublished (a calculable active Article has no published price) or Blocked (no active Article has a price
+        or a calculable price; blockers are the calculation codes). PPE: the live price from the current offer and
+        rule, pricesUpdatedAt is the offer date, articles is empty. Tiers are 1–9, 10–40 and from 41 pieces.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema: { type: string, enum: [Sewing, Ppe] }
+      responses:
+        '200':
+          description: One entry per product of the type.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ProductOverviewPrices' }
+        '400': { description: Unknown type. }
+        '401': { description: Unauthorized. }
+        '403': { description: CatalogRead required. }
   /api/v1/products/{id}/overview:
     parameters:
       - name: id
@@ -367,3 +396,38 @@ components:
         rowNumber: { type: [integer, 'null'], format: int32, description: Null for a stored product that is not in the sheet. }
         code: { type: [string, 'null'] }
         message: { type: string, description: Ukrainian. }
+    ProductOverviewPrices:
+      type: object
+      required: [productId, status, from, pricesUpdatedAt, blockers, articles]
+      properties:
+        productId: { type: integer, format: int32 }
+        status: { type: string, enum: [Ready, Stale, Unpublished, Blocked] }
+        from: { oneOf: [{ $ref: '#/components/schemas/ProductPriceTiers' }, { type: 'null' }] }
+        pricesUpdatedAt: { type: [string, 'null'], format: date-time }
+        blockers: { type: array, items: { type: string } }
+        articles:
+          type: array
+          items: { $ref: '#/components/schemas/ProductOverviewArticlePrices' }
+    ProductOverviewArticlePrices:
+      type: object
+      required: [articleId, saleSku, active, fabricId, published, publishedAt, live, isStale, blockers]
+      properties:
+        articleId: { type: integer, format: int64 }
+        saleSku: { type: string }
+        active: { type: boolean }
+        fabricId:
+          type: [integer, 'null']
+          format: int32
+          description: The Article's own fabric, else the model's first fabric; names the Article in the price list.
+        published: { oneOf: [{ $ref: '#/components/schemas/ProductPriceTiers' }, { type: 'null' }] }
+        publishedAt: { type: [string, 'null'], format: date-time }
+        live: { oneOf: [{ $ref: '#/components/schemas/ProductPriceTiers' }, { type: 'null' }] }
+        isStale: { type: boolean }
+        blockers: { type: array, items: { type: string } }
+    ProductPriceTiers:
+      type: object
+      required: [retail, wholesale, largeWholesale]
+      properties:
+        retail: { type: number }
+        wholesale: { type: number }
+        largeWholesale: { type: number }
