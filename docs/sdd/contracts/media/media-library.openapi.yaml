@@ -64,7 +64,7 @@ paths:
               schema: { $ref: '#/components/schemas/MediaFolderResponse' }
         '400': { description: Invalid name or parent id. }
         '404': { description: Folder or parent folder not found. }
-        '409': { description: Duplicate sibling name, move into itself or its subfolder, or depth limit. }
+        '409': { description: 'Duplicate sibling name, move into itself or its subfolder, or depth limit.' }
     delete:
       tags: [Media]
       operationId: deleteMediaFolder
@@ -80,8 +80,8 @@ paths:
       summary: Photos by name and/or folder, newest first, one page at a time
       parameters:
         - { in: query, name: folderId, schema: { type: integer, minimum: 1 }, description: Omit to search the whole library. }
-        - { in: query, name: includeSubfolders, schema: { type: boolean, default: true }, description: With folderId, also search its subfolders. }
-        - { in: query, name: search, schema: { type: string, maxLength: 255 }, description: Part of the photo name, case-insensitive. }
+        - { in: query, name: includeSubfolders, schema: { type: boolean, default: true }, description: 'With folderId, also search its subfolders.' }
+        - { in: query, name: search, schema: { type: string, maxLength: 255 }, description: 'Part of the photo name, case-insensitive.' }
         - { in: query, name: page, schema: { type: integer, minimum: 1, default: 1 } }
         - { in: query, name: pageSize, schema: { type: integer, minimum: 1, maximum: 100, default: 48 } }
       responses:
@@ -121,7 +121,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/MediaFileResponse' }
-        '400': { description: Missing, too large, unsupported or fake image. }
+        '400': { description: 'Missing, too large, unsupported or fake image.' }
         '404': { description: Folder not found. }
   /api/media/files/move:
     post:
@@ -166,7 +166,7 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/MediaFileResponse' }
-        '400': { description: Invalid name, alt or folder id. }
+        '400': { description: 'Invalid name, alt or folder id.' }
         '404': { description: Photo or folder not found. }
     delete:
       tags: [Media]
@@ -195,7 +195,7 @@ components:
         id: { type: integer, minimum: 1 }
         name: { type: string }
         parentId: { type: [integer, 'null'] }
-        fileCount: { type: integer, minimum: 0, description: Photos directly in this folder, without subfolders. }
+        fileCount: { type: integer, minimum: 0, description: 'Photos directly in this folder, without subfolders.' }
     MediaFileResponse:
       type: object
       required: [id, fileName, publicUrl, contentType, sizeInBytes, createdAt]
@@ -225,7 +225,7 @@ components:
       required: [area, ownerId, title]
       properties:
         area: { type: string, description: 'Where the photo is used, for example «Товари».' }
-        ownerId: { type: integer, description: Id of the owner, for example the product id. }
+        ownerId: { type: integer, description: 'Id of the owner, for example the product id.' }
         title: { type: string, description: 'For example the product name.' }
     MediaFileDetailResponse:
       type: object
