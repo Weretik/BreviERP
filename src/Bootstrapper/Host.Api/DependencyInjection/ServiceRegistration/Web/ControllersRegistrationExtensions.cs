@@ -4,6 +4,7 @@ using Crm.Api;
 using Identity.Api;
 using Reference.Api;
 using Reminders.Api;
+using Media.Api;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration.Web;
 
@@ -16,5 +17,6 @@ public static class ControllersExtensions
             .AddApplicationPart(typeof(CrmApiAssemblyMarker).Assembly)
             .AddApplicationPart(typeof(IdentityApiAssemblyMarker).Assembly)
             .AddApplicationPart(typeof(ReferenceApiAssemblyMarker).Assembly)
-            .AddApplicationPart(typeof(RemindersApiAssemblyMarker).Assembly);
+            .AddApplicationPart(typeof(RemindersApiAssemblyMarker).Assembly)
+            .AddApplicationPart(typeof(MediaApiAssemblyMarker).Assembly);
 }

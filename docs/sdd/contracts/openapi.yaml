@@ -19,10 +19,16 @@ paths:
     $ref: ./identity/session.openapi.yaml#/paths/~1api~1auth~1session~1me
   /api/reference/product-categories/admin:
     $ref: ./catalog/product-dependencies.openapi.yaml#/paths/~1api~1reference~1product-categories~1admin
-  /api/catalog/media:
-    $ref: ./catalog/product-dependencies.openapi.yaml#/paths/~1api~1catalog~1media
-  /api/catalog/media/{id}:
-    $ref: ./catalog/product-dependencies.openapi.yaml#/paths/~1api~1catalog~1media~1{id}
+  /api/media/folders:
+    $ref: ./media/media-library.openapi.yaml#/paths/~1api~1media~1folders
+  /api/media/folders/{id}:
+    $ref: ./media/media-library.openapi.yaml#/paths/~1api~1media~1folders~1{id}
+  /api/media/files:
+    $ref: ./media/media-library.openapi.yaml#/paths/~1api~1media~1files
+  /api/media/files/move:
+    $ref: ./media/media-library.openapi.yaml#/paths/~1api~1media~1files~1move
+  /api/media/files/{id}:
+    $ref: ./media/media-library.openapi.yaml#/paths/~1api~1media~1files~1{id}
   /api/reference/pricing-parameters:
     $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1pricing-parameters
   /api/reference/pricing-parameters/import:

@@ -4,8 +4,7 @@ using Catalog.Application.Contracts.Admin.Product;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
 using Catalog.Application.Features.Product.GetAdminDetail.Specifications;
-using Catalog.Application.Features.Product.Shared.DTOs;
-using Catalog.Domain.Media.Entities;
+using Catalog.Application.Contracts.Media;
 using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
 using ProductEntity = Catalog.Domain.Products.Entities.Product;
 
@@ -15,7 +14,7 @@ public sealed class GetAdminProductDetailQueryHandler(
     ICatalogReadRepository<ProductEntity> productRepository,
     IProductReferenceReader referenceReader,
     ICatalogReadRepository<ProductCategoryEntity> categoryRepository,
-    ICatalogReadRepository<MediaFile> mediaRepository)
+    IProductMediaReader mediaReader)
     : IQueryHandler<GetAdminProductDetailQuery, Result<ProductAdminDetail>>
 {
     public async ValueTask<Result<ProductAdminDetail>> Handle(GetAdminProductDetailQuery query, CancellationToken cancellationToken)
@@ -31,8 +30,7 @@ public sealed class GetAdminProductDetailQueryHandler(
         var mediaFileIds = product.Photos.Select(x => x.MediaFileId).Distinct().ToArray();
         var mediaUrls = mediaFileIds.Length == 0
             ? new Dictionary<int, string>()
-            : (await mediaRepository.ListAsync(new ProductMediaUrlsByIdsSpec(mediaFileIds), cancellationToken))
-                .ToDictionary(x => x.MediaFileId, x => x.Url);
+            : await mediaReader.GetUrlsAsync(mediaFileIds, cancellationToken);
         return Result.Success(ProductAdminDetailMapper.Map(product, references, categoryDetails, mediaUrls));
     }
 }

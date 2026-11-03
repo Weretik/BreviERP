@@ -1,10 +1,11 @@
-using Accounting.Application;
+﻿using Accounting.Application;
 using Crm.Application;
 using Catalog.Application;
 using FluentValidation;
 using Identity.Application;
 using Reference.Application;
 using Reminders.Application;
+using Media.Application;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 
@@ -34,6 +35,10 @@ public static class FluentValidationRegistrationExtensions
 
         services.AddValidatorsFromAssembly(
             typeof(RemindersApplicationAssemblyMarker).Assembly,
+            includeInternalTypes: true);
+
+        services.AddValidatorsFromAssembly(
+            typeof(MediaApplicationAssemblyMarker).Assembly,
             includeInternalTypes: true);
         return services;
     }

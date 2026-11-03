@@ -13,7 +13,7 @@
 | Identity | ASP.NET Core Identity | Preserve role/policy rules and fallback authentication. |
 | Logging | Serilog | Use structured logs only and exclude sensitive data. |
 | Background jobs | `AddBackgroundJobRegistrations()` is currently empty; the scheduler and job service are not implemented | Define the contract and execution approach in the specification first; do not bind Application directly to a scheduler. |
-| Catalog media storage | `AdmToolsMediaStorageService` | Keep the external adapter behind the Infrastructure boundary. |
+| Media CDN storage | `AdmToolsMediaStorage` (Media.Infrastructure) | Keep the external adapter behind the Infrastructure boundary. |
 | Tests | NUnit projects for unit, integration, and architecture tests | Add tests in proportion to the changed boundary. |
 
 Do not introduce a package to replace an existing project convention without an explicit decision in the feature specification and approval.

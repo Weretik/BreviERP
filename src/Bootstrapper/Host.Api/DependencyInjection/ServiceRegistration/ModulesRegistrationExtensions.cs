@@ -7,7 +7,6 @@ using Crm.Application.Quotes.Introductions;
 using Crm.Application.Quotes.Ownership;
 using Host.Api.Crm;
 using Accounting.Infrastructure.DependencyInjection;
-using Catalog.Api.DependencyInjection;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Contracts.SlugGeneration;
 using Catalog.Infrastructure.Products.SlugGeneration;
@@ -17,6 +16,9 @@ using Host.Api.DependencyInjection.ServiceRegistration.Options;
 using Identity.Infrastructure.DependencyInjection;
 using Reference.Infrastructure.DependencyInjection;
 using Reminders.Infrastructure.DependencyInjection;
+using Catalog.Application.Contracts.Media;
+using Media.Application.Abstractions;
+using Media.Infrastructure.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 
@@ -34,10 +36,12 @@ public static class ModuleRegistrationsExtensions
         services.AddReferenceInfrastructureServices(configuration);
         services.AddAccountingInfrastructureServices(configuration);
         services.AddCatalogInfrastructureServices(configuration);
-        services.AddCatalogApiOptions(configuration);
         services.AddCrmDbContextServices(configuration);
         services.AddCrmKeepinCrmSync(configuration);
         services.AddRemindersInfrastructure(configuration);
+        services.AddMediaInfrastructure(configuration);
+        services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();
+        services.AddScoped<IMediaUsageReader, MediaProductUsageReader>();
         services.AddScoped<global::Crm.Application.CustomSewing.Pricing.ICustomSewingPricing, CustomSewingPricing>();
         services.AddCrmSewingSuggestions();
         services.AddScoped<IQuoteCatalogPriceReader, QuoteCatalogPriceReader>();

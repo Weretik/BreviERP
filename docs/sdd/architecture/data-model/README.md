@@ -14,7 +14,7 @@ BreviERP PostgreSQL
 │   ├── ProductCategories              # category tree
 │   ├── ProductCategoryLinks           # product categories
 │   ├── ProductPhotos                  # product photos
-│   ├── MediaFiles                     # uploaded file metadata
+│   ├── MediaFiles                     # legacy copy, no longer mapped; photos live in media.Files
 │   ├── ProductInformationBlocks       # text blocks
 │   ├── ProductCharacteristicTables    # characteristic tables
 │   ├── ProductCharacteristicRows      # characteristic rows
@@ -43,6 +43,9 @@ BreviERP PostgreSQL
 │   └── AppRefreshSessions            # refresh sessions
 ├── accounting / AccountingDbContext — 1 table
 │   └── TransactionCategories          # transaction categories
+├── media / MediaDbContext — 2 tables + own history
+│   ├── Folders                        # photo folder tree
+│   └── Files                          # photos on the CDN
 ├── reminders / RemindersDbContext — 6 tables + own history
 │   ├── Tasks                          # reminder tasks and schedule
 │   ├── Occurrences                    # one period per task: deadline, status, who closed

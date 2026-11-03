@@ -46,9 +46,6 @@ public static class ProductErrors
     public static CatalogDomainError PhotoMediaFileAlreadyAttached(int mediaFileId) =>
         new("Catalog.Product.Photo.MediaFile.AlreadyAttached", $"Media file '{mediaFileId}' is already attached to the product");
 
-    public static CatalogDomainError PhotoMediaFileNotReady(int mediaFileId) =>
-        new("Catalog.Product.Photo.MediaFile.NotReady", $"Media file '{mediaFileId}' is not ready to be attached to the product");
-
     public static CatalogDomainError PhotoAlreadyExists(int photoId) =>
         new("Catalog.Product.Photo.AlreadyExists", $"Product photo '{photoId}' already exists");
 
