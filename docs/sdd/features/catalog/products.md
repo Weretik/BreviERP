@@ -6,6 +6,8 @@ Create, read, full replacement, and deletion of Sewing and PPE products.
 
 The «Товари» page ([CAT-006](../../specs/catalog/006-products-page/README.md)) lists products per type with their working fields kept in the product catalog profile: code (model ID or PPE site article), section from Reference «Типи і розділи», season, active, the director's check and date, the link to the current public site (quotes take photos from it, temporary) and the short description for a quote. Site texts, SEO and photos stay in the database for the planned [Content module](../../specs/content/001-site-content/README.md).
 
+The pages «Новий ЗІЗ» and «Нова модель» ([CAT-009](../../specs/catalog/009-product-create-pages/README.md)) create a product through `POST /api/v1/products/overview`: the server picks the ID (largest + 1), the slug and the next MOD-XXX for an empty sewing code; a PPE product also gets its supplier fields and first offer version (source «Створення ЗІЗ»). `GET /api/v1/products/overview/code-check` checks a code before saving. The legacy `POST /api/v1/products` stays until the Content module and is not used by these pages.
+
 The [Sewing Article/composition extension](sewing-composition.md) adds multiple sale SKUs, shared and Article-specific material inputs, and shared operation norms through separate protected operations. Legacy replacement preserves these children and rejects a second editable norm set once new composition is configured.
 
 ## Structure and Relationships
@@ -26,7 +28,10 @@ src/
     │   ├── Delete/DeleteProductCommandHandler.cs  # use case handler
     │   ├── GetAdminDetail/GetAdminProductDetailQueryHandler.cs  # use case handler
     │   ├── GetAdminList/GetAdminProductsQueryHandler.cs  # use case handler
+    │   ├── Overview/CodeCheck/GetProductCodeCheckQueryHandler.cs  # free code and next MOD-XXX
+    │   ├── Overview/Create/CreateCatalogProductCommandHandler.cs  # «Новий ЗІЗ» / «Нова модель»
     │   ├── Overview/GetList/GetProductOverviewQueryHandler.cs  # «Товари» page list
+    │   ├── Overview/Shared/SewingModelCodes.cs  # next MOD-XXX
     │   ├── Overview/Update/UpdateProductOverviewCommandHandler.cs  # «Товари» page fields
     │   └── Update/ReplaceProductCommandHandler.cs  # use case handler
     ├── Catalog.Domain/Catalog.Domain/Products/Entities/
@@ -55,10 +60,10 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`), `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests)
+- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`), `tests/UnitTests/CatalogProductCreation*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests)
 - `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`
 
-Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter Product` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product` (covers `CatalogProductCreation`); `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter Product` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 
 **Data:** [catalog schema](../../architecture/data-model/catalog.md)
 

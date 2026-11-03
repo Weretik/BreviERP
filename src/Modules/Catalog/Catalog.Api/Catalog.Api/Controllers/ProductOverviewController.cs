@@ -46,7 +46,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
             request.Season, request.IsActive, request.IsVerified, request.VerifiedOn, request.CurrentSiteUrl,
             request.QuoteDescription), cancellationToken));
 
-    [HttpPost("overview")]
+    [HttpPost("overview", Name = "createCatalogProduct")]
     [Authorize(Policy = "CanManageProducts")]
     [ProducesResponseType(typeof(CreatedCatalogProduct), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -69,7 +69,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
             : this.ToActionResult(result);
     }
 
-    [HttpGet("overview/code-check")]
+    [HttpGet("overview/code-check", Name = "getProductCodeCheck")]
     [Authorize(Policy = "CatalogRead")]
     [ProducesResponseType(typeof(ProductCodeCheck), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

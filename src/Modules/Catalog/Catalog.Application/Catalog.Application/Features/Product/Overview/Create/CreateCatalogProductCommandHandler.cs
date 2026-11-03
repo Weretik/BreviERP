@@ -87,11 +87,11 @@ public sealed class CreateCatalogProductCommandHandler(
     /// <summary>The slug from the name; when taken, the code is added, then a number.</summary>
     private async Task<string> FreeSlugAsync(string name, string code, CancellationToken cancellationToken)
     {
-        var baseSlug = Trim(slugGenerator.GenerateFromUkrainianName(name));
-        var codeSlug = CodeSlug(code);
-        var candidates = new List<string> { baseSlug };
-        if (codeSlug.Length > 0) candidates.Add(Trim(JoinSlug(baseSlug, codeSlug)));
-        for (var n = 2; n <= 50; n++) candidates.Add(Trim(JoinSlug(baseSlug, codeSlug)) + "-" + n);
+        // The generator keeps «.» and «_» (sizes such as «5.5»), which the product slug does not allow.
+        var baseSlug = Trim(SlugPart(slugGenerator.GenerateFromUkrainianName(name)));
+        var withCode = Trim(JoinSlug(baseSlug, SlugPart(code)));
+        var candidates = new List<string> { baseSlug, withCode };
+        for (var n = 2; n <= 50; n++) candidates.Add(JoinSlug(withCode, n.ToString(CultureInfo.InvariantCulture)));
 
         foreach (var candidate in candidates.Where(x => x.Length > 0).Distinct())
             if (!await repository.AnyAsync(new ProductByNameOrSlugSpec(name, candidate), cancellationToken))
@@ -102,10 +102,11 @@ public sealed class CreateCatalogProductCommandHandler(
     private static string JoinSlug(string left, string right)
         => left.Length == 0 ? right : right.Length == 0 ? left : left + "-" + right;
 
-    private static string CodeSlug(string code)
+    /// <summary>Lower-case latin letters and digits joined by single hyphens.</summary>
+    private static string SlugPart(string value)
     {
         var builder = new StringBuilder();
-        foreach (var character in code.ToLowerInvariant())
+        foreach (var character in value.ToLowerInvariant())
             builder.Append(character is >= 'a' and <= 'z' or >= '0' and <= '9' ? character : '-');
         return string.Join('-', builder.ToString().Split('-', StringSplitOptions.RemoveEmptyEntries));
     }
