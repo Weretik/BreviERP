@@ -99,8 +99,8 @@ paths:
     $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles
   /api/v1/products/{productId}/composition:
     $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1composition
-  /api/v1/products/{productId}/articles/{articleId}/composition:
-    $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}~1composition
+  /api/v1/products/{productId}/articles/{articleId}:
+    $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}
   /api/v1/products/{productId}/articles/pricing-summary:
     $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1pricing-summary
   /api/v1/products/{productId}/articles/{articleId}/pricing/calculations:

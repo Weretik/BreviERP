@@ -59,18 +59,21 @@ public sealed class SewingCompositionApiTests
         host.Sender.Setup(x => x.Send(It.IsAny<GetSewingCompositionQuery>(), It.IsAny<CancellationToken>()))
             .Returns(new ValueTask<Result<SewingComposition>>(Result.Success(Composition())));
         host.Sender.Setup(x => x.Send(It.IsAny<CreateSewingArticleCommand>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Result<SewingArticleView>>(Result.Success(new SewingArticleView(501, 42, "0246", true, 0))));
+            .Returns(new ValueTask<Result<SewingArticleView>>(Result.Success(new SewingArticleView(501, 42, "0246", true, 0, 10, 3.6m))));
         host.Sender.Setup(x => x.Send(It.IsAny<ReplaceSewingCompositionCommand>(), It.IsAny<CancellationToken>()))
             .Returns(new ValueTask<Result<SewingComposition>>(Result.Success(Composition())));
-        host.Sender.Setup(x => x.Send(It.IsAny<ReplaceSewingArticleCompositionCommand>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Result<SewingComposition>>(Result.Success(Composition(501))));
+        host.Sender.Setup(x => x.Send(It.IsAny<UpdateSewingArticleCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<Result<SewingArticleView>>(Result.Success(new SewingArticleView(501, 42, "0247", false, 0, 11, 3.6m))));
+        host.Sender.Setup(x => x.Send(It.IsAny<DeleteSewingArticleCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<Result>(Result.Success()));
         using var manager = AsRole(host.Client, "Manager", "auth-actor-42");
 
         var articles = await host.Client.GetAsync($"{BasePath}/articles");
         var composition = await host.Client.GetAsync($"{BasePath}/composition");
         var created = await host.Client.PostAsJsonAsync($"{BasePath}/articles", NewArticle());
         var replaced = await host.Client.PutAsJsonAsync($"{BasePath}/composition", NewModelComposition());
-        var articleReplaced = await host.Client.PutAsJsonAsync($"{BasePath}/articles/501/composition", NewArticleComposition());
+        var updated = await host.Client.PutAsJsonAsync($"{BasePath}/articles/501", UpdatedArticle());
+        var deleted = await host.Client.DeleteAsync($"{BasePath}/articles/501?expectedVersion=3");
         var body = await created.Content.ReadFromJsonAsync<JsonElement>();
 
         Assert.Multiple(() =>
@@ -81,11 +84,13 @@ public sealed class SewingCompositionApiTests
             Assert.That(created.Headers.Location!.AbsolutePath, Is.EqualTo($"{BasePath}/articles"));
             Assert.That(body.GetProperty("saleSku").GetString(), Is.EqualTo("0246"));
             Assert.That(replaced.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-            Assert.That(articleReplaced.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(updated.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(deleted.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
         });
         host.Sender.Verify(x => x.Send(It.Is<GetSewingCompositionQuery>(q => q.ProductId == 42 && q.ArticleId == null), It.IsAny<CancellationToken>()), Times.Once);
         host.Sender.Verify(x => x.Send(It.Is<ReplaceSewingCompositionCommand>(q => q.ProductId == 42 && q.Actor == "auth-actor-42"), It.IsAny<CancellationToken>()), Times.Once);
-        host.Sender.Verify(x => x.Send(It.Is<ReplaceSewingArticleCompositionCommand>(q => q.ProductId == 42 && q.ArticleId == 501 && q.Actor == "auth-actor-42"), It.IsAny<CancellationToken>()), Times.Once);
+        host.Sender.Verify(x => x.Send(It.Is<UpdateSewingArticleCommand>(q => q.ProductId == 42 && q.ArticleId == 501 && q.Request.FabricId == 11), It.IsAny<CancellationToken>()), Times.Once);
+        host.Sender.Verify(x => x.Send(It.Is<DeleteSewingArticleCommand>(q => q.ProductId == 42 && q.ArticleId == 501 && q.ExpectedVersion == 3), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]
@@ -98,14 +103,14 @@ public sealed class SewingCompositionApiTests
             .Returns(new ValueTask<Result<SewingArticleView>>(Result.Conflict("Sale SKU is already in use.")));
         host.Sender.Setup(x => x.Send(It.IsAny<ReplaceSewingCompositionCommand>(), It.IsAny<CancellationToken>()))
             .Returns(new ValueTask<Result<SewingComposition>>(Result<SewingComposition>.Invalid(new ValidationError("materials[0].quantity", "Quantity must be positive."))));
-        host.Sender.Setup(x => x.Send(It.IsAny<ReplaceSewingArticleCompositionCommand>(), It.IsAny<CancellationToken>()))
-            .Returns(new ValueTask<Result<SewingComposition>>(Result.Conflict("Composition version is stale.")));
+        host.Sender.Setup(x => x.Send(It.IsAny<DeleteSewingArticleCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(new ValueTask<Result>(Result.Conflict(DeleteSewingArticleHandler.HasPriceHistory)));
         using var manager = AsRole(host.Client, "Admin", "actor-1");
 
         var missing = await host.Client.GetAsync($"{BasePath}/articles");
         var conflict = await host.Client.PostAsJsonAsync($"{BasePath}/articles", NewArticle());
         var invalid = await host.Client.PutAsJsonAsync($"{BasePath}/composition", NewModelComposition());
-        var stale = await host.Client.PutAsJsonAsync($"{BasePath}/articles/501/composition", NewArticleComposition());
+        var stale = await host.Client.DeleteAsync($"{BasePath}/articles/501?expectedVersion=0");
         var invalidBody = await invalid.Content.ReadFromJsonAsync<JsonElement>();
         var conflictBody = await conflict.Content.ReadFromJsonAsync<JsonElement>();
 
@@ -140,10 +145,10 @@ public sealed class SewingCompositionApiTests
         return new HeaderRemoval(client);
     }
 
-    private static CreateSewingArticleRequest NewArticle() => new("0246", true, 0, 0);
+    private static CreateSewingArticleRequest NewArticle() => new("0246", true, 0, 10, 3.6m, 0);
+    private static UpdateSewingArticleRequest UpdatedArticle() => new("0247", false, 11, 3.6m, 3);
     private static ReplaceSewingCompositionRequest NewModelComposition() => new("MOD-025", [], [], 0);
-    private static ReplaceSewingArticleCompositionRequest NewArticleComposition() => new([], 0);
-    private static SewingArticleList ArticleList() => new(42, "MOD-025", 0, [new(501, 42, "0246", true, 0)]);
+    private static SewingArticleList ArticleList() => new(42, "MOD-025", 0, [new(501, 42, "0246", true, 0, 10, 3.6m)]);
     private static SewingComposition Composition(long? articleId = null) => new(42, articleId, "MOD-025", 0, [], [], []);
 
     private sealed class HeaderRemoval(HttpClient client) : IDisposable

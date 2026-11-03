@@ -48,7 +48,7 @@ public sealed class SewingArticleSummaryTests
         var tiers = new SewingPriceTiers(500m, 450m, 420m);
         var handler = Handler(
             new SewingArticleList(7, "MOD-025", 3,
-                [new SewingArticleView(11, 7, "602", true, 0), new SewingArticleView(12, 7, "603", false, 1)]),
+                [new SewingArticleView(11, 7, "602", true, 0, 4, 1.4m), new SewingArticleView(12, 7, "603", false, 1, 5, 1.4m)]),
             [new SewingPublishedProductPrices(7, 2,
                 [new SewingPublishedArticlePrice(11, "602", Guid.NewGuid(), Guid.NewGuid(), Now.AddDays(-1), tiers)])]);
 

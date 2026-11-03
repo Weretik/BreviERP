@@ -77,8 +77,11 @@ public sealed class CatalogSheetImportRealFileTests
             Assert.That(await Count("Products", $"\"Type\" = {(int)ProductType.Sewing}"), Is.EqualTo(124));
             Assert.That(await Count("Products", $"\"Type\" = {(int)ProductType.Ppe}"), Is.EqualTo(119));
             Assert.That(await Count("SewingArticles"), Is.EqualTo(248));
-            Assert.That(await Count("SewingMaterialLines"), Is.EqualTo(1448));
-            Assert.That(await Count("SewingMaterialLines", "\"ArticleId\" IS NOT NULL"), Is.EqualTo(246));
+            // MOD-174 «Флекс» shares one fabric in the sheet; it goes to both its variants (CAT-015).
+            Assert.That(await Count("SewingMaterialLines"), Is.EqualTo(1449));
+            Assert.That(await Count("SewingMaterialLines", "\"ArticleId\" IS NOT NULL"), Is.EqualTo(248));
+            Assert.That(await Count("SewingArticles", "(SELECT count(*) FROM catalog.\"SewingMaterialLines\" l WHERE l.\"ArticleId\" = catalog.\"SewingArticles\".\"Id\" AND l.\"Kind\" = 1) <> 1"),
+                Is.Zero, "every fabric variant has exactly its one fabric");
             Assert.That(await Count("SewingOperationLines"), Is.EqualTo(1823));
             Assert.That(await Count("SewingOperationLines", "\"ManualMinutes\" IS NOT NULL"), Is.EqualTo(33));
             Assert.That(await Count("SewingMaterialLines", "\"Comment\" = 'Спільна складова для всіх артикулів моделі'")

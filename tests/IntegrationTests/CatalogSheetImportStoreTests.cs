@@ -78,7 +78,7 @@ public sealed class CatalogSheetImportStoreTests
             Assert.That(await _database.ScalarAsync<long>("SELECT count(*) FROM catalog.\"Products\" WHERE \"Type\" = " + (int)ProductType.Ppe), Is.EqualTo(4));
             Assert.That(await _database.ScalarAsync<string>("SELECT \"Name\" FROM catalog.\"Products\" WHERE \"Id\" = " + oldPpeId), Is.EqualTo("Рукавички робочі нові"));
             Assert.That(await _database.ScalarAsync<long>("SELECT count(*) FROM catalog.\"SewingArticles\""), Is.EqualTo(4));
-            Assert.That(await LinesAsync("MOD-101", "SewingMaterialLines"), Is.EqualTo(3), "shared fabric + one accessory per article");
+            Assert.That(await LinesAsync("MOD-101", "SewingMaterialLines"), Is.EqualTo(3), "shared accessory + one fabric per variant");
             Assert.That(await LinesAsync("MOD-101", "SewingOperationLines"), Is.EqualTo(3), "OP-001 twice and OP-002");
             Assert.That(await _database.ScalarAsync<long>("SELECT count(*) FROM catalog.\"SewingMaterialLines\" m JOIN catalog.\"Products\" p ON p.\"Id\" = m.\"ProductId\" WHERE p.\"ModelCode\" = 'MOD-101' AND m.\"ArticleId\" IS NOT NULL"), Is.EqualTo(2));
             Assert.That(await _database.ScalarAsync<long>("SELECT count(*) FROM catalog.\"SewingOperationLines\" o JOIN catalog.\"Products\" p ON p.\"Id\" = o.\"ProductId\" WHERE p.\"ModelCode\" = 'MOD-101' AND o.\"ManualMinutes\" = 4.5"), Is.EqualTo(1));
@@ -425,9 +425,9 @@ public sealed class CatalogSheetImportStoreTests
             articles = new[] { new { saleSku = "101", isActive = true }, new { saleSku = "102", isActive = true } },
             materials = new[]
             {
-                Material(10, null, "Fabric", "FAB-001", 2.5m, "Metre"),
-                Material(11, "101", "Accessory", "FUR-001", 1m, "Piece"),
-                Material(12, "102", "Accessory", "fur-001 ", 2m, "Piece")
+                Material(10, null, "Accessory", "FUR-001", 1m, "Piece"),
+                Material(11, "101", "Fabric", "FAB-001", 2.5m, "Metre"),
+                Material(12, "102", "Fabric", "fab-001 ", 2.5m, "Metre")
             },
             operations = new[]
             {

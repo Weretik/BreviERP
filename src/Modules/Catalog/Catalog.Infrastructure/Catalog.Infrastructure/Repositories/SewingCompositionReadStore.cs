@@ -18,7 +18,13 @@ internal sealed class SewingCompositionReadStore(CatalogDbContext db) : ISewingC
                 product.CompositionVersion,
                 product.Articles.OrderBy(article => article.SortOrder).ThenBy(article => article.Id)
                     .Select(article => new SewingArticleView(article.Id.Value, article.ProductId.Value,
-                        article.SaleSku, article.IsActive, article.SortOrder)).ToList()));
+                        article.SaleSku, article.IsActive, article.SortOrder,
+                        // The variant's own fabric line (CAT-015); null when it has none yet.
+                        product.MaterialLines.Where(line => line.ArticleId == article.Id)
+                            .Select(line => line.FabricId.HasValue ? (int?)line.FabricId.Value.Value : null)
+                            .FirstOrDefault(),
+                        product.MaterialLines.Where(line => line.ArticleId == article.Id)
+                            .Select(line => (decimal?)line.Quantity).FirstOrDefault())).ToList()));
 
     public async Task<SewingCompositionReadSnapshot?> ReadCompositionAsync(int productId, long? articleId,
         CancellationToken cancellationToken)

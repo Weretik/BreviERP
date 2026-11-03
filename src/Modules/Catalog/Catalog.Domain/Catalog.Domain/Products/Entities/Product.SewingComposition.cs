@@ -24,6 +24,10 @@ public partial class Product
         var commonKeys = materials.Where(x => !x.ArticleId.HasValue).Select(x => (x.Kind, x.ReferenceKey)).ToHashSet();
         if (materials.Where(x => x.ArticleId.HasValue).Any(x => commonKeys.Contains((x.Kind, x.ReferenceKey))))
             throw new DomainException(ProductErrors.CompositionScopeConflict());
+        // A fabric variant (Article) has only its fabric; everything else is shared by the model (CAT-015).
+        var articleLines = materials.Where(x => x.ArticleId.HasValue).ToList();
+        if (articleLines.Any(x => x.Kind != SewingMaterialKind.Fabric) || articleLines.GroupBy(x => x.ArticleId).Any(g => g.Count() > 1))
+            throw new DomainException(ProductErrors.ArticleLineMustBeFabric());
         if (materials.GroupBy(x => (x.ArticleId, x.Kind, x.ReferenceKey)).Any(g => g.Count() > 1))
             throw new DomainException(ProductErrors.DuplicateCompositionLine());
         if (materials.Count > 2_000 || operations.Count > 2_000)
@@ -47,5 +51,10 @@ public partial class Product
         var candidate = _materialLines.Where(x => x.ArticleId != articleId).Concat(articleLines).ToList();
         ReplaceComposition(candidate, _operationLines, updatedAt);
     }
+
+    /// <summary>Sets the one fabric line (metres per product) of a fabric variant (CAT-015).</summary>
+    public void SetArticleFabric(ArticleId articleId, FabricReferenceId fabricId, decimal quantity, DateTimeOffset updatedAt)
+        => ReplaceArticleComposition(articleId, [SewingMaterialLine.Create(default, Id, articleId,
+            SewingMaterialKind.Fabric, fabricId, null, null, quantity, SewingMaterialUnit.Metre, 0)], updatedAt);
 
 }

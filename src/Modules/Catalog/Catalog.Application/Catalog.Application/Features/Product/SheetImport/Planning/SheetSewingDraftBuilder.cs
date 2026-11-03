@@ -62,10 +62,32 @@ public sealed class SheetSewingDraftBuilder(SheetReferenceResolver references, S
         if (log.Problems.Count > before)
             return null;
         var articles = row.Articles.Select(x => x with { SaleSku = x.SaleSku.Trim() }).ToList();
+        if (materials.Any(x => x.ArticleSku is not null && x.Kind != SewingMaterialKind.Fabric))
+        {
+            Problem("У артикула може бути тільки його тканина; фурнітура спільна для моделі.");
+            return null;
+        }
+        materials = FabricPerVariant(materials, articles.Select(x => x.SaleSku).ToList());
         return new SheetProductDraft(row.RowNumber, ProductType.Sewing, code, row.Name.Trim(),
             new ProductOverviewDetails(sectionId, Trim(row.Season), row.IsActive,
                 Trim(row.CurrentSiteUrl), Trim(row.QuoteDescription)),
             null, new SewingCompositionDraft(articles, materials, operations));
+    }
+
+    /// <summary>
+    /// A fabric shared by the whole model goes to every variant that has no own fabric (CAT-015): the fabric is part
+    /// of the variant, everything else is shared.
+    /// </summary>
+    internal static List<SewingMaterialDraft> FabricPerVariant(List<SewingMaterialDraft> materials, IReadOnlyList<string> skus)
+    {
+        var shared = materials.Where(x => x.ArticleSku is null && x.Kind == SewingMaterialKind.Fabric).ToList();
+        if (shared.Count != 1 || skus.Count == 0)
+            return materials;
+        var withFabric = materials.Where(x => x.ArticleSku is not null).Select(x => x.ArticleSku!).ToHashSet(StringComparer.Ordinal);
+        if (skus.Any(withFabric.Contains))
+            return materials;
+        return materials.Where(x => x != shared[0])
+            .Concat(skus.Select(sku => shared[0] with { ArticleSku = sku })).ToList();
     }
 
     private SewingMaterialDraft? Material(SheetSewingMaterialRow line, HashSet<string> skus, Action<string> problem)

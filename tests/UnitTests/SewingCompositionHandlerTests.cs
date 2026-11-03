@@ -39,10 +39,10 @@ public sealed class SewingCompositionHandlerTests
         fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(1), fixture.Product.Id, "SKU-1"), DateTimeOffset.UtcNow);
 
         var result = await fixture.ArticleHandler.Handle(new CreateSewingArticleCommand(101,
-            new("SKU-2", true, 0, 0)), CancellationToken.None);
+            new("SKU-2", true, 0, 10, 3.6m, 0)), CancellationToken.None);
 
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Conflict));
-        fixture.Store.Verify(x => x.SaleSkuExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        fixture.Store.Verify(x => x.SaleSkuExistsAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>()), Times.Never);
         fixture.Store.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -78,24 +78,107 @@ public sealed class SewingCompositionHandlerTests
     public async Task Duplicate_sale_sku_returns_conflict_without_save()
     {
         var fixture = new Fixture();
-        fixture.Store.Setup(x => x.SaleSkuExistsAsync("246", It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
+        fixture.Store.Setup(x => x.SaleSkuExistsAsync("246", null, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var result = await fixture.ArticleHandler.Handle(new CreateSewingArticleCommand(101,
-            new("246", true, 0, 0)), CancellationToken.None);
+            new("246", true, 0, 10, 3.6m, 0)), CancellationToken.None);
 
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Conflict));
+        fixture.Store.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
+        fixture.Store.Verify(x => x.AddArticleAsync(It.IsAny<Product>(), It.IsAny<SewingArticle>(),
+            It.IsAny<FabricReferenceId>(), It.IsAny<decimal>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task New_variant_is_added_with_its_fabric_in_one_store_call()
+    {
+        var fixture = new Fixture();
+        fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
+        fixture.Store.Setup(x => x.AddArticleAsync(fixture.Product, It.IsAny<SewingArticle>(), FabricReferenceId.Create(10),
+            3.6m, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        var result = await fixture.ArticleHandler.Handle(new CreateSewingArticleCommand(101,
+            new(" 246 ", true, 0, 10, 3.6m, 0)), CancellationToken.None);
+
+        Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
+        Assert.That(result.Value, Is.EqualTo(new SewingArticleView(0, 101, "246", true, 0, 10, 3.6m)));
+    }
+
+    [Test]
+    public async Task Unknown_fabric_of_a_new_variant_returns_not_found()
+    {
+        var fixture = new Fixture();
+        fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
+
+        var result = await fixture.ArticleHandler.Handle(new CreateSewingArticleCommand(101,
+            new("246", true, 0, 99, 3.6m, 0)), CancellationToken.None);
+
+        Assert.That(result.Status, Is.EqualTo(ResultStatus.NotFound));
+    }
+
+    [Test]
+    public async Task Variant_update_changes_sku_activity_and_fabric()
+    {
+        var fixture = new Fixture();
+        var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21");
+        fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
+        fixture.Product.SetArticleFabric(article.Id, FabricReferenceId.Create(10), 2m, DateTimeOffset.UtcNow);
+        fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
+        fixture.Store.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        var result = await fixture.UpdateHandler.Handle(new UpdateSewingArticleCommand(101, 21,
+            new("SKU-22", false, 11, 3.6m, fixture.Product.CompositionVersion)), CancellationToken.None);
+
+        Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
+        Assert.That(article.SaleSku, Is.EqualTo("SKU-22"));
+        Assert.That(article.IsActive, Is.False);
+        var fabric = fixture.Product.MaterialLines.Single();
+        Assert.That((fabric.ArticleId, fabric.FabricId, fabric.Quantity),
+            Is.EqualTo(((ArticleId?)article.Id, (FabricReferenceId?)FabricReferenceId.Create(11), 3.6m)));
+    }
+
+    [Test]
+    public async Task Variant_with_price_history_cannot_be_deleted()
+    {
+        var fixture = new Fixture();
+        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21"), DateTimeOffset.UtcNow);
+        fixture.Store.Setup(x => x.HasPriceHistoryAsync(21, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        var result = await fixture.DeleteHandler.Handle(new DeleteSewingArticleCommand(101, 21,
+            fixture.Product.CompositionVersion), CancellationToken.None);
+
+        Assert.That(result.Status, Is.EqualTo(ResultStatus.Conflict));
+        Assert.That(result.Errors, Does.Contain(DeleteSewingArticleHandler.HasPriceHistory));
+        Assert.That(fixture.Product.Articles, Has.Count.EqualTo(1));
         fixture.Store.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Test]
-    public async Task Article_composition_for_another_product_returns_not_found_without_save()
+    public async Task Variant_without_prices_is_deleted_with_its_fabric()
+    {
+        var fixture = new Fixture();
+        var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21");
+        fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
+        fixture.Product.SetArticleFabric(article.Id, FabricReferenceId.Create(10), 2m, DateTimeOffset.UtcNow);
+        fixture.Store.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        var result = await fixture.DeleteHandler.Handle(new DeleteSewingArticleCommand(101, 21,
+            fixture.Product.CompositionVersion), CancellationToken.None);
+
+        Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
+        Assert.That(fixture.Product.Articles, Is.Empty);
+        Assert.That(fixture.Product.MaterialLines, Is.Empty);
+    }
+
+    [Test]
+    public async Task Variant_of_another_product_returns_not_found_without_save()
     {
         var fixture = new Fixture();
         fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21"), DateTimeOffset.UtcNow);
-        fixture.Store.Setup(x => x.LoadAsync(101, It.IsAny<CancellationToken>())).ReturnsAsync(fixture.Product);
 
-        var result = await fixture.ArticleCompositionHandler.Handle(new ReplaceSewingArticleCompositionCommand(101, 22,
-            new([], fixture.Product.CompositionVersion), "manager-1"), CancellationToken.None);
+        var result = await fixture.UpdateHandler.Handle(new UpdateSewingArticleCommand(101, 22,
+            new("SKU-22", true, 10, 1m, fixture.Product.CompositionVersion)), CancellationToken.None);
 
         Assert.That(result.Status, Is.EqualTo(ResultStatus.NotFound));
         fixture.ReferenceReader.Verify(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -184,7 +267,7 @@ public sealed class SewingCompositionHandlerTests
     private static SewingMaterialInput FabricInput(int id) => new("Fabric", id, null, 1m, "Metre", 0);
 
     private static ProductReferenceData References(bool includeOperation = false) => new(
-        new Dictionary<int, ReferenceItem>(), new Dictionary<int, PricedReferenceItem> { [10] = new(10, "Fabric", 10m) },
+        new Dictionary<int, ReferenceItem>(), new Dictionary<int, PricedReferenceItem> { [10] = new(10, "Fabric", 10m), [11] = new(11, "Fabric 2", 12m) },
         new Dictionary<int, PricedReferenceItem>(), includeOperation
             ? new Dictionary<int, OperationReferenceItem> { [5] = new(5, "Operation", 1m) }
             : new Dictionary<int, OperationReferenceItem>(), new Dictionary<int, AdditionalReferenceItem>());
@@ -197,15 +280,17 @@ public sealed class SewingCompositionHandlerTests
         public Mock<IProductReferenceReader> ReferenceReader { get; } = new();
         public CreateSewingArticleHandler ArticleHandler { get; }
         public ReplaceSewingCompositionHandler CompositionHandler { get; }
-        public ReplaceSewingArticleCompositionHandler ArticleCompositionHandler { get; }
+        public UpdateSewingArticleHandler UpdateHandler { get; }
+        public DeleteSewingArticleHandler DeleteHandler { get; }
 
         public Fixture()
         {
             Store.Setup(x => x.LoadAsync(101, It.IsAny<CancellationToken>())).ReturnsAsync(Product);
-            Store.Setup(x => x.SaleSkuExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
-            ArticleHandler = new(Store.Object);
+            Store.Setup(x => x.SaleSkuExistsAsync(It.IsAny<string>(), It.IsAny<long?>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+            ArticleHandler = new(Store.Object, ReferenceReader.Object);
             CompositionHandler = new(Store.Object, ReadStore.Object, ReferenceReader.Object);
-            ArticleCompositionHandler = new(Store.Object, ReadStore.Object, ReferenceReader.Object);
+            UpdateHandler = new(Store.Object, ReferenceReader.Object);
+            DeleteHandler = new(Store.Object);
         }
 
         public static Product NewSewingProduct() => Product.Create(ProductId.Create(101), "Old", "Old RU",

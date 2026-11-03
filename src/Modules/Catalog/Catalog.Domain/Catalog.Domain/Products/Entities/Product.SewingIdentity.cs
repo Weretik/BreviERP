@@ -34,6 +34,29 @@ public partial class Product
         MarkAsUpdated(updatedAt);
     }
 
+    /// <summary>Changes the sale SKU and the activity of one article (CAT-015).</summary>
+    public void UpdateArticle(ArticleId articleId, string saleSku, bool isActive, DateTimeOffset updatedAt)
+    {
+        var article = _articles.FirstOrDefault(x => x.Id == articleId)
+            ?? throw new DomainException(ProductErrors.ArticleNotFound());
+        var sku = saleSku?.Trim() ?? string.Empty;
+        if (_articles.Any(x => x.Id != articleId && string.Equals(x.SaleSku, sku, StringComparison.Ordinal)))
+            throw new DomainException(ProductErrors.DuplicateSaleSku(sku));
+        article.Rename(sku, isActive);
+        CompositionVersion++;
+        MarkAsUpdated(updatedAt);
+    }
+
+    /// <summary>Removes one article with its fabric line (CAT-015).</summary>
+    public void RemoveArticle(ArticleId articleId, DateTimeOffset updatedAt)
+    {
+        if (_articles.RemoveAll(x => x.Id == articleId) == 0)
+            throw new DomainException(ProductErrors.ArticleNotFound());
+        _materialLines.RemoveAll(x => x.ArticleId == articleId);
+        CompositionVersion++;
+        MarkAsUpdated(updatedAt);
+    }
+
     /// <summary>
     /// Makes the article list equal to <paramref name="articles"/> (sheet order). An article with the same sale SKU
     /// is kept with its ID and takes the new activity and position; the others are added. Articles that are not in

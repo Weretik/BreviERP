@@ -20,6 +20,14 @@ public sealed class SewingArticle
         return new SewingArticle { Id = id, ProductId = productId, SaleSku = saleSku.Trim(), IsActive = isActive, SortOrder = sortOrder };
     }
 
+    /// <summary>Changes the sale SKU and the activity; the ID and the position stay.</summary>
+    internal void Rename(string saleSku, bool isActive)
+    {
+        if (string.IsNullOrWhiteSpace(saleSku) || saleSku.Trim().Length > 80) throw new DomainException(ProductErrors.SaleSkuInvalid());
+        SaleSku = saleSku.Trim();
+        IsActive = isActive;
+    }
+
     /// <summary>Changes the activity and the position of a kept article; the sale SKU and ID stay.</summary>
     internal void SetState(bool isActive, int sortOrder)
     {

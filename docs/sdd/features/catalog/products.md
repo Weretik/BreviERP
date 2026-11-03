@@ -8,13 +8,13 @@ The «Товари» page ([CAT-006](../../specs/catalog/006-products-page/READM
 
 The pages «Новий ЗІЗ» and «Нова модель» ([CAT-009](../../specs/catalog/009-product-create-pages/README.md)) create a product through `POST /api/v1/products/overview`: the server picks the ID (largest + 1), the slug and the next MOD-XXX for an empty sewing code; a PPE product also gets its supplier fields and first offer version (source «Створення ЗІЗ»). `GET /api/v1/products/overview/code-check` checks a code before saving. The legacy `POST /api/v1/products` stays until the Content module and is not used by these pages.
 
-The one-time sheet import ([CAT-010](../../specs/catalog/010-sheet-product-import/README.md)) `POST /api/v1/products/sheet-import` brings all models and PPE of the Calculator sheet: it matches by code then name, creates the rest, replaces sewing articles and composition, appends PPE price versions only on change and, with `deleteMissing`, deletes products that are not in the sheet. A preview (`dryRun`) writes nothing; any problem stops the write.
+The one-time sheet import ([CAT-010](../../specs/catalog/010-sheet-product-import/README.md)) `POST /api/v1/products/sheet-import` brings all models and PPE of the Calculator sheet: it matches by code then name, creates the rest, replaces sewing articles (fabric variants) and composition, appends PPE price versions only on change and, with `deleteMissing`, deletes products that are not in the sheet. A preview (`dryRun`) writes nothing; any problem stops the write.
 
 The «Товари» list is one server request per page ([CAT-013](../../specs/catalog/013-product-list-page/README.md)): `GET /api/v1/products/overview` searches, filters, sorts and pages the rows and returns them with their published prices, fabric variants (with fabric names) and, only when a price is missing, the reasons; `GET /api/v1/products/{id}/overview` returns one row for the card. Nothing is recalculated for the list; PPE rows get the live rule price. Sewing prices are published automatically after every change of their inputs ([CAT-012](../../specs/catalog/012-sewing-price-auto-publication/README.md), see [Sewing pricing](sewing-pricing.md)).
 
 Products and composition lines have no review, «required» or check marks ([CAT-014](../../specs/catalog/014-remove-review-marks/README.md)): nothing blocks a price on review.
 
-The [Sewing Article/composition extension](sewing-composition.md) adds multiple sale SKUs, shared and Article-specific material inputs, and shared operation norms through separate protected operations. Legacy replacement preserves these children and rejects a second editable norm set once new composition is configured.
+The [Sewing Article/composition extension](sewing-composition.md) adds fabric variants (sale SKU + its fabric), shared material inputs and shared operation norms through separate protected operations. Legacy replacement preserves these children and rejects a second editable norm set once new composition is configured.
 
 ## Structure and Relationships
 
