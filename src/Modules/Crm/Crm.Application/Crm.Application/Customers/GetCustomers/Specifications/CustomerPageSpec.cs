@@ -21,6 +21,7 @@ public sealed class CustomerPageSpec : Specification<Customer, CustomerSummary>
             x.ExternalIdentities.Where(i => i.Source == KeepinCrmClientIdentity.Source && i.Type == KeepinCrmClientIdentity.Type)
                 .Select(i => i.ExternalId).FirstOrDefault(),
             x.Contacts.Where(c => c.Active).OrderByDescending(c => c.IsPrimary).Select(c => c.Name).FirstOrDefault(),
-            x.Contacts.Where(c => c.Active).SelectMany(c => c.Channels).Where(v => v.Kind == "phone").Select(v => v.Value).ToList()));
+            x.Contacts.Where(c => c.Active).SelectMany(c => c.Channels).Where(v => v.Kind == "phone").Select(v => v.Value).ToList(),
+            x.KeepinSyncedAt));
     }
 }

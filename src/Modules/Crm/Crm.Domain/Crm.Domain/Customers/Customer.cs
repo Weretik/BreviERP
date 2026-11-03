@@ -20,6 +20,8 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
     public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
     public CustomerId? MergedIntoId { get; private set; }
+    /// <summary>Last applied KeepinCRM sync that saw this client; set in bulk by the sync, never bumps Revision.</summary>
+    public DateTimeOffset? KeepinSyncedAt { get; private set; }
     private readonly List<CustomerContact> _contacts = [];
     public IReadOnlyCollection<CustomerContact> Contacts => _contacts;
     private readonly List<CustomerExternalIdentity> _externalIdentities = [];

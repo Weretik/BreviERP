@@ -15,6 +15,7 @@ Step 4 of moving the client's Calculator into Brevi. The admin gets «Загал
 - **R-03:** A new KeepinCRM client is created, owned by `KeepinCrm:ClientOwnerUserId` (default 1). A linked client missing from KeepinCRM is marked not used, never deleted. Repeating the same data changes nothing.
 - **R-04:** A preview (`dryRun`, the API default) saves nothing. An error or an empty answer changes nothing.
 - **R-05:** With `removeUnlinked` (Admin only, one-time transfer) Brevi clients without a KeepinCRM link are deleted with their contacts and identities; clients that a quote, a custom sewing draft or a merge refers to are hidden instead.
+- **R-07:** An applied run stamps its time in `KeepinSyncedAt` on every linked client (one bulk update, no revision change). The list returns it as `keepinSyncedAt`, and the Admin shows the last sync time in the clients tab subtitle, as for suppliers.
 - **R-06:** The daily `brevierp-sync` job runs it as the step `keepin-clients` after `keepin-suppliers`, applied and without `removeUnlinked`.
 
 ## Scenarios
@@ -27,7 +28,8 @@ Step 4 of moving the client's Calculator into Brevi. The admin gets «Загал
 
 - Application: `Crm.Application/Customers/KeepinCrmSync/` (`KeepinCrmClientSync`, target mapping, identity, store and source ports, command).
 - Infrastructure: `Crm.Infrastructure/KeepinCrm/` (options, parser, HTTP source), `Persistence/Customers/KeepinCrmSync/CustomerKeepinSyncStore.cs`, `DependencyInjection/CrmKeepinCrmExtensions.cs` (Host.Api and Host.Seed).
-- API: `POST /api/crm/customers/keepin-sync` `{dryRun, removeUnlinked}`; the list summary gains `keepinCrmId`, `contactName`, `phones`. Contract [clients-quotes](../../../contracts/crm/clients-quotes.openapi.yaml) 1.1.0, additive.
+- Data: migration `AddCustomerKeepinSyncedAt` adds nullable `crm.Customers.KeepinSyncedAt`; rollback is its `Down`.
+- API: `POST /api/crm/customers/keepin-sync` `{dryRun, removeUnlinked}`; the list summary gains `keepinCrmId`, `contactName`, `phones`. Contract [clients-quotes](../../../contracts/crm/clients-quotes.openapi.yaml) 1.2.0, additive (`keepinSyncedAt`, result `syncedAt`).
 - Known limit: a Manager sees only clients they own, so KeepinCRM clients are visible to Admins (and to the owner user) until owner mapping from `main_responsible` is decided.
 
 ## Tasks

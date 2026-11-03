@@ -35,7 +35,7 @@ internal sealed class CustomerKeepinSyncStore(CrmDbContext db) : ICustomerKeepin
         db.Customers.Remove(customer);
     }
 
-    public async Task SaveAsync(CancellationToken cancellationToken)
+    public async Task SaveAsync(DateTimeOffset syncedAt, CancellationToken cancellationToken)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         db.ChangeTracker.DetectChanges();
@@ -49,6 +49,10 @@ internal sealed class CustomerKeepinSyncStore(CrmDbContext db) : ICustomerKeepin
         }
 
         await db.SaveChangesAsync(cancellationToken);
+        await db.Customers
+            .Where(x => x.MergedIntoId == null && x.ExternalIdentities.Any(i =>
+                i.Source == KeepinCrmClientIdentity.Source && i.Type == KeepinCrmClientIdentity.Type))
+            .ExecuteUpdateAsync(x => x.SetProperty(c => c.KeepinSyncedAt, syncedAt), cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
 }

@@ -38,6 +38,7 @@ public sealed class KeepinCrmClientSyncTests
         public List<Customer> Added { get; } = [];
         public List<Customer> Removed { get; } = [];
         public int Saves { get; private set; }
+        public DateTimeOffset? SyncedAt { get; private set; }
 
         public Task<IReadOnlyList<Customer>> ListWithDetailsAsync(CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyList<Customer>>(customers);
@@ -48,18 +49,26 @@ public sealed class KeepinCrmClientSyncTests
         public void Add(Customer customer) => Added.Add(customer);
         public void Remove(Customer customer) => Removed.Add(customer);
 
-        public Task SaveAsync(CancellationToken cancellationToken)
+        public Task SaveAsync(DateTimeOffset syncedAt, CancellationToken cancellationToken)
         {
             Saves++;
+            SyncedAt = syncedAt;
             return Task.CompletedTask;
         }
+    }
+
+    private static readonly DateTimeOffset Now = new(2026, 11, 3, 7, 0, 0, TimeSpan.Zero);
+
+    private sealed class FixedTime : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => Now;
     }
 
     private static KeepinCrmClientSync Sync(Store store, params KeepinCrmClientSnapshot[] clients)
     {
         var source = new Mock<IKeepinCrmClientSource>();
         source.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(clients);
-        return new KeepinCrmClientSync(source.Object, store, new KeepinCrmClientSyncSettings(Owner),
+        return new KeepinCrmClientSync(source.Object, store, new KeepinCrmClientSyncSettings(Owner), new FixedTime(),
             NullLogger<KeepinCrmClientSync>.Instance);
     }
 
@@ -93,6 +102,7 @@ public sealed class KeepinCrmClientSyncTests
             Assert.That((person.Kind, person.DisplayName, person.OwnerId), Is.EqualTo(("person", "Петро Іваненко", Owner)));
             Assert.That(store.Added.Single(x => KeepinCrmClientIdentity.IdOf(x) == "13").Active, Is.False);
             Assert.That(store.Saves, Is.EqualTo(1));
+            Assert.That((result.SyncedAt, store.SyncedAt), Is.EqualTo(((DateTimeOffset?)Now, (DateTimeOffset?)Now)));
         });
     }
 
@@ -122,7 +132,7 @@ public sealed class KeepinCrmClientSyncTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(preview.Applied, Is.False);
+            Assert.That((preview.Applied, preview.SyncedAt), Is.EqualTo((false, (DateTimeOffset?)null)));
             Assert.That(preview.Deleted, Is.EqualTo(new[] { "Старий без КП" }));
             Assert.That(preview.HiddenInUse, Is.EqualTo(new[] { "Старий з КП" }));
             Assert.That(store.Removed, Is.EqualTo(new[] { unused }));

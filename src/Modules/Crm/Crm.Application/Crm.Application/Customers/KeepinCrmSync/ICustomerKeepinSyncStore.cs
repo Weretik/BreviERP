@@ -17,5 +17,6 @@ public interface ICustomerKeepinSyncStore
     /// <summary>Deletes the customer with its contacts, channels and identities.</summary>
     void Remove(Customer customer);
 
-    Task SaveAsync(CancellationToken cancellationToken);
+    /// <summary>Saves the run and stamps <paramref name="syncedAt"/> on every client linked to KeepinCRM.</summary>
+    Task SaveAsync(DateTimeOffset syncedAt, CancellationToken cancellationToken);
 }
