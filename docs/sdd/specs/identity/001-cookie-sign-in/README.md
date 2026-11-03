@@ -10,7 +10,8 @@ Admin signs in with email and password and keeps the session in an HttpOnly cook
 
 - D-1. Cookie only. Brevi has no mobile app, so there are no access or refresh tokens and no bearer scheme. A mobile client later adds them like KedrStore.
 - D-2. Manager may do everything in Admin except «Користувачі» (owner decision R-2 in the plan follows Kedr). Role `User` stays for `CatalogRead` but no account has it.
-- D-3. First administrator `admin@brevi.com.ua`, password from Secret Manager `admin-default-password`, created by the seed job even if other users exist. An existing password is never overwritten.
+- D-2a (owner, 2026-11-03). Staff roles Director («Директор»), Admin, Accountant («Бухгалтер»), Manager. One director; the director also holds Admin; only the director changes the director account and may change their own role. Accountant reads the catalogue only until its scope is agreed. Staff accounts can be deleted.
+- D-3. First administrator `vitaliythupin@gmail.com` (owner, 2026-11-03), password from Secret Manager `admin-default-password`, created by the seed job even if other users exist. An existing password is never overwritten.
 - D-4. API address through a Cloudflare Worker (`deploy/cloudflare/api-proxy`) with a shared secret for the client IP.
 - D-5. Public operations: cookie login, Telegram webhook, `GET /api/reference/product-categories/store/{language}`.
 
@@ -23,7 +24,7 @@ Admin signs in with email and password and keeps the session in an HttpOnly cook
 | R-03 | `POST /api/auth/cookie/logout` ends this session; `GET /api/auth/session/me` returns id, email, full name, roles. |
 | R-04 | 5 wrong passwords lock any account for 15 minutes; passwords are at least 8 characters. |
 | R-05 | Data Protection keys persist in `identity."DataProtectionKeys"`; the refresh-session table is dropped. |
-| R-06 | `/api/admin/users` (Admin only): list, create Admin/Manager, change role, block/unblock, set password; no self-demotion or self-block. |
+| R-06 | `/api/admin/users` (Admin only): list, create Director/Admin/Accountant/Manager, change role, block/unblock, set password, delete; one director, only the director changes the director; no self-block or self-delete; only the director changes their own role. |
 | R-07 | Every endpoint except D-5 requires a session, and every admin endpoint names a role or policy. |
 | R-08 | Client IP from `X-Brevi-Client-IP` is trusted only with the matching `X-Brevi-Proxy-Secret`. |
 

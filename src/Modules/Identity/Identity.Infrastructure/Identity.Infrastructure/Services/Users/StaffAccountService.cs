@@ -1,11 +1,16 @@
 using Ardalis.Result;
 using Identity.Application.Features.Users.Shared;
 using Identity.Application.Services;
+using Identity.Domain.Authorization;
 using Identity.Infrastructure.DataBase;
 using Identity.Infrastructure.Entities;
 
 namespace Identity.Infrastructure.Services.Users;
 
+/// <summary>
+/// Staff account rules: at most one director; only the director changes the director; nobody blocks or deletes
+/// their own account; only the director changes their own role.
+/// </summary>
 public sealed class StaffAccountService(
     AppIdentityDbContext dbContext,
     UserManager<AppUser> userManager,
@@ -24,7 +29,7 @@ public sealed class StaffAccountService(
                 select new { user.Id, user.Email, user.FullName, Role = role.Name!, user.LockoutEnd })
             .ToListAsync(cancellationToken);
 
-        // A user with both staff roles is listed once, with the stronger role first in StaffRoles.All.
+        // A user with several staff roles (the director also holds Admin) is listed once, with the strongest role.
         return rows
             .GroupBy(x => x.Id)
             .Select(group => group.OrderBy(x => IndexOfRole(x.Role)).First())
@@ -44,6 +49,11 @@ public sealed class StaffAccountService(
             return Result.Conflict("A user with this email already exists.");
         }
 
+        if (role == RoleNames.Director && await DirectorExistsAsync(exceptUserId: null))
+        {
+            return Result.Conflict(OneDirectorMessage);
+        }
+
         var user = new AppUser
         {
             UserName = email,
@@ -59,7 +69,7 @@ public sealed class StaffAccountService(
             return Invalid(created);
         }
 
-        var assigned = await userManager.AddToRoleAsync(user, role);
+        var assigned = await userManager.AddToRolesAsync(user, StaffRoles.GrantedRoles(role));
         if (!assigned.Succeeded)
         {
             await userManager.DeleteAsync(user);
@@ -72,20 +82,27 @@ public sealed class StaffAccountService(
 
     public async Task<Result> ChangeRoleAsync(int userId, string role, CancellationToken cancellationToken = default)
     {
-        if (userId == CurrentUserId())
+        var isSelf = userId == CurrentUserId();
+        if (isSelf && !ActorIsDirector())
         {
             return SelfChangeRejected("You cannot change your own role.");
         }
 
-        var user = await FindStaffAsync(userId);
-        if (user is null)
+        var target = await FindStaffForChangeAsync(userId);
+        if (!target.IsSuccess)
         {
-            return Result.NotFound();
+            return Failure(target);
+        }
+
+        var user = target.Value;
+        if (role == RoleNames.Director && await DirectorExistsAsync(exceptUserId: userId))
+        {
+            return Result.Conflict(OneDirectorMessage);
         }
 
         var currentRoles = (await userManager.GetRolesAsync(user)).Where(StaffRoles.IsStaffRole).ToArray();
         var removed = await userManager.RemoveFromRolesAsync(user, currentRoles);
-        var added = removed.Succeeded ? await userManager.AddToRoleAsync(user, role) : removed;
+        var added = removed.Succeeded ? await userManager.AddToRolesAsync(user, StaffRoles.GrantedRoles(role)) : removed;
         if (!added.Succeeded)
         {
             return Invalid(added);
@@ -104,12 +121,13 @@ public sealed class StaffAccountService(
             return SelfChangeRejected("You cannot block your own account.");
         }
 
-        var user = await FindStaffAsync(userId);
-        if (user is null)
+        var target = await FindStaffForChangeAsync(userId);
+        if (!target.IsSuccess)
         {
-            return Result.NotFound();
+            return Failure(target);
         }
 
+        var user = target.Value;
         if (blocked)
         {
             await userManager.SetLockoutEnabledAsync(user, true);
@@ -129,13 +147,14 @@ public sealed class StaffAccountService(
 
     public async Task<Result> SetPasswordAsync(int userId, string password, CancellationToken cancellationToken = default)
     {
-        var user = await FindStaffAsync(userId);
-        if (user is null)
+        var target = await FindStaffForChangeAsync(userId);
+        if (!target.IsSuccess)
         {
-            return Result.NotFound();
+            return Failure(target);
         }
 
         // The reset changes the security stamp, so the user's other sessions end too.
+        var user = target.Value;
         var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
         var reset = await userManager.ResetPasswordAsync(user, resetToken, password);
         if (!reset.Succeeded)
@@ -147,17 +166,62 @@ public sealed class StaffAccountService(
         return Result.Success();
     }
 
-    private async Task<AppUser?> FindStaffAsync(int userId)
+    public async Task<Result> DeleteAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        if (userId == CurrentUserId())
+        {
+            return SelfChangeRejected("You cannot delete your own account.");
+        }
+
+        var target = await FindStaffForChangeAsync(userId);
+        if (!target.IsSuccess)
+        {
+            return Failure(target);
+        }
+
+        var deleted = await userManager.DeleteAsync(target.Value);
+        if (!deleted.Succeeded)
+        {
+            return Invalid(deleted);
+        }
+
+        logger.LogInformation("AUDIT: Staff account {UserId} deleted by {ActorId}", userId, CurrentUserId());
+        return Result.Success();
+    }
+
+    private const string OneDirectorMessage = "There can be only one director.";
+
+    /// <summary>Finds a staff account the current user may change: only the director changes the director.</summary>
+    private async Task<Result<AppUser>> FindStaffForChangeAsync(int userId)
     {
         var user = await userManager.FindByIdAsync(userId.ToString(CultureInfo.InvariantCulture));
         if (user is null)
         {
-            return null;
+            return Result.NotFound();
         }
 
         var roles = await userManager.GetRolesAsync(user);
-        return roles.Any(StaffRoles.IsStaffRole) ? user : null;
+        if (!roles.Any(StaffRoles.IsStaffRole))
+        {
+            return Result.NotFound();
+        }
+
+        if (roles.Contains(RoleNames.Director) && !ActorIsDirector())
+        {
+            return Result.Forbidden("Only the director can change the director.");
+        }
+
+        return Result.Success(user);
     }
+
+    private async Task<bool> DirectorExistsAsync(int? exceptUserId)
+    {
+        var directors = await userManager.GetUsersInRoleAsync(RoleNames.Director);
+        return directors.Any(user => user.Id != exceptUserId);
+    }
+
+    private bool ActorIsDirector() =>
+        httpContextAccessor.HttpContext?.User.IsInRole(RoleNames.Director) ?? false;
 
     private int? CurrentUserId() =>
         int.TryParse(httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
@@ -174,6 +238,9 @@ public sealed class StaffAccountService(
 
         return int.MaxValue;
     }
+
+    private static Result Failure(Result<AppUser> target) =>
+        target.Status == ResultStatus.Forbidden ? Result.Forbidden(target.Errors.ToArray()) : Result.NotFound();
 
     private static Result SelfChangeRejected(string message) =>
         Result.Invalid(new ValidationError(message));

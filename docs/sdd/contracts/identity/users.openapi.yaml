@@ -4,17 +4,18 @@ paths:
   /api/admin/users:
     get:
       operationId: getStaffAccounts
-      summary: List administrators and managers
+      summary: List staff accounts
       tags: [Users]
       security: [{ cookieAuth: [] }]
-      description: Policy `CanManageUsers` (role Admin). Customers are not listed.
+      description: Policy `CanManageUsers` (role Admin; the director also holds Admin). Customers are not listed. Each account shows its strongest role.
       responses:
         '200': { description: Staff accounts ordered by email, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/StaffAccountResponse' } } } } }
         '401': { description: Not signed in }
         '403': { description: Not an administrator }
     post:
       operationId: createStaffAccount
-      summary: Create an administrator or manager
+      summary: Create a staff account
+      description: There is at most one director.
       tags: [Users]
       security: [{ cookieAuth: [] }]
       parameters:
@@ -27,14 +28,14 @@ paths:
         '400': { description: 'Invalid email, name, role or password' }
         '401': { description: Not signed in }
         '403': { description: Not an administrator }
-        '409': { description: Email already used }
+        '409': { description: 'Email already used, or a director already exists' }
   /api/admin/users/{userId}/role:
     put:
       operationId: changeStaffRole
       summary: Change a staff account's role
       tags: [Users]
       security: [{ cookieAuth: [] }]
-      description: The account's sessions pick up the new role within 5 minutes. An administrator cannot change their own role (400).
+      description: The account's sessions pick up the new role within 5 minutes. Only the director changes their own role; an administrator gets 400. Only the director changes the director (403). There is at most one director (409).
       parameters:
         - $ref: '#/components/parameters/UserId'
         - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
@@ -45,15 +46,16 @@ paths:
         '204': { description: Role changed }
         '400': { description: Invalid role or own account }
         '401': { description: Not signed in }
-        '403': { description: Not an administrator }
+        '403': { description: 'Not an administrator, or the account is the director' }
         '404': { description: No staff account with this ID }
+        '409': { description: A director already exists }
   /api/admin/users/{userId}/blocked:
     put:
       operationId: setStaffBlocked
       summary: Block or unblock a staff account
       tags: [Users]
       security: [{ cookieAuth: [] }]
-      description: Blocking ends browser sessions within 5 minutes. An administrator cannot block their own account (400).
+      description: Blocking ends browser sessions within 5 minutes. Nobody blocks their own account (400). Only the director changes the director (403).
       parameters:
         - $ref: '#/components/parameters/UserId'
         - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
@@ -64,7 +66,7 @@ paths:
         '204': { description: Updated }
         '400': { description: Own account }
         '401': { description: Not signed in }
-        '403': { description: Not an administrator }
+        '403': { description: 'Not an administrator, or the account is the director' }
         '404': { description: No staff account with this ID }
   /api/admin/users/{userId}/password:
     put:
@@ -72,7 +74,7 @@ paths:
       summary: Set a new password for a staff account
       tags: [Users]
       security: [{ cookieAuth: [] }]
-      description: Ends the account's existing sessions.
+      description: Ends the account's existing sessions. Only the director changes the director's password (403).
       parameters:
         - $ref: '#/components/parameters/UserId'
         - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
@@ -83,7 +85,23 @@ paths:
         '204': { description: Password set }
         '400': { description: Password too short or too weak }
         '401': { description: Not signed in }
-        '403': { description: Not an administrator }
+        '403': { description: 'Not an administrator, or the account is the director' }
+        '404': { description: No staff account with this ID }
+  /api/admin/users/{userId}:
+    delete:
+      operationId: deleteStaffAccount
+      summary: Delete a staff account
+      tags: [Users]
+      security: [{ cookieAuth: [] }]
+      description: Removes the account and its sessions for good. Nobody deletes their own account (400). Only the director deletes the director (403).
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
+      responses:
+        '204': { description: Deleted }
+        '400': { description: Own account }
+        '401': { description: Not signed in }
+        '403': { description: 'Not an administrator, or the account is the director' }
         '404': { description: No staff account with this ID }
 components:
   securitySchemes:
@@ -95,7 +113,7 @@ components:
       required: true
       schema: { type: integer, format: int32, minimum: 1 }
   schemas:
-    StaffRole: { type: string, enum: [Admin, Manager] }
+    StaffRole: { type: string, enum: [Director, Admin, Accountant, Manager] }
     StaffAccountResponse:
       type: object
       required: [id, email, fullName, role, isBlocked]

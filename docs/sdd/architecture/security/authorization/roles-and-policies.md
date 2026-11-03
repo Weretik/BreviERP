@@ -12,12 +12,16 @@ Canonical role constants are in `Identity.Domain/Authorization/RoleNames.cs`; in
 
 | Role | Current meaning | Created by seeding |
 | --- | --- | --- |
-| `Admin` | System administration | yes |
+| `Director` | Owner («Директор»). At most one; the account also holds `Admin`, so every Admin endpoint admits it. Only the director changes the director account. | yes |
+| `Admin` | System administration, including «Користувачі» | yes |
+| `Accountant` | Staff («Бухгалтер»): signs in and reads the catalogue (`CatalogRead`) for now | yes |
 | `Manager` | Staff: everything in Admin except the «Користувачі» page | yes |
 | `User` | Regular authenticated user | yes |
 | `Guest` | Role constant defined without an agreed business meaning | no |
 
-At startup, `RoleSeeder` currently creates only Admin, Manager, and User. Do not assign `Guest` until its seeding and business meaning are deliberately added.
+At startup, `RoleSeeder` creates every missing role except `Guest`, so existing databases gain new roles on the next seed run. Do not assign `Guest` until its seeding and business meaning are deliberately added.
+
+Staff account rules (`StaffAccountService`): there is at most one director (409); only the director may block, delete, reset the password of, or change the role of the director account (403); nobody blocks or deletes their own account, and only the director may change their own role (400).
 
 ## Policies
 
@@ -27,7 +31,8 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 | --- | --- |
 | `RequireAdminRole` / `CanManageUsers` | Admin |
 | `RequireManagerRole` / `CanManageProducts` / `CanManageOrders` | Manager, Admin |
-| `CatalogRead` / `OrderCreate` | User, Manager, Admin |
+| `CatalogRead` | User, Accountant, Manager, Admin |
+| `OrderCreate` | User, Manager, Admin |
 | `RequireTenantAccess` | Constant is defined; policy is not currently registered |
 
 Do not use `RequireTenantAccess` on an endpoint until it is registered in Host and its policy semantics are agreed.

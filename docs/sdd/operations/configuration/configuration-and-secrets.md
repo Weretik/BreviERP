@@ -12,7 +12,7 @@ Environment variable keys use double underscores, for example `ConnectionStrings
 | --- | --- | --- |
 | `ConnectionStrings:Default` | PostgreSQL connection for Identity and module contexts | Yes |
 | `ADMIN_DEFAULT_PASSWORD` | Password of the first administrator, read by the seed job only when `Identity:AdminUser:Email` has no account. Production: Secret Manager `admin-default-password` | Yes |
-| `Identity:AdminUser` | First administrator email (`admin@brevi.com.ua`), name, lockout | No |
+| `Identity:AdminUser` | First administrator email (`vitaliythupin@gmail.com`), name, lockout | No |
 | `Cors:AllowedOrigins` / `AllowedOriginsCsv` | Browser origins allowed to call the API | No, but deployment-specific |
 | `Identity:CookieSession` | Session cookie name `__Host-brevi.session`, sliding lifetime, security-stamp check interval | No |
 | `Identity:SessionCookies` | CSRF cookie name, header, lifetime; `CsrfCookieDomain=brevi.com.ua` in `appsettings.Production.json` | No |

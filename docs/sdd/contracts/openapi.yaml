@@ -17,6 +17,8 @@ paths:
     $ref: ./identity/session.openapi.yaml#/paths/~1api~1auth~1session~1me
   /api/admin/users:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users
+  /api/admin/users/{userId}:
+    $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users~1{userId}
   /api/admin/users/{userId}/role:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users~1{userId}~1role
   /api/admin/users/{userId}/blocked:

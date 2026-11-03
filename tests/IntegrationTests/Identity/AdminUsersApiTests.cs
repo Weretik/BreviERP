@@ -104,6 +104,73 @@ public sealed class AdminUsersApiTests
         });
     }
 
+    [Test]
+    public async Task One_director_whom_only_the_director_changes()
+    {
+        using var admin = await AdminAsync();
+        var director = await admin.Http.PostAsJsonAsync("/api/admin/users",
+            new { email = "director@brevi.test", fullName = "Директор", role = "Director", password = "Director-Pass-1" });
+        var directorId = (await director.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetInt32();
+        var secondDirector = await admin.Http.PostAsJsonAsync("/api/admin/users",
+            new { email = "director2@brevi.test", fullName = "Другий", role = "Director", password = "Director-Pass-2" });
+        var accountant = await admin.Http.PostAsJsonAsync("/api/admin/users",
+            new { email = "accountant@brevi.test", fullName = "Бухгалтер", role = "Accountant", password = "Accountant-Pass-1" });
+        var accountantId = (await accountant.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetInt32();
+        var promoteToDirector = await admin.Http.PutAsJsonAsync($"/api/admin/users/{accountantId}/role", new { role = "Director" });
+
+        var adminBlocksDirector = await admin.Http.PutAsJsonAsync($"/api/admin/users/{directorId}/blocked", new { blocked = true });
+        var adminResetsDirector = await admin.Http.PutAsJsonAsync($"/api/admin/users/{directorId}/password", new { password = "Taken-Over-1" });
+        var adminDeletesDirector = await admin.Http.DeleteAsync($"/api/admin/users/{directorId}");
+        var list = await admin.Http.GetFromJsonAsync<JsonElement>("/api/admin/users");
+        var directorRow = list.EnumerateArray().Single(x => x.GetProperty("id").GetInt32() == directorId);
+
+        using var signedInDirector = await CookieAuthApiTests.SignInAsync(_host, "director@brevi.test", "Director-Pass-1");
+        var directorMe = await signedInDirector.Http.GetFromJsonAsync<JsonElement>("/api/auth/session/me");
+        var directorOwnPassword = await signedInDirector.Http.PutAsJsonAsync($"/api/admin/users/{directorId}/password", new { password = "Director-Pass-New" });
+        var directorBlocksSelf = await signedInDirector.Http.PutAsJsonAsync($"/api/admin/users/{directorId}/blocked", new { blocked = true });
+        var directorDeletesAccountant = await signedInDirector.Http.DeleteAsync($"/api/admin/users/{accountantId}");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(director.StatusCode, Is.EqualTo(HttpStatusCode.Created));
+            Assert.That(secondDirector.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
+            Assert.That(accountant.StatusCode, Is.EqualTo(HttpStatusCode.Created));
+            Assert.That(promoteToDirector.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
+            Assert.That(adminBlocksDirector.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+            Assert.That(adminResetsDirector.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+            Assert.That(adminDeletesDirector.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+            Assert.That(directorRow.GetProperty("role").GetString(), Is.EqualTo("Director"));
+            Assert.That(directorMe.GetProperty("roles").EnumerateArray().Select(x => x.GetString()), Is.SupersetOf(new[] { "Director", "Admin" }));
+            Assert.That(directorOwnPassword.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+            Assert.That(directorBlocksSelf.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(directorDeletesAccountant.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+        });
+    }
+
+    [Test]
+    public async Task Admin_deletes_a_staff_account_but_not_their_own()
+    {
+        using var admin = await AdminAsync();
+        var created = await admin.Http.PostAsJsonAsync("/api/admin/users",
+            new { email = "manager4@brevi.test", fullName = "Менеджер 4", role = "Manager", password = "Manager-Pass-4" });
+        var id = (await created.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetInt32();
+        var me = await admin.Http.GetFromJsonAsync<JsonElement>("/api/auth/session/me");
+        var adminId = int.Parse(me.GetProperty("userId").GetString()!);
+
+        var deleted = await admin.Http.DeleteAsync($"/api/admin/users/{id}");
+        var deleteSelf = await admin.Http.DeleteAsync($"/api/admin/users/{adminId}");
+        using var browser = _host.CreateBrowser();
+        var deletedLogin = await browser.Http.PostAsJsonAsync("/api/auth/cookie/login",
+            new { email = "manager4@brevi.test", password = "Manager-Pass-4" });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(deleted.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+            Assert.That(deleteSelf.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(deletedLogin.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+        });
+    }
+
     private Task<BrowserClient> AdminAsync() =>
         CookieAuthApiTests.SignInAsync(_host, IdentityApiHost.AdminEmail, IdentityApiHost.AdminPassword);
 }

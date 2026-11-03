@@ -1,6 +1,7 @@
 using Identity.Api.Contracts.Users;
 using Identity.Application.Features.Users.ChangeStaffRole;
 using Identity.Application.Features.Users.CreateStaff;
+using Identity.Application.Features.Users.DeleteStaff;
 using Identity.Application.Features.Users.GetStaffList;
 using Identity.Application.Features.Users.SetStaffBlocked;
 using Identity.Application.Features.Users.SetStaffPassword;
@@ -9,7 +10,8 @@ using Identity.Application.Security.Policies;
 namespace Identity.Api.Controllers;
 
 /// <summary>
-/// Staff accounts (administrators and managers), managed by an administrator.
+/// Staff accounts (director, administrators, accountants, managers), managed by an administrator.
+/// Only the director changes the director (403 otherwise); there is at most one director (409).
 /// </summary>
 [ApiController]
 [Route("api/admin/users")]
@@ -47,6 +49,7 @@ public sealed class AdminUsersController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ChangeRole(int userId, [FromBody] ChangeStaffRoleRequest request, CancellationToken cancellationToken)
         => NoContentOr(await sender.Send(new ChangeStaffRoleCommand(userId, request.Role), cancellationToken));
 
@@ -63,6 +66,13 @@ public sealed class AdminUsersController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SetPassword(int userId, [FromBody] SetStaffPasswordRequest request, CancellationToken cancellationToken)
         => NoContentOr(await sender.Send(new SetStaffPasswordCommand(userId, request.Password), cancellationToken));
+
+    [HttpDelete("{userId:int}", Name = "deleteStaffAccount")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int userId, CancellationToken cancellationToken)
+        => NoContentOr(await sender.Send(new DeleteStaffCommand(userId), cancellationToken));
 
     private IActionResult NoContentOr(Ardalis.Result.Result result)
         => result.Status == Ardalis.Result.ResultStatus.Ok ? NoContent() : this.ToActionResult(result);
