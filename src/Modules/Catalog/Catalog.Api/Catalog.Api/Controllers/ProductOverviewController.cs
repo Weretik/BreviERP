@@ -1,4 +1,7 @@
+using System.Security.Claims;
 using Catalog.Api.Contracts.Products.Overview;
+using Catalog.Application.Features.Product.Overview.CodeCheck;
+using Catalog.Application.Features.Product.Overview.Create;
 using Catalog.Application.Features.Product.Overview.GetList;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
 using Catalog.Application.Features.Product.Overview.Shared;
@@ -42,4 +45,35 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new UpdateProductOverviewCommand(id, request.Code, request.SectionId,
             request.Season, request.IsActive, request.IsVerified, request.VerifiedOn, request.CurrentSiteUrl,
             request.QuoteDescription), cancellationToken));
+
+    [HttpPost("overview")]
+    [Authorize(Policy = "CanManageProducts")]
+    [ProducesResponseType(typeof(CreatedCatalogProduct), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<CreatedCatalogProduct>> Create(
+        [FromBody] CreateCatalogProductRequest request, CancellationToken cancellationToken)
+    {
+        var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(actor)) return Forbid();
+        var ppe = request.Ppe is { } p
+            ? new CreatePpeSupplierInput(p.SupplierId, p.SupplierSku, p.SupplierUrl, p.SupplierPrice,
+                p.AllowManualPrice, p.RuleCode, p.Unit)
+            : null;
+        var result = await sender.Send(new CreateCatalogProductCommand(request.Type, request.Code, request.Name,
+            request.SectionId, request.Season, request.IsActive, request.IsVerified, request.CurrentSiteUrl,
+            request.QuoteDescription, ppe, actor), cancellationToken);
+        return result.IsSuccess
+            ? StatusCode(StatusCodes.Status201Created, result.Value)
+            : this.ToActionResult(result);
+    }
+
+    [HttpGet("overview/code-check")]
+    [Authorize(Policy = "CatalogRead")]
+    [ProducesResponseType(typeof(ProductCodeCheck), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ProductCodeCheck>> CheckCode(
+        [FromQuery] string type, [FromQuery] string? code, CancellationToken cancellationToken)
+        => this.ToActionResult(await sender.Send(new GetProductCodeCheckQuery(type, code), cancellationToken));
 }

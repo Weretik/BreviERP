@@ -31,6 +31,57 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/ProductOverviewRow' }
         '400': { description: Unknown type. }
+    post:
+      operationId: createCatalogProduct
+      summary: Create a product from the page «Новий ЗІЗ» or «Нова модель»
+      description: >-
+        Requires CanManageProducts and an actor (CAT-009). The server picks the ID (largest + 1) and the slug (from the
+        Ukrainian name; the code and then a number are added when it is taken). The name is Ukrainian only. An empty
+        sewing code takes the next free MOD-XXX. The section must belong to the type. A PPE product needs the ppe
+        block; the first price version is appended with source «Створення ЗІЗ». priceSaved is false when the product was
+        saved but its price was not; the card then asks to save the price again.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateCatalogProductRequest' }
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreatedCatalogProduct' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission or actor claim missing. }
+        '409': { description: The code or the name is already used by another product. }
+  /api/v1/products/overview/code-check:
+    get:
+      operationId: getProductCodeCheck
+      summary: Check a new product code and suggest the next sewing code
+      description: >-
+        CatalogRead. Whether the code is free for a new product of the type. For sewing, suggestedCode is the next free
+        MOD-XXX. Without code only the suggestion is returned and isAvailable is null.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema: { type: string, enum: [Sewing, Ppe] }
+        - name: code
+          in: query
+          required: false
+          schema: { type: string, maxLength: 80 }
+      responses:
+        '200':
+          description: Result.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductCodeCheck' }
+        '400': { $ref: '#/components/responses/ValidationError' }
   /api/v1/products/{id}/overview:
     parameters:
       - name: id
@@ -110,3 +161,48 @@ components:
         verifiedOn: { type: [string, 'null'], pattern: '^\d{2}\.\d{2}\.\d{4}$' }
         currentSiteUrl: { type: [string, 'null'], maxLength: 500, format: uri }
         quoteDescription: { type: [string, 'null'], maxLength: 2000 }
+    CreateCatalogProductRequest:
+      type: object
+      required: [type, name, sectionId, isActive, isVerified]
+      properties:
+        type: { type: string, enum: [Sewing, Ppe] }
+        code: { type: [string, 'null'], maxLength: 80, description: Required for PPE; empty sewing code takes the next MOD-XXX. }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        sectionId: { type: integer, format: int32, minimum: 1 }
+        season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
+        isActive: { type: boolean }
+        isVerified: { type: boolean }
+        currentSiteUrl: { type: [string, 'null'], maxLength: 500, format: uri }
+        quoteDescription: { type: [string, 'null'], maxLength: 2000 }
+        ppe:
+          anyOf:
+            - { $ref: '#/components/schemas/CreatePpeSupplierRequest' }
+            - { type: 'null' }
+    CreatePpeSupplierRequest:
+      type: object
+      required: [supplierId, supplierUrl, supplierPrice, allowManualPrice, ruleCode, unit]
+      properties:
+        supplierId: { type: integer, format: int32, minimum: 1 }
+        supplierSku: { type: [string, 'null'], maxLength: 200 }
+        supplierUrl: { type: string, maxLength: 2048, format: uri }
+        supplierPrice: { type: number, exclusiveMinimum: 0, exclusiveMaximum: 10000000 }
+        allowManualPrice: { type: boolean }
+        ruleCode: { type: string, minLength: 1, maxLength: 200 }
+        unit: { type: string, minLength: 1, maxLength: 40 }
+    CreatedCatalogProduct:
+      type: object
+      required: [id, type, code, priceSaved]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        type: { type: string, enum: [Sewing, Ppe] }
+        code: { type: [string, 'null'] }
+        priceSaved: { type: boolean }
+    ProductCodeCheck:
+      type: object
+      required: [code, isAvailable, takenByProductId, takenByProductName, suggestedCode]
+      properties:
+        code: { type: [string, 'null'] }
+        isAvailable: { type: [boolean, 'null'] }
+        takenByProductId: { type: [integer, 'null'], format: int32 }
+        takenByProductName: { type: [string, 'null'] }
+        suggestedCode: { type: [string, 'null'], description: Next free MOD-XXX for sewing; null for PPE. }
