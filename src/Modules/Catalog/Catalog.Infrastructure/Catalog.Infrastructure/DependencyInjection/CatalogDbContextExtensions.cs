@@ -1,7 +1,10 @@
+using BuildingBlocks.Application.Pricing;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Infrastructure.DataBase;
+using Catalog.Infrastructure.Pricing.AutoPublication;
 using Catalog.Infrastructure.Repositories;
 using Catalog.Infrastructure.Seeders.ProductCategories;
 
@@ -16,7 +19,11 @@ public static class CatalogDbContextExtensions
         var connectionString = configuration.GetConnectionString("Default")
                                ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
 
-        services.AddDbContext<CatalogDbContext>(options => options.UseNpgsql(connectionString));
+        services.TryAddScoped<PricingInputChanges>();
+        services.AddScoped<SewingPricingInputChangeInterceptor>();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddDbContext<CatalogDbContext>((provider, options) => options.UseNpgsql(connectionString)
+            .AddInterceptors(provider.GetRequiredService<SewingPricingInputChangeInterceptor>()));
 
         services.AddScoped(typeof(ICatalogRepository<>), typeof(CatalogEfRepository<>));
         services.AddScoped(typeof(ICatalogReadRepository<>), typeof(CatalogReadEfRepository<>));
@@ -32,7 +39,8 @@ public static class CatalogDbContextExtensions
         services.AddScoped<Catalog.Application.Contracts.Pricing.ISewingPublicationStore, Catalog.Infrastructure.Pricing.History.Publications.SewingPublicationStore>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.ISewingPublishedPriceReader, Catalog.Infrastructure.Pricing.History.Publications.Reading.SewingPublishedPriceReader>();
 
-        services.AddScoped<Catalog.Application.Features.Pricing.Sewing.Recalculation.SewingPriceStatusReader>();
+        services.AddScoped<Catalog.Application.Features.Pricing.Sewing.AutoPublication.SewingPriceStatusReader>();
+        services.AddScoped<Catalog.Application.Features.Pricing.Sewing.AutoPublication.SewingPricePublisher>();
 
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpePricingInputReader, Catalog.Infrastructure.Pricing.Ppe.Reading.PpePricingInputReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpeRuleVersionWriter, Catalog.Infrastructure.Pricing.Ppe.Writing.PpeRuleVersionWriter>();

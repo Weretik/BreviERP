@@ -10,7 +10,7 @@ The pages «Новий ЗІЗ» and «Нова модель» ([CAT-009](../../s
 
 The one-time sheet import ([CAT-010](../../specs/catalog/010-sheet-product-import/README.md)) `POST /api/v1/products/sheet-import` brings all models and PPE of the Calculator sheet: it matches by code then name, creates the rest, replaces sewing articles and composition, appends PPE price versions only on change and, with `deleteMissing`, deletes products that are not in the sheet. A preview (`dryRun`) writes nothing; any problem stops the write.
 
-The «Товари» list shows prices ([CAT-011](../../specs/catalog/011-product-list-prices/README.md)): `GET /api/v1/products/overview/prices` returns per model the published and live price of each Article, «від …» and a status (Ready, Stale, Unpublished, Blocked); PPE rows get the live rule price. `POST /api/v1/pricing/sewing/recalculation` («Перерахувати всі», dry run first) publishes every changed price, one transaction per model.
+The «Товари» list shows prices ([CAT-011](../../specs/catalog/011-product-list-prices/README.md)): `GET /api/v1/products/overview/prices` returns per model the published and live price of each Article, «від …» and a status (Ready, Stale, Unpublished, Blocked); PPE rows get the live rule price. Sewing prices are published automatically after every change of their inputs ([CAT-012](../../specs/catalog/012-sewing-price-auto-publication/README.md), see [Sewing pricing](sewing-pricing.md)).
 
 The [Sewing Article/composition extension](sewing-composition.md) adds multiple sale SKUs, shared and Article-specific material inputs, and shared operation norms through separate protected operations. Legacy replacement preserves these children and rejects a second editable norm set once new composition is configured.
 
@@ -69,8 +69,8 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`), `tests/UnitTests/CatalogProductCreation*Tests.cs`, `tests/UnitTests/CatalogSheetImport*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/SewingPriceRecalculationValidatorTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests)
-- `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`, `tests/IntegrationTests/CatalogSheetImportStoreTests.cs` (list prices and recalculation)
+- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`), `tests/UnitTests/CatalogProductCreation*Tests.cs`, `tests/UnitTests/CatalogSheetImport*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests)
+- `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`, `tests/IntegrationTests/CatalogSheetImportStoreTests.cs` (list prices and automatic publication)
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product` (covers `CatalogProductCreation`); `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter Product` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 
