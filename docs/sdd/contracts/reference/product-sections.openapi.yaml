@@ -1,0 +1,190 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Product Sections API
+  version: 1.0.0
+  description: >-
+    «Типи і розділи»: product sections of the Calculator sheet in Brevi (REF-005). A section («Одяг ЛІТО»,
+    «Захист рук»…) belongs to one product type, Sewing or Ppe. Products will refer to a section by ID; the public
+    site builds its categories from sections later.
+servers:
+  - url: /
+paths:
+  /api/reference/product-sections:
+    get:
+      operationId: getProductSections
+      summary: List product sections, sewing first, each type in sheet order
+      description: Anonymous. An empty list when there are none.
+      security: []
+      responses:
+        '200':
+          description: Sections.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ProductSectionRow' }
+    post:
+      operationId: createProductSection
+      summary: Add a product section
+      description: Requires CanManageProducts. The ID is assigned by Brevi; the name must be unique.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductSectionFields' }
+      responses:
+        '200':
+          description: The new section ID.
+          content:
+            application/json:
+              schema: { type: integer, format: int32 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+  /api/reference/product-sections/import:
+    post:
+      operationId: importProductSections
+      summary: Import the Calculator sheet «Типи і розділи»
+      description: >-
+        Requires CanManageProducts. Sections are matched by name (case and punctuation ignored); the row number
+        becomes the display order. dryRun (default) returns the preview only. Otherwise nothing is saved when any
+        row has an error. deleteMissing deletes sections that are not in the sheet. Repeating the same file changes
+        nothing.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImportProductSectionsRequest' }
+      responses:
+        '200':
+          description: Preview or result; applied tells whether anything was saved.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductSectionImportResult' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+  /api/reference/product-sections/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updateProductSection
+      summary: Edit a product section
+      description: Requires CanManageProducts. The name stays unique; products keep their link by ID.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductSectionFields' }
+      responses:
+        '200': { description: Saved. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+        '404': { description: Not found. }
+    delete:
+      operationId: deleteProductSection
+      summary: Delete a product section
+      description: Requires CanManageProducts.
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { description: Deleted. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission required. }
+        '404': { description: Not found. }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    ValidationError:
+      description: Validation failures including field identifiers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+  schemas:
+    ValidationError:
+      type: object
+      required: [identifier, errorMessage]
+      properties:
+        identifier: { type: string }
+        errorMessage: { type: string }
+        errorCode: { type: [string, 'null'] }
+        severity: { type: integer }
+    ProductSectionType:
+      type: string
+      enum: [Sewing, Ppe]
+    ProductSectionRow:
+      type: object
+      required: [id, type, name, isActive, comment, sortOrder]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        type: { $ref: '#/components/schemas/ProductSectionType' }
+        name: { type: string }
+        isActive: { type: boolean }
+        comment: { type: [string, 'null'] }
+        sortOrder: { type: integer, format: int32 }
+    ProductSectionFields:
+      type: object
+      required: [type, name]
+      properties:
+        type: { $ref: '#/components/schemas/ProductSectionType' }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        isActive: { type: boolean, default: true }
+        comment: { type: [string, 'null'], maxLength: 1000 }
+        sortOrder: { type: integer, format: int32, minimum: 0, maximum: 100000, default: 0 }
+    ProductSectionImportRow:
+      type: object
+      required: [rowNumber, type, name, isActive]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        type: { type: string, description: Sewing or Ppe; any other value is a row error. }
+        name: { type: string }
+        isActive: { type: boolean }
+        comment: { type: [string, 'null'] }
+    ImportProductSectionsRequest:
+      type: object
+      required: [rows]
+      properties:
+        rows:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items: { $ref: '#/components/schemas/ProductSectionImportRow' }
+        dryRun: { type: boolean, default: true }
+        deleteMissing: { type: boolean, default: false }
+    ReferenceImportRowResult:
+      type: object
+      required: [rowNumber, code, name, action, changes]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        code: { type: string, description: The row's product type. }
+        name: { type: string }
+        action: { type: string, enum: [create, update, unchanged, error] }
+        changes: { type: array, items: { type: string } }
+        error: { type: [string, 'null'] }
+    ProductSectionImportResult:
+      type: object
+      required: [applied, created, updated, unchanged, errors, deleted, rows]
+      properties:
+        applied: { type: boolean }
+        created: { type: integer }
+        updated: { type: integer }
+        unchanged: { type: integer }
+        errors: { type: integer }
+        deleted: { type: array, items: { type: string }, description: Names of deleted sections. }
+        rows: { type: array, items: { $ref: '#/components/schemas/ReferenceImportRowResult' } }
