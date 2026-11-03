@@ -46,6 +46,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IntroductionFeaturedMappingService>();
         services.AddScoped<IQuoteAssigneeReader, QuoteAssigneeReader>();
         services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
+        services.AddScoped<IProductSectionReader, CatalogProductSectionReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();
         services.AddScoped<IPricingSettingsChangeNotifier, CatalogPricingSettingsSync>();

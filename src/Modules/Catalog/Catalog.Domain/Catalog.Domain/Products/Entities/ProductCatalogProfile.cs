@@ -19,6 +19,8 @@ public sealed class ProductCatalogProfile
     public bool AllowManualPrice { get; private set; }
     public string? PricingRuleCode { get; private set; }
     public string? ShortDescription { get; private set; }
+    /// <summary>Section ID from Reference «Типи і розділи»; no database relation across modules.</summary>
+    public int? SectionId { get; private set; }
 
     private ProductCatalogProfile() { }
 
@@ -55,6 +57,22 @@ public sealed class ProductCatalogProfile
         IsSourceReviewed = reviewed;
         SourceReviewDate = Normalize(originalDate, 100);
     }
+
+    /// <summary>Sets the «Товари» page fields; the season text is «Літо» or «Зима» as in the sheet.</summary>
+    public void SetOverview(int? sectionId, string? season, bool isActive, bool reviewed, string? reviewDate,
+        string? websiteUrl, string? shortDescription)
+    {
+        if (sectionId is <= 0) throw new ArgumentOutOfRangeException(nameof(sectionId));
+        SectionId = sectionId;
+        Season = Normalize(season, 100);
+        IsActive = isActive;
+        IsSourceReviewed = reviewed;
+        SourceReviewDate = Normalize(reviewDate, 100);
+        WebsiteUrl = Normalize(websiteUrl, 2048);
+        ShortDescription = Normalize(shortDescription, 4000);
+    }
+
+    public void SetSaleSku(string? saleSku) => SaleSku = Normalize(saleSku, 80);
 
     private static string? Normalize(string? value, int maxLength)
     {
