@@ -2,6 +2,8 @@
 
 Versioned three-tier PPE calculation from Brevi-owned rule/offer snapshots. Domain arithmetic reproduces approved workbook precedence and rounding; no live workbook or XML access occurs at runtime. Imported source review remains evidence; only an explicit manager write creates a Brevi-approved version. Missing required data returns blockers and no prices.
 
+The PPE product card ([CAT-008](../../specs/catalog/008-ppe-product-card/README.md)) reads and saves the sheet «ЗІЗ» supplier fields through `GET`/`PUT /api/v1/products/{productId}/ppe-offer` (`Features/Pricing/Ppe/SupplierOffer/`, `PpeSupplierOfferController`). A changed supplier price or rule appends an approved offer version in the same transaction.
+
 ## Structure diagram
 
 ```mermaid
@@ -32,6 +34,7 @@ Catalog.Application/
     Rules/                 # exact rule lookup and approved version creation
     Offers/                # Product offer version creation
     Validation/            # request/precision/provenance checks
+    SupplierOffer/         # PPE card: Get / Update / Shared view and reader
 Catalog.Infrastructure/Pricing/Ppe/
   Records/                 # private append-only persistence rows
   Configuration/           # identity/UUID/scope indexes, Product FK, jsonb
@@ -61,9 +64,9 @@ Legacy Product pricing fields are compatibility outputs; new enrolled consumers 
 
 ## Tests
 
-- `tests/UnitTests/PpePricing*Tests.cs`
+- `tests/UnitTests/PpePricing*Tests.cs`, `tests/UnitTests/PpeSupplierOfferTests.cs`
 - `tests/IntegrationTests/Pricing/Ppe/`
 
-Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PpePricing`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PpePricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
+Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~PpePricing|FullyQualifiedName~PpeSupplierOffer"`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PpePricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 
 **Data:** [catalog schema](../../architecture/data-model/catalog.md)

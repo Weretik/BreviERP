@@ -29,6 +29,8 @@ public sealed class PpePricingContractTests
     [TestCase(typeof(PpeOfferVersion))]
     [TestCase(typeof(CreatePpeOfferVersionRequest))]
     [TestCase(typeof(PpeProductPricing))]
+    [TestCase(typeof(Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Shared.PpeSupplierOffer))]
+    [TestCase(typeof(UpdatePpeSupplierOfferRequest))]
     public void Serialized_properties_match_the_machine_contract(Type type)
     {
         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
@@ -50,6 +52,8 @@ public sealed class PpePricingContractTests
     [TestCase("getPpePricingRule", "CatalogRead")]
     [TestCase("createPpeRuleVersion", "CanManageProducts")]
     [TestCase("createPpeOfferVersion", "CanManageProducts")]
+    [TestCase("getPpeSupplierOffer", "CatalogRead")]
+    [TestCase("updatePpeSupplierOffer", "CanManageProducts")]
     public void Pricing_operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
         var methods = typeof(Catalog.Api.Controllers.SewingArticlesController).Assembly.GetTypes()

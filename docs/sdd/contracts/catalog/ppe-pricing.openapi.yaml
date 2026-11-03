@@ -219,6 +219,99 @@
           }
         }
       ]
+    },
+    "/api/v1/products/{productId}/ppe-offer": {
+      "get": {
+        "operationId": "getPpeSupplierOffer",
+        "description": "CatalogRead. The PPE product card (CAT-008): supplier fields from the sheet tab «ЗІЗ», Insight XML prices of the current offer version and the live three-tier calculation. Nothing is saved.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Card supplier fields and calculation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeSupplierOffer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Product ID."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "CatalogRead required."
+          },
+          "404": {
+            "description": "PPE Product missing."
+          }
+        }
+      },
+      "put": {
+        "operationId": "updatePpeSupplierOffer",
+        "description": "CanManageProducts. Replaces the supplier fields. When the supplier price or the rule changes, appends an approved offer version (source «Картка ЗІЗ», server actor/time) that keeps the Insight prices; expectedOfferVersionId must name the current version (null when none).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePpeSupplierOfferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Saved card.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeSupplierOffer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid fields, unknown supplier or rule."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          },
+          "404": {
+            "description": "PPE Product missing."
+          },
+          "409": {
+            "description": "The current offer version changed."
+          }
+        }
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "productId",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          }
+        }
+      ]
     }
   },
   "components": {
@@ -640,6 +733,239 @@
           },
           "calculation": {
             "$ref": "#/components/schemas/PpePriceCalculation"
+          }
+        }
+      },
+      "PpeSupplierOffer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "productId",
+          "unit",
+          "supplierId",
+          "supplierName",
+          "supplierSku",
+          "supplierUrl",
+          "supplierPrice",
+          "allowManualPrice",
+          "ruleCode",
+          "insightWholesale",
+          "insightRetail",
+          "offerVersionId",
+          "priceUpdatedAt",
+          "calculation"
+        ],
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supplierId": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int32"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supplierName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supplierSku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supplierUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supplierPrice": {
+            "anyOf": [
+              {
+                "type": "number",
+                "format": "decimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allowManualPrice": {
+            "type": "boolean"
+          },
+          "ruleCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "insightWholesale": {
+            "anyOf": [
+              {
+                "type": "number",
+                "format": "decimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "insightRetail": {
+            "anyOf": [
+              {
+                "type": "number",
+                "format": "decimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "offerVersionId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "priceUpdatedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "calculation": {
+            "$ref": "#/components/schemas/PpePriceCalculation"
+          }
+        }
+      },
+      "UpdatePpeSupplierOfferRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "supplierId",
+          "allowManualPrice"
+        ],
+        "properties": {
+          "supplierId": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "supplierSku": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supplierUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "supplierPrice": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "format": "decimal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allowManualPrice": {
+            "type": "boolean"
+          },
+          "ruleCode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expectedOfferVersionId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       }
