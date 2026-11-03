@@ -89,6 +89,17 @@ public sealed class CatalogSheetImportStoreTests
             Assert.That(await _database.ScalarAsync<string?>("SELECT \"PricingRuleCode\" FROM catalog.\"ProductCatalogProfiles\" WHERE \"SaleSku\" = '501'"), Is.EqualTo("Рукавички тест"));
         });
 
+        // The admin card loads every imported product by id.
+        foreach (var id in await _database.IdsAsync("SELECT \"Id\" FROM catalog.\"Products\" ORDER BY \"Id\""))
+        {
+            var detail = await host.Client.GetAsync($"api/v1/products/{id}");
+            Assert.That(detail.StatusCode, Is.EqualTo(HttpStatusCode.OK), $"product {id}: {await detail.Content.ReadAsStringAsync()}");
+        }
+
+        var ppe501 = await _database.ScalarAsync<int>("SELECT p.\"Id\" FROM catalog.\"Products\" p JOIN catalog.\"ProductCatalogProfiles\" c ON c.\"ProductId\" = p.\"Id\" WHERE c.\"SaleSku\" = '501'");
+        var offer = await host.Client.GetStringAsync($"api/v1/products/{ppe501}/ppe-offer");
+        Assert.That(offer, Does.Contain("\"isCalculated\":true").And.Contain("\"retail\":120"), "the PPE card shows the three prices");
+
         var after = await _database.FingerprintAsync();
         var repeat = await host.ImportAsync(Body(dryRun: false));
         Assert.Multiple(async () =>
@@ -325,6 +336,17 @@ internal sealed class SheetImportDatabase : IAsyncDisposable
         await using var command = new NpgsqlCommand(sql, connection);
         var value = await command.ExecuteScalarAsync();
         return value is null or DBNull ? default! : (T)value;
+    }
+
+    public async Task<List<int>> IdsAsync(string sql)
+    {
+        await using var connection = new NpgsqlConnection(Connection);
+        await connection.OpenAsync();
+        await using var command = new NpgsqlCommand(sql, connection);
+        await using var reader = await command.ExecuteReaderAsync();
+        var ids = new List<int>();
+        while (await reader.ReadAsync()) ids.Add(reader.GetInt32(0));
+        return ids;
     }
 
     public async Task ExecuteAsync(string sql)
