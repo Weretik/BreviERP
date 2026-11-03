@@ -4,6 +4,8 @@ Versioned three-tier PPE calculation from Brevi-owned rule/offer snapshots. Doma
 
 The PPE product card ([CAT-008](../../specs/catalog/008-ppe-product-card/README.md)) reads and saves the sheet «ЗІЗ» supplier fields through `GET`/`PUT /api/v1/products/{productId}/ppe-offer` (`Features/Pricing/Ppe/SupplierOffer/`, `PpeSupplierOfferController`). A changed supplier price or rule appends an approved offer version in the same transaction.
 
+The page «Новий ЗІЗ» ([CAT-009](../../specs/catalog/009-product-create-pages/README.md)) shows the three prices before saving through `GET /api/v1/pricing/ppe/rules/preview` (`Features/Pricing/Ppe/Preview/`, `PpePricingRulesController`); nothing is saved.
+
 ## Structure diagram
 
 ```mermaid
@@ -35,6 +37,7 @@ Catalog.Application/
     Offers/                # Product offer version creation
     Validation/            # request/precision/provenance checks
     SupplierOffer/         # PPE card: Get / Update / Shared view and reader
+    Preview/               # three prices for a supplier price and rule, not saved
 Catalog.Infrastructure/Pricing/Ppe/
   Records/                 # private append-only persistence rows
   Configuration/           # identity/UUID/scope indexes, Product FK, jsonb
@@ -64,7 +67,7 @@ Legacy Product pricing fields are compatibility outputs; new enrolled consumers 
 
 ## Tests
 
-- `tests/UnitTests/PpePricing*Tests.cs`, `tests/UnitTests/PpeSupplierOfferTests.cs`
+- `tests/UnitTests/PpePricing*Tests.cs`, `tests/UnitTests/PpeSupplierOfferTests.cs`, `tests/UnitTests/CatalogProductCreationInputTests.cs` (preview)
 - `tests/IntegrationTests/Pricing/Ppe/`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~PpePricing|FullyQualifiedName~PpeSupplierOffer"`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PpePricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).

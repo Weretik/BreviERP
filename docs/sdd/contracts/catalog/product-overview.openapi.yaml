@@ -31,6 +31,57 @@ paths:
                 type: array
                 items: { $ref: '#/components/schemas/ProductOverviewRow' }
         '400': { description: Unknown type. }
+    post:
+      operationId: createCatalogProduct
+      summary: Create a product from the page «Новий ЗІЗ» or «Нова модель»
+      description: >-
+        Requires CanManageProducts and an actor (CAT-009). The server picks the ID (largest + 1) and the slug (from the
+        Ukrainian name; the code and then a number are added when it is taken). The name is Ukrainian only. An empty
+        sewing code takes the next free MOD-XXX. The section must belong to the type. A PPE product needs the ppe
+        block; the first price version is appended with source «Створення ЗІЗ». priceSaved is false when the product was
+        saved but its price was not; the card then asks to save the price again.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateCatalogProductRequest' }
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreatedCatalogProduct' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission or actor claim missing. }
+        '409': { description: The code or the name is already used by another product. }
+  /api/v1/products/overview/code-check:
+    get:
+      operationId: getProductCodeCheck
+      summary: Check a new product code and suggest the next sewing code
+      description: >-
+        CatalogRead. Whether the code is free for a new product of the type. For sewing, suggestedCode is the next free
+        MOD-XXX. Without code only the suggestion is returned and isAvailable is null.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema: { type: string, enum: [Sewing, Ppe] }
+        - name: code
+          in: query
+          required: false
+          schema: { type: string, maxLength: 80 }
+      responses:
+        '200':
+          description: Result.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductCodeCheck' }
+        '400': { $ref: '#/components/responses/ValidationError' }
   /api/v1/products/{id}/overview:
     parameters:
       - name: id
@@ -60,6 +111,39 @@ paths:
         '403': { description: Product management permission required. }
         '404': { description: Product not found. }
         '409': { description: Another product of the same type has this code. }
+  /api/v1/products/sheet-import:
+    post:
+      operationId: importSheetProducts
+      summary: Import all products from the Calculator sheet (preview or apply)
+      description: >-
+        Requires CanManageProducts and an actor (CAT-010). One-time transfer of the tabs «Товари» (with «Прайс на
+        сайт», «Комплектація виробів», «Трудовитрати виробів») and «ЗІЗ». A row matches a stored product by type and
+        code (sewing model ID, PPE site article), else by the exact name of the same type; a matched product keeps
+        its ID and slug, the rest are created (ID largest + 1, slug as in createCatalogProduct). Names are Ukrainian
+        only; the Russian name column gets a copy. A matched sewing model gets its article list and whole composition
+        replaced; a checked model's lines are marked reviewed by «Google-таблиця» at Kyiv midnight of verifiedOn. A
+        PPE product gets a new offer version (source «Імпорт з таблиці») only when the supplier price, the rule or a
+        given Insight price differs; no supplier price means no version. With deleteMissing, every product of either
+        type that no row matches is deleted. dryRun (default true) never writes. Any problem means nothing is
+        written; warnings (unknown rule imported as none, no supplier price or link) do not stop the import. All
+        writes run in one database transaction.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImportSheetProductsRequest' }
+      responses:
+        '200':
+          description: Report. applied is false for a preview and whenever problems is not empty.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SheetImportReport' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: Product management permission or actor claim missing. }
+        '409': { description: The database rejected the write (changed meanwhile); nothing is saved. }
 components:
   securitySchemes:
     bearerAuth:
@@ -110,3 +194,176 @@ components:
         verifiedOn: { type: [string, 'null'], pattern: '^\d{2}\.\d{2}\.\d{4}$' }
         currentSiteUrl: { type: [string, 'null'], maxLength: 500, format: uri }
         quoteDescription: { type: [string, 'null'], maxLength: 2000 }
+    CreateCatalogProductRequest:
+      type: object
+      required: [type, name, sectionId, isActive, isVerified]
+      properties:
+        type: { type: string, enum: [Sewing, Ppe] }
+        code: { type: [string, 'null'], maxLength: 80, description: Required for PPE; empty sewing code takes the next MOD-XXX. }
+        name: { type: string, minLength: 1, maxLength: 200 }
+        sectionId: { type: integer, format: int32, minimum: 1 }
+        season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
+        isActive: { type: boolean }
+        isVerified: { type: boolean }
+        currentSiteUrl: { type: [string, 'null'], maxLength: 500, format: uri }
+        quoteDescription: { type: [string, 'null'], maxLength: 2000 }
+        ppe:
+          anyOf:
+            - { $ref: '#/components/schemas/CreatePpeSupplierRequest' }
+            - { type: 'null' }
+    CreatePpeSupplierRequest:
+      type: object
+      required: [supplierId, supplierUrl, supplierPrice, allowManualPrice, ruleCode, unit]
+      properties:
+        supplierId: { type: integer, format: int32, minimum: 1 }
+        supplierSku: { type: [string, 'null'], maxLength: 200 }
+        supplierUrl: { type: string, maxLength: 2048, format: uri }
+        supplierPrice: { type: number, exclusiveMinimum: 0, exclusiveMaximum: 10000000 }
+        allowManualPrice: { type: boolean }
+        ruleCode: { type: string, minLength: 1, maxLength: 200 }
+        unit: { type: string, minLength: 1, maxLength: 40 }
+    CreatedCatalogProduct:
+      type: object
+      required: [id, type, code, priceSaved]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        type: { type: string, enum: [Sewing, Ppe] }
+        code: { type: [string, 'null'] }
+        priceSaved: { type: boolean }
+    ProductCodeCheck:
+      type: object
+      required: [code, isAvailable, takenByProductId, takenByProductName, suggestedCode]
+      properties:
+        code: { type: [string, 'null'] }
+        isAvailable: { type: [boolean, 'null'] }
+        takenByProductId: { type: [integer, 'null'], format: int32 }
+        takenByProductName: { type: [string, 'null'] }
+        suggestedCode: { type: [string, 'null'], description: Next free MOD-XXX for sewing; null for PPE. }
+    ImportSheetProductsRequest:
+      type: object
+      required: [sewing, ppe]
+      properties:
+        sewing:
+          type: array
+          maxItems: 2000
+          items: { $ref: '#/components/schemas/SheetSewingRow' }
+        ppe:
+          type: array
+          maxItems: 2000
+          items: { $ref: '#/components/schemas/SheetPpeRow' }
+        dryRun: { type: boolean, default: true, description: Only compute the report; nothing is saved. }
+        deleteMissing: { type: boolean, default: false, description: Delete stored products that no row matches. }
+    SheetSewingRow:
+      type: object
+      required: [rowNumber, code, name, isActive, isVerified, articles, materials, operations]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        code: { type: string, description: Model ID MOD-…. }
+        name: { type: string, maxLength: 200 }
+        section: { type: [string, 'null'], description: Sewing section name in Reference «Типи і розділи». }
+        season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
+        isActive: { type: boolean }
+        isVerified: { type: boolean }
+        verifiedOn: { type: [string, 'null'], description: dd.MM.yyyy. }
+        currentSiteUrl: { type: [string, 'null'], format: uri }
+        quoteDescription: { type: [string, 'null'], maxLength: 2000 }
+        articles:
+          type: array
+          items: { $ref: '#/components/schemas/SheetSewingArticleRow' }
+        materials:
+          type: array
+          items: { $ref: '#/components/schemas/SheetSewingMaterialRow' }
+        operations:
+          type: array
+          items: { $ref: '#/components/schemas/SheetSewingOperationRow' }
+    SheetSewingArticleRow:
+      type: object
+      required: [saleSku, isActive]
+      properties:
+        saleSku: { type: string, maxLength: 80 }
+        isActive: { type: boolean }
+    SheetSewingMaterialRow:
+      type: object
+      required: [rowNumber, kind, code, quantity, unit, isRequired]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        article: { type: [string, 'null'], description: Sale SKU of the article; null for a line shared by all articles. }
+        kind: { type: string, enum: [Fabric, Accessory] }
+        code: { type: string, description: FAB-… or FUR-…. }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        unit: { type: string, enum: [Metre, Piece], description: A fabric is in metres. }
+        isRequired: { type: boolean }
+        comment: { type: [string, 'null'], maxLength: 500 }
+    SheetSewingOperationRow:
+      type: object
+      required: [rowNumber, code, quantity]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        article: { type: 'null', description: Operations are shared by all articles; a value is a problem. }
+        code: { type: string, description: OP-…; the same operation may appear more than once. }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        manualMinutes: { type: [number, 'null'], exclusiveMinimum: 0 }
+        comment: { type: [string, 'null'], maxLength: 500 }
+    SheetPpeRow:
+      type: object
+      required: [rowNumber, code, name, isActive, allowManualPrice, isVerified]
+      properties:
+        rowNumber: { type: integer, format: int32 }
+        code: { type: string, maxLength: 80, description: Site article. }
+        name: { type: string, maxLength: 200 }
+        section: { type: [string, 'null'], description: PPE section name in Reference «Типи і розділи». }
+        unit: { type: [string, 'null'], maxLength: 40 }
+        currentSiteUrl: { type: [string, 'null'], format: uri }
+        supplierName: { type: [string, 'null'], description: 'Reference supplier name, trimmed, ignoring case; the sheet typo «3C-Макркет» means «3C-Маркет».' }
+        supplierUrl: { type: [string, 'null'], format: uri }
+        supplierSku: { type: [string, 'null'], maxLength: 200 }
+        supplierPrice: { type: [number, 'null'], exclusiveMinimum: 0, description: Null means no price version (warning). }
+        isActive: { type: boolean }
+        allowManualPrice: { type: boolean }
+        isVerified: { type: boolean }
+        verifiedOn: { type: [string, 'null'], description: dd.MM.yyyy. }
+        ruleCode: { type: [string, 'null'], maxLength: 200, description: PPE rule code (the rule name); an unknown one is imported as none (warning). }
+        quoteDescription: { type: [string, 'null'], maxLength: 2000 }
+        insightWholesale: { type: [number, 'null'], minimum: 0 }
+        insightRetail: { type: [number, 'null'], minimum: 0 }
+    SheetImportReport:
+      type: object
+      required: [applied, sewing, ppe, toDelete, problems, warnings]
+      properties:
+        applied: { type: boolean }
+        sewing: { $ref: '#/components/schemas/SheetImportCounts' }
+        ppe: { $ref: '#/components/schemas/SheetImportCounts' }
+        toDelete:
+          type: array
+          items: { $ref: '#/components/schemas/SheetImportDeletion' }
+        problems:
+          type: array
+          description: Blocking; nothing is written while there is any.
+          items: { $ref: '#/components/schemas/SheetImportIssue' }
+        warnings:
+          type: array
+          description: Not blocking.
+          items: { $ref: '#/components/schemas/SheetImportIssue' }
+    SheetImportCounts:
+      type: object
+      required: [created, updated, unchanged]
+      properties:
+        created: { type: integer, format: int32 }
+        updated: { type: integer, format: int32 }
+        unchanged: { type: integer, format: int32 }
+    SheetImportDeletion:
+      type: object
+      required: [id, type, code, name]
+      properties:
+        id: { type: integer, format: int32 }
+        type: { type: string, enum: [Sewing, Ppe] }
+        code: { type: [string, 'null'] }
+        name: { type: string }
+    SheetImportIssue:
+      type: object
+      required: [scope, rowNumber, code, message]
+      properties:
+        scope: { type: string, enum: [sewing, ppe] }
+        rowNumber: { type: [integer, 'null'], format: int32, description: Null for a stored product that is not in the sheet. }
+        code: { type: [string, 'null'] }
+        message: { type: string, description: Ukrainian. }

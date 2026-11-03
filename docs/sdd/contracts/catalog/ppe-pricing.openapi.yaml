@@ -312,6 +312,60 @@
           }
         }
       ]
+    },
+    "/api/v1/pricing/ppe/rules/preview": {
+      "get": {
+        "operationId": "previewPpePrices",
+        "description": "CatalogRead. Three prices for a supplier price and rule before anything is saved (page «Новий ЗІЗ», CAT-009). Same calculator as the saved card; a draft rule gives the MissingRule blocker.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ruleCode",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "in": "query",
+            "name": "supplierPrice",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 10000000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prices or blockers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpePriceCalculation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing price or unknown rule."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy missing."
+          }
+        }
+      }
     }
   },
   "components": {

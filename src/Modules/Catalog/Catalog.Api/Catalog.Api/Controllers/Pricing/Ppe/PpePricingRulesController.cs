@@ -2,7 +2,9 @@ using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Ppe;
 using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Application.Features.Pricing.Ppe.Rules.CreateVersion;
+using Catalog.Application.Features.Pricing.Ppe.Preview;
 using Catalog.Application.Features.Pricing.Ppe.Rules.GetCurrent;
+using Catalog.Domain.Pricing.Ppe;
 namespace Catalog.Api.Controllers.Pricing.Ppe;
 [ApiController]
 [Route("api/v1/pricing/ppe/rules")]
@@ -22,4 +24,11 @@ public sealed class PpePricingRulesController(ISender sender) : ControllerBase
         return this.ToActionResult(await sender.Send(new CreatePpeRuleVersionCommand(
             request.ExpectedVersionId, request.RequestId, request.Values.ToValues(), actor), cancellationToken));
     }
+
+    /// <summary>Three PPE prices for a supplier price and rule before saving (page «Новий ЗІЗ», CAT-009).</summary>
+    [HttpGet("preview", Name = "previewPpePrices")]
+    [Authorize(Policy = "CatalogRead")]
+    public async Task<ActionResult<PpePriceCalculation>> Preview(
+        [FromQuery] string ruleCode, [FromQuery] decimal supplierPrice, CancellationToken cancellationToken)
+        => this.ToActionResult(await sender.Send(new PreviewPpePricesQuery(ruleCode, supplierPrice), cancellationToken));
 }

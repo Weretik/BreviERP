@@ -54,6 +54,7 @@ public sealed class PpePricingContractTests
     [TestCase("createPpeOfferVersion", "CanManageProducts")]
     [TestCase("getPpeSupplierOffer", "CatalogRead")]
     [TestCase("updatePpeSupplierOffer", "CanManageProducts")]
+    [TestCase("previewPpePrices", "CatalogRead")]
     public void Pricing_operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
         var methods = typeof(Catalog.Api.Controllers.SewingArticlesController).Assembly.GetTypes()
