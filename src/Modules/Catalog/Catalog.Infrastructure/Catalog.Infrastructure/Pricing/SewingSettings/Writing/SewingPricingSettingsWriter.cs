@@ -24,9 +24,11 @@ public sealed class SewingPricingSettingsWriter(CatalogDbContext db) : ISewingPr
         var latest = await db.Set<SewingPricingSettingsVersion>().AsNoTracking()
             .OrderByDescending(x => x.Revision).FirstOrDefaultAsync(cancellationToken);
         var at = DateTimeOffset.UtcNow;
-        if (latest is null || latest.Id.Value != expectedVersionId || latest.EffectiveFrom >= at)
+        // expectedVersionId 0 means "no version yet": the first version comes from «Параметри ціноутворення».
+        var firstVersion = latest is null && expectedVersionId == 0;
+        if (!firstVersion && (latest is null || latest.Id.Value != expectedVersionId || latest.EffectiveFrom >= at))
             return Result.Conflict("Settings changed or a future settings version already exists.");
-        var version = SewingPricingSettingsVersion.Create(latest.Revision + 1, at, settings, hash, source, true);
+        var version = SewingPricingSettingsVersion.Create((latest?.Revision ?? 0) + 1, at, settings, hash, source, true);
         db.Add(version);
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

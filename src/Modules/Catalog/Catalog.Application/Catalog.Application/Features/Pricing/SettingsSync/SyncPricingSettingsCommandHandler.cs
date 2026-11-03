@@ -49,16 +49,12 @@ public sealed class SyncPricingSettingsCommandHandler(
         }
 
         var candidates = await sewingReader.ReadCandidatesAsync(timeProvider.GetUtcNow(), cancellationToken);
-        if (candidates.Count == 0)
-        {
-            skipped.Add("Sewing settings: no base version to append to.");
-            return false;
-        }
-        var current = candidates[0];
-        if (current.Settings == settings)
+        var current = candidates.Count == 0 ? null : candidates[0];
+        if (current?.Settings == settings)
             return false;
 
-        var appended = await sewingWriter.AppendAsync(current.Id, Guid.NewGuid(), settings, command.Actor, cancellationToken);
+        // With no version yet, the writer creates revision 1 (expected version id 0).
+        var appended = await sewingWriter.AppendAsync(current?.Id ?? 0, Guid.NewGuid(), settings, command.Actor, cancellationToken);
         if (!appended.IsSuccess)
             skipped.Add($"Sewing settings: {string.Join(" ", appended.Errors)}");
         return appended.IsSuccess;
