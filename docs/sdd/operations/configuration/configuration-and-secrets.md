@@ -11,10 +11,12 @@ Environment variable keys use double underscores, for example `ConnectionStrings
 | Setting | Purpose | Secret |
 | --- | --- | --- |
 | `ConnectionStrings:Default` | PostgreSQL connection for Identity and module contexts | Yes |
-| `ADMIN_DEFAULT_PASSWORD` | Password used only if a bootstrap administrator must be created | Yes |
+| `ADMIN_DEFAULT_PASSWORD` | Password of the first administrator, read by the seed job only when `Identity:AdminUser:Email` has no account. Production: Secret Manager `admin-default-password` | Yes |
+| `Identity:AdminUser` | First administrator email (`vitaliythupin@gmail.com`), name, lockout | No |
 | `Cors:AllowedOrigins` / `AllowedOriginsCsv` | Browser origins allowed to call the API | No, but deployment-specific |
-| `Identity:SessionCookies` | Cookie names, paths, lifetimes, `Secure` and SameSite rules | No |
-| `Identity:SessionSecurity` | Access and refresh token lifetime limits | No |
+| `Identity:CookieSession` | Session cookie name `__Host-brevi.session`, sliding lifetime, security-stamp check interval | No |
+| `Identity:SessionCookies` | CSRF cookie name, header, lifetime; `CsrfCookieDomain=brevi.com.ua` in `appsettings.Production.json` | No |
+| `TrustedProxy:SharedSecret` | Secret the [Cloudflare Worker](../deployment/cloudflare-api-proxy.md) sends; only then the client IP from the Worker is trusted. Production: Secret Manager `api-proxy-shared-secret` | Yes |
 | `AdmToolsStorage` | Photo library CDN storage (Media module); login and password come from secrets | Login, password: yes |
 | `MediaUpload` | Maximum photo size and CDN folder for new originals | No |
 | `Reminders:Telegram` | Bot token, webhook secret and public webhook URL for [Telegram reminders](../jobs/telegram-reminders.md) | Token and secret: yes |
@@ -42,4 +44,4 @@ Never add real passwords, tokens, or production connection strings to `appsettin
 
 ## Cookie and CORS note
 
-Refresh authentication uses credential-bearing cookies, so CORS requires an explicit allowlist of origins; wildcard origins are not used. Check refresh over HTTPS or create an intentional local override that is never promoted to a shared environment.
+Sign-in uses credential-bearing cookies, so CORS requires an explicit allowlist of origins; wildcard origins are not used. The session cookie has the `__Host-` prefix and is `Secure`: check sign-in over HTTPS (`https://localhost:7142`). For plain HTTP set `Identity:CookieSession:RequireSecure=false` and a cookie name without `__Host-` in a local override only.

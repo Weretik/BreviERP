@@ -40,7 +40,7 @@ BreviERP PostgreSQL
 │   ├── AspNetRoleClaims               # role claims
 │   ├── AspNetUserLogins               # external logins
 │   ├── AspNetUserTokens               # tokens
-│   └── AppRefreshSessions            # refresh sessions
+│   └── DataProtectionKeys            # keys that sign the session cookie
 ├── accounting / AccountingDbContext — 1 table
 │   └── TransactionCategories          # transaction categories
 ├── media / MediaDbContext — 2 tables + own history

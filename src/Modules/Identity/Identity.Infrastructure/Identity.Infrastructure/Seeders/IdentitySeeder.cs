@@ -1,76 +1,88 @@
-﻿using Identity.Domain.Constants;
-using Identity.Infrastructure.Configuration;
+using Identity.Domain.Constants;
 using Identity.Infrastructure.Contracts;
 using Identity.Infrastructure.Entities;
-using Infrastructure.Identity.Utils;
+using Identity.Infrastructure.Options;
 
 namespace Identity.Infrastructure.Seeders;
 
+/// <summary>
+/// Creates the configured administrator if that email has no account yet. The password comes from the
+/// ADMIN_DEFAULT_PASSWORD secret; without it nothing is created. An existing administrator only gets the
+/// configured lockout setting, its password is never changed here.
+/// </summary>
 public class IdentitySeeder(
     UserManager<AppUser> userManager,
-    IOptions<AdminUserConfig> adminOptions,
+    IConfiguration configuration,
+    IOptions<AdminUserOptions> adminOptions,
     ILogger<IdentitySeeder> logger)
     : IIdentitySeeder
 {
-    private readonly AdminUserConfig _adminConfig = adminOptions.Value;
+    private readonly AdminUserOptions _adminOptions = adminOptions.Value;
 
     public async Task SeedAsync(IServiceProvider _, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (await userManager.Users.AnyAsync(cancellationToken))
+        if (string.IsNullOrWhiteSpace(_adminOptions.Email))
         {
-            logger.LogInformation("Skipped identity seeding because users table already contains data.");
+            logger.LogWarning("Identity:AdminUser:Email is not configured. Admin seeding is skipped.");
             return;
         }
 
-        await SeedAdminUserAsync(cancellationToken);
-    }
-
-    private async Task SeedAdminUserAsync(CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var existingAdmin = await userManager.FindByEmailAsync(_adminConfig.Email);
+        var existingAdmin = await userManager.FindByEmailAsync(_adminOptions.Email);
         if (existingAdmin != null)
         {
-            logger.LogInformation("Адміністратор вже існує: {Email}", _adminConfig.Email);
+            await AlignLockoutAsync(existingAdmin);
+            logger.LogInformation("Admin user already exists: {Email}", _adminOptions.Email);
             return;
         }
 
-        var password = Environment.GetEnvironmentVariable("ADMIN_DEFAULT_PASSWORD")
-                       ?? SecurityUtils.GenerateSecurePassword();
+        var password = configuration["ADMIN_DEFAULT_PASSWORD"];
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            logger.LogError("ADMIN_DEFAULT_PASSWORD is not configured. Admin seeding is skipped.");
+            return;
+        }
 
         var user = new AppUser
         {
-            UserName = _adminConfig.Email,
-            Email = _adminConfig.Email,
-            FullName = _adminConfig.FullName,
+            UserName = _adminOptions.Email,
+            Email = _adminOptions.Email,
+            FullName = _adminOptions.FullName,
             EmailConfirmed = true,
-            LockoutEnabled = _adminConfig.LockoutEnabled
+            LockoutEnabled = _adminOptions.LockoutEnabled
         };
 
         var result = await userManager.CreateAsync(user, password);
         if (!result.Succeeded)
         {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            logger.LogError("Помилка при створенні адміністратора: {Errors}", errors);
+            logger.LogError("Failed to create admin user: {Errors}", Describe(result));
             return;
         }
 
         result = await userManager.AddToRoleAsync(user, AppRoles.Admin);
         if (!result.Succeeded)
         {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            logger.LogError("Помилка при призначенні ролі: {Errors}", errors);
+            logger.LogError("Failed to assign admin role: {Errors}", Describe(result));
         }
 
-        if (string.IsNullOrWhiteSpace(_adminConfig.DefaultPassword) &&
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-        {
-            logger.LogWarning("Згенеровано пароль адміністратора: {Password}", password);
-        }
-
-        logger.LogInformation("Користувач-адміністратор успішно створено: {Email}", user.Email);
+        logger.LogInformation("Admin user created: {Email}", user.Email);
     }
+
+    private async Task AlignLockoutAsync(AppUser admin)
+    {
+        if (admin.LockoutEnabled == _adminOptions.LockoutEnabled)
+        {
+            return;
+        }
+
+        var result = await userManager.SetLockoutEnabledAsync(admin, _adminOptions.LockoutEnabled);
+        if (!result.Succeeded)
+        {
+            logger.LogError("Failed to align admin lockout: {Errors}", Describe(result));
+        }
+    }
+
+    private static string Describe(IdentityResult result) =>
+        string.Join(", ", result.Errors.Select(e => e.Description));
 }

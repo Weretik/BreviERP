@@ -6,13 +6,13 @@
 
 ## Swagger and OpenAPI
 
-Swagger UI is enabled when `ASPNETCORE_ENVIRONMENT=Development` or the [temporary anonymous API mode](../configuration/temporary-anonymous-api.md) is enabled. The repository currently enables that mode. With the HTTPS launch profile, open:
+Swagger UI is enabled only when `ASPNETCORE_ENVIRONMENT=Development`. With the HTTPS launch profile, open:
 
 ```text
 https://localhost:7142/swagger
 ```
 
-With anonymous API mode disabled, the Swagger Bearer authorization scheme expects the access token returned by `POST /api/auth/session/login`. Put the access token in Swagger authorization; do not paste or disclose the refresh token.
+Sign in with `POST /api/auth/cookie/login` from Swagger on the same host; the browser keeps the session cookie. For `POST`, `PUT` and `DELETE` also add header `X-CSRF-Token` with the `brevi.csrf` cookie value, otherwise the API answers `400 Invalid CSRF token.`
 
 For a reproducible feature test, add a specific task to the verification phase of the [feature specification](../../specs/README.md). It should record the route, prerequisites, input, expected status, and failure cases.
 
@@ -24,7 +24,8 @@ Do not log or share tokens, passwords, full connection strings, cookie values, o
 
 | Observation | First check |
 | --- | --- |
-| `401 Unauthorized` | An access token exists, is valid, and is passed as a Bearer token. |
+| `401 Unauthorized` | The request carries the `__Host-brevi.session` cookie (credentials mode `include`, API on `api.brevi.com.ua`). |
 | `403 Forbidden` | The authenticated user has the role/policy required by the endpoint. |
-| Browser request blocked | Allowed CORS origin, HTTPS/cookie attributes, and CSRF header for refresh. |
+| `400 Invalid CSRF token.` | The changing request sends `X-CSRF-Token` equal to the `brevi.csrf` cookie. |
+| Browser request blocked | Allowed CORS origin and HTTPS/cookie attributes. |
 | `Host.Api` crashes before serving requests | Database connection and required settings; if `Host.Seed` ran separately beforehand, check its result. |

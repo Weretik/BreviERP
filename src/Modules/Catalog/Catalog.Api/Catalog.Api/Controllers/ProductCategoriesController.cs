@@ -12,7 +12,7 @@ using Catalog.Application.Features.ProductCategory.Update.DTOs;
 namespace Catalog.Api.Controllers;
 
 [ApiController]
-[AllowAnonymous]
+[Authorize(Policy = "CanManageProducts")]
 [Route("api/reference/product-categories")]
 public sealed class ProductCategoriesController(ISender sender) : ControllerBase
 {
@@ -28,6 +28,7 @@ public sealed class ProductCategoriesController(ISender sender) : ControllerBase
     }
 
     [HttpGet("store/{language}")]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(List<StoreProductCategoryRowDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

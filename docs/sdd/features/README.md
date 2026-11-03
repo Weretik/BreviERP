@@ -39,7 +39,8 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
 ## Identity
 
-- [User session](identity/session.md) — login, refresh, logout, and me.
+- [User session](identity/session.md) — Admin sign-in with the session cookie, CSRF, lockout, first administrator.
+- [Staff accounts](identity/staff-accounts.md) — «Користувачі»: administrators create, re-role, block and reset managers and administrators.
 
 ## Other modules
 
@@ -59,4 +60,4 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 
 ## Platform access
 
-- [Temporary anonymous API access](platform/temporary-anonymous-api.md) — startup switch for every controller, shared actor attribution and public documentation.
+- API address: the [Cloudflare API proxy](../operations/deployment/cloudflare-api-proxy.md) serves `api.brevi.com.ua`; only sign-in, the Telegram webhook and public storefront categories are anonymous ([roles and policies](../architecture/security/authorization/roles-and-policies.md#current-anonymous-exceptions)).

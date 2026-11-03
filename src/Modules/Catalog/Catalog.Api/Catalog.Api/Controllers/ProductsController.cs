@@ -8,7 +8,7 @@ using Catalog.Application.Features.Product.Update;
 namespace Catalog.Api.Controllers;
 
 [ApiController]
-[AllowAnonymous]
+[Authorize(Policy = "CanManageProducts")]
 [Route("api/v1/products")]
 public sealed class ProductsController(ISender sender) : ControllerBase
 {

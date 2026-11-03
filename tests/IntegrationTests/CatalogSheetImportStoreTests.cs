@@ -587,7 +587,6 @@ internal sealed class SheetImportHost(WebApplication app, HttpClient client, str
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["ConnectionStrings:Default"] = connection,
-            ["ApiAccess:AnonymousEnabled"] = "false",
             ["Logging:LogLevel:Default"] = "Warning"
         });
         builder.Services.AddHostServices(builder.Configuration);

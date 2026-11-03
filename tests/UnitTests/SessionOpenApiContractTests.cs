@@ -59,15 +59,16 @@ public sealed class SessionOpenApiContractTests
         Assert.Multiple(() =>
         {
             Assert.That(operationIds, Is.Unique);
-            Assert.That(operationIds, Does.Contain("loginSession"));
-            Assert.That(operationIds, Does.Contain("refreshSession"));
-            Assert.That(operationIds, Does.Contain("logoutSession"));
+            Assert.That(operationIds, Does.Contain("loginCookieSession"));
+            Assert.That(operationIds, Does.Contain("logoutCookieSession"));
             Assert.That(operationIds, Does.Contain("getCurrentSession"));
+            Assert.That(operationIds, Does.Contain("getStaffAccounts"));
+            Assert.That(operationIds, Does.Not.Contain("loginSession"));
+            Assert.That(operationIds, Does.Not.Contain("refreshSession"));
         });
     }
 
     [TestCase(typeof(SessionLoginRequest), "SessionLoginRequest")]
-    [TestCase(typeof(SessionTokenResponse), "SessionTokenResponse")]
     [TestCase(typeof(SessionMeResponse), "SessionMeResponse")]
     public void Session_schema_matches_serializable_dto(Type dtoType, string schemaName)
     {

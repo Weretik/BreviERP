@@ -17,7 +17,7 @@ namespace Reference.Api.Controllers;
 public sealed class FabricsController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Policy = "CatalogRead")]
     [ProducesResponseType(typeof(List<FabricRowDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

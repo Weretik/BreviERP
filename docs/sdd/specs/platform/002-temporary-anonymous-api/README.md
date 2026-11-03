@@ -1,5 +1,7 @@
 # Temporary anonymous API access
 
+**Superseded 2026-11-03:** the mode, its code and configuration are removed by [identity 001 cookie sign-in](../../identity/001-cookie-sign-in/README.md). Kept as history.
+
 Date: 2026-10-31. Owner: Host.Api composition, no new module or schema. Status: implemented and locally verified. Production deployment is not performed. User explicitly requested all existing APIs public temporarily, including every HTTP method. No deployment/commit/push is requested by this change.
 
 ## Rules and observable scenarios

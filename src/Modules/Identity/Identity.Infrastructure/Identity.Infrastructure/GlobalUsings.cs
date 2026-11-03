@@ -16,7 +16,6 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Authentication;
-global using Microsoft.AspNetCore.Authentication.BearerToken;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.Options;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

@@ -24,20 +24,6 @@ public static class RateLimitingRegistrationExtensions
                         AutoReplenishment = true
                     });
             });
-
-            options.AddPolicy("AuthRefresh", context =>
-            {
-                var partitionKey = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-                return RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey,
-                    _ => new FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = 30,
-                        Window = TimeSpan.FromMinutes(1),
-                        QueueLimit = 0,
-                        AutoReplenishment = true
-                    });
-            });
         });
 
         return services;

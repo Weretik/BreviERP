@@ -32,6 +32,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Reference | [005 Product sections from the Calculator sheet](reference/005-product-sections-sheet/README.md) | backend implemented 2026-11-03 |
 | Media | [001 «Фото» photo library with folders](media/001-media-library/README.md) | stage 1 backend implemented 2026-11-03 |
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
+| Identity | [001 Cookie sign-in like Kedr](identity/001-cookie-sign-in/README.md) | implemented 2026-11-03; not deployed |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
 
 When a specification's status changes, update its row here in the same change.
@@ -68,4 +69,4 @@ Draft → accepted → in progress → verified → complete.
 
 Implementation must not silently diverge from an accepted specification. If that happens, add a dated change entry with the reason, boundary impact, and new verification.
 
-- [Platform: temporary anonymous API access](platform/002-temporary-anonymous-api/README.md) — implemented locally; 16 focused HTTP tests passed; temporary public access to all APIs enabled in configuration, deployment not performed.
+- [Platform: temporary anonymous API access](platform/002-temporary-anonymous-api/README.md) — history; removed by [identity 001](identity/001-cookie-sign-in/README.md).

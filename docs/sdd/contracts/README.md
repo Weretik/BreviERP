@@ -36,8 +36,6 @@ P6 [explicit quote delivery queue/history](crm/quote-deliveries.openapi.yaml): e
 
 - Reminders: [Telegram reminders admin API](reminders/telegram-reminders.openapi.yaml) — tasks, periods, chats, non-working days and bot connection. The Telegram webhook is intentionally not in the contract.
 
-## Temporary anonymous deployment mode
+## Access
 
-The host currently enables temporary anonymous access (runbook: `docs/sdd/operations/configuration/temporary-anonymous-api.md`) through ApiAccess:AnonymousEnabled=true. All controller operations accept requests without bearer authorization in that mode, including previously protected writes/files. Actor-dependent operations use an existing shared Admin; no eligible actor produces 503 with code anonymous_api_actor_unavailable. Login/refresh still validate credentials/refresh cookies/CSRF as inputs to those operations.
-
-The module YAML contracts retain the normal access rules used when this switch is disabled. Routes, operationIds and DTOs are unchanged, so no generated frontend DTO synchronization is required. Live generated Swagger at /swagger/v1/swagger.json removes its global bearer requirement while anonymous mode is enabled; /openapi/v1.json and /swagger are also public in Production. Consumers must account for this explicit temporary deployment override. Disable the flag and restart to restore original policies.
+Every operation requires a signed-in Admin session cookie (`__Host-brevi.session`) unless the roles and policies (`docs/sdd/architecture/security/authorization/roles-and-policies.md`) list it as public. Changing requests also send `X-CSRF-Token`. The temporary anonymous mode (`ApiAccess:AnonymousEnabled`) is removed.
