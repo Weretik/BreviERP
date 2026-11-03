@@ -12,12 +12,16 @@ Canonical role constants are in `Identity.Domain/Authorization/RoleNames.cs`; in
 
 | Role | Current meaning | Created by seeding |
 | --- | --- | --- |
-| `Admin` | System administration | yes |
-| `Manager` | Content manager access | yes |
+| `Director` | Owner («Директор»). At most one; the account also holds `Admin`, so every Admin endpoint admits it. Only the director changes the director account. | yes |
+| `Admin` | System administration, including «Користувачі» | yes |
+| `Accountant` | Staff («Бухгалтер»): signs in and reads the catalogue (`CatalogRead`) for now | yes |
+| `Manager` | Staff: everything in Admin except the «Користувачі» page | yes |
 | `User` | Regular authenticated user | yes |
 | `Guest` | Role constant defined without an agreed business meaning | no |
 
-At startup, `RoleSeeder` currently creates only Admin, Manager, and User. Do not assign `Guest` until its seeding and business meaning are deliberately added.
+At startup, `RoleSeeder` creates every missing role except `Guest`, so existing databases gain new roles on the next seed run. Do not assign `Guest` until its seeding and business meaning are deliberately added.
+
+Staff account rules (`StaffAccountService`): there is at most one director (409); only the director may block, delete, reset the password of, or change the role of the director account (403); nobody blocks or deletes their own account, and only the director may change their own role (400).
 
 ## Policies
 
@@ -27,7 +31,8 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 | --- | --- |
 | `RequireAdminRole` / `CanManageUsers` | Admin |
 | `RequireManagerRole` / `CanManageProducts` / `CanManageOrders` | Manager, Admin |
-| `CatalogRead` / `OrderCreate` | User, Manager, Admin |
+| `CatalogRead` | User, Accountant, Manager, Admin |
+| `OrderCreate` | User, Manager, Admin |
 | `RequireTenantAccess` | Constant is defined; policy is not currently registered |
 
 Do not use `RequireTenantAccess` on an endpoint until it is registered in Host and its policy semantics are agreed.
@@ -40,9 +45,17 @@ For a public endpoint, use `[AllowAnonymous]` and record the reason in the featu
 
 ## Current anonymous exceptions
 
-As of 2026-10-28, these controllers declare `[AllowAnonymous]` on the whole class, so all their operations, including create, update, and delete, are public: `ProductsController`, `ProductCategoriesController`, `CatalogMediaController`, `SuppliersController`, and `GarmentPartsController`. `FabricsController`, `GarmentAccessoriesController`, `GarmentPartOperationsController`, `PricingParametersController`, and `PpeMarkupRulesController` allow anonymous reads only; their writes require `CanManageProducts`. `AuthSessionController` allows anonymous login and refresh. The per-endpoint list is in the [frontend integration table](../../../contracts/frontend-integration.md).
+Only these operations are public; `tests/HostApiTests/ApiAccessTests.cs` fails when the list changes:
 
-A class-level `[AllowAnonymous]` also overrides any `[Authorize]` on its methods. To protect a write, move `[AllowAnonymous]` to the read methods instead of adding a policy next to it. Update this list when an exception is added or removed.
+| Operation | Why |
+| --- | --- |
+| `POST /api/auth/cookie/login` | Sign-in (rate-limited). |
+| `POST /api/reminders/telegram/webhook` | Telegram calls it; checked by the webhook secret header. |
+| `GET /api/reference/product-categories/store/{language}` | Public storefront categories, read-only. |
+
+Every other operation needs a signed-in user, and every admin operation names a role or policy: reads `CatalogRead` (or a role), writes `CanManageProducts`, CRM `Admin,Manager`, reminders and users `Admin`. The same test fails when an endpoint has neither, except `GET /api/auth/session/me` and `POST /api/auth/cookie/logout`, which only need a session.
+
+A class-level `[AllowAnonymous]` overrides any `[Authorize]` on its methods, so put it only on the single public action.
 
 ## Adding a policy or role
 

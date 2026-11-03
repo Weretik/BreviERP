@@ -17,7 +17,7 @@ namespace Reference.Api.Controllers;
 public sealed class ProductSectionsController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Policy = "CatalogRead")]
     [ProducesResponseType(typeof(List<ProductSectionRowDTO>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<ProductSectionRowDTO>>> Get(CancellationToken cancellationToken)
         => this.ToActionResult(await sender.Send(new GetProductSectionsQuery(), cancellationToken));

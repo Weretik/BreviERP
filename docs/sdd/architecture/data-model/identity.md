@@ -11,7 +11,7 @@
 | `AspNetRoleClaims` | `Id` | Role claims (`RoleId` FK). |
 | `AspNetUserLogins` | `LoginProvider`, `ProviderKey` | External logins (`UserId` FK). |
 | `AspNetUserTokens` | `UserId`, `LoginProvider`, `Name` | User tokens (`UserId` FK). |
-| `AppRefreshSessions` | `Id` | Refresh sessions (`UserId` FK). |
+| `DataProtectionKeys` | `Id` | ASP.NET Core Data Protection keys that sign the session cookie; shared by all API instances. |
 
 ```mermaid
 erDiagram
@@ -21,5 +21,4 @@ erDiagram
     AspNetRoles ||--o{ AspNetRoleClaims : "RoleId FK"
     AspNetUsers ||--o{ AspNetUserLogins : "UserId FK"
     AspNetUsers ||--o{ AspNetUserTokens : "UserId FK"
-    AspNetUsers ||--o{ AppRefreshSessions : "UserId FK"
 ```

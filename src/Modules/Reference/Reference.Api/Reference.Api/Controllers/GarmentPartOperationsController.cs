@@ -16,7 +16,7 @@ namespace Reference.Api.Controllers;
 public sealed class GarmentPartOperationsController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Policy = "CatalogRead")]
     [ProducesResponseType(typeof(List<GarmentPartOperationRowDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

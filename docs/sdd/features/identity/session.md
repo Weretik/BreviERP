@@ -1,49 +1,46 @@
 # User Session
 
-**Static code review:** 2026-10-16. **Module:** identity.
+**Module:** identity.
 
-Login, refresh, logout, and `me`.
+Browser sign-in for Admin with the Identity session cookie: login, logout and `me`. The [flow](../../architecture/security/authentication/session-flow.md) describes cookies, CSRF, lockout and the first administrator.
 
 ## Structure and relationships
 
-[AuthSessionController](../../../../src/Modules/Identity/Identity.Api/Identity.Api/Controllers/AuthSessionController.cs) calls the [login handler](../../../../src/Modules/Identity/Identity.Application/Identity.Application/Features/Auth/SessionLogin/SessionLoginCommandHandler.cs) and neighboring handlers. [IdentitySessionService](../../../../src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/Services/IdentitySessionService.cs) and [Identity DbContext](../../../../src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/DataBase/AppIdentityDbContext.cs) own session and user state; see the [flow](../../architecture/security/authentication/session-flow.md) for cookie and CSRF rules.
+[CookieAuthController](../../../../src/Modules/Identity/Identity.Api/Identity.Api/Controllers/CookieAuthController.cs) and [AuthSessionController](../../../../src/Modules/Identity/Identity.Api/Identity.Api/Controllers/AuthSessionController.cs) send commands to handlers in `Features/Auth`, which call [CookieSessionService](../../../../src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/Services/Sessions/CookieSessionService.cs) (`SignInManager`). [SessionCookieWriter](../../../../src/Modules/Identity/Identity.Api/Identity.Api/Cookies/SessionCookieWriter.cs) writes the CSRF cookie, and Host.Api's [CookieCsrfMiddleware](../../../../src/Bootstrapper/Host.Api/Security/Csrf/CookieCsrfMiddleware.cs) checks it. [IdentityAuthenticationExtensions](../../../../src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/DependencyInjection/IdentityAuthenticationExtensions.cs) configures the cookie; Data Protection keys live in [AppIdentityDbContext](../../../../src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/DataBase/AppIdentityDbContext.cs).
 
 ## Code structure
 
-The following are verified entry points and key feature components; the tree does not list every supporting file.
-
 ```text
 src/
+├── Bootstrapper/Host.Api/Security/
+│   ├── Csrf/CookieCsrfMiddleware.cs                 # CSRF header check for cookie sessions
+│   └── TrustedProxy/TrustedProxyClientIpMiddleware.cs # client IP from the Cloudflare Worker
 └── Modules/Identity/
-    ├── Identity.Api/Identity.Api/Controllers/AuthSessionController.cs  # HTTP entry point
+    ├── Identity.Api/Identity.Api/
+    │   ├── Controllers/CookieAuthController.cs      # login, logout
+    │   ├── Controllers/AuthSessionController.cs     # me
+    │   └── Cookies/SessionCookieWriter.cs           # CSRF cookie
     ├── Identity.Application/Identity.Application/Features/Auth/
-    │   ├── SessionLogin/SessionLoginCommandHandler.cs  # use-case handler
-    │   ├── SessionLogout/SessionLogoutCommandHandler.cs  # use-case handler
-    │   ├── SessionMe/SessionMeQueryHandler.cs  # use-case handler
-    │   └── SessionRefresh/SessionRefreshCommandHandler.cs  # use-case handler
+    │   ├── CookieLogin/                             # command, handler, validator
+    │   ├── CookieLogout/
+    │   └── SessionMe/
     └── Identity.Infrastructure/Identity.Infrastructure/
-        ├── DataBase/AppIdentityDbContext.cs  # data context
-        └── Services/IdentitySessionService.cs  # infrastructure implementation
-```
-
-## Structure diagram
-
-```mermaid
-flowchart LR
-    A["AuthSessionController"] --> B["SessionLoginCommandHandler and other handlers"]
-    B --> C["IdentitySessionService"]
-    C --> D["AppIdentityDbContext"]
-    A --> E["Cookie and CSRF"]
+        ├── DependencyInjection/IdentityAuthenticationExtensions.cs # cookie scheme, 401/403
+        ├── DependencyInjection/IdentityDbContextExtensions.cs      # lockout, password, Data Protection
+        ├── Services/Sessions/CookieSessionService.cs
+        └── Seeders/IdentitySeeder.cs                # first administrator
 ```
 
 ## Tests
 
-- `tests/UnitTests/SessionOpenApiContractTests.cs` (contract shape only; no behavior tests for login, `refresh`, `or logout yet)`
+- `tests/IntegrationTests/Identity/CookieAuthApiTests.cs`: login sets both cookies, `me`, wrong password, `401` without session, CSRF check on logout, old token endpoints gone. Real Identity on PostgreSQL (`BREVIERP_CATALOG_TEST_CONNECTION`).
+- `tests/HostApiTests/TrustedProxyClientIpMiddlewareTests.cs`, `tests/HostApiTests/ApiAccessTests.cs`.
+- `tests/UnitTests/SessionOpenApiContractTests.cs`: contract shape.
 
-Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter SessionOpenApiContract`.
+Focused runs: `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IntegrationTests.Identity`, `dotnet test tests/HostApiTests/HostApiTests.csproj`.
 
 **Data:** [identity schema](../../architecture/data-model/identity.md)
 
 ## Related sources
 
-[OpenAPI](../../contracts/identity/session.openapi.yaml).
+[OpenAPI](../../contracts/identity/session.openapi.yaml), [Cloudflare API proxy](../../operations/deployment/cloudflare-api-proxy.md).

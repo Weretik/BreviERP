@@ -17,7 +17,7 @@ namespace Reference.Api.Controllers;
 public sealed class PricingParametersController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Policy = "CatalogRead")]
     [ProducesResponseType(typeof(List<PricingParameterRowDTO>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<PricingParameterRowDTO>>> Get(CancellationToken cancellationToken)
         => this.ToActionResult(await sender.Send(new GetPricingParametersQuery(), cancellationToken));

@@ -15,7 +15,7 @@ dotnet restore BreviERP.sln
 dotnet run --project src/Bootstrapper/Host.Api/Host.Api.csproj --launch-profile https
 ```
 
-The `https` profile listens on `https://localhost:7142` and `http://localhost:5231`. Use the HTTPS address when checking authentication/refresh: the refresh cookie is configured for secure use.
+The `https` profile listens on `https://localhost:7142` and `http://localhost:5231`. Use the HTTPS address when checking sign-in: the `__Host-brevi.session` cookie is `Secure`.
 
 For an HTTP-only endpoint check, use the `http` profile:
 

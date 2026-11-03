@@ -1,10 +1,9 @@
 using Identity.Infrastructure.Contracts;
 using Identity.Infrastructure.DataBase;
 using Identity.Infrastructure.Entities;
-using Identity.Infrastructure.Options;
 using Identity.Infrastructure.Security;
 using Identity.Infrastructure.Seeders;
-using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace Identity.Infrastructure.DependencyInjection;
 
@@ -14,36 +13,35 @@ public static class IdentityDbContextExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var sessionSecurityOptions = configuration
-            .GetSection(IdentitySessionSecurityOptions.SectionName)
-            .Get<IdentitySessionSecurityOptions>() ?? new IdentitySessionSecurityOptions();
-
         services.AddDbContext<AppIdentityDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Default")));
         services.AddScoped<DbContext>(sp => sp.GetRequiredService<AppIdentityDbContext>());
 
+        // Keys live in PostgreSQL so session cookies survive deploys and work on every Cloud Run instance.
         services
-            .AddAuthentication(IdentityConstants.BearerScheme)
-            .AddBearerToken(IdentityConstants.BearerScheme, options =>
-            {
-                options.BearerTokenExpiration = TimeSpan.FromMinutes(sessionSecurityOptions.AccessTokenLifetimeMinutes);
-                options.RefreshTokenExpiration = TimeSpan.FromDays(sessionSecurityOptions.RefreshAbsoluteLifetimeDays);
-            });
+            .AddDataProtection()
+            .PersistKeysToDbContext<AppIdentityDbContext>()
+            .SetApplicationName("BreviERP");
+
+        services.AddIdentityAuthentication(configuration);
 
         services.AddIdentityCore<AppUser>(options =>
             {
                 options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 5;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireLowercase = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
                 options.User.RequireUniqueEmail = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.AllowedForNewUsers = true;
             })
             .AddRoles<AppRole>()
             .AddSignInManager()
             .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
             .AddEntityFrameworkStores<AppIdentityDbContext>()
-            .AddDefaultTokenProviders()
-            .AddApiEndpoints();
+            .AddDefaultTokenProviders();
 
         services.AddScoped<IIdentitySeeder, RoleSeeder>();
         services.AddScoped<IIdentitySeeder, IdentitySeeder>();

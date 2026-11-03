@@ -1,5 +1,5 @@
 # Authentication Module
 
-Use this module for login, bearer access tokens, refresh cookies, CSRF protection, logout, and the current session.
+Use this module for cookie login, CSRF protection, logout, lockout and the current session.
 
 - [Session flow and token lifecycle](session-flow.md)

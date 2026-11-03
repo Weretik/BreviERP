@@ -29,8 +29,9 @@ public static class AuthorizationPoliciesRegistrationExtensions
             options.AddPolicy(PolicyNames.CanManageOrders, policy =>
                 policy.RequireRole(RoleNames.Manager, RoleNames.Admin));
 
+            // The director also holds Admin; the accountant only reads the catalogue for now.
             options.AddPolicy(PolicyNames.CatalogRead, policy =>
-                policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));
+                policy.RequireRole(RoleNames.User, RoleNames.Accountant, RoleNames.Manager, RoleNames.Admin));
 
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));

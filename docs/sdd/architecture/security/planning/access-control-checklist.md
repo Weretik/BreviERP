@@ -36,10 +36,10 @@ Can an anonymous caller create this user?
 
 | Case | Expected result |
 | --- | --- |
-| No Bearer token on a protected route | `401` |
+| No session cookie on a protected route | `401` |
 | Authenticated user without the required role | `403` |
 | Required role and valid request | Success according to the contract |
-| Explicitly anonymous endpoint | Works without a Bearer token only as allowed by its validation |
+| Explicitly anonymous endpoint | Works without a session cookie only as allowed by its validation |
 | Refresh without a CSRF value or with a mismatched value | `400` |
 
 After changing roles or policies, verify a new login. Tokens contain role claims from the time they were issued, so separately check sessions created before the change if deployment requires an immediate effect.

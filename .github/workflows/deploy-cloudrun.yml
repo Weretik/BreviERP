@@ -34,6 +34,9 @@ env:
   TELEGRAM_TOKEN_SECRET: telegram-reminders-bot-token
   KEEPIN_API_KEY_SECRET: keepincrm-api-key
   TELEGRAM_WEBHOOK_SECRET: telegram-reminders-webhook-secret
+  # Sign-in: the first administrator's password (seed job) and the Cloudflare Worker secret (API).
+  ADMIN_PASSWORD_SECRET: admin-default-password
+  API_PROXY_SECRET: api-proxy-shared-secret
 
 jobs:
   verify:
@@ -119,6 +122,7 @@ jobs:
             --max-retries 1 \
             --tasks 1 \
             --parallelism 1 \
+            --update-secrets "ADMIN_DEFAULT_PASSWORD=${ADMIN_PASSWORD_SECRET}:latest" \
             --quiet
 
       - name: Create or update Telegram reminders job
@@ -178,6 +182,7 @@ jobs:
           SECRETS="${SECRETS},Reminders__Telegram__BotToken=${TELEGRAM_TOKEN_SECRET}:latest"
           SECRETS="${SECRETS},Reminders__Telegram__WebhookSecret=${TELEGRAM_WEBHOOK_SECRET}:latest"
           SECRETS="${SECRETS},KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest"
+          SECRETS="${SECRETS},TrustedProxy__SharedSecret=${API_PROXY_SECRET}:latest"
           gcloud run deploy "$API_SERVICE" \
             --image "$API_IMAGE" \
             --region "$GCP_REGION" \

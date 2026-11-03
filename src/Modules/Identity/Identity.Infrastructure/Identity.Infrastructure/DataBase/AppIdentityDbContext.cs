@@ -1,12 +1,14 @@
 using Identity.Infrastructure.Entities;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 
 namespace Identity.Infrastructure.DataBase;
 
 public class AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options)
     : IdentityDbContext<AppUser, AppRole, int, IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>,
-        IdentityRoleClaim<int>, IdentityUserToken<int>>(options)
+        IdentityRoleClaim<int>, IdentityUserToken<int>>(options), IDataProtectionKeyContext
 {
-    public DbSet<AppRefreshSession> RefreshSessions => Set<AppRefreshSession>();
+    // Data Protection keys sign the session cookie; shared by every Cloud Run instance.
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
