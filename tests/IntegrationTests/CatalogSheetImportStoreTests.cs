@@ -368,14 +368,25 @@ internal sealed class SheetImportHost(WebApplication app, HttpClient client, str
 
     public HttpClient Client { get; } = client;
 
+    private static string HostApiSettingsPath()
+    {
+        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
+        {
+            var path = Path.Combine(dir.FullName, "src", "Bootstrapper", "Host.Api", "appsettings.json");
+            if (File.Exists(path)) return path;
+        }
+        throw new FileNotFoundException("Host.Api appsettings.json was not found above the test output.");
+    }
+
     public static async Task<SheetImportHost> CreateAsync(string connection)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Testing" });
         builder.WebHost.UseTestServer();
         builder.Logging.ClearProviders().AddSimpleConsole();
-        // The Host.Api appsettings.json (copied to the test output) with the database pointed at the test database.
+        // The Host.Api appsettings.json with the database pointed at the test database. It is read from the source
+        // tree: the copy in the test output can be Host.Seed's file, which lacks the API sections.
         builder.Configuration.Sources.Clear();
-        builder.Configuration.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"), optional: false);
+        builder.Configuration.AddJsonFile(HostApiSettingsPath(), optional: false);
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["ConnectionStrings:Default"] = connection,
