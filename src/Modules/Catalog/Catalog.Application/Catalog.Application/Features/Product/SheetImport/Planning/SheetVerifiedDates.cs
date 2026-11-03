@@ -13,10 +13,11 @@ public static class SheetVerifiedDates
 
     public static DateOnly Today(DateTimeOffset now) => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, Kyiv).DateTime);
 
+    /// <summary>Kyiv midnight as a UTC instant: PostgreSQL <c>timestamptz</c> accepts only offset 0.</summary>
     public static DateTimeOffset KyivMidnight(DateOnly date)
     {
         var midnight = date.ToDateTime(TimeOnly.MinValue);
-        return new DateTimeOffset(midnight, Kyiv.GetUtcOffset(midnight));
+        return new DateTimeOffset(midnight, Kyiv.GetUtcOffset(midnight)).ToUniversalTime();
     }
 
     public static string Format(DateOnly date)

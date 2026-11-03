@@ -193,6 +193,13 @@ public sealed class CatalogSheetImportTests
             Assert.That(verified.MaterialLines.Count + verified.OperationLines.Count, Is.EqualTo(6));
             Assert.That(verified.MaterialLines.All(x => x.IsReviewed && x.ReviewedBy == SheetProductApplier.Reviewer), Is.True);
             Assert.That(verified.OperationLines.All(x => x.IsReviewed && x.ReviewedAt == new DateTimeOffset(2026, 9, 7, 21, 0, 0, TimeSpan.Zero)), Is.True);
+            // Npgsql writes timestamptz only from a UTC offset.
+            Assert.That(verified.MaterialLines.Concat<object>(verified.OperationLines).Select(x => x switch
+            {
+                Catalog.Domain.Products.Entities.SewingMaterialLine m => m.ReviewedAt!.Value.Offset,
+                Catalog.Domain.Products.Entities.SewingOperationLine o => o.ReviewedAt!.Value.Offset,
+                _ => TimeSpan.MaxValue
+            }), Is.All.EqualTo(TimeSpan.Zero));
             Assert.That(verified.GetCalculationReadinessBlockers(verified.Articles.First().Id), Is.Empty);
             Assert.That(unchecked_.OperationLines.Any(x => x.IsReviewed), Is.False);
             Assert.That(unchecked_.GetCalculationReadinessBlockers(), Is.Not.Empty);
