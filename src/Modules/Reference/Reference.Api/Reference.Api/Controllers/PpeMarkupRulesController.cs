@@ -15,7 +15,7 @@ namespace Reference.Api.Controllers;
 public sealed class PpeMarkupRulesController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Policy = "CatalogRead")]
     [ProducesResponseType(typeof(List<PpeMarkupRuleRowDTO>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<PpeMarkupRuleRowDTO>>> Get(CancellationToken cancellationToken)
         => this.ToActionResult(await sender.Send(new GetPpeMarkupRulesQuery(), cancellationToken));

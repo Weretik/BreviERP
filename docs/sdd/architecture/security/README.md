@@ -4,7 +4,7 @@ This architecture area covers user accounts, authentication, authorization, and 
 
 ```text
 security/
-├── authentication/  login, bearer tokens, refresh, logout, and CSRF
+├── authentication/  cookie login, logout, CSRF, first administrator
 ├── authorization/   fallback protection, roles, and named policies
 ├── users/           initial users and registration design
 └── planning/        SDD checklist for access-controlled features

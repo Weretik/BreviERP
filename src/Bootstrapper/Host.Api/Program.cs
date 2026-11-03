@@ -1,5 +1,5 @@
 using System.Globalization;
-using Host.Api.Security.AnonymousApiAccess;
+using Host.Api.DependencyInjection.ServiceRegistration.Web;
 using Microsoft.AspNetCore.Localization;
 using Host.Api.Crm.Files;
 using Host.Api.Crm.Documents;
@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilog();
 builder.Services.AddHostServices(builder.Configuration);
-builder.Services.AddAnonymousApiAccess(builder.Configuration);
 builder.Services.AddCrmPrivateFiles(builder.Configuration, builder.Environment);
 builder.Services.AddCrmQuoteDocuments(builder.Configuration, builder.Environment);
 builder.Services.AddCrmDeliveryWorker();
@@ -26,6 +25,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.MapOpenApi().AllowAnonymous();
 }
 else
 {
@@ -34,8 +36,8 @@ else
     app.UseHsts();
 }
 
-app.UseApiDocumentation();
 app.UseForwardedHeaders();
+app.UseTrustedProxyClientIp();
 app.UseRequestLocalization();
 app.UseCors("Frontend");
 app.UseHttpsRedirection();
@@ -53,11 +55,11 @@ app.Use(async (context, next) =>
     }
 });
 app.UseRateLimiter();
+app.UseCookieCsrfProtection();
 app.UseAuthentication();
-app.UseAnonymousApiAccess();
 app.UseAuthorization();
 
-app.MapApiControllers();
+app.MapControllers();
 app.MapHealthChecks("/health").AllowAnonymous();
 
 app.Run();

@@ -1,4 +1,10 @@
 using System.Net;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Ardalis.Result;
@@ -24,7 +30,7 @@ namespace IntegrationTests;
 public sealed class ProductsApiTests
 {
     [Test]
-    public async Task List_is_anonymous_and_returns_main_photo_and_minimum_wholesale_price()
+    public async Task List_returns_main_photo_and_minimum_wholesale_price()
     {
         await using var host = await TestHost.CreateAsync();
         host.Sender.Setup(x => x.Send(It.IsAny<GetAdminProductsQuery>(), It.IsAny<CancellationToken>()))
@@ -212,6 +218,34 @@ public sealed class ProductsApiTests
             [new(10, "https://cdn.test/main.jpg", null, true, true, 0), new(11, "https://cdn.test/second.jpg", "Second", true, false, 1)], [], [], null,
             new(new(7, "Supplier"), 100m, new(Catalog.Application.Contracts.Admin.Ppe.PpePercentSource.Custom, null, 25.5m), new(Catalog.Application.Contracts.Admin.Ppe.PpePercentSource.Custom, null, 15.25m), 0m, 0m), DateTimeOffset.UtcNow, null);
 
+    [Test]
+    public async Task List_requires_a_signed_in_staff_user()
+    {
+        await using var host = await TestHost.CreateAsync();
+        host.Client.DefaultRequestHeaders.Add("X-Test-Anonymous", "1");
+
+        var response = await host.Client.GetAsync("/api/v1/products");
+
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+        host.Sender.VerifyNoOtherCalls();
+    }
+
+    /// <summary>Signs every request in as a Manager unless it sends X-Test-Anonymous.</summary>
+    private sealed class ManagerAuthenticationHandler(
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+    {
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            if (Request.Headers.ContainsKey("X-Test-Anonymous"))
+                return Task.FromResult(AuthenticateResult.NoResult());
+            var principal = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.NameIdentifier, "7"), new Claim(ClaimTypes.Role, "Manager")], Scheme.Name));
+            return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name)));
+        }
+    }
+
     private sealed class TestHost(WebApplication app, HttpClient client, Mock<ISender> sender) : IAsyncDisposable
     {
         public HttpClient Client { get; } = client;
@@ -223,9 +257,14 @@ public sealed class ProductsApiTests
             var builder = WebApplication.CreateBuilder();
             builder.WebHost.UseTestServer();
             builder.Services.AddSingleton(sender.Object);
+            builder.Services.AddAuthentication("Test")
+                .AddScheme<AuthenticationSchemeOptions, ManagerAuthenticationHandler>("Test", _ => { });
+            builder.Services.AddAuthorizationPolicies();
             builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly);
 
             var app = builder.Build();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.MapControllers();
             await app.StartAsync();
             return new(app, app.GetTestClient(), sender);

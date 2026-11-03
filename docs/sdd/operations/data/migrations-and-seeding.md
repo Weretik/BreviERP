@@ -22,9 +22,9 @@ Catalog, Identity, Reference, and Accounting module contexts are implemented. Ru
 ## Current Identity seeding
 
 - `RoleSeeder` ensures the `Admin`, `Manager`, and `User` roles exist.
-- `IdentitySeeder` creates the configured administrator only when absent and `ADMIN_DEFAULT_PASSWORD` is set.
+- `IdentitySeeder` creates `Identity:AdminUser:Email` (`admin@brevi.com.ua`) as Admin when that email has no account and `ADMIN_DEFAULT_PASSWORD` is set. Other existing users do not stop it. It never changes an existing password; it only aligns `LockoutEnabled`.
 
-The password is not read from `Identity:AdminUser:DefaultPassword`; the seeder reads `ADMIN_DEFAULT_PASSWORD`. If the value is absent, administrator creation is skipped and this state is logged.
+The password comes only from `ADMIN_DEFAULT_PASSWORD` (Secret Manager `admin-default-password`, attached to the `brevierp-seed` job by the deploy workflow). If the value is absent, administrator creation is skipped and this state is logged. Change the password later on the «Користувачі» page, not by changing the secret.
 
 ## Media
 
@@ -69,12 +69,14 @@ The one-time product transfer from the Calculator sheet ([CAT-010](../../specs/c
 2. Sign in as a product manager and run the preview (PowerShell):
 
    ```powershell
-   $api = "https://brevierp-api-443622778364.europe-central2.run.app"
-   $login = Invoke-RestMethod -Method Post -Uri "$api/api/auth/session/login" -ContentType "application/json" `
-     -Body (@{ email = "<manager e-mail>"; password = Read-Host "Password" } | ConvertTo-Json)
-   $headers = @{ Authorization = "Bearer $($login.accessToken)" }
+   $api = "https://api.brevi.com.ua"
+   $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+   Invoke-RestMethod -Method Post -Uri "$api/api/auth/cookie/login" -WebSession $session -ContentType "application/json" `
+     -Body (@{ email = "<manager e-mail>"; password = Read-Host "Password" } | ConvertTo-Json) | Out-Null
+   $csrf = ($session.Cookies.GetCookies($api) | Where-Object Name -eq "brevi.csrf").Value
+   $headers = @{ "X-CSRF-Token" = $csrf }
    $body = [System.IO.File]::ReadAllText("out\products-import.json", [System.Text.Encoding]::UTF8)
-   $report = Invoke-RestMethod -Method Post -Uri "$api/api/v1/products/sheet-import" -Headers $headers `
+   $report = Invoke-RestMethod -Method Post -Uri "$api/api/v1/products/sheet-import" -WebSession $session -Headers $headers `
      -ContentType "application/json; charset=utf-8" -Body ([System.Text.Encoding]::UTF8.GetBytes($body))
    $report | ConvertTo-Json -Depth 6 | Out-File -Encoding utf8 out\products-import-preview.json
    ```
@@ -85,7 +87,7 @@ The one-time product transfer from the Calculator sheet ([CAT-010](../../specs/c
 
    ```powershell
    $apply = $body -replace '"dryRun":\s*true', '"dryRun": false'
-   Invoke-RestMethod -Method Post -Uri "$api/api/v1/products/sheet-import" -Headers $headers `
+   Invoke-RestMethod -Method Post -Uri "$api/api/v1/products/sheet-import" -WebSession $session -Headers $headers `
      -ContentType "application/json; charset=utf-8" -Body ([System.Text.Encoding]::UTF8.GetBytes($apply)) |
      ConvertTo-Json -Depth 6
    ```

@@ -20,7 +20,7 @@ namespace Catalog.Api.Controllers;
 public sealed class ProductOverviewController(ISender sender) : ControllerBase
 {
     [HttpGet("overview")]
-    [AllowAnonymous]
+    [Authorize(Policy = "CatalogRead")]
     [ProducesResponseType(typeof(IReadOnlyList<ProductOverviewRow>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyList<ProductOverviewRow>>> Get(
