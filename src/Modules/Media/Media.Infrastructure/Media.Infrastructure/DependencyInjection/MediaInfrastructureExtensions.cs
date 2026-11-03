@@ -1,5 +1,8 @@
 using BuildingBlocks.Infrastructure.Migrations;
 using Media.Application.Abstractions;
+using Media.Application.Files.BackfillImages;
+using Media.Application.Files.Images;
+using Media.Infrastructure.Images;
 using Media.Infrastructure.Persistence;
 using Media.Infrastructure.Storage;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -8,7 +11,7 @@ namespace Media.Infrastructure.DependencyInjection;
 
 public static class MediaInfrastructureExtensions
 {
-    /// <summary>DbContext, migrator, CDN storage and upload limits of the photo library.</summary>
+    /// <summary>DbContext, migrator, CDN storage, previews and upload limits of the photo library.</summary>
     public static IServiceCollection AddMediaInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
@@ -19,12 +22,16 @@ public static class MediaInfrastructureExtensions
 
         services.AddOptions<MediaUploadSettings>()
             .Bind(configuration.GetSection(MediaUploadSettings.Section))
-            .Validate(x => x.MaxFileSizeBytes > 0 && !string.IsNullOrWhiteSpace(x.BaseFolder),
-                "MediaUpload:MaxFileSizeBytes must be greater than zero and BaseFolder must be configured.");
+            .Validate(x => x.MaxFileSizeBytes > 0 && !string.IsNullOrWhiteSpace(x.BaseFolder)
+                    && !string.IsNullOrWhiteSpace(x.ThumbnailFolder) && x.ThumbnailMaxSize > 0,
+                "MediaUpload:MaxFileSizeBytes and ThumbnailMaxSize must be greater than zero; BaseFolder and ThumbnailFolder must be configured.");
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<MediaUploadSettings>>().Value);
 
         services.AddAdmToolsHttpClient(configuration);
         services.AddSingleton<IMediaStorage, AdmToolsMediaStorage>();
+        services.AddSingleton<IMediaImageProcessor, SkiaMediaImageProcessor>();
+        services.AddScoped<MediaImagePreparer>();
+        services.AddScoped<MediaImageBackfill>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

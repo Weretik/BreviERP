@@ -48,6 +48,14 @@ public sealed class MediaFile
     public string PublicUrl { get; private set; } = null!;
     public int? Width { get; private set; }
     public int? Height { get; private set; }
+
+    /// <summary>Small WebP preview on the CDN; null when the photo is already small or could not be read.</summary>
+    public string? ThumbnailStorageKey { get; private set; }
+
+    public string? ThumbnailUrl { get; private set; }
+
+    /// <summary>When dimensions and the preview were made; null for photos the nightly backfill has not reached yet.</summary>
+    public DateTimeOffset? ImageProcessedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
@@ -63,6 +71,19 @@ public sealed class MediaFile
     {
         FolderId = folderId;
         UpdatedAt = now;
+    }
+
+    /// <summary>Records the image size and preview. Unreadable images keep null values but count as processed.</summary>
+    public void SetImage(int? width, int? height, string? thumbnailStorageKey, string? thumbnailUrl, DateTimeOffset now)
+    {
+        if (width is <= 0 || height is <= 0) throw new ArgumentOutOfRangeException(nameof(width), "Image size must be positive.");
+        if ((thumbnailStorageKey is null) != (thumbnailUrl is null))
+            throw new ArgumentException("Thumbnail key and URL go together.", nameof(thumbnailUrl));
+        Width = width;
+        Height = height;
+        ThumbnailStorageKey = thumbnailStorageKey?.Trim();
+        ThumbnailUrl = thumbnailUrl?.Trim();
+        ImageProcessedAt = now;
     }
 
     private static string? NormalizeAlt(string? alt)

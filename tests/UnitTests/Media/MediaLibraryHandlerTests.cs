@@ -91,8 +91,7 @@ public sealed class MediaLibraryHandlerTests
         using var media = new MediaTestHarness();
         await using var content = new MemoryStream(MediaTestHarness.Jpeg);
 
-        var result = await new UploadMediaFileCommandHandler(media.Db, media.Storage, media.Settings, media.Time,
-                Microsoft.Extensions.Logging.Abstractions.NullLogger<UploadMediaFileCommandHandler>.Instance)
+        var result = await media.UploadHandler()
             .Handle(new UploadMediaFileCommand(content, "a.jpg", "image/jpeg", 12, 999), CancellationToken.None);
 
         Assert.Multiple(() =>

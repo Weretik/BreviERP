@@ -75,6 +75,18 @@ public sealed class AdmToolsMediaStorage(
         logger.LogInformation("Media file deleted from adm.tools. StorageKey: {StorageKey}", storageKey);
     }
 
+    public async Task<byte[]> DownloadAsync(string publicUrl, CancellationToken cancellationToken)
+    {
+        if (!Uri.TryCreate(publicUrl, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+            throw new AdmToolsStorageException($"Public URL '{publicUrl}' is not an absolute HTTPS address.");
+
+        var client = httpClientFactory.CreateClient(AdmToolsHttpClientRegistrationExtensions.HttpClientName);
+        using var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+            throw new AdmToolsStorageException($"Download of '{publicUrl}' failed with HTTP {(int)response.StatusCode}.");
+        return await response.Content.ReadAsByteArrayAsync(cancellationToken);
+    }
+
     private async Task UploadInternalAsync(
         Stream fileStream,
         string storageKey,
