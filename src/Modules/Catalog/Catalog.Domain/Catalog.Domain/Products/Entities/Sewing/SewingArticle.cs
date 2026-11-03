@@ -19,4 +19,12 @@ public sealed class SewingArticle
         if (sortOrder < 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(SortOrder)));
         return new SewingArticle { Id = id, ProductId = productId, SaleSku = saleSku.Trim(), IsActive = isActive, SortOrder = sortOrder };
     }
+
+    /// <summary>Changes the activity and the position of a kept article; the sale SKU and ID stay.</summary>
+    internal void SetState(bool isActive, int sortOrder)
+    {
+        if (sortOrder < 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(SortOrder)));
+        IsActive = isActive;
+        SortOrder = sortOrder;
+    }
 }

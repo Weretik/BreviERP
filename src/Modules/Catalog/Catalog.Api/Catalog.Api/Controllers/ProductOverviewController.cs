@@ -6,6 +6,8 @@ using Catalog.Application.Features.Product.Overview.GetList;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
 using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Application.Features.Product.Overview.Update;
+using Catalog.Application.Features.Product.SheetImport;
+using Catalog.Application.Features.Product.SheetImport.DTOs;
 using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Api.Controllers;
@@ -67,6 +69,26 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
         return result.IsSuccess
             ? StatusCode(StatusCodes.Status201Created, result.Value)
             : this.ToActionResult(result);
+    }
+
+    /// <summary>
+    /// One-time import of all products from the Calculator sheet (CAT-010): dryRun returns the report; otherwise the
+    /// products are saved in one transaction when the report has no problem. With deleteMissing, products that are
+    /// not in the sheet are deleted.
+    /// </summary>
+    [HttpPost("sheet-import", Name = "importSheetProducts")]
+    [Authorize(Policy = "CanManageProducts")]
+    [ProducesResponseType(typeof(SheetImportReport), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<SheetImportReport>> ImportSheet(
+        [FromBody] ImportSheetProductsRequest request, CancellationToken cancellationToken)
+    {
+        var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(actor)) return Forbid();
+        return this.ToActionResult(await sender.Send(new ImportSheetProductsCommand(request.Sewing, request.Ppe,
+            request.DryRun, request.DeleteMissing, actor), cancellationToken));
     }
 
     [HttpGet("overview/code-check", Name = "getProductCodeCheck")]

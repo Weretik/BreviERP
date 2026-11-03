@@ -51,3 +51,41 @@ The [frozen-source pricing input review](pricing-input-review.md) compares curre
 ## CRM clients
 
 The [CRM-only local migration mode](crm-clients.md) plans/applies only the client schema through Host.Seed without unrelated seeders or data import. Normal deployment migration registration also includes Crm.
+
+## Sheet product import
+
+The one-time product transfer from the Calculator sheet ([CAT-010](../../specs/catalog/010-sheet-product-import/README.md)) runs through the API, not Host.Seed. It needs no migration. A preview never writes; the apply call writes everything in one transaction or nothing. Run the Reference imports (sections, fabrics, accessories, operations, suppliers, PPE rules) first: the product import only resolves codes that already exist.
+
+1. Generate the body from the client's workbook. The script writes `products-import.json` (with `dryRun: true`, `deleteMissing: true`) and `products-import-summary.md`:
+
+   ```bash
+   python3 -I /mnt/project-files/brevi-calculator-references/transfer/products_rows.py brevi.xlsx out/
+   ```
+
+2. Sign in as a product manager and run the preview (PowerShell):
+
+   ```powershell
+   $api = "https://brevierp-api-443622778364.europe-central2.run.app"
+   $login = Invoke-RestMethod -Method Post -Uri "$api/api/auth/session/login" -ContentType "application/json" `
+     -Body (@{ email = "<manager e-mail>"; password = Read-Host "Password" } | ConvertTo-Json)
+   $headers = @{ Authorization = "Bearer $($login.accessToken)" }
+   $body = [System.IO.File]::ReadAllText("out\products-import.json", [System.Text.Encoding]::UTF8)
+   $report = Invoke-RestMethod -Method Post -Uri "$api/api/v1/products/sheet-import" -Headers $headers `
+     -ContentType "application/json; charset=utf-8" -Body ([System.Text.Encoding]::UTF8.GetBytes($body))
+   $report | ConvertTo-Json -Depth 6 | Out-File -Encoding utf8 out\products-import-preview.json
+   ```
+
+3. Review the preview with the owner: `sewing` and `ppe` counts, every row of `toDelete` (old products that will be deleted), `problems` (must be empty to apply) and `warnings` (imported anyway: unknown rule, no supplier price or link). Fix problems in the sheet and repeat steps 1–3.
+
+4. Apply: set `dryRun` to false and send the same body. `applied: true` means everything was saved; a 409 means nothing was saved, so repeat the preview.
+
+   ```powershell
+   $apply = $body -replace '"dryRun":\s*true', '"dryRun": false'
+   Invoke-RestMethod -Method Post -Uri "$api/api/v1/products/sheet-import" -Headers $headers `
+     -ContentType "application/json; charset=utf-8" -Body ([System.Text.Encoding]::UTF8.GetBytes($apply)) |
+     ConvertTo-Json -Depth 6
+   ```
+
+5. Check: a second preview of the same body reports every row as unchanged and an empty `toDelete`.
+
+Rollback: there is no undo endpoint. Take a database backup before step 4; deleted products, their photos, categories and PPE price history come back only from it.

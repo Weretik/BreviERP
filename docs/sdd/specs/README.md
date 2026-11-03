@@ -13,6 +13,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [007 Sewing product card](catalog/007-sewing-product-card/README.md) | backend implemented 2026-11-03 |
 | Catalog  | [008 PPE product card](catalog/008-ppe-product-card/README.md) | backend implemented 2026-11-03 |
 | Catalog  | [009 Product creation from the Admin pages](catalog/009-product-create-pages/README.md) | backend implemented 2026-11-03 |
+| Catalog  | [010 Product import from the Calculator sheet](catalog/010-sheet-product-import/README.md) | backend implemented 2026-11-03, not applied |
 | Content  | [001 «Контент сайту» site content](content/001-site-content/README.md) | planned only (draft) |
 | Quotes   | [001 «Розрахунок КП» quote calculation](quotes/001-quote-calculation/README.md) | planned only (draft) |
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |

@@ -10,7 +10,10 @@ public sealed class PpeOfferVersionWriter(CatalogDbContext db) : IPpeOfferVersio
 {
     public async Task<Result<PpeOfferVersion>> AppendAsync(int productId, Guid? expectedVersionId, Guid requestId, PpeOfferValues values, string actor, CancellationToken cancellationToken)
     {
-        await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted, cancellationToken);
+        // Joins the caller's transaction (sheet import) when there is one; otherwise owns its own.
+        await using var transaction = db.Database.CurrentTransaction is null
+            ? await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted, cancellationToken)
+            : null;
         await db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_xact_lock(681025006)", cancellationToken);
         var json = JsonSerializer.Serialize(values);
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { productId, expectedVersionId, values, actor }))));
@@ -28,7 +31,7 @@ public sealed class PpeOfferVersionWriter(CatalogDbContext db) : IPpeOfferVersio
             ValuesJson = json, ApprovedBy = actor, ApprovedAt = now, CreatedAt = now, ProductId = Catalog.Domain.Products.ValueObjects.ProductId.Create(productId), };
         db.Add(record);
         await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
         return Result.Success(record.ToVersion());
     }
 }
