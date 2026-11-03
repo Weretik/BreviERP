@@ -20,6 +20,7 @@ using Npgsql;
 using Reference.Domain.Suppliers.Entities;
 using Reference.Domain.Suppliers.ValueObjects;
 using Reference.Infrastructure.DataBase;
+using BuildingBlocks.Domain.ValueObjects;
 
 namespace IntegrationTests;
 
@@ -96,6 +97,16 @@ public sealed class CatalogSheetImportStoreTests
             Assert.That(detail.StatusCode, Is.EqualTo(HttpStatusCode.OK), $"product {id}: {await detail.Content.ReadAsStringAsync()}");
         }
 
+        // The sewing card loads the shared and every Article's composition.
+        foreach (var (productId, articleId) in await _database.PairsAsync(
+                     "SELECT \"ProductId\", \"Id\" FROM catalog.\"SewingArticles\" ORDER BY \"Id\""))
+        {
+            var shared = await host.Client.GetAsync($"api/v1/products/{productId}/composition");
+            Assert.That(shared.StatusCode, Is.EqualTo(HttpStatusCode.OK), $"composition {productId}: {await shared.Content.ReadAsStringAsync()}");
+            var article = await host.Client.GetAsync($"api/v1/products/{productId}/composition?articleId={articleId}");
+            Assert.That(article.StatusCode, Is.EqualTo(HttpStatusCode.OK), $"composition {productId}/{articleId}: {await article.Content.ReadAsStringAsync()}");
+        }
+
         var ppe501 = await _database.ScalarAsync<int>("SELECT p.\"Id\" FROM catalog.\"Products\" p JOIN catalog.\"ProductCatalogProfiles\" c ON c.\"ProductId\" = p.\"Id\" WHERE c.\"SaleSku\" = '501'");
         var offer = await host.Client.GetStringAsync($"api/v1/products/{ppe501}/ppe-offer");
         Assert.That(offer, Does.Contain("\"isCalculated\":true").And.Contain("\"retail\":120"), "the PPE card shows the three prices");
@@ -160,47 +171,36 @@ public sealed class CatalogSheetImportStoreTests
     }
 
     [Test]
-    public async Task The_price_list_shows_live_prices_and_recalculation_publishes_and_marks_stale_ones()
+    public async Task Sewing_prices_are_published_automatically_after_an_import_and_after_a_fabric_price_change()
     {
         await using var host = await SheetImportHost.CreateAsync(_database.Connection);
         await SeedReferenceAsync(host);
         var imported = await host.ImportAsync(Body(dryRun: false));
         Assert.That(imported.Problems, Is.Empty, Describe(imported));
 
-        var sewing = await host.Client.GetFromJsonAsync<List<PriceRow>>("api/v1/products/overview/prices?type=Sewing");
-        var model = sewing!.Single(x => x.Articles.Any(a => a.SaleSku == "101"));
-        Assert.Multiple(() =>
-        {
-            Assert.That(model.Status, Is.EqualTo("Unpublished"), string.Join(",", model.Blockers));
-            Assert.That(model.From, Is.Null, "nothing is published yet");
-            Assert.That(model.Articles.Select(x => x.Live), Has.All.Not.Null);
-            Assert.That(model.Articles.Select(x => x.FabricId), Has.All.Not.Null, "each Article is named by its fabric");
-        });
-
-        var before = await _database.FingerprintAsync();
-        var preview = await host.RecalculateAsync(dryRun: true);
+        // The import saved the compositions: their prices are published without any button.
+        var model = (await SewingPricesAsync(host)).Single(x => x.Articles.Any(a => a.SaleSku == "101"));
         Assert.Multiple(async () =>
         {
-            Assert.That(preview.Applied, Is.False);
-            Assert.That(preview.Changes.Select(x => x.SaleSku), Is.SupersetOf(new[] { "101", "102" }));
-            Assert.That(preview.Changes.Select(x => x.Before), Has.All.Null);
-            Assert.That(await _database.FingerprintAsync(), Is.EqualTo(before), "a dry run writes nothing");
-        });
-
-        var applied = await host.RecalculateAsync(dryRun: false);
-        Assert.That(applied.Applied, Is.True);
-        model = (await host.Client.GetFromJsonAsync<List<PriceRow>>("api/v1/products/overview/prices?type=Sewing"))!
-            .Single(x => x.ProductId == model.ProductId);
-        Assert.Multiple(() =>
-        {
-            Assert.That(model.Status, Is.EqualTo("Ready"));
+            Assert.That(model.Status, Is.EqualTo("Ready"), string.Join(",", model.Blockers));
             Assert.That(model.From, Is.Not.Null);
             Assert.That(model.PricesUpdatedAt, Is.Not.Null);
+            Assert.That(model.Articles.Select(x => x.FabricId), Has.All.Not.Null, "each Article is named by its fabric");
+            Assert.That(model.Articles.Where(x => x.Active), Has.All.Matches<ArticlePrice>(x => !x.IsStale && x.Published == x.Live));
             Assert.That(model.From!.Retail, Is.EqualTo(model.Articles.Min(x => x.Published!.Retail)));
+            Assert.That(await PublicationsAsync(model.ProductId), Is.EqualTo(2));
+            Assert.That(await _database.ScalarAsync<string>(
+                $"SELECT min(p.\"PublishedBy\") FROM catalog.\"SewingPricePublications\" p JOIN catalog.\"SewingCalculations\" c ON c.\"Id\" = p.\"CalculationId\" WHERE c.\"ProductId\" = {model.ProductId}"),
+                Is.EqualTo(SheetImportHost.Actor), "the history names who made the change");
         });
-        Assert.That((await host.RecalculateAsync(dryRun: true)).Changes, Is.Empty, "a repeat has nothing to publish");
 
-        // The fabric gets more expensive: the published price stays, the model is marked stale.
+        // A repeat import changes nothing, so nothing new is published.
+        var repeat = await host.ImportAsync(Body(dryRun: false));
+        Assert.That(repeat.Problems, Is.Empty, Describe(repeat));
+        Assert.That(await PublicationsAsync(model.ProductId), Is.EqualTo(2));
+
+        // The fabric gets more expensive: the new price is published at once and the old one stays in history.
+        var retail = model.From!.Retail;
         await host.PostOkAsync("api/reference/fabrics/import", new
         {
             dryRun = false, deactivateMissing = false,
@@ -208,15 +208,55 @@ public sealed class CatalogSheetImportStoreTests
                 composition = "100% бавовна", compositionRu = "100% хлопок", density = "200", price = 250m, priceUpdatedAt = "2026-11-03",
                 isActive = true, comment = (string?)null, proposalDescription = (string?)null } }
         });
-        var stale = (await host.Client.GetFromJsonAsync<List<PriceRow>>("api/v1/products/overview/prices?type=Sewing"))!
-            .Single(x => x.ProductId == model.ProductId);
-        var change = (await host.RecalculateAsync(dryRun: true, model.ProductId)).Changes;
-        Assert.Multiple(() =>
+        model = (await SewingPricesAsync(host)).Single(x => x.ProductId == model.ProductId);
+        Assert.Multiple(async () =>
         {
-            Assert.That(stale.Status, Is.EqualTo("Stale"));
-            Assert.That(stale.Articles.Where(x => x.Active), Has.All.Matches<ArticlePrice>(x => x.IsStale && x.Live!.Retail > x.Published!.Retail));
-            Assert.That(change, Has.Count.EqualTo(2));
-            Assert.That(change.Select(x => x.Before), Has.All.Not.Null);
+            Assert.That(model.Status, Is.EqualTo("Ready"));
+            Assert.That(model.From!.Retail, Is.GreaterThan(retail));
+            Assert.That(model.Articles.Where(x => x.Active), Has.All.Matches<ArticlePrice>(x => !x.IsStale));
+            Assert.That(await PublicationsAsync(model.ProductId), Is.EqualTo(4));
+        });
+
+        // A change without a new price (only the name) publishes nothing.
+        await host.PostOkAsync("api/reference/fabrics/import", new
+        {
+            dryRun = false, deactivateMissing = false,
+            rows = new[] { new { rowNumber = 2, code = "FAB-001", name = "Тканина тест нова", nameRu = "Ткань тест", supplierName = "Тканини ТОВ",
+                composition = "100% бавовна", compositionRu = "100% хлопок", density = "200", price = 250m, priceUpdatedAt = "2026-11-03",
+                isActive = true, comment = (string?)null, proposalDescription = (string?)null } }
+        });
+        Assert.That(await PublicationsAsync(model.ProductId), Is.EqualTo(4));
+
+        // A new seamstress salary in «Параметри ціноутворення» reaches the sewing settings and republishes every model.
+        await host.PostOkAsync("api/reference/pricing-parameters/import", new
+        {
+            dryRun = false, deleteMissing = false,
+            parameters = new[] { new { rowNumber = 2, code = "SALARY_SEAMSTRESS", group = "Тест", name = "SALARY_SEAMSTRESS", value = 19000m,
+                unit = "од.", isCalculated = false, updatedOn = "2026-11-03", comment = (string?)null } },
+            ppeMarkupRules = new[] { new { rowNumber = 2, name = "Рукавички тест", retailMarkup = .5m, wholesaleMarkup = .36m,
+                largeWholesaleMarkup = .3m, priceNote = (string?)null, appliesTo = (string?)null } }
+        });
+        Assert.That(await PublicationsAsync(model.ProductId), Is.EqualTo(6));
+
+        // A price saved outside the API (a job or a script) waits for the nightly brevierp-sync step.
+        await using (var seed = SeedServices())
+        {
+            await using (var scope = seed.CreateAsyncScope())
+            {
+                var reference = scope.ServiceProvider.GetRequiredService<ReferenceDbContext>();
+                var fabric = await reference.Fabrics.SingleAsync(x => x.Code == "FAB-001");
+                fabric.SetPrice(MoneyAmount.From(300m), new DateOnly(2026, 11, 4));
+                await reference.SaveChangesAsync();
+            }
+            Assert.That((await SewingPricesAsync(host)).Single(x => x.ProductId == model.ProductId).Status, Is.EqualTo("Stale"));
+
+            await SyncJob.RunAsync(seed, "sewing-prices");
+        }
+        model = (await SewingPricesAsync(host)).Single(x => x.ProductId == model.ProductId);
+        Assert.Multiple(async () =>
+        {
+            Assert.That(model.Status, Is.EqualTo("Ready"));
+            Assert.That(await PublicationsAsync(model.ProductId), Is.EqualTo(8));
         });
 
         var ppe = await host.Client.GetFromJsonAsync<List<PriceRow>>("api/v1/products/overview/prices?type=Ppe");
@@ -233,6 +273,25 @@ public sealed class CatalogSheetImportStoreTests
     private sealed record Tiers(decimal Retail, decimal Wholesale, decimal LargeWholesale);
     private sealed record ArticlePrice(long ArticleId, string SaleSku, bool Active, int? FabricId, Tiers? Published, Tiers? Live, bool IsStale);
     private sealed record PriceRow(int ProductId, string Status, Tiers? From, DateTimeOffset? PricesUpdatedAt, List<string> Blockers, List<ArticlePrice> Articles);
+
+    /// <summary>The Host.Seed services of the nightly job, pointed at the test database.</summary>
+    private ServiceProvider SeedServices()
+    {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Default"] = _database.Connection
+        }).Build();
+        var services = new ServiceCollection().AddLogging();
+        services.AddSingleton<IConfiguration>(configuration);
+        Host.Seed.SeedHostServicesExtensions.AddSeedHostServices(services, configuration);
+        return services.BuildServiceProvider();
+    }
+
+    private static async Task<List<PriceRow>> SewingPricesAsync(SheetImportHost host)
+        => (await host.Client.GetFromJsonAsync<List<PriceRow>>("api/v1/products/overview/prices?type=Sewing"))!;
+
+    private async Task<long> PublicationsAsync(int productId)
+        => await _database.ScalarAsync<long>($"SELECT count(*) FROM catalog.\"SewingPricePublications\" p JOIN catalog.\"SewingCalculations\" c ON c.\"Id\" = p.\"CalculationId\" WHERE c.\"ProductId\" = {productId}");
 
     private async Task<long> OfferCountAsync(int productId)
         => await _database.ScalarAsync<long>($"SELECT count(*) FROM catalog.\"PpePricingOfferVersions\" WHERE \"ProductId\" = {productId}");
@@ -432,6 +491,17 @@ internal sealed class SheetImportDatabase : IAsyncDisposable
         return ids;
     }
 
+    public async Task<List<(int, long)>> PairsAsync(string sql)
+    {
+        await using var connection = new NpgsqlConnection(Connection);
+        await connection.OpenAsync();
+        await using var command = new NpgsqlCommand(sql, connection);
+        await using var reader = await command.ExecuteReaderAsync();
+        var pairs = new List<(int, long)>();
+        while (await reader.ReadAsync()) pairs.Add((reader.GetInt32(0), reader.GetInt64(1)));
+        return pairs;
+    }
+
     public async Task ExecuteAsync(string sql)
     {
         await using var connection = new NpgsqlConnection(Connection);
@@ -520,17 +590,6 @@ internal sealed class SheetImportHost(WebApplication app, HttpClient client, str
         client.Timeout = TimeSpan.FromMinutes(10);
         return new SheetImportHost(app, client, connection);
     }
-
-    public async Task<RecalculationReport> RecalculateAsync(bool dryRun, int? productId = null)
-    {
-        var response = await Client.PostAsJsonAsync("api/v1/pricing/sewing/recalculation",
-            new { productIds = productId is null ? null : new[] { productId.Value }, dryRun });
-        Assert.That(response.IsSuccessStatusCode, Is.True, await response.Content.ReadAsStringAsync());
-        return (await response.Content.ReadFromJsonAsync<RecalculationReport>())!;
-    }
-
-    internal sealed record RecalculationChange(int ProductId, long ArticleId, string SaleSku, object? Before, object After);
-    internal sealed record RecalculationReport(bool Applied, int Unchanged, List<RecalculationChange> Changes, List<object> Blocked);
 
     public Task<HttpResponseMessage> PostAsync(object body) => Client.PostAsJsonAsync("api/v1/products/sheet-import", body);
 

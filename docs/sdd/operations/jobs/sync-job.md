@@ -8,6 +8,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | --- | --- | --- | --- |
 | `keepin-suppliers` | KeepinCRM → Brevi supplier refresh | `keepincrm-api-key` → `KeepinCrm__ApiKey` | [below](#keepin-suppliers) |
 | `keepin-clients` | KeepinCRM → Brevi client refresh | the same key | [below](#keepin-clients) |
+| `sewing-prices` | Publishes Sewing prices whose inputs changed | none | [below](#sewing-prices) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
 
@@ -50,3 +51,11 @@ A run calls `GET /clients?page=N&q[lead_false]=true` until `pagination.total_pag
 Step log: `Received N, created N, updated N, unchanged N, marked not used: ...`.
 
 On demand: `POST /api/crm/customers/keepin-sync` with `{"dryRun": true}` previews and `{"dryRun": false}` applies. The one-time transfer adds `"removeUnlinked": true` (Admin only): Brevi clients without a KeepinCRM link are deleted, those used by quotes are hidden. Always run the preview first.
+
+## sewing-prices
+
+Feature: [Sewing pricing](../../features/catalog/sewing-pricing.md), specification [CAT-012](../../specs/catalog/012-sewing-price-auto-publication/README.md). No secret, no settings.
+
+The API already publishes new prices right after a fabric, accessory, operation, composition or pricing parameter is saved. This step is the safety net: it checks every Sewing model and publishes each active Article whose live price differs from the published one or was never published (actor `nightly-sync`), one transaction per model. It catches changes saved outside the API (jobs, scripts) and automatic runs that failed. On a normal night it publishes nothing. Articles that cannot be calculated keep their published price and are logged with their blocker codes.
+
+Step log: `Published N articles, unchanged N, not calculable N, skipped models: ...`, then one warning per model without a price.

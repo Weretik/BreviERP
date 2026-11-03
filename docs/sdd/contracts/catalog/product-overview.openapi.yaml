@@ -89,7 +89,7 @@ paths:
       description: >-
         CatalogRead. Sewing: for every Article the published (fixed) prices and the live prices calculated from
         today's inputs; isStale when they differ. from is the lowest published price of each tier among active
-        Articles. status is Ready (all published and current), Stale (a published price differs from the live one),
+        Articles. status is Ready (all published and current), Stale (a published price differs from the live one; automatic publication, CAT-012, normally clears it at once),
         Unpublished (a calculable active Article has no published price) or Blocked (no active Article has a price
         or a calculable price; blockers are the calculation codes). PPE: the live price from the current offer and
         rule, pricesUpdatedAt is the offer date, articles is empty. Tiers are 1–9, 10–40 and from 41 pieces.

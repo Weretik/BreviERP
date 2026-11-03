@@ -14,7 +14,7 @@ public sealed class SyncJobCommandTests
         var services = new NoServices();
         var configuration = Configuration(new() { ["sync"] = "true", ["sync-tasks"] = "keepin-suppliers,unknown" });
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Dispatch(services, configuration));
-        Assert.That(exception!.Message, Is.EqualTo("Unknown sync task: unknown. Known: keepin-suppliers, keepin-clients."));
+        Assert.That(exception!.Message, Is.EqualTo("Unknown sync task: unknown. Known: keepin-suppliers, keepin-clients, sewing-prices."));
         Assert.That(services.Calls, Is.Zero);
     }
 
@@ -61,6 +61,26 @@ public sealed class SyncJobCommandTests
         {
             Calls++;
             throw new InvalidOperationException("Unexpected service resolution.");
+        }
+    }
+}
+
+/// <summary>Runs the shared daily sync job (--sync) with the given steps, as Cloud Scheduler does.</summary>
+internal static class SyncJob
+{
+    public static Task RunAsync(IServiceProvider services, string tasks)
+    {
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["sync"] = "true", ["sync-tasks"] = tasks
+        }).Build();
+        var method = Assembly.Load("Host.Seed").GetType("Host.Seed.Jobs.SeedJobDispatcher")!
+            .GetMethod("RunAsync", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!;
+        try { return (Task)method.Invoke(null, [services, configuration])!; }
+        catch (TargetInvocationException exception) when (exception.InnerException is not null)
+        {
+            ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
+            throw;
         }
     }
 }

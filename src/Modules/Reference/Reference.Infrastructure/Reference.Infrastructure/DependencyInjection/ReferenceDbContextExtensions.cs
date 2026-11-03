@@ -1,7 +1,10 @@
+using BuildingBlocks.Application.Pricing;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Application.Contracts.Persistence;
 using Reference.Infrastructure.DataBase;
+using Reference.Infrastructure.Pricing.InputVersions.Changes;
 using Reference.Infrastructure.Repositories;
 using Reference.Infrastructure.Seeders.Fabrics;
 using Reference.Infrastructure.Seeders.GarmentAccessories;
@@ -19,7 +22,10 @@ public static class ReferenceDbContextExtensions
         var connectionString = configuration.GetConnectionString("Default")
                                ?? throw new InvalidOperationException("Missing ConnectionStrings:Default"); ;
 
-        services.AddDbContext<ReferenceDbContext>(options => options.UseNpgsql(connectionString));
+        services.TryAddScoped<PricingInputChanges>();
+        services.AddScoped<ReferencePricingInputChangeInterceptor>();
+        services.AddDbContext<ReferenceDbContext>((provider, options) => options.UseNpgsql(connectionString)
+            .AddInterceptors(provider.GetRequiredService<ReferencePricingInputChangeInterceptor>()));
         services.AddScoped<IReadReferenceDbContext>(sp => sp.GetRequiredService<ReferenceDbContext>());
 
         services.AddScoped(typeof(IReferenceRepository<>), typeof(ReferenceEfRepository<>));

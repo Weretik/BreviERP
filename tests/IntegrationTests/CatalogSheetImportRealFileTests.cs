@@ -83,6 +83,7 @@ public sealed class CatalogSheetImportRealFileTests
             Assert.That(await Count("SewingMaterialLines", "NOT \"IsReviewed\"") + await Count("SewingOperationLines", "NOT \"IsReviewed\""), Is.Zero,
                 "every model of the sheet is checked");
             Assert.That(await Count("PpePricingOfferVersions"), Is.EqualTo(118), "every PPE but 724 has a supplier price");
+            Assert.That(await Count("SewingPricePublications"), Is.EqualTo(248), "every Article price is published by the import");
             Assert.That(await Count("ProductCatalogProfiles", $"\"PricingRuleCode\" IS NULL AND \"ProductId\" IN (SELECT \"Id\" FROM catalog.\"Products\" WHERE \"Type\" = {(int)ProductType.Ppe})"),
                 Is.EqualTo(15), "«Одяг ЗІЗ» (14) and «Захист голови» (1) are not in «Налаштування цін»");
         });

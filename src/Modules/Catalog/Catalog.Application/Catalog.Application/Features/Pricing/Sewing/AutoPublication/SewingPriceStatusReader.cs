@@ -3,11 +3,11 @@ using Catalog.Application.Features.Pricing.Sewing.Evaluation;
 using Catalog.Application.Features.Product.Sewing;
 using Catalog.Domain.Pricing.Sewing;
 
-namespace Catalog.Application.Features.Pricing.Sewing.Recalculation;
+namespace Catalog.Application.Features.Pricing.Sewing.AutoPublication;
 
 /// <summary>
 /// The published and the live price of every Article of the given Sewing models (CAT-011). A live price that differs
-/// from the published one means the inputs changed since publication («ціни застаріли»).
+/// from the published one is published automatically by <see cref="SewingPricePublisher"/>.
 /// </summary>
 public sealed class SewingPriceStatusReader(
     ISewingCompositionReadStore composition,

@@ -1,7 +1,7 @@
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Application.Features.Pricing.Ppe.Evaluation;
-using Catalog.Application.Features.Pricing.Sewing.Recalculation;
+using Catalog.Application.Features.Pricing.Sewing.AutoPublication;
 using Catalog.Application.Features.Product.Overview.Prices.DTOs;
 using Catalog.Application.Features.Product.Overview.Prices.Specifications;
 using Catalog.Domain.Pricing.Sewing;

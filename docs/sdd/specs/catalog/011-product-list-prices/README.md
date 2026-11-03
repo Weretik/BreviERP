@@ -1,6 +1,6 @@
 # CAT-011 — Prices on the «Товари» list and one-button recalculation
 
-**Status:** backend implemented 2026-11-03. **Date:** 2026-11-03. **Module:** Catalog (prices, recalculation) and Reference (first input versions). One Reference migration (backfill), no new tables.
+**Status:** backend implemented 2026-11-03; recalculation (R-04, R-05, `recalculateSewingPrices`) replaced by automatic publication in [CAT-012](../012-sewing-price-auto-publication/README.md). **Date:** 2026-11-03. **Module:** Catalog (prices, recalculation) and Reference (first input versions). One Reference migration (backfill), no new tables.
 
 Stage 6 of moving the client's Calculator into Brevi. On the old site the price list showed every article with its three prices. The product owner chose list design B (one row per model with «від …» prices, an arrow opens the articles) with the side panel of design C, and «Одной кнопкой» recalculation: «Перерахувати всі» shows what is stale and by how much, then recalculates and publishes; the same button sits in a model's panel. PPE prices stay live.
 
