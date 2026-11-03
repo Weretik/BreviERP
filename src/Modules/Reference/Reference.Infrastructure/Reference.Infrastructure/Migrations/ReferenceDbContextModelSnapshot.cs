@@ -389,6 +389,39 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("PricingParameters", "reference");
                 });
 
+            modelBuilder.Entity("Reference.Domain.ProductSections.Entities.ProductSection", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ProductSections", "reference");
+                });
+
             modelBuilder.Entity("Reference.Domain.Suppliers.Entities.Supplier", b =>
                 {
                     b.Property<int>("Id")

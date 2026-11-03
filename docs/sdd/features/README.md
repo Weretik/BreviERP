@@ -36,6 +36,7 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 - [Sewing operations](reference/garment-part-operations.md) — CRUD, list reads, and import of the Calculator sheet «Операції».
 - [Reference pricing versions](reference/pricing-input-versions.md) — atomic numeric-edit history and explicit service-cost revisions (also listed under Catalog pricing).
 - [Pricing parameters](reference/pricing-parameters.md) — «Параметри ціноутворення»: sheet «Налаштування цін» (parameters + PPE markup rules), CRUD and one-time sheet import.
+- [Product sections](reference/product-sections.md) — «Типи і розділи»: sewing and PPE sections, CRUD and one-time sheet import.
 
 ## Identity
 

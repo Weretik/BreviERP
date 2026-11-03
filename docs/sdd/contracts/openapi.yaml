@@ -29,6 +29,12 @@ paths:
     $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1pricing-parameters~1import
   /api/reference/pricing-parameters/{id}:
     $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1pricing-parameters~1{id}
+  /api/reference/product-sections:
+    $ref: ./reference/product-sections.openapi.yaml#/paths/~1api~1reference~1product-sections
+  /api/reference/product-sections/import:
+    $ref: ./reference/product-sections.openapi.yaml#/paths/~1api~1reference~1product-sections~1import
+  /api/reference/product-sections/{id}:
+    $ref: ./reference/product-sections.openapi.yaml#/paths/~1api~1reference~1product-sections~1{id}
   /api/reference/ppe-markup-rules:
     $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1ppe-markup-rules
   /api/reference/ppe-markup-rules/{id}:
