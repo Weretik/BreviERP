@@ -71,7 +71,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
     public async Task<ActionResult> Update(
         [FromRoute] int id, [FromBody] UpdateProductOverviewRequest request, CancellationToken cancellationToken)
         => this.ToActionResult(await sender.Send(new UpdateProductOverviewCommand(id, request.Code, request.SectionId,
-            request.Season, request.IsActive, request.IsVerified, request.VerifiedOn, request.CurrentSiteUrl,
+            request.Season, request.IsActive, request.CurrentSiteUrl,
             request.QuoteDescription), cancellationToken));
 
     [HttpPost("overview", Name = "createCatalogProduct")]
@@ -90,7 +90,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
                 p.AllowManualPrice, p.RuleCode, p.Unit)
             : null;
         var result = await sender.Send(new CreateCatalogProductCommand(request.Type, request.Code, request.Name,
-            request.SectionId, request.Season, request.IsActive, request.IsVerified, request.CurrentSiteUrl,
+            request.SectionId, request.Season, request.IsActive, request.CurrentSiteUrl,
             request.QuoteDescription, ppe, actor), cancellationToken);
         return result.IsSuccess
             ? StatusCode(StatusCodes.Status201Created, result.Value)

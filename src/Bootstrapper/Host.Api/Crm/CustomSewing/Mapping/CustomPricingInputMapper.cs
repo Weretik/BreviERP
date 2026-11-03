@@ -8,11 +8,11 @@ internal static class CustomPricingInputMapper
     internal static SewingCustomPricingInput Map(CustomConfiguration input)
     {
         var materials = input.Fabrics.Select((x, index) => new SewingPricingMaterialRow(index + 1, "Fabric:" + x.ReferenceId,
-                x.Quantity, x.Unit, true, false, true, true))
+                x.Quantity, x.Unit, true, false))
             .Concat(input.Accessories.Select((x, index) => new SewingPricingMaterialRow(index + 41, "Accessory:" + x.ReferenceId,
-                x.Quantity, x.Unit, false, false, true, true))).ToArray();
+                x.Quantity, x.Unit, false, false))).ToArray();
         var operations = input.Operations.Select((x, index) => new SewingPricingOperationRow(index + 1, x.ReferenceId,
-            x.Quantity, x.ManualMinutes, true)).ToArray();
+            x.Quantity, x.ManualMinutes)).ToArray();
         return new(materials, operations, new(input.Delivery, input.Packaging,
             input.Applications.Sum(x => x.Cost), input.Applications.Sum(x => x.SaleAmount)));
     }

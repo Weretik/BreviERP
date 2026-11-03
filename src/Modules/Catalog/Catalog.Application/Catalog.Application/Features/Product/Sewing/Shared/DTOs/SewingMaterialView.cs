@@ -9,10 +9,6 @@ public sealed record SewingMaterialView(
     string? CostCode,
     decimal Quantity,
     string Unit,
-    bool Required,
     int SortOrder,
-    bool Reviewed,
-    string? ReviewedBy,
-    DateTimeOffset? ReviewedAt,
     string? Comment);
 

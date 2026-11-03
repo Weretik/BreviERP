@@ -28,7 +28,7 @@ namespace IntegrationTests;
 public sealed class SewingArticlePricingPersistenceTests : SewingPricingDatabaseFixture
 {
     [Test]
-    public async Task Bootstrap_is_repeatable_and_effective_versions_preserve_review_and_ambiguity_gates()
+    public async Task Bootstrap_is_repeatable_and_effective_versions_preserve_the_ambiguity_gate()
     {
         var first = await PricingBootstrapJob.RunAsync(_connection, _pricingSource);
         var repeat = await PricingBootstrapJob.RunAsync(_connection, _pricingSource);
@@ -48,18 +48,7 @@ public sealed class SewingArticlePricingPersistenceTests : SewingPricingDatabase
         var handler = new CalculateSewingArticleQueryHandler(new SewingPricingInputReader(catalog),
             new SewingPricingSettingsReader(catalog), new JobPricingReferenceReader(reader));
         var query = new CalculateSewingArticleQuery(product.Id.Value, article.Id.Value, EffectiveFrom);
-        var blocked = await handler.Handle(query, CancellationToken.None);
-        Assert.That(blocked.Value.Calculation.Blockers.Select(x => x.Code), Does.Contain("UnreviewedOperation"));
-        Assert.That(blocked.Value.Calculation.Prices, Is.Null);
-
-        product.ReplaceComposition(
-            product.MaterialLines.Select(x => SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
-                x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit,
-                x.IsRequired, x.SortOrder, true, "test-reviewer", EffectiveFrom)).ToArray(),
-            product.OperationLines.Select(x => SewingOperationLine.Create(CompositionLineId.Create(0), product.Id,
-                null, x.OperationId, x.Quantity, x.ManualMinutes, x.SortOrder, true, true, "test-reviewer", EffectiveFrom)).ToArray(),
-            EffectiveFrom);
-        await catalog.SaveChangesAsync();
+        // The imported composition needs no review: it is calculated as it is.
         var calculated = await handler.Handle(query, CancellationToken.None);
         Assert.Multiple(() =>
         {

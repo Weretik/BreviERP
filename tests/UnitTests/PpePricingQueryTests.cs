@@ -20,7 +20,7 @@ public sealed class PpePricingQueryTests
     [Test]
     public void Imported_source_review_is_separate_from_Brevi_approval()
     {
-        var offer = new PpeOfferVersion(Guid.NewGuid(), 42, new("rule", 100, 160, 120, "source", "2026-10-25", true), false, null, null, DateTimeOffset.UtcNow);
+        var offer = new PpeOfferVersion(Guid.NewGuid(), 42, new("rule", 100, 160, 120, "source", "2026-10-25"), false, null, null, DateTimeOffset.UtcNow);
         var result = PpeProductPricingEvaluator.Evaluate(new(42, true, offer, null));
         Assert.That(result.IsEnrolled, Is.True); Assert.That(result.Calculation.IsCalculated, Is.False);
         Assert.That(result.Calculation.Blockers.Select(x => x.Code), Contains.Item("UnapprovedOffer"));
@@ -31,7 +31,7 @@ public sealed class PpePricingQueryTests
     {
         var writer = new Mock<IPpeOfferVersionWriter>();
         var handler = new CreatePpeOfferVersionCommandHandler(writer.Object);
-        var values = new PpeOfferValues("rule", 100.0000001m, null, null, "source", "2026-10-25", true);
+        var values = new PpeOfferValues("rule", 100.0000001m, null, null, "source", "2026-10-25");
         Assert.That((await handler.Handle(new(42, null, Guid.NewGuid(), values, "manager"), CancellationToken.None)).Status, Is.EqualTo(ResultStatus.Invalid));
         writer.VerifyNoOtherCalls();
         var rules = new Mock<IPpeRuleVersionWriter>();

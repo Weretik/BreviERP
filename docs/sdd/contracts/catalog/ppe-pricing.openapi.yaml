@@ -514,8 +514,7 @@
           "externalRetail",
           "externalWholesale",
           "source",
-          "sourceDate",
-          "sourceReviewed"
+          "sourceDate"
         ],
         "properties": {
           "ruleCode": {
@@ -579,9 +578,6 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 100
-          },
-          "sourceReviewed": {
-            "type": "boolean"
           }
         }
       },

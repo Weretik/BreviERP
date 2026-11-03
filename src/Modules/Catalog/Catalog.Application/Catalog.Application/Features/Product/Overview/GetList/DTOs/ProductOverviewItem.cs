@@ -4,7 +4,7 @@ namespace Catalog.Application.Features.Product.Overview.GetList.DTOs;
 /// One row of the «Товари» page with its prices (CAT-013). <paramref name="Prices"/> is the lowest price of each tier
 /// among the active fabric variants (sewing) or the rule price (PPE); null when there is none.
 /// <paramref name="Problems"/> are the reasons a price is missing (of the row, or of an active variant); empty when
-/// everything is priced. <paramref name="VerifiedOn"/> is the check date text (dd.MM.yyyy).
+/// everything is priced.
 /// </summary>
 public sealed record ProductOverviewItem(
     int Id,
@@ -14,8 +14,6 @@ public sealed record ProductOverviewItem(
     int? SectionId,
     string? Season,
     bool IsActive,
-    bool IsVerified,
-    string? VerifiedOn,
     string? CurrentSiteUrl,
     string? QuoteDescription,
     DateTimeOffset UpdatedAtUtc,

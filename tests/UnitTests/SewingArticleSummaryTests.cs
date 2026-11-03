@@ -81,16 +81,16 @@ public sealed class SewingArticleSummaryTests
     {
         var productId = ProductId.Create(7);
         var operation = SewingOperationLine.Create(CompositionLineId.Create(1), productId, null,
-            OperationReferenceId.Create(3), 1, null, 0, true, comment: "  Комір  ");
+            OperationReferenceId.Create(3), 1, null, 0, comment: "  Комір  ");
         var empty = SewingMaterialLine.Create(CompositionLineId.Create(2), productId, null, SewingMaterialKind.Fabric,
-            FabricReferenceId.Create(4), null, null, 1.4m, SewingMaterialUnit.Metre, true, 0, comment: " ");
+            FabricReferenceId.Create(4), null, null, 1.4m, SewingMaterialUnit.Metre, 0, comment: " ");
 
         Assert.Multiple(() =>
         {
             Assert.That(operation.Comment, Is.EqualTo("Комір"));
             Assert.That(empty.Comment, Is.Null);
             Assert.Throws<DomainException>(() => SewingOperationLine.Create(CompositionLineId.Create(1), productId,
-                null, OperationReferenceId.Create(3), 1, null, 0, true, comment: new string('я', 501)));
+                null, OperationReferenceId.Create(3), 1, null, 0, comment: new string('я', 501)));
         });
     }
 }

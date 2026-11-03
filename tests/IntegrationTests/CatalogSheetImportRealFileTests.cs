@@ -81,8 +81,9 @@ public sealed class CatalogSheetImportRealFileTests
             Assert.That(await Count("SewingMaterialLines", "\"ArticleId\" IS NOT NULL"), Is.EqualTo(246));
             Assert.That(await Count("SewingOperationLines"), Is.EqualTo(1823));
             Assert.That(await Count("SewingOperationLines", "\"ManualMinutes\" IS NOT NULL"), Is.EqualTo(33));
-            Assert.That(await Count("SewingMaterialLines", "NOT \"IsReviewed\"") + await Count("SewingOperationLines", "NOT \"IsReviewed\""), Is.Zero,
-                "every model of the sheet is checked");
+            Assert.That(await Count("SewingMaterialLines", "\"Comment\" = 'Спільна складова для всіх артикулів моделі'")
+                + await Count("SewingOperationLines", "\"Comment\" = 'Спільна складова для всіх артикулів моделі'"), Is.Zero,
+                "the note the sheet repeats on shared lines is dropped");
             Assert.That(await Count("PpePricingOfferVersions"), Is.EqualTo(118), "every PPE but 724 has a supplier price");
             Assert.That(await Count("SewingPricePublications"), Is.EqualTo(248), "every Article price is published by the import");
             Assert.That(await Count("ProductCatalogProfiles", $"\"PricingRuleCode\" IS NULL AND \"ProductId\" IN (SELECT \"Id\" FROM catalog.\"Products\" WHERE \"Type\" = {(int)ProductType.Ppe})"),

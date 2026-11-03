@@ -11,7 +11,6 @@ public interface IGarmentPartOperationFields
     string? Element { get; }
     string? Variant { get; }
     bool MinutesPerProduct { get; }
-    DateOnly? NormCheckedAt { get; }
     bool IsActive { get; }
     string? Notes { get; }
 }

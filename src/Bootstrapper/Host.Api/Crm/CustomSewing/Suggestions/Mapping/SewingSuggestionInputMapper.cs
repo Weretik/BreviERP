@@ -14,9 +14,7 @@ internal static class SewingSuggestionInputMapper
         SewingArticlePricingSnapshot? composition, ILookup<string, PricingReferenceValue> references)
     {
         var selections = new List<SuggestionSelection>();
-        var valid = composition is { IsActive: true }
-            && composition.Materials.Where(x => !x.IsOtherCost).All(x => x.IsReviewed)
-            && composition.Operations.All(x => x.IsReviewed);
+        var valid = composition is { IsActive: true };
         if (valid)
         {
             foreach (var material in composition!.Materials.Where(x => !x.IsOtherCost))

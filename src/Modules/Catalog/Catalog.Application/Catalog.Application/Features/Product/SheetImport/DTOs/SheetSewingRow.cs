@@ -6,7 +6,6 @@ namespace Catalog.Application.Features.Product.SheetImport.DTOs;
 /// </summary>
 /// <param name="Code">Model ID, MOD-….</param>
 /// <param name="Section">Section name from Reference «Типи і розділи».</param>
-/// <param name="VerifiedOn">Check date as dd.MM.yyyy.</param>
 public sealed record SheetSewingRow(
     int RowNumber,
     string Code,
@@ -14,8 +13,6 @@ public sealed record SheetSewingRow(
     string? Section,
     string? Season,
     bool IsActive,
-    bool IsVerified,
-    string? VerifiedOn,
     string? CurrentSiteUrl,
     string? QuoteDescription,
     IReadOnlyList<SheetSewingArticleRow> Articles,

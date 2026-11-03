@@ -10,7 +10,6 @@ public sealed record GarmentPartOperationRowDTO(
     string? Element,
     string? Variant,
     bool MinutesPerProduct,
-    DateOnly? NormCheckedAt,
     bool IsActive,
     string? Notes);
 
@@ -23,6 +22,5 @@ internal sealed record GarmentPartOperationProjectionDTO(
     string? Element,
     string? Variant,
     bool MinutesPerProduct,
-    DateOnly? NormCheckedAt,
     bool IsActive,
     string? Notes);

@@ -11,9 +11,9 @@ public sealed class SewingArticlePricingTests
     public void Manual_only_operations_keep_each_occurrence_and_quantity()
     {
         var result = SewingArticleCalculator.Calculate(Settings,
-            [new("Fabric", 1, 10, false, true, true, true, true, true, true)],
-            [new("OP-155:1", 1, null, 20m, true, true, true),
-             new("OP-155:2", 2, null, 86m, true, true, true)]);
+            [new("Fabric", 1, 10, false, true, true, true, true)],
+            [new("OP-155:1", 1, null, 20m, true, true),
+             new("OP-155:2", 2, null, 86m, true, true)]);
 
         Assert.That(result.Breakdown!.TotalMinutes, Is.EqualTo(192m));
     }
@@ -23,8 +23,8 @@ public sealed class SewingArticlePricingTests
     {
         var settings = new SewingCalculationSettings(1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1);
         var result = SewingArticleCalculator.Calculate(settings,
-            [new("Fabric", 1, .005m, false, true, true, true, true, true, true)],
-            [new("Operation", 1, 1, null, true, true, true)]);
+            [new("Fabric", 1, .005m, false, true, true, true, true)],
+            [new("Operation", 1, 1, null, true, true)]);
         Assert.Multiple(() =>
         {
             Assert.That(result.Breakdown!.FullCost, Is.EqualTo(1.005m));
@@ -36,8 +36,8 @@ public sealed class SewingArticlePricingTests
     public void Inactive_or_unapproved_cost_and_incompatible_unit_are_blockers()
     {
         var result = SewingArticleCalculator.Calculate(Settings,
-            [new("Fabric", 1, 10, false, true, true, true, false, false, false)],
-            [new("Operation", 1, 1, null, true, true, true)]);
+            [new("Fabric", 1, 10, false, true, false, false, false)],
+            [new("Operation", 1, 1, null, true, true)]);
         Assert.That(result.Prices, Is.Null);
         Assert.That(result.Blockers.Select(x => x.Code), Does.Contain("UnitMismatch").And.Contain("UnapprovedReference"));
     }
@@ -69,9 +69,9 @@ public sealed class SewingArticlePricingTests
         decimal materialCost, decimal retail, decimal wholesale, decimal largeWholesale)
     {
         var result = SewingArticleCalculator.Calculate(Settings,
-            [new("Fabric", 1m, materialCost, false, true, true, true, true, true, true),
-             new("OtherCost", 20m, 1m, true, false, true, true, true, true, true)],
-            [new("Operations", 1m, 84.84m, null, true, true, true)]);
+            [new("Fabric", 1m, materialCost, false, true, true, true, true),
+             new("OtherCost", 20m, 1m, true, false, true, true, true)],
+            [new("Operations", 1m, 84.84m, null, true, true)]);
 
         Assert.That(result.IsCalculated, Is.True);
         Assert.Multiple(() =>
@@ -89,16 +89,17 @@ public sealed class SewingArticlePricingTests
         => Assert.That(new SewingPriceTiers(10m, 20m, 30m).ForQuantity(quantity), Is.EqualTo(expected));
 
     [Test]
-    public void Missing_divisor_and_unreviewed_inputs_block_without_zero_price()
+    public void Missing_divisor_and_inputs_block_without_zero_price()
     {
         var result = SewingArticleCalculator.Calculate(Settings with { WorkDays = 0 },
-            [new("Fabric", 1, null, false, true, true, false, true, true, true)],
-            [new("Operation", 1, null, null, false, true, true)]);
+            [new("Fabric", 1, null, false, true, true, true, true)],
+            [new("Operation", 1, null, null, true, true)]);
         Assert.Multiple(() =>
         {
             Assert.That(result.Prices, Is.Null);
             Assert.That(result.Blockers.Select(x => x.Code), Does.Contain("InvalidSchedule"));
-            Assert.That(result.Blockers.Select(x => x.Code), Does.Contain("UnreviewedMaterial"));
+            Assert.That(result.Blockers.Select(x => x.Code), Does.Contain("MissingMaterialCost"));
+            Assert.That(result.Blockers.Select(x => x.Code), Has.None.StartsWith("Unreviewed"));
             Assert.That(result.Blockers.Select(x => x.Code), Does.Contain("MissingOperationTime"));
         });
     }

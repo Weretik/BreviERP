@@ -44,7 +44,7 @@ public static class CatalogImportReconciler
                         ? line.FabricId?.Value == mapping["Fabric:" + sourceCode]
                         : line.AccessoryId?.Value == mapping["Accessory:" + sourceCode];
                 if (line.Quantity != row.Decimal(8) || actualSku != row.Text(1)
-                    || !referenceMatches || line.Unit.ToString() != expectedUnit || line.IsRequired != row.Flag(12))
+                    || !referenceMatches || line.Unit.ToString() != expectedUnit)
                     throw new InvalidDataException($"Material quantity or article differs at {row.Key}.");
             }
             foreach (var line in product.OperationLines)

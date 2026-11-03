@@ -331,9 +331,6 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsSourceReviewed")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("PricingRuleCode")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -352,10 +349,6 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<string>("ShortDescription")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
-
-                    b.Property<string>("SourceReviewDate")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
 
                     b.Property<int?>("SupplierId")
                         .HasColumnType("integer");
@@ -638,12 +631,6 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<int?>("FabricId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsRequired")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsReviewed")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("Kind")
                         .HasColumnType("integer");
 
@@ -653,13 +640,6 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 6)
                         .HasColumnType("numeric(18,6)");
-
-                    b.Property<DateTimeOffset?>("ReviewedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ReviewedBy")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -676,8 +656,6 @@ namespace Catalog.Infrastructure.Migrations
                             t.HasCheckConstraint("CK_SewingMaterialLines_Quantity_Positive", "\"Quantity\" > 0");
 
                             t.HasCheckConstraint("CK_SewingMaterialLines_Reference", "(\"Kind\" = 1 AND \"FabricId\" > 0 AND \"AccessoryId\" IS NULL AND \"CostCode\" IS NULL AND \"Unit\" = 1) OR (\"Kind\" = 2 AND \"FabricId\" IS NULL AND \"AccessoryId\" > 0 AND \"CostCode\" IS NULL AND \"Unit\" IN (1, 2)) OR (\"Kind\" = 3 AND \"FabricId\" IS NULL AND \"AccessoryId\" IS NULL AND \"CostCode\" IS NOT NULL AND length(trim(\"CostCode\")) > 0 AND \"Unit\" = 3)");
-
-                            t.HasCheckConstraint("CK_SewingMaterialLines_ReviewMetadata", "NOT \"IsReviewed\" OR (\"ReviewedBy\" IS NOT NULL AND length(trim(\"ReviewedBy\")) > 0 AND \"ReviewedAt\" IS NOT NULL)");
 
                             t.HasCheckConstraint("CK_SewingMaterialLines_SortOrder_NonNegative", "\"SortOrder\" >= 0");
                         });
@@ -698,12 +676,6 @@ namespace Catalog.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<bool>("IsRequired")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsReviewed")
-                        .HasColumnType("boolean");
-
                     b.Property<decimal?>("ManualMinutes")
                         .HasPrecision(18, 6)
                         .HasColumnType("numeric(18,6)");
@@ -717,13 +689,6 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<decimal>("Quantity")
                         .HasPrecision(18, 6)
                         .HasColumnType("numeric(18,6)");
-
-                    b.Property<DateTimeOffset?>("ReviewedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ReviewedBy")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -739,8 +704,6 @@ namespace Catalog.Infrastructure.Migrations
                             t.HasCheckConstraint("CK_SewingOperationLines_OperationId_Positive", "\"OperationId\" > 0");
 
                             t.HasCheckConstraint("CK_SewingOperationLines_Quantity_Positive", "\"Quantity\" > 0");
-
-                            t.HasCheckConstraint("CK_SewingOperationLines_ReviewMetadata", "NOT \"IsReviewed\" OR (\"ReviewedBy\" IS NOT NULL AND length(trim(\"ReviewedBy\")) > 0 AND \"ReviewedAt\" IS NOT NULL)");
 
                             t.HasCheckConstraint("CK_SewingOperationLines_SharedOnly", "\"ArticleId\" IS NULL");
 

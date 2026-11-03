@@ -79,7 +79,7 @@ public sealed class ProductOverviewListingTests
     private static ProductOverviewItem Item(int id, string? code, string name, int? section, decimal? retail, string? fabric)
     {
         var prices = retail is { } value ? new ProductPriceTiers(value, value - 10, value - 20) : null;
-        return new ProductOverviewItem(id, "Sewing", code, name, section, null, true, false, null, null, null,
+        return new ProductOverviewItem(id, "Sewing", code, name, section, null, true, null, null,
             DateTimeOffset.UnixEpoch.AddDays(id), prices, null, [],
             [new ProductOverviewVariant(id * 10, $"SKU-{id}", true, fabric is null ? null : id, fabric, prices, null, [])]);
     }

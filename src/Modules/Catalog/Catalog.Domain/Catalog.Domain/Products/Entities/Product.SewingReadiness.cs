@@ -16,9 +16,9 @@ public partial class Product
         var articleIsActive = !articleId.HasValue || _articles.Single(a => a.Id == articleId.Value).IsActive;
         return SewingCompositionReadiness.Evaluate(articleIsActive,
             materials.Select(material => new MaterialReadinessFact(
-                material.Id, material.Kind, material.IsRequired, material.IsReviewed)),
+                material.Id, material.Kind)),
             _operationLines.Select(operation => new OperationReadinessFact(
-                operation.Id, operation.IsReviewed)));
+                operation.Id)));
     }
 
     public IReadOnlyList<SewingMaterialLine> GetEffectiveMaterials(ArticleId? articleId = null)

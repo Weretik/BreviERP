@@ -20,7 +20,7 @@ public sealed class SewingSuggestionCompositionReader(CatalogDbContext db) : ISe
         // Scalar ANY parameters avoid provider issues with nullable typed-ID array converters.
         var states = await db.Products.FromSqlInterpolated($"""SELECT * FROM catalog."Products" WHERE "Id" = ANY({productIds})""")
             .AsNoTracking().Where(x => !x.IsDeleted && x.Type == ProductType.Sewing && x.CatalogProfile != null
-                && x.CatalogProfile.IsActive && x.CatalogProfile.IsSourceReviewed && x.CatalogProfile.Season == sourceSeason)
+                && x.CatalogProfile.IsActive && x.CatalogProfile.Season == sourceSeason)
             .SelectMany(x => x.Articles.Where(a => a.IsActive), (p, a) => new { ProductId = p.Id.Value,
                 ArticleId = a.Id.Value, a.SaleSku, p.CompositionVersion }).Take(IdentityLimit + 1).ToArrayAsync(ct);
         if (states.Length > IdentityLimit) return new([], true);
@@ -32,14 +32,13 @@ public sealed class SewingSuggestionCompositionReader(CatalogDbContext db) : ISe
                 new SewingPricingMaterialRow(x.Id.Value,
                     x.Kind == SewingMaterialKind.Fabric ? "Fabric:" + x.FabricId!.Value.Value
                         : x.Kind == SewingMaterialKind.Accessory ? "Accessory:" + x.AccessoryId!.Value.Value : "OtherCost:" + x.CostCode,
-                    x.Quantity, x.Unit.ToString(), x.Kind == SewingMaterialKind.Fabric, x.Kind == SewingMaterialKind.OtherCost,
-                    x.IsRequired, x.IsReviewed))).Take(LineLimit + 1).ToArrayAsync(ct);
+                    x.Quantity, x.Unit.ToString(), x.Kind == SewingMaterialKind.Fabric, x.Kind == SewingMaterialKind.OtherCost))).Take(LineLimit + 1).ToArrayAsync(ct);
         if (materials.Length > LineLimit) return new([], true);
         var operations = await db.Set<SewingOperationLine>().FromSqlInterpolated($"""
             SELECT * FROM catalog."SewingOperationLines" WHERE "ProductId" = ANY({productIds})
             """).AsNoTracking().OrderBy(x => x.SortOrder).ThenBy(x => x.Id)
             .Select(x => new SuggestionOperationProjection(x.ProductId.Value,
-                new SewingPricingOperationRow(x.Id.Value, x.OperationId.Value, x.Quantity, x.ManualMinutes, x.IsReviewed)))
+                new SewingPricingOperationRow(x.Id.Value, x.OperationId.Value, x.Quantity, x.ManualMinutes)))
             .Take(LineLimit + 1).ToArrayAsync(ct);
         if (operations.Length > LineLimit) return new([], true);
         var materialGroups = materials.ToLookup(x => x.ProductId);

@@ -27,7 +27,7 @@ public sealed class PricingReadinessTests : SewingPricingDatabaseFixture
             RequestHash = "readiness-offer",
             ProductId = product.Id,
             CreatedAt = EffectiveFrom,
-            ValuesJson = JsonSerializer.Serialize(new PpeOfferValues("ReadinessRule", 100m, null, null, "test source", "2026-10-25", true))
+            ValuesJson = JsonSerializer.Serialize(new PpeOfferValues("ReadinessRule", 100m, null, null, "test source", "2026-10-25"))
         };
         var rule = new PpeRuleVersionRecord
         {

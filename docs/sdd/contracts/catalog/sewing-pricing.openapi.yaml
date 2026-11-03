@@ -555,8 +555,6 @@ components:
         - unit
         - isFabric
         - isOtherCost
-        - isRequired
-        - isReviewed
       properties:
         lineId: *a2
         referenceKey: *a4
@@ -569,8 +567,6 @@ components:
             - Service
         isFabric: *a5
         isOtherCost: *a5
-        isRequired: *a5
-        isReviewed: *a5
     SewingPricingOperationRow:
       type: object
       required:
@@ -578,7 +574,6 @@ components:
         - operationId
         - quantity
         - manualMinutes
-        - isReviewed
       properties:
         lineId: *a2
         operationId: *a2
@@ -587,7 +582,6 @@ components:
           anyOf:
             - *a3
             - type: "null"
-        isReviewed: *a5
     SewingArticlePricingSnapshot:
       type: object
       required:

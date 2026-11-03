@@ -8,7 +8,6 @@ public sealed record CreateCatalogProductRequest(
     int SectionId,
     string? Season,
     bool IsActive,
-    bool IsVerified,
     string? CurrentSiteUrl,
     string? QuoteDescription,
     CreatePpeSupplierRequest? Ppe);

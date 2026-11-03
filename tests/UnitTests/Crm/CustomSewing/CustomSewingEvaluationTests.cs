@@ -11,8 +11,8 @@ public sealed class CustomSewingEvaluationTests
     private readonly Mock<ISewingPricingSettingsReader> _settings = new();
     private readonly Mock<IPricingReferenceVersionReader> _references = new();
     private static SewingCustomPricingInput Input => new(
-        [new(1, "Fabric:1", 1, "Meters", true, false, true, true)],
-        [new(1, 2, 1, null, true)], new(5, 5, 12, 30));
+        [new(1, "Fabric:1", 1, "Meters", true, false)],
+        [new(1, 2, 1, null)], new(5, 5, 12, 30));
     private static SewingPricingSettingsSelection Settings => new(10, 1, At.AddDays(-1), "sewing-sheet-v1",
         new(1000, 10, 100, 10, .25m, .1m, .1m, .1m, .1m, 10000, 2, 1.5m, 1.25m));
     private static PricingReferenceValue Fabric => new("Fabric:1", 101, 100, "Meters", true, true, "synthetic");

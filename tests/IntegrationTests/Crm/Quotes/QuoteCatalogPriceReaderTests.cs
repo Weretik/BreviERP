@@ -22,7 +22,7 @@ public sealed class QuoteCatalogPriceReaderTests
     {
         var offerId = Guid.NewGuid();
         var offer = new PpeOfferVersion(offerId, 42,
-            new PpeOfferValues(null, null, 120m, 80m, "fixture", "2026-10-26", true),
+            new PpeOfferValues(null, null, 120m, 80m, "fixture", "2026-10-26"),
             true, "tester", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
         _ppeInputs.Setup(x => x.ReadAsync(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PpePricingProductInput(42, true, offer, null)]);
@@ -46,7 +46,7 @@ public sealed class QuoteCatalogPriceReaderTests
         var offerId = Guid.NewGuid();
         var ruleId = Guid.NewGuid();
         var offer = new PpeOfferVersion(offerId, 42,
-            new PpeOfferValues("base", 100m, null, null, "fixture", "2026-10-26", true),
+            new PpeOfferValues("base", 100m, null, null, "fixture", "2026-10-26"),
             true, "tester", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
         var rule = new PpeRuleVersion(ruleId,
             new PpeRuleValues("base", new PpeMarkups(.2m, .1m, .05m), "fixture", "2026-10-26"),

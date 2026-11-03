@@ -22,8 +22,6 @@ public sealed class ProductOverviewSpec : Specification<ProductEntity, ProductOv
             x.CatalogProfile != null ? x.CatalogProfile.SectionId : null,
             x.CatalogProfile != null ? x.CatalogProfile.Season : null,
             x.CatalogProfile == null || x.CatalogProfile.IsActive,
-            x.CatalogProfile != null && x.CatalogProfile.IsSourceReviewed,
-            x.CatalogProfile != null ? x.CatalogProfile.SourceReviewDate : null,
             x.CatalogProfile != null ? x.CatalogProfile.WebsiteUrl : null,
             x.CatalogProfile != null ? x.CatalogProfile.ShortDescription : null,
             x.CreatedAt, x.UpdatedAt));

@@ -12,11 +12,10 @@ namespace UnitTests.Reference;
 /// <summary>Import of the Calculator sheet «Операції» (REF-004).</summary>
 public sealed class GarmentPartOperationImportTests
 {
-    private static readonly DateOnly CheckedAt = new(2026, 8, 30);
 
     private static GarmentPartOperationImportRow Row(string code, string group, string name, decimal min, int row = 2,
         bool perProduct = false) =>
-        new(row, code, group, "Рукав", "Прямий", name, min, perProduct, CheckedAt, true, "Джерело: «Расценки», рядок 5.");
+        new(row, code, group, "Рукав", "Прямий", name, min, perProduct, true, "Джерело: «Расценки», рядок 5.");
 
     private static Mock<IReferenceRepository<T>> Repository<T>(List<T> stored, List<T> added, List<T> deleted)
         where T : class, BuildingBlocks.Domain.Abstractions.IAggregateRoot
@@ -40,7 +39,7 @@ public sealed class GarmentPartOperationImportTests
         var usedGroup = GarmentPart.Create(GarmentPartId.From(3), "Спинка (старе)");
         var coded = GarmentPartOperation.Create(GarmentPartOperationId.From(5),
             new GarmentPartOperationDetails("OP-001", sleeve.Id, "Рукав", "Прямий", "Рукав куртки: прямий", 5m, false,
-                null, true, null));
+                true, null));
         var stale = GarmentPartOperation.Create(GarmentPartOperationId.From(6), oldGroup.Id, "Втачать рукав", 4m);
         var used = GarmentPartOperation.Create(GarmentPartOperationId.From(7), usedGroup.Id, "Стачать спинку", 3m);
 
@@ -65,7 +64,7 @@ public sealed class GarmentPartOperationImportTests
         {
             Assert.That(value.Applied, Is.True);
             Assert.That((value.Created, value.Updated, value.Unchanged, value.Errors), Is.EqualTo((1, 1, 0, 0)));
-            Assert.That(value.Rows[0].Changes, Is.EquivalentTo(new[] { "Норма часу", "Дата перевірки", "Примітки" }));
+            Assert.That(value.Rows[0].Changes, Is.EquivalentTo(new[] { "Норма часу", "Примітки" }));
             Assert.That(coded.Min, Is.EqualTo(6m));
             Assert.That(value.NewGroups, Is.EqualTo(new[] { "Інше" }));
             var created = addedOperations.Single();
@@ -117,7 +116,7 @@ public sealed class GarmentPartOperationImportTests
     {
         var operation = GarmentPartOperation.Create(GarmentPartOperationId.From(1),
             new GarmentPartOperationDetails(" op-155 ", GarmentPartId.From(1), null, null, "Нестандартна операція", 12m,
-                true, null, true, null));
+                true, true, null));
 
         Assert.Multiple(() =>
         {

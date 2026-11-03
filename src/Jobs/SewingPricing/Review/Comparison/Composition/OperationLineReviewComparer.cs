@@ -14,7 +14,6 @@ internal static class OperationLineReviewComparer
         OperationId = line.OperationId.Value,
         line.Quantity,
         line.ManualMinutes,
-        line.IsRequired,
         line.SortOrder
     };
 }

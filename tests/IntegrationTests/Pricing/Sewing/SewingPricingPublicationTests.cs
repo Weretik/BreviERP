@@ -23,7 +23,7 @@ namespace IntegrationTests.Pricing.Sewing;
 public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
 {
     [Test]
-    public async Task Saved_calculations_are_immutable_and_only_current_reviewed_inputs_can_publish_with_history()
+    public async Task Saved_calculations_are_immutable_and_only_current_priced_inputs_can_publish_with_history()
     {
         await PricingBootstrapJob.RunAsync(_connection, _pricingSource);
         await using var catalog = Catalog();
@@ -45,6 +45,13 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         var bridge = new CatalogPricingReferenceReader(new ReferencePricingVersionReader(reference), catalog, reference);
         var save = new SaveSewingCalculationCommandHandler(transactions, calculations, inputReader, settingsReader, bridge);
         var publish = new PublishSewingCalculationCommandHandler(transactions, calculations, publications, inputReader, settingsReader, bridge);
+        // Without operations the Article has no price: the saved calculation is blocked.
+        var fullMaterials = product.MaterialLines.Select(x => SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
+            x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder)).ToArray();
+        var fullOperations = product.OperationLines.Select(x => SewingOperationLine.Create(CompositionLineId.Create(0), product.Id,
+            null, x.OperationId, x.Quantity, x.ManualMinutes, x.SortOrder)).ToArray();
+        product.ReplaceComposition(fullMaterials, [], DateTimeOffset.UtcNow);
+        await catalog.SaveChangesAsync();
         var blockedRequest = new SaveSewingCalculationCommand(productId, articleId, Guid.NewGuid(), "manager");
         var blocked = await save.Handle(blockedRequest, CancellationToken.None);
         Assert.That(blocked.Value.Snapshot.Calculation.IsCalculated, Is.False);
@@ -53,12 +60,9 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         Assert.That(await publications.ReadCurrentAsync(productId, articleId, CancellationToken.None), Is.Null);
 
         product.ReplaceComposition(
-            product.MaterialLines.Select(x => SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
-                x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit,
-                x.IsRequired, x.SortOrder, true, "reviewer", DateTimeOffset.UtcNow)).ToArray(),
-            product.OperationLines.Select(x => SewingOperationLine.Create(CompositionLineId.Create(0), product.Id,
-                null, x.OperationId, x.Quantity, x.ManualMinutes, x.SortOrder, true, true, "reviewer", DateTimeOffset.UtcNow)).ToArray(),
-            DateTimeOffset.UtcNow);
+            fullMaterials.Select(x => SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
+                x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder)).ToArray(),
+            fullOperations, DateTimeOffset.UtcNow);
         await catalog.SaveChangesAsync();
         var replayBlocked = await save.Handle(blockedRequest, CancellationToken.None);
         Assert.That(replayBlocked.Value.Id, Is.EqualTo(blocked.Value.Id));

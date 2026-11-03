@@ -7,5 +7,5 @@ internal static class GarmentPartOperationDetailsFactory
 {
     public static GarmentPartOperationDetails From(IGarmentPartOperationFields fields, GarmentPartId garmentPartId) =>
         new(fields.Code, garmentPartId, fields.Element, fields.Variant, fields.Name, fields.Min,
-            fields.MinutesPerProduct, fields.NormCheckedAt, fields.IsActive, fields.Notes);
+            fields.MinutesPerProduct, fields.IsActive, fields.Notes);
 }

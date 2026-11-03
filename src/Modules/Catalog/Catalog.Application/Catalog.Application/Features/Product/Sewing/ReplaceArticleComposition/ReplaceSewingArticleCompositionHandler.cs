@@ -33,7 +33,7 @@ public sealed class ReplaceSewingArticleCompositionHandler(
             var articleId = ArticleId.Create(command.ArticleId);
             product.ReplaceArticleComposition(articleId,
                 request.Materials.Select(line => CompositionLineFactory.Material(line, product.Id,
-                    articleId, command.Actor, now)), now);
+                    articleId)), now);
         }
         catch (DomainException exception)
         {

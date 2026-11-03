@@ -12,7 +12,6 @@ public sealed record CreateCatalogProductCommand(
     int SectionId,
     string? Season,
     bool IsActive,
-    bool IsVerified,
     string? CurrentSiteUrl,
     string? QuoteDescription,
     CreatePpeSupplierInput? Ppe,

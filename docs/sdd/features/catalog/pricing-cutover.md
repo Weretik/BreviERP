@@ -29,7 +29,7 @@ Jobs/CatalogImport/PpePricing/Verification/
   Comparison/                         # expected/actual/delta and missing-source classification
   Diagnostics/                        # provenance/readiness/report types
   Reading/                            # local-only source/identity/input reads, batches <=100
-  Evaluation/                         # pure per-row diagnostics, in-memory review override
+  Evaluation/                         # pure per-row diagnostics
   PpePricingVerificationJob.cs         # report orchestration only
 ```
 

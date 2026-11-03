@@ -12,6 +12,8 @@ The one-time sheet import ([CAT-010](../../specs/catalog/010-sheet-product-impor
 
 The «Товари» list is one server request per page ([CAT-013](../../specs/catalog/013-product-list-page/README.md)): `GET /api/v1/products/overview` searches, filters, sorts and pages the rows and returns them with their published prices, fabric variants (with fabric names) and, only when a price is missing, the reasons; `GET /api/v1/products/{id}/overview` returns one row for the card. Nothing is recalculated for the list; PPE rows get the live rule price. Sewing prices are published automatically after every change of their inputs ([CAT-012](../../specs/catalog/012-sewing-price-auto-publication/README.md), see [Sewing pricing](sewing-pricing.md)).
 
+Products and composition lines have no review, «required» or check marks ([CAT-014](../../specs/catalog/014-remove-review-marks/README.md)): nothing blocks a price on review.
+
 The [Sewing Article/composition extension](sewing-composition.md) adds multiple sale SKUs, shared and Article-specific material inputs, and shared operation norms through separate protected operations. Legacy replacement preserves these children and rejects a second editable norm set once new composition is configured.
 
 ## Structure and Relationships

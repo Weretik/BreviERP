@@ -37,8 +37,7 @@ internal static class CompositionReviewReader
                     ?? product.MaterialLines.SingleOrDefault(x => x.ArticleId == expected.ArticleId && x.Kind == expected.Kind
                         && x.ReferenceKey == expected.ReferenceKey && x.SortOrder == expected.SortOrder);
                 subjects.Add(new(row.Key, "MaterialLine", $"{product.Id.Value}:{product.CompositionVersion}:{actual?.Id.Value}",
-                    MaterialLineReviewComparer.Compare(expected, actual))
-                { IsReviewed = actual?.IsReviewed });
+                    MaterialLineReviewComparer.Compare(expected, actual)));
             }
             for (var index = 0; index < operations.Length; index++)
             {
@@ -47,8 +46,7 @@ internal static class CompositionReviewReader
                 var actual = product.OperationLines.SingleOrDefault(x => x.Id.Value == mappings.GetValueOrDefault("OperationLine:" + row.Key))
                     ?? product.OperationLines.SingleOrDefault(x => x.OperationId == expected.OperationId && x.SortOrder == expected.SortOrder);
                 subjects.Add(new(row.Key, "OperationLine", $"{product.Id.Value}:{product.CompositionVersion}:{actual?.Id.Value}",
-                    OperationLineReviewComparer.Compare(expected, actual))
-                { IsReviewed = actual?.IsReviewed });
+                    OperationLineReviewComparer.Compare(expected, actual)));
             }
         }
         return subjects;

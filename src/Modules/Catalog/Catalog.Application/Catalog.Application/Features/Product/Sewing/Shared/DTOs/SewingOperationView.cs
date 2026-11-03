@@ -6,8 +6,5 @@ public sealed record SewingOperationView(
     decimal Quantity,
     decimal? ManualMinutes,
     int SortOrder,
-    bool Reviewed,
-    string? ReviewedBy,
-    DateTimeOffset? ReviewedAt,
     string? Comment);
 

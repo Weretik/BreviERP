@@ -61,7 +61,7 @@ public static class PricingActivationJob
             {
                 await using var scope = services.CreateAsyncScope();
                 var provider = scope.ServiceProvider;
-                var version = await provider.GetRequiredService<SewingCompositionConfirmation>().ConfirmAsync(model, plan.Actor, cancellationToken);
+                var version = await provider.GetRequiredService<SewingCompositionConfirmation>().ConfirmAsync(model, cancellationToken);
                 report.Steps.Add(new(model.ProductId.ToString(), "CompositionConfirmed", model.ExpectedVersion.ToString(), version.ToString()));
                 await persist(report);
                 foreach (var article in model.Articles)

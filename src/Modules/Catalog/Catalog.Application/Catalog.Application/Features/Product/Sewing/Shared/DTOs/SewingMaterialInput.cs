@@ -6,8 +6,6 @@ public sealed record SewingMaterialInput(
     string? CostCode,
     decimal Quantity,
     string Unit,
-    bool Required,
     int SortOrder,
-    bool Reviewed,
     string? Comment = null);
 

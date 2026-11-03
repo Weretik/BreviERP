@@ -16,7 +16,7 @@ public sealed class SheetPpeDraftBuilder(
     private const string Scope = "ppe";
 
     /// <returns>Null when the row has a problem.</returns>
-    public SheetProductDraft? Build(SheetPpeRow row, string? storedReviewDate, DateTimeOffset now)
+    public SheetProductDraft? Build(SheetPpeRow row)
     {
         var before = log.Problems.Count;
         var code = row.Code.Trim();
@@ -34,12 +34,6 @@ public sealed class SheetPpeDraftBuilder(
             Problem(string.IsNullOrWhiteSpace(row.SupplierName)
                 ? "Немає постачальника."
                 : $"Постачальника «{row.SupplierName.Trim()}» не знайдено в довіднику «Постачальники».");
-
-        var verifiedOn = Trim(row.VerifiedOn);
-        if (verifiedOn is not null && !SheetVerifiedDates.TryParse(verifiedOn, out _))
-            Problem($"Дата перевірки «{verifiedOn}» має бути у форматі дд.мм.рррр.");
-        else if (row.IsVerified)
-            verifiedOn ??= storedReviewDate ?? SheetVerifiedDates.Format(SheetVerifiedDates.Today(now));
 
         if (row.SupplierPrice is <= 0)
             Problem("Ціна постачальника має бути більша за 0.");
@@ -62,7 +56,7 @@ public sealed class SheetPpeDraftBuilder(
         if (log.Problems.Count > before)
             return null;
         return new SheetProductDraft(row.RowNumber, ProductType.Ppe, code, row.Name.Trim(),
-            new ProductOverviewDetails(sectionId, null, row.IsActive, row.IsVerified, row.IsVerified ? verifiedOn : null,
+            new ProductOverviewDetails(sectionId, null, row.IsActive,
                 Trim(row.CurrentSiteUrl), Trim(row.QuoteDescription)),
             new PpeSupplierDetails(SupplierReferenceId.Create(supplierId!.Value), Trim(row.SupplierSku),
                 Trim(row.SupplierUrl), row.SupplierPrice, row.AllowManualPrice, ruleCode, Trim(row.Unit)),

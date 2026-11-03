@@ -229,7 +229,7 @@ components:
     SewingMaterialInput:
       type: object
       additionalProperties: false
-      required: [kind, referenceId, costCode, quantity, unit, required, sortOrder, reviewed]
+      required: [kind, referenceId, costCode, quantity, unit, sortOrder]
       properties:
         kind: { $ref: '#/components/schemas/SewingMaterialKind' }
         referenceId:
@@ -243,9 +243,7 @@ components:
           description: Required for OtherCost; null for Fabric and Accessory.
         quantity: { type: number, exclusiveMinimum: 0, maximum: 999999999999.999999, multipleOf: 0.000001 }
         unit: { $ref: '#/components/schemas/SewingMaterialUnit' }
-        required: { type: boolean }
         sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
-        reviewed: { type: boolean }
         comment: { type: [string, 'null'], maxLength: 500, description: 'Free note, for example which garment part an operation belongs to.' }
     SewingMaterialKind:
       type: string
@@ -258,7 +256,7 @@ components:
     SewingOperationInput:
       type: object
       additionalProperties: false
-      required: [operationId, quantity, manualMinutes, sortOrder, reviewed]
+      required: [operationId, quantity, manualMinutes, sortOrder]
       properties:
         operationId: { type: integer, format: int32, minimum: 1 }
         quantity: { type: number, exclusiveMinimum: 0, maximum: 999999999999.999999, multipleOf: 0.000001 }
@@ -268,7 +266,6 @@ components:
           maximum: 999999999999.999999
           multipleOf: 0.000001
         sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
-        reviewed: { type: boolean }
         comment: { type: [string, 'null'], maxLength: 500, description: 'Free note, for example which garment part an operation belongs to.' }
     SewingComposition:
       type: object
@@ -289,13 +286,13 @@ components:
           items: { $ref: '#/components/schemas/SewingOperation' }
         blockers:
           type: array
-          description: Human-readable blockers for review, missing fabric/operations, or unresolved OtherCost.
+          description: Human-readable blockers for missing fabric/operations or unresolved OtherCost.
           items: { type: string }
     SewingMaterial:
       type: object
       additionalProperties: false
-      required: [id, articleId, scope, kind, referenceId, costCode, quantity, unit, required, sortOrder, reviewed, reviewedBy, reviewedAt, comment]
-      description: Effective line. Identity and review metadata are server-owned.
+      required: [id, articleId, scope, kind, referenceId, costCode, quantity, unit, sortOrder, comment]
+      description: Effective line. Identity is server-owned.
       properties:
         id: { type: integer, format: int64, minimum: 1 }
         articleId: { type: [integer, 'null'], format: int64, minimum: 1 }
@@ -305,17 +302,13 @@ components:
         costCode: { type: [string, 'null'], maxLength: 80 }
         quantity: { type: number, exclusiveMinimum: 0, maximum: 999999999999.999999, multipleOf: 0.000001 }
         unit: { $ref: '#/components/schemas/SewingMaterialUnit' }
-        required: { type: boolean }
         sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
-        reviewed: { type: boolean }
-        reviewedBy: { type: [string, 'null'] }
-        reviewedAt: { type: [string, 'null'], format: date-time }
         comment: { type: [string, 'null'], maxLength: 500, description: 'Free note, for example which garment part an operation belongs to.' }
     SewingOperation:
       type: object
       additionalProperties: false
-      required: [id, operationId, quantity, manualMinutes, sortOrder, reviewed, reviewedBy, reviewedAt, comment]
-      description: Shared effective operation line. Identity and review metadata are server-owned.
+      required: [id, operationId, quantity, manualMinutes, sortOrder, comment]
+      description: Shared effective operation line. Identity is server-owned.
       properties:
         id: { type: integer, format: int64, minimum: 1 }
         operationId: { type: integer, format: int32, minimum: 1 }
@@ -326,9 +319,6 @@ components:
           maximum: 999999999999.999999
           multipleOf: 0.000001
         sortOrder: { type: integer, format: int32, minimum: 0, maximum: 2147483647 }
-        reviewed: { type: boolean }
-        reviewedBy: { type: [string, 'null'] }
-        reviewedAt: { type: [string, 'null'], format: date-time }
         comment: { type: [string, 'null'], maxLength: 500, description: 'Free note, for example which garment part an operation belongs to.' }
     ValidationError:
       type: object

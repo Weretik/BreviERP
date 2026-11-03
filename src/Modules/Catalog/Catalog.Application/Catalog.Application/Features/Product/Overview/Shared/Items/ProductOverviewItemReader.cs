@@ -113,7 +113,7 @@ public sealed class ProductOverviewItemReader(
         ProductOverviewReadModel x, ProductPriceTiers? prices, DateTimeOffset? pricesUpdatedAt,
         IReadOnlyList<string> problems, IReadOnlyList<ProductOverviewVariant> variantList)
         => new(x.Id, ProductOverviewTypes.Name(x.Type), x.Type == ProductType.Ppe ? x.SaleSku : x.ModelCode, x.Name,
-            x.SectionId, x.Season, x.IsActive, x.IsVerified, x.VerifiedOn, x.CurrentSiteUrl, x.QuoteDescription,
+            x.SectionId, x.Season, x.IsActive, x.CurrentSiteUrl, x.QuoteDescription,
             x.UpdatedAt ?? x.CreatedAt, prices, pricesUpdatedAt, problems, variantList);
 
     private sealed record PpePrice(ProductPriceTiers? Prices, DateTimeOffset? UpdatedAt, IReadOnlyList<string> Blockers);

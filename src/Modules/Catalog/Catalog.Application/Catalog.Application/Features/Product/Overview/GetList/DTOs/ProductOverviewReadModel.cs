@@ -11,8 +11,6 @@ public sealed record ProductOverviewReadModel(
     int? SectionId,
     string? Season,
     bool IsActive,
-    bool IsVerified,
-    string? VerifiedOn,
     string? CurrentSiteUrl,
     string? QuoteDescription,
     DateTimeOffset CreatedAt,

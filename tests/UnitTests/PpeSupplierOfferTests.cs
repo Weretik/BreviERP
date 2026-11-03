@@ -25,8 +25,7 @@ public sealed class PpeSupplierOfferTests
     public void Supplier_fields_go_to_the_profile_and_keep_the_quote_description()
     {
         var product = Create(ProductType.Ppe);
-        product.SetOverview(new ProductOverviewDetails(3, null, true, false, null, null, "Опис для КП"),
-            DateOnly.FromDateTime(Now.DateTime), Now);
+        product.SetOverview(new ProductOverviewDetails(3, null, true, null, "Опис для КП"), Now);
 
         product.SetPpeSupplier(Details(price: 518.64m), Now);
 
@@ -143,7 +142,7 @@ public sealed class PpeSupplierOfferTests
     }
 
     private static PpeOfferVersion Offer(decimal cost)
-        => new(CurrentVersion, 101, new PpeOfferValues("Одяг ЗІЗ — АВ-Центр", cost, null, 700m, "sheet", "09.09.2026", true),
+        => new(CurrentVersion, 101, new PpeOfferValues("Одяг ЗІЗ — АВ-Центр", cost, null, 700m, "sheet", "09.09.2026"),
             true, "x", Now, Now);
 
     private static UpdatePpeSupplierOfferCommand Command(

@@ -36,7 +36,6 @@ public sealed class PricingInputReviewTests : SewingPricingDatabaseFixture
             Assert.That(before.CanApply, Is.False);
             await using var db = Catalog();
             Assert.That(await db.Set<PpeOfferVersionRecord>().AnyAsync(x => x.ApprovedBy != null), Is.False);
-            Assert.That(await db.Set<SewingMaterialLine>().AnyAsync(x => x.IsReviewed), Is.False);
             var lineId = (await db.Set<SewingMaterialLine>().FirstAsync()).Id.Value;
             await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE catalog.\"SewingMaterialLines\" SET \"Quantity\" = \"Quantity\" + 1 WHERE \"Id\" = {lineId}");
             var changed = await PricingInputReviewJob.RunAsync(_connection, _pricingSource, path);

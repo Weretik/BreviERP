@@ -55,7 +55,7 @@ internal sealed class SheetProductImportStore(CatalogDbContext db, IPpeOfferVers
             {
                 var product = planned.Existing ?? Product.Create(planned.Id, planned.Draft.Name, planned.Draft.Name,
                     ProductSlug.Create(planned.Slug), planned.Draft.Type, now);
-                SheetProductApplier.ApplyCard(product, planned.Draft, plan.Today, now);
+                SheetProductApplier.ApplyCard(product, planned.Draft, now);
                 if (planned.Existing is null) db.Products.Add(product);
                 products.Add((product, planned));
             }

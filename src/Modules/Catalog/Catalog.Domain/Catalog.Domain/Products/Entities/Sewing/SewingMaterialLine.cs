@@ -16,11 +16,7 @@ public sealed class SewingMaterialLine
     public string? CostCode { get; private set; }
     public decimal Quantity { get; private set; }
     public SewingMaterialUnit Unit { get; private set; }
-    public bool IsRequired { get; private set; }
     public int SortOrder { get; private set; }
-    public bool IsReviewed { get; private set; }
-    public string? ReviewedBy { get; private set; }
-    public DateTimeOffset? ReviewedAt { get; private set; }
     public string? Comment { get; private set; }
     public const int CommentMaxLength = 500;
     public string ReferenceKey => Kind switch
@@ -33,8 +29,7 @@ public sealed class SewingMaterialLine
     private SewingMaterialLine() { }
     public static SewingMaterialLine Create(CompositionLineId id, ProductId productId, ArticleId? articleId,
         SewingMaterialKind kind, FabricReferenceId? fabricId, AccessoryReferenceId? accessoryId, string? costCode,
-        decimal quantity, SewingMaterialUnit unit, bool isRequired, int sortOrder, bool isReviewed = false,
-        string? reviewedBy = null, DateTimeOffset? reviewedAt = null, string? comment = null)
+        decimal quantity, SewingMaterialUnit unit, int sortOrder, string? comment = null)
     {
         if (id.Value < 0 || productId.Value <= 0)
             throw new DomainException(ProductErrors.IdIsRequired());
@@ -53,9 +48,6 @@ public sealed class SewingMaterialLine
             _ => false
         };
         if (!validReference) throw new DomainException(ProductErrors.MaterialReferenceInvalid());
-        if (isReviewed && (string.IsNullOrWhiteSpace(reviewedBy) || reviewedBy.Trim().Length > 200
-            || !reviewedAt.HasValue))
-            throw new DomainException(ProductErrors.ReviewMetadataRequired());
         var note = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
         if (note?.Length > CommentMaxLength)
             throw new DomainException(ProductErrors.CommentTooLong(CommentMaxLength));
@@ -70,11 +62,7 @@ public sealed class SewingMaterialLine
             CostCode = string.IsNullOrWhiteSpace(costCode) ? null : costCode.Trim(),
             Quantity = quantity,
             Unit = unit,
-            IsRequired = isRequired,
             SortOrder = sortOrder,
-            IsReviewed = isReviewed,
-            ReviewedBy = isReviewed ? reviewedBy!.Trim() : null,
-            ReviewedAt = isReviewed ? reviewedAt : null,
             Comment = note
         };
     }

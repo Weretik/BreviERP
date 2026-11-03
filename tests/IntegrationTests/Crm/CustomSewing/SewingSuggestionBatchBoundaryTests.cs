@@ -25,7 +25,7 @@ public sealed class SewingSuggestionBatchBoundaryTests
         Assert.That(truncated.Models, Is.Empty);
         compositions.Setup(x => x.ReadAsync(It.IsAny<IReadOnlyCollection<SewingSuggestionIdentity>>(), "Зима", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new SewingSuggestionCompositionBatch([new(1, 1, "SKU", 1, true,
-                Enumerable.Range(1, 10001).Select(id => new SewingPricingMaterialRow(id, "Accessory:" + id, 1, "Piece", false, false, true, true)).ToArray(), [])], false));
+                Enumerable.Range(1, 10001).Select(id => new SewingPricingMaterialRow(id, "Accessory:" + id, 1, "Piece", false, false)).ToArray(), [])], false));
         var excessive = await source.ReadAsync("Куртка", "winter", default);
         Assert.That(excessive.LimitReached, Is.True);
         Assert.That(excessive.Models, Is.Empty);

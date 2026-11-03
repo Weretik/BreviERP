@@ -5,6 +5,5 @@ public sealed record SewingOperationInput(
     decimal Quantity,
     decimal? ManualMinutes,
     int SortOrder,
-    bool Reviewed,
     string? Comment = null);
 

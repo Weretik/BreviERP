@@ -128,7 +128,7 @@ components:
         severity: { type: integer }
     GarmentPartOperationRow:
       type: object
-      required: [id, garmentPartName, name, min, code, element, variant, minutesPerProduct, normCheckedAt, isActive, notes]
+      required: [id, garmentPartName, name, min, code, element, variant, minutesPerProduct, isActive, notes]
       properties:
         id: { type: integer, format: int32, minimum: 1 }
         garmentPartName: { type: string, description: «Група деталей». }
@@ -138,7 +138,6 @@ components:
         element: { type: [string, 'null'], description: «Вузол / елемент». }
         variant: { type: [string, 'null'], description: «Варіант виконання». }
         minutesPerProduct: { type: boolean, description: No fixed norm; the time is entered per product. }
-        normCheckedAt: { type: [string, 'null'], format: date }
         isActive: { type: boolean }
         notes: { type: [string, 'null'] }
     CreateGarmentPartOperationRequest:
@@ -159,7 +158,6 @@ components:
         element: { type: [string, 'null'], maxLength: 150 }
         variant: { type: [string, 'null'], maxLength: 255 }
         minutesPerProduct: { type: boolean, default: false }
-        normCheckedAt: { type: [string, 'null'], format: date }
         isActive: { type: boolean, default: true }
         notes: { type: [string, 'null'], maxLength: 1000 }
     ImportGarmentPartOperationsRequest:
@@ -185,7 +183,6 @@ components:
         name: { type: string }
         min: { type: number }
         minutesPerProduct: { type: boolean }
-        normCheckedAt: { type: [string, 'null'], format: date }
         isActive: { type: boolean }
         notes: { type: [string, 'null'] }
     GarmentPartOperationImportResult:

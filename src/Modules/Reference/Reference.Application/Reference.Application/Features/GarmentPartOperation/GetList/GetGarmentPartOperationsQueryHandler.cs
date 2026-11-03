@@ -32,7 +32,7 @@ public sealed class GetGarmentPartOperationsQueryHandler(
                     : string.Empty;
 
                 return new GarmentPartOperationRowDTO(x.Id, garmentPartName, x.Name, x.Min, x.Code, x.Element,
-                    x.Variant, x.MinutesPerProduct, x.NormCheckedAt, x.IsActive, x.Notes);
+                    x.Variant, x.MinutesPerProduct, x.IsActive, x.Notes);
             })
             .ToList();
 

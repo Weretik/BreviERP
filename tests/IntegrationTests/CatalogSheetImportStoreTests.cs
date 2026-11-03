@@ -82,8 +82,6 @@ public sealed class CatalogSheetImportStoreTests
             Assert.That(await LinesAsync("MOD-101", "SewingOperationLines"), Is.EqualTo(3), "OP-001 twice and OP-002");
             Assert.That(await _database.ScalarAsync<long>("SELECT count(*) FROM catalog.\"SewingMaterialLines\" m JOIN catalog.\"Products\" p ON p.\"Id\" = m.\"ProductId\" WHERE p.\"ModelCode\" = 'MOD-101' AND m.\"ArticleId\" IS NOT NULL"), Is.EqualTo(2));
             Assert.That(await _database.ScalarAsync<long>("SELECT count(*) FROM catalog.\"SewingOperationLines\" o JOIN catalog.\"Products\" p ON p.\"Id\" = o.\"ProductId\" WHERE p.\"ModelCode\" = 'MOD-101' AND o.\"ManualMinutes\" = 4.5"), Is.EqualTo(1));
-            Assert.That(await ReviewedAsync("MOD-101"), Is.EqualTo((6L, 6L)), "a checked model has every line reviewed");
-            Assert.That(await ReviewedAsync("MOD-102"), Is.EqualTo((0L, 2L)), "an unchecked model has no reviewed line");
             Assert.That(await OfferCountAsync(oldPpeId), Is.EqualTo(2), "the matched PPE gets a second offer version");
             Assert.That(await _database.ScalarAsync<long>("SELECT count(*) FROM catalog.\"PpePricingOfferVersions\""), Is.EqualTo(4), "500 (2) + 501 + 502 (without rule); 503 has no price");
             Assert.That(await _database.ScalarAsync<string?>("SELECT \"PricingRuleCode\" FROM catalog.\"ProductCatalogProfiles\" WHERE \"SaleSku\" = '502'"), Is.Null, "unknown rule is dropped");
@@ -331,15 +329,6 @@ public sealed class CatalogSheetImportStoreTests
     private async Task<long> LinesAsync(string model, string table)
         => await _database.ScalarAsync<long>($"SELECT count(*) FROM catalog.\"{table}\" l JOIN catalog.\"Products\" p ON p.\"Id\" = l.\"ProductId\" WHERE p.\"ModelCode\" = '{model}'");
 
-    private async Task<(long Reviewed, long All)> ReviewedAsync(string model)
-    {
-        var reviewed = await _database.ScalarAsync<long>($"""
-            SELECT (SELECT count(*) FROM catalog."SewingMaterialLines" l JOIN catalog."Products" p ON p."Id" = l."ProductId" WHERE p."ModelCode" = '{model}' AND l."IsReviewed" AND l."ReviewedBy" IS NOT NULL)
-                 + (SELECT count(*) FROM catalog."SewingOperationLines" l JOIN catalog."Products" p ON p."Id" = l."ProductId" WHERE p."ModelCode" = '{model}' AND l."IsReviewed" AND l."ReviewedBy" IS NOT NULL)
-            """);
-        var all = await LinesAsync(model, "SewingMaterialLines") + await LinesAsync(model, "SewingOperationLines");
-        return (reviewed, all);
-    }
 
     private static string Describe(SheetImportReport report)
         => string.Join("; ", report.Problems.Select(x => $"{x.Scope} {x.RowNumber} {x.Code}: {x.Message}"));
@@ -403,10 +392,11 @@ public sealed class CatalogSheetImportStoreTests
     private static object OldSewing() => new
     {
         rowNumber = 2, code = "MOD-900", name = "Стара модель", section = "Тест одяг", season = "Літо", isActive = true,
-        isVerified = false, verifiedOn = (string?)null, currentSiteUrl = (string?)null, quoteDescription = (string?)null,
+        currentSiteUrl = (string?)null, quoteDescription = (string?)null,
         articles = new[] { new { saleSku = "900", isActive = true } },
-        materials = new[] { new { rowNumber = 10, article = (string?)null, kind = "Fabric", code = "FAB-001", quantity = 1m, unit = "Metre", isRequired = true, comment = (string?)null } },
-        operations = new[] { new { rowNumber = 20, article = (string?)null, code = "OP-001", quantity = 1m, manualMinutes = (decimal?)null, comment = (string?)null } }
+        materials = new[] { new { rowNumber = 10, article = (string?)null, kind = "Fabric", code = "FAB-001", quantity = 1m, unit = "Metre", comment = (string?)null } },
+        // No operations: the old model has no price, so nothing keeps it from being deleted.
+        operations = Array.Empty<object>()
     };
 
     private static object OldPpe() => Ppe(2, "500", "Рукавички робочі", 100m, "Рукавички тест");
@@ -415,7 +405,7 @@ public sealed class CatalogSheetImportStoreTests
     {
         rowNumber = row, code, name, section = "Тест ЗІЗ", unit = "пара", currentSiteUrl = "https://example.test/" + code,
         supplierName = "Постачальник ЗІЗ", supplierUrl = code == "503" ? null : "https://supplier.test/" + code, supplierSku = "S-" + code,
-        supplierPrice = price, isActive = true, allowManualPrice = false, isVerified = true, verifiedOn = "01.10.2026",
+        supplierPrice = price, isActive = true, allowManualPrice = false,
         ruleCode = rule, quoteDescription = "Опис " + code, insightWholesale = (decimal?)null, insightRetail = (decimal?)null
     };
 
@@ -423,14 +413,14 @@ public sealed class CatalogSheetImportStoreTests
         bool deleteSecondModel = false)
     {
         object Material(int row, string? article, string kind, string code, decimal quantity, string unit)
-            => new { rowNumber = row, article, kind, code, quantity, unit, isRequired = true, comment = (string?)null };
+            => new { rowNumber = row, article, kind, code, quantity, unit, comment = (string?)null };
         object Operation(int row, string code, decimal quantity, decimal? manual, string comment)
             => new { rowNumber = row, article = (string?)null, code, quantity, manualMinutes = manual, comment };
 
         var first = new
         {
             rowNumber = 2, code = "MOD-101", name = "Куртка тестова", section = "Тест одяг", season = "Зима", isActive = true,
-            isVerified = true, verifiedOn = "08.09.2026", currentSiteUrl = "https://example.test/mod-101",
+            currentSiteUrl = "https://example.test/mod-101",
             quoteDescription = changeSewing ? "Змінений опис" : "Тепла куртка",
             articles = new[] { new { saleSku = "101", isActive = true }, new { saleSku = "102", isActive = true } },
             materials = new[]
@@ -449,7 +439,7 @@ public sealed class CatalogSheetImportStoreTests
         var second = new
         {
             rowNumber = 3, code = "mod-102", name = "Штани тестові", section = "Тест одяг", season = (string?)null, isActive = false,
-            isVerified = false, verifiedOn = (string?)null, currentSiteUrl = (string?)null, quoteDescription = (string?)null,
+            currentSiteUrl = (string?)null, quoteDescription = (string?)null,
             articles = new[] { new { saleSku = "103", isActive = true }, new { saleSku = "104", isActive = false } },
             materials = new[] { Material(13, null, "Fabric", "FAB-001", 1.2m, "Metre") },
             operations = new[] { Operation(23, "OP-002", 1m, null, "Пояс") }

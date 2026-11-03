@@ -50,7 +50,7 @@ flowchart LR
     Reconcile --> Report[Local or private Cloud Storage report]
 ```
 
-An initial import requires an empty Product catalogue; existing Reference rows are preserved and source-matched fields are updated with a change report. The same snapshot is verified and skipped on a rerun. A different snapshot requires a separate reviewed update workflow. Profile data contains source identity, activity/season/review and nullable PPE supplier offers; it does not synthesize legacy pricing percentages. Line reviews remain unapproved by Brevi users even when the source row is marked reviewed.
+An initial import requires an empty Product catalogue; existing Reference rows are preserved and source-matched fields are updated with a change report. The same snapshot is verified and skipped on a rerun. A different snapshot requires a separate reviewed update workflow. Profile data contains source identity, activity/season and nullable PPE supplier offers; it does not synthesize legacy pricing percentages. Composition lines and products carry no review or check marks (CAT-014).
 
 The fabric importer also stores nullable composition/density from the frozen `Тканини` rows. This applies to a new import; an already-applied snapshot remains skipped, so existing imported databases need an explicit source-hash/mapping-checked backfill after the additive Reference migration. The local TS-016 operation is recorded in [evidence](../../specs/crm/001-clients-quotes-custom-sewing/evidence/ts-016-core-2026-10-29.md).
 

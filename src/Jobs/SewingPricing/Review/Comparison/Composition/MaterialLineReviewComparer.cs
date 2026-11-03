@@ -17,7 +17,6 @@ internal static class MaterialLineReviewComparer
         line.CostCode,
         line.Quantity,
         line.Unit,
-        line.IsRequired,
         line.SortOrder
     };
 }

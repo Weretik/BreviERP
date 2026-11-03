@@ -29,22 +29,19 @@ public sealed class SewingSuggestionBridgeTests : CrmDatabaseFixture
             product.SetModelCode("MODEL-" + id, now);
             var profile = ProductCatalogProfile.Create(key, true);
             profile.SetIdentity(null, id == 5 ? "Літо" : "Зима", "Piece", null);
-            profile.SetSourceReview(id != 4, null);
             product.SetCatalogProfile(profile, now);
             product.AddArticle(SewingArticle.Create(default, key, "ARTICLE-" + id), now);
             if (id == 1) product.AddArticle(SewingArticle.Create(default, key, "ARTICLE-1-B"), now);
             catalog.Products.Add(product);
             await catalog.SaveChangesAsync(); // Persist generated article IDs before assigning article-scoped norms.
             var materials = product.Articles.Select((article, index) => SewingMaterialLine.Create(default, key, article.Id,
-                SewingMaterialKind.Fabric, FabricReferenceId.Create(id * 10 + index), null, null, 2, SewingMaterialUnit.Metre, true, index,
-                true, "Reviewer", now)).ToList();
+                SewingMaterialKind.Fabric, FabricReferenceId.Create(id * 10 + index), null, null, 2, SewingMaterialUnit.Metre, index)).ToList();
             materials.Add(SewingMaterialLine.Create(default, key, null, SewingMaterialKind.Accessory, null,
-                AccessoryReferenceId.Create(id == 3 ? 999 : 7), null, id == 2 ? 3 : 1, SewingMaterialUnit.Piece, true, 10,
-                true, "Reviewer", now));
+                AccessoryReferenceId.Create(id == 3 ? 999 : 7), null, id == 2 ? 3 : 1, SewingMaterialUnit.Piece, 10));
             materials.Add(SewingMaterialLine.Create(default, key, null, SewingMaterialKind.OtherCost, null, null,
-                "IGNORED", 500, SewingMaterialUnit.Service, true, 11));
+                "IGNORED", 500, SewingMaterialUnit.Service, 11));
             product.ReplaceComposition(materials, [SewingOperationLine.Create(default, key, null, OperationReferenceId.Create(2),
-                1, null, 0, true, true, "Reviewer", now)], now);
+                1, null, 0)], now);
         }
         await catalog.SaveChangesAsync();
         catalog.ChangeTracker.Clear();

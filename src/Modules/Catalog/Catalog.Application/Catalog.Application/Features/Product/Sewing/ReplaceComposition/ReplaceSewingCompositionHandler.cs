@@ -30,10 +30,10 @@ public sealed class ReplaceSewingCompositionHandler(
         try
         {
             var materials = request.Materials
-                .Select(line => CompositionLineFactory.Material(line, product.Id, null, command.Actor, now))
+                .Select(line => CompositionLineFactory.Material(line, product.Id, null))
                 .ToArray();
             var operations = request.Operations
-                .Select(line => CompositionLineFactory.Operation(line, product.Id, command.Actor, now))
+                .Select(line => CompositionLineFactory.Operation(line, product.Id))
                 .ToArray();
             // Validate the combined effective set before changing the model code or any stored lines.
             product.ReplaceComposition(product.MaterialLines.Where(line => line.ArticleId.HasValue)

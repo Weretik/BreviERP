@@ -1,4 +1,3 @@
-using System.Globalization;
 using ProductEntity = Catalog.Domain.Products.Entities.Product;
 
 namespace Catalog.Application.Features.Product.Overview.Update.Validators;
@@ -14,11 +13,6 @@ public sealed class UpdateProductOverviewCommandValidator : AbstractValidator<Up
             .Must(value => ProductEntity.Seasons.Contains(value!.Trim()))
             .When(x => !string.IsNullOrWhiteSpace(x.Season))
             .WithMessage("Сезон: «Літо», «Зима» або порожньо.");
-        RuleFor(x => x.VerifiedOn)
-            .Must(value => DateOnly.TryParseExact(value!.Trim(), ProductEntity.VerifiedOnFormat, CultureInfo.InvariantCulture,
-                DateTimeStyles.None, out _))
-            .When(x => !string.IsNullOrWhiteSpace(x.VerifiedOn))
-            .WithMessage("Дата перевірки у форматі дд.мм.рррр.");
         RuleFor(x => x.CurrentSiteUrl)
             .MaximumLength(ProductEntity.CurrentSiteUrlMaxLength)
             .Must(BeWebUrl).When(x => !string.IsNullOrWhiteSpace(x.CurrentSiteUrl))

@@ -13,6 +13,6 @@ internal sealed class GetGarmentPartOperationsSpec
             .ThenBy(x => x.Code)
             .ThenBy(x => x.Id)
             .Select(x => new GarmentPartOperationProjectionDTO(x.Id.Value, x.GarmentPartId.Value, x.Name, x.Min,
-                x.Code, x.Element, x.Variant, x.MinutesPerProduct, x.NormCheckedAt, x.IsActive, x.Notes));
+                x.Code, x.Element, x.Variant, x.MinutesPerProduct, x.IsActive, x.Notes));
     }
 }

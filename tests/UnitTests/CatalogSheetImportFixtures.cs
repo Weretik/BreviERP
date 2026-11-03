@@ -23,15 +23,14 @@ internal static class CatalogSheetImportFixtures
         [new(1, "АВ-Центр"), new(2, "3C-Маркет")],
         [new(10, "Sewing", "Одяг ЛІТО", true), new(20, "Ppe", "Одяг вологозахисний", true)]);
 
-    public static SheetSewingRow Sewing(string code = "MOD-025", string name = "Костюм «Верде» (куртка + штани)",
-        bool verified = true, string? verifiedOn = "08.09.2026")
-        => new(2, code, name, "Одяг ЛІТО", "Літо", true, verified, verifiedOn, "https://brevi.com.ua/kostyum-verde",
+    public static SheetSewingRow Sewing(string code = "MOD-025", string name = "Костюм «Верде» (куртка + штани)")
+        => new(2, code, name, "Одяг ЛІТО", "Літо", true, "https://brevi.com.ua/kostyum-verde",
             "Костюм із курткою та штанами.",
             [new("246", true), new("247", false)],
             [
-                new(5, null, "Accessory", "FUR-005", 6, "Piece", true, null),
-                new(6, "246", "Fabric", "FAB-059", 3.6m, "Metre", true, "Варіант для артикулу 246"),
-                new(7, "247", "Fabric", "FAB-023", 3.4m, "Metre", true, null),
+                new(5, null, "Accessory", "FUR-005", 6, "Piece", "Спільна складова для всіх артикулів моделі"),
+                new(6, "246", "Fabric", "FAB-059", 3.6m, "Metre", "Варіант для артикулу 246"),
+                new(7, "247", "Fabric", "FAB-023", 3.4m, "Metre", null),
             ],
             [
                 new(9, null, "OP-018", 1, null, null),
@@ -42,7 +41,7 @@ internal static class CatalogSheetImportFixtures
     public static SheetPpeRow Ppe(string code = "3", string name = "Костюм ВОЛОГОЗАХИСНИЙ", string? rule = Rule,
         decimal? price = 518.64m, string supplier = "АВ-Центр")
         => new(2, code, name, "Одяг вологозахисний", "шт.", "https://brevi.com.ua/kostyum-vologozahysnyj", supplier,
-            "https://avcentr.com.ua/ua/kostyum-carina", "CARINA", price, true, false, true, "09.09.2026", rule,
+            "https://avcentr.com.ua/ua/kostyum-carina", "CARINA", price, true, false, rule,
             "Вологозахисний костюм.", null, null);
 
     public static ImportSheetProductsCommand Command(IReadOnlyList<SheetSewingRow>? sewing = null,
@@ -65,7 +64,7 @@ internal static class CatalogSheetImportFixtures
         var product = Product.Create(id is null ? planned.Id : ProductId.Create(id.Value), planned.Draft.Name,
             planned.Draft.Name, ProductSlug.Create(planned.Slug), planned.Draft.Type, Now);
         var offset = (id ?? planned.Id.Value) * 100;
-        SheetProductApplier.ApplyCard(product, planned.Draft, DateOnly.FromDateTime(Now.Date), Now,
+        SheetProductApplier.ApplyCard(product, planned.Draft, Now,
             index => ArticleId.Create(offset + index + 1));
         if (planned.Draft.Sewing is { } sewing)
             SheetProductApplier.ApplyComposition(product, sewing, Now);
@@ -80,7 +79,7 @@ internal static class CatalogSheetImportFixtures
     }
 
     public static PpeOfferVersion Offer(int productId, decimal price, string? rule = Rule)
-        => new(Guid.NewGuid(), productId, new PpeOfferValues(rule, price, null, null, "Картка ЗІЗ", "01.10.2026", true),
+        => new(Guid.NewGuid(), productId, new PpeOfferValues(rule, price, null, null, "Картка ЗІЗ", "01.10.2026"),
             true, "manager", Now, Now);
 
     /// <summary>The name transliteration is not under test: every name gives «tovar».</summary>

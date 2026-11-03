@@ -146,9 +146,7 @@ paths:
       description: >-
         Requires CanManageProducts (open while temporary anonymous access is on). Every field is replaced. A PPE
         product needs a code (site article). The section must exist in Reference «Типи і розділи» and belong to the
-        product type. Season is for sewing only. When isVerified is true and verifiedOn is empty, the stored date is
-        kept or today (Kyiv) is set; when isVerified is false, the date is cleared. Only the director sets the check
-        (an agreement while the API is anonymous, not enforced).
+        product type. Season is for sewing only.
       security:
         - bearerAuth: []
       requestBody:
@@ -173,8 +171,8 @@ paths:
         code (sewing model ID, PPE site article), else by the exact name of the same type; a matched product keeps
         its ID and slug, the rest are created (ID largest + 1, slug as in createCatalogProduct). Names are Ukrainian
         only; the Russian name column gets a copy. A matched sewing model gets its article list and whole composition
-        replaced; a checked model's lines are marked reviewed by «Google-таблиця» at Kyiv midnight of verifiedOn. A
-        PPE product gets a new offer version (source «Імпорт з таблиці») only when the supplier price, the rule or a
+        replaced; the note «Спільна складова для всіх артикулів моделі» that the sheet repeats on shared lines is
+        dropped. A PPE product gets a new offer version (source «Імпорт з таблиці», dated the import day) only when the supplier price, the rule or a
         given Insight price differs; no supplier price means no version. With deleteMissing, every product of either
         type that no row matches is deleted. dryRun (default true) never writes. Any problem means nothing is
         written; warnings (unknown rule imported as none, no supplier price or link) do not stop the import. All
@@ -242,7 +240,7 @@ components:
         count: { type: integer, format: int32 }
     ProductOverviewItem:
       type: object
-      required: [id, type, code, name, sectionId, season, isActive, isVerified, verifiedOn, currentSiteUrl, quoteDescription, updatedAtUtc, prices, pricesUpdatedAt, problems, variants]
+      required: [id, type, code, name, sectionId, season, isActive, currentSiteUrl, quoteDescription, updatedAtUtc, prices, pricesUpdatedAt, problems, variants]
       properties:
         id: { type: integer, format: int32, minimum: 1 }
         type: { type: string, enum: [Sewing, Ppe] }
@@ -251,8 +249,6 @@ components:
         sectionId: { type: [integer, 'null'], format: int32, description: ID from /api/reference/product-sections. }
         season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
         isActive: { type: boolean }
-        isVerified: { type: boolean }
-        verifiedOn: { type: [string, 'null'], description: 'Check date as dd.MM.yyyy; older imported rows may hold other text.' }
         currentSiteUrl: { type: [string, 'null'], description: Product page on the current public site; quotes take photos from it (temporary). }
         quoteDescription: { type: [string, 'null'], description: Short description for a quote (КП). }
         updatedAtUtc: { type: string, format: date-time }
@@ -284,19 +280,17 @@ components:
         problems: { type: array, items: { type: string } }
     UpdateProductOverviewRequest:
       type: object
-      required: [isActive, isVerified]
+      required: [isActive]
       properties:
         code: { type: [string, 'null'], maxLength: 80 }
         sectionId: { type: [integer, 'null'], format: int32, minimum: 1 }
         season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
         isActive: { type: boolean }
-        isVerified: { type: boolean }
-        verifiedOn: { type: [string, 'null'], pattern: '^\d{2}\.\d{2}\.\d{4}$' }
         currentSiteUrl: { type: [string, 'null'], maxLength: 500, format: uri }
         quoteDescription: { type: [string, 'null'], maxLength: 2000 }
     CreateCatalogProductRequest:
       type: object
-      required: [type, name, sectionId, isActive, isVerified]
+      required: [type, name, sectionId, isActive]
       properties:
         type: { type: string, enum: [Sewing, Ppe] }
         code: { type: [string, 'null'], maxLength: 80, description: Required for PPE; empty sewing code takes the next MOD-XXX. }
@@ -304,7 +298,6 @@ components:
         sectionId: { type: integer, format: int32, minimum: 1 }
         season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
         isActive: { type: boolean }
-        isVerified: { type: boolean }
         currentSiteUrl: { type: [string, 'null'], maxLength: 500, format: uri }
         quoteDescription: { type: [string, 'null'], maxLength: 2000 }
         ppe:
@@ -355,7 +348,7 @@ components:
         deleteMissing: { type: boolean, default: false, description: Delete stored products that no row matches. }
     SheetSewingRow:
       type: object
-      required: [rowNumber, code, name, isActive, isVerified, articles, materials, operations]
+      required: [rowNumber, code, name, isActive, articles, materials, operations]
       properties:
         rowNumber: { type: integer, format: int32 }
         code: { type: string, description: Model ID MOD-…. }
@@ -363,8 +356,6 @@ components:
         section: { type: [string, 'null'], description: Sewing section name in Reference «Типи і розділи». }
         season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
         isActive: { type: boolean }
-        isVerified: { type: boolean }
-        verifiedOn: { type: [string, 'null'], description: dd.MM.yyyy. }
         currentSiteUrl: { type: [string, 'null'], format: uri }
         quoteDescription: { type: [string, 'null'], maxLength: 2000 }
         articles:
@@ -384,7 +375,7 @@ components:
         isActive: { type: boolean }
     SheetSewingMaterialRow:
       type: object
-      required: [rowNumber, kind, code, quantity, unit, isRequired]
+      required: [rowNumber, kind, code, quantity, unit]
       properties:
         rowNumber: { type: integer, format: int32 }
         article: { type: [string, 'null'], description: Sale SKU of the article; null for a line shared by all articles. }
@@ -392,7 +383,6 @@ components:
         code: { type: string, description: FAB-… or FUR-…. }
         quantity: { type: number, exclusiveMinimum: 0 }
         unit: { type: string, enum: [Metre, Piece], description: A fabric is in metres. }
-        isRequired: { type: boolean }
         comment: { type: [string, 'null'], maxLength: 500 }
     SheetSewingOperationRow:
       type: object
@@ -406,7 +396,7 @@ components:
         comment: { type: [string, 'null'], maxLength: 500 }
     SheetPpeRow:
       type: object
-      required: [rowNumber, code, name, isActive, allowManualPrice, isVerified]
+      required: [rowNumber, code, name, isActive, allowManualPrice]
       properties:
         rowNumber: { type: integer, format: int32 }
         code: { type: string, maxLength: 80, description: Site article. }
@@ -420,8 +410,6 @@ components:
         supplierPrice: { type: [number, 'null'], exclusiveMinimum: 0, description: Null means no price version (warning). }
         isActive: { type: boolean }
         allowManualPrice: { type: boolean }
-        isVerified: { type: boolean }
-        verifiedOn: { type: [string, 'null'], description: dd.MM.yyyy. }
         ruleCode: { type: [string, 'null'], maxLength: 200, description: PPE rule code (the rule name); an unknown one is imported as none (warning). }
         quoteDescription: { type: [string, 'null'], maxLength: 2000 }
         insightWholesale: { type: [number, 'null'], minimum: 0 }

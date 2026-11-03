@@ -109,7 +109,7 @@ public sealed class SewingCompositionHandlerTests
         var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21");
         fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
         var existing = SewingMaterialLine.Create(CompositionLineId.Create(4), fixture.Product.Id, article.Id,
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 1m, SewingMaterialUnit.Metre, true, 0);
+            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 1m, SewingMaterialUnit.Metre, 0);
         fixture.Product.ReplaceComposition([existing], [], DateTimeOffset.UtcNow);
         fixture.Store.Setup(x => x.LoadAsync(101, It.IsAny<CancellationToken>())).ReturnsAsync(fixture.Product);
         fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
@@ -124,27 +124,7 @@ public sealed class SewingCompositionHandlerTests
     }
 
     [Test]
-    public async Task Reviewed_operation_records_authenticated_actor_and_server_time()
-    {
-        var fixture = new Fixture();
-        fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References(includeOperation: true));
-        fixture.Store.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        fixture.ReadStore.Setup(x => x.ReadCompositionAsync(101, null, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new SewingCompositionReadSnapshot(101, null, null,
-                fixture.Product.CompositionVersion, true, [], []));
-
-        var result = await fixture.CompositionHandler.Handle(new ReplaceSewingCompositionCommand(101,
-            new(null, [], [new(5, 1m, null, 0, true)], 0), "authenticated-manager"), CancellationToken.None);
-
-        Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
-        var line = fixture.Product.OperationLines.Single();
-        Assert.That(line.IsReviewed, Is.True);
-        Assert.That(line.ReviewedBy, Is.EqualTo("authenticated-manager"));
-        Assert.That(line.ReviewedAt, Is.Not.Null);
-    }
-
-    [Test]
-    public async Task Replacing_unreviewed_required_material_returns_readiness_blocker()
+    public async Task Replacing_material_needs_no_review_to_be_ready()
     {
         var fixture = new Fixture();
         fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>()))
@@ -152,14 +132,13 @@ public sealed class SewingCompositionHandlerTests
         fixture.Store.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
         fixture.ReadStore.Setup(x => x.ReadCompositionAsync(101, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new SewingCompositionReadSnapshot(101, null, null, 1, true,
-            [new SewingMaterialView(1, null, "Model", "Fabric", 10, null, 1m, "Metre", true, 0,
-                false, null, null, null)], []));
+            [new SewingMaterialView(1, null, "Model", "Fabric", 10, null, 1m, "Metre", 0, null)], []));
 
         var result = await fixture.CompositionHandler.Handle(new ReplaceSewingCompositionCommand(101,
             new(null, [FabricInput(10)], [], 0), "authenticated-manager"), CancellationToken.None);
 
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
-        Assert.That(result.Value.Blockers, Does.Contain("Required material line 1 has not been reviewed."));
+        Assert.That(result.Value.Blockers, Has.None.Contains("reviewed"));
     }
 
     [Test]
@@ -172,7 +151,7 @@ public sealed class SewingCompositionHandlerTests
         var article = SewingArticle.Create(ArticleId.Create(24), product.Id, "SKU-24");
         product.AddArticle(article, DateTimeOffset.UtcNow);
         product.ReplaceComposition([SewingMaterialLine.Create(CompositionLineId.Create(10), product.Id, null,
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 2m, SewingMaterialUnit.Metre, true, 0)], [], DateTimeOffset.UtcNow);
+            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 2m, SewingMaterialUnit.Metre, 0)], [], DateTimeOffset.UtcNow);
         fixture.LoadProduct(product);
 
         var changedNorm = await fixture.Handler.Handle(new ReplaceProductCommand(101,
@@ -202,7 +181,7 @@ public sealed class SewingCompositionHandlerTests
         fixture.Repository.Verify(x => x.UpdateAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    private static SewingMaterialInput FabricInput(int id) => new("Fabric", id, null, 1m, "Metre", true, 0, false);
+    private static SewingMaterialInput FabricInput(int id) => new("Fabric", id, null, 1m, "Metre", 0);
 
     private static ProductReferenceData References(bool includeOperation = false) => new(
         new Dictionary<int, ReferenceItem>(), new Dictionary<int, PricedReferenceItem> { [10] = new(10, "Fabric", 10m) },

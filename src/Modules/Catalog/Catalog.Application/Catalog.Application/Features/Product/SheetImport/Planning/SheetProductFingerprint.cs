@@ -16,7 +16,7 @@ public static class SheetProductFingerprint
         var parts = new List<string?>
         {
             product.Name, product.RuName, product.Code,
-            Text(p?.SectionId), p?.Season, Text(p?.IsActive), Text(p?.IsSourceReviewed), p?.SourceReviewDate,
+            Text(p?.SectionId), p?.Season, Text(p?.IsActive),
             p?.WebsiteUrl, p?.ShortDescription,
             Text(p?.SupplierId?.Value), p?.SupplierSku, p?.SupplierProductUrl, Text(p?.SupplierPrice),
             Text(p?.AllowManualPrice), p?.PricingRuleCode, p?.Unit,
@@ -25,10 +25,10 @@ public static class SheetProductFingerprint
             .Select(x => $"A|{x.SaleSku}|{Text(x.IsActive)}|{x.SortOrder}"));
         parts.AddRange(product.MaterialLines.OrderBy(x => x.SortOrder).ThenBy(x => x.Id.Value)
             .Select(x => string.Join('|', "M", x.ArticleId is { } a ? skus.GetValueOrDefault(a) : "", x.ReferenceKey,
-                Text(x.Quantity), x.Unit, Text(x.IsRequired), x.SortOrder, Text(x.IsReviewed), x.Comment)));
+                Text(x.Quantity), x.Unit, x.SortOrder, x.Comment)));
         parts.AddRange(product.OperationLines.OrderBy(x => x.SortOrder).ThenBy(x => x.Id.Value)
             .Select(x => string.Join('|', "O", x.OperationId.Value, Text(x.Quantity), Text(x.ManualMinutes),
-                x.SortOrder, Text(x.IsReviewed), x.Comment)));
+                x.SortOrder, x.Comment)));
         return string.Join('\n', parts.Select(x => x ?? "∅"));
     }
 

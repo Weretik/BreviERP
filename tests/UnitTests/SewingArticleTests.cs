@@ -35,23 +35,21 @@ public sealed class SewingArticleTests
         var article = SewingArticle.Create(ArticleId.Create(1), product.Id, "00246");
         product.AddArticle(article, DateTimeOffset.UtcNow);
         var shared = SewingMaterialLine.Create(CompositionLineId.Create(1), product.Id, null, SewingMaterialKind.Fabric,
-            FabricReferenceId.Create(10), null, null, 3.6m, SewingMaterialUnit.Metre, true, 0);
+            FabricReferenceId.Create(10), null, null, 3.6m, SewingMaterialUnit.Metre, 0);
         product.ReplaceComposition([shared], [], DateTimeOffset.UtcNow);
         var specific = SewingMaterialLine.Create(CompositionLineId.Create(2), product.Id, article.Id, SewingMaterialKind.Fabric,
-            FabricReferenceId.Create(10), null, null, 2m, SewingMaterialUnit.Metre, true, 0);
+            FabricReferenceId.Create(10), null, null, 2m, SewingMaterialUnit.Metre, 0);
         Assert.Throws<BuildingBlocks.Domain.Exceptions.DomainException>(() => product.ReplaceComposition([shared, specific], [], DateTimeOffset.UtcNow));
         Assert.That(product.MaterialLines, Has.Count.EqualTo(1));
         Assert.That(product.MaterialLines.Single().Id, Is.EqualTo(shared.Id));
     }
 
     [Test]
-    public void Required_operation_manual_minutes_must_be_positive_and_review_metadata_complete()
+    public void Operation_manual_minutes_must_be_positive()
     {
         var productId = ProductId.Create(101);
         Assert.Throws<BuildingBlocks.Domain.Exceptions.DomainException>(() => SewingOperationLine.Create(
-            CompositionLineId.Create(0), productId, null, OperationReferenceId.Create(5), 1m, 0m, 0, true));
-        Assert.Throws<BuildingBlocks.Domain.Exceptions.DomainException>(() => SewingOperationLine.Create(
-            CompositionLineId.Create(0), productId, null, OperationReferenceId.Create(5), 1m, 4m, 0, true, true));
+            CompositionLineId.Create(0), productId, null, OperationReferenceId.Create(5), 1m, 0m, 0));
     }
 
     [Test]
@@ -61,9 +59,9 @@ public sealed class SewingArticleTests
         var article = SewingArticle.Create(ArticleId.Create(4), product.Id, "00246");
         product.AddArticle(article, DateTimeOffset.UtcNow);
         var shared = SewingMaterialLine.Create(CompositionLineId.Create(1), product.Id, null, SewingMaterialKind.Fabric,
-            FabricReferenceId.Create(11), null, null, 3.6m, SewingMaterialUnit.Metre, true, 1);
+            FabricReferenceId.Create(11), null, null, 3.6m, SewingMaterialUnit.Metre, 1);
         var articleLine = SewingMaterialLine.Create(CompositionLineId.Create(2), product.Id, article.Id, SewingMaterialKind.Accessory,
-            null, AccessoryReferenceId.Create(12), null, 2m, SewingMaterialUnit.Piece, true, 0);
+            null, AccessoryReferenceId.Create(12), null, 2m, SewingMaterialUnit.Piece, 0);
         product.ReplaceComposition([shared, articleLine], [], DateTimeOffset.UtcNow);
 
         Assert.That(product.GetEffectiveMaterials(article.Id).Select(x => x.Id), Is.EqualTo(new[] { articleLine.Id, shared.Id }));
@@ -71,25 +69,24 @@ public sealed class SewingArticleTests
     }
 
     [Test]
-    public void Readiness_reports_review_and_missing_composition_blockers()
+    public void Readiness_reports_missing_composition_blockers_without_review()
     {
         var product = CreateProduct();
         var article = SewingArticle.Create(ArticleId.Create(9), product.Id, "SKU-9");
         product.AddArticle(article, DateTimeOffset.UtcNow);
         var operation = SewingOperationLine.Create(CompositionLineId.Create(3), product.Id, null, OperationReferenceId.Create(3),
-            1m, null, 0, true);
+            1m, null, 0);
         product.ReplaceComposition([], [operation], DateTimeOffset.UtcNow);
 
         var blockers = product.GetCalculationReadinessBlockers(article.Id);
-        Assert.That(blockers, Has.Some.Contains("has not been reviewed"));
+        Assert.That(blockers, Has.None.Contains("reviewed"));
         Assert.That(blockers, Has.Some.Contains("No effective fabric"));
 
         var projectedBlockers = SewingCompositionReadiness.Evaluate(article.IsActive,
             product.GetEffectiveMaterials(article.Id).Select(material =>
-                new MaterialReadinessFact(material.Id, material.Kind,
-                    material.IsRequired, material.IsReviewed)),
+                new MaterialReadinessFact(material.Id, material.Kind)),
             product.OperationLines.Select(line =>
-                new OperationReadinessFact(line.Id, line.IsReviewed)));
+                new OperationReadinessFact(line.Id)));
         Assert.That(projectedBlockers, Is.EqualTo(blockers));
     }
 
@@ -99,11 +96,11 @@ public sealed class SewingArticleTests
         var product = CreateProduct();
         var material = SewingMaterialLine.Create(CompositionLineId.Create(1), product.Id, null,
             SewingMaterialKind.Accessory, null, AccessoryReferenceId.Create(2), null,
-            1.9m, SewingMaterialUnit.Metre, true, 0);
+            1.9m, SewingMaterialUnit.Metre, 0);
         var first = SewingOperationLine.Create(CompositionLineId.Create(2), product.Id, null,
-            OperationReferenceId.Create(3), 1m, 20m, 0, true);
+            OperationReferenceId.Create(3), 1m, 20m, 0);
         var second = SewingOperationLine.Create(CompositionLineId.Create(3), product.Id, null,
-            OperationReferenceId.Create(3), 1m, 86m, 1, true);
+            OperationReferenceId.Create(3), 1m, 86m, 1);
 
         product.ReplaceComposition([material], [first, second], DateTimeOffset.UtcNow);
 

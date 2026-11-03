@@ -29,7 +29,6 @@ public class GarmentPartOperation : BaseEntity<GarmentPartOperationId>, IAggrega
     public string Name { get; private set; } = null!;
     public decimal Min { get; private set; }
     public bool MinutesPerProduct { get; private set; }
-    public DateOnly? NormCheckedAt { get; private set; }
     public bool IsActive { get; private set; } = true;
     public string? Notes { get; private set; }
     #endregion
@@ -77,7 +76,6 @@ public class GarmentPartOperation : BaseEntity<GarmentPartOperationId>, IAggrega
         SetName(details.Name);
         MinutesPerProduct = details.MinutesPerProduct;
         SetMin(details.MinutesPerProduct ? 0m : details.Min);
-        NormCheckedAt = details.NormCheckedAt;
         IsActive = details.IsActive;
         Notes = Text(details.Notes, NotesMaxLength);
     }

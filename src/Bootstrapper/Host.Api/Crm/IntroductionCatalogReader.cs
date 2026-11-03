@@ -29,7 +29,6 @@ public sealed class IntroductionCatalogReader(
                 p.Name,
                 p.CatalogProfile!.Season,
                 p.CatalogProfile.IsActive,
-                p.CatalogProfile.IsSourceReviewed,
                 p.CatalogProfile.WebsiteUrl,
                 ArticleIsActive = a.IsActive
             })
@@ -68,7 +67,7 @@ public sealed class IntroductionCatalogReader(
         }
 
         var price = await prices.ReadAsync("sewing", productId, articleId, cancellationToken);
-        return new IntroductionCatalogOffer(season.Value, "made", identity.IsSourceReviewed,
+        return new IntroductionCatalogOffer(season.Value, "made",
             identity.IsActive && identity.ArticleIsActive && fabricIds.Length == 1,
             identity.Name, fabricName, composition, density, identity.WebsiteUrl ?? "", price);
     }

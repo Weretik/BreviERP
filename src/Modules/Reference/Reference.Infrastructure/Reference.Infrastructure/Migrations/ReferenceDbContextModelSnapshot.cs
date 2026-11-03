@@ -197,9 +197,6 @@ namespace Reference.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<DateOnly?>("NormCheckedAt")
-                        .HasColumnType("date");
-
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
