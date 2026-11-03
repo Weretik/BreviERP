@@ -7,25 +7,48 @@ namespace Reference.Infrastructure.Pricing.InputVersions.Changes;
 
 internal sealed class ReferencePricingChangeAppender(ReferenceDbContext db)
 {
+    private const string SourcePrefix = "reference:";
+
     public bool HasChanges() => TrackedReferencePricingChanges.Any(db.ChangeTracker);
 
     public async Task AppendAsync(CancellationToken cancellationToken)
     {
         var versions = db.Set<ReferencePricingInputVersion>();
+        var at = DateTimeOffset.UtcNow;
         foreach (var change in TrackedReferencePricingChanges.Read(db.ChangeTracker))
         {
+            if (change.Deleted)
+            {
+                // The row goes; its version history is only meaningful while it exists.
+                // Versions are append-only, so a tracked stored one is never saved: EF would null its FK instead.
+                foreach (var tracked in db.ChangeTracker.Entries<ReferencePricingInputVersion>()
+                             .Where(x => x.State != EntityState.Added).ToList())
+                    tracked.State = EntityState.Detached;
+                await versions.Where(change.VersionFilter).ExecuteDeleteAsync(cancellationToken);
+                continue;
+            }
+
             var latest = await versions.Where(change.VersionFilter).AsNoTracking()
                 .OrderByDescending(x => x.Revision).FirstOrDefaultAsync(cancellationToken);
             if (latest is null)
+            {
+                versions.Add(Version(change, 1, SourcePrefix + change.Key, at));
                 continue;
-            var at = DateTimeOffset.UtcNow;
-            var expectedOriginal = latest.OperationId.HasValue ? latest.Value ?? 0 : MoneyAmount.From(latest.Value ?? 0).Value;
-            if (latest.EffectiveFrom >= at || expectedOriginal != change.OriginalValue)
+            }
+
+            var current = change.OperationId.HasValue ? latest.Value ?? 0 : MoneyAmount.From(latest.Value ?? 0).Value;
+            if (current == change.Value && latest.Unit == change.Unit && latest.IsActive == change.IsActive)
+                continue;
+            if (latest.EffectiveFrom >= at
+                || (change.OriginalValue.HasValue && change.OriginalValue != change.Value && current != change.OriginalValue))
                 throw new ReferencePricingConflictException("Pricing input changed or has a future revision. Reload before editing.");
-            var hash = Convert.ToHexString(SHA256.HashData(Guid.NewGuid().ToByteArray()));
-            versions.Add(ReferencePricingInputVersion.Create(latest.FabricId, latest.AccessoryId, latest.OperationId,
-                latest.OtherCostCode, change.Value, latest.Unit, latest.IsActive, true, latest.Revision + 1, at,
-                latest.SourceCode, hash, at.ToString("O")));
+            versions.Add(Version(change, latest.Revision + 1, latest.SourceCode, at));
         }
     }
+
+    private static ReferencePricingInputVersion Version(
+        ReferencePricingTrackedChange change, int revision, string sourceCode, DateTimeOffset at) =>
+        ReferencePricingInputVersion.Create(change.FabricId, change.AccessoryId, change.OperationId, null,
+            change.Value, change.Unit, change.IsActive, true, revision, at, sourceCode,
+            Convert.ToHexString(SHA256.HashData(Guid.NewGuid().ToByteArray())), at.ToString("O"));
 }

@@ -4,6 +4,8 @@ using Catalog.Application.Features.Product.Overview.CodeCheck;
 using Catalog.Application.Features.Product.Overview.Create;
 using Catalog.Application.Features.Product.Overview.GetList;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
+using Catalog.Application.Features.Product.Overview.Prices;
+using Catalog.Application.Features.Product.Overview.Prices.DTOs;
 using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Application.Features.Product.Overview.Update;
 using Catalog.Application.Features.Product.SheetImport;
@@ -98,4 +100,14 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
     public async Task<ActionResult<ProductCodeCheck>> CheckCode(
         [FromQuery] string type, [FromQuery] string? code, CancellationToken cancellationToken)
         => this.ToActionResult(await sender.Send(new GetProductCodeCheckQuery(type, code), cancellationToken));
+
+    [HttpGet("overview/prices", Name = "getProductOverviewPrices")]
+    [Authorize(Policy = "CatalogRead")]
+    [ProducesResponseType(typeof(IReadOnlyList<ProductOverviewPrices>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyList<ProductOverviewPrices>>> GetPrices(
+        [FromQuery] string type, CancellationToken cancellationToken)
+        => ProductOverviewTypes.TryParse(type, out var productType)
+            ? this.ToActionResult(await sender.Send(new GetProductOverviewPricesQuery(productType), cancellationToken))
+            : BadRequest("type must be Sewing or Ppe.");
 }

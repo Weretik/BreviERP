@@ -1,9 +1,27 @@
 using System.Linq.Expressions;
+using Reference.Domain.GarmentAccessories.ValueObjects;
+using Reference.Domain.GarmentPartOperations.ValueObjects;
 using Reference.Domain.Pricing;
 
 namespace Reference.Infrastructure.Pricing.InputVersions.Changes;
 
+/// <summary>
+/// The pricing state a Fabric, GarmentAccessory or GarmentPartOperation will have after the save.
+/// <see cref="OriginalValue"/> is null for a new row; <see cref="Deleted"/> rows lose their versions.
+/// </summary>
 internal sealed record ReferencePricingTrackedChange(
-    Expression<Func<ReferencePricingInputVersion, bool>> VersionFilter,
+    string Key,
+    FabricId? FabricId,
+    GarmentAccessoryId? AccessoryId,
+    GarmentPartOperationId? OperationId,
     decimal Value,
-    decimal OriginalValue);
+    decimal? OriginalValue,
+    PricingInputUnit Unit,
+    bool IsActive,
+    bool Deleted)
+{
+    public Expression<Func<ReferencePricingInputVersion, bool>> VersionFilter =>
+        FabricId.HasValue ? x => x.FabricId == FabricId
+        : AccessoryId.HasValue ? x => x.AccessoryId == AccessoryId
+        : x => x.OperationId == OperationId;
+}

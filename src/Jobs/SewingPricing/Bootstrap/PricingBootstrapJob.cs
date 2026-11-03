@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Net;
 using System.Text.Json;
 using Catalog.Domain.Pricing.Sewing;
@@ -55,9 +55,13 @@ public static class PricingBootstrapJob
             PricingBaselineReconciler.Verify(existing, settings, stored, versions);
             return new("already-bootstrapped", hash, source.CatalogSnapshotHash, existing.Id.Value, versions.Count);
         }
+        // First versions that Reference writes for new rows (CAT-011) are not a baseline: the bootstrap replaces them.
+        var automatic = reference.Set<ReferencePricingInputVersion>()
+            .Where(x => x.SourceCode.StartsWith("reference:") || x.SourceCode.StartsWith("reference-backfill:"));
         if (await catalog.Set<SewingPricingSettingsVersion>().AnyAsync(cancellationToken)
-            || await reference.Set<ReferencePricingInputVersion>().AnyAsync(cancellationToken))
+            || await reference.Set<ReferencePricingInputVersion>().Except(automatic).AnyAsync(cancellationToken))
             throw new InvalidOperationException("A different pricing baseline exists; use an explicit next-version workflow.");
+        await automatic.ExecuteDeleteAsync(cancellationToken);
         var settingsVersion = SewingPricingSettingsVersion.Create(1, source.CapturedAt, settings, hash, json, true);
         catalog.Add(settingsVersion);
         reference.AddRange(versions);
