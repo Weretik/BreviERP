@@ -52,6 +52,21 @@ public sealed class ProductCatalogProfile
         ShortDescription = Normalize(shortDescription, 4000);
     }
 
+    /// <summary>Sets the PPE supplier fields of the card; the quote description stays as it is.</summary>
+    public void SetSupplier(SupplierReferenceId supplierId, string? supplierSku, string? url, decimal? price,
+        bool allowManualPrice, string? pricingRuleCode, string? unit)
+    {
+        if (price is <= 0 || (price.HasValue && decimal.Round(price.Value, 6) != price))
+            throw new ArgumentOutOfRangeException(nameof(price));
+        SupplierId = supplierId;
+        SupplierSku = Normalize(supplierSku, 200);
+        SupplierProductUrl = Normalize(url, 2048);
+        SupplierPrice = price;
+        AllowManualPrice = allowManualPrice;
+        PricingRuleCode = Normalize(pricingRuleCode, 200);
+        Unit = Normalize(unit, 40);
+    }
+
     public void SetSourceReview(bool reviewed, string? originalDate)
     {
         IsSourceReviewed = reviewed;
