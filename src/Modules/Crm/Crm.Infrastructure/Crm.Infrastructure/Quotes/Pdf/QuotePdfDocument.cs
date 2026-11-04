@@ -1,4 +1,3 @@
-using System.Globalization;
 using Crm.Application.Quotes.Pdf;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -15,10 +14,9 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
 {
     private const string Accent = "#E8780F";
     private const string AccentSoft = "#FDF1E6";
-    private const string Ink = "#1F2328";
-    private const string Muted = "#6B7280";
-    private const string Line = "#E5E7EB";
-    private static readonly CultureInfo Uk = CultureInfo.GetCultureInfo("uk-UA");
+    private const string Ink = QuotePdfParts.Ink;
+    private const string Muted = QuotePdfParts.Muted;
+    private const string Line = QuotePdfParts.Line;
 
     public DocumentMetadata GetMetadata() => new()
     {
@@ -48,7 +46,7 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
                 foreach (var line in new[] { model.Company.Address, model.Company.Phone, model.Company.Email })
                     if (line is not null) column.Item().AlignRight().Text(line).FontColor(Muted).FontSize(8.5f);
                 if (model.Company.Site is { } site)
-                    column.Item().AlignRight().Hyperlink(site).Text(Display(site)).FontColor(Accent).FontSize(8.5f);
+                    column.Item().AlignRight().Hyperlink(site).Text(QuotePdfParts.Display(site)).FontColor(Accent).FontSize(8.5f);
             });
         });
 
@@ -85,7 +83,7 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
         container.Column(column =>
         {
             column.Item().Text(model.Title).FontSize(18).Bold().FontColor(Accent);
-            column.Item().Text($"№ {model.Number} від {model.Date.ToString("dd.MM.yyyy", Uk)}").FontColor(Muted);
+            column.Item().Text($"№ {model.Number} від {model.Date.ToString("dd.MM.yyyy", QuotePdfParts.Uk)}").FontColor(Muted);
             var client = string.Join(" · ", new[] { model.ClientCompanyName, model.RecipientName }.Where(x => x is not null));
             if (client.Length > 0)
                 column.Item().PaddingTop(4).Text(text =>
@@ -102,7 +100,7 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
             column.Item().Row(row =>
             {
                 if (item.PhotoUrl is { } url && images.TryGetValue(url, out var photo))
-                    row.ConstantItem(96).PaddingRight(12).Height(110).Element(x => Photo(x, photo));
+                    row.ConstantItem(96).PaddingRight(12).Height(110).Element(x => QuotePdfParts.Picture(x, photo));
                 row.RelativeItem().Column(text =>
                 {
                     text.Spacing(2);
@@ -116,12 +114,6 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
             });
             column.Item().Element(x => Prices(x, item));
         });
-
-    private static void Photo(IContainer container, QuotePdfImage photo)
-    {
-        if (photo.Svg is not null) container.Svg(photo.Svg).FitArea();
-        else container.AlignCenter().AlignMiddle().Image(photo.Bitmap!).FitArea();
-    }
 
     private void Prices(IContainer container, QuotePdfItem item)
     {
@@ -154,7 +146,7 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
                     if (option.Details is { } details) cell.Item().Text(details).FontColor(Muted).FontSize(8);
                 });
                 foreach (var tier in tiers)
-                    table.Cell().Element(BodyCell).AlignRight().Text(Money(tier.Price(option))).SemiBold();
+                    table.Cell().Element(BodyCell).AlignRight().Text(QuotePdfParts.Money(tier.Price(option))).SemiBold();
             }
         });
     }
@@ -171,25 +163,7 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
         });
     }
 
-    private void Footer(IContainer container) =>
-        container.BorderTop(1).BorderColor(Line).PaddingTop(6).Row(row =>
-        {
-            var requisites = string.Join(" · ", new[]
-            {
-                model.Company.Name,
-                model.Company.Edrpou is { } edrpou ? $"ЄДРПОУ {edrpou}" : null,
-                model.Company.TaxId is { } tax ? $"ІПН {tax}" : null,
-                model.Company.Iban is { } iban ? $"IBAN {iban}" : null,
-            }.Where(x => x is not null));
-            row.RelativeItem().Text(requisites).FontSize(7.5f).FontColor(Muted);
-            row.ConstantItem(70).AlignRight().Text(text =>
-            {
-                text.DefaultTextStyle(x => x.FontSize(7.5f).FontColor(Muted));
-                text.CurrentPageNumber();
-                text.Span(" / ");
-                text.TotalPages();
-            });
-        });
+    private void Footer(IContainer container) => QuotePdfParts.Footer(container, model.Company);
 
     private static IContainer HeadCell(IContainer container) =>
         container.BorderBottom(1).BorderColor(Line).PaddingVertical(4).PaddingHorizontal(4)
@@ -197,10 +171,4 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
 
     private static IContainer BodyCell(IContainer container) =>
         container.BorderBottom(1).BorderColor(Line).PaddingVertical(5).PaddingHorizontal(4);
-
-    internal static string Money(decimal? value) =>
-        value is { } amount ? amount.ToString("#,##0.00", Uk) + " ₴" : "—";
-
-    private static string Display(string url) =>
-        url.Replace("https://", "", StringComparison.Ordinal).Replace("http://", "", StringComparison.Ordinal).TrimEnd('/');
 }

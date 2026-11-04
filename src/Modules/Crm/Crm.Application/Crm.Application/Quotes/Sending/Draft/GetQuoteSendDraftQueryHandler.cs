@@ -9,6 +9,8 @@ namespace Crm.Application.Quotes.Sending.Draft;
 public sealed class GetQuoteSendDraftQueryHandler(IQuoteStore store, QuotePdfComposer composer, IGmailClient gmail)
     : IQueryHandler<GetQuoteSendDraftQuery, Result<QuoteSendDraftResponse>>
 {
+    public const string StandardLetter = "Стандартний лист";
+
     public async ValueTask<Result<QuoteSendDraftResponse>> Handle(GetQuoteSendDraftQuery query,
         CancellationToken cancellationToken)
     {
@@ -22,13 +24,15 @@ public sealed class GetQuoteSendDraftQueryHandler(IQuoteStore store, QuotePdfCom
         var site = context.Settings.Company.Site;
         string Fill(string text) => QuoteMarks.Fill(text, sender, site, quote.Number);
 
-        var letters = new List<QuoteLetterResponse>
-        {
-            new("Стандартний лист", Fill(context.Settings.Email.Subject), Fill(context.Settings.Email.Body)),
-        };
-        letters.AddRange(context.Settings.LetterVariants.Select(x => new QuoteLetterResponse(x.Name, Fill(x.Subject),
-            Fill(x.Body))));
+        var standard = new QuoteLetterResponse(StandardLetter, Fill(context.Settings.Email.Subject),
+            Fill(context.Settings.Email.Body));
+        var variants = context.Settings.LetterVariants
+            .Select(x => new QuoteLetterResponse(x.Name, Fill(x.Subject), Fill(x.Body))).ToList();
+        var introduction = quote.Introduction;
+        IReadOnlyList<QuoteLetterResponse> letters = introduction is null
+            ? [standard, .. variants]
+            : [.. variants.OrderByDescending(x => x.Name == introduction.LetterName), standard];
         return Result.Success(new QuoteSendDraftResponse(mailbox, sender.Name, gmail.IsConfigured,
-            QuotePdfComposer.FileName(quote), letters));
+            QuotePdfComposer.FileName(quote), letters, introduction?.RecipientEmail));
     }
 }

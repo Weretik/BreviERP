@@ -26,7 +26,7 @@ internal sealed class FakeQuoteCatalog : IQuoteCatalogReader
         return this;
     }
 
-    public Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, int page, int pageSize,
+    public Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, string? season, int page, int pageSize,
         CancellationToken cancellationToken) =>
         Task.FromResult(new QuoteCatalogPage(Products.Values.Where(x => x.Kind == kind).ToArray(), page, pageSize,
             Products.Count));

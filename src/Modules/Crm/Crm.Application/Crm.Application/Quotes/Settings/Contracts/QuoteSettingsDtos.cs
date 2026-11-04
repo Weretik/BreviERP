@@ -37,7 +37,9 @@ public sealed record QuoteIntroductionTextsDto(
     string? ProductButtonText,
     string? NextStepText,
     string? AccentColor,
-    IReadOnlyList<QuoteAdvantageDto> Advantages);
+    IReadOnlyList<QuoteAdvantageDto> Advantages,
+    string? SummerMainCode = null,
+    string? WinterMainCode = null);
 
 public sealed record QuoteLetterVariantDto(string Name, string Subject, string Body);
 

@@ -16,6 +16,7 @@ public sealed class SaveQuoteCommandHandler(
     {
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
+        if (quote.Kind != QuoteKind.Request) return Result.Conflict(QuoteMessages.WrongKind);
         if (quote.Version != command.Input.Version) return Result.Conflict(QuoteMessages.Stale);
 
         var actor = await staff.PersonAsync(command.Actor, cancellationToken);

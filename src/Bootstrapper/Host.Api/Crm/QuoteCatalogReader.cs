@@ -17,19 +17,45 @@ namespace Host.Api.Crm;
 /// </summary>
 internal sealed class QuoteCatalogReader(ISender sender) : IQuoteCatalogReader
 {
-    public async Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, int page, int pageSize,
-        CancellationToken cancellationToken)
+    public async Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, string? season, int page,
+        int pageSize, CancellationToken cancellationToken)
     {
         var type = kind == QuoteItemKind.Sewing ? ProductType.Sewing : ProductType.Ppe;
-        var result = await sender.Send(new GetProductOverviewPageQuery(type, search, null, false, false,
-            ProductOverviewSort.Code, false, page, Math.Min(pageSize, GetProductOverviewPageQuery.MaxPageSize)),
-            cancellationToken);
-        if (!result.IsSuccess) return new QuoteCatalogPage([], page, pageSize, 0);
-
         var fabrics = await FabricsAsync(cancellationToken);
+        if (season is not null) return await SearchSeasonAsync(type, search, season, page, pageSize, fabrics, cancellationToken);
+
+        var result = await sender.Send(OverviewPage(type, search, page, pageSize), cancellationToken);
+        if (!result.IsSuccess) return new QuoteCatalogPage([], page, pageSize, 0);
         var items = result.Value.Items.Select(x => Map(x, fabrics, null)).ToArray();
         return new QuoteCatalogPage(items, result.Value.Page, result.Value.PageSize, result.Value.Total);
     }
+
+    /// <summary>
+    /// The Catalog list has no season filter: the introduction picker reads the whole list (about 130 models) and
+    /// filters it here.
+    /// </summary>
+    private async Task<QuoteCatalogPage> SearchSeasonAsync(ProductType type, string? search, string season, int page,
+        int pageSize, IReadOnlyDictionary<int, FabricRowDTO> fabrics, CancellationToken cancellationToken)
+    {
+        var rows = new List<ProductOverviewItem>();
+        for (var next = 1; ; next++)
+        {
+            var result = await sender.Send(OverviewPage(type, search, next, GetProductOverviewPageQuery.MaxPageSize),
+                cancellationToken);
+            if (!result.IsSuccess) break;
+            rows.AddRange(result.Value.Items);
+            if (rows.Count >= result.Value.Total || result.Value.Items.Count == 0) break;
+        }
+
+        var matching = rows.Where(x => string.Equals(x.Season?.Trim(), season, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        var items = matching.Skip((page - 1) * pageSize).Take(pageSize).Select(x => Map(x, fabrics, null)).ToArray();
+        return new QuoteCatalogPage(items, page, pageSize, matching.Length);
+    }
+
+    private static GetProductOverviewPageQuery OverviewPage(ProductType type, string? search, int page, int pageSize) =>
+        new(type, search, null, false, false, ProductOverviewSort.Code, false, page,
+            Math.Min(pageSize, GetProductOverviewPageQuery.MaxPageSize));
 
     public async Task<IReadOnlyDictionary<int, QuoteCatalogProduct>> GetAsync(IReadOnlyCollection<int> productIds,
         CancellationToken cancellationToken)

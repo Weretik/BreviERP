@@ -1,4 +1,5 @@
 using Crm.Domain.Quotes;
+using Crm.Domain.Quotes.Introductions;
 using Crm.Domain.Quotes.Sending;
 using Crm.Domain.Quotes.Settings;
 
@@ -18,6 +19,9 @@ public interface IQuoteStore
     /// <summary>Letters with a КП that Gmail accepted.</summary>
     DbSet<QuoteSending> QuoteSendings { get; }
 
+    /// <summary>«Готові шаблони» of introductions (R-19).</summary>
+    DbSet<QuoteIntroTemplate> QuoteIntroTemplates { get; }
+
     /// <summary>Saves; a stale <see cref="Quote.Version"/> throws <see cref="DbUpdateConcurrencyException"/>.</summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 
@@ -29,4 +33,7 @@ public interface IQuoteStore
 
     /// <summary>True when two consents of the same staff member raced (primary key violation).</summary>
     bool IsDuplicateMailbox(DbUpdateException exception);
+
+    /// <summary>True when a template with the same name (ignoring case) already exists.</summary>
+    bool IsDuplicateTemplateName(DbUpdateException exception);
 }

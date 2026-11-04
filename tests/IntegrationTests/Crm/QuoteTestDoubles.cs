@@ -1,4 +1,5 @@
 using Crm.Application.Quotes.Pdf;
+using Crm.Application.Quotes.Pdf.Introduction;
 using Crm.Application.Quotes.Staff;
 
 namespace IntegrationTests.Crm;
@@ -20,9 +21,17 @@ internal sealed class QuoteTestRenderer : IQuotePdfRenderer
 {
     public QuotePdfModel? Model { get; private set; }
 
+    public QuoteIntroPdfModel? IntroModel { get; private set; }
+
     public Task<byte[]> RenderAsync(QuotePdfModel model, CancellationToken cancellationToken)
     {
         Model = model;
+        return Task.FromResult("%PDF-"u8.ToArray());
+    }
+
+    public Task<byte[]> RenderIntroductionAsync(QuoteIntroPdfModel model, CancellationToken cancellationToken)
+    {
+        IntroModel = model;
         return Task.FromResult("%PDF-"u8.ToArray());
     }
 }

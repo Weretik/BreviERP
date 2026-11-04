@@ -1,6 +1,9 @@
 using BuildingBlocks.Api.Result;
 using Crm.Application.Quotes.Contracts;
+using Crm.Application.Quotes.GetCatalogProducts;
 using Crm.Application.Quotes.GetStaff;
+using Crm.Application.Quotes.Introductions.Contracts;
+using Crm.Application.Quotes.Introductions.Setup;
 using Crm.Application.Quotes.SearchCatalog;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -16,13 +19,28 @@ namespace Crm.Api.Quotes;
 public sealed class QuoteLookupsController(ISender sender) : ControllerBase
 {
     /// <param name="kind">`Sewing` or `Ppe`.</param>
+    /// <param name="season">`Summer` or `Winter`: only sewing models of that season.</param>
     [HttpGet("catalog", Name = "searchCrmQuoteCatalog")]
     [ProducesResponseType<QuoteCatalogPageResponse>(StatusCodes.Status200OK)]
     public async Task<ActionResult<QuoteCatalogPageResponse>> Catalog([FromQuery] string kind,
-        [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 20,
-        CancellationToken cancellationToken = default) =>
-        this.ToActionResult(await sender.Send(new SearchQuoteCatalogQuery(kind, search, page, pageSize),
+        [FromQuery] string? search, [FromQuery] string? season, [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default) =>
+        this.ToActionResult(await sender.Send(new SearchQuoteCatalogQuery(kind, search, page, pageSize, season),
             cancellationToken));
+
+    /// <summary>Catalog products by id, with their fabric variants and photo (at most 20).</summary>
+    [HttpGet("products", Name = "getCrmQuoteCatalogProducts")]
+    [ProducesResponseType<IReadOnlyList<QuoteCatalogProductResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyList<QuoteCatalogProductResponse>>> Products(
+        [FromQuery] int[] ids, CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new GetQuoteCatalogProductsQuery(ids), cancellationToken));
+
+    /// <summary>What «КП для знайомства» starts from: the main model of each season and the letter variants.</summary>
+    [HttpGet("introduction", Name = "getCrmQuoteIntroductionSetup")]
+    [ProducesResponseType<QuoteIntroductionSetupResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<QuoteIntroductionSetupResponse>> Introduction(CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new GetQuoteIntroductionSetupQuery(), cancellationToken));
 
     [HttpGet("staff", Name = "getCrmQuoteStaff")]
     [Authorize(Roles = "Admin")]

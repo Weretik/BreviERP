@@ -13,6 +13,11 @@ internal static class QuoteSettingsQueries
         return query.SingleOrDefaultAsync(x => x.Id == QuoteSettings.SingletonId, cancellationToken);
     }
 
+    /// <summary>What the КП documents use: the saved settings, else the defaults.</summary>
+    public static async Task<QuoteSettingsContent> SettingsContentAsync(this IQuoteStore store,
+        CancellationToken cancellationToken) =>
+        (await store.FindSettingsAsync(tracking: false, cancellationToken))?.Content ?? QuoteSettingsDefaults.Content;
+
     /// <summary>Connected Gmail addresses by staff member.</summary>
     public static async Task<IReadOnlyDictionary<int, string>> MailboxEmailsAsync(this IQuoteStore store,
         CancellationToken cancellationToken) =>

@@ -6,13 +6,16 @@ namespace Crm.Application.Quotes.Sending.Draft;
 public sealed record GetQuoteSendDraftQuery(QuoteActor Actor, long Id) : IQuery<Result<QuoteSendDraftResponse>>;
 
 /// <param name="FromEmail">The signed-in person's connected Gmail; null until they connect it.</param>
-/// <param name="Letters">The template from «Налаштування КП» first, then the letter variants.</param>
+/// <param name="Letters">For a КП «під запит» the template from «Налаштування КП» first, then the letter variants;
+/// for an introduction the chosen variant first, then the other variants and the template (R-18).</param>
+/// <param name="To">The recipient saved in an introduction; null for a КП «під запит».</param>
 public sealed record QuoteSendDraftResponse(
     string? FromEmail,
     string FromName,
     bool GmailConfigured,
     string FileName,
-    IReadOnlyList<QuoteLetterResponse> Letters);
+    IReadOnlyList<QuoteLetterResponse> Letters,
+    string? To = null);
 
 public sealed record QuoteLetterResponse(string Name, string Subject, string Body);
 

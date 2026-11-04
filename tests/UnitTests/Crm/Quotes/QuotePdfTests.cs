@@ -61,7 +61,7 @@ public sealed class QuotePdfTests
 
     [Test]
     public void PriceIsWrittenInHryvnias() =>
-        Assert.That(QuotePdfDocument.Money(1364.17m).Replace(' ', ' ').Replace(' ', ' '),
+        Assert.That(QuotePdfParts.Money(1364.17m).Replace(' ', ' ').Replace(' ', ' '),
             Is.EqualTo("1 364,17 ₴"));
 
     [Test]

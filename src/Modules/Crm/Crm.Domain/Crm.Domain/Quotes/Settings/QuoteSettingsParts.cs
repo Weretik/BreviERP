@@ -26,7 +26,10 @@ public sealed record QuotePdfTexts(
 /// <summary>One of the five «Переваги» of the introduction catalogue.</summary>
 public sealed record QuoteAdvantage(string Title, string? Text);
 
-/// <summary>«КП для знайомства — рекламний каталог» texts (used in stage 4).</summary>
+/// <summary>
+/// «КП для знайомства — рекламний каталог» texts and the product codes of the fixed main models of the summer and
+/// winter pages (R-16); a missing code means the default one.
+/// </summary>
 public sealed record QuoteIntroductionTexts(
     string? LogoText,
     string? SummerTitle,
@@ -40,7 +43,17 @@ public sealed record QuoteIntroductionTexts(
     string? ProductButtonText,
     string? NextStepText,
     string? AccentColor,
-    IReadOnlyList<QuoteAdvantage> Advantages);
+    IReadOnlyList<QuoteAdvantage> Advantages,
+    string? SummerMainCode = null,
+    string? WinterMainCode = null)
+{
+    public const string DefaultSummerMainCode = "MOD-166";
+    public const string DefaultWinterMainCode = "MOD-169";
+
+    public string MainCode(QuoteIntroSeason season) => season == QuoteIntroSeason.Summer
+        ? SummerMainCode ?? DefaultSummerMainCode
+        : WinterMainCode ?? DefaultWinterMainCode;
+}
 
 /// <summary>A letter the manager picks before sending an introduction КП.</summary>
 public sealed record QuoteLetterVariant(string Name, string Subject, string Body);
