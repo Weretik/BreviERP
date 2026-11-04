@@ -517,6 +517,57 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.Settings.QuoteSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Introduction")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("LetterVariants")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Pdf")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("StaffContacts")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedByName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuoteSettings", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteSettings_Singleton", "\"Id\" = 1");
+
+                            t.HasCheckConstraint("CK_QuoteSettings_Version", "\"Version\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Crm.Infrastructure.Persistence.CustomerMutationRecord", b =>
                 {
                     b.Property<long>("Id")

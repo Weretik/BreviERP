@@ -11,4 +11,8 @@ internal static class QuoteStoreErrors
     public static bool IsDuplicateNumber(DbUpdateException exception) =>
         exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgres &&
         postgres.ConstraintName is NumberIndex or SequenceIndex;
+
+    public static bool IsDuplicateSettings(DbUpdateException exception) =>
+        exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgres &&
+        postgres.ConstraintName == "PK_QuoteSettings";
 }

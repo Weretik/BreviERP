@@ -169,10 +169,14 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes
   /api/crm/quotes/{id}:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}
+  /api/crm/quotes/{id}/pdf:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1pdf
   /api/crm/quotes/{id}/reprice:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1reprice
   /api/crm/quotes/{id}/responsible:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1responsible
+  /api/crm/quote-settings:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-settings
   /api/crm/quote-lookups/catalog:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1catalog
   /api/crm/quote-lookups/staff:

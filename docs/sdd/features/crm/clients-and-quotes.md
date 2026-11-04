@@ -1,6 +1,6 @@
 # «Менеджер сервісу»: clients and КП
 
-**Implemented:** customer/contact master with clients from KeepinCRM, and КП (commercial proposals) stage 1: create, edit «Товари та ціни», reprice, give to a manager. The earlier Codex quote, custom sewing, PDF, email and archive work was removed on 2026-11-04.
+**Implemented:** customer/contact master with clients from KeepinCRM, and КП (commercial proposals) stages 1–2: create, edit «Товари та ціни», reprice, give to a manager, «Налаштування КП» and the PDF. The earlier Codex quote, custom sewing, PDF, email and archive work was removed on 2026-11-04.
 
 Authenticated Admin/Manager can create, read, search/page, revise and deactivate customers and contacts. Admin-only merge retains victim roots/audit while moving contacts/external identities to the survivor. Exact external identities are unique; similar names/shared emails never auto-merge. Manager reads/writes owned clients. Every mutation has requestId replay and a root revision; successful intent/result audit is stored in the same transaction. No destructive customer/contact delete API. Clients come from KeepinCRM: the daily `keepin-clients` step and `POST /api/crm/customers/keepin-sync` refresh them by KeepinCRM ID; the one-time transfer deletes unlinked Brevi clients unless a КП uses them ([CRM-002](../../specs/crm/002-keepincrm-clients/README.md), [runbook](../../operations/jobs/sync-job.md#keepin-clients)).
 
@@ -63,7 +63,7 @@ The transaction coordinator retains commit/rollback ownership; the journal uses 
 
 ## КП (commercial proposals)
 
-[QTE-001](../../specs/crm/003-quotes/README.md), [API contract](../../contracts/crm/quotes.openapi.yaml), tables `Quotes`, `QuoteItems`, `QuoteItemOptions` in [schema crm](../../architecture/data-model/crm.md).
+[QTE-001](../../specs/crm/003-quotes/README.md), [API contract](../../contracts/crm/quotes.openapi.yaml), tables `Quotes`, `QuoteItems`, `QuoteItemOptions`, `QuoteSettings` in [schema crm](../../architecture/data-model/crm.md).
 
 - Any Manager creates a КП and becomes responsible; a Manager sees and changes only own КП. Admin (the Director also holds Admin) sees all and gives a КП to any active manager (`PUT /api/crm/quotes/{id}/responsible`).
 - Number «n-month-year» (`37-9-2026`), counted per Kyiv month; a parallel create retries with the next number.
@@ -71,11 +71,14 @@ The transaction coordinator retains commit/rollback ownership; the journal uses 
 - A new Catalog row takes texts and published prices from the Catalog; a saved row keeps them, so a save never reprices. Sewing prices are never typed by hand. A PPE price that differs from the Catalog needs a reason and records who and when. One-off PPE prices are manual.
 - «Перерахувати за актуальними цінами» (`POST …/reprice`) first lists changes, then applies them; manual prices stay; rows the Catalog cannot price are listed and keep their prices.
 - `Version` is checked on every write; a stale save gets 409 «КП змінили в іншому вікні».
-- Later stages (not built): «Налаштування КП» and PDF, sending from each manager's own Gmail, «КП для знайомства», composition editing and archive.
+- «Налаштування КП» (`GET`/`PUT /api/crm/quote-settings`, Admin role): requisites and logo, each staff member's КП contact, letter template, PDF texts, introduction catalogue texts with five «Переваги», letter variants. Before the first save the old Calculator values are returned with version 0.
+- «Сформувати КП» (`GET /api/crm/quotes/{id}/pdf`): PDF of the saved КП, drawn on request by QuestPDF with embedded Noto Sans; only shown items and prices, client comment, the responsible manager's contact (saved one, else the account's) and requisites.
+- Later stages (not built): sending from each manager's own Gmail, «КП для знайомства», composition editing and archive.
 
 ```text
 src/Modules/Crm/
   Crm.Domain/Crm.Domain/Quotes/          Quote, QuoteItem, QuoteItemOption, QuotePrice, QuoteNumber, limits
+    Settings/                            QuoteSettings (one row), its sections, defaults from the Calculator
   Crm.Application/Crm.Application/Quotes/
     Access/                              QuoteActor (own vs all), messages, actor name lookup
     Contracts/                           inputs and responses
@@ -87,10 +90,13 @@ src/Modules/Crm/
     CreateQuote/, SaveQuote/, DeleteQuote/, GetQuote/, GetQuotes/,
     SetResponsible/, RepriceQuote/,
     SearchCatalog/, GetStaff/            one use case per folder: command/query, validator, handler
+    Settings/                            Contracts/ (DTOs, mapper), Reading/, GetSettings/, SaveSettings/
+    Pdf/                                 QuotePdfModel (client view) and builder, IQuotePdfRenderer, GetPdf/
   Crm.Infrastructure/Crm.Infrastructure/
     Persistence/Configurations/Quotes/   three EF mappings
-    Persistence/Quotes/                  unique-number detection
-  Crm.Api/Crm.Api/Quotes/                QuotesController, QuoteLookupsController, Requests/
+    Persistence/Quotes/                  unique-number and settings race detection
+    Quotes/Pdf/                          QuestPDF document, renderer, photo loader, embedded fonts
+  Crm.Api/Crm.Api/Quotes/                QuotesController, QuoteLookupsController, QuoteSettingsController, Requests/
 src/Bootstrapper/Host.Api/Crm/
   QuoteCatalogReader.cs                  Catalog overview, admin detail photo and Reference fabrics through Mediator
   QuoteStaffReader.cs                    active Manager/Admin users from Identity
@@ -98,6 +104,6 @@ src/Bootstrapper/Host.Api/Crm/
 
 ## Tests
 
-- КП rules and builder: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Crm.Quotes`.
-- КП on PostgreSQL (numbers, own vs all, stale version, reprice, responsible, delete): `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~QuotePersistenceTests` with `BREVIERP_CRM_TEST_CONNECTION` pointing at a local PostgreSQL.
+- КП rules, builder, settings validation and PDF (client view, render smoke; `BREVI_QUOTE_PDF_OUT=<file>` saves the sample): `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Crm.Quotes`.
+- КП on PostgreSQL (numbers, own vs all, stale version, reprice, responsible, delete; settings save and PDF source): `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IntegrationTests.Crm.Quote` with `BREVIERP_CRM_TEST_CONNECTION` pointing at a local PostgreSQL.
 - KeepinCRM clients: `tests/UnitTests/Crm/Customers/KeepinCrmClientSyncTests.cs` (`--filter FullyQualifiedName~KeepinCrmClientSync`); customers on PostgreSQL: `--filter FullyQualifiedName~CustomerPersistenceTests`.
