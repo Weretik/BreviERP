@@ -12,7 +12,7 @@ namespace Crm.Application.Quotes.RepriceQuote;
 
 public sealed class RepriceQuoteCommandHandler(
     IQuoteStore store, IQuoteStaffReader staff, IQuoteCatalogReader catalog, TimeProvider clock,
-    IQuoteSewingCalculator? sewing = null)
+    IQuoteSewingCalculator? sewing = null, IQuoteModelCompositionReader? models = null)
     : ICommandHandler<RepriceQuoteCommand, Result<QuoteRepriceReport>>
 {
     public async ValueTask<Result<QuoteRepriceReport>> Handle(RepriceQuoteCommand command,
@@ -36,7 +36,11 @@ public sealed class RepriceQuoteCommandHandler(
                      .OrderBy(x => x.Position))
         {
             products.TryGetValue(item.ProductId!.Value, out var product);
-            foreach (var option in item.Options.OrderBy(x => x.Position))
+            var otherFabrics = item.Options.Where(x => IsOtherFabric(item, x)).OrderBy(x => x.Position).ToArray();
+            if (otherFabrics.Length > 0)
+                await RepriceOtherFabricsAsync(item, otherFabrics, command.Apply, now, changes, unavailable,
+                    cancellationToken);
+            foreach (var option in item.Options.Where(x => !IsOtherFabric(item, x)).OrderBy(x => x.Position))
             {
                 var current = CurrentPrices(item, option, product, out var reason);
                 if (current is null)
@@ -78,6 +82,33 @@ public sealed class RepriceQuoteCommandHandler(
         return Result.Success(new QuoteRepriceReport(applied, quote.Version, changes, unavailable));
     }
 
+    private static bool IsOtherFabric(QuoteItem item, QuoteItemOption option) =>
+        item.Kind == QuoteItemKind.Sewing && option.ArticleId is null && option.Fabrics.Count > 0;
+
+    /// <summary>A model row in another fabric is priced again from the model's current shared lines (R-27).</summary>
+    private async Task RepriceOtherFabricsAsync(QuoteItem item, IReadOnlyList<QuoteItemOption> options, bool apply,
+        DateTimeOffset now, List<QuoteRepriceChange> changes, List<QuoteRepriceProblem> unavailable,
+        CancellationToken cancellationToken)
+    {
+        var model = sewing is null || models is null ? null : await models.ReadAsync(item.ProductId!.Value, cancellationToken);
+        if (model is null)
+        {
+            unavailable.AddRange(options.Select(x =>
+                new QuoteRepriceProblem(x.Id, item.Name, x.Title, "Модель видалено з каталогу.")));
+            return;
+        }
+
+        var composition = new QuoteSewingComposition(
+            options.Select(Variant).ToArray(),
+            model.Lines.Select(x => new QuoteSewingLine(x.Kind, x.ReferenceId, x.Quantity, x.ManualMinutes, x.CostCode))
+                .ToArray());
+        var calculation = await sewing!.CalculateAsync(composition, cancellationToken);
+        Apply(item, options, calculation, apply, now, changes, unavailable);
+    }
+
+    private static QuoteSewingVariant Variant(QuoteItemOption option) =>
+        new(option.Fabrics.OrderBy(f => f.Position).Select(f => new QuoteSewingFabric(f.FabricId, f.Meters)).ToArray());
+
     /// <summary>A «Виріб з нуля» is priced again from its saved composition by the Catalog formula (R-20).</summary>
     private async Task RepriceCustomAsync(QuoteItem item, bool apply, DateTimeOffset now,
         List<QuoteRepriceChange> changes, List<QuoteRepriceProblem> unavailable, CancellationToken cancellationToken)
@@ -90,7 +121,7 @@ public sealed class RepriceQuoteCommandHandler(
             return;
         }
 
-        if (item.Lines.Count == 0 || options.Any(x => x.FabricId is null || x.FabricMeters is null))
+        if (item.Lines.Count == 0 || options.Any(x => x.Fabrics.Count == 0))
         {
             unavailable.AddRange(options.Select(x =>
                 new QuoteRepriceProblem(x.Id, item.Name, x.Title, QuoteImportMapper.MissingCompositionReason)));
@@ -98,18 +129,24 @@ public sealed class RepriceQuoteCommandHandler(
         }
 
         var composition = new QuoteSewingComposition(
-            options.Select(x => new QuoteSewingFabric(x.FabricId ?? 0, x.FabricMeters ?? 0)).ToArray(),
+            options.Select(Variant).ToArray(),
             item.Lines.OrderBy(x => x.Position)
                 .Select(x => new QuoteSewingLine(x.Kind, x.ReferenceId, x.Quantity, x.ManualMinutes, x.CostCode)).ToArray());
         var calculation = await sewing.CalculateAsync(composition, cancellationToken);
-        for (var index = 0; index < options.Length; index++)
+        Apply(item, options, calculation, apply, now, changes, unavailable);
+    }
+
+    private static void Apply(QuoteItem item, IReadOnlyList<QuoteItemOption> options, QuoteSewingCalculation calculation,
+        bool apply, DateTimeOffset now, List<QuoteRepriceChange> changes, List<QuoteRepriceProblem> unavailable)
+    {
+        for (var index = 0; index < options.Count; index++)
         {
             var option = options[index];
-            var fabric = calculation.Fabrics[index];
-            if (fabric.Prices is not { } current)
+            var variant = calculation.Variants[index];
+            if (variant.Prices is not { } current)
             {
                 unavailable.Add(new QuoteRepriceProblem(option.Id, item.Name, option.Title,
-                    Problems(fabric.Problems, "Не вдалося порахувати ціну.")));
+                    Problems(variant.Problems, "Не вдалося порахувати ціну.")));
                 continue;
             }
 

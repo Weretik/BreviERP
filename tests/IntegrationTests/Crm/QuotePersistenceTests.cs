@@ -167,7 +167,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         var input = new SaveQuoteInput(0, "ТОВ «Агро»", null, null, null, null, null,
         [
             new QuoteItemInput(null, "CustomSewing", null, "Фартух з логотипом", null, null, null,
-                [new QuoteOptionInput(null, null, true, new(true, null), new(true, null), new(true, null), null, 5, 1.25m)],
+                [new QuoteOptionInput(null, null, true, new(true, null), new(true, null), new(true, null), null, [new QuoteOptionFabricInput(5, 1.25m)])],
                 [new QuoteItemLineInput("Accessory", 30, 4m, null), new QuoteItemLineInput("Operation", 155, 1m, 12m)]),
         ]);
         QuoteResponse created;
@@ -193,6 +193,8 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
                     ("Accessory", "Ґудзик", 4m, (decimal?)null), ("Operation", "Нестандартна операція", 1m, 12m)
                 }));
                 Assert.That(item.Options.Single().FabricMeters, Is.EqualTo(1.25m));
+                Assert.That(item.Options.Single().Fabrics.Select(x => (x.FabricId, x.Name, x.Meters)),
+                    Is.EqualTo(new[] { (5, "Саржа", 1.25m) }));
                 Assert.That(item.Options.Single().Retail.Amount, Is.EqualTo(250m));
             });
 
@@ -209,7 +211,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         var input = new SaveQuoteInput(0, "ТОВ «Агро»", null, null, null, null, null,
         [
             new QuoteItemInput(null, "CustomSewing", 10, "Костюм «Імпульс» з вишивкою", null, null, null,
-                [new QuoteOptionInput(null, null, true, new(true, null), new(true, null), new(true, null), null, 5, 1.5m)],
+                [new QuoteOptionInput(null, null, true, new(true, null), new(true, null), new(true, null), null, [new QuoteOptionFabricInput(5, 1.5m)])],
                 [
                     new QuoteItemLineInput("Service", 0, 1m, null, "Вишивка логотипу"),
                     new QuoteItemLineInput("Operation", 155, 1m, 12m)
@@ -369,9 +371,15 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
                         _ => "Нестандартна операція"
                     },
                     x.Kind == QuoteItemLineKind.Accessory ? "шт." : "хв", null, true)).ToArray(),
-                composition.Fabrics.Select(x => new QuoteSewingFabricPrice(x.FabricId, x.Meters, "Саржа", null, PerMeter,
-                    12m, 60m, x.Meters * PerMeter, new QuoteTierPrices(x.Meters * PerMeter, x.Meters * PerMeter - 10,
-                        x.Meters * PerMeter - 20), [])).ToArray()));
+                composition.Variants.Select(v =>
+                {
+                    var meters = v.Fabrics.Sum(x => x.Meters);
+                    return new QuoteSewingVariantPrice(
+                        v.Fabrics.Select(x => new QuoteSewingFabricInfo(x.FabricId, x.Meters, "Саржа", null, PerMeter))
+                            .ToArray(),
+                        12m, 60m, meters * PerMeter,
+                        new QuoteTierPrices(meters * PerMeter, meters * PerMeter - 10, meters * PerMeter - 20), []);
+                }).ToArray()));
     }
 
     private sealed class Staff : IQuoteStaffReader

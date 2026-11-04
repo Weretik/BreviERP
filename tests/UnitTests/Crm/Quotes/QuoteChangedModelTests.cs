@@ -17,7 +17,7 @@ public sealed class QuoteChangedModelTests
 
     private static QuoteOptionInput Fabric(int fabricId, decimal meters, long? id = null) =>
         new(id, null, false, new QuotePriceInput(true, null), new QuotePriceInput(true, null),
-            new QuotePriceInput(true, null), null, fabricId, meters);
+            new QuotePriceInput(true, null), null, [new QuoteOptionFabricInput(fabricId, meters)]);
 
     private static QuoteItemInput Changed(long? id = null, string service = "Вишивка логотипу", int productId = 10) =>
         new(id, "CustomSewing", productId, "Костюм «Імпульс» без кишень", "Змінений склад", null, null,

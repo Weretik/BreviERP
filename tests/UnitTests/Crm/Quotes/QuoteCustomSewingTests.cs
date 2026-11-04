@@ -14,7 +14,7 @@ public sealed class QuoteCustomSewingTests
 
     private static QuoteOptionInput Fabric(int fabricId, decimal meters, long? id = null, bool recommended = false) =>
         new(id, null, recommended, new QuotePriceInput(true, null), new QuotePriceInput(true, null),
-            new QuotePriceInput(true, null), null, fabricId, meters);
+            new QuotePriceInput(true, null), null, [new QuoteOptionFabricInput(fabricId, meters)]);
 
     private static QuoteItemInput Custom(long? id = null, decimal operationQuantity = 2m, params QuoteOptionInput[] fabrics) =>
         new(id, "CustomSewing", null, "Фартух з логотипом", "Під замовлення", null, null,
@@ -50,6 +50,38 @@ public sealed class QuoteCustomSewingTests
             Assert.That(item.Options[1].IsRecommended, Is.True);
             Assert.That(calculator.Calls, Is.EqualTo(1));
         });
+    }
+
+    [Test]
+    public async Task A_variant_sums_its_fabrics_with_the_shared_lines()
+    {
+        var builder = new QuoteItemsBuilder(new FakeQuoteCatalog(), new FakeSewingCalculator());
+        var twoFabrics = new QuoteOptionInput(null, null, false, new QuotePriceInput(true, null),
+            new QuotePriceInput(true, null), new QuotePriceInput(true, null), null,
+            [new QuoteOptionFabricInput(5, 1.2m), new QuoteOptionFabricInput(6, 0.5m)]);
+
+        var result = await builder.BuildAsync([Custom(fabrics: [Fabric(5, 1.2m), twoFabrics])], [], Manager, Now, default);
+
+        Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
+        var option = result.Value.Single().Options[1];
+        Assert.Multiple(() =>
+        {
+            Assert.That(option.Title, Is.EqualTo("Тканина 5 + Тканина 6"));
+            Assert.That(option.Fabrics.Select(x => (x.FabricId, x.Meters)), Is.EqualTo(new[] { (5, 1.2m), (6, 0.5m) }));
+            Assert.That(option.Retail.Source, Is.EqualTo((1.2m * 200m + 0.5m * 300m + 100m) * 2));
+        });
+    }
+
+    [Test]
+    public void The_same_fabric_twice_in_a_variant_is_rejected()
+    {
+        var input = Custom(fabrics: new QuoteOptionInput(null, null, false, new QuotePriceInput(true, null),
+            new QuotePriceInput(true, null), new QuotePriceInput(true, null), null,
+            [new QuoteOptionFabricInput(5, 1m), new QuoteOptionFabricInput(5, 2m)]));
+
+        var errors = new QuoteItemInputValidator().Validate(input).Errors.Select(x => x.ErrorMessage);
+
+        Assert.That(errors, Has.Some.Contains("двічі"));
     }
 
     [Test]
@@ -101,7 +133,7 @@ public sealed class QuoteCustomSewingTests
         Assert.That(errors, Is.SupersetOf(new[]
         {
             "Вкажіть назву виробу з нуля.", "Додайте до виробу з нуля хоча б одну операцію.",
-            "Оберіть тканину і вкажіть її метраж."
+            "Оберіть тканину.", "Вкажіть метраж тканини більше нуля."
         }));
     }
 

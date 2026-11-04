@@ -20,7 +20,7 @@ internal static class QuotePdfParts
     }
 
     public static string Money(decimal? value) =>
-        value is { } amount ? amount.ToString("#,##0.00", Uk) + " ₴" : "—";
+        value is { } amount ? amount.ToString("#,##0.00", Uk) : "—";
 
     public static string Display(string url) =>
         url.Replace("https://", "", StringComparison.Ordinal).Replace("http://", "", StringComparison.Ordinal).TrimEnd('/');

@@ -136,17 +136,18 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
             });
             foreach (var option in item.Options)
             {
-                table.Cell().Element(BodyCell).Column(cell =>
+                // The recommended row is tinted and marked, so the client sees it first.
+                IContainer Cell(IContainer cell) =>
+                    option.IsRecommended ? BodyCell(cell).Background(AccentSoft) : BodyCell(cell);
+                table.Cell().Element(Cell).Column(cell =>
                 {
-                    cell.Item().Text(text =>
-                    {
-                        text.Span(option.Title).SemiBold();
-                        if (option.IsRecommended) text.Span("  · рекомендовано").FontColor(Accent).FontSize(8);
-                    });
+                    if (option.IsRecommended)
+                        cell.Item().Text("РЕКОМЕНДУЄМО").FontColor(Accent).FontSize(7).Bold().LetterSpacing(0.05f);
+                    cell.Item().Text(option.Title).SemiBold();
                     if (option.Details is { } details) cell.Item().Text(details).FontColor(Muted).FontSize(8);
                 });
                 foreach (var tier in tiers)
-                    table.Cell().Element(BodyCell).AlignRight().Text(QuotePdfParts.Money(tier.Price(option))).SemiBold();
+                    table.Cell().Element(Cell).AlignRight().Text(QuotePdfParts.Money(tier.Price(option))).SemiBold();
             }
         });
     }

@@ -35,3 +35,27 @@ public sealed class QuoteItemLineInputValidator : AbstractValidator<QuoteItemLin
             .WithMessage("Хвилини задаються лише для операції.");
     }
 }
+
+/// <summary>The fabrics of one variant: 1–10 different fabrics, each with its metres.</summary>
+public sealed class QuoteOptionFabricsValidator : AbstractValidator<IReadOnlyList<QuoteOptionFabricInput>?>
+{
+    public const int MaxFabrics = 10;
+
+    public QuoteOptionFabricsValidator()
+    {
+        RuleFor(x => x).NotNull().Must(x => x is { Count: > 0 and <= MaxFabrics })
+            .WithMessage($"Варіант має від 1 до {MaxFabrics} тканин.");
+        RuleForEach(x => x).NotNull().ChildRules(fabric =>
+        {
+            fabric.RuleFor(x => x.FabricId).GreaterThan(0).WithMessage("Оберіть тканину.");
+            fabric.RuleFor(x => x.Meters).Must(QuoteCompositionRules.IsQuantity)
+                .WithMessage(QuoteCompositionRules.MetersMessage);
+        });
+        RuleFor(x => x).Must(x => x!.Where(f => f is not null).Select(f => f.FabricId).Distinct().Count() == x!.Count)
+            .When(x => x is not null).WithMessage("Тканина додана у варіант двічі.");
+    }
+
+    /// <summary>The variant as a comparable key: fabrics and metres in order.</summary>
+    public static string Key(IReadOnlyList<QuoteOptionFabricInput>? fabrics) =>
+        string.Join("|", (fabrics ?? []).Select(x => $"{x.FabricId}:{x.Meters}"));
+}

@@ -641,9 +641,9 @@ paths:
       security:
         - bearerAuth: []
       description: >-
-        «Виріб з нуля» (R-20): prices each fabric with the chosen accessories and operations by the Catalog sewing
-        formula and the current settings and reference prices. Nothing is saved; a fabric that cannot be priced lists
-        its problems.
+        «Виріб з нуля» (R-20, R-26) or a model row in another fabric (R-27): prices each variant, the sum of its fabrics
+        with the shared accessories and operations, by the Catalog sewing formula and the current settings and
+        reference prices. Nothing is saved; a variant that cannot be priced lists its problems.
       requestBody:
         required: true
         content:
@@ -651,7 +651,7 @@ paths:
             schema: { $ref: "#/components/schemas/CrmQuoteCustomSewingPriceInput" }
       responses:
         "200":
-          description: Line names and the price of each fabric, in the order given.
+          description: Line names and the price of each variant, in the order given.
           content:
             application/json:
               schema: { $ref: "#/components/schemas/CrmQuoteCustomSewingPrice" }
@@ -801,26 +801,38 @@ components:
               unit: { type: string }
               quantity: { type: number }
               manualMinutes: { type: [number, "null"] }
+    CrmQuoteOptionFabricInput:
+      type: object
+      required: [fabricId, meters]
+      properties:
+        fabricId: { type: integer, minimum: 1 }
+        meters: { type: number, exclusiveMinimum: 0, maximum: 10000 }
+    CrmQuoteOptionFabrics:
+      type: array
+      minItems: 1
+      maxItems: 10
+      description: Different fabrics; their costs are summed in the variant's price.
+      items: { $ref: "#/components/schemas/CrmQuoteOptionFabricInput" }
     CrmQuoteCustomSewingPriceInput:
       type: object
-      required: [fabrics, lines]
+      required: [variants, lines]
       properties:
-        fabrics:
+        variants:
           type: array
+          minItems: 1
           maxItems: 20
           items:
             type: object
-            required: [fabricId, meters]
+            required: [fabrics]
             properties:
-              fabricId: { type: integer, minimum: 1 }
-              meters: { type: number, exclusiveMinimum: 0, maximum: 10000 }
+              fabrics: { $ref: "#/components/schemas/CrmQuoteOptionFabrics" }
         lines:
           type: array
           maxItems: 200
           items: { $ref: "#/components/schemas/CrmQuoteItemLineInput" }
     CrmQuoteCustomSewingPrice:
       type: object
-      required: [lines, fabrics]
+      required: [lines, variants]
       properties:
         lines:
           type: array
@@ -838,17 +850,26 @@ components:
                 type: [number, "null"]
                 description: Accessory, fabric or service price per unit, or operation norm in minutes.
               isActive: { type: boolean }
-        fabrics:
+        variants:
           type: array
           items:
             type: object
-            required: [fabricId, meters, problems]
+            required: [fabrics, problems]
             properties:
-              fabricId: { type: integer }
-              meters: { type: number }
-              name: { type: [string, "null"] }
-              details: { type: [string, "null"], description: The client text of the fabric. }
-              pricePerMeter: { type: [number, "null"] }
+              title:
+                type: [string, "null"]
+                description: The fabric names joined by « + »; null when a fabric is gone from the Reference.
+              fabrics:
+                type: array
+                items:
+                  type: object
+                  required: [fabricId, meters]
+                  properties:
+                    fabricId: { type: integer }
+                    meters: { type: number }
+                    name: { type: [string, "null"] }
+                    details: { type: [string, "null"], description: The client text of the fabric. }
+                    pricePerMeter: { type: [number, "null"] }
               minutes: { type: [number, "null"] }
               laborCost: { type: [number, "null"], description: "Minutes × cost of a minute, UAH." }
               fullCost: { type: [number, "null"] }
@@ -900,8 +921,11 @@ components:
         wholesale: { $ref: "#/components/schemas/CrmQuotePriceInput" }
         large: { $ref: "#/components/schemas/CrmQuotePriceInput" }
         manualReason: { type: [string, "null"], maxLength: 500, description: Required when a PPE price differs from the Catalog. }
-        fabricId: { type: [integer, "null"], description: CustomSewing only; the fabric of the row. }
-        fabricMeters: { type: [number, "null"], description: CustomSewing only; metres of the fabric in one product. }
+        fabrics:
+          description: >-
+            CustomSewing: the fabrics of the variant (R-26). Sewing: one fabric from the Reference for a row in another
+            fabric, with articleId null (R-27). Null for a Catalog variant and a PPE.
+          oneOf: [{ $ref: "#/components/schemas/CrmQuoteOptionFabrics" }, { type: "null" }]
     CrmQuoteItemInput:
       type: object
       required: [kind, options]
@@ -952,7 +976,7 @@ components:
         shown: { type: boolean }
     CrmQuoteOption:
       type: object
-      required: [id, title, isRecommended, retail, wholesale, large]
+      required: [id, title, isRecommended, retail, wholesale, large, fabrics]
       properties:
         id: { type: integer, format: int64 }
         articleId: { type: [integer, "null"], format: int64 }
@@ -967,7 +991,17 @@ components:
         manualByName: { type: [string, "null"] }
         manualAt: { type: [string, "null"], format: date-time }
         pricesTakenAt: { type: [string, "null"], format: date-time }
-        fabricMeters: { type: [number, "null"], description: CustomSewing only. }
+        fabricMeters: { type: [number, "null"], description: Metres of the first fabric. }
+        fabrics:
+          type: array
+          description: The fabrics of a «Виріб з нуля» variant or of a model row in another fabric; empty otherwise.
+          items:
+            type: object
+            required: [fabricId, name, meters]
+            properties:
+              fabricId: { type: integer }
+              name: { type: string }
+              meters: { type: number }
     CrmQuoteItem:
       type: object
       required: [id, kind, name, options, lines]

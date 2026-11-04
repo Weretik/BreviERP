@@ -54,15 +54,28 @@ internal sealed class FakeSewingCalculator : IQuoteSewingCalculator
         var lines = composition.Lines.Select(x => new QuoteSewingLineInfo(x.Kind, x.ReferenceId,
             x.ReferenceId == 404 ? null : $"{x.Kind} {x.ReferenceId}", x.Kind == QuoteItemLineKind.Operation ? "хв" : "шт.",
             10m, true)).ToArray();
-        var fabrics = composition.Fabrics.Select(x =>
+        var variants = composition.Variants.Select(variant =>
         {
-            if (!FabricPrices.TryGetValue(x.FabricId, out var price))
-                return new QuoteSewingFabricPrice(x.FabricId, x.Meters, $"Тканина {x.FabricId}", null, null, minutes,
-                    null, null, null, ["немає ціни: тканина"]);
-            var cost = x.Meters * price + minutes * 5m;
-            return new QuoteSewingFabricPrice(x.FabricId, x.Meters, $"Тканина {x.FabricId}", "65% бавовна", price, minutes,
-                minutes * 5m, cost, new QuoteTierPrices(cost * 2, cost * 1.8m, cost * 1.5m), []);
+            var infos = variant.Fabrics.Select(x => new QuoteSewingFabricInfo(x.FabricId, x.Meters, $"Тканина {x.FabricId}",
+                "65% бавовна", FabricPrices.TryGetValue(x.FabricId, out var p) ? p : null)).ToArray();
+            if (infos.Any(x => x.PricePerMeter is null))
+                return new QuoteSewingVariantPrice(infos, minutes, null, null, null, ["немає ціни: тканина"]);
+            var cost = infos.Sum(x => x.Meters * x.PricePerMeter!.Value) + minutes * 5m;
+            return new QuoteSewingVariantPrice(infos, minutes, minutes * 5m, cost,
+                new QuoteTierPrices(cost * 2, cost * 1.8m, cost * 1.5m), []);
         }).ToArray();
-        return Task.FromResult(new QuoteSewingCalculation(lines, fabrics));
+        return Task.FromResult(new QuoteSewingCalculation(lines, variants));
     }
+}
+
+/// <summary>A model with one accessory and one 10-minute operation.</summary>
+internal sealed class FakeModelCompositionReader : IQuoteModelCompositionReader
+{
+    public Task<QuoteModelComposition?> ReadAsync(int productId, CancellationToken cancellationToken) =>
+        Task.FromResult<QuoteModelComposition?>(productId != 10 ? null : new QuoteModelComposition(10,
+            [new QuoteModelFabric(100, 5, "Саржа", 1.2m, true)],
+            [
+                new QuoteModelLine(QuoteItemLineKind.Accessory, 30, null, "Гудзик", "шт.", 2m, null),
+                new QuoteModelLine(QuoteItemLineKind.Operation, 40, null, "Шов", "хв", 1m, null)
+            ]));
 }

@@ -112,7 +112,7 @@ public sealed class QuoteRulesTests
     public void CopyKeepsManualPricesAndCompositionButNotTheStatus()
     {
         var option = new QuoteItemOption(0, null, 5, "Саржа", null, true, new QuotePrice(100m, 120m, true),
-            QuotePrice.Empty, QuotePrice.Empty, DateTimeOffset.UnixEpoch).WithFabricMeters(1.5m);
+            QuotePrice.Empty, QuotePrice.Empty, DateTimeOffset.UnixEpoch).WithFabrics([new QuoteItemOptionFabric(0, 5, "Саржа", 1.5m)]);
         option.SetManualAudit("Знижка", new QuotePerson(5, "Олена"), DateTimeOffset.UnixEpoch);
         var item = new QuoteItem(0, QuoteItemKind.CustomSewing, null, new QuoteItemTexts(null, "Фартух", null, null,
             null, null, null, null), [option], [new QuoteItemLine(0, QuoteItemLineKind.Operation, 155, "Шов", "хв", 1m, 12m)]);

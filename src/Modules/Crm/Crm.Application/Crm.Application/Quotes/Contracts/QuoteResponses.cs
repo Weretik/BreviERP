@@ -80,7 +80,11 @@ public sealed record QuoteOptionResponse(
     string? ManualByName,
     DateTimeOffset? ManualAt,
     DateTimeOffset? PricesTakenAt,
-    decimal? FabricMeters);
+    decimal? FabricMeters,
+    IReadOnlyList<QuoteOptionFabricResponse> Fabrics);
+
+/// <summary>One fabric of a variant, summed in its price (R-26, R-27).</summary>
+public sealed record QuoteOptionFabricResponse(int FabricId, string Name, decimal Meters);
 
 /// <param name="Amount">What the client sees: the manual price, else the Catalog one.</param>
 public sealed record QuotePriceResponse(decimal? Amount, decimal? Source, bool IsManual, bool Shown);

@@ -26,7 +26,9 @@ internal static class QuoteResponseMapper
     private static QuoteOptionResponse ToResponse(QuoteItemOption option) => new(
         option.Id, option.ArticleId, option.FabricId, option.Title, option.Details, option.IsRecommended,
         ToResponse(option.Retail), ToResponse(option.Wholesale), ToResponse(option.Large),
-        option.ManualReason, option.ManualByName, option.ManualAt, option.PricesTakenAt, option.FabricMeters);
+        option.ManualReason, option.ManualByName, option.ManualAt, option.PricesTakenAt, option.FabricMeters,
+        option.Fabrics.OrderBy(x => x.Position).Select(x => new QuoteOptionFabricResponse(x.FabricId, x.Name, x.Meters))
+            .ToArray());
 
     private static QuotePriceResponse ToResponse(QuotePrice price) =>
         new(price.Amount, price.Source, price.IsManual, price.Shown);

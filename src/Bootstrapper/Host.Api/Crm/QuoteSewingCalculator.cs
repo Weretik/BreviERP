@@ -15,7 +15,7 @@ using Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
 namespace Host.Api.Crm;
 
 /// <summary>
-/// Prices a «Виріб з нуля» through the Catalog sewing formula (one calculation per fabric) and names its lines from
+/// Prices a «Виріб з нуля» through the Catalog sewing formula (one calculation per variant: its fabrics plus the shared lines) and names its lines from
 /// the Reference lists. Catalog blockers become short reasons the manager can act on.
 /// </summary>
 internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) : IQuoteSewingCalculator
@@ -38,18 +38,24 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
             .ToArray();
         var at = clock.GetUtcNow();
 
-        var prices = new List<QuoteSewingFabricPrice>(composition.Fabrics.Count);
-        foreach (var fabric in composition.Fabrics)
+        var prices = new List<QuoteSewingVariantPrice>(composition.Variants.Count);
+        foreach (var variant in composition.Variants)
         {
-            fabrics.TryGetValue(fabric.FabricId, out var row);
+            var infos = variant.Fabrics.Select(fabric =>
+            {
+                fabrics.TryGetValue(fabric.FabricId, out var row);
+                return new QuoteSewingFabricInfo(fabric.FabricId, fabric.Meters, row?.Name, QuoteCatalogReader.Details(row),
+                    row?.Price);
+            }).ToArray();
             var query = new CalculateSewingCompositionQuery(
-                [new SewingCompositionMaterial(SewingCompositionMaterialKind.Fabric, fabric.FabricId, fabric.Meters), .. materials],
+                [.. variant.Fabrics.Select(x =>
+                    new SewingCompositionMaterial(SewingCompositionMaterialKind.Fabric, x.FabricId, x.Meters)), .. materials],
                 steps, at);
             var result = await sender.Send(query, cancellationToken);
             prices.Add(result.IsSuccess
-                ? Price(fabric, row, result.Value.Calculation, materialLines, operationLines, fabrics, accessories, operations)
-                : new QuoteSewingFabricPrice(fabric.FabricId, fabric.Meters, row?.Name, QuoteCatalogReader.Details(row),
-                    row?.Price, null, null, null, null, [string.Join("; ", result.ValidationErrors.Select(x => x.ErrorMessage)
+                ? Price(infos, result.Value.Calculation, materialLines, operationLines, fabrics, accessories, operations)
+                : new QuoteSewingVariantPrice(infos, null, null, null, null,
+                    [string.Join("; ", result.ValidationErrors.Select(x => x.ErrorMessage)
                         .DefaultIfEmpty("Склад не пройшов перевірку."))]));
             if (result.IsSuccess) lines = WithServicePrices(lines, result.Value.References);
         }
@@ -100,26 +106,25 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
     internal static string OperationName(GarmentPartOperationRowDTO operation) =>
         string.IsNullOrWhiteSpace(operation.Variant) ? operation.Name : $"{operation.Name} ({operation.Variant.Trim()})";
 
-    private static QuoteSewingFabricPrice Price(QuoteSewingFabric fabric, FabricRowDTO? row,
+    private static QuoteSewingVariantPrice Price(IReadOnlyList<QuoteSewingFabricInfo> variantFabrics,
         SewingArticleCalculation calculation, IReadOnlyList<QuoteSewingLine> materialLines,
         IReadOnlyList<QuoteSewingLine> operationLines, IReadOnlyDictionary<int, FabricRowDTO> fabrics,
         IReadOnlyDictionary<int, GarmentAccessoryRowDTO> accessories,
         IReadOnlyDictionary<int, GarmentPartOperationRowDTO> operations)
     {
         var breakdown = calculation.Breakdown;
-        var names = new LineNames(row, materialLines, operationLines, fabrics, accessories, operations);
+        var names = new LineNames(variantFabrics, materialLines, operationLines, fabrics, accessories, operations);
         var problems = calculation.Blockers.Select(x => Problem(x, names)).Distinct().ToArray();
         var tiers = calculation.IsCalculated
             ? new QuoteTierPrices(calculation.Prices!.Retail, calculation.Prices.Wholesale, calculation.Prices.LargeWholesale)
             : null;
-        return new QuoteSewingFabricPrice(fabric.FabricId, fabric.Meters, row?.Name, QuoteCatalogReader.Details(row),
-            row?.Price, breakdown?.TotalMinutes,
+        return new QuoteSewingVariantPrice(variantFabrics, breakdown?.TotalMinutes,
             breakdown is null ? null : decimal.Round(breakdown.TotalMinutes * breakdown.MinuteCost, 2),
             breakdown is null ? null : decimal.Round(breakdown.FullCost, 2), tiers, problems);
     }
 
     /// <summary>
-    /// Line keys are `Material:1` for the fabric, `Material:2…` for the other materials in order and `Operation:1…` for
+    /// Line keys are `Material:1…n` for the variant's fabrics, `Material:n+1…` for the shared materials in order and `Operation:1…` for
     /// the operations in order; a reference version problem names `Fabric:{id}`, `Accessory:{id}`, `OtherCost:{code}`
     /// or `Operation:{id}`.
     /// </summary>
@@ -142,7 +147,7 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
     }
 
     private sealed record LineNames(
-        FabricRowDTO? Fabric,
+        IReadOnlyList<QuoteSewingFabricInfo> VariantFabrics,
         IReadOnlyList<QuoteSewingLine> MaterialLines,
         IReadOnlyList<QuoteSewingLine> OperationLines,
         IReadOnlyDictionary<int, FabricRowDTO> Fabrics,
@@ -159,7 +164,7 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
             if (kind is "OtherCost") return value;
             if (kind is "Fabric")
                 return int.TryParse(value, out var fabricId) && Fabrics.TryGetValue(fabricId, out var f) ? f.Name
-                    : Fabric?.Name ?? "тканина";
+                    : VariantFabrics.FirstOrDefault()?.Name ?? "тканина";
             if (kind is "Accessory")
                 return int.TryParse(value, out var accessoryId) && Accessories.TryGetValue(accessoryId, out var a)
                     ? a.Name : "фурнітура";
@@ -173,8 +178,8 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
 
             if (kind is "Material" && int.TryParse(value, out var index))
             {
-                if (index == 1) return Fabric?.Name ?? "тканина";
-                var position = index - 2;
+                if (index >= 1 && index <= VariantFabrics.Count) return VariantFabrics[index - 1].Name ?? "тканина";
+                var position = index - 1 - VariantFabrics.Count;
                 if (position < 0 || position >= MaterialLines.Count) return "матеріал";
                 var line = MaterialLines[position];
                 return line.Kind switch

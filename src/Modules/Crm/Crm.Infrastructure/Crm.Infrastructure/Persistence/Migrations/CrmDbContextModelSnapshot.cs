@@ -693,6 +693,46 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOptionFabric", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("FabricId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Meters")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("numeric(12,4)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<long>("OptionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OptionId", "Position");
+
+                    b.ToTable("QuoteItemOptionFabrics", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Fabric", "\"FabricId\" > 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Meters", "\"Meters\" > 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Position", "\"Position\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Sending.QuoteSending", b =>
                 {
                     b.Property<long>("Id")
@@ -1092,6 +1132,15 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOptionFabric", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.QuoteItemOption", null)
+                        .WithMany("Fabrics")
+                        .HasForeignKey("OptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Sending.QuoteSending", b =>
                 {
                     b.HasOne("Crm.Domain.Quotes.Quote", null)
@@ -1143,6 +1192,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Navigation("Lines");
 
                     b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOption", b =>
+                {
+                    b.Navigation("Fabrics");
                 });
 
             modelBuilder.Entity("Crm.Domain.Tasks.ManagerTask", b =>

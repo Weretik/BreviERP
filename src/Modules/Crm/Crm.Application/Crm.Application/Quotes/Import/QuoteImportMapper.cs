@@ -165,17 +165,22 @@ public sealed class QuoteImportMapper(
 
         var options = input.Options.Select((option, index) =>
         {
-            var fabricId = Fabric(option.FabricCode);
-            if (fabricId is null && !describedMissing)
+            var fabric = FabricRow(option.FabricCode);
+            if (fabric is null && !describedMissing)
                 warn($"Тканини {option.FabricCode} немає в довіднику: ціну збережено.");
-            return Option(index, option, null, fabricId, takenAt).WithFabricMeters(option.FabricMeters);
+            var row = Option(index, option, null, fabric?.Id, takenAt);
+            return fabric is not null && option.FabricMeters is > 0
+                ? row.WithFabrics([new QuoteItemOptionFabric(0, fabric.Id, fabric.Name, option.FabricMeters.Value)])
+                : row;
         });
         return new QuoteItem(position, QuoteItemKind.CustomSewing, null,
             Texts(input, code, QuoteCustomSewingItemBuilder.Subtitle), options.ToArray(), lines);
     }
 
-    private int? Fabric(string? code) =>
-        code is { Length: > 0 } && references.Fabrics.TryGetValue(code.Trim(), out var fabric) ? fabric.Id : null;
+    private int? Fabric(string? code) => FabricRow(code)?.Id;
+
+    private QuoteImportReference? FabricRow(string? code) =>
+        code is { Length: > 0 } && references.Fabrics.TryGetValue(code.Trim(), out var fabric) ? fabric : null;
 
     private QuotePerson Manual(ImportOptionInput option, QuotePerson author) =>
         option.ManualByEmail is null && option.ManualByName is null

@@ -14,7 +14,7 @@ public sealed class GetQuotePdfQueryHandler(IQuoteStore store, QuotePdfComposer 
     public async ValueTask<Result<QuotePdfFile>> Handle(GetQuotePdfQuery query, CancellationToken cancellationToken)
     {
         var quote = await store.Quotes.AsNoTracking()
-            .Include(x => x.Items).ThenInclude(x => x.Options)
+            .Include(x => x.Items).ThenInclude(x => x.Options).ThenInclude(x => x.Fabrics)
             .Include(x => x.Items).ThenInclude(x => x.Lines)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);

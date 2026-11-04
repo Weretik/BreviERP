@@ -8,15 +8,11 @@ public sealed class CalculateQuoteCustomSewingQueryValidator : AbstractValidator
     {
         RuleFor(x => x.Input).NotNull().ChildRules(input =>
         {
-            input.RuleFor(x => x.Fabrics).NotNull()
+            input.RuleFor(x => x.Variants).NotNull()
                 .Must(x => x is { Count: <= Domain.Quotes.QuoteLimits.MaxOptionsPerItem })
-                .WithMessage($"Не більше {Domain.Quotes.QuoteLimits.MaxOptionsPerItem} тканин.");
-            input.RuleForEach(x => x.Fabrics).NotNull().ChildRules(fabric =>
-            {
-                fabric.RuleFor(x => x.FabricId).GreaterThan(0);
-                fabric.RuleFor(x => x.Meters).Must(QuoteCompositionRules.IsQuantity)
-                    .WithMessage(QuoteCompositionRules.MetersMessage);
-            });
+                .WithMessage($"Не більше {Domain.Quotes.QuoteLimits.MaxOptionsPerItem} варіантів.");
+            input.RuleForEach(x => x.Variants).NotNull().ChildRules(variant =>
+                variant.RuleFor(x => x.Fabrics).SetValidator(new QuoteOptionFabricsValidator()));
             input.RuleFor(x => x.Lines).NotNull()
                 .Must(x => x is { Count: <= Domain.Quotes.QuoteLimits.MaxCompositionLines })
                 .WithMessage(QuoteCompositionRules.TooManyLinesMessage);
