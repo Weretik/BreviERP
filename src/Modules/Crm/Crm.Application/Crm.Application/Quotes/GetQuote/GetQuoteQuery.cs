@@ -1,8 +1,6 @@
-using Ardalis.Result;
-using Crm.Application.Customers.Access;
-using Crm.Application.Quotes.Contracts.Responses;
-using Mediator;
+using Crm.Application.Quotes.Access;
+using Crm.Application.Quotes.Contracts;
 
 namespace Crm.Application.Quotes.GetQuote;
 
-public sealed record GetQuoteQuery(Guid QuoteId, CrmActor Actor) : IQuery<Result<QuoteDetail>>;
+public sealed record GetQuoteQuery(QuoteActor Actor, long Id) : IQuery<Result<QuoteResponse>>;

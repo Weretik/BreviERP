@@ -12,22 +12,15 @@ internal static class SeedJobDispatcher
             new[] { "CatalogImport:TargetHost", "CatalogImport:TargetDatabase", "CatalogImport:SourceSha256", "CatalogImport:ApprovedConnection" }
                 .Any(key => configuration[key] is not null))
             throw new InvalidOperationException("Catalogue target approval requires the explicit import mode.");
-        if (configuration["crm-history-dry-run"] is null &&
-            (configuration["source-root"] is not null || configuration["staging-ledger"] is not null))
-            throw new InvalidOperationException("CRM history paths require the explicit dry-run mode.");
         if (configuration["sync"] is null && configuration["sync-tasks"] is not null)
             throw new InvalidOperationException("Sync task selection requires the explicit sync mode.");
-        if (new[] { "catalog-import", "pricing-bootstrap", "pricing-verify", "ppe-pricing-bootstrap", "ppe-pricing-verify", "pricing-readiness", "pricing-input-review", "pricing-activate", "crm-migrate", "crm-history-dry-run", "reminders-dispatch", "sync" }
+        if (new[] { "catalog-import", "pricing-bootstrap", "pricing-verify", "ppe-pricing-bootstrap", "ppe-pricing-verify", "pricing-readiness", "pricing-input-review", "pricing-activate", "reminders-dispatch", "sync" }
             .Count(key => configuration[key] is not null) > 1)
             throw new InvalidOperationException("Select exactly one explicit seed job mode.");
         if (configuration["reminders-dispatch"] is not null)
             await RemindersDispatchCommandRunner.RunAsync(services);
         else if (configuration["sync"] is not null)
             await SyncJobRunner.RunAsync(services, configuration);
-        else if (configuration["crm-history-dry-run"] is not null)
-            await CrmHistoryDryRunCommandRunner.RunAsync(configuration);
-        else if (configuration["crm-migrate"] is not null)
-            await CrmMigrationCommandRunner.RunAsync(services, configuration);
         else if (configuration["catalog-import"] is not null)
             await CatalogImportCommandRunner.RunAsync(configuration);
         else if (configuration["pricing-bootstrap"] is not null)

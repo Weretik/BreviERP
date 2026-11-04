@@ -1,0 +1,178 @@
+using Crm.Application.Quotes.Catalog;
+using Crm.Application.Quotes.Contracts;
+using Crm.Domain.Quotes;
+
+namespace Crm.Application.Quotes.Building;
+
+/// <summary>
+/// Turns the editor content into items (R-05–R-10). A new Catalog row takes its texts and prices from the Catalog;
+/// a saved row keeps them, so a save never reprices (R-11). Manual prices are accepted only for PPE.
+/// </summary>
+public sealed class QuoteItemsBuilder(IQuoteCatalogReader catalog)
+{
+    public const string SewingSubtitle = "Швейна продукція · готові варіанти тканини";
+    public const string PpeSubtitle = "ЗІЗ · готовий товар";
+    public const string OneOffSubtitle = "ЗІЗ · разова позиція";
+
+    public async Task<Result<IReadOnlyList<QuoteItem>>> BuildAsync(
+        IReadOnlyList<QuoteItemInput> inputs, IReadOnlyList<QuoteItem> saved, QuotePerson actor, DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var productIds = inputs.Where(x => x.ProductId is > 0).Select(x => x.ProductId!.Value).Distinct().ToArray();
+        var products = productIds.Length == 0
+            ? new Dictionary<int, QuoteCatalogProduct>()
+            : await catalog.GetAsync(productIds, cancellationToken);
+
+        var items = new List<QuoteItem>(inputs.Count);
+        for (var index = 0; index < inputs.Count; index++)
+        {
+            var input = inputs[index];
+            var kind = Enum.Parse<QuoteItemKind>(input.Kind);
+            var previous = saved.FirstOrDefault(x => x.Id == input.Id && x.Kind == kind && x.ProductId == input.ProductId);
+            var built = kind == QuoteItemKind.OneOffPpe
+                ? BuildOneOff(index, input, previous, actor, now)
+                : BuildCatalogItem(index, kind, input, previous, products, actor, now);
+            if (!built.IsSuccess) return built.Map(_ => (IReadOnlyList<QuoteItem>)[]);
+            if (!built.Value.ShowsPositivePrice)
+                return InvalidItems($"«{built.Value.Name}»: покажіть клієнту хоча б одну ціну більше нуля.");
+            items.Add(built.Value);
+        }
+
+        return Result.Success<IReadOnlyList<QuoteItem>>(items);
+    }
+
+    private static Result<QuoteItem> BuildCatalogItem(
+        int position, QuoteItemKind kind, QuoteItemInput input, QuoteItem? previous,
+        IReadOnlyDictionary<int, QuoteCatalogProduct> products, QuotePerson actor, DateTimeOffset now)
+    {
+        products.TryGetValue(input.ProductId!.Value, out var product);
+        if (previous is null)
+        {
+            if (product is null || product.Kind != kind) return Result.Conflict("Товар не знайдено в каталозі.");
+            if (!product.IsActive) return Result.Conflict($"Товар «{product.Name}» вимкнений у каталозі.");
+        }
+
+        var name = previous?.Name ?? product!.Name;
+        var texts = new QuoteItemTexts(
+            previous?.Code ?? product!.Code,
+            name,
+            kind == QuoteItemKind.Sewing ? SewingSubtitle : PpeSubtitle,
+            input.Description,
+            previous?.SiteUrl ?? product!.SiteUrl,
+            input.PhotoUrl ?? previous?.PhotoUrl ?? product?.PhotoUrl,
+            previous?.Season ?? product!.Season,
+            previous?.SupplierUrl ?? product?.SupplierUrl);
+
+        var options = new List<QuoteItemOption>(input.Options.Count);
+        for (var index = 0; index < input.Options.Count; index++)
+        {
+            var optionInput = input.Options[index];
+            var option = kind == QuoteItemKind.Sewing
+                ? BuildVariant(index, optionInput, previous, product, name, now)
+                : BuildPpeRow(index, optionInput, previous, product, name, actor, now);
+            if (!option.IsSuccess) return option.Map(_ => default(QuoteItem)!);
+            options.Add(option.Value);
+        }
+
+        return Result.Success(new QuoteItem(position, kind, input.ProductId, texts, options));
+    }
+
+    private static Result<QuoteItemOption> BuildVariant(
+        int position, QuoteOptionInput input, QuoteItem? previous, QuoteCatalogProduct? product, string itemName,
+        DateTimeOffset now)
+    {
+        var saved = previous?.Options.FirstOrDefault(x => x.Id == input.Id && x.ArticleId == input.ArticleId);
+        if (saved is not null)
+            return Result.Success(new QuoteItemOption(position, saved.ArticleId, saved.FabricId, saved.Title,
+                saved.Details, input.IsRecommended, saved.Retail with { Shown = input.Retail.Shown },
+                saved.Wholesale with { Shown = input.Wholesale.Shown }, saved.Large with { Shown = input.Large.Shown },
+                saved.PricesTakenAt));
+
+        var variant = product?.Variants.FirstOrDefault(x => x.ArticleId == input.ArticleId);
+        if (variant is null) return Result.Conflict($"«{itemName}»: такого варіанта тканини немає в каталозі.");
+        if (!variant.IsActive) return Result.Conflict($"«{itemName}»: варіант «{variant.Title}» вимкнений.");
+        if (variant.Prices is not { } prices)
+            return Result.Conflict($"«{itemName}», «{variant.Title}»: немає опублікованої ціни ({string.Join(", ", variant.Problems)}).");
+
+        return Result.Success(new QuoteItemOption(position, variant.ArticleId, variant.FabricId, variant.Title,
+            variant.Details, input.IsRecommended,
+            new QuotePrice(prices.Retail, null, input.Retail.Shown),
+            new QuotePrice(prices.Wholesale, null, input.Wholesale.Shown),
+            new QuotePrice(prices.Large, null, input.Large.Shown),
+            now));
+    }
+
+    private static Result<QuoteItemOption> BuildPpeRow(
+        int position, QuoteOptionInput input, QuoteItem? previous, QuoteCatalogProduct? product, string itemName,
+        QuotePerson actor, DateTimeOffset now)
+    {
+        var saved = previous?.Options.FirstOrDefault(x => x.Id == input.Id);
+        QuoteTierPrices? source = saved is not null
+            ? new QuoteTierPrices(saved.Retail.Source ?? 0, saved.Wholesale.Source ?? 0, saved.Large.Source ?? 0)
+            : product?.Prices;
+        if (source is null)
+            return Result.Conflict($"«{itemName}»: немає ціни в каталозі ({string.Join(", ", product?.Problems ?? [])}).");
+
+        var option = new QuoteItemOption(position, null, null, "Ціна", null, false,
+            Price(source.Retail, input.Retail), Price(source.Wholesale, input.Wholesale), Price(source.Large, input.Large),
+            saved?.PricesTakenAt ?? now);
+        return WithManualAudit(option, input, saved, itemName, actor, now);
+    }
+
+    private static Result<QuoteItem> BuildOneOff(
+        int position, QuoteItemInput input, QuoteItem? previous, QuotePerson actor, DateTimeOffset now)
+    {
+        var optionInput = input.Options[0];
+        var saved = previous?.Options.FirstOrDefault(x => x.Id == optionInput.Id);
+        var name = input.Name!.Trim();
+        var option = new QuoteItemOption(0, null, null, "Ціна", null, false,
+            new QuotePrice(null, optionInput.Retail.Manual, optionInput.Retail.Shown),
+            new QuotePrice(null, optionInput.Wholesale.Manual, optionInput.Wholesale.Shown),
+            new QuotePrice(null, optionInput.Large.Manual, optionInput.Large.Shown),
+            null);
+        var audited = WithManualAudit(option, optionInput, saved, name, actor, now, reasonRequired: false);
+        if (!audited.IsSuccess) return audited.Map(_ => default(QuoteItem)!);
+
+        var texts = new QuoteItemTexts(null, name, OneOffSubtitle, input.Description, null, input.PhotoUrl, null,
+            input.SupplierUrl);
+        return Result.Success(new QuoteItem(position, QuoteItemKind.OneOffPpe, null, texts, [audited.Value]));
+    }
+
+    /// <summary>
+    /// Keeps who set the manual prices and why while they do not change; a changed manual price records the actor
+    /// and needs a reason (R-08).
+    /// </summary>
+    private static Result<QuoteItemOption> WithManualAudit(
+        QuoteItemOption option, QuoteOptionInput input, QuoteItemOption? saved, string itemName, QuotePerson actor,
+        DateTimeOffset now, bool reasonRequired = true)
+    {
+        if (!option.HasManualPrice)
+        {
+            option.SetManualAudit(null, null, null);
+            return Result.Success(option);
+        }
+
+        if (reasonRequired && string.IsNullOrWhiteSpace(input.ManualReason))
+            return InvalidOption($"«{itemName}»: вкажіть причину ручної ціни.");
+
+        var unchanged = saved is not null && saved.Retail.Manual == option.Retail.Manual &&
+            saved.Wholesale.Manual == option.Wholesale.Manual && saved.Large.Manual == option.Large.Manual &&
+            saved.ManualReason == input.ManualReason?.Trim();
+        if (unchanged)
+            option.SetManualAudit(saved!.ManualReason, saved.ManualByUserId is { } id
+                ? new QuotePerson(id, saved.ManualByName ?? "")
+                : null, saved.ManualAt);
+        else
+            option.SetManualAudit(input.ManualReason, actor, now);
+        return Result.Success(option);
+    }
+
+    private static QuotePrice Price(decimal source, QuotePriceInput input) =>
+        new(source, input.Manual is { } manual && manual != source ? manual : null, input.Shown);
+
+    private static Result<IReadOnlyList<QuoteItem>> InvalidItems(string message) =>
+        Result.Invalid(new ValidationError(message));
+
+    private static Result<QuoteItemOption> InvalidOption(string message) =>
+        Result.Invalid(new ValidationError(message));
+}

@@ -22,12 +22,12 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [016 Sewing card in one request](catalog/016-sewing-card-one-request/README.md) | backend implemented 2026-11-04 |
 | Catalog  | [017 PPE supplier price import («Імпорт цін»)](catalog/017-ppe-supplier-price-import/README.md) | stage 1 backend implemented 2026-11-04 |
 | Content  | [001 «Контент сайту» site content](content/001-site-content/README.md) | planned only (draft) |
-| Quotes   | [001 «Розрахунок КП» quote calculation](quotes/001-quote-calculation/README.md) | planned only (draft) |
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |
 | Catalog  | [Media files](catalog/media-files/README.md)                                                             | history; moved to Media MED-001                                                                                    |
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |
-| Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md)                      | P1–P5 locally verified; P6 Gmail deferred; P7 offline tooling verified, historical source/gap/owner readiness remains gated |
+| Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md) | history only: the quote, custom sewing, PDF, delivery and archive code was removed 2026-11-04 (replaced by 003); clients stay |
 | Crm      | [002 Clients from KeepinCRM](crm/002-keepincrm-clients/README.md) | backend implemented 2026-11-02 |
+| Crm      | [003 «КП» commercial proposals (QTE-001)](crm/003-quotes/README.md) | stage 1 implemented 2026-11-04; stages 2–6 planned |
 | Reference | [001 Suppliers from the Calculator and KeepinCRM](reference/001-suppliers-keepincrm/README.md) | implemented 2026-11-02; live KeepinCRM run pending secret |
 | Reference | [002 Fabrics and accessories from the Calculator sheet](reference/002-fabrics-accessories-sheet/README.md) | implemented 2026-11-02 |
 | Reference | [003 Operations from the Calculator sheet](reference/003-operations-sheet/README.md) | implemented 2026-11-02 |

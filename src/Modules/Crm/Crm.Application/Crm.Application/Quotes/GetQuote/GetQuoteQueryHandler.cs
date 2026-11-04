@@ -1,22 +1,20 @@
-using Ardalis.Result;
-using Crm.Application.Quotes.Contracts.Responses;
-using Crm.Application.Quotes.GetQuote.Specifications;
+using Crm.Application.Quotes.Access;
+using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.Mapping;
 using Crm.Application.Quotes.Persistence;
-using Mediator;
 
 namespace Crm.Application.Quotes.GetQuote;
 
-public sealed class GetQuoteQueryHandler(IQuoteReadRepository repository)
-    : IQueryHandler<GetQuoteQuery, Result<QuoteDetail>>
+public sealed class GetQuoteQueryHandler(IQuoteStore store) : IQueryHandler<GetQuoteQuery, Result<QuoteResponse>>
 {
-    public async ValueTask<Result<QuoteDetail>> Handle(GetQuoteQuery query, CancellationToken cancellationToken)
+    public async ValueTask<Result<QuoteResponse>> Handle(GetQuoteQuery query, CancellationToken cancellationToken)
     {
-        if (query.QuoteId == Guid.Empty || query.Actor.UserId <= 0) return Result.NotFound();
-        var quote = await repository.FirstOrDefaultAsync(new QuoteDetailSpec(query.QuoteId, query.Actor), cancellationToken);
-        if (quote?.CurrentVersionId is not { } versionId) return Result.NotFound();
-        var version = await repository.FindVersionAsync(versionId, cancellationToken);
-        return version is null ? Result.NotFound() : Result.Success(QuoteDetailMapper.Map(quote, version,
-            query.Actor.IsAdmin || quote.OwnerId.Value == query.Actor.UserId));
+        var quote = await store.Quotes.AsNoTracking()
+            .Include(x => x.Items).ThenInclude(x => x.Options)
+            .AsSplitQuery()
+            .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
+        return quote is null || !query.Actor.CanAccess(quote)
+            ? Result.NotFound(QuoteMessages.NotFound)
+            : Result.Success(quote.ToResponse());
     }
 }

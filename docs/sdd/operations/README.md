@@ -24,10 +24,6 @@ operations/
 
 Do not place passwords, tokens, full connection strings, or production endpoints in this documentation.
 
-- Configure delegated Gmail OAuth without enabling delivery: [Gmail setup](crm-gmail-oauth.md).
-
 - Serve the API on `api.brevi.com.ua` and set up sign-in (Worker, secrets, first administrator): [Cloudflare API proxy](deployment/cloudflare-api-proxy.md).
-
-[CRM archive offline dry-run](data/crm-history-dry-run.md) documents frozen inputs, private diagnostic/staging outputs, no-write guarantees and the EN-006 source/ownership gates.
 
 - Import the catalogue into an explicitly selected cloud database: [dedicated catalogue Cloud Run Job](data/catalog-import-cloud.md).

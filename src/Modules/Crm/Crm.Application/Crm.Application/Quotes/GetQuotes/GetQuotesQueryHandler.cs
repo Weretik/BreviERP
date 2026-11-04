@@ -1,29 +1,42 @@
-using Ardalis.Result;
-using Crm.Application.Quotes.Contracts.Responses;
-using Crm.Application.Quotes.GetQuotes.Specifications;
+using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.Persistence;
-using Mediator;
+using Crm.Domain.Quotes;
 
 namespace Crm.Application.Quotes.GetQuotes;
 
-public sealed class GetQuotesQueryHandler(IQuoteReadRepository repository)
-    : IQueryHandler<GetQuotesQuery, PagedResult<IReadOnlyList<QuoteSummary>>>
+public sealed class GetQuotesQueryHandler(IQuoteStore store) : IQueryHandler<GetQuotesQuery, Result<QuotePageResponse>>
 {
-    public async ValueTask<PagedResult<IReadOnlyList<QuoteSummary>>> Handle(
-        GetQuotesQuery query, CancellationToken cancellationToken)
+    public async ValueTask<Result<QuotePageResponse>> Handle(GetQuotesQuery query, CancellationToken cancellationToken)
     {
-        if (query.Actor.UserId <= 0 || query.Page is < 1 or > 1_000_000 ||
-            query.PageSize is < 1 or > 100 || query.Search?.Length > 300 ||
-            query.State is not (null or "draft" or "ready" or "sent") ||
-            query.OwnerId is <= 0 || query.SourceQuoteId == Guid.Empty ||
-            (query.CreatedFrom is not null && query.CreatedBefore is not null && query.CreatedFrom >= query.CreatedBefore))
-            throw new ArgumentOutOfRangeException(nameof(query), "invalid_pagination_or_filter");
-        var count = await repository.CountAsync(new QuoteCountSpec(query.Actor, query.Search,
-            query.State, query.Archived, query.OwnerId, query.CreatedFrom, query.CreatedBefore, query.SourceQuoteId), cancellationToken);
-        var rows = await repository.ListAsync(new QuotePageSpec(query.Actor, query.Search,
-            query.State, query.Archived, query.OwnerId, query.Page, query.PageSize,
-            query.CreatedFrom, query.CreatedBefore, query.SourceQuoteId), cancellationToken);
-        return new PagedResult<IReadOnlyList<QuoteSummary>>(new PagedInfo(
-            query.Page, query.PageSize, (long)Math.Ceiling(count / (double)query.PageSize), count), rows);
+        var quotes = store.Quotes.AsNoTracking();
+        if (!query.Actor.CanSeeAll)
+            quotes = quotes.Where(x => x.ResponsibleUserId == query.Actor.UserId);
+        else if (query.ResponsibleUserId is { } responsible)
+            quotes = quotes.Where(x => x.ResponsibleUserId == responsible);
+
+        if (!string.IsNullOrEmpty(query.Status))
+        {
+            var status = Enum.Parse<QuoteStatus>(query.Status);
+            quotes = quotes.Where(x => x.Status == status);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.Trim().ToLower();
+            quotes = quotes.Where(x => x.Number.ToLower().Contains(search) ||
+                x.InternalName.ToLower().Contains(search) ||
+                (x.CompanyName != null && x.CompanyName.ToLower().Contains(search)) ||
+                (x.RecipientName != null && x.RecipientName.ToLower().Contains(search)));
+        }
+
+        var total = await quotes.CountAsync(cancellationToken);
+        var rows = await quotes
+            .OrderByDescending(x => x.UpdatedAt).ThenByDescending(x => x.Id)
+            .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
+            .Select(x => new QuoteSummaryResponse(x.Id, x.Number, x.Kind.ToString(), x.Status.ToString(),
+                x.InternalName, x.CompanyName, new QuotePersonResponse(x.ResponsibleUserId, x.ResponsibleName),
+                x.Items.Count, x.UpdatedAt))
+            .ToListAsync(cancellationToken);
+        return Result.Success(new QuotePageResponse(rows, query.Page, query.PageSize, total));
     }
 }

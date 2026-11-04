@@ -1,0 +1,491 @@
+openapi: 3.1.0
+info:
+  title: BreviERP CRM Quotes (КП) API
+  version: 1.0.0
+  description: >-
+    КП of the «Менеджер сервісу» block (QTE-001, stage 1). Admin or Manager session; a Manager sees and changes only КП
+    they are responsible for, Admin (the Director also holds Admin) sees all. Catalog prices are never taken from the
+    client: a new row gets them from the Catalog, a saved row keeps its own until an explicit reprice.
+servers:
+  - url: /
+paths:
+  /api/crm/quotes:
+    get:
+      operationId: getCrmQuotes
+      security:
+        - bearerAuth: []
+      description: КП the actor may see, newest change first.
+      parameters:
+        - name: search
+          in: query
+          description: Number, client or request name, company or recipient; case-insensitive.
+          schema: { type: string, maxLength: 200 }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/CrmQuoteStatus" }
+        - name: responsibleUserId
+          in: query
+          description: Admin only; ignored for a Manager.
+          schema: { type: integer, minimum: 1 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, minimum: 1, maximum: 100000 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, default: 50, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: One page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuotePage" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+    post:
+      operationId: createCrmQuote
+      security:
+        - bearerAuth: []
+      description: Creates a draft «КП під запит»; the creator becomes responsible. The number is «n-month-year», counted per Kyiv month.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveQuoteInput" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuote" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quotes/{id}:
+    parameters:
+      - $ref: "#/components/parameters/QuoteId"
+    get:
+      operationId: getCrmQuote
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The КП with items.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuote" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+    put:
+      operationId: saveCrmQuote
+      security:
+        - bearerAuth: []
+      description: Saves the whole editor content. Saved rows keep their prices; only the shown flags and PPE manual prices change.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveQuoteInput" }
+      responses:
+        "200":
+          description: Saved; Version is incremented and item/option ids are new.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuote" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      operationId: deleteCrmQuote
+      security:
+        - bearerAuth: []
+      description: Deletes a draft.
+      parameters:
+        - name: version
+          in: query
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "204": { description: Deleted. }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quotes/{id}/reprice:
+    parameters:
+      - $ref: "#/components/parameters/QuoteId"
+    post:
+      operationId: repriceCrmQuote
+      security:
+        - bearerAuth: []
+      description: >-
+        «Перерахувати за актуальними цінами». apply=false only lists the changes; apply=true replaces the Catalog
+        prices of the listed rows. Manual PPE prices stay; rows the Catalog cannot price are listed in unavailable and
+        keep their prices.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version, apply]
+              properties:
+                version: { type: integer, minimum: 1 }
+                apply: { type: boolean }
+      responses:
+        "200":
+          description: Report.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteRepriceReport" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quotes/{id}/responsible:
+    parameters:
+      - $ref: "#/components/parameters/QuoteId"
+    put:
+      operationId: setCrmQuoteResponsible
+      security:
+        - bearerAuth: []
+      description: Admin (Director) gives the КП to themselves or another active manager.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version, userId]
+              properties:
+                version: { type: integer, minimum: 1 }
+                userId: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuote" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+        "404": { description: Not found. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quote-lookups/catalog:
+    get:
+      operationId: searchCrmQuoteCatalog
+      security:
+        - bearerAuth: []
+      description: Catalog products for «Додати товар» with published prices; problem says why a row cannot be added.
+      parameters:
+        - name: kind
+          in: query
+          required: true
+          schema: { type: string, enum: [Sewing, Ppe] }
+        - name: search
+          in: query
+          schema: { type: string, maxLength: 200 }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, minimum: 1, maximum: 10000 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, default: 20, minimum: 1, maximum: 50 }
+      responses:
+        "200":
+          description: One page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteCatalogPage" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+  /api/crm/quote-lookups/staff:
+    get:
+      operationId: getCrmQuoteStaff
+      security:
+        - bearerAuth: []
+      description: Active Manager and Admin users a КП can be given to.
+      responses:
+        "200":
+          description: Staff.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CrmQuoteStaff" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+components:
+  parameters:
+    QuoteId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, format: int64, minimum: 1 }
+  responses:
+    Invalid:
+      description: Validation errors with Ukrainian messages for the Admin.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                identifier: { type: [string, "null"] }
+                errorMessage: { type: string }
+    Conflict:
+      description: >-
+        The КП was saved in another window (stale version), only a draft can be deleted, or a Catalog product or variant
+        cannot be added; errors are Ukrainian strings.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { type: string }
+  schemas:
+    CrmQuoteKind:
+      type: string
+      enum: [Request, Introduction]
+    CrmQuoteStatus:
+      type: string
+      enum: [Draft, Sent]
+    CrmQuoteItemKind:
+      type: string
+      enum: [Sewing, Ppe, OneOffPpe]
+    CrmQuotePerson:
+      type: object
+      required: [userId, name]
+      properties:
+        userId: { type: integer }
+        name: { type: string }
+    CrmQuotePriceInput:
+      type: object
+      required: [shown]
+      properties:
+        shown: { type: boolean }
+        manual:
+          description: PPE and one-off PPE only; null keeps the Catalog price.
+          type: [number, "null"]
+          minimum: 0
+          maximum: 10000000
+    CrmQuoteOptionInput:
+      type: object
+      required: [isRecommended, retail, wholesale, large]
+      properties:
+        id: { type: [integer, "null"], format: int64, description: The saved row; null for a new one. }
+        articleId: { type: [integer, "null"], format: int64, description: Fabric variant of a sewing model. }
+        isRecommended: { type: boolean }
+        retail: { $ref: "#/components/schemas/CrmQuotePriceInput" }
+        wholesale: { $ref: "#/components/schemas/CrmQuotePriceInput" }
+        large: { $ref: "#/components/schemas/CrmQuotePriceInput" }
+        manualReason: { type: [string, "null"], maxLength: 500, description: Required when a PPE price differs from the Catalog. }
+    CrmQuoteItemInput:
+      type: object
+      required: [kind, options]
+      properties:
+        id: { type: [integer, "null"], format: int64 }
+        kind: { $ref: "#/components/schemas/CrmQuoteItemKind" }
+        productId: { type: [integer, "null"], description: Required for Sewing and Ppe, null for OneOffPpe. }
+        name: { type: [string, "null"], maxLength: 200, description: OneOffPpe only. }
+        description: { type: [string, "null"], maxLength: 4000 }
+        photoUrl: { type: [string, "null"], maxLength: 1000 }
+        supplierUrl: { type: [string, "null"], maxLength: 1000 }
+        options:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items: { $ref: "#/components/schemas/CrmQuoteOptionInput" }
+    CrmSaveQuoteInput:
+      type: object
+      required: [version, internalName, items]
+      properties:
+        version: { type: integer, description: The loaded version; ignored on create. }
+        internalName: { type: string, minLength: 1, maxLength: 200 }
+        customerId: { type: [integer, "null"], format: int64 }
+        recipientName: { type: [string, "null"], maxLength: 200 }
+        companyName: { type: [string, "null"], maxLength: 200 }
+        clientComment: { type: [string, "null"], maxLength: 4000 }
+        managerNote: { type: [string, "null"], maxLength: 4000 }
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: "#/components/schemas/CrmQuoteItemInput" }
+    CrmQuotePrice:
+      type: object
+      required: [isManual, shown]
+      properties:
+        amount: { type: [number, "null"], description: What the client sees. }
+        source: { type: [number, "null"], description: The Catalog price taken into the КП. }
+        isManual: { type: boolean }
+        shown: { type: boolean }
+    CrmQuoteOption:
+      type: object
+      required: [id, title, isRecommended, retail, wholesale, large]
+      properties:
+        id: { type: integer, format: int64 }
+        articleId: { type: [integer, "null"], format: int64 }
+        fabricId: { type: [integer, "null"] }
+        title: { type: string }
+        details: { type: [string, "null"] }
+        isRecommended: { type: boolean }
+        retail: { $ref: "#/components/schemas/CrmQuotePrice" }
+        wholesale: { $ref: "#/components/schemas/CrmQuotePrice" }
+        large: { $ref: "#/components/schemas/CrmQuotePrice" }
+        manualReason: { type: [string, "null"] }
+        manualByName: { type: [string, "null"] }
+        manualAt: { type: [string, "null"], format: date-time }
+        pricesTakenAt: { type: [string, "null"], format: date-time }
+    CrmQuoteItem:
+      type: object
+      required: [id, kind, name, options]
+      properties:
+        id: { type: integer, format: int64 }
+        kind: { $ref: "#/components/schemas/CrmQuoteItemKind" }
+        productId: { type: [integer, "null"] }
+        code: { type: [string, "null"] }
+        name: { type: string }
+        subtitle: { type: [string, "null"] }
+        description: { type: [string, "null"] }
+        siteUrl: { type: [string, "null"] }
+        photoUrl: { type: [string, "null"] }
+        season: { type: [string, "null"] }
+        supplierUrl: { type: [string, "null"] }
+        options:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteOption" }
+    CrmQuote:
+      type: object
+      required: [id, number, kind, status, internalName, author, responsible, createdAt, updatedAt, version, items]
+      properties:
+        id: { type: integer, format: int64 }
+        number: { type: string, examples: ["37-9-2026"] }
+        kind: { $ref: "#/components/schemas/CrmQuoteKind" }
+        status: { $ref: "#/components/schemas/CrmQuoteStatus" }
+        internalName: { type: string }
+        customerId: { type: [integer, "null"], format: int64 }
+        recipientName: { type: [string, "null"] }
+        companyName: { type: [string, "null"] }
+        clientComment: { type: [string, "null"] }
+        managerNote: { type: [string, "null"] }
+        author: { $ref: "#/components/schemas/CrmQuotePerson" }
+        responsible: { $ref: "#/components/schemas/CrmQuotePerson" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        version: { type: integer }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteItem" }
+    CrmQuoteSummary:
+      type: object
+      required: [id, number, kind, status, internalName, responsible, itemsCount, updatedAt]
+      properties:
+        id: { type: integer, format: int64 }
+        number: { type: string }
+        kind: { $ref: "#/components/schemas/CrmQuoteKind" }
+        status: { $ref: "#/components/schemas/CrmQuoteStatus" }
+        internalName: { type: string }
+        companyName: { type: [string, "null"] }
+        responsible: { $ref: "#/components/schemas/CrmQuotePerson" }
+        itemsCount: { type: integer }
+        updatedAt: { type: string, format: date-time }
+    CrmQuotePage:
+      type: object
+      required: [items, page, pageSize, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteSummary" }
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+    CrmQuoteTierPrices:
+      type: object
+      properties:
+        retail: { type: [number, "null"], description: 1–9 pcs. }
+        wholesale: { type: [number, "null"], description: 10–40 pcs. }
+        large: { type: [number, "null"], description: From 41 pcs. }
+    CrmQuoteRepriceChange:
+      type: object
+      required: [optionId, itemName, optionTitle, before, after]
+      properties:
+        optionId: { type: integer, format: int64 }
+        itemName: { type: string }
+        optionTitle: { type: string }
+        before: { $ref: "#/components/schemas/CrmQuoteTierPrices" }
+        after: { $ref: "#/components/schemas/CrmQuoteTierPrices" }
+    CrmQuoteRepriceProblem:
+      type: object
+      required: [optionId, itemName, optionTitle, reason]
+      properties:
+        optionId: { type: integer, format: int64 }
+        itemName: { type: string }
+        optionTitle: { type: string }
+        reason: { type: string }
+    CrmQuoteRepriceReport:
+      type: object
+      required: [applied, version, changes, unavailable]
+      properties:
+        applied: { type: boolean }
+        version: { type: integer }
+        changes:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteRepriceChange" }
+        unavailable:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteRepriceProblem" }
+    CrmQuoteCatalogVariant:
+      type: object
+      required: [articleId, sku, title]
+      properties:
+        articleId: { type: integer, format: int64 }
+        sku: { type: string }
+        title: { type: string, description: Fabric name. }
+        fabricInfo: { type: [string, "null"], description: For the manager only, fabric price and supplier. }
+        prices: { oneOf: [{ $ref: "#/components/schemas/CrmQuoteTierPrices" }, { type: "null" }] }
+        problem: { type: [string, "null"], description: Why it cannot be added; null when it can. }
+    CrmQuoteCatalogProduct:
+      type: object
+      required: [productId, kind, name, variants]
+      properties:
+        productId: { type: integer }
+        kind: { type: string, enum: [Sewing, Ppe] }
+        code: { type: [string, "null"] }
+        name: { type: string }
+        season: { type: [string, "null"] }
+        photoUrl: { type: [string, "null"] }
+        description: { type: [string, "null"], description: «Короткий опис для КП». }
+        prices: { oneOf: [{ $ref: "#/components/schemas/CrmQuoteTierPrices" }, { type: "null" }] }
+        problem: { type: [string, "null"] }
+        variants:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteCatalogVariant" }
+    CrmQuoteCatalogPage:
+      type: object
+      required: [items, page, pageSize, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteCatalogProduct" }
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+    CrmQuoteStaff:
+      type: object
+      required: [userId, name]
+      properties:
+        userId: { type: integer }
+        name: { type: string }
+        email: { type: [string, "null"] }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

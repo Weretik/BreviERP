@@ -1,0 +1,17 @@
+using Crm.Domain.Quotes;
+
+namespace Crm.Application.Quotes.SearchCatalog;
+
+public sealed class SearchQuoteCatalogQueryValidator : AbstractValidator<SearchQuoteCatalogQuery>
+{
+    public const int MaxPageSize = 50;
+
+    public SearchQuoteCatalogQueryValidator()
+    {
+        RuleFor(x => x.Kind).Must(x => x is nameof(QuoteItemKind.Sewing) or nameof(QuoteItemKind.Ppe))
+            .WithMessage("Оберіть швейну продукцію або ЗІЗ.");
+        RuleFor(x => x.Search).MaximumLength(QuoteLimits.NameMaxLength);
+        RuleFor(x => x.Page).InclusiveBetween(1, 10_000);
+        RuleFor(x => x.PageSize).InclusiveBetween(1, MaxPageSize);
+    }
+}
