@@ -293,6 +293,28 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1telegram
   /api/production/orders/progress-import:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1progress-import
+  /api/production/fabric-stock:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock
+  /api/production/fabric-stock/choices:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1choices
+  /api/production/fabric-stock/{id}:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1{id}
+  /api/production/fabric-stock/movements:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1movements
+  /api/production/fabric-stock/{id}/correction:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1{id}~1correction
+  /api/production/fabric-stock/{id}/movements/{movementId}/reverse:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1{id}~1movements~1{movementId}~1reverse
+  /api/production/fabric-stock/consumption:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1consumption
+  /api/production/fabric-stock/import:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1import
+  /api/production/orders/{id}/items/{itemId}/fabric:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1items~1{itemId}~1fabric
+  /api/production/orders/{id}/items/{itemId}/fabric-issues:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1items~1{itemId}~1fabric-issues
+  /api/production/orders/{id}/fabric-issues/{issueId}/reverse:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1fabric-issues~1{issueId}~1reverse
   /api/production/settings:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings
   /api/production/settings/telegram-test:

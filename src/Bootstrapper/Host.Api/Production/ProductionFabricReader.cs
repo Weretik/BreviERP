@@ -11,6 +11,6 @@ internal sealed class ProductionFabricReader(ISender sender) : IProductionFabric
     {
         var result = await sender.Send(new GetAllFabricQuery(), cancellationToken);
         if (!result.IsSuccess) throw new InvalidOperationException("Reference fabrics could not be read.");
-        return result.Value.Select(x => new ProductionFabric(x.Id, x.Code, x.Name)).ToArray();
+        return result.Value.Select(x => new ProductionFabric(x.Id, x.Code, x.Name, x.Price)).ToArray();
     }
 }

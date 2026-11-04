@@ -66,6 +66,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IProductionModelReader, ProductionModelReader>();
         services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
         services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
+        services.AddScoped<IProductionSupplierReader, ProductionSupplierReader>();
         services.AddScoped<IProductionStaffReader, ProductionStaffReader>();
         services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();
         services.AddScoped<IProductionFileStorage, ProductionFileStorage>();
