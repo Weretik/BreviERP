@@ -37,11 +37,14 @@ public sealed class PpeSupplierPricesApiTests
 
         Assert.That((await host.Client.GetAsync(Path)).StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         host.As("Manager", "manager-id", "manager@brevi");
-        Assert.That((await host.Client.GetAsync(Path)).StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        var managerView = await host.Client.GetFromJsonAsync<System.Text.Json.JsonElement>(Path);
+        Assert.That(managerView.GetProperty("canChangeDiscounts").GetBoolean(), Is.False);
         Assert.That((await host.Client.PutAsJsonAsync(Path + "/av-center", new { discountPercent = 15 })).StatusCode,
             Is.EqualTo(HttpStatusCode.Forbidden));
 
         host.As("Admin", "admin-id", "admin@brevi");
+        var adminView = await host.Client.GetFromJsonAsync<System.Text.Json.JsonElement>(Path);
+        Assert.That(adminView.GetProperty("canChangeDiscounts").GetBoolean(), Is.True);
         var response = await host.Client.PutAsJsonAsync(Path + "/av-center", new { discountPercent = 15, supplierId = 4 });
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
         host.Sender.Verify(x => x.Send(It.Is<UpdatePpePriceSourceCommand>(c =>

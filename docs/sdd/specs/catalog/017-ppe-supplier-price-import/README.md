@@ -31,7 +31,7 @@ The client's Apps Scripts updated PPE supplier prices in the sheet «ЗІЗ»: �
 
 ## API
 
-[ppe-supplier-prices.openapi.yaml](../../../contracts/catalog/ppe-supplier-prices.openapi.yaml): `listPpePriceSources` (CatalogRead), `updatePpePriceSource` (RequireAdminRole), `importPpeSupplierPrices` (CanManageProducts, multipart `files`, `dryRun`).
+[ppe-supplier-prices.openapi.yaml](../../../contracts/catalog/ppe-supplier-prices.openapi.yaml): `listPpePriceSources` (CatalogRead; `canChangeDiscounts` tells the Admin whether to offer the discount edit), `updatePpePriceSource` (RequireAdminRole), `importPpeSupplierPrices` (CanManageProducts, multipart `files`, `dryRun`).
 
 ## Data
 

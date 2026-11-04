@@ -16,6 +16,7 @@ public sealed class PpeSupplierPricesContractTests
     [TestCase(typeof(PpePriceImportRun))]
     [TestCase(typeof(PpePriceImportProblem))]
     [TestCase(typeof(UpdatePpePriceSourceRequest))]
+    [TestCase(typeof(PpePriceSourcesResponse))]
     [TestCase(typeof(PpePriceImportResult))]
     [TestCase(typeof(PpePriceImportRow))]
     public void Serialized_properties_match_the_machine_contract(Type type)

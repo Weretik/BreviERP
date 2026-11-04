@@ -16,10 +16,18 @@ public sealed class PpeSupplierPricesController(ISender sender) : ControllerBase
     /// <summary>Gzipped uploads from the admin are a few MB; the limit stays under Cloud Run's 32 MiB request cap.</summary>
     private const long MaxRequestBytes = 30 * 1024 * 1024;
 
+    /// <summary>The director also holds Admin, so this covers both.</summary>
+    private const string AdminRole = "Admin";
+
     [HttpGet(Name = "listPpePriceSources")]
     [Authorize(Policy = "CatalogRead")]
-    public async Task<ActionResult<IReadOnlyList<PpePriceSourceView>>> List(CancellationToken cancellationToken)
-        => this.ToActionResult(await sender.Send(new GetPpePriceSourcesQuery(), cancellationToken));
+    public async Task<ActionResult<PpePriceSourcesResponse>> List(CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetPpePriceSourcesQuery(), cancellationToken);
+        return result.IsSuccess
+            ? Ok(new PpePriceSourcesResponse(User.IsInRole(AdminRole), result.Value))
+            : this.ToActionResult(result);
+    }
 
     /// <summary>Changes the discount and supplier of a source; administrators and the director only.</summary>
     [HttpPut("{key}", Name = "updatePpePriceSource")]

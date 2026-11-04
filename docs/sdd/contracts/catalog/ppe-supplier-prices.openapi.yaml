@@ -25,10 +25,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PpePriceSourceView"
-                  }
+                  "$ref": "#/components/schemas/PpePriceSourcesResponse"
                 }
               }
             }
@@ -530,6 +527,25 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PpePriceImportRow"
+            }
+          }
+        }
+      },
+      "PpePriceSourcesResponse": {
+        "type": "object",
+        "required": [
+          "canChangeDiscounts",
+          "sources"
+        ],
+        "properties": {
+          "canChangeDiscounts": {
+            "type": "boolean",
+            "description": "True for administrators and the director (they hold Admin)."
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PpePriceSourceView"
             }
           }
         }
