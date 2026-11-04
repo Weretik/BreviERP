@@ -9,4 +9,4 @@ public interface IQuoteStaffReader
     Task<QuoteStaffMember?> FindAsync(int userId, CancellationToken cancellationToken);
 }
 
-public sealed record QuoteStaffMember(int UserId, string Name, string? Email);
+public sealed record QuoteStaffMember(int UserId, string Name, string? Email, string? Phone = null);

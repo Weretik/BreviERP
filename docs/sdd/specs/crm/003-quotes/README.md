@@ -41,6 +41,8 @@ The owner decided on 2026-11-04: delete all of that work, keep the clients from 
 - **R-13:** «Налаштування КП» is visible only to Director and Admin: company requisites (name, ЄДРПОУ, ІПН, IBAN, address, phone, email, site, logo), the contact each staff member shows in a КП (name, phone, email), the email subject and text with marks `{quoteNumber}`, `{managerName}`, `{managerPhone}`, `{managerEmail}`, `{site}`, PDF texts (title, VAT note, call-to-action), the introduction catalogue texts with five «Переваги», and the introduction letter variants.
 - **R-14:** «Сформувати КП» saves the КП and produces a PDF from saved data only: shown items, variants and prices, the client texts, the responsible person's contact and the requisites. Internal names, notes, costs, suppliers, manual price reasons and hidden prices never appear in it.
 
+Stage 2 design: one `crm.QuoteSettings` row (sections as jsonb, `Version` concurrency token); before the first save the API returns the old Calculator values (`QuoteSettingsDefaults`). A staff member without a saved contact shows their account name, phone and email. The PDF is drawn on request by QuestPDF (Community license) with embedded Noto Sans (`GET /api/crm/quotes/{id}/pdf`), nothing is stored; photos and the logo are read from their https links, a broken link is left out. The intro texts and letter variants are stored now and used in stage 4.
+
 ### Stage 3 — sending by Gmail
 
 - **R-15:** Each manager sends from their own Gmail address, connected once in «Налаштування КП» (the Director presses «Підключити» for a manager, the manager grants Google send access once; the Google OAuth app the owner already created for the earlier single sender is reused). Sending shows the recipient, subject and text (editable), attaches the PDF of the saved КП and on success marks the КП sent with the date. A failure leaves it a draft and shows the reason.
@@ -115,7 +117,7 @@ The file map is in the [feature card](../../../features/crm/clients-and-quotes.m
 | Stage | Scope | Status |
 | --- | --- | --- |
 | 1 | Backend in Crm and Admin pages «КП» (list) and «Товари та ціни» (editor): R-01–R-12 | done 2026-11-04 |
-| 2 | «Налаштування КП» and PDF: R-13, R-14 | planned |
+| 2 | «Налаштування КП» and PDF: R-13, R-14 | done 2026-11-04 |
 | 3 | Gmail per manager and sending: R-15 | planned |
 | 4 | КП для знайомства and templates: R-16, R-17 | planned |
 | 5 | Composition editing with recalculation, model from scratch, history, archive, copy | planned |
@@ -126,4 +128,4 @@ Admin screens: brevi-web [QTE-001 screens](https://github.com/Weretik/brevi-web/
 ## Open questions
 
 - Who may press «Передати розрахунок» besides Director and Admin: the old cabinet showed it to managers too. Until answered only Director and Admin assign (owner 2026-11-04).
-- Exact PDF layout: from the old cabinet screenshots and, when reachable, the Calculator source on the owner's computer (`E:\Development\projects-brevi-reference\brevi-calculator`).
+- Exact PDF layout: no sample of the old PDF was available; stage 2 uses its own layout (header with requisites, items with photo and shown prices, comment, VAT note, call-to-action, requisites footer). Adjust when the owner sends a sample.

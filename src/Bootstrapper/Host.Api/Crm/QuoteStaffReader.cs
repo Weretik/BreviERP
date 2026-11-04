@@ -15,7 +15,7 @@ internal sealed class QuoteStaffReader(UserManager<AppUser> users) : IQuoteStaff
             .Where(user => (!user.LockoutEnabled || user.LockoutEnd == null || user.LockoutEnd <= now) &&
                 user.UserRoles.Any(role => role.Role.Name == "Manager" || role.Role.Name == "Admin"))
             .OrderBy(user => user.FullName).ThenBy(user => user.Id)
-            .Select(user => new QuoteStaffMember(user.Id, user.FullName == "" ? user.Email ?? "Користувач #" + user.Id : user.FullName, user.Email))
+            .Select(user => new QuoteStaffMember(user.Id, user.FullName == "" ? user.Email ?? "Користувач #" + user.Id : user.FullName, user.Email, user.PhoneNumber))
             .ToArrayAsync(cancellationToken);
     }
 
@@ -26,6 +26,6 @@ internal sealed class QuoteStaffReader(UserManager<AppUser> users) : IQuoteStaff
         if (user is null || await users.IsLockedOutAsync(user)) return null;
         if (!await users.IsInRoleAsync(user, "Manager") && !await users.IsInRoleAsync(user, "Admin")) return null;
         var name = string.IsNullOrWhiteSpace(user.FullName) ? user.Email ?? $"Користувач #{user.Id}" : user.FullName;
-        return new QuoteStaffMember(user.Id, name, user.Email);
+        return new QuoteStaffMember(user.Id, name, user.Email, user.PhoneNumber);
     }
 }
