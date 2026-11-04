@@ -19,6 +19,9 @@ public interface IQuoteStore
     /// <summary>Letters with a КП that Gmail accepted.</summary>
     DbSet<QuoteSending> QuoteSendings { get; }
 
+    /// <summary>«Історія змін» of every КП (R-22).</summary>
+    DbSet<QuoteEvent> QuoteEvents { get; }
+
     /// <summary>«Готові шаблони» of introductions (R-19).</summary>
     DbSet<QuoteIntroTemplate> QuoteIntroTemplates { get; }
 

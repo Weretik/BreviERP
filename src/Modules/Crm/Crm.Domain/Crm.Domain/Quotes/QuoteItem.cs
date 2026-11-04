@@ -52,6 +52,12 @@ public sealed class QuoteItem
     /// <summary>The composition of a «Виріб з нуля» or changed model, shared by all its fabrics; empty otherwise.</summary>
     public IReadOnlyList<QuoteItemLine> Lines => _lines;
 
+    /// <summary>A new item with the same texts, composition and saved prices, for a copy of the КП.</summary>
+    public QuoteItem Copy() => new(Position, Kind, ProductId,
+        new QuoteItemTexts(Code, Name, Subtitle, Description, SiteUrl, PhotoUrl, Season, SupplierUrl),
+        _options.OrderBy(x => x.Position).Select(x => x.Copy()),
+        _lines.OrderBy(x => x.Position).Select(x => x.Copy()));
+
     /// <summary>R-10: the client must see at least one positive price of the item.</summary>
     public bool ShowsPositivePrice => _options.Any(x => x.ShowsPositivePrice);
 }

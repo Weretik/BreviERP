@@ -4,12 +4,14 @@ using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.Mapping;
 using Crm.Application.Quotes.Persistence;
+using Crm.Application.Quotes.Staff;
 using Crm.Domain.Quotes;
 
 namespace Crm.Application.Quotes.RepriceQuote;
 
 public sealed class RepriceQuoteCommandHandler(
-    IQuoteStore store, IQuoteCatalogReader catalog, TimeProvider clock, IQuoteSewingCalculator? sewing = null)
+    IQuoteStore store, IQuoteStaffReader staff, IQuoteCatalogReader catalog, TimeProvider clock,
+    IQuoteSewingCalculator? sewing = null)
     : ICommandHandler<RepriceQuoteCommand, Result<QuoteRepriceReport>>
 {
     public async ValueTask<Result<QuoteRepriceReport>> Handle(RepriceQuoteCommand command,
@@ -18,6 +20,7 @@ public sealed class RepriceQuoteCommandHandler(
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Version != command.Version) return Result.Conflict(QuoteMessages.Stale);
+        if (quote.IsArchived) return Result.Conflict(QuoteMessages.Archived);
 
         var productIds = quote.Items.Where(x => x.ProductId is not null).Select(x => x.ProductId!.Value).Distinct()
             .ToArray();
@@ -57,7 +60,10 @@ public sealed class RepriceQuoteCommandHandler(
         var applied = command.Apply && changes.Count > 0;
         if (applied)
         {
+            var actor = await staff.PersonAsync(command.Actor, cancellationToken);
+            if (actor is null) return Result.Forbidden(QuoteMessages.ActorUnknown);
             quote.Touch(now);
+            quote.Record(QuoteEventKind.Repriced, actor, $"Оновлено цін: {changes.Count}", now);
             try
             {
                 await store.SaveChangesAsync(cancellationToken);

@@ -21,6 +21,7 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<QuoteSettings> QuoteSettings => Set<QuoteSettings>();
     public DbSet<StaffMailbox> StaffMailboxes => Set<StaffMailbox>();
     public DbSet<QuoteSending> QuoteSendings => Set<QuoteSending>();
+    public DbSet<QuoteEvent> QuoteEvents => Set<QuoteEvent>();
     public DbSet<QuoteIntroTemplate> QuoteIntroTemplates => Set<QuoteIntroTemplate>();
     public DbSet<ManagerTask> ManagerTasks => Set<ManagerTask>();
 

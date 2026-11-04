@@ -276,6 +276,13 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ArchivedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<string>("AuthorName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -367,6 +374,8 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ArchivedAt");
+
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("Number")
@@ -387,6 +396,44 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("CK_Quotes_Version", "\"Version\" > 0");
                         });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.QuoteEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ActorName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("ActorUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuoteId", "At");
+
+                    b.ToTable("QuoteEvents", "crm");
                 });
 
             modelBuilder.Entity("Crm.Domain.Quotes.QuoteItem", b =>
@@ -1009,6 +1056,15 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.QuoteEvent", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany("Events")
+                        .HasForeignKey("QuoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.QuoteItem", b =>
                 {
                     b.HasOne("Crm.Domain.Quotes.Quote", null)
@@ -1077,6 +1133,8 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Crm.Domain.Quotes.Quote", b =>
                 {
+                    b.Navigation("Events");
+
                     b.Navigation("Items");
                 });
 

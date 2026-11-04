@@ -7,6 +7,7 @@ namespace Crm.Domain.Quotes;
 public sealed class Quote
 {
     private readonly List<QuoteItem> _items = [];
+    private readonly List<QuoteEvent> _events = [];
 
     private Quote() { }
 
@@ -28,6 +29,7 @@ public sealed class Quote
         Version = 1;
         ApplyHeader(header);
         _items.AddRange(items);
+        Record(QuoteEventKind.Created, author, null, now);
     }
 
     public long Id { get; private set; }
@@ -71,9 +73,57 @@ public sealed class Quote
     /// <summary>When the КП was last sent by Gmail (R-15); null for a draft.</summary>
     public DateTimeOffset? LastSentAt { get; private set; }
 
+    /// <summary>When the КП was moved to «Архів» (R-23); null while it is in work.</summary>
+    public DateTimeOffset? ArchivedAt { get; private set; }
+
+    public string? ArchivedByName { get; private set; }
+
+    public bool IsArchived => ArchivedAt is not null;
+
     public int Version { get; private set; }
 
     public IReadOnlyList<QuoteItem> Items => _items;
+
+    /// <summary>History lines added in this change; saved ones are read by a separate query.</summary>
+    public IReadOnlyList<QuoteEvent> Events => _events;
+
+    /// <summary>
+    /// «Копіювати КП» (R-24): a new draft with the same header, introduction and items with their saved prices. The
+    /// person who copies becomes its author and responsible.
+    /// </summary>
+    public Quote CopyAs(QuoteNumber number, QuotePerson author, DateTimeOffset now)
+    {
+        var copy = new Quote(number, Kind, author,
+            new QuoteHeader(InternalName, CustomerId, RecipientName, CompanyName, ClientComment, ManagerNote),
+            _items.OrderBy(x => x.Position).Select(x => x.Copy()), now);
+        if (Introduction is { } introduction) copy.SetIntroduction(introduction);
+        copy._events.Clear(); // the copy starts its history with «Копія КП N» instead of «Створено»
+        copy.Record(QuoteEventKind.Copied, author, $"Копія КП {Number}", now);
+        return copy;
+    }
+
+    /// <summary>Adds a history line; the caller records what the change was.</summary>
+    public void Record(QuoteEventKind kind, QuotePerson actor, string? details, DateTimeOffset at) =>
+        _events.Add(new QuoteEvent(kind, actor, details, at));
+
+    /// <summary>«В архів» (R-23): the КП leaves the working list and cannot change until it is restored.</summary>
+    public void Archive(QuotePerson person, DateTimeOffset now)
+    {
+        if (IsArchived) return;
+        ArchivedAt = now;
+        ArchivedByName = person.Name;
+        Touch(now);
+        Record(QuoteEventKind.Archived, person, null, now);
+    }
+
+    public void Restore(QuotePerson person, DateTimeOffset now)
+    {
+        if (!IsArchived) return;
+        ArchivedAt = null;
+        ArchivedByName = null;
+        Touch(now);
+        Record(QuoteEventKind.Restored, person, null, now);
+    }
 
     /// <summary>Replaces the header and the whole item list in one change.</summary>
     public void Update(QuoteHeader header, IEnumerable<QuoteItem> items, DateTimeOffset now)
@@ -94,11 +144,13 @@ public sealed class Quote
         LetterName = QuoteText.Normalize(introduction.LetterName);
     }
 
-    public void AssignResponsible(QuotePerson person, DateTimeOffset now)
+    public void AssignResponsible(QuotePerson person, QuotePerson by, DateTimeOffset now)
     {
+        var before = ResponsibleName;
         ResponsibleUserId = person.UserId;
         ResponsibleName = person.Name;
         Touch(now);
+        Record(QuoteEventKind.ResponsibleChanged, by, $"{before} → {person.Name}", now);
     }
 
     /// <summary>Gmail accepted the letter: the КП is sent. It can still be edited and sent again.</summary>

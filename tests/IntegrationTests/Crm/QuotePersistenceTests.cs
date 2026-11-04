@@ -1,13 +1,16 @@
 using Ardalis.Result;
 using Crm.Application.Quotes.Access;
+using Crm.Application.Quotes.Archive;
 using Crm.Application.Quotes.Building;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Contracts;
+using Crm.Application.Quotes.CopyQuote;
 using Crm.Application.Quotes.CreateQuote;
 using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.DeleteQuote;
 using Crm.Application.Quotes.GetQuote;
 using Crm.Application.Quotes.GetQuotes;
+using Crm.Application.Quotes.History;
 using Crm.Application.Quotes.RepriceQuote;
 using Crm.Application.Quotes.SaveQuote;
 using Crm.Application.Quotes.SetResponsible;
@@ -193,7 +196,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
                 Assert.That(item.Options.Single().Retail.Amount, Is.EqualTo(250m));
             });
 
-            var repriced = await new RepriceQuoteCommandHandler(db, _catalog, _clock, sewing)
+            var repriced = await new RepriceQuoteCommandHandler(db, _staff, _catalog, _clock, sewing)
                 .Handle(new RepriceQuoteCommand(Olena, created.Id, loaded.Version, true), default);
             Assert.That(repriced.Value.Changes.Single().After.Retail, Is.EqualTo(375m));
         }
@@ -236,10 +239,93 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
                 }));
             });
 
-            var report = await new RepriceQuoteCommandHandler(db, _catalog, _clock, sewing)
+            var report = await new RepriceQuoteCommandHandler(db, _staff, _catalog, _clock, sewing)
                 .Handle(new RepriceQuoteCommand(Olena, created.Id, loaded.Version, false), default);
             Assert.That(report.Value.Unavailable, Is.Empty);
         }
+    }
+
+    [Test]
+    public async Task HistoryRecordsCreateSaveRepriceAndResponsible()
+    {
+        var created = await Create(Olena);
+        var item = created.Items.Single();
+        await using (var db = Context())
+            await Save(db, created.Id, Input(created.Version, "Нова назва", item.Id, item.Options.Single().Id));
+        _catalog.Retail = 1000;
+        await using (var db = Context()) await Reprice(db, created.Id, 2, apply: true);
+        await using (var db = Context())
+            await new SetQuoteResponsibleCommandHandler(db, _staff, _clock)
+                .Handle(new SetQuoteResponsibleCommand(Director, created.Id, 3, 18), default);
+
+        await using (var db = Context())
+        {
+            var history = (await new GetQuoteHistoryQueryHandler(db)
+                .Handle(new GetQuoteHistoryQuery(Director, created.Id), default)).Value;
+            var foreign = await new GetQuoteHistoryQueryHandler(db)
+                .Handle(new GetQuoteHistoryQuery(Olena, created.Id), default);
+
+            Assert.That(history.Select(x => x.Kind).Reverse(),
+                Is.EqualTo(new[] { "Created", "Saved", "Repriced", "ResponsibleChanged" }));
+            Assert.That(history[0].Actor.Name, Is.EqualTo("Директор"));
+            Assert.That(history[0].Details, Is.EqualTo("Олена → Петро"));
+            Assert.That(history[1].Details, Is.EqualTo("Оновлено цін: 1"));
+            Assert.That(foreign.Status, Is.EqualTo(ResultStatus.NotFound));
+        }
+    }
+
+    [Test]
+    public async Task ArchivedQuoteLeavesTheListAndCannotChangeUntilRestored()
+    {
+        var created = await Create(Olena);
+        var item = created.Items.Single();
+
+        await using var db = Context();
+        var archive = new SetQuoteArchivedCommandHandler(db, _staff, _clock);
+        var archived = await archive.Handle(new SetQuoteArchivedCommand(Olena, created.Id, created.Version, true), default);
+        Assert.That(archived.Value.ArchivedAt, Is.Not.Null);
+        Assert.That(archived.Value.ArchivedByName, Is.EqualTo("Олена"));
+
+        var working = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Olena, null, null, null), default);
+        var inArchive = await new GetQuotesQueryHandler(db)
+            .Handle(new GetQuotesQuery(Olena, null, null, null, Archived: true), default);
+        var save = await Save(db, created.Id, Input(archived.Value.Version, "Інша", item.Id, item.Options.Single().Id));
+        Assert.That(working.Value.Total, Is.Zero);
+        Assert.That(inArchive.Value.Items.Single().ArchivedAt, Is.Not.Null);
+        Assert.That(save.Status, Is.EqualTo(ResultStatus.Conflict));
+
+        var restored = await archive.Handle(
+            new SetQuoteArchivedCommand(Olena, created.Id, archived.Value.Version, false), default);
+        Assert.That(restored.Value.ArchivedAt, Is.Null);
+        var saved = await Save(db, created.Id, Input(restored.Value.Version, "Інша", item.Id, item.Options.Single().Id));
+        Assert.That(saved.IsSuccess, Is.True);
+    }
+
+    [Test]
+    public async Task CopyIsANewDraftWithTheSavedPrices()
+    {
+        var created = await Create(Olena);
+        _catalog.Retail = 2000;
+
+        await using var db = Context();
+        var copy = await new CopyQuoteCommandHandler(db, _staff, new QuoteNumbering(db), _clock)
+            .Handle(new CopyQuoteCommand(Director, created.Id), default);
+
+        Assert.That(copy.IsSuccess, Is.True, string.Join(",", copy.Errors));
+        Assert.Multiple(() =>
+        {
+            Assert.That(copy.Value.Id, Is.Not.EqualTo(created.Id));
+            Assert.That(copy.Value.Number, Is.EqualTo("2-11-2026"));
+            Assert.That(copy.Value.Status, Is.EqualTo("Draft"));
+            Assert.That(copy.Value.Author.Name, Is.EqualTo("Директор"));
+            Assert.That(copy.Value.Responsible.Name, Is.EqualTo("Директор"));
+            Assert.That(copy.Value.InternalName, Is.EqualTo(created.InternalName));
+            Assert.That(copy.Value.Items.Single().Options.Single().Retail.Amount, Is.EqualTo(900m));
+            Assert.That(copy.Value.Items.Single().Id, Is.Not.EqualTo(created.Items.Single().Id));
+        });
+        var history = (await new GetQuoteHistoryQueryHandler(db)
+            .Handle(new GetQuoteHistoryQuery(Director, copy.Value.Id), default)).Value;
+        Assert.That(history.Single().Details, Is.EqualTo($"Копія КП {created.Number}"));
     }
 
     private Task<Result<QuoteResponse>> Save(CrmDbContext db, long id, SaveQuoteInput input) =>
@@ -247,7 +333,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
             .Handle(new SaveQuoteCommand(Olena, id, input), default).AsTask();
 
     private Task<Result<QuoteRepriceReport>> Reprice(CrmDbContext db, long id, int version, bool apply) =>
-        new RepriceQuoteCommandHandler(db, _catalog, _clock)
+        new RepriceQuoteCommandHandler(db, _staff, _catalog, _clock)
             .Handle(new RepriceQuoteCommand(Olena, id, version, apply), default).AsTask();
 
     private sealed class Catalog : IQuoteCatalogReader

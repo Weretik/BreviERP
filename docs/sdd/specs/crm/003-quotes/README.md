@@ -57,12 +57,17 @@ Stage 3 design: Google OAuth web client with `openid email gmail.send` only (no 
 - **R-19:** Any Manager, Director or Admin saves the current layout, models, fabrics and letter variant as a named «Готовий шаблон» (name up to 100, unique ignoring case). All staff see all templates; the author, Director or Admin delete one. Applying a template fills the selection again with current Catalog data and prices; a model or fabric that is no longer active is left empty with the reason.
 - **R-20:** «Виріб з нуля» (owner 2026-11-04): an item of a КП «під запит» that is not in the Catalog. The manager names it, picks accessories and operations from the references (shared, with quantities; minutes for an operation without a norm) and one or more fabrics with metres; each fabric is a price row. Prices come from the Catalog sewing formula with the current settings and reference versions, never typed; they stay while the composition and fabrics stay (R-11), change when they change, and «Перерахувати» prices the saved composition again. The item is not added to the Catalog. Started from «Нове КП → КП з нуля» or «Додати виріб з нуля» in the products block.
 - **R-21:** «Змінити склад» of a Catalog model (owner 2026-11-04, stage 5b): a sewing model in a КП can get its own composition. The panel starts from the model's Catalog composition: the fabric of each variant already in the КП with its metres, shared accessories, extra fabrics (for example a lining), services («послуги») and operations. The manager changes, removes or adds lines and fabrics; the item becomes a «Виріб з нуля» linked to its model (code, site link and season stay, subtitle «змінений склад моделі») and is priced as in R-20. The Catalog model does not change.
+- **R-22:** «Історія змін» (stage 5c): every КП keeps a list of what happened, who did it and when: created (or copied from КП N), saved, sent (with recipients), repriced (number of changed prices), given to another manager (old → new), moved to the archive and restored. The editor shows it newest first in a side panel. Existing КП start with their creation and every sent letter.
+- **R-23:** «Архів» (stage 5c): a КП of any status can be moved to the archive and back by whoever may open it. The КП list shows the working КП by default and the archive on its own tab. An archived КП opens read-only: saving, sending, repricing and giving it to another manager return «КП в архіві. Спочатку поверніть його з архіву.»; it can still be printed, copied and (a draft) deleted.
+- **R-24:** «Копіювати» (stage 5c): a new draft with the next number, the same header, introduction and items with their saved prices, manual prices and compositions; the person who copies becomes its author and responsible. An archived КП can be copied. Prices are not recalculated: the manager presses «Перерахувати» when needed.
 
 Stage 4 design: `Quotes` gains `IntroLayout`, `RecipientEmail`, `LetterName` (null for a request КП). An introduction is saved by its own endpoints with pages of models (`productId`, `articleId`, optional saved `itemId`); the server turns them into ordinary sewing items with one option each (only від 41 шт. shown) through `QuoteItemsBuilder`, so saved prices stay until «Перерахувати» (R-11), and then checks the layout, seasons, main models and repeats. `crm.QuoteIntroTemplates` keeps a template as jsonb pages of `productId`/`articleId` with the product and fabric names for display. The editor reads the main models and letter names from `GET /api/crm/quote-lookups/introduction` (managers cannot read the settings) and season models from `searchCrmQuoteCatalog` with `season`. The PDF composer draws the catalogue for Introduction and the item table for Request.
 
 Stage 5a design: a «Виріб з нуля» is a `QuoteItems` row of kind `CustomSewing` without `ProductId`; its accessories and operations are `crm.QuoteItemLines` (reference id, copied name and unit, quantity, manual minutes) and each fabric is an option with `FabricId` and `FabricMeters`. Crm prices it through the port `IQuoteSewingCalculator`; the host adapter sends the Catalog query `CalculateSewingCompositionQuery` once per fabric (the article evaluator and this query share `SewingPricingContext`: settings candidates, reference versions, blockers) and turns blockers into short reasons. Saving compares lines and fabrics with the saved item: unchanged keeps prices, changed prices again.
 
 Stage 5b design: a changed model is a `CustomSewing` item that keeps `ProductId` of its model (the `CK_QuoteItems_Product` check allows it); a new one needs the model in the Catalog, a saved one keeps its texts. Line kinds grow by `Service` (reference id 0, `CostCode` = the Reference other-cost code) and `Fabric` (an extra shared fabric in metres), so a model's composition is carried without loss; `CalculateSewingCompositionQuery` prices `OtherCost` materials by their code. `GET /api/crm/quote-lookups/catalog/{productId}/composition` reads the model's composition through the port `IQuoteModelCompositionReader`; the host adapter uses the Catalog sewing card query `GetSewingArticleSummaryQuery`. «Перерахувати» prices a changed model from its saved composition, never from the Catalog variants.
+
+Stage 5c design: `crm.QuoteEvents` (QuoteId cascade, Kind, actor id and name, Details up to 500, At) is a child of `Quotes` that the КП only adds to; `GET /api/crm/quotes/{id}/history` reads it. `Quotes` gains `ArchivedAt` and `ArchivedByName`; `POST …/archive` and `POST …/restore` take `version` and grow it; `getCrmQuotes` takes `archived` (default false). `POST …/copy` builds the copy in the domain (`Quote.CopyAs`) and numbers it through `QuoteNumbering`. The migration fills `Created` from `Quotes` and `Sent` from `QuoteSendings`.
 
 ### Later stages
 
@@ -91,6 +96,7 @@ Schema `crm`, see [Crm schema](../../../architecture/data-model/crm.md). Catalog
 | `QuoteItems` | `Id`, `QuoteId` (cascade), `Position`, `Kind` (`Sewing`, `Ppe`, `OneOffPpe`, `CustomSewing`), `ProductId` (Catalog; null for one-off PPE and «Виріб з нуля»), `Code`, `Name`, `Subtitle`, `Description`, `SiteUrl`, `PhotoUrl`, `Season`, `SupplierUrl` |
 | `QuoteItemOptions` | `Id`, `ItemId` (cascade), `Position`, `ArticleId` (Catalog), `FabricId` (Reference), `Title`, `Details`, `IsRecommended`, for each tier (`Retail`, `Wholesale`, `Large`): `<Tier>Source`, `<Tier>Manual`, `<Tier>Shown`, plus `ManualReason`, `ManualByUserId`, `ManualByName`, `ManualAt`, `PricesTakenAt`, `FabricMeters` (R-20) |
 | `QuoteItemLines` | `Id`, `ItemId` (cascade), `Position`, `Kind` (`Accessory`, `Operation`, `Service`, `Fabric`), `ReferenceId` (0 for a service), `CostCode` (service), `Name`, `Unit`, `Quantity`, `ManualMinutes` (R-20, R-21) |
+| `QuoteEvents` | `Id`, `QuoteId` (cascade), `Kind`, `ActorUserId`, `ActorName`, `Details`, `At` (R-22); `Quotes` also has `ArchivedAt`, `ArchivedByName` (R-23) |
 
 Money is `numeric(12,2)` as Catalog publishes it. A save replaces the item rows (new ids in the response). Rollback: the previous image keeps working with the new tables unused; the dropped Codex tables are not restored with data.
 
@@ -109,7 +115,7 @@ Contract: [crm/quotes.openapi.yaml](../../../contracts/crm/quotes.openapi.yaml).
 
 | Operation | Endpoint |
 | --- | --- |
-| `getCrmQuotes` | `GET /api/crm/quotes?search=&status=&responsibleUserId=&page=&pageSize=` (50 per page, max 100, newest change first) |
+| `getCrmQuotes` | `GET /api/crm/quotes?search=&status=&responsibleUserId=&archived=&page=&pageSize=` (50 per page, max 100, newest change first) |
 | `getCrmQuote` | `GET /api/crm/quotes/{id}` |
 | `createCrmQuote` | `POST /api/crm/quotes` → 201 with the number |
 | `saveCrmQuote` | `PUT /api/crm/quotes/{id}` with `version`; the whole editable content |
@@ -126,6 +132,9 @@ Contract: [crm/quotes.openapi.yaml](../../../contracts/crm/quotes.openapi.yaml).
 | `getCrmQuoteCatalogProducts` | `GET /api/crm/quote-lookups/products?ids=` (up to 20): current data of chosen models |
 | `calculateCrmQuoteCustomSewing` | `POST /api/crm/quote-lookups/custom-sewing-price`: «Виріб з нуля» price per fabric, line names, minutes and labour, or problems; nothing saved (R-20) |
 | `getCrmQuoteModelComposition` | `GET /api/crm/quote-lookups/catalog/{productId}/composition`: the Catalog composition of a sewing model for «Змінити склад»; 404 when it is not a sewing model (R-21) |
+| `getCrmQuoteHistory` | `GET /api/crm/quotes/{id}/history`: «Історія змін», newest first (R-22) |
+| `archiveCrmQuote` / `restoreCrmQuote` | `POST /api/crm/quotes/{id}/archive`, `POST …/restore` with `version` (R-23) |
+| `copyCrmQuote` | `POST /api/crm/quotes/{id}/copy` → 201 with the new КП (R-24) |
 | `getCrmQuoteIntroTemplates` / `createCrmQuoteIntroTemplate` / `deleteCrmQuoteIntroTemplate` | `GET`, `POST /api/crm/quote-intro-templates`, `DELETE /api/crm/quote-intro-templates/{id}` |
 
 Every command and query with input has a FluentValidation validator (lengths, ranges, paging, item kinds, no manual sewing price, one row for PPE, one recommended variant); Catalog-dependent rules (active product, published price, manual reason) are checked by `QuoteItemsBuilder` and return 409 or 400 with a Ukrainian message.
@@ -144,7 +153,7 @@ The file map is in the [feature card](../../../features/crm/clients-and-quotes.m
 | 4 | КП для знайомства and templates: R-16–R-19 | done 2026-11-04 |
 | 5a | «Виріб з нуля»: R-20 | done 2026-11-04 |
 | 5b | «Змінити склад» of a Catalog model: R-21 | done 2026-11-04 |
-| 5c | History, archive, copy | planned |
+| 5c | History, archive, copy: R-22–R-24 | done 2026-11-04 |
 | 6 | Old КП import (if feasible) | planned |
 
 Admin screens: brevi-web [QTE-001 screens](https://github.com/Weretik/brevi-web/blob/master/docs/specs/admin/quotes/001-quotes/README.md).

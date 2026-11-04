@@ -62,6 +62,18 @@ public sealed class QuoteItemOption
         return this;
     }
 
+    /// <summary>The same row with its saved prices and manual price note, for a copy of the КП.</summary>
+    public QuoteItemOption Copy()
+    {
+        var copy = new QuoteItemOption(Position, ArticleId, FabricId, Title, Details, IsRecommended, Retail, Wholesale,
+            Large, PricesTakenAt) { FabricMeters = FabricMeters };
+        copy.ManualReason = ManualReason;
+        copy.ManualByUserId = ManualByUserId;
+        copy.ManualByName = ManualByName;
+        copy.ManualAt = ManualAt;
+        return copy;
+    }
+
     public IEnumerable<QuotePrice> Prices => [Retail, Wholesale, Large];
 
     public bool HasManualPrice => Prices.Any(x => x.IsManual);
