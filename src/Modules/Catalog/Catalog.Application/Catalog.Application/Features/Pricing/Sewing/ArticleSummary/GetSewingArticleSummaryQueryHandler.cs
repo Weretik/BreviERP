@@ -1,4 +1,5 @@
 using Catalog.Application.Contracts.Pricing;
+using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Pricing.Sewing.Evaluation;
 using Catalog.Application.Features.Product.Sewing;
 
@@ -10,6 +11,7 @@ public sealed class GetSewingArticleSummaryQueryHandler(
     ISewingPricingSettingsReader settings,
     IPricingReferenceVersionReader references,
     ISewingPublishedPriceReader published,
+    IProductReferenceReader referenceNames,
     TimeProvider timeProvider)
     : IQueryHandler<GetSewingArticleSummaryQuery, Result<SewingArticleSummary>>
 {
@@ -21,6 +23,10 @@ public sealed class GetSewingArticleSummaryQueryHandler(
         var list = await composition.ReadArticlesAsync(query.ProductId, cancellationToken);
         if (list is null)
             return Result.NotFound();
+        var shared = await composition.ReadCompositionAsync(query.ProductId, null, cancellationToken);
+        if (shared is null)
+            return Result.NotFound();
+        var names = await referenceNames.GetSnapshotAsync(cancellationToken);
 
         var at = timeProvider.GetUtcNow();
         var publishedByArticle = list.Articles.Count == 0
@@ -36,13 +42,32 @@ public sealed class GetSewingArticleSummaryQueryHandler(
                 return Result.NotFound();
             var calculation = preview.Value.Calculation;
             publishedByArticle.TryGetValue(article.Id, out var current);
+            var fabric = article.FabricId is { } fabricId ? names.Fabrics.GetValueOrDefault(fabricId) : null;
             rows.Add(new SewingArticleSummaryRow(article.Id, article.SaleSku, article.Active, article.SortOrder,
+                article.FabricId, fabric?.Name, fabric?.Price, article.FabricQuantity,
                 calculation.IsCalculated, calculation.Blockers,
                 calculation.Breakdown,
                 calculation.Prices,
                 current is null ? null : new SewingArticlePublishedSummary(current.PublishedAt, current.Prices)));
         }
 
-        return Result.Success(new SewingArticleSummary(list.ProductId, list.ModelCode, list.Version, at, rows));
+        var materials = shared.Materials.Where(line => line.ArticleId is null).Select(line =>
+        {
+            var reference = line.ReferenceId is not { } id ? null
+                : line.Kind == "Fabric" ? names.Fabrics.GetValueOrDefault(id)
+                : line.Kind == "Accessory" ? names.GarmentAccessories.GetValueOrDefault(id)
+                : null;
+            return new SewingCardMaterial(line.Id, line.Kind, line.ReferenceId, line.CostCode, reference?.Name,
+                reference?.Price, line.Quantity, line.Unit, line.SortOrder, line.Comment);
+        }).ToList();
+        var operations = shared.Operations.Select(line =>
+        {
+            var reference = names.GarmentPartOperations.GetValueOrDefault(line.OperationId);
+            return new SewingCardOperation(line.Id, line.OperationId, reference?.Name, reference?.Minutes,
+                line.Quantity, line.ManualMinutes, line.SortOrder, line.Comment);
+        }).ToList();
+
+        return Result.Success(new SewingArticleSummary(list.ProductId, list.ModelCode, list.Version, at, rows,
+            materials, operations));
     }
 }

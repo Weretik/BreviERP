@@ -19,6 +19,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [013 «Товари» list in one server request](catalog/013-product-list-page/README.md) | backend implemented 2026-11-03 |
 | Catalog  | [014 No review or check marks](catalog/014-remove-review-marks/README.md) | backend implemented 2026-11-03 |
 | Catalog  | [015 Fabric variants](catalog/015-fabric-variants/README.md) | backend implemented 2026-11-03 |
+| Catalog  | [016 Sewing card in one request](catalog/016-sewing-card-one-request/README.md) | backend implemented 2026-11-04 |
 | Content  | [001 «Контент сайту» site content](content/001-site-content/README.md) | planned only (draft) |
 | Quotes   | [001 «Розрахунок КП» quote calculation](quotes/001-quote-calculation/README.md) | planned only (draft) |
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |
