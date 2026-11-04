@@ -1,5 +1,6 @@
 using BuildingBlocks.Infrastructure.Migrations;
 using Crm.Application.Customers.Persistence;
+using Crm.Application.Embroidery.Persistence;
 using Crm.Application.Quotes.Building;
 using Crm.Application.Quotes.Introductions.Building;
 using Crm.Application.Quotes.Pdf;
@@ -30,6 +31,7 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<ICustomerMutationStore, CustomerMutationStore>();
         services.AddScoped<IQuoteStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<ITaskStore>(provider => provider.GetRequiredService<CrmDbContext>());
+        services.AddScoped<IEmbroideryStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<QuoteItemsBuilder>();
         services.AddScoped<QuoteNumbering>();
         services.AddScoped<QuoteIntroductionBuilder>();

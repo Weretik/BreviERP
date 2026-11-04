@@ -1,3 +1,5 @@
+using Crm.Application.Embroidery.Persistence;
+using Crm.Application.Embroidery.StitchRate;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Import;
 using Crm.Application.Quotes.CustomSewing;
@@ -48,6 +50,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();
         services.AddScoped<IQuoteImportLookup, QuoteImportLookup>();
         services.AddScoped<ITaskStaffReader, TaskStaffReader>();
+        services.AddScoped<IEmbroideryStitchRateReader, EmbroideryStitchRateReader>();
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
         services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();

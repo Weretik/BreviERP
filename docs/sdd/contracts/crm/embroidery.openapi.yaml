@@ -1,0 +1,327 @@
+openapi: 3.1.0
+info:
+  title: BreviERP CRM Embroidery Price API
+  version: 1.0.0
+  description: >-
+    «Ціна вишивки» of the «Менеджер сервісу» block (EMB-001). Manager, Director and Admin calculate the price of an
+    embroidery on a garment or of chevrons; only Director and Admin (the Director also holds Admin) get the cost and
+    read or change «Налаштування». The embroiderer's rate is the pricing parameter `EMBROIDERY_RATE_1000_STITCHES` of
+    «Параметри ціноутворення». Money is UAH rounded half-up to kopecks from exact values.
+servers:
+  - url: /
+paths:
+  /api/crm/embroidery/form:
+    get:
+      operationId: getCrmEmbroideryForm
+      security:
+        - bearerAuth: []
+      description: Hoops, extra costs and the three price names for the form. No rates are returned.
+      responses:
+        "200":
+          description: The form.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroideryForm" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+  /api/crm/embroidery/calculate:
+    post:
+      operationId: calculateCrmEmbroidery
+      security:
+        - bearerAuth: []
+      description: >-
+        Computes the price and saves nothing. A problem that stops the price (a blank wider than the roll, an unknown
+        hoop, no stitch rate) comes back as `error` with status 200 and no prices. `cost` and money of the cut layout
+        are null for a Manager.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmCalculateEmbroideryInput" }
+      responses:
+        "200":
+          description: The price.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroideryCalculation" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+  /api/crm/embroidery/settings:
+    get:
+      operationId: getCrmEmbroiderySettings
+      security:
+        - bearerAuth: []
+      description: The saved settings, or the old calculator's rates with `version` 0 before the first save.
+      responses:
+        "200":
+          description: The settings.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroiderySettings" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+    put:
+      operationId: saveCrmEmbroiderySettings
+      security:
+        - bearerAuth: []
+      description: Saves the whole page. `version` is the one read; a stale version is 409.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveEmbroiderySettingsInput" }
+      responses:
+        "200":
+          description: Saved, with the new version.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroiderySettings" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+        "409": { $ref: "#/components/responses/Conflict" }
+components:
+  responses:
+    Invalid:
+      description: Validation errors with Ukrainian messages for the Admin.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                identifier: { type: [string, "null"] }
+                errorMessage: { type: string }
+    Conflict:
+      description: The settings were saved in another window; errors are Ukrainian strings.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { type: string }
+  schemas:
+    CrmEmbroideryMode:
+      type: string
+      description: Garment = «Вишивка на виробі», Chevron = «Шеврони».
+      enum: [Garment, Chevron]
+    CrmEmbroideryProgram:
+      type: string
+      enum: [New, Adjustment, Ready]
+    CrmEmbroideryMaterialMode:
+      type: string
+      description: UsedBlanks = only the blanks used; FullCut = the whole cut length. Applies to both materials.
+      enum: [UsedBlanks, FullCut]
+    CrmEmbroideryExpenseBasis:
+      type: string
+      description: What one unit of the rate is counted per.
+      enum: [Stitches, Hoop, Unit, MachineHour, Order]
+    CrmEmbroideryExpenseMode:
+      type: string
+      enum: [All, ChevronOnly]
+    CrmEmbroideryCostKind:
+      type: string
+      enum: [Stitches, Threads, Hooping, Stabilizer, Fabric, Program, Extra]
+    CrmEmbroideryForm:
+      type: object
+      required: [seesCost, hoops, expenses, markupNames, settingsUpdatedAt]
+      properties:
+        seesCost: { type: boolean, description: True for Director and Admin. }
+        hoops:
+          type: array
+          items:
+            type: object
+            required: [id, label, blankWidthCm, blankLengthCm]
+            properties:
+              id: { type: string }
+              label: { type: string }
+              blankWidthCm: { type: number }
+              blankLengthCm: { type: number }
+        expenses:
+          type: array
+          items:
+            type: object
+            required: [id, name, basis, mode, enabled, hasRate]
+            properties:
+              id: { type: string }
+              name: { type: string }
+              basis: { $ref: "#/components/schemas/CrmEmbroideryExpenseBasis" }
+              mode: { $ref: "#/components/schemas/CrmEmbroideryExpenseMode" }
+              enabled: { type: boolean, description: Ticked when a calculation starts. }
+              hasRate: { type: boolean, description: False makes the price «Орієнтовна» while ticked. }
+        markupNames: { type: array, items: { type: string }, minItems: 3, maxItems: 3 }
+        settingsUpdatedAt: { type: [string, "null"], format: date-time }
+    CrmCalculateEmbroideryInput:
+      type: object
+      required: [mode, quantity, stitchesPerUnit, hoopId, unitsPerHoop, stabilizerLayers, fabricLayers, program,
+        programMinutes, materialMode]
+      properties:
+        mode: { $ref: "#/components/schemas/CrmEmbroideryMode" }
+        quantity: { type: integer, minimum: 1, maximum: 1000000 }
+        stitchesPerUnit: { type: integer, minimum: 1, maximum: 1000000 }
+        hoopId: { type: string, maxLength: 64 }
+        unitsPerHoop: { type: integer, description: Chevrons per hooping (1–500); ignored for Garment. }
+        stabilizerLayers: { type: integer, minimum: 1, maximum: 20 }
+        fabricLayers: { type: integer, description: Chevron fabric layers (1–20); ignored for Garment. }
+        program: { $ref: "#/components/schemas/CrmEmbroideryProgram" }
+        programMinutes: { type: integer, minimum: 0, maximum: 100000, description: Ignored for Ready. }
+        machineMinutes: { type: [number, "null"], minimum: 0, description: Machine time of the whole batch. }
+        materialMode: { $ref: "#/components/schemas/CrmEmbroideryMaterialMode" }
+        expenseOverrides:
+          type: [object, "null"]
+          description: Extra costs ticked (true) or unticked (false) for this calculation only, by id.
+          additionalProperties: { type: boolean }
+    CrmEmbroideryCalculation:
+      type: object
+      required: [error, missing, hoopings, fullHoopings, lastHoopUnits, freeInLastHoop, prices, cost, stabilizer, fabric]
+      properties:
+        error: { type: [string, "null"], description: Ukrainian text; no prices when set. }
+        missing:
+          type: array
+          items: { type: string }
+          description: Ticked costs without a rate (or «Час роботи машини»); the prices are «Орієнтовна».
+        hoopings: { type: integer }
+        fullHoopings: { type: integer }
+        lastHoopUnits: { type: integer }
+        freeInLastHoop: { type: integer }
+        prices:
+          type: array
+          items:
+            type: object
+            required: [name, markupPercent, unit, total, repeatUnit]
+            properties:
+              name: { type: string }
+              markupPercent: { type: [number, "null"], description: Null for a Manager. }
+              unit: { type: number }
+              total: { type: number }
+              repeatUnit: { type: number, description: Unit price with the ready program. }
+        cost:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [total, perUnit, rows]
+              properties:
+                total: { type: number }
+                perUnit: { type: number }
+                rows:
+                  type: array
+                  items:
+                    type: object
+                    required: [kind, name, basis, quantity, rate, amount, perUnit]
+                    properties:
+                      kind: { $ref: "#/components/schemas/CrmEmbroideryCostKind" }
+                      name: { type: string }
+                      basis:
+                        oneOf:
+                          - type: "null"
+                          - $ref: "#/components/schemas/CrmEmbroideryExpenseBasis"
+                      quantity:
+                        type: number
+                        description: Thousands of stitches, hoopings, blanks, minutes of development, units, machine hours or 1.
+                      rate: { type: [number, "null"] }
+                      amount: { type: number }
+                      perUnit: { type: number }
+        stabilizer:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/CrmEmbroideryCut"
+        fabric:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/CrmEmbroideryCut"
+    CrmEmbroideryCut:
+      type: object
+      required: [blankWidthCm, blankLengthCm, rollWidthCm, blanks, across, rows, produced, spare, sideWasteCm, cutMetres,
+        blankCost, wholeCost, charged]
+      properties:
+        blankWidthCm: { type: number }
+        blankLengthCm: { type: number }
+        rollWidthCm: { type: number }
+        blanks: { type: integer }
+        across: { type: integer }
+        rows: { type: integer }
+        produced: { type: integer }
+        spare: { type: integer }
+        sideWasteCm: { type: number }
+        cutMetres: { type: number }
+        blankCost: { type: [number, "null"] }
+        wholeCost: { type: [number, "null"] }
+        charged: { type: [number, "null"], description: What the cost includes; null for a Manager. }
+    CrmEmbroideryRates:
+      type: object
+      required: [threadRate, hoopingRate, programHourRate, taxPercent]
+      properties:
+        threadRate: { type: number, minimum: 0 }
+        hoopingRate: { type: number, minimum: 0 }
+        programHourRate: { type: number, minimum: 0 }
+        taxPercent: { type: number, minimum: 0, description: A multiplier after the markup, not VAT. }
+    CrmEmbroideryMarkup:
+      type: object
+      required: [name, percent]
+      properties:
+        name: { type: string, maxLength: 120 }
+        percent: { type: number, minimum: 0 }
+    CrmEmbroideryMaterial:
+      type: object
+      required: [pricePerMetre, widthCm]
+      properties:
+        pricePerMetre: { type: number, minimum: 0 }
+        widthCm: { type: number, exclusiveMinimum: 0 }
+    CrmEmbroideryHoop:
+      type: object
+      required: [id, label, blankWidthCm, blankLengthCm, glueRate]
+      properties:
+        id: { type: string, maxLength: 64 }
+        label: { type: string, maxLength: 120 }
+        blankWidthCm: { type: number, exclusiveMinimum: 0 }
+        blankLengthCm: { type: number, exclusiveMinimum: 0 }
+        glueRate: { type: [number, "null"], minimum: 0, description: Null uses the general «Клей» rate. }
+    CrmEmbroideryExpense:
+      type: object
+      required: [id, name, basis, rate, enabled, mode]
+      properties:
+        id: { type: string, maxLength: 64 }
+        name: { type: string, maxLength: 120 }
+        basis: { $ref: "#/components/schemas/CrmEmbroideryExpenseBasis" }
+        rate: { type: [number, "null"], minimum: 0, description: Null = not set yet; 0 = free. }
+        enabled: { type: boolean }
+        mode: { $ref: "#/components/schemas/CrmEmbroideryExpenseMode" }
+    CrmSaveEmbroiderySettingsInput:
+      type: object
+      required: [version, rates, markups, stabilizer, fabric, fabricIncreasePercent, hoops, expenses]
+      properties:
+        version: { type: integer, minimum: 0 }
+        rates: { $ref: "#/components/schemas/CrmEmbroideryRates" }
+        markups: { type: array, items: { $ref: "#/components/schemas/CrmEmbroideryMarkup" }, minItems: 3, maxItems: 3 }
+        stabilizer: { $ref: "#/components/schemas/CrmEmbroideryMaterial" }
+        fabric: { $ref: "#/components/schemas/CrmEmbroideryMaterial" }
+        fabricIncreasePercent: { type: number, minimum: 0 }
+        hoops: { type: array, items: { $ref: "#/components/schemas/CrmEmbroideryHoop" }, minItems: 1, maxItems: 30 }
+        expenses: { type: array, items: { $ref: "#/components/schemas/CrmEmbroideryExpense" }, maxItems: 100 }
+    CrmEmbroiderySettings:
+      type: object
+      required: [version, updatedByName, updatedAt, stitchRate, rates, markups, stabilizer, fabric, fabricIncreasePercent,
+        hoops, expenses]
+      properties:
+        version: { type: integer, description: 0 before the first save. }
+        updatedByName: { type: [string, "null"] }
+        updatedAt: { type: [string, "null"], format: date-time }
+        stitchRate:
+          type: object
+          required: [value, updatedOn]
+          description: Read-only here; edited in «Параметри ціноутворення».
+          properties:
+            value: { type: [number, "null"] }
+            updatedOn: { type: [string, "null"], format: date }
+        rates: { $ref: "#/components/schemas/CrmEmbroideryRates" }
+        markups: { type: array, items: { $ref: "#/components/schemas/CrmEmbroideryMarkup" } }
+        stabilizer: { $ref: "#/components/schemas/CrmEmbroideryMaterial" }
+        fabric: { $ref: "#/components/schemas/CrmEmbroideryMaterial" }
+        fabricIncreasePercent: { type: number }
+        hoops: { type: array, items: { $ref: "#/components/schemas/CrmEmbroideryHoop" } }
+        expenses: { type: array, items: { $ref: "#/components/schemas/CrmEmbroideryExpense" } }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
