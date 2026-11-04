@@ -982,11 +982,11 @@ components:
       required: [version, internalName, layout, pages]
       properties:
         version: { type: integer, description: Ignored on create. }
-        internalName: { type: string, maxLength: 300 }
+        internalName: { type: string, minLength: 1, maxLength: 200 }
         customerId: { type: [integer, "null"], format: int64 }
         recipientEmail: { type: [string, "null"], maxLength: 320, format: email }
-        recipientName: { type: [string, "null"], maxLength: 300 }
-        companyName: { type: [string, "null"], maxLength: 300 }
+        recipientName: { type: [string, "null"], maxLength: 200 }
+        companyName: { type: [string, "null"], maxLength: 200 }
         managerNote: { type: [string, "null"], maxLength: 4000 }
         layout: { $ref: "#/components/schemas/CrmQuoteIntroLayout" }
         letterName: { type: [string, "null"], maxLength: 300 }
