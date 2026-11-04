@@ -4,7 +4,7 @@ namespace Catalog.Application.Features.Product.Overview.GetList.DTOs;
 /// One row of the «Товари» page with its prices (CAT-013). <paramref name="Prices"/> is the lowest price of each tier
 /// among the active fabric variants (sewing) or the rule price (PPE); null when there is none.
 /// <paramref name="Problems"/> are the reasons a price is missing (of the row, or of an active variant); empty when
-/// everything is priced.
+/// everything is priced. <paramref name="MainPhotoUrl"/> is the preview of the main visible photo (CAT-016).
 /// </summary>
 public sealed record ProductOverviewItem(
     int Id,
@@ -20,7 +20,8 @@ public sealed record ProductOverviewItem(
     ProductPriceTiers? Prices,
     DateTimeOffset? PricesUpdatedAt,
     IReadOnlyList<string> Problems,
-    IReadOnlyList<ProductOverviewVariant> Variants);
+    IReadOnlyList<ProductOverviewVariant> Variants,
+    string? MainPhotoUrl = null);
 
 /// <summary>
 /// A fabric variant of a sewing model (an Article): its fabric and current published prices. PPE rows have none.

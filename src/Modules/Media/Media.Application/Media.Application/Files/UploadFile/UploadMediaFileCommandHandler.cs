@@ -18,6 +18,9 @@ public sealed class UploadMediaFileCommandHandler(
     {
         if (command.FolderId is { } folderId && !await db.Folders.AnyAsync(x => x.Id == folderId, cancellationToken))
             return Result<MediaFileResponse>.NotFound(FileMessages.FolderNotFound);
+        var sourceKey = string.IsNullOrWhiteSpace(command.SourceKey) ? null : command.SourceKey.Trim();
+        if (sourceKey is not null && await db.Files.AnyAsync(x => x.SourceKey == sourceKey, cancellationToken))
+            return Result<MediaFileResponse>.Conflict(FileMessages.SourceAlreadyImported);
 
         var content = await ReadAllAsync(command.Content, cancellationToken);
         var storageKey = $"/{settings.BaseFolder.Trim().Trim('/')}/{Guid.NewGuid():N}{UploadMediaFileCommand.Extensions[command.ContentType]}";
@@ -34,7 +37,8 @@ public sealed class UploadMediaFileCommandHandler(
             storage.ProviderName,
             storageKey,
             publicUrl,
-            now);
+            now,
+            sourceKey);
         var image = await TryPrepareAsync(content, command.DisplayName, cancellationToken);
         if (image is not null)
             file.SetImage(image.Width, image.Height, image.ThumbnailStorageKey, image.ThumbnailUrl, now);

@@ -12,6 +12,7 @@ public static class ProductOverviewListing
         return items.Where(x =>
             (query.SectionId is { } section ? x.SectionId == section : !query.WithoutSection || x.SectionId is null)
             && (!query.WithoutPrice || x.Prices is null)
+            && (query.Active is not { } active || x.IsActive == active)
             && (string.IsNullOrEmpty(search) || Matches(x, search)));
     }
 

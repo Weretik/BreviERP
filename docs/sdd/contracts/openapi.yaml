@@ -109,6 +109,10 @@ paths:
     $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1{id}~1overview
   /api/v1/products/sheet-import:
     $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1sheet-import
+  /api/v1/products/{id}/photos:
+    $ref: ./catalog/product-photos.openapi.yaml#/paths/~1api~1v1~1products~1{id}~1photos
+  /api/v1/products/old-site-photo-import:
+    $ref: ./catalog/product-photos.openapi.yaml#/paths/~1api~1v1~1products~1old-site-photo-import
   /api/v1/products/{productId}/articles:
     $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles
   /api/v1/products/{productId}/composition:

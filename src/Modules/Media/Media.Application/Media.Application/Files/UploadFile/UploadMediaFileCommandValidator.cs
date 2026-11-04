@@ -19,6 +19,7 @@ public sealed class UploadMediaFileCommandValidator : AbstractValidator<UploadMe
         RuleFor(x => x.SizeInBytes)
             .GreaterThan(0).WithMessage("Файл порожній.")
             .LessThanOrEqualTo(settings.MaxFileSizeBytes).WithMessage($"Фото має бути не більше {maxMegabytes} МБ.");
+        RuleFor(x => x.SourceKey).MaximumLength(MediaFile.SourceKeyMaxLength);
         RuleFor(x => x.FolderId).GreaterThan(0).When(x => x.FolderId is not null);
         RuleFor(x => x.Content)
             .MustAsync((command, stream, cancellationToken) => ImageFileSignature.IsValidAsync(stream, command.ContentType, cancellationToken))

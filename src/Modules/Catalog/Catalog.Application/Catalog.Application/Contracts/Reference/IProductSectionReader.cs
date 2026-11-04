@@ -5,6 +5,9 @@ public interface IProductSectionReader
 {
     /// <summary>The section, or null when it does not exist.</summary>
     Task<ProductSectionItem?> FindAsync(int id, CancellationToken cancellationToken);
+
+    /// <summary>Every section of «Типи і розділи».</summary>
+    Task<IReadOnlyList<ProductSectionItem>> ListAsync(CancellationToken cancellationToken);
 }
 
 /// <param name="Type">"Sewing" or "Ppe", as Reference returns it.</param>

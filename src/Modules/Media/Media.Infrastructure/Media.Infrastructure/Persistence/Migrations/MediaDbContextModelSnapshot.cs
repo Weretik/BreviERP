@@ -65,6 +65,10 @@ namespace Media.Infrastructure.Persistence.Migrations
                     b.Property<long>("SizeInBytes")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("SourceKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("StorageKey")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -95,6 +99,10 @@ namespace Media.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ImageProcessedAt")
                         .HasFilter("\"ImageProcessedAt\" IS NULL");
+
+                    b.HasIndex("SourceKey")
+                        .IsUnique()
+                        .HasFilter("\"SourceKey\" IS NOT NULL");
 
                     b.HasIndex("StorageKey")
                         .IsUnique();

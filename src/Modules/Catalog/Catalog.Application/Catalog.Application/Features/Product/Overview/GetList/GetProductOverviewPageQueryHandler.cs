@@ -17,6 +17,7 @@ public sealed class GetProductOverviewPageQueryHandler(ProductOverviewItemReader
             await reader.WithProblemsAsync(page, cancellationToken),
             query.Page, query.PageSize, matching.Count, all.Count,
             ProductOverviewListing.CountSections(all),
-            all.Count(x => x.Prices is null)));
+            all.Count(x => x.Prices is null),
+            all.Count(x => !x.IsActive)));
     }
 }
