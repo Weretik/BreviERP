@@ -291,6 +291,8 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1progress-import
   /api/production/fabric-stock:
     $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock
+  /api/production/fabric-stock/choices:
+    $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1choices
   /api/production/fabric-stock/{id}:
     $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock~1{id}
   /api/production/fabric-stock/movements:

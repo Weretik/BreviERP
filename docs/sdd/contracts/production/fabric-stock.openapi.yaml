@@ -38,6 +38,22 @@ paths:
           description: Not allowed
         '400':
           description: Invalid
+  /api/production/fabric-stock/choices:
+    get:
+      tags: *id001
+      operationId: getFabricStockChoices
+      summary: Fabrics with a FAB- code and active suppliers for the stock forms
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockChoicesResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
   /api/production/fabric-stock/{id}:
     get:
       tags: *id001
@@ -339,6 +355,40 @@ components:
         seesValue:
           type: boolean
           description: 'The value in UAH: WorkshopChief and Admin.'
+    FabricStockFabricChoice:
+      type: object
+      required:
+      - id
+      - code
+      - name
+      properties:
+        id: *id002
+        code: &id004
+          type: string
+        name: *id004
+    FabricStockSupplierChoice:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id: *id002
+        name: *id004
+    FabricStockChoicesResponse:
+      type: object
+      required:
+      - fabrics
+      - suppliers
+      properties:
+        fabrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockFabricChoice'
+        suppliers:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockSupplierChoice'
+          description: Active suppliers; empty for people who cannot move stock.
     FabricStockRowResponse:
       type: object
       required:
@@ -364,8 +414,7 @@ components:
           type:
           - integer
           - 'null'
-        fabricCode: &id004
-          type: string
+        fabricCode: *id004
         fabricName: *id004
         color: *id004
         meters:

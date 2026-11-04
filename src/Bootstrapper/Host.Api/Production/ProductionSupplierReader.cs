@@ -7,10 +7,10 @@ namespace Host.Api.Production;
 /// <summary>«Постачальники» (Reference) for the supplier of a fabric receipt.</summary>
 internal sealed class ProductionSupplierReader(ISender sender) : IProductionSupplierReader
 {
-    public async Task<ProductionSupplier?> FindAsync(int id, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<ProductionSupplier>> ListAsync(CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetSuppliersQuery(), cancellationToken);
         if (!result.IsSuccess) throw new InvalidOperationException("Reference suppliers could not be read.");
-        return result.Value.Where(x => x.Id == id).Select(x => new ProductionSupplier(x.Id, x.Name)).FirstOrDefault();
+        return result.Value.Where(x => x.IsActive).Select(x => new ProductionSupplier(x.Id, x.Name)).ToArray();
     }
 }

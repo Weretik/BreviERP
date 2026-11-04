@@ -59,6 +59,17 @@ public sealed record FabricStockLineResponse(
     IReadOnlyList<FabricReservationResponse> Reservations,
     FabricStockPermissions Permissions);
 
+/// <summary>A fabric of «Тканини» with a FAB- code, to pick on the stock.</summary>
+public sealed record FabricStockFabricChoice(int Id, string Code, string Name);
+
+/// <summary>An active supplier of «Постачальники», to pick on a receipt.</summary>
+public sealed record FabricStockSupplierChoice(int Id, string Name);
+
+/// <summary>What the stock forms pick from, so the workshop does not need access to «Довідники».</summary>
+public sealed record FabricStockChoicesResponse(
+    IReadOnlyList<FabricStockFabricChoice> Fabrics,
+    IReadOnlyList<FabricStockSupplierChoice> Suppliers);
+
 /// <summary>«Початковий залишок» or «Прихід» of a fabric and colour; the stock line is created when it is new.</summary>
 /// <param name="Kind">Opening (only the first movement of a line) or Receipt.</param>
 /// <param name="Version">The line's version; null when the line is new.</param>

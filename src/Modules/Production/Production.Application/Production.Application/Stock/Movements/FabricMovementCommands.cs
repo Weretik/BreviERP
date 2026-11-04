@@ -58,7 +58,7 @@ public sealed class CreateFabricMovementCommandHandler(StockChanges changes, IPr
         ProductionSupplier? supplier = null;
         if (input.SupplierId is { } supplierId)
         {
-            supplier = await suppliers.FindAsync(supplierId, cancellationToken);
+            supplier = (await suppliers.ListAsync(cancellationToken)).FirstOrDefault(x => x.Id == supplierId);
             if (supplier is null) return Result<FabricStockLineResponse>.NotFound(StockMessages.SupplierNotFound);
         }
 

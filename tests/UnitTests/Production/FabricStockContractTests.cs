@@ -12,6 +12,9 @@ namespace UnitTests.Production;
 public sealed class FabricStockContractTests
 {
     [TestCase(typeof(FabricStockPermissions))]
+    [TestCase(typeof(FabricStockFabricChoice))]
+    [TestCase(typeof(FabricStockSupplierChoice))]
+    [TestCase(typeof(FabricStockChoicesResponse))]
     [TestCase(typeof(FabricStockRowResponse))]
     [TestCase(typeof(FabricStockTotals))]
     [TestCase(typeof(FabricStockListResponse))]
@@ -58,7 +61,7 @@ public sealed class FabricStockContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "CanUseProductionOrders" }));
-            Assert.That(operations, Has.Length.EqualTo(10));
+            Assert.That(operations, Has.Length.EqualTo(11));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

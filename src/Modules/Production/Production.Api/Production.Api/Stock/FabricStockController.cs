@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
 using Production.Application.Contracts;
 using Production.Application.Stock.Consumption;
+using Production.Application.Stock.GetChoices;
 using Production.Application.Stock.GetStock;
 using Production.Application.Stock.GetStockLine;
 using Production.Application.Stock.ImportStock;
@@ -23,6 +24,13 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new GetFabricStockQuery(actor, search), cancellationToken))
+            : Forbid();
+
+    /// <summary>Fabrics with a FAB- code and active suppliers for the forms.</summary>
+    [HttpGet("choices", Name = "getFabricStockChoices")]
+    public async Task<ActionResult<FabricStockChoicesResponse>> Choices(CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new GetFabricStockChoicesQuery(actor), cancellationToken))
             : Forbid();
 
     [HttpGet("{id:int}", Name = "getFabricStockLine")]

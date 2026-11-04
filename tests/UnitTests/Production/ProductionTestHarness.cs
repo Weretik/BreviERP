@@ -71,8 +71,8 @@ internal sealed class FakeProductionSupplierReader : IProductionSupplierReader
 {
     public List<ProductionSupplier> Suppliers { get; } = [];
 
-    public Task<ProductionSupplier?> FindAsync(int id, CancellationToken cancellationToken) =>
-        Task.FromResult(Suppliers.FirstOrDefault(x => x.Id == id));
+    public Task<IReadOnlyList<ProductionSupplier>> ListAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ProductionSupplier>>(Suppliers);
 }
 
 /// <summary>CDN in memory: keys of stored and deleted files.</summary>
