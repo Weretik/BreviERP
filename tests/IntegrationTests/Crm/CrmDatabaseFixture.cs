@@ -36,7 +36,7 @@ public abstract class CrmDatabaseFixture
         if (!_database.StartsWith("brevi_crm_test_", StringComparison.Ordinal)) throw new InvalidOperationException();
         await using var db = Context();
         await db.Database.ExecuteSqlRawAsync(
-            "TRUNCATE crm.\"Quotes\", crm.\"QuoteSettings\", crm.\"Customers\", crm.\"MutationRequests\" RESTART IDENTITY CASCADE");
+            "TRUNCATE crm.\"Quotes\", crm.\"QuoteSettings\", crm.\"ManagerTasks\", crm.\"Customers\", crm.\"MutationRequests\" RESTART IDENTITY CASCADE");
     }
 
     [OneTimeTearDown]

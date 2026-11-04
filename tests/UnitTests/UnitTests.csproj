@@ -57,5 +57,6 @@
       <ProjectReference Include="..\..\src\Modules\Media\Media.Application\Media.Application\Media.Application.csproj" />
       <ProjectReference Include="..\..\src\Modules\Media\Media.Infrastructure\Media.Infrastructure\Media.Infrastructure.csproj" />
       <ProjectReference Include="..\..\src\Modules\Crm\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Crm\Crm.Api\Crm.Api\Crm.Api.csproj" />
     </ItemGroup>
 </Project>

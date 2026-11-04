@@ -3,6 +3,7 @@ using Crm.Application.Customers.Persistence;
 using Crm.Application.Quotes.Building;
 using Crm.Application.Quotes.Pdf;
 using Crm.Application.Quotes.Persistence;
+using Crm.Application.Tasks.Persistence;
 using Crm.Infrastructure.Persistence;
 using Crm.Infrastructure.Persistence.Customers.Reading;
 using Crm.Infrastructure.Persistence.Customers.Writing;
@@ -23,6 +24,7 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
         services.AddScoped<ICustomerMutationStore, CustomerMutationStore>();
         services.AddScoped<IQuoteStore>(provider => provider.GetRequiredService<CrmDbContext>());
+        services.AddScoped<ITaskStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<QuoteItemsBuilder>();
         services.AddHttpClient<QuotePdfImageLoader>(client => client.Timeout = TimeSpan.FromSeconds(10));
         services.AddScoped<IQuotePdfRenderer, QuotePdfRenderer>();
