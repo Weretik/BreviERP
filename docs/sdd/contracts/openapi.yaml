@@ -191,6 +191,22 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1catalog
   /api/crm/quote-lookups/staff:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1staff
+  /api/crm/tasks:
+    $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks
+  /api/crm/tasks/board:
+    $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1board
+  /api/crm/tasks/overview:
+    $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1overview
+  /api/crm/tasks/assignees:
+    $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1assignees
+  /api/crm/tasks/{id}:
+    $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}
+  /api/crm/tasks/{id}/status:
+    $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1status
+  /api/crm/tasks/{id}/urgent:
+    $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1urgent
+  /api/crm/tasks/{id}/steps/{stepId}:
+    $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1steps~1{stepId}
   /api/reminders/non-working-days:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1non-working-days
   /api/reminders/non-working-days/{date}:

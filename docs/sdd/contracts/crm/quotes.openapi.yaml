@@ -766,11 +766,6 @@ components:
           type: array
           maxItems: 100
           items: { $ref: "#/components/schemas/CrmQuoteStaffContactInput" }
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
     CrmQuoteLetter:
       type: object
       required: [name, subject, body]
@@ -797,3 +792,8 @@ components:
         to: { type: string, maxLength: 2000, description: "1 to 10 addresses separated by commas, semicolons or spaces." }
         subject: { type: string, maxLength: 300, description: One line. }
         body: { type: string, maxLength: 10000, description: Plain text. }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
