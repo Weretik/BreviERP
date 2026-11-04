@@ -7,7 +7,7 @@ Stage 2 of the products transfer (plan: «Brevi: перенос «Товари»
 ## Product owner decisions (2026-11-03)
 
 - The page has two tables: «Швейна продукція» (sheet tab «Товари», one row per **model**, not per article) and «ЗІЗ» (tab «ЗІЗ», one row per site article).
-- «Товари» keep the product core, prices and composition plus a short description for a quote (КП). Site texts, SEO, photos and site categories on two languages move to the future [Content module](../../content/001-site-content/README.md); quote calculation becomes the future [Quotes module](../../quotes/001-quote-calculation/README.md). Both are planned only.
+- «Товари» keep the product core, prices and composition plus a short description for a quote (КП). Site texts, SEO, photos and site categories on two languages move to the future [Content module](../../content/001-site-content/README.md); КП are built in Crm ([QTE-001](../../crm/003-quotes/README.md)).
 - A product keeps the link to its page on the current public site, as the sheet does, so quotes can take photos from there. Temporary: photos move to our CDN later.
 - «Перевірено» is set only by the director. While the API is anonymous this is an agreement, not a check.
 - Old Brevi products are deleted when the sheet data is imported (stage 5).

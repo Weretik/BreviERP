@@ -18,7 +18,7 @@ Owns wallets, transactions, and transaction categories. At the audit date, the m
 
 ## Crm module
 
-The client/contact slice implements scoped customer APIs, exact source identity, revision/idempotency and Admin merge in the existing four layers. See the [feature map](../../features/crm/clients-and-quotes.md). Quotes, custom sewing, document delivery and historical migration remain planned in CRM-001.
+The client/contact slice implements scoped customer APIs, exact source identity, revision/idempotency and Admin merge in the existing four layers. See the [feature map](../../features/crm/clients-and-quotes.md). Crm is the «Менеджер сервісу» block: clients from KeepinCRM and КП ([QTE-001](../../specs/crm/003-quotes/README.md)); leads, deals and tasks will be added here.
 
 ## Media module
 

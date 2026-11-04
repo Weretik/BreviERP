@@ -18,10 +18,10 @@ internal sealed class CustomerKeepinSyncStore(CrmDbContext db) : ICustomerKeepin
 
     public async Task<IReadOnlySet<CustomerId>> ListInUseAsync(CancellationToken cancellationToken)
     {
-        var quoted = await db.Quotes.Where(x => x.CustomerId != null).Select(x => x.CustomerId!.Value).ToListAsync(cancellationToken);
-        var drafted = await db.CustomDrafts.Where(x => x.CustomerId != null).Select(x => x.CustomerId!.Value).ToListAsync(cancellationToken);
+        var quoted = await db.Quotes.Where(x => x.CustomerId != null)
+            .Select(x => new CustomerId(x.CustomerId!.Value)).ToListAsync(cancellationToken);
         var mergeTargets = await db.Customers.Where(x => x.MergedIntoId != null).Select(x => x.MergedIntoId!.Value).ToListAsync(cancellationToken);
-        return quoted.Concat(drafted).Concat(mergeTargets).ToHashSet();
+        return quoted.Concat(mergeTargets).ToHashSet();
     }
 
     public void Add(Customer customer) => db.Customers.Add(customer);

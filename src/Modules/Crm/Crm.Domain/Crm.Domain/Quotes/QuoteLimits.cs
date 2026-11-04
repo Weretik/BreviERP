@@ -1,0 +1,14 @@
+namespace Crm.Domain.Quotes;
+
+public static class QuoteLimits
+{
+    public const int NameMaxLength = 200;
+    public const int TextMaxLength = 4000;
+    public const int UrlMaxLength = 1000;
+    public const int CodeMaxLength = 100;
+    public const int ReasonMaxLength = 500;
+    public const int NumberMaxLength = 20;
+    public const int MaxItems = 100;
+    public const int MaxOptionsPerItem = 20;
+    public const decimal MaxPrice = 10_000_000m;
+}

@@ -100,35 +100,3 @@ The existing composition-only readiness view remains conservative for OtherCost 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter SewingPricing`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter SewingPricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 
 **Data:** [catalog schema](../../architecture/data-model/catalog.md)
-
-## Private custom calculation adapter
-
-The P4 custom arithmetic prerequisite is implemented in the existing Catalog engine, without creating a Product or publishing a price. Private draft/version persistence and HTTP/UI consumers remain TS-006. [Calculation proof and golden fixtures](../../specs/crm/001-clients-quotes-custom-sewing/evidence/en-002-custom-pricing-2026-10-28.md).
-
-```text
-Catalog.Domain/Catalog.Domain/Pricing/Sewing/
-  Calculation/SewingTierPricing.cs          one tier/rounding implementation for Article and custom
-  Calculation/SewingCustomCalculator.cs     base composition plus distinct application/delivery/packaging treatment
-  Inputs/SewingCustomCharges.cs             explicit custom charges
-  Results/SewingCustomCalculation.cs        internal cost, three tiers, named blockers
-Catalog.Application/Catalog.Application/
-  Contracts/Pricing/CustomSewing/            typed composition input and calculation evidence
-  Features/Pricing/Sewing/CustomEvaluation/  bounded validation and versioned input resolution
-  Features/Pricing/Sewing/Evaluation/        shared material/operation mapping
-```
-
-```mermaid
-flowchart LR
-  Private[Explicit private composition and norms] --> Eval[SewingCustomPricingEvaluator]
-  Eval --> Settings[Existing approved settings read port]
-  Eval --> References[Existing Reference version read port]
-  Eval --> Engine[SewingCustomCalculator]
-  Engine --> Base[SewingArticleCalculator]
-  Base --> Tiers[Shared SewingTierPricing]
-  Engine --> Tiers
-  Eval --> Basis[Typed inputs and source-version calculation evidence]
-```
-
-Focused tests: tests/UnitTests/Crm/CustomSewing/CustomSewingPricingTests.cs and CustomSewingEvaluationTests.cs; regression tests/UnitTests/SewingArticlePricingTests.cs. Run `dotnet test tests/UnitTests/UnitTests.csproj --filter 'FullyQualifiedName~CustomSewing|FullyQualifiedName~SewingArticlePricingTests'`. No new persistence tables.
-
-TS-008 adds price-free suggestion consumer ports under Catalog.Application/Contracts/Suggestions and bounded SQL readers under Catalog.Infrastructure/Suggestions. They enumerate approved active model/article identities and batch existing composition fields; Host combines them with approved Reference versions for the [CRM template/suggestion capability](../crm/clients-and-quotes.md). The reads reuse current Catalog tables and add no pricing formula or persistence schema. SewingSuggestionBridgeTests verify four SQL reads independent of article count and no supplier-price leakage.

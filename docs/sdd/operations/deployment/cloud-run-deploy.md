@@ -46,7 +46,3 @@ Only one pipeline may deploy at a time. The previous Cloud Build trigger on the 
 Host.Seed references the CatalogImport and SewingPricing job projects. Their project files must be copied into the Docker build context before dotnet restore, along with all other transitive project files. Copying them only in the later COPY . . leaves their NuGet assets absent when publish --no-restore runs. Local bin/obj can mask this container-only failure.
 
 ContainerRestoreCoverageTests in tests/ArchitectureTests traverses the actual project-reference graph for Host.Api and Host.Seed and checks that every project is copied before restore. Run: dotnet test tests/ArchitectureTests/ArchitectureTests.csproj --filter FullyQualifiedName~ContainerRestoreCoverageTests. The API image can build successfully while a later Host.Seed image failure still blocks deployment of that API revision; a green `verify` job is not a successful deployment.
-
-## P6 send-disabled deployment
-
-The `CRM_DELIVERY_ENABLED` workflow value defaults to false and is explicitly written to Crm__Delivery__Enabled when the API revision is deployed. This prevents a retained Cloud Run environment override from activating mail while Gmail acceptance is deferred. Enabling it is a separate owner-authorized operation after EN-004; source defaults alone do not prove the current live value. Other environment settings remain unchanged.

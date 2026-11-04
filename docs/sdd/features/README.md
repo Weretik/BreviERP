@@ -8,7 +8,7 @@ See the feature card's “Code structure” section for actual file paths and ro
 
 Products:
 
-- [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products; the «Товари» page overview (section, season, check, current site link, quote description). Planned modules: [«Контент сайту»](../specs/content/001-site-content/README.md), [«Розрахунок КП»](../specs/quotes/001-quote-calculation/README.md).
+- [Catalog products](catalog/products.md) — create, read, replace, and delete Sewing/PPE products; the «Товари» page overview (section, season, check, current site link, quote description). Planned modules: [«Контент сайту»](../specs/content/001-site-content/README.md).
 - [Product categories](catalog/categories.md) — Admin CRUD and Storefront list.
 - [Sewing Articles and composition](catalog/sewing-composition.md) — sale SKUs, shared/Article material norms, shared operations and review readiness.
 
@@ -49,7 +49,7 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 
 ## Crm
 
-- [Clients, quotes and archive planning](crm/clients-and-quotes.md) — versioned CRM/customer/custom/document/delivery workflows, clients from KeepinCRM plus offline frozen-source history staging and dry-run reconciliation. Controlled historical writes remain separate.
+- [Clients and КП](crm/clients-and-quotes.md) — clients and contacts from KeepinCRM; КП (commercial proposals) stage 1: create, «Товари та ціни», reprice, give to a manager.
 
 ## Media
 
