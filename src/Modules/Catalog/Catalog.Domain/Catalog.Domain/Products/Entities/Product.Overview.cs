@@ -10,7 +10,6 @@ public partial class Product
     public const int CodeMaxLength = 80;
     public const int CurrentSiteUrlMaxLength = 500;
     public const int QuoteDescriptionMaxLength = 2000;
-    public const string VerifiedOnFormat = "dd.MM.yyyy";
     public static readonly IReadOnlyList<string> Seasons = ["Літо", "Зима"];
 
     /// <summary>The model ID (MOD-…) for sewing, the site article (sale SKU) for PPE.</summary>
@@ -32,11 +31,8 @@ public partial class Product
         MarkAsUpdated(updatedAt);
     }
 
-    /// <summary>
-    /// Replaces the «Товари» page fields. A checked product keeps its date or gets <paramref name="today"/>; an
-    /// unchecked one has no date.
-    /// </summary>
-    public void SetOverview(ProductOverviewDetails details, DateOnly today, DateTimeOffset updatedAt)
+    /// <summary>Replaces the «Товари» page fields.</summary>
+    public void SetOverview(ProductOverviewDetails details, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(details);
         if (details.SectionId is <= 0)
@@ -51,11 +47,7 @@ public partial class Product
         if (quoteDescription?.Length > QuoteDescriptionMaxLength)
             throw new DomainException(ProductErrors.OverviewInvalid("Quote description must be 2000 characters or less"));
 
-        var profile = EnsureCatalogProfile();
-        var verifiedOn = details.IsVerified
-            ? Normalize(details.VerifiedOn) ?? profile.SourceReviewDate ?? today.ToString(VerifiedOnFormat, System.Globalization.CultureInfo.InvariantCulture)
-            : null;
-        profile.SetOverview(details.SectionId, season, details.IsActive, details.IsVerified, verifiedOn, url, quoteDescription);
+        EnsureCatalogProfile().SetOverview(details.SectionId, season, details.IsActive, url, quoteDescription);
         MarkAsUpdated(updatedAt);
     }
 

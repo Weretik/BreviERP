@@ -83,7 +83,7 @@ public sealed class CatalogImportPersistenceTests
         {
             var profile = await catalog.Set<ProductCatalogProfile>().SingleAsync(x => x.SaleSku == "724");
             Assert.That(profile.SupplierPrice, Is.Null);
-            Assert.That(await new SewingCompositionStore(catalog).SaleSkuExistsAsync("724", CancellationToken.None), Is.True);
+            Assert.That(await new SewingCompositionStore(catalog).SaleSkuExistsAsync("724", null, CancellationToken.None), Is.True);
             var material = await catalog.Set<SewingMaterialLine>().SingleAsync(x => x.ArticleId == null);
             Assert.That(material.Quantity, Is.EqualTo(1.9m));
             Assert.That(material.Unit.ToString(), Is.EqualTo("Metre"));

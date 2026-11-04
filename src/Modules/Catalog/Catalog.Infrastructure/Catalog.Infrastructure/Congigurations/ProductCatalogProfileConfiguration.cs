@@ -18,7 +18,6 @@ public sealed class ProductCatalogProfileConfiguration : IEntityTypeConfiguratio
         builder.Property(x => x.Season).HasMaxLength(100);
         builder.Property(x => x.Unit).HasMaxLength(40);
         builder.Property(x => x.WebsiteUrl).HasMaxLength(2048);
-        builder.Property(x => x.SourceReviewDate).HasMaxLength(100);
         builder.Property(x => x.SupplierSku).HasMaxLength(200);
         builder.Property(x => x.SupplierProductUrl).HasMaxLength(2048);
         builder.Property(x => x.SupplierPrice).HasPrecision(18, 6);

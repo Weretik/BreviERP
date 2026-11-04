@@ -105,8 +105,6 @@ paths:
     $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1overview
   /api/v1/products/overview/code-check:
     $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1overview~1code-check
-  /api/v1/products/overview/prices:
-    $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1overview~1prices
   /api/v1/products/{id}/overview:
     $ref: ./catalog/product-overview.openapi.yaml#/paths/~1api~1v1~1products~1{id}~1overview
   /api/v1/products/sheet-import:
@@ -115,8 +113,8 @@ paths:
     $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles
   /api/v1/products/{productId}/composition:
     $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1composition
-  /api/v1/products/{productId}/articles/{articleId}/composition:
-    $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}~1composition
+  /api/v1/products/{productId}/articles/{articleId}:
+    $ref: ./catalog/sewing-composition.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1{articleId}
   /api/v1/products/{productId}/articles/pricing-summary:
     $ref: ./catalog/sewing-pricing.openapi.yaml#/paths/~1api~1v1~1products~1{productId}~1articles~1pricing-summary
   /api/v1/products/{productId}/articles/{articleId}/pricing/calculations:

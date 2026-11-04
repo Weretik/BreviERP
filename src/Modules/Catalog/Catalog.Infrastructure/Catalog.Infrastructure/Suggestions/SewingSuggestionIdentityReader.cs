@@ -10,7 +10,7 @@ public sealed class SewingSuggestionIdentityReader(CatalogDbContext db) : ISewin
     public IQueryable<SewingSuggestionIdentity> CandidatesQuery(string sourceSeason)
         => db.Products.AsNoTracking()
             .Where(x => x.Type == ProductType.Sewing && !x.IsDeleted && x.ModelCode != null
-                && x.CatalogProfile != null && x.CatalogProfile.IsActive && x.CatalogProfile.IsSourceReviewed
+                && x.CatalogProfile != null && x.CatalogProfile.IsActive
                 && x.CatalogProfile.Season == sourceSeason)
             .SelectMany(x => x.Articles.Where(a => a.IsActive), (p, a) => new { p.Id, ArticleKey = a.Id, p.ModelCode, p.Name })
             .OrderBy(x => x.Id).ThenBy(x => x.ArticleKey)

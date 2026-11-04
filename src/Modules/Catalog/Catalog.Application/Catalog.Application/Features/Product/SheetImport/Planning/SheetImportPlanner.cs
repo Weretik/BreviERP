@@ -21,7 +21,7 @@ public static class SheetImportPlanner
     public static SheetImportPlan Plan(ImportSheetProductsCommand command, SheetImportContext context)
     {
         var log = new SheetImportIssueLog();
-        var today = SheetVerifiedDates.Today(context.Now);
+        var today = SheetDates.Today(context.Now);
         var references = new SheetReferenceResolver(context.References);
         var sewingBuilder = new SheetSewingDraftBuilder(references, log);
         var ppeBuilder = new SheetPpeDraftBuilder(references, context.KnownRuleCodes, log);
@@ -31,7 +31,7 @@ public static class SheetImportPlanner
         var rows = new List<(SheetProductDraft Draft, ProductEntity? Existing, SheetPpeRow? Ppe)>();
         var matchedBy = new Dictionary<ProductEntity, int>(ReferenceEqualityComparer.Instance);
         void Add(ProductType type, int index, int rowNumber, string code, string name,
-            Func<string?, SheetProductDraft?> build, SheetPpeRow? ppe)
+            Func<SheetProductDraft?> build, SheetPpeRow? ppe)
         {
             if (flagged.Contains((type, index))) return;
             var existing = matcher.Match(type, code, name);
@@ -41,18 +41,18 @@ public static class SheetImportPlanner
                     $"Рядок збігається з тим самим товаром «{existing.Name}» (ID {existing.Id.Value}), що й рядок {matchedBy[existing]}.");
                 return;
             }
-            var draft = build(existing?.CatalogProfile?.SourceReviewDate);
+            var draft = build();
             if (draft is not null) rows.Add((draft, existing, ppe));
         }
         for (var i = 0; i < command.Sewing.Count; i++)
         {
             var row = command.Sewing[i];
-            Add(ProductType.Sewing, i, row.RowNumber, row.Code, row.Name, stored => sewingBuilder.Build(row, stored, context.Now), null);
+            Add(ProductType.Sewing, i, row.RowNumber, row.Code, row.Name, () => sewingBuilder.Build(row), null);
         }
         for (var i = 0; i < command.Ppe.Count; i++)
         {
             var row = command.Ppe[i];
-            Add(ProductType.Ppe, i, row.RowNumber, row.Code, row.Name, stored => ppeBuilder.Build(row, stored, context.Now), row);
+            Add(ProductType.Ppe, i, row.RowNumber, row.Code, row.Name, () => ppeBuilder.Build(row), row);
         }
 
         var unmatched = context.Products.Where(x => !matchedBy.ContainsKey(x)).ToList();
@@ -100,7 +100,7 @@ public static class SheetImportPlanner
         {
             var probe = ProductEntity.Create(existing?.Id ?? ProbeId, draft.Name, draft.Name,
                 existing?.Slug ?? ProductSlug.Create("probe"), draft.Type, now);
-            SheetProductApplier.ApplyCard(probe, draft, today, now, index => ArticleId.Create(index + 1));
+            SheetProductApplier.ApplyCard(probe, draft, now, index => ArticleId.Create(index + 1));
             if (draft.Sewing is { } sewing)
                 SheetProductApplier.ApplyComposition(probe, sewing, now);
             return probe;
@@ -126,9 +126,8 @@ public static class SheetImportPlanner
         if (current is not null && current.Values.SupplierCost == price && current.Values.RuleCode == rule
             && current.Values.ExternalRetail == retail && current.Values.ExternalWholesale == wholesale)
             return null;
-        var sourceDate = draft.Overview.VerifiedOn ?? SheetVerifiedDates.Format(today);
         return new SheetOfferPlan(current?.Id,
-            new PpeOfferValues(rule, price, retail, wholesale, OfferSource, sourceDate, draft.Overview.IsVerified));
+            new PpeOfferValues(rule, price, retail, wholesale, OfferSource, SheetDates.Format(today)));
     }
 
     /// <summary>Names, model codes and sale SKUs that stored products outside the sheet keep (no deleteMissing).</summary>

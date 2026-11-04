@@ -38,7 +38,6 @@ public sealed class PpePricingPersistenceTests : SewingPricingDatabaseFixture
             var query=new GetPpeProductPricesQueryHandler(reader);
             var draft=(await query.Handle(new([id]),CancellationToken.None)).Value.Single();
             Assert.That(draft.Calculation.Prices,Is.Null);
-            Assert.That(draft.Offer!.Values.SourceReviewed,Is.True);
             Assert.That(draft.Offer.IsApproved,Is.False);
             var ruleWriter=new PpeRuleVersionWriter(db);var offerWriter=new PpeOfferVersionWriter(db);
             var rule=await ruleWriter.AppendAsync(draft.Rule!.Id,Guid.NewGuid(),draft.Rule.Values,"reviewer",CancellationToken.None);

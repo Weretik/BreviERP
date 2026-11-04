@@ -1,6 +1,6 @@
 # Catalog: explicit local pricing activation
 
-The operational job turns reviewed inputs into current prices through existing Application handlers. The plan/journal are local files, not a second price database. Actor and backup validation belong to Host.Seed; Catalog keeps Domain rules, concurrency, versioning, saved calculations and publication ownership.
+The operational job turns planned inputs into current prices through existing Application handlers. The plan/journal are local files, not a second price database. Actor and backup validation belong to Host.Seed; Catalog keeps Domain rules, concurrency, versioning, saved calculations and publication ownership.
 
 ## Structure diagram
 
@@ -37,7 +37,7 @@ Host.Seed/Jobs/Pricing/Activation/
 
 ## Rules and boundaries
 
-Every production type has one file. No module/API/project/schema dependency is added; runtime modules do not reference jobs. Numeric values/manual operations are unchanged by review confirmation. Original draft/version/publication history remains. Exclusions are an authorized operational scope, not special Domain formulas. [SDD](../../specs/catalog/003-sheet-pricing-parity/activation/execution.md) · [Operations](../../operations/data/pricing-activation.md) · [Evidence](../../specs/catalog/003-sheet-pricing-parity/activation/execution-evidence.md).
+Every production type has one file. No module/API/project/schema dependency is added; runtime modules do not reference jobs. The composition is only compared with the plan: no review is written (CAT-014). Original draft/version/publication history remains. Exclusions are an authorized operational scope, not special Domain formulas. [SDD](../../specs/catalog/003-sheet-pricing-parity/activation/execution.md) · [Operations](../../operations/data/pricing-activation.md) · [Evidence](../../specs/catalog/003-sheet-pricing-parity/activation/execution-evidence.md).
 
 ## Tests
 

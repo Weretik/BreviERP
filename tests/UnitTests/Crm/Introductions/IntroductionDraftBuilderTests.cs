@@ -87,7 +87,7 @@ public sealed class IntroductionDraftBuilderTests
                 slot.Uid + 1000)));
 
     private static IntroductionCatalogOffer Offer(int product, long fabric,
-        IntroductionSeason season, decimal price) => new(season, "made", true, true,
+        IntroductionSeason season, decimal price) => new(season, "made", true,
         "Модель", "Тканина", "Бавовна", "220 г/м²", "https://brevi.com.ua/product/coat",
         new QuoteCatalogPrice("sewing", product, fabric, Guid.NewGuid(), null,
             Guid.NewGuid(), 1, 1, [], "v1", 300m, 250m, price, []));

@@ -58,13 +58,12 @@ public sealed class CreateCatalogProductCommandHandler(
         var lastId = await repository.FirstOrDefaultAsync(new LastProductIdSpec(), cancellationToken);
         var id = ProductId.Create(lastId.Value + 1);
         var now = timeProvider.GetUtcNow();
-        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, Kyiv).DateTime);
 
         // Russian names are not kept for new products; the column stays filled until the Content module owns texts.
         var product = ProductEntity.Create(id, name, name, ProductSlug.Create(slug), type, now);
         product.SetCode(code, now);
         product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season, command.IsActive,
-            command.IsVerified, null, command.CurrentSiteUrl, command.QuoteDescription), today, now);
+            command.CurrentSiteUrl, command.QuoteDescription), now);
         if (command.Ppe is { } supplier)
             product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(supplier.SupplierId),
                 supplier.SupplierSku, supplier.SupplierUrl, supplier.SupplierPrice, supplier.AllowManualPrice,
@@ -75,7 +74,7 @@ public sealed class CreateCatalogProductCommandHandler(
         if (command.Ppe is { } price)
         {
             var values = new PpeOfferValues(price.RuleCode.Trim(), price.SupplierPrice, null, null, OfferSource,
-                today.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture), true);
+                TimeZoneInfo.ConvertTime(now, Kyiv).ToString("dd.MM.yyyy", CultureInfo.InvariantCulture));
             var appended = await offers.AppendAsync(id.Value, null, Guid.NewGuid(), values, command.Actor, cancellationToken);
             priceSaved = appended.IsSuccess;
         }

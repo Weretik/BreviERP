@@ -81,7 +81,7 @@ public sealed class P5IntroductionJourneyTests : CrmDatabaseFixture
         var catalog = new Mock<IIntroductionCatalogReader>();
         catalog.Setup(x => x.ReadAsync(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((int product, long article, CancellationToken _) => new IntroductionCatalogOffer(
-                product < 104 ? IntroductionSeason.Summer : IntroductionSeason.Winter, "made", true, true,
+                product < 104 ? IntroductionSeason.Summer : IntroductionSeason.Winter, "made", true,
                 $"Модель {product}", "Саржа", "60% бавовна, 40% поліестер", "240 г/м²",
                 $"https://brevi.com.ua/product/{product}", Current(product, article)));
         var templateService = new IntroductionTemplateService(templates, mappingStore, new IntroductionDraftBuilder(catalog.Object),

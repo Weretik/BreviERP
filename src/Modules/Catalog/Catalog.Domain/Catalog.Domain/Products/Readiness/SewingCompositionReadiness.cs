@@ -20,12 +20,6 @@ public static class SewingCompositionReadiness
             blockers.Add("Article is inactive.");
 
         blockers.AddRange(materialFacts
-            .Where(material => material.IsRequired && !material.IsReviewed)
-            .Select(material => $"Required material line {material.Id.Value} has not been reviewed."));
-        blockers.AddRange(operationFacts
-            .Where(operation => !operation.IsReviewed)
-            .Select(operation => $"Required operation line {operation.Id.Value} has not been reviewed."));
-        blockers.AddRange(materialFacts
             .Where(material => material.Kind == SewingMaterialKind.OtherCost)
             .Select(material => $"Other cost line {material.Id.Value} requires the versioned Article pricing check."));
 

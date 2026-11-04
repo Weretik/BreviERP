@@ -313,10 +313,12 @@ paths:
   /api/v1/products/{productId}/articles/pricing-summary:
     get:
       operationId: getSewingArticleSummary
-      description: Requires CatalogRead. Live calculation of every Article of one Sewing
-        model at server time, for the product card (CAT-007). Nothing is saved; blocked
-        Articles return their blockers and no prices. Also returns each Article's latest
-        published prices. At most 200 Articles.
+      description: Requires CatalogRead. The sewing card in one response (CAT-007, CAT-016).
+        Live calculation of every fabric variant (Article) at server time; nothing is saved;
+        blocked variants return their blockers and no prices. Also returns each variant's
+        fabric with its current name and price per metre, its latest published prices, and the
+        shared composition (materials and operations) with reference names, unit prices and
+        norm minutes. At most 200 Articles.
       security:
         - bearerAuth: []
       parameters:
@@ -351,7 +353,7 @@ components:
   schemas:
     SewingArticleSummary:
       type: object
-      required: [productId, modelCode, version, calculatedAt, articles]
+      required: [productId, modelCode, version, calculatedAt, articles, materials, operations]
       properties:
         productId: { type: integer, format: int32, minimum: 1 }
         modelCode: { type: [string, "null"], maxLength: 80 }
@@ -362,14 +364,60 @@ components:
           maxItems: 200
           items:
             $ref: "#/components/schemas/SewingArticleSummaryRow"
+        materials:
+          type: array
+          items:
+            $ref: "#/components/schemas/SewingCardMaterial"
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SewingCardOperation"
+    SewingCardMaterial:
+      type: object
+      description: A shared composition line. Name and unit price come from the current
+        reference; null for other costs and unknown references.
+      required: [id, kind, referenceId, costCode, name, unitPrice, quantity, unit, sortOrder, comment]
+      properties:
+        id: { type: integer, format: int64, minimum: 1 }
+        kind: { type: string, enum: [Fabric, Accessory, OtherCost] }
+        referenceId: { type: [integer, "null"], format: int32, minimum: 1 }
+        costCode: { type: [string, "null"], maxLength: 80 }
+        name: { type: [string, "null"] }
+        unitPrice: { type: [number, "null"], format: decimal }
+        quantity: { type: number, format: decimal, exclusiveMinimum: 0 }
+        unit: { type: string, enum: [Metre, Piece, Service, Kilogram] }
+        sortOrder: { type: integer, format: int32, minimum: 0 }
+        comment: { type: [string, "null"], maxLength: 500 }
+    SewingCardOperation:
+      type: object
+      description: An operation of the model with the norm of the reference «Операції»; null
+        name and norm when the reference is unknown.
+      required: [id, operationId, name, normMinutes, quantity, manualMinutes, sortOrder, comment]
+      properties:
+        id: { type: integer, format: int64, minimum: 1 }
+        operationId: { type: integer, format: int32, minimum: 1 }
+        name: { type: [string, "null"] }
+        normMinutes: { type: [number, "null"], format: decimal, minimum: 0 }
+        quantity: { type: number, format: decimal, exclusiveMinimum: 0 }
+        manualMinutes: { type: [number, "null"], format: decimal, exclusiveMinimum: 0 }
+        sortOrder: { type: integer, format: int32, minimum: 0 }
+        comment: { type: [string, "null"], maxLength: 500 }
     SewingArticleSummaryRow:
       type: object
-      required: [id, saleSku, active, sortOrder, isCalculated, blockers, costs, prices, published]
+      required: [id, saleSku, active, sortOrder, fabricId, fabricName, fabricPrice, fabricQuantity,
+        isCalculated, blockers, costs, prices, published]
       properties:
         id: { type: integer, format: int64, minimum: 1 }
         saleSku: { type: string, minLength: 1, maxLength: 80 }
         active: { type: boolean }
         sortOrder: { type: integer, format: int32, minimum: 0 }
+        fabricId: { type: [integer, "null"], format: int32, minimum: 1 }
+        fabricName: { type: [string, "null"] }
+        fabricPrice:
+          type: [number, "null"]
+          format: decimal
+          description: Current price of one metre of the fabric.
+        fabricQuantity: { type: [number, "null"], format: decimal, exclusiveMinimum: 0 }
         isCalculated: { type: boolean }
         blockers:
           type: array
@@ -555,8 +603,6 @@ components:
         - unit
         - isFabric
         - isOtherCost
-        - isRequired
-        - isReviewed
       properties:
         lineId: *a2
         referenceKey: *a4
@@ -569,8 +615,6 @@ components:
             - Service
         isFabric: *a5
         isOtherCost: *a5
-        isRequired: *a5
-        isReviewed: *a5
     SewingPricingOperationRow:
       type: object
       required:
@@ -578,7 +622,6 @@ components:
         - operationId
         - quantity
         - manualMinutes
-        - isReviewed
       properties:
         lineId: *a2
         operationId: *a2
@@ -587,7 +630,6 @@ components:
           anyOf:
             - *a3
             - type: "null"
-        isReviewed: *a5
     SewingArticlePricingSnapshot:
       type: object
       required:

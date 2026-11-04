@@ -52,7 +52,7 @@ public sealed class UpdatePpeSupplierOfferCommandHandler(
             // The writer saves the tracked product changes in the same transaction as the new offer version.
             var today = TimeZoneInfo.ConvertTime(now, Kyiv).ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
             var values = new PpeOfferValues(ruleCode, command.SupplierPrice, current?.Values.ExternalRetail,
-                current?.Values.ExternalWholesale, Source, today, true);
+                current?.Values.ExternalWholesale, Source, today);
             var appended = await offers.AppendAsync(command.ProductId, command.ExpectedOfferVersionId, Guid.NewGuid(),
                 values, command.Actor, cancellationToken);
             if (!appended.IsSuccess)

@@ -51,7 +51,7 @@ public sealed class IntroductionSourceMappingReader(CatalogDbContext catalog)
         var profile = await catalog.Products.AsNoTracking()
             .Where(p => p.Id == productId && p.Type == ProductType.Sewing &&
                 !p.IsDeleted && p.CatalogProfile != null &&
-                p.CatalogProfile.IsActive && p.CatalogProfile.IsSourceReviewed &&
+                p.CatalogProfile.IsActive &&
                 p.CatalogProfile.Season == expectedSeason)
             .Select(p => p.CatalogProfile!.WebsiteUrl)
             .SingleOrDefaultAsync(cancellationToken);

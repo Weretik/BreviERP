@@ -103,7 +103,7 @@ public sealed class IntroductionTemplatePersistenceTests : CrmDatabaseFixture
         var catalog = new Mock<IIntroductionCatalogReader>();
         catalog.Setup(x => x.ReadAsync(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((int productId, long articleId, CancellationToken _) =>
-                new IntroductionCatalogOffer(IntroductionSeason.Summer, "made", true, true,
+                new IntroductionCatalogOffer(IntroductionSeason.Summer, "made", true,
                     "Модель", "Тканина", "60% бавовна", "235", "https://brevi.com.ua/model",
                     new QuoteCatalogPrice("sewing", productId, articleId, Guid.NewGuid(), null, null,
                         1, 1, [], "v1", 200m, 150m, currentLarge, [])));

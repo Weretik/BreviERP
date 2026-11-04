@@ -103,7 +103,7 @@ public sealed class CatalogSheetImportHandlerTests
         product.AddArticle(SewingArticle.Create(ArticleId.Create(1), product.Id, "246"), Now);
         product.AddArticle(SewingArticle.Create(ArticleId.Create(2), product.Id, "247"), Now);
         product.ReplaceComposition([SewingMaterialLine.Create(default, product.Id, ArticleId.Create(2),
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(23), null, null, 1, SewingMaterialUnit.Metre, true, 0)], [], Now);
+            SewingMaterialKind.Fabric, FabricReferenceId.Create(23), null, null, 1, SewingMaterialUnit.Metre, 0)], [], Now);
 
         product.ReplaceArticles([SewingArticle.Create(default, product.Id, "248", true, 0),
             SewingArticle.Create(default, product.Id, "246", false, 1)], Now);

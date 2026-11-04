@@ -13,7 +13,6 @@ public sealed class SewingMaterialLineConfiguration : IEntityTypeConfiguration<S
         {
             table.HasCheckConstraint("CK_SewingMaterialLines_Quantity_Positive", "\"Quantity\" > 0");
             table.HasCheckConstraint("CK_SewingMaterialLines_SortOrder_NonNegative", "\"SortOrder\" >= 0");
-            table.HasCheckConstraint("CK_SewingMaterialLines_ReviewMetadata", "NOT \"IsReviewed\" OR (\"ReviewedBy\" IS NOT NULL AND length(trim(\"ReviewedBy\")) > 0 AND \"ReviewedAt\" IS NOT NULL)");
             table.HasCheckConstraint("CK_SewingMaterialLines_Reference", "(\"Kind\" = 1 AND \"FabricId\" > 0 AND \"AccessoryId\" IS NULL AND \"CostCode\" IS NULL AND \"Unit\" = 1) OR (\"Kind\" = 2 AND \"FabricId\" IS NULL AND \"AccessoryId\" > 0 AND \"CostCode\" IS NULL AND \"Unit\" IN (1, 2)) OR (\"Kind\" = 3 AND \"FabricId\" IS NULL AND \"AccessoryId\" IS NULL AND \"CostCode\" IS NOT NULL AND length(trim(\"CostCode\")) > 0 AND \"Unit\" = 3)");
         });
         builder.HasKey(x => x.Id);
@@ -27,7 +26,6 @@ public sealed class SewingMaterialLineConfiguration : IEntityTypeConfiguration<S
         builder.Property(x => x.CostCode).HasMaxLength(80);
         builder.Property(x => x.Quantity).HasPrecision(18, 6).IsRequired();
         builder.Property(x => x.Unit).HasConversion<int>().IsRequired();
-        builder.Property(x => x.ReviewedBy).HasMaxLength(200);
         builder.Property(x => x.Comment).HasMaxLength(SewingMaterialLine.CommentMaxLength);
         builder.HasOne<Product>().WithMany(x => x.MaterialLines).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne<SewingArticle>().WithMany().HasForeignKey(x => new { x.ProductId, x.ArticleId }).HasPrincipalKey(x => new { x.ProductId, ArticleId = x.Id }).OnDelete(DeleteBehavior.Cascade);

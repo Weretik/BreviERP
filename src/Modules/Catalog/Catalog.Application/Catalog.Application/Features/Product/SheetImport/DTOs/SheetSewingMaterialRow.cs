@@ -12,5 +12,4 @@ public sealed record SheetSewingMaterialRow(
     string? Code,
     decimal? Quantity,
     string? Unit,
-    bool IsRequired,
     string? Comment);

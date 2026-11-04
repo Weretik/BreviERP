@@ -25,11 +25,11 @@ public sealed class SewingPricingInputReader(CatalogDbContext db) : ISewingPrici
                 x.Kind == SewingMaterialKind.Fabric ? "Fabric:" + x.FabricId!.Value.Value
                     : x.Kind == SewingMaterialKind.Accessory ? "Accessory:" + x.AccessoryId!.Value.Value
                     : "OtherCost:" + x.CostCode,
-                x.Quantity, x.Unit.ToString(), x.Kind == SewingMaterialKind.Fabric, x.Kind == SewingMaterialKind.OtherCost,
-                x.IsRequired, x.IsReviewed)).ToListAsync(cancellationToken);
+                x.Quantity, x.Unit.ToString(), x.Kind == SewingMaterialKind.Fabric, x.Kind == SewingMaterialKind.OtherCost))
+            .ToListAsync(cancellationToken);
         var operations = await db.Set<SewingOperationLine>().AsNoTracking().Where(x => x.ProductId == productKey)
             .OrderBy(x => x.SortOrder).ThenBy(x => x.Id)
-            .Select(x => new SewingPricingOperationRow(x.Id.Value, x.OperationId.Value, x.Quantity, x.ManualMinutes, x.IsReviewed))
+            .Select(x => new SewingPricingOperationRow(x.Id.Value, x.OperationId.Value, x.Quantity, x.ManualMinutes))
             .ToListAsync(cancellationToken);
         return new SewingArticlePricingSnapshot(productId, articleId, identity.SaleSku, identity.CompositionVersion,
             identity.Active, materials, operations);

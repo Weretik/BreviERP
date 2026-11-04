@@ -10,5 +10,4 @@ public sealed record SewingMaterialDraft(
     int ReferenceId,
     decimal Quantity,
     SewingMaterialUnit Unit,
-    bool IsRequired,
     string? Comment);

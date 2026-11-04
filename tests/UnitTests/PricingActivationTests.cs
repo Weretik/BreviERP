@@ -6,13 +6,13 @@ namespace UnitTests;
 public sealed class PricingActivationTests
 {
     [Test]
-    public void Confirmation_may_change_review_flag_but_never_quantities_or_manual_minutes()
+    public void Confirmation_rejects_changed_quantities_or_manual_minutes()
     {
-        var material = new SewingMaterialInput("Fabric", 1, null, 1.25m, "Metre", true, 0, false);
-        Assert.That(ActivationCompositionInputs.MaterialsEqual([material], [material with { Reviewed = true }]), Is.True);
+        var material = new SewingMaterialInput("Fabric", 1, null, 1.25m, "Metre", 0);
+        Assert.That(ActivationCompositionInputs.MaterialsEqual([material], [material]), Is.True);
         Assert.That(ActivationCompositionInputs.MaterialsEqual([material], [material with { Quantity = 2m }]), Is.False);
-        var operation = new SewingOperationInput(400, 1, 4, 0, false);
-        Assert.That(ActivationCompositionInputs.OperationsEqual([operation], [operation with { Reviewed = true }]), Is.True);
+        var operation = new SewingOperationInput(400, 1, 4, 0);
+        Assert.That(ActivationCompositionInputs.OperationsEqual([operation], [operation]), Is.True);
         Assert.That(ActivationCompositionInputs.OperationsEqual([operation], [operation with { ManualMinutes = 0 }]), Is.False);
     }
 

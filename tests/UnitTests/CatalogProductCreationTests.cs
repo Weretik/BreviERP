@@ -77,7 +77,7 @@ public sealed class CatalogProductCreationTests
                 It.IsAny<CancellationToken>()))
             .Callback<int, Guid?, Guid, PpeOfferValues, string, CancellationToken>((_, _, _, values, _, _) => written = values)
             .ReturnsAsync(Result.Success(new PpeOfferVersion(Guid.NewGuid(), 301,
-                new PpeOfferValues(RuleCode, 518.64m, null, null, "x", "03.11.2026", true), true, "manager", Now, Now)));
+                new PpeOfferValues(RuleCode, 518.64m, null, null, "x", "03.11.2026"), true, "manager", Now, Now)));
 
         var result = await setup.Handler.Handle(Ppe(), CancellationToken.None);
 
@@ -212,11 +212,11 @@ public sealed class CatalogProductCreationTests
 
     internal static CreateCatalogProductCommand Sewing(
         string name = "Куртка «Верде»", string? code = null, int sectionId = 2, bool isActive = true)
-        => new("Sewing", code, name, sectionId, "Літо", isActive, false, null, null, null, "manager");
+        => new("Sewing", code, name, sectionId, "Літо", isActive, null, null, null, "manager");
 
     internal static CreateCatalogProductCommand Ppe(
         string code = "18", int sectionId = 7, int supplierId = 5, string rule = RuleCode)
-        => new("Ppe", code, "Костюм CARINA", sectionId, null, true, false, null, "Опис для КП",
+        => new("Ppe", code, "Костюм CARINA", sectionId, null, true, null, "Опис для КП",
             new CreatePpeSupplierInput(supplierId, "CARINA", "https://avcentr.com.ua/ua/kostyum-carina", 518.64m,
                 false, rule, "шт."), "manager");
 }

@@ -43,7 +43,7 @@ public sealed class ImportGarmentPartOperationsCommandHandler(
             var groupError = string.IsNullOrWhiteSpace(row.GroupName) ? "Немає групи деталей." : null;
             var group = groupError is null ? ResolveGroup(row.GroupName) : null;
             var details = new GarmentPartOperationDetails(code, group?.Id ?? GarmentPartId.From(1), row.Element,
-                row.Variant, row.Name, row.Min, row.MinutesPerProduct, row.NormCheckedAt, row.IsActive, row.Notes);
+                row.Variant, row.Name, row.Min, row.MinutesPerProduct, row.IsActive, row.Notes);
             var error = groupError ?? Validate(details);
             if (error is not null)
             {
@@ -183,7 +183,6 @@ public sealed class ImportGarmentPartOperationsCommandHandler(
             .Text("Назва", operation.Name, details.Name)
             .Compare("Норма часу", operation.Min, details.MinutesPerProduct ? 0m : details.Min)
             .Compare("Час для кожного виробу", operation.MinutesPerProduct, details.MinutesPerProduct)
-            .Compare("Дата перевірки", operation.NormCheckedAt, details.NormCheckedAt)
             .Compare("Активна", operation.IsActive, details.IsActive)
             .Text("Примітки", operation.Notes, details.Notes)
             .Changes.ToList();
@@ -191,7 +190,7 @@ public sealed class ImportGarmentPartOperationsCommandHandler(
 
     private static GarmentPartOperationDetails DetailsOf(GarmentPartOperationEntity operation) => new(
         operation.Code, operation.GarmentPartId, operation.Element, operation.Variant, operation.Name, operation.Min,
-        operation.MinutesPerProduct, operation.NormCheckedAt, operation.IsActive, operation.Notes);
+        operation.MinutesPerProduct, operation.IsActive, operation.Notes);
 
     private static string Label(GarmentPartOperationEntity operation) =>
         operation.Code is null ? $"{operation.Id.Value} {operation.Name}" : $"{operation.Code} {operation.Name}";

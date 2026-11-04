@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
@@ -76,12 +77,16 @@ public sealed class CatalogSheetImportRealFileTests
             Assert.That(await Count("Products", $"\"Type\" = {(int)ProductType.Sewing}"), Is.EqualTo(124));
             Assert.That(await Count("Products", $"\"Type\" = {(int)ProductType.Ppe}"), Is.EqualTo(119));
             Assert.That(await Count("SewingArticles"), Is.EqualTo(248));
-            Assert.That(await Count("SewingMaterialLines"), Is.EqualTo(1448));
-            Assert.That(await Count("SewingMaterialLines", "\"ArticleId\" IS NOT NULL"), Is.EqualTo(246));
+            // MOD-174 «Флекс» shares one fabric in the sheet; it goes to both its variants (CAT-015).
+            Assert.That(await Count("SewingMaterialLines"), Is.EqualTo(1449));
+            Assert.That(await Count("SewingMaterialLines", "\"ArticleId\" IS NOT NULL"), Is.EqualTo(248));
+            Assert.That(await Count("SewingArticles", "(SELECT count(*) FROM catalog.\"SewingMaterialLines\" l WHERE l.\"ArticleId\" = catalog.\"SewingArticles\".\"Id\" AND l.\"Kind\" = 1) <> 1"),
+                Is.Zero, "every fabric variant has exactly its one fabric");
             Assert.That(await Count("SewingOperationLines"), Is.EqualTo(1823));
             Assert.That(await Count("SewingOperationLines", "\"ManualMinutes\" IS NOT NULL"), Is.EqualTo(33));
-            Assert.That(await Count("SewingMaterialLines", "NOT \"IsReviewed\"") + await Count("SewingOperationLines", "NOT \"IsReviewed\""), Is.Zero,
-                "every model of the sheet is checked");
+            Assert.That(await Count("SewingMaterialLines", "\"Comment\" = 'Спільна складова для всіх артикулів моделі'")
+                + await Count("SewingOperationLines", "\"Comment\" = 'Спільна складова для всіх артикулів моделі'"), Is.Zero,
+                "the note the sheet repeats on shared lines is dropped");
             Assert.That(await Count("PpePricingOfferVersions"), Is.EqualTo(118), "every PPE but 724 has a supplier price");
             Assert.That(await Count("SewingPricePublications"), Is.EqualTo(248), "every Article price is published by the import");
             Assert.That(await Count("ProductCatalogProfiles", $"\"PricingRuleCode\" IS NULL AND \"ProductId\" IN (SELECT \"Id\" FROM catalog.\"Products\" WHERE \"Type\" = {(int)ProductType.Ppe})"),
@@ -101,9 +106,27 @@ public sealed class CatalogSheetImportRealFileTests
             Assert.That(await database.FingerprintAsync(), Is.EqualTo(after));
         });
 
+        // The «Товари» list is one request without recalculation (CAT-013).
+        await host.Client.GetAsync("api/v1/products/overview?type=Sewing&pageSize=25"); // warm-up
+        clock.Restart();
+        var sewingPage = await host.Client.GetFromJsonAsync<JsonElement>("api/v1/products/overview?type=Sewing&pageSize=25");
+        var listTime = clock.Elapsed;
+        clock.Restart();
+        var ppePage = await host.Client.GetFromJsonAsync<JsonElement>("api/v1/products/overview?type=Ppe&pageSize=25&sort=price");
+        var ppeListTime = clock.Elapsed;
+        Assert.Multiple(() =>
+        {
+            Assert.That(sewingPage.GetProperty("total").GetInt32(), Is.EqualTo(124));
+            Assert.That(sewingPage.GetProperty("items").GetArrayLength(), Is.EqualTo(25));
+            Assert.That(sewingPage.GetProperty("withoutPrice").GetInt32(), Is.Zero, "every model has a published price");
+            Assert.That(sewingPage.GetProperty("items").EnumerateArray().SelectMany(x => x.GetProperty("variants").EnumerateArray())
+                .Select(x => x.GetProperty("fabricName").GetString()), Has.All.Not.Null.And.All.Not.Empty);
+            Assert.That(ppePage.GetProperty("total").GetInt32(), Is.EqualTo(119));
+        });
+
         TestContext.Progress.WriteLine(
             $"Sheet import (legacy catalogue {legacyCatalogue}): preview {previewTime.TotalMilliseconds:F0} ms, apply {importTime.TotalMilliseconds:F0} ms, " +
-            $"repeat {repeatTime.TotalMilliseconds:F0} ms; warnings {report.Warnings.Count}: " +
+            $"repeat {repeatTime.TotalMilliseconds:F0} ms; list sewing {listTime.TotalMilliseconds:F0} ms, PPE {ppeListTime.TotalMilliseconds:F0} ms; warnings {report.Warnings.Count}: " +
             string.Join("; ", report.Warnings.GroupBy(x => x.Message).Select(x => $"{x.Count()}× {x.Key}")));
 
         Task<long> Count(string table, string? where = null)

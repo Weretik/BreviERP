@@ -41,6 +41,8 @@ public static class CatalogDbContextExtensions
 
         services.AddScoped<Catalog.Application.Features.Pricing.Sewing.AutoPublication.SewingPriceStatusReader>();
         services.AddScoped<Catalog.Application.Features.Pricing.Sewing.AutoPublication.SewingPricePublisher>();
+        services.AddScoped<Catalog.Application.Contracts.Persistence.ProductOverview.IProductOverviewVariantReader, Catalog.Infrastructure.Products.Overview.ProductOverviewVariantReader>();
+        services.AddScoped<Catalog.Application.Features.Product.Overview.Shared.Items.ProductOverviewItemReader>();
 
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpePricingInputReader, Catalog.Infrastructure.Pricing.Ppe.Reading.PpePricingInputReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpeRuleVersionWriter, Catalog.Infrastructure.Pricing.Ppe.Writing.PpeRuleVersionWriter>();

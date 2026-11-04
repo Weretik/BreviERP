@@ -28,10 +28,10 @@ public sealed class SewingArticleDiagnosticReader(CatalogDbContext catalog, Work
             || values.GroupBy(x => x.ReferenceKey).Any(group => group.Count() > 1))
             throw new InvalidDataException("Diagnostic calculation requires unambiguous effective settings and inputs.");
         var byKey = values.ToDictionary(x => x.ReferenceKey);
-        // Review acknowledgement is in-memory only; real blockers remain attached and nothing is approved or published.
+        // Nothing is approved or published; the strict blockers stay attached to the report.
         var diagnostic = SewingArticleCalculator.Calculate(settings[0].Settings,
-            SewingPricingInputResolution.Materials(snapshot, byKey).Select(x => x with { IsReviewed = true }).ToArray(),
-            SewingPricingInputResolution.Operations(snapshot, byKey).Select(x => x with { IsReviewed = true }).ToArray());
+            SewingPricingInputResolution.Materials(snapshot, byKey),
+            SewingPricingInputResolution.Operations(snapshot, byKey));
         var row = source.Rows("Прайс на сайт").Single(row => row.Text(0) == sku);
         return new(sku, SewingArticleCalculation.FormulaVersion, strict.Value.SettingsVersionId,
             strict.Value.ReferenceVersionIds, diagnostic.Breakdown, diagnostic.Prices, strict.Value.Calculation.Blockers,

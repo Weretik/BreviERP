@@ -24,7 +24,7 @@ public sealed class CatalogSheetImportTests
             Assert.That(plan.Writes[0].Draft.Sewing!.Operations, Has.Count.EqualTo(3), "repeated OP-088 stays two lines");
             Assert.That(plan.Writes[1].Offer!.ExpectedVersionId, Is.Null);
             Assert.That(plan.Writes[1].Offer!.Values.Source, Is.EqualTo("Імпорт з таблиці"));
-            Assert.That(plan.Writes[1].Offer!.Values.SourceDate, Is.EqualTo("09.09.2026"));
+            Assert.That(plan.Writes[1].Offer!.Values.SourceDate, Is.EqualTo("03.11.2026"), "the import day");
             Assert.That(plan.Writes[1].Offer!.Values.SupplierCost, Is.EqualTo(518.64m));
             Assert.That(plan.Deletes, Is.Empty);
         });
@@ -130,7 +130,7 @@ public sealed class CatalogSheetImportTests
         var sewing = Sewing() with
         {
             Section = "Одяг ОСІНЬ",
-            Materials = [new(5, null, "Accessory", "FUR-999", 1, "Piece", true, null), new(6, "555", "Fabric", "FAB-023", 1, "Metre", true, null)],
+            Materials = [new(5, null, "Accessory", "FUR-999", 1, "Piece", null), new(6, "555", "Fabric", "FAB-023", 1, "Metre", null)],
             Operations = [new(9, null, "OP-999", 1, null, null), new(10, "246", "OP-018", 1, null, null)],
         };
         var ppe = Ppe(supplier: "Невідомий");
@@ -182,29 +182,16 @@ public sealed class CatalogSheetImportTests
     }
 
     [Test]
-    public void Checked_model_lines_are_reviewed_by_the_sheet_at_kyiv_midnight_of_the_check_date()
+    public void Model_lines_are_ready_to_calculate_and_the_repeated_shared_note_is_dropped()
     {
-        var verified = Stored(Plan().Writes[0]);
-        var unchecked_ = Stored(Plan(Command([Sewing(verified: false, verifiedOn: null)])).Writes[0]);
-        var noDate = Plan(Command([Sewing(verifiedOn: null)])).Writes[0].Draft;
+        var stored = Stored(Plan().Writes[0]);
 
         Assert.Multiple(() =>
         {
-            Assert.That(verified.MaterialLines.Count + verified.OperationLines.Count, Is.EqualTo(6));
-            Assert.That(verified.MaterialLines.All(x => x.IsReviewed && x.ReviewedBy == SheetProductApplier.Reviewer), Is.True);
-            Assert.That(verified.OperationLines.All(x => x.IsReviewed && x.ReviewedAt == new DateTimeOffset(2026, 9, 7, 21, 0, 0, TimeSpan.Zero)), Is.True);
-            // Npgsql writes timestamptz only from a UTC offset.
-            Assert.That(verified.MaterialLines.Concat<object>(verified.OperationLines).Select(x => x switch
-            {
-                Catalog.Domain.Products.Entities.SewingMaterialLine m => m.ReviewedAt!.Value.Offset,
-                Catalog.Domain.Products.Entities.SewingOperationLine o => o.ReviewedAt!.Value.Offset,
-                _ => TimeSpan.MaxValue
-            }), Is.All.EqualTo(TimeSpan.Zero));
-            Assert.That(verified.GetCalculationReadinessBlockers(verified.Articles.First().Id), Is.Empty);
-            Assert.That(unchecked_.OperationLines.Any(x => x.IsReviewed), Is.False);
-            Assert.That(unchecked_.GetCalculationReadinessBlockers(), Is.Not.Empty);
-            Assert.That(noDate.Overview.VerifiedOn, Is.EqualTo("03.11.2026"));
-            Assert.That(noDate.Sewing!.ReviewedAt, Is.EqualTo(new DateTimeOffset(2026, 11, 2, 22, 0, 0, TimeSpan.Zero)));
+            Assert.That(stored.MaterialLines.Count + stored.OperationLines.Count, Is.EqualTo(6));
+            Assert.That(stored.GetCalculationReadinessBlockers(stored.Articles.First().Id), Is.Empty);
+            Assert.That(stored.MaterialLines.Select(x => x.Comment), Has.None.EqualTo(SheetSewingDraftBuilder.SharedLineNote));
+            Assert.That(stored.MaterialLines.Select(x => x.Comment), Does.Contain("Варіант для артикулу 246"));
         });
     }
 

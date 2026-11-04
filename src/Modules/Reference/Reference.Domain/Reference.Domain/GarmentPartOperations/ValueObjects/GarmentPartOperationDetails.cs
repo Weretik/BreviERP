@@ -7,7 +7,6 @@ namespace Reference.Domain.GarmentPartOperations.ValueObjects;
 /// <param name="Variant">«Варіант виконання».</param>
 /// <param name="Min">«Норма часу, хв»; 0 when <paramref name="MinutesPerProduct"/> is set.</param>
 /// <param name="MinutesPerProduct">The time is entered per product (OP-155 «Нестандартна операція»).</param>
-/// <param name="NormCheckedAt">«Дата перевірки норми часу».</param>
 /// <param name="Notes">«Примітки до джерела».</param>
 public sealed record GarmentPartOperationDetails(
     string? Code,
@@ -17,6 +16,5 @@ public sealed record GarmentPartOperationDetails(
     string Name,
     decimal Min,
     bool MinutesPerProduct,
-    DateOnly? NormCheckedAt,
     bool IsActive,
     string? Notes);

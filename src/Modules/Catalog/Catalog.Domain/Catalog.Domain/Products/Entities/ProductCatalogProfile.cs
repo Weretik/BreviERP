@@ -8,8 +8,6 @@ public sealed class ProductCatalogProfile
     public string? SaleSku { get; private set; }
     public string? Season { get; private set; }
     public bool IsActive { get; private set; }
-    public bool IsSourceReviewed { get; private set; }
-    public string? SourceReviewDate { get; private set; }
     public string? Unit { get; private set; }
     public string? WebsiteUrl { get; private set; }
     public SupplierReferenceId? SupplierId { get; private set; }
@@ -67,22 +65,14 @@ public sealed class ProductCatalogProfile
         Unit = Normalize(unit, 40);
     }
 
-    public void SetSourceReview(bool reviewed, string? originalDate)
-    {
-        IsSourceReviewed = reviewed;
-        SourceReviewDate = Normalize(originalDate, 100);
-    }
-
     /// <summary>Sets the «Товари» page fields; the season text is «Літо» or «Зима» as in the sheet.</summary>
-    public void SetOverview(int? sectionId, string? season, bool isActive, bool reviewed, string? reviewDate,
+    public void SetOverview(int? sectionId, string? season, bool isActive,
         string? websiteUrl, string? shortDescription)
     {
         if (sectionId is <= 0) throw new ArgumentOutOfRangeException(nameof(sectionId));
         SectionId = sectionId;
         Season = Normalize(season, 100);
         IsActive = isActive;
-        IsSourceReviewed = reviewed;
-        SourceReviewDate = Normalize(reviewDate, 100);
         WebsiteUrl = Normalize(websiteUrl, 2048);
         ShortDescription = Normalize(shortDescription, 4000);
     }

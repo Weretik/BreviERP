@@ -19,7 +19,7 @@ public static class SewingPricingInputResolution
         {
             references.TryGetValue(line.ReferenceKey, out var value);
             return new SewingMaterialCostInput($"Material:{line.LineId}", line.Quantity, value?.Value,
-                line.IsOtherCost, line.IsFabric, line.IsRequired, line.IsReviewed,
+                line.IsOtherCost, line.IsFabric,
                 value?.IsActive == true, value?.IsApproved == true, value?.Unit == line.Unit);
         }).ToArray();
 
@@ -33,7 +33,7 @@ public static class SewingPricingInputResolution
         {
             references.TryGetValue($"Operation:{line.OperationId}", out var value);
             return new SewingOperationCostInput($"Operation:{line.LineId}", line.Quantity, value?.Value,
-                line.ManualMinutes, line.IsReviewed, value?.IsActive == true,
+                line.ManualMinutes, value?.IsActive == true,
                 value?.IsApproved == true && value.Unit == "Minutes");
         }).ToArray();
 }

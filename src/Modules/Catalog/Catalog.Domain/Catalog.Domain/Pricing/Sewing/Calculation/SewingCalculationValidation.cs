@@ -18,15 +18,11 @@ public static class SewingCalculationValidation
                 errors.Add(new("UnitMismatch", line.LineKey, "Cost and composition units differ."));
             if (!line.IsActive || !line.IsApproved)
                 errors.Add(new("UnapprovedReference", line.LineKey, "Material cost is inactive or not approved."));
-            if (line.IsRequired && !line.IsReviewed)
-                errors.Add(new("UnreviewedMaterial", line.LineKey, "Required material has not been reviewed."));
         }
         foreach (var line in operations)
         {
             if (line.Quantity <= 0 || (line.ManualMinutes ?? line.StandardMinutes) is null or <= 0)
                 errors.Add(new("MissingOperationTime", line.LineKey, "Positive quantity and effective minutes are required."));
-            if (!line.IsReviewed)
-                errors.Add(new("UnreviewedOperation", line.LineKey, "Operation has not been reviewed."));
             if (!line.IsActive || !line.IsApproved)
                 errors.Add(new("UnapprovedReference", line.LineKey, "Operation reference is inactive or not approved."));
         }

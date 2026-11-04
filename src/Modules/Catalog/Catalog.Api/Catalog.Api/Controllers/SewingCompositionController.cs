@@ -46,28 +46,4 @@ public sealed class SewingCompositionController(ISender sender) : ControllerBase
             ? Ok(result.Value)
             : this.ToActionResult(result);
     }
-
-    [HttpPut("articles/{articleId:long}/composition", Name = "replaceSewingArticleComposition")]
-    [Authorize(Policy = "CanManageProducts")]
-    [ProducesResponseType(typeof(SewingComposition), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<SewingComposition>> ReplaceArticleComposition(
-        [FromRoute] int productId,
-        [FromRoute] long articleId,
-        [FromBody] ReplaceSewingArticleCompositionRequest request,
-        CancellationToken cancellationToken)
-    {
-        var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(actor)) return Unauthorized();
-
-        var result = await sender.Send(
-            new ReplaceSewingArticleCompositionCommand(productId, articleId, request, actor), cancellationToken);
-        return result.Status == Ardalis.Result.ResultStatus.Ok
-            ? Ok(result.Value)
-            : this.ToActionResult(result);
-    }
 }

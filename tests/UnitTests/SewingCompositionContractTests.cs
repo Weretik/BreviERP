@@ -8,7 +8,7 @@ public sealed class SewingCompositionContractTests
 {
     [TestCase(typeof(CreateSewingArticleRequest), "CreateSewingArticleRequest")]
     [TestCase(typeof(ReplaceSewingCompositionRequest), "ReplaceSewingCompositionRequest")]
-    [TestCase(typeof(ReplaceSewingArticleCompositionRequest), "ReplaceSewingArticleCompositionRequest")]
+    [TestCase(typeof(UpdateSewingArticleRequest), "UpdateSewingArticleRequest")]
     [TestCase(typeof(SewingMaterialInput), "SewingMaterialInput")]
     [TestCase(typeof(SewingOperationInput), "SewingOperationInput")]
     [TestCase(typeof(SewingArticleView), "SewingArticle")]

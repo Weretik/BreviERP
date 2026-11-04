@@ -84,8 +84,9 @@ public static class ProductErrors
     public static CatalogDomainError CompositionParentMismatch() => new("Catalog.Product.Composition.ParentMismatch", "Composition line belongs to another product or article");
     public static CatalogDomainError CompositionScopeConflict() => new("Catalog.Product.Composition.ScopeConflict", "A common composition line conflicts with an article-specific line");
     public static CatalogDomainError MaterialReferenceInvalid() => new("Catalog.Product.Material.ReferenceInvalid", "Material kind, reference and unit do not match");
-    public static CatalogDomainError ReviewMetadataRequired() => new("Catalog.Product.Composition.ReviewMetadataRequired", "Reviewed lines require reviewer and review time");
     public static CatalogDomainError DuplicateCompositionLine() => new("Catalog.Product.Composition.Line.Duplicate", "Composition contains a duplicate effective line");
+    public static CatalogDomainError ArticleLineMustBeFabric() => new("Catalog.Product.Composition.ArticleScope.FabricOnly", "An article can have only its one fabric line");
+    public static CatalogDomainError ArticleNotFound() => new("Catalog.Product.Article.NotFound", "Article does not belong to the product");
     public static CatalogDomainError ArticleSpecificOperationsNotSupported() => new("Catalog.Product.Operation.ArticleScope.Unsupported", "Article-specific operations are not supported");
     public static CatalogDomainError ModelCodeInvalid() => new("Catalog.Product.ModelCode.Invalid", "Model code must be 80 characters or less");
     public static CatalogDomainError OverviewInvalid(string message) => new("Catalog.Product.Overview.Invalid", message);

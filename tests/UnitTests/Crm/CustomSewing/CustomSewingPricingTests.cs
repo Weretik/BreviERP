@@ -8,10 +8,10 @@ public sealed class CustomSewingPricingTests
         .1m, .1m, .1m, .1m, 10000, 2m, 1.5m, 1.25m);
 
     private static SewingMaterialCostInput Fabric(decimal cost = 100m) =>
-        new("Fabric:1", 1, cost, false, true, true, true, true, true, true);
+        new("Fabric:1", 1, cost, false, true, true, true, true);
 
     private static SewingOperationCostInput Operation =>
-        new("Operation:1", 1, 10, null, true, true, true);
+        new("Operation:1", 1, 10, null, true, true);
 
     [TestCase(100, 152, 310, 240, 205)]
     [TestCase(200, 252, 510, 390, 330)]

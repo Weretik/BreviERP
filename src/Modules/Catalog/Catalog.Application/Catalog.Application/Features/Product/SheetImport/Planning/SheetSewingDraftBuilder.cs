@@ -6,15 +6,13 @@ namespace Catalog.Application.Features.Product.SheetImport.Planning;
 
 /// <summary>
 /// Resolves one «Товари» model with its lines into a draft and reports every unknown code or wrong value of it.
-/// A checked model gets all its lines marked reviewed (the readiness rules need reviewed lines).
 /// </summary>
 public sealed class SheetSewingDraftBuilder(SheetReferenceResolver references, SheetImportIssueLog log)
 {
     private const string Scope = "sewing";
 
-    /// <param name="storedReviewDate">The stored check date of the matched product, kept when the sheet has none.</param>
     /// <returns>Null when the row has a problem.</returns>
-    public SheetProductDraft? Build(SheetSewingRow row, string? storedReviewDate, DateTimeOffset now)
+    public SheetProductDraft? Build(SheetSewingRow row)
     {
         var before = log.Problems.Count;
         var code = SheetReferenceResolver.NormalizeCode(row.Code);
@@ -25,16 +23,6 @@ public sealed class SheetSewingDraftBuilder(SheetReferenceResolver references, S
             Problem(string.IsNullOrWhiteSpace(row.Section)
                 ? "Немає розділу."
                 : $"Розділ «{row.Section.Trim()}» не знайдено серед швейних розділів довідника «Типи і розділи».");
-
-        var verifiedOn = Trim(row.VerifiedOn);
-        DateTimeOffset? reviewedAt = null;
-        if (verifiedOn is not null && !SheetVerifiedDates.TryParse(verifiedOn, out _))
-            Problem($"Дата перевірки «{verifiedOn}» має бути у форматі дд.мм.рррр.");
-        else if (row.IsVerified)
-        {
-            verifiedOn ??= storedReviewDate ?? SheetVerifiedDates.Format(SheetVerifiedDates.Today(now));
-            reviewedAt = SheetVerifiedDates.TryParse(verifiedOn, out var date) ? SheetVerifiedDates.KyivMidnight(date) : now;
-        }
 
         var skus = new HashSet<string>(StringComparer.Ordinal);
         foreach (var article in row.Articles)
@@ -68,16 +56,38 @@ public sealed class SheetSewingDraftBuilder(SheetReferenceResolver references, S
             if (line.ManualMinutes is <= 0)
                 LineProblem("Час вручну має бути більший за 0 або порожній.");
             if (operationId is not null && line.Quantity is > 0)
-                operations.Add(new SewingOperationDraft(operationId.Value, line.Quantity.Value, line.ManualMinutes, Trim(line.Comment)));
+                operations.Add(new SewingOperationDraft(operationId.Value, line.Quantity.Value, line.ManualMinutes, Note(line.Comment)));
         }
 
         if (log.Problems.Count > before)
             return null;
         var articles = row.Articles.Select(x => x with { SaleSku = x.SaleSku.Trim() }).ToList();
+        if (materials.Any(x => x.ArticleSku is not null && x.Kind != SewingMaterialKind.Fabric))
+        {
+            Problem("У артикула може бути тільки його тканина; фурнітура спільна для моделі.");
+            return null;
+        }
+        materials = FabricPerVariant(materials, articles.Select(x => x.SaleSku).ToList());
         return new SheetProductDraft(row.RowNumber, ProductType.Sewing, code, row.Name.Trim(),
-            new ProductOverviewDetails(sectionId, Trim(row.Season), row.IsActive, row.IsVerified,
-                row.IsVerified ? verifiedOn : null, Trim(row.CurrentSiteUrl), Trim(row.QuoteDescription)),
-            null, new SewingCompositionDraft(articles, materials, operations, reviewedAt));
+            new ProductOverviewDetails(sectionId, Trim(row.Season), row.IsActive,
+                Trim(row.CurrentSiteUrl), Trim(row.QuoteDescription)),
+            null, new SewingCompositionDraft(articles, materials, operations));
+    }
+
+    /// <summary>
+    /// A fabric shared by the whole model goes to every variant that has no own fabric (CAT-015): the fabric is part
+    /// of the variant, everything else is shared.
+    /// </summary>
+    internal static List<SewingMaterialDraft> FabricPerVariant(List<SewingMaterialDraft> materials, IReadOnlyList<string> skus)
+    {
+        var shared = materials.Where(x => x.ArticleSku is null && x.Kind == SewingMaterialKind.Fabric).ToList();
+        if (shared.Count != 1 || skus.Count == 0)
+            return materials;
+        var withFabric = materials.Where(x => x.ArticleSku is not null).Select(x => x.ArticleSku!).ToHashSet(StringComparer.Ordinal);
+        if (skus.Any(withFabric.Contains))
+            return materials;
+        return materials.Where(x => x != shared[0])
+            .Concat(skus.Select(sku => shared[0] with { ArticleSku = sku })).ToList();
     }
 
     private SewingMaterialDraft? Material(SheetSewingMaterialRow line, HashSet<string> skus, Action<string> problem)
@@ -121,8 +131,13 @@ public sealed class SheetSewingDraftBuilder(SheetReferenceResolver references, S
         return log.Problems.Count > before
             ? null
             : new SewingMaterialDraft(article, kind!.Value, referenceId!.Value, line.Quantity!.Value, unit!.Value,
-                line.IsRequired, Trim(line.Comment));
+                Note(line.Comment));
     }
 
     private static string? Trim(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    /// <summary>The sheet repeats <see cref="SharedLineNote"/> on every shared line; it carries no information.</summary>
+    private static string? Note(string? value) => Trim(value) is { } note && note != SharedLineNote ? note : null;
+
+    public const string SharedLineNote = "Спільна складова для всіх артикулів моделі";
 }

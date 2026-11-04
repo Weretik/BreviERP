@@ -41,9 +41,9 @@ public static class PricingActivationPlanner
                     throw new InvalidOperationException("Planned Article/settings are not available and active.");
                 var costs = preview.Value.References.ToDictionary(x => x.ReferenceKey);
                 var diagnostic = SewingArticleCalculator.Calculate(preview.Value.Settings.Settings,
-                    SewingPricingInputResolution.Materials(preview.Value.Inputs, costs).Select(x => x with { IsReviewed = true }).ToArray(),
-                    SewingPricingInputResolution.Operations(preview.Value.Inputs, costs).Select(x => x with { IsReviewed = true }).ToArray());
-                if (!diagnostic.IsCalculated) throw new InvalidOperationException("Planned Article has non-review pricing blockers.");
+                    SewingPricingInputResolution.Materials(preview.Value.Inputs, costs),
+                    SewingPricingInputResolution.Operations(preview.Value.Inputs, costs));
+                if (!diagnostic.IsCalculated) throw new InvalidOperationException("Planned Article has pricing blockers.");
                 articles.Add(new(id, item.SaleSku, current.Materials.Where(x => x.ArticleId == id).Select(ActivationCompositionInputs.Material).ToArray(),
                     preview.Value.SettingsVersionId, preview.Value.ReferenceVersionIds, diagnostic.Prices!, Guid.NewGuid()));
             }

@@ -28,7 +28,7 @@ public sealed class IntroductionDraftBuilder(IIntroductionCatalogReader catalog)
             }
             var slotErrorCount = errors.Count;
             if (offer.Season != selection.Slot.Season || offer.Kind != "made" ||
-                !offer.Approved || !offer.Sellable)
+                !offer.Sellable)
                 errors.Add(new ValidationError(field, "model_unavailable_or_wrong_season"));
             if (string.IsNullOrWhiteSpace(offer.ModelName) ||
                 string.IsNullOrWhiteSpace(offer.FabricName) ||

@@ -76,9 +76,9 @@ public sealed class SewingCompositionPersistenceTests
         product.AddArticle(SewingArticle.Create(default, productId, "SKU-2"), now);
         product.ReplaceComposition(
         [
-            SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-1", 1m, SewingMaterialUnit.Service, false, 0),
-            SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-2", 1m, SewingMaterialUnit.Service, false, 1)
-        ], [SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(1), 1m, null, 0, false)], now);
+            SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-1", 1m, SewingMaterialUnit.Service, 0),
+            SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-2", 1m, SewingMaterialUnit.Service, 1)
+        ], [SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(1), 1m, null, 0)], now);
 
         Assert.DoesNotThrow(() => db.Products.Add(product));
         var articleIds = db.Entry(product).Collection(x => x.Articles).CurrentValue!

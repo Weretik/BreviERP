@@ -47,7 +47,6 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
                 request.Element,
                 request.Variant,
                 request.MinutesPerProduct,
-                request.NormCheckedAt,
                 request.IsActive,
                 request.Notes));
 
@@ -100,7 +99,6 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
                 request.Element,
                 request.Variant,
                 request.MinutesPerProduct,
-                request.NormCheckedAt,
                 request.IsActive,
                 request.Notes));
 

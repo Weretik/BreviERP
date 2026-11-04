@@ -20,8 +20,6 @@ public sealed record SheetPpeRow(
     decimal? SupplierPrice,
     bool IsActive,
     bool AllowManualPrice,
-    bool IsVerified,
-    string? VerifiedOn,
     string? RuleCode,
     string? QuoteDescription,
     decimal? InsightWholesale,

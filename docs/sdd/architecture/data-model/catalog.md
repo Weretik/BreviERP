@@ -5,7 +5,7 @@
 | Table | PK | Main data and purpose |
 | --- | --- | --- |
 | `Products` | `Id` | Product: `Name`, `RuName`, `Slug`, `Type`, description, and dates. |
-| `ProductCatalogProfiles` | `ProductId` | Product-owned «Товари» page fields: section ID from `reference.ProductSections` (no FK), season, activity, director check and date, link to the current public site, short description for a quote; plus nullable PPE supplier offer, unit, sale SKU (PPE site article). Separate from legacy pricing percentages. |
+| `ProductCatalogProfiles` | `ProductId` | Product-owned «Товари» page fields: section ID from `reference.ProductSections` (no FK), season, activity, link to the current public site, short description for a quote; plus nullable PPE supplier offer, unit, sale SKU (PPE site article). Separate from legacy pricing percentages. |
 | `SewingPricingSettingsVersions` | generated long `Id` | Immutable thirteen-input settings revision, effective instant, formula version, approval and source JSON/SHA-256. Unique revision and source hash. |
 | `SewingCalculations` | generated long `Id`; unique UUID `PublicId` / `RequestId` | Immutable full calculation JSON, actor/time and restrictive composite Product/Article ownership. Blocked results retain diagnostic evidence. |
 | `SewingPricePublications` | generated long `Id`; unique UUID `PublicId` | Unique calculation FK, actor/time; exact prices come from retained calculation JSON. Append-only history; highest publication ID is current per Article. |
@@ -22,8 +22,8 @@
 | `SewingProductAccessories` | `ProductId`, `GarmentAccessoryId` | Sewing product accessories and quantities. |
 | `SewingProductOperations` | `ProductId`, `GarmentPartOperationId` | Operations for a sewing product. |
 | `SewingArticles` | generated long `Id` | Product-owned immutable globally unique sale SKU, activity and order; alternate key `(ProductId, Id)`. |
-| `SewingMaterialLines` | generated long `Id` | Shared or Article-specific fabric/accessory/non-inventory cost inputs, quantity/unit and review metadata and an optional comment. Composite Article FK prevents cross-parent links. |
-| `SewingOperationLines` | generated long `Id` | Shared operation reference, quantity, optional manual minutes, review metadata and an optional comment. |
+| `SewingMaterialLines` | generated long `Id` | Shared fabric/accessory/non-inventory cost inputs or a variant's one fabric (CAT-015), quantity/unit and an optional comment. Composite Article FK prevents cross-parent links. |
+| `SewingOperationLines` | generated long `Id` | Shared operation reference, quantity, optional manual minutes and an optional comment. |
 
 Migration `20261024215605_AddSewingComposition` adds nullable unique `Products.ModelCode` and the `Products.CompositionVersion` concurrency token. Migration `20261025093328_AddCatalogImportProfiles` adds profiles, permits metre-based accessories, and replaces the unique operation-reference index with a nonunique index so individual occurrences retain their manual times. Both were applied locally; see [catalogue import](../../features/catalog/catalog-import.md). The job's separate `imports` schema contains batch/source provenance and source-to-target IDs in the same PostgreSQL database.
 

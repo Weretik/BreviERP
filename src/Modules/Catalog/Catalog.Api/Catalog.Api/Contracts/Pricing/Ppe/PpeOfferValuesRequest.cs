@@ -7,8 +7,7 @@ public sealed record PpeOfferValuesRequest(
     [property: JsonRequired] decimal? ExternalRetail,
     [property: JsonRequired] decimal? ExternalWholesale,
     [property: JsonRequired] string Source,
-    [property: JsonRequired] string SourceDate,
-    [property: JsonRequired] bool SourceReviewed)
+    [property: JsonRequired] string SourceDate)
 {
-    public PpeOfferValues ToValues() => new(RuleCode, SupplierCost, ExternalRetail, ExternalWholesale, Source, SourceDate, SourceReviewed);
+    public PpeOfferValues ToValues() => new(RuleCode, SupplierCost, ExternalRetail, ExternalWholesale, Source, SourceDate);
 }

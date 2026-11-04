@@ -12,6 +12,5 @@ public sealed record GarmentPartOperationImportRow(
     string Name,
     decimal Min,
     bool MinutesPerProduct,
-    DateOnly? NormCheckedAt,
     bool IsActive,
     string? Notes);

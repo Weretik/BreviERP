@@ -3,6 +3,7 @@ using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
 using Catalog.Infrastructure.DataBase;
+using Catalog.Infrastructure.Pricing.History;
 using Npgsql;
 
 namespace Catalog.Infrastructure.Repositories;
@@ -17,9 +18,30 @@ internal sealed class SewingCompositionStore(CatalogDbContext db) : ISewingCompo
             .SingleOrDefaultAsync(product => product.Id == ProductId.Create(productId)
                 && !product.IsDeleted && product.Type == ProductType.Sewing, cancellationToken);
 
-    public async Task<bool> SaleSkuExistsAsync(string saleSku, CancellationToken cancellationToken)
-        => await db.Set<SewingArticle>().AnyAsync(article => article.SaleSku == saleSku, cancellationToken)
+    public async Task<bool> SaleSkuExistsAsync(string saleSku, long? exceptArticleId, CancellationToken cancellationToken)
+    {
+        var except = exceptArticleId.HasValue ? ArticleId.Create(exceptArticleId.Value) : (ArticleId?)null;
+        return await db.Set<SewingArticle>().AnyAsync(article => article.SaleSku == saleSku
+                && (except == null || article.Id != except), cancellationToken)
             || await db.Set<ProductCatalogProfile>().AnyAsync(profile => profile.SaleSku == saleSku, cancellationToken);
+    }
+
+    public Task<bool> HasPriceHistoryAsync(long articleId, CancellationToken cancellationToken)
+        => db.Set<SavedSewingCalculationRecord>().AnyAsync(x => x.ArticleId == ArticleId.Create(articleId), cancellationToken);
+
+    public async Task<bool> AddArticleAsync(Product product, SewingArticle article, FabricReferenceId fabricId,
+        decimal fabricQuantity, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        product.AddArticle(article, now);
+        if (!await SaveAsync(cancellationToken))
+            return false;
+        product.SetArticleFabric(article.Id, fabricId, fabricQuantity, now);
+        if (!await SaveAsync(cancellationToken))
+            return false;
+        await transaction.CommitAsync(cancellationToken);
+        return true;
+    }
 
     public async Task<bool> SaveAsync(CancellationToken cancellationToken)
     {

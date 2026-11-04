@@ -54,7 +54,7 @@ public sealed class PpePricingApiTests
         {
             expectedVersionId = expected,
             requestId = request,
-            values = new { ruleCode = "Rule", supplierCost = 100, externalRetail = (decimal?)null, externalWholesale = (decimal?)null, source = "source", sourceDate = "2026-10-25", sourceReviewed = true },
+            values = new { ruleCode = "Rule", supplierCost = 100, externalRetail = (decimal?)null, externalWholesale = (decimal?)null, source = "source", sourceDate = "2026-10-25" },
             actor = "spoof"
         });
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));

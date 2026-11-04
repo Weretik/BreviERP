@@ -10,6 +10,5 @@ public sealed record UpdateGarmentPartOperationCommandRequest(
     string? Element = null,
     string? Variant = null,
     bool MinutesPerProduct = false,
-    DateOnly? NormCheckedAt = null,
     bool IsActive = true,
     string? Notes = null) : IGarmentPartOperationFields;

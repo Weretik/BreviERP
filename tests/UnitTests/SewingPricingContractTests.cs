@@ -34,6 +34,8 @@ public sealed class SewingPricingContractTests
     [TestCase(typeof(SewingArticleSummary))]
     [TestCase(typeof(SewingArticleSummaryRow))]
     [TestCase(typeof(SewingArticlePublishedSummary))]
+    [TestCase(typeof(SewingCardMaterial))]
+    [TestCase(typeof(SewingCardOperation))]
     public void Serialized_properties_match_the_machine_contract(Type type)
     {
         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);

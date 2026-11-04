@@ -12,7 +12,6 @@ public sealed class UpdateProductOverviewCommandHandler(
     IProductSectionReader sectionReader,
     TimeProvider timeProvider) : ICommandHandler<UpdateProductOverviewCommand, Result>
 {
-    private static readonly TimeZoneInfo Kyiv = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
 
     public async ValueTask<Result> Handle(UpdateProductOverviewCommand command, CancellationToken cancellationToken)
     {
@@ -36,10 +35,9 @@ public sealed class UpdateProductOverviewCommandHandler(
         }
 
         var now = timeProvider.GetUtcNow();
-        var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, Kyiv).DateTime);
         product.SetCode(code, now);
         product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season, command.IsActive,
-            command.IsVerified, command.VerifiedOn, command.CurrentSiteUrl, command.QuoteDescription), today, now);
+            command.CurrentSiteUrl, command.QuoteDescription), now);
         await repository.UpdateAsync(product, cancellationToken);
         return Result.Success();
     }
