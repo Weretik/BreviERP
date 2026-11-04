@@ -386,7 +386,7 @@ components:
         version: { type: integer }
     CrmTaskLoad:
       type: object
-      required: [userId, name, open, overdue, urgent, inProgress]
+      required: [userId, name, open, overdue, urgent, inProgress, doneLastWeek, onTimePercent]
       properties:
         userId: { type: integer }
         name: { type: string }
@@ -394,6 +394,12 @@ components:
         overdue: { type: integer }
         urgent: { type: integer }
         inProgress: { type: integer }
+        doneLastWeek:
+          type: integer
+          description: Tasks of this manager done in the last 7 days.
+        onTimePercent:
+          type: [integer, "null"]
+          description: Share of this manager's tasks done in the last 30 days by their due time; null when none were done.
     CrmTaskOverview:
       type: object
       required: [open, overdue, urgent, new, inProgress, done, doneLastWeek, onTimePercent, load]
