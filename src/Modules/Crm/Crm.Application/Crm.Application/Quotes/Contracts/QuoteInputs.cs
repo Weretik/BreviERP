@@ -41,8 +41,10 @@ public sealed record QuoteItemLineInput(
 /// <param name="Id">The saved row, or null for a new one.</param>
 /// <param name="ArticleId">The fabric variant of a sewing model.</param>
 /// <param name="ManualReason">Required when a PPE price differs from the Catalog one.</param>
-/// <param name="FabricId">The fabric of a «Виріб з нуля» row.</param>
-/// <param name="FabricMeters">Metres of that fabric in one product.</param>
+/// <param name="Fabrics">
+/// The fabrics of a «Виріб з нуля» variant, summed in its price (R-26), or the one fabric of a model row in another
+/// fabric (R-27); null for a Catalog variant and a PPE.
+/// </param>
 public sealed record QuoteOptionInput(
     long? Id,
     long? ArticleId,
@@ -51,8 +53,11 @@ public sealed record QuoteOptionInput(
     QuotePriceInput Wholesale,
     QuotePriceInput Large,
     string? ManualReason,
-    int? FabricId = null,
-    decimal? FabricMeters = null);
+    IReadOnlyList<QuoteOptionFabricInput>? Fabrics = null);
+
+/// <param name="FabricId">Reference fabric.</param>
+/// <param name="Meters">Metres of that fabric in one product.</param>
+public sealed record QuoteOptionFabricInput(int FabricId, decimal Meters);
 
 /// <param name="Manual">A manual price (PPE, one-off PPE); null keeps the Catalog price.</param>
 public sealed record QuotePriceInput(bool Shown, decimal? Manual);

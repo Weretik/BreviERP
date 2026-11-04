@@ -31,6 +31,9 @@ public sealed class QuoteItemOptionConfiguration : IEntityTypeConfiguration<Quot
 
         b.HasIndex(x => new { x.ItemId, x.Position });
         b.HasIndex(x => x.ArticleId);
+
+        b.HasMany(x => x.Fabrics).WithOne().HasForeignKey(x => x.OptionId).OnDelete(DeleteBehavior.Cascade);
+        b.Navigation(x => x.Fabrics).HasField("_fabrics").UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 
     private static void Price(EntityTypeBuilder<QuoteItemOption> b,

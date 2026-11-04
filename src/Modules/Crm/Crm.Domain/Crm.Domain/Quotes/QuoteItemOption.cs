@@ -6,6 +6,8 @@ namespace Crm.Domain.Quotes;
 /// </summary>
 public sealed class QuoteItemOption
 {
+    private readonly List<QuoteItemOptionFabric> _fabrics = [];
+
     private QuoteItemOption() { }
 
     public QuoteItemOption(
@@ -53,20 +55,35 @@ public sealed class QuoteItemOption
     /// <summary>When the source prices were copied from the Catalog.</summary>
     public DateTimeOffset? PricesTakenAt { get; private set; }
 
-    /// <summary>Metres of <see cref="FabricId"/> in one «Виріб з нуля»; null for other items.</summary>
+    /// <summary>Metres of <see cref="FabricId"/> in one product; null for a Catalog variant and a PPE.</summary>
     public decimal? FabricMeters { get; private set; }
 
-    public QuoteItemOption WithFabricMeters(decimal? meters)
+    /// <summary>
+    /// The fabrics a «Виріб з нуля» variant is sewn from, summed in its price (R-26), or the one fabric of a model row in
+    /// another fabric (R-27); empty for a Catalog variant and a PPE. The first one is <see cref="FabricId"/>.
+    /// </summary>
+    public IReadOnlyList<QuoteItemOptionFabric> Fabrics => _fabrics;
+
+    public QuoteItemOption WithFabrics(IEnumerable<QuoteItemOptionFabric> fabrics)
     {
-        FabricMeters = meters;
+        _fabrics.Clear();
+        _fabrics.AddRange(fabrics);
+        if (_fabrics.Count > 0) FabricId = _fabrics[0].FabricId;
+        FabricMeters = _fabrics.Count > 0 ? _fabrics[0].Meters : null;
         return this;
     }
+
+    /// <summary>True when the row is sewn from exactly these fabrics and metres, in this order.</summary>
+    public bool HasFabrics(IReadOnlyList<(int FabricId, decimal Meters)> fabrics) =>
+        _fabrics.Count == fabrics.Count &&
+        _fabrics.OrderBy(x => x.Position).Select(x => (x.FabricId, x.Meters)).SequenceEqual(fabrics);
 
     /// <summary>The same row with its saved prices and manual price note, for a copy of the КП.</summary>
     public QuoteItemOption Copy()
     {
         var copy = new QuoteItemOption(Position, ArticleId, FabricId, Title, Details, IsRecommended, Retail, Wholesale,
             Large, PricesTakenAt) { FabricMeters = FabricMeters };
+        copy._fabrics.AddRange(_fabrics.OrderBy(x => x.Position).Select(x => x.Copy()));
         copy.ManualReason = ManualReason;
         copy.ManualByUserId = ManualByUserId;
         copy.ManualByName = ManualByName;

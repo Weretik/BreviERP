@@ -60,9 +60,9 @@ public sealed class QuotePdfTests
             Is.EqualTo("Анастасія, , a@brevi.test, https://brevi.com.ua/, 1-11-2026"));
 
     [Test]
-    public void PriceIsWrittenInHryvnias() =>
+    public void PriceIsWrittenWithoutACurrencySign() =>
         Assert.That(QuotePdfParts.Money(1364.17m).Replace(' ', ' ').Replace(' ', ' '),
-            Is.EqualTo("1 364,17 ₴"));
+            Is.EqualTo("1 364,17"));
 
     [Test]
     public async Task RendersAPdfWithoutPhotos()

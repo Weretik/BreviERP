@@ -29,8 +29,7 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         var kept = previous is not null ? Keep(position, input, previous, requested, texts) : null;
         if (kept is not null) return Result.Success(kept);
 
-        var composition = new QuoteSewingComposition(
-            input.Options.Select(x => new QuoteSewingFabric(x.FabricId!.Value, x.FabricMeters!.Value)).ToArray(),
+        var composition = new QuoteSewingComposition(input.Options.Select(x => x.Fabrics!.ToVariant()).ToArray(),
             requested);
         var calculation = await calculator.CalculateAsync(composition, cancellationToken);
 
@@ -48,21 +47,31 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         var options = new List<QuoteItemOption>(input.Options.Count);
         for (var index = 0; index < input.Options.Count; index++)
         {
-            var optionInput = input.Options[index];
-            var fabric = calculation.Fabrics[index];
-            if (fabric.Name is null) return Result.Conflict($"«{name}»: тканину не знайдено в довіднику.");
-            if (fabric.Prices is not { } prices)
-                return Result.Conflict($"«{name}», «{fabric.Name}»: не вдалося порахувати ціну ({string.Join("; ", fabric.Problems)}).");
-            options.Add(new QuoteItemOption(index, null, fabric.FabricId, fabric.Name, fabric.Details,
-                    optionInput.IsRecommended,
-                    new QuotePrice(prices.Retail, null, optionInput.Retail.Shown),
-                    new QuotePrice(prices.Wholesale, null, optionInput.Wholesale.Shown),
-                    new QuotePrice(prices.Large, null, optionInput.Large.Shown), now)
-                .WithFabricMeters(fabric.Meters));
+            var priced = Priced(index, input.Options[index], calculation.Variants[index], name, now);
+            if (!priced.IsSuccess) return priced.Map(_ => default(QuoteItem)!);
+            options.Add(priced.Value);
         }
 
         return Result.Success(new QuoteItem(position, QuoteItemKind.CustomSewing, input.ProductId, texts, options, lines));
     }
+
+    /// <summary>A variant priced by the formula: its fabrics summed with the shared lines (R-26).</summary>
+    public static Result<QuoteItemOption> Priced(int position, QuoteOptionInput input, QuoteSewingVariantPrice variant,
+        string itemName, DateTimeOffset now)
+    {
+        if (variant.Title is not { } title) return Result.Conflict($"«{itemName}»: тканину не знайдено в довіднику.");
+        if (variant.Prices is not { } prices)
+            return Result.Conflict($"«{itemName}», «{title}»: не вдалося порахувати ціну ({string.Join("; ", variant.Problems)}).");
+        return Result.Success(new QuoteItemOption(position, null, variant.Fabrics[0].FabricId, Shorten(title),
+                variant.Details, input.IsRecommended,
+                new QuotePrice(prices.Retail, null, input.Retail.Shown),
+                new QuotePrice(prices.Wholesale, null, input.Wholesale.Shown),
+                new QuotePrice(prices.Large, null, input.Large.Shown), now)
+            .WithFabrics(variant.Fabrics.Select((x, i) => new QuoteItemOptionFabric(i, x.FabricId, x.Name!, x.Meters))));
+    }
+
+    private static string Shorten(string title) =>
+        title.Length <= QuoteLimits.NameMaxLength ? title : title[..(QuoteLimits.NameMaxLength - 1)] + "…";
 
     private static string Missing(QuoteItemLineKind kind) => kind switch
     {
@@ -93,13 +102,13 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         {
             var optionInput = input.Options[index];
             var saved = previous.Options.FirstOrDefault(x => x.Id == optionInput.Id);
-            if (saved is null || saved.FabricId != optionInput.FabricId || saved.FabricMeters != optionInput.FabricMeters)
+            if (saved is null || !saved.HasFabrics(optionInput.Fabrics!.Select(x => (x.FabricId, x.Meters)).ToArray()))
                 return null;
             options.Add(new QuoteItemOption(index, null, saved.FabricId, saved.Title, saved.Details,
                     optionInput.IsRecommended, saved.Retail with { Shown = optionInput.Retail.Shown },
                     saved.Wholesale with { Shown = optionInput.Wholesale.Shown },
                     saved.Large with { Shown = optionInput.Large.Shown }, saved.PricesTakenAt)
-                .WithFabricMeters(saved.FabricMeters));
+                .WithFabrics(saved.Fabrics.OrderBy(x => x.Position).Select(x => x.Copy())));
         }
 
         var lines = savedLines.Select((x, index) =>

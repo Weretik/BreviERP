@@ -52,10 +52,19 @@ public sealed class QuoteItemInputValidator : AbstractValidator<QuoteItemInput>
         });
         When(x => x.Kind == nameof(QuoteItemKind.Sewing), () =>
         {
-            RuleForEach(x => x.Options).Must(x => x.ArticleId is > 0 && NoManual(x))
-                .WithMessage("Ціну швейної моделі не можна змінити вручну; оберіть варіант тканини.");
-            RuleFor(x => x.Options).Must(x => x.Select(o => o.ArticleId).Distinct().Count() == x.Count)
-                .When(x => x.Options is not null).WithMessage("Варіант тканини доданий двічі.");
+            RuleForEach(x => x.Options).Must(NoManual)
+                .WithMessage("Ціну швейної моделі не можна змінити вручну.")
+                .Must(IsModelRow)
+                .WithMessage("Оберіть варіант тканини з каталогу або іншу тканину з метражем.");
+            RuleForEach(x => x.Options).ChildRules(option =>
+                option.RuleFor(x => x.Fabrics).SetValidator(new QuoteOptionFabricsValidator())
+                    .When(x => x.Fabrics is { Count: > 0 }));
+            RuleFor(x => x.Options)
+                .Must(x => x.Where(o => o?.ArticleId is not null).GroupBy(o => o.ArticleId).All(g => g.Count() == 1))
+                .When(x => x.Options is not null).WithMessage("Варіант тканини доданий двічі.")
+                .Must(x => x.Where(o => o?.Fabrics is { Count: > 0 }).GroupBy(o => o.Fabrics![0].FabricId)
+                    .All(g => g.Count() == 1))
+                .When(x => x.Options is not null).WithMessage("Тканина додана двічі.");
         });
         When(x => x.Kind == nameof(QuoteItemKind.CustomSewing), () =>
         {
@@ -68,12 +77,13 @@ public sealed class QuoteItemInputValidator : AbstractValidator<QuoteItemInput>
                 .Must(x => x!.Any(line => line?.Kind == nameof(QuoteItemLineKind.Operation)))
                 .WithMessage("Додайте до виробу з нуля хоча б одну операцію.");
             RuleForEach(x => x.Lines).NotNull().SetValidator(new QuoteItemLineInputValidator());
-            RuleForEach(x => x.Options)
-                .Must(x => x.ArticleId is null && x.FabricId is > 0 && QuoteCompositionRules.IsQuantity(x.FabricMeters))
-                .WithMessage("Оберіть тканину і вкажіть її метраж.")
+            RuleForEach(x => x.Options).Must(x => x.ArticleId is null)
                 .Must(NoManual).WithMessage("Ціну виробу з нуля рахує система; змініть склад, щоб змінити ціну.");
-            RuleFor(x => x.Options).Must(x => x.Select(o => o.FabricId).Distinct().Count() == x.Count)
-                .When(x => x.Options is not null).WithMessage("Тканина додана двічі.");
+            RuleForEach(x => x.Options).ChildRules(option =>
+                option.RuleFor(x => x.Fabrics).SetValidator(new QuoteOptionFabricsValidator()));
+            RuleFor(x => x.Options)
+                .Must(x => x.Select(o => QuoteOptionFabricsValidator.Key(o?.Fabrics)).Distinct().Count() == x.Count)
+                .When(x => x.Options is not null).WithMessage("Такий варіант тканин уже є.");
         });
         RuleFor(x => x.Lines).Must(x => x is null || x.Count == 0)
             .When(x => x.Kind != nameof(QuoteItemKind.CustomSewing))
@@ -85,6 +95,17 @@ public sealed class QuoteItemInputValidator : AbstractValidator<QuoteItemInput>
             RuleForEach(x => x.Options).Must(x => x.ArticleId is null);
         });
     }
+
+    /// <summary>
+    /// A Catalog variant, a model row in another fabric (R-27) or a saved row whose variant is gone from the Catalog
+    /// (a transferred КП, R-25), which keeps its prices.
+    /// </summary>
+    private static bool IsModelRow(QuoteOptionInput input) => input.ArticleId switch
+    {
+        > 0 => input.Fabrics is null or { Count: 0 },
+        null => input.Fabrics is { Count: 1 } || (input.Id is > 0 && input.Fabrics is null or { Count: 0 }),
+        _ => false,
+    };
 
     private static bool NoManual(QuoteOptionInput input) =>
         input.Retail?.Manual is null && input.Wholesale?.Manual is null && input.Large?.Manual is null;

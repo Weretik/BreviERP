@@ -15,7 +15,7 @@ public sealed class CopyQuoteCommandHandler(
     {
         // Not tracked: a retry of the number clears the change tracker.
         var source = await store.Quotes.AsNoTracking()
-            .Include(x => x.Items).ThenInclude(x => x.Options)
+            .Include(x => x.Items).ThenInclude(x => x.Options).ThenInclude(x => x.Fabrics)
             .Include(x => x.Items).ThenInclude(x => x.Lines)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
