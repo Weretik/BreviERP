@@ -1,4 +1,5 @@
 using FluentValidation;
+using Identity.Application.Features.Profile.Shared;
 using Identity.Application.Features.Users.Shared;
 
 namespace Identity.Application.Features.Users.CreateStaff;
