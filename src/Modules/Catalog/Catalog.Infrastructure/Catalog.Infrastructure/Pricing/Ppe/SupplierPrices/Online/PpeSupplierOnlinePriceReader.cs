@@ -3,14 +3,17 @@ using System.Collections.Concurrent;
 using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
+using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets;
 
 namespace Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online;
 
 /// <summary>
-/// Reads АВ-Центр and Перчатка-центр prices from each product's page and 3C-Маркет prices from its six published
-/// lists. Pages load a few at a time and each link once, even when sizes of a product share it.
+/// Reads АВ-Центр and Перчатка-центр prices from each product's page, 3C-Маркет prices from its six published
+/// lists, and Insight and Трєле dealer prices from their cabinets. Pages load a few at a time and each link once,
+/// even when sizes of a product share it.
 /// </summary>
-internal sealed class PpeSupplierOnlinePriceReader(SupplierPageClient pages) : IPpeSupplierOnlinePriceReader
+internal sealed class PpeSupplierOnlinePriceReader(SupplierPageClient pages, SupplierCabinetPriceReader cabinets)
+    : IPpeSupplierOnlinePriceReader
 {
     private const int ParallelPages = 4;
 
@@ -24,24 +27,27 @@ internal sealed class PpeSupplierOnlinePriceReader(SupplierPageClient pages) : I
             "Mozilla/5.0", PerchatkaCentrPagePrice.Find),
     };
 
+    private static readonly IReadOnlyDictionary<string, ISupplierCabinet> Cabinets = new Dictionary<string, ISupplierCabinet>
+    {
+        [PpePriceSources.Insight] = new InsightCabinet(),
+        [PpePriceSources.Trele] = new TreleCabinet(),
+    };
+
     public async Task<Result<IReadOnlyList<SupplierFilePrice>>> ReadAsync(
         PpePriceSource source, IReadOnlyList<PpePriceImportProduct> products, CancellationToken cancellationToken)
     {
         if (source.Key == PpePriceSources.ThreeCMarket) return await ReadThreeCAsync(cancellationToken);
         if (Websites.TryGetValue(source.Key, out var website))
             return Result.Success(await ReadPagesAsync(website, products, cancellationToken));
-        return Result.Invalid(new ValidationError("key", $"{source.Title} не оновлюється з сайту чи Google-таблиць."));
+        if (Cabinets.TryGetValue(source.Key, out var cabinet))
+            return await cabinets.ReadAsync(cabinet, products, cancellationToken);
+        return Result.Invalid(new ValidationError("key", $"{source.Title} не оновлюється з сайту, таблиць чи кабінету."));
     }
 
     private async Task<IReadOnlyList<SupplierFilePrice>> ReadPagesAsync(
         Website website, IReadOnlyList<PpePriceImportProduct> products, CancellationToken cancellationToken)
     {
-        var links = products
-            .Select(product => product.SupplierUrl?.Trim())
-            .Where(url => !string.IsNullOrEmpty(url))
-            .Select(url => url!)
-            .DistinctBy(url => SupplierKeys.Url(url))
-            .ToList();
+        var links = SupplierLinks.Distinct(products);
 
         var prices = new ConcurrentBag<SupplierFilePrice>();
         await Parallel.ForEachAsync(links,
@@ -54,7 +60,7 @@ internal sealed class PpeSupplierOnlinePriceReader(SupplierPageClient pages) : I
     {
         SupplierFilePrice Problem(string message) => new(null, url, null, 0m, null, null, message);
 
-        if (!IsOnSite(url, website.Host))
+        if (!SupplierLinks.IsOnSite(url, website.Host))
             return Problem($"Посилання постачальника веде не на сайт {website.Name} ({website.Host}).");
         var page = await pages.GetAsync(url, website.UserAgent, cancellationToken);
         if (page.Text is null) return Problem(page.Problem!);
@@ -76,11 +82,4 @@ internal sealed class PpeSupplierOnlinePriceReader(SupplierPageClient pages) : I
         return Result.Success(ThreeCMarketPriceLists.Merge(
             lists.Select(list => (list.Title, ThreeCMarketPriceLists.Parse(list.Page.Text!)))));
     }
-
-    /// <summary>A web link on the supplier's site or its www. subdomain, like the script's avcentr.com.ua check.</summary>
-    private static bool IsOnSite(string url, string host)
-        => Uri.TryCreate(url, UriKind.Absolute, out var uri)
-           && uri.Scheme is "https" or "http"
-           && (uri.Host.Equals(host, StringComparison.OrdinalIgnoreCase)
-               || uri.Host.Equals("www." + host, StringComparison.OrdinalIgnoreCase));
 }

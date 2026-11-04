@@ -51,6 +51,11 @@ public static class CatalogDbContextExtensions
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices.IPpePriceSourceStore, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Store.PpePriceSourceStore>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices.IPpeSupplierFileReader, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Files.PpeSupplierFileReader>();
         services.AddHttpClient<Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.SupplierPageClient>(client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.Configure<Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets.SupplierCabinetOptions>(
+            configuration.GetSection(Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets.SupplierCabinetOptions.Section));
+        services.AddHttpClient<Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets.SupplierCabinetClient>(client => client.Timeout = TimeSpan.FromSeconds(30))
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
+        services.AddScoped<Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets.SupplierCabinetPriceReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices.IPpeSupplierOnlinePriceReader, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.PpeSupplierOnlinePriceReader>();
         services.AddScoped<Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Running.PpePriceImportRunner>();
         services.AddScoped<Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh.PpeScheduledPriceRefresh>();

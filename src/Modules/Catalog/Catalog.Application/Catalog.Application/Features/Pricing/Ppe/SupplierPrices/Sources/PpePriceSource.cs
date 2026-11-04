@@ -51,7 +51,7 @@ public sealed record PpePriceSource(
     PpePriceUpdateCadence Cadence,
     /// <summary>
     /// The automatic update of a website, Google Sheets or cabinet source works: the daily job runs it on its
-    /// <see cref="Cadence"/> and «Оновити зараз» is offered. Cabinet sources arrive in a later stage.
+    /// <see cref="Cadence"/> and «Оновити зараз» is offered.
     /// </summary>
     bool AutomaticUpdateConnected)
 {

@@ -1,6 +1,6 @@
 # CAT-017 — PPE supplier price import («Імпорт цін»)
 
-**Status:** stages 1–2 implemented 2026-11-04 (sources, discounts, Insight XML and СЕМТО PDF files; weekly АВ-Центр, 3C-Маркет, Перчатка-центр and «Оновити зараз»). Stage 3 planned. **Date:** 2026-11-04. **Module:** Catalog.
+**Status:** stages 1–3 implemented 2026-11-04 (sources, discounts, Insight XML and СЕМТО PDF files; weekly АВ-Центр, 3C-Маркет, Перчатка-центр and «Оновити зараз»; daily Insight and Трєле cabinets). **Date:** 2026-11-04. **Module:** Catalog.
 
 The client's Apps Scripts updated PPE supplier prices in the sheet «ЗІЗ»: АВ-Центр, 3C-Маркет and Перчатка-центр weekly from their sites or Google CSV with a discount; Insight and Трєле daily from the dealer cabinet; Insight and СЕМТО also from files the manager uploads. This feature moves that work into Brevi as the tab «Довідники» → «Імпорт цін».
 
@@ -25,13 +25,14 @@ The client's Apps Scripts updated PPE supplier prices in the sheet «ЗІЗ»: �
 - **R-09 (stage 2):** АВ-Центр and Перчатка-центр: each active, non-manual product's supplier link is opened once (sizes sharing a link are read once, 4 pages at a time, 30 s each) with the script's user agent, and the price is found with the script's patterns in its order (`extractAvCenterPrice_`, `perchatkaCentrWebsitePrice_`). A link off the supplier's site (`avcentr.com.ua`, `perchatka-centr.com.ua`, with or without `www.`), an HTTP error or a page without a price is a problem of that product only.
 - **R-10 (stage 2):** 3C-Маркет: the six published CSV lists of the script are read; the article is the third column when it is all digits (leading zeros dropped, on both sides), the price is the last number in the row after it. The lists are joined by article instead of by the product's price group; an article with different prices in two lists is a problem. If any list does not load, nothing changes and the reason is returned (or recorded for the schedule).
 - **R-11 (stage 2):** The daily `brevierp-sync` job (07:00 Kyiv) runs step `ppe-supplier-prices`: on Kyiv Monday every connected website or sheet source is read and its changed prices are saved, run trigger «Розклад», actor `nightly-sync`. The script ran every two weeks on Monday at 08:00; Brevi runs weekly, which only refreshes prices more often. A source that cannot be read records a run with the reason as its problem and the step fails after the other sources ran. Other days the step does nothing.
+- **R-13 (stage 3):** Insight and Трєле are read daily (and on «Оновити зараз») through the dealer cabinet like the script's last `loginToAuthenticatedSupplier_` and `loginToTrele_`: cookies are kept by hand, no automatic redirects during sign-in. Insight: open `/authorization/`, post the login as JSON and as a form with `userEmail/userPassword` and `email/password`, accept the session only when `/profile/` shows «Вийти»/«Кабінет». Трєле: open `/login/`, post `login`, `password`, `remember=1`, follow one redirect; the session is the returned cookies (the script did not verify it either). One sign-in per run, then each product link once, 2 pages at a time; the dealer price is Insight `data-offer-mod-price0` (or the price0 block value) and Трєле `add2cart__price-default` `data-price`. The cabinet gives only the dealer price: wholesale and retail stay as they are; the 20% checks of R-05 apply only to the XML files. Missing credentials, a refused sign-in or a cabinet that does not answer fail the whole read, so nothing changes. Credentials: `SupplierCabinets:{Insight,Trele}:{Login,Password}` from Secret Manager, never logged.
 - **R-12 (stage 2):** «Оновити зараз» (`refreshPpeSupplierPrices`, trigger «Оновити зараз») does the same for one source: `dryRun=true` previews, `dryRun=false` reads again and saves. File sources and sources not yet connected answer 400.
 
 ## Stages
 
 1. Tab, discounts, Insight XML and СЕМТО PDF upload.
 2. Done: weekly АВ-Центр (site), 3C-Маркет (6 published Google CSV), Перчатка-центр (site) in the nightly `brevierp-sync` job on Mondays, plus «Оновити зараз».
-3. Daily Insight and Трєле through the dealer cabinet with GCP secrets.
+3. Done: daily Insight and Трєле through the dealer cabinet with GCP secrets (R-13).
 
 ## API
 
@@ -49,8 +50,9 @@ Migration `AddPpePriceImport`: `catalog.PpePriceSources` (Key PK, SupplierId, Di
 - `tests/IntegrationTests/Pricing/Ppe/PpeSupplierFileImportTests.cs`: preview then apply in PostgreSQL.
 - `tests/IntegrationTests/Pricing/Ppe/PpePriceSourceStoreTests.cs`, `PpeSupplierPricesApiTests.cs`: storage and HTTP access, including «Оновити зараз».
 - `tests/IntegrationTests/Pricing/Ppe/PpeSupplierOnlinePriceReaderTests.cs`: АВ-Центр and Перчатка-центр page patterns, 3C CSV, one request per link, a failed 3C list (fake web, no network).
-- `tests/IntegrationTests/Pricing/Ppe/PpeScheduledPriceRefreshTests.cs`: the Monday step in PostgreSQL, other days, job DI.
+- `tests/IntegrationTests/Pricing/Ppe/PpeScheduledPriceRefreshTests.cs`: the Monday step in PostgreSQL, daily cabinets on other days, job DI.
+- `PpeSupplierOnlinePriceReaderTests.cs` (stage 3): cabinet price patterns, Insight sign-in once with the session cookie, missing and refused logins.
 
 Checked against the client's sample files (2026-11-04): 3 Insight lists, 5049 offers each, all 26 Insight products matched by link with prices equal to the sheet; СЕМТО September 2026 PDF, 17 articles including all 10 products.
 
-Stage 2 could not be checked against the live supplier sites and Google lists from the development container (network blocked); check each source with «Оновити зараз» → preview in production before applying.
+Stages 2–3 could not be checked against the live supplier sites, cabinets and Google lists from the development container (network blocked); check each source with «Оновити зараз» → preview in production before applying.

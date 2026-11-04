@@ -10,7 +10,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | `keepin-clients` | KeepinCRM → Brevi client refresh | the same key | [below](#keepin-clients) |
 | `sewing-prices` | Publishes Sewing prices whose inputs changed | none | [below](#sewing-prices) |
 | `media-thumbnails` | Makes size and previews for library photos without them | `storage-login`, `storage-password` → `AdmToolsStorage__Login`, `AdmToolsStorage__Password` | [below](#media-thumbnails) |
-| `ppe-supplier-prices` | Mondays: АВ-Центр, 3C-Маркет, Перчатка-центр supplier prices | none | [below](#ppe-supplier-prices) |
+| `ppe-supplier-prices` | Daily: Insight and Трєле cabinet prices; Mondays also АВ-Центр, 3C-Маркет, Перчатка-центр | `insight-login`, `insight-password`, `trele-login`, `trele-password` → `SupplierCabinets__…` (optional) | [below](#ppe-supplier-prices) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
 
@@ -70,10 +70,17 @@ Step log: `Processed N photos (N small or unreadable, no preview), failed N, lef
 
 ## ppe-supplier-prices
 
-Feature: [PPE supplier price import](../../features/catalog/ppe-supplier-prices.md), specification [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md) stage 2. No secret, no settings; the discounts are those saved in «Імпорт цін».
+Feature: [PPE supplier price import](../../features/catalog/ppe-supplier-prices.md), specification [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md) stages 2–3. The discounts are those saved in «Імпорт цін».
 
-Only on Kyiv Monday (other days it logs `No supplier price source is due today`): reads АВ-Центр and Перчатка-центр product pages and the six 3C-Маркет Google lists, and saves each changed supplier price on the card and as a new approved offer version (source «Імпорт цін: …», run trigger «Розклад», actor `nightly-sync`). Products with «Дозволити ручну ціну» or not active keep their price. A source that cannot be read (supplier not found, a 3C list not loading) changes nothing, records its reason in «Імпорт цін», and the step fails after the other sources ran. Repeating the step is safe: unchanged prices are not saved again.
+Every day it signs in to the Insight and Трєле dealer cabinets and reads the dealer price of each product link; on Kyiv Monday it also reads АВ-Центр and Перчатка-центр product pages and the six 3C-Маркет Google lists. It saves each changed supplier price on the card and as a new approved offer version (source «Імпорт цін: …», run trigger «Розклад», actor `nightly-sync`). Products with «Дозволити ручну ціну» or not active keep their price. A source that cannot be read (supplier not found, a 3C list not loading, cabinet login missing or refused) changes nothing, records its reason in «Імпорт цін», and the step fails after the other sources ran. Repeating the step is safe: unchanged prices are not saved again.
 
 Step log: one line per source `<source>: checked N, changed N, unchanged N, skipped N, problems N`, or a warning `<source>: nothing changed: <reason>`.
+
+| Setting | Where | Secret |
+| --- | --- | --- |
+| `SupplierCabinets:Insight:Login`, `…:Password` | API and `brevierp-sync`, Secret Manager `insight-login`, `insight-password` | Yes |
+| `SupplierCabinets:Trele:Login`, `…:Password` | API and `brevierp-sync`, Secret Manager `trele-login`, `trele-password` | Yes |
+
+They are the dealer accounts the client's script kept in Script Properties (`INSIGHT_LOGIN`, `INSIGHT_PASSWORD`, `TRELE_LOGIN`, `TRELE_PASSWORD`). Create the four secrets in Secret Manager and give the Cloud Run runtime service account (the one that reads `keepincrm-api-key`) the «Secret Manager Secret Accessor» role on them; the next deploy attaches them. Without all four the deploy still succeeds and the cabinets stay off. Locally: `dotnet user-secrets set "SupplierCabinets:Insight:Login" "<login>" --project src/Bootstrapper/Host.Api/Host.Api.csproj` (and the other three).
 
 On demand: «Імпорт цін» → source → «Оновити зараз» calls `POST /api/v1/pricing/ppe/supplier-prices/{key}/refresh` (preview, then `?dryRun=false`).

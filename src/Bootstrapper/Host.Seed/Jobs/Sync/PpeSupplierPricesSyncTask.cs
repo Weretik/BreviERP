@@ -5,9 +5,10 @@ using Microsoft.Extensions.Logging;
 namespace Host.Seed.Jobs.Sync;
 
 /// <summary>
-/// Scheduled PPE supplier prices of «Імпорт цін» (CAT-017 stage 2): on Kyiv Monday reads АВ-Центр and Перчатка-центр
-/// pages and the 3C-Маркет lists and saves the changed prices. On other days it does nothing. A source that cannot
-/// be read is logged and recorded with its reason; the step then fails so the job shows it.
+/// Scheduled PPE supplier prices of «Імпорт цін» (CAT-017 stages 2–3): every day the Insight and Трєле dealer
+/// cabinets, and on Kyiv Monday also АВ-Центр and Перчатка-центр pages and the 3C-Маркет lists; the changed prices
+/// are saved. A source that cannot be read is logged and recorded with its reason; the step then fails so the job
+/// shows it.
 /// </summary>
 internal sealed class PpeSupplierPricesSyncTask : ISyncTask
 {

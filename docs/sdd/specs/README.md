@@ -20,7 +20,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [014 No review or check marks](catalog/014-remove-review-marks/README.md) | backend implemented 2026-11-03 |
 | Catalog  | [015 Fabric variants](catalog/015-fabric-variants/README.md) | backend implemented 2026-11-03 |
 | Catalog  | [016 Sewing card in one request](catalog/016-sewing-card-one-request/README.md) | backend implemented 2026-11-04 |
-| Catalog  | [017 PPE supplier price import («Імпорт цін»)](catalog/017-ppe-supplier-price-import/README.md) | stages 1–2 backend implemented 2026-11-04 |
+| Catalog  | [017 PPE supplier price import («Імпорт цін»)](catalog/017-ppe-supplier-price-import/README.md) | stages 1–3 backend implemented 2026-11-04 |
 | Content  | [001 «Контент сайту» site content](content/001-site-content/README.md) | planned only (draft) |
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |
 | Catalog  | [Media files](catalog/media-files/README.md)                                                             | history; moved to Media MED-001                                                                                    |

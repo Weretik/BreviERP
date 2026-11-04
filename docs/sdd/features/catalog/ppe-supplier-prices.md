@@ -1,6 +1,6 @@
 # Catalog: PPE supplier price import («Імпорт цін»)
 
-The tab «Довідники» → «Імпорт цін» lists PPE supplier price sources with their logic, schedule and discount, and updates supplier prices from the suppliers' files: preview first, then apply. Spec: [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md). Stage 1: Insight XML and СЕМТО PDF uploads. Stage 2: АВ-Центр and Перчатка-центр pages and 3C-Маркет's Google lists, every Monday in the daily sync job and on «Оновити зараз». Stage 3 (Insight/Трєле cabinets) is planned.
+The tab «Довідники» → «Імпорт цін» lists PPE supplier price sources with their logic, schedule and discount, and updates supplier prices from the suppliers' files: preview first, then apply. Spec: [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md). Stage 1: Insight XML and СЕМТО PDF uploads. Stage 2: АВ-Центр and Перчатка-центр pages and 3C-Маркет's Google lists, every Monday in the daily sync job and on «Оновити зараз». Stage 3: Insight and Трєле dealer cabinets every day (logins from Secret Manager).
 
 ## Flow
 
@@ -13,7 +13,7 @@ flowchart LR
   API --> Refresh[RefreshPpeSupplierPrices: dryRun]
   Job[brevierp-sync: ppe-supplier-prices, Monday] --> Scheduled[PpeScheduledPriceRefresh]
   Import --> Reader[PpeSupplierFileReader: Insight YML / СЕМТО PDF]
-  Refresh --> Online[PpeSupplierOnlinePriceReader: pages / 3C CSV]
+  Refresh --> Online[PpeSupplierOnlinePriceReader: pages / 3C CSV / cabinets]
   Scheduled --> Online
   Import --> Runner[PpePriceImportRunner]
   Refresh --> Runner
@@ -41,6 +41,7 @@ Catalog.Infrastructure/Pricing/Ppe/SupplierPrices/
   Records/ Configuration/ Store/          # two catalog tables
   Files/                                  # Insight XmlReader, СЕМТО PdfPig, gzip unpack
   Online/                                 # АВ-Центр / Перчатка-центр page patterns, 3C CSV lists, HTTP client
+    Cabinets/                             # Insight and Трєле sign-in, session pages, dealer price, options
 Catalog.Api/Controllers/Pricing/Ppe/PpeSupplierPricesController.cs
 Host.Seed/Jobs/Sync/PpeSupplierPricesSyncTask.cs  # daily job step ppe-supplier-prices
 ```

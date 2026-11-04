@@ -25,6 +25,6 @@ public sealed class ImportPpeSupplierFilesCommandHandler(IPpeSupplierFileReader 
         var filePrices = await fileReader.ReadAsync(source.FileKind, command.Files, cancellationToken);
         if (!filePrices.IsSuccess) return Result.Invalid(filePrices.ValidationErrors.ToList());
         return await runner.RunAsync(source, (_, _) => Task.FromResult(filePrices),
-            new PpePriceImportRequest(command.DryRun, Trigger, command.Actor, command.ActorName), cancellationToken);
+            new PpePriceImportRequest(command.DryRun, Trigger, command.Actor, command.ActorName, FromFiles: true), cancellationToken);
     }
 }

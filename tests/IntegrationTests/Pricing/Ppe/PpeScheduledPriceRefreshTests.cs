@@ -23,7 +23,7 @@ namespace IntegrationTests.Pricing.Ppe;
 
 /// <summary>
 /// The Monday step of the daily job in PostgreSQL: a connected source saves its changed prices as «Розклад», a source
-/// that cannot be read records its reason, and other days do nothing (CAT-017 stage 2).
+/// that cannot be read records its reason, and other days run only the daily cabinets (CAT-017 stages 2–3).
 /// </summary>
 [NonParallelizable]
 public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
@@ -49,7 +49,7 @@ public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
         var runs = (await new PpePriceSourceStore(db).ReadLastRunsAsync(CancellationToken.None)).ToDictionary(x => x.SourceKey);
         Assert.Multiple(() =>
         {
-            Assert.That(outcomes.Select(x => x.SourceKey), Is.EquivalentTo(new[] { "av-center", "3c-market", "perchatka-centr" }));
+            Assert.That(outcomes.Select(x => x.SourceKey), Is.EquivalentTo(new[] { "av-center", "3c-market", "perchatka-centr", "insight", "trele" }));
             Assert.That(product.CatalogProfile!.SupplierPrice, Is.EqualTo(190m));
             Assert.That(offer.Source, Is.EqualTo("Імпорт цін: 3C-Маркет"));
             Assert.That((runs["3c-market"].Trigger, runs["3c-market"].Changed, runs["3c-market"].Actor),
@@ -60,15 +60,10 @@ public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
     }
 
     [Test]
-    public async Task Other_days_run_nothing()
+    public void Other_days_run_only_the_daily_cabinets()
     {
-        await using var db = Catalog();
-        var refresh = Refresh(db, Wednesday);
-        Assert.Multiple(async () =>
-        {
-            Assert.That(refresh.DueToday(), Is.Empty);
-            Assert.That(await refresh.RunDueAsync("nightly-sync", CancellationToken.None), Is.Empty);
-        });
+        using var db = Catalog();
+        Assert.That(Refresh(db, Wednesday).DueToday().Select(x => x.Key), Is.EqualTo(new[] { "insight", "trele" }));
     }
 
     [Test]
