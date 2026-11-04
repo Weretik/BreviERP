@@ -24,7 +24,7 @@ public sealed class CalculateSewingCompositionQueryHandler(
             var key = Key(line);
             byKey.TryGetValue(key, out var value);
             return new SewingPricingMaterialRow(index + 1, key, line.Quantity, value?.Unit ?? "",
-                line.Kind == SewingCompositionMaterialKind.Fabric, false);
+                line.Kind == SewingCompositionMaterialKind.Fabric, line.Kind == SewingCompositionMaterialKind.OtherCost);
         }).ToArray();
         var operations = query.Operations.Select((line, index) =>
             new SewingPricingOperationRow(index + 1, line.OperationId, line.Quantity, line.ManualMinutes)).ToArray();
@@ -34,6 +34,10 @@ public sealed class CalculateSewingCompositionQueryHandler(
         return Result.Success(new SewingCompositionPrice(at, calculation, context.Values));
     }
 
-    private static string Key(SewingCompositionMaterial line) =>
-        (line.Kind == SewingCompositionMaterialKind.Fabric ? "Fabric:" : "Accessory:") + line.ReferenceId;
+    private static string Key(SewingCompositionMaterial line) => line.Kind switch
+    {
+        SewingCompositionMaterialKind.Fabric => $"Fabric:{line.ReferenceId}",
+        SewingCompositionMaterialKind.OtherCost => $"OtherCost:{line.CostCode!.Trim()}",
+        _ => $"Accessory:{line.ReferenceId}"
+    };
 }

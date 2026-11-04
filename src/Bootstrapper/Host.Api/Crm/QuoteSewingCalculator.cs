@@ -30,11 +30,10 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
         var operations = (await sender.Send(new GetGarmentPartOperationsQuery(), cancellationToken)).Value?
             .ToDictionary(x => x.Id) ?? new Dictionary<int, GarmentPartOperationRowDTO>();
 
-        var lines = composition.Lines.Select(line => Info(line, accessories, operations)).ToArray();
-        var accessoryLines = composition.Lines.Where(x => x.Kind == QuoteItemLineKind.Accessory).ToArray();
+        var lines = composition.Lines.Select(line => Info(line, fabrics, accessories, operations)).ToArray();
+        var materialLines = composition.Lines.Where(x => x.Kind != QuoteItemLineKind.Operation).ToArray();
         var operationLines = composition.Lines.Where(x => x.Kind == QuoteItemLineKind.Operation).ToArray();
-        var materials = accessoryLines.Select(x =>
-            new SewingCompositionMaterial(SewingCompositionMaterialKind.Accessory, x.ReferenceId, x.Quantity)).ToArray();
+        var materials = materialLines.Select(Material).ToArray();
         var steps = operationLines.Select(x => new SewingCompositionOperation(x.ReferenceId, x.Quantity, x.ManualMinutes))
             .ToArray();
         var at = clock.GetUtcNow();
@@ -48,19 +47,45 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
                 steps, at);
             var result = await sender.Send(query, cancellationToken);
             prices.Add(result.IsSuccess
-                ? Price(fabric, row, result.Value.Calculation, accessoryLines, operationLines, accessories, operations)
+                ? Price(fabric, row, result.Value.Calculation, materialLines, operationLines, fabrics, accessories, operations)
                 : new QuoteSewingFabricPrice(fabric.FabricId, fabric.Meters, row?.Name, QuoteCatalogReader.Details(row),
                     row?.Price, null, null, null, null, [string.Join("; ", result.ValidationErrors.Select(x => x.ErrorMessage)
                         .DefaultIfEmpty("Склад не пройшов перевірку."))]));
+            if (result.IsSuccess) lines = WithServicePrices(lines, result.Value.References);
         }
 
         return new QuoteSewingCalculation(lines, prices);
     }
 
-    private static QuoteSewingLineInfo Info(QuoteSewingLine line,
+    private static SewingCompositionMaterial Material(QuoteSewingLine line) => line.Kind switch
+    {
+        QuoteItemLineKind.Service =>
+            new SewingCompositionMaterial(SewingCompositionMaterialKind.OtherCost, 0, line.Quantity, line.CostCode),
+        QuoteItemLineKind.Fabric =>
+            new SewingCompositionMaterial(SewingCompositionMaterialKind.Fabric, line.ReferenceId, line.Quantity),
+        _ => new SewingCompositionMaterial(SewingCompositionMaterialKind.Accessory, line.ReferenceId, line.Quantity)
+    };
+
+    /// <summary>A service has no Reference list row: its price and activity come from the calculation's references.</summary>
+    private static QuoteSewingLineInfo[] WithServicePrices(QuoteSewingLineInfo[] lines,
+        IReadOnlyList<PricingReferenceValue> references) =>
+        lines.Select(line =>
+        {
+            if (line.Kind != QuoteItemLineKind.Service) return line;
+            var value = references.FirstOrDefault(x => x.ReferenceKey == $"OtherCost:{line.CostCode}");
+            return value is null ? line : line with { UnitValue = value.Value, IsActive = value.IsActive };
+        }).ToArray();
+
+    private static QuoteSewingLineInfo Info(QuoteSewingLine line, IReadOnlyDictionary<int, FabricRowDTO> fabrics,
         IReadOnlyDictionary<int, GarmentAccessoryRowDTO> accessories,
         IReadOnlyDictionary<int, GarmentPartOperationRowDTO> operations)
     {
+        if (line.Kind == QuoteItemLineKind.Service)
+            return new QuoteSewingLineInfo(line.Kind, 0, line.CostCode, "послуга", null, true, line.CostCode);
+        if (line.Kind == QuoteItemLineKind.Fabric)
+            return fabrics.TryGetValue(line.ReferenceId, out var extra)
+                ? new QuoteSewingLineInfo(line.Kind, line.ReferenceId, extra.Name, "м", extra.Price, extra.IsActive)
+                : new QuoteSewingLineInfo(line.Kind, line.ReferenceId, null, null, null, false);
         if (line.Kind == QuoteItemLineKind.Accessory)
             return accessories.TryGetValue(line.ReferenceId, out var accessory)
                 ? new QuoteSewingLineInfo(line.Kind, line.ReferenceId, accessory.Name, accessory.Unit, accessory.Price,
@@ -76,13 +101,14 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
         string.IsNullOrWhiteSpace(operation.Variant) ? operation.Name : $"{operation.Name} ({operation.Variant.Trim()})";
 
     private static QuoteSewingFabricPrice Price(QuoteSewingFabric fabric, FabricRowDTO? row,
-        SewingArticleCalculation calculation, IReadOnlyList<QuoteSewingLine> accessoryLines,
-        IReadOnlyList<QuoteSewingLine> operationLines, IReadOnlyDictionary<int, GarmentAccessoryRowDTO> accessories,
+        SewingArticleCalculation calculation, IReadOnlyList<QuoteSewingLine> materialLines,
+        IReadOnlyList<QuoteSewingLine> operationLines, IReadOnlyDictionary<int, FabricRowDTO> fabrics,
+        IReadOnlyDictionary<int, GarmentAccessoryRowDTO> accessories,
         IReadOnlyDictionary<int, GarmentPartOperationRowDTO> operations)
     {
         var breakdown = calculation.Breakdown;
-        var problems = calculation.Blockers
-            .Select(x => Problem(x, row, accessoryLines, operationLines, accessories, operations)).Distinct().ToArray();
+        var names = new LineNames(row, materialLines, operationLines, fabrics, accessories, operations);
+        var problems = calculation.Blockers.Select(x => Problem(x, names)).Distinct().ToArray();
         var tiers = calculation.IsCalculated
             ? new QuoteTierPrices(calculation.Prices!.Retail, calculation.Prices.Wholesale, calculation.Prices.LargeWholesale)
             : null;
@@ -93,16 +119,13 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
     }
 
     /// <summary>
-    /// Line keys are `Material:1` for the fabric, `Material:2…` for the accessories in order and `Operation:1…` for
-    /// the operations in order; a reference version problem names `Fabric:{id}`, `Accessory:{id}` or `Operation:{id}`.
+    /// Line keys are `Material:1` for the fabric, `Material:2…` for the other materials in order and `Operation:1…` for
+    /// the operations in order; a reference version problem names `Fabric:{id}`, `Accessory:{id}`, `OtherCost:{code}`
+    /// or `Operation:{id}`.
     /// </summary>
-    private static string Problem(SewingPricingBlocker blocker, FabricRowDTO? fabric,
-        IReadOnlyList<QuoteSewingLine> accessoryLines, IReadOnlyList<QuoteSewingLine> operationLines,
-        IReadOnlyDictionary<int, GarmentAccessoryRowDTO> accessories,
-        IReadOnlyDictionary<int, GarmentPartOperationRowDTO> operations)
+    private static string Problem(SewingPricingBlocker blocker, LineNames names)
     {
-        var line = LineName(blocker.InputKey, blocker.Code == "AmbiguousReferenceVersion", fabric, accessoryLines,
-            operationLines, accessories, operations);
+        var line = names.Of(blocker.InputKey, blocker.Code == "AmbiguousReferenceVersion");
         return blocker.Code switch
         {
             "MissingSettings" or "AmbiguousSettings" or "UnsupportedFormula" or "InvalidSchedule" or "InvalidRate"
@@ -118,35 +141,51 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
         };
     }
 
-    private static string? LineName(string? key, bool referenceKey, FabricRowDTO? fabric, IReadOnlyList<QuoteSewingLine> accessoryLines,
-        IReadOnlyList<QuoteSewingLine> operationLines, IReadOnlyDictionary<int, GarmentAccessoryRowDTO> accessories,
-        IReadOnlyDictionary<int, GarmentPartOperationRowDTO> operations)
+    private sealed record LineNames(
+        FabricRowDTO? Fabric,
+        IReadOnlyList<QuoteSewingLine> MaterialLines,
+        IReadOnlyList<QuoteSewingLine> OperationLines,
+        IReadOnlyDictionary<int, FabricRowDTO> Fabrics,
+        IReadOnlyDictionary<int, GarmentAccessoryRowDTO> Accessories,
+        IReadOnlyDictionary<int, GarmentPartOperationRowDTO> Operations)
     {
-        if (key is null) return null;
-        var parts = key.Split(':');
-        if (parts.Length != 2) return key;
-        if (parts[0] is "Fabric") return fabric?.Name ?? "тканина";
-        if (parts[0] is "Accessory")
-            return int.TryParse(parts[1], out var accessoryId) && accessories.TryGetValue(accessoryId, out var a)
-                ? a.Name : "фурнітура";
-        if (parts[0] is "Operation" && int.TryParse(parts[1], out var operationIdOrLine))
+        public string? Of(string? key, bool referenceKey)
         {
-            if (!referenceKey && operationIdOrLine >= 1 && operationIdOrLine <= operationLines.Count &&
-                operations.TryGetValue(operationLines[operationIdOrLine - 1].ReferenceId, out var byLine))
-                return OperationName(byLine);
-            return operations.TryGetValue(operationIdOrLine, out var byId) ? OperationName(byId) : "операція";
-        }
+            if (key is null) return null;
+            var separator = key.IndexOf(':');
+            if (separator < 0) return key;
+            var kind = key[..separator];
+            var value = key[(separator + 1)..];
+            if (kind is "OtherCost") return value;
+            if (kind is "Fabric")
+                return int.TryParse(value, out var fabricId) && Fabrics.TryGetValue(fabricId, out var f) ? f.Name
+                    : Fabric?.Name ?? "тканина";
+            if (kind is "Accessory")
+                return int.TryParse(value, out var accessoryId) && Accessories.TryGetValue(accessoryId, out var a)
+                    ? a.Name : "фурнітура";
+            if (kind is "Operation" && int.TryParse(value, out var operationIdOrLine))
+            {
+                if (!referenceKey && operationIdOrLine >= 1 && operationIdOrLine <= OperationLines.Count &&
+                    Operations.TryGetValue(OperationLines[operationIdOrLine - 1].ReferenceId, out var byLine))
+                    return OperationName(byLine);
+                return Operations.TryGetValue(operationIdOrLine, out var byId) ? OperationName(byId) : "операція";
+            }
 
-        if (parts[0] is "Material" && int.TryParse(parts[1], out var index))
-        {
-            if (index == 1) return fabric?.Name ?? "тканина";
-            var position = index - 2;
-            return position >= 0 && position < accessoryLines.Count &&
-                   accessories.TryGetValue(accessoryLines[position].ReferenceId, out var accessory)
-                ? accessory.Name
-                : "фурнітура";
-        }
+            if (kind is "Material" && int.TryParse(value, out var index))
+            {
+                if (index == 1) return Fabric?.Name ?? "тканина";
+                var position = index - 2;
+                if (position < 0 || position >= MaterialLines.Count) return "матеріал";
+                var line = MaterialLines[position];
+                return line.Kind switch
+                {
+                    QuoteItemLineKind.Service => line.CostCode,
+                    QuoteItemLineKind.Fabric => Fabrics.TryGetValue(line.ReferenceId, out var extra) ? extra.Name : "тканина",
+                    _ => Accessories.TryGetValue(line.ReferenceId, out var accessory) ? accessory.Name : "фурнітура"
+                };
+            }
 
-        return key;
+            return key;
+        }
     }
 }

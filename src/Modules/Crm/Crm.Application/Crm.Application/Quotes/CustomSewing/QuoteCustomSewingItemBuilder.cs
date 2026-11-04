@@ -1,22 +1,32 @@
+using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Contracts;
 using Crm.Domain.Quotes;
 
 namespace Crm.Application.Quotes.CustomSewing;
 
 /// <summary>
-/// Builds a «Виріб з нуля» (R-20). While the composition and fabrics stay as saved, the item keeps its prices (R-11);
-/// any change prices the whole item again by the Catalog formula.
+/// Builds a «Виріб з нуля» (R-20) or a Catalog model with a changed composition (R-21). While the composition and
+/// fabrics stay as saved, the item keeps its prices (R-11); any change prices the whole item again by the Catalog
+/// formula. A changed model keeps its code, site link and season from the Catalog.
 /// </summary>
 public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculator)
 {
     public const string Subtitle = "Швейна продукція · виріб з нуля";
+    public const string ChangedModelSubtitle = "Швейна продукція · змінений склад моделі";
 
     public async Task<Result<QuoteItem>> BuildAsync(
-        int position, QuoteItemInput input, QuoteItem? previous, DateTimeOffset now, CancellationToken cancellationToken)
+        int position, QuoteItemInput input, QuoteItem? previous, IReadOnlyDictionary<int, QuoteCatalogProduct> products,
+        DateTimeOffset now, CancellationToken cancellationToken)
     {
         var name = input.Name!.Trim();
+        QuoteCatalogProduct? model = null;
+        if (input.ProductId is { } productId && previous is null &&
+            (!products.TryGetValue(productId, out model) || model.Kind != QuoteItemKind.Sewing))
+            return Result.Conflict($"«{name}»: модель не знайдено в каталозі.");
+
+        var texts = Texts(input, name, previous, model);
         var requested = (input.Lines ?? []).Select(x => x.ToLine()).ToArray();
-        var kept = previous is not null ? Keep(position, input, previous, requested, name) : null;
+        var kept = previous is not null ? Keep(position, input, previous, requested, texts) : null;
         if (kept is not null) return Result.Success(kept);
 
         var composition = new QuoteSewingComposition(
@@ -29,10 +39,10 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         {
             var info = calculation.Lines[index];
             if (info.Name is null)
-                return Result.Conflict($"«{name}»: {(info.Kind == QuoteItemLineKind.Operation ? "операцію" : "фурнітуру")} " +
-                    "не знайдено в довіднику.");
-            lines.Add(new QuoteItemLine(index, requested[index].Kind, requested[index].ReferenceId, info.Name,
-                info.Unit ?? "", requested[index].Quantity, requested[index].ManualMinutes));
+                return Result.Conflict($"«{name}»: {Missing(info.Kind)} не знайдено в довіднику.");
+            var line = requested[index];
+            lines.Add(new QuoteItemLine(index, line.Kind, line.ReferenceId, info.Name, info.Unit ?? "", line.Quantity,
+                line.ManualMinutes, line.CostCode));
         }
 
         var options = new List<QuoteItemOption>(input.Options.Count);
@@ -51,12 +61,21 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
                 .WithFabricMeters(fabric.Meters));
         }
 
-        return Result.Success(new QuoteItem(position, QuoteItemKind.CustomSewing, null, Texts(input, name), options, lines));
+        return Result.Success(new QuoteItem(position, QuoteItemKind.CustomSewing, input.ProductId, texts, options, lines));
     }
+
+    private static string Missing(QuoteItemLineKind kind) => kind switch
+    {
+        QuoteItemLineKind.Operation => "операцію",
+        QuoteItemLineKind.Service => "послугу",
+        QuoteItemLineKind.Fabric => "тканину",
+        _ => "фурнітуру"
+    };
 
     /// <summary>The saved item with new texts and shown flags, or null when its composition or fabrics changed.</summary>
     private static QuoteItem? Keep(
-        int position, QuoteItemInput input, QuoteItem previous, IReadOnlyList<QuoteSewingLine> requested, string name)
+        int position, QuoteItemInput input, QuoteItem previous, IReadOnlyList<QuoteSewingLine> requested,
+        QuoteItemTexts texts)
     {
         var savedLines = previous.Lines.OrderBy(x => x.Position).ToArray();
         if (savedLines.Length != requested.Count) return null;
@@ -64,7 +83,8 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         {
             var line = requested[index];
             var saved = savedLines[index];
-            if (saved.Kind != line.Kind || saved.ReferenceId != line.ReferenceId || saved.Quantity != line.Quantity ||
+            if (saved.Kind != line.Kind || saved.ReferenceId != (line.Kind == QuoteItemLineKind.Service ? 0 : line.ReferenceId) ||
+                saved.CostCode != line.CostCode || saved.Quantity != line.Quantity ||
                 saved.ManualMinutes != line.ManualMinutes) return null;
         }
 
@@ -83,10 +103,14 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         }
 
         var lines = savedLines.Select((x, index) =>
-            new QuoteItemLine(index, x.Kind, x.ReferenceId, x.Name, x.Unit, x.Quantity, x.ManualMinutes));
-        return new QuoteItem(position, QuoteItemKind.CustomSewing, null, Texts(input, name), options, lines);
+            new QuoteItemLine(index, x.Kind, x.ReferenceId, x.Name, x.Unit, x.Quantity, x.ManualMinutes, x.CostCode));
+        return new QuoteItem(position, QuoteItemKind.CustomSewing, previous.ProductId, texts, options, lines);
     }
 
-    private static QuoteItemTexts Texts(QuoteItemInput input, string name) =>
-        new(null, name, Subtitle, input.Description, null, input.PhotoUrl, null, null);
+    private static QuoteItemTexts Texts(QuoteItemInput input, string name, QuoteItem? previous, QuoteCatalogProduct? model) =>
+        input.ProductId is null
+            ? new(null, name, Subtitle, input.Description, null, input.PhotoUrl, null, null)
+            : new(previous?.Code ?? model?.Code, name, ChangedModelSubtitle, input.Description,
+                previous?.SiteUrl ?? model?.SiteUrl, input.PhotoUrl ?? previous?.PhotoUrl ?? model?.PhotoUrl,
+                previous?.Season ?? model?.Season, null);
 }

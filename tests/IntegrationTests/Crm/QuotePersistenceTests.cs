@@ -199,6 +199,49 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         }
     }
 
+    [Test]
+    public async Task ChangedModelKeepsItsModelAndServiceLines()
+    {
+        var sewing = new Sewing();
+        var input = new SaveQuoteInput(0, "ТОВ «Агро»", null, null, null, null, null,
+        [
+            new QuoteItemInput(null, "CustomSewing", 10, "Костюм «Імпульс» з вишивкою", null, null, null,
+                [new QuoteOptionInput(null, null, true, new(true, null), new(true, null), new(true, null), null, 5, 1.5m)],
+                [
+                    new QuoteItemLineInput("Service", 0, 1m, null, "Вишивка логотипу"),
+                    new QuoteItemLineInput("Operation", 155, 1m, 12m)
+                ]),
+        ]);
+        QuoteResponse created;
+        await using (var db = Context())
+        {
+            var result = await new CreateQuoteCommandHandler(_staff, new QuoteItemsBuilder(_catalog, sewing),
+                new QuoteNumbering(db), _clock).Handle(new CreateQuoteCommand(Olena, input), default);
+            Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
+            created = result.Value;
+        }
+
+        await using (var db = Context())
+        {
+            var loaded = (await new GetQuoteQueryHandler(db).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
+            var item = loaded.Items.Single();
+            Assert.Multiple(() =>
+            {
+                Assert.That(item.Kind, Is.EqualTo("CustomSewing"));
+                Assert.That(item.ProductId, Is.EqualTo(10));
+                Assert.That(item.Code, Is.EqualTo("MOD-1"));
+                Assert.That(item.Lines.Select(x => (x.Kind, x.ReferenceId, x.CostCode)), Is.EqualTo(new[]
+                {
+                    ("Service", 0, (string?)"Вишивка логотипу"), ("Operation", 155, null)
+                }));
+            });
+
+            var report = await new RepriceQuoteCommandHandler(db, _catalog, _clock, sewing)
+                .Handle(new RepriceQuoteCommand(Olena, created.Id, loaded.Version, false), default);
+            Assert.That(report.Value.Unavailable, Is.Empty);
+        }
+    }
+
     private Task<Result<QuoteResponse>> Save(CrmDbContext db, long id, SaveQuoteInput input) =>
         new SaveQuoteCommandHandler(db, _staff, new QuoteItemsBuilder(_catalog), _clock)
             .Handle(new SaveQuoteCommand(Olena, id, input), default).AsTask();
@@ -233,7 +276,12 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
             CancellationToken cancellationToken) =>
             Task.FromResult(new QuoteSewingCalculation(
                 composition.Lines.Select(x => new QuoteSewingLineInfo(x.Kind, x.ReferenceId,
-                    x.Kind == QuoteItemLineKind.Accessory ? "Ґудзик" : "Нестандартна операція",
+                    x.Kind switch
+                    {
+                        QuoteItemLineKind.Accessory => "Ґудзик",
+                        QuoteItemLineKind.Service => x.CostCode!,
+                        _ => "Нестандартна операція"
+                    },
                     x.Kind == QuoteItemLineKind.Accessory ? "шт." : "хв", null, true)).ToArray(),
                 composition.Fabrics.Select(x => new QuoteSewingFabricPrice(x.FabricId, x.Meters, "Саржа", null, PerMeter,
                     12m, 60m, x.Meters * PerMeter, new QuoteTierPrices(x.Meters * PerMeter, x.Meters * PerMeter - 10,

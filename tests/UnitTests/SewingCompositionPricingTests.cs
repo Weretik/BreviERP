@@ -60,6 +60,47 @@ public sealed class SewingCompositionPricingTests
     }
 
     [Test]
+    public async Task A_service_and_an_extra_fabric_of_a_changed_model_are_priced_too()
+    {
+        var handler = Handler(Value("Fabric:4", 200m, "м"), Value("Fabric:8", 50m, "м"),
+            Value("OtherCost:Вишивка", 25m, "Service"), Value("Operation:40", 10m, "Minutes"));
+        var query = new CalculateSewingCompositionQuery([
+                new SewingCompositionMaterial(SewingCompositionMaterialKind.Fabric, 4, 1.5m),
+                new SewingCompositionMaterial(SewingCompositionMaterialKind.Fabric, 8, 0.5m),
+                new SewingCompositionMaterial(SewingCompositionMaterialKind.OtherCost, 0, 2m, "Вишивка")
+            ],
+            [new SewingCompositionOperation(40, 2m)], Now);
+
+        var result = (await handler.Handle(query, CancellationToken.None)).Value;
+
+        Assert.That(result.Calculation.IsCalculated, Is.True,
+            string.Join(", ", result.Calculation.Blockers.Select(x => x.Code)));
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Calculation.Breakdown!.Materials, Is.EqualTo(1.5m * 200m + 0.5m * 50m));
+            Assert.That(result.Calculation.Breakdown!.OtherCosts, Is.EqualTo(2m * 25m));
+        });
+    }
+
+    [Test]
+    public void A_service_needs_its_code_and_other_lines_a_reference()
+    {
+        var query = new CalculateSewingCompositionQuery([
+                new SewingCompositionMaterial(SewingCompositionMaterialKind.OtherCost, 0, 1m),
+                new SewingCompositionMaterial(SewingCompositionMaterialKind.Accessory, 0, 1m, "X")
+            ],
+            [new SewingCompositionOperation(40, 1m)], Now);
+
+        var errors = new CalculateSewingCompositionQueryValidator().Validate(query).Errors
+            .Select(x => x.PropertyName).ToArray();
+
+        Assert.That(errors, Is.SupersetOf(new[]
+        {
+            "Materials[0].CostCode", "Materials[1].ReferenceId", "Materials[1].CostCode"
+        }));
+    }
+
+    [Test]
     public async Task Manual_minutes_replace_a_missing_norm()
     {
         var handler = Handler(Value("Fabric:4", 200m, "м"), Value("Accessory:30", 2m, "шт."),

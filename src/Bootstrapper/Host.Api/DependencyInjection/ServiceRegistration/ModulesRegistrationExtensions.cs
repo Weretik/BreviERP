@@ -40,6 +40,7 @@ public static class ModuleRegistrationsExtensions
         services.AddCrmKeepinCrmSync(configuration);
         services.AddScoped<IQuoteCatalogReader, QuoteCatalogReader>();
         services.AddScoped<IQuoteSewingCalculator, QuoteSewingCalculator>();
+        services.AddScoped<IQuoteModelCompositionReader, QuoteModelCompositionReader>();
         services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();
         services.AddScoped<ITaskStaffReader, TaskStaffReader>();
         services.AddRemindersInfrastructure(configuration);

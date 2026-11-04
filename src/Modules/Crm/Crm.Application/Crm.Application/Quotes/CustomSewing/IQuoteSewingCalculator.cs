@@ -12,21 +12,24 @@ public interface IQuoteSewingCalculator
     Task<QuoteSewingCalculation> CalculateAsync(QuoteSewingComposition composition, CancellationToken cancellationToken);
 }
 
-/// <summary>The fabrics to price and the accessories and operations they share.</summary>
+/// <summary>The fabrics to price and the accessories, operations, services and extra fabrics they share.</summary>
 public sealed record QuoteSewingComposition(IReadOnlyList<QuoteSewingFabric> Fabrics, IReadOnlyList<QuoteSewingLine> Lines);
 
 public sealed record QuoteSewingFabric(int FabricId, decimal Meters);
 
-public sealed record QuoteSewingLine(QuoteItemLineKind Kind, int ReferenceId, decimal Quantity, decimal? ManualMinutes);
+/// <param name="CostCode">The other-cost code of a service; its <paramref name="ReferenceId"/> is 0.</param>
+public sealed record QuoteSewingLine(
+    QuoteItemLineKind Kind, int ReferenceId, decimal Quantity, decimal? ManualMinutes, string? CostCode = null);
 
 /// <summary>Reference data of each line and the price of each fabric, in the order given.</summary>
 public sealed record QuoteSewingCalculation(
     IReadOnlyList<QuoteSewingLineInfo> Lines, IReadOnlyList<QuoteSewingFabricPrice> Fabrics);
 
 /// <param name="Name">Null when the reference row is gone.</param>
-/// <param name="UnitValue">Accessory price per unit or operation norm in minutes.</param>
+/// <param name="UnitValue">Accessory, fabric or service price per unit, or operation norm in minutes.</param>
 public sealed record QuoteSewingLineInfo(
-    QuoteItemLineKind Kind, int ReferenceId, string? Name, string? Unit, decimal? UnitValue, bool IsActive);
+    QuoteItemLineKind Kind, int ReferenceId, string? Name, string? Unit, decimal? UnitValue, bool IsActive,
+    string? CostCode = null);
 
 /// <param name="Name">Fabric name; null when the fabric is gone.</param>
 /// <param name="Details">The client text of the fabric (composition, density, КП description).</param>

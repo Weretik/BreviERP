@@ -54,6 +54,18 @@ public sealed class QuoteLookupsController(ISender sender) : ControllerBase
         [FromBody] QuoteCustomSewingPriceInput input, CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new CalculateQuoteCustomSewingQuery(input), cancellationToken));
 
+    /// <summary>
+    /// «Змінити склад»: the composition of a Catalog sewing model (the fabric of each variant, shared accessories,
+    /// services, extra fabrics and operations) to start a changed model from.
+    /// </summary>
+    [HttpGet("catalog/{productId:int}/composition", Name = "getCrmQuoteModelComposition")]
+    [ProducesResponseType<QuoteModelCompositionResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<QuoteModelCompositionResponse>> ModelComposition(int productId,
+        CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new GetQuoteModelCompositionQuery(productId), cancellationToken));
+
     [HttpGet("staff", Name = "getCrmQuoteStaff")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType<IReadOnlyList<QuoteStaffResponse>>(StatusCodes.Status200OK)]

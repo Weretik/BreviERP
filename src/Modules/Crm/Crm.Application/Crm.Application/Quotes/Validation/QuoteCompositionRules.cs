@@ -8,7 +8,7 @@ public static class QuoteCompositionRules
 {
     public const string MetersMessage = "Вкажіть метраж тканини більше нуля.";
     public static readonly string TooManyLinesMessage =
-        $"Не більше {QuoteLimits.MaxCompositionLines} рядків фурнітури та операцій.";
+        $"Не більше {QuoteLimits.MaxCompositionLines} рядків складу.";
 
     public static bool IsQuantity(decimal value) => value > 0 && value <= QuoteLimits.MaxCompositionQuantity;
 
@@ -21,12 +21,17 @@ public sealed class QuoteItemLineInputValidator : AbstractValidator<QuoteItemLin
     {
         RuleFor(x => x.Kind).Must(x => Enum.TryParse<QuoteItemLineKind>(x, false, out var kind) && Enum.IsDefined(kind))
             .WithMessage("Невідомий тип рядка складу.");
-        RuleFor(x => x.ReferenceId).GreaterThan(0);
+        RuleFor(x => x.ReferenceId).GreaterThan(0).When(x => x.Kind != nameof(QuoteItemLineKind.Service));
+        RuleFor(x => x.CostCode).NotEmpty().WithMessage("Вкажіть код послуги.")
+            .MaximumLength(QuoteLimits.CostCodeMaxLength)
+            .When(x => x.Kind == nameof(QuoteItemLineKind.Service));
+        RuleFor(x => x.CostCode).Null().When(x => x.Kind != nameof(QuoteItemLineKind.Service))
+            .WithMessage("Код задається лише для послуги.");
         RuleFor(x => x.Quantity).Must(QuoteCompositionRules.IsQuantity)
             .WithMessage("Кількість має бути більше нуля.");
         RuleFor(x => x.ManualMinutes).Must(QuoteCompositionRules.IsQuantity)
             .When(x => x.ManualMinutes is not null).WithMessage("Хвилини операції мають бути більше нуля.");
-        RuleFor(x => x.ManualMinutes).Null().When(x => x.Kind == nameof(QuoteItemLineKind.Accessory))
+        RuleFor(x => x.ManualMinutes).Null().When(x => x.Kind != nameof(QuoteItemLineKind.Operation))
             .WithMessage("Хвилини задаються лише для операції.");
     }
 }

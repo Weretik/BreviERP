@@ -28,7 +28,8 @@ public sealed class RepriceQuoteCommandHandler(
         var now = clock.GetUtcNow();
         var changes = new List<QuoteRepriceChange>();
         var unavailable = new List<QuoteRepriceProblem>();
-        foreach (var item in quote.Items.Where(x => x.ProductId is not null).OrderBy(x => x.Position))
+        foreach (var item in quote.Items.Where(x => x.ProductId is not null && x.Kind != QuoteItemKind.CustomSewing)
+                     .OrderBy(x => x.Position))
         {
             products.TryGetValue(item.ProductId!.Value, out var product);
             foreach (var option in item.Options.OrderBy(x => x.Position))
@@ -85,7 +86,7 @@ public sealed class RepriceQuoteCommandHandler(
         var composition = new QuoteSewingComposition(
             options.Select(x => new QuoteSewingFabric(x.FabricId ?? 0, x.FabricMeters ?? 0)).ToArray(),
             item.Lines.OrderBy(x => x.Position)
-                .Select(x => new QuoteSewingLine(x.Kind, x.ReferenceId, x.Quantity, x.ManualMinutes)).ToArray());
+                .Select(x => new QuoteSewingLine(x.Kind, x.ReferenceId, x.Quantity, x.ManualMinutes, x.CostCode)).ToArray());
         var calculation = await sewing.CalculateAsync(composition, cancellationToken);
         for (var index = 0; index < options.Length; index++)
         {

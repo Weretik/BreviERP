@@ -54,9 +54,10 @@ public sealed record QuoteItemResponse(
     IReadOnlyList<QuoteOptionResponse> Options,
     IReadOnlyList<QuoteItemLineResponse> Lines);
 
-/// <summary>An accessory or operation of a «Виріб з нуля».</summary>
+/// <summary>An accessory, operation, service or extra fabric of a «Виріб з нуля».</summary>
 public sealed record QuoteItemLineResponse(
-    long Id, string Kind, int ReferenceId, string Name, string Unit, decimal Quantity, decimal? ManualMinutes);
+    long Id, string Kind, int ReferenceId, string Name, string Unit, decimal Quantity, decimal? ManualMinutes,
+    string? CostCode);
 
 public sealed record QuoteOptionResponse(
     long Id,

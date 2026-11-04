@@ -1,8 +1,8 @@
 namespace Crm.Domain.Quotes;
 
 /// <summary>
-/// An accessory or operation of a «Виріб з нуля». The name and unit are copied from the reference when the line is
-/// added, so the КП reads the same after the reference changes.
+/// An accessory, operation, service or extra fabric of a «Виріб з нуля» or a changed Catalog model. The name and unit
+/// are copied from the reference when the line is added, so the КП reads the same after the reference changes.
 /// </summary>
 public sealed class QuoteItemLine
 {
@@ -10,7 +10,7 @@ public sealed class QuoteItemLine
 
     public QuoteItemLine(
         int position, QuoteItemLineKind kind, int referenceId, string name, string unit, decimal quantity,
-        decimal? manualMinutes)
+        decimal? manualMinutes, string? costCode = null)
     {
         Position = position;
         Kind = kind;
@@ -19,6 +19,8 @@ public sealed class QuoteItemLine
         Unit = unit.Trim();
         Quantity = quantity;
         ManualMinutes = kind == QuoteItemLineKind.Operation ? manualMinutes : null;
+        CostCode = kind == QuoteItemLineKind.Service ? costCode?.Trim() : null;
+        if (kind == QuoteItemLineKind.Service) ReferenceId = 0;
     }
 
     public long Id { get; private set; }
@@ -26,7 +28,7 @@ public sealed class QuoteItemLine
     public int Position { get; private set; }
     public QuoteItemLineKind Kind { get; private set; }
 
-    /// <summary>Reference garment accessory or operation.</summary>
+    /// <summary>Reference garment accessory, operation or fabric; 0 for a service.</summary>
     public int ReferenceId { get; private set; }
 
     public string Name { get; private set; } = null!;
@@ -36,7 +38,10 @@ public sealed class QuoteItemLine
     /// <summary>Minutes of an operation without a fixed norm.</summary>
     public decimal? ManualMinutes { get; private set; }
 
+    /// <summary>The Reference other-cost code of a service.</summary>
+    public string? CostCode { get; private set; }
+
     public bool SameAs(QuoteItemLine other) =>
-        Kind == other.Kind && ReferenceId == other.ReferenceId && Quantity == other.Quantity &&
-        ManualMinutes == other.ManualMinutes;
+        Kind == other.Kind && ReferenceId == other.ReferenceId && CostCode == other.CostCode &&
+        Quantity == other.Quantity && ManualMinutes == other.ManualMinutes;
 }
