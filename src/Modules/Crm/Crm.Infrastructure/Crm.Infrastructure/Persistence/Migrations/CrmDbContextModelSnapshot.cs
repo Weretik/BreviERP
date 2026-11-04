@@ -454,7 +454,61 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_QuoteItems_Position", "\"Position\" >= 0");
 
-                            t.HasCheckConstraint("CK_QuoteItems_Product", "(\"Kind\" = 'OneOffPpe' AND \"ProductId\" IS NULL) OR (\"Kind\" <> 'OneOffPpe' AND \"ProductId\" IS NOT NULL)");
+                            t.HasCheckConstraint("CK_QuoteItems_Product", "(\"Kind\" IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NULL) OR (\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemLine", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal?>("ManualMinutes")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("numeric(12,4)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("numeric(12,4)");
+
+                    b.Property<int>("ReferenceId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId", "Position");
+
+                    b.ToTable("QuoteItemLines", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteItemLines_ManualMinutes", "\"ManualMinutes\" IS NULL OR (\"Kind\" = 'Operation' AND \"ManualMinutes\" > 0)");
+
+                            t.HasCheckConstraint("CK_QuoteItemLines_Position", "\"Position\" >= 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemLines_Quantity", "\"Quantity\" > 0");
                         });
                 });
 
@@ -475,6 +529,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.Property<int?>("FabricId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal?>("FabricMeters")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("numeric(12,4)");
 
                     b.Property<bool>("IsRecommended")
                         .HasColumnType("boolean");
@@ -954,6 +1012,15 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemLine", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.QuoteItem", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOption", b =>
                 {
                     b.HasOne("Crm.Domain.Quotes.QuoteItem", null)
@@ -1009,6 +1076,8 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Crm.Domain.Quotes.QuoteItem", b =>
                 {
+                    b.Navigation("Lines");
+
                     b.Navigation("Options");
                 });
 

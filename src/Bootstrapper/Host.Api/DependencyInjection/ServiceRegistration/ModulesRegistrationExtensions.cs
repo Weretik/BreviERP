@@ -1,4 +1,5 @@
 using Crm.Application.Quotes.Catalog;
+using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.Staff;
 using Crm.Application.Tasks.Staff;
 using Crm.Infrastructure.DependencyInjection;
@@ -38,6 +39,7 @@ public static class ModuleRegistrationsExtensions
         services.AddCrmDbContextServices(configuration);
         services.AddCrmKeepinCrmSync(configuration);
         services.AddScoped<IQuoteCatalogReader, QuoteCatalogReader>();
+        services.AddScoped<IQuoteSewingCalculator, QuoteSewingCalculator>();
         services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();
         services.AddScoped<ITaskStaffReader, TaskStaffReader>();
         services.AddRemindersInfrastructure(configuration);

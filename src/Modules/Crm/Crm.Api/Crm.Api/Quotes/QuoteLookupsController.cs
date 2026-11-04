@@ -1,5 +1,6 @@
 using BuildingBlocks.Api.Result;
 using Crm.Application.Quotes.Contracts;
+using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.GetCatalogProducts;
 using Crm.Application.Quotes.GetStaff;
 using Crm.Application.Quotes.Introductions.Contracts;
@@ -41,6 +42,17 @@ public sealed class QuoteLookupsController(ISender sender) : ControllerBase
     [ProducesResponseType<QuoteIntroductionSetupResponse>(StatusCodes.Status200OK)]
     public async Task<ActionResult<QuoteIntroductionSetupResponse>> Introduction(CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new GetQuoteIntroductionSetupQuery(), cancellationToken));
+
+    /// <summary>
+    /// «Виріб з нуля»: prices each fabric with the chosen accessories and operations by the Catalog formula. Nothing is
+    /// saved; a fabric that cannot be priced lists its problems.
+    /// </summary>
+    [HttpPost("custom-sewing-price", Name = "calculateCrmQuoteCustomSewing")]
+    [ProducesResponseType<QuoteCustomSewingPriceResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<QuoteCustomSewingPriceResponse>> CustomSewingPrice(
+        [FromBody] QuoteCustomSewingPriceInput input, CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new CalculateQuoteCustomSewingQuery(input), cancellationToken));
 
     [HttpGet("staff", Name = "getCrmQuoteStaff")]
     [Authorize(Roles = "Admin")]

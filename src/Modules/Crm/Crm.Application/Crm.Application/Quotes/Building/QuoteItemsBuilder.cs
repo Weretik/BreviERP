@@ -1,14 +1,16 @@
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Contracts;
+using Crm.Application.Quotes.CustomSewing;
 using Crm.Domain.Quotes;
 
 namespace Crm.Application.Quotes.Building;
 
 /// <summary>
 /// Turns the editor content into items (R-05–R-10). A new Catalog row takes its texts and prices from the Catalog;
-/// a saved row keeps them, so a save never reprices (R-11). Manual prices are accepted only for PPE.
+/// a saved row keeps them, so a save never reprices (R-11). Manual prices are accepted only for PPE. A «Виріб з нуля»
+/// is priced by <see cref="QuoteCustomSewingItemBuilder"/>.
 /// </summary>
-public sealed class QuoteItemsBuilder(IQuoteCatalogReader catalog)
+public sealed class QuoteItemsBuilder(IQuoteCatalogReader catalog, IQuoteSewingCalculator? sewing = null)
 {
     public const string SewingSubtitle = "Швейна продукція · готові варіанти тканини";
     public const string PpeSubtitle = "ЗІЗ · готовий товар";
@@ -29,9 +31,14 @@ public sealed class QuoteItemsBuilder(IQuoteCatalogReader catalog)
             var input = inputs[index];
             var kind = Enum.Parse<QuoteItemKind>(input.Kind);
             var previous = saved.FirstOrDefault(x => x.Id == input.Id && x.Kind == kind && x.ProductId == input.ProductId);
-            var built = kind == QuoteItemKind.OneOffPpe
-                ? BuildOneOff(index, input, previous, actor, now)
-                : BuildCatalogItem(index, kind, input, previous, products, actor, now);
+            var built = kind switch
+            {
+                QuoteItemKind.OneOffPpe => BuildOneOff(index, input, previous, actor, now),
+                QuoteItemKind.CustomSewing when sewing is null => Result.Error("Розрахунок виробу з нуля недоступний."),
+                QuoteItemKind.CustomSewing => await new QuoteCustomSewingItemBuilder(sewing)
+                    .BuildAsync(index, input, previous, now, cancellationToken),
+                _ => BuildCatalogItem(index, kind, input, previous, products, actor, now)
+            };
             if (!built.IsSuccess) return built.Map(_ => (IReadOnlyList<QuoteItem>)[]);
             if (!built.Value.ShowsPositivePrice)
                 return InvalidItems($"«{built.Value.Name}»: покажіть клієнту хоча б одну ціну більше нуля.");

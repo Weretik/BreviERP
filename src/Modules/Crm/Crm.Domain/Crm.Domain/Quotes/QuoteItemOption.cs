@@ -53,6 +53,15 @@ public sealed class QuoteItemOption
     /// <summary>When the source prices were copied from the Catalog.</summary>
     public DateTimeOffset? PricesTakenAt { get; private set; }
 
+    /// <summary>Metres of <see cref="FabricId"/> in one «Виріб з нуля»; null for other items.</summary>
+    public decimal? FabricMeters { get; private set; }
+
+    public QuoteItemOption WithFabricMeters(decimal? meters)
+    {
+        FabricMeters = meters;
+        return this;
+    }
+
     public IEnumerable<QuotePrice> Prices => [Retail, Wholesale, Large];
 
     public bool HasManualPrice => Prices.Any(x => x.IsManual);

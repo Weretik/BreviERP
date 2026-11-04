@@ -1,4 +1,5 @@
 using Crm.Application.Quotes.Catalog;
+using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.Staff;
 using Crm.Domain.Quotes;
 
@@ -35,4 +36,33 @@ internal sealed class FakeQuoteCatalog : IQuoteCatalogReader
         CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyDictionary<int, QuoteCatalogProduct>>(
             Products.Where(x => productIds.Contains(x.Key)).ToDictionary());
+}
+
+internal sealed class FakeSewingCalculator : IQuoteSewingCalculator
+{
+    /// <summary>Price per metre of each fabric; a fabric missing here has no price.</summary>
+    public Dictionary<int, decimal> FabricPrices { get; } = new() { [5] = 200m, [6] = 300m };
+
+    public int Calls { get; private set; }
+
+    public Task<QuoteSewingCalculation> CalculateAsync(
+        QuoteSewingComposition composition, CancellationToken cancellationToken)
+    {
+        Calls++;
+        var minutes = composition.Lines.Where(x => x.Kind == QuoteItemLineKind.Operation)
+            .Sum(x => x.Quantity * (x.ManualMinutes ?? 10m));
+        var lines = composition.Lines.Select(x => new QuoteSewingLineInfo(x.Kind, x.ReferenceId,
+            x.ReferenceId == 404 ? null : $"{x.Kind} {x.ReferenceId}", x.Kind == QuoteItemLineKind.Operation ? "хв" : "шт.",
+            10m, true)).ToArray();
+        var fabrics = composition.Fabrics.Select(x =>
+        {
+            if (!FabricPrices.TryGetValue(x.FabricId, out var price))
+                return new QuoteSewingFabricPrice(x.FabricId, x.Meters, $"Тканина {x.FabricId}", null, null, minutes,
+                    null, null, null, ["немає ціни: тканина"]);
+            var cost = x.Meters * price + minutes * 5m;
+            return new QuoteSewingFabricPrice(x.FabricId, x.Meters, $"Тканина {x.FabricId}", "65% бавовна", price, minutes,
+                minutes * 5m, cost, new QuoteTierPrices(cost * 2, cost * 1.8m, cost * 1.5m), []);
+        }).ToArray();
+        return Task.FromResult(new QuoteSewingCalculation(lines, fabrics));
+    }
 }

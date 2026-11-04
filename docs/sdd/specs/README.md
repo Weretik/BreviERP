@@ -27,7 +27,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |
 | Crm      | [Clients, quotes and custom sewing](crm/001-clients-quotes-custom-sewing/README.md) | history only: the quote, custom sewing, PDF, delivery and archive code was removed 2026-11-04 (replaced by 003); clients stay |
 | Crm      | [002 Clients from KeepinCRM](crm/002-keepincrm-clients/README.md) | backend implemented 2026-11-02 |
-| Crm      | [003 «КП» commercial proposals (QTE-001)](crm/003-quotes/README.md) | stages 1–4 implemented 2026-11-04; stages 5–6 planned |
+| Crm      | [003 «КП» commercial proposals (QTE-001)](crm/003-quotes/README.md) | stages 1–4 and 5a («Виріб з нуля») implemented 2026-11-04; 5b–6 planned |
 | Crm      | [004 Manager tasks and kanban (TSK-001)](crm/004-manager-tasks/README.md) | backend implemented 2026-11-04; Admin in brevi-web |
 | Reference | [001 Suppliers from the Calculator and KeepinCRM](reference/001-suppliers-keepincrm/README.md) | implemented 2026-11-02; live KeepinCRM run pending secret |
 | Reference | [002 Fabrics and accessories from the Calculator sheet](reference/002-fabrics-accessories-sheet/README.md) | implemented 2026-11-02 |

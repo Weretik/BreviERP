@@ -27,6 +27,7 @@ src/Modules/Catalog/
     Features/Pricing/Sewing/
       Evaluation/                                 # shared evaluator and input resolution
       Preview/                                    # internal calculation query and handler
+      Composition/                                # price of a free composition (КП «виріб з нуля»), not saved
       Calculations/{Save,Get}/                     # immutable saved-calculation scenarios
       Publications/{Publish,GetCurrent}/           # publication / current published-price scenarios
       Publications/GetProducts/                   # bounded Product-page published-price projection

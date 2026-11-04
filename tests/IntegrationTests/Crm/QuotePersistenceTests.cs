@@ -4,6 +4,7 @@ using Crm.Application.Quotes.Building;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.CreateQuote;
+using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.DeleteQuote;
 using Crm.Application.Quotes.GetQuote;
 using Crm.Application.Quotes.GetQuotes;
@@ -156,6 +157,48 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         Assert.That(db.Set<QuoteItemOption>().Count(), Is.Zero);
     }
 
+    [Test]
+    public async Task CustomSewingKeepsItsCompositionAndRepricesFromIt()
+    {
+        var sewing = new Sewing();
+        var input = new SaveQuoteInput(0, "ТОВ «Агро»", null, null, null, null, null,
+        [
+            new QuoteItemInput(null, "CustomSewing", null, "Фартух з логотипом", null, null, null,
+                [new QuoteOptionInput(null, null, true, new(true, null), new(true, null), new(true, null), null, 5, 1.25m)],
+                [new QuoteItemLineInput("Accessory", 30, 4m, null), new QuoteItemLineInput("Operation", 155, 1m, 12m)]),
+        ]);
+        QuoteResponse created;
+        await using (var db = Context())
+        {
+            var result = await new CreateQuoteCommandHandler(_staff, new QuoteItemsBuilder(_catalog, sewing),
+                new QuoteNumbering(db), _clock).Handle(new CreateQuoteCommand(Olena, input), default);
+            Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
+            created = result.Value;
+        }
+
+        sewing.PerMeter = 300m;
+        await using (var db = Context())
+        {
+            var loaded = (await new GetQuoteQueryHandler(db).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
+            var item = loaded.Items.Single();
+            Assert.Multiple(() =>
+            {
+                Assert.That(item.Kind, Is.EqualTo("CustomSewing"));
+                Assert.That(item.ProductId, Is.Null);
+                Assert.That(item.Lines.Select(x => (x.Kind, x.Name, x.Quantity, x.ManualMinutes)), Is.EqualTo(new[]
+                {
+                    ("Accessory", "Ґудзик", 4m, (decimal?)null), ("Operation", "Нестандартна операція", 1m, 12m)
+                }));
+                Assert.That(item.Options.Single().FabricMeters, Is.EqualTo(1.25m));
+                Assert.That(item.Options.Single().Retail.Amount, Is.EqualTo(250m));
+            });
+
+            var repriced = await new RepriceQuoteCommandHandler(db, _catalog, _clock, sewing)
+                .Handle(new RepriceQuoteCommand(Olena, created.Id, loaded.Version, true), default);
+            Assert.That(repriced.Value.Changes.Single().After.Retail, Is.EqualTo(375m));
+        }
+    }
+
     private Task<Result<QuoteResponse>> Save(CrmDbContext db, long id, SaveQuoteInput input) =>
         new SaveQuoteCommandHandler(db, _staff, new QuoteItemsBuilder(_catalog), _clock)
             .Handle(new SaveQuoteCommand(Olena, id, input), default).AsTask();
@@ -179,6 +222,22 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         public Task<IReadOnlyDictionary<int, QuoteCatalogProduct>> GetAsync(IReadOnlyCollection<int> productIds,
             CancellationToken cancellationToken) =>
             Task.FromResult<IReadOnlyDictionary<int, QuoteCatalogProduct>>(new Dictionary<int, QuoteCatalogProduct> { [10] = Model() });
+    }
+
+    /// <summary>Retail = metres × price per metre; the other tiers follow.</summary>
+    private sealed class Sewing : IQuoteSewingCalculator
+    {
+        public decimal PerMeter { get; set; } = 200m;
+
+        public Task<QuoteSewingCalculation> CalculateAsync(QuoteSewingComposition composition,
+            CancellationToken cancellationToken) =>
+            Task.FromResult(new QuoteSewingCalculation(
+                composition.Lines.Select(x => new QuoteSewingLineInfo(x.Kind, x.ReferenceId,
+                    x.Kind == QuoteItemLineKind.Accessory ? "Ґудзик" : "Нестандартна операція",
+                    x.Kind == QuoteItemLineKind.Accessory ? "шт." : "хв", null, true)).ToArray(),
+                composition.Fabrics.Select(x => new QuoteSewingFabricPrice(x.FabricId, x.Meters, "Саржа", null, PerMeter,
+                    12m, 60m, x.Meters * PerMeter, new QuoteTierPrices(x.Meters * PerMeter, x.Meters * PerMeter - 10,
+                        x.Meters * PerMeter - 20), [])).ToArray()));
     }
 
     private sealed class Staff : IQuoteStaffReader
