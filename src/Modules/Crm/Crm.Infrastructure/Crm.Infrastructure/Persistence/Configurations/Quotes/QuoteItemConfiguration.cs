@@ -12,7 +12,8 @@ public sealed class QuoteItemConfiguration : IEntityTypeConfiguration<QuoteItem>
         {
             t.HasCheckConstraint("CK_QuoteItems_Position", "\"Position\" >= 0");
             t.HasCheckConstraint("CK_QuoteItems_Product",
-                "(\"Kind\" = 'OneOffPpe' AND \"ProductId\" IS NULL) OR (\"Kind\" <> 'OneOffPpe' AND \"ProductId\" IS NOT NULL)");
+                "(\"Kind\" IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NULL) OR " +
+                "(\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NOT NULL)");
         });
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).ValueGeneratedOnAdd();
@@ -32,5 +33,7 @@ public sealed class QuoteItemConfiguration : IEntityTypeConfiguration<QuoteItem>
 
         b.HasMany(x => x.Options).WithOne().HasForeignKey(x => x.ItemId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(x => x.Options).HasField("_options").UsePropertyAccessMode(PropertyAccessMode.Field);
+        b.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.ItemId).OnDelete(DeleteBehavior.Cascade);
+        b.Navigation(x => x.Lines).HasField("_lines").UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

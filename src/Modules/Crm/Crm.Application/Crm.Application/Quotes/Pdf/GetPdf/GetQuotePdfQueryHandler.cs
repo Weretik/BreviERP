@@ -15,6 +15,7 @@ public sealed class GetQuotePdfQueryHandler(IQuoteStore store, QuotePdfComposer 
     {
         var quote = await store.Quotes.AsNoTracking()
             .Include(x => x.Items).ThenInclude(x => x.Options)
+            .Include(x => x.Items).ThenInclude(x => x.Lines)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
         if (quote is null || !query.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);

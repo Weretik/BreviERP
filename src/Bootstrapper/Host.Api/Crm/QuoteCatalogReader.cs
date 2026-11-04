@@ -100,7 +100,7 @@ internal sealed class QuoteCatalogReader(ISender sender) : IQuoteCatalogReader
     }
 
     /// <summary>What the client reads under the fabric: «Короткий опис для КП», else composition and density.</summary>
-    private static string? Details(FabricRowDTO? fabric)
+    internal static string? Details(FabricRowDTO? fabric)
     {
         if (fabric is null) return null;
         if (!string.IsNullOrWhiteSpace(fabric.ProposalDescription)) return fabric.ProposalDescription.Trim();

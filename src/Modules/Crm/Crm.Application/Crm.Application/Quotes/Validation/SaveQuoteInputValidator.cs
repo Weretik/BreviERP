@@ -57,6 +57,27 @@ public sealed class QuoteItemInputValidator : AbstractValidator<QuoteItemInput>
             RuleFor(x => x.Options).Must(x => x.Select(o => o.ArticleId).Distinct().Count() == x.Count)
                 .When(x => x.Options is not null).WithMessage("Варіант тканини доданий двічі.");
         });
+        When(x => x.Kind == nameof(QuoteItemKind.CustomSewing), () =>
+        {
+            RuleFor(x => x.ProductId).Null();
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Вкажіть назву виробу з нуля.")
+                .MaximumLength(QuoteLimits.NameMaxLength);
+            RuleFor(x => x.Lines).NotNull()
+                .Must(x => x is { Count: <= QuoteLimits.MaxCompositionLines })
+                .WithMessage(QuoteCompositionRules.TooManyLinesMessage)
+                .Must(x => x!.Any(line => line?.Kind == nameof(QuoteItemLineKind.Operation)))
+                .WithMessage("Додайте до виробу з нуля хоча б одну операцію.");
+            RuleForEach(x => x.Lines).NotNull().SetValidator(new QuoteItemLineInputValidator());
+            RuleForEach(x => x.Options)
+                .Must(x => x.ArticleId is null && x.FabricId is > 0 && QuoteCompositionRules.IsQuantity(x.FabricMeters))
+                .WithMessage("Оберіть тканину і вкажіть її метраж.")
+                .Must(NoManual).WithMessage("Ціну виробу з нуля рахує система; змініть склад, щоб змінити ціну.");
+            RuleFor(x => x.Options).Must(x => x.Select(o => o.FabricId).Distinct().Count() == x.Count)
+                .When(x => x.Options is not null).WithMessage("Тканина додана двічі.");
+        });
+        RuleFor(x => x.Lines).Must(x => x is null || x.Count == 0)
+            .When(x => x.Kind != nameof(QuoteItemKind.CustomSewing))
+            .WithMessage("Склад задається лише для виробу з нуля.");
         When(x => x.Kind == nameof(QuoteItemKind.Ppe), () =>
         {
             RuleFor(x => x.Options).Must(x => x.Count == 1).When(x => x.Options is not null)

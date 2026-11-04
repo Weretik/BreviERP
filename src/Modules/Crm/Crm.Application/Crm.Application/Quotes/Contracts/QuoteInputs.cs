@@ -16,8 +16,9 @@ public sealed record SaveQuoteInput(
     IReadOnlyList<QuoteItemInput> Items);
 
 /// <param name="Id">The saved item, or null for a new one.</param>
-/// <param name="Kind">`Sewing`, `Ppe` or `OneOffPpe`.</param>
-/// <param name="Name">Required for a one-off PPE; ignored for Catalog items.</param>
+/// <param name="Kind">`Sewing`, `Ppe`, `OneOffPpe` or `CustomSewing`.</param>
+/// <param name="Name">Required for a one-off PPE and a «Виріб з нуля»; ignored for Catalog items.</param>
+/// <param name="Lines">Accessories and operations of a «Виріб з нуля»; null for other items.</param>
 public sealed record QuoteItemInput(
     long? Id,
     string Kind,
@@ -26,11 +27,19 @@ public sealed record QuoteItemInput(
     string? Description,
     string? PhotoUrl,
     string? SupplierUrl,
-    IReadOnlyList<QuoteOptionInput> Options);
+    IReadOnlyList<QuoteOptionInput> Options,
+    IReadOnlyList<QuoteItemLineInput>? Lines = null);
+
+/// <param name="Kind">`Accessory` or `Operation`.</param>
+/// <param name="ReferenceId">Reference garment accessory or operation.</param>
+/// <param name="ManualMinutes">Minutes of an operation without a fixed norm.</param>
+public sealed record QuoteItemLineInput(string Kind, int ReferenceId, decimal Quantity, decimal? ManualMinutes);
 
 /// <param name="Id">The saved row, or null for a new one.</param>
 /// <param name="ArticleId">The fabric variant of a sewing model.</param>
 /// <param name="ManualReason">Required when a PPE price differs from the Catalog one.</param>
+/// <param name="FabricId">The fabric of a «Виріб з нуля» row.</param>
+/// <param name="FabricMeters">Metres of that fabric in one product.</param>
 public sealed record QuoteOptionInput(
     long? Id,
     long? ArticleId,
@@ -38,7 +47,9 @@ public sealed record QuoteOptionInput(
     QuotePriceInput Retail,
     QuotePriceInput Wholesale,
     QuotePriceInput Large,
-    string? ManualReason);
+    string? ManualReason,
+    int? FabricId = null,
+    decimal? FabricMeters = null);
 
 /// <param name="Manual">A manual price (PPE, one-off PPE); null keeps the Catalog price.</param>
 public sealed record QuotePriceInput(bool Shown, decimal? Manual);

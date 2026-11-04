@@ -7,6 +7,7 @@ internal static class QuoteQueries
     public static Task<Quote?> LoadAsync(this IQuoteStore store, long id, CancellationToken cancellationToken) =>
         store.Quotes
             .Include(x => x.Items).ThenInclude(x => x.Options)
+            .Include(x => x.Items).ThenInclude(x => x.Lines)
             .AsSplitQuery()
             .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 }

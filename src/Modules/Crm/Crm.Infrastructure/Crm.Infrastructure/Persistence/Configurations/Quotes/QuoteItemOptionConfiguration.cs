@@ -21,6 +21,7 @@ public sealed class QuoteItemOptionConfiguration : IEntityTypeConfiguration<Quot
         b.Property(x => x.Details).HasMaxLength(QuoteLimits.TextMaxLength);
         b.Property(x => x.ManualReason).HasMaxLength(QuoteLimits.ReasonMaxLength);
         b.Property(x => x.ManualByName).HasMaxLength(QuoteLimits.NameMaxLength);
+        b.Property(x => x.FabricMeters).HasPrecision(12, 4);
         Price(b, x => x.Retail, "Retail");
         Price(b, x => x.Wholesale, "Wholesale");
         Price(b, x => x.Large, "Large");

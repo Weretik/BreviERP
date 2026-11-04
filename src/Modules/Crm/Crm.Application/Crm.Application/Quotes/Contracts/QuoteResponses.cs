@@ -51,7 +51,12 @@ public sealed record QuoteItemResponse(
     string? PhotoUrl,
     string? Season,
     string? SupplierUrl,
-    IReadOnlyList<QuoteOptionResponse> Options);
+    IReadOnlyList<QuoteOptionResponse> Options,
+    IReadOnlyList<QuoteItemLineResponse> Lines);
+
+/// <summary>An accessory or operation of a «Виріб з нуля».</summary>
+public sealed record QuoteItemLineResponse(
+    long Id, string Kind, int ReferenceId, string Name, string Unit, decimal Quantity, decimal? ManualMinutes);
 
 public sealed record QuoteOptionResponse(
     long Id,
@@ -66,7 +71,8 @@ public sealed record QuoteOptionResponse(
     string? ManualReason,
     string? ManualByName,
     DateTimeOffset? ManualAt,
-    DateTimeOffset? PricesTakenAt);
+    DateTimeOffset? PricesTakenAt,
+    decimal? FabricMeters);
 
 /// <param name="Amount">What the client sees: the manual price, else the Catalog one.</param>
 public sealed record QuotePriceResponse(decimal? Amount, decimal? Source, bool IsManual, bool Shown);

@@ -49,7 +49,7 @@ public static class QuotePdfModelBuilder
 
     private static QuotePdfItem ToItem(QuoteItem item) =>
         new(item.Name, item.Code, item.Subtitle, item.Season, item.Description, item.PhotoUrl, item.SiteUrl,
-            item.Kind == QuoteItemKind.Sewing ? "Варіант тканини" : "Ціна за одиницю",
+            item.Kind is QuoteItemKind.Sewing or QuoteItemKind.CustomSewing ? "Варіант тканини" : "Ціна за одиницю",
             item.Options.OrderBy(x => x.Position)
                 .Where(x => x.ShowsPositivePrice)
                 .Select(x => new QuotePdfOption(x.Title, x.Details, x.IsRecommended, Visible(x.Retail),

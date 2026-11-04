@@ -39,5 +39,18 @@ public enum QuoteItemKind
     Ppe = 2,
 
     /// <summary>A PPE item that is not in the Catalog; the manager types its prices.</summary>
-    OneOffPpe = 3
+    OneOffPpe = 3,
+
+    /// <summary>
+    /// «Виріб з нуля»: a sewn product that is not in the Catalog. The manager picks accessories, operations and one or
+    /// more fabrics; its prices come from the Catalog formula (R-20).
+    /// </summary>
+    CustomSewing = 4
+}
+
+/// <summary>A shared composition line of a «Виріб з нуля».</summary>
+public enum QuoteItemLineKind
+{
+    Accessory = 1,
+    Operation = 2
 }

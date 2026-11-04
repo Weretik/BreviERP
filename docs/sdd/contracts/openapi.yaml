@@ -201,6 +201,8 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1products
   /api/crm/quote-lookups/introduction:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1introduction
+  /api/crm/quote-lookups/custom-sewing-price:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1custom-sewing-price
   /api/crm/quote-lookups/staff:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1staff
   /api/crm/tasks:

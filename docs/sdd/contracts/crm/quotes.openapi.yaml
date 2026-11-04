@@ -515,6 +515,29 @@ paths:
               schema: { $ref: "#/components/schemas/CrmQuoteIntroductionSetup" }
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role required. }
+  /api/crm/quote-lookups/custom-sewing-price:
+    post:
+      operationId: calculateCrmQuoteCustomSewing
+      security:
+        - bearerAuth: []
+      description: >-
+        «Виріб з нуля» (R-20): prices each fabric with the chosen accessories and operations by the Catalog sewing
+        formula and the current settings and reference prices. Nothing is saved; a fabric that cannot be priced lists
+        its problems.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmQuoteCustomSewingPriceInput" }
+      responses:
+        "200":
+          description: Line names and the price of each fabric, in the order given.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteCustomSewingPrice" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
   /api/crm/quote-lookups/staff:
     get:
       operationId: getCrmQuoteStaff
@@ -568,7 +591,84 @@ components:
       enum: [Draft, Sent]
     CrmQuoteItemKind:
       type: string
-      enum: [Sewing, Ppe, OneOffPpe]
+      enum: [Sewing, Ppe, OneOffPpe, CustomSewing]
+    CrmQuoteItemLineKind:
+      type: string
+      enum: [Accessory, Operation]
+    CrmQuoteItemLineInput:
+      type: object
+      required: [kind, referenceId, quantity]
+      properties:
+        kind: { $ref: "#/components/schemas/CrmQuoteItemLineKind" }
+        referenceId: { type: integer, minimum: 1, description: Reference garment accessory or operation. }
+        quantity: { type: number, exclusiveMinimum: 0, maximum: 10000 }
+        manualMinutes:
+          type: [number, "null"]
+          exclusiveMinimum: 0
+          maximum: 10000
+          description: Operation only; minutes of an operation without a fixed norm.
+    CrmQuoteItemLine:
+      type: object
+      required: [id, kind, referenceId, name, unit, quantity]
+      properties:
+        id: { type: integer, format: int64 }
+        kind: { $ref: "#/components/schemas/CrmQuoteItemLineKind" }
+        referenceId: { type: integer }
+        name: { type: string, description: Copied from the reference when the line was priced. }
+        unit: { type: string }
+        quantity: { type: number }
+        manualMinutes: { type: [number, "null"] }
+    CrmQuoteCustomSewingPriceInput:
+      type: object
+      required: [fabrics, lines]
+      properties:
+        fabrics:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            required: [fabricId, meters]
+            properties:
+              fabricId: { type: integer, minimum: 1 }
+              meters: { type: number, exclusiveMinimum: 0, maximum: 10000 }
+        lines:
+          type: array
+          maxItems: 200
+          items: { $ref: "#/components/schemas/CrmQuoteItemLineInput" }
+    CrmQuoteCustomSewingPrice:
+      type: object
+      required: [lines, fabrics]
+      properties:
+        lines:
+          type: array
+          description: The reference data of each requested line; name is null when the row is gone.
+          items:
+            type: object
+            required: [kind, referenceId, isActive]
+            properties:
+              kind: { $ref: "#/components/schemas/CrmQuoteItemLineKind" }
+              referenceId: { type: integer }
+              name: { type: [string, "null"] }
+              unit: { type: [string, "null"] }
+              unitValue: { type: [number, "null"], description: Accessory price per unit or operation norm in minutes. }
+              isActive: { type: boolean }
+        fabrics:
+          type: array
+          items:
+            type: object
+            required: [fabricId, meters, problems]
+            properties:
+              fabricId: { type: integer }
+              meters: { type: number }
+              name: { type: [string, "null"] }
+              details: { type: [string, "null"], description: The client text of the fabric. }
+              pricePerMeter: { type: [number, "null"] }
+              minutes: { type: [number, "null"] }
+              laborCost: { type: [number, "null"], description: "Minutes × cost of a minute, UAH." }
+              fullCost: { type: [number, "null"] }
+              prices:
+                oneOf: [{ $ref: "#/components/schemas/CrmQuoteTierPrices" }, { type: "null" }]
+              problems: { type: array, items: { type: string }, description: Why prices is null. }
     CrmQuotePerson:
       type: object
       required: [userId, name]
@@ -596,14 +696,16 @@ components:
         wholesale: { $ref: "#/components/schemas/CrmQuotePriceInput" }
         large: { $ref: "#/components/schemas/CrmQuotePriceInput" }
         manualReason: { type: [string, "null"], maxLength: 500, description: Required when a PPE price differs from the Catalog. }
+        fabricId: { type: [integer, "null"], description: CustomSewing only; the fabric of the row. }
+        fabricMeters: { type: [number, "null"], description: CustomSewing only; metres of the fabric in one product. }
     CrmQuoteItemInput:
       type: object
       required: [kind, options]
       properties:
         id: { type: [integer, "null"], format: int64 }
         kind: { $ref: "#/components/schemas/CrmQuoteItemKind" }
-        productId: { type: [integer, "null"], description: "Required for Sewing and Ppe, null for OneOffPpe." }
-        name: { type: [string, "null"], maxLength: 200, description: OneOffPpe only. }
+        productId: { type: [integer, "null"], description: "Required for Sewing and Ppe, null for OneOffPpe and CustomSewing." }
+        name: { type: [string, "null"], maxLength: 200, description: OneOffPpe and CustomSewing only. }
         description: { type: [string, "null"], maxLength: 4000 }
         photoUrl: { type: [string, "null"], maxLength: 1000 }
         supplierUrl: { type: [string, "null"], maxLength: 1000 }
@@ -612,6 +714,11 @@ components:
           minItems: 1
           maxItems: 20
           items: { $ref: "#/components/schemas/CrmQuoteOptionInput" }
+        lines:
+          type: [array, "null"]
+          maxItems: 200
+          description: CustomSewing only (needs at least one operation); prices come from the server.
+          items: { $ref: "#/components/schemas/CrmQuoteItemLineInput" }
     CrmSaveQuoteInput:
       type: object
       required: [version, internalName, items]
@@ -652,9 +759,10 @@ components:
         manualByName: { type: [string, "null"] }
         manualAt: { type: [string, "null"], format: date-time }
         pricesTakenAt: { type: [string, "null"], format: date-time }
+        fabricMeters: { type: [number, "null"], description: CustomSewing only. }
     CrmQuoteItem:
       type: object
-      required: [id, kind, name, options]
+      required: [id, kind, name, options, lines]
       properties:
         id: { type: integer, format: int64 }
         kind: { $ref: "#/components/schemas/CrmQuoteItemKind" }
@@ -670,6 +778,10 @@ components:
         options:
           type: array
           items: { $ref: "#/components/schemas/CrmQuoteOption" }
+        lines:
+          type: array
+          description: Accessories and operations of a CustomSewing item; empty for other items.
+          items: { $ref: "#/components/schemas/CrmQuoteItemLine" }
     CrmQuote:
       type: object
       required: [id, number, kind, status, internalName, author, responsible, createdAt, updatedAt, version, items]

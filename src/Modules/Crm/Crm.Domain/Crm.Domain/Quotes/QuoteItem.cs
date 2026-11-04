@@ -4,11 +4,13 @@ namespace Crm.Domain.Quotes;
 public sealed class QuoteItem
 {
     private readonly List<QuoteItemOption> _options = [];
+    private readonly List<QuoteItemLine> _lines = [];
 
     private QuoteItem() { }
 
     public QuoteItem(
-        int position, QuoteItemKind kind, int? productId, QuoteItemTexts texts, IEnumerable<QuoteItemOption> options)
+        int position, QuoteItemKind kind, int? productId, QuoteItemTexts texts, IEnumerable<QuoteItemOption> options,
+        IEnumerable<QuoteItemLine>? lines = null)
     {
         Position = position;
         Kind = kind;
@@ -22,6 +24,7 @@ public sealed class QuoteItem
         Season = QuoteText.Normalize(texts.Season);
         SupplierUrl = QuoteText.Normalize(texts.SupplierUrl);
         _options.AddRange(options);
+        if (lines is not null) _lines.AddRange(lines);
     }
 
     public long Id { get; private set; }
@@ -45,6 +48,9 @@ public sealed class QuoteItem
     public string? SupplierUrl { get; private set; }
 
     public IReadOnlyList<QuoteItemOption> Options => _options;
+
+    /// <summary>Accessories and operations of a «Виріб з нуля», shared by all its fabrics; empty otherwise.</summary>
+    public IReadOnlyList<QuoteItemLine> Lines => _lines;
 
     /// <summary>R-10: the client must see at least one positive price of the item.</summary>
     public bool ShowsPositivePrice => _options.Any(x => x.ShowsPositivePrice);

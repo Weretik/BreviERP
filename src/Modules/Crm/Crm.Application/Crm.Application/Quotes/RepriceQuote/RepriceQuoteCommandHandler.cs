@@ -1,13 +1,15 @@
 using Crm.Application.Quotes.Access;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Contracts;
+using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.Mapping;
 using Crm.Application.Quotes.Persistence;
 using Crm.Domain.Quotes;
 
 namespace Crm.Application.Quotes.RepriceQuote;
 
-public sealed class RepriceQuoteCommandHandler(IQuoteStore store, IQuoteCatalogReader catalog, TimeProvider clock)
+public sealed class RepriceQuoteCommandHandler(
+    IQuoteStore store, IQuoteCatalogReader catalog, TimeProvider clock, IQuoteSewingCalculator? sewing = null)
     : ICommandHandler<RepriceQuoteCommand, Result<QuoteRepriceReport>>
 {
     public async ValueTask<Result<QuoteRepriceReport>> Handle(RepriceQuoteCommand command,
@@ -48,6 +50,9 @@ public sealed class RepriceQuoteCommandHandler(IQuoteStore store, IQuoteCatalogR
             }
         }
 
+        foreach (var item in quote.Items.Where(x => x.Kind == QuoteItemKind.CustomSewing).OrderBy(x => x.Position))
+            await RepriceCustomAsync(item, command.Apply, now, changes, unavailable, cancellationToken);
+
         var applied = command.Apply && changes.Count > 0;
         if (applied)
         {
@@ -63,6 +68,44 @@ public sealed class RepriceQuoteCommandHandler(IQuoteStore store, IQuoteCatalogR
         }
 
         return Result.Success(new QuoteRepriceReport(applied, quote.Version, changes, unavailable));
+    }
+
+    /// <summary>A «Виріб з нуля» is priced again from its saved composition by the Catalog formula (R-20).</summary>
+    private async Task RepriceCustomAsync(QuoteItem item, bool apply, DateTimeOffset now,
+        List<QuoteRepriceChange> changes, List<QuoteRepriceProblem> unavailable, CancellationToken cancellationToken)
+    {
+        var options = item.Options.OrderBy(x => x.Position).ToArray();
+        if (sewing is null)
+        {
+            unavailable.AddRange(options.Select(x =>
+                new QuoteRepriceProblem(x.Id, item.Name, x.Title, "Розрахунок виробу з нуля недоступний.")));
+            return;
+        }
+
+        var composition = new QuoteSewingComposition(
+            options.Select(x => new QuoteSewingFabric(x.FabricId ?? 0, x.FabricMeters ?? 0)).ToArray(),
+            item.Lines.OrderBy(x => x.Position)
+                .Select(x => new QuoteSewingLine(x.Kind, x.ReferenceId, x.Quantity, x.ManualMinutes)).ToArray());
+        var calculation = await sewing.CalculateAsync(composition, cancellationToken);
+        for (var index = 0; index < options.Length; index++)
+        {
+            var option = options[index];
+            var fabric = calculation.Fabrics[index];
+            if (fabric.Prices is not { } current)
+            {
+                unavailable.Add(new QuoteRepriceProblem(option.Id, item.Name, option.Title,
+                    Problems(fabric.Problems, "Не вдалося порахувати ціну.")));
+                continue;
+            }
+
+            if (option.Retail.Source == current.Retail && option.Wholesale.Source == current.Wholesale &&
+                option.Large.Source == current.Large) continue;
+
+            var before = option.Sources();
+            if (apply) option.ReplaceSourcePrices(current.Retail, current.Wholesale, current.Large, now);
+            changes.Add(new QuoteRepriceChange(option.Id, item.Name, option.Title, before,
+                new QuoteTierPricesResponse(current.Retail, current.Wholesale, current.Large)));
+        }
     }
 
     private static QuoteTierPrices? CurrentPrices(QuoteItem item, QuoteItemOption option, QuoteCatalogProduct? product,
