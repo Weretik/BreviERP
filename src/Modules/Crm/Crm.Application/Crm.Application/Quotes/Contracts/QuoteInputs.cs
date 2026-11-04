@@ -16,7 +16,7 @@ public sealed record SaveQuoteInput(
     IReadOnlyList<QuoteItemInput> Items);
 
 /// <param name="Id">The saved item, or null for a new one.</param>
-/// <param name="Kind">`Sewing`, `Ppe`, `OneOffPpe` or `CustomSewing`.</param>
+/// <param name="Kind">`Sewing`, `Ppe`, `OneOffPpe`, `CustomSewing` or `Embroidery` (a saved one only: new ones come from «Додати в КП»).</param>
 /// <param name="ProductId">The Catalog product; for a «Виріб з нуля» the model whose composition was changed, or null.</param>
 /// <param name="Name">Required for a one-off PPE and a «Виріб з нуля»; ignored for Catalog items.</param>
 /// <param name="Lines">The composition of a «Виріб з нуля»; null for other items.</param>

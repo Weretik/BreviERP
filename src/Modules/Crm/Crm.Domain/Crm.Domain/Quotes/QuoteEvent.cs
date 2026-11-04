@@ -42,5 +42,8 @@ public enum QuoteEventKind
     Copied = 8,
 
     /// <summary>The КП came from the old calculator (R-25).</summary>
-    Imported = 9
+    Imported = 9,
+
+    /// <summary>«Додати в КП» from «Ціна вишивки»; the details name the saved calculation.</summary>
+    EmbroideryAdded = 10
 }

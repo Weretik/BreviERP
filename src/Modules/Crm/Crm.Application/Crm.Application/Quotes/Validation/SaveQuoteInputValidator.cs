@@ -88,6 +88,16 @@ public sealed class QuoteItemInputValidator : AbstractValidator<QuoteItemInput>
         RuleFor(x => x.Lines).Must(x => x is null || x.Count == 0)
             .When(x => x.Kind != nameof(QuoteItemKind.CustomSewing))
             .WithMessage("Склад задається лише для виробу з нуля.");
+        When(x => x.Kind == nameof(QuoteItemKind.Embroidery), () =>
+        {
+            RuleFor(x => x.Id).NotNull().GreaterThan(0)
+                .WithMessage("Вишивку додають кнопкою «Додати в КП» у «Ціна вишивки».");
+            RuleFor(x => x.ProductId).Null();
+            RuleFor(x => x.Options).Must(x => x.Count == 1).When(x => x.Options is not null)
+                .WithMessage("Вишивка має один рядок цін.");
+            RuleForEach(x => x.Options).Must(x => x.ArticleId is null && x.Fabrics is null or { Count: 0 })
+                .Must(NoManual).WithMessage("Ціна вишивки береться зі збереженого розрахунку.");
+        });
         When(x => x.Kind == nameof(QuoteItemKind.Ppe), () =>
         {
             RuleFor(x => x.Options).Must(x => x.Count == 1).When(x => x.Options is not null)

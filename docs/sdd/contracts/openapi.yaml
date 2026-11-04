@@ -187,6 +187,8 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1restore
   /api/crm/quotes/{id}/copy:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1copy
+  /api/crm/quotes/{id}/embroidery:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1embroidery
   /api/crm/mailboxes/{userId}/connect:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1mailboxes~1{userId}~1connect
   /api/crm/mailboxes/{userId}:

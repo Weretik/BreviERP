@@ -21,7 +21,8 @@ internal static class QuoteResponseMapper
         item.SiteUrl, item.PhotoUrl, item.Season, item.SupplierUrl,
         item.Options.OrderBy(x => x.Position).Select(ToResponse).ToArray(),
         item.Lines.OrderBy(x => x.Position).Select(x => new QuoteItemLineResponse(x.Id, x.Kind.ToString(),
-            x.ReferenceId, x.Name, x.Unit, x.Quantity, x.ManualMinutes, x.CostCode)).ToArray());
+            x.ReferenceId, x.Name, x.Unit, x.Quantity, x.ManualMinutes, x.CostCode)).ToArray(),
+        item.EmbroideryCalculationId);
 
     private static QuoteOptionResponse ToResponse(QuoteItemOption option) => new(
         option.Id, option.ArticleId, option.FabricId, option.Title, option.Details, option.IsRecommended,

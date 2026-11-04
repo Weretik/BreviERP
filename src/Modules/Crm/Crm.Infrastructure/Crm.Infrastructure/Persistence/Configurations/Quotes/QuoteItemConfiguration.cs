@@ -12,8 +12,10 @@ public sealed class QuoteItemConfiguration : IEntityTypeConfiguration<QuoteItem>
         {
             t.HasCheckConstraint("CK_QuoteItems_Position", "\"Position\" >= 0");
             t.HasCheckConstraint("CK_QuoteItems_Product",
-                "(\"Kind\" = 'OneOffPpe' AND \"ProductId\" IS NULL) OR \"Kind\" = 'CustomSewing' OR " +
-                "(\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NOT NULL)");
+                "(\"Kind\" IN ('OneOffPpe', 'Embroidery') AND \"ProductId\" IS NULL) OR \"Kind\" = 'CustomSewing' OR " +
+                "(\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing', 'Embroidery') AND \"ProductId\" IS NOT NULL)");
+            t.HasCheckConstraint("CK_QuoteItems_Embroidery",
+                "(\"Kind\" = 'Embroidery') = (\"EmbroideryCalculationId\" IS NOT NULL)");
         });
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).ValueGeneratedOnAdd();
@@ -30,6 +32,7 @@ public sealed class QuoteItemConfiguration : IEntityTypeConfiguration<QuoteItem>
 
         b.HasIndex(x => new { x.QuoteId, x.Position });
         b.HasIndex(x => x.ProductId);
+        b.HasIndex(x => x.EmbroideryCalculationId);
 
         b.HasMany(x => x.Options).WithOne().HasForeignKey(x => x.ItemId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(x => x.Options).HasField("_options").UsePropertyAccessMode(PropertyAccessMode.Field);

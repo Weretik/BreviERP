@@ -271,6 +271,40 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role and a numeric actor claim required. }
         "404": { description: Not found. }
+  /api/crm/quotes/{id}/embroidery:
+    parameters:
+      - $ref: "#/components/parameters/QuoteId"
+    post:
+      operationId: addCrmQuoteEmbroidery
+      security:
+        - bearerAuth: []
+      description: >-
+        «Додати в КП» from «Ціна вишивки» (EMB-001 R-12): appends a saved embroidery calculation as one `Embroidery`
+        item at the end. Its one row is titled with the chosen level, and that level's saved unit price stands, shown,
+        in all three tiers; it is never repriced. No version is needed: the call only adds, and raises the version.
+        A Manager adds only to own КП (404 otherwise); an archived КП or an introduction is 409; an unknown
+        calculation or level is 400.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [calculationId, level]
+              properties:
+                calculationId: { type: integer, format: int64, minimum: 1 }
+                level: { type: string, maxLength: 120, description: «Опт», «Стандарт» or «Терміново». }
+      responses:
+        "200":
+          description: The КП with the new item.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuote" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+        "404": { description: Not found. }
+        "409": { $ref: "#/components/responses/Conflict" }
   /api/crm/quotes/{id}/pdf:
     parameters:
       - $ref: "#/components/parameters/QuoteId"
@@ -735,7 +769,7 @@ components:
       enum: [Draft, Sent]
     CrmQuoteItemKind:
       type: string
-      enum: [Sewing, Ppe, OneOffPpe, CustomSewing]
+      enum: [Sewing, Ppe, OneOffPpe, CustomSewing, Embroidery]
     CrmQuoteItemLineKind:
       type: string
       enum: [Accessory, Operation, Service, Fabric]
@@ -888,7 +922,7 @@ components:
         id: { type: integer, format: int64 }
         kind:
           type: string
-          enum: [Created, Saved, Sent, Repriced, ResponsibleChanged, Archived, Restored, Copied, Imported]
+          enum: [Created, Saved, Sent, Repriced, ResponsibleChanged, Archived, Restored, Copied, Imported, EmbroideryAdded]
         at: { type: string, format: date-time }
         actor: { $ref: "#/components/schemas/CrmQuotePerson" }
         details:
@@ -1024,6 +1058,13 @@ components:
           type: array
           description: Accessories and operations of a CustomSewing item; empty for other items.
           items: { $ref: "#/components/schemas/CrmQuoteItemLine" }
+        embroideryCalculationId:
+          type: [integer, "null"]
+          format: int64
+          description: >-
+            The saved «Ціна вишивки» calculation of an Embroidery item; null for other items. The editor sends an
+            Embroidery item back by its id with one row and no manual prices: only the description and the «показати»
+            ticks change. A new Embroidery item in the editor is 400.
     CrmQuote:
       type: object
       required: [id, number, kind, status, internalName, author, responsible, createdAt, updatedAt, version, items]
