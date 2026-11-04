@@ -121,6 +121,8 @@ public sealed class AdminUsersApiTests
         var adminBlocksDirector = await admin.Http.PutAsJsonAsync($"/api/admin/users/{directorId}/blocked", new { blocked = true });
         var adminResetsDirector = await admin.Http.PutAsJsonAsync($"/api/admin/users/{directorId}/password", new { password = "Taken-Over-1" });
         var adminDeletesDirector = await admin.Http.DeleteAsync($"/api/admin/users/{directorId}");
+        var adminEditsDirector = await admin.Http.PutAsJsonAsync($"/api/admin/users/{directorId}/details",
+            new { fullName = "Інший", email = "director@brevi.test", phoneNumber = (string?)null });
         var list = await admin.Http.GetFromJsonAsync<JsonElement>("/api/admin/users");
         var directorRow = list.EnumerateArray().Single(x => x.GetProperty("id").GetInt32() == directorId);
 
@@ -139,6 +141,7 @@ public sealed class AdminUsersApiTests
             Assert.That(adminBlocksDirector.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
             Assert.That(adminResetsDirector.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
             Assert.That(adminDeletesDirector.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+            Assert.That(adminEditsDirector.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
             Assert.That(directorRow.GetProperty("role").GetString(), Is.EqualTo("Director"));
             Assert.That(directorMe.GetProperty("roles").EnumerateArray().Select(x => x.GetString()), Is.SupersetOf(new[] { "Director", "Admin" }));
             Assert.That(directorOwnPassword.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));

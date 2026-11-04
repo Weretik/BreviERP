@@ -5,6 +5,7 @@ using Identity.Application.Features.Users.DeleteStaff;
 using Identity.Application.Features.Users.GetStaffList;
 using Identity.Application.Features.Users.SetStaffBlocked;
 using Identity.Application.Features.Users.SetStaffPassword;
+using Identity.Application.Features.Users.UpdateStaffDetails;
 using Identity.Application.Security.Policies;
 
 namespace Identity.Api.Controllers;
@@ -59,6 +60,15 @@ public sealed class AdminUsersController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SetBlocked(int userId, [FromBody] SetStaffBlockedRequest request, CancellationToken cancellationToken)
         => NoContentOr(await sender.Send(new SetStaffBlockedCommand(userId, request.Blocked), cancellationToken));
+
+    [HttpPut("{userId:int}/details", Name = "updateStaffDetails")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> UpdateDetails(int userId, [FromBody] UpdateStaffDetailsRequest request, CancellationToken cancellationToken)
+        => NoContentOr(await sender.Send(
+            new UpdateStaffDetailsCommand(userId, request.FullName, request.Email, request.PhoneNumber), cancellationToken));
 
     [HttpPut("{userId:int}/password", Name = "setStaffPassword")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
