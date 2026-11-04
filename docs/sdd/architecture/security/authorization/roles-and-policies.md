@@ -34,7 +34,8 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 | `RequireManagerRole` / `CanManageProducts` / `CanManageOrders` | Manager, Admin |
 | `CatalogRead` | User, Accountant, Manager, Admin |
 | `OwnProfile` | Accountant, Manager, WorkshopChief, Admin (`/api/profile`) |
-| `CanManageWorkshop` | WorkshopChief, Admin (`/api/production`) |
+| `CanManageWorkshop` | WorkshopChief, Admin (`/api/production` references: staff, fabric norms, payroll parameters) |
+| `CanUseProductionOrders` | Manager, WorkshopChief, Admin (`/api/production/orders`; rules inside by role, [PRD-002](../../../specs/production/002-production-orders/README.md)) |
 | `OrderCreate` | User, Manager, Admin |
 | `RequireTenantAccess` | Constant is defined; policy is not currently registered |
 
