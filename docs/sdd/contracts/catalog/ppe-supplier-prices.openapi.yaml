@@ -1,0 +1,555 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BreviERP PPE Supplier Prices API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/api/v1/pricing/ppe/supplier-prices": {
+      "get": {
+        "operationId": "listPpePriceSources",
+        "description": "CatalogRead. Sources of «Довідники» → «Імпорт цін» with logic, schedule, discount, product counts and the last run.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sources.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpePriceSourcesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          }
+        }
+      }
+    },
+    "/api/v1/pricing/ppe/supplier-prices/{key}": {
+      "put": {
+        "operationId": "updatePpePriceSource",
+        "description": "RequireAdminRole (administrators and the director). Saves the discount and, optionally, the «Постачальники» row.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "av-center",
+                "3c-market",
+                "perchatka-centr",
+                "insight",
+                "trele",
+                "cemto"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePpePriceSourceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Saved."
+          },
+          "400": {
+            "description": "Invalid request; body lists the reasons in Ukrainian."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          },
+          "404": {
+            "description": "Unknown source."
+          }
+        }
+      }
+    },
+    "/api/v1/pricing/ppe/supplier-prices/{key}/import": {
+      "post": {
+        "operationId": "importPpeSupplierPrices",
+        "description": "CanManageProducts. Reads the supplier's files (Insight: 3 XML; СЕМТО: 1 PDF; each may be gzipped) and returns every product of the supplier with old and new prices. dryRun=false saves changed prices as new approved offer versions; manual-price and inactive products are skipped. Request limit 30 MB.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "av-center",
+                "3c-market",
+                "perchatka-centr",
+                "insight",
+                "trele",
+                "cemto"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "dryRun",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "files"
+                ],
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preview or applied result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpePriceImportResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request; body lists the reasons in Ukrainian."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          },
+          "404": {
+            "description": "Unknown source."
+          },
+          "413": {
+            "description": "Files too large."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "PpePriceImportProblem": {
+        "type": "object",
+        "required": [
+          "productCode",
+          "productName",
+          "message"
+        ],
+        "properties": {
+          "productCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "productName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "PpePriceImportRun": {
+        "type": "object",
+        "required": [
+          "sourceKey",
+          "trigger",
+          "actor",
+          "finishedAt",
+          "checked",
+          "changed",
+          "unchanged",
+          "skipped",
+          "problems"
+        ],
+        "properties": {
+          "sourceKey": {
+            "type": "string"
+          },
+          "trigger": {
+            "type": "string",
+            "description": "«Файл», later «Розклад» or «Оновити зараз»."
+          },
+          "actor": {
+            "type": "string"
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "checked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "changed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PpePriceImportProblem"
+            }
+          }
+        }
+      },
+      "PpePriceSourceView": {
+        "type": "object",
+        "required": [
+          "key",
+          "title",
+          "method",
+          "schedule",
+          "logic",
+          "discountPercent",
+          "defaultDiscountPercent",
+          "supplierId",
+          "supplierName",
+          "productCount",
+          "manualPriceCount",
+          "fileKind",
+          "fileCount",
+          "automaticUpdateConnected",
+          "settingsUpdatedAt",
+          "settingsUpdatedBy",
+          "lastRun"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "Website",
+              "GoogleSheets",
+              "SupplierCabinet",
+              "File"
+            ]
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "logic": {
+            "type": "string"
+          },
+          "discountPercent": {
+            "type": "number"
+          },
+          "defaultDiscountPercent": {
+            "type": "number"
+          },
+          "supplierId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "supplierName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "productCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "manualPriceCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fileKind": {
+            "type": "string",
+            "enum": [
+              "None",
+              "InsightYml",
+              "CemtoPdf"
+            ]
+          },
+          "fileCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "automaticUpdateConnected": {
+            "type": "boolean",
+            "description": "False until stages 2–3 connect the scheduled update."
+          },
+          "settingsUpdatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "settingsUpdatedBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lastRun": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PpePriceImportRun"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "UpdatePpePriceSourceRequest": {
+        "type": "object",
+        "required": [
+          "discountPercent"
+        ],
+        "properties": {
+          "discountPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 90,
+            "description": "Up to 2 decimals."
+          },
+          "supplierId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PpePriceImportRow": {
+        "type": "object",
+        "required": [
+          "productId",
+          "code",
+          "name",
+          "status",
+          "oldPrice",
+          "newPrice",
+          "oldWholesale",
+          "newWholesale",
+          "oldRetail",
+          "newRetail",
+          "message"
+        ],
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Changed",
+              "Unchanged",
+              "ManualPrice",
+              "Inactive",
+              "NotInFile",
+              "Invalid"
+            ]
+          },
+          "oldPrice": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "newPrice": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "oldWholesale": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "newWholesale": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "oldRetail": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "newRetail": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PpePriceImportResult": {
+        "type": "object",
+        "required": [
+          "sourceKey",
+          "applied",
+          "discountPercent",
+          "checked",
+          "changed",
+          "unchanged",
+          "skipped",
+          "rows"
+        ],
+        "properties": {
+          "sourceKey": {
+            "type": "string"
+          },
+          "applied": {
+            "type": "boolean"
+          },
+          "discountPercent": {
+            "type": "number"
+          },
+          "checked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "changed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PpePriceImportRow"
+            }
+          }
+        }
+      },
+      "PpePriceSourcesResponse": {
+        "type": "object",
+        "required": [
+          "canChangeDiscounts",
+          "sources"
+        ],
+        "properties": {
+          "canChangeDiscounts": {
+            "type": "boolean",
+            "description": "True for administrators and the director (they hold Admin)."
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PpePriceSourceView"
+            }
+          }
+        }
+      }
+    }
+  }
+}

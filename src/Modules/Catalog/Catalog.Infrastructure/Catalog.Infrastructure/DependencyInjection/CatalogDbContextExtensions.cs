@@ -48,6 +48,8 @@ public static class CatalogDbContextExtensions
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpeRuleVersionWriter, Catalog.Infrastructure.Pricing.Ppe.Writing.PpeRuleVersionWriter>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.IPpeOfferVersionWriter, Catalog.Infrastructure.Pricing.Ppe.Writing.PpeOfferVersionWriter>();
         services.AddScoped<Catalog.Application.Contracts.Persistence.SheetImport.ISheetProductImportStore, Catalog.Infrastructure.Products.SheetImport.SheetProductImportStore>();
+        services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices.IPpePriceSourceStore, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Store.PpePriceSourceStore>();
+        services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices.IPpeSupplierFileReader, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Files.PpeSupplierFileReader>();
         return services;
     }
 }

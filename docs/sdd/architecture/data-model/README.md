@@ -20,6 +20,8 @@ BreviERP PostgreSQL
 │   ├── ProductCharacteristicRows      # characteristic rows
 │   ├── SewingProductDetails           # sewing product details
 │   ├── PpeProductDetails              # PPE product details
+│   ├── PpePriceSources                # «Імпорт цін» discount and supplier per source
+│   ├── PpePriceImportRuns             # «Імпорт цін» applied runs with problems
 │   ├── SewingProductFabrics           # product fabrics
 │   ├── SewingProductAccessories       # product accessories
 │   └── SewingProductOperations        # sewing operations
