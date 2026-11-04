@@ -15,12 +15,12 @@ While the client id or secret is empty, Gmail is off: «Підключити Gma
 
 ## One-time setup in Google Cloud (owner)
 
-1. In the Google Cloud project that already has the Brevi OAuth consent screen (or in `brevistoreapi`), enable **Gmail API**.
+1. The OAuth app lives in the Google Cloud project **BreviERP Mail** (`brevierp-mail`); enable **Gmail API** there. Its older client «BreviERP — підключення пошти» is a Desktop app and cannot take the web redirect, so stage 3 uses a separate Web client «BreviERP — надсилання КП» (2026-11-04).
 2. **Google Auth platform → Audience**: External, publishing status **In production**. In Testing, Google drops the access after 7 days. An unverified app shows «Google hasn't verified this app»; staff press «Advanced → Go to …». That is acceptable for up to 100 staff; verification is needed only for wider use.
 3. **Data Access**: add the scope `https://www.googleapis.com/auth/gmail.send` (plus `openid`, `email`).
 4. **Clients → Create client → Web application**. Authorized redirect URI: `https://api.brevi.com.ua/api/crm/mailboxes/google-callback`. Copy the client id and secret; do not send them in chat.
 5. In Secret Manager of `brevistoreapi` create `crm-gmail-client-id` and `crm-gmail-client-secret` with those values. The Cloud Run runtime service account already has Secret Accessor.
-6. Set `CRM_GMAIL_ENABLED: 'true'` in the deploy workflow (a one-line PR), Sync fork, wait for the green deploy.
+6. Set `CRM_GMAIL_ENABLED: 'true'` in the deploy workflow (a one-line PR), Sync fork, wait for the green deploy. Done 2026-11-04; set it back to `'false'` to switch sending off.
 
 ## Use
 
