@@ -1,6 +1,7 @@
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.CustomSewing;
+using Crm.Application.Quotes.Embroidery;
 using Crm.Domain.Quotes;
 
 namespace Crm.Application.Quotes.Building;
@@ -36,6 +37,7 @@ public sealed class QuoteItemsBuilder(
             var built = kind switch
             {
                 QuoteItemKind.OneOffPpe => BuildOneOff(index, input, previous, actor, now),
+                QuoteItemKind.Embroidery => KeepEmbroidery(index, input, previous),
                 QuoteItemKind.CustomSewing when sewing is null => Result.Error("Розрахунок виробу з нуля недоступний."),
                 QuoteItemKind.CustomSewing => await new QuoteCustomSewingItemBuilder(sewing)
                     .BuildAsync(index, input, previous, products, now, cancellationToken),
@@ -178,6 +180,16 @@ public sealed class QuoteItemsBuilder(
             Price(source.Retail, input.Retail), Price(source.Wholesale, input.Wholesale), Price(source.Large, input.Large),
             saved?.PricesTakenAt ?? now);
         return WithManualAudit(option, input, saved, itemName, actor, now);
+    }
+
+    /// <summary>An embroidery item keeps its saved price; the editor changes only the description and the ticks.</summary>
+    private static Result<QuoteItem> KeepEmbroidery(int position, QuoteItemInput input, QuoteItem? previous)
+    {
+        if (previous?.EmbroideryCalculationId is null)
+            return Result.Invalid(new ValidationError("Вишивку додають кнопкою «Додати в КП» у «Ціна вишивки»."));
+        var option = input.Options[0];
+        return Result.Success(QuoteEmbroideryItems.Keep(position, previous, input.Description, option.Retail.Shown,
+            option.Wholesale.Shown, option.Large.Shown));
     }
 
     private static Result<QuoteItem> BuildOneOff(

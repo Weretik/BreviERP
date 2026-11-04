@@ -160,6 +160,15 @@ public sealed class Quote
         Touch(now);
     }
 
+    /// <summary>Appends one item after the others («Додати в КП»).</summary>
+    public void AddItem(QuoteItem item, DateTimeOffset now)
+    {
+        if (_items.Count >= QuoteLimits.MaxItems)
+            throw new InvalidOperationException($"A КП holds at most {QuoteLimits.MaxItems} items.");
+        _items.Add(item);
+        Touch(now);
+    }
+
     /// <summary>The fields only an introduction has; the caller replaces the header and items in the same change.</summary>
     public void SetIntroduction(QuoteIntroduction introduction)
     {

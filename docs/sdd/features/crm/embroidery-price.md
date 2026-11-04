@@ -1,6 +1,6 @@
 # «Менеджер сервісу»: embroidery price
 
-**Implemented:** stage 1 of [EMB-001](../../specs/crm/005-embroidery-price/README.md) (2026-11-04). «Ціна вишивки» computes the cost and three prices («Опт», «Стандарт», «Терміново») of an embroidery on a garment or of chevrons, with the repeat price and the cut layout of stabilizer and fabric. Managers get prices only; Director and Admin also get the cost and edit «Налаштування». The embroiderer's rate comes from «Параметри ціноутворення». Stage 2 adds «Збережені»: a saved calculation keeps its form, frozen rates and result, with an optional client, search by name, client or «ВШ-0042»; only Director and Admin delete.
+**Implemented:** stage 1 of [EMB-001](../../specs/crm/005-embroidery-price/README.md) (2026-11-04). «Ціна вишивки» computes the cost and three prices («Опт», «Стандарт», «Терміново») of an embroidery on a garment or of chevrons, with the repeat price and the cut layout of stabilizer and fabric. Managers get prices only; Director and Admin also get the cost and edit «Налаштування». The embroiderer's rate comes from «Параметри ціноутворення». Stage 2 adds «Збережені»: a saved calculation keeps its form, frozen rates and result, with an optional client, search by name, client or «ВШ-0042»; only Director and Admin delete. «Додати в КП» puts a saved calculation into a КП as one Embroidery row with the chosen level's price in all three tiers.
 
 ## Code structure
 
@@ -24,6 +24,9 @@ src/Modules/Crm/
     GetForm/ Calculate/ GetSettings/ SaveSettings/
     Calculate/EmbroideryPricing.cs        shared pricing for calculate and save
     SaveCalculation/ GetCalculations/ GetCalculation/ DeleteCalculation/  «Збережені»
+  Crm.Application/Crm.Application/Quotes/
+    AddEmbroidery/                        «Додати в КП» command
+    Embroidery/QuoteEmbroideryItems.cs    saved calculation → КП item, kept on save
   Crm.Infrastructure/.../Configurations/Embroidery/  settings row, saved calculations
   Crm.Api/Crm.Api/Embroidery/EmbroideryController.cs  /api/crm/embroidery
 src/Bootstrapper/Host.Api/Crm/EmbroideryStitchRateReader.cs  Reference adapter
@@ -36,3 +39,4 @@ src/Bootstrapper/Host.Api/Crm/EmbroideryStitchRateReader.cs  Reference adapter
 - `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Crm.Embroidery"` — specification examples, rounding, missing rates, validators, Manager response.
 - `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter EmbroideryPersistenceTests` — settings and calculation over PostgreSQL (`BREVIERP_CRM_TEST_CONNECTION`).
 - `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter EmbroiderySavedPersistenceTests` — saved calculations keep their rates, search, delete rights.
+- `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter QuoteEmbroideryPersistenceTests` and `dotnet test tests/UnitTests/UnitTests.csproj --filter QuoteEmbroideryTests` — «Додати в КП».

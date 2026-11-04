@@ -1,6 +1,7 @@
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
 using Crm.Api.Quotes.Requests;
+using Crm.Application.Quotes.AddEmbroidery;
 using Crm.Application.Quotes.Archive;
 using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.CopyQuote;
@@ -185,6 +186,21 @@ public sealed class QuotesController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public Task<ActionResult<QuoteResponse>> Restore(long id, QuoteVersionRequest request,
         CancellationToken cancellationToken) => SetArchived(id, request.Version, false, cancellationToken);
+
+    /// <summary>«Додати в КП» from «Ціна вишивки»: appends the saved calculation as one item; no version needed.</summary>
+    [HttpPost("{id:long}/embroidery", Name = "addCrmQuoteEmbroidery")]
+    [ProducesResponseType<QuoteResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<QuoteResponse>> AddEmbroidery(long id, AddQuoteEmbroideryRequest request,
+        CancellationToken cancellationToken)
+    {
+        var actor = QuoteActorClaims.Read(User);
+        if (actor is null) return Forbid();
+        return this.ToActionResult(await sender.Send(
+            new AddEmbroideryToQuoteCommand(actor, id, request.CalculationId, request.Level), cancellationToken));
+    }
 
     /// <summary>«Копіювати»: a new draft with the next number and the same items and saved prices.</summary>
     [HttpPost("{id:long}/copy", Name = "copyCrmQuote")]

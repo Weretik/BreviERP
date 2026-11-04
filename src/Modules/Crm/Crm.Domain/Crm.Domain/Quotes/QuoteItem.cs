@@ -47,16 +47,29 @@ public sealed class QuoteItem
     public string? Season { get; private set; }
     public string? SupplierUrl { get; private set; }
 
+    /// <summary>The saved «Ціна вишивки» calculation of an <see cref="QuoteItemKind.Embroidery"/> item; null otherwise.</summary>
+    public long? EmbroideryCalculationId { get; private set; }
+
     public IReadOnlyList<QuoteItemOption> Options => _options;
 
     /// <summary>The composition of a «Виріб з нуля» or changed model, shared by all its fabrics; empty otherwise.</summary>
     public IReadOnlyList<QuoteItemLine> Lines => _lines;
 
     /// <summary>A new item with the same texts, composition and saved prices, for a copy of the КП.</summary>
-    public QuoteItem Copy() => new(Position, Kind, ProductId,
+    public QuoteItem Copy() => new QuoteItem(Position, Kind, ProductId,
         new QuoteItemTexts(Code, Name, Subtitle, Description, SiteUrl, PhotoUrl, Season, SupplierUrl),
         _options.OrderBy(x => x.Position).Select(x => x.Copy()),
-        _lines.OrderBy(x => x.Position).Select(x => x.Copy()));
+        _lines.OrderBy(x => x.Position).Select(x => x.Copy())) { EmbroideryCalculationId = EmbroideryCalculationId };
+
+    /// <summary>An embroidery item made from a saved calculation; it has one price row and no Catalog product.</summary>
+    public static QuoteItem Embroidery(int position, long calculationId, QuoteItemTexts texts, QuoteItemOption option)
+    {
+        if (calculationId <= 0) throw new ArgumentOutOfRangeException(nameof(calculationId));
+        return new QuoteItem(position, QuoteItemKind.Embroidery, null, texts, [option])
+        {
+            EmbroideryCalculationId = calculationId
+        };
+    }
 
     /// <summary>R-10: the client must see at least one positive price of the item.</summary>
     public bool ShowsPositivePrice => _options.Any(x => x.ShowsPositivePrice);

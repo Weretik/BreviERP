@@ -45,7 +45,13 @@ public enum QuoteItemKind
     /// «Виріб з нуля»: a sewn product that is not in the Catalog. The manager picks accessories, operations and one or
     /// more fabrics; its prices come from the Catalog formula (R-20).
     /// </summary>
-    CustomSewing = 4
+    CustomSewing = 4,
+
+    /// <summary>
+    /// A saved «Ціна вишивки» calculation added with «Додати в КП» (EMB-001 stage 2): one row whose price is copied from
+    /// the saved record into the tier that matches its quantity; it is never repriced.
+    /// </summary>
+    Embroidery = 5
 }
 
 /// <summary>A shared composition line of a «Виріб з нуля».</summary>

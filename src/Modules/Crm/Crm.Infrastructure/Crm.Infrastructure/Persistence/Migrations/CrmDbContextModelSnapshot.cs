@@ -549,6 +549,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
 
+                    b.Property<long?>("EmbroideryCalculationId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -590,15 +593,19 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EmbroideryCalculationId");
+
                     b.HasIndex("ProductId");
 
                     b.HasIndex("QuoteId", "Position");
 
                     b.ToTable("QuoteItems", "crm", t =>
                         {
+                            t.HasCheckConstraint("CK_QuoteItems_Embroidery", "(\"Kind\" = 'Embroidery') = (\"EmbroideryCalculationId\" IS NOT NULL)");
+
                             t.HasCheckConstraint("CK_QuoteItems_Position", "\"Position\" >= 0");
 
-                            t.HasCheckConstraint("CK_QuoteItems_Product", "(\"Kind\" = 'OneOffPpe' AND \"ProductId\" IS NULL) OR \"Kind\" = 'CustomSewing' OR (\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NOT NULL)");
+                            t.HasCheckConstraint("CK_QuoteItems_Product", "(\"Kind\" IN ('OneOffPpe', 'Embroidery') AND \"ProductId\" IS NULL) OR \"Kind\" = 'CustomSewing' OR (\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing', 'Embroidery') AND \"ProductId\" IS NOT NULL)");
                         });
                 });
 

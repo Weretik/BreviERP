@@ -91,6 +91,16 @@ public sealed class QuoteItemOption
         return copy;
     }
 
+    /// <summary>The same row with only the «показати клієнту» ticks changed (an embroidery row).</summary>
+    public QuoteItemOption CopyShown(bool retail, bool wholesale, bool large)
+    {
+        var copy = Copy();
+        copy.Retail = Retail with { Shown = retail };
+        copy.Wholesale = Wholesale with { Shown = wholesale };
+        copy.Large = Large with { Shown = large };
+        return copy;
+    }
+
     public IEnumerable<QuotePrice> Prices => [Retail, Wholesale, Large];
 
     public bool HasManualPrice => Prices.Any(x => x.IsManual);

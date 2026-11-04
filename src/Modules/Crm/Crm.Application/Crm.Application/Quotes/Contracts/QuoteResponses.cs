@@ -59,7 +59,8 @@ public sealed record QuoteItemResponse(
     string? Season,
     string? SupplierUrl,
     IReadOnlyList<QuoteOptionResponse> Options,
-    IReadOnlyList<QuoteItemLineResponse> Lines);
+    IReadOnlyList<QuoteItemLineResponse> Lines,
+    long? EmbroideryCalculationId = null);
 
 /// <summary>An accessory, operation, service or extra fabric of a «Виріб з нуля».</summary>
 public sealed record QuoteItemLineResponse(

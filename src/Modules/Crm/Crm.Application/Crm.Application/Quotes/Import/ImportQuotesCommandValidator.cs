@@ -69,7 +69,8 @@ public sealed class ImportItemInputValidator : AbstractValidator<ImportItemInput
 {
     public ImportItemInputValidator()
     {
-        RuleFor(x => x.Kind).Must(ImportQuoteInputValidator.IsEnum<QuoteItemKind>).WithMessage("Невідомий тип позиції.");
+        RuleFor(x => x.Kind).Must(x => ImportQuoteInputValidator.IsEnum<QuoteItemKind>(x) && x != nameof(QuoteItemKind.Embroidery))
+            .WithMessage("Невідомий тип позиції.");
         RuleFor(x => x.Code).NotEmpty().MaximumLength(QuoteLimits.CodeMaxLength)
             .When(x => x.Kind is nameof(QuoteItemKind.Sewing) or nameof(QuoteItemKind.Ppe));
         RuleFor(x => x.Name).NotEmpty().MaximumLength(QuoteLimits.NameMaxLength);
