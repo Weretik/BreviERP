@@ -46,6 +46,19 @@ public static class PpePriceImportPlanner
             : null;
     }
 
+    private static string NotFoundMessage(PpePriceSource source, PpePriceImportProduct product) => source.Method switch
+    {
+        PpePriceSourceMethod.Website => string.IsNullOrWhiteSpace(product.SupplierUrl)
+            ? "У товару немає посилання на сторінку постачальника."
+            : "Сторінку постачальника не перевірено.",
+        PpePriceSourceMethod.GoogleSheets => string.IsNullOrWhiteSpace(product.SupplierSku)
+            ? "У товару немає артикулу постачальника."
+            : $"Артикул {product.SupplierSku} не знайдено в прайсах {source.Title}.",
+        _ => product.SupplierUrl is null && product.SupplierSku is null
+            ? "У товару немає посилання й артикулу постачальника."
+            : "Товар не знайдено у файлі за посиланням або артикулом постачальника."
+    };
+
     private static PpePriceImportRow PlanProduct(
         PpePriceSource source, decimal discountPercent, PpePriceImportProduct product, SupplierFilePrice? found)
     {
@@ -56,10 +69,7 @@ public static class PpePriceImportPlanner
 
         if (product.AllowManualPrice) return Row(PpePriceImportStatus.ManualPrice, "Увімкнено «Дозволити ручну ціну».");
         if (!product.IsActive) return Row(PpePriceImportStatus.Inactive, "Товар неактивний.");
-        if (found is null)
-            return Row(PpePriceImportStatus.NotInFile, product.SupplierUrl is null && product.SupplierSku is null
-                ? "У товару немає посилання й артикулу постачальника."
-                : "Товар не знайдено у файлі за посиланням або артикулом постачальника.");
+        if (found is null) return Row(PpePriceImportStatus.NotInFile, NotFoundMessage(source, product));
         if (found.Problem is not null) return Row(PpePriceImportStatus.Invalid, found.Problem);
         if (found.Price <= 0) return Row(PpePriceImportStatus.Invalid, "У файлі немає ціни.");
 

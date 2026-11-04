@@ -1,6 +1,7 @@
 using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
+using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Running;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
@@ -69,9 +70,9 @@ public sealed class PpeSupplierFileImportTests : SewingPricingDatabaseFixture
             new Dictionary<int, ReferenceItem> { [1] = new(1, "СЕМТО") }, new Dictionary<int, PricedReferenceItem>(),
             new Dictionary<int, PricedReferenceItem>(), new Dictionary<int, OperationReferenceItem>(),
             new Dictionary<int, AdditionalReferenceItem>()));
-        var handler = new ImportPpeSupplierFilesCommandHandler(new PpePriceSourceStore(db), new PpeSupplierFileReader(),
-            references.Object, new CatalogEfRepository<Product>(db), new PpePricingInputReader(db),
-            new PpeOfferVersionWriter(db), TimeProvider.System);
+        var handler = new ImportPpeSupplierFilesCommandHandler(new PpeSupplierFileReader(), new PpePriceImportRunner(
+            new PpePriceSourceStore(db), references.Object, new CatalogEfRepository<Product>(db),
+            new PpePricingInputReader(db), new PpeOfferVersionWriter(db), TimeProvider.System));
         return await handler.Handle(new ImportPpeSupplierFilesCommand("cemto", [CemtoPdf()], dryRun, "manager-id", "manager@brevi"),
             CancellationToken.None);
     }

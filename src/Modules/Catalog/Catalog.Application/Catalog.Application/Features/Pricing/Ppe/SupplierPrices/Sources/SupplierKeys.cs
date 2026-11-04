@@ -12,7 +12,10 @@ public static partial class SupplierKeys
         ['M'] = 'М', ['O'] = 'О', ['P'] = 'Р', ['T'] = 'Т', ['X'] = 'Х', ['Y'] = 'У'
     };
 
-    /// <summary>Upper case, Latin letters that look Cyrillic swapped, spaces, dashes, dots and underscores removed.</summary>
+    /// <summary>
+    /// Upper case, Latin letters that look Cyrillic swapped, spaces, dashes, dots and underscores removed; an
+    /// all-digit article also loses its leading zeros, as 3C-Маркет's lists write them.
+    /// </summary>
     public static string? Sku(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) return null;
@@ -23,7 +26,11 @@ public static partial class SupplierKeys
             builder.Append(LatinLookalikes.GetValueOrDefault(character, character));
         }
 
-        return builder.Length == 0 ? null : builder.ToString();
+        if (builder.Length == 0) return null;
+        var sku = builder.ToString();
+        if (!sku.All(char.IsAsciiDigit)) return sku;
+        var trimmed = sku.TrimStart('0');
+        return trimmed.Length == 0 ? "0" : trimmed;
     }
 
     /// <summary>Lower case, without scheme, www, query, trailing slash and the Insight language prefix (/ru/, /ua/).</summary>

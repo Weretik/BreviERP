@@ -23,6 +23,17 @@ public enum PpePriceFileKind
     CemtoPdf
 }
 
+/// <summary>When the daily sync job updates a source by itself.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<PpePriceUpdateCadence>))]
+public enum PpePriceUpdateCadence
+{
+    /// <summary>Only a staff member updates it (files).</summary>
+    Manual,
+    /// <summary>Monday morning, Kyiv time.</summary>
+    WeeklyMonday,
+    Daily
+}
+
 /// <summary>
 /// One supplier price source from the client's Apps Script: where the price comes from, when it updates and the
 /// default discount off the supplier's price. The discount and the supplier link are changed in «Імпорт цін».
@@ -37,8 +48,15 @@ public sealed record PpePriceSource(
     decimal DefaultDiscountPercent,
     PpePriceFileKind FileKind,
     int FileCount,
-    /// <summary>Automatic updates of website, Google Sheets and cabinet sources arrive in later stages.</summary>
+    PpePriceUpdateCadence Cadence,
+    /// <summary>
+    /// The automatic update of a website, Google Sheets or cabinet source works: the daily job runs it on its
+    /// <see cref="Cadence"/> and «Оновити зараз» is offered. Cabinet sources arrive in a later stage.
+    /// </summary>
     bool AutomaticUpdateConnected)
 {
     public bool AcceptsFiles => FileKind != PpePriceFileKind.None;
+
+    /// <summary>Prices come from the supplier's site, lists or cabinet, so Brevi can fetch them itself.</summary>
+    public bool CanRefresh => Method != PpePriceSourceMethod.File && AutomaticUpdateConnected;
 }

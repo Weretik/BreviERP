@@ -181,6 +181,68 @@
           }
         }
       }
+    },
+    "/api/v1/pricing/ppe/supplier-prices/{key}/refresh": {
+      "post": {
+        "operationId": "refreshPpeSupplierPrices",
+        "description": "CanManageProducts. «Оновити зараз» for a connected website or Google Sheets source (av-center, 3c-market, perchatka-centr): reads the supplier's pages or the six 3C lists now and returns every product of the supplier with old and new prices. A page without a price or a failed page is a row problem; a 3C list that does not load fails the request with 400 and changes nothing. dryRun=false reads again and saves changed prices as new approved offer versions. File and not yet connected sources answer 400.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "av-center",
+                "3c-market",
+                "perchatka-centr",
+                "insight",
+                "trele",
+                "cemto"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "dryRun",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Preview or applied result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpePriceImportResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request; body lists the reasons in Ukrainian."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Required policy or actor claim missing."
+          },
+          "404": {
+            "description": "Unknown source."
+          }
+        }
+      }
     }
   },
   "components": {
@@ -353,7 +415,7 @@
           },
           "automaticUpdateConnected": {
             "type": "boolean",
-            "description": "False until stages 2–3 connect the scheduled update."
+            "description": "The scheduled update works and «Оновити зараз» is offered (website and Google Sheets sources from stage 2; cabinet sources in stage 3)."
           },
           "settingsUpdatedAt": {
             "type": [

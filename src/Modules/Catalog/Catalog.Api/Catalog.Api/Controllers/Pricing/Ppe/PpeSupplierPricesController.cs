@@ -4,11 +4,12 @@ using Catalog.Api.Contracts.Pricing.Ppe.SupplierPrices;
 using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.List;
+using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Settings;
 
 namespace Catalog.Api.Controllers.Pricing.Ppe;
 
-/// <summary>«Довідники» → «Імпорт цін»: PPE supplier price sources, their discounts and file imports (CAT-017).</summary>
+/// <summary>«Довідники» → «Імпорт цін»: PPE supplier price sources, their discounts, file imports and «Оновити зараз» (CAT-017).</summary>
 [ApiController]
 [Route("api/v1/pricing/ppe/supplier-prices")]
 public sealed class PpeSupplierPricesController(ISender sender) : ControllerBase
@@ -74,5 +75,20 @@ public sealed class PpeSupplierPricesController(ISender sender) : ControllerBase
         {
             foreach (var file in streams) await file.Content.DisposeAsync();
         }
+    }
+
+    /// <summary>
+    /// «Оновити зараз»: reads the supplier's website pages or Google Sheets price lists now and returns every product of
+    /// the supplier with its old and new price. With <c>dryRun=false</c> it reads them again and saves the changed prices.
+    /// </summary>
+    [HttpPost("{key}/refresh", Name = "refreshPpeSupplierPrices")]
+    [Authorize(Policy = "CanManageProducts")]
+    public async Task<ActionResult<PpePriceImportResult>> Refresh(
+        string key, [FromQuery] bool dryRun = true, CancellationToken cancellationToken = default)
+    {
+        var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(actor)) return Forbid();
+        return this.ToActionResult(await sender.Send(
+            new RefreshPpeSupplierPricesCommand(key, dryRun, actor, User.Identity?.Name ?? actor), cancellationToken));
     }
 }

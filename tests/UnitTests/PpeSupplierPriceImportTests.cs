@@ -21,6 +21,8 @@ public sealed class PpeSupplierPriceImportTests
             Assert.That(SupplierKeys.Sku(" k10217 /sh-3 "), Is.EqualTo(SupplierKeys.Sku("К10217/SН3")));
             Assert.That(SupplierKeys.Sku("2023 BLK"), Is.EqualTo("2023ВLК"));
             Assert.That(SupplierKeys.Sku("  "), Is.Null);
+            Assert.That(SupplierKeys.Sku("0020"), Is.EqualTo("20"));
+            Assert.That(SupplierKeys.Sku("000"), Is.EqualTo("0"));
             Assert.That(SupplierKeys.Url("https://insight.ua/ru/offer/jilet-o445/?utm=1"),
                 Is.EqualTo(SupplierKeys.Url("http://www.insight.ua/offer/jilet-o445")));
             Assert.That(SupplierKeys.Name("3C-Макркет"), Is.EqualTo(SupplierKeys.Name("3С МАКРКЕТ")));
@@ -106,6 +108,36 @@ public sealed class PpeSupplierPriceImportTests
             Assert.That(conflict.Status, Is.EqualTo(PpePriceImportStatus.Invalid));
         });
     }
+
+    [Test]
+    public void Website_and_3c_sources_apply_their_discount_and_explain_what_is_missing()
+    {
+        var avCenter = PpePriceSources.Find("av-center")!;
+        var threeC = PpePriceSources.Find("3c-market")!;
+        var page = "https://avcentr.com.ua/ua/item-1";
+
+        var site = PpePriceImportPlanner.Plan(avCenter, 20m,
+            [Product(1, "1", url: page, price: 50m), Product(2, "2"), Product(3, "3", url: "https://avcentr.com.ua/ua/x")],
+            [new SupplierFilePrice(null, page, null, 100m, null, null, null),
+             new SupplierFilePrice(null, "https://avcentr.com.ua/ua/x", null, 0m, null, null, "На сторінці постачальника не знайдено ціну.")]);
+        var lists = PpePriceImportPlanner.Plan(threeC, 5m, [Product(1, "1", sku: "0020"), Product(2, "2", sku: "21"), Product(3, "3")],
+            [File("20", 200m)]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(site[0].NewPrice, Is.EqualTo(80m));
+            Assert.That(site[1].Message, Does.Contain("немає посилання на сторінку"));
+            Assert.That((site[2].Status, site[2].Message), Is.EqualTo((PpePriceImportStatus.Invalid, "На сторінці постачальника не знайдено ціну.")));
+            Assert.That(lists[0].NewPrice, Is.EqualTo(190m));
+            Assert.That(lists[1].Message, Is.EqualTo("Артикул 21 не знайдено в прайсах 3C-Маркет."));
+            Assert.That(lists[2].Message, Does.Contain("немає артикулу"));
+        });
+    }
+
+    [Test]
+    public void Only_connected_website_and_sheet_sources_can_be_refreshed()
+        => Assert.That(PpePriceSources.All.Where(x => x.CanRefresh).Select(x => x.Key),
+            Is.EqualTo(new[] { "av-center", "3c-market", "perchatka-centr" }));
 
     [TestCase(0, true)]
     [TestCase(22.5, true)]

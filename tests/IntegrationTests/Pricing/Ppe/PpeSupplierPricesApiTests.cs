@@ -7,6 +7,7 @@ using Ardalis.Result;
 using Catalog.Api;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.List;
+using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Settings;
 using Mediator;
 using Microsoft.AspNetCore.Authentication;
@@ -20,7 +21,7 @@ using Moq;
 
 namespace IntegrationTests.Pricing.Ppe;
 
-/// <summary>«Імпорт цін» HTTP access: read for staff, discounts for admins, imports for managers (CAT-017).</summary>
+/// <summary>«Імпорт цін» HTTP access: read for staff, discounts for admins, imports and «Оновити зараз» for managers (CAT-017).</summary>
 [NonParallelizable]
 public sealed class PpeSupplierPricesApiTests
 {
@@ -84,6 +85,27 @@ public sealed class PpeSupplierPricesApiTests
 
         await host.Client.PostAsync(Path + "/insight/import?dryRun=false", Files("a.xml", "b.xml", "c.xml"));
         Assert.That(sent!.DryRun, Is.False);
+    }
+
+    [Test]
+    public async Task Refresh_previews_by_default_and_applies_with_dry_run_false()
+    {
+        await using var host = await TestHost.CreateAsync();
+        RefreshPpeSupplierPricesCommand? sent = null;
+        host.Sender.Setup(x => x.Send(It.IsAny<RefreshPpeSupplierPricesCommand>(), It.IsAny<CancellationToken>()))
+            .Callback<ICommand<Result<PpePriceImportResult>>, CancellationToken>((request, _) => sent = (RefreshPpeSupplierPricesCommand)request)
+            .Returns(new ValueTask<Result<PpePriceImportResult>>(
+                Result.Success(new PpePriceImportResult("av-center", false, 20, 0, 0, 0, 0, []))));
+
+        host.As("User", "viewer", "viewer@brevi");
+        Assert.That((await host.Client.PostAsync(Path + "/av-center/refresh", null)).StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+
+        host.As("Manager", "manager-id", "manager@brevi");
+        Assert.That((await host.Client.PostAsync(Path + "/av-center/refresh", null)).StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That((sent!.Key, sent.DryRun, sent.Actor, sent.ActorName), Is.EqualTo(("av-center", true, "manager-id", "manager@brevi")));
+
+        await host.Client.PostAsync(Path + "/av-center/refresh?dryRun=false", null);
+        Assert.That(sent.DryRun, Is.False);
     }
 
     private static MultipartFormDataContent Files(params string[] names)

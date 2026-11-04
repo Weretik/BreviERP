@@ -1,6 +1,6 @@
 # CAT-017 — PPE supplier price import («Імпорт цін»)
 
-**Status:** stage 1 implemented 2026-11-04 (sources, discounts, Insight XML and СЕМТО PDF files). Stages 2–3 planned. **Date:** 2026-11-04. **Module:** Catalog.
+**Status:** stages 1–2 implemented 2026-11-04 (sources, discounts, Insight XML and СЕМТО PDF files; weekly АВ-Центр, 3C-Маркет, Перчатка-центр and «Оновити зараз»). Stage 3 planned. **Date:** 2026-11-04. **Module:** Catalog.
 
 The client's Apps Scripts updated PPE supplier prices in the sheet «ЗІЗ»: АВ-Центр, 3C-Маркет and Перчатка-центр weekly from their sites or Google CSV with a discount; Insight and Трєле daily from the dealer cabinet; Insight and СЕМТО also from files the manager uploads. This feature moves that work into Brevi as the tab «Довідники» → «Імпорт цін».
 
@@ -22,20 +22,24 @@ The client's Apps Scripts updated PPE supplier prices in the sheet «ЗІЗ»: �
 - **R-06:** СЕМТО: one PDF with a text layer. The article is the left-column word (a wrapped second line such as «winter» belongs to it); the price ("651,72", "1 633,86") is in the price column of the same row. An article with two different prices is a problem.
 - **R-07:** `dryRun=true` (default) returns every product of the supplier with old and new prices and changes nothing. `dryRun=false` saves each changed price on the card and as a new approved offer version (source «Імпорт цін: {постачальник}», Kyiv date), product by product; a product whose offer changed meanwhile is reported, not overwritten. The run (who, when, counts, problems) is recorded.
 - **R-08:** The Admin gzips files before upload so three 17 MB Insight lists fit Cloud Run's 32 MiB request limit; the server unpacks a gzip file and reads any other file as is. Request limit 30 MB.
+- **R-09 (stage 2):** АВ-Центр and Перчатка-центр: each active, non-manual product's supplier link is opened once (sizes sharing a link are read once, 4 pages at a time, 30 s each) with the script's user agent, and the price is found with the script's patterns in its order (`extractAvCenterPrice_`, `perchatkaCentrWebsitePrice_`). A link off the supplier's site (`avcentr.com.ua`, `perchatka-centr.com.ua`, with or without `www.`), an HTTP error or a page without a price is a problem of that product only.
+- **R-10 (stage 2):** 3C-Маркет: the six published CSV lists of the script are read; the article is the third column when it is all digits (leading zeros dropped, on both sides), the price is the last number in the row after it. The lists are joined by article instead of by the product's price group; an article with different prices in two lists is a problem. If any list does not load, nothing changes and the reason is returned (or recorded for the schedule).
+- **R-11 (stage 2):** The daily `brevierp-sync` job (07:00 Kyiv) runs step `ppe-supplier-prices`: on Kyiv Monday every connected website or sheet source is read and its changed prices are saved, run trigger «Розклад», actor `nightly-sync`. The script ran every two weeks on Monday at 08:00; Brevi runs weekly, which only refreshes prices more often. A source that cannot be read records a run with the reason as its problem and the step fails after the other sources ran. Other days the step does nothing.
+- **R-12 (stage 2):** «Оновити зараз» (`refreshPpeSupplierPrices`, trigger «Оновити зараз») does the same for one source: `dryRun=true` previews, `dryRun=false` reads again and saves. File sources and sources not yet connected answer 400.
 
 ## Stages
 
-1. Tab, discounts, Insight XML and СЕМТО PDF upload (this change).
-2. Weekly АВ-Центр (site), 3C-Маркет (6 published Google CSV), Перчатка-центр (site) in the nightly `brevierp-sync` job on Mondays, plus «Оновити зараз».
+1. Tab, discounts, Insight XML and СЕМТО PDF upload.
+2. Done: weekly АВ-Центр (site), 3C-Маркет (6 published Google CSV), Перчатка-центр (site) in the nightly `brevierp-sync` job on Mondays, plus «Оновити зараз».
 3. Daily Insight and Трєле through the dealer cabinet with GCP secrets.
 
 ## API
 
-[ppe-supplier-prices.openapi.yaml](../../../contracts/catalog/ppe-supplier-prices.openapi.yaml): `listPpePriceSources` (CatalogRead; `canChangeDiscounts` tells the Admin whether to offer the discount edit), `updatePpePriceSource` (RequireAdminRole), `importPpeSupplierPrices` (CanManageProducts, multipart `files`, `dryRun`).
+[ppe-supplier-prices.openapi.yaml](../../../contracts/catalog/ppe-supplier-prices.openapi.yaml): `listPpePriceSources` (CatalogRead; `canChangeDiscounts` tells the Admin whether to offer the discount edit), `updatePpePriceSource` (RequireAdminRole), `importPpeSupplierPrices` (CanManageProducts, multipart `files`, `dryRun`), `refreshPpeSupplierPrices` (CanManageProducts, `dryRun`; stage 2).
 
 ## Data
 
-Migration `AddPpePriceImport`: `catalog.PpePriceSources` (Key PK, SupplierId, DiscountPercent numeric(5,2), UpdatedAt, UpdatedBy) and `catalog.PpePriceImportRuns` (identity Id, SourceKey, Trigger, Actor, FinishedAt, counts, ProblemsJson jsonb; index (SourceKey, Id)). No seed rows. Additive.
+Migration `AddPpePriceImport`: `catalog.PpePriceSources` (Key PK, SupplierId, DiscountPercent numeric(5,2), UpdatedAt, UpdatedBy) and `catalog.PpePriceImportRuns` (identity Id, SourceKey, Trigger, Actor, FinishedAt, counts, ProblemsJson jsonb; index (SourceKey, Id)). No seed rows. Additive. Stage 2 adds no schema.
 
 ## Tests
 
@@ -43,6 +47,10 @@ Migration `AddPpePriceImport`: `catalog.PpePriceSources` (Key PK, SupplierId, Di
 - `tests/UnitTests/PpeSupplierPricesContractTests.cs`: DTOs and policies match the contract.
 - `tests/IntegrationTests/Pricing/Ppe/PpeSupplierFileReaderTests.cs`: Insight lists (gzip, missing, size conflict, not XML), СЕМТО PDF rows.
 - `tests/IntegrationTests/Pricing/Ppe/PpeSupplierFileImportTests.cs`: preview then apply in PostgreSQL.
-- `tests/IntegrationTests/Pricing/Ppe/PpePriceSourceStoreTests.cs`, `PpeSupplierPricesApiTests.cs`: storage and HTTP access.
+- `tests/IntegrationTests/Pricing/Ppe/PpePriceSourceStoreTests.cs`, `PpeSupplierPricesApiTests.cs`: storage and HTTP access, including «Оновити зараз».
+- `tests/IntegrationTests/Pricing/Ppe/PpeSupplierOnlinePriceReaderTests.cs`: АВ-Центр and Перчатка-центр page patterns, 3C CSV, one request per link, a failed 3C list (fake web, no network).
+- `tests/IntegrationTests/Pricing/Ppe/PpeScheduledPriceRefreshTests.cs`: the Monday step in PostgreSQL, other days, job DI.
 
 Checked against the client's sample files (2026-11-04): 3 Insight lists, 5049 offers each, all 26 Insight products matched by link with prices equal to the sheet; СЕМТО September 2026 PDF, 17 articles including all 10 products.
+
+Stage 2 could not be checked against the live supplier sites and Google lists from the development container (network blocked); check each source with «Оновити зараз» → preview in production before applying.
