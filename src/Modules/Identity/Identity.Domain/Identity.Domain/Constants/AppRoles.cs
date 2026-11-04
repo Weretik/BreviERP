@@ -6,6 +6,9 @@ public static class AppRoles
     public const string Accountant = "Accountant";
     public const string User = "User";
     public const string Manager = "Manager";
+
+    /// <summary>«Начальник цеху»: runs the sewing workshop («Швейний цех»).</summary>
+    public const string WorkshopChief = "WorkshopChief";
     public const string Guest = "Guest";
 
     public static readonly IReadOnlyList<string> All =
@@ -14,6 +17,7 @@ public static class AppRoles
         Admin,
         Accountant,
         Manager,
+        WorkshopChief,
         User,
         Guest
     ];

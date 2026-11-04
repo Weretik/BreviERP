@@ -62,6 +62,7 @@
       <ProjectReference Include="..\..\Modules\Reference\Reference.Infrastructure\Reference.Infrastructure\Reference.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Reminders\Reminders.Infrastructure\Reminders.Infrastructure\Reminders.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Infrastructure\Media.Infrastructure\Media.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Production\Production.Infrastructure\Production.Infrastructure\Production.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

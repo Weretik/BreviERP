@@ -11,4 +11,5 @@ public static class PolicyNames
     public const string CatalogRead = "CatalogRead";
     public const string OwnProfile = "OwnProfile";
     public const string OrderCreate = "OrderCreate";
+    public const string CanManageWorkshop = "CanManageWorkshop";
 }

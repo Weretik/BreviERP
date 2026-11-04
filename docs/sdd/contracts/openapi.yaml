@@ -231,6 +231,22 @@ paths:
     $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1urgent
   /api/crm/tasks/{id}/steps/{stepId}:
     $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1steps~1{stepId}
+  /api/production/staff:
+    $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1staff
+  /api/production/staff/{id}:
+    $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1staff~1{id}
+  /api/production/staff/{id}/active:
+    $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1staff~1{id}~1active
+  /api/production/staff/import:
+    $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1staff~1import
+  /api/production/fabric-norms:
+    $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1fabric-norms
+  /api/production/fabric-norms/{modelCode}:
+    $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1fabric-norms~1{modelCode}
+  /api/production/fabric-norms/import:
+    $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1fabric-norms~1import
+  /api/production/payroll-parameters:
+    $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1payroll-parameters
   /api/reminders/non-working-days:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1non-working-days
   /api/reminders/non-working-days/{date}:

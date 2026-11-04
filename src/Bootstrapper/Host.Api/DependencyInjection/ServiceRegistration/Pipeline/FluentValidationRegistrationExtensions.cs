@@ -6,6 +6,7 @@ using Identity.Application;
 using Reference.Application;
 using Reminders.Application;
 using Media.Application;
+using Production.Application;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 
@@ -39,6 +40,10 @@ public static class FluentValidationRegistrationExtensions
 
         services.AddValidatorsFromAssembly(
             typeof(MediaApplicationAssemblyMarker).Assembly,
+            includeInternalTypes: true);
+
+        services.AddValidatorsFromAssembly(
+            typeof(ProductionApplicationAssemblyMarker).Assembly,
             includeInternalTypes: true);
         return services;
     }
