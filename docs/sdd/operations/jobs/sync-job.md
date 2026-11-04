@@ -1,4 +1,6 @@
-# Daily sync job runbook
+# Sync job runbook
+
+**When it runs:** Monday to Friday at 09:00 Kyiv time (Cloud Scheduler `0 9 * * 1-5`, `Europe/Kyiv`). It is not a nightly job and does not run on Saturday or Sunday; older notes and the actor name `nightly-sync` are historical names only.
 
 One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an external system and every scheduled import. It runs `Host.Seed --sync=true`: the steps listed in `src/Bootstrapper/Host.Seed/Jobs/Sync/SyncJobRunner.cs`, one after another, each in its own DI scope. A failed step is logged and the next step still runs; the execution ends with exit code 1 if any step failed. No migrations or seeding. Never put API keys into documentation, logs or chat.
 
@@ -10,7 +12,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | `keepin-clients` | KeepinCRM → Brevi client refresh | the same key | [below](#keepin-clients) |
 | `sewing-prices` | Publishes Sewing prices whose inputs changed | none | [below](#sewing-prices) |
 | `media-thumbnails` | Makes size and previews for library photos without them | `storage-login`, `storage-password` → `AdmToolsStorage__Login`, `AdmToolsStorage__Password` | [below](#media-thumbnails) |
-| `ppe-supplier-prices` | Daily: Insight and Трєле cabinet prices; Mondays also АВ-Центр, 3C-Маркет, Перчатка-центр | `insight-login`, `insight-password`, `trele-login`, `trele-password` → `SupplierCabinets__…` (optional) | [below](#ppe-supplier-prices) |
+| `ppe-supplier-prices` | Mondays only: АВ-Центр, 3C-Маркет, Перчатка-центр and the Трєле cabinet; other days nothing | `trele-login`, `trele-password` → `SupplierCabinets__Trele__…` (optional) | [below](#ppe-supplier-prices) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
 
@@ -23,7 +25,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 
 ## Schedule
 
-Cloud Run → Jobs → `brevierp-sync` → Triggers → Add scheduler trigger: `0 7 * * *`, time zone `Europe/Kyiv`, a service account that can run the job (the one used by the reminders schedule). The deploy workflow creates the job from `brevierp-seed` if missing and updates image, argument and secrets on every deploy; it never executes it.
+Cloud Run → Jobs → `brevierp-sync` → Triggers → Add scheduler trigger: `0 9 * * 1-5` (Mon–Fri 09:00), time zone `Europe/Kyiv`, a service account that can run the job (the one used by the reminders schedule). The deploy workflow creates the job from `brevierp-seed` if missing and updates image, argument and secrets on every deploy; it never executes it.
 
 Logs: `Sync started: <steps>`, then per step `<step> started`, its own lines, and `<step> OK` or `<step> FAILED: <reason>`; finally `Sync finished: all N steps OK` or the error `Sync failed: <steps>`.
 
@@ -58,7 +60,7 @@ On demand: `POST /api/crm/customers/keepin-sync` with `{"dryRun": true}` preview
 
 Feature: [Sewing pricing](../../features/catalog/sewing-pricing.md), specification [CAT-012](../../specs/catalog/012-sewing-price-auto-publication/README.md). No secret, no settings.
 
-The API already publishes new prices right after a fabric, accessory, operation, composition or pricing parameter is saved. This step is the safety net: it checks every Sewing model and publishes each active Article whose live price differs from the published one or was never published (actor `nightly-sync`), one transaction per model. It catches changes saved outside the API (jobs, scripts) and automatic runs that failed. On a normal night it publishes nothing. Articles that cannot be calculated keep their published price and are logged with their blocker codes.
+The API already publishes new prices right after a fabric, accessory, operation, composition or pricing parameter is saved. This step is the safety net: it checks every Sewing model and publishes each active Article whose live price differs from the published one or was never published (actor `nightly-sync`), one transaction per model. It catches changes saved outside the API (jobs, scripts) and automatic runs that failed. On a normal run it publishes nothing. Articles that cannot be calculated keep their published price and are logged with their blocker codes.
 
 Step log: `Published N articles, unchanged N, not calculable N, skipped models: ...`, then one warning per model without a price.
 
@@ -66,21 +68,20 @@ Step log: `Published N articles, unchanged N, not calculable N, skipped models: 
 
 Photo previews of the «Фото» library ([MED-001](../../specs/media/001-media-library/README.md), stage 3). New uploads get their size and preview at once; this step covers photos uploaded before previews existed and uploads whose preview failed. It takes up to 500 photos with `ImageProcessedAt` empty, oldest first, downloads each original from the CDN, writes the size and uploads a WebP preview to `/library/thumbs`. A photo that cannot be read is marked processed without a preview; a download or CDN error leaves it for the next night. Repeating the step is safe.
 
-Step log: `Processed N photos (N small or unreadable, no preview), failed N, left for next nights N`, then one warning per failed photo.
+Step log: `Processed N photos (N small or unreadable, no preview), failed N, left for next runs N`, then one warning per failed photo.
 
 ## ppe-supplier-prices
 
 Feature: [PPE supplier price import](../../features/catalog/ppe-supplier-prices.md), specification [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md) stages 2–3. The discounts are those saved in «Імпорт цін».
 
-Every day it signs in to the Insight and Трєле dealer cabinets and reads the dealer price of each product link; on Kyiv Monday it also reads АВ-Центр and Перчатка-центр product pages and the six 3C-Маркет Google lists. It saves each changed supplier price on the card and as a new approved offer version (source «Імпорт цін: …», run trigger «Розклад», actor `nightly-sync`). Products with «Дозволити ручну ціну» or not active keep their price. A source that cannot be read (supplier not found, a 3C list not loading, cabinet login missing or refused) changes nothing, records its reason in «Імпорт цін», and the step fails after the other sources ran. Repeating the step is safe: unchanged prices are not saved again.
+It works only on Kyiv Monday (09:00 run); on other days it does nothing. It reads АВ-Центр and Перчатка-центр product pages, the six 3C-Маркет Google lists, and signs in to the Трєле dealer cabinet to read the dealer price of each product link. Insight is not read here: it is updated only from its XML files in «Імпорт цін». It saves each changed supplier price on the card and as a new approved offer version (source «Імпорт цін: …», run trigger «Розклад», actor `nightly-sync`). Products with «Дозволити ручну ціну» or not active keep their price. A source that cannot be read (supplier not found, a 3C list not loading, cabinet login missing or refused) changes nothing, records its reason in «Імпорт цін», and the step fails after the other sources ran. Repeating the step is safe: unchanged prices are not saved again.
 
 Step log: one line per source `<source>: checked N, changed N, unchanged N, skipped N, problems N`, or a warning `<source>: nothing changed: <reason>`.
 
 | Setting | Where | Secret |
 | --- | --- | --- |
-| `SupplierCabinets:Insight:Login`, `…:Password` | API and `brevierp-sync`, Secret Manager `insight-login`, `insight-password` | Yes |
 | `SupplierCabinets:Trele:Login`, `…:Password` | API and `brevierp-sync`, Secret Manager `trele-login`, `trele-password` | Yes |
 
-They are the dealer accounts the client's script kept in Script Properties (`INSIGHT_LOGIN`, `INSIGHT_PASSWORD`, `TRELE_LOGIN`, `TRELE_PASSWORD`). Create the four secrets in Secret Manager and give the Cloud Run runtime service account (the one that reads `keepincrm-api-key`) the «Secret Manager Secret Accessor» role on them; the next deploy attaches them. Without all four the deploy still succeeds and the cabinets stay off. Locally: `dotnet user-secrets set "SupplierCabinets:Insight:Login" "<login>" --project src/Bootstrapper/Host.Api/Host.Api.csproj` (and the other three).
+It is the dealer account the client's script kept in Script Properties (`TRELE_LOGIN`, `TRELE_PASSWORD`). Create the two secrets in Secret Manager and give the Cloud Run runtime service account (the one that reads `keepincrm-api-key`) the «Secret Manager Secret Accessor» role on them; the next deploy attaches them. Without both the deploy still succeeds and the Трєле cabinet stays off. The secrets `insight-login` and `insight-password` are no longer used and can be deleted. Locally: `dotnet user-secrets set "SupplierCabinets:Trele:Login" "<login>" --project src/Bootstrapper/Host.Api/Host.Api.csproj` (and the password).
 
 On demand: «Імпорт цін» → source → «Оновити зараз» calls `POST /api/v1/pricing/ppe/supplier-prices/{key}/refresh` (preview, then `?dryRun=false`).

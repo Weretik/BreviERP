@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 namespace Host.Seed.Jobs.Sync;
 
 /// <summary>
-/// Scheduled PPE supplier prices of «Імпорт цін» (CAT-017 stages 2–3): every day the Insight and Трєле dealer
-/// cabinets, and on Kyiv Monday also АВ-Центр and Перчатка-центр pages and the 3C-Маркет lists; the changed prices
+/// Scheduled PPE supplier prices of «Імпорт цін» (CAT-017 stages 2–3): on Kyiv Monday (brevierp-sync runs
+/// Mon–Fri 09:00) АВ-Центр and Перчатка-центр pages, the 3C-Маркет lists and the Трєле dealer cabinet; other days nothing; the changed prices
 /// are saved. A source that cannot be read is logged and recorded with its reason; the step then fails so the job
 /// shows it.
 /// </summary>

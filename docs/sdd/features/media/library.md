@@ -1,6 +1,6 @@
 # Photo library («Фото»)
 
-Folders and subfolders of photos on the Brevi CDN: upload, search by name or folder, rename, move and delete. Every photo gets its size and a WebP preview (480 px) on upload; the nightly sync step `media-thumbnails` fills them for older photos. Products keep the photo id and read the URL through the host. [SDD](../../specs/media/001-media-library/README.md), [contract](../../contracts/media/media-library.openapi.yaml), [tables](../../architecture/data-model/media.md).
+Folders and subfolders of photos on the Brevi CDN: upload, search by name or folder, rename, move and delete. Every photo gets its size and a WebP preview (480 px) on upload; the `brevierp-sync` step `media-thumbnails` (Mon–Fri 09:00) fills them for older photos. Products keep the photo id and read the URL through the host. [SDD](../../specs/media/001-media-library/README.md), [contract](../../contracts/media/media-library.openapi.yaml), [tables](../../architecture/data-model/media.md).
 
 ## Code structure
 
@@ -16,7 +16,7 @@ src/Modules/Media/
     Folders/           # GetFolders, CreateFolder, UpdateFolder (rename/move), DeleteFolder; shared messages and validator
     Files/             # SearchFiles, GetFile (+usages), UploadFile (signature check), UpdateFile, MoveFiles, DeleteFile, GetFilesByIds
     Files/Images/      # MediaImagePreparer: size + preview upload, shared by upload and backfill
-    Files/BackfillImages/ # MediaImageBackfill: nightly previews for unprocessed photos
+    Files/BackfillImages/ # MediaImageBackfill: brevierp-sync previews for unprocessed photos
   Media.Infrastructure/Media.Infrastructure/
     Persistence/       # MediaDbContext (schema media), configurations, migrations
     Storage/           # AdmToolsMediaStorage (CDN adapter, download by public URL), options

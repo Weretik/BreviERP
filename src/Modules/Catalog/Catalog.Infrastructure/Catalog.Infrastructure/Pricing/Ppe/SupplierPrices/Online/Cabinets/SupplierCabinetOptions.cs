@@ -10,14 +10,13 @@ public sealed class SupplierCabinetLogin
 }
 
 /// <summary>
-/// <c>SupplierCabinets</c>: the Insight and Трєле dealer accounts the Apps Script kept in Script Properties
-/// (INSIGHT_LOGIN, INSIGHT_PASSWORD, TRELE_LOGIN, TRELE_PASSWORD). In Cloud Run they are the secrets
-/// <c>insight-login</c>, <c>insight-password</c>, <c>trele-login</c>, <c>trele-password</c>.
+/// <c>SupplierCabinets</c>: the Трєле dealer account the Apps Script kept in Script Properties (TRELE_LOGIN,
+/// TRELE_PASSWORD). In Cloud Run they are the secrets <c>trele-login</c> and <c>trele-password</c>. Insight is
+/// updated only from its XML files (owner's decision, 2026-11-04).
 /// </summary>
 public sealed class SupplierCabinetOptions
 {
     public const string Section = "SupplierCabinets";
 
-    public SupplierCabinetLogin Insight { get; set; } = new();
     public SupplierCabinetLogin Trele { get; set; } = new();
 }

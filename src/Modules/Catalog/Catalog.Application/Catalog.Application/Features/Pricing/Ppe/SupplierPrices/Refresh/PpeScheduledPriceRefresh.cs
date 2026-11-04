@@ -9,8 +9,8 @@ namespace Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh;
 public sealed record PpeScheduledRefreshOutcome(string SourceKey, PpePriceImportResult? Result, string? Error);
 
 /// <summary>
-/// The daily job's step: on its day (Monday for АВ-Центр, 3C-Маркет and Перчатка-центр; every day for the Insight
-/// and Трєле cabinets; Kyiv time) each connected source is read and its changed prices are saved, recorded as «Розклад». A source that cannot be read changes nothing,
+/// The step of the brevierp-sync job (Cloud Scheduler, Mon–Fri 09:00 Kyiv): on Kyiv Monday АВ-Центр, 3C-Маркет,
+/// Перчатка-центр and the Трєле cabinet each connected source is read and its changed prices are saved, recorded as «Розклад». A source that cannot be read changes nothing,
 /// its reason is recorded as the run's problem so «Імпорт цін» shows it, and the next source still runs.
 /// </summary>
 public sealed class PpeScheduledPriceRefresh(
@@ -22,13 +22,12 @@ public sealed class PpeScheduledPriceRefresh(
     public const string Trigger = "Розклад";
     private static readonly TimeZoneInfo Kyiv = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
 
-    /// <summary>The sources due today; a source due weekly runs only on Kyiv Monday.</summary>
+    /// <summary>The sources due today: every connected source runs only on Kyiv Monday.</summary>
     public IReadOnlyList<PpePriceSource> DueToday()
     {
         var day = TimeZoneInfo.ConvertTime(timeProvider.GetUtcNow(), Kyiv).DayOfWeek;
         return PpePriceSources.All.Where(source => source.CanRefresh && source.Cadence switch
         {
-            PpePriceUpdateCadence.Daily => true,
             PpePriceUpdateCadence.WeeklyMonday => day == DayOfWeek.Monday,
             _ => false
         }).ToList();

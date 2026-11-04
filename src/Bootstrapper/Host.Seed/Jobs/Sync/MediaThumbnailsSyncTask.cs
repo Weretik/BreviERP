@@ -19,7 +19,7 @@ internal sealed class MediaThumbnailsSyncTask : ISyncTask
     {
         var report = await services.GetRequiredService<MediaImageBackfill>().RunAsync(BatchSize, cancellationToken);
         logger.LogInformation(
-            "Processed {Processed} photos ({WithoutPreview} small or unreadable, no preview), failed {Failed}, left for next nights {Remaining}",
+            "Processed {Processed} photos ({WithoutPreview} small or unreadable, no preview), failed {Failed}, left for next runs {Remaining}",
             report.Processed, report.WithoutPreview, report.Failed, report.Remaining);
     }
 }

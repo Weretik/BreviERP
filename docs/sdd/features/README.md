@@ -16,7 +16,7 @@ Pricing API (start with Sewing or PPE pricing):
 
 - [Sewing Article pricing](catalog/sewing-pricing.md) — versioned inputs, strict calculation, saved snapshots/publication API and private custom arithmetic adapter.
 - [PPE pricing](catalog/ppe-pricing.md) — versioned supplier offers, exact rule scope and three-tier calculation.
-- [PPE supplier price import](catalog/ppe-supplier-prices.md) — «Імпорт цін»: supplier sources, discounts, Insight XML and СЕМТО PDF uploads with preview, Monday АВ-Центр/3C-Маркет/Перчатка-центр and daily Insight/Трєле cabinet updates, «Оновити зараз».
+- [PPE supplier price import](catalog/ppe-supplier-prices.md) — «Імпорт цін»: supplier sources, discounts, Insight XML and СЕМТО PDF uploads with preview, Monday 09:00 АВ-Центр/3C-Маркет/Перчатка-центр/Трєле cabinet updates, «Оновити зараз».
 - [Current pricing boundaries](catalog/pricing-cutover.md) — Product reads carry metadata only; prices come from the pricing APIs.
 - [Reference pricing versions](reference/pricing-input-versions.md) — Reference-owned cost and norm versions used by pricing.
 
