@@ -39,5 +39,8 @@ public enum QuoteEventKind
     Restored = 7,
 
     /// <summary>The КП was made as a copy of another one (R-24).</summary>
-    Copied = 8
+    Copied = 8,
+
+    /// <summary>The КП came from the old calculator (R-25).</summary>
+    Imported = 9
 }

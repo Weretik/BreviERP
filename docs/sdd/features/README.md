@@ -50,7 +50,7 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 
 ## Crm
 
-- [Clients and КП](crm/clients-and-quotes.md) — clients and contacts from KeepinCRM; КП (commercial proposals) stage 1: create, «Товари та ціни», reprice, give to a manager.
+- [Clients and КП](crm/clients-and-quotes.md) — clients and contacts from KeepinCRM; КП (commercial proposals) stages 1–6: create, «Товари та ціни», reprice, give to a manager, settings, PDF, Gmail, introductions, «Виріб з нуля», history, archive, copy, old КП transfer.
 - [Manager tasks](crm/manager-tasks.md) — Director and Admin give tasks to managers and track workload; managers move them on the «Мої завдання» kanban.
 
 ## Media

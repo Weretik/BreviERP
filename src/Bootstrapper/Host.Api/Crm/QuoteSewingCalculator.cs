@@ -97,7 +97,7 @@ internal sealed class QuoteSewingCalculator(ISender sender, TimeProvider clock) 
             : new QuoteSewingLineInfo(line.Kind, line.ReferenceId, null, null, null, false);
     }
 
-    private static string OperationName(GarmentPartOperationRowDTO operation) =>
+    internal static string OperationName(GarmentPartOperationRowDTO operation) =>
         string.IsNullOrWhiteSpace(operation.Variant) ? operation.Name : $"{operation.Name} ({operation.Variant.Trim()})";
 
     private static QuoteSewingFabricPrice Price(QuoteSewingFabric fabric, FabricRowDTO? row,

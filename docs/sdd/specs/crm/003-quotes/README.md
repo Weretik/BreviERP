@@ -1,6 +1,6 @@
 # QTE-001 — «КП»: commercial proposals
 
-**Status:** stages 1–4 implemented 2026-11-04. **Date:** 2026-11-03 (idea), 2026-11-04 (specification, stage 1). **Module:** Crm («Менеджер сервісу»: clients, КП, later leads, deals and tasks), schema `crm`, migration history `crm.__EFMigrationsHistory` ([module rules](../../../standards/module-rules.md)). Feature card: [clients and КП](../../../features/crm/clients-and-quotes.md).
+**Status:** stages 1–6 implemented 2026-11-04. **Date:** 2026-11-03 (idea), 2026-11-04 (specification, stage 1). **Module:** Crm («Менеджер сервісу»: clients, КП, later leads, deals and tasks), schema `crm`, migration history `crm.__EFMigrationsHistory` ([module rules](../../../standards/module-rules.md)). Feature card: [clients and КП](../../../features/crm/clients-and-quotes.md).
 
 ## Why
 
@@ -60,6 +60,7 @@ Stage 3 design: Google OAuth web client with `openid email gmail.send` only (no 
 - **R-22:** «Історія змін» (stage 5c): every КП keeps a list of what happened, who did it and when: created (or copied from КП N), saved, sent (with recipients), repriced (number of changed prices), given to another manager (old → new), moved to the archive and restored. The editor shows it newest first in a side panel. Existing КП start with their creation and every sent letter.
 - **R-23:** «Архів» (stage 5c): a КП of any status can be moved to the archive and back by whoever may open it. The КП list shows the working КП by default and the archive on its own tab. An archived КП opens read-only: saving, sending, repricing and giving it to another manager return «КП в архіві. Спочатку поверніть його з архіву.»; it can still be printed, copied and (a draft) deleted.
 - **R-24:** «Копіювати» (stage 5c): a new draft with the next number, the same header, introduction and items with their saved prices, manual prices and compositions; the person who copies becomes its author and responsible. An archived КП can be copied. Prices are not recalculated: the manager presses «Перерахувати» when needed.
+- **R-25:** Transfer of old Calculator КП (stage 6, owner 2026-11-04 after a full export): every non-deleted Calculator КП (its current version) comes to Brevi with its number, kind, status, client fields, author, responsible, dates, introduction layout and recipient, items with their saved texts and prices (shown flags, manual PPE prices with reason), and its history (created, every sent letter, every transfer) plus «Перенесено з калькулятора». Prices are not recalculated. Items are linked to the current Catalog by code (model `MOD-…` and fabric `FAB-…` → product and the variant of that fabric; PPE by site article, else by name). What cannot be linked is transferred as it is and named in the report: a missing model becomes a «Виріб з нуля» without composition (its «Перерахувати» says «Склад не перенесено з калькулятора»), a missing PPE a one-off PPE, a missing variant keeps its price but «Перерахувати» cannot update it. People are found among staff by e-mail; an unknown one is listed, and their КП go to the person who imports. A КП transferred before is skipped, so the import can run again; a number a new Brevi КП already took gets the next free number of that month and the old number in its history line. The Director or Admin runs it once: a dry run first, then the real run only after the owner reviews the report.
 
 Stage 4 design: `Quotes` gains `IntroLayout`, `RecipientEmail`, `LetterName` (null for a request КП). An introduction is saved by its own endpoints with pages of models (`productId`, `articleId`, optional saved `itemId`); the server turns them into ordinary sewing items with one option each (only від 41 шт. shown) through `QuoteItemsBuilder`, so saved prices stay until «Перерахувати» (R-11), and then checks the layout, seasons, main models and repeats. `crm.QuoteIntroTemplates` keeps a template as jsonb pages of `productId`/`articleId` with the product and fabric names for display. The editor reads the main models and letter names from `GET /api/crm/quote-lookups/introduction` (managers cannot read the settings) and season models from `searchCrmQuoteCatalog` with `season`. The PDF composer draws the catalogue for Introduction and the item table for Request.
 
@@ -69,9 +70,11 @@ Stage 5b design: a changed model is a `CustomSewing` item that keeps `ProductId`
 
 Stage 5c design: `crm.QuoteEvents` (QuoteId cascade, Kind, actor id and name, Details up to 500, At) is a child of `Quotes` that the КП only adds to; `GET /api/crm/quotes/{id}/history` reads it. `Quotes` gains `ArchivedAt` and `ArchivedByName`; `POST …/archive` and `POST …/restore` take `version` and grow it; `getCrmQuotes` takes `archived` (default false). `POST …/copy` builds the copy in the domain (`Quote.CopyAs`) and numbers it through `QuoteNumbering`. The migration fills `Created` from `Quotes` and `Sent` from `QuoteSendings`.
 
+Stage 6 design: `POST /api/crm/quote-import` (Admin, `importCrmQuotes`) takes the file written by `transfer/quotes_rows.py` from the Calculator export (`{dryRun, quotes}`); `ImportQuotesCommandValidator` checks its shape, `QuoteImportMapper` builds each КП through `Quote.Import` with Catalog/Reference rows from the port `IQuoteImportLookup` (host adapter over the Catalog overview and Reference lists) and KeepinCRM customers from `IQuoteStore.FindKeepinCustomersAsync`. All new КП are saved by one `SaveChanges` (one transaction). Already transferred numbers are read from `QuoteEvents` of kind `Imported` (the old number is in its details when it changed). No schema change: `QuoteEvents.Kind` is text, `Imported` is a new value. Runbook: [old КП transfer](../../../operations/data/migrations-and-seeding.md#old-кп-transfer).
+
 ### Later stages
 
-Editing the composition of a sewing model inside a КП with recalculation and the seamstress wage («Розцінка швачки»), a model from scratch, change history, archive and copy, export for production, import of old Calculator КП (only if the partial export allows it; otherwise start clean, owner 2026-11-04).
+Editing the composition of a sewing model inside a КП with recalculation and the seamstress wage («Розцінка швачки»), export for production. A model from scratch, change history, archive, copy and the old КП transfer are done (stages 5a–6).
 
 ## Scenarios (stage 1)
 
@@ -135,6 +138,7 @@ Contract: [crm/quotes.openapi.yaml](../../../contracts/crm/quotes.openapi.yaml).
 | `getCrmQuoteHistory` | `GET /api/crm/quotes/{id}/history`: «Історія змін», newest first (R-22) |
 | `archiveCrmQuote` / `restoreCrmQuote` | `POST /api/crm/quotes/{id}/archive`, `POST …/restore` with `version` (R-23) |
 | `copyCrmQuote` | `POST /api/crm/quotes/{id}/copy` → 201 with the new КП (R-24) |
+| `importCrmQuotes` | `POST /api/crm/quote-import` with `dryRun` and the Calculator КП → report (R-25, Admin) |
 | `getCrmQuoteIntroTemplates` / `createCrmQuoteIntroTemplate` / `deleteCrmQuoteIntroTemplate` | `GET`, `POST /api/crm/quote-intro-templates`, `DELETE /api/crm/quote-intro-templates/{id}` |
 
 Every command and query with input has a FluentValidation validator (lengths, ranges, paging, item kinds, no manual sewing price, one row for PPE, one recommended variant); Catalog-dependent rules (active product, published price, manual reason) are checked by `QuoteItemsBuilder` and return 409 or 400 with a Ukrainian message.
@@ -154,7 +158,7 @@ The file map is in the [feature card](../../../features/crm/clients-and-quotes.m
 | 5a | «Виріб з нуля»: R-20 | done 2026-11-04 |
 | 5b | «Змінити склад» of a Catalog model: R-21 | done 2026-11-04 |
 | 5c | History, archive, copy: R-22–R-24 | done 2026-11-04 |
-| 6 | Old КП import (if feasible) | planned |
+| 6 | Old Calculator КП transfer: R-25 | done 2026-11-04 |
 
 Admin screens: brevi-web [QTE-001 screens](https://github.com/Weretik/brevi-web/blob/master/docs/specs/admin/quotes/001-quotes/README.md).
 

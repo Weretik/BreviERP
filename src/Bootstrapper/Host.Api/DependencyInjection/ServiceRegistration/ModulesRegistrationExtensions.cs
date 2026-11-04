@@ -1,4 +1,5 @@
 using Crm.Application.Quotes.Catalog;
+using Crm.Application.Quotes.Import;
 using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.Staff;
 using Crm.Application.Tasks.Staff;
@@ -45,6 +46,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IQuoteSewingCalculator, QuoteSewingCalculator>();
         services.AddScoped<IQuoteModelCompositionReader, QuoteModelCompositionReader>();
         services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();
+        services.AddScoped<IQuoteImportLookup, QuoteImportLookup>();
         services.AddScoped<ITaskStaffReader, TaskStaffReader>();
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);

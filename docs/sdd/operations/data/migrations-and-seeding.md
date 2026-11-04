@@ -99,3 +99,37 @@ The one-time product transfer from the Calculator sheet ([CAT-010](../../specs/c
 5. Check: a second preview of the same body reports every row as unchanged and an empty `toDelete`.
 
 Rollback: there is no undo endpoint. Take a database backup before step 4; deleted products, their photos, categories and PPE price history come back only from it.
+
+## Old КП transfer
+
+The one-time transfer of КП from the old Calculator ([QTE-001 R-25](../../specs/crm/003-quotes/README.md)) runs through the API, not Host.Seed. It needs no migration. A dry run never writes; the real run writes every new КП in one transaction or nothing. Run it after the Catalog products and Reference rows are imported: items are linked by their codes.
+
+1. Take a full export from the Calculator («Экспорт КП», all quote tables with `"complete": true`) and generate the body. The script writes `quotes-import.json` (with `dryRun: true`; only the current version of each non-deleted КП) and `quotes-import-summary.md`:
+
+   ```bash
+   python3 -I /mnt/project-files/brevi-calculator-references/transfer/quotes_rows.py brevi-quotes.json out/
+   ```
+
+2. Sign in as the Director or an Admin (the same PowerShell session as in [sheet product import](#sheet-product-import) step 2) and run the dry run:
+
+   ```powershell
+   $body = [System.IO.File]::ReadAllText("out\quotes-import.json", [System.Text.Encoding]::UTF8)
+   $report = Invoke-RestMethod -Method Post -Uri "$api/api/crm/quote-import" -WebSession $session -Headers $headers `
+     -ContentType "application/json; charset=utf-8" -Body ([System.Text.Encoding]::UTF8.GetBytes($body))
+   $report | ConvertTo-Json -Depth 6 | Out-File -Encoding utf8 out\quotes-import-preview.json
+   ```
+
+3. Review the report with the owner: `created`, `renumbered` (numbers a new Brevi КП already had), `unknownPeople` (their КП go to the person who imports) and `warnings` (transferred with the Calculator prices, but «Перерахувати» cannot update those rows).
+
+4. Run: set `dryRun` to false and send the same body. `applied: true` means everything was saved; a 409 means nothing was saved, so repeat the dry run.
+
+   ```powershell
+   $apply = $body -replace '"dryRun":\s*true', '"dryRun": false'
+   Invoke-RestMethod -Method Post -Uri "$api/api/crm/quote-import" -WebSession $session -Headers $headers `
+     -ContentType "application/json; charset=utf-8" -Body ([System.Text.Encoding]::UTF8.GetBytes($apply)) |
+     ConvertTo-Json -Depth 6
+   ```
+
+5. Check: a second dry run of the same body reports `created: 0` and every number in `alreadyImported`. A later export can be sent the same way: only КП that were not transferred are added.
+
+Rollback: there is no undo endpoint. Take a database backup before step 4; a transferred КП can also be deleted one by one in the Admin while it is a draft.

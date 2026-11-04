@@ -2,6 +2,7 @@ using Crm.Application.Quotes.Access;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.CustomSewing;
+using Crm.Application.Quotes.Import;
 using Crm.Application.Quotes.Mapping;
 using Crm.Application.Quotes.Persistence;
 using Crm.Application.Quotes.Staff;
@@ -86,6 +87,13 @@ public sealed class RepriceQuoteCommandHandler(
         {
             unavailable.AddRange(options.Select(x =>
                 new QuoteRepriceProblem(x.Id, item.Name, x.Title, "Розрахунок виробу з нуля недоступний.")));
+            return;
+        }
+
+        if (item.Lines.Count == 0 || options.Any(x => x.FabricId is null || x.FabricMeters is null))
+        {
+            unavailable.AddRange(options.Select(x =>
+                new QuoteRepriceProblem(x.Id, item.Name, x.Title, QuoteImportMapper.MissingCompositionReason)));
             return;
         }
 
