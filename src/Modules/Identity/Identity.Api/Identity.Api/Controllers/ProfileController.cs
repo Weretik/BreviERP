@@ -3,6 +3,7 @@ using Identity.Api.Contracts.Profile;
 using Identity.Application.Features.Profile.ChangeOwnEmail;
 using Identity.Application.Features.Profile.ChangeOwnName;
 using Identity.Application.Features.Profile.ChangeOwnPassword;
+using Identity.Application.Features.Profile.ChangeOwnPhone;
 using Identity.Application.Features.Profile.GetProfile;
 using Identity.Application.Features.Profile.RemoveOwnAvatar;
 using Identity.Application.Features.Profile.UploadOwnAvatar;
@@ -12,7 +13,7 @@ namespace Identity.Api.Controllers;
 
 /// <summary>
 /// The signed-in staff account's own profile («Мій кабінет»). Every staff member changes name and photo;
-/// administrators (and the director) also change email and password, with the current password.
+/// administrators (and the director) also change phone, email and password (the last two with the current password).
 /// </summary>
 [ApiController]
 [Route("api/profile")]
@@ -36,6 +37,13 @@ public sealed class ProfileController(ISender sender) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ChangeName([FromBody] ChangeNameRequest request, CancellationToken cancellationToken)
         => NoContentOr(await sender.Send(new ChangeOwnNameCommand(request.FullName), cancellationToken));
+
+    [HttpPut("phone", Name = "changeMyPhone")]
+    [Authorize(Policy = PolicyNames.RequireAdminRole)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangePhone([FromBody] ChangePhoneRequest request, CancellationToken cancellationToken)
+        => NoContentOr(await sender.Send(new ChangeOwnPhoneCommand(request.PhoneNumber), cancellationToken));
 
     [HttpPut("avatar", Name = "uploadMyAvatar")]
     [RequestSizeLimit(AvatarUploadResults.RequestLimit)]

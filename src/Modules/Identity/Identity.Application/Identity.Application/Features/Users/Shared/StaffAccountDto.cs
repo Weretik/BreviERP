@@ -6,4 +6,5 @@ public sealed record StaffAccountDto(
     string FullName,
     string Role,
     bool IsBlocked,
-    string? AvatarUrl = null);
+    string? AvatarUrl = null,
+    string? PhoneNumber = null);

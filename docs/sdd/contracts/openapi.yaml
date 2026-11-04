@@ -23,12 +23,16 @@ paths:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users~1{userId}~1role
   /api/admin/users/{userId}/blocked:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users~1{userId}~1blocked
+  /api/admin/users/{userId}/details:
+    $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users~1{userId}~1details
   /api/admin/users/{userId}/password:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users~1{userId}~1password
   /api/profile:
     $ref: ./identity/profile.openapi.yaml#/paths/~1api~1profile
   /api/profile/name:
     $ref: ./identity/profile.openapi.yaml#/paths/~1api~1profile~1name
+  /api/profile/phone:
+    $ref: ./identity/profile.openapi.yaml#/paths/~1api~1profile~1phone
   /api/profile/avatar:
     $ref: ./identity/profile.openapi.yaml#/paths/~1api~1profile~1avatar
   /api/profile/email:

@@ -2,7 +2,7 @@
 
 **Module:** identity.
 
-The Admin «Користувачі» page: an administrator or the director lists staff accounts (director, administrators, accountants, managers), creates them, changes their role, blocks or unblocks them, sets a new password and deletes them. There is no open registration; the first administrator comes from the seed job ([session flow](../../architecture/security/authentication/session-flow.md#first-administrator)).
+The Admin «Користувачі» page: an administrator or the director lists staff accounts (director, administrators, accountants, managers), creates them, changes their name, email and phone, changes their role, blocks or unblocks them, sets a new password and deletes them. The list shows each account's photo and phone. There is no open registration; the first administrator comes from the seed job ([session flow](../../architecture/security/authentication/session-flow.md#first-administrator)).
 
 ## Rules
 
@@ -11,7 +11,7 @@ The Admin «Користувачі» page: an administrator or the director list
 - At most one director: creating or promoting a second one returns `409`.
 - Only the director changes the director account (role, block, password, delete); an administrator gets `403`.
 - Nobody blocks or deletes their own account (`400`). Only the director may change their own role (`400` for an administrator).
-- Password: 8 to 128 characters. Email unique (`409` on a duplicate).
+- Password: 8 to 128 characters. Email unique (`409` on a duplicate). A new email ends the account's sessions.
 - Blocking sets the lockout end to the far future; changing a role, blocking or a new password changes the security stamp, so the user's sessions end within 5 minutes. Delete removes the account.
 
 ## Code structure
@@ -23,7 +23,8 @@ src/Modules/Identity/
 │   └── Contracts/Users/                             # request and response records
 ├── Identity.Application/Identity.Application/
 │   ├── Features/Users/                              # GetStaffList, CreateStaff, ChangeStaffRole,
-│   │                                                # SetStaffBlocked, SetStaffPassword, DeleteStaff
+│   │                                                # SetStaffBlocked, SetStaffPassword, DeleteStaff,
+│   │                                                # UpdateStaffDetails
 │   │                                                # + validators
 │   └── Services/IStaffAccountService.cs
 └── Identity.Infrastructure/Identity.Infrastructure/Services/Users/StaffAccountService.cs

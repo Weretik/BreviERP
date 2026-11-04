@@ -41,7 +41,7 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
 - [User session](identity/session.md) — Admin sign-in with the session cookie, CSRF, lockout, first administrator.
 - [Staff accounts](identity/staff-accounts.md) — «Користувачі»: administrators and the director create, re-role, block, reset and delete staff accounts.
-- [Own profile](identity/own-profile.md) — «Мій кабінет»: own name and photo for every staff member; email and password for administrators.
+- [Own profile](identity/own-profile.md) — «Мій кабінет»: own name and photo for every staff member; phone, email and password for administrators.
 
 ## Other modules
 

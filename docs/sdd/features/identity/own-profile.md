@@ -2,11 +2,12 @@
 
 **Module:** identity.
 
-«Мій кабінет» in Admin: the signed-in staff member sees their name, email, role and photo. Every staff role changes their own name and photo; administrators (the director also holds Admin) also change their own email and password. The same photo shows in the header menu and on «Користувачі»; without a photo Admin shows the first letter of the name on a color.
+«Мій кабінет» in Admin: the signed-in staff member sees their name, email, role and photo. Every staff role changes their own name and photo; administrators (the director also holds Admin) also change their own phone, email and password (owner decision 2026-11-03). Other people's name, email and phone are changed on «Користувачі». The same photo shows in the header menu and on «Користувачі»; without a photo Admin shows the first letter of the name on a color.
 
 ## Rules
 
-- Policy `OwnProfile` (Accountant, Manager, Admin) on `/api/profile`; email and password also need `RequireAdminRole` (`403` for others).
+- Policy `OwnProfile` (Accountant, Manager, Admin) on `/api/profile`; phone, email and password also need `RequireAdminRole` (`403` for others).
+- Phone: optional, 7 to 15 digits with an optional leading `+`, spaces, dashes or brackets (`AspNetUsers.PhoneNumber`, no new column). It also shows on «Користувачі».
 - Email and password changes need the current password; a wrong one returns `400` on `currentPassword` and counts towards lockout. A taken email returns `409`. Other sessions end; this browser gets a fresh cookie.
 - Photo: JPEG, PNG or WebP, at most 2 MB, at least 128×128 px, at most 24 megapixels. The server applies EXIF orientation, crops the centre square, and stores a 256×256 WebP under a new name, then deletes the previous file. Deleting a staff account deletes its photo.
 - Photos live on the Brevi CDN through the Media module storage, folder `/avatars` (not in «Фото»). The database keeps only the key (`AspNetUsers.AvatarPath`); the URL is built at read time. Without storage configured the upload answers `503`.
@@ -20,7 +21,7 @@ src/Modules/Identity/
 │   ├── Contracts/Profile/                          # request and response records
 │   └── Avatars/AvatarUploadResults.cs              # multipart limit, 503 mapping
 ├── Identity.Application/Identity.Application/
-│   ├── Features/Profile/                           # GetProfile, ChangeOwnName, ChangeOwnEmail,
+│   ├── Features/Profile/                           # GetProfile, ChangeOwnName, ChangeOwnPhone, ChangeOwnEmail,
 │   │                                               # ChangeOwnPassword, UploadOwnAvatar, RemoveOwnAvatar
 │   ├── Features/Avatars/AvatarRules.cs             # size limits
 │   └── Services/IProfileService.cs, IAvatarStorage.cs

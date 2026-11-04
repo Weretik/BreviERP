@@ -12,6 +12,7 @@ public interface IStaffAccountService
     Task<Result<StaffAccountDto>> CreateAsync(string email, string fullName, string role, string password, CancellationToken cancellationToken = default);
     Task<Result> ChangeRoleAsync(int userId, string role, CancellationToken cancellationToken = default);
     Task<Result> SetBlockedAsync(int userId, bool blocked, CancellationToken cancellationToken = default);
+    Task<Result> UpdateDetailsAsync(int userId, string fullName, string email, string? phoneNumber, CancellationToken cancellationToken = default);
     Task<Result> SetPasswordAsync(int userId, string password, CancellationToken cancellationToken = default);
     Task<Result> DeleteAsync(int userId, CancellationToken cancellationToken = default);
 }

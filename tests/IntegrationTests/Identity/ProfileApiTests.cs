@@ -18,7 +18,7 @@ public sealed class ProfileApiTests
     public async Task StopHost() => await _host.DisposeAsync();
 
     [Test]
-    public async Task Manager_changes_name_and_photo_but_not_email_or_password()
+    public async Task Manager_changes_name_and_photo_but_not_phone_email_or_password()
     {
         using var admin = await CookieAuthApiTests.SignInAsync(_host, IdentityApiHost.AdminEmail, IdentityApiHost.AdminPassword);
         await admin.Http.PostAsJsonAsync("/api/admin/users",
@@ -26,6 +26,7 @@ public sealed class ProfileApiTests
         using var manager = await CookieAuthApiTests.SignInAsync(_host, "profile-manager@brevi.test", "Manager-Pass-9");
 
         var rename = await manager.Http.PutAsJsonAsync("/api/profile/name", new { fullName = "Олена Петрівна" });
+        var phone = await manager.Http.PutAsJsonAsync("/api/profile/phone", new { phoneNumber = "+380 50 307 55 54" });
         var upload = await manager.Http.PutAsync("/api/profile/avatar", Photo(400, 300));
         var avatarUrl = (await upload.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("avatarUrl").GetString();
         var profile = await manager.Http.GetFromJsonAsync<JsonElement>("/api/profile");
@@ -37,6 +38,7 @@ public sealed class ProfileApiTests
         Assert.Multiple(() =>
         {
             Assert.That(rename.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+            Assert.That(phone.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
             Assert.That(upload.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(avatarUrl, Does.StartWith("https://cdn.brevi.test/avatars/").And.EndWith(".webp"));
             Assert.That(profile.GetProperty("fullName").GetString(), Is.EqualTo("Олена Петрівна"));
@@ -91,6 +93,37 @@ public sealed class ProfileApiTests
             Assert.That(taken.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
             Assert.That(email.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
             Assert.That(newLogin.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        });
+    }
+
+    [Test]
+    public async Task Admin_changes_own_phone_and_another_account_details()
+    {
+        using var admin = await CookieAuthApiTests.SignInAsync(_host, IdentityApiHost.AdminEmail, IdentityApiHost.AdminPassword);
+        var created = await admin.Http.PostAsJsonAsync("/api/admin/users",
+            new { email = "details@brevi.test", fullName = "Бухгалтер", role = "Accountant", password = "Account-Pass-1" });
+        var id = (await created.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetInt32();
+
+        var ownPhone = await admin.Http.PutAsJsonAsync("/api/profile/phone", new { phoneNumber = "+380 50 307 55 54" });
+        var badPhone = await admin.Http.PutAsJsonAsync("/api/profile/phone", new { phoneNumber = "call me" });
+        var details = await admin.Http.PutAsJsonAsync($"/api/admin/users/{id}/details",
+            new { fullName = "Ірина", email = "details-new@brevi.test", phoneNumber = "(0532) 67-11-09" });
+        var taken = await admin.Http.PutAsJsonAsync($"/api/admin/users/{id}/details",
+            new { fullName = "Ірина", email = IdentityApiHost.AdminEmail, phoneNumber = (string?)null });
+        var profile = await admin.Http.GetFromJsonAsync<JsonElement>("/api/profile");
+        var list = await admin.Http.GetFromJsonAsync<JsonElement>("/api/admin/users");
+        var row = list.EnumerateArray().Single(x => x.GetProperty("id").GetInt32() == id);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ownPhone.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+            Assert.That(badPhone.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(profile.GetProperty("phoneNumber").GetString(), Is.EqualTo("+380 50 307 55 54"));
+            Assert.That(details.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
+            Assert.That(taken.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
+            Assert.That(row.GetProperty("fullName").GetString(), Is.EqualTo("Ірина"));
+            Assert.That(row.GetProperty("email").GetString(), Is.EqualTo("details-new@brevi.test"));
+            Assert.That(row.GetProperty("phoneNumber").GetString(), Is.EqualTo("(0532) 67-11-09"));
         });
     }
 

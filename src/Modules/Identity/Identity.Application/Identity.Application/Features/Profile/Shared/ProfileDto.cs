@@ -5,4 +5,5 @@ public sealed record ProfileDto(
     string Email,
     string FullName,
     string Role,
-    string? AvatarUrl);
+    string? AvatarUrl,
+    string? PhoneNumber);

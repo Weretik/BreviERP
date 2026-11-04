@@ -49,6 +49,26 @@ paths:
         '403': { description: 'Not an administrator, or the account is the director' }
         '404': { description: No staff account with this ID }
         '409': { description: A director already exists }
+  /api/admin/users/{userId}/details:
+    put:
+      operationId: updateStaffDetails
+      summary: Change a staff account's name, email and phone
+      tags: [Users]
+      security: [{ cookieAuth: [] }]
+      description: A new email ends the account's sessions within 5 minutes. Empty phone clears it. Only the director changes the director (403).
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UpdateStaffDetailsRequest' } } }
+      responses:
+        '204': { description: Changed }
+        '400': { description: 'Invalid name, email or phone' }
+        '401': { description: Not signed in }
+        '403': { description: 'Not an administrator, or the account is the director' }
+        '404': { description: No staff account with this ID }
+        '409': { description: Email already used }
   /api/admin/users/{userId}/blocked:
     put:
       operationId: setStaffBlocked
@@ -116,7 +136,7 @@ components:
     StaffRole: { type: string, enum: [Director, Admin, Accountant, Manager] }
     StaffAccountResponse:
       type: object
-      required: [id, email, fullName, role, isBlocked, avatarUrl]
+      required: [id, email, fullName, role, isBlocked, avatarUrl, phoneNumber]
       properties:
         id: { type: integer, format: int32 }
         email: { type: string, format: email }
@@ -124,6 +144,14 @@ components:
         role: { $ref: '#/components/schemas/StaffRole' }
         isBlocked: { type: boolean }
         avatarUrl: { type: [string, 'null'], format: uri }
+        phoneNumber: { type: [string, 'null'] }
+    UpdateStaffDetailsRequest:
+      type: object
+      required: [fullName, email]
+      properties:
+        fullName: { type: string, maxLength: 100 }
+        email: { type: string, format: email, maxLength: 256 }
+        phoneNumber: { type: [string, 'null'], maxLength: 20 }
     CreateStaffAccountRequest:
       type: object
       required: [email, fullName, role, password]

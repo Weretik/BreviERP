@@ -33,7 +33,7 @@ public sealed class ProfileService(
 
         var roles = await userManager.GetRolesAsync(user);
         var role = StaffRoles.All.FirstOrDefault(roles.Contains) ?? string.Empty;
-        return Result.Success(new ProfileDto(user.Id, user.Email ?? string.Empty, user.FullName, role, avatarStorage.BuildUrl(user.AvatarPath)));
+        return Result.Success(new ProfileDto(user.Id, user.Email ?? string.Empty, user.FullName, role, avatarStorage.BuildUrl(user.AvatarPath), user.PhoneNumber));
     }
 
     public async Task<Result> ChangeNameAsync(string fullName, CancellationToken cancellationToken = default)
@@ -45,6 +45,19 @@ public sealed class ProfileService(
         }
 
         user.FullName = fullName.Trim();
+        var updated = await userManager.UpdateAsync(user);
+        return updated.Succeeded ? Result.Success() : Invalid(updated);
+    }
+
+    public async Task<Result> ChangePhoneAsync(string? phoneNumber, CancellationToken cancellationToken = default)
+    {
+        var user = await CurrentUserAsync();
+        if (user is null)
+        {
+            return Result.Unauthorized();
+        }
+
+        user.PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber.Trim();
         var updated = await userManager.UpdateAsync(user);
         return updated.Succeeded ? Result.Success() : Invalid(updated);
     }

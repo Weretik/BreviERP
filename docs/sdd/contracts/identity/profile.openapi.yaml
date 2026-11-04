@@ -28,6 +28,23 @@ paths:
         '400': { description: Empty or longer than 100 characters }
         '401': { description: Not signed in }
         '403': { description: Not a staff account }
+  /api/profile/phone:
+    put:
+      operationId: changeMyPhone
+      summary: Change own phone number (administrators)
+      description: Empty or null clears it. 7 to 15 digits, optionally a leading +, spaces, dashes or brackets.
+      tags: [Profile]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/ChangePhoneRequest' } } }
+      responses:
+        '204': { description: Phone changed }
+        '400': { description: Not a phone number }
+        '401': { description: Not signed in }
+        '403': { description: Not an administrator }
   /api/profile/avatar:
     put:
       operationId: uploadMyAvatar
@@ -101,13 +118,19 @@ components:
   schemas:
     ProfileResponse:
       type: object
-      required: [id, email, fullName, role, avatarUrl]
+      required: [id, email, fullName, role, avatarUrl, phoneNumber]
       properties:
         id: { type: integer, format: int32 }
         email: { type: string, format: email }
         fullName: { type: string }
         role: { $ref: './users.openapi.yaml#/components/schemas/StaffRole' }
         avatarUrl: { type: [string, 'null'], format: uri }
+        phoneNumber: { type: [string, 'null'], maxLength: 20 }
+    ChangePhoneRequest:
+      type: object
+      required: [phoneNumber]
+      properties:
+        phoneNumber: { type: [string, 'null'], maxLength: 20 }
     ChangeNameRequest:
       type: object
       required: [fullName]
