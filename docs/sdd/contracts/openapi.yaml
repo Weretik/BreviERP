@@ -217,6 +217,12 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1catalog~1{productId}~1composition
   /api/crm/quote-lookups/staff:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1staff
+  /api/crm/embroidery/form:
+    $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1form
+  /api/crm/embroidery/calculate:
+    $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1calculate
+  /api/crm/embroidery/settings:
+    $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1settings
   /api/crm/tasks:
     $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks
   /api/crm/tasks/board:
