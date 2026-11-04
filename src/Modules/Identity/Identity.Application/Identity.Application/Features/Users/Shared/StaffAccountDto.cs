@@ -5,4 +5,6 @@ public sealed record StaffAccountDto(
     string Email,
     string FullName,
     string Role,
-    bool IsBlocked);
+    bool IsBlocked,
+    string? AvatarUrl = null,
+    string? PhoneNumber = null);

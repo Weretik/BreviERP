@@ -29,6 +29,8 @@ public static class ModuleRegistrationsExtensions
         IConfiguration configuration)
     {
         services.AddIdentityConfiguration(configuration);
+        // Before Identity, which falls back to switched-off avatars when nothing is registered.
+        services.AddSingleton<Identity.Application.Services.IAvatarStorage, IdentityAvatarStorage>();
         services.AddIdentityInfrastructureServices(configuration);
 
         services.AddInfrastructureServices(configuration);

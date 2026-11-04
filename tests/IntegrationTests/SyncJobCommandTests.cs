@@ -14,7 +14,7 @@ public sealed class SyncJobCommandTests
         var services = new NoServices();
         var configuration = Configuration(new() { ["sync"] = "true", ["sync-tasks"] = "keepin-suppliers,unknown" });
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Dispatch(services, configuration));
-        Assert.That(exception!.Message, Is.EqualTo("Unknown sync task: unknown. Known: keepin-suppliers, keepin-clients, sewing-prices."));
+        Assert.That(exception!.Message, Is.EqualTo("Unknown sync task: unknown. Known: keepin-suppliers, keepin-clients, sewing-prices, media-thumbnails."));
         Assert.That(services.Calls, Is.Zero);
     }
 

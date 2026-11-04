@@ -57,9 +57,10 @@ components:
       properties: { email: { type: string, format: email }, password: { type: string, format: password } }
     SessionMeResponse:
       type: object
-      required: [userId, email, fullName, roles]
+      required: [userId, email, fullName, roles, avatarUrl]
       properties:
         userId: { type: string }
         email: { type: string, format: email }
         fullName: { type: string }
         roles: { type: array, items: { type: string, enum: [Director, Admin, Accountant, Manager, User] } }
+        avatarUrl: { type: [string, 'null'], format: uri, description: 'Profile photo on the CDN; null shows the initial and a color' }

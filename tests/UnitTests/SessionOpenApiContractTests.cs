@@ -98,6 +98,16 @@ public sealed class SessionOpenApiContractTests
             {
                 var jsonName = JsonNamingPolicy.CamelCase.ConvertName(property.Name);
                 var propertySchema = RequiredMapping(properties, jsonName);
+                if (new NullabilityInfoContext().Create(property).ReadState == NullabilityState.Nullable)
+                {
+                    // A nullable DTO value is always sent; OpenAPI 3.1 writes it as a [type, 'null'] pair.
+                    Assert.That(
+                        RequiredSequence(propertySchema, "type").Children.Cast<YamlScalarNode>().Select(node => node.Value),
+                        Is.EquivalentTo(new[] { ExpectedOpenApiType(property.PropertyType), "null" }),
+                        $"Schema type mismatch for {dtoType.Name}.{property.Name}");
+                    continue;
+                }
+
                 Assert.That(RequiredScalar(propertySchema, "type"),
                     Is.EqualTo(ExpectedOpenApiType(property.PropertyType)),
                     $"Schema type mismatch for {dtoType.Name}.{property.Name}");

@@ -2,6 +2,7 @@ using Ardalis.Result;
 using Identity.Application.Features.Users.Shared;
 using Identity.Application.Services;
 using Identity.Domain.Authorization;
+using Identity.Infrastructure.Avatars;
 using Identity.Infrastructure.DataBase;
 using Identity.Infrastructure.Entities;
 
@@ -15,6 +16,8 @@ public sealed class StaffAccountService(
     AppIdentityDbContext dbContext,
     UserManager<AppUser> userManager,
     IHttpContextAccessor httpContextAccessor,
+    IAvatarStorage avatarStorage,
+    AvatarService avatarService,
     ILogger<StaffAccountService> logger) : IStaffAccountService
 {
     public async Task<IReadOnlyList<StaffAccountDto>> GetListAsync(CancellationToken cancellationToken = default)
@@ -26,14 +29,15 @@ public sealed class StaffAccountService(
                 join role in dbContext.Roles on userRole.RoleId equals role.Id
                 where StaffRoles.All.Contains(role.Name!)
                 orderby user.Email
-                select new { user.Id, user.Email, user.FullName, Role = role.Name!, user.LockoutEnd })
+                select new { user.Id, user.Email, user.FullName, user.AvatarPath, user.PhoneNumber, Role = role.Name!, user.LockoutEnd })
             .ToListAsync(cancellationToken);
 
         // A user with several staff roles (the director also holds Admin) is listed once, with the strongest role.
         return rows
             .GroupBy(x => x.Id)
             .Select(group => group.OrderBy(x => IndexOfRole(x.Role)).First())
-            .Select(x => new StaffAccountDto(x.Id, x.Email ?? string.Empty, x.FullName, x.Role, x.LockoutEnd > now))
+            .Select(x => new StaffAccountDto(
+                x.Id, x.Email ?? string.Empty, x.FullName, x.Role, x.LockoutEnd > now, avatarStorage.BuildUrl(x.AvatarPath), x.PhoneNumber))
             .ToList();
     }
 
@@ -145,6 +149,48 @@ public sealed class StaffAccountService(
         return Result.Success();
     }
 
+    public async Task<Result> UpdateDetailsAsync(
+        int userId,
+        string fullName,
+        string email,
+        string? phoneNumber,
+        CancellationToken cancellationToken = default)
+    {
+        var target = await FindStaffForChangeAsync(userId);
+        if (!target.IsSuccess)
+        {
+            return Failure(target);
+        }
+
+        var user = target.Value;
+        var normalizedEmail = email.Trim();
+        var owner = await userManager.FindByEmailAsync(normalizedEmail);
+        if (owner is not null && owner.Id != user.Id)
+        {
+            return Result.Conflict("A user with this email already exists.");
+        }
+
+        var emailChanged = !string.Equals(user.Email, normalizedEmail, StringComparison.OrdinalIgnoreCase);
+        user.FullName = fullName.Trim();
+        user.Email = normalizedEmail;
+        user.UserName = normalizedEmail;
+        user.PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber.Trim();
+        var updated = await userManager.UpdateAsync(user);
+        if (!updated.Succeeded)
+        {
+            return Invalid(updated);
+        }
+
+        // A new sign-in email ends the user's sessions, like a new password.
+        if (emailChanged)
+        {
+            await userManager.UpdateSecurityStampAsync(user);
+        }
+
+        logger.LogInformation("AUDIT: Staff account {UserId} details changed by {ActorId}", userId, CurrentUserId());
+        return Result.Success();
+    }
+
     public async Task<Result> SetPasswordAsync(int userId, string password, CancellationToken cancellationToken = default)
     {
         var target = await FindStaffForChangeAsync(userId);
@@ -179,6 +225,8 @@ public sealed class StaffAccountService(
             return Failure(target);
         }
 
+        // The photo file goes first; a failure to delete it is only logged.
+        await avatarService.RemoveAsync(target.Value, cancellationToken);
         var deleted = await userManager.DeleteAsync(target.Value);
         if (!deleted.Succeeded)
         {

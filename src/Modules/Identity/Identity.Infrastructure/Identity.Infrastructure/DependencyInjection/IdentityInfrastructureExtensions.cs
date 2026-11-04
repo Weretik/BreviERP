@@ -1,7 +1,11 @@
 using Identity.Application.Services;
+using Identity.Infrastructure.Avatars;
 using Identity.Infrastructure.Options;
+using Identity.Infrastructure.Services.Profile;
 using Identity.Infrastructure.Services.Sessions;
 using Identity.Infrastructure.Services.Users;
+
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Identity.Infrastructure.DependencyInjection;
 
@@ -17,6 +21,11 @@ public static class IdentityInfrastructureExtensions
         services.Configure<IdentityCookieSessionOptions>(configuration.GetSection(IdentityCookieSessionOptions.SectionName));
         services.AddScoped<ICookieSessionService, CookieSessionService>();
         services.AddScoped<IStaffAccountService, StaffAccountService>();
+        services.AddScoped<IProfileService, ProfileService>();
+        services.AddSingleton<AvatarImageProcessor>();
+        services.AddScoped<AvatarService>();
+        // Host.Api registers the CDN storage first; elsewhere avatars are switched off.
+        services.TryAddSingleton<IAvatarStorage, UnconfiguredAvatarStorage>();
         return services;
     }
 

@@ -167,7 +167,7 @@ jobs:
             --max-retries 1 \
             --tasks 1 \
             --parallelism 1 \
-            --update-secrets "KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest" \
+            --update-secrets "KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest,AdmToolsStorage__Login=storage-login:latest,AdmToolsStorage__Password=storage-password:latest" \
             --quiet
 
       - name: Run database migrations and seed data

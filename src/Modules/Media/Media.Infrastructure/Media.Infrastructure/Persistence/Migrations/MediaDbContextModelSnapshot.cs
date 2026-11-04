@@ -54,6 +54,9 @@ namespace Media.Infrastructure.Persistence.Migrations
                     b.Property<int?>("Height")
                         .HasColumnType("integer");
 
+                    b.Property<DateTimeOffset?>("ImageProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("PublicUrl")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -72,6 +75,14 @@ namespace Media.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("ThumbnailStorageKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -81,6 +92,9 @@ namespace Media.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FolderId");
+
+                    b.HasIndex("ImageProcessedAt")
+                        .HasFilter("\"ImageProcessedAt\" IS NULL");
 
                     b.HasIndex("StorageKey")
                         .IsUnique();
