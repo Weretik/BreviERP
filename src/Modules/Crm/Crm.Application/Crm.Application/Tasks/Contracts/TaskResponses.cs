@@ -64,7 +64,11 @@ public sealed record TaskOverviewResponse(
     int? OnTimePercent,
     IReadOnlyList<TaskLoadResponse> Load);
 
-/// <summary>Workload of one manager (A2 strip); Director and Admin get every manager, a Manager only self.</summary>
-public sealed record TaskLoadResponse(int UserId, string Name, int Open, int Overdue, int Urgent, int InProgress);
+/// <summary>
+/// Workload of one manager («Навантаження» tab); Director and Admin get every manager, a Manager only self.
+/// OnTimePercent is the share of tasks done by their due time over the last 30 days, null without done tasks.
+/// </summary>
+public sealed record TaskLoadResponse(int UserId, string Name, int Open, int Overdue, int Urgent, int InProgress,
+    int DoneLastWeek, int? OnTimePercent);
 
 public sealed record TaskAssigneeResponse(int UserId, string Name, string? Email);
