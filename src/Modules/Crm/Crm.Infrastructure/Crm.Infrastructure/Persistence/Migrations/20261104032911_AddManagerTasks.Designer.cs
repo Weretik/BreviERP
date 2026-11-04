@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Crm.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CrmDbContext))]
-    [Migration("20261104025933_AddManagerTasks")]
+    [Migration("20261104032911_AddManagerTasks")]
     partial class AddManagerTasks
     {
         /// <inheritdoc />
@@ -517,6 +517,57 @@ namespace Crm.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_QuoteItemOptions_Retail", "(\"RetailSource\" IS NULL OR \"RetailSource\" >= 0) AND (\"RetailManual\" IS NULL OR \"RetailManual\" >= 0)");
 
                             t.HasCheckConstraint("CK_QuoteItemOptions_Wholesale", "(\"WholesaleSource\" IS NULL OR \"WholesaleSource\" >= 0) AND (\"WholesaleManual\" IS NULL OR \"WholesaleManual\" >= 0)");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Settings.QuoteSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Introduction")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("LetterVariants")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Pdf")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("StaffContacts")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedByName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuoteSettings", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteSettings_Singleton", "\"Id\" = 1");
+
+                            t.HasCheckConstraint("CK_QuoteSettings_Version", "\"Version\" > 0");
                         });
                 });
 

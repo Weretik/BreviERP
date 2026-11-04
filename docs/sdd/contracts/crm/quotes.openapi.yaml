@@ -177,6 +177,57 @@ paths:
         "403": { description: Admin role required. }
         "404": { description: Not found. }
         "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quotes/{id}/pdf:
+    parameters:
+      - $ref: "#/components/parameters/QuoteId"
+    get:
+      operationId: getCrmQuotePdf
+      security:
+        - bearerAuth: []
+      description: «Сформувати КП». The PDF of the saved КП with the current settings; only shown items, variants and prices, client texts, the responsible manager's КП contact and the requisites (R-14).
+      responses:
+        "200":
+          description: PDF file, `Content-Disposition` attachment named «КП <number>.pdf»; not cached.
+          content:
+            application/pdf:
+              schema: { type: string, format: binary }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+  /api/crm/quote-settings:
+    get:
+      operationId: getCrmQuoteSettings
+      security:
+        - bearerAuth: []
+      description: «Налаштування КП» (R-13). Before the first save returns the defaults with version 0. Has a contact row for every active staff member; an unsaved contact shows the account name, phone and email.
+      responses:
+        "200":
+          description: Settings.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteSettings" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required (the Director also holds it). }
+    put:
+      operationId: saveCrmQuoteSettings
+      security:
+        - bearerAuth: []
+      description: Saves the whole page with the version that was loaded.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveQuoteSettingsInput" }
+      responses:
+        "200":
+          description: Saved; version is incremented.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteSettings" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required (the Director also holds it). }
+        "409": { $ref: "#/components/responses/Conflict" }
   /api/crm/quote-lookups/catalog:
     get:
       operationId: searchCrmQuoteCatalog
@@ -484,6 +535,122 @@ components:
         userId: { type: integer }
         name: { type: string }
         email: { type: [string, "null"] }
+    CrmQuoteCompany:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, maxLength: 300 }
+        edrpou: { type: [string, "null"], description: 8 digits. }
+        taxId: { type: [string, "null"], description: ІПН, 10–12 digits. }
+        iban: { type: [string, "null"] }
+        address: { type: [string, "null"], maxLength: 300 }
+        phone: { type: [string, "null"], maxLength: 50 }
+        email: { type: [string, "null"], format: email }
+        site: { type: [string, "null"], format: uri }
+        logoUrl: { type: [string, "null"], format: uri, description: https link (photo library); SVG, PNG or JPEG. }
+    CrmQuoteEmailTemplate:
+      type: object
+      required: [subject, body]
+      description: "Marks: {quoteNumber}, {managerName}, {managerPhone}, {managerEmail}, {site}."
+      properties:
+        subject: { type: string, maxLength: 300 }
+        body: { type: string, maxLength: 4000 }
+    CrmQuotePdfTexts:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, maxLength: 300 }
+        vatNotice: { type: [string, "null"], maxLength: 300 }
+        ctaTitle: { type: [string, "null"], maxLength: 300 }
+        ctaText: { type: [string, "null"], maxLength: 4000 }
+        ctaContactTemplate: { type: [string, "null"], maxLength: 4000, description: "Marks: {managerName}, {managerPhone}, {managerEmail}." }
+    CrmQuoteAdvantage:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, maxLength: 300 }
+        text: { type: [string, "null"], maxLength: 300 }
+    CrmQuoteIntroductionTexts:
+      type: object
+      required: [advantages]
+      description: «КП для знайомства — рекламний каталог» (used in stage 4).
+      properties:
+        logoText: { type: [string, "null"] }
+        summerTitle: { type: [string, "null"] }
+        winterTitle: { type: [string, "null"] }
+        subtitle: { type: [string, "null"] }
+        summerBannerUrl: { type: [string, "null"], format: uri }
+        winterBannerUrl: { type: [string, "null"], format: uri }
+        modelsTitle: { type: [string, "null"] }
+        assortmentLinkText: { type: [string, "null"] }
+        assortmentUrl: { type: [string, "null"], format: uri }
+        productButtonText: { type: [string, "null"] }
+        nextStepText: { type: [string, "null"] }
+        accentColor: { type: [string, "null"], pattern: "^#[0-9A-Fa-f]{6}$" }
+        advantages:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items: { $ref: "#/components/schemas/CrmQuoteAdvantage" }
+    CrmQuoteLetterVariant:
+      type: object
+      required: [name, subject, body]
+      properties:
+        name: { type: string, maxLength: 300 }
+        subject: { type: string, maxLength: 300 }
+        body: { type: string, maxLength: 4000 }
+    CrmQuoteStaffContact:
+      type: object
+      required: [userId, accountName, name]
+      properties:
+        userId: { type: integer }
+        accountName: { type: string }
+        accountEmail: { type: [string, "null"] }
+        name: { type: string, description: Name shown to the client. }
+        phone: { type: [string, "null"] }
+        email: { type: [string, "null"] }
+    CrmQuoteStaffContactInput:
+      type: object
+      required: [userId, name]
+      properties:
+        userId: { type: integer, minimum: 1 }
+        name: { type: string, maxLength: 300 }
+        phone: { type: [string, "null"], maxLength: 50 }
+        email: { type: [string, "null"], format: email }
+    CrmQuoteSettings:
+      type: object
+      required: [version, company, email, pdf, introduction, letterVariants, staffContacts]
+      properties:
+        version: { type: integer, description: 0 before the first save. }
+        updatedByName: { type: [string, "null"] }
+        updatedAt: { type: [string, "null"], format: date-time }
+        company: { $ref: "#/components/schemas/CrmQuoteCompany" }
+        email: { $ref: "#/components/schemas/CrmQuoteEmailTemplate" }
+        pdf: { $ref: "#/components/schemas/CrmQuotePdfTexts" }
+        introduction: { $ref: "#/components/schemas/CrmQuoteIntroductionTexts" }
+        letterVariants:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteLetterVariant" }
+        staffContacts:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteStaffContact" }
+    CrmSaveQuoteSettingsInput:
+      type: object
+      required: [version, company, email, pdf, introduction, letterVariants, staffContacts]
+      properties:
+        version: { type: integer, minimum: 0 }
+        company: { $ref: "#/components/schemas/CrmQuoteCompany" }
+        email: { $ref: "#/components/schemas/CrmQuoteEmailTemplate" }
+        pdf: { $ref: "#/components/schemas/CrmQuotePdfTexts" }
+        introduction: { $ref: "#/components/schemas/CrmQuoteIntroductionTexts" }
+        letterVariants:
+          type: array
+          maxItems: 10
+          items: { $ref: "#/components/schemas/CrmQuoteLetterVariant" }
+        staffContacts:
+          type: array
+          maxItems: 100
+          items: { $ref: "#/components/schemas/CrmQuoteStaffContactInput" }
   securitySchemes:
     bearerAuth:
       type: http

@@ -2,7 +2,7 @@
 
 `Crm.Infrastructure.Persistence.CrmDbContext` owns schema `crm` («Менеджер сервісу»: clients, КП and manager tasks) in the shared PostgreSQL database; migration history is `crm.__EFMigrationsHistory`. Reviewed 2026-11-04.
 
-`RemoveCodexQuoteTables` (2026-11-04) drops the earlier quote, custom sewing, document, PDF, email, delivery, production-package and introduction tables and their trigger functions; their data is not kept. `AddQuotes` then adds the КП tables of [QTE-001](../../specs/crm/003-quotes/README.md).
+`RemoveCodexQuoteTables` (2026-11-04) drops the earlier quote, custom sewing, document, PDF, email, delivery, production-package and introduction tables and their trigger functions; their data is not kept. `AddQuotes` then adds the КП tables of [QTE-001](../../specs/crm/003-quotes/README.md); `AddQuoteSettings` adds «Налаштування КП».
 
 | Table | Identity / relationships / purpose |
 | --- | --- |
@@ -14,6 +14,7 @@
 | Quotes | Generated long ID; unique Number «n-month-year» and unique (NumberYear, NumberMonth, NumberSequence); Kind (Request, Introduction), Status (Draft, Sent); internal name, optional CustomerId (no FK), recipient/company texts; author and responsible Identity user id with their names; Version is the optimistic concurrency token |
 | QuoteItems | Generated long ID, cascade Quote FK, Position, Kind (Sewing, Ppe, OneOffPpe), Catalog ProductId (null only for OneOffPpe, check constraint), frozen client texts: code, name, subtitle, description, site link, photo, season, supplier link |
 | QuoteItemOptions | Generated long ID, cascade item FK, Position; fabric variant ArticleId/FabricId for sewing; title/details; three price tiers as RetailSource/Manual/Shown, WholesaleSource/Manual/Shown, LargeSource/Manual/Shown (numeric(12,2), non-negative); manual reason with who/when; PricesTakenAt |
+| QuoteSettings | One row (`Id` = 1, check constraint): jsonb sections Company, Email, Pdf, Introduction, LetterVariants, StaffContacts (keyed by Identity user id, no FK); UpdatedByName, UpdatedAt; Version is the optimistic concurrency token |
 | ManagerTasks | Generated long ID shown as «ЗД-0142»; title, description, assignee and author Identity user id with names, DueAt, IsUrgent, Status (New, InProgress, Done), optional client PublicId with its name (no FK), CompletedAt only when Done (check constraint); Version is the optimistic concurrency token ([TSK-001](../../specs/crm/004-manager-tasks/README.md), migration AddManagerTasks) |
 | ManagerTaskSteps | Generated long ID, cascade task FK, Position, text, IsDone |
 | ManagerTaskEvents | Generated long ID, cascade task FK, Kind, who (user id and name), when, kind-specific details |

@@ -1,0 +1,137 @@
+using Ardalis.Result;
+using Crm.Application.Quotes.Access;
+using Crm.Application.Quotes.Pdf;
+using Crm.Application.Quotes.Pdf.GetPdf;
+using Crm.Application.Quotes.Settings.Contracts;
+using Crm.Application.Quotes.Settings.GetSettings;
+using Crm.Application.Quotes.Settings.SaveSettings;
+using Crm.Application.Quotes.Staff;
+using Crm.Domain.Quotes;
+
+namespace IntegrationTests.Crm;
+
+/// <summary>«Налаштування КП» and the PDF source over the real crm schema (CRM-003 stage 2).</summary>
+[NonParallelizable]
+public sealed class QuoteSettingsPersistenceTests : CrmDatabaseFixture
+{
+    private static readonly QuoteActor Director = new(1, true);
+    private static readonly QuoteActor Olena = new(17, false);
+    private readonly Staff _staff = new();
+    private readonly FixedClock _clock = new(new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero));
+
+    private async Task<QuoteSettingsResponse> Load()
+    {
+        await using var db = Context();
+        return (await new GetQuoteSettingsQueryHandler(db, _staff).Handle(new GetQuoteSettingsQuery(), default)).Value;
+    }
+
+    private async Task<Result<QuoteSettingsResponse>> Save(QuoteActor actor, SaveQuoteSettingsInput input)
+    {
+        await using var db = Context();
+        return await new SaveQuoteSettingsCommandHandler(db, _staff, _clock)
+            .Handle(new SaveQuoteSettingsCommand(actor, input), default);
+    }
+
+    private static SaveQuoteSettingsInput ToInput(QuoteSettingsResponse x) =>
+        new(x.Version, x.Company, x.Email, x.Pdf, x.Introduction, x.LetterVariants,
+            x.StaffContacts.Select(c => new QuoteStaffContactInput(c.UserId, c.Name, c.Phone, c.Email)).ToArray());
+
+    [Test]
+    public async Task FirstSaveStoresTheDefaultsAndLaterSavesNeedTheLoadedVersion()
+    {
+        var defaults = await Load();
+        Assert.That(defaults.Version, Is.Zero);
+        Assert.That(defaults.StaffContacts.Select(x => x.Name), Is.EqualTo(new[] { "Директор", "Олена" }));
+
+        var input = ToInput(defaults);
+        input = input with
+        {
+            Company = input.Company with { LogoUrl = "https://cdn.brevi.test/logo.svg" },
+            StaffContacts = [new QuoteStaffContactInput(17, "Олена Петренко", "+38 050 000 00 00", "olena@brevi.test")],
+        };
+        var saved = await Save(Director, input);
+        Assert.That(saved.IsSuccess, Is.True, string.Join(",", saved.Errors));
+
+        var reloaded = await Load();
+        Assert.That(reloaded.Version, Is.EqualTo(1));
+        Assert.That(reloaded.UpdatedByName, Is.EqualTo("Директор"));
+        Assert.That(reloaded.Company.LogoUrl, Is.EqualTo("https://cdn.brevi.test/logo.svg"));
+        Assert.That(reloaded.Introduction.Advantages, Has.Count.EqualTo(5));
+        Assert.That(reloaded.StaffContacts.Single(x => x.UserId == 17).Name, Is.EqualTo("Олена Петренко"));
+
+        var stale = await Save(Director, input);
+        Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
+    }
+
+    [Test]
+    public async Task ManagerCannotChangeTheSettings()
+    {
+        var result = await Save(Olena, ToInput(await Load()));
+        Assert.That(result.Status, Is.EqualTo(ResultStatus.Forbidden));
+    }
+
+    [Test]
+    public async Task PdfUsesTheResponsibleManagersContactAndHidesOtherQuotes()
+    {
+        var input = ToInput(await Load()) with
+        {
+            StaffContacts = [new QuoteStaffContactInput(17, "Олена Петренко", "+38 050 000 00 00", "olena@brevi.test")],
+        };
+        Assert.That((await Save(Director, input)).IsSuccess, Is.True);
+
+        long quoteId;
+        await using (var db = Context())
+        {
+            var option = new QuoteItemOption(0, null, null, "Ціна", null, false, new QuotePrice(100m, null, true),
+                new QuotePrice(90m, null, false), new QuotePrice(80m, null, true), _clock.GetUtcNow());
+            var quote = new Quote(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(17, "Олена"),
+                new QuoteHeader("Внутрішнє", null, null, "ТОВ «Агро»", null, "Нотатка"),
+                [new QuoteItem(0, QuoteItemKind.OneOffPpe, null, new QuoteItemTexts(null, "Каска", null, null, null, null, null, null), [option])],
+                _clock.GetUtcNow());
+            db.Quotes.Add(quote);
+            await db.SaveChangesAsync();
+            quoteId = quote.Id;
+        }
+
+        var renderer = new CapturingRenderer();
+        await using (var db = Context())
+        {
+            var own = await new GetQuotePdfQueryHandler(db, _staff, renderer).Handle(new GetQuotePdfQuery(Olena, quoteId), default);
+            Assert.That(own.Value.FileName, Is.EqualTo("КП 1-11-2026.pdf"));
+            var other = await new GetQuotePdfQueryHandler(db, _staff, renderer)
+                .Handle(new GetQuotePdfQuery(new QuoteActor(18, false), quoteId), default);
+            Assert.That(other.Status, Is.EqualTo(ResultStatus.NotFound));
+        }
+
+        Assert.That(renderer.Model!.Manager, Is.EqualTo(new QuotePdfContact("Олена Петренко", "+38 050 000 00 00", "olena@brevi.test")));
+        Assert.That(renderer.Model.Tiers, Is.EqualTo(new QuotePdfTiers(true, false, true)));
+    }
+
+    private sealed class CapturingRenderer : IQuotePdfRenderer
+    {
+        public QuotePdfModel? Model { get; private set; }
+
+        public Task<byte[]> RenderAsync(QuotePdfModel model, CancellationToken cancellationToken)
+        {
+            Model = model;
+            return Task.FromResult("%PDF-"u8.ToArray());
+        }
+    }
+
+    private sealed class Staff : IQuoteStaffReader
+    {
+        private static readonly QuoteStaffMember[] Members =
+            [new(1, "Директор", "director@brevi.test"), new(17, "Олена", "o@brevi.test", "+380")];
+
+        public Task<IReadOnlyList<QuoteStaffMember>> ListAsync(CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyList<QuoteStaffMember>>(Members);
+
+        public Task<QuoteStaffMember?> FindAsync(int userId, CancellationToken cancellationToken) =>
+            Task.FromResult(Members.FirstOrDefault(x => x.UserId == userId));
+    }
+
+    private sealed class FixedClock(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
+    }
+}
