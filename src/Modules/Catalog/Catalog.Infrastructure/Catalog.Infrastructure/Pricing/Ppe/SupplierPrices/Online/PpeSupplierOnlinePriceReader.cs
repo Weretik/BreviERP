@@ -9,7 +9,7 @@ namespace Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online;
 
 /// <summary>
 /// Reads АВ-Центр and Перчатка-центр prices from each product's page, 3C-Маркет prices from its six published
-/// lists, and Insight and Трєле dealer prices from their cabinets. Pages load a few at a time and each link once,
+/// lists, and Трєле dealer prices from its cabinet (Insight is updated only from its XML files). Pages load a few at a time and each link once,
 /// even when sizes of a product share it.
 /// </summary>
 internal sealed class PpeSupplierOnlinePriceReader(SupplierPageClient pages, SupplierCabinetPriceReader cabinets)
@@ -29,7 +29,6 @@ internal sealed class PpeSupplierOnlinePriceReader(SupplierPageClient pages, Sup
 
     private static readonly IReadOnlyDictionary<string, ISupplierCabinet> Cabinets = new Dictionary<string, ISupplierCabinet>
     {
-        [PpePriceSources.Insight] = new InsightCabinet(),
         [PpePriceSources.Trele] = new TreleCabinet(),
     };
 

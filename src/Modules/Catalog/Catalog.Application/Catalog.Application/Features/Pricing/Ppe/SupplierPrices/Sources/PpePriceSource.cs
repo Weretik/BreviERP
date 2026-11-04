@@ -23,15 +23,14 @@ public enum PpePriceFileKind
     CemtoPdf
 }
 
-/// <summary>When the daily sync job updates a source by itself.</summary>
+/// <summary>When the brevierp-sync job (Mon–Fri 09:00 Kyiv) updates a source by itself.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<PpePriceUpdateCadence>))]
 public enum PpePriceUpdateCadence
 {
     /// <summary>Only a staff member updates it (files).</summary>
     Manual,
-    /// <summary>Monday morning, Kyiv time.</summary>
-    WeeklyMonday,
-    Daily
+    /// <summary>Monday 09:00, Kyiv time.</summary>
+    WeeklyMonday
 }
 
 /// <summary>
@@ -50,7 +49,7 @@ public sealed record PpePriceSource(
     int FileCount,
     PpePriceUpdateCadence Cadence,
     /// <summary>
-    /// The automatic update of a website, Google Sheets or cabinet source works: the daily job runs it on its
+    /// The automatic update of a website, Google Sheets or cabinet source works: the brevierp-sync job runs it on its
     /// <see cref="Cadence"/> and «Оновити зараз» is offered.
     /// </summary>
     bool AutomaticUpdateConnected)

@@ -135,11 +135,11 @@ public sealed class PpeSupplierPriceImportTests
     }
 
     [Test]
-    public void Insight_cabinet_price_changes_only_the_dealer_price()
+    public void Trele_cabinet_price_changes_only_the_dealer_price()
     {
-        var link = "https://insight.ua/offer/jilet-o445/";
+        var link = "https://trele.com.ua/p/1/";
         var product = new PpePriceImportProduct(1, "2001", "Жилет", true, false, null, link, 800m, 1100m, 1350m);
-        var row = PpePriceImportPlanner.Plan(Insight, 0m, [product],
+        var row = PpePriceImportPlanner.Plan(PpePriceSources.Find("trele")!, 0m, [product],
             [new SupplierFilePrice(null, link, null, 889.5m, null, null, null)], fromFiles: false).Single();
         Assert.That((row.Status, row.NewPrice, row.NewWholesale, row.NewRetail),
             Is.EqualTo((PpePriceImportStatus.Changed, (decimal?)889.5m, (decimal?)1100m, (decimal?)1350m)));
@@ -148,7 +148,7 @@ public sealed class PpeSupplierPriceImportTests
     [Test]
     public void All_sources_except_files_can_be_refreshed()
         => Assert.That(PpePriceSources.All.Where(x => x.CanRefresh).Select(x => x.Key),
-            Is.EqualTo(new[] { "av-center", "3c-market", "perchatka-centr", "insight", "trele" }));
+            Is.EqualTo(new[] { "av-center", "3c-market", "perchatka-centr", "trele" }));
 
     [TestCase(0, true)]
     [TestCase(22.5, true)]

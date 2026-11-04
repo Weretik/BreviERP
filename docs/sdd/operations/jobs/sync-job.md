@@ -12,7 +12,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | `keepin-clients` | KeepinCRM → Brevi client refresh | the same key | [below](#keepin-clients) |
 | `sewing-prices` | Publishes Sewing prices whose inputs changed | none | [below](#sewing-prices) |
 | `media-thumbnails` | Makes size and previews for library photos without them | `storage-login`, `storage-password` → `AdmToolsStorage__Login`, `AdmToolsStorage__Password` | [below](#media-thumbnails) |
-| `ppe-supplier-prices` | Every run (Mon–Fri): Insight and Трєле cabinet prices; Mondays also АВ-Центр, 3C-Маркет, Перчатка-центр | `insight-login`, `insight-password`, `trele-login`, `trele-password` → `SupplierCabinets__…` (optional) | [below](#ppe-supplier-prices) |
+| `ppe-supplier-prices` | Mondays only: АВ-Центр, 3C-Маркет, Перчатка-центр and the Трєле cabinet; other days nothing | `trele-login`, `trele-password` → `SupplierCabinets__Trele__…` (optional) | [below](#ppe-supplier-prices) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
 
@@ -74,15 +74,14 @@ Step log: `Processed N photos (N small or unreadable, no preview), failed N, lef
 
 Feature: [PPE supplier price import](../../features/catalog/ppe-supplier-prices.md), specification [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md) stages 2–3. The discounts are those saved in «Імпорт цін».
 
-On every run (Mon–Fri 09:00) it signs in to the Insight and Трєле dealer cabinets and reads the dealer price of each product link; on Kyiv Monday it also reads АВ-Центр and Перчатка-центр product pages and the six 3C-Маркет Google lists. It saves each changed supplier price on the card and as a new approved offer version (source «Імпорт цін: …», run trigger «Розклад», actor `nightly-sync`). Products with «Дозволити ручну ціну» or not active keep their price. A source that cannot be read (supplier not found, a 3C list not loading, cabinet login missing or refused) changes nothing, records its reason in «Імпорт цін», and the step fails after the other sources ran. Repeating the step is safe: unchanged prices are not saved again.
+It works only on Kyiv Monday (09:00 run); on other days it does nothing. It reads АВ-Центр and Перчатка-центр product pages, the six 3C-Маркет Google lists, and signs in to the Трєле dealer cabinet to read the dealer price of each product link. Insight is not read here: it is updated only from its XML files in «Імпорт цін». It saves each changed supplier price on the card and as a new approved offer version (source «Імпорт цін: …», run trigger «Розклад», actor `nightly-sync`). Products with «Дозволити ручну ціну» or not active keep their price. A source that cannot be read (supplier not found, a 3C list not loading, cabinet login missing or refused) changes nothing, records its reason in «Імпорт цін», and the step fails after the other sources ran. Repeating the step is safe: unchanged prices are not saved again.
 
 Step log: one line per source `<source>: checked N, changed N, unchanged N, skipped N, problems N`, or a warning `<source>: nothing changed: <reason>`.
 
 | Setting | Where | Secret |
 | --- | --- | --- |
-| `SupplierCabinets:Insight:Login`, `…:Password` | API and `brevierp-sync`, Secret Manager `insight-login`, `insight-password` | Yes |
 | `SupplierCabinets:Trele:Login`, `…:Password` | API and `brevierp-sync`, Secret Manager `trele-login`, `trele-password` | Yes |
 
-They are the dealer accounts the client's script kept in Script Properties (`INSIGHT_LOGIN`, `INSIGHT_PASSWORD`, `TRELE_LOGIN`, `TRELE_PASSWORD`). Create the four secrets in Secret Manager and give the Cloud Run runtime service account (the one that reads `keepincrm-api-key`) the «Secret Manager Secret Accessor» role on them; the next deploy attaches them. Without all four the deploy still succeeds and the cabinets stay off. Locally: `dotnet user-secrets set "SupplierCabinets:Insight:Login" "<login>" --project src/Bootstrapper/Host.Api/Host.Api.csproj` (and the other three).
+It is the dealer account the client's script kept in Script Properties (`TRELE_LOGIN`, `TRELE_PASSWORD`). Create the two secrets in Secret Manager and give the Cloud Run runtime service account (the one that reads `keepincrm-api-key`) the «Secret Manager Secret Accessor» role on them; the next deploy attaches them. Without both the deploy still succeeds and the Трєле cabinet stays off. The secrets `insight-login` and `insight-password` are no longer used and can be deleted. Locally: `dotnet user-secrets set "SupplierCabinets:Trele:Login" "<login>" --project src/Bootstrapper/Host.Api/Host.Api.csproj` (and the password).
 
 On demand: «Імпорт цін» → source → «Оновити зараз» calls `POST /api/v1/pricing/ppe/supplier-prices/{key}/refresh` (preview, then `?dryRun=false`).

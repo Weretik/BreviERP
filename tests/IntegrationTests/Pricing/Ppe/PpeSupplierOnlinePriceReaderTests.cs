@@ -1,3 +1,4 @@
+using Ardalis.Result;
 using System.Net;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace IntegrationTests.Pricing.Ppe;
 
 /// <summary>
-/// АВ-Центр and Перчатка-центр pages, the 3C-Маркет lists and the Insight and Трєле cabinets read like the Apps Script,
+/// АВ-Центр and Перчатка-центр pages, the 3C-Маркет lists and the Трєле cabinet read like the Apps Script,
 /// against a fake web (no network, no database). CAT-017 stages 2–3.
 /// </summary>
 public sealed class PpeSupplierOnlinePriceReaderTests
@@ -98,30 +99,27 @@ public sealed class PpeSupplierOnlinePriceReaderTests
     public void Cabinet_pages_give_the_dealer_price()
         => Assert.Multiple(() =>
         {
-            Assert.That(new InsightCabinet().FindPrice("<div data-offer-mod-price0=\"889,50\" data-offer-mod-price1=\"1138\">"), Is.EqualTo(889.5m));
-            Assert.That(new InsightCabinet().FindPrice("<div class=\"price price0\"><span class=\"value\">1 020</span></div>"), Is.EqualTo(1020m));
             Assert.That(new TreleCabinet().FindPrice("<span class=\"add2cart__price-default js-p\" data-price=\"412.8\">"), Is.EqualTo(412.8m));
             Assert.That(new TreleCabinet().FindPrice("<span class=\"price\">500 грн</span>"), Is.Null);
         });
 
     [Test]
-    public async Task Insight_signs_in_once_and_reads_pages_with_the_session_cookie()
+    public async Task Trele_signs_in_once_and_reads_pages_with_the_session_cookie()
     {
         var web = new FakeWeb(new Dictionary<string, (HttpStatusCode, string)>
         {
-            ["https://insight.ua/authorization/"] = (HttpStatusCode.OK, ""),
-            ["https://insight.ua/profile/"] = (HttpStatusCode.OK, "<a>Вийти</a>"),
-            ["https://insight.ua/offer/a/"] = (HttpStatusCode.OK, "<i data-offer-mod-price0=\"500\"></i>"),
+            ["https://trele.com.ua/login/"] = (HttpStatusCode.OK, ""),
+            ["https://trele.com.ua/p/1/"] = (HttpStatusCode.OK, "<span class=\"add2cart__price-default\" data-price=\"500\"></span>"),
         }, setCookie: "PHPSESSID=s1; path=/");
-        var reader = Reader(web, new SupplierCabinetOptions { Insight = { Login = "dealer", Password = "secret" } });
+        var reader = Reader(web, new SupplierCabinetOptions { Trele = { Login = "dealer", Password = "secret" } });
 
-        var result = await reader.ReadAsync(PpePriceSources.Find("insight")!,
-            [Product("https://insight.ua/offer/a/"), Product("https://insight.ua/ru/offer/a")], CancellationToken.None);
+        var result = await reader.ReadAsync(PpePriceSources.Find("trele")!,
+            [Product("https://trele.com.ua/p/1/"), Product("https://trele.com.ua/p/1/")], CancellationToken.None);
 
         Assert.Multiple(() =>
         {
             Assert.That(result.Value.Single().Price, Is.EqualTo(500m));
-            Assert.That(web.Requests.Count(x => x == "https://insight.ua/profile/"), Is.EqualTo(1));
+            Assert.That(web.Requests.Count(x => x == "https://trele.com.ua/login/"), Is.EqualTo(2));
             Assert.That(web.Cookies.Last(), Does.Contain("PHPSESSID=s1"));
         });
     }
@@ -131,19 +129,29 @@ public sealed class PpeSupplierOnlinePriceReaderTests
     {
         var web = new FakeWeb(new Dictionary<string, (HttpStatusCode, string)>
         {
-            ["https://insight.ua/authorization/"] = (HttpStatusCode.OK, ""),
-            ["https://insight.ua/profile/"] = (HttpStatusCode.OK, "<a>Увійти</a>"),
             ["https://trele.com.ua/login/"] = (HttpStatusCode.OK, ""),
         });
         var noLogin = await Reader(web).ReadAsync(PpePriceSources.Find("trele")!, [Product("https://trele.com.ua/p/1")], CancellationToken.None);
-        var refused = await Reader(web, new SupplierCabinetOptions { Insight = { Login = "dealer", Password = "wrong" } })
-            .ReadAsync(PpePriceSources.Find("insight")!, [Product("https://insight.ua/offer/a/")], CancellationToken.None);
+        var refused = await Reader(web, new SupplierCabinetOptions { Trele = { Login = "dealer", Password = "wrong" } })
+            .ReadAsync(PpePriceSources.Find("trele")!, [Product("https://trele.com.ua/p/1")], CancellationToken.None);
 
         Assert.Multiple(() =>
         {
             Assert.That(noLogin.ValidationErrors.Single().ErrorMessage, Does.Contain("ще не додано"));
-            Assert.That(refused.ValidationErrors.Single().ErrorMessage, Does.Contain("Не вдалося увійти в кабінет Insight"));
-            Assert.That(web.Requests, Has.None.EqualTo("https://insight.ua/offer/a/"));
+            Assert.That(refused.ValidationErrors.Single().ErrorMessage, Does.Contain("Не вдалося увійти в кабінет Трєле"));
+            Assert.That(web.Requests, Has.None.EqualTo("https://trele.com.ua/p/1"));
+        });
+    }
+
+    [Test]
+    public async Task Insight_is_not_read_online()
+    {
+        var web = new FakeWeb(new Dictionary<string, (HttpStatusCode, string)>());
+        var result = await Reader(web).ReadAsync(PpePriceSources.Find("insight")!, [Product("https://insight.ua/offer/a/")], CancellationToken.None);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Status, Is.EqualTo(ResultStatus.Invalid));
+            Assert.That(web.Requests, Is.Empty);
         });
     }
 
