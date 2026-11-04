@@ -102,7 +102,7 @@ Rollback: there is no undo endpoint. Take a database backup before step 4; delet
 
 ## Old-site photo import
 
-The migration `MediaFileSourceKey` adds `media.Files.SourceKey` on the next deploy. The import itself ([CAT-018](../../specs/catalog/018-product-photos-and-old-site-import/README.md)) runs from the Admin page «Медіатека» → «Імпорт зі старого сайту», not Host.Seed: pick `old-site-photo-import.json` (built by `/mnt/project-files/brevi-photo-import/build_import.py` from the OpenCart export), press «Перевірити» (dry run, writes nothing), review the counts with the owner, then «Імпортувати» (parts of 20 products). It downloads from `https://brevi.com.ua/image/`, so the old site must stay online until it finishes. A repeat adds nothing twice; failed photos are listed and can be retried by running it again.
+The migration `MediaFileSourceKey` adds `media.Files.SourceKey` on the next deploy. The import itself ([CAT-018](../../specs/catalog/018-product-photos-and-old-site-import/README.md)) runs from the Admin page «Товари» (tab «Швейна продукція») → «Імпорт зі старого сайту», not Host.Seed: pick `old-site-photo-import.json` (built by `/mnt/project-files/brevi-photo-import/build_import.py` from the OpenCart export), press «Перевірити» (dry run, writes nothing), review the counts with the owner, then «Імпортувати» (parts of 20 products). It downloads from `https://brevi.com.ua/image/`, so the old site must stay online until it finishes. A repeat adds nothing twice; failed photos are listed and can be retried by running it again.
 
 ## Old КП transfer
 
