@@ -31,7 +31,7 @@ env:
   CATALOG_IMPORT_DB_SECRET_VERSION: '1'
   # КП Gmail sending (R-15): set to 'true' only after the secrets crm-gmail-client-id and crm-gmail-client-secret
   # exist in Secret Manager; while 'false' the API runs with Gmail off («Підключити Gmail» explains why).
-  CRM_GMAIL_ENABLED: 'false'
+  CRM_GMAIL_ENABLED: 'true'
   CRM_GMAIL_CLIENT_ID_SECRET: crm-gmail-client-id
   CRM_GMAIL_CLIENT_SECRET_SECRET: crm-gmail-client-secret
   TELEGRAM_TOKEN_SECRET: telegram-reminders-bot-token
