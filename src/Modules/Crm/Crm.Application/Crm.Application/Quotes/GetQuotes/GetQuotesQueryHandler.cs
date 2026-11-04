@@ -8,7 +8,9 @@ public sealed class GetQuotesQueryHandler(IQuoteStore store) : IQueryHandler<Get
 {
     public async ValueTask<Result<QuotePageResponse>> Handle(GetQuotesQuery query, CancellationToken cancellationToken)
     {
-        var quotes = store.Quotes.AsNoTracking();
+        var quotes = query.Archived
+            ? store.Quotes.AsNoTracking().Where(x => x.ArchivedAt != null)
+            : store.Quotes.AsNoTracking().Where(x => x.ArchivedAt == null);
         if (!query.Actor.CanSeeAll)
             quotes = quotes.Where(x => x.ResponsibleUserId == query.Actor.UserId);
         else if (query.ResponsibleUserId is { } responsible)
@@ -35,7 +37,7 @@ public sealed class GetQuotesQueryHandler(IQuoteStore store) : IQueryHandler<Get
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
             .Select(x => new QuoteSummaryResponse(x.Id, x.Number, x.Kind.ToString(), x.Status.ToString(),
                 x.InternalName, x.CompanyName, new QuotePersonResponse(x.ResponsibleUserId, x.ResponsibleName),
-                x.Items.Count, x.UpdatedAt, x.LastSentAt))
+                x.Items.Count, x.UpdatedAt, x.LastSentAt, x.ArchivedAt))
             .ToListAsync(cancellationToken);
         return Result.Success(new QuotePageResponse(rows, query.Page, query.PageSize, total));
     }

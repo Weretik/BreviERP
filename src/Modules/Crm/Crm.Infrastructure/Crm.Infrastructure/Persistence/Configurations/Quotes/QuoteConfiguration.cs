@@ -30,16 +30,23 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.Property(x => x.IntroLayout).HasConversion<string>().HasMaxLength(20);
         b.Property(x => x.RecipientEmail).HasMaxLength(QuoteLimits.EmailMaxLength);
         b.Property(x => x.LetterName).HasMaxLength(QuoteLimits.LetterNameMaxLength);
+        b.Property(x => x.ArchivedByName).HasMaxLength(QuoteLimits.NameMaxLength);
+        b.Ignore(x => x.IsArchived);
         b.Property(x => x.Version).IsConcurrencyToken();
 
         b.HasIndex(x => x.Number).IsUnique();
         b.HasIndex(x => new { x.NumberYear, x.NumberMonth, x.NumberSequence }).IsUnique();
         b.HasIndex(x => new { x.ResponsibleUserId, x.UpdatedAt });
         b.HasIndex(x => x.UpdatedAt);
+        b.HasIndex(x => x.ArchivedAt);
         b.HasIndex(x => x.CustomerId);
 
         // A Crm customer; the KeepinCRM sync keeps customers that a КП uses (CustomerKeepinSyncStore.ListInUseAsync).
         b.HasMany(x => x.Items).WithOne().HasForeignKey(x => x.QuoteId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(x => x.Items).HasField("_items").UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        // History lines are only added through the КП and read by GetQuoteHistory; the КП never loads them.
+        b.HasMany(x => x.Events).WithOne().HasForeignKey(x => x.QuoteId).OnDelete(DeleteBehavior.Cascade);
+        b.Navigation(x => x.Events).HasField("_events").UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

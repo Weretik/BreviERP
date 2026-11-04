@@ -9,5 +9,6 @@ internal static class QuoteMessages
     public const string AssignForbidden = "Передати КП може лише директор або адміністратор.";
     public const string StaffNotFound = "Співробітника не знайдено або він заблокований.";
     public const string ActorUnknown = "Не вдалося визначити користувача.";
+    public const string Archived = "КП в архіві. Спочатку поверніть його з архіву.";
     public const string WrongKind = "Це КП іншого виду: відкрийте його з переліку КП.";
 }

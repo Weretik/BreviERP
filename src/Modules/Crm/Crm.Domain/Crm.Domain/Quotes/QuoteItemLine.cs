@@ -41,6 +41,9 @@ public sealed class QuoteItemLine
     /// <summary>The Reference other-cost code of a service.</summary>
     public string? CostCode { get; private set; }
 
+    public QuoteItemLine Copy() =>
+        new(Position, Kind, ReferenceId, Name, Unit, Quantity, ManualMinutes, CostCode);
+
     public bool SameAs(QuoteItemLine other) =>
         Kind == other.Kind && ReferenceId == other.ReferenceId && CostCode == other.CostCode &&
         Quantity == other.Quantity && ManualMinutes == other.ManualMinutes;

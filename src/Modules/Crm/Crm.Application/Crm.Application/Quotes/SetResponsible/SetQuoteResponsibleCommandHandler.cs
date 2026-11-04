@@ -18,11 +18,15 @@ public sealed class SetQuoteResponsibleCommandHandler(IQuoteStore store, IQuoteS
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Version != command.Version) return Result.Conflict(QuoteMessages.Stale);
+        if (quote.IsArchived) return Result.Conflict(QuoteMessages.Archived);
 
         var member = await staff.FindAsync(command.UserId, cancellationToken);
         if (member is null) return Result.Invalid(new ValidationError(QuoteMessages.StaffNotFound));
 
-        quote.AssignResponsible(new QuotePerson(member.UserId, member.Name), clock.GetUtcNow());
+        var actor = await staff.PersonAsync(command.Actor, cancellationToken);
+        if (actor is null) return Result.Forbidden(QuoteMessages.ActorUnknown);
+
+        quote.AssignResponsible(new QuotePerson(member.UserId, member.Name), actor, clock.GetUtcNow());
         try
         {
             await store.SaveChangesAsync(cancellationToken);

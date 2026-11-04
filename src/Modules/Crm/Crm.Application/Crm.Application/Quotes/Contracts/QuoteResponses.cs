@@ -12,7 +12,8 @@ public sealed record QuoteSummaryResponse(
     QuotePersonResponse Responsible,
     int ItemsCount,
     DateTimeOffset UpdatedAt,
-    DateTimeOffset? LastSentAt);
+    DateTimeOffset? LastSentAt,
+    DateTimeOffset? ArchivedAt);
 
 public sealed record QuotePageResponse(IReadOnlyList<QuoteSummaryResponse> Items, int Page, int PageSize, int Total);
 
@@ -32,9 +33,15 @@ public sealed record QuoteResponse(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     DateTimeOffset? LastSentAt,
+    DateTimeOffset? ArchivedAt,
+    string? ArchivedByName,
     int Version,
     IReadOnlyList<QuoteItemResponse> Items,
     QuoteIntroductionResponse? Introduction);
+
+/// <summary>A line of «Історія змін» (R-22).</summary>
+public sealed record QuoteEventResponse(long Id, string Kind, DateTimeOffset At, QuotePersonResponse Actor,
+    string? Details);
 
 /// <summary>The fields of a «КП для знайомства»; null for a КП «під запит».</summary>
 public sealed record QuoteIntroductionResponse(string Layout, string? RecipientEmail, string? LetterName);

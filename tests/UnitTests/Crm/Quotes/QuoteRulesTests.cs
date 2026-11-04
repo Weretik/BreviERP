@@ -89,4 +89,52 @@ public sealed class QuoteRulesTests
         Assert.That(new QuoteActor(1, true).CanAccess(quote), Is.True);
         Assert.That(new QuoteActor(5, false).CanAccess(quote), Is.True);
     }
+
+    [Test]
+    public void ArchiveIsRecordedOnceAndRestoreBringsItBack()
+    {
+        var person = new QuotePerson(5, "Олена");
+        var quote = new Quote(new QuoteNumber(2026, 11, 1), QuoteKind.Request, person,
+            new QuoteHeader("Клієнт", null, null, null, null, null), [], DateTimeOffset.UnixEpoch);
+
+        quote.Archive(person, DateTimeOffset.UnixEpoch);
+        quote.Archive(person, DateTimeOffset.UnixEpoch);
+        Assert.That(quote.IsArchived, Is.True);
+        Assert.That(quote.Version, Is.EqualTo(2));
+        quote.Restore(person, DateTimeOffset.UnixEpoch);
+
+        Assert.That(quote.IsArchived, Is.False);
+        Assert.That(quote.Events.Select(x => x.Kind),
+            Is.EqualTo(new[] { QuoteEventKind.Created, QuoteEventKind.Archived, QuoteEventKind.Restored }));
+    }
+
+    [Test]
+    public void CopyKeepsManualPricesAndCompositionButNotTheStatus()
+    {
+        var option = new QuoteItemOption(0, null, 5, "Саржа", null, true, new QuotePrice(100m, 120m, true),
+            QuotePrice.Empty, QuotePrice.Empty, DateTimeOffset.UnixEpoch).WithFabricMeters(1.5m);
+        option.SetManualAudit("Знижка", new QuotePerson(5, "Олена"), DateTimeOffset.UnixEpoch);
+        var item = new QuoteItem(0, QuoteItemKind.CustomSewing, null, new QuoteItemTexts(null, "Фартух", null, null,
+            null, null, null, null), [option], [new QuoteItemLine(0, QuoteItemLineKind.Operation, 155, "Шов", "хв", 1m, 12m)]);
+        var source = new Quote(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Олена"),
+            new QuoteHeader("Клієнт", 7, "Іван", "Агро", null, null), [item], DateTimeOffset.UnixEpoch);
+        source.MarkSent(DateTimeOffset.UnixEpoch);
+
+        var copy = source.CopyAs(new QuoteNumber(2026, 11, 2), new QuotePerson(1, "Директор"), DateTimeOffset.UnixEpoch);
+
+        var copied = copy.Items.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(copy.Status, Is.EqualTo(QuoteStatus.Draft));
+            Assert.That(copy.Number, Is.EqualTo("2-11-2026"));
+            Assert.That(copy.ResponsibleName, Is.EqualTo("Директор"));
+            Assert.That(copy.CustomerId, Is.EqualTo(7));
+            Assert.That(copied, Is.Not.SameAs(item));
+            Assert.That(copied.Options.Single().Retail.Amount, Is.EqualTo(120m));
+            Assert.That(copied.Options.Single().ManualReason, Is.EqualTo("Знижка"));
+            Assert.That(copied.Options.Single().FabricMeters, Is.EqualTo(1.5m));
+            Assert.That(copied.Lines.Single().ManualMinutes, Is.EqualTo(12m));
+            Assert.That(copy.Events.Single().Details, Is.EqualTo("Копія КП 1-11-2026"));
+        });
+    }
 }

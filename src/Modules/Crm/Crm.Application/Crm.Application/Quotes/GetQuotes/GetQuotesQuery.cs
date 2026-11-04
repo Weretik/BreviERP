@@ -5,6 +5,8 @@ namespace Crm.Application.Quotes.GetQuotes;
 
 /// <summary>КП the actor may see, newest change first (R-02).</summary>
 /// <param name="ResponsibleUserId">Director/Admin filter by manager; a Manager always gets only their own.</param>
+/// <param name="Archived">True lists only «Архів», false only КП in work (R-23).</param>
 public sealed record GetQuotesQuery(
-    QuoteActor Actor, string? Search, string? Status, int? ResponsibleUserId, int Page = 1, int PageSize = 50)
+    QuoteActor Actor, string? Search, string? Status, int? ResponsibleUserId, int Page = 1, int PageSize = 50,
+    bool Archived = false)
     : IQuery<Result<QuotePageResponse>>;
