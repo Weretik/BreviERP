@@ -20,7 +20,7 @@ public sealed class AdminUsersApiTests
     {
         using var admin = await AdminAsync();
         var created = await admin.Http.PostAsJsonAsync("/api/admin/users",
-            new { email = "manager1@brevi.test", fullName = "Менеджер", role = "Manager", password = "Manager-Pass-1" });
+            new { email = "manager1@brevi.test", fullName = "Менеджер", role = "Manager", password = "Manager-Pass-1", phoneNumber = "+380 50 123 45 67" });
         var list = await admin.Http.GetFromJsonAsync<JsonElement>("/api/admin/users");
 
         using var manager = await CookieAuthApiTests.SignInAsync(_host, "manager1@brevi.test", "Manager-Pass-1");
@@ -31,7 +31,21 @@ public sealed class AdminUsersApiTests
             Assert.That(created.StatusCode, Is.EqualTo(HttpStatusCode.Created));
             Assert.That(list.EnumerateArray().Select(x => x.GetProperty("email").GetString()), Does.Contain("manager1@brevi.test"));
             Assert.That(managerList.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+            Assert.That(
+                list.EnumerateArray().Single(x => x.GetProperty("email").GetString() == "manager1@brevi.test").GetProperty("phoneNumber").GetString(),
+                Is.EqualTo("+380 50 123 45 67"));
         });
+    }
+
+    [Test]
+    public async Task Invalid_phone_is_rejected_on_create()
+    {
+        using var admin = await AdminAsync();
+
+        var response = await admin.Http.PostAsJsonAsync("/api/admin/users",
+            new { email = "badphone@brevi.test", fullName = "Phone", role = "Manager", password = "Long-Enough-1", phoneNumber = "abc" });
+
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]

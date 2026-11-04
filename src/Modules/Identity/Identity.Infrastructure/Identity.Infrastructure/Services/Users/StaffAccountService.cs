@@ -46,6 +46,7 @@ public sealed class StaffAccountService(
         string fullName,
         string role,
         string password,
+        string? phoneNumber,
         CancellationToken cancellationToken = default)
     {
         if (await userManager.FindByEmailAsync(email) is not null)
@@ -63,6 +64,7 @@ public sealed class StaffAccountService(
             UserName = email,
             Email = email,
             FullName = fullName.Trim(),
+            PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber.Trim(),
             EmailConfirmed = true,
             LockoutEnabled = true
         };
@@ -81,7 +83,7 @@ public sealed class StaffAccountService(
         }
 
         logger.LogInformation("AUDIT: Staff account {UserId} created with role {Role} by {ActorId}", user.Id, role, CurrentUserId());
-        return Result.Success(new StaffAccountDto(user.Id, email, user.FullName, role, IsBlocked: false));
+        return Result.Success(new StaffAccountDto(user.Id, email, user.FullName, role, IsBlocked: false, PhoneNumber: user.PhoneNumber));
     }
 
     public async Task<Result> ChangeRoleAsync(int userId, string role, CancellationToken cancellationToken = default)

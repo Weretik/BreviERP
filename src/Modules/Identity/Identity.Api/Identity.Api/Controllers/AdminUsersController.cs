@@ -38,7 +38,7 @@ public sealed class AdminUsersController(ISender sender) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(
-            new CreateStaffCommand(request.Email, request.FullName, request.Role, request.Password),
+            new CreateStaffCommand(request.Email, request.FullName, request.Role, request.Password, request.PhoneNumber),
             cancellationToken);
 
         return result.Status == Ardalis.Result.ResultStatus.Ok

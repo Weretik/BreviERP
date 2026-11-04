@@ -25,7 +25,7 @@ paths:
         content: { application/json: { schema: { $ref: '#/components/schemas/CreateStaffAccountRequest' } } }
       responses:
         '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/StaffAccountResponse' } } } }
-        '400': { description: 'Invalid email, name, role or password' }
+        '400': { description: 'Invalid email, name, role, password or phone' }
         '401': { description: Not signed in }
         '403': { description: Not an administrator }
         '409': { description: 'Email already used, or a director already exists' }
@@ -160,3 +160,4 @@ components:
         fullName: { type: string, maxLength: 256 }
         role: { $ref: '#/components/schemas/StaffRole' }
         password: { type: string, format: password, minLength: 8, maxLength: 128 }
+        phoneNumber: { type: string, nullable: true, maxLength: 20, description: 'Optional, 7-15 digits' }

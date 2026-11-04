@@ -11,5 +11,6 @@ public sealed class CreateStaffCommandValidator : AbstractValidator<CreateStaffC
         RuleFor(x => x.FullName).NotEmpty().MaximumLength(256);
         RuleFor(x => x.Role).Must(StaffRoles.IsStaffRole).WithMessage("Role must be Director, Admin, Accountant or Manager.");
         RuleFor(x => x.Password).StaffPassword();
+        RuleFor(x => x.PhoneNumber).PhoneNumber();
     }
 }
