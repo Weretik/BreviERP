@@ -48,12 +48,16 @@ BreviERP PostgreSQL
 ├── media / MediaDbContext — 2 tables + own history
 │   ├── Folders                        # photo folder tree
 │   └── Files                          # photos on the CDN
-├── production / ProductionDbContext — 9 tables + own history
+├── production / ProductionDbContext — 13 tables + own history
 │   ├── Employees                      # workers of the workshop
 │   ├── FabricNorms                    # fabric per item of a sewing model
 │   ├── Orders                         # «Виробничі завдання» from КП
 │   ├── Items                          # positions of an order with their snapshot
-│   └── OrderChanges                   # «Історія змін» of an order
+│   ├── OrderChanges                   # «Історія змін» of an order
+│   ├── FabricStocks                   # «Склад тканин»: fabric + colour balance
+│   ├── FabricMovements                # every change of a balance
+│   ├── FabricIssues                   # «Видача» packages to order items
+│   └── FabricIssueLines               # lines of a package with plan coverage
 ├── reminders / RemindersDbContext — 6 tables + own history
 │   ├── Tasks                          # reminder tasks and schedule
 │   ├── Occurrences                    # one period per task: deadline, status, who closed

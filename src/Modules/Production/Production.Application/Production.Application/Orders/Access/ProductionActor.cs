@@ -29,6 +29,15 @@ public sealed record ProductionActor(int UserId, bool IsAdmin, bool IsManager, b
     public bool CanReopen(ProductionOrder order) =>
         IsAdmin && order is { IsDeleted: false } && order.Status != ProductionOrderStatus.New;
 
+    /// <summary>«Склад тканин»: receipts, corrections, reversals and issues (PRD-D31).</summary>
+    public bool CanMoveStock => IsAdmin || IsWorkshopChief;
+
+    /// <summary>The stock value in UAH.</summary>
+    public bool SeesStockValue => IsAdmin || IsWorkshopChief;
+
+    /// <summary>«Видача» to an item: the stock keepers on a «Нове» order.</summary>
+    public bool CanIssueFabric(ProductionOrder order) => CanMoveStock && CanTrack(order);
+
     /// <summary>«Налаштування цеху».</summary>
     public bool CanManageSettings => IsAdmin || IsWorkshopChief;
 

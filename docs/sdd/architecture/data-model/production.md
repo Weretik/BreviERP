@@ -1,6 +1,6 @@
 # Production schema
 
-Code model reviewed 2026-11-04. `Production.Infrastructure.Persistence.ProductionDbContext` owns schema `production`; migration history is `production.__EFMigrationsHistory`. Migration `InitialProduction` creates Employees and FabricNorms ([PRD-001](../../specs/production/001-workshop-references/README.md)); `ProductionOrders` creates Orders, Items and OrderChanges ([PRD-002](../../specs/production/002-production-orders/README.md)); `ProductionTracking` adds Shipments, OrderFiles, TelegramDeliveries, Settings and the stage and cancel columns ([PRD-003](../../specs/production/003-order-tracking/README.md)).
+Code model reviewed 2026-11-04. `Production.Infrastructure.Persistence.ProductionDbContext` owns schema `production`; migration history is `production.__EFMigrationsHistory`. Migration `InitialProduction` creates Employees and FabricNorms ([PRD-001](../../specs/production/001-workshop-references/README.md)); `ProductionOrders` creates Orders, Items and OrderChanges ([PRD-002](../../specs/production/002-production-orders/README.md)); `ProductionTracking` adds Shipments, OrderFiles, TelegramDeliveries, Settings and the stage and cancel columns ([PRD-003](../../specs/production/003-order-tracking/README.md)); `FabricStock` adds FabricStocks, FabricMovements, FabricIssues and FabricIssueLines ([PRD-004](../../specs/production/004-fabric-stock/README.md)).
 
 | Table | Identity / relationships / purpose |
 | --- | --- |
@@ -12,6 +12,10 @@ Code model reviewed 2026-11-04. `Production.Infrastructure.Persistence.Productio
 | OrderFiles | Generated int id, OrderId → Orders (cascade), ItemId → Items (set null; null = whole order). Kind (Sizes/Application/Extra/Photo), Name (255), ContentType, Bytes, Url (CDN or old Google Drive link), StorageKey (CDN key; null for an old link), CreatedByName, CreatedAt, DeletedAt |
 | TelegramDeliveries | Key OrderId → Orders (cascade, one row per order). Status (NotSent/Sending/Sent/Failed), ChatId, ThreadId, MessageId, Attempts, LastError (500), SentByName, SentAt, Version (concurrency) |
 | Settings | One row, Id = 1: TelegramEnabled, TelegramChatId (a Reminders bot group as a value), TelegramThreadId, UpdatedByName, UpdatedAt |
+| FabricStocks | Generated int id. FabricId (Reference fabric id as a value), FabricCode (32), FabricName (300), Color (80), ColorKey (80, lower case); unique (FabricCode, ColorKey). Meters numeric(12,2) (may be negative), HasMovements, CreatedAt, UpdatedAt, Version (concurrency), unique LegacyId |
+| FabricMovements | Generated int id, StockId → FabricStocks (restrict). Kind (Opening/Receipt/Issue/Adjustment/Reversal), MetersBefore, Delta, MetersAfter, OperationDate, Note, SupplierId (Reference supplier as a value), SupplierName, Document, OrderId, ItemId, OrderNumber, ModelName (snapshot of the target), ReversesMovementId → FabricMovements, IsReversed, CreatedByName, CreatedAt, unique LegacyId |
+| FabricIssues | Generated int id, OrderId → Orders, ItemId → Items (restrict). OrderNumber, ModelName, IssuedOn, Note, CreatedByName, CreatedAt, ReversedAt, ReversedByName, ReverseReason, unique LegacyId |
+| FabricIssueLines | Generated int id, IssueId → FabricIssues (cascade), StockId → FabricStocks, MovementId → FabricMovements (unique). Purpose (Planned/Replacement/Additional), PlanFabricCode, PlanColorKey, PlannedMeters, FabricCode, FabricName, Color, Meters, CoveredMeters |
 | OrderChanges | Generated bigint id, OrderId → Orders (cascade). ItemId, ItemName, Field, Before, After (display texts), ActorName, At |
 
 The model code and user id are plain values; there are no foreign keys to `catalog`, `crm`, `reference` or `identity`.

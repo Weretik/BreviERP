@@ -5,6 +5,8 @@ using Production.Application.Abstractions;
 using Production.Application.Orders;
 using Production.Application.Orders.QuoteSources;
 using Production.Application.Orders.Tracking;
+using Production.Application.Stock;
+using Production.Application.Stock.Issues;
 using Production.Infrastructure.Persistence;
 
 namespace UnitTests.Production;
@@ -63,6 +65,14 @@ internal sealed class FakePayrollParameterReader : IPayrollParameterReader
 
     public Task<IReadOnlyList<PayrollParameterValue>> ReadAsync(IReadOnlyCollection<string> codes, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<PayrollParameterValue>>(Values.Where(x => codes.Contains(x.Code)).ToList());
+}
+
+internal sealed class FakeProductionSupplierReader : IProductionSupplierReader
+{
+    public List<ProductionSupplier> Suppliers { get; } = [];
+
+    public Task<ProductionSupplier?> FindAsync(int id, CancellationToken cancellationToken) =>
+        Task.FromResult(Suppliers.FirstOrDefault(x => x.Id == id));
 }
 
 /// <summary>CDN in memory: keys of stored and deleted files.</summary>
@@ -125,6 +135,7 @@ internal sealed class ProductionTestHarness : IDisposable
     public FakeProductionQuoteReader Quotes { get; } = new();
     public FakeProductionFabricReader Fabrics { get; } = new();
     public FakeProductionStaffReader Staff { get; } = new();
+    public FakeProductionSupplierReader Suppliers { get; } = new();
     public FakeProductionFileStorage Files { get; } = new();
     public FakeProductionTelegram Telegram { get; } = new();
     public ProductionLinks Links { get; } = new("https://office.test");
@@ -134,6 +145,14 @@ internal sealed class ProductionTestHarness : IDisposable
     public OrderCards Cards() => new(Db, Telegram);
 
     public OrderTracking Tracking() => new(Db, Staff, Cards(), Time);
+
+    public StockReservations Reservations() => new(Db);
+
+    public StockRows StockRows() => new(Fabrics);
+
+    public StockChanges StockChanges() => new(Db, Staff, Fabrics, Reservations(), StockRows(), Time);
+
+    public ItemFabricCards ItemFabric() => new(Db, Reservations());
 
     public void Dispose()
     {

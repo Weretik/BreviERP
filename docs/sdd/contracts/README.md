@@ -20,7 +20,7 @@ docs/sdd/contracts/
 - Identity: [session](identity/session.openapi.yaml).
 - Catalog: [products](catalog/product-catalog.openapi.yaml), [«Товари» page overview](catalog/product-overview.openapi.yaml), [categories](catalog/product-dependencies.openapi.yaml).
 - Media: [photo library with folders](media/media-library.openapi.yaml).
-- Production: [workshop references](production/workshop-references.openapi.yaml).
+- Production: [workshop references](production/workshop-references.openapi.yaml), [orders](production/production-orders.openapi.yaml), [fabric stock](production/fabric-stock.openapi.yaml).
 - Reference: [suppliers](reference/suppliers.openapi.yaml), [fabrics](reference/fabrics.openapi.yaml), [garment accessories](reference/garment-accessories.openapi.yaml), [garment parts](reference/garment-parts.openapi.yaml), [operations](reference/garment-part-operations.openapi.yaml), [pricing parameters and PPE markup rules](reference/pricing-parameters.openapi.yaml), [product sections](reference/product-sections.openapi.yaml).
 
 OpenAPI files describe the contract of the actual code. They do not make an endpoint publicly accessible: the host endpoint conventions, authorization attributes and fallback policy determine runtime access.

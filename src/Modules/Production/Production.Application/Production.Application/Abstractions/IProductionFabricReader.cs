@@ -6,4 +6,5 @@ public interface IProductionFabricReader
     Task<IReadOnlyList<ProductionFabric>> ListAsync(CancellationToken cancellationToken);
 }
 
-public sealed record ProductionFabric(int Id, string? Code, string Name);
+/// <param name="Price">Price per metre of «Тканини», UAH; values the stock.</param>
+public sealed record ProductionFabric(int Id, string? Code, string Name, decimal? Price = null);
