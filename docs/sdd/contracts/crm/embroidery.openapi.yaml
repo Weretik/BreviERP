@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: BreviERP CRM Embroidery Price API
-  version: 1.0.0
+  version: 1.1.0
   description: >-
     «Ціна вишивки» of the «Менеджер сервісу» block (EMB-001). Manager, Director and Admin calculate the price of an
     embroidery on a garment or of chevrons; only Director and Admin (the Director also holds Admin) get the cost and
@@ -81,6 +81,75 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: Admin role required. }
         "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/embroidery/calculations:
+    get:
+      operationId: getCrmEmbroideryCalculations
+      security:
+        - bearerAuth: []
+      description: >-
+        «Збережені», newest first. `search` matches the name, the client name or the number («ВШ-0042», «вш42», «42»).
+      parameters:
+        - { name: search, in: query, schema: { type: string, maxLength: 120 } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, maximum: 100000, default: 1 } }
+        - { name: pageSize, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+      responses:
+        "200":
+          description: A page of saved calculations.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroiderySavedPage" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+    post:
+      operationId: saveCrmEmbroideryCalculation
+      security:
+        - bearerAuth: []
+      description: >-
+        «Зберегти розрахунок». The server prices the form with the rates in force now, freezes those rates with the
+        record and never recalculates it. An «Орієнтовна» price (`incomplete`) can be saved; a price that failed
+        (`error`), an unknown or hidden client is 400. The name is trimmed and cut to 120 characters.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveEmbroideryCalculationInput" }
+      responses:
+        "200":
+          description: The saved calculation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroiderySavedCalculation" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+  /api/crm/embroidery/calculations/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, format: int64, minimum: 1 } }
+    get:
+      operationId: getCrmEmbroideryCalculation
+      security:
+        - bearerAuth: []
+      description: One saved calculation as it was saved. `result.cost` and `rates` are null for a Manager.
+      responses:
+        "200":
+          description: The saved calculation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroiderySavedCalculation" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+        "404": { description: Not found. }
+    delete:
+      operationId: deleteCrmEmbroideryCalculation
+      security:
+        - bearerAuth: []
+      description: Removes a saved calculation for good.
+      responses:
+        "204": { description: Deleted. }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+        "404": { description: Not found. }
 components:
   responses:
     Invalid:
@@ -102,6 +171,70 @@ components:
             type: array
             items: { type: string }
   schemas:
+    CrmSaveEmbroideryCalculationInput:
+      type: object
+      required: [calculation]
+      properties:
+        name: { type: [string, "null"], maxLength: 1000, description: Trimmed and cut to 120; empty is «Без назви». }
+        customerPublicId: { type: [string, "null"], format: uuid, description: An active client of «Клієнти». }
+        calculation: { $ref: "#/components/schemas/CrmCalculateEmbroideryInput" }
+    CrmEmbroiderySavedPrice:
+      type: object
+      required: [name, unit, total, repeatUnit]
+      properties:
+        name: { type: string }
+        unit: { type: number }
+        total: { type: number }
+        repeatUnit: { type: number }
+    CrmEmbroiderySavedSummary:
+      type: object
+      required: [id, number, name, customerPublicId, customerName, mode, quantity, stitchesPerUnit, hoopLabel, incomplete,
+        prices, createdAt, createdByName]
+      properties:
+        id: { type: integer, format: int64 }
+        number: { type: string, description: «ВШ-0042»; not stored. }
+        name: { type: string, description: Empty means «Без назви». }
+        customerPublicId: { type: [string, "null"], format: uuid }
+        customerName: { type: [string, "null"], description: The client name at the time of saving. }
+        mode: { $ref: "#/components/schemas/CrmEmbroideryMode" }
+        quantity: { type: integer }
+        stitchesPerUnit: { type: integer }
+        hoopLabel: { type: string, description: The hoop name from the frozen settings. }
+        incomplete: { type: boolean, description: Some ticked costs had no rate; the prices were «Орієнтовна». }
+        prices:
+          type: array
+          items: { $ref: "#/components/schemas/CrmEmbroiderySavedPrice" }
+        createdAt: { type: string, format: date-time }
+        createdByName: { type: string }
+    CrmEmbroiderySavedPage:
+      type: object
+      required: [items, page, pageSize, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CrmEmbroiderySavedSummary" }
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+    CrmEmbroiderySavedCalculation:
+      type: object
+      required: [summary, input, result, rates]
+      properties:
+        summary: { $ref: "#/components/schemas/CrmEmbroiderySavedSummary" }
+        input: { $ref: "#/components/schemas/CrmCalculateEmbroideryInput" }
+        result: { $ref: "#/components/schemas/CrmEmbroideryCalculation" }
+        rates:
+          description: The rates frozen at saving; null for a Manager.
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [stitchRate, rates, markups]
+              properties:
+                stitchRate: { type: number, description: «Оплата вишивки за 1000 стібків» at saving. }
+                rates: { $ref: "#/components/schemas/CrmEmbroideryRates" }
+                markups:
+                  type: array
+                  items: { $ref: "#/components/schemas/CrmEmbroideryMarkup" }
     CrmEmbroideryMode:
       type: string
       description: Garment = «Вишивка на виробі», Chevron = «Шеврони».

@@ -4,6 +4,7 @@ using Crm.Application.Quotes.Persistence;
 using Crm.Application.Tasks.Persistence;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
+using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Embroidery.Settings;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Introductions;
@@ -28,6 +29,7 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<QuoteIntroTemplate> QuoteIntroTemplates => Set<QuoteIntroTemplate>();
     public DbSet<ManagerTask> ManagerTasks => Set<ManagerTask>();
     public DbSet<EmbroiderySettings> EmbroiderySettings => Set<EmbroiderySettings>();
+    public DbSet<EmbroiderySavedCalculation> EmbroideryCalculations => Set<EmbroiderySavedCalculation>();
 
     Task<int> IQuoteStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
 

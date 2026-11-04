@@ -218,6 +218,72 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("CustomerExternalIdentities", "crm");
                 });
 
+            modelBuilder.Entity("Crm.Domain.Embroidery.Saved.EmbroiderySavedCalculation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CustomerName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<Guid?>("CustomerPublicId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Incomplete")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Input")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Snapshot")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("CustomerPublicId");
+
+                    b.ToTable("EmbroideryCalculations", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_EmbroideryCalculations_Quantity", "\"Quantity\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Crm.Domain.Embroidery.Settings.EmbroiderySettings", b =>
                 {
                     b.Property<int>("Id")

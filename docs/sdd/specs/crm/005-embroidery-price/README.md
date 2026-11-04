@@ -25,6 +25,8 @@ The calculator is a tool of «Менеджер сервісу» and later feeds 
 - **R-07:** Exact fractions until the end; money rounded half-up to kopecks only in the result.
 - **R-08:** Settings save whole, Director/Admin only, 409 on a stale version. Before the first save the old calculator's rates of 2026-11-04 apply (version 0).
 - **R-09:** A missing stitch rate in «Параметри ціноутворення» stops the price with a message that says where to set it.
+- **R-10 (stage 2):** «Зберегти розрахунок» sends the form, an optional name and an optional client; the server prices it with the rates in force now and stores the form, the stitch rate and the whole settings content, and the result. A saved record is never recalculated or edited; «Повторити розрахунок» loads its form into «Розрахунок» with the current rates. An «Орієнтовна» price can be saved; a failed one (`error`) or an unknown or hidden client is 400. The name is trimmed and cut to 120; empty is «Без назви».
+- **R-11 (stage 2):** «Збережені» lists all records newest first, 25 per page, search by name, client or number «ВШ-0042». Everyone who calculates sees every record; a Manager gets no cost and no frozen rates. Only Director/Admin delete.
 
 Deliberate changes from the old calculator: Managers can calculate (the old one was director-only); the stitch rate comes from «Параметри ціноутворення»; markups have names; calculation inputs have upper limits against typing mistakes (1 000 000 units or stitches, 20 layers, 500 per hooping); codes in the API are names (`Garment`, `UsedBlanks`).
 
@@ -38,16 +40,21 @@ Deliberate changes from the old calculator: Managers can calculate (the old one 
 | SC-04 | Empty, zero and unticked items | Calculate | Missing listed; zero row; nothing |
 | SC-05 | Manager | Calculate; open settings | Prices without cost; 403 |
 | SC-06 | Two windows | Director saves in both | Second save 409 |
+| SC-07 | Hooping rate 12 | Manager saves; Director changes the rate to 30; opens the record | Record keeps rate 12, hooping 600 and the same prices; Manager got no cost or rates |
+| SC-08 | Two records | Search «поло», «вш-0002» | Newest first; each search finds one |
+| SC-09 | Manager | Delete a record | 403; Director deletes, then 404 |
 
-Evidence: `tests/UnitTests/Crm/Embroidery/` (SC-01…SC-05), `tests/IntegrationTests/Crm/EmbroideryPersistenceTests.cs` (SC-05, SC-06). The old calculator's 28 golden vectors were not part of the handed-over files; add them when the owner provides `fixtures/golden-vectors.json`.
+Evidence: `tests/UnitTests/Crm/Embroidery/` (SC-01…SC-05), `tests/IntegrationTests/Crm/EmbroideryPersistenceTests.cs` (SC-05, SC-06), `tests/UnitTests/Crm/Embroidery/EmbroiderySavedTests.cs` and `tests/IntegrationTests/Crm/EmbroiderySavedPersistenceTests.cs` (SC-07…SC-09). The old calculator's 28 golden vectors were not part of the handed-over files; add them when the owner provides `fixtures/golden-vectors.json`.
 
 ## Data
 
 Migration `AddEmbroiderySettings`: table `crm.EmbroiderySettings` — `Id` (always 1), `Content` (jsonb, the whole page), `UpdatedByName`, `UpdatedAt`, `Version` (concurrency). Rollback: the previous image ignores the table.
 
+Migration `AddEmbroideryCalculations` (stage 2): table `crm.EmbroideryCalculations` — generated `Id` (shown as «ВШ-0042»), `Name`, optional client `CustomerPublicId` with `CustomerName` (no FK), `Mode`, `Quantity`, jsonb `Input`, `Snapshot` (stitch rate + settings content) and `Result`, `Incomplete`, creator id and name, `CreatedAt` (indexed). Rollback: the previous image ignores the table.
+
 ## Stages
 
 1. Розрахунок + Налаштування (this change). Rates transfer: the Director checks the defaults on «Налаштування» and saves.
-2. «Збережені»: saved calculations with a frozen rate snapshot, client from Crm, search; transfer of the old archive without recalculation.
+2. «Збережені»: saved calculations with a frozen rate snapshot, client from Crm, search (done). Transfer of the old archive without recalculation waits for a full export of the old `embroidery_price_calculations` table.
 3. «Додати в КП» and «+ Вишивка» inside a КП.
 4. Links to production orders, photos and materials.
