@@ -16,8 +16,11 @@ internal sealed class MediaFileConfiguration : IEntityTypeConfiguration<MediaFil
         builder.Property(x => x.StorageProvider).HasMaxLength(100).IsRequired();
         builder.Property(x => x.StorageKey).HasMaxLength(500).IsRequired();
         builder.Property(x => x.PublicUrl).HasMaxLength(1000).IsRequired();
+        builder.Property(x => x.ThumbnailStorageKey).HasMaxLength(500);
+        builder.Property(x => x.ThumbnailUrl).HasMaxLength(1000);
         builder.HasOne<MediaFolder>().WithMany().HasForeignKey(x => x.FolderId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(x => x.StorageKey).IsUnique();
         builder.HasIndex(x => x.FolderId);
+        builder.HasIndex(x => x.ImageProcessedAt).HasFilter("\"ImageProcessedAt\" IS NULL");
     }
 }

@@ -14,6 +14,7 @@ public sealed class DeleteMediaFileCommandHandler(IMediaDbContext db, IMediaStor
             return Result.Conflict($"{FileMessages.InUse}: {string.Join(", ", used.Select(x => $"{x.Area} «{x.Title}»"))}.");
 
         await storage.DeleteAsync(file.StorageKey, cancellationToken);
+        if (file.ThumbnailStorageKey is { } thumbnailKey) await storage.DeleteAsync(thumbnailKey, cancellationToken);
         db.Files.Remove(file);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success();

@@ -9,6 +9,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | `keepin-suppliers` | KeepinCRM → Brevi supplier refresh | `keepincrm-api-key` → `KeepinCrm__ApiKey` | [below](#keepin-suppliers) |
 | `keepin-clients` | KeepinCRM → Brevi client refresh | the same key | [below](#keepin-clients) |
 | `sewing-prices` | Publishes Sewing prices whose inputs changed | none | [below](#sewing-prices) |
+| `media-thumbnails` | Makes size and previews for library photos without them | `storage-login`, `storage-password` → `AdmToolsStorage__Login`, `AdmToolsStorage__Password` | [below](#media-thumbnails) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
 
@@ -59,3 +60,9 @@ Feature: [Sewing pricing](../../features/catalog/sewing-pricing.md), specificati
 The API already publishes new prices right after a fabric, accessory, operation, composition or pricing parameter is saved. This step is the safety net: it checks every Sewing model and publishes each active Article whose live price differs from the published one or was never published (actor `nightly-sync`), one transaction per model. It catches changes saved outside the API (jobs, scripts) and automatic runs that failed. On a normal night it publishes nothing. Articles that cannot be calculated keep their published price and are logged with their blocker codes.
 
 Step log: `Published N articles, unchanged N, not calculable N, skipped models: ...`, then one warning per model without a price.
+
+## media-thumbnails
+
+Photo previews of the «Фото» library ([MED-001](../../specs/media/001-media-library/README.md), stage 3). New uploads get their size and preview at once; this step covers photos uploaded before previews existed and uploads whose preview failed. It takes up to 500 photos with `ImageProcessedAt` empty, oldest first, downloads each original from the CDN, writes the size and uploads a WebP preview to `/library/thumbs`. A photo that cannot be read is marked processed without a preview; a download or CDN error leaves it for the next night. Repeating the step is safe.
+
+Step log: `Processed N photos (N small or unreadable, no preview), failed N, left for next nights N`, then one warning per failed photo.

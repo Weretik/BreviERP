@@ -1,7 +1,9 @@
 using Media.Application.Abstractions;
 using Media.Application.Contracts;
+using Media.Application.Files.Images;
 using Media.Application.Files.UploadFile;
 using Media.Application.Folders.CreateFolder;
+using Media.Infrastructure.Images;
 using Media.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +15,29 @@ namespace UnitTests.Media;
 internal sealed class FakeMediaStorage : IMediaStorage
 {
     public Dictionary<string, string> Files { get; } = [];
+    public Dictionary<string, byte[]> Contents { get; } = [];
     public List<string> Deleted { get; } = [];
     public string ProviderName => "fake";
 
-    public Task<string> UploadAsync(Stream content, string storageKey, string contentType, CancellationToken cancellationToken)
+    /// <summary>Uploads whose key starts with this prefix fail, like a CDN that is down.</summary>
+    public string? FailUploadsUnder { get; set; }
+
+    public async Task<string> UploadAsync(Stream content, string storageKey, string contentType, CancellationToken cancellationToken)
     {
+        if (FailUploadsUnder is not null && storageKey.StartsWith(FailUploadsUnder, StringComparison.Ordinal))
+            throw new HttpRequestException("CDN is down");
         var url = $"https://cdn.example.test{storageKey}";
+        using var buffer = new MemoryStream();
+        await content.CopyToAsync(buffer, cancellationToken);
         Files[storageKey] = url;
-        return Task.FromResult(url);
+        Contents[url] = buffer.ToArray();
+        return url;
     }
+
+    public Task<byte[]> DownloadAsync(string publicUrl, CancellationToken cancellationToken) =>
+        Contents.TryGetValue(publicUrl, out var content)
+            ? Task.FromResult(content)
+            : throw new HttpRequestException($"404 {publicUrl}");
 
     public Task DeleteAsync(string storageKey, CancellationToken cancellationToken)
     {
@@ -56,7 +72,15 @@ internal sealed class MediaTestHarness : IDisposable
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 3, 10, 0, 0, TimeSpan.Zero));
     public FakeMediaStorage Storage { get; } = new();
     public FakeMediaUsageReader Usages { get; } = new();
-    public MediaUploadSettings Settings { get; } = new() { MaxFileSizeBytes = 1024 * 1024, BaseFolder = "/library/original" };
+    public MediaUploadSettings Settings { get; } = new()
+    {
+        MaxFileSizeBytes = 1024 * 1024, BaseFolder = "/library/original", ThumbnailFolder = "/library/thumbs", ThumbnailMaxSize = 480,
+    };
+
+    public MediaImagePreparer Images => new(new SkiaMediaImageProcessor(), Storage, Settings);
+
+    public UploadMediaFileCommandHandler UploadHandler() =>
+        new(Db, Storage, Images, Settings, Time, NullLogger<UploadMediaFileCommandHandler>.Instance);
 
     public static byte[] Jpeg { get; } = [0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1];
 
@@ -67,11 +91,12 @@ internal sealed class MediaTestHarness : IDisposable
         return result.Value.Id;
     }
 
-    public async Task<MediaFileResponse> UploadAsync(string fileName, int? folderId)
+    public async Task<MediaFileResponse> UploadAsync(string fileName, int? folderId, byte[]? bytes = null, string contentType = "image/jpeg")
     {
-        await using var content = new MemoryStream(Jpeg);
-        var result = await new UploadMediaFileCommandHandler(Db, Storage, Settings, Time, NullLogger<UploadMediaFileCommandHandler>.Instance)
-            .Handle(new UploadMediaFileCommand(content, fileName, "image/jpeg", Jpeg.Length, folderId), CancellationToken.None);
+        bytes ??= Jpeg;
+        await using var content = new MemoryStream(bytes);
+        var result = await UploadHandler()
+            .Handle(new UploadMediaFileCommand(content, fileName, contentType, bytes.Length, folderId), CancellationToken.None);
         return result.Value;
     }
 

@@ -1,6 +1,6 @@
 # MED-001 — «Фото»: photo library with folders (Media module)
 
-**Status:** stage 1 (backend) implemented 2026-11-03. **Date:** 2026-11-03. **Module:** new module `Media`, schema `media`, own migration history `media.__EFMigrationsHistory` ([module rules](../../../standards/module-rules.md)).
+**Status:** stages 1–3 implemented 2026-11-03; stage 4 planned. **Date:** 2026-11-03. **Module:** new module `Media`, schema `media`, own migration history `media.__EFMigrationsHistory` ([module rules](../../../standards/module-rules.md)).
 
 ## Why
 
@@ -34,11 +34,24 @@ Photos lived inside Catalog (`catalog.MediaFiles`, `/api/catalog/media`) and in 
 | Stage | Scope | Status |
 | --- | --- | --- |
 | 1 | Backend module, folders, upload/search/move/delete, migration of old photos, closed access | implemented 2026-11-03 |
-| 2 | Admin section «Фото»: folder tree, photo grid, search, multi-upload, side panel | next |
-| 3 | Thumbnails (about 400 px WebP) and width/height on upload, backfill for old photos | planned |
+| 2 | Admin section «Фото»: folder tree, photo grid, search, multi-upload, side panel | implemented 2026-11-03 |
+| 3 | Previews (WebP, longest side 480 px) and width/height on upload, nightly backfill for old photos | implemented 2026-11-03 |
 | 4 | «Вибрати фото» picker in the product card, after the current «Товари» work | planned |
 
+## Stage 3: previews and dimensions
+
+- **Upload:** the handler reads the file into memory (at most 15 MB), uploads the original, then reads the size with SkiaSharp (after the EXIF turn) and uploads a WebP preview to `MediaUpload:ThumbnailFolder` (`/library/thumbs`). A photo whose longest side is 480 px or less gets no preview. An unreadable image is saved without size; it is not an error.
+- **Preview failure never blocks the upload.** If the preview upload fails, the photo stays with `ImageProcessedAt = null` and the nightly step retries it.
+- **Backfill:** sync step `media-thumbnails` takes up to 500 unprocessed photos per night, oldest first, downloads each original by its public URL and stores size and preview. A failed photo is logged and retried next night. On a normal night it finds nothing.
+- **Delete** removes both CDN files.
+- **Contract:** `MediaFileResponse.thumbnailUrl` (nullable); clients show `publicUrl` when it is null.
+- **Library:** SkiaSharp 3.119.4 with `SkiaSharp.NativeAssets.Linux.NoDependencies` (MIT; no system packages in the Debian runtime image).
+- **Data:** migration `MediaThumbnails` adds `ThumbnailStorageKey`, `ThumbnailUrl`, `ImageProcessedAt` and a filtered index on unprocessed rows. Old photos get previews on the first nights after deploy (about 270 photos now, one night).
+
 ## Verification — 2026-11-03
+
+- Stage 3 unit: `MediaImageTests` — size and WebP preview of a big photo, no preview for a small or broken one, EXIF turns, upload saves size and preview, delete removes both files, preview failure keeps the upload and the backfill fills it later, missing original is retried. Media unit tests: 21 passed; contract tests 73, architecture 10, HostApi 9 passed.
+
 
 - Unit: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Media` — folder tree rules, unique names, move into subfolder, empty-folder delete, CDN-first upload, missing folder, search in a branch, move keeps URL, used photo not deleted, fake image and size limit. Full UnitTests: 592 passed.
 - Architecture: `MediaDependencyTests` (layer references, own schema and history, Catalog does not reference Media) and container restore coverage: 10 passed.

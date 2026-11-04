@@ -1,5 +1,6 @@
 using Media.Application.Abstractions;
 using Media.Application.Contracts;
+using Media.Application.Files.Images;
 using Media.Domain.Files;
 
 namespace Media.Application.Files.UploadFile;
@@ -7,6 +8,7 @@ namespace Media.Application.Files.UploadFile;
 public sealed class UploadMediaFileCommandHandler(
     IMediaDbContext db,
     IMediaStorage storage,
+    MediaImagePreparer images,
     MediaUploadSettings settings,
     TimeProvider clock,
     ILogger<UploadMediaFileCommandHandler> logger)
@@ -17,9 +19,13 @@ public sealed class UploadMediaFileCommandHandler(
         if (command.FolderId is { } folderId && !await db.Folders.AnyAsync(x => x.Id == folderId, cancellationToken))
             return Result<MediaFileResponse>.NotFound(FileMessages.FolderNotFound);
 
+        var content = await ReadAllAsync(command.Content, cancellationToken);
         var storageKey = $"/{settings.BaseFolder.Trim().Trim('/')}/{Guid.NewGuid():N}{UploadMediaFileCommand.Extensions[command.ContentType]}";
-        var publicUrl = await storage.UploadAsync(command.Content, storageKey, command.ContentType, cancellationToken);
+        string publicUrl;
+        using (var original = new MemoryStream(content, writable: false))
+            publicUrl = await storage.UploadAsync(original, storageKey, command.ContentType, cancellationToken);
 
+        var now = clock.GetUtcNow();
         var file = new MediaFile(
             command.DisplayName,
             command.FolderId,
@@ -28,7 +34,11 @@ public sealed class UploadMediaFileCommandHandler(
             storage.ProviderName,
             storageKey,
             publicUrl,
-            clock.GetUtcNow());
+            now);
+        var image = await TryPrepareAsync(content, command.DisplayName, cancellationToken);
+        if (image is not null)
+            file.SetImage(image.Width, image.Height, image.ThumbnailStorageKey, image.ThumbnailUrl, now);
+
         db.Files.Add(file);
         try
         {
@@ -36,12 +46,40 @@ public sealed class UploadMediaFileCommandHandler(
         }
         catch
         {
-            // The CDN already has the file; remove it so it does not stay without a library row.
-            try { await storage.DeleteAsync(storageKey, CancellationToken.None); }
-            catch (Exception cleanup) { logger.LogWarning(cleanup, "Could not remove orphan CDN file {StorageKey}", storageKey); }
+            // The CDN already has the files; remove them so they do not stay without a library row.
+            await TryDeleteAsync(storageKey);
+            if (image?.ThumbnailStorageKey is { } thumbnailKey) await TryDeleteAsync(thumbnailKey);
             throw;
         }
 
         return Result.Success(MediaFileResponse.From(file));
+    }
+
+    /// <summary>A preview failure never blocks the upload: the photo stays unprocessed and the nightly backfill retries it.</summary>
+    private async Task<PreparedMediaImage?> TryPrepareAsync(byte[] content, string name, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await images.PrepareAsync(content, cancellationToken);
+        }
+        catch (Exception error) when (error is not OperationCanceledException)
+        {
+            logger.LogWarning(error, "Preview for «{Name}» was not made; the nightly sync will retry", name);
+            return null;
+        }
+    }
+
+    private static async Task<byte[]> ReadAllAsync(Stream stream, CancellationToken cancellationToken)
+    {
+        if (stream.CanSeek) stream.Position = 0;
+        using var buffer = new MemoryStream();
+        await stream.CopyToAsync(buffer, cancellationToken);
+        return buffer.ToArray();
+    }
+
+    private async Task TryDeleteAsync(string key)
+    {
+        try { await storage.DeleteAsync(key, CancellationToken.None); }
+        catch (Exception cleanup) { logger.LogWarning(cleanup, "Could not remove orphan CDN file {StorageKey}", key); }
     }
 }

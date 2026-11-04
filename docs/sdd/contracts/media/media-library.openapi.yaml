@@ -205,9 +205,10 @@ components:
         alt: { type: [string, 'null'] }
         folderId: { type: [integer, 'null'], description: Null for the library root. }
         publicUrl: { type: string }
+        thumbnailUrl: { type: [string, 'null'], description: 'WebP preview, longest side 480 px. Null for small or unreadable photos and for old photos until the nightly sync makes it; show publicUrl then.' }
         contentType: { type: string }
         sizeInBytes: { type: integer, format: int64 }
-        width: { type: [integer, 'null'] }
+        width: { type: [integer, 'null'], description: 'Pixels after the EXIF turn; null when the photo could not be read or is not processed yet.' }
         height: { type: [integer, 'null'] }
         createdAt: { type: string, format: date-time }
     MediaFilePage:
