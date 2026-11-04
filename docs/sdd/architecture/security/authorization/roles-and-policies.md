@@ -35,7 +35,7 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 | `CatalogRead` | User, Accountant, Manager, Admin |
 | `OwnProfile` | Accountant, Manager, WorkshopChief, Admin (`/api/profile`) |
 | `CanManageWorkshop` | WorkshopChief, Admin (`/api/production` references: staff, fabric norms, payroll parameters) |
-| `CanUseProductionOrders` | Manager, WorkshopChief, Admin (`/api/production/orders`, `/api/production/settings`; rules inside by role: stages and shipments WorkshopChief and Admin, settings WorkshopChief and Admin, [PRD-002](../../../specs/production/002-production-orders/README.md), [PRD-003](../../../specs/production/003-order-tracking/README.md)) |
+| `CanUseProductionOrders` | Manager, WorkshopChief, Admin (`/api/production/orders`, `/api/production/settings`, `/api/production/fabric-stock`; rules inside by role: stages and shipments WorkshopChief and Admin, settings WorkshopChief and Admin, stock movements, issues and stock value WorkshopChief and Admin, stock transfer Admin, [PRD-002](../../../specs/production/002-production-orders/README.md), [PRD-003](../../../specs/production/003-order-tracking/README.md), [PRD-004](../../../specs/production/004-fabric-stock/README.md)) |
 | `OrderCreate` | User, Manager, Admin |
 | `RequireTenantAccess` | Constant is defined; policy is not currently registered |
 

@@ -4,6 +4,8 @@ using Production.Application.Abstractions;
 using Production.Application.Orders;
 using Production.Application.Orders.QuoteSources;
 using Production.Application.Orders.Tracking;
+using Production.Application.Stock;
+using Production.Application.Stock.Issues;
 using Production.Infrastructure.Persistence;
 
 namespace Production.Infrastructure.DependencyInjection;
@@ -21,6 +23,10 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<QuoteItemResolver>();
         services.AddScoped<OrderCards>();
         services.AddScoped<OrderTracking>();
+        services.AddScoped<StockReservations>();
+        services.AddScoped<StockRows>();
+        services.AddScoped<StockChanges>();
+        services.AddScoped<ItemFabricCards>();
         services.TryAddSingleton(new ProductionLinks(configuration["Production:AdminUrl"] is { Length: > 0 } url
             ? url
             : "https://office.brevi.com.ua"));

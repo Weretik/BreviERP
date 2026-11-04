@@ -3,6 +3,7 @@ using Production.Domain.FabricNorms;
 using Production.Domain.Orders;
 using Production.Domain.Settings;
 using Production.Domain.Staff;
+using Production.Domain.Stock;
 
 namespace Production.Infrastructure.Persistence;
 
@@ -18,6 +19,9 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<ProductionOrderFile> OrderFiles => Set<ProductionOrderFile>();
     public DbSet<ProductionTelegramDelivery> TelegramDeliveries => Set<ProductionTelegramDelivery>();
     public DbSet<WorkshopSettings> Settings => Set<WorkshopSettings>();
+    public DbSet<FabricStock> FabricStocks => Set<FabricStock>();
+    public DbSet<FabricMovement> FabricMovements => Set<FabricMovement>();
+    public DbSet<FabricIssue> FabricIssues => Set<FabricIssue>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

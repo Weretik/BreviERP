@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Embroidery.Settings;
 
 namespace Crm.Application.Embroidery.Persistence;
@@ -7,6 +8,12 @@ public interface IEmbroideryStore
 {
     /// <summary>At most one row.</summary>
     DbSet<EmbroiderySettings> EmbroiderySettings { get; }
+
+    /// <summary>«Збережені»: saved calculations, never changed after saving.</summary>
+    DbSet<EmbroiderySavedCalculation> EmbroideryCalculations { get; }
+
+    /// <summary>The display name of an active Crm customer, or null.</summary>
+    Task<string?> FindCustomerNameAsync(Guid publicId, CancellationToken cancellationToken);
 
     /// <summary>Saves; a stale <see cref="EmbroiderySettings.Version"/> throws <see cref="DbUpdateConcurrencyException"/>.</summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

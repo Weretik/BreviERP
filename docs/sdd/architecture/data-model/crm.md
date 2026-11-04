@@ -23,6 +23,7 @@
 | QuoteSettings | One row (`Id` = 1, check constraint): jsonb sections Company, Email, Pdf, Introduction, LetterVariants, StaffContacts (keyed by Identity user id, no FK); UpdatedByName, UpdatedAt; Version is the optimistic concurrency token |
 | ManagerTasks | Generated long ID shown as «ЗД-0142»; title, description, assignee and author Identity user id with names, DueAt, IsUrgent, Status (New, InProgress, Done), optional client PublicId with its name (no FK), CompletedAt only when Done (check constraint); Version is the optimistic concurrency token ([TSK-001](../../specs/crm/004-manager-tasks/README.md), migration AddManagerTasks) |
 | EmbroiderySettings | One row (Id 1): «Ціна вишивки › Налаштування» as one jsonb `Content` (rates, three named markups, materials, hoops, extra costs with nullable rates), UpdatedByName, UpdatedAt, Version concurrency token ([EMB-001](../../specs/crm/005-embroidery-price/README.md), migration AddEmbroiderySettings) |
+| EmbroideryCalculations | Generated long ID shown as «ВШ-0042»: «Ціна вишивки › Збережені», written once; Name, optional client PublicId with its name (no FK), Mode, Quantity, jsonb Input, Snapshot (stitch rate + settings content) and Result, Incomplete, creator id and name, CreatedAt (indexed) (migration AddEmbroideryCalculations) |
 | ManagerTaskSteps | Generated long ID, cascade task FK, Position, text, IsDone |
 | ManagerTaskEvents | Generated long ID, cascade task FK, Kind, who (user id and name), when, kind-specific details |
 

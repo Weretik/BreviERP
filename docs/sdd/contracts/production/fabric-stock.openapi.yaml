@@ -1,0 +1,1139 @@
+openapi: 3.1.0
+info:
+  title: 'Production: fabric stock'
+  version: 1.0.0
+  description: 'Stage 4 of «Швейний цех» (PRD-004): «Склад тканин». A line is one fabric of «Тканини» (FAB- code) in one colour;
+    the balance changes only through movements (opening, receipt, issue, correction, reversal). Reservation is computed from
+    the norms of items of «Нове» orders minus what issues covered. Everyone who sees production orders reads the stock; WorkshopChief
+    and Admin move it and see its value in UAH; Admin alone moves the old stock.'
+servers:
+- url: /
+security:
+- Bearer: []
+paths:
+  /api/production/fabric-stock:
+    get:
+      tags: &id001
+      - Production
+      operationId: getFabricStock
+      summary: Stock lines with reservation and available; planned pairs the stock never held come with a null id
+      parameters:
+      - in: query
+        name: search
+        required: false
+        schema:
+          type: string
+          maxLength: 200
+        description: Code, fabric or colour.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockListResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+  /api/production/fabric-stock/choices:
+    get:
+      tags: *id001
+      operationId: getFabricStockChoices
+      summary: Fabrics with a FAB- code and active suppliers for the stock forms
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockChoicesResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+  /api/production/fabric-stock/{id}:
+    get:
+      tags: *id001
+      operationId: getFabricStockLine
+      summary: 'Card of a line: movements newest first and the items holding it'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: &id002
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockLineResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '404':
+          description: No such line
+  /api/production/fabric-stock/movements:
+    post:
+      tags: *id001
+      operationId: createFabricMovement
+      summary: «Початковий залишок» or «Прихід»; a new fabric and colour opens its line
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFabricMovementInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockLineResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid, or the fabric has no FAB- code
+        '404':
+          description: No such fabric or supplier
+        '409':
+          description: Stale version or opening not first
+  /api/production/fabric-stock/{id}/correction:
+    post:
+      tags: *id001
+      operationId: correctFabricStock
+      summary: «Коригування» to the counted metres, with a reason
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectFabricStockInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockLineResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid or nothing to correct
+        '404':
+          description: No such line
+        '409':
+          description: Stale version
+  /api/production/fabric-stock/{id}/movements/{movementId}/reverse:
+    post:
+      tags: *id001
+      operationId: reverseFabricMovement
+      summary: «Сторно» of an opening, receipt or correction
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: *id002
+      - in: path
+        name: movementId
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReverseFabricMovementInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockLineResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '404':
+          description: No such line or movement
+        '409':
+          description: Stale, already reversed, or an issue
+  /api/production/fabric-stock/consumption:
+    get:
+      tags: *id001
+      operationId: getFabricConsumption
+      summary: '«Зведення витрати»: received, issued and corrected per line by operation date'
+      parameters:
+      - in: query
+        name: from
+        required: true
+        schema: &id003
+          type: string
+          format: date
+      - in: query
+        name: to
+        required: true
+        schema: *id003
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricConsumptionResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid period
+  /api/production/fabric-stock/import:
+    post:
+      tags: *id001
+      operationId: importFabricStock
+      summary: Moves the stock of the old «Цех» (Admin); nothing is saved unless every row is fine
+      parameters:
+      - in: query
+        name: dryRun
+        required: false
+        schema: &id006
+          type: boolean
+        description: Only check and show.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FabricStockImportInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockImportResult'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid file
+  /api/production/orders/{id}/items/{itemId}/fabric:
+    get:
+      tags: *id001
+      operationId: getProductionItemFabric
+      summary: 'Tab «Тканина»: plan by colour, issues and whether the person may issue'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: *id002
+      - in: path
+        name: itemId
+        required: true
+        schema: *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemFabricResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '404':
+          description: No such order or item
+  /api/production/orders/{id}/items/{itemId}/fabric-issues:
+    post:
+      tags: *id001
+      operationId: createFabricIssue
+      summary: '«Видати»: one package of planned, replacement and additional lines'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: *id002
+      - in: path
+        name: itemId
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFabricIssueInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemFabricResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid line
+        '404':
+          description: No such order, item or fabric
+        '409':
+          description: Stale order or stock
+  /api/production/orders/{id}/fabric-issues/{issueId}/reverse:
+    post:
+      tags: *id001
+      operationId: reverseFabricIssue
+      summary: '«Сторно видачі»: every line returns to the stock and the plan is reserved again'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: *id002
+      - in: path
+        name: issueId
+        required: true
+        schema: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReverseFabricIssueInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemFabricResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '404':
+          description: No such issue
+        '409':
+          description: Stale or already reversed
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    FabricStockPermissions:
+      type: object
+      required:
+      - canMove
+      - seesValue
+      properties:
+        canMove:
+          type: boolean
+          description: 'Receipts, corrections, reversals and issues: WorkshopChief and Admin.'
+        seesValue:
+          type: boolean
+          description: 'The value in UAH: WorkshopChief and Admin.'
+    FabricStockFabricChoice:
+      type: object
+      required:
+      - id
+      - code
+      - name
+      properties:
+        id: *id002
+        code: &id004
+          type: string
+        name: *id004
+    FabricStockSupplierChoice:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id: *id002
+        name: *id004
+    FabricStockChoicesResponse:
+      type: object
+      required:
+      - fabrics
+      - suppliers
+      properties:
+        fabrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockFabricChoice'
+        suppliers:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockSupplierChoice'
+          description: Active suppliers; empty for people who cannot move stock.
+    FabricStockRowResponse:
+      type: object
+      required:
+      - id
+      - fabricId
+      - fabricCode
+      - fabricName
+      - color
+      - meters
+      - reserved
+      - available
+      - price
+      - value
+      - version
+      - updatedAt
+      properties:
+        id:
+          type:
+          - integer
+          - 'null'
+          description: Null for a fabric and colour open orders plan but the stock never held.
+        fabricId:
+          type:
+          - integer
+          - 'null'
+        fabricCode: *id004
+        fabricName: *id004
+        color: *id004
+        meters:
+          type: number
+          description: Balance; may be negative.
+        reserved:
+          type: number
+          description: Plan of «Нове» orders not yet covered by issues.
+        available:
+          type: number
+          description: Balance − reserved.
+        price:
+          type:
+          - number
+          - 'null'
+          description: UAH per metre of «Тканини»; null without the right to see the value.
+        value:
+          type:
+          - number
+          - 'null'
+        version:
+          type: integer
+          description: 0 for a line that does not exist yet.
+        updatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    FabricStockTotals:
+      type: object
+      required:
+      - meters
+      - reserved
+      - lines
+      - short
+      - value
+      properties:
+        meters: &id005
+          type: number
+        reserved: *id005
+        lines: *id002
+        short:
+          type: integer
+          description: Lines whose available is below zero.
+        value:
+          type:
+          - number
+          - 'null'
+    FabricStockListResponse:
+      type: object
+      required:
+      - rows
+      - totals
+      - permissions
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockRowResponse'
+        totals:
+          $ref: '#/components/schemas/FabricStockTotals'
+        permissions:
+          $ref: '#/components/schemas/FabricStockPermissions'
+    FabricMovementResponse:
+      type: object
+      required:
+      - id
+      - kind
+      - metersBefore
+      - delta
+      - metersAfter
+      - operationDate
+      - note
+      - supplierId
+      - supplierName
+      - document
+      - orderId
+      - orderNumber
+      - modelName
+      - reversesMovementId
+      - isReversed
+      - canReverse
+      - createdByName
+      - createdAt
+      properties:
+        id: *id002
+        kind:
+          type: string
+          enum: &id009
+          - Opening
+          - Receipt
+          - Issue
+          - Adjustment
+          - Reversal
+        metersBefore: *id005
+        delta: *id005
+        metersAfter: *id005
+        operationDate: *id003
+        note:
+          type:
+          - string
+          - 'null'
+        supplierId:
+          type:
+          - integer
+          - 'null'
+        supplierName:
+          type:
+          - string
+          - 'null'
+        document:
+          type:
+          - string
+          - 'null'
+        orderId:
+          type:
+          - integer
+          - 'null'
+        orderNumber:
+          type:
+          - integer
+          - 'null'
+        modelName:
+          type:
+          - string
+          - 'null'
+        reversesMovementId:
+          type:
+          - integer
+          - 'null'
+          description: The movement a «Сторно» takes back.
+        isReversed: *id006
+        canReverse:
+          type: boolean
+          description: An opening, receipt or correction not yet taken back, for those who may move stock.
+        createdByName: *id004
+        createdAt: &id007
+          type: string
+          format: date-time
+    FabricReservationResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - itemId
+      - modelName
+      - planned
+      - covered
+      - reserved
+      properties:
+        orderId: *id002
+        orderNumber: *id002
+        itemId: *id002
+        modelName: *id004
+        planned: *id005
+        covered: *id005
+        reserved: *id005
+    FabricStockLineResponse:
+      type: object
+      required:
+      - line
+      - movements
+      - reservations
+      - permissions
+      properties:
+        line:
+          $ref: '#/components/schemas/FabricStockRowResponse'
+        movements:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricMovementResponse'
+        reservations:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricReservationResponse'
+        permissions:
+          $ref: '#/components/schemas/FabricStockPermissions'
+    CreateFabricMovementInput:
+      type: object
+      required:
+      - kind
+      - fabricId
+      - color
+      - meters
+      - operationDate
+      - supplierId
+      - document
+      - note
+      - version
+      properties:
+        kind:
+          type: string
+          enum:
+          - Opening
+          - Receipt
+          description: Opening only as the first movement of a line.
+        fabricId:
+          type: integer
+          minimum: 1
+        color:
+          type: string
+          minLength: 1
+          maxLength: 80
+        meters:
+          type: number
+          exclusiveMinimum: 0
+          multipleOf: 0.01
+        operationDate: *id003
+        supplierId:
+          type:
+          - integer
+          - 'null'
+        document:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+        version:
+          type:
+          - integer
+          - 'null'
+          description: The line version; null when the fabric and colour are new.
+    CorrectFabricStockInput:
+      type: object
+      required:
+      - version
+      - countedMeters
+      - operationDate
+      - note
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        countedMeters:
+          type: number
+          minimum: 0
+          multipleOf: 0.01
+        operationDate: *id003
+        note:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    ReverseFabricMovementInput:
+      type: object
+      required:
+      - version
+      - note
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        note:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    FabricPlanPartResponse:
+      type: object
+      required:
+      - fabricCode
+      - color
+      - colorKey
+      - planned
+      - covered
+      - issued
+      - reserved
+      - stockId
+      - stockMeters
+      - stockAvailable
+      properties:
+        fabricCode: *id004
+        color: *id004
+        colorKey: *id004
+        planned:
+          type: number
+          description: Norm part × quantity.
+        covered:
+          type: number
+          description: What issues covered of the part.
+        issued:
+          type: number
+          description: Metres of planned and replacement lines for the part.
+        reserved:
+          type: number
+          description: Still held for this item; 0 unless the order is «Нове».
+        stockId:
+          type:
+          - integer
+          - 'null'
+        stockMeters: *id005
+        stockAvailable: *id005
+    FabricIssueLineResponse:
+      type: object
+      required:
+      - id
+      - purpose
+      - planColorKey
+      - plannedMeters
+      - stockId
+      - fabricCode
+      - fabricName
+      - color
+      - meters
+      - coveredMeters
+      properties:
+        id: *id002
+        purpose:
+          type: string
+          enum: &id008
+          - Planned
+          - Replacement
+          - Additional
+        planColorKey:
+          type:
+          - string
+          - 'null'
+        plannedMeters:
+          type:
+          - number
+          - 'null'
+        stockId: *id002
+        fabricCode: *id004
+        fabricName: *id004
+        color: *id004
+        meters: *id005
+        coveredMeters: *id005
+    FabricIssueResponse:
+      type: object
+      required:
+      - id
+      - issuedOn
+      - note
+      - createdByName
+      - createdAt
+      - isReversed
+      - reversedAt
+      - reversedByName
+      - reverseReason
+      - lines
+      properties:
+        id: *id002
+        issuedOn: *id003
+        note:
+          type:
+          - string
+          - 'null'
+        createdByName: *id004
+        createdAt: *id007
+        isReversed: *id006
+        reversedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        reversedByName:
+          type:
+          - string
+          - 'null'
+        reverseReason:
+          type:
+          - string
+          - 'null'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricIssueLineResponse'
+    ProductionItemFabricResponse:
+      type: object
+      required:
+      - orderId
+      - itemId
+      - orderVersion
+      - fabricCode
+      - fabricName
+      - quantity
+      - hasNorm
+      - plan
+      - issued
+      - issues
+      - canIssue
+      properties:
+        orderId: *id002
+        itemId: *id002
+        orderVersion: *id002
+        fabricCode:
+          type:
+          - string
+          - 'null'
+        fabricName:
+          type:
+          - string
+          - 'null'
+        quantity: *id002
+        hasNorm: *id006
+        plan:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricPlanPartResponse'
+        issued: *id005
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricIssueResponse'
+        canIssue:
+          type: boolean
+          description: WorkshopChief and Admin on a «Нове» order.
+    FabricIssueLineInput:
+      type: object
+      required:
+      - purpose
+      - planColorKey
+      - fabricId
+      - color
+      - meters
+      properties:
+        purpose:
+          type: string
+          enum: *id008
+        planColorKey:
+          type:
+          - string
+          - 'null'
+          description: The planned colour a planned or replacement line stands for; null for additional.
+        fabricId:
+          type: integer
+          minimum: 1
+        color:
+          type: string
+          minLength: 1
+          maxLength: 80
+        meters:
+          type: number
+          exclusiveMinimum: 0
+          multipleOf: 0.01
+    CreateFabricIssueInput:
+      type: object
+      required:
+      - orderVersion
+      - issuedOn
+      - note
+      - lines
+      properties:
+        orderVersion:
+          type: integer
+          minimum: 1
+        issuedOn: *id003
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+        lines:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/FabricIssueLineInput'
+    ReverseFabricIssueInput:
+      type: object
+      required:
+      - orderVersion
+      - reason
+      properties:
+        orderVersion:
+          type: integer
+          minimum: 1
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    FabricConsumptionRowResponse:
+      type: object
+      required:
+      - stockId
+      - fabricCode
+      - fabricName
+      - color
+      - received
+      - issued
+      - corrected
+      - issuedValue
+      properties:
+        stockId: *id002
+        fabricCode: *id004
+        fabricName: *id004
+        color: *id004
+        received: *id005
+        issued: *id005
+        corrected: *id005
+        issuedValue:
+          type:
+          - number
+          - 'null'
+    FabricConsumptionResponse:
+      type: object
+      required:
+      - from
+      - to
+      - rows
+      - received
+      - issued
+      - issuedValue
+      properties:
+        from: *id003
+        to: *id003
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricConsumptionRowResponse'
+        received: *id005
+        issued: *id005
+        issuedValue:
+          type:
+          - number
+          - 'null'
+    FabricMovementImportRow:
+      type: object
+      required:
+      - legacyId
+      - kind
+      - metersBefore
+      - delta
+      - metersAfter
+      - operationDate
+      - at
+      - supplier
+      - document
+      - note
+      - actorEmail
+      - orderLegacyId
+      - position
+      properties:
+        legacyId: *id004
+        kind:
+          type: string
+          enum: *id009
+        metersBefore: *id005
+        delta: *id005
+        metersAfter: *id005
+        operationDate: *id003
+        at: *id007
+        supplier:
+          type:
+          - string
+          - 'null'
+        document:
+          type:
+          - string
+          - 'null'
+        note:
+          type:
+          - string
+          - 'null'
+        actorEmail:
+          type:
+          - string
+          - 'null'
+        orderLegacyId:
+          type:
+          - string
+          - 'null'
+        position:
+          type:
+          - integer
+          - 'null'
+    FabricStockImportRow:
+      type: object
+      required:
+      - legacyId
+      - fabricCode
+      - color
+      - meters
+      - movements
+      properties:
+        legacyId: *id004
+        fabricCode: *id004
+        color: *id004
+        meters: *id005
+        movements:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricMovementImportRow'
+    FabricIssueLineImportRow:
+      type: object
+      required:
+      - purpose
+      - planFabricCode
+      - planColor
+      - plannedMeters
+      - movementLegacyId
+      - coveredMeters
+      properties:
+        purpose:
+          type: string
+          enum: *id008
+        planFabricCode:
+          type:
+          - string
+          - 'null'
+        planColor:
+          type:
+          - string
+          - 'null'
+        plannedMeters:
+          type:
+          - number
+          - 'null'
+        movementLegacyId: *id004
+        coveredMeters: *id005
+    FabricIssueImportRow:
+      type: object
+      required:
+      - legacyId
+      - orderLegacyId
+      - position
+      - issuedOn
+      - at
+      - actorEmail
+      - note
+      - lines
+      properties:
+        legacyId: *id004
+        orderLegacyId: *id004
+        position: *id002
+        issuedOn: *id003
+        at: *id007
+        actorEmail:
+          type:
+          - string
+          - 'null'
+        note:
+          type:
+          - string
+          - 'null'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricIssueLineImportRow'
+    FabricReservationImportRow:
+      type: object
+      required:
+      - fabricCode
+      - color
+      - meters
+      properties:
+        fabricCode: *id004
+        color: *id004
+        meters: *id005
+    FabricStockImportInput:
+      type: object
+      required:
+      - stocks
+      - issues
+      - oldReservations
+      properties:
+        stocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockImportRow'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricIssueImportRow'
+        oldReservations:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricReservationImportRow'
+    FabricStockImportLine:
+      type: object
+      required:
+      - fabricCode
+      - color
+      - movements
+      - action
+      - error
+      properties:
+        fabricCode: *id004
+        color: *id004
+        movements: *id002
+        action:
+          type: string
+          enum:
+          - created
+          - unchanged
+          - error
+        error:
+          type:
+          - string
+          - 'null'
+    FabricStockImportResult:
+      type: object
+      required:
+      - dryRun
+      - created
+      - unchanged
+      - errors
+      - movements
+      - issues
+      - reservationDifferences
+      - lines
+      - issueErrors
+      properties:
+        dryRun: *id006
+        created: *id002
+        unchanged: *id002
+        errors: *id002
+        movements: *id002
+        issues: *id002
+        reservationDifferences:
+          type: integer
+          description: Fabric and colour pairs whose recomputed reservation differs from the old app.
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockImportLine'
+        issueErrors:
+          type: array
+          items: *id004
