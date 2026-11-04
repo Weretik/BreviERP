@@ -218,6 +218,37 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("CustomerExternalIdentities", "crm");
                 });
 
+            modelBuilder.Entity("Crm.Domain.Embroidery.Settings.EmbroiderySettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedByName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmbroiderySettings", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_EmbroiderySettings_Singleton", "\"Id\" = 1");
+
+                            t.HasCheckConstraint("CK_EmbroiderySettings_Version", "\"Version\" > 0");
+                        });
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Introductions.QuoteIntroTemplate", b =>
                 {
                     b.Property<long>("Id")

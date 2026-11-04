@@ -29,7 +29,7 @@ Each feature SDD contains `contracts/api-contract.md` for human-readable decisio
 
 Do not create a public OpenAPI document for internal-only changes. Before adding an HTTP contract, agree on the route, method, operation ID, DTOs, examples, errors, security, idempotency for side-effecting writes, and migration path for breaking changes.
 
-- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml), [КП (commercial proposals)](crm/quotes.openapi.yaml), [manager tasks](crm/tasks.openapi.yaml).
+- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml), [КП (commercial proposals)](crm/quotes.openapi.yaml), [manager tasks](crm/tasks.openapi.yaml), [embroidery price](crm/embroidery.openapi.yaml).
 
 - Reminders: [Telegram reminders admin API](reminders/telegram-reminders.openapi.yaml) — tasks, periods, chats, non-working days and bot connection. The Telegram webhook is intentionally not in the contract.
 

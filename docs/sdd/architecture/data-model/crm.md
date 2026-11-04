@@ -1,6 +1,6 @@
 # Crm schema
 
-`Crm.Infrastructure.Persistence.CrmDbContext` owns schema `crm` («Менеджер сервісу»: clients, КП and manager tasks) in the shared PostgreSQL database; migration history is `crm.__EFMigrationsHistory`. Reviewed 2026-11-04.
+`Crm.Infrastructure.Persistence.CrmDbContext` owns schema `crm` («Менеджер сервісу»: clients, КП, manager tasks and the embroidery price settings) in the shared PostgreSQL database; migration history is `crm.__EFMigrationsHistory`. Reviewed 2026-11-04.
 
 `RemoveCodexQuoteTables` (2026-11-04) drops the earlier quote, custom sewing, document, PDF, email, delivery, production-package and introduction tables and their trigger functions; their data is not kept. `AddQuotes` then adds the КП tables of [QTE-001](../../specs/crm/003-quotes/README.md); `AddQuoteSettings` adds «Налаштування КП»; `AddQuoteSending` adds Gmail per staff member, the sent-letter log and `Quotes.LastSentAt`; `AddQuoteIntroductions` adds the introduction fields of `Quotes` and «Готові шаблони»; `AddQuoteHistoryAndArchive` adds `QuoteEvents` (filled from existing КП and sent letters) and `Quotes.ArchivedAt`/`ArchivedByName`.
 
@@ -22,6 +22,7 @@
 | QuoteIntroTemplates | «Готовий шаблон» of an introduction: Name with unique lower-case NameKey, Layout, LetterName, jsonb Pages (season with ProductId, ArticleId and the product and fabric names, no prices), author id and name (no FK), CreatedAt |
 | QuoteSettings | One row (`Id` = 1, check constraint): jsonb sections Company, Email, Pdf, Introduction, LetterVariants, StaffContacts (keyed by Identity user id, no FK); UpdatedByName, UpdatedAt; Version is the optimistic concurrency token |
 | ManagerTasks | Generated long ID shown as «ЗД-0142»; title, description, assignee and author Identity user id with names, DueAt, IsUrgent, Status (New, InProgress, Done), optional client PublicId with its name (no FK), CompletedAt only when Done (check constraint); Version is the optimistic concurrency token ([TSK-001](../../specs/crm/004-manager-tasks/README.md), migration AddManagerTasks) |
+| EmbroiderySettings | One row (Id 1): «Ціна вишивки › Налаштування» as one jsonb `Content` (rates, three named markups, materials, hoops, extra costs with nullable rates), UpdatedByName, UpdatedAt, Version concurrency token ([EMB-001](../../specs/crm/005-embroidery-price/README.md), migration AddEmbroiderySettings) |
 | ManagerTaskSteps | Generated long ID, cascade task FK, Position, text, IsDone |
 | ManagerTaskEvents | Generated long ID, cascade task FK, Kind, who (user id and name), when, kind-specific details |
 

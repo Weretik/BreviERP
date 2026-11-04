@@ -16,6 +16,7 @@ public sealed class ProductionItem
 
     private List<string> _additionalColors = [];
     private List<ItemApplication> _applications = [];
+    private List<ProductionStage> _stages = [ProductionStage.New];
 
     private ProductionItem() { }
 
@@ -77,6 +78,12 @@ public sealed class ProductionItem
     /// <summary>Metres the norm plans for the whole quantity; null when the model has no norm.</summary>
     public decimal? PlannedFabricMeters { get; private set; }
 
+    /// <summary>The ticked етапи in workshop order; never empty.</summary>
+    public IReadOnlyList<ProductionStage> Stages => _stages;
+
+    /// <summary>The furthest ticked stage; colours the row and sorts the list.</summary>
+    public ProductionStage CurrentStage { get; private set; } = ProductionStage.New;
+
     /// <summary>Colours the norm is chosen by: the main one plus the additional ones.</summary>
     public int ColorCount => 1 + _additionalColors.Count;
 
@@ -93,6 +100,16 @@ public sealed class ProductionItem
     }
 
     public void SetSewingRate(decimal? rate) => SewingRate = rate;
+
+    /// <returns>False when the stages did not change.</returns>
+    public bool SetStages(IEnumerable<ProductionStage> stages)
+    {
+        var next = ProductionStages.Normalize(stages);
+        if (next.SequenceEqual(_stages)) return false;
+        _stages = next;
+        CurrentStage = next[^1];
+        return true;
+    }
 
     private void Apply(ItemDetails details)
     {

@@ -1,6 +1,7 @@
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Domain.Orders;
+using Production.Domain.Settings;
 using Production.Domain.Staff;
 
 namespace Production.Infrastructure.Persistence;
@@ -14,6 +15,9 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<ModelFabricNorm> FabricNorms => Set<ModelFabricNorm>();
     public DbSet<ProductionOrder> Orders => Set<ProductionOrder>();
     public DbSet<ProductionOrderChange> OrderChanges => Set<ProductionOrderChange>();
+    public DbSet<ProductionOrderFile> OrderFiles => Set<ProductionOrderFile>();
+    public DbSet<ProductionTelegramDelivery> TelegramDeliveries => Set<ProductionTelegramDelivery>();
+    public DbSet<WorkshopSettings> Settings => Set<WorkshopSettings>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

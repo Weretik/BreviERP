@@ -29,6 +29,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Crm      | [002 Clients from KeepinCRM](crm/002-keepincrm-clients/README.md) | backend implemented 2026-11-02 |
 | Crm      | [003 «КП» commercial proposals (QTE-001)](crm/003-quotes/README.md) | stages 1–4 and 5a («Виріб з нуля») implemented 2026-11-04; 5b–6 planned |
 | Crm      | [004 Manager tasks and kanban (TSK-001)](crm/004-manager-tasks/README.md) | backend implemented 2026-11-04; Admin in brevi-web |
+| Crm      | [005 «Ціна вишивки» (EMB-001)](crm/005-embroidery-price/README.md) | stage 1 (Розрахунок + Налаштування) implemented 2026-11-04 |
 | Reference | [001 Suppliers from the Calculator and KeepinCRM](reference/001-suppliers-keepincrm/README.md) | implemented 2026-11-02; live KeepinCRM run pending secret |
 | Reference | [002 Fabrics and accessories from the Calculator sheet](reference/002-fabrics-accessories-sheet/README.md) | implemented 2026-11-02 |
 | Reference | [003 Operations from the Calculator sheet](reference/003-operations-sheet/README.md) | implemented 2026-11-02 |
@@ -37,6 +38,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Media | [001 «Фото» photo library with folders](media/001-media-library/README.md) | stage 1 backend implemented 2026-11-03 |
 | Production | [001 «Швейний цех»: module, head of the workshop, references](production/001-workshop-references/README.md) | stage 1 implemented 2026-11-04 |
 | Production | [002 Production orders from КП](production/002-production-orders/README.md) | stage 2 implemented 2026-11-04 |
+| Production | [003 Stages, shipments, files, Telegram](production/003-order-tracking/README.md) | stage 3 implemented 2026-11-04 |
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Identity | [001 Cookie sign-in like Kedr](identity/001-cookie-sign-in/README.md) | implemented 2026-11-03; not deployed |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |

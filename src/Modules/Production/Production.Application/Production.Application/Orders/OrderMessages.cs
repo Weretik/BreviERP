@@ -14,4 +14,17 @@ internal static class OrderMessages
     public const string ItemNotInOrder = "Позиції немає в цьому завданні.";
     public const string ActorUnknown = "Не вдалося визначити користувача.";
     public const string DuplicateItem = "Один варіант тканини доданий двічі.";
+    public const string CannotTrack = "Етапи й відвантаження відмічає начальник цеху або адміністратор у новому завданні.";
+    public const string QuantityBelowShipped = "Кількість не може бути меншою, ніж уже відвантажено.";
+    public const string TooMuchShipped = "Кількість більша за залишок до відвантаження. Оновіть сторінку.";
+    public const string ShipmentNotFound = "Відвантаження не знайдено.";
+    public const string NotFullyShipped = "Закрити можна, коли все відвантажено.";
+    public const string CannotCancel = "Скасувати можна нове завдання, яке ви можете змінювати.";
+    public const string CannotReopen = "Повернути в роботу може адміністратор.";
+    public const string FileNotFound = "Файл не знайдено.";
+    public const string FileTooLarge = "Файл має бути не більше 20 МБ.";
+    public const string FileEmpty = "Файл порожній.";
+    public const string CannotSend = "Повідомлення вже надіслано або його не можна надіслати.";
+    public const string TelegramNotReady = "Telegram для цеху не налаштовано: оберіть групу в «Налаштування цеху».";
+    public const string SendingInProgress = "Повідомлення вже надсилається.";
 }

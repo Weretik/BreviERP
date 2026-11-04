@@ -1,6 +1,6 @@
 # PRD-002 «Швейний цех»: production orders from КП
 
-Status: stage 2 implemented 2026-11-04. Follows [PRD-001](../001-workshop-references/README.md). Stages, shipments, files, Telegram, closing and cancelling come with stage 3.
+Status: stage 2 implemented 2026-11-04. Follows [PRD-001](../001-workshop-references/README.md). Stages, shipments, files, Telegram, closing and cancelling: [PRD-003](../003-order-tracking/README.md).
 
 ## Goal
 
@@ -18,7 +18,7 @@ A manager passes their sent КП to the workshop as a «Виробниче за�
 | PRD-D13 | Every changed field of the order or an item is a line of «Історія змін» with display values before and after, the person's name and time. Saves carry `version`; a stale save is 409. |
 | PRD-D14 | «Видалити» is soft: the order leaves lists and detail, its rows and history stay. «Копіювати» makes a new «Нове» order dated today with the same items, owned by the person who copies. |
 | PRD-D15 | Colours are free text for now; the colour list of a fabric comes with the stock in stage 4. «Нанесення» is a list of kind (вишивка, друк), place, description and colour. |
-| PRD-D16 | Old orders move through `POST /api/production/orders/import` with a preview first; an order already moved (same old id) stays unchanged; any wrong order saves nothing. The manager is matched by email. Item stages move with stage 3. |
+| PRD-D16 | Old orders move through `POST /api/production/orders/import` with a preview first; an order already moved (same old id) stays unchanged; any wrong order saves nothing. The manager is matched by email. Item stages move with [PRD-003](../003-order-tracking/README.md). |
 
 ## Acceptance
 

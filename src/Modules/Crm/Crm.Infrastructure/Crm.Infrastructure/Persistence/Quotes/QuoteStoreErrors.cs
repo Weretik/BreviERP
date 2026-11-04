@@ -23,4 +23,8 @@ internal static class QuoteStoreErrors
     public static bool IsDuplicateTemplateName(DbUpdateException exception) =>
         exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgres &&
         postgres.ConstraintName == "IX_QuoteIntroTemplates_NameKey";
+
+    public static bool IsPrimaryKeyViolation(DbUpdateException exception, string constraint) =>
+        exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } postgres &&
+        postgres.ConstraintName == constraint;
 }

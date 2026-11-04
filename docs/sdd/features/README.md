@@ -51,6 +51,7 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 ## Crm
 
 - [Clients and КП](crm/clients-and-quotes.md) — clients and contacts from KeepinCRM; КП (commercial proposals) stages 1–6: create, «Товари та ціни», reprice, give to a manager, settings, PDF, Gmail, introductions, «Виріб з нуля», history, archive, copy, old КП transfer.
+- [Embroidery price](crm/embroidery-price.md) — «Ціна вишивки»: live cost and three prices of embroidery or chevrons; settings for Director and Admin.
 - [Manager tasks](crm/manager-tasks.md) — Director and Admin give tasks to managers and track workload; managers move them on the «Мої завдання» kanban.
 
 ## Media
@@ -60,7 +61,7 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 ## Production
 
 - [Workshop references «Швейний цех»](production/workshop-references.md) — workers of the workshop, fabric norms per sewing model, payroll coefficients from «Параметри ціноутворення» (stage 1 of the «Цех» port).
-- [Production orders «Виробничі завдання»](production/production-orders.md) — orders from sent КП with snapshot, history, copy, soft delete and transfer of old orders (stage 2).
+- [Production orders «Виробничі завдання»](production/production-orders.md) — orders from sent КП with snapshot, history, copy, soft delete and transfer of old orders (stage 2); stages, shipments, close/cancel, files on the CDN, one Telegram message to the workshop group, «Налаштування цеху» (stage 3).
 
 ## Reminders
 
