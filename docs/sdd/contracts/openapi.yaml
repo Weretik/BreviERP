@@ -175,6 +175,16 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1reprice
   /api/crm/quotes/{id}/responsible:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1responsible
+  /api/crm/quotes/{id}/send-draft:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1send-draft
+  /api/crm/quotes/{id}/send:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1send
+  /api/crm/mailboxes/{userId}/connect:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1mailboxes~1{userId}~1connect
+  /api/crm/mailboxes/{userId}:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1mailboxes~1{userId}
+  /api/crm/mailboxes/google-callback:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1mailboxes~1google-callback
   /api/crm/quote-settings:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-settings
   /api/crm/quote-lookups/catalog:

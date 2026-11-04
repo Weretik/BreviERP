@@ -1,11 +1,11 @@
 using Ardalis.Result;
 using Crm.Application.Quotes.Access;
 using Crm.Application.Quotes.Pdf;
+using Crm.Application.Quotes.Pdf.Composing;
 using Crm.Application.Quotes.Pdf.GetPdf;
 using Crm.Application.Quotes.Settings.Contracts;
 using Crm.Application.Quotes.Settings.GetSettings;
 using Crm.Application.Quotes.Settings.SaveSettings;
-using Crm.Application.Quotes.Staff;
 using Crm.Domain.Quotes;
 
 namespace IntegrationTests.Crm;
@@ -16,8 +16,8 @@ public sealed class QuoteSettingsPersistenceTests : CrmDatabaseFixture
 {
     private static readonly QuoteActor Director = new(1, true);
     private static readonly QuoteActor Olena = new(17, false);
-    private readonly Staff _staff = new();
-    private readonly FixedClock _clock = new(new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero));
+    private readonly QuoteTestStaff _staff = new();
+    private readonly QuoteTestClock _clock = new(new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero));
 
     private async Task<QuoteSettingsResponse> Load()
     {
@@ -93,45 +93,17 @@ public sealed class QuoteSettingsPersistenceTests : CrmDatabaseFixture
             quoteId = quote.Id;
         }
 
-        var renderer = new CapturingRenderer();
+        var renderer = new QuoteTestRenderer();
         await using (var db = Context())
         {
-            var own = await new GetQuotePdfQueryHandler(db, _staff, renderer).Handle(new GetQuotePdfQuery(Olena, quoteId), default);
+            var own = await new GetQuotePdfQueryHandler(db, new QuotePdfComposer(db, _staff, renderer)).Handle(new GetQuotePdfQuery(Olena, quoteId), default);
             Assert.That(own.Value.FileName, Is.EqualTo("КП 1-11-2026.pdf"));
-            var other = await new GetQuotePdfQueryHandler(db, _staff, renderer)
+            var other = await new GetQuotePdfQueryHandler(db, new QuotePdfComposer(db, _staff, renderer))
                 .Handle(new GetQuotePdfQuery(new QuoteActor(18, false), quoteId), default);
             Assert.That(other.Status, Is.EqualTo(ResultStatus.NotFound));
         }
 
         Assert.That(renderer.Model!.Manager, Is.EqualTo(new QuotePdfContact("Олена Петренко", "+38 050 000 00 00", "olena@brevi.test")));
         Assert.That(renderer.Model.Tiers, Is.EqualTo(new QuotePdfTiers(true, false, true)));
-    }
-
-    private sealed class CapturingRenderer : IQuotePdfRenderer
-    {
-        public QuotePdfModel? Model { get; private set; }
-
-        public Task<byte[]> RenderAsync(QuotePdfModel model, CancellationToken cancellationToken)
-        {
-            Model = model;
-            return Task.FromResult("%PDF-"u8.ToArray());
-        }
-    }
-
-    private sealed class Staff : IQuoteStaffReader
-    {
-        private static readonly QuoteStaffMember[] Members =
-            [new(1, "Директор", "director@brevi.test"), new(17, "Олена", "o@brevi.test", "+380")];
-
-        public Task<IReadOnlyList<QuoteStaffMember>> ListAsync(CancellationToken cancellationToken) =>
-            Task.FromResult<IReadOnlyList<QuoteStaffMember>>(Members);
-
-        public Task<QuoteStaffMember?> FindAsync(int userId, CancellationToken cancellationToken) =>
-            Task.FromResult(Members.FirstOrDefault(x => x.UserId == userId));
-    }
-
-    private sealed class FixedClock(DateTimeOffset now) : TimeProvider
-    {
-        public override DateTimeOffset GetUtcNow() => now;
     }
 }

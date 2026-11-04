@@ -45,13 +45,15 @@ public sealed record QuoteLetterVariantDto(string Name, string Subject, string B
 public sealed record QuoteStaffContactInput(int UserId, string? Name, string? Phone, string? Email);
 
 /// <param name="AccountName">The account's name and email, so the page shows whose contact it is.</param>
+/// <param name="MailboxEmail">The Gmail КП are sent from; null until connected (R-15).</param>
 public sealed record QuoteStaffContactResponse(
     int UserId,
     string AccountName,
     string? AccountEmail,
     string Name,
     string? Phone,
-    string? Email);
+    string? Email,
+    string? MailboxEmail);
 
 /// <param name="Version">0 before the first save; send it back to save.</param>
 public sealed record QuoteSettingsResponse(

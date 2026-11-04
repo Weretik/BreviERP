@@ -52,6 +52,7 @@ Only these operations are public; `tests/HostApiTests/ApiAccessTests.cs` fails w
 | --- | --- |
 | `POST /api/auth/cookie/login` | Sign-in (rate-limited). |
 | `POST /api/reminders/telegram/webhook` | Telegram calls it; checked by the webhook secret header. |
+| `GET /api/crm/mailboxes/google-callback` | Google returns the browser here after Gmail consent; accepted only with the signed, 15-minute `state` issued by `POST /api/crm/mailboxes/{userId}/connect`, and it only redirects to the admin. |
 | `GET /api/reference/product-categories/store/{language}` | Public storefront categories, read-only. |
 
 Every other operation needs a signed-in user, and every admin operation names a role or policy: reads `CatalogRead` (or a role), writes `CanManageProducts`, CRM `Admin,Manager`, reminders and users `Admin`. The same test fails when an endpoint has neither, except `GET /api/auth/session/me` and `POST /api/auth/cookie/logout`, which only need a session.

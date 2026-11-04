@@ -11,7 +11,8 @@ public sealed class QuoteSettingsTests
 {
     private static SaveQuoteSettingsInput DefaultInput()
     {
-        var response = ((QuoteSettings?)null).ToResponse([new QuoteStaffMember(5, "Юлія", "julia@brevi.test", "+380")]);
+        var response = ((QuoteSettings?)null).ToResponse([new QuoteStaffMember(5, "Юлія", "julia@brevi.test", "+380")],
+            new Dictionary<int, string>());
         return new SaveQuoteSettingsInput(response.Version, response.Company, response.Email, response.Pdf,
             response.Introduction, response.LetterVariants,
             response.StaffContacts.Select(x => new QuoteStaffContactInput(x.UserId, x.Name, x.Phone, x.Email)).ToArray());
@@ -57,11 +58,13 @@ public sealed class QuoteSettingsTests
             StaffContacts = [new QuoteStaffContact(5, "Юлія Согоконь", "+38 095 164 58 55", "pp.brevi@gmail.com")],
         }, "Директор", DateTimeOffset.UnixEpoch);
 
-        var response = settings.ToResponse([new QuoteStaffMember(5, "Юлія", "julia@brevi.test"), new QuoteStaffMember(6, "Вадим", "v@brevi.test", "+381")]);
+        var response = settings.ToResponse([new QuoteStaffMember(5, "Юлія", "julia@brevi.test"), new QuoteStaffMember(6, "Вадим", "v@brevi.test", "+381")],
+            new Dictionary<int, string> { [5] = "julia.brevi@gmail.com" });
 
         Assert.That(settings.Version, Is.EqualTo(1));
         Assert.That(response.StaffContacts[0].Email, Is.EqualTo("pp.brevi@gmail.com"));
         Assert.That(response.StaffContacts[0].AccountEmail, Is.EqualTo("julia@brevi.test"));
         Assert.That(response.StaffContacts[1].Phone, Is.EqualTo("+381"));
+        Assert.That(response.StaffContacts.Select(x => x.MailboxEmail), Is.EqualTo(new[] { "julia.brevi@gmail.com", null }));
     }
 }

@@ -13,6 +13,6 @@ public sealed class GetQuoteSettingsQueryHandler(IQuoteStore store, IQuoteStaffR
     {
         var saved = await store.FindSettingsAsync(tracking: false, cancellationToken);
         var members = await staff.ListAsync(cancellationToken);
-        return Result.Success(saved.ToResponse(members));
+        return Result.Success(saved.ToResponse(members, await store.MailboxEmailsAsync(cancellationToken)));
     }
 }

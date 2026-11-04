@@ -1,6 +1,6 @@
 # «Менеджер сервісу»: clients and КП
 
-**Implemented:** customer/contact master with clients from KeepinCRM, and КП (commercial proposals) stages 1–2: create, edit «Товари та ціни», reprice, give to a manager, «Налаштування КП» and the PDF. The earlier Codex quote, custom sewing, PDF, email and archive work was removed on 2026-11-04.
+**Implemented:** customer/contact master with clients from KeepinCRM, and КП (commercial proposals) stages 1–3: create, edit «Товари та ціни», reprice, give to a manager, «Налаштування КП», the PDF and sending from each staff member's own Gmail. The earlier Codex quote, custom sewing, PDF, email and archive work was removed on 2026-11-04.
 
 Authenticated Admin/Manager can create, read, search/page, revise and deactivate customers and contacts. Admin-only merge retains victim roots/audit while moving contacts/external identities to the survivor. Exact external identities are unique; similar names/shared emails never auto-merge. Manager reads/writes owned clients. Every mutation has requestId replay and a root revision; successful intent/result audit is stored in the same transaction. No destructive customer/contact delete API. Clients come from KeepinCRM: the daily `keepin-clients` step and `POST /api/crm/customers/keepin-sync` refresh them by KeepinCRM ID; the one-time transfer deletes unlinked Brevi clients unless a КП uses them ([CRM-002](../../specs/crm/002-keepincrm-clients/README.md), [runbook](../../operations/jobs/sync-job.md#keepin-clients)).
 
@@ -73,12 +73,14 @@ The transaction coordinator retains commit/rollback ownership; the journal uses 
 - `Version` is checked on every write; a stale save gets 409 «КП змінили в іншому вікні».
 - «Налаштування КП» (`GET`/`PUT /api/crm/quote-settings`, Admin role): requisites and logo, each staff member's КП contact, letter template, PDF texts, introduction catalogue texts with five «Переваги», letter variants. Before the first save the old Calculator values are returned with version 0.
 - «Сформувати КП» (`GET /api/crm/quotes/{id}/pdf`): PDF of the saved КП, drawn on request by QuestPDF with embedded Noto Sans; only shown items and prices, client comment, the responsible manager's contact (saved one, else the account's) and requisites.
-- Later stages (not built): sending from each manager's own Gmail, «КП для знайомства», composition editing and archive.
+- Gmail (R-15): `POST /api/crm/mailboxes/{userId}/connect` gives the Google consent address (send permission only), the anonymous `google-callback` stores the address and the encrypted refresh token in `crm.StaffMailboxes`; `GET /api/crm/quotes/{id}/send-draft` gives the letters with marks filled, `POST /api/crm/quotes/{id}/send` sends the PDF from the sender's own Gmail, logs `crm.QuoteSendings` and marks the КП Sent. Setup: [Gmail for КП](../../operations/configuration/crm-gmail.md).
+- Later stages (not built): «КП для знайомства», composition editing and archive.
 
 ```text
 src/Modules/Crm/
   Crm.Domain/Crm.Domain/Quotes/          Quote, QuoteItem, QuoteItemOption, QuotePrice, QuoteNumber, limits
     Settings/                            QuoteSettings (one row), its sections, defaults from the Calculator
+    Sending/                             StaffMailbox (connected Gmail), QuoteSending (sent letter), limits
   Crm.Application/Crm.Application/Quotes/
     Access/                              QuoteActor (own vs all), messages, actor name lookup
     Contracts/                           inputs and responses
@@ -91,12 +93,14 @@ src/Modules/Crm/
     SetResponsible/, RepriceQuote/,
     SearchCatalog/, GetStaff/            one use case per folder: command/query, validator, handler
     Settings/                            Contracts/ (DTOs, mapper), Reading/, GetSettings/, SaveSettings/
-    Pdf/                                 QuotePdfModel (client view) and builder, IQuotePdfRenderer, GetPdf/
+    Pdf/                                 QuotePdfModel (client view) and builder, IQuotePdfRenderer, Composing/ (shared PDF build), GetPdf/
+    Sending/                             Gmail/ (ports, options), Connect/, Disconnect/, Draft/, Send/, recipients, marks
   Crm.Infrastructure/Crm.Infrastructure/
-    Persistence/Configurations/Quotes/   three EF mappings
-    Persistence/Quotes/                  unique-number and settings race detection
+    Persistence/Configurations/Quotes/   EF mappings of КП, settings, mailboxes and sendings
+    Persistence/Quotes/                  unique-number, settings and mailbox race detection
     Quotes/Pdf/                          QuestPDF document, renderer, photo loader, embedded fonts
-  Crm.Api/Crm.Api/Quotes/                QuotesController, QuoteLookupsController, QuoteSettingsController, Requests/
+    Quotes/Sending/                      GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options
+  Crm.Api/Crm.Api/Quotes/                QuotesController, QuoteLookupsController, QuoteSettingsController, MailboxesController, Requests/
 src/Bootstrapper/Host.Api/Crm/
   QuoteCatalogReader.cs                  Catalog overview, admin detail photo and Reference fabrics through Mediator
   QuoteStaffReader.cs                    active Manager/Admin users from Identity
@@ -104,6 +108,6 @@ src/Bootstrapper/Host.Api/Crm/
 
 ## Tests
 
-- КП rules, builder, settings validation and PDF (client view, render smoke; `BREVI_QUOTE_PDF_OUT=<file>` saves the sample): `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Crm.Quotes`.
-- КП on PostgreSQL (numbers, own vs all, stale version, reprice, responsible, delete; settings save and PDF source): `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IntegrationTests.Crm.Quote` with `BREVIERP_CRM_TEST_CONNECTION` pointing at a local PostgreSQL.
+- КП rules, builder, settings validation, sending (recipients, MIME letter, consent address, ID token) and PDF (client view, render smoke; `BREVI_QUOTE_PDF_OUT=<file>` saves the sample): `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Crm.Quotes`.
+- КП on PostgreSQL (numbers, own vs all, stale version, reprice, responsible, delete; settings save and PDF source; Gmail connect, send, failure and send draft with fakes): `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IntegrationTests.Crm.Quote` with `BREVIERP_CRM_TEST_CONNECTION` pointing at a local PostgreSQL.
 - KeepinCRM clients: `tests/UnitTests/Crm/Customers/KeepinCrmClientSyncTests.cs` (`--filter FullyQualifiedName~KeepinCrmClientSync`); customers on PostgreSQL: `--filter FullyQualifiedName~CustomerPersistenceTests`.

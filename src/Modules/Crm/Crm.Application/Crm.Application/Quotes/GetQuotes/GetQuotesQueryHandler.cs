@@ -35,7 +35,7 @@ public sealed class GetQuotesQueryHandler(IQuoteStore store) : IQueryHandler<Get
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
             .Select(x => new QuoteSummaryResponse(x.Id, x.Number, x.Kind.ToString(), x.Status.ToString(),
                 x.InternalName, x.CompanyName, new QuotePersonResponse(x.ResponsibleUserId, x.ResponsibleName),
-                x.Items.Count, x.UpdatedAt))
+                x.Items.Count, x.UpdatedAt, x.LastSentAt))
             .ToListAsync(cancellationToken);
         return Result.Success(new QuotePageResponse(rows, query.Page, query.PageSize, total));
     }

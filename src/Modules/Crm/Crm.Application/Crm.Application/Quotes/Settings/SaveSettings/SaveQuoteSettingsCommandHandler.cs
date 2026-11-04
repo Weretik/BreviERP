@@ -51,6 +51,6 @@ public sealed class SaveQuoteSettingsCommandHandler(IQuoteStore store, IQuoteSta
             return Result.Conflict(QuoteSettingsMessages.Stale);
         }
 
-        return Result.Success(saved.ToResponse(members));
+        return Result.Success(saved.ToResponse(members, await store.MailboxEmailsAsync(cancellationToken)));
     }
 }
