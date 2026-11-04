@@ -9,7 +9,7 @@ namespace Identity.Application.Services;
 public interface IStaffAccountService
 {
     Task<IReadOnlyList<StaffAccountDto>> GetListAsync(CancellationToken cancellationToken = default);
-    Task<Result<StaffAccountDto>> CreateAsync(string email, string fullName, string role, string password, CancellationToken cancellationToken = default);
+    Task<Result<StaffAccountDto>> CreateAsync(string email, string fullName, string role, string password, string? phoneNumber, CancellationToken cancellationToken = default);
     Task<Result> ChangeRoleAsync(int userId, string role, CancellationToken cancellationToken = default);
     Task<Result> SetBlockedAsync(int userId, bool blocked, CancellationToken cancellationToken = default);
     Task<Result> UpdateDetailsAsync(int userId, string fullName, string email, string? phoneNumber, CancellationToken cancellationToken = default);

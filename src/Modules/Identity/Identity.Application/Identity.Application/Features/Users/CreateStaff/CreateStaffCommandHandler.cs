@@ -7,5 +7,5 @@ public sealed class CreateStaffCommandHandler(IStaffAccountService staffAccountS
     : ICommandHandler<CreateStaffCommand, Result<StaffAccountDto>>
 {
     public async ValueTask<Result<StaffAccountDto>> Handle(CreateStaffCommand command, CancellationToken cancellationToken)
-        => await staffAccountService.CreateAsync(command.Email.Trim(), command.FullName, command.Role, command.Password, cancellationToken);
+        => await staffAccountService.CreateAsync(command.Email.Trim(), command.FullName, command.Role, command.Password, command.PhoneNumber, cancellationToken);
 }
