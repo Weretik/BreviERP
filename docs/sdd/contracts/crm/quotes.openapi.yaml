@@ -538,6 +538,30 @@ paths:
         "400": { $ref: "#/components/responses/Invalid" }
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role required. }
+  /api/crm/quote-lookups/catalog/{productId}/composition:
+    get:
+      operationId: getCrmQuoteModelComposition
+      security:
+        - bearerAuth: []
+      description: >-
+        «Змінити склад» (R-21): the composition of a Catalog sewing model to start a changed model from: the fabric of
+        each variant with its metres, and the shared accessories, services, extra fabrics and operations. Nothing is
+        saved.
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: The composition.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteModelComposition" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not a sewing model of the Catalog. }
   /api/crm/quote-lookups/staff:
     get:
       operationId: getCrmQuoteStaff
@@ -594,13 +618,20 @@ components:
       enum: [Sewing, Ppe, OneOffPpe, CustomSewing]
     CrmQuoteItemLineKind:
       type: string
-      enum: [Accessory, Operation]
+      enum: [Accessory, Operation, Service, Fabric]
+      description: >-
+        Service is a «послуга» of a Catalog model priced by its other-cost code; Fabric is an extra fabric shared by
+        every variant (for example a lining), in metres.
     CrmQuoteItemLineInput:
       type: object
       required: [kind, referenceId, quantity]
       properties:
         kind: { $ref: "#/components/schemas/CrmQuoteItemLineKind" }
-        referenceId: { type: integer, minimum: 1, description: Reference garment accessory or operation. }
+        referenceId:
+          type: integer
+          minimum: 0
+          description: Reference garment accessory, operation or fabric (1 or more); 0 for a service.
+        costCode: { type: [string, "null"], maxLength: 80, description: Service only; its other-cost code. }
         quantity: { type: number, exclusiveMinimum: 0, maximum: 10000 }
         manualMinutes:
           type: [number, "null"]
@@ -613,11 +644,43 @@ components:
       properties:
         id: { type: integer, format: int64 }
         kind: { $ref: "#/components/schemas/CrmQuoteItemLineKind" }
-        referenceId: { type: integer }
+        referenceId: { type: integer, description: 0 for a service. }
+        costCode: { type: [string, "null"], description: Service only. }
         name: { type: string, description: Copied from the reference when the line was priced. }
         unit: { type: string }
         quantity: { type: number }
         manualMinutes: { type: [number, "null"] }
+    CrmQuoteModelComposition:
+      type: object
+      required: [productId, fabrics, lines]
+      properties:
+        productId: { type: integer }
+        fabrics:
+          type: array
+          description: The fabric of each variant, in the Catalog order.
+          items:
+            type: object
+            required: [articleId, fabricId, meters, isActive]
+            properties:
+              articleId: { type: integer, format: int64 }
+              fabricId: { type: integer }
+              name: { type: [string, "null"] }
+              meters: { type: number }
+              isActive: { type: boolean }
+        lines:
+          type: array
+          description: Shared accessories, extra fabrics and services, then operations, in the Catalog order.
+          items:
+            type: object
+            required: [kind, referenceId, unit, quantity]
+            properties:
+              kind: { $ref: "#/components/schemas/CrmQuoteItemLineKind" }
+              referenceId: { type: integer }
+              costCode: { type: [string, "null"] }
+              name: { type: [string, "null"], description: The reference name or the service code; null when gone. }
+              unit: { type: string }
+              quantity: { type: number }
+              manualMinutes: { type: [number, "null"] }
     CrmQuoteCustomSewingPriceInput:
       type: object
       required: [fabrics, lines]
@@ -648,9 +711,12 @@ components:
             properties:
               kind: { $ref: "#/components/schemas/CrmQuoteItemLineKind" }
               referenceId: { type: integer }
+              costCode: { type: [string, "null"] }
               name: { type: [string, "null"] }
               unit: { type: [string, "null"] }
-              unitValue: { type: [number, "null"], description: Accessory price per unit or operation norm in minutes. }
+              unitValue:
+                type: [number, "null"]
+                description: Accessory, fabric or service price per unit, or operation norm in minutes.
               isActive: { type: boolean }
         fabrics:
           type: array
@@ -704,7 +770,11 @@ components:
       properties:
         id: { type: [integer, "null"], format: int64 }
         kind: { $ref: "#/components/schemas/CrmQuoteItemKind" }
-        productId: { type: [integer, "null"], description: "Required for Sewing and Ppe, null for OneOffPpe and CustomSewing." }
+        productId:
+          type: [integer, "null"]
+          description: >-
+            Required for Sewing and Ppe, null for OneOffPpe; for CustomSewing the model whose composition was changed,
+            or null for a product from scratch.
         name: { type: [string, "null"], maxLength: 200, description: OneOffPpe and CustomSewing only. }
         description: { type: [string, "null"], maxLength: 4000 }
         photoUrl: { type: [string, "null"], maxLength: 1000 }

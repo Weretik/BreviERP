@@ -12,7 +12,7 @@ public sealed class QuoteItemConfiguration : IEntityTypeConfiguration<QuoteItem>
         {
             t.HasCheckConstraint("CK_QuoteItems_Position", "\"Position\" >= 0");
             t.HasCheckConstraint("CK_QuoteItems_Product",
-                "(\"Kind\" IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NULL) OR " +
+                "(\"Kind\" = 'OneOffPpe' AND \"ProductId\" IS NULL) OR \"Kind\" = 'CustomSewing' OR " +
                 "(\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NOT NULL)");
         });
         b.HasKey(x => x.Id);

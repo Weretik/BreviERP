@@ -59,7 +59,7 @@ public sealed class QuoteItemInputValidator : AbstractValidator<QuoteItemInput>
         });
         When(x => x.Kind == nameof(QuoteItemKind.CustomSewing), () =>
         {
-            RuleFor(x => x.ProductId).Null();
+            RuleFor(x => x.ProductId).GreaterThan(0).When(x => x.ProductId is not null);
             RuleFor(x => x.Name).NotEmpty().WithMessage("Вкажіть назву виробу з нуля.")
                 .MaximumLength(QuoteLimits.NameMaxLength);
             RuleFor(x => x.Lines).NotNull()

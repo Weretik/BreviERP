@@ -36,7 +36,7 @@ public sealed class QuoteItemsBuilder(IQuoteCatalogReader catalog, IQuoteSewingC
                 QuoteItemKind.OneOffPpe => BuildOneOff(index, input, previous, actor, now),
                 QuoteItemKind.CustomSewing when sewing is null => Result.Error("Розрахунок виробу з нуля недоступний."),
                 QuoteItemKind.CustomSewing => await new QuoteCustomSewingItemBuilder(sewing)
-                    .BuildAsync(index, input, previous, now, cancellationToken),
+                    .BuildAsync(index, input, previous, products, now, cancellationToken),
                 _ => BuildCatalogItem(index, kind, input, previous, products, actor, now)
             };
             if (!built.IsSuccess) return built.Map(_ => (IReadOnlyList<QuoteItem>)[]);

@@ -17,8 +17,9 @@ public sealed record SaveQuoteInput(
 
 /// <param name="Id">The saved item, or null for a new one.</param>
 /// <param name="Kind">`Sewing`, `Ppe`, `OneOffPpe` or `CustomSewing`.</param>
+/// <param name="ProductId">The Catalog product; for a «Виріб з нуля» the model whose composition was changed, or null.</param>
 /// <param name="Name">Required for a one-off PPE and a «Виріб з нуля»; ignored for Catalog items.</param>
-/// <param name="Lines">Accessories and operations of a «Виріб з нуля»; null for other items.</param>
+/// <param name="Lines">The composition of a «Виріб з нуля»; null for other items.</param>
 public sealed record QuoteItemInput(
     long? Id,
     string Kind,
@@ -30,10 +31,12 @@ public sealed record QuoteItemInput(
     IReadOnlyList<QuoteOptionInput> Options,
     IReadOnlyList<QuoteItemLineInput>? Lines = null);
 
-/// <param name="Kind">`Accessory` or `Operation`.</param>
-/// <param name="ReferenceId">Reference garment accessory or operation.</param>
+/// <param name="Kind">`Accessory`, `Operation`, `Service` or `Fabric` (an extra shared fabric).</param>
+/// <param name="ReferenceId">Reference garment accessory, operation or fabric; 0 for a service.</param>
 /// <param name="ManualMinutes">Minutes of an operation without a fixed norm.</param>
-public sealed record QuoteItemLineInput(string Kind, int ReferenceId, decimal Quantity, decimal? ManualMinutes);
+/// <param name="CostCode">The Reference other-cost code of a service.</param>
+public sealed record QuoteItemLineInput(
+    string Kind, int ReferenceId, decimal Quantity, decimal? ManualMinutes, string? CostCode = null);
 
 /// <param name="Id">The saved row, or null for a new one.</param>
 /// <param name="ArticleId">The fabric variant of a sewing model.</param>

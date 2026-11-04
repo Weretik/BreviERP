@@ -32,7 +32,7 @@ public sealed class QuoteItem
     public int Position { get; private set; }
     public QuoteItemKind Kind { get; private set; }
 
-    /// <summary>Catalog product; null for a one-off PPE.</summary>
+    /// <summary>Catalog product; null for a one-off PPE and a «Виріб з нуля», the source model of a changed one.</summary>
     public int? ProductId { get; private set; }
 
     public string? Code { get; private set; }
@@ -49,7 +49,7 @@ public sealed class QuoteItem
 
     public IReadOnlyList<QuoteItemOption> Options => _options;
 
-    /// <summary>Accessories and operations of a «Виріб з нуля», shared by all its fabrics; empty otherwise.</summary>
+    /// <summary>The composition of a «Виріб з нуля» or changed model, shared by all its fabrics; empty otherwise.</summary>
     public IReadOnlyList<QuoteItemLine> Lines => _lines;
 
     /// <summary>R-10: the client must see at least one positive price of the item.</summary>

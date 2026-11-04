@@ -454,7 +454,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         {
                             t.HasCheckConstraint("CK_QuoteItems_Position", "\"Position\" >= 0");
 
-                            t.HasCheckConstraint("CK_QuoteItems_Product", "(\"Kind\" IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NULL) OR (\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NOT NULL)");
+                            t.HasCheckConstraint("CK_QuoteItems_Product", "(\"Kind\" = 'OneOffPpe' AND \"ProductId\" IS NULL) OR \"Kind\" = 'CustomSewing' OR (\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing') AND \"ProductId\" IS NOT NULL)");
                         });
                 });
 
@@ -465,6 +465,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasColumnType("bigint");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CostCode")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
 
                     b.Property<long>("ItemId")
                         .HasColumnType("bigint");
@@ -509,6 +513,8 @@ namespace Crm.Infrastructure.Persistence.Migrations
                             t.HasCheckConstraint("CK_QuoteItemLines_Position", "\"Position\" >= 0");
 
                             t.HasCheckConstraint("CK_QuoteItemLines_Quantity", "\"Quantity\" > 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemLines_Reference", "(\"Kind\" = 'Service' AND \"ReferenceId\" = 0 AND \"CostCode\" IS NOT NULL) OR (\"Kind\" <> 'Service' AND \"ReferenceId\" > 0 AND \"CostCode\" IS NULL)");
                         });
                 });
 

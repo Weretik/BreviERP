@@ -52,5 +52,11 @@ public enum QuoteItemKind
 public enum QuoteItemLineKind
 {
     Accessory = 1,
-    Operation = 2
+    Operation = 2,
+
+    /// <summary>A service of a Catalog model («послуга»), priced by its Reference other-cost code.</summary>
+    Service = 3,
+
+    /// <summary>An extra fabric of a Catalog model shared by every variant (for example a lining), in metres.</summary>
+    Fabric = 4
 }

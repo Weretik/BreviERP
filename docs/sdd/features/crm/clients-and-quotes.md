@@ -77,6 +77,7 @@ The transaction coordinator retains commit/rollback ownership; the journal uses 
 - «КП для знайомства» (R-16–R-18): `POST`/`PUT /api/crm/quote-introductions` save a КП of kind Introduction with a layout (summer and winter pages, or one) of 4 models each: the main model of the season first (codes in «Налаштування КП», defaults MOD-166 «Імпульс» and MOD-169 «Прайм»), then 3 models of that season, one fabric each. The server turns them into ordinary sewing items with only the від 41 шт. price shown, so saved prices stay. `GET /api/crm/quote-lookups/introduction` gives the main models and letter names, `searchCrmQuoteCatalog` takes `season`, `GET /api/crm/quote-lookups/products?ids=` reloads chosen models. The PDF of an introduction is a catalogue (season pages with model cards, «Переваги», next step and contact); its send draft puts the chosen letter first and fills «Кому».
 - «Готові шаблони» (R-19): `GET`/`POST /api/crm/quote-intro-templates`, `DELETE …/{id}`; shared by all staff, unique name, no prices; the author, Director or Admin delete.
 - «Виріб з нуля» (R-20): an item of kind CustomSewing has no Catalog product: the manager names it and picks accessories and operations (shared) and one or more fabrics with metres. `POST /api/crm/quote-lookups/custom-sewing-price` prices each fabric through the Catalog query `CalculateSewingCompositionQuery` (the same formula, settings and reference versions as a Catalog article; nothing saved) and returns line names, minutes, labour and the three prices or the problems. Saving prices it the same way; while its composition and fabrics stay, a save keeps the prices, and «Перерахувати» prices it again from the saved composition. Lines are in `crm.QuoteItemLines`, metres in `QuoteItemOptions.FabricMeters`.
+- «Змінити склад» (R-21): `GET /api/crm/quote-lookups/catalog/{productId}/composition` returns a sewing model's Catalog composition (variant fabrics with metres, shared accessories, extra fabrics, services and operations) through `IQuoteModelCompositionReader`. The changed item is a CustomSewing that keeps the model's `ProductId`, code, link and season; services are lines of kind `Service` with the other-cost code, extra fabrics lines of kind `Fabric`.
 - Later stages (not built): changing the composition of a Catalog model in a КП, history and archive, old КП import.
 
 ```text
@@ -91,7 +92,7 @@ src/Modules/Crm/
     Validation/                          FluentValidation of the editor content
     Building/                            QuoteItemsBuilder (Catalog prices, manual price audit), QuoteNumbering, Kyiv clock
     Catalog/, Staff/                     ports implemented in Host.Api
-    CustomSewing/                        «Виріб з нуля»: IQuoteSewingCalculator port, item builder, price preview query
+    CustomSewing/                        «Виріб з нуля» and changed models: IQuoteSewingCalculator and IQuoteModelCompositionReader ports, item builder, price preview and model composition queries
     Persistence/                         IQuoteStore (CrmDbContext) and load query
     Mapping/                             responses
     CreateQuote/, SaveQuote/, DeleteQuote/, GetQuote/, GetQuotes/,
@@ -115,6 +116,7 @@ src/Bootstrapper/Host.Api/Crm/
   QuoteCatalogReader.cs                  Catalog overview, admin detail photo and Reference fabrics through Mediator
   QuoteStaffReader.cs                    active Manager/Admin users from Identity
   QuoteSewingCalculator.cs               «Виріб з нуля» through the Catalog composition query, names from Reference
+  QuoteModelCompositionReader.cs         model composition for «Змінити склад» through the Catalog sewing card query
 ```
 
 ## Tests

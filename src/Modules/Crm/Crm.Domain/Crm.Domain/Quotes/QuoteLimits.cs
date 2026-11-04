@@ -17,4 +17,5 @@ public static class QuoteLimits
     public const int MaxCompositionLines = 200;
     public const decimal MaxCompositionQuantity = 10_000m;
     public const int UnitMaxLength = 20;
+    public const int CostCodeMaxLength = 80;
 }
