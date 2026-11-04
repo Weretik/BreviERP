@@ -1,0 +1,464 @@
+openapi: 3.1.0
+info:
+  title: BreviERP CRM Manager Tasks API
+  version: 1.0.0
+  description: >-
+    Manager tasks of the «Менеджер сервісу» block (TSK-001). Director and Admin (the Director also holds Admin) give,
+    change and delete tasks and see every manager; a Manager sees only tasks given to them, changes their status and
+    ticks steps. `assigneeUserId` narrows lists for Admin and is ignored for a Manager. «Прострочено» (overdue) is
+    computed: not done and the due time has passed; it wins over «Терміново» (urgent).
+servers:
+  - url: /
+paths:
+  /api/crm/tasks:
+    get:
+      operationId: getCrmTasks
+      security:
+        - bearerAuth: []
+      description: >-
+        A page of tasks. Not done: overdue first, then urgent, then by due time. `Done`: newest completion first.
+        Search matches the number («ЗД-0142», «142»), title, client and manager name.
+      parameters:
+        - name: search
+          in: query
+          schema: { type: string, maxLength: 200 }
+        - name: filter
+          in: query
+          schema: { $ref: "#/components/schemas/CrmTaskListFilter" }
+        - $ref: "#/components/parameters/AssigneeUserId"
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, minimum: 1, maximum: 100000 }
+        - name: pageSize
+          in: query
+          schema: { type: integer, default: 25, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: One page.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTaskPage" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+    post:
+      operationId: createCrmTask
+      security:
+        - bearerAuth: []
+      description: Director or Admin gives a new task to an active Manager. `version` must be 0.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveTaskInput" }
+      responses:
+        "201":
+          description: Created with status `New`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTask" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+  /api/crm/tasks/board:
+    get:
+      operationId: getCrmTaskBoard
+      security:
+        - bearerAuth: []
+      description: >-
+        «Мої завдання» kanban: every open task and those done in the last 7 days (at most 500 cards). Open cards come
+        first (urgent, then by due time), done ones newest first; the Admin groups them by `lane`.
+      parameters:
+        - $ref: "#/components/parameters/AssigneeUserId"
+      responses:
+        "200":
+          description: The cards.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTaskBoard" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+  /api/crm/tasks/overview:
+    get:
+      operationId: getCrmTaskOverview
+      security:
+        - bearerAuth: []
+      description: >-
+        Counts for the metric strip and filter chips (narrowed by `assigneeUserId` for Admin) and the workload of each
+        active Manager (always all of them for Admin, only the actor for a Manager).
+      parameters:
+        - $ref: "#/components/parameters/AssigneeUserId"
+      responses:
+        "200":
+          description: Counts and workload.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTaskOverview" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+  /api/crm/tasks/assignees:
+    get:
+      operationId: getCrmTaskAssignees
+      security:
+        - bearerAuth: []
+      description: Active users with the Manager role, by name; for the assignee picker and the manager filter.
+      responses:
+        "200":
+          description: Managers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CrmTaskAssignee" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+  /api/crm/tasks/{id}:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+    get:
+      operationId: getCrmTask
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The task with steps and history (newest first).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTask" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+    put:
+      operationId: editCrmTask
+      security:
+        - bearerAuth: []
+      description: Director or Admin saves the side panel. Steps are replaced (new ids). `version` is the loaded one.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveTaskInput" }
+      responses:
+        "200":
+          description: Saved; `version` is incremented.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTask" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+        "404": { description: Not found. }
+        "409": { $ref: "#/components/responses/Conflict" }
+    delete:
+      operationId: deleteCrmTask
+      security:
+        - bearerAuth: []
+      description: Director or Admin deletes the task with its steps and history.
+      parameters:
+        - name: version
+          in: query
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "204": { description: Deleted. }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+        "404": { description: Not found. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/tasks/{id}/status:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+    put:
+      operationId: changeCrmTaskStatus
+      security:
+        - bearerAuth: []
+      description: The assignee or Admin moves the task. `Done` sets `completedAt`; leaving `Done` clears it. The same status changes nothing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmChangeTaskStatusRequest" }
+      responses:
+        "200":
+          description: The task after the change.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTask" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/tasks/{id}/urgent:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+    put:
+      operationId: setCrmTaskUrgent
+      security:
+        - bearerAuth: []
+      description: Director or Admin drags a card into or out of «Терміново».
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSetTaskUrgentRequest" }
+      responses:
+        "200":
+          description: The task after the change.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTask" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required. }
+        "404": { description: Not found. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/tasks/{id}/steps/{stepId}:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+      - name: stepId
+        in: path
+        required: true
+        schema: { type: integer, format: int64, minimum: 1 }
+    put:
+      operationId: markCrmTaskStep
+      security:
+        - bearerAuth: []
+      description: The assignee or Admin ticks or unticks one step.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmMarkTaskStepRequest" }
+      responses:
+        "200":
+          description: The task after the change.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmTask" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Task or step not found or not visible to the actor. }
+        "409": { $ref: "#/components/responses/Conflict" }
+components:
+  parameters:
+    TaskId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, format: int64, minimum: 1 }
+    AssigneeUserId:
+      name: assigneeUserId
+      in: query
+      description: Admin only; ignored for a Manager.
+      schema: { type: integer, minimum: 1 }
+  responses:
+    Invalid:
+      description: Validation errors with Ukrainian messages for the Admin.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                identifier: { type: [string, "null"] }
+                errorMessage: { type: string }
+    Conflict:
+      description: The task was saved in another window (stale version); errors are Ukrainian strings.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { type: string }
+  schemas:
+    CrmTaskStatus:
+      type: string
+      enum: [New, InProgress, Done]
+    CrmTaskLane:
+      type: string
+      description: Kanban column. Overdue = not done and past due; Urgent = not done, not overdue, marked urgent.
+      enum: [Overdue, Urgent, Active, Done]
+    CrmTaskListFilter:
+      type: string
+      default: Open
+      enum: [Open, Overdue, Urgent, New, InProgress, Done]
+    CrmTaskEventKind:
+      type: string
+      enum: [Created, Edited, Reassigned, DueChanged, StatusChanged, UrgentChanged, StepChecked, StepUnchecked]
+    CrmTaskPerson:
+      type: object
+      required: [userId, name]
+      properties:
+        userId: { type: integer }
+        name: { type: string }
+    CrmTaskSummary:
+      type: object
+      required:
+        [id, number, title, status, lane, isUrgent, isOverdue, dueAt, assignee, customerName, stepsTotal, stepsDone,
+         completedAt, updatedAt, version]
+      properties:
+        id: { type: integer, format: int64 }
+        number: { type: string, description: "«ЗД-0142»", examples: ["ЗД-0142"] }
+        title: { type: string }
+        status: { $ref: "#/components/schemas/CrmTaskStatus" }
+        lane: { $ref: "#/components/schemas/CrmTaskLane" }
+        isUrgent: { type: boolean }
+        isOverdue: { type: boolean }
+        dueAt: { type: string, format: date-time }
+        assignee: { $ref: "#/components/schemas/CrmTaskPerson" }
+        customerName: { type: [string, "null"] }
+        stepsTotal: { type: integer }
+        stepsDone: { type: integer }
+        completedAt: { type: [string, "null"], format: date-time }
+        updatedAt: { type: string, format: date-time }
+        version: { type: integer }
+    CrmTaskPage:
+      type: object
+      required: [items, page, pageSize, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CrmTaskSummary" }
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+    CrmTaskBoard:
+      type: object
+      required: [items, at]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CrmTaskSummary" }
+        at: { type: string, format: date-time, description: Server time the lanes were computed at. }
+    CrmTaskStep:
+      type: object
+      required: [id, position, text, isDone]
+      properties:
+        id: { type: integer, format: int64 }
+        position: { type: integer }
+        text: { type: string }
+        isDone: { type: boolean }
+    CrmTaskEvent:
+      type: object
+      required: [kind, by, at, details]
+      properties:
+        kind: { $ref: "#/components/schemas/CrmTaskEventKind" }
+        by: { $ref: "#/components/schemas/CrmTaskPerson" }
+        at: { type: string, format: date-time }
+        details:
+          type: [string, "null"]
+          description: >-
+            Reassigned: new manager name; DueChanged: new due time (ISO 8601); StatusChanged: new status;
+            UrgentChanged: `true` or `false`; StepChecked/StepUnchecked: step text.
+    CrmTask:
+      type: object
+      required:
+        [id, number, title, description, status, lane, isUrgent, isOverdue, dueAt, assignee, author, customerPublicId,
+         customerName, steps, history, completedAt, createdAt, updatedAt, version]
+      properties:
+        id: { type: integer, format: int64 }
+        number: { type: string }
+        title: { type: string }
+        description: { type: [string, "null"] }
+        status: { $ref: "#/components/schemas/CrmTaskStatus" }
+        lane: { $ref: "#/components/schemas/CrmTaskLane" }
+        isUrgent: { type: boolean }
+        isOverdue: { type: boolean }
+        dueAt: { type: string, format: date-time }
+        assignee: { $ref: "#/components/schemas/CrmTaskPerson" }
+        author: { $ref: "#/components/schemas/CrmTaskPerson" }
+        customerPublicId: { type: [string, "null"], format: uuid }
+        customerName: { type: [string, "null"] }
+        steps:
+          type: array
+          items: { $ref: "#/components/schemas/CrmTaskStep" }
+        history:
+          type: array
+          items: { $ref: "#/components/schemas/CrmTaskEvent" }
+        completedAt: { type: [string, "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        version: { type: integer }
+    CrmTaskLoad:
+      type: object
+      required: [userId, name, open, overdue, urgent, inProgress]
+      properties:
+        userId: { type: integer }
+        name: { type: string }
+        open: { type: integer }
+        overdue: { type: integer }
+        urgent: { type: integer }
+        inProgress: { type: integer }
+    CrmTaskOverview:
+      type: object
+      required: [open, overdue, urgent, new, inProgress, done, doneLastWeek, onTimePercent, load]
+      properties:
+        open: { type: integer }
+        overdue: { type: integer }
+        urgent: { type: integer }
+        new: { type: integer }
+        inProgress: { type: integer }
+        done: { type: integer }
+        doneLastWeek: { type: integer }
+        onTimePercent:
+          type: [integer, "null"]
+          description: Share of tasks done in the last 30 days by their due time; null when none were done.
+        load:
+          type: array
+          items: { $ref: "#/components/schemas/CrmTaskLoad" }
+    CrmTaskAssignee:
+      type: object
+      required: [userId, name, email]
+      properties:
+        userId: { type: integer }
+        name: { type: string }
+        email: { type: [string, "null"] }
+    CrmTaskStepInput:
+      type: object
+      required: [text, isDone]
+      properties:
+        text: { type: string, maxLength: 300 }
+        isDone: { type: boolean }
+    CrmSaveTaskInput:
+      type: object
+      required: [version, title, assigneeUserId, dueAt, isUrgent]
+      properties:
+        version: { type: integer, minimum: 0, description: 0 for a new task; the loaded version when editing. }
+        title: { type: string, minLength: 1, maxLength: 200 }
+        description: { type: [string, "null"], maxLength: 4000 }
+        assigneeUserId: { type: integer, minimum: 1 }
+        dueAt: { type: string, format: date-time }
+        isUrgent: { type: boolean }
+        customerPublicId: { type: [string, "null"], format: uuid, description: An active Crm client. }
+        steps:
+          type: [array, "null"]
+          maxItems: 30
+          items: { $ref: "#/components/schemas/CrmTaskStepInput" }
+    CrmChangeTaskStatusRequest:
+      type: object
+      required: [version, status]
+      properties:
+        version: { type: integer, minimum: 1 }
+        status: { $ref: "#/components/schemas/CrmTaskStatus" }
+    CrmSetTaskUrgentRequest:
+      type: object
+      required: [version, isUrgent]
+      properties:
+        version: { type: integer, minimum: 1 }
+        isUrgent: { type: boolean }
+    CrmMarkTaskStepRequest:
+      type: object
+      required: [version, isDone]
+      properties:
+        version: { type: integer, minimum: 1 }
+        isDone: { type: boolean }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
