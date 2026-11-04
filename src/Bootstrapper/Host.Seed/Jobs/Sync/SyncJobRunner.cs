@@ -19,6 +19,7 @@ internal static class SyncJobRunner
         new KeepinClientsSyncTask(),
         new SewingPricesSyncTask(),
         new MediaThumbnailsSyncTask(),
+        new PpeSupplierPricesSyncTask(),
     ];
 
     public static async Task RunAsync(IServiceProvider services, IConfiguration configuration)

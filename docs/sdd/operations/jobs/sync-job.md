@@ -10,6 +10,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | `keepin-clients` | KeepinCRM → Brevi client refresh | the same key | [below](#keepin-clients) |
 | `sewing-prices` | Publishes Sewing prices whose inputs changed | none | [below](#sewing-prices) |
 | `media-thumbnails` | Makes size and previews for library photos without them | `storage-login`, `storage-password` → `AdmToolsStorage__Login`, `AdmToolsStorage__Password` | [below](#media-thumbnails) |
+| `ppe-supplier-prices` | Mondays: АВ-Центр, 3C-Маркет, Перчатка-центр supplier prices | none | [below](#ppe-supplier-prices) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
 
@@ -66,3 +67,13 @@ Step log: `Published N articles, unchanged N, not calculable N, skipped models: 
 Photo previews of the «Фото» library ([MED-001](../../specs/media/001-media-library/README.md), stage 3). New uploads get their size and preview at once; this step covers photos uploaded before previews existed and uploads whose preview failed. It takes up to 500 photos with `ImageProcessedAt` empty, oldest first, downloads each original from the CDN, writes the size and uploads a WebP preview to `/library/thumbs`. A photo that cannot be read is marked processed without a preview; a download or CDN error leaves it for the next night. Repeating the step is safe.
 
 Step log: `Processed N photos (N small or unreadable, no preview), failed N, left for next nights N`, then one warning per failed photo.
+
+## ppe-supplier-prices
+
+Feature: [PPE supplier price import](../../features/catalog/ppe-supplier-prices.md), specification [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md) stage 2. No secret, no settings; the discounts are those saved in «Імпорт цін».
+
+Only on Kyiv Monday (other days it logs `No supplier price source is due today`): reads АВ-Центр and Перчатка-центр product pages and the six 3C-Маркет Google lists, and saves each changed supplier price on the card and as a new approved offer version (source «Імпорт цін: …», run trigger «Розклад», actor `nightly-sync`). Products with «Дозволити ручну ціну» or not active keep their price. A source that cannot be read (supplier not found, a 3C list not loading) changes nothing, records its reason in «Імпорт цін», and the step fails after the other sources ran. Repeating the step is safe: unchanged prices are not saved again.
+
+Step log: one line per source `<source>: checked N, changed N, unchanged N, skipped N, problems N`, or a warning `<source>: nothing changed: <reason>`.
+
+On demand: «Імпорт цін» → source → «Оновити зараз» calls `POST /api/v1/pricing/ppe/supplier-prices/{key}/refresh` (preview, then `?dryRun=false`).

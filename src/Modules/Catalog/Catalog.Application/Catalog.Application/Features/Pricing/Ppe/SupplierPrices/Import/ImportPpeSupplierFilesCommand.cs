@@ -12,13 +12,3 @@ public sealed record ImportPpeSupplierFilesCommand(
     bool DryRun,
     string Actor,
     string ActorName) : ICommand<Result<PpePriceImportResult>>;
-
-public sealed record PpePriceImportResult(
-    string SourceKey,
-    bool Applied,
-    decimal DiscountPercent,
-    int Checked,
-    int Changed,
-    int Unchanged,
-    int Skipped,
-    IReadOnlyList<PpePriceImportRow> Rows);
