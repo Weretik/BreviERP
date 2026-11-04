@@ -1,7 +1,9 @@
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Production.Application.Abstractions;
+using Production.Application.Orders;
 using Production.Application.Orders.QuoteSources;
+using Production.Application.Orders.Tracking;
 using Production.Infrastructure.Persistence;
 
 namespace Production.Infrastructure.DependencyInjection;
@@ -17,6 +19,11 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<IProductionDbContext>(sp => sp.GetRequiredService<ProductionDbContext>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<ProductionDbContext>>();
         services.AddScoped<QuoteItemResolver>();
+        services.AddScoped<OrderCards>();
+        services.AddScoped<OrderTracking>();
+        services.TryAddSingleton(new ProductionLinks(configuration["Production:AdminUrl"] is { Length: > 0 } url
+            ? url
+            : "https://office.brevi.com.ua"));
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

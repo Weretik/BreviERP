@@ -8,6 +8,8 @@ public sealed class GetProductionOrdersQueryValidator : AbstractValidator<GetPro
     {
         RuleFor(x => x.Status).Must(x => x is null || Enum.TryParse<ProductionOrderStatus>(x, true, out var s) && Enum.IsDefined(s))
             .WithMessage("Невідомий статус.");
+        RuleFor(x => x.Stage).Must(x => x is null || Enum.TryParse<ProductionStage>(x, true, out var s) && Enum.IsDefined(s))
+            .WithMessage("Невідомий етап.");
         RuleFor(x => x.Search).MaximumLength(200);
         RuleFor(x => x.Manager).MaximumLength(ProductionOrder.PersonMaxLength);
         RuleFor(x => x.Page).GreaterThan(0);

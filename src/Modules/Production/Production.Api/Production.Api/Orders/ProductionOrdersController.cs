@@ -26,9 +26,10 @@ public sealed class ProductionOrdersController(ISender sender) : ControllerBase
     [HttpGet(Name = "getProductionOrders")]
     public async Task<ActionResult<ProductionOrderPageResponse>> List([FromQuery] string? search,
         [FromQuery] string? status, [FromQuery] string? manager, [FromQuery] DateOnly? dueTo,
-        [FromQuery] int page = 1, [FromQuery] int pageSize = 50, CancellationToken cancellationToken = default) =>
+        [FromQuery] string? stage, [FromQuery] int page = 1, [FromQuery] int pageSize = 50,
+        CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(
-            new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize), cancellationToken));
+            new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize, stage), cancellationToken));
 
     [HttpGet("{id:int}", Name = "getProductionOrder")]
     public async Task<ActionResult<ProductionOrderResponse>> Detail(int id, CancellationToken cancellationToken) =>

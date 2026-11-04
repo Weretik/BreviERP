@@ -22,5 +22,15 @@ public sealed record ProductionActor(int UserId, bool IsAdmin, bool IsManager, b
         order is { IsDeleted: false, Status: ProductionOrderStatus.New } &&
         (IsAdmin || IsWorkshopChief || IsManager && order.ManagerUserId == UserId);
 
+    /// <summary>Етапи and shipments: Admin and the head of the workshop on a «Нове» order.</summary>
+    public bool CanTrack(ProductionOrder order) =>
+        order is { IsDeleted: false, Status: ProductionOrderStatus.New } && (IsAdmin || IsWorkshopChief);
+
+    public bool CanReopen(ProductionOrder order) =>
+        IsAdmin && order is { IsDeleted: false } && order.Status != ProductionOrderStatus.New;
+
+    /// <summary>«Налаштування цеху».</summary>
+    public bool CanManageSettings => IsAdmin || IsWorkshopChief;
+
     public ProductionQuoteReaderActor QuoteReader => new(UserId, IsAdmin);
 }

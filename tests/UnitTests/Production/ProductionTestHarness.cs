@@ -2,7 +2,9 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
 using Production.Application.Abstractions;
+using Production.Application.Orders;
 using Production.Application.Orders.QuoteSources;
+using Production.Application.Orders.Tracking;
 using Production.Infrastructure.Persistence;
 
 namespace UnitTests.Production;
@@ -63,6 +65,47 @@ internal sealed class FakePayrollParameterReader : IPayrollParameterReader
         Task.FromResult<IReadOnlyList<PayrollParameterValue>>(Values.Where(x => codes.Contains(x.Code)).ToList());
 }
 
+/// <summary>CDN in memory: keys of stored and deleted files.</summary>
+internal sealed class FakeProductionFileStorage : IProductionFileStorage
+{
+    public List<string> Stored { get; } = [];
+    public List<string> Deleted { get; } = [];
+
+    public Task<string> UploadAsync(Stream content, string storageKey, string contentType,
+        CancellationToken cancellationToken)
+    {
+        Stored.Add(storageKey);
+        return Task.FromResult($"https://cdn.test{storageKey}");
+    }
+
+    public Task DeleteAsync(string storageKey, CancellationToken cancellationToken)
+    {
+        Deleted.Add(storageKey);
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>The bot in memory; <see cref="FailWith"/> makes the next sends fail.</summary>
+internal sealed class FakeProductionTelegram : IProductionTelegram
+{
+    private long _nextMessageId = 100;
+
+    public bool IsConfigured { get; set; } = true;
+    public string? FailWith { get; set; }
+    public List<(long ChatId, int? ThreadId, string Html)> Sent { get; } = [];
+    public List<ProductionTelegramChat> Chats { get; } = [];
+
+    public Task<long> SendAsync(long chatId, int? threadId, string html, CancellationToken cancellationToken)
+    {
+        if (FailWith is not null) throw new ProductionTelegramException(FailWith);
+        Sent.Add((chatId, threadId, html));
+        return Task.FromResult(_nextMessageId++);
+    }
+
+    public Task<IReadOnlyList<ProductionTelegramChat>> ListChatsAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ProductionTelegramChat>>(Chats);
+}
+
 /// <summary>Production module on SQLite in memory with fake Catalog models.</summary>
 internal sealed class ProductionTestHarness : IDisposable
 {
@@ -82,8 +125,15 @@ internal sealed class ProductionTestHarness : IDisposable
     public FakeProductionQuoteReader Quotes { get; } = new();
     public FakeProductionFabricReader Fabrics { get; } = new();
     public FakeProductionStaffReader Staff { get; } = new();
+    public FakeProductionFileStorage Files { get; } = new();
+    public FakeProductionTelegram Telegram { get; } = new();
+    public ProductionLinks Links { get; } = new("https://office.test");
 
     public QuoteItemResolver Resolver() => new(Db, Models, Fabrics);
+
+    public OrderCards Cards() => new(Db, Telegram);
+
+    public OrderTracking Tracking() => new(Db, Staff, Cards(), Time);
 
     public void Dispose()
     {

@@ -5,7 +5,7 @@ using Production.Domain.Orders;
 namespace Production.Application.Orders.UpdateOrder;
 
 public sealed class UpdateProductionOrderCommandHandler(IProductionDbContext db, IProductionStaffReader staff,
-    TimeProvider clock)
+    OrderCards cards, TimeProvider clock)
     : ICommandHandler<UpdateProductionOrderCommand, Result<ProductionOrderResponse>>
 {
     public async ValueTask<Result<ProductionOrderResponse>> Handle(UpdateProductionOrderCommand command,
@@ -13,14 +13,16 @@ public sealed class UpdateProductionOrderCommandHandler(IProductionDbContext db,
     {
         var actor = command.Actor;
         var input = command.Input;
-        var order = await db.Orders.Include(x => x.Items)
-            .SingleOrDefaultAsync(x => x.Id == command.Id && x.DeletedAt == null, cancellationToken);
+        var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
         if (order is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.NotFound);
         if (!actor.CanEdit(order)) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotEdit);
         if (order.Version != input.Version) return Result<ProductionOrderResponse>.Conflict(OrderMessages.Stale);
         if (input.Items.Any(x => order.Items.All(item => item.Id != x.Id)) ||
             input.Items.Select(x => x.Id).Distinct().Count() != input.Items.Count)
             return Result<ProductionOrderResponse>.Invalid(new ValidationError(OrderMessages.ItemNotInOrder));
+
+        if (input.Items.Any(x => x.Details.Quantity < order.ShippedQuantity(x.Id)))
+            return Result<ProductionOrderResponse>.Invalid(new ValidationError(OrderMessages.QuantityBelowShipped));
 
         var actorName = await OrderActors.NameAsync(staff, actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.ActorUnknown);
@@ -39,6 +41,6 @@ public sealed class UpdateProductionOrderCommandHandler(IProductionDbContext db,
         if (order.Update(new OrderHeader(input.ClientName, input.OrderDate, input.Comment), updates, actorName,
                 clock.GetUtcNow()))
             await db.SaveChangesAsync(cancellationToken);
-        return Result.Success(order.ToResponse(actor));
+        return Result.Success(await cards.BuildAsync(order, actor, cancellationToken));
     }
 }

@@ -7,7 +7,7 @@ namespace Production.Application.Orders.CreateOrder;
 
 public sealed class CreateProductionOrderCommandHandler(
     IProductionDbContext db, IProductionQuoteReader quotes, IProductionStaffReader staff, QuoteItemResolver resolver,
-    TimeProvider clock)
+    OrderCards cards, TimeProvider clock)
     : ICommandHandler<CreateProductionOrderCommand, Result<ProductionOrderResponse>>
 {
     public async ValueTask<Result<ProductionOrderResponse>> Handle(CreateProductionOrderCommand command,
@@ -17,9 +17,9 @@ public sealed class CreateProductionOrderCommandHandler(
         var input = command.Input;
         if (!actor.CanCreate) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotCreate);
 
-        var existing = await db.Orders.AsNoTracking().Include(x => x.Items)
+        var existing = await cards.Orders.AsNoTracking()
             .FirstOrDefaultAsync(x => x.CreateRequestId == input.RequestId, cancellationToken);
-        if (existing is not null) return Result.Success(existing.ToResponse(actor));
+        if (existing is not null) return Result.Success(await cards.BuildAsync(existing, actor, cancellationToken));
 
         var quote = await quotes.ReadAsync(actor.QuoteReader, input.QuoteId, cancellationToken);
         if (quote is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.QuoteNotFound);
@@ -58,6 +58,8 @@ public sealed class CreateProductionOrderCommandHandler(
         order.Record("Створено", $"З КП {quote.Number}", actorName, now);
         db.Orders.Add(order);
         await db.SaveChangesAsync(cancellationToken);
-        return Result.Success(order.ToResponse(actor));
+        db.TelegramDeliveries.Add(new ProductionTelegramDelivery(order.Id));
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Success(await cards.BuildAsync(order, actor, cancellationToken));
     }
 }

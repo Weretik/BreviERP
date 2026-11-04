@@ -60,7 +60,7 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 ## Production
 
 - [Workshop references «Швейний цех»](production/workshop-references.md) — workers of the workshop, fabric norms per sewing model, payroll coefficients from «Параметри ціноутворення» (stage 1 of the «Цех» port).
-- [Production orders «Виробничі завдання»](production/production-orders.md) — orders from sent КП with snapshot, history, copy, soft delete and transfer of old orders (stage 2).
+- [Production orders «Виробничі завдання»](production/production-orders.md) — orders from sent КП with snapshot, history, copy, soft delete and transfer of old orders (stage 2); stages, shipments, close/cancel, files on the CDN, one Telegram message to the workshop group, «Налаштування цеху» (stage 3).
 
 ## Reminders
 

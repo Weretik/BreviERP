@@ -2,12 +2,13 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Production.Api.Orders;
+using Production.Api.Settings;
 using Production.Application.Contracts;
 using YamlDotNet.RepresentationModel;
 
 namespace UnitTests.Production;
 
-/// <summary>Order types and operations match docs/sdd/contracts/production/production-orders.openapi.yaml (PRD-002).</summary>
+/// <summary>Order types and operations match docs/sdd/contracts/production/production-orders.openapi.yaml (PRD-002, PRD-003).</summary>
 public sealed class ProductionOrdersContractTests
 {
     [TestCase(typeof(ItemApplicationInput))]
@@ -33,6 +34,21 @@ public sealed class ProductionOrdersContractTests
     [TestCase(typeof(ProductionQuoteDraftOption))]
     [TestCase(typeof(ProductionOrderImportResult))]
     [TestCase(typeof(ProductionOrderImportLine))]
+    [TestCase(typeof(ProductionShipmentResponse))]
+    [TestCase(typeof(ProductionFileResponse))]
+    [TestCase(typeof(ProductionTelegramResponse))]
+    [TestCase(typeof(ProductionOrderVersionInput))]
+    [TestCase(typeof(SetProductionItemStagesInput))]
+    [TestCase(typeof(CreateProductionShipmentInput))]
+    [TestCase(typeof(CancelProductionOrderInput))]
+    [TestCase(typeof(WorkshopSettingsInput))]
+    [TestCase(typeof(WorkshopSettingsResponse))]
+    [TestCase(typeof(WorkshopTelegramChatResponse))]
+    [TestCase(typeof(ProductionProgressImportRow))]
+    [TestCase(typeof(ProductionItemProgressImportRow))]
+    [TestCase(typeof(ProductionFileImportRow))]
+    [TestCase(typeof(ProductionProgressImportResult))]
+    [TestCase(typeof(ProductionProgressImportLine))]
     public void Serialized_properties_match_the_machine_contract(Type type)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[type.Name])["properties"];
@@ -43,16 +59,18 @@ public sealed class ProductionOrdersContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_orders_policy()
     {
-        var controller = typeof(ProductionOrdersController);
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
-        var operations = controller.GetMethods()
+        Type[] controllers =
+            [typeof(ProductionOrdersController), typeof(ProductionOrderTrackingController), typeof(WorkshopSettingsController)];
+        var policies = controllers.Select(controller => controller.GetCustomAttributes(typeof(AuthorizeAttribute), false)
+            .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
+        var operations = controllers.SelectMany(controller => controller.GetMethods())
             .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
             .Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>
         {
-            Assert.That(policy, Is.EqualTo("CanUseProductionOrders"));
-            Assert.That(operations, Has.Length.EqualTo(10));
+            Assert.That(policies, Is.EqualTo(new[] { "CanUseProductionOrders" }));
+            Assert.That(operations, Has.Length.EqualTo(23));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }
