@@ -27,7 +27,7 @@ public sealed class SewingSuggestionBridgeTests : CrmDatabaseFixture
             var name = id == 6 ? "Куртка-пілот" : "Куртка модель " + id;
             var product = Product.Create(key, name, name, ProductSlug.Create("suggestion-model-" + id), ProductType.Sewing, now);
             product.SetModelCode("MODEL-" + id, now);
-            var profile = ProductCatalogProfile.Create(key, true);
+            var profile = ProductCatalogProfile.Create(key, id != 4); // Model 4 is hidden and never suggested.
             profile.SetIdentity(null, id == 5 ? "Літо" : "Зима", "Piece", null);
             product.SetCatalogProfile(profile, now);
             product.AddArticle(SewingArticle.Create(default, key, "ARTICLE-" + id), now);
