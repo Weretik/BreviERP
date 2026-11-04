@@ -53,3 +53,7 @@ The [publication stage](../../specs/catalog/003-sheet-pricing-parity/publication
 ## PPE pricing versions
 
 `PpePricingRuleVersions` stores long internal IDs, unique public/request UUIDs, exact indexed rule code, typed values in jsonb and approval/source metadata. `PpePricingOfferVersions` stores the same lifecycle per Product, with a restrictive Product FK and `(ProductId, Id)` index. Latest-version selection is deterministic; request hashes bind retries to actor and input. Imported drafts have no approval actor/time. The API appends an approved revision instead of overwriting the baseline. Approved versions become effective immediately; source dates remain provenance and never schedule future activation. See [PPE pricing](../../features/catalog/ppe-pricing.md).
+
+## PPE supplier price import
+
+`PpePriceSources` holds the saved settings of an «Імпорт цін» source: string key PK (the source list lives in code), optional Reference supplier ID (no cross-module FK), discount `numeric(5,2)`, update time and actor. A source without a row uses its defaults. `PpePriceImportRuns` records each applied import (identity ID, source key, trigger, actor, finish time, counts, problems in jsonb) with a `(SourceKey, Id)` index for the latest run. See [PPE supplier price import](../../features/catalog/ppe-supplier-prices.md).

@@ -902,6 +902,81 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("PpePricingRuleVersions", "catalog");
                 });
 
+            modelBuilder.Entity("Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Records.PpePriceImportRunRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Actor")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Changed")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Checked")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("FinishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ProblemsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("Skipped")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceKey")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Trigger")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<int>("Unchanged")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceKey", "Id");
+
+                    b.ToTable("PpePriceImportRuns", "catalog");
+                });
+
+            modelBuilder.Entity("Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Records.PpePriceSourceSettingsRecord", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<int?>("SupplierId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("PpePriceSources", "catalog");
+                });
+
             modelBuilder.Entity("Catalog.Domain.ProductCategories.Entities.ProductCategory", b =>
                 {
                     b.HasOne("Catalog.Domain.ProductCategories.Entities.ProductCategory", null)
