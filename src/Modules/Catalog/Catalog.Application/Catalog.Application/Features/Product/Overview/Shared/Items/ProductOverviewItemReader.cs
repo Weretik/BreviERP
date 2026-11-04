@@ -1,3 +1,4 @@
+using Catalog.Application.Contracts.Media;
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Contracts.Persistence.ProductOverview;
 using Catalog.Application.Contracts.Pricing.Ppe;
@@ -22,6 +23,7 @@ public sealed class ProductOverviewItemReader(
     IFabricNameReader fabrics,
     IPpePricingInputReader ppe,
     SewingPriceStatusReader sewingStatus,
+    IProductMediaReader media,
     TimeProvider timeProvider)
 {
     public const string NoActiveVariant = "NoActiveArticle";
@@ -49,9 +51,19 @@ public sealed class ProductOverviewItemReader(
                     x.Offer?.CreatedAt,
                     x.Calculation.Blockers.Select(b => b.Code).Distinct().ToList()));
 
-        return rows.Select(row => row.Type == ProductType.Ppe
+        var photoIds = rows.Where(x => x.MainPhotoFileId is not null).Select(x => x.MainPhotoFileId!.Value).ToList();
+        var photos = photoIds.Count == 0
+            ? new Dictionary<int, ProductMediaFile>()
+            : await media.GetFilesAsync(photoIds, cancellationToken);
+
+        return rows.Select(row => (row.Type == ProductType.Ppe
             ? Ppe(row, ppePrices.GetValueOrDefault(row.Id))
-            : Sewing(row, byProduct[row.Id], names)).ToList();
+            : Sewing(row, byProduct[row.Id], names)) with
+        {
+            MainPhotoUrl = row.MainPhotoFileId is { } fileId && photos.TryGetValue(fileId, out var file)
+                ? file.ThumbnailUrl ?? file.PublicUrl
+                : null
+        }).ToList();
     }
 
     /// <summary>Fills the reasons of sewing rows that have an active variant without a price.</summary>

@@ -100,6 +100,10 @@ The one-time product transfer from the Calculator sheet ([CAT-010](../../specs/c
 
 Rollback: there is no undo endpoint. Take a database backup before step 4; deleted products, their photos, categories and PPE price history come back only from it.
 
+## Old-site photo import
+
+The migration `MediaFileSourceKey` adds `media.Files.SourceKey` on the next deploy. The import itself ([CAT-018](../../specs/catalog/018-product-photos-and-old-site-import/README.md)) runs from the Admin page «Медіатека» → «Імпорт зі старого сайту», not Host.Seed: pick `old-site-photo-import.json` (built by `/mnt/project-files/brevi-photo-import/build_import.py` from the OpenCart export), press «Перевірити» (dry run, writes nothing), review the counts with the owner, then «Імпортувати» (parts of 20 products). It downloads from `https://brevi.com.ua/image/`, so the old site must stay online until it finishes. A repeat adds nothing twice; failed photos are listed and can be retried by running it again.
+
 ## Old КП transfer
 
 The one-time transfer of КП from the old Calculator ([QTE-001 R-25](../../specs/crm/003-quotes/README.md)) runs through the API, not Host.Seed. It needs no migration. A dry run never writes; the real run writes every new КП in one transaction or nothing. Run it after the Catalog products and Reference rows are imported: items are linked by their codes.

@@ -73,6 +73,19 @@ public sealed class ProductOverviewListingTests
     private static int[] Sorted(ProductOverviewSort sort, bool descending)
         => ProductOverviewListing.Sort(Items, sort, descending).Select(x => x.Id).ToArray();
 
+    [Test]
+    public void Active_filter_shows_only_active_or_only_switched_off_rows()
+    {
+        var items = Items.Select(x => x.Id == 3 ? x with { IsActive = false } : x).ToList();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ProductOverviewListing.Filter(items, Query() with { Active = false }).Select(x => x.Id), Is.EqualTo(new[] { 3 }));
+            Assert.That(ProductOverviewListing.Filter(items, Query() with { Active = true }).Select(x => x.Id), Is.EqualTo(new[] { 1, 2, 4 }));
+            Assert.That(ProductOverviewListing.Filter(items, Query()).Count(), Is.EqualTo(4));
+        });
+    }
+
     private static int[] Filtered(GetProductOverviewPageQuery query)
         => ProductOverviewListing.Filter(Items, query).Select(x => x.Id).ToArray();
 

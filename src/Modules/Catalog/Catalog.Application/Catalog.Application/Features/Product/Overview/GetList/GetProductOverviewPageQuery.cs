@@ -12,6 +12,7 @@ namespace Catalog.Application.Features.Product.Overview.GetList;
 /// <param name="WithoutSection">Only rows without a section; ignored when <paramref name="SectionId"/> is set.</param>
 /// <param name="WithoutPrice">Only rows without a price.</param>
 /// <param name="Page">1-based.</param>
+/// <param name="Active">Only active (true) or only inactive (false) rows; null shows both.</param>
 public sealed record GetProductOverviewPageQuery(
     ProductType Type,
     string? Search,
@@ -21,7 +22,8 @@ public sealed record GetProductOverviewPageQuery(
     ProductOverviewSort Sort,
     bool Descending,
     int Page,
-    int PageSize) : IQuery<Result<ProductOverviewPage>>
+    int PageSize,
+    bool? Active = null) : IQuery<Result<ProductOverviewPage>>
 {
     public const int MaxPageSize = 100;
     public const int SearchMaxLength = 200;

@@ -24,6 +24,8 @@ public sealed class ProductOverviewSpec : Specification<ProductEntity, ProductOv
             x.CatalogProfile == null || x.CatalogProfile.IsActive,
             x.CatalogProfile != null ? x.CatalogProfile.WebsiteUrl : null,
             x.CatalogProfile != null ? x.CatalogProfile.ShortDescription : null,
-            x.CreatedAt, x.UpdatedAt));
+            x.CreatedAt, x.UpdatedAt,
+            x.Photos.Where(photo => photo.IsVisible).OrderByDescending(photo => photo.IsMain)
+                .ThenBy(photo => photo.SortOrder).Select(photo => (int?)photo.MediaFileId.Value).FirstOrDefault()));
     }
 }

@@ -14,4 +14,5 @@ public sealed record ProductOverviewReadModel(
     string? CurrentSiteUrl,
     string? QuoteDescription,
     DateTimeOffset CreatedAt,
-    DateTimeOffset? UpdatedAt);
+    DateTimeOffset? UpdatedAt,
+    int? MainPhotoFileId = null);

@@ -41,6 +41,11 @@ paths:
           in: query
           required: false
           schema: { type: boolean, default: false }
+        - name: active
+          in: query
+          required: false
+          description: true shows only active rows, false only switched-off rows (CAT-018); omitted shows both.
+          schema: { type: boolean }
         - name: sort
           in: query
           required: false
@@ -218,7 +223,7 @@ components:
         severity: { type: integer }
     ProductOverviewPage:
       type: object
-      required: [items, page, pageSize, total, all, sections, withoutPrice]
+      required: [items, page, pageSize, total, all, sections, withoutPrice, inactive]
       properties:
         items:
           type: array
@@ -232,6 +237,7 @@ components:
           description: Rows of the type per section; sectionId null counts rows without a section.
           items: { $ref: '#/components/schemas/ProductSectionCount' }
         withoutPrice: { type: integer, format: int32, description: Rows of the type without a price. }
+        inactive: { type: integer, format: int32, description: Switched-off rows of the type (CAT-018). }
     ProductSectionCount:
       type: object
       required: [sectionId, count]
@@ -240,7 +246,7 @@ components:
         count: { type: integer, format: int32 }
     ProductOverviewItem:
       type: object
-      required: [id, type, code, name, sectionId, season, isActive, currentSiteUrl, quoteDescription, updatedAtUtc, prices, pricesUpdatedAt, problems, variants]
+      required: [id, type, code, name, sectionId, season, isActive, currentSiteUrl, quoteDescription, updatedAtUtc, prices, pricesUpdatedAt, problems, variants, mainPhotoUrl]
       properties:
         id: { type: integer, format: int32, minimum: 1 }
         type: { type: string, enum: [Sewing, Ppe] }
@@ -266,6 +272,9 @@ components:
           type: array
           description: Fabric variants of a sewing model; empty for PPE.
           items: { $ref: '#/components/schemas/ProductOverviewVariant' }
+        mainPhotoUrl:
+          type: [string, 'null']
+          description: Preview (or the full photo when there is no preview) of the main visible product photo (CAT-018); null without photos.
     ProductOverviewVariant:
       type: object
       required: [articleId, saleSku, active, fabricId, fabricName, prices, publishedAt, problems]

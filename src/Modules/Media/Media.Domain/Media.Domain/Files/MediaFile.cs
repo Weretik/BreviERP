@@ -5,6 +5,7 @@ public sealed class MediaFile
 {
     public const int FileNameMaxLength = 255;
     public const int AltMaxLength = 300;
+    public const int SourceKeyMaxLength = 500;
 
     private MediaFile() { }
 
@@ -16,7 +17,8 @@ public sealed class MediaFile
         string storageProvider,
         string storageKey,
         string publicUrl,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        string? sourceKey = null)
     {
         if (sizeInBytes <= 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         FileName = MediaNames.Normalize(fileName, FileNameMaxLength);
@@ -26,6 +28,7 @@ public sealed class MediaFile
         StorageProvider = Required(storageProvider, nameof(storageProvider));
         StorageKey = Required(storageKey, nameof(storageKey));
         PublicUrl = Required(publicUrl, nameof(publicUrl));
+        SourceKey = NormalizeSourceKey(sourceKey);
         CreatedAt = now;
         UpdatedAt = now;
     }
@@ -46,6 +49,9 @@ public sealed class MediaFile
     public string StorageProvider { get; private set; } = null!;
     public string StorageKey { get; private set; } = null!;
     public string PublicUrl { get; private set; } = null!;
+    /// <summary>Where an imported photo came from (for example «old-site:catalog/a.jpg»), so a repeated import skips it; null for uploads.</summary>
+    public string? SourceKey { get; private set; }
+
     public int? Width { get; private set; }
     public int? Height { get; private set; }
 
@@ -91,6 +97,14 @@ public sealed class MediaFile
         if (string.IsNullOrWhiteSpace(alt)) return null;
         var trimmed = alt.Trim();
         if (trimmed.Length > AltMaxLength) throw new ArgumentException($"Alt must not exceed {AltMaxLength} characters.", nameof(alt));
+        return trimmed;
+    }
+
+    private static string? NormalizeSourceKey(string? sourceKey)
+    {
+        if (string.IsNullOrWhiteSpace(sourceKey)) return null;
+        var trimmed = sourceKey.Trim();
+        if (trimmed.Length > SourceKeyMaxLength) throw new ArgumentException($"Source key must not exceed {SourceKeyMaxLength} characters.", nameof(sourceKey));
         return trimmed;
     }
 

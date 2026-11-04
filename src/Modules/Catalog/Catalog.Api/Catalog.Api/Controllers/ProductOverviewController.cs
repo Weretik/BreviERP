@@ -20,7 +20,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
 {
     /// <summary>
     /// One page of a «Товари» tab (CAT-013): searched, filtered, sorted and paged on the server, with published prices
-    /// and fabric variants. section is a section ID or "none".
+    /// and fabric variants. section is a section ID or "none"; active=true/false shows only active or inactive rows.
     /// </summary>
     [HttpGet("overview", Name = "getProductOverview")]
     [Authorize(Policy = "CatalogRead")]
@@ -29,7 +29,8 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
     public async Task<ActionResult<ProductOverviewPage>> Get(
         [FromQuery] string? type, [FromQuery] string? search, [FromQuery] string? section,
         [FromQuery] bool withoutPrice = false, [FromQuery] string? sort = null, [FromQuery] string? direction = null,
-        [FromQuery] int page = 1, [FromQuery] int pageSize = 25, CancellationToken cancellationToken = default)
+        [FromQuery] int page = 1, [FromQuery] int pageSize = 25, [FromQuery] bool? active = null,
+        CancellationToken cancellationToken = default)
     {
         if (!ProductOverviewTypes.TryParse(type, out var productType))
             return BadRequest("type must be Sewing or Ppe.");
@@ -49,7 +50,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
             return BadRequest("direction must be asc or desc.");
 
         return this.ToActionResult(await sender.Send(new GetProductOverviewPageQuery(productType, search, sectionId,
-            withoutSection, withoutPrice, order, direction == "desc", page, pageSize), cancellationToken));
+            withoutSection, withoutPrice, order, direction == "desc", page, pageSize, active), cancellationToken));
     }
 
     /// <summary>One «Товари» row with its prices and fabric variants, for the product card (CAT-013).</summary>

@@ -12,6 +12,8 @@ The one-time sheet import ([CAT-010](../../specs/catalog/010-sheet-product-impor
 
 The «Товари» list is one server request per page ([CAT-013](../../specs/catalog/013-product-list-page/README.md)): `GET /api/v1/products/overview` searches, filters, sorts and pages the rows and returns them with their published prices, fabric variants (with fabric names) and, only when a price is missing, the reasons; `GET /api/v1/products/{id}/overview` returns one row for the card. Nothing is recalculated for the list; PPE rows get the live rule price. Sewing prices are published automatically after every change of their inputs ([CAT-012](../../specs/catalog/012-sewing-price-auto-publication/README.md), see [Sewing pricing](sewing-pricing.md)).
 
+Product photos ([CAT-018](../../specs/catalog/018-product-photos-and-old-site-import/README.md)): `GET/PUT /api/v1/products/{id}/photos` list and save the card tab «Фото» (order, main photo; saving is Admin only); the «Товари» row carries `mainPhotoUrl`, and `active=true|false` filters active or switched-off rows. `POST /api/v1/products/old-site-photo-import` brings old-site photos into the Media folder «Старий сайт» by source key and creates missing sewing models switched off; a dry run first, then parts of 20.
+
 Products and composition lines have no review, «required» or check marks ([CAT-014](../../specs/catalog/014-remove-review-marks/README.md)): nothing blocks a price on review.
 
 The [Sewing Article/composition extension](sewing-composition.md) adds fabric variants (sale SKU + its fabric), shared material inputs and shared operation norms through separate protected operations. Legacy replacement preserves these children and rejects a second editable norm set once new composition is configured.
@@ -43,6 +45,9 @@ src/
     │   ├── Overview/Shared/SewingModelCodes.cs  # next MOD-XXX
     │   ├── Overview/Update/UpdateProductOverviewCommandHandler.cs  # «Товари» page fields
     │   ├── Overview/Shared/ProductSlugCandidates.cs  # slug choices for a new product
+    │   ├── Photos/SetPhotos/SetProductPhotosCommandHandler.cs  # tab «Фото» save (CAT-018)
+    │   ├── Photos/SkuIndex/GetProductSkuIndexQueryHandler.cs  # products by sale SKU for imports
+    │   ├── OldSitePhotoImport/ImportOldSitePhotosCommandHandler.cs  # old-site photos and models (CAT-018)
     │   ├── SheetImport/ImportSheetProductsCommandHandler.cs  # sheet import (CAT-010)
     │   ├── SheetImport/Planning/SheetImportPlanner.cs  # pure plan and report
     │   └── Update/ReplaceProductCommandHandler.cs  # use case handler
@@ -50,6 +55,7 @@ src/
     │   ├── Ppe/PpeProductDetails.cs  # domain model
     │   ├── Product.cs  # domain model
     │   ├── Product.Overview.cs  # code and «Товари» page fields
+    │   ├── Product.PhotoList.cs  # photo order and main photo (CAT-018)
     │   ├── ProductCatalogProfile.cs  # sheet row fields, section ID
     │   └── Sewing/SewingProductDetails.cs  # domain model
     ├── Catalog.Infrastructure/Catalog.Infrastructure/Products/SheetImport/SheetProductImportStore.cs  # one-transaction import write
@@ -74,8 +80,8 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`, `ProductOverviewListingTests.cs`), `tests/UnitTests/CatalogProductCreation*Tests.cs`, `tests/UnitTests/CatalogSheetImport*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests)
-- `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`, `tests/IntegrationTests/CatalogSheetImportStoreTests.cs` (list page, prices and automatic publication)
+- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`, `ProductOverviewListingTests.cs`), `tests/UnitTests/CatalogProductCreation*Tests.cs`, `tests/UnitTests/CatalogSheetImport*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests), `tests/UnitTests/ProductPhotoListTests.cs`, `tests/UnitTests/OldSitePhotoImportTests.cs`
+- `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`, `tests/IntegrationTests/CatalogSheetImportStoreTests.cs` (list page, prices and automatic publication), `tests/IntegrationTests/ProductPhotoPersistenceTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product` (covers `CatalogProductCreation`); `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter Product` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 
@@ -83,4 +89,4 @@ Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product` (co
 
 ## Related Sources
 
-[OpenAPI](../../contracts/catalog/product-catalog.openapi.yaml) · [Overview OpenAPI](../../contracts/catalog/product-overview.openapi.yaml) · [Current SDD](../../specs/catalog/001-product-page/README.md).
+[OpenAPI](../../contracts/catalog/product-catalog.openapi.yaml) · [Overview OpenAPI](../../contracts/catalog/product-overview.openapi.yaml) · [Photos OpenAPI](../../contracts/catalog/product-photos.openapi.yaml) · [Current SDD](../../specs/catalog/001-product-page/README.md).

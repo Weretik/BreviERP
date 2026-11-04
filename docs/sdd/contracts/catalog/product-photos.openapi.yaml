@@ -1,0 +1,180 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Product Photos API
+  version: 1.0.0
+  description: >-
+    The tab «Фото» of a product card and the photo import from the old site (CAT-018). Photos are Media library files;
+    a product keeps their ids, order and the main one. Quotes (КП) and the «Товари» list show the main visible photo.
+servers:
+  - url: /
+paths:
+  /api/v1/products/{id}/photos:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    get:
+      operationId: getProductPhotos
+      summary: Photos of a product in display order
+      description: CatalogRead. Every staff member who reads the catalogue sees the photos.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: The photos.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductPhotoList' }
+        '400': { description: Invalid id. }
+        '401': { description: Unauthorized. }
+        '403': { description: CatalogRead required. }
+        '404': { description: Product not found. }
+    put:
+      operationId: setProductPhotos
+      summary: Saves the photos of a product
+      description: >-
+        Admin only (the Director also holds Admin). The product gets exactly these library photos in this order;
+        photos that stay keep their alt text and visibility. mainMediaFileId null keeps the current main photo or
+        makes the first one main.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SetProductPhotosRequest' }
+      responses:
+        '200':
+          description: The saved photos.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductPhotoList' }
+        '400': { description: 'More than 60 photos, a repeated photo, or a main photo outside the list.' }
+        '401': { description: Unauthorized. }
+        '403': { description: Admin required. }
+        '404': { description: Product not found. }
+        '409': { description: A photo is not in the Media library. }
+  /api/v1/products/old-site-photo-import:
+    post:
+      operationId: importOldSitePhotos
+      summary: Photos and missing sewing models from the old site
+      description: >-
+        Admin only. A product is found by an old-site SKU (article SKUs of a sewing model, the site article of PPE) or
+        by newModel name; a missing sewing model with newModel is created switched off. Photos are downloaded from
+        baseUrl + path into the Media folder «Старий сайт» (old subfolders kept) and added after the product's own
+        photos; the old main photo becomes main only for a product without photos. dryRun reports and changes
+        nothing; a real run takes at most 20 products, so the admin page sends the file in parts. A repeat adds
+        nothing twice.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImportOldSitePhotosRequest' }
+      responses:
+        '200':
+          description: The report.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OldSitePhotoImportReport' }
+        '400': { description: 'Invalid file, more than 20 products in a real run, or baseUrl not https.' }
+        '401': { description: Unauthorized. }
+        '403': { description: Admin required. }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    ProductPhotoList:
+      type: object
+      required: [productId, photos]
+      properties:
+        productId: { type: integer, format: int32 }
+        photos:
+          type: array
+          items: { $ref: '#/components/schemas/ProductPhotoItem' }
+    ProductPhotoItem:
+      type: object
+      required: [mediaFileId, fileName, url, thumbnailUrl, isMain, sortOrder, missing]
+      properties:
+        mediaFileId: { type: integer, format: int32 }
+        fileName: { type: [string, 'null'] }
+        url: { type: [string, 'null'] }
+        thumbnailUrl: { type: [string, 'null'] }
+        isMain: { type: boolean }
+        sortOrder: { type: integer, format: int32 }
+        missing: { type: boolean, description: The library no longer has the file; then the URLs are null. }
+    SetProductPhotosRequest:
+      type: object
+      required: [mediaFileIds, mainMediaFileId]
+      properties:
+        mediaFileIds:
+          type: array
+          maxItems: 60
+          items: { type: integer, format: int32, minimum: 1 }
+        mainMediaFileId: { type: [integer, 'null'], format: int32 }
+    ImportOldSitePhotosRequest:
+      type: object
+      required: [dryRun, baseUrl, products]
+      properties:
+        dryRun: { type: boolean }
+        baseUrl: { type: string, description: 'https address of the old image folder, ending with /.' }
+        products:
+          type: array
+          items: { $ref: '#/components/schemas/OldSiteProduct' }
+    OldSiteProduct:
+      type: object
+      required: [oldId, oldName, skus, photos, newModel]
+      properties:
+        oldId: { type: integer, format: int32 }
+        oldName: { type: string }
+        skus: { type: array, items: { type: string } }
+        photos:
+          type: array
+          items: { $ref: '#/components/schemas/OldSitePhoto' }
+        newModel:
+          oneOf: [{ $ref: '#/components/schemas/OldSiteNewModel' }, { type: 'null' }]
+    OldSitePhoto:
+      type: object
+      required: [path, isMain]
+      properties:
+        path: { type: string }
+        isMain: { type: boolean }
+    OldSiteNewModel:
+      type: object
+      required: [name, section, season]
+      properties:
+        name: { type: string }
+        section: { type: string, description: Name of a sewing section of «Типи і розділи». }
+        season: { type: [string, 'null'], enum: ['Літо', 'Зима', null] }
+    OldSitePhotoImportReport:
+      type: object
+      required: [dryRun, products, found, modelsToCreate, modelsCreated, notFound, filesToDownload, filesDownloaded, photosAdded, lines]
+      properties:
+        dryRun: { type: boolean }
+        products: { type: integer, format: int32 }
+        found: { type: integer, format: int32 }
+        modelsToCreate: { type: integer, format: int32, description: Dry run only. }
+        modelsCreated: { type: integer, format: int32 }
+        notFound: { type: integer, format: int32 }
+        filesToDownload: { type: integer, format: int32, description: Files of this request not yet in the library. }
+        filesDownloaded: { type: integer, format: int32 }
+        photosAdded: { type: integer, format: int32 }
+        lines:
+          type: array
+          items: { $ref: '#/components/schemas/OldSitePhotoImportLine' }
+    OldSitePhotoImportLine:
+      type: object
+      required: [oldId, oldName, status, productId, productName, photosToAdd, photosAdded, errors]
+      properties:
+        oldId: { type: integer, format: int32 }
+        oldName: { type: string }
+        status: { type: string, enum: [Found, Create, Created, NotFound] }
+        productId: { type: [integer, 'null'], format: int32 }
+        productName: { type: [string, 'null'] }
+        photosToAdd: { type: integer, format: int32 }
+        photosAdded: { type: integer, format: int32 }
+        errors: { type: array, items: { type: string } }

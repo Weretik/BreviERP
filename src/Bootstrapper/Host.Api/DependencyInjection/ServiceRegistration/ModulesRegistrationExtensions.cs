@@ -54,6 +54,7 @@ public static class ModuleRegistrationsExtensions
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
         services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();
+        services.AddHttpClient<IProductPhotoSource, CatalogProductPhotoSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddScoped<IMediaUsageReader, MediaProductUsageReader>();
         services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
         services.AddScoped<IProductSectionReader, CatalogProductSectionReader>();

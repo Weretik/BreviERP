@@ -5,6 +5,6 @@ Code model reviewed 2026-11-03. `Media.Infrastructure.Persistence.MediaDbContext
 | Table | Identity / relationships / purpose |
 | --- | --- |
 | Folders | Generated int id. Name (120), nullable ParentId FK → Folders (restrict), CreatedAt, UpdatedAt. Index ParentId. Sibling names are unique ignoring case (checked by the handlers) |
-| Files | Generated int id, the same ids as the old `catalog.MediaFiles`. FileName (255), Alt (300), nullable FolderId FK → Folders (restrict), ContentType, SizeInBytes, StorageProvider, unique StorageKey, PublicUrl, Width, Height, ThumbnailStorageKey (500), ThumbnailUrl (1000), ImageProcessedAt (null until size and preview are made), CreatedAt, UpdatedAt. Indexes FolderId and a filtered index on `ImageProcessedAt IS NULL` for the nightly backfill |
+| Files | Generated int id, the same ids as the old `catalog.MediaFiles`. FileName (255), Alt (300), nullable FolderId FK → Folders (restrict), ContentType, SizeInBytes, StorageProvider, unique StorageKey, PublicUrl, Width, Height, ThumbnailStorageKey (500), ThumbnailUrl (1000), ImageProcessedAt (null until size and preview are made), SourceKey (500, unique when set: where an imported photo came from, e.g. `old-site:catalog/a.jpg`, CAT-018), CreatedAt, UpdatedAt. Indexes FolderId and a filtered index on `ImageProcessedAt IS NULL` for the nightly backfill |
 
 `catalog.ProductPhotos.MediaFileId` stores a `media.Files.Id` as a value; there is no foreign key between the schemas.
