@@ -10,7 +10,7 @@ internal static class QuoteResponseMapper
         quote.RecipientName, quote.CompanyName, quote.ClientComment, quote.ManagerNote,
         new QuotePersonResponse(quote.AuthorUserId, quote.AuthorName),
         new QuotePersonResponse(quote.ResponsibleUserId, quote.ResponsibleName),
-        quote.CreatedAt, quote.UpdatedAt, quote.Version,
+        quote.CreatedAt, quote.UpdatedAt, quote.LastSentAt, quote.Version,
         quote.Items.OrderBy(x => x.Position).Select(ToResponse).ToArray());
 
     private static QuoteItemResponse ToResponse(QuoteItem item) => new(

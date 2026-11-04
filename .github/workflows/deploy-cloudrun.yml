@@ -29,7 +29,11 @@ env:
   CATALOG_IMPORT_BUCKET: brevistoreapi-catalog-import
   CATALOG_IMPORT_SOURCE_SHA256: 24ea80bd240f95d468396a1c1c87c7cfba31058b422d0b4012cbb4825f5ff687
   CATALOG_IMPORT_DB_SECRET_VERSION: '1'
-  # Gmail activation is a separate release decision; preserve a send-disabled deployment by default.
+  # КП Gmail sending (R-15): set to 'true' only after the secrets crm-gmail-client-id and crm-gmail-client-secret
+  # exist in Secret Manager; while 'false' the API runs with Gmail off («Підключити Gmail» explains why).
+  CRM_GMAIL_ENABLED: 'false'
+  CRM_GMAIL_CLIENT_ID_SECRET: crm-gmail-client-id
+  CRM_GMAIL_CLIENT_SECRET_SECRET: crm-gmail-client-secret
   TELEGRAM_TOKEN_SECRET: telegram-reminders-bot-token
   KEEPIN_API_KEY_SECRET: keepincrm-api-key
   TELEGRAM_WEBHOOK_SECRET: telegram-reminders-webhook-secret
@@ -199,6 +203,10 @@ jobs:
           SECRETS="${SECRETS},KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest"
           SECRETS="${SECRETS},TrustedProxy__SharedSecret=${API_PROXY_SECRET}:latest"
           SECRETS="${SECRETS}${SUPPLIER_CABINET_SECRETS}"
+          if [ "$CRM_GMAIL_ENABLED" = "true" ]; then
+            SECRETS="${SECRETS},Crm__Gmail__ClientId=${CRM_GMAIL_CLIENT_ID_SECRET}:latest"
+            SECRETS="${SECRETS},Crm__Gmail__ClientSecret=${CRM_GMAIL_CLIENT_SECRET_SECRET}:latest"
+          fi
           gcloud run deploy "$API_SERVICE" \
             --image "$API_IMAGE" \
             --region "$GCP_REGION" \

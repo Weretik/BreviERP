@@ -54,6 +54,10 @@ public sealed class Quote
     public string ResponsibleName { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
+
+    /// <summary>When the КП was last sent by Gmail (R-15); null for a draft.</summary>
+    public DateTimeOffset? LastSentAt { get; private set; }
+
     public int Version { get; private set; }
 
     public IReadOnlyList<QuoteItem> Items => _items;
@@ -71,6 +75,14 @@ public sealed class Quote
     {
         ResponsibleUserId = person.UserId;
         ResponsibleName = person.Name;
+        Touch(now);
+    }
+
+    /// <summary>Gmail accepted the letter: the КП is sent. It can still be edited and sent again.</summary>
+    public void MarkSent(DateTimeOffset now)
+    {
+        Status = QuoteStatus.Sent;
+        LastSentAt = now;
         Touch(now);
     }
 

@@ -17,8 +17,8 @@ using Microsoft.Extensions.Options;
 namespace HostApiTests;
 
 /// <summary>
-/// Access rules of every real module controller: only sign-in, the Telegram webhook and the public storefront
-/// categories are open; everything else needs a signed-in user, and admin data needs a staff role.
+/// Access rules of every real module controller: only sign-in, the Telegram webhook, the Gmail consent callback and the
+/// public storefront categories are open; everything else needs a signed-in user, and admin data needs a staff role.
 /// </summary>
 public sealed class ApiAccessTests
 {
@@ -26,6 +26,7 @@ public sealed class ApiAccessTests
     [
         "POST api/auth/cookie/login",
         "POST api/reminders/telegram/webhook",
+        "GET api/crm/mailboxes/google-callback",
         "GET api/reference/product-categories/store/{language}"
     ];
 

@@ -1,5 +1,6 @@
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Staff;
+using Crm.Application.Tasks.Staff;
 using Crm.Infrastructure.DependencyInjection;
 using Host.Api.Crm;
 using Accounting.Infrastructure.DependencyInjection;
@@ -38,6 +39,7 @@ public static class ModuleRegistrationsExtensions
         services.AddCrmKeepinCrmSync(configuration);
         services.AddScoped<IQuoteCatalogReader, QuoteCatalogReader>();
         services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();
+        services.AddScoped<ITaskStaffReader, TaskStaffReader>();
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
         services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();

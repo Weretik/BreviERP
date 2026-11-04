@@ -11,7 +11,8 @@ public sealed record QuoteSummaryResponse(
     string? CompanyName,
     QuotePersonResponse Responsible,
     int ItemsCount,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    DateTimeOffset? LastSentAt);
 
 public sealed record QuotePageResponse(IReadOnlyList<QuoteSummaryResponse> Items, int Page, int PageSize, int Total);
 
@@ -30,6 +31,7 @@ public sealed record QuoteResponse(
     QuotePersonResponse Responsible,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
+    DateTimeOffset? LastSentAt,
     int Version,
     IReadOnlyList<QuoteItemResponse> Items);
 
