@@ -194,6 +194,118 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role required. }
         "404": { description: Not found or not visible to the actor. }
+  /api/crm/quotes/{id}/send-draft:
+    parameters:
+      - $ref: "#/components/parameters/QuoteId"
+    get:
+      operationId: getCrmQuoteSendDraft
+      security:
+        - bearerAuth: []
+      description: >-
+        «Надіслати КП» (R-15): the signed-in person's connected Gmail (null until connected), whether Gmail is configured
+        on the server, the PDF file name, and the letters (template from the settings first, then the letter variants)
+        with {quoteNumber}, {managerName}, {managerPhone}, {managerEmail}, {site} filled with the sender's КП contact.
+      responses:
+        "200":
+          description: Draft.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteSendDraft" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+  /api/crm/quotes/{id}/send:
+    parameters:
+      - $ref: "#/components/parameters/QuoteId"
+    post:
+      operationId: sendCrmQuote
+      security:
+        - bearerAuth: []
+      description: >-
+        Sends the PDF of the saved КП of exactly `version` from the signed-in person's Gmail. On success the КП becomes
+        Sent with `lastSentAt` and its version grows; it can be edited and sent again. Any failure (no Gmail, Gmail
+        refused, stale version) leaves the КП as it was and returns 409 with the reason.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSendQuoteInput" }
+      responses:
+        "200":
+          description: Sent.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuote" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/mailboxes/{userId}/connect:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1 }
+    post:
+      operationId: connectCrmMailbox
+      security:
+        - bearerAuth: []
+      description: >-
+        «Підключити Gmail»: the Google consent address (openid, email and gmail.send only). Admin (Director) for any
+        staff member, a Manager only for themselves. The Admin opens it in the same tab; Google returns to
+        `google-callback`, which redirects to `returnPath` with `gmail=connected` or `gmail=error&reason=…`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [returnPath]
+              properties:
+                returnPath: { type: string, maxLength: 200, description: "An Admin path under /crm/." }
+      responses:
+        "200":
+          description: Consent address.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [consentUrl]
+                properties:
+                  consentUrl: { type: string, format: uri }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Only for yourself unless Admin. }
+        "404": { description: Staff member not found or blocked. }
+        "409": { description: "Gmail is not configured on the server; errors are Ukrainian strings." }
+  /api/crm/mailboxes/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1 }
+    delete:
+      operationId: disconnectCrmMailbox
+      security:
+        - bearerAuth: []
+      description: Forgets the connected Gmail (Admin for anyone, a Manager for themselves).
+      responses:
+        "204": { description: Disconnected or was not connected. }
+        "401": { description: Authentication required. }
+        "403": { description: Only for yourself unless Admin. }
+  /api/crm/mailboxes/google-callback:
+    get:
+      operationId: crmMailboxGoogleCallback
+      description: >-
+        Google OAuth callback, anonymous; the signed state carries the staff member. Stores the Gmail address and the
+        encrypted refresh token, then redirects to the Admin. Not called by the Admin code.
+      parameters:
+        - { name: code, in: query, schema: { type: string } }
+        - { name: state, in: query, schema: { type: string } }
+        - { name: error, in: query, schema: { type: string } }
+      responses:
+        "302": { description: Back to the Admin with gmail=connected or gmail=error&reason=expired|denied|google|twice. }
   /api/crm/quote-settings:
     get:
       operationId: getCrmQuoteSettings
@@ -430,6 +542,7 @@ components:
         responsible: { $ref: "#/components/schemas/CrmQuotePerson" }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
+        lastSentAt: { type: [string, "null"], format: date-time, description: Last time Gmail accepted the КП. }
         version: { type: integer }
         items:
           type: array
@@ -447,6 +560,7 @@ components:
         responsible: { $ref: "#/components/schemas/CrmQuotePerson" }
         itemsCount: { type: integer }
         updatedAt: { type: string, format: date-time }
+        lastSentAt: { type: [string, "null"], format: date-time }
     CrmQuotePage:
       type: object
       required: [items, page, pageSize, total]
@@ -609,6 +723,7 @@ components:
         name: { type: string, description: Name shown to the client. }
         phone: { type: [string, "null"] }
         email: { type: [string, "null"] }
+        mailboxEmail: { type: [string, "null"], description: Connected Gmail КП are sent from; null until connected. }
     CrmQuoteStaffContactInput:
       type: object
       required: [userId, name]
@@ -656,3 +771,29 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    CrmQuoteLetter:
+      type: object
+      required: [name, subject, body]
+      properties:
+        name: { type: string }
+        subject: { type: string }
+        body: { type: string }
+    CrmQuoteSendDraft:
+      type: object
+      required: [fromName, gmailConfigured, fileName, letters]
+      properties:
+        fromEmail: { type: [string, "null"], format: email }
+        fromName: { type: string }
+        gmailConfigured: { type: boolean }
+        fileName: { type: string }
+        letters:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteLetter" }
+    CrmSendQuoteInput:
+      type: object
+      required: [version, to, subject, body]
+      properties:
+        version: { type: integer, minimum: 1 }
+        to: { type: string, maxLength: 2000, description: "1 to 10 addresses separated by commas, semicolons or spaces." }
+        subject: { type: string, maxLength: 300, description: One line. }
+        body: { type: string, maxLength: 10000, description: Plain text. }

@@ -258,6 +258,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<DateTimeOffset?>("LastSentAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ManagerNote")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
@@ -517,6 +520,85 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.Sending.QuoteSending", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("FromEmail")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("ProviderMessageId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("QuoteVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SenderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("SenderUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("To")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuoteId", "SentAt");
+
+                    b.ToTable("QuoteSendings", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Sending.StaffMailbox", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ConnectedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ConnectedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("ProtectedRefreshToken")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("StaffMailboxes", "crm");
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Settings.QuoteSettings", b =>
                 {
                     b.Property<int>("Id")
@@ -665,6 +747,15 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasOne("Crm.Domain.Quotes.QuoteItem", null)
                         .WithMany("Options")
                         .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Sending.QuoteSending", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

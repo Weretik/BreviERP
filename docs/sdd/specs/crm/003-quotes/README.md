@@ -47,6 +47,8 @@ Stage 2 design: one `crm.QuoteSettings` row (sections as jsonb, `Version` concur
 
 - **R-15:** Each manager sends from their own Gmail address, connected once in «Налаштування КП» (the Director presses «Підключити» for a manager, the manager grants Google send access once; the Google OAuth app the owner already created for the earlier single sender is reused). Sending shows the recipient, subject and text (editable), attaches the PDF of the saved КП and on success marks the КП sent with the date. A failure leaves it a draft and shows the reason.
 
+Stage 3 design: Google OAuth web client with `openid email gmail.send` only (no reading of mail). «Підключити Gmail» (`POST /api/crm/mailboxes/{userId}/connect`, the Director or Admin for anyone, a manager for themselves) returns the consent address with a signed 15-minute state; Google calls `GET /api/crm/mailboxes/google-callback`, which stores the verified address and the refresh token encrypted by Data Protection in `crm.StaffMailboxes` and redirects to the Admin. A manager sends from their own connected Gmail, not the responsible person's: `GET …/send-draft` gives the letters (template first, then variants) with marks filled from the sender's КП contact; `POST …/send` with the shown version builds the PDF exactly as R-14, sends it through the Gmail upload endpoint and only then records `crm.QuoteSendings`, sets Sent and `LastSentAt`. A sent КП can be edited and sent again; only drafts can be deleted. Without the Google client id and secret Gmail is off and both actions say so ([setup](../../../operations/configuration/crm-gmail.md)). An empty saved phone or email of a КП contact now falls back to the account.
+
 ### Stage 4 — introduction КП
 
 - **R-16:** General layout: page «Літній спецодяг» with the fixed main model «Імпульс» and page «Зимовий спецодяг» with «Прайм»; summer or winter layouts have one page. Each page needs three more distinct active models of that season and one fabric per model with a від 41 шт. price.
@@ -105,6 +107,9 @@ Contract: [crm/quotes.openapi.yaml](../../../contracts/crm/quotes.openapi.yaml).
 | `repriceCrmQuote` | `POST /api/crm/quotes/{id}/reprice` with `version`, `apply` |
 | `searchCrmQuoteCatalog` | `GET /api/crm/quote-lookups/catalog?kind=Sewing\|Ppe&search=&page=&pageSize=` |
 | `getCrmQuoteStaff` | `GET /api/crm/quote-lookups/staff` (Admin) |
+| `getCrmQuoteSendDraft` | `GET /api/crm/quotes/{id}/send-draft` (stage 3) |
+| `sendCrmQuote` | `POST /api/crm/quotes/{id}/send` with `version`, `to`, `subject`, `body`; 409 with the reason on failure |
+| `connectCrmMailbox` / `disconnectCrmMailbox` | `POST /api/crm/mailboxes/{userId}/connect` with `returnPath`, `DELETE /api/crm/mailboxes/{userId}` |
 
 Every command and query with input has a FluentValidation validator (lengths, ranges, paging, item kinds, no manual sewing price, one row for PPE, one recommended variant); Catalog-dependent rules (active product, published price, manual reason) are checked by `QuoteItemsBuilder` and return 409 or 400 with a Ukrainian message.
 
@@ -118,7 +123,7 @@ The file map is in the [feature card](../../../features/crm/clients-and-quotes.m
 | --- | --- | --- |
 | 1 | Backend in Crm and Admin pages «КП» (list) and «Товари та ціни» (editor): R-01–R-12 | done 2026-11-04 |
 | 2 | «Налаштування КП» and PDF: R-13, R-14 | done 2026-11-04 |
-| 3 | Gmail per manager and sending: R-15 | planned |
+| 3 | Gmail per manager and sending: R-15 | done 2026-11-04 |
 | 4 | КП для знайомства and templates: R-16, R-17 | planned |
 | 5 | Composition editing with recalculation, model from scratch, history, archive, copy | planned |
 | 6 | Old КП import (if feasible) | planned |

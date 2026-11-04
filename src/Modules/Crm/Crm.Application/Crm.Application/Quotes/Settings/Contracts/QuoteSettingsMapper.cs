@@ -5,7 +5,8 @@ namespace Crm.Application.Quotes.Settings.Contracts;
 
 public static class QuoteSettingsMapper
 {
-    public static QuoteSettingsResponse ToResponse(this QuoteSettings? saved, IReadOnlyList<QuoteStaffMember> staff)
+    public static QuoteSettingsResponse ToResponse(this QuoteSettings? saved, IReadOnlyList<QuoteStaffMember> staff,
+        IReadOnlyDictionary<int, string> mailboxes)
     {
         var content = saved?.Content ?? QuoteSettingsDefaults.Content;
         return new QuoteSettingsResponse(
@@ -17,15 +18,16 @@ public static class QuoteSettingsMapper
             ToDto(content.Pdf),
             ToDto(content.Introduction),
             content.LetterVariants.Select(x => new QuoteLetterVariantDto(x.Name, x.Subject, x.Body)).ToArray(),
-            staff.Select(member => ToResponse(member, saved?.ContactOf(member.UserId))).ToArray());
+            staff.Select(member => ToResponse(member, saved?.ContactOf(member.UserId), mailboxes.GetValueOrDefault(member.UserId)))
+                .ToArray());
     }
 
-    /// <summary>The contact a client sees: the saved one, else the account's name, phone and email.</summary>
+    /// <summary>The contact a client sees: the saved one; its empty phone or email, or a missing contact, use the account.</summary>
     public static QuoteStaffContact ContactOrAccount(QuoteStaffMember member, QuoteStaffContact? saved) =>
         new(member.UserId,
             saved?.Name ?? member.Name,
-            saved is null ? member.Phone : saved.Phone,
-            saved is null ? member.Email : saved.Email);
+            saved?.Phone ?? member.Phone,
+            saved?.Email ?? member.Email);
 
     public static QuoteSettingsContent ToContent(this SaveQuoteSettingsInput input) =>
         new(
@@ -49,11 +51,13 @@ public static class QuoteSettingsMapper
                 .Select(x => new QuoteStaffContact(x.UserId, Text(x.Name) ?? "", Text(x.Phone), Text(x.Email)))
                 .ToArray());
 
-    private static QuoteStaffContactResponse ToResponse(QuoteStaffMember member, QuoteStaffContact? saved)
+    /// <summary>The page edits what was saved; before that it starts from the account.</summary>
+    private static QuoteStaffContactResponse ToResponse(QuoteStaffMember member, QuoteStaffContact? saved,
+        string? mailbox)
     {
-        var contact = ContactOrAccount(member, saved);
+        var contact = saved ?? new QuoteStaffContact(member.UserId, member.Name, member.Phone, member.Email);
         return new QuoteStaffContactResponse(member.UserId, member.Name, member.Email, contact.Name, contact.Phone,
-            contact.Email);
+            contact.Email, mailbox);
     }
 
     private static QuoteCompanyDto ToDto(QuoteCompanyDetails x) =>
