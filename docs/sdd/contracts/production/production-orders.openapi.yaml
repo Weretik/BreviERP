@@ -1,0 +1,971 @@
+openapi: 3.1.0
+info:
+  title: 'Production: orders'
+  version: 1.0.0
+  description: 'Stage 2 of «Швейний цех» (PRD-002): «Виробничі завдання» created from sent КП. Manager: creates from own КП,
+    edits own orders, never sees the sewing rate or КП price kept for reports. WorkshopChief: sees and edits every order with
+    the rate, without КП prices. Admin (the director also holds Admin): everything, alone deletes and moves old orders.'
+servers:
+- url: /
+security:
+- Bearer: []
+paths:
+  /api/production/orders:
+    get:
+      tags:
+      - Production
+      operationId: getProductionOrders
+      summary: Not deleted orders, newest number first; counts by status ignore the status filter
+      parameters:
+      - in: query
+        name: search
+        required: false
+        schema:
+          type: string
+          maxLength: 200
+      - in: query
+        name: status
+        required: false
+        schema:
+          type: string
+          enum:
+          - New
+          - Closed
+          - Cancelled
+      - in: query
+        name: manager
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: dueTo
+        required: false
+        schema: &id004
+          type: string
+          format: date
+      - in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 50
+      responses:
+        '200':
+          description: A page of orders.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrderPageResponse'
+        '400':
+          description: Unknown status or wrong page.
+        '401': &id001
+          description: Unauthenticated.
+        '403': &id002
+          description: Manager, WorkshopChief or Admin role required (policy CanUseProductionOrders).
+    post:
+      tags:
+      - Production
+      operationId: createProductionOrder
+      summary: '«Передати в цех»: an order from a sent КП; a repeat with the same requestId returns the same order'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductionOrderInput'
+      responses:
+        '200':
+          description: The order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrderResponse'
+        '400':
+          description: Wrong fields, an item or fabric variant not in the КП, or a variant twice.
+        '404':
+          description: The КП is missing or not the manager’s own.
+        '409':
+          description: The КП is not sent or is archived.
+        '401': *id001
+        '403': *id002
+  /api/production/orders/quote-sources:
+    get:
+      tags:
+      - Production
+      operationId: getProductionQuoteSources
+      summary: 'Sent КП «під запит» the person may pass to the workshop (Manager: own; Admin: all)'
+      parameters:
+      - in: query
+        name: search
+        required: false
+        schema:
+          type: string
+          maxLength: 200
+      responses:
+        '200':
+          description: КП.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductionQuoteSourceResponse'
+        '401': *id001
+        '403': *id002
+  /api/production/orders/quote-sources/{quoteId}:
+    parameters:
+    - in: path
+      name: quoteId
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    get:
+      tags:
+      - Production
+      operationId: getProductionQuoteDraft
+      summary: 'The КП for the order form: sewn items, fabric variants, workshop norm and (not for managers) the sewing rate'
+      responses:
+        '200':
+          description: The КП.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionQuoteDraftResponse'
+        '404':
+          description: КП not found or not the manager’s own.
+        '409':
+          description: The КП is not sent or is archived.
+        '401': *id001
+        '403': *id002
+  /api/production/orders/import:
+    post:
+      tags:
+      - Production
+      operationId: importProductionOrders
+      summary: 'Admin: move orders of the old «Цех»; with dryRun only a preview. A list with any wrong order saves nothing'
+      parameters:
+      - in: query
+        name: dryRun
+        required: false
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductionOrderImportRow'
+      responses:
+        '200':
+          description: What was or would be moved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrderImportResult'
+        '400':
+          description: Wrong rows.
+        '401': *id001
+        '403': *id002
+  /api/production/orders/{id}:
+    parameters:
+    - &id003
+      in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    get:
+      tags:
+      - Production
+      operationId: getProductionOrder
+      summary: An order with its items; prices are hidden by role
+      responses:
+        '200':
+          description: The order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrderResponse'
+        '404':
+          description: Not found or deleted.
+        '401': *id001
+        '403': *id002
+    put:
+      tags:
+      - Production
+      operationId: updateProductionOrder
+      summary: Save the header and item details; every changed field goes to «Історія змін»
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductionOrderInput'
+      responses:
+        '200':
+          description: The order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrderResponse'
+        '400':
+          description: Wrong fields or an item not in the order.
+        '404':
+          description: Not found.
+        '409':
+          description: The order was changed since it was read.
+        '401': *id001
+        '403': *id002
+    delete:
+      tags:
+      - Production
+      operationId: deleteProductionOrder
+      summary: 'Admin: remove the order from the lists; its history stays'
+      parameters:
+      - in: query
+        name: version
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '204':
+          description: No content.
+        '404':
+          description: Not found.
+        '409':
+          description: Stale version.
+        '401': *id001
+        '403': *id002
+  /api/production/orders/{id}/history:
+    parameters:
+    - *id003
+    get:
+      tags:
+      - Production
+      operationId: getProductionOrderHistory
+      summary: «Історія змін», newest first
+      responses:
+        '200':
+          description: Changes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductionOrderChangeResponse'
+        '404':
+          description: Not found.
+        '401': *id001
+        '403': *id002
+  /api/production/orders/{id}/copy:
+    parameters:
+    - *id003
+    post:
+      tags:
+      - Production
+      operationId: copyProductionOrder
+      summary: '«Копіювати»: a new «Нове» order of the person who copies, dated today'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyProductionOrderInput'
+      responses:
+        '200':
+          description: The copy.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrderResponse'
+        '404':
+          description: Not found.
+        '401': *id001
+        '403': *id002
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    ItemApplicationInput:
+      type: object
+      required:
+      - kind
+      properties:
+        kind:
+          type: string
+          enum:
+          - Embroidery
+          - Print
+        place:
+          type:
+          - string
+          - 'null'
+          maxLength: 300
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 300
+        color:
+          type:
+          - string
+          - 'null'
+          maxLength: 300
+    ProductionItemDetailsInput:
+      type: object
+      required:
+      - quantity
+      - dueDate
+      - mainColor
+      - additionalColors
+      - applications
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100000
+        dueDate: *id004
+        mainColor:
+          type: string
+          maxLength: 80
+        additionalColors:
+          type: array
+          maxItems: 2
+          items:
+            type: string
+            maxLength: 80
+        sizesText:
+          type:
+          - string
+          - 'null'
+          maxLength: 4000
+        technicalChanges:
+          type:
+          - string
+          - 'null'
+          maxLength: 4000
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 4000
+        applications:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/ItemApplicationInput'
+    CreateProductionItemInput:
+      type: object
+      required:
+      - quoteItemId
+      - quoteOptionId
+      - details
+      properties:
+        quoteItemId: &id005
+          type: integer
+        quoteOptionId: *id005
+        details:
+          $ref: '#/components/schemas/ProductionItemDetailsInput'
+    CreateProductionOrderInput:
+      type: object
+      required:
+      - requestId
+      - quoteId
+      - clientName
+      - orderDate
+      - priceTier
+      - items
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        quoteId: *id005
+        clientName:
+          type: string
+          maxLength: 300
+        orderDate: *id004
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 4000
+        priceTier:
+          type: string
+          enum:
+          - Retail
+          - Wholesale
+          - Large
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/CreateProductionItemInput'
+    UpdateProductionItemInput:
+      type: object
+      required:
+      - id
+      - details
+      properties:
+        id: *id005
+        details:
+          $ref: '#/components/schemas/ProductionItemDetailsInput'
+        sewingRate:
+          type: &id006
+          - number
+          - 'null'
+          description: Applied only for Admin and the head of the workshop; null clears it.
+    UpdateProductionOrderInput:
+      type: object
+      required:
+      - version
+      - clientName
+      - orderDate
+      - items
+      properties:
+        version: *id005
+        clientName:
+          type: string
+          maxLength: 300
+        orderDate: *id004
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 4000
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateProductionItemInput'
+    CopyProductionOrderInput:
+      type: object
+      required:
+      - requestId
+      properties:
+        requestId:
+          type: string
+          format: uuid
+    ProductionItemImportRow:
+      type: object
+      required:
+      - modelName
+      - details
+      properties:
+        modelCode:
+          type:
+          - string
+          - 'null'
+          maxLength: 32
+        modelName:
+          type: string
+          maxLength: 300
+        fabricCode:
+          type:
+          - string
+          - 'null'
+          maxLength: 32
+        fabricName:
+          type:
+          - string
+          - 'null'
+          maxLength: 300
+        sewingRate: &id007
+          type: *id006
+        details:
+          $ref: '#/components/schemas/ProductionItemDetailsInput'
+    ProductionOrderImportRow:
+      type: object
+      required:
+      - legacyId
+      - number
+      - clientName
+      - managerName
+      - status
+      - orderDate
+      - items
+      properties:
+        legacyId:
+          type: string
+          maxLength: 64
+        number: *id005
+        quoteNumber:
+          type:
+          - string
+          - 'null'
+          maxLength: 40
+        clientName:
+          type: string
+          maxLength: 300
+        managerEmail:
+          type:
+          - string
+          - 'null'
+        managerName:
+          type: string
+          maxLength: 200
+        status:
+          type: string
+          enum:
+          - New
+          - Closed
+          - Cancelled
+        orderDate: *id004
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 4000
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionItemImportRow'
+    ProductionOrderSummaryResponse:
+      type: object
+      required:
+      - id
+      - number
+      - status
+      - clientName
+      - quoteId
+      - quoteNumber
+      - managerName
+      - orderDate
+      - itemsCount
+      - totalQuantity
+      - nearestDueDate
+      - isTransferred
+      - updatedAt
+      properties:
+        id: *id005
+        number: *id005
+        status:
+          type: string
+          enum:
+          - New
+          - Closed
+          - Cancelled
+        clientName:
+          type: string
+        quoteId: &id008
+          type:
+          - integer
+          - 'null'
+        quoteNumber:
+          type:
+          - string
+          - 'null'
+        managerName:
+          type: string
+        orderDate: *id004
+        itemsCount: *id005
+        totalQuantity: *id005
+        nearestDueDate:
+          type:
+          - string
+          - 'null'
+          format: date
+        isTransferred:
+          type: boolean
+        updatedAt: &id009
+          type: string
+          format: date-time
+    ProductionOrderCounts:
+      type: object
+      required:
+      - all
+      - new
+      - closed
+      - cancelled
+      properties:
+        all: *id005
+        new: *id005
+        closed: *id005
+        cancelled: *id005
+    ProductionOrderPageResponse:
+      type: object
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+      - counts
+      - managers
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionOrderSummaryResponse'
+        page: *id005
+        pageSize: *id005
+        total: *id005
+        counts:
+          $ref: '#/components/schemas/ProductionOrderCounts'
+        managers:
+          type: array
+          items:
+            type: string
+    ProductionOrderPermissions:
+      type: object
+      required:
+      - canEdit
+      - canCopy
+      - canDelete
+      - seesSewingRate
+      - seesReportPrice
+      properties:
+        canEdit:
+          type: boolean
+        canCopy:
+          type: boolean
+        canDelete:
+          type: boolean
+        seesSewingRate:
+          type: boolean
+        seesReportPrice:
+          type: boolean
+    ItemApplicationResponse:
+      type: object
+      required:
+      - kind
+      - place
+      - description
+      - color
+      properties:
+        kind:
+          type: string
+          enum:
+          - Embroidery
+          - Print
+        place:
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        color:
+          type:
+          - string
+          - 'null'
+    ProductionItemResponse:
+      type: object
+      required:
+      - id
+      - position
+      - modelCode
+      - modelName
+      - fabricCode
+      - fabricName
+      - quantity
+      - dueDate
+      - mainColor
+      - additionalColors
+      - sizesText
+      - technicalChanges
+      - comment
+      - applications
+      - plannedFabricMeters
+      - sewingRate
+      - reportUnitPrice
+      properties:
+        id: *id005
+        position: *id005
+        modelCode:
+          type:
+          - string
+          - 'null'
+        modelName:
+          type: string
+        fabricCode:
+          type:
+          - string
+          - 'null'
+        fabricName:
+          type:
+          - string
+          - 'null'
+        quantity: *id005
+        dueDate: *id004
+        mainColor:
+          type: string
+        additionalColors:
+          type: array
+          items:
+            type: string
+        sizesText:
+          type:
+          - string
+          - 'null'
+        technicalChanges:
+          type:
+          - string
+          - 'null'
+        comment:
+          type:
+          - string
+          - 'null'
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemApplicationResponse'
+        plannedFabricMeters: *id007
+        sewingRate:
+          type: *id006
+          description: Null for a manager.
+        reportUnitPrice:
+          type: *id006
+          description: Null for anyone but Admin and Director.
+    ProductionOrderResponse:
+      type: object
+      required:
+      - id
+      - number
+      - status
+      - clientName
+      - quoteId
+      - quoteNumber
+      - managerName
+      - orderDate
+      - comment
+      - priceTier
+      - isTransferred
+      - copiedFromOrderId
+      - createdAt
+      - createdByName
+      - updatedAt
+      - version
+      - permissions
+      - items
+      properties:
+        id: *id005
+        number: *id005
+        status:
+          type: string
+          enum:
+          - New
+          - Closed
+          - Cancelled
+        clientName:
+          type: string
+        quoteId: *id008
+        quoteNumber:
+          type:
+          - string
+          - 'null'
+        managerName:
+          type: string
+        orderDate: *id004
+        comment:
+          type:
+          - string
+          - 'null'
+        priceTier:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Retail
+          - Wholesale
+          - Large
+          - null
+          description: Null for anyone but Admin and Director.
+        isTransferred:
+          type: boolean
+        copiedFromOrderId: *id008
+        createdAt: *id009
+        createdByName:
+          type: string
+        updatedAt: *id009
+        version: *id005
+        permissions:
+          $ref: '#/components/schemas/ProductionOrderPermissions'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionItemResponse'
+    ProductionOrderChangeResponse:
+      type: object
+      required:
+      - id
+      - itemId
+      - itemName
+      - field
+      - before
+      - after
+      - actorName
+      - at
+      properties:
+        id: *id005
+        itemId: *id008
+        itemName:
+          type:
+          - string
+          - 'null'
+        field:
+          type: string
+        before:
+          type:
+          - string
+          - 'null'
+        after:
+          type:
+          - string
+          - 'null'
+        actorName:
+          type: string
+        at: *id009
+    ProductionQuoteSourceResponse:
+      type: object
+      required:
+      - id
+      - number
+      - clientName
+      - responsibleName
+      - lastSentAt
+      - ordersCount
+      properties:
+        id: *id005
+        number:
+          type: string
+        clientName:
+          type: string
+        responsibleName:
+          type: string
+        lastSentAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        ordersCount: *id005
+    ProductionQuoteDraftOption:
+      type: object
+      required:
+      - optionId
+      - title
+      - fabricCode
+      - fabricName
+      - retail
+      - wholesale
+      - large
+      - sewingRate
+      properties:
+        optionId: *id005
+        title:
+          type: string
+        fabricCode:
+          type:
+          - string
+          - 'null'
+        fabricName:
+          type:
+          - string
+          - 'null'
+        retail: *id007
+        wholesale: *id007
+        large: *id007
+        sewingRate:
+          type: *id006
+          description: Null for a manager.
+    ProductionQuoteDraftItem:
+      type: object
+      required:
+      - quoteItemId
+      - name
+      - modelCode
+      - norm
+      - options
+      properties:
+        quoteItemId: *id005
+        name:
+          type: string
+        modelCode:
+          type:
+          - string
+          - 'null'
+        norm:
+          oneOf:
+          - $ref: ./workshop-references.openapi.yaml#/components/schemas/FabricNormInput
+          - type: 'null'
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionQuoteDraftOption'
+    ProductionQuoteDraftResponse:
+      type: object
+      required:
+      - quoteId
+      - number
+      - clientName
+      - managerName
+      - items
+      properties:
+        quoteId: *id005
+        number:
+          type: string
+        clientName:
+          type: string
+        managerName:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionQuoteDraftItem'
+    ProductionOrderImportLine:
+      type: object
+      required:
+      - number
+      - clientName
+      - items
+      - action
+      - error
+      properties:
+        number: *id005
+        clientName:
+          type: string
+        items: *id005
+        action:
+          type: string
+          enum:
+          - created
+          - unchanged
+          - error
+        error:
+          type:
+          - string
+          - 'null'
+    ProductionOrderImportResult:
+      type: object
+      required:
+      - dryRun
+      - created
+      - unchanged
+      - errors
+      - lines
+      properties:
+        dryRun:
+          type: boolean
+        created: *id005
+        unchanged: *id005
+        errors: *id005
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionOrderImportLine'

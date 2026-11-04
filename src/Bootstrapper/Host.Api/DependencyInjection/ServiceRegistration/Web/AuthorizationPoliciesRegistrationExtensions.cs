@@ -41,6 +41,10 @@ public static class AuthorizationPoliciesRegistrationExtensions
             options.AddPolicy(PolicyNames.CanManageWorkshop, policy =>
                 policy.RequireRole(RoleNames.WorkshopChief, RoleNames.Admin));
 
+            // «Виробничі завдання»: managers create them from their КП, the head of the workshop sews them.
+            options.AddPolicy(PolicyNames.CanUseProductionOrders, policy =>
+                policy.RequireRole(RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Admin));
+
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));
         });

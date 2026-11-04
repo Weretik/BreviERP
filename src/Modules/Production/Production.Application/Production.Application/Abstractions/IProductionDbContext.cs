@@ -1,4 +1,5 @@
 using Production.Domain.FabricNorms;
+using Production.Domain.Orders;
 using Production.Domain.Staff;
 
 namespace Production.Application.Abstractions;
@@ -8,5 +9,7 @@ public interface IProductionDbContext
 {
     DbSet<WorkshopEmployee> Employees { get; }
     DbSet<ModelFabricNorm> FabricNorms { get; }
+    DbSet<ProductionOrder> Orders { get; }
+    DbSet<ProductionOrderChange> OrderChanges { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

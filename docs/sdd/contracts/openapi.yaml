@@ -247,6 +247,20 @@ paths:
     $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1fabric-norms~1import
   /api/production/payroll-parameters:
     $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1payroll-parameters
+  /api/production/orders:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders
+  /api/production/orders/quote-sources:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1quote-sources
+  /api/production/orders/quote-sources/{quoteId}:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1quote-sources~1{quoteId}
+  /api/production/orders/import:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1import
+  /api/production/orders/{id}:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}
+  /api/production/orders/{id}/history:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1history
+  /api/production/orders/{id}/copy:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1copy
   /api/reminders/non-working-days:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1non-working-days
   /api/reminders/non-working-days/{date}:

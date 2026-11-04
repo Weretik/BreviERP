@@ -1,3 +1,4 @@
+using Catalog.Application.Features.Pricing.Sewing.ArticleSummary;
 using Catalog.Application.Features.Product.Overview.GetList;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
 using Catalog.Domain.Products.Enums;
@@ -6,7 +7,10 @@ using Production.Application.Abstractions;
 
 namespace Host.Api.Production;
 
-/// <summary>Gives the workshop the Catalog sewing models (about 130) by paging through the product list.</summary>
+/// <summary>
+/// Gives the workshop the Catalog sewing models (about 130) by paging through the product list, and the seamstress
+/// labour of each fabric variant from the sewing card.
+/// </summary>
 internal sealed class ProductionModelReader(ISender sender) : IProductionModelReader
 {
     public async Task<IReadOnlyList<ProductionModel>> ListSewingModelsAsync(CancellationToken cancellationToken)
@@ -22,5 +26,14 @@ internal sealed class ProductionModelReader(ISender sender) : IProductionModelRe
         }
 
         return rows.Select(x => new ProductionModel(x.Code, x.Name, x.IsActive)).ToArray();
+    }
+
+    public async Task<ProductionModelCosts?> ReadCostsAsync(int productId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetSewingArticleSummaryQuery(productId), cancellationToken);
+        if (!result.IsSuccess) return null;
+        var summary = result.Value;
+        return new ProductionModelCosts(summary.ProductId, summary.ModelCode,
+            summary.Articles.ToDictionary(x => x.Id, x => x.Costs?.Seamstress));
     }
 }

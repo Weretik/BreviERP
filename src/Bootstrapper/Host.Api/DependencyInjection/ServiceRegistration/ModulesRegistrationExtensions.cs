@@ -59,6 +59,9 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IPricingSettingsChangeNotifier, CatalogPricingSettingsSync>();
         services.AddProductionInfrastructure(configuration);
         services.AddScoped<IProductionModelReader, ProductionModelReader>();
+        services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
+        services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
+        services.AddScoped<IProductionStaffReader, ProductionStaffReader>();
         services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();
         services.AddSingleton<IProductSlugGenerator, ProductSlugGenerator>();
 

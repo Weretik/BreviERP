@@ -1,6 +1,7 @@
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Production.Application.Abstractions;
+using Production.Application.Orders.QuoteSources;
 using Production.Infrastructure.Persistence;
 
 namespace Production.Infrastructure.DependencyInjection;
@@ -15,6 +16,7 @@ public static class ProductionInfrastructureExtensions
             x => x.MigrationsHistoryTable("__EFMigrationsHistory", ProductionDbContext.Schema)));
         services.AddScoped<IProductionDbContext>(sp => sp.GetRequiredService<ProductionDbContext>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<ProductionDbContext>>();
+        services.AddScoped<QuoteItemResolver>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

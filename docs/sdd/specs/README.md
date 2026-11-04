@@ -36,6 +36,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Reference | [005 Product sections from the Calculator sheet](reference/005-product-sections-sheet/README.md) | backend implemented 2026-11-03 |
 | Media | [001 «Фото» photo library with folders](media/001-media-library/README.md) | stage 1 backend implemented 2026-11-03 |
 | Production | [001 «Швейний цех»: module, head of the workshop, references](production/001-workshop-references/README.md) | stage 1 implemented 2026-11-04 |
+| Production | [002 Production orders from КП](production/002-production-orders/README.md) | stage 2 implemented 2026-11-04 |
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Identity | [001 Cookie sign-in like Kedr](identity/001-cookie-sign-in/README.md) | implemented 2026-11-03; not deployed |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
