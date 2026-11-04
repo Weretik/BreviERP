@@ -1,6 +1,6 @@
 # Catalog: PPE supplier price import («Імпорт цін»)
 
-The tab «Довідники» → «Імпорт цін» lists PPE supplier price sources with their logic, schedule and discount, and updates supplier prices from the suppliers' files: preview first, then apply. Spec: [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md). Stage 1: Insight XML and СЕМТО PDF uploads. Stage 2: АВ-Центр and Перчатка-центр pages and 3C-Маркет's Google lists, every Monday in the daily sync job and on «Оновити зараз». Stage 3: Insight and Трєле dealer cabinets every day (logins from Secret Manager).
+The tab «Довідники» → «Імпорт цін» lists PPE supplier price sources with their logic, schedule and discount, and updates supplier prices from the suppliers' files: preview first, then apply. Spec: [CAT-017](../../specs/catalog/017-ppe-supplier-price-import/README.md). Stage 1: Insight XML and СЕМТО PDF uploads. Stage 2: АВ-Центр and Перчатка-центр pages and 3C-Маркет's Google lists, every Monday at 09:00 in the `brevierp-sync` job (Mon–Fri 09:00 Kyiv) and on «Оновити зараз». Stage 3: Insight and Трєле dealer cabinets on every `brevierp-sync` run, Mon–Fri 09:00 (logins from Secret Manager).
 
 ## Flow
 
@@ -43,7 +43,7 @@ Catalog.Infrastructure/Pricing/Ppe/SupplierPrices/
   Online/                                 # АВ-Центр / Перчатка-центр page patterns, 3C CSV lists, HTTP client
     Cabinets/                             # Insight and Трєле sign-in, session pages, dealer price, options
 Catalog.Api/Controllers/Pricing/Ppe/PpeSupplierPricesController.cs
-Host.Seed/Jobs/Sync/PpeSupplierPricesSyncTask.cs  # daily job step ppe-supplier-prices
+Host.Seed/Jobs/Sync/PpeSupplierPricesSyncTask.cs  # brevierp-sync step ppe-supplier-prices (Mon–Fri 09:00)
 ```
 
 ## Tests

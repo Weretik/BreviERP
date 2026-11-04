@@ -9,8 +9,8 @@ namespace Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh;
 public sealed record PpeScheduledRefreshOutcome(string SourceKey, PpePriceImportResult? Result, string? Error);
 
 /// <summary>
-/// The daily job's step: on its day (Monday for АВ-Центр, 3C-Маркет and Перчатка-центр; every day for the Insight
-/// and Трєле cabinets; Kyiv time) each connected source is read and its changed prices are saved, recorded as «Розклад». A source that cannot be read changes nothing,
+/// The step of the brevierp-sync job (Cloud Scheduler, Mon–Fri 09:00 Kyiv): on its day (Monday for АВ-Центр, 3C-Маркет
+/// and Перчатка-центр; every run for the Insight and Трєле cabinets; Kyiv time) each connected source is read and its changed prices are saved, recorded as «Розклад». A source that cannot be read changes nothing,
 /// its reason is recorded as the run's problem so «Імпорт цін» shows it, and the next source still runs.
 /// </summary>
 public sealed class PpeScheduledPriceRefresh(
