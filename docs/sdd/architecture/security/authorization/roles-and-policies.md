@@ -16,6 +16,7 @@ Canonical role constants are in `Identity.Domain/Authorization/RoleNames.cs`; in
 | `Admin` | System administration, including «Користувачі» | yes |
 | `Accountant` | Staff («Бухгалтер»): signs in and reads the catalogue (`CatalogRead`) for now | yes |
 | `Manager` | Staff: everything in Admin except the «Користувачі» page | yes |
+| `WorkshopChief` | Staff («Начальник цеху»): the «Швейний цех» block (`CanManageWorkshop`) and «Мій кабінет» | yes |
 | `User` | Regular authenticated user | yes |
 | `Guest` | Role constant defined without an agreed business meaning | no |
 
@@ -32,7 +33,8 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 | `RequireAdminRole` / `CanManageUsers` | Admin |
 | `RequireManagerRole` / `CanManageProducts` / `CanManageOrders` | Manager, Admin |
 | `CatalogRead` | User, Accountant, Manager, Admin |
-| `OwnProfile` | Accountant, Manager, Admin (`/api/profile`) |
+| `OwnProfile` | Accountant, Manager, WorkshopChief, Admin (`/api/profile`) |
+| `CanManageWorkshop` | WorkshopChief, Admin (`/api/production`) |
 | `OrderCreate` | User, Manager, Admin |
 | `RequireTenantAccess` | Constant is defined; policy is not currently registered |
 

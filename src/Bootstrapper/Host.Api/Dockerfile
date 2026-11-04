@@ -47,6 +47,10 @@ COPY ["src/Modules/Media/Media.Api/Media.Api/Media.Api.csproj", "src/Modules/Med
 COPY ["src/Modules/Media/Media.Application/Media.Application/Media.Application.csproj", "src/Modules/Media/Media.Application/Media.Application/"]
 COPY ["src/Modules/Media/Media.Domain/Media.Domain/Media.Domain.csproj", "src/Modules/Media/Media.Domain/Media.Domain/"]
 COPY ["src/Modules/Media/Media.Infrastructure/Media.Infrastructure/Media.Infrastructure.csproj", "src/Modules/Media/Media.Infrastructure/Media.Infrastructure/"]
+COPY ["src/Modules/Production/Production.Api/Production.Api/Production.Api.csproj", "src/Modules/Production/Production.Api/Production.Api/"]
+COPY ["src/Modules/Production/Production.Application/Production.Application/Production.Application.csproj", "src/Modules/Production/Production.Application/Production.Application/"]
+COPY ["src/Modules/Production/Production.Domain/Production.Domain/Production.Domain.csproj", "src/Modules/Production/Production.Domain/Production.Domain/"]
+COPY ["src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Production.Infrastructure.csproj", "src/Modules/Production/Production.Infrastructure/Production.Infrastructure/"]
 
 RUN dotnet restore "src/Bootstrapper/Host.Api/Host.Api.csproj"
 COPY . .

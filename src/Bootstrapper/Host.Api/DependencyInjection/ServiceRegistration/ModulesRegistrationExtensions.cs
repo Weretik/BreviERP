@@ -17,6 +17,9 @@ using Reminders.Infrastructure.DependencyInjection;
 using Catalog.Application.Contracts.Media;
 using Media.Application.Abstractions;
 using Media.Infrastructure.DependencyInjection;
+using Host.Api.Production;
+using Production.Application.Abstractions;
+using Production.Infrastructure.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 
@@ -54,6 +57,9 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();
         services.AddScoped<IPricingSettingsChangeNotifier, CatalogPricingSettingsSync>();
+        services.AddProductionInfrastructure(configuration);
+        services.AddScoped<IProductionModelReader, ProductionModelReader>();
+        services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();
         services.AddSingleton<IProductSlugGenerator, ProductSlugGenerator>();
 
         return services;

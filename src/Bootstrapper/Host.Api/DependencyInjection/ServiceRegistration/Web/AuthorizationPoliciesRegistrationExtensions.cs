@@ -35,7 +35,11 @@ public static class AuthorizationPoliciesRegistrationExtensions
 
             // «Мій кабінет»: every staff account; the director also holds Admin.
             options.AddPolicy(PolicyNames.OwnProfile, policy =>
-                policy.RequireRole(RoleNames.Accountant, RoleNames.Manager, RoleNames.Admin));
+                policy.RequireRole(RoleNames.Accountant, RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Admin));
+
+            // «Швейний цех»: the head of the workshop; the director also holds Admin.
+            options.AddPolicy(PolicyNames.CanManageWorkshop, policy =>
+                policy.RequireRole(RoleNames.WorkshopChief, RoleNames.Admin));
 
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));

@@ -48,6 +48,9 @@
       <ProjectReference Include="..\..\Modules\Media\Media.Api\Media.Api\Media.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Application\Media.Application\Media.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Infrastructure\Media.Infrastructure\Media.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Production\Production.Api\Production.Api\Production.Api.csproj" />
+      <ProjectReference Include="..\..\Modules\Production\Production.Application\Production.Application\Production.Application.csproj" />
+      <ProjectReference Include="..\..\Modules\Production\Production.Infrastructure\Production.Infrastructure\Production.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

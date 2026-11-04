@@ -57,6 +57,10 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 
 - [Photo library «Фото»](media/library.md) — folders and subfolders on the Brevi CDN, upload, search by name or folder, move and delete; products keep the photo id.
 
+## Production
+
+- [Workshop references «Швейний цех»](production/workshop-references.md) — workers of the workshop, fabric norms per sewing model, payroll coefficients from «Параметри ціноутворення» (stage 1 of the «Цех» port).
+
 ## Reminders
 
 - [Telegram reminders](reminders/telegram-reminders.md) — deadline tasks, working-day Telegram cards at 09:00 Kyiv with «Виконано» / «Нагадати пізніше», period history, chats and extra days off.

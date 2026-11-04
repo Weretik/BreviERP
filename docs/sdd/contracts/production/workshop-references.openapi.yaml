@@ -1,0 +1,290 @@
+openapi: 3.1.0
+info:
+  title: 'Production: workshop references'
+  version: 1.0.0
+  description: >-
+    Stage 1 of the sewing workshop «Швейний цех» (PRD-001): workers of the workshop, fabric norms per Catalog sewing model
+    and a read-only view of the payroll coefficients kept in «Параметри ціноутворення». Workers do not sign in; the head of
+    the workshop records their work. Access: WorkshopChief or Admin (policy CanManageWorkshop; the director also holds Admin).
+servers:
+  - url: /
+security:
+  - Bearer: []
+paths:
+  /api/production/staff:
+    get:
+      tags: [Production]
+      operationId: getWorkshopStaff
+      summary: Workers sorted by name; archived ones only with includeArchived
+      parameters:
+        - { in: query, name: includeArchived, required: false, schema: { type: boolean, default: false } }
+      responses:
+        '200':
+          description: Workers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/WorkshopEmployeeResponse' }
+        '401': { description: 'Unauthenticated.' }
+        '403': { description: 'WorkshopChief or Admin role required.' }
+    post:
+      tags: [Production]
+      operationId: createWorkshopEmployee
+      summary: Add a worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WorkshopEmployeeInput' }
+      responses:
+        '200':
+          description: Added worker.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WorkshopEmployeeResponse' }
+        '400': { description: 'Empty or too long name or position.' }
+        '409': { description: 'An active worker already has this name (ignoring case and extra spaces).' }
+  /api/production/staff/{id}:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer, minimum: 1 } }
+    put:
+      tags: [Production]
+      operationId: updateWorkshopEmployee
+      summary: Change the name or position of a worker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WorkshopEmployeeInput' }
+      responses:
+        '200':
+          description: Updated worker.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WorkshopEmployeeResponse' }
+        '400': { description: 'Empty or too long name or position.' }
+        '404': { description: 'Worker not found.' }
+        '409': { description: 'Another active worker has this name.' }
+  /api/production/staff/{id}/active:
+    parameters:
+      - { in: path, name: id, required: true, schema: { type: integer, minimum: 1 } }
+    put:
+      tags: [Production]
+      operationId: setWorkshopEmployeeActive
+      summary: Archive a worker who left (isActive false) or return them to the list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isActive]
+              properties:
+                isActive: { type: boolean }
+      responses:
+        '200':
+          description: Worker with the new state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WorkshopEmployeeResponse' }
+        '404': { description: 'Worker not found.' }
+        '409': { description: 'Returning would duplicate the name of an active worker.' }
+  /api/production/staff/import:
+    post:
+      tags: [Production]
+      operationId: importWorkshopStaff
+      summary: Add workers from a list (up to 500); a worker with the same active name gets the new position
+      parameters:
+        - { in: query, name: dryRun, required: false, schema: { type: boolean, default: false }, description: 'true only shows what would change.' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 500
+              items: { $ref: '#/components/schemas/WorkshopEmployeeInput' }
+      responses:
+        '200':
+          description: What was (or would be) added or updated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WorkshopStaffImportResult' }
+        '400': { description: 'Empty list, more than 500 rows, empty fields or a name repeated in the list.' }
+  /api/production/fabric-norms:
+    get:
+      tags: [Production]
+      operationId: getFabricNorms
+      summary: Every Catalog sewing model by code with its norm (null when not set), then norms whose model is no longer in Catalog
+      responses:
+        '200':
+          description: Rows.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/FabricNormRowResponse' }
+  /api/production/fabric-norms/{modelCode}:
+    parameters:
+      - { in: path, name: modelCode, required: true, schema: { type: string, maxLength: 32 }, description: 'Catalog model code, for example MOD-025 (case-insensitive).' }
+    put:
+      tags: [Production]
+      operationId: saveFabricNorm
+      summary: Create or replace the norm of a Catalog sewing model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FabricNormInput' }
+      responses:
+        '200':
+          description: Saved row.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FabricNormRowResponse' }
+        '400': { description: 'Empty norm, a value outside 0–100 m or with more than 3 decimals, or an additional fabric without its main fabric.' }
+        '404': { description: 'The model is not a Catalog sewing model.' }
+    delete:
+      tags: [Production]
+      operationId: deleteFabricNorm
+      summary: Delete the norm
+      responses:
+        '204': { description: 'Deleted.' }
+        '404': { description: 'The model has no norm.' }
+  /api/production/fabric-norms/import:
+    post:
+      tags: [Production]
+      operationId: importFabricNorms
+      summary: Load norms from a list (up to 1000); nothing is saved while a row has an error
+      parameters:
+        - { in: query, name: dryRun, required: false, schema: { type: boolean, default: false }, description: 'true only shows what would change.' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 1000
+              items: { $ref: '#/components/schemas/FabricNormImportRow' }
+      responses:
+        '200':
+          description: 'Lines per row. When errors > 0 nothing was saved, also without dryRun.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FabricNormImportResult' }
+        '400': { description: 'Empty list, more than 1000 rows, a repeated model code or an invalid norm.' }
+  /api/production/payroll-parameters:
+    get:
+      tags: [Production]
+      operationId: getPayrollParameters
+      summary: Payroll coefficients read from «Параметри ціноутворення» (edited there, not here)
+      responses:
+        '200':
+          description: One row per coefficient the workshop pays by, in a fixed order.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PayrollParameterResponse' }
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    WorkshopEmployeeInput:
+      type: object
+      required: [fullName, position]
+      properties:
+        fullName: { type: string, minLength: 1, maxLength: 120, description: 'Extra spaces are removed.' }
+        position: { type: string, minLength: 1, maxLength: 80, description: 'For example «Швачка», «Закрійник», «Майстер цеху».' }
+    WorkshopEmployeeResponse:
+      type: object
+      required: [id, fullName, position, isActive, updatedAt]
+      properties:
+        id: { type: integer, minimum: 1 }
+        fullName: { type: string }
+        position: { type: string }
+        isActive: { type: boolean, description: 'false = archived (left the workshop).' }
+        updatedAt: { type: string, format: date-time }
+    WorkshopStaffImportResult:
+      type: object
+      required: [dryRun, created, updated, unchanged, lines]
+      properties:
+        dryRun: { type: boolean }
+        created: { type: integer, minimum: 0 }
+        updated: { type: integer, minimum: 0 }
+        unchanged: { type: integer, minimum: 0 }
+        lines:
+          type: array
+          items:
+            type: object
+            required: [fullName, position, action]
+            properties:
+              fullName: { type: string }
+              position: { type: string }
+              action: { type: string, enum: [created, updated, unchanged] }
+    FabricNormInput:
+      type: object
+      description: >-
+        Planned fabric per item in metres (up to 3 decimals, 0 < value ≤ 100). One colour, or two colours (main +
+        additional), or three colours (main + two additional). At least one value; an additional value needs its main value.
+      properties:
+        oneColor: { type: [number, 'null'] }
+        twoColorsMain: { type: [number, 'null'] }
+        twoColorsAdditional: { type: [number, 'null'] }
+        threeColorsMain: { type: [number, 'null'] }
+        threeColorsAdditional1: { type: [number, 'null'] }
+        threeColorsAdditional2: { type: [number, 'null'] }
+    FabricNormRowResponse:
+      type: object
+      required: [modelCode, modelIsActive]
+      properties:
+        modelCode: { type: string }
+        modelName: { type: [string, 'null'], description: Null when the model is no longer in Catalog. }
+        modelIsActive: { type: boolean }
+        norm:
+          oneOf:
+            - { $ref: '#/components/schemas/FabricNormInput' }
+            - { type: 'null' }
+        twoColorsTotal: { type: [number, 'null'], description: 'Main + additional, when two-colour values are set.' }
+        threeColorsTotal: { type: [number, 'null'] }
+        updatedAt: { type: [string, 'null'], format: date-time }
+        problem: { type: [string, 'null'], description: 'Set only when something is wrong, for example the model is gone from Catalog.' }
+    FabricNormImportRow:
+      type: object
+      required: [modelCode, norm]
+      properties:
+        modelCode: { type: string, maxLength: 32 }
+        norm: { $ref: '#/components/schemas/FabricNormInput' }
+    FabricNormImportResult:
+      type: object
+      required: [dryRun, created, updated, unchanged, errors, lines]
+      properties:
+        dryRun: { type: boolean }
+        created: { type: integer, minimum: 0 }
+        updated: { type: integer, minimum: 0 }
+        unchanged: { type: integer, minimum: 0 }
+        errors: { type: integer, minimum: 0 }
+        lines:
+          type: array
+          items:
+            type: object
+            required: [modelCode, action]
+            properties:
+              modelCode: { type: string }
+              modelName: { type: [string, 'null'] }
+              action: { type: string, enum: [created, updated, unchanged, error] }
+              error: { type: [string, 'null'] }
+    PayrollParameterResponse:
+      type: object
+      required: [code, purpose]
+      properties:
+        code: { type: string, description: 'Code in «Параметри ціноутворення», for example SHOP_MANAGER_RATE.' }
+        purpose: { type: string, description: What the workshop uses it for. }
+        name: { type: [string, 'null'], description: Name in «Параметри ціноутворення»; null when the parameter is missing. }
+        value: { type: [number, 'null'] }
+        unit: { type: [string, 'null'] }
+        updatedOn: { type: [string, 'null'], format: date }
+        problem: { type: [string, 'null'], description: Set only when the parameter is missing or has no value. }
