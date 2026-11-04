@@ -8,4 +8,7 @@ internal static class EmbroideryMessages
     public const string ActorUnknown = "Не вдалося визначити користувача.";
     public const string StitchRateMissing =
         "Не задано оплату вишивки за 1000 стібків у «Параметрах ціноутворення».";
+    public const string CustomerNotFound = "Клієнта не знайдено або його приховано.";
+    public const string CalculationNotFound = "Збережений розрахунок не знайдено.";
+    public const string DeleteForbidden = "Видаляти збережені розрахунки може лише директор або адміністратор.";
 }
