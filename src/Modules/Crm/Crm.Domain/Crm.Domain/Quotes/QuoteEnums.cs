@@ -7,6 +7,21 @@ public enum QuoteKind
     Introduction = 2
 }
 
+/// <summary>Pages of a «КП для знайомства» (R-16): both seasons, or one.</summary>
+public enum QuoteIntroLayout
+{
+    General = 1,
+    Summer = 2,
+    Winter = 3
+}
+
+/// <summary>A page of the introduction catalogue; the Catalog season is «Літо» or «Зима».</summary>
+public enum QuoteIntroSeason
+{
+    Summer = 1,
+    Winter = 2
+}
+
 /// <summary>A КП is a draft until it is sent (stage 3).</summary>
 public enum QuoteStatus
 {

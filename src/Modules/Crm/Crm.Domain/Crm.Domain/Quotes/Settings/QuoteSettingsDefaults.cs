@@ -50,7 +50,9 @@ public static class QuoteSettingsDefaults
                 new QuoteAdvantage("Працюємо з ПДВ", "Зручні умови для бізнесу"),
                 new QuoteAdvantage("Доставка по Україні", "Швидко та надійно"),
                 new QuoteAdvantage("Брендування одягу", "Ваш логотип на нашій якості"),
-            ]),
+            ],
+            QuoteIntroductionTexts.DefaultSummerMainCode,
+            QuoteIntroductionTexts.DefaultWinterMainCode),
         [
             new QuoteLetterVariant(
                 "Запит на коротку відповідь",

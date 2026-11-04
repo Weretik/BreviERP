@@ -42,7 +42,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     private async Task<QuoteResponse> Create(QuoteActor actor, string name = "ТОВ «Агро»")
     {
         await using var db = Context();
-        var result = await new CreateQuoteCommandHandler(db, _staff, new QuoteItemsBuilder(_catalog), _clock)
+        var result = await new CreateQuoteCommandHandler(_staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
             .Handle(new CreateQuoteCommand(actor, Input(name: name)), default);
         Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors.Concat(result.ValidationErrors.Select(x => x.ErrorMessage))));
         return result.Value;
@@ -173,7 +173,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
             [new QuoteCatalogVariant(100, "SKU-100", true, 5, "Саржа", null, null,
                 new QuoteTierPrices(Retail, Retail - 50, Retail - 100), [])]);
 
-        public Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, int page, int pageSize,
+        public Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, string? season, int page, int pageSize,
             CancellationToken cancellationToken) => Task.FromResult(new QuoteCatalogPage([Model()], page, pageSize, 1));
 
         public Task<IReadOnlyDictionary<int, QuoteCatalogProduct>> GetAsync(IReadOnlyCollection<int> productIds,

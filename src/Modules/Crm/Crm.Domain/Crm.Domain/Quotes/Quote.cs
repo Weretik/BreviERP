@@ -55,6 +55,19 @@ public sealed class Quote
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
+    /// <summary>Pages of a «КП для знайомства»; null for a КП «під запит» (R-16).</summary>
+    public QuoteIntroLayout? IntroLayout { get; private set; }
+
+    /// <summary>Where the introduction is going to be sent (R-17).</summary>
+    public string? RecipientEmail { get; private set; }
+
+    /// <summary>The letter variant chosen for the introduction (R-17, R-18).</summary>
+    public string? LetterName { get; private set; }
+
+    /// <summary>The introduction fields together; null for a КП «під запит».</summary>
+    public QuoteIntroduction? Introduction =>
+        IntroLayout is { } layout ? new QuoteIntroduction(layout, RecipientEmail, LetterName) : null;
+
     /// <summary>When the КП was last sent by Gmail (R-15); null for a draft.</summary>
     public DateTimeOffset? LastSentAt { get; private set; }
 
@@ -69,6 +82,16 @@ public sealed class Quote
         _items.Clear();
         _items.AddRange(items);
         Touch(now);
+    }
+
+    /// <summary>The fields only an introduction has; the caller replaces the header and items in the same change.</summary>
+    public void SetIntroduction(QuoteIntroduction introduction)
+    {
+        if (Kind != QuoteKind.Introduction)
+            throw new InvalidOperationException("Only a «КП для знайомства» has a layout.");
+        IntroLayout = introduction.Layout;
+        RecipientEmail = QuoteText.Normalize(introduction.RecipientEmail)?.ToLowerInvariant();
+        LetterName = QuoteText.Normalize(introduction.LetterName);
     }
 
     public void AssignResponsible(QuotePerson person, DateTimeOffset now)
@@ -103,6 +126,17 @@ public sealed class Quote
         ClientComment = QuoteText.Normalize(header.ClientComment);
         ManagerNote = QuoteText.Normalize(header.ManagerNote);
     }
+}
+
+/// <summary>The layout, recipient address and letter of a «КП для знайомства» (R-16, R-17).</summary>
+public sealed record QuoteIntroduction(QuoteIntroLayout Layout, string? RecipientEmail, string? LetterName)
+{
+    public IReadOnlyList<QuoteIntroSeason> Pages => Layout switch
+    {
+        QuoteIntroLayout.Summer => [QuoteIntroSeason.Summer],
+        QuoteIntroLayout.Winter => [QuoteIntroSeason.Winter],
+        _ => [QuoteIntroSeason.Summer, QuoteIntroSeason.Winter],
+    };
 }
 
 /// <summary>The fields above the items (R-04).</summary>

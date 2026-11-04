@@ -1,10 +1,11 @@
 using Crm.Application.Quotes.Pdf;
+using Crm.Application.Quotes.Pdf.Introduction;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
 namespace Crm.Infrastructure.Quotes.Pdf;
 
-/// <summary>Draws <see cref="QuotePdfDocument"/> with QuestPDF (Community license).</summary>
+/// <summary>Draws <see cref="QuotePdfDocument"/> and <see cref="QuoteIntroPdfDocument"/> with QuestPDF (Community license).</summary>
 internal sealed class QuotePdfRenderer(QuotePdfImageLoader images) : IQuotePdfRenderer
 {
     static QuotePdfRenderer()
@@ -19,5 +20,14 @@ internal sealed class QuotePdfRenderer(QuotePdfImageLoader images) : IQuotePdfRe
         var loaded = await images.LoadAsync(
             model.Items.Select(x => x.PhotoUrl).Append(model.Company.LogoUrl), cancellationToken);
         return new QuotePdfDocument(model, loaded).GeneratePdf();
+    }
+
+    public async Task<byte[]> RenderIntroductionAsync(QuoteIntroPdfModel model, CancellationToken cancellationToken)
+    {
+        QuotePdfFonts.EnsureRegistered();
+        var urls = model.Pages.SelectMany(page => page.Models.Select(x => x.PhotoUrl).Append(page.BannerUrl))
+            .Append(model.Company.LogoUrl);
+        var loaded = await images.LoadAsync(urls, cancellationToken);
+        return new QuoteIntroPdfDocument(model, loaded).GeneratePdf();
     }
 }

@@ -26,6 +26,10 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.Property(x => x.ManagerNote).HasMaxLength(QuoteLimits.TextMaxLength);
         b.Property(x => x.AuthorName).HasMaxLength(QuoteLimits.NameMaxLength);
         b.Property(x => x.ResponsibleName).HasMaxLength(QuoteLimits.NameMaxLength);
+        b.Ignore(x => x.Introduction);
+        b.Property(x => x.IntroLayout).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.RecipientEmail).HasMaxLength(QuoteLimits.EmailMaxLength);
+        b.Property(x => x.LetterName).HasMaxLength(QuoteLimits.LetterNameMaxLength);
         b.Property(x => x.Version).IsConcurrencyToken();
 
         b.HasIndex(x => x.Number).IsUnique();

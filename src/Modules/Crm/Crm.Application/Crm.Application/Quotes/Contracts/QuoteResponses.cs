@@ -33,7 +33,11 @@ public sealed record QuoteResponse(
     DateTimeOffset UpdatedAt,
     DateTimeOffset? LastSentAt,
     int Version,
-    IReadOnlyList<QuoteItemResponse> Items);
+    IReadOnlyList<QuoteItemResponse> Items,
+    QuoteIntroductionResponse? Introduction);
+
+/// <summary>The fields of a «КП для знайомства»; null for a КП «під запит».</summary>
+public sealed record QuoteIntroductionResponse(string Layout, string? RecipientEmail, string? LetterName);
 
 public sealed record QuoteItemResponse(
     long Id,

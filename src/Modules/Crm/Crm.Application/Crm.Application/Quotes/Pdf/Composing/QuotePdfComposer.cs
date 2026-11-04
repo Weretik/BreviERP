@@ -1,4 +1,5 @@
 using Crm.Application.Quotes.Pdf.GetPdf;
+using Crm.Application.Quotes.Pdf.Introduction;
 using Crm.Application.Quotes.Persistence;
 using Crm.Application.Quotes.Settings.Contracts;
 using Crm.Application.Quotes.Settings.Reading;
@@ -8,7 +9,7 @@ using Crm.Domain.Quotes.Settings;
 
 namespace Crm.Application.Quotes.Pdf.Composing;
 
-/// <summary>Builds the PDF of a saved КП (R-14); used by «Сформувати КП» and by sending (R-15).</summary>
+/// <summary>Builds the PDF of a saved КП (R-14) or the catalogue of an introduction (R-16); used by «Сформувати КП» and by sending (R-15).</summary>
 public sealed class QuotePdfComposer(IQuoteStore store, IQuoteStaffReader staff, IQuotePdfRenderer renderer)
 {
     public async Task<QuoteDocumentContext> LoadContextAsync(CancellationToken cancellationToken)
@@ -27,8 +28,11 @@ public sealed class QuotePdfComposer(IQuoteStore store, IQuoteStaffReader staff,
         var responsible = await MemberAsync(quote.ResponsibleUserId, quote.ResponsibleName, cancellationToken);
         var saved = context.Saved?.ContactOf(responsible.UserId);
         var manager = QuoteSettingsMapper.ContactOrAccount(responsible, saved);
-        var model = QuotePdfModelBuilder.Build(quote, context.Settings, manager);
-        var content = await renderer.RenderAsync(model, cancellationToken);
+        var content = quote.Kind == QuoteKind.Introduction
+            ? await renderer.RenderIntroductionAsync(
+                QuoteIntroPdfModelBuilder.Build(quote, context.Settings, manager), cancellationToken)
+            : await renderer.RenderAsync(QuotePdfModelBuilder.Build(quote, context.Settings, manager),
+                cancellationToken);
         return new QuotePdfFile(content, FileName(quote));
     }
 

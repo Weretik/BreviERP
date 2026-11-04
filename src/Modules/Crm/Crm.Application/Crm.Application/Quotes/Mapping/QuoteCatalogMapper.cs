@@ -7,10 +7,10 @@ namespace Crm.Application.Quotes.Mapping;
 /// <summary>Catalog rows for the picker; a problem is shown only when a row cannot be added.</summary>
 internal static class QuoteCatalogMapper
 {
-    public static QuoteCatalogPageResponse ToResponse(this QuoteCatalogPage page) =>
+    internal static QuoteCatalogPageResponse ToResponse(this QuoteCatalogPage page) =>
         new(page.Items.Select(ToResponse).ToArray(), page.Page, page.PageSize, page.Total);
 
-    private static QuoteCatalogProductResponse ToResponse(QuoteCatalogProduct product) => new(
+    public static QuoteCatalogProductResponse ToResponse(this QuoteCatalogProduct product) => new(
         product.ProductId, product.Kind.ToString(), product.Code, product.Name, product.Season, product.PhotoUrl,
         product.Description, ToResponse(product.Prices), ProductProblem(product),
         product.Variants.Select(ToResponse).ToArray());

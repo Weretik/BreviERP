@@ -9,7 +9,8 @@ namespace Crm.Application.Quotes.Catalog;
 public interface IQuoteCatalogReader
 {
     /// <param name="kind">Sewing or Ppe.</param>
-    Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, int page, int pageSize,
+    /// <param name="season">Only products of this Catalog season («Літо», «Зима»); null for all.</param>
+    Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, string? season, int page, int pageSize,
         CancellationToken cancellationToken);
 
     Task<IReadOnlyDictionary<int, QuoteCatalogProduct>> GetAsync(IReadOnlyCollection<int> productIds,

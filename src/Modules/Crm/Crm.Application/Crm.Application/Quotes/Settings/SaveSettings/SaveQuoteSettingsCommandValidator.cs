@@ -1,3 +1,4 @@
+using Crm.Domain.Quotes;
 using Crm.Application.Quotes.Settings.Contracts;
 using L = Crm.Domain.Quotes.Settings.QuoteSettingsLimits;
 
@@ -101,6 +102,8 @@ public sealed class QuoteIntroductionValidator : AbstractValidator<QuoteIntroduc
             .WithMessage("Фото банера — посилання https://…").MaximumLength(L.UrlMaxLength);
         RuleFor(x => x.AssortmentUrl).Must(SaveQuoteSettingsInputValidator.IsWebUrl)
             .WithMessage("Посилання на асортимент — https://…").MaximumLength(L.UrlMaxLength);
+        RuleFor(x => x.SummerMainCode).MaximumLength(QuoteLimits.CodeMaxLength);
+        RuleFor(x => x.WinterMainCode).MaximumLength(QuoteLimits.CodeMaxLength);
         RuleFor(x => x.AccentColor).Matches("^#[0-9A-Fa-f]{6}$").WithMessage("Акцентний колір — у форматі #RRGGBB.")
             .When(x => !string.IsNullOrWhiteSpace(x.AccentColor));
         RuleFor(x => x.Advantages).NotNull()

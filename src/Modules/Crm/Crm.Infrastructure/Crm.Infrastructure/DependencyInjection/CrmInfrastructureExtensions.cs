@@ -1,6 +1,7 @@
 using BuildingBlocks.Infrastructure.Migrations;
 using Crm.Application.Customers.Persistence;
 using Crm.Application.Quotes.Building;
+using Crm.Application.Quotes.Introductions.Building;
 using Crm.Application.Quotes.Pdf;
 using Crm.Application.Quotes.Pdf.Composing;
 using Crm.Application.Quotes.Sending.Gmail;
@@ -30,6 +31,8 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<IQuoteStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<ITaskStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<QuoteItemsBuilder>();
+        services.AddScoped<QuoteNumbering>();
+        services.AddScoped<QuoteIntroductionBuilder>();
         services.AddHttpClient<QuotePdfImageLoader>(client => client.Timeout = TimeSpan.FromSeconds(10));
         services.AddScoped<IQuotePdfRenderer, QuotePdfRenderer>();
         services.AddScoped<QuotePdfComposer>();

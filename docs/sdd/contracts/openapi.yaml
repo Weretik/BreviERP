@@ -189,6 +189,18 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-settings
   /api/crm/quote-lookups/catalog:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1catalog
+  /api/crm/quote-introductions:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-introductions
+  /api/crm/quote-introductions/{id}:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-introductions~1{id}
+  /api/crm/quote-intro-templates:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-intro-templates
+  /api/crm/quote-intro-templates/{id}:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-intro-templates~1{id}
+  /api/crm/quote-lookups/products:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1products
+  /api/crm/quote-lookups/introduction:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1introduction
   /api/crm/quote-lookups/staff:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1staff
   /api/crm/tasks:

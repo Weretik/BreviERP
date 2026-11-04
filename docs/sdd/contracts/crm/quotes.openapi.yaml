@@ -3,7 +3,7 @@ info:
   title: BreviERP CRM Quotes (КП) API
   version: 1.0.0
   description: >-
-    КП of the «Менеджер сервісу» block (QTE-001, stage 1). Admin or Manager session; a Manager sees and changes only КП
+    КП of the «Менеджер сервісу» block (QTE-001, stages 1–4). Admin or Manager session; a Manager sees and changes only КП
     they are responsible for, Admin (the Director also holds Admin) sees all. Catalog prices are never taken from the
     client: a new row gets them from the Catalog, a saved row keeps its own until an explicit reprice.
 servers:
@@ -340,6 +340,106 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: Admin role required (the Director also holds it). }
         "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quote-introductions:
+    post:
+      operationId: createCrmQuoteIntroduction
+      security:
+        - bearerAuth: []
+      description: >-
+        Creates a draft «КП для знайомства» (R-16): one page per season of the layout, the main model of the season
+        first, then 3 more models of that season, one fabric each. Only the від 41 шт. price is shown; it comes from the
+        Catalog. It is read, listed, sent and deleted through /api/crm/quotes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveQuoteIntroductionInput" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuote" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quote-introductions/{id}:
+    parameters:
+      - $ref: "#/components/parameters/QuoteId"
+    put:
+      operationId: saveCrmQuoteIntroduction
+      security:
+        - bearerAuth: []
+      description: Saves the whole introduction; a saved model keeps its price. 409 for a stale version or a КП «під запит».
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSaveQuoteIntroductionInput" }
+      responses:
+        "200":
+          description: Saved.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuote" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "404": { description: Not found or not visible to the actor. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quote-intro-templates:
+    get:
+      operationId: getCrmQuoteIntroTemplates
+      security:
+        - bearerAuth: []
+      description: «Готові шаблони», shared by all staff, newest first (R-19). Templates keep no prices.
+      responses:
+        "200":
+          description: Templates.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CrmQuoteIntroTemplate" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+    post:
+      operationId: createCrmQuoteIntroTemplate
+      security:
+        - bearerAuth: []
+      description: «Зберегти як готовий шаблон»; the name is unique ignoring case, at most 200 templates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmCreateQuoteIntroTemplateInput" }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteIntroTemplate" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quote-intro-templates/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int64, minimum: 1 }
+    delete:
+      operationId: deleteCrmQuoteIntroTemplate
+      security:
+        - bearerAuth: []
+      description: The author, Director or Admin.
+      responses:
+        "204": { description: Deleted. }
+        "401": { description: Authentication required. }
+        "403": { description: "Not the author, Director or Admin." }
+        "404": { description: Not found. }
   /api/crm/quote-lookups/catalog:
     get:
       operationId: searchCrmQuoteCatalog
@@ -354,6 +454,10 @@ paths:
         - name: search
           in: query
           schema: { type: string, maxLength: 200 }
+        - name: season
+          in: query
+          description: Only sewing models of this season (introduction pages).
+          schema: { $ref: "#/components/schemas/CrmQuoteIntroSeason" }
         - name: page
           in: query
           schema: { type: integer, default: 1, minimum: 1, maximum: 10000 }
@@ -367,6 +471,48 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/CrmQuoteCatalogPage" }
         "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+  /api/crm/quote-lookups/products:
+    get:
+      operationId: getCrmQuoteCatalogProducts
+      security:
+        - bearerAuth: []
+      description: Current Catalog data of chosen products (a saved introduction or a template); unknown ids are left out.
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 20
+            items: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CrmQuoteCatalogProduct" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
+  /api/crm/quote-lookups/introduction:
+    get:
+      operationId: getCrmQuoteIntroductionSetup
+      security:
+        - bearerAuth: []
+      description: The main model of each season (codes from «Налаштування КП») and the letter variants.
+      responses:
+        "200":
+          description: Setup.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteIntroductionSetup" }
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role required. }
   /api/crm/quote-lookups/staff:
@@ -456,7 +602,7 @@ components:
       properties:
         id: { type: [integer, "null"], format: int64 }
         kind: { $ref: "#/components/schemas/CrmQuoteItemKind" }
-        productId: { type: [integer, "null"], description: Required for Sewing and Ppe, null for OneOffPpe. }
+        productId: { type: [integer, "null"], description: "Required for Sewing and Ppe, null for OneOffPpe." }
         name: { type: [string, "null"], maxLength: 200, description: OneOffPpe only. }
         description: { type: [string, "null"], maxLength: 4000 }
         photoUrl: { type: [string, "null"], maxLength: 1000 }
@@ -547,6 +693,9 @@ components:
         items:
           type: array
           items: { $ref: "#/components/schemas/CrmQuoteItem" }
+        introduction:
+          oneOf: [{ $ref: "#/components/schemas/CrmQuoteIntroduction" }, { type: "null" }]
+          description: Only a «КП для знайомства» has it; its items go page by page, 4 per page.
     CrmQuoteSummary:
       type: object
       required: [id, number, kind, status, internalName, responsible, itemsCount, updatedAt]
@@ -613,7 +762,7 @@ components:
         articleId: { type: integer, format: int64 }
         sku: { type: string }
         title: { type: string, description: Fabric name. }
-        fabricInfo: { type: [string, "null"], description: For the manager only, fabric price and supplier. }
+        fabricInfo: { type: [string, "null"], description: "For the manager only, fabric price and supplier." }
         prices: { oneOf: [{ $ref: "#/components/schemas/CrmQuoteTierPrices" }, { type: "null" }] }
         problem: { type: [string, "null"], description: Why it cannot be added; null when it can. }
     CrmQuoteCatalogProduct:
@@ -655,13 +804,13 @@ components:
       properties:
         name: { type: string, maxLength: 300 }
         edrpou: { type: [string, "null"], description: 8 digits. }
-        taxId: { type: [string, "null"], description: ІПН, 10–12 digits. }
+        taxId: { type: [string, "null"], description: "ІПН, 10–12 digits." }
         iban: { type: [string, "null"] }
         address: { type: [string, "null"], maxLength: 300 }
         phone: { type: [string, "null"], maxLength: 50 }
         email: { type: [string, "null"], format: email }
         site: { type: [string, "null"], format: uri }
-        logoUrl: { type: [string, "null"], format: uri, description: https link (photo library); SVG, PNG or JPEG. }
+        logoUrl: { type: [string, "null"], format: uri, description: "https link (photo library); SVG, PNG or JPEG." }
     CrmQuoteEmailTemplate:
       type: object
       required: [subject, body]
@@ -687,7 +836,7 @@ components:
     CrmQuoteIntroductionTexts:
       type: object
       required: [advantages]
-      description: «КП для знайомства — рекламний каталог» (used in stage 4).
+      description: «КП для знайомства — рекламний каталог».
       properties:
         logoText: { type: [string, "null"] }
         summerTitle: { type: [string, "null"] }
@@ -701,6 +850,8 @@ components:
         productButtonText: { type: [string, "null"] }
         nextStepText: { type: [string, "null"] }
         accentColor: { type: [string, "null"], pattern: "^#[0-9A-Fa-f]{6}$" }
+        summerMainCode: { type: [string, "null"], maxLength: 100, description: "Main summer model code; null means MOD-166 «Імпульс»." }
+        winterMainCode: { type: [string, "null"], maxLength: 100, description: "Main winter model code; null means MOD-169 «Прайм»." }
         advantages:
           type: array
           minItems: 5
@@ -783,7 +934,9 @@ components:
         fileName: { type: string }
         letters:
           type: array
+          description: For an introduction the chosen letter variant comes first.
           items: { $ref: "#/components/schemas/CrmQuoteLetter" }
+        to: { type: [string, "null"], description: The recipient saved in an introduction. }
     CrmSendQuoteInput:
       type: object
       required: [version, to, subject, body]
@@ -792,6 +945,117 @@ components:
         to: { type: string, maxLength: 2000, description: "1 to 10 addresses separated by commas, semicolons or spaces." }
         subject: { type: string, maxLength: 300, description: One line. }
         body: { type: string, maxLength: 10000, description: Plain text. }
+    CrmQuoteIntroLayout:
+      type: string
+      enum: [General, Summer, Winter]
+      description: General = summer and winter pages; Summer or Winter = one page.
+    CrmQuoteIntroSeason:
+      type: string
+      enum: [Summer, Winter]
+    CrmQuoteIntroduction:
+      type: object
+      required: [layout]
+      properties:
+        layout: { $ref: "#/components/schemas/CrmQuoteIntroLayout" }
+        recipientEmail: { type: [string, "null"] }
+        letterName: { type: [string, "null"] }
+    CrmQuoteIntroModelInput:
+      type: object
+      required: [productId, articleId]
+      properties:
+        itemId: { type: [integer, "null"], format: int64, description: "The saved item, so its price stays." }
+        productId: { type: integer, minimum: 1 }
+        articleId: { type: integer, format: int64, minimum: 1, description: The fabric variant. }
+    CrmQuoteIntroPageInput:
+      type: object
+      required: [season, models]
+      properties:
+        season: { $ref: "#/components/schemas/CrmQuoteIntroSeason" }
+        models:
+          type: array
+          minItems: 4
+          maxItems: 4
+          description: The main model of the season first.
+          items: { $ref: "#/components/schemas/CrmQuoteIntroModelInput" }
+    CrmSaveQuoteIntroductionInput:
+      type: object
+      required: [version, internalName, layout, pages]
+      properties:
+        version: { type: integer, description: Ignored on create. }
+        internalName: { type: string, maxLength: 300 }
+        customerId: { type: [integer, "null"], format: int64 }
+        recipientEmail: { type: [string, "null"], maxLength: 320, format: email }
+        recipientName: { type: [string, "null"], maxLength: 300 }
+        companyName: { type: [string, "null"], maxLength: 300 }
+        managerNote: { type: [string, "null"], maxLength: 4000 }
+        layout: { $ref: "#/components/schemas/CrmQuoteIntroLayout" }
+        letterName: { type: [string, "null"], maxLength: 300 }
+        pages:
+          type: array
+          description: One page per season of the layout, summer first; a model only once.
+          items: { $ref: "#/components/schemas/CrmQuoteIntroPageInput" }
+    CrmQuoteIntroMainModel:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string }
+        product: { oneOf: [{ $ref: "#/components/schemas/CrmQuoteCatalogProduct" }, { type: "null" }] }
+        problem: { type: [string, "null"], description: Why the page cannot be built; null when it can. }
+    CrmQuoteIntroLetter:
+      type: object
+      required: [name, subject]
+      properties:
+        name: { type: string }
+        subject: { type: string }
+    CrmQuoteIntroductionSetup:
+      type: object
+      required: [summer, winter, letters]
+      properties:
+        summer: { $ref: "#/components/schemas/CrmQuoteIntroMainModel" }
+        winter: { $ref: "#/components/schemas/CrmQuoteIntroMainModel" }
+        letters:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteIntroLetter" }
+    CrmQuoteIntroTemplateModel:
+      type: object
+      required: [productId, articleId, productName, fabricTitle]
+      properties:
+        productId: { type: integer }
+        articleId: { type: integer, format: int64 }
+        productName: { type: string, description: The name when the template was saved. }
+        fabricTitle: { type: string }
+    CrmQuoteIntroTemplatePage:
+      type: object
+      required: [season, models]
+      properties:
+        season: { $ref: "#/components/schemas/CrmQuoteIntroSeason" }
+        models:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteIntroTemplateModel" }
+    CrmQuoteIntroTemplate:
+      type: object
+      required: [id, name, layout, pages, author, createdAt, canDelete]
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        layout: { $ref: "#/components/schemas/CrmQuoteIntroLayout" }
+        letterName: { type: [string, "null"] }
+        pages:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteIntroTemplatePage" }
+        author: { $ref: "#/components/schemas/CrmQuotePerson" }
+        createdAt: { type: string, format: date-time }
+        canDelete: { type: boolean, description: "The actor is the author, Director or Admin." }
+    CrmCreateQuoteIntroTemplateInput:
+      type: object
+      required: [name, layout, pages]
+      properties:
+        name: { type: string, maxLength: 100 }
+        layout: { $ref: "#/components/schemas/CrmQuoteIntroLayout" }
+        letterName: { type: [string, "null"], maxLength: 300 }
+        pages:
+          type: array
+          items: { $ref: "#/components/schemas/CrmQuoteIntroPageInput" }
   securitySchemes:
     bearerAuth:
       type: http

@@ -3,6 +3,7 @@ using Crm.Application.Tasks.Persistence;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Quotes;
+using Crm.Domain.Quotes.Introductions;
 using Crm.Domain.Quotes.Sending;
 using Crm.Domain.Quotes.Settings;
 using Crm.Domain.Tasks;
@@ -20,6 +21,7 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<QuoteSettings> QuoteSettings => Set<QuoteSettings>();
     public DbSet<StaffMailbox> StaffMailboxes => Set<StaffMailbox>();
     public DbSet<QuoteSending> QuoteSendings => Set<QuoteSending>();
+    public DbSet<QuoteIntroTemplate> QuoteIntroTemplates => Set<QuoteIntroTemplate>();
     public DbSet<ManagerTask> ManagerTasks => Set<ManagerTask>();
 
     Task<int> IQuoteStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
@@ -37,6 +39,9 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public bool IsDuplicateSettings(DbUpdateException exception) => QuoteStoreErrors.IsDuplicateSettings(exception);
 
     public bool IsDuplicateMailbox(DbUpdateException exception) => QuoteStoreErrors.IsDuplicateMailbox(exception);
+
+    public bool IsDuplicateTemplateName(DbUpdateException exception) =>
+        QuoteStoreErrors.IsDuplicateTemplateName(exception);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
