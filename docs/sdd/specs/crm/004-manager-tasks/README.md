@@ -20,7 +20,7 @@ Tasks are work of the «Менеджер сервісу» block and may point to
 - **R-06:** Lane (kanban column): `Done` when done; otherwise `Overdue` when the due time has passed; otherwise `Urgent` when marked urgent; otherwise `Active` («У роботі»). An urgent task past its due time is overdue (owner's question 2026-11-04, proposed default). The board shows open tasks and those done in the last 7 days.
 - **R-07:** The manager (or Director/Admin) changes the status. `Done` stores the completion time; leaving `Done` clears it. Setting the same status changes nothing.
 - **R-08:** Dragging a card into or out of «Терміново» is a Director/Admin change of the urgent mark.
-- **R-09:** The overview gives counts for the metric strip and chips (open, overdue, urgent, new, in progress, done, done in the last 7 days, the share done on time in the last 30 days) and the workload of every active manager (open, overdue, urgent, in progress), including managers with no tasks.
+- **R-09:** The overview gives counts for the metric strip and chips (open, overdue, urgent, new, in progress, done, done in the last 7 days, the share done on time in the last 30 days) and the workload of every active manager (open, overdue, urgent, in progress, done in the last 7 days, the share done on time in the last 30 days) for the «Навантаження» tab, including managers with no tasks.
 - **R-10:** The manager (or Director/Admin) ticks and unticks steps.
 - **R-11:** «Історія змін» records who created, edited, reassigned, changed the due time, status, urgency or a step, and when; the client text is the Admin's.
 - **R-12:** Every change checks the version the screen loaded; a stale change is rejected with 409.
@@ -56,6 +56,6 @@ Identity users are stored as ids with names, without foreign keys. The client is
 
 ## Admin stages (brevi-web)
 
-1. «Адміністрування › Завдання менеджерам»: metric strip, workload of managers, search, chips, table, side panel.
+1. «Адміністрування › Завдання менеджерам»: tabs «Завдання» (metric strip, search, chips, table, side panel) and «Навантаження» (table of managers, L3 chosen 2026-11-04).
 2. «Менеджер сервісу › Мої завдання»: board K2 with «На сьогодні»; Director/Admin get the manager filter and the same side panel.
 3. The first menu item becomes the «Робочий стіл» tile (H2).

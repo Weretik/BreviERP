@@ -42,26 +42,40 @@ public sealed class GetTaskOverviewQueryHandler(ITaskStore store, ITaskStaffRead
                 counts.Done, counts.DoneLastWeek, onTime, load));
     }
 
-    /// <summary>Every active manager for Director/Admin (with zeros), the Manager alone otherwise.</summary>
+    /// <summary>
+    /// Every active manager for Director/Admin (with zeros), the Manager alone otherwise. Open counts come with
+    /// done in 7 days and on-time share of the last 30 days, the «Навантаження» tab (TSK-001 R-11).
+    /// </summary>
     private async Task<IReadOnlyList<TaskLoadResponse>> LoadAsync(GetTaskOverviewQuery query, DateTimeOffset now,
         CancellationToken cancellationToken)
     {
+        var weekAgo = now.AddDays(-7);
+        var monthAgo = now.AddDays(-30);
         var rows = await store.Visible(query.Actor, null)
-            .Where(x => x.Status != ManagerTaskStatus.Done)
+            .Where(x => x.Status != ManagerTaskStatus.Done || x.CompletedAt >= monthAgo)
             .GroupBy(x => new { x.AssigneeUserId, x.AssigneeName })
             .Select(g => new
             {
                 g.Key.AssigneeUserId,
                 g.Key.AssigneeName,
-                Open = g.Count(),
-                Overdue = g.Count(x => x.DueAt < now),
-                Urgent = g.Count(x => x.IsUrgent),
+                Open = g.Count(x => x.Status != ManagerTaskStatus.Done),
+                Overdue = g.Count(x => x.Status != ManagerTaskStatus.Done && x.DueAt < now),
+                Urgent = g.Count(x => x.Status != ManagerTaskStatus.Done && x.IsUrgent),
                 InProgress = g.Count(x => x.Status == ManagerTaskStatus.InProgress),
+                DoneLastWeek = g.Count(x => x.Status == ManagerTaskStatus.Done && x.CompletedAt >= weekAgo),
+                DoneLastMonth = g.Count(x => x.Status == ManagerTaskStatus.Done),
+                OnTimeLastMonth = g.Count(x => x.Status == ManagerTaskStatus.Done && x.CompletedAt <= x.DueAt),
             })
             .ToListAsync(cancellationToken);
-        var byUser = rows.GroupBy(x => x.AssigneeUserId).ToDictionary(g => g.Key, g => new TaskLoadResponse(g.Key,
-            g.First().AssigneeName, g.Sum(x => x.Open), g.Sum(x => x.Overdue), g.Sum(x => x.Urgent),
-            g.Sum(x => x.InProgress)));
+        var byUser = rows.GroupBy(x => x.AssigneeUserId).ToDictionary(g => g.Key, g =>
+        {
+            var doneLastMonth = g.Sum(x => x.DoneLastMonth);
+            int? onTime = doneLastMonth > 0
+                ? (int)Math.Round(100.0 * g.Sum(x => x.OnTimeLastMonth) / doneLastMonth)
+                : null;
+            return new TaskLoadResponse(g.Key, g.First().AssigneeName, g.Sum(x => x.Open), g.Sum(x => x.Overdue),
+                g.Sum(x => x.Urgent), g.Sum(x => x.InProgress), g.Sum(x => x.DoneLastWeek), onTime);
+        });
 
         if (!query.Actor.IsAdmin)
             return byUser.TryGetValue(query.Actor.UserId, out var own) ? [own] : [];
@@ -69,7 +83,7 @@ public sealed class GetTaskOverviewQueryHandler(ITaskStore store, ITaskStaffRead
         var managers = await staff.ListAssigneesAsync(cancellationToken);
         var result = managers.Select(m => byUser.TryGetValue(m.UserId, out var row)
             ? row with { Name = m.Name }
-            : new TaskLoadResponse(m.UserId, m.Name, 0, 0, 0, 0)).ToList();
+            : new TaskLoadResponse(m.UserId, m.Name, 0, 0, 0, 0, 0, null)).ToList();
         // Tasks of a blocked or demoted manager stay visible until they are given to someone else.
         result.AddRange(byUser.Values.Where(x => managers.All(m => m.UserId != x.UserId)));
         return result;

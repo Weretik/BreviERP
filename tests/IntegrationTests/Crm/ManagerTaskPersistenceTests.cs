@@ -218,10 +218,12 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
 
         Assert.That((all.Open, all.Overdue, all.Urgent, all.Done, all.DoneLastWeek, all.OnTimePercent),
             Is.EqualTo((2, 1, 1, 1, 1, (int?)100)));
-        Assert.That(all.Load.Select(x => (x.Name, x.Open, x.Overdue)), Is.EqualTo(new[]
-        {
-            ("Андрій Бондар", 0, 0), ("Ірина Мельник", 1, 0), ("Ольга Коваль", 1, 1),
-        }));
+        Assert.That(all.Load.Select(x => (x.Name, x.Open, x.Overdue, x.DoneLastWeek, x.OnTimePercent)),
+            Is.EqualTo(new[]
+            {
+                ("Андрій Бондар", 0, 0, 0, (int?)null), ("Ірина Мельник", 1, 0, 0, null),
+                ("Ольга Коваль", 1, 1, 1, 100),
+            }), "done and on-time count per manager for the «Навантаження» tab");
         Assert.That(olha.Open, Is.EqualTo(1), "a Manager's filter is ignored");
         Assert.That(olha.Load.Single().UserId, Is.EqualTo(17));
     }
