@@ -13,7 +13,8 @@ public sealed record ProductionOrderSummaryResponse(
     int TotalQuantity,
     DateOnly? NearestDueDate,
     bool IsTransferred,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    string Stage);
 
 /// <summary>Counts by status for the filter chips; they ignore the status filter itself.</summary>
 public sealed record ProductionOrderCounts(int All, int New, int Closed, int Cancelled);
@@ -23,8 +24,26 @@ public sealed record ProductionOrderPageResponse(
     ProductionOrderCounts Counts, IReadOnlyList<string> Managers);
 
 /// <summary>What the signed-in person may do with the order and which prices they see.</summary>
+/// <param name="CanTrack">Tick етапи and record shipments: Admin and the head of the workshop on a «Нове» order.</param>
+/// <param name="CanClose">«Закрити»: may track and everything is shipped.</param>
+/// <param name="CanReopen">«Повернути в роботу»: Admin, on a closed or cancelled order.</param>
 public sealed record ProductionOrderPermissions(
-    bool CanEdit, bool CanCopy, bool CanDelete, bool SeesSewingRate, bool SeesReportPrice);
+    bool CanEdit, bool CanCopy, bool CanDelete, bool SeesSewingRate, bool SeesReportPrice,
+    bool CanTrack, bool CanClose, bool CanCancel, bool CanReopen, bool CanManageFiles, bool CanSendTelegram);
+
+public sealed record ProductionShipmentResponse(
+    int Id, int Quantity, DateOnly ShippedOn, string? Comment, string CreatedByName, DateTimeOffset CreatedAt);
+
+/// <param name="Kind">Sizes, Application, Extra or Photo.</param>
+/// <param name="IsOldLink">A Google Drive link moved from the old «Цех»; the file itself is not on the CDN.</param>
+public sealed record ProductionFileResponse(
+    int Id, int? ItemId, string Kind, string Name, string ContentType, long Bytes, string Url, bool IsOldLink,
+    string CreatedByName, DateTimeOffset CreatedAt);
+
+/// <param name="Status">NotSent, Sending, Sent or Failed.</param>
+/// <param name="Ready">The workshop group is set and sending is on, so «Надіслати в цех» can work.</param>
+public sealed record ProductionTelegramResponse(
+    string Status, DateTimeOffset? SentAt, string? SentByName, string? Error, bool Ready);
 
 public sealed record ItemApplicationResponse(string Kind, string? Place, string? Description, string? Color);
 
@@ -47,7 +66,11 @@ public sealed record ProductionItemResponse(
     IReadOnlyList<ItemApplicationResponse> Applications,
     decimal? PlannedFabricMeters,
     decimal? SewingRate,
-    decimal? ReportUnitPrice);
+    decimal? ReportUnitPrice,
+    IReadOnlyList<string> Stages,
+    string CurrentStage,
+    int ShippedQuantity,
+    IReadOnlyList<ProductionShipmentResponse> Shipments);
 
 /// <param name="PriceTier">Null for anyone but Admin and Director, and for transferred orders.</param>
 public sealed record ProductionOrderResponse(
@@ -67,8 +90,11 @@ public sealed record ProductionOrderResponse(
     string CreatedByName,
     DateTimeOffset UpdatedAt,
     int Version,
+    string? CancelReason,
     ProductionOrderPermissions Permissions,
-    IReadOnlyList<ProductionItemResponse> Items);
+    IReadOnlyList<ProductionItemResponse> Items,
+    IReadOnlyList<ProductionFileResponse> Files,
+    ProductionTelegramResponse Telegram);
 
 /// <summary>A line of «Історія змін».</summary>
 public sealed record ProductionOrderChangeResponse(
@@ -99,3 +125,19 @@ public sealed record ProductionOrderImportResult(
 
 /// <param name="Action">created, unchanged or error.</param>
 public sealed record ProductionOrderImportLine(int Number, string ClientName, int Items, string Action, string? Error);
+
+/// <summary>«Налаштування цеху».</summary>
+/// <param name="BotConfigured">The server has the bot token.</param>
+/// <param name="Chats">Groups the bot is in, to pick the workshop group from.</param>
+public sealed record WorkshopSettingsResponse(
+    bool TelegramEnabled, long? TelegramChatId, int? TelegramThreadId, bool BotConfigured,
+    IReadOnlyList<WorkshopTelegramChatResponse> Chats, string? UpdatedByName, DateTimeOffset? UpdatedAt);
+
+public sealed record WorkshopTelegramChatResponse(long ChatId, string Title);
+
+public sealed record ProductionProgressImportResult(
+    bool DryRun, int Updated, int Unchanged, int Errors, IReadOnlyList<ProductionProgressImportLine> Lines);
+
+/// <param name="Action">updated, unchanged or error.</param>
+public sealed record ProductionProgressImportLine(
+    int? Number, string LegacyId, int Stages, int Files, string Action, string? Error);

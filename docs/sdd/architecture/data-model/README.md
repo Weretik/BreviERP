@@ -48,7 +48,7 @@ BreviERP PostgreSQL
 ├── media / MediaDbContext — 2 tables + own history
 │   ├── Folders                        # photo folder tree
 │   └── Files                          # photos on the CDN
-├── production / ProductionDbContext — 5 tables + own history
+├── production / ProductionDbContext — 9 tables + own history
 │   ├── Employees                      # workers of the workshop
 │   ├── FabricNorms                    # fabric per item of a sewing model
 │   ├── Orders                         # «Виробничі завдання» from КП

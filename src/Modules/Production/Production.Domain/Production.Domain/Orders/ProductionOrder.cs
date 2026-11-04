@@ -15,9 +15,11 @@ public sealed class ProductionOrder
     public const int CommentMaxLength = 4000;
     public const int LegacyIdMaxLength = 64;
     public const int MaxItems = 100;
+    public const int CancelReasonMaxLength = 1000;
 
     private readonly List<ProductionItem> _items = [];
     private readonly List<ProductionOrderChange> _changes = [];
+    private readonly List<ProductionShipment> _shipments = [];
 
     private ProductionOrder() { }
 
@@ -79,7 +81,17 @@ public sealed class ProductionOrder
     public DateTimeOffset? DeletedAt { get; private set; }
     public int Version { get; private set; }
 
+    /// <summary>Why the order was cancelled; null unless it is «Скасоване».</summary>
+    public string? CancelReason { get; private set; }
+
     public IReadOnlyList<ProductionItem> Items => _items;
+
+    public IReadOnlyList<ProductionShipment> Shipments => _shipments;
+
+    public int ShippedQuantity(int itemId) => _shipments.Where(x => x.ItemId == itemId).Sum(x => x.Quantity);
+
+    /// <summary>Every item is shipped in full, so the order may be closed.</summary>
+    public bool IsFullyShipped => _items.All(x => ShippedQuantity(x.Id) >= x.Quantity);
 
     /// <summary>History lines added in this change; saved ones are read by a separate query.</summary>
     public IReadOnlyList<ProductionOrderChange> Changes => _changes;
@@ -144,8 +156,106 @@ public sealed class ProductionOrder
         Touch(now);
     }
 
+    /// <returns>False when the stages did not change.</returns>
+    public bool SetItemStages(int itemId, IEnumerable<ProductionStage> stages, string actorName, DateTimeOffset now)
+    {
+        var item = Item(itemId);
+        var before = ProductionStages.Describe(item.Stages);
+        if (!item.SetStages(stages)) return false;
+        _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Етапи", before,
+            ProductionStages.Describe(item.Stages), actorName, now));
+        Touch(now);
+        return true;
+    }
+
+    /// <summary>Quantity still to ship for an item.</summary>
+    public int RemainingToShip(int itemId) => Item(itemId).Quantity - ShippedQuantity(itemId);
+
+    /// <summary>
+    /// «Відвантажити»: part of an item goes to the client. When the item is shipped in full, «Фактично відвантажено»
+    /// is ticked for it.
+    /// </summary>
+    public ProductionShipment Ship(int itemId, int quantity, DateOnly shippedOn, string? comment, string actorName,
+        DateTimeOffset now)
+    {
+        var item = Item(itemId);
+        if (quantity > RemainingToShip(itemId))
+            throw new InvalidOperationException("The quantity is more than is left to ship.");
+        var shipment = new ProductionShipment(item.Id, quantity, shippedOn, comment, actorName, now);
+        _shipments.Add(shipment);
+        _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження", null,
+            $"{quantity} шт., {Format(shippedOn)}{(shipment.Comment is null ? "" : $", {shipment.Comment}")}",
+            actorName, now));
+        if (RemainingToShip(itemId) == 0 && !item.Stages.Contains(ProductionStage.Shipped))
+            SetItemStages(itemId, [.. item.Stages, ProductionStage.Shipped], actorName, now);
+        Touch(now);
+        return shipment;
+    }
+
+    /// <returns>False when there is no such shipment.</returns>
+    public bool CancelShipment(int shipmentId, string actorName, DateTimeOffset now)
+    {
+        var shipment = _shipments.FirstOrDefault(x => x.Id == shipmentId);
+        if (shipment is null) return false;
+        _shipments.Remove(shipment);
+        var item = Item(shipment.ItemId);
+        _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження скасовано",
+            $"{shipment.Quantity} шт., {Format(shipment.ShippedOn)}", null, actorName, now));
+        Touch(now);
+        return true;
+    }
+
+    /// <summary>«Закрити»: everything is shipped.</summary>
+    public void Close(string actorName, DateTimeOffset now)
+    {
+        if (Status != ProductionOrderStatus.New || !IsFullyShipped)
+            throw new InvalidOperationException("Only a new order shipped in full can be closed.");
+        ChangeStatus(ProductionOrderStatus.Closed, null, actorName, now);
+    }
+
+    /// <summary>«Скасувати» with a reason.</summary>
+    public void Cancel(string reason, string actorName, DateTimeOffset now)
+    {
+        if (Status != ProductionOrderStatus.New) throw new InvalidOperationException("Only a new order can be cancelled.");
+        ChangeStatus(ProductionOrderStatus.Cancelled, OrderText.Required(reason, CancelReasonMaxLength), actorName, now);
+    }
+
+    /// <summary>«Повернути в роботу» (Admin): a closed or cancelled order becomes «Нове» again.</summary>
+    public void Reopen(string actorName, DateTimeOffset now)
+    {
+        if (Status == ProductionOrderStatus.New) throw new InvalidOperationException("The order is already open.");
+        ChangeStatus(ProductionOrderStatus.New, null, actorName, now);
+    }
+
+    /// <summary>A history line about an item (or the whole order when <paramref name="itemId"/> is null), such as a file.</summary>
+    public void RecordAbout(int? itemId, string field, string? before, string? after, string actorName,
+        DateTimeOffset now) =>
+        _changes.Add(new ProductionOrderChange(itemId,
+            itemId is null ? null : _items.FirstOrDefault(x => x.Id == itemId)?.ModelName, field, before, after,
+            actorName, now));
+
     public void Record(string field, string? after, string actorName, DateTimeOffset now) =>
         _changes.Add(new ProductionOrderChange(null, null, field, null, after, actorName, now));
+
+    private ProductionItem Item(int itemId) =>
+        _items.FirstOrDefault(x => x.Id == itemId) ?? throw new ArgumentException("No such item.", nameof(itemId));
+
+    private void ChangeStatus(ProductionOrderStatus status, string? reason, string actorName, DateTimeOffset now)
+    {
+        var before = StatusLabel(Status);
+        Status = status;
+        CancelReason = reason;
+        _changes.Add(new ProductionOrderChange(null, null, "Статус", before,
+            reason is null ? StatusLabel(status) : $"{StatusLabel(status)}: {reason}", actorName, now));
+        Touch(now);
+    }
+
+    private static string StatusLabel(ProductionOrderStatus status) => status switch
+    {
+        ProductionOrderStatus.Closed => "Закрите",
+        ProductionOrderStatus.Cancelled => "Скасоване",
+        _ => "Нове"
+    };
 
     private void Touch(DateTimeOffset now)
     {

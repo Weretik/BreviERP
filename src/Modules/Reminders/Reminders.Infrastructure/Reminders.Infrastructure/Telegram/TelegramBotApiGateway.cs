@@ -27,6 +27,19 @@ public sealed class TelegramBotApiGateway(HttpClient http, IOptions<TelegramOpti
         return result.GetProperty("message_id").GetInt64();
     }
 
+    public async Task<long> SendTopicMessageAsync(long chatId, int? threadId, string html, CancellationToken cancellationToken)
+    {
+        var result = await CallAsync("sendMessage", new
+        {
+            chat_id = chatId,
+            message_thread_id = threadId,
+            text = html,
+            parse_mode = "HTML",
+            link_preview_options = new { is_disabled = true }
+        }, cancellationToken);
+        return result.GetProperty("message_id").GetInt64();
+    }
+
     public Task EditMessageAsync(long chatId, long messageId, string html, TelegramKeyboard? keyboard, CancellationToken cancellationToken) =>
         CallIgnoringUnchangedAsync("editMessageText", new
         {

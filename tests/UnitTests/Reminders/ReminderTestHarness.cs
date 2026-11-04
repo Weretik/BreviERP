@@ -29,6 +29,13 @@ internal sealed class FakeTelegram : ITelegramGateway
         return Task.FromResult(id);
     }
 
+    public Task<long> SendTopicMessageAsync(long chatId, int? threadId, string html, CancellationToken cancellationToken)
+    {
+        var id = _nextMessageId++;
+        Sent.Add((chatId, id, html, null));
+        return Task.FromResult(id);
+    }
+
     public Task EditMessageAsync(long chatId, long messageId, string html, TelegramKeyboard? keyboard, CancellationToken cancellationToken)
     {
         Edited.Add((chatId, messageId, html, keyboard));

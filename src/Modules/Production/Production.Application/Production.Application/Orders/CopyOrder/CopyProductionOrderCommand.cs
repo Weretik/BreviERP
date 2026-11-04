@@ -24,7 +24,7 @@ public sealed class CopyProductionOrderCommandValidator : AbstractValidator<Copy
 }
 
 public sealed class CopyProductionOrderCommandHandler(IProductionDbContext db, IProductionStaffReader staff,
-    TimeProvider clock)
+    OrderCards cards, TimeProvider clock)
     : ICommandHandler<CopyProductionOrderCommand, Result<ProductionOrderResponse>>
 {
     public async ValueTask<Result<ProductionOrderResponse>> Handle(CopyProductionOrderCommand command,
@@ -32,9 +32,9 @@ public sealed class CopyProductionOrderCommandHandler(IProductionDbContext db, I
     {
         var actor = command.Actor;
         if (!actor.CanCreate) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotCreate);
-        var existing = await db.Orders.AsNoTracking().Include(x => x.Items)
+        var existing = await cards.Orders.AsNoTracking()
             .FirstOrDefaultAsync(x => x.CreateRequestId == command.Input.RequestId, cancellationToken);
-        if (existing is not null) return Result.Success(existing.ToResponse(actor));
+        if (existing is not null) return Result.Success(await cards.BuildAsync(existing, actor, cancellationToken));
 
         var source = await db.Orders.AsNoTracking().Include(x => x.Items)
             .SingleOrDefaultAsync(x => x.Id == command.Id && x.DeletedAt == null, cancellationToken);
@@ -53,6 +53,8 @@ public sealed class CopyProductionOrderCommandHandler(IProductionDbContext db, I
         copy.Record("Створено", $"Копія завдання № {source.Number}", person.Name, now);
         db.Orders.Add(copy);
         await db.SaveChangesAsync(cancellationToken);
-        return Result.Success(copy.ToResponse(actor));
+        db.TelegramDeliveries.Add(new ProductionTelegramDelivery(copy.Id));
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Success(await cards.BuildAsync(copy, actor, cancellationToken));
     }
 }

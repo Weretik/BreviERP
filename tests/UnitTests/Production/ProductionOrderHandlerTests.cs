@@ -116,7 +116,7 @@ public sealed class ProductionOrderHandlerTests
         var item = created.Items.Single();
         var details = Details(5) with { AdditionalColors = [], SizesText = "M-3, L-2" };
 
-        var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Time)
+        var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time)
             .Handle(new(Chief, created.Id, new UpdateProductionOrderInput(created.Version, created.ClientName,
                 created.OrderDate, null, [new(item.Id, details, 300m)])), CancellationToken.None);
         var history = (await new GetProductionOrderHistoryQueryHandler(workshop.Db)
@@ -140,7 +140,7 @@ public sealed class ProductionOrderHandlerTests
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
         var lines = created.Items.Select(x => new UpdateProductionItemInput(x.Id, Details(4), null)).ToArray();
-        var handler = new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Time);
+        var handler = new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time);
 
         var other = await handler.Handle(new(OtherManager, created.Id,
             new(created.Version, "Інший", created.OrderDate, null, lines)), CancellationToken.None);
@@ -161,7 +161,7 @@ public sealed class ProductionOrderHandlerTests
         var created = (await Create(workshop, Manager, Input())).Value;
         var item = created.Items.Single();
 
-        await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Time)
+        await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time)
             .Handle(new(Manager, created.Id, new(created.Version, created.ClientName, created.OrderDate, null,
                 [new(item.Id, Details(3), 1m)])), CancellationToken.None);
 
@@ -175,7 +175,7 @@ public sealed class ProductionOrderHandlerTests
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
 
-        var copy = await new CopyProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Time)
+        var copy = await new CopyProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time)
             .Handle(new(Admin, created.Id, new(Guid.NewGuid())), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -198,7 +198,7 @@ public sealed class ProductionOrderHandlerTests
         var admin = await handler.Handle(new(Admin, created.Id, created.Version), CancellationToken.None);
         var list = (await new GetProductionOrdersQueryHandler(workshop.Db)
             .Handle(new(null, null, null, null), CancellationToken.None)).Value;
-        var detail = await new GetProductionOrderQueryHandler(workshop.Db)
+        var detail = await new GetProductionOrderQueryHandler(workshop.Cards())
             .Handle(new(Admin, created.Id), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -267,7 +267,7 @@ public sealed class ProductionOrderHandlerTests
         });
     }
 
-    private static ProductionTestHarness Workshop()
+    internal static ProductionTestHarness Workshop()
     {
         var workshop = new ProductionTestHarness();
         workshop.Staff.Staff.AddRange([
@@ -287,17 +287,17 @@ public sealed class ProductionOrderHandlerTests
         return workshop;
     }
 
-    private static ProductionItemDetailsInput Details(int quantity) => new(quantity, new DateOnly(2026, 11, 19),
+    internal static ProductionItemDetailsInput Details(int quantity) => new(quantity, new DateOnly(2026, 11, 19),
         "Темно-сірий", ["Червоний"], null, "Світловідбивна стрічка", null,
         [new ItemApplicationInput("Embroidery", "Спина", "Логотип", "Помаранчевий")]);
 
-    private static CreateProductionOrderInput Input() => new(Guid.NewGuid(), 10, "Геофізика",
+    internal static CreateProductionOrderInput Input() => new(Guid.NewGuid(), 10, "Геофізика",
         new DateOnly(2026, 11, 4), null, "Wholesale", [new CreateProductionItemInput(100, 1000, Details(3))]);
 
-    private static Task<Result<ProductionOrderResponse>> Create(ProductionTestHarness workshop, ProductionActor actor,
+    internal static Task<Result<ProductionOrderResponse>> Create(ProductionTestHarness workshop, ProductionActor actor,
         CreateProductionOrderInput input) =>
         new CreateProductionOrderCommandHandler(workshop.Db, workshop.Quotes, workshop.Staff, workshop.Resolver(),
-            workshop.Time).Handle(new(actor, input), CancellationToken.None).AsTask();
+            workshop.Cards(), workshop.Time).Handle(new(actor, input), CancellationToken.None).AsTask();
 
     private static ProductionOrderImportRow Row(string id, int number, string status, string client) => new(id, number,
         "27-10-2026", client, "anastasia@brevi.ua", "Анастасія", status, new DateOnly(2026, 10, 9), null,

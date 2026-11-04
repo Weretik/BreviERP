@@ -269,6 +269,30 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1history
   /api/production/orders/{id}/copy:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1copy
+  /api/production/orders/{id}/items/{itemId}/stages:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1items~1{itemId}~1stages
+  /api/production/orders/{id}/items/{itemId}/shipments:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1items~1{itemId}~1shipments
+  /api/production/orders/{id}/shipments/{shipmentId}:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1shipments~1{shipmentId}
+  /api/production/orders/{id}/close:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1close
+  /api/production/orders/{id}/cancel:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1cancel
+  /api/production/orders/{id}/reopen:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1reopen
+  /api/production/orders/{id}/files:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1files
+  /api/production/orders/{id}/files/{fileId}:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1files~1{fileId}
+  /api/production/orders/{id}/telegram:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1telegram
+  /api/production/orders/progress-import:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1progress-import
+  /api/production/settings:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings
+  /api/production/settings/telegram-test:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings~1telegram-test
   /api/reminders/non-working-days:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1non-working-days
   /api/reminders/non-working-days/{date}:

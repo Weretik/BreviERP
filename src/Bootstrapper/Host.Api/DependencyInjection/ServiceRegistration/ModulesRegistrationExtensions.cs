@@ -68,6 +68,8 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
         services.AddScoped<IProductionStaffReader, ProductionStaffReader>();
         services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();
+        services.AddScoped<IProductionFileStorage, ProductionFileStorage>();
+        services.AddScoped<IProductionTelegram, ProductionTelegram>();
         services.AddSingleton<IProductSlugGenerator, ProductSlugGenerator>();
 
         return services;

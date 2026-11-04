@@ -2,9 +2,11 @@ openapi: 3.1.0
 info:
   title: 'Production: orders'
   version: 1.0.0
-  description: 'Stage 2 of «Швейний цех» (PRD-002): «Виробничі завдання» created from sent КП. Manager: creates from own КП,
-    edits own orders, never sees the sewing rate or КП price kept for reports. WorkshopChief: sees and edits every order with
-    the rate, without КП prices. Admin (the director also holds Admin): everything, alone deletes and moves old orders.'
+  description: 'Stages 2-3 of «Швейний цех» (PRD-002, PRD-003): «Виробничі завдання» created from sent КП, then етапи, відвантаження,
+    files, status and the one Telegram message to the workshop. Manager: creates from own КП, edits own orders and their files,
+    never sees the sewing rate or КП price kept for reports. WorkshopChief: sees and edits every order with the rate, without
+    КП prices, ticks stages and ships. Admin (the director also holds Admin): everything, alone deletes, reopens and moves
+    old orders.'
 servers:
 - url: /
 security:
@@ -40,9 +42,25 @@ paths:
       - in: query
         name: dueTo
         required: false
-        schema: &id004
+        schema: &id012
           type: string
           format: date
+      - in: query
+        name: stage
+        required: false
+        schema:
+          type: string
+          enum: &id015
+          - New
+          - FabricOrdered
+          - FabricAvailable
+          - Cutting
+          - Application
+          - Sewing
+          - Ready
+          - Shipped
+          - Complete
+        description: Orders whose least advanced item is at this stage.
       - in: query
         name: page
         required: false
@@ -297,6 +315,365 @@ paths:
           description: Not found.
         '401': *id001
         '403': *id002
+  /api/production/orders/{id}/items/{itemId}/stages:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    - in: path
+      name: itemId
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    put:
+      tags:
+      - Production
+      operationId: setProductionItemStages
+      summary: Tick the stages of an item; the furthest one colours the row
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetProductionItemStagesInput'
+      responses:
+        '200': &id004
+          description: The order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrderResponse'
+        '400': &id005
+          description: Wrong fields.
+        '404': &id006
+          description: The order or item is missing.
+        '409': &id009
+          description: The order was changed since it was read, or the change is not allowed now.
+        '401': &id007
+          description: Unauthenticated.
+        '403': &id008
+          description: Manager, WorkshopChief or Admin role required (policy CanUseProductionOrders); the person may not make
+            this change.
+  /api/production/orders/{id}/items/{itemId}/shipments:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    - in: path
+      name: itemId
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    post:
+      tags:
+      - Production
+      operationId: createProductionShipment
+      summary: «Відвантажити» part of an item; a full shipment ticks «Фактично відвантажено»
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductionShipmentInput'
+      responses:
+        '200': *id004
+        '400': *id005
+        '404': *id006
+        '409':
+          description: Stale version, or more than is left to ship.
+        '401': *id007
+        '403': *id008
+  /api/production/orders/{id}/shipments/{shipmentId}:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    - in: path
+      name: shipmentId
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    delete:
+      tags:
+      - Production
+      operationId: cancelProductionShipment
+      summary: Cancel a shipment recorded by mistake
+      parameters:
+      - in: query
+        name: version
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200': *id004
+        '400': *id005
+        '404': *id006
+        '409': *id009
+        '401': *id007
+        '403': *id008
+  /api/production/orders/{id}/close:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    post:
+      tags:
+      - Production
+      operationId: closeProductionOrder
+      summary: '«Закрити»: every item is shipped in full'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductionOrderVersionInput'
+      responses:
+        '200': *id004
+        '400': *id005
+        '404': *id006
+        '409': *id009
+        '401': *id007
+        '403': *id008
+  /api/production/orders/{id}/cancel:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    post:
+      tags:
+      - Production
+      operationId: cancelProductionOrder
+      summary: «Скасувати» with a reason
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelProductionOrderInput'
+      responses:
+        '200': *id004
+        '400': *id005
+        '404': *id006
+        '409': *id009
+        '401': *id007
+        '403': *id008
+  /api/production/orders/{id}/reopen:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    post:
+      tags:
+      - Production
+      operationId: reopenProductionOrder
+      summary: 'Admin: «Повернути в роботу» a closed or cancelled order'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductionOrderVersionInput'
+      responses:
+        '200': *id004
+        '400': *id005
+        '404': *id006
+        '409': *id009
+        '401': *id007
+        '403': *id008
+  /api/production/orders/{id}/files:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    post:
+      tags:
+      - Production
+      operationId: uploadProductionOrderFile
+      summary: Upload a file of the order or of one item to the CDN (up to 20 MB, any type)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              - kind
+              properties:
+                file:
+                  type: string
+                  format: binary
+                kind:
+                  type: string
+                  enum: &id020
+                  - Sizes
+                  - Application
+                  - Extra
+                  - Photo
+                itemId:
+                  type:
+                  - integer
+                  - 'null'
+                  description: Empty for the whole order.
+      responses:
+        '200': *id004
+        '400':
+          description: No file, empty, too large or an unknown kind.
+        '404':
+          description: The order or item is missing.
+        '401': *id007
+        '403': *id008
+  /api/production/orders/{id}/files/{fileId}:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    - in: path
+      name: fileId
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    delete:
+      tags:
+      - Production
+      operationId: deleteProductionOrderFile
+      summary: Remove a file; a CDN file is deleted too
+      responses:
+        '200': *id004
+        '404':
+          description: The order or file is missing.
+        '401': *id007
+        '403': *id008
+  /api/production/orders/{id}/telegram:
+    parameters:
+    - in: path
+      name: id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    post:
+      tags:
+      - Production
+      operationId: sendProductionOrderTelegram
+      summary: '«Надіслати в цех»: the one message to the workshop group; never sent twice, a failure is shown on the card
+        and can be retried'
+      responses:
+        '200': *id004
+        '404':
+          description: Not found.
+        '409':
+          description: Already sent or being sent, or the workshop group is not set.
+        '401': *id007
+        '403': *id008
+  /api/production/orders/progress-import:
+    post:
+      tags:
+      - Production
+      operationId: importProductionProgress
+      summary: 'Admin: move stages, file links and Telegram marks of the old «Цех»; dryRun only shows them; any error saves
+        nothing'
+      parameters:
+      - in: query
+        name: dryRun
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: What changed or would change.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionProgressImportResult'
+        '401': *id007
+        '403': *id008
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductionProgressImportRow'
+  /api/production/settings:
+    get:
+      tags:
+      - Production
+      operationId: getWorkshopSettings
+      summary: '«Налаштування цеху»: the workshop group and topic'
+      responses:
+        '200': &id010
+          description: The settings with the groups the bot is in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkshopSettingsResponse'
+        '403': &id011
+          description: Only WorkshopChief or Admin manage the workshop settings.
+        '401': *id007
+    put:
+      tags:
+      - Production
+      operationId: updateWorkshopSettings
+      summary: Choose the group and topic, turn sending on or off
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkshopSettingsInput'
+      responses:
+        '200': *id010
+        '403': *id011
+        '400':
+          description: Sending on without a group.
+        '401': *id007
+  /api/production/settings/telegram-test:
+    post:
+      tags:
+      - Production
+      operationId: sendWorkshopTelegramTest
+      summary: Send a test line to the chosen group and topic
+      responses:
+        '204':
+          description: Sent.
+        '409':
+          description: No bot token or no group.
+        '500':
+          description: Telegram refused; the reason is in the error.
+        '403': *id011
+        '401': *id007
 components:
   securitySchemes:
     Bearer:
@@ -341,7 +718,7 @@ components:
           type: integer
           minimum: 1
           maximum: 100000
-        dueDate: *id004
+        dueDate: *id012
         mainColor:
           type: string
           maxLength: 80
@@ -378,9 +755,9 @@ components:
       - quoteOptionId
       - details
       properties:
-        quoteItemId: &id005
+        quoteItemId: &id013
           type: integer
-        quoteOptionId: *id005
+        quoteOptionId: *id013
         details:
           $ref: '#/components/schemas/ProductionItemDetailsInput'
     CreateProductionOrderInput:
@@ -396,11 +773,11 @@ components:
         requestId:
           type: string
           format: uuid
-        quoteId: *id005
+        quoteId: *id013
         clientName:
           type: string
           maxLength: 300
-        orderDate: *id004
+        orderDate: *id012
         comment:
           type:
           - string
@@ -424,11 +801,11 @@ components:
       - id
       - details
       properties:
-        id: *id005
+        id: *id013
         details:
           $ref: '#/components/schemas/ProductionItemDetailsInput'
         sewingRate:
-          type: &id006
+          type: &id014
           - number
           - 'null'
           description: Applied only for Admin and the head of the workshop; null clears it.
@@ -440,11 +817,11 @@ components:
       - orderDate
       - items
       properties:
-        version: *id005
+        version: *id013
         clientName:
           type: string
           maxLength: 300
-        orderDate: *id004
+        orderDate: *id012
         comment:
           type:
           - string
@@ -486,8 +863,8 @@ components:
           - string
           - 'null'
           maxLength: 300
-        sewingRate: &id007
-          type: *id006
+        sewingRate: &id016
+          type: *id014
         details:
           $ref: '#/components/schemas/ProductionItemDetailsInput'
     ProductionOrderImportRow:
@@ -504,7 +881,7 @@ components:
         legacyId:
           type: string
           maxLength: 64
-        number: *id005
+        number: *id013
         quoteNumber:
           type:
           - string
@@ -526,7 +903,7 @@ components:
           - New
           - Closed
           - Cancelled
-        orderDate: *id004
+        orderDate: *id012
         comment:
           type:
           - string
@@ -552,9 +929,10 @@ components:
       - nearestDueDate
       - isTransferred
       - updatedAt
+      - stage
       properties:
-        id: *id005
-        number: *id005
+        id: *id013
+        number: *id013
         status:
           type: string
           enum:
@@ -563,7 +941,7 @@ components:
           - Cancelled
         clientName:
           type: string
-        quoteId: &id008
+        quoteId: &id017
           type:
           - integer
           - 'null'
@@ -573,9 +951,9 @@ components:
           - 'null'
         managerName:
           type: string
-        orderDate: *id004
-        itemsCount: *id005
-        totalQuantity: *id005
+        orderDate: *id012
+        itemsCount: *id013
+        totalQuantity: *id013
         nearestDueDate:
           type:
           - string
@@ -583,9 +961,13 @@ components:
           format: date
         isTransferred:
           type: boolean
-        updatedAt: &id009
+        updatedAt: &id018
           type: string
           format: date-time
+        stage:
+          type: string
+          enum: *id015
+          description: 'The least advanced item stage: the order is only as far as its slowest item.'
     ProductionOrderCounts:
       type: object
       required:
@@ -594,10 +976,10 @@ components:
       - closed
       - cancelled
       properties:
-        all: *id005
-        new: *id005
-        closed: *id005
-        cancelled: *id005
+        all: *id013
+        new: *id013
+        closed: *id013
+        cancelled: *id013
     ProductionOrderPageResponse:
       type: object
       required:
@@ -612,9 +994,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductionOrderSummaryResponse'
-        page: *id005
-        pageSize: *id005
-        total: *id005
+        page: *id013
+        pageSize: *id013
+        total: *id013
         counts:
           $ref: '#/components/schemas/ProductionOrderCounts'
         managers:
@@ -629,6 +1011,12 @@ components:
       - canDelete
       - seesSewingRate
       - seesReportPrice
+      - canTrack
+      - canClose
+      - canCancel
+      - canReopen
+      - canManageFiles
+      - canSendTelegram
       properties:
         canEdit:
           type: boolean
@@ -640,6 +1028,24 @@ components:
           type: boolean
         seesReportPrice:
           type: boolean
+        canTrack:
+          type: boolean
+          description: 'Tick stages and ship: WorkshopChief and Admin on a «Нове» order.'
+        canClose:
+          type: boolean
+          description: '«Закрити»: everything is shipped.'
+        canCancel:
+          type: boolean
+          description: «Скасувати» with a reason.
+        canReopen:
+          type: boolean
+          description: '«Повернути в роботу»: Admin on a closed or cancelled order.'
+        canManageFiles:
+          type: boolean
+          description: Add and delete files.
+        canSendTelegram:
+          type: boolean
+          description: '«Надіслати в цех»: not sent yet and the group is set.'
     ItemApplicationResponse:
       type: object
       required:
@@ -685,9 +1091,13 @@ components:
       - plannedFabricMeters
       - sewingRate
       - reportUnitPrice
+      - stages
+      - currentStage
+      - shippedQuantity
+      - shipments
       properties:
-        id: *id005
-        position: *id005
+        id: *id013
+        position: *id013
         modelCode:
           type:
           - string
@@ -702,8 +1112,8 @@ components:
           type:
           - string
           - 'null'
-        quantity: *id005
-        dueDate: *id004
+        quantity: *id013
+        dueDate: *id012
         mainColor:
           type: string
         additionalColors:
@@ -726,13 +1136,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ItemApplicationResponse'
-        plannedFabricMeters: *id007
+        plannedFabricMeters: *id016
         sewingRate:
-          type: *id006
+          type: *id014
           description: Null for a manager.
         reportUnitPrice:
-          type: *id006
+          type: *id014
           description: Null for anyone but Admin and Director.
+        stages:
+          type: array
+          items:
+            type: string
+            enum: *id015
+          description: Ticked stages in order.
+        currentStage:
+          type: string
+          enum: *id015
+          description: The furthest ticked stage; it colours the row.
+        shippedQuantity: &id019
+          type: integer
+        shipments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionShipmentResponse'
     ProductionOrderResponse:
       type: object
       required:
@@ -754,9 +1180,12 @@ components:
       - version
       - permissions
       - items
+      - cancelReason
+      - files
+      - telegram
       properties:
-        id: *id005
-        number: *id005
+        id: *id013
+        number: *id013
         status:
           type: string
           enum:
@@ -765,14 +1194,14 @@ components:
           - Cancelled
         clientName:
           type: string
-        quoteId: *id008
+        quoteId: *id017
         quoteNumber:
           type:
           - string
           - 'null'
         managerName:
           type: string
-        orderDate: *id004
+        orderDate: *id012
         comment:
           type:
           - string
@@ -789,18 +1218,28 @@ components:
           description: Null for anyone but Admin and Director.
         isTransferred:
           type: boolean
-        copiedFromOrderId: *id008
-        createdAt: *id009
+        copiedFromOrderId: *id017
+        createdAt: *id018
         createdByName:
           type: string
-        updatedAt: *id009
-        version: *id005
+        updatedAt: *id018
+        version: *id013
         permissions:
           $ref: '#/components/schemas/ProductionOrderPermissions'
         items:
           type: array
           items:
             $ref: '#/components/schemas/ProductionItemResponse'
+        cancelReason:
+          type:
+          - string
+          - 'null'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionFileResponse'
+        telegram:
+          $ref: '#/components/schemas/ProductionTelegramResponse'
     ProductionOrderChangeResponse:
       type: object
       required:
@@ -813,8 +1252,8 @@ components:
       - actorName
       - at
       properties:
-        id: *id005
-        itemId: *id008
+        id: *id013
+        itemId: *id017
         itemName:
           type:
           - string
@@ -831,7 +1270,7 @@ components:
           - 'null'
         actorName:
           type: string
-        at: *id009
+        at: *id018
     ProductionQuoteSourceResponse:
       type: object
       required:
@@ -842,7 +1281,7 @@ components:
       - lastSentAt
       - ordersCount
       properties:
-        id: *id005
+        id: *id013
         number:
           type: string
         clientName:
@@ -854,7 +1293,7 @@ components:
           - string
           - 'null'
           format: date-time
-        ordersCount: *id005
+        ordersCount: *id013
     ProductionQuoteDraftOption:
       type: object
       required:
@@ -867,7 +1306,7 @@ components:
       - large
       - sewingRate
       properties:
-        optionId: *id005
+        optionId: *id013
         title:
           type: string
         fabricCode:
@@ -878,11 +1317,11 @@ components:
           type:
           - string
           - 'null'
-        retail: *id007
-        wholesale: *id007
-        large: *id007
+        retail: *id016
+        wholesale: *id016
+        large: *id016
         sewingRate:
-          type: *id006
+          type: *id014
           description: Null for a manager.
     ProductionQuoteDraftItem:
       type: object
@@ -893,7 +1332,7 @@ components:
       - norm
       - options
       properties:
-        quoteItemId: *id005
+        quoteItemId: *id013
         name:
           type: string
         modelCode:
@@ -917,7 +1356,7 @@ components:
       - managerName
       - items
       properties:
-        quoteId: *id005
+        quoteId: *id013
         number:
           type: string
         clientName:
@@ -937,10 +1376,10 @@ components:
       - action
       - error
       properties:
-        number: *id005
+        number: *id013
         clientName:
           type: string
-        items: *id005
+        items: *id013
         action:
           type: string
           enum:
@@ -962,10 +1401,344 @@ components:
       properties:
         dryRun:
           type: boolean
-        created: *id005
-        unchanged: *id005
-        errors: *id005
+        created: *id013
+        unchanged: *id013
+        errors: *id013
         lines:
           type: array
           items:
             $ref: '#/components/schemas/ProductionOrderImportLine'
+    ProductionShipmentResponse:
+      type: object
+      required:
+      - id
+      - quantity
+      - shippedOn
+      - comment
+      - createdByName
+      - createdAt
+      properties:
+        id: *id019
+        quantity: *id019
+        shippedOn: &id022
+          type: string
+          format: date
+        comment:
+          type:
+          - string
+          - 'null'
+        createdByName:
+          type: string
+        createdAt: &id021
+          type: string
+          format: date-time
+    ProductionFileResponse:
+      type: object
+      required:
+      - id
+      - itemId
+      - kind
+      - name
+      - contentType
+      - bytes
+      - url
+      - isOldLink
+      - createdByName
+      - createdAt
+      properties:
+        id: *id019
+        itemId:
+          type:
+          - integer
+          - 'null'
+          description: Null for a file of the whole order.
+        kind:
+          type: string
+          enum: *id020
+        name:
+          type: string
+        contentType:
+          type: string
+        bytes: *id019
+        url:
+          type: string
+        isOldLink:
+          type: boolean
+          description: A Google Drive link moved from the old «Цех».
+        createdByName:
+          type: string
+        createdAt: *id021
+    ProductionTelegramResponse:
+      type: object
+      required:
+      - status
+      - sentAt
+      - sentByName
+      - error
+      - ready
+      properties:
+        status:
+          type: string
+          enum:
+          - NotSent
+          - Sending
+          - Sent
+          - Failed
+        sentAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        sentByName:
+          type:
+          - string
+          - 'null'
+        error:
+          type:
+          - string
+          - 'null'
+          description: Why the last send failed.
+        ready:
+          type: boolean
+          description: The workshop group is set and sending is on.
+    ProductionOrderVersionInput:
+      type: object
+      required:
+      - version
+      properties:
+        version:
+          type: integer
+          minimum: 1
+    SetProductionItemStagesInput:
+      type: object
+      required:
+      - version
+      - stages
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        stages:
+          type: array
+          items:
+            type: string
+            enum: *id015
+          description: Ticked stages; empty means «Нове».
+    CreateProductionShipmentInput:
+      type: object
+      required:
+      - version
+      - quantity
+      - shippedOn
+      - comment
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        quantity:
+          type: integer
+          minimum: 1
+        shippedOn: *id022
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+    CancelProductionOrderInput:
+      type: object
+      required:
+      - version
+      - reason
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    WorkshopSettingsInput:
+      type: object
+      required:
+      - telegramEnabled
+      - telegramChatId
+      - telegramThreadId
+      properties:
+        telegramEnabled:
+          type: boolean
+        telegramChatId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        telegramThreadId:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          description: A topic of a group with topics; null posts to the main chat.
+    WorkshopTelegramChatResponse:
+      type: object
+      required:
+      - chatId
+      - title
+      properties:
+        chatId:
+          type: integer
+          format: int64
+        title:
+          type: string
+    WorkshopSettingsResponse:
+      type: object
+      required:
+      - telegramEnabled
+      - telegramChatId
+      - telegramThreadId
+      - botConfigured
+      - chats
+      - updatedByName
+      - updatedAt
+      properties:
+        telegramEnabled:
+          type: boolean
+        telegramChatId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        telegramThreadId:
+          type:
+          - integer
+          - 'null'
+        botConfigured:
+          type: boolean
+          description: The server has the bot token.
+        chats:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkshopTelegramChatResponse'
+          description: Groups the Brevi bot is in.
+        updatedByName:
+          type:
+          - string
+          - 'null'
+        updatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    ProductionItemProgressImportRow:
+      type: object
+      required:
+      - position
+      - stages
+      properties:
+        position:
+          type: integer
+          minimum: 1
+        stages:
+          type: array
+          items:
+            type: string
+            enum: *id015
+    ProductionFileImportRow:
+      type: object
+      required:
+      - position
+      - kind
+      - name
+      - contentType
+      - bytes
+      - url
+      - createdAt
+      properties:
+        position:
+          type:
+          - integer
+          - 'null'
+        kind:
+          type: string
+          enum: *id020
+        name:
+          type: string
+        contentType:
+          type: string
+        bytes: *id019
+        url:
+          type: string
+        createdAt: *id021
+        createdByName:
+          type:
+          - string
+          - 'null'
+    ProductionProgressImportRow:
+      type: object
+      required:
+      - legacyId
+      - items
+      - files
+      - telegramSent
+      properties:
+        legacyId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionItemProgressImportRow'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionFileImportRow'
+        telegramSent:
+          type: boolean
+        telegramSentAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    ProductionProgressImportLine:
+      type: object
+      required:
+      - number
+      - legacyId
+      - stages
+      - files
+      - action
+      - error
+      properties:
+        number:
+          type:
+          - integer
+          - 'null'
+        legacyId:
+          type: string
+        stages: *id019
+        files: *id019
+        action:
+          type: string
+          enum:
+          - updated
+          - unchanged
+          - error
+        error:
+          type:
+          - string
+          - 'null'
+    ProductionProgressImportResult:
+      type: object
+      required:
+      - dryRun
+      - updated
+      - unchanged
+      - errors
+      - lines
+      properties:
+        dryRun:
+          type: boolean
+        updated: *id019
+        unchanged: *id019
+        errors: *id019
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionProgressImportLine'

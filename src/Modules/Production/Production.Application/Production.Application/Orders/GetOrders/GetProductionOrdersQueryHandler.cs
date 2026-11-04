@@ -17,6 +17,12 @@ public sealed class GetProductionOrdersQueryHandler(IProductionDbContext db)
             orders = orders.Where(x => x.ManagerName == manager);
         }
 
+        if (query.Stage is not null)
+        {
+            var stage = Enum.Parse<ProductionStage>(query.Stage, ignoreCase: true);
+            orders = orders.Where(x => x.Items.Min(item => item.CurrentStage) == stage);
+        }
+
         if (query.DueTo is { } dueTo)
             orders = orders.Where(x => x.Items.Any(item => item.DueDate <= dueTo));
 
@@ -53,7 +59,8 @@ public sealed class GetProductionOrdersQueryHandler(IProductionDbContext db)
                 x.QuoteId, x.QuoteNumber, x.ManagerName, x.OrderDate, x.Items.Count,
                 x.Items.Sum(item => item.Quantity),
                 x.Items.Min(item => (DateOnly?)item.DueDate),
-                x.LegacyId != null, x.UpdatedAt))
+                x.LegacyId != null, x.UpdatedAt,
+                (x.Items.Min(item => (ProductionStage?)item.CurrentStage) ?? ProductionStage.New).ToString()))
             .ToListAsync(cancellationToken);
         var managers = await db.Orders.AsNoTracking().Where(x => x.DeletedAt == null)
             .Select(x => x.ManagerName).Distinct().OrderBy(x => x).ToListAsync(cancellationToken);
