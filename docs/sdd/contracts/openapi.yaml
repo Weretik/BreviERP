@@ -193,6 +193,8 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1mailboxes~1{userId}
   /api/crm/mailboxes/google-callback:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1mailboxes~1google-callback
+  /api/crm/quote-import:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-import
   /api/crm/quote-settings:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-settings
   /api/crm/quote-lookups/catalog:

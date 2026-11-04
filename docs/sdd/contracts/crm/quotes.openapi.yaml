@@ -400,6 +400,32 @@ paths:
         - { name: error, in: query, schema: { type: string } }
       responses:
         "302": { description: Back to the Admin with gmail=connected or gmail=error&reason=expired|denied|google|twice. }
+  /api/crm/quote-import:
+    post:
+      operationId: importCrmQuotes
+      security:
+        - bearerAuth: []
+      description: >-
+        One-time transfer of КП from the old calculator (R-25). dryRun=true only returns the report. Otherwise every new
+        КП is saved in one transaction with its calculator number, people, dates, status, prices and history plus an
+        «Imported» line. A КП transferred before is skipped, so the same file can be sent again; a number a new Brevi
+        КП already has gets the next free number of that month. Items are linked to the Catalog and Reference by code;
+        what cannot be linked is transferred as it is and named in warnings.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmImportQuotesInput" }
+      responses:
+        "200":
+          description: Report; applied is true when the КП were saved.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuoteImportReport" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role and a numeric actor claim required (the Director also holds Admin). }
+        "409": { $ref: "#/components/responses/Conflict" }
   /api/crm/quote-settings:
     get:
       operationId: getCrmQuoteSettings
@@ -841,7 +867,7 @@ components:
         id: { type: integer, format: int64 }
         kind:
           type: string
-          enum: [Created, Saved, Sent, Repriced, ResponsibleChanged, Archived, Restored, Copied]
+          enum: [Created, Saved, Sent, Repriced, ResponsibleChanged, Archived, Restored, Copied, Imported]
         at: { type: string, format: date-time }
         actor: { $ref: "#/components/schemas/CrmQuotePerson" }
         details:
@@ -1052,6 +1078,154 @@ components:
         unavailable:
           type: array
           items: { $ref: "#/components/schemas/CrmQuoteRepriceProblem" }
+    CrmImportPerson:
+      type: object
+      required: [name]
+      properties:
+        email: { type: [string, "null"], maxLength: 320, description: Found among Brevi staff by e-mail. }
+        name: { type: string, maxLength: 200 }
+    CrmImportPrice:
+      type: object
+      required: [shown]
+      properties:
+        source: { type: [number, "null"], minimum: 0, maximum: 10000000 }
+        manual: { type: [number, "null"], minimum: 0, maximum: 10000000 }
+        shown: { type: boolean }
+    CrmImportOption:
+      type: object
+      required: [title, prices]
+      properties:
+        fabricCode: { type: [string, "null"], description: Reference fabric `FAB-…` of a sewing row. }
+        fabricMeters: { type: [number, "null"], exclusiveMinimum: 0, description: Metres in one «Виріб з нуля». }
+        title: { type: string, maxLength: 200 }
+        details: { type: [string, "null"], maxLength: 4000 }
+        isRecommended: { type: boolean }
+        prices:
+          type: object
+          required: [retail, wholesale, large]
+          properties:
+            retail: { $ref: "#/components/schemas/CrmImportPrice" }
+            wholesale: { $ref: "#/components/schemas/CrmImportPrice" }
+            large: { $ref: "#/components/schemas/CrmImportPrice" }
+        manualReason: { type: [string, "null"], maxLength: 500 }
+        manualByEmail: { type: [string, "null"] }
+        manualByName: { type: [string, "null"] }
+        manualAt: { type: [string, "null"], format: date-time }
+    CrmImportItem:
+      type: object
+      required: [kind, name, options]
+      properties:
+        kind: { $ref: "#/components/schemas/CrmQuoteItemKind" }
+        code: { type: [string, "null"], description: Catalog code `MOD-…` or PPE site article; required for Sewing and Ppe. }
+        name: { type: string, maxLength: 200 }
+        description: { type: [string, "null"], maxLength: 4000 }
+        siteUrl: { type: [string, "null"] }
+        photoUrl: { type: [string, "null"], description: "Kept only when it starts with https://." }
+        season: { type: [string, "null"] }
+        supplierUrl: { type: [string, "null"] }
+        options:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items: { $ref: "#/components/schemas/CrmImportOption" }
+        lines:
+          type: [array, "null"]
+          maxItems: 200
+          description: The composition of a «Виріб з нуля» by Reference codes.
+          items:
+            type: object
+            required: [kind, code, quantity]
+            properties:
+              kind: { type: string, enum: [Fabric, Accessory, Operation] }
+              code: { type: string, description: "`FAB-…`, `FUR-…` or `OP-…`." }
+              quantity: { type: number, exclusiveMinimum: 0 }
+    CrmImportQuote:
+      type: object
+      required: [number, kind, status, internalName, author, responsible, createdAt, updatedAt, items]
+      properties:
+        sourceId: { type: [string, "null"] }
+        number: { type: string, pattern: "^[0-9]{1,6}-[0-9]{1,2}-[0-9]{4}$", description: Calculator number n-month-year. }
+        kind: { $ref: "#/components/schemas/CrmQuoteKind" }
+        status: { $ref: "#/components/schemas/CrmQuoteStatus" }
+        internalName: { type: string, maxLength: 200 }
+        recipientName: { type: [string, "null"], maxLength: 200 }
+        companyName: { type: [string, "null"], maxLength: 200 }
+        clientComment: { type: [string, "null"], maxLength: 4000 }
+        managerNote: { type: [string, "null"], maxLength: 4000 }
+        keepinClientId: { type: [string, "null"], description: Linked to the Brevi customer with this KeepinCRM id. }
+        author: { $ref: "#/components/schemas/CrmImportPerson" }
+        responsible: { $ref: "#/components/schemas/CrmImportPerson" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        lastSentAt: { type: [string, "null"], format: date-time }
+        introduction:
+          type: [object, "null"]
+          required: [layout]
+          properties:
+            layout: { $ref: "#/components/schemas/CrmQuoteIntroLayout" }
+            recipientEmail: { type: [string, "null"] }
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: "#/components/schemas/CrmImportItem" }
+        events:
+          type: [array, "null"]
+          items:
+            type: object
+            required: [kind, at, actor]
+            properties:
+              kind: { type: string, enum: [Sent, ResponsibleChanged] }
+              at: { type: string, format: date-time }
+              actor: { $ref: "#/components/schemas/CrmImportPerson" }
+              details: { type: [string, "null"] }
+    CrmImportQuotesInput:
+      type: object
+      required: [dryRun, quotes]
+      properties:
+        dryRun: { type: boolean }
+        quotes:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          description: Numbers must not repeat.
+          items: { $ref: "#/components/schemas/CrmImportQuote" }
+    CrmQuoteImportReport:
+      type: object
+      required: [dryRun, applied, total, created, requests, introductions, items, alreadyImported, renumbered, unknownPeople, warnings]
+      properties:
+        dryRun: { type: boolean }
+        applied: { type: boolean }
+        total: { type: integer }
+        created: { type: integer, description: КП that are (or would be) added. }
+        requests: { type: integer }
+        introductions: { type: integer }
+        items: { type: integer }
+        alreadyImported:
+          type: array
+          description: Calculator numbers transferred before; skipped.
+          items: { type: string }
+        renumbered:
+          type: array
+          items:
+            type: object
+            required: [from, to]
+            properties:
+              from: { type: string }
+              to: { type: string }
+        unknownPeople:
+          type: array
+          description: Calculator users not found among staff; their КП go to the person who imports.
+          items: { $ref: "#/components/schemas/CrmImportPerson" }
+        warnings:
+          type: array
+          description: Transferred anyway with the calculator prices; «Перерахувати» cannot update the named rows.
+          items:
+            type: object
+            required: [number, message]
+            properties:
+              number: { type: string }
+              item: { type: [string, "null"] }
+              message: { type: string }
     CrmQuoteCatalogVariant:
       type: object
       required: [articleId, sku, title]

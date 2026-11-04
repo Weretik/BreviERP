@@ -25,6 +25,10 @@ public interface IQuoteStore
     /// <summary>«Готові шаблони» of introductions (R-19).</summary>
     DbSet<QuoteIntroTemplate> QuoteIntroTemplates { get; }
 
+    /// <summary>Active Brevi customers by KeepinCRM client id, for the transfer of old КП (R-25).</summary>
+    Task<IReadOnlyDictionary<string, long>> FindKeepinCustomersAsync(IReadOnlyCollection<string> keepinIds,
+        CancellationToken cancellationToken);
+
     /// <summary>Saves; a stale <see cref="Quote.Version"/> throws <see cref="DbUpdateConcurrencyException"/>.</summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 

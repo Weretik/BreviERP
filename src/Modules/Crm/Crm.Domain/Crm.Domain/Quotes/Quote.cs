@@ -102,6 +102,32 @@ public sealed class Quote
         return copy;
     }
 
+    /// <summary>
+    /// A КП transferred from the old calculator (R-25): its number, people, dates, status and items as they were there,
+    /// with its history: created, the given lines (letters, transfers) and the import line with <paramref name="note"/>.
+    /// </summary>
+    public static Quote Import(QuoteImportedState state, QuoteHeader header, IEnumerable<QuoteItem> items,
+        QuoteIntroduction? introduction, IEnumerable<QuoteImportedEvent> events, QuotePerson importedBy, string note,
+        DateTimeOffset now)
+    {
+        var quote = new Quote(state.Number, state.Kind, state.Author, header, items, state.CreatedAt)
+        {
+            ResponsibleUserId = state.Responsible.UserId,
+            ResponsibleName = state.Responsible.Name,
+            UpdatedAt = state.UpdatedAt,
+        };
+        if (introduction is not null) quote.SetIntroduction(introduction);
+        if (state.Sent)
+        {
+            quote.Status = QuoteStatus.Sent;
+            quote.LastSentAt = state.LastSentAt ?? state.UpdatedAt;
+        }
+
+        foreach (var line in events) quote.Record(line.Kind, line.Actor, line.Details, line.At);
+        quote.Record(QuoteEventKind.Imported, importedBy, note, now);
+        return quote;
+    }
+
     /// <summary>Adds a history line; the caller records what the change was.</summary>
     public void Record(QuoteEventKind kind, QuotePerson actor, string? details, DateTimeOffset at) =>
         _events.Add(new QuoteEvent(kind, actor, details, at));
@@ -190,6 +216,20 @@ public sealed record QuoteIntroduction(QuoteIntroLayout Layout, string? Recipien
         _ => [QuoteIntroSeason.Summer, QuoteIntroSeason.Winter],
     };
 }
+
+/// <summary>Who and when of a КП from the old calculator (R-25).</summary>
+public sealed record QuoteImportedState(
+    QuoteNumber Number,
+    QuoteKind Kind,
+    QuotePerson Author,
+    QuotePerson Responsible,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset UpdatedAt,
+    bool Sent,
+    DateTimeOffset? LastSentAt);
+
+/// <summary>A history line of a КП from the old calculator: a letter or a transfer.</summary>
+public sealed record QuoteImportedEvent(QuoteEventKind Kind, QuotePerson Actor, string? Details, DateTimeOffset At);
 
 /// <summary>The fields above the items (R-04).</summary>
 public sealed record QuoteHeader(

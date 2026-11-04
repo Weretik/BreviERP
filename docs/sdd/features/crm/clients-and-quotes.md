@@ -1,6 +1,6 @@
 # «Менеджер сервісу»: clients and КП
 
-**Implemented:** customer/contact master with clients from KeepinCRM, and КП (commercial proposals) stages 1–5c: create, edit «Товари та ціни», reprice, give to a manager, «Налаштування КП», the PDF, sending from each staff member's own Gmail, «КП для знайомства» with «Готові шаблони», «Виріб з нуля», «Змінити склад», history, archive and copy. The earlier Codex quote, custom sewing, PDF, email and archive work was removed on 2026-11-04.
+**Implemented:** customer/contact master with clients from KeepinCRM, and КП (commercial proposals) stages 1–6: create, edit «Товари та ціни», reprice, give to a manager, «Налаштування КП», the PDF, sending from each staff member's own Gmail, «КП для знайомства» with «Готові шаблони», «Виріб з нуля», «Змінити склад», history, archive, copy and the transfer of old Calculator КП. The earlier Codex quote, custom sewing, PDF, email and archive work was removed on 2026-11-04.
 
 Authenticated Admin/Manager can create, read, search/page, revise and deactivate customers and contacts. Admin-only merge retains victim roots/audit while moving contacts/external identities to the survivor. Exact external identities are unique; similar names/shared emails never auto-merge. Manager reads/writes owned clients. Every mutation has requestId replay and a root revision; successful intent/result audit is stored in the same transaction. No destructive customer/contact delete API. Clients come from KeepinCRM: the daily `keepin-clients` step and `POST /api/crm/customers/keepin-sync` refresh them by KeepinCRM ID; the one-time transfer deletes unlinked Brevi clients unless a КП uses them ([CRM-002](../../specs/crm/002-keepincrm-clients/README.md), [runbook](../../operations/jobs/sync-job.md#keepin-clients)).
 
@@ -81,7 +81,7 @@ The transaction coordinator retains commit/rollback ownership; the journal uses 
 - «Історія змін» (R-22): `GET /api/crm/quotes/{id}/history` lists `crm.QuoteEvents` newest first: created or copied, saved, sent, repriced, given to a manager, archived, restored, with who and when. Handlers add the line in the same save as the change.
 - «Архів» (R-23): `POST /api/crm/quotes/{id}/archive` and `…/restore` with `version`; `getCrmQuotes?archived=true` lists the archive. An archived КП is read-only (409) until restored.
 - «Копіювати» (R-24): `POST /api/crm/quotes/{id}/copy` makes a new draft with the next number and the same items and saved prices (`Quote.CopyAs`); the actor becomes author and responsible.
-- Later stage (not built): old КП import.
+- Transfer of old Calculator КП (R-25): `POST /api/crm/quote-import` (Admin) with `dryRun`; keeps numbers, people, dates, status, saved prices and history, links items to the Catalog by code, skips КП transferred before. Runbook: [old КП transfer](../../operations/data/migrations-and-seeding.md#old-кп-transfer).
 
 ```text
 src/Modules/Crm/
@@ -100,6 +100,7 @@ src/Modules/Crm/
     Mapping/                             responses
     CreateQuote/, SaveQuote/, DeleteQuote/, GetQuote/, GetQuotes/,
     SetResponsible/, RepriceQuote/, History/, Archive/, CopyQuote/,
+    Import/                              transfer of Calculator КП: command, validator, handler, mapper, IQuoteImportLookup port, report
     SearchCatalog/, GetCatalogProducts/,
     GetStaff/                            one use case per folder: command/query, validator, handler
     Introductions/                       Contracts/, Validation/, Building/ (pages → items, page rules), Setup/,
@@ -114,16 +115,17 @@ src/Modules/Crm/
     Quotes/Pdf/                          QuestPDF documents (КП, introduction catalogue), shared parts, renderer, photo loader, fonts
     Quotes/Sending/                      GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options
   Crm.Api/Crm.Api/Quotes/                QuotesController, QuoteIntroductionsController, QuoteIntroTemplatesController,
-                                         QuoteLookupsController, QuoteSettingsController, MailboxesController, Requests/
+                                         QuoteLookupsController, QuoteSettingsController, MailboxesController, QuoteImportController, Requests/
 src/Bootstrapper/Host.Api/Crm/
   QuoteCatalogReader.cs                  Catalog overview, admin detail photo and Reference fabrics through Mediator
   QuoteStaffReader.cs                    active Manager/Admin users from Identity
   QuoteSewingCalculator.cs               «Виріб з нуля» through the Catalog composition query, names from Reference
   QuoteModelCompositionReader.cs         model composition for «Змінити склад» through the Catalog sewing card query
+  QuoteImportLookup.cs                   Catalog products and Reference rows by code for the old КП transfer
 ```
 
 ## Tests
 
-- КП rules, builder, settings validation, sending (recipients, MIME letter, consent address, ID token), PDF (client view, render smoke; `BREVI_QUOTE_PDF_OUT=<file>` saves the sample) and introductions (page rules, catalogue view; `BREVI_QUOTE_INTRO_PDF_OUT=<file>`), «Виріб з нуля» (`QuoteCustomSewingTests`; Catalog formula in `SewingCompositionPricingTests`): `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Crm.Quotes`.
-- КП on PostgreSQL (numbers, own vs all, stale version, reprice, responsible, delete, history, archive, copy; settings save and PDF source; Gmail connect, send, failure and send draft with fakes; introductions and templates; «Виріб з нуля» save and reprice): `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IntegrationTests.Crm.Quote` with `BREVIERP_CRM_TEST_CONNECTION` pointing at a local PostgreSQL.
+- КП rules, builder, settings validation, sending (recipients, MIME letter, consent address, ID token), PDF (client view, render smoke; `BREVI_QUOTE_PDF_OUT=<file>` saves the sample) and introductions (page rules, catalogue view; `BREVI_QUOTE_INTRO_PDF_OUT=<file>`), «Виріб з нуля» (`QuoteCustomSewingTests`; old КП transfer `QuoteImportTests`; Catalog formula in `SewingCompositionPricingTests`): `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Crm.Quotes`.
+- КП on PostgreSQL (numbers, own vs all, stale version, reprice, responsible, delete, history, archive, copy; settings save and PDF source; Gmail connect, send, failure and send draft with fakes; introductions and templates; «Виріб з нуля» save and reprice; old КП transfer dry run, run, rerun and taken numbers): `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IntegrationTests.Crm.Quote` with `BREVIERP_CRM_TEST_CONNECTION` pointing at a local PostgreSQL.
 - KeepinCRM clients: `tests/UnitTests/Crm/Customers/KeepinCrmClientSyncTests.cs` (`--filter FullyQualifiedName~KeepinCrmClientSync`); customers on PostgreSQL: `--filter FullyQualifiedName~CustomerPersistenceTests`.
