@@ -16,7 +16,8 @@ public static class PpePriceImportPlanner
         PpePriceSource source,
         decimal discountPercent,
         IReadOnlyList<PpePriceImportProduct> products,
-        IReadOnlyList<SupplierFilePrice> filePrices)
+        IReadOnlyList<SupplierFilePrice> filePrices,
+        bool fromFiles)
     {
         var byUrl = new Dictionary<string, SupplierFilePrice>(StringComparer.Ordinal);
         var bySku = new Dictionary<string, SupplierFilePrice>(StringComparer.Ordinal);
@@ -28,7 +29,7 @@ public static class PpePriceImportPlanner
 
         return products
             .OrderBy(product => product.Code, StringComparer.OrdinalIgnoreCase)
-            .Select(product => PlanProduct(source, discountPercent, product, Find(product, byUrl, bySku)))
+            .Select(product => PlanProduct(source, discountPercent, product, Find(product, byUrl, bySku), fromFiles))
             .ToList();
     }
 
@@ -46,9 +47,10 @@ public static class PpePriceImportPlanner
             : null;
     }
 
-    private static string NotFoundMessage(PpePriceSource source, PpePriceImportProduct product) => source.Method switch
+    private static string NotFoundMessage(PpePriceSource source, PpePriceImportProduct product, bool fromFiles)
+        => (fromFiles ? PpePriceSourceMethod.File : source.Method) switch
     {
-        PpePriceSourceMethod.Website => string.IsNullOrWhiteSpace(product.SupplierUrl)
+        PpePriceSourceMethod.Website or PpePriceSourceMethod.SupplierCabinet => string.IsNullOrWhiteSpace(product.SupplierUrl)
             ? "У товару немає посилання на сторінку постачальника."
             : "Сторінку постачальника не перевірено.",
         PpePriceSourceMethod.GoogleSheets => string.IsNullOrWhiteSpace(product.SupplierSku)
@@ -60,7 +62,8 @@ public static class PpePriceImportPlanner
     };
 
     private static PpePriceImportRow PlanProduct(
-        PpePriceSource source, decimal discountPercent, PpePriceImportProduct product, SupplierFilePrice? found)
+        PpePriceSource source, decimal discountPercent, PpePriceImportProduct product, SupplierFilePrice? found,
+        bool fromFiles)
     {
         PpePriceImportRow Row(PpePriceImportStatus status, string? message = null, decimal? price = null,
             decimal? wholesale = null, decimal? retail = null)
@@ -69,14 +72,15 @@ public static class PpePriceImportPlanner
 
         if (product.AllowManualPrice) return Row(PpePriceImportStatus.ManualPrice, "Увімкнено «Дозволити ручну ціну».");
         if (!product.IsActive) return Row(PpePriceImportStatus.Inactive, "Товар неактивний.");
-        if (found is null) return Row(PpePriceImportStatus.NotInFile, NotFoundMessage(source, product));
+        if (found is null) return Row(PpePriceImportStatus.NotInFile, NotFoundMessage(source, product, fromFiles));
         if (found.Problem is not null) return Row(PpePriceImportStatus.Invalid, found.Problem);
         if (found.Price <= 0) return Row(PpePriceImportStatus.Invalid, "У файлі немає ціни.");
 
         var price = ApplyDiscount(found.Price, discountPercent);
         decimal? wholesale = product.CurrentWholesale;
         decimal? retail = product.CurrentRetail;
-        if (source.FileKind == PpePriceFileKind.InsightYml)
+        // Wholesale and retail come only from Insight's three XML lists; the cabinet gives the dealer price alone.
+        if (fromFiles && source.FileKind == PpePriceFileKind.InsightYml)
         {
             if (found.Wholesale is not > 0 || found.Retail is not > 0)
                 return Row(PpePriceImportStatus.Invalid, "Не в усіх трьох XML є ціна.");

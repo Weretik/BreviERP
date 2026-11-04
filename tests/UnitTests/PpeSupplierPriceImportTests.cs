@@ -69,7 +69,7 @@ public sealed class PpeSupplierPriceImportTests
                 Product(5, "1007", sku: "9999"),
                 Product(6, "1008")
             ],
-            [File("8011", 620.22m), File("8010", 870.78m), File("8012", 1m), File("8018", 1m)]);
+            [File("8011", 620.22m), File("8010", 870.78m), File("8012", 1m), File("8018", 1m)], fromFiles: true);
 
         Assert.That(rows.Select(x => x.Status), Is.EqualTo(new[]
         {
@@ -91,13 +91,13 @@ public sealed class PpeSupplierPriceImportTests
         var link = "https://insight.ua/ru/offer/jilet-o445/";
 
         var changed = PpePriceImportPlanner.Plan(Insight, 0m, [product],
-            [new SupplierFilePrice(null, link, null, 889.5m, 1138.6m, 1388m, null)]).Single();
+            [new SupplierFilePrice(null, link, null, 889.5m, 1138.6m, 1388m, null)], fromFiles: true).Single();
         var tooLow = PpePriceImportPlanner.Plan(Insight, 0m, [product],
-            [new SupplierFilePrice(null, link, null, 889.5m, 900m, 1388m, null)]).Single();
+            [new SupplierFilePrice(null, link, null, 889.5m, 900m, 1388m, null)], fromFiles: true).Single();
         var retailBelow = PpePriceImportPlanner.Plan(Insight, 0m, [product],
-            [new SupplierFilePrice(null, link, null, 100m, 150m, 130m, null)]).Single();
+            [new SupplierFilePrice(null, link, null, 100m, 150m, 130m, null)], fromFiles: true).Single();
         var conflict = PpePriceImportPlanner.Plan(Insight, 0m, [product],
-            [new SupplierFilePrice(null, link, null, 100m, null, null, "У розмірів в одному XML різні ціни.")]).Single();
+            [new SupplierFilePrice(null, link, null, 100m, null, null, "У розмірів в одному XML різні ціни.")], fromFiles: true).Single();
 
         Assert.Multiple(() =>
         {
@@ -119,9 +119,9 @@ public sealed class PpeSupplierPriceImportTests
         var site = PpePriceImportPlanner.Plan(avCenter, 20m,
             [Product(1, "1", url: page, price: 50m), Product(2, "2"), Product(3, "3", url: "https://avcentr.com.ua/ua/x")],
             [new SupplierFilePrice(null, page, null, 100m, null, null, null),
-             new SupplierFilePrice(null, "https://avcentr.com.ua/ua/x", null, 0m, null, null, "На сторінці постачальника не знайдено ціну.")]);
+             new SupplierFilePrice(null, "https://avcentr.com.ua/ua/x", null, 0m, null, null, "На сторінці постачальника не знайдено ціну.")], fromFiles: false);
         var lists = PpePriceImportPlanner.Plan(threeC, 5m, [Product(1, "1", sku: "0020"), Product(2, "2", sku: "21"), Product(3, "3")],
-            [File("20", 200m)]);
+            [File("20", 200m)], fromFiles: false);
 
         Assert.Multiple(() =>
         {
@@ -135,9 +135,20 @@ public sealed class PpeSupplierPriceImportTests
     }
 
     [Test]
-    public void Only_connected_website_and_sheet_sources_can_be_refreshed()
+    public void Insight_cabinet_price_changes_only_the_dealer_price()
+    {
+        var link = "https://insight.ua/offer/jilet-o445/";
+        var product = new PpePriceImportProduct(1, "2001", "Жилет", true, false, null, link, 800m, 1100m, 1350m);
+        var row = PpePriceImportPlanner.Plan(Insight, 0m, [product],
+            [new SupplierFilePrice(null, link, null, 889.5m, null, null, null)], fromFiles: false).Single();
+        Assert.That((row.Status, row.NewPrice, row.NewWholesale, row.NewRetail),
+            Is.EqualTo((PpePriceImportStatus.Changed, (decimal?)889.5m, (decimal?)1100m, (decimal?)1350m)));
+    }
+
+    [Test]
+    public void All_sources_except_files_can_be_refreshed()
         => Assert.That(PpePriceSources.All.Where(x => x.CanRefresh).Select(x => x.Key),
-            Is.EqualTo(new[] { "av-center", "3c-market", "perchatka-centr" }));
+            Is.EqualTo(new[] { "av-center", "3c-market", "perchatka-centr", "insight", "trele" }));
 
     [TestCase(0, true)]
     [TestCase(22.5, true)]

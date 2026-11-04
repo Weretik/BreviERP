@@ -151,6 +151,22 @@ jobs:
             --update-secrets "Reminders__Telegram__BotToken=${TELEGRAM_TOKEN_SECRET}:latest" \
             --quiet
 
+      - name: Find supplier cabinet secrets
+        run: |
+          set -euo pipefail
+          # Insight and Трєле dealer logins («Імпорт цін», CAT-017 stage 3). Attached only when all four secrets
+          # exist, so a deploy before the owner creates them still succeeds; the sources then report missing logins.
+          CABINET=""
+          if gcloud secrets describe insight-login >/dev/null 2>&1 && gcloud secrets describe insight-password >/dev/null 2>&1 \
+            && gcloud secrets describe trele-login >/dev/null 2>&1 && gcloud secrets describe trele-password >/dev/null 2>&1; then
+            CABINET=",SupplierCabinets__Insight__Login=insight-login:latest,SupplierCabinets__Insight__Password=insight-password:latest"
+            CABINET="${CABINET},SupplierCabinets__Trele__Login=trele-login:latest,SupplierCabinets__Trele__Password=trele-password:latest"
+            echo "Supplier cabinet secrets found: attaching them."
+          else
+            echo "Supplier cabinet secrets not found (or not readable by the deployer): Insight and Трєле cabinets stay off."
+          fi
+          echo "SUPPLIER_CABINET_SECRETS=${CABINET}" >> "$GITHUB_ENV"
+
       - name: Create or update daily sync job
         run: |
           set -euo pipefail
@@ -170,7 +186,7 @@ jobs:
             --max-retries 1 \
             --tasks 1 \
             --parallelism 1 \
-            --update-secrets "KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest,AdmToolsStorage__Login=storage-login:latest,AdmToolsStorage__Password=storage-password:latest" \
+            --update-secrets "KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest,AdmToolsStorage__Login=storage-login:latest,AdmToolsStorage__Password=storage-password:latest${SUPPLIER_CABINET_SECRETS}" \
             --quiet
 
       - name: Run database migrations and seed data
@@ -186,6 +202,7 @@ jobs:
           SECRETS="${SECRETS},Reminders__Telegram__WebhookSecret=${TELEGRAM_WEBHOOK_SECRET}:latest"
           SECRETS="${SECRETS},KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest"
           SECRETS="${SECRETS},TrustedProxy__SharedSecret=${API_PROXY_SECRET}:latest"
+          SECRETS="${SECRETS}${SUPPLIER_CABINET_SECRETS}"
           if [ "$CRM_GMAIL_ENABLED" = "true" ]; then
             SECRETS="${SECRETS},Crm__Gmail__ClientId=${CRM_GMAIL_CLIENT_ID_SECRET}:latest"
             SECRETS="${SECRETS},Crm__Gmail__ClientSecret=${CRM_GMAIL_CLIENT_SECRET_SECRET}:latest"

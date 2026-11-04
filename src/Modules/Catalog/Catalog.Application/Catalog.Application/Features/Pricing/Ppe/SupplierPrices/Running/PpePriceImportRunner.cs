@@ -11,8 +11,11 @@ using ProductEntity = Catalog.Domain.Products.Entities.Product;
 
 namespace Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Running;
 
-/// <summary>Who started an update and how; <see cref="Trigger"/> is shown in «Останнє оновлення».</summary>
-public sealed record PpePriceImportRequest(bool DryRun, string Trigger, string Actor, string ActorName);
+/// <summary>
+/// Who started an update and how; <see cref="Trigger"/> is shown in «Останнє оновлення». <see cref="FromFiles"/>
+/// marks prices read from uploaded files (Insight's XML also bring wholesale and retail).
+/// </summary>
+public sealed record PpePriceImportRequest(bool DryRun, string Trigger, string Actor, string ActorName, bool FromFiles = false);
 
 /// <summary>Reads the supplier's prices for the products that can change (active, without a manual price).</summary>
 public delegate Task<Result<IReadOnlyList<SupplierFilePrice>>> PpeSupplierPriceRead(
@@ -60,7 +63,7 @@ public sealed class PpePriceImportRunner(
         if (!prices.IsSuccess) return Result.Invalid(prices.ValidationErrors.ToList());
 
         var discount = settings?.DiscountPercent ?? source.DefaultDiscountPercent;
-        var rows = PpePriceImportPlanner.Plan(source, discount, planned, prices.Value).ToList();
+        var rows = PpePriceImportPlanner.Plan(source, discount, planned, prices.Value, request.FromFiles).ToList();
         if (!request.DryRun)
             await ApplyAsync(source, entities, current, rows, request.Actor, cancellationToken);
 

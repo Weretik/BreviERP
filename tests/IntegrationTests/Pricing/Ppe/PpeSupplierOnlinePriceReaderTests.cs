@@ -2,12 +2,14 @@ using System.Net;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
 using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online;
+using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets;
+using Microsoft.Extensions.Options;
 
 namespace IntegrationTests.Pricing.Ppe;
 
 /// <summary>
-/// АВ-Центр and Перчатка-центр pages and the 3C-Маркет lists read like the Apps Script, against a fake web (no network,
-/// no database). CAT-017 stage 2.
+/// АВ-Центр and Перчатка-центр pages, the 3C-Маркет lists and the Insight and Трєле cabinets read like the Apps Script,
+/// against a fake web (no network, no database). CAT-017 stages 2–3.
 /// </summary>
 public sealed class PpeSupplierOnlinePriceReaderTests
 {
@@ -51,7 +53,7 @@ public sealed class PpeSupplierOnlinePriceReaderTests
             ["https://avcentr.com.ua/ua/b"] = (HttpStatusCode.NotFound, ""),
             ["https://avcentr.com.ua/ua/c"] = (HttpStatusCode.OK, "<p>Немає</p>"),
         });
-        var reader = new PpeSupplierOnlinePriceReader(new SupplierPageClient(new HttpClient(web)));
+        var reader = Reader(web);
 
         var result = await reader.ReadAsync(PpePriceSources.Find("av-center")!,
         [
@@ -78,7 +80,7 @@ public sealed class PpeSupplierOnlinePriceReaderTests
     {
         var lists = ThreeCMarketPriceLists.All.ToDictionary(x => x.Url, x => (HttpStatusCode.OK, "a,b,10,50\n"));
         lists[ThreeCMarketPriceLists.All[1].Url] = (HttpStatusCode.OK, "a,b,10,60\na,b,11,70\n");
-        var reader = new PpeSupplierOnlinePriceReader(new SupplierPageClient(new HttpClient(new FakeWeb(lists))));
+        var reader = Reader(new FakeWeb(lists));
 
         var merged = await reader.ReadAsync(PpePriceSources.Find("3c-market")!, [], CancellationToken.None);
         Assert.Multiple(() =>
@@ -92,14 +94,73 @@ public sealed class PpeSupplierOnlinePriceReaderTests
         Assert.That(failed.ValidationErrors.Single().ErrorMessage, Does.Contain("Діелектрика").And.Contain("500"));
     }
 
+    [Test]
+    public void Cabinet_pages_give_the_dealer_price()
+        => Assert.Multiple(() =>
+        {
+            Assert.That(new InsightCabinet().FindPrice("<div data-offer-mod-price0=\"889,50\" data-offer-mod-price1=\"1138\">"), Is.EqualTo(889.5m));
+            Assert.That(new InsightCabinet().FindPrice("<div class=\"price price0\"><span class=\"value\">1 020</span></div>"), Is.EqualTo(1020m));
+            Assert.That(new TreleCabinet().FindPrice("<span class=\"add2cart__price-default js-p\" data-price=\"412.8\">"), Is.EqualTo(412.8m));
+            Assert.That(new TreleCabinet().FindPrice("<span class=\"price\">500 грн</span>"), Is.Null);
+        });
+
+    [Test]
+    public async Task Insight_signs_in_once_and_reads_pages_with_the_session_cookie()
+    {
+        var web = new FakeWeb(new Dictionary<string, (HttpStatusCode, string)>
+        {
+            ["https://insight.ua/authorization/"] = (HttpStatusCode.OK, ""),
+            ["https://insight.ua/profile/"] = (HttpStatusCode.OK, "<a>Вийти</a>"),
+            ["https://insight.ua/offer/a/"] = (HttpStatusCode.OK, "<i data-offer-mod-price0=\"500\"></i>"),
+        }, setCookie: "PHPSESSID=s1; path=/");
+        var reader = Reader(web, new SupplierCabinetOptions { Insight = { Login = "dealer", Password = "secret" } });
+
+        var result = await reader.ReadAsync(PpePriceSources.Find("insight")!,
+            [Product("https://insight.ua/offer/a/"), Product("https://insight.ua/ru/offer/a")], CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Value.Single().Price, Is.EqualTo(500m));
+            Assert.That(web.Requests.Count(x => x == "https://insight.ua/profile/"), Is.EqualTo(1));
+            Assert.That(web.Cookies.Last(), Does.Contain("PHPSESSID=s1"));
+        });
+    }
+
+    [Test]
+    public async Task Cabinet_without_credentials_or_with_a_refused_login_changes_nothing()
+    {
+        var web = new FakeWeb(new Dictionary<string, (HttpStatusCode, string)>
+        {
+            ["https://insight.ua/authorization/"] = (HttpStatusCode.OK, ""),
+            ["https://insight.ua/profile/"] = (HttpStatusCode.OK, "<a>Увійти</a>"),
+            ["https://trele.com.ua/login/"] = (HttpStatusCode.OK, ""),
+        });
+        var noLogin = await Reader(web).ReadAsync(PpePriceSources.Find("trele")!, [Product("https://trele.com.ua/p/1")], CancellationToken.None);
+        var refused = await Reader(web, new SupplierCabinetOptions { Insight = { Login = "dealer", Password = "wrong" } })
+            .ReadAsync(PpePriceSources.Find("insight")!, [Product("https://insight.ua/offer/a/")], CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(noLogin.ValidationErrors.Single().ErrorMessage, Does.Contain("ще не додано"));
+            Assert.That(refused.ValidationErrors.Single().ErrorMessage, Does.Contain("Не вдалося увійти в кабінет Insight"));
+            Assert.That(web.Requests, Has.None.EqualTo("https://insight.ua/offer/a/"));
+        });
+    }
+
+    private static PpeSupplierOnlinePriceReader Reader(FakeWeb web, SupplierCabinetOptions? cabinets = null)
+        => new(new SupplierPageClient(new HttpClient(web)), new SupplierCabinetPriceReader(
+            new SupplierCabinetClient(new HttpClient(web)), Options.Create(cabinets ?? new SupplierCabinetOptions())));
+
     private static PpePriceImportProduct Product(string? url)
         => new(1, "1", "Товар", true, false, null, url, 10m, null, null);
 
-    private sealed class FakeWeb(IDictionary<string, (HttpStatusCode Status, string Body)> pages) : HttpMessageHandler
+    private sealed class FakeWeb(IDictionary<string, (HttpStatusCode Status, string Body)> pages, string? setCookie = null)
+        : HttpMessageHandler
     {
         private readonly object _lock = new();
         public List<string> Requests { get; } = [];
         public List<string> UserAgents { get; } = [];
+        public List<string> Cookies { get; } = [];
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -108,10 +169,13 @@ public sealed class PpeSupplierOnlinePriceReaderTests
             {
                 Requests.Add(url);
                 UserAgents.Add(request.Headers.UserAgent.ToString());
+                Cookies.Add(request.Headers.TryGetValues("Cookie", out var cookie) ? string.Join("; ", cookie) : "");
             }
 
             var (status, body) = pages.TryGetValue(url, out var page) ? page : (HttpStatusCode.NotFound, "");
-            return Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent(body) });
+            var response = new HttpResponseMessage(status) { Content = new StringContent(body) };
+            if (setCookie is not null) response.Headers.TryAddWithoutValidation("Set-Cookie", setCookie);
+            return Task.FromResult(response);
         }
     }
 }
