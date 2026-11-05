@@ -31,6 +31,7 @@ public sealed class SaveQuoteSettingsInputValidator : AbstractValidator<SaveQuot
             pdf.RuleFor(x => x.CtaTitle).MaximumLength(L.ShortTextMaxLength);
             pdf.RuleFor(x => x.CtaText).MaximumLength(L.TextMaxLength);
             pdf.RuleFor(x => x.CtaContactTemplate).MaximumLength(L.TextMaxLength);
+            pdf.RuleFor(x => x.IntroText).MaximumLength(L.TextMaxLength);
         });
         RuleFor(x => x.Introduction).NotNull().SetValidator(new QuoteIntroductionValidator());
         RuleFor(x => x.LetterVariants).NotNull()

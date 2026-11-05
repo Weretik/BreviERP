@@ -1373,6 +1373,7 @@ components:
         ctaTitle: { type: [string, "null"], maxLength: 300 }
         ctaText: { type: [string, "null"], maxLength: 4000 }
         ctaContactTemplate: { type: [string, "null"], maxLength: 4000, description: "Marks: {managerName}, {managerPhone}, {managerEmail}." }
+        introText: { type: [string, "null"], maxLength: 4000, description: "Opening text under the client name. Marks: {client}, {managerName}, {managerPhone}, {managerEmail}, {site}, {quoteNumber}. Empty means the standard text." }
     CrmQuoteAdvantage:
       type: object
       required: [title]

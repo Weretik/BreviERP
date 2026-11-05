@@ -11,6 +11,7 @@ public sealed record QuotePdfModel(
     QuotePdfCompany Company,
     string? RecipientName,
     string? ClientCompanyName,
+    string? Intro,
     IReadOnlyList<QuotePdfItem> Items,
     QuotePdfTiers Tiers,
     string? ClientComment,
@@ -42,7 +43,14 @@ public sealed record QuotePdfItem(
     string? PhotoUrl,
     string? SiteUrl,
     string OptionsLabel,
-    IReadOnlyList<QuotePdfOption> Options);
+    IReadOnlyList<QuotePdfOption> Options,
+    IReadOnlyList<QuotePdfPriceColumn> Columns);
+
+/// <summary>
+/// One price column of an item: only quantities the item shows, and one column for a range when every variant
+/// costs the same in it (R-30). <see cref="Prices"/> follow <see cref="QuotePdfItem.Options"/>.
+/// </summary>
+public sealed record QuotePdfPriceColumn(string Label, IReadOnlyList<decimal?> Prices);
 
 /// <summary>A price is null when it is hidden from the client.</summary>
 public sealed record QuotePdfOption(

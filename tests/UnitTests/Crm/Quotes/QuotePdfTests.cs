@@ -54,6 +54,49 @@ public sealed class QuotePdfTests
     }
 
     [Test]
+    public void IntroNamesTheClientAndPricesShowOnlyTheirQuantities()
+    {
+        var model = QuotePdfModelBuilder.Build(SampleQuote(), QuoteSettingsDefaults.Content, Manager);
+
+        Assert.That(model.Intro, Does.StartWith("Підібрали для ТОВ «Агро» добірку"));
+        Assert.That(model.Items[0].Columns.Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "від 41 шт." }));
+        Assert.That(model.Items[1].Columns.Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "10–40 шт.", "від 41 шт." }));
+    }
+
+    [TestCase(1620, 1620, 1620, "Ціна за 1 шт.")]
+    [TestCase(null, 1620, 1620, "від 10 шт.")]
+    [TestCase(1620, 1620, null, "до 40 шт.")]
+    [TestCase(null, null, 1620, "від 41 шт.")]
+    public void EqualPricesBecomeOneColumn(int? retail, int? wholesale, int? large, string label)
+    {
+        var columns = QuotePdfPrices.Columns([new QuotePdfOption("Ціна", null, false, retail, wholesale, large)]);
+
+        Assert.That(columns.Select(x => x.Label), Is.EqualTo(new[] { label }));
+        Assert.That(columns[0].Prices, Is.EqualTo(new decimal?[] { 1620m }));
+    }
+
+    [Test]
+    public void DifferentOrSplitPricesKeepTheirColumns()
+    {
+        Assert.That(QuotePdfPrices.Columns([new QuotePdfOption("Ціна", null, false, 1620m, null, 1620m)])
+            .Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "від 41 шт." }));
+        Assert.That(QuotePdfPrices.Columns(
+            [
+                new QuotePdfOption("Саржа", null, true, 100m, 100m, 100m),
+                new QuotePdfOption("Габардин", null, false, 120m, 110m, 100m),
+            ]).Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "10–40 шт.", "від 41 шт." }));
+    }
+
+    [Test]
+    public void DescriptionLinesBrokenMidSentenceAreJoined() =>
+        Assert.That(QuotePdfText.Unwrap("Кишені: нагрудна, 2 нижні накладні кишені у\nбічних швах.\nКомір стійка.\n\nСпинка з\r\nрельєфними швами."),
+            Is.EqualTo("Кишені: нагрудна, 2 нижні накладні кишені у бічних швах.\nКомір стійка.\n\nСпинка з рельєфними швами."));
+
+    [Test]
+    public void IntroWithoutAClientLeavesTheNameOut() =>
+        Assert.That(QuotePdfText.FillClient(QuoteSettingsDefaults.IntroText, null), Does.StartWith("Підібрали добірку"));
+
+    [Test]
     public void MarksAreFilledFromTheManagerContact() =>
         Assert.That(QuotePdfModelBuilder.FillMarks("{managerName}, {managerPhone}, {managerEmail}, {site}, {quoteNumber}",
                 new QuotePdfContact("Анастасія", null, "a@brevi.test"), "https://brevi.com.ua/", "1-11-2026"),
