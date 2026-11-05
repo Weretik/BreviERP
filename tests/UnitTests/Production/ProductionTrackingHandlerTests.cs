@@ -6,6 +6,7 @@ using Production.Application.Orders.Access;
 using Production.Application.Orders.Files;
 using Production.Application.Orders.ImportOrders;
 using Production.Application.Orders.ImportProgress;
+using Production.Application.Orders.ImportReportPrices;
 using Production.Application.Orders.Telegram;
 using Production.Application.Orders.Tracking;
 using Production.Application.Settings;
@@ -246,6 +247,50 @@ public sealed class ProductionTrackingHandlerTests
             Assert.That(order.Items[0].CurrentStage.ToString(), Is.EqualTo("Cutting"));
             Assert.That(file.StorageKey, Is.Null);
             Assert.That(delivery.Status.ToString(), Is.EqualTo("Sent"));
+        });
+    }
+
+    [Test]
+    public async Task Old_orders_take_the_kp_price_once_and_an_item_with_a_price_keeps_it()
+    {
+        using var workshop = ProductionOrderHandlerTests.Workshop();
+        await new ImportProductionOrdersCommandHandler(workshop.Db, workshop.Staff, workshop.Time).Handle(new(Admin,
+        [
+            new ProductionOrderImportRow("old-1", 7, "27-10-2026", "Геофізика", "anastasia@brevi.ua", "Анастасія", "New",
+                new DateOnly(2026, 10, 9), null,
+                [
+                    new ProductionItemImportRow("MOD-052", "Куртка «Віол»", "FAB-023", "Грета", 343.25m,
+                        ProductionOrderHandlerTests.Details(3)),
+                    new ProductionItemImportRow("MOD-064", "Напівкомбінезон", "FAB-062", "Тритон", 233.73m,
+                        ProductionOrderHandlerTests.Details(2))
+                ])
+        ], false), CancellationToken.None);
+        ProductionReportPriceImportRow[] rows = [new("old-1", [new(1, 1713.17m), new(2, 1282.54m)])];
+        var import = new ImportProductionReportPricesCommandHandler(workshop.Db);
+
+        var byManager = await import.Handle(new(Manager, rows, true), CancellationToken.None);
+        var noPosition = await import.Handle(new(Admin, [new("old-1", [new(3, 10m)])], false), CancellationToken.None);
+        var preview = await import.Handle(new(Admin, rows, true), CancellationToken.None);
+        var unpriced = (await workshop.Db.Orders.Include(x => x.Items).AsNoTracking().SingleAsync()).Items
+            .Count(x => x.ReportUnitPrice is null);
+        var applied = await import.Handle(new(Admin, rows, false), CancellationToken.None);
+        var changed = await import.Handle(new(Admin, [new("old-1", [new(1, 1m)])], false), CancellationToken.None);
+        var invalid = new ImportProductionReportPricesCommandValidator()
+            .Validate(new ImportProductionReportPricesCommand(Admin, [new("old-1", [new(1, 0m)])], false));
+        var items = (await workshop.Db.Orders.Include(x => x.Items).AsNoTracking().SingleAsync()).Items
+            .OrderBy(x => x.Position).ToList();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
+            Assert.That(noPosition.Value.Errors, Is.EqualTo(1));
+            Assert.That(noPosition.Value.Lines.Single().Error, Does.Contain("позиції 3"));
+            Assert.That(preview.Value.Lines.Single().Prices, Is.EqualTo(2));
+            Assert.That(unpriced, Is.EqualTo(2), "a preview changes nothing");
+            Assert.That(applied.Value.Updated, Is.EqualTo(1));
+            Assert.That(changed.Value.Unchanged, Is.EqualTo(1), "an item with a price keeps it");
+            Assert.That(invalid.IsValid, Is.False);
+            Assert.That(items.Select(x => x.ReportUnitPrice), Is.EqualTo(new decimal?[] { 1713.17m, 1282.54m }));
         });
     }
 

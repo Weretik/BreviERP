@@ -166,3 +166,11 @@ public sealed record ProductionProgressImportResult(
 /// <param name="Action">updated, unchanged or error.</param>
 public sealed record ProductionProgressImportLine(
     int? Number, string LegacyId, int Stages, int Files, string Action, string? Error);
+
+public sealed record ProductionReportPriceImportResult(
+    bool DryRun, int Updated, int Unchanged, int Errors, IReadOnlyList<ProductionReportPriceImportLine> Lines);
+
+/// <param name="Prices">Items that take a price; an item that already has one keeps it.</param>
+/// <param name="Action">updated, unchanged or error.</param>
+public sealed record ProductionReportPriceImportLine(
+    int? Number, string LegacyId, int Prices, string Action, string? Error);

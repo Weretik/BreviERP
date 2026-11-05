@@ -102,6 +102,18 @@ public sealed class ProductionItem
     public void SetSewingRate(decimal? rate) => SewingRate = rate;
 
     /// <returns>False when the stages did not change.</returns>
+    /// <summary>
+    /// The КП price of an item moved from the old «Цех», which kept none. Only an item without a price takes one.
+    /// </summary>
+    /// <returns>False when the item already has a price.</returns>
+    public bool FillReportPrice(decimal price)
+    {
+        if (price <= 0) throw new ArgumentOutOfRangeException(nameof(price));
+        if (ReportUnitPrice is not null) return false;
+        ReportUnitPrice = decimal.Round(price, 2, MidpointRounding.AwayFromZero);
+        return true;
+    }
+
     public bool SetStages(IEnumerable<ProductionStage> stages)
     {
         var next = ProductionStages.Normalize(stages);

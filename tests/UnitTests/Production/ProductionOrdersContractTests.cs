@@ -52,6 +52,10 @@ public sealed class ProductionOrdersContractTests
     [TestCase(typeof(ProductionFileImportRow))]
     [TestCase(typeof(ProductionProgressImportResult))]
     [TestCase(typeof(ProductionProgressImportLine))]
+    [TestCase(typeof(ProductionReportPriceImportRow))]
+    [TestCase(typeof(ProductionItemReportPriceImportRow))]
+    [TestCase(typeof(ProductionReportPriceImportResult))]
+    [TestCase(typeof(ProductionReportPriceImportLine))]
     public void Serialized_properties_match_the_machine_contract(Type type)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[type.Name])["properties"];
@@ -73,7 +77,7 @@ public sealed class ProductionOrdersContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "CanUseProductionOrders" }));
-            Assert.That(operations, Has.Length.EqualTo(24));
+            Assert.That(operations, Has.Length.EqualTo(25));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

@@ -37,3 +37,11 @@ public sealed record ProductionFileImportRow(
     string Url,
     DateTimeOffset CreatedAt,
     string? CreatedByName);
+
+/// <summary>The КП prices of an order moved from the old «Цех», as in production-report-prices.json.</summary>
+/// <param name="LegacyId">The order's id in the old app, as in production-orders.json.</param>
+public sealed record ProductionReportPriceImportRow(string LegacyId, IReadOnlyList<ProductionItemReportPriceImportRow> Items);
+
+/// <param name="Position">The item's place in the order, from 1, as in production-orders.json.</param>
+/// <param name="UnitPrice">UAH per item from the КП.</param>
+public sealed record ProductionItemReportPriceImportRow(int Position, decimal UnitPrice);
