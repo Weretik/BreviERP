@@ -96,6 +96,66 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.ToTable("Accounts", "accounting");
                 });
 
+            modelBuilder.Entity("Accounting.Domain.Attachments.FinanceAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .IsFixedLength();
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StorageKey")
+                        .IsUnique();
+
+                    b.HasIndex("TransactionId", "DeletedAt");
+
+                    b.ToTable("Attachments", "accounting", t =>
+                        {
+                            t.HasCheckConstraint("CK_Attachments_Size", "\"SizeBytes\" > 0 AND \"SizeBytes\" <= 10485760");
+                        });
+                });
+
             modelBuilder.Entity("Accounting.Domain.Audit.AuditEntry", b =>
                 {
                     b.Property<long>("Id")
@@ -451,6 +511,15 @@ namespace Accounting.Infrastructure.Persistence.Migrations
 
                             t.HasCheckConstraint("CK_Transfers_DifferentAccounts", "\"FromAccountId\" <> \"ToAccountId\"");
                         });
+                });
+
+            modelBuilder.Entity("Accounting.Domain.Attachments.FinanceAttachment", b =>
+                {
+                    b.HasOne("Accounting.Domain.Transactions.FinanceTransaction", null)
+                        .WithMany()
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Accounting.Domain.Categories.FinanceCategory", b =>

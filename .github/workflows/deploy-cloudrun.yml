@@ -40,6 +40,8 @@ env:
   # Sign-in: the first administrator's password (seed job) and the Cloudflare Worker secret (API).
   ADMIN_PASSWORD_SECRET: admin-default-password
   API_PROXY_SECRET: api-proxy-shared-secret
+  # Private bucket of «Бухгалтерія» files (operations' receipts); no public access.
+  ACCOUNTING_FILES_BUCKET: brevistoreapi-accounting-files
 
 jobs:
   verify:
@@ -211,6 +213,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --update-secrets "$SECRETS" \
+            --update-env-vars "Accounting__Files__Bucket=${ACCOUNTING_FILES_BUCKET}" \
             --quiet
 
       - name: Create or update catalogue import job

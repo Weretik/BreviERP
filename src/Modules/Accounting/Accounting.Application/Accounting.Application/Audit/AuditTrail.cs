@@ -4,6 +4,7 @@ using System.Text.Unicode;
 using Accounting.Application.Abstractions;
 using Accounting.Application.Contracts;
 using Accounting.Domain.Accounts;
+using Accounting.Domain.Attachments;
 using Accounting.Domain.Audit;
 using Accounting.Application.Lookup;
 using Accounting.Domain.Categories;
@@ -35,6 +36,9 @@ internal static class AuditTrail
 
     public static string Snapshot(FinanceCounterparty counterparty, FinanceNames names) =>
         JsonSerializer.Serialize(FinanceCounterpartyResponse.From(counterparty, names), Json);
+
+    public static string Snapshot(FinanceAttachment attachment) =>
+        JsonSerializer.Serialize(FinanceAttachmentResponse.From(attachment), Json);
 
     public static void Add(IAccountingDbContext db, AuditEntity entity, Guid entityId, AuditAction action, string by,
         DateTimeOffset at, string? before, string? after) =>
