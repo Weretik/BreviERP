@@ -7,6 +7,7 @@ namespace Purchasing.Domain.Messages;
 public sealed class PurchaseMessage
 {
     public const int ReviewNoteMaxLength = 1_000;
+    public const int ReviewerMaxLength = 256;
 
     private PurchaseMessage() { }
 
@@ -49,6 +50,11 @@ public sealed class PurchaseMessage
     /// <summary>Optimistic version of the manual supplier link and note; starts at 0.</summary>
     public int ReviewVersion { get; private set; }
 
+    /// <summary>Who last changed the supplier link or note (e-mail of the staff account); null before the first change.</summary>
+    public string? ReviewedBy { get; private set; }
+
+    public DateTimeOffset? ReviewedAt { get; private set; }
+
     /// <summary>Changed only when source fields change.</summary>
     public DateTimeOffset UpdatedAt { get; private set; }
 
@@ -68,5 +74,27 @@ public sealed class PurchaseMessage
         PaymentState = source.PaymentState;
         UpdatedAt = now;
         return true;
+    }
+
+    /// <summary>
+    /// Sets the supplier link and note by hand. The note is trimmed and an empty one is removed. Returns the history entry,
+    /// or null when nothing changed (the version stays). The caller checks the expected version first.
+    /// </summary>
+    public PurchaseReviewChange? Review(int? supplierId, string? note, string reviewer, DateTimeOffset now)
+    {
+        var cleanNote = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+        if (cleanNote is { Length: > ReviewNoteMaxLength })
+            throw new ArgumentOutOfRangeException(nameof(note), "The note is longer than allowed.");
+        if (supplierId == SupplierId && cleanNote == ReviewNote) return null;
+
+        var change = new PurchaseReviewChange(Id, reviewer, now,
+            new PurchaseReview(SupplierId, ReviewNote, ReviewVersion),
+            new PurchaseReview(supplierId, cleanNote, ReviewVersion + 1));
+        SupplierId = supplierId;
+        ReviewNote = cleanNote;
+        ReviewVersion++;
+        ReviewedBy = reviewer;
+        ReviewedAt = now;
+        return change;
     }
 }

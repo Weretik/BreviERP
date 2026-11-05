@@ -13,9 +13,13 @@ public interface IPurchasingDbContext
     DbSet<PurchaseSourceRevision> SourceRevisions { get; }
     DbSet<PurchaseMessageFile> Files { get; }
     DbSet<PurchaseSyncState> SyncStates { get; }
+    DbSet<PurchaseReviewChange> ReviewChanges { get; }
 
-    /// <summary>Opens the sync transaction under a lock; null when another sync holds the lock.</summary>
-    Task<IPurchaseSyncScope?> TryBeginSyncAsync(CancellationToken cancellationToken);
+    /// <summary>
+    /// Opens a register write transaction under the module lock; null while another write (usually the sheet sync)
+    /// holds it. The sync and manual reviews never interleave.
+    /// </summary>
+    Task<IPurchaseWriteScope?> TryBeginWriteAsync(CancellationToken cancellationToken);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

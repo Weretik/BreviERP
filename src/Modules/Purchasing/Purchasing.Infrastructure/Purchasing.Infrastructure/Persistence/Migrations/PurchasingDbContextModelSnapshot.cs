@@ -92,6 +92,13 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                     b.Property<int>("ReviewVersion")
                         .HasColumnType("integer");
 
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.Property<string>("StatusOriginal")
                         .IsRequired()
                         .HasColumnType("text");
@@ -120,6 +127,70 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Messages", "purchasing");
+                });
+
+            modelBuilder.Entity("Purchasing.Domain.Messages.PurchaseReviewChange", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MessageId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Reviewer")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "After", "Purchasing.Domain.Messages.PurchaseReviewChange.After#PurchaseReview", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Note")
+                                .HasMaxLength(1000)
+                                .HasColumnType("character varying(1000)")
+                                .HasColumnName("AfterNote");
+
+                            b1.Property<int?>("SupplierId")
+                                .HasColumnType("integer")
+                                .HasColumnName("AfterSupplierId");
+
+                            b1.Property<int>("Version")
+                                .HasColumnType("integer")
+                                .HasColumnName("AfterVersion");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Before", "Purchasing.Domain.Messages.PurchaseReviewChange.Before#PurchaseReview", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Note")
+                                .HasMaxLength(1000)
+                                .HasColumnType("character varying(1000)")
+                                .HasColumnName("BeforeNote");
+
+                            b1.Property<int?>("SupplierId")
+                                .HasColumnType("integer")
+                                .HasColumnName("BeforeSupplierId");
+
+                            b1.Property<int>("Version")
+                                .HasColumnType("integer")
+                                .HasColumnName("BeforeVersion");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId", "Id");
+
+                    b.ToTable("ReviewChanges", "purchasing");
                 });
 
             modelBuilder.Entity("Purchasing.Domain.Sources.PurchaseSourceRevision", b =>
@@ -220,6 +291,15 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Purchasing.Domain.Files.PurchaseMessageFile", b =>
+                {
+                    b.HasOne("Purchasing.Domain.Messages.PurchaseMessage", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Purchasing.Domain.Messages.PurchaseReviewChange", b =>
                 {
                     b.HasOne("Purchasing.Domain.Messages.PurchaseMessage", null)
                         .WithMany()

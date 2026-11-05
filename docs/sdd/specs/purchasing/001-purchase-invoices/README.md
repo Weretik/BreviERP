@@ -1,6 +1,6 @@
 # PUR-001 «Рахунки на закупку»
 
-**Status:** stage 1 backend implemented 2026-11-05. **Module:** Purchasing (new, schema `purchasing`). **Consumer:** brevi-web «Загальні довідники → Контрагенти → Рахунки на закупку».
+**Status:** stage 1 implemented 2026-11-05; stage 2 implemented 2026-11-05. **Module:** Purchasing (new, schema `purchasing`). **Consumer:** brevi-web «Загальні довідники → Контрагенти → Рахунки на закупку».
 
 ## Goal
 
@@ -26,9 +26,9 @@ The client's technical description of version 217 is kept outside the repository
 
 | Stage | Scope | Status |
 | --- | --- | --- |
-| 1 | Register: tables, sheet read, sync («Оновити зараз» + daily step `purchase-invoices`), list with search and «Потребує перевірки» filter | backend implemented 2026-11-05 |
-| 2 | Manual supplier link and note with optimistic version and audit | planned |
-| 3 | Checked invoice JSON: validation of VAT arithmetic in kopecks, hash, idempotent save; move the one old checked document | planned |
+| 1 | Register: tables, sheet read, sync («Оновити зараз» + daily step `purchase-invoices`), list with search and «Потребує перевірки» filter | implemented 2026-11-05 |
+| 2 | Manual supplier link and note with optimistic version and history; filter «Без постачальника» | implemented 2026-11-05 |
+| 3 | Invoice data: recognition of the original by Gemini 3.1 Flash-Lite on Vertex AI (user decision 2026-11-05), validation of VAT arithmetic in kopecks (a mismatch → «Потребує перевірки»), hash, idempotent save; move the one old checked document | planned |
 | 4 | Read-only «Рахунки на закупку» in the supplier card; «КП» and «Завдання в цех» in the client card | planned |
 | 5 | Copies of the original documents on the Brevi CDN (`invoices/`): downloaded on sync, the card opens the copy; the Dropbox URL stays the identity (user request 2026-11-05) | planned |
 
@@ -40,10 +40,18 @@ The client's technical description of version 217 is kept outside the repository
 - `MarkedPaid` only when trimmed, upper-cased Status equals «СПЛАЧЕНО». It is a note, not a payment.
 - One card per message; the representative row is the active row with the smallest row number. Order: recognised message date (DD.MM.YYYY, DD/MM/YYYY, ISO) newest first, unknown dates last, then UID.
 
+## Stage 2 rules
+
+- `PUT /api/purchasing/invoices/{messageId}/review` takes `supplierId` (null unlinks), `note` (trimmed, empty removes, at most 1000) and the `version` the user saw. A stale version → 409 «Цей рахунок уже змінили…»; the newer change stays.
+- A new link needs an active Reference supplier; a supplier that became inactive may stay linked. Unknown supplier or card → 404.
+- Each real change adds 1 to the version, stores who (e-mail) and when, and appends a `ReviewChanges` entry with the values before and after. Saving the same values changes nothing.
+- Reviews and the sheet sync share one advisory lock, so they never interleave; a review during a sync → 409 «Оновлення реєстру вже виконується…».
+- The accountant cannot read the Reference supplier list, so the register offers `GET /api/purchasing/invoices/suppliers` (active suppliers by name).
+
 ## Contract and tests
 
-[OpenAPI](../../../contracts/purchasing/purchase-invoices.openapi.yaml): `getPurchaseInvoices`, `getPurchaseInvoicesSyncState`, `syncPurchaseInvoices`. Tests: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Purchasing"` (source rules, sync on SQLite, list query, contract) and `tests/ArchitectureTests/PurchasingDependencyTests.cs`.
+[OpenAPI](../../../contracts/purchasing/purchase-invoices.openapi.yaml): `getPurchaseInvoices`, `getPurchaseInvoicesSyncState`, `syncPurchaseInvoices`, `getPurchaseInvoiceSuppliers`, `reviewPurchaseInvoice`. Tests: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Purchasing"` (source rules, sync on SQLite, list query, contract) and `tests/ArchitectureTests/PurchasingDependencyTests.cs`.
 
 ## Deployment
 
-The migration `InitialPurchasing` runs with the normal deploy. Before the first sync: enable Google Sheets API in project `brevistoreapi` and share the sheet with the runtime service account as a viewer ([runbook](../../../operations/jobs/sync-job.md#purchase-invoices)).
+The migrations `InitialPurchasing` and `AddPurchaseReview` run with the normal deploy. Before the first sync: enable Google Sheets API in project `brevistoreapi` and share the sheet with the runtime service account as a viewer ([runbook](../../../operations/jobs/sync-job.md#purchase-invoices)).

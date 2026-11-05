@@ -42,7 +42,7 @@ public sealed class PurchaseRegisterSync(
         }
 
         Counters counters;
-        await using (var scope = await db.TryBeginSyncAsync(cancellationToken))
+        await using (var scope = await db.TryBeginWriteAsync(cancellationToken))
         {
             if (scope is null) return Result<PurchaseSyncResponse>.Conflict(AlreadyRunning);
 

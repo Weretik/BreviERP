@@ -15,6 +15,9 @@ public sealed class PurchaseInvoicesContractTests
     [TestCase(typeof(PurchaseInvoiceLinkResponse), "PurchaseInvoiceLinkResponse")]
     [TestCase(typeof(PurchaseSyncStateResponse), "PurchaseSyncStateResponse")]
     [TestCase(typeof(PurchaseSyncResponse), "PurchaseSyncResponse")]
+    [TestCase(typeof(PurchaseSupplierOption), "PurchaseSupplierOption")]
+    [TestCase(typeof(PurchaseInvoiceReviewRequest), "PurchaseInvoiceReviewRequest")]
+    [TestCase(typeof(PurchaseInvoiceReviewResponse), "PurchaseInvoiceReviewResponse")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -42,7 +45,7 @@ public sealed class PurchaseInvoicesContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.EqualTo("CanUsePurchaseInvoices"));
-            Assert.That(operations, Has.Length.EqualTo(3));
+            Assert.That(operations, Has.Length.EqualTo(5));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

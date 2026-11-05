@@ -6,5 +6,10 @@ namespace Purchasing.Application.Contracts;
 public enum PurchaseInvoiceFilter
 {
     All,
+
+    /// <summary>The representative row has problems.</summary>
     NeedsReview,
+
+    /// <summary>No supplier linked by hand yet.</summary>
+    WithoutSupplier,
 }

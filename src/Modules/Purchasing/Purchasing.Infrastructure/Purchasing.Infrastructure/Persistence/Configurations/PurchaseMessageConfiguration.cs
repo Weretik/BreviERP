@@ -16,6 +16,7 @@ public sealed class PurchaseMessageConfiguration : IEntityTypeConfiguration<Purc
         b.Property(x => x.MessageDate).HasColumnType("timestamp without time zone");
         b.Property(x => x.PaymentState).HasConversion<string>().HasMaxLength(20);
         b.Property(x => x.ReviewNote).HasMaxLength(PurchaseMessage.ReviewNoteMaxLength);
+        b.Property(x => x.ReviewedBy).HasMaxLength(PurchaseMessage.ReviewerMaxLength);
         b.HasIndex(x => x.SupplierId);
         b.HasIndex(x => x.MessageDate);
     }

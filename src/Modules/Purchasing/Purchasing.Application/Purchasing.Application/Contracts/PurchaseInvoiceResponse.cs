@@ -16,8 +16,11 @@ public sealed record PurchaseInvoiceResponse(
     string? MarkBy,
     bool MarkedPaid,
     int? SupplierId,
+    string? SupplierName,
     string? ReviewNote,
     int ReviewVersion,
+    string? ReviewedBy,
+    DateTimeOffset? ReviewedAt,
     PurchaseInvoiceState State,
     IReadOnlyList<string> Issues,
     IReadOnlyList<PurchaseInvoiceLinkResponse> Links);

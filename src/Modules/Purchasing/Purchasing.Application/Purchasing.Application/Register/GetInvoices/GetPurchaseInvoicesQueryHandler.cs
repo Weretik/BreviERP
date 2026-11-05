@@ -4,7 +4,7 @@ using Purchasing.Domain.Messages;
 
 namespace Purchasing.Application.Register.GetInvoices;
 
-public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db)
+public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPurchasingSupplierReader suppliers)
     : IQueryHandler<GetPurchaseInvoicesQuery, Result<PurchaseInvoicePage>>
 {
     public async ValueTask<Result<PurchaseInvoicePage>> Handle(GetPurchaseInvoicesQuery query, CancellationToken cancellationToken)
@@ -19,6 +19,8 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db)
 
         if (query.Filter == PurchaseInvoiceFilter.NeedsReview)
             cards = cards.Where(x => x.Row!.Issues.Count > 0);
+        else if (query.Filter == PurchaseInvoiceFilter.WithoutSupplier)
+            cards = cards.Where(x => x.Message.SupplierId == null);
 
         var search = query.Search?.Trim();
         if (!string.IsNullOrEmpty(search))
@@ -46,6 +48,10 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db)
                 .ToListAsync(cancellationToken))
             .ToLookup(x => x.MessageId);
 
+        var supplierNames = page.Any(x => x.Message.SupplierId is not null)
+            ? (await suppliers.ListAsync(cancellationToken)).ToDictionary(x => x.Id, x => x.Name)
+            : new Dictionary<int, string>();
+
         var items = page.Select(x =>
         {
             var raw = PurchaseRawCells.Read(x.Row!.RawJson);
@@ -54,7 +60,9 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db)
                 x.Message.Id, x.Message.TelegramKey, x.Row.SourceUid, x.Row.RowNumber, x.RowCount,
                 raw.ChatName, raw.FromUser, x.Message.MessageAt, x.Message.Text, x.Message.StatusOriginal,
                 x.Message.MarkAt, x.Message.MarkBy, x.Message.PaymentState == PaymentState.MarkedPaid,
-                x.Message.SupplierId, x.Message.ReviewNote, x.Message.ReviewVersion,
+                x.Message.SupplierId,
+                x.Message.SupplierId is { } supplierId ? supplierNames.GetValueOrDefault(supplierId) : null,
+                x.Message.ReviewNote, x.Message.ReviewVersion, x.Message.ReviewedBy, x.Message.ReviewedAt,
                 issues.Count > 0 ? PurchaseInvoiceState.NeedsReview : PurchaseInvoiceState.AwaitingRecognition,
                 issues,
                 links[x.Message.Id].Select(l => new PurchaseInvoiceLinkResponse(l.Id, l.Url,

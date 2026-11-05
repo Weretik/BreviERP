@@ -3,7 +3,7 @@ using Purchasing.Application.Abstractions;
 
 namespace Purchasing.Infrastructure.Persistence;
 
-internal sealed class PurchaseSyncScope(IDbContextTransaction transaction) : IPurchaseSyncScope
+internal sealed class PurchaseWriteScope(IDbContextTransaction transaction) : IPurchaseWriteScope
 {
     private bool disposed;
 
