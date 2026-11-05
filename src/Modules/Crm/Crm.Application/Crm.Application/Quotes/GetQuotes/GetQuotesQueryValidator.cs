@@ -14,6 +14,7 @@ public sealed class GetQuotesQueryValidator : AbstractValidator<GetQuotesQuery>
         RuleFor(x => x.Status).Must(x => Enum.TryParse<QuoteStatus>(x, false, out var status) && Enum.IsDefined(status))
             .When(x => !string.IsNullOrEmpty(x.Status)).WithMessage("Невідомий статус КП.");
         RuleFor(x => x.ResponsibleUserId).GreaterThan(0).When(x => x.ResponsibleUserId is not null);
+        RuleFor(x => x.CustomerId).GreaterThan(0).When(x => x.CustomerId is not null);
         RuleFor(x => x.Page).InclusiveBetween(1, 100_000);
         RuleFor(x => x.PageSize).InclusiveBetween(1, MaxPageSize);
     }

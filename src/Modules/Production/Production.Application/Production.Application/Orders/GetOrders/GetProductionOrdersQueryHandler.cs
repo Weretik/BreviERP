@@ -11,6 +11,9 @@ public sealed class GetProductionOrdersQueryHandler(IProductionDbContext db)
         CancellationToken cancellationToken)
     {
         var orders = db.Orders.AsNoTracking().Where(x => x.DeletedAt == null);
+        if (query.CustomerId is { } customerId)
+            orders = orders.Where(x => x.CustomerId == customerId);
+
         if (!string.IsNullOrWhiteSpace(query.Manager))
         {
             var manager = query.Manager.Trim();

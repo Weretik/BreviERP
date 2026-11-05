@@ -8,5 +8,6 @@ public sealed class GetPurchaseInvoicesQueryValidator : AbstractValidator<GetPur
         RuleFor(x => x.PageSize).InclusiveBetween(1, GetPurchaseInvoicesQuery.MaxPageSize);
         RuleFor(x => x.Search).MaximumLength(GetPurchaseInvoicesQuery.SearchMaxLength);
         RuleFor(x => x.Filter).IsInEnum();
+        RuleFor(x => x.SupplierId).GreaterThan(0).When(x => x.SupplierId is not null);
     }
 }

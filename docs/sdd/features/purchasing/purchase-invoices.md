@@ -23,7 +23,7 @@ src/Modules/Purchasing/
     Documents/Save/        # SaveCheckedPurchaseDocumentCommand (manual JSON, replace)
     Documents/Template/    # GetPurchaseDocumentTemplateQuery
     Register/Sync/     # PurchaseRegisterSync (read → check → one transaction), SyncPurchaseRegisterCommand
-    Register/GetInvoices/   # page of cards: representative row, links, search, filter
+    Register/GetInvoices/   # page of cards: representative row, links, search, filter, one supplier (supplier card tab)
     Register/GetSyncState/
     Register/Review/   # ReviewPurchaseInvoiceCommand (version check under the write lock), GetPurchaseSuppliersQuery
     Contracts/         # responses and enums

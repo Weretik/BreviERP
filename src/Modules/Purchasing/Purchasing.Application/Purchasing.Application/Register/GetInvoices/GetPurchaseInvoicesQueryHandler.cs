@@ -34,6 +34,9 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
         else if (query.Filter == PurchaseInvoiceFilter.WithoutSupplier)
             cards = cards.Where(x => x.Message.SupplierId == null);
 
+        if (query.SupplierId is { } supplierId)
+            cards = cards.Where(x => x.Message.SupplierId == supplierId);
+
         var search = query.Search?.Trim();
         if (!string.IsNullOrEmpty(search))
         {

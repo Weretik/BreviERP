@@ -28,9 +28,21 @@ public sealed class PurchaseInvoiceReviewTests
         harness.Review().Handle(new ReviewPurchaseInvoiceCommand(id ?? messageId, supplierId, note, version,
             "buh@brevi.com.ua"), CancellationToken.None).AsTask();
 
-    private async Task<PurchaseInvoicePage> ListAsync(PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All) =>
+    private async Task<PurchaseInvoicePage> ListAsync(PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All,
+        int? supplierId = null) =>
         (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers)
-            .Handle(new GetPurchaseInvoicesQuery(1, 50, null, filter), CancellationToken.None)).Value;
+            .Handle(new GetPurchaseInvoicesQuery(1, 50, null, filter, supplierId), CancellationToken.None)).Value;
+
+    [Test]
+    public async Task The_supplier_card_lists_only_the_invoices_linked_to_that_supplier()
+    {
+        await ReviewAsync(7, null, 0);
+
+        var linked = await ListAsync(supplierId: 7);
+        Assert.That(linked.Total, Is.EqualTo(1));
+        Assert.That(linked.Items.Single().MessageId, Is.EqualTo(messageId));
+        Assert.That((await ListAsync(supplierId: 8)).Total, Is.Zero);
+    }
 
     [Test]
     public async Task Saves_supplier_and_trimmed_note_bumps_the_version_and_writes_history()

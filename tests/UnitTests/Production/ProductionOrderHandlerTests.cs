@@ -215,6 +215,24 @@ public sealed class ProductionOrderHandlerTests
     }
 
     [Test]
+    public async Task Client_card_lists_only_orders_made_from_that_clients_quotes()
+    {
+        using var workshop = Workshop();
+        var created = (await Create(workshop, Manager, Input())).Value;
+        await Import(workshop, false, Row("a", 1, "New", "Геофізика"));
+        var handler = new GetProductionOrdersQueryHandler(workshop.Db);
+
+        var client = (await handler.Handle(new(null, null, null, null, CustomerId: 9), CancellationToken.None)).Value;
+        var other = (await handler.Handle(new(null, null, null, null, CustomerId: 8), CancellationToken.None)).Value;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(client.Items.Select(x => x.Id), Is.EqualTo(new[] { created.Id }));
+            Assert.That(other.Total, Is.Zero);
+        });
+    }
+
+    [Test]
     public async Task List_filters_by_status_search_and_due_date_and_counts_statuses()
     {
         using var workshop = Workshop();

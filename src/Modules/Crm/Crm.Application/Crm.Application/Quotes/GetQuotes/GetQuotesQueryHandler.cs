@@ -8,9 +8,11 @@ public sealed class GetQuotesQueryHandler(IQuoteStore store) : IQueryHandler<Get
 {
     public async ValueTask<Result<QuotePageResponse>> Handle(GetQuotesQuery query, CancellationToken cancellationToken)
     {
-        var quotes = query.Archived
-            ? store.Quotes.AsNoTracking().Where(x => x.ArchivedAt != null)
-            : store.Quotes.AsNoTracking().Where(x => x.ArchivedAt == null);
+        var quotes = store.Quotes.AsNoTracking();
+        if (query.CustomerId is { } customerId)
+            quotes = quotes.Where(x => x.CustomerId == customerId);
+        else
+            quotes = query.Archived ? quotes.Where(x => x.ArchivedAt != null) : quotes.Where(x => x.ArchivedAt == null);
         if (!query.Actor.CanSeeAll)
             quotes = quotes.Where(x => x.ResponsibleUserId == query.Actor.UserId);
         else if (query.ResponsibleUserId is { } responsible)

@@ -32,8 +32,10 @@ public sealed class PurchaseInvoicesController(ISender sender) : ControllerBase
         [FromQuery] int pageSize = DefaultPageSize,
         [FromQuery] string? search = null,
         [FromQuery] PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All,
+        [FromQuery] int? supplierId = null,
         CancellationToken cancellationToken = default) =>
-        this.ToActionResult(await sender.Send(new GetPurchaseInvoicesQuery(page, pageSize, search, filter), cancellationToken));
+        this.ToActionResult(await sender.Send(
+            new GetPurchaseInvoicesQuery(page, pageSize, search, filter, supplierId), cancellationToken));
 
     [HttpGet("sync-state", Name = "getPurchaseInvoicesSyncState")]
     public async Task<ActionResult<PurchaseSyncStateResponse>> SyncState(CancellationToken cancellationToken) =>

@@ -37,6 +37,10 @@ paths:
           in: query
           description: True lists only «Архів», false (default) only КП in work.
           schema: { type: boolean, default: false }
+        - name: customerId
+          in: query
+          description: The client card tab «КП»; only this client's КП, in work and archived together (archived is ignored).
+          schema: { type: integer, format: int64, minimum: 1 }
       responses:
         "200":
           description: One page.

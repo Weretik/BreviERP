@@ -42,6 +42,12 @@ paths:
         in: query
         schema:
           $ref: '#/components/schemas/PurchaseInvoiceFilter'
+      - name: supplierId
+        in: query
+        description: The supplier card tab «Рахунки на закупку»; only cards linked to this supplier.
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: OK
