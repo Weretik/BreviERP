@@ -30,7 +30,7 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 
 | Policy | Allowed roles |
 | --- | --- |
-| `RequireAdminRole` / `CanManageUsers` | Admin |
+| `RequireAdminRole` / `CanManageUsers` | Admin (also `/api/ai/settings`: «Налаштування ШІ», [AI-001](../../../specs/ai/001-ai-settings/README.md)) |
 | `RequireManagerRole` / `CanManageProducts` / `CanManageOrders` | Manager, Admin |
 | `CatalogRead` | User, Accountant, Manager, Admin |
 | `OwnProfile` | Accountant, Manager, WorkshopChief, Admin (`/api/profile`) |

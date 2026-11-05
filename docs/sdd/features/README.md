@@ -54,9 +54,13 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 - [Embroidery price](crm/embroidery-price.md) — «Ціна вишивки»: live cost and three prices of embroidery or chevrons; settings for Director and Admin; «Збережені», «Додати в КП», «Макет» and the link to production orders.
 - [Manager tasks](crm/manager-tasks.md) — Director and Admin give tasks to managers and track workload; managers move them on the «Мої завдання» kanban.
 
+## Ai
+
+- [AI settings «Налаштування ШІ»](ai/ai-settings.md) — the OpenAI key (encrypted, write-only), fast and strong models with prices, on/off, monthly limit and use, extra rules per request kind; Admin.
+
 ## Purchasing
 
-- [Purchase invoices «Рахунки на закупку»](purchasing/purchase-invoices.md) — register of purchase invoices from the Google Sheet «финансы»: sync, problems with reasons, search; Director, Accountant and Admin.
+- [Purchase invoices «Рахунки на закупку»](purchasing/purchase-invoices.md) — register of purchase invoices from the Google Sheet «финансы»: sync, problems with reasons, search, supplier link and note, invoice facts read by AI with a kopeck check or uploaded as JSON; Director, Accountant and Admin.
 
 ## Media
 

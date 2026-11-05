@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Purchasing.Application.Abstractions;
 using Purchasing.Application.DependencyInjection;
+using Purchasing.Infrastructure.Dropbox;
 using Purchasing.Infrastructure.GoogleSheets;
 using Purchasing.Infrastructure.Persistence;
 
@@ -24,6 +25,7 @@ public static class PurchasingInfrastructureExtensions
         services.Configure<PurchaseSheetOptions>(configuration.GetSection(PurchaseSheetOptions.Section));
         services.AddSingleton<IGoogleAccessTokenSource, ApplicationDefaultTokenSource>();
         services.AddHttpClient<IPurchaseSheetReader, GooglePurchaseSheetReader>(client => client.Timeout = TimeSpan.FromSeconds(20));
+        services.AddHttpClient<IPurchaseFileDownloader, DropboxFileDownloader>(client => client.Timeout = TimeSpan.FromSeconds(60));
         services.TryAddSingleton(TimeProvider.System);
         services.AddPurchasingApplication();
         return services;

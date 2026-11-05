@@ -1,5 +1,8 @@
 using Purchasing.Application.Abstractions;
 using Purchasing.Application.Contracts;
+using Purchasing.Application.Documents;
+using Purchasing.Domain.Documents;
+using Purchasing.Domain.Ingestion;
 using Purchasing.Domain.Messages;
 
 namespace Purchasing.Application.Register.GetInvoices;
@@ -17,8 +20,17 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
             where representative != null
             select new { Message = message, Row = representative, RowCount = active.Count(x => x.MessageId == message.Id) };
 
+        // A failed recognition of a file without checked facts counts as a problem of its card.
+        var failedFiles = db.Files.Where(f => f.Active
+            && !db.CheckedDocuments.Any(d => d.Id == f.Id)
+            && db.RecognitionAttempts.Where(a => a.FileId == f.Id).OrderByDescending(a => a.Id).Select(a => a.Outcome)
+                .FirstOrDefault() != PurchaseRecognitionOutcome.Recognized
+            && db.RecognitionAttempts.Any(a => a.FileId == f.Id));
         if (query.Filter == PurchaseInvoiceFilter.NeedsReview)
-            cards = cards.Where(x => x.Row!.Issues.Count > 0);
+            cards = cards.Where(x => x.Row!.Issues.Count > 0 || failedFiles.Any(f => f.MessageId == x.Message.Id));
+        else if (query.Filter == PurchaseInvoiceFilter.NotRecognized)
+            cards = cards.Where(x => db.Files.Any(f => f.Active && f.MessageId == x.Message.Id
+                && !db.CheckedDocuments.Any(d => d.Id == f.Id)));
         else if (query.Filter == PurchaseInvoiceFilter.WithoutSupplier)
             cards = cards.Where(x => x.Message.SupplierId == null);
 
@@ -48,6 +60,16 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
                 .ToListAsync(cancellationToken))
             .ToLookup(x => x.MessageId);
 
+        var fileIds = links.SelectMany(x => x).Select(x => x.Id).ToList();
+        var documents = await db.CheckedDocuments.AsNoTracking().Where(x => fileIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+        var withoutDocument = fileIds.Where(x => !documents.ContainsKey(x)).ToList();
+        var attempts = (await db.RecognitionAttempts.AsNoTracking()
+                .Where(x => withoutDocument.Contains(x.FileId))
+                .ToListAsync(cancellationToken))
+            .GroupBy(x => x.FileId)
+            .ToDictionary(x => x.Key, x => x.MaxBy(a => a.Id)!);
+
         var supplierNames = page.Any(x => x.Message.SupplierId is not null)
             ? (await suppliers.ListAsync(cancellationToken)).ToDictionary(x => x.Id, x => x.Name)
             : new Dictionary<int, string>();
@@ -55,7 +77,17 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
         var items = page.Select(x =>
         {
             var raw = PurchaseRawCells.Read(x.Row!.RawJson);
-            var issues = x.Row.Issues;
+            var cardLinks = links[x.Message.Id].Select(l =>
+            {
+                var document = documents.TryGetValue(l.Id, out var stored) ? PurchaseDocumentMapping.ToResponse(stored) : null;
+                var attempt = document is null && attempts.TryGetValue(l.Id, out var last) ? PurchaseDocumentMapping.ToResponse(last) : null;
+                return new PurchaseInvoiceLinkResponse(l.Id, l.Url, FileLinkRules.IsSafeDropbox(l.Url), document, attempt);
+            }).ToList();
+            var issues = x.Row.Issues.Concat(cardLinks.SelectMany(LinkIssues)).ToList();
+            var state = issues.Count > 0 ? PurchaseInvoiceState.NeedsReview
+                : cardLinks.Any(l => l.Safe) && cardLinks.Where(l => l.Safe).All(l => l.Document is not null)
+                    ? PurchaseInvoiceState.Recognized
+                    : PurchaseInvoiceState.AwaitingRecognition;
             return new PurchaseInvoiceResponse(
                 x.Message.Id, x.Message.TelegramKey, x.Row.SourceUid, x.Row.RowNumber, x.RowCount,
                 raw.ChatName, raw.FromUser, x.Message.MessageAt, x.Message.Text, x.Message.StatusOriginal,
@@ -63,12 +95,24 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
                 x.Message.SupplierId,
                 x.Message.SupplierId is { } supplierId ? supplierNames.GetValueOrDefault(supplierId) : null,
                 x.Message.ReviewNote, x.Message.ReviewVersion, x.Message.ReviewedBy, x.Message.ReviewedAt,
-                issues.Count > 0 ? PurchaseInvoiceState.NeedsReview : PurchaseInvoiceState.AwaitingRecognition,
+                state,
                 issues,
-                links[x.Message.Id].Select(l => new PurchaseInvoiceLinkResponse(l.Id, l.Url,
-                    Purchasing.Domain.Ingestion.FileLinkRules.IsSafeDropbox(l.Url))).ToList());
+                cardLinks);
         }).ToList();
 
         return Result.Success(new PurchaseInvoicePage(items, total, query.Page, query.PageSize));
     }
+
+    private static IEnumerable<string> LinkIssues(PurchaseInvoiceLinkResponse link)
+    {
+        var name = FileName(link.Url);
+        if (link.Recognition is { Result: not PurchaseRecognitionResult.Recognized } attempt)
+            foreach (var problem in attempt.Problems.DefaultIfEmpty("розпізнати не вдалося"))
+                yield return $"{name}: {problem}";
+    }
+
+    private static string FileName(string url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Segments.Length > 0
+            ? Uri.UnescapeDataString(uri.Segments[^1])
+            : "Файл";
 }

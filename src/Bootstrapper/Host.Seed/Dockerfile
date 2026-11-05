@@ -42,6 +42,9 @@ COPY ["src/Modules/Production/Production.Infrastructure/Production.Infrastructur
 COPY ["src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Purchasing.Application.csproj", "src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/"]
 COPY ["src/Modules/Purchasing/Purchasing.Domain/Purchasing.Domain/Purchasing.Domain.csproj", "src/Modules/Purchasing/Purchasing.Domain/Purchasing.Domain/"]
 COPY ["src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/Purchasing.Infrastructure.csproj", "src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/"]
+COPY ["src/Modules/Ai/Ai.Application/Ai.Application/Ai.Application.csproj", "src/Modules/Ai/Ai.Application/Ai.Application/"]
+COPY ["src/Modules/Ai/Ai.Domain/Ai.Domain/Ai.Domain.csproj", "src/Modules/Ai/Ai.Domain/Ai.Domain/"]
+COPY ["src/Modules/Ai/Ai.Infrastructure/Ai.Infrastructure/Ai.Infrastructure.csproj", "src/Modules/Ai/Ai.Infrastructure/Ai.Infrastructure/"]
 
 RUN dotnet restore "src/Bootstrapper/Host.Seed/Host.Seed.csproj"
 COPY . .
