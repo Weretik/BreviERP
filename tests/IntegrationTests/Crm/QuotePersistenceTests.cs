@@ -36,18 +36,18 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     public void ResetCatalog() => _catalog.Retail = 900;
 
     private static SaveQuoteInput Input(int version = 0, string name = "ТОВ «Агро»", long? itemId = null,
-        long? optionId = null) =>
-        new(version, name, null, "Іван", "Агро", null, null,
+        long? optionId = null, long? customerId = null) =>
+        new(version, name, customerId, "Іван", "Агро", null, null,
         [
             new QuoteItemInput(itemId, "Sewing", 10, null, null, null, null,
                 [new QuoteOptionInput(optionId, 100, true, new(true, null), new(true, null), new(true, null), null)]),
         ]);
 
-    private async Task<QuoteResponse> Create(QuoteActor actor, string name = "ТОВ «Агро»")
+    private async Task<QuoteResponse> Create(QuoteActor actor, string name = "ТОВ «Агро»", long? customerId = null)
     {
         await using var db = Context();
         var result = await new CreateQuoteCommandHandler(_staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
-            .Handle(new CreateQuoteCommand(actor, Input(name: name)), default);
+            .Handle(new CreateQuoteCommand(actor, Input(name: name, customerId: customerId)), default);
         Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors.Concat(result.ValidationErrors.Select(x => x.ErrorMessage))));
         return result.Value;
     }
@@ -80,6 +80,23 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         Assert.That(all.Value.Total, Is.EqualTo(2));
         Assert.That(foreign.Status, Is.EqualTo(ResultStatus.NotFound));
         Assert.That(search.Value.Items.Single().Id, Is.EqualTo(petros.Id));
+    }
+
+    [Test]
+    public async Task ClientCardListsOnlyThatClientsQuotesWithinTheActorsAccess()
+    {
+        var olenas = await Create(Olena, customerId: 40);
+        await Create(Petro, "Будівельник", customerId: 40);
+        await Create(Olena, "Інший клієнт", customerId: 41);
+
+        await using var db = Context();
+        var forDirector = await new GetQuotesQueryHandler(db)
+            .Handle(new GetQuotesQuery(Director, null, null, null, CustomerId: 40), default);
+        var forOlena = await new GetQuotesQueryHandler(db)
+            .Handle(new GetQuotesQuery(Olena, null, null, null, CustomerId: 40), default);
+
+        Assert.That(forDirector.Value.Total, Is.EqualTo(2));
+        Assert.That(forOlena.Value.Items.Select(x => x.Id), Is.EqualTo(new[] { olenas.Id }));
     }
 
     [Test]

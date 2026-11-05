@@ -14,7 +14,7 @@ public static class PurchaseRecognitionPrompt
           "without_vat" (also when unsure).
         - pricesIncludeVat: true when the unit prices and line sums in the table already include VAT; false otherwise.
         - items: every position of the table in order, with name, quantity, unit (null if none), price and sum exactly as
-          printed in the table.
+          printed in the table. When the table has no price column (only a sum per line), put "" as price.
         - vatAmount: the VAT total for "with_vat", otherwise null. totalPayable: the final amount to pay (Всього до сплати).
         Numbers are strings with a dot as decimal separator, without spaces, currency or thousand separators
         (e.g. "12345.60"). Never invent or compute values that are not printed; copy them.

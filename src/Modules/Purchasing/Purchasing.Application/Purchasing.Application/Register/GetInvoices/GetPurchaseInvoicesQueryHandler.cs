@@ -34,6 +34,24 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
         else if (query.Filter == PurchaseInvoiceFilter.WithoutSupplier)
             cards = cards.Where(x => x.Message.SupplierId == null);
 
+        if (query.SupplierId is { } supplierId)
+            cards = cards.Where(x => x.Message.SupplierId == supplierId);
+
+        if (query.DocumentFrom is not null || query.DocumentTo is not null || query.Vat is not null)
+        {
+            var matching = db.CheckedDocuments.Where(d => db.Files.Any(f => f.Id == d.Id && f.Active));
+            if (query.DocumentFrom is { } from)
+                matching = matching.Where(d => d.DocumentDate >= from);
+            if (query.DocumentTo is { } to)
+                matching = matching.Where(d => d.DocumentDate <= to);
+            if (query.Vat is { } vat)
+            {
+                var mode = vat == PurchaseDocumentVat.WithVat ? PurchaseVatMode.WithVat : PurchaseVatMode.WithoutVat;
+                matching = matching.Where(d => d.Vat == mode);
+            }
+            cards = cards.Where(x => matching.Any(d => d.MessageId == x.Message.Id));
+        }
+
         var search = query.Search?.Trim();
         if (!string.IsNullOrEmpty(search))
         {

@@ -62,6 +62,14 @@ paths:
           - Complete
         description: Orders whose least advanced item is at this stage.
       - in: query
+        name: customerId
+        required: false
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+        description: The client card tab «Завдання в цех»; only orders made from this client's КП.
+      - in: query
         name: page
         required: false
         schema:

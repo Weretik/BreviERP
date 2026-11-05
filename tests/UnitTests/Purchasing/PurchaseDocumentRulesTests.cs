@@ -91,6 +91,24 @@ public sealed class PurchaseDocumentRulesTests
     }
 
     [Test]
+    public void A_table_without_a_price_column_takes_the_price_from_the_sum()
+    {
+        const string json = """
+            {"sourceUID":"391813915","originalFileLink":"https://www.dropbox.com/s/a.pdf",
+             "documentType":"Рахунок","documentNumber":"C-30192","documentDate":"2026-11-04","supplierName":"Пошта",
+             "vat":"with_vat","pricesIncludeVat":false,
+             "items":[{"name":"Послуги поштового зв'язку","quantity":"1","unit":"послуга","price":"","sum":"5838.37"},
+                      {"name":"Перевезення","quantity":"3","unit":null,"price":null,"sum":"100.00"}],
+             "vatAmount":"1187.67","totalPayable":"7126.04"}
+            """;
+
+        var (document, problems) = Read(json);
+
+        Assert.That(problems, Is.Empty);
+        Assert.That(document!.Items.Select(x => x.Price), Is.EqualTo(new[] { "5838.37", "33.3333" }));
+    }
+
+    [Test]
     public void A_discounted_line_is_accepted_when_the_totals_add_up()
     {
         // file_798: 5 % discount, 477.00 × 0.95 = 453.15 per line, the total is the sum of the discounted lines.

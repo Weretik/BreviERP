@@ -81,6 +81,11 @@ public sealed class QuoteRulesTests
             Is.False);
 
     [Test]
+    public void ClientFilterNeedsAPositiveId() =>
+        Assert.That(new GetQuotesQueryValidator().Validate(new GetQuotesQuery(Manager, null, null, null, CustomerId: 0))
+            .IsValid, Is.False);
+
+    [Test]
     public void ManagerAccessesOnlyOwnQuote()
     {
         var quote = new Quote(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Інший"),

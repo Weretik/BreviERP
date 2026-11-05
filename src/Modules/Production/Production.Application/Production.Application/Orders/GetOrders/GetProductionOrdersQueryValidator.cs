@@ -12,6 +12,7 @@ public sealed class GetProductionOrdersQueryValidator : AbstractValidator<GetPro
             .WithMessage("Невідомий етап.");
         RuleFor(x => x.Search).MaximumLength(200);
         RuleFor(x => x.Manager).MaximumLength(ProductionOrder.PersonMaxLength);
+        RuleFor(x => x.CustomerId).GreaterThan(0).When(x => x.CustomerId is not null);
         RuleFor(x => x.Page).GreaterThan(0);
         RuleFor(x => x.PageSize).InclusiveBetween(1, GetProductionOrdersQuery.MaxPageSize);
     }

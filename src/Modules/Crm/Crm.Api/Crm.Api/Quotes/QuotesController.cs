@@ -33,12 +33,14 @@ public sealed class QuotesController(ISender sender) : ControllerBase
     [ProducesResponseType<QuotePageResponse>(StatusCodes.Status200OK)]
     public async Task<ActionResult<QuotePageResponse>> List([FromQuery] string? search, [FromQuery] string? status,
         [FromQuery] int? responsibleUserId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50,
-        [FromQuery] bool archived = false, CancellationToken cancellationToken = default)
+        [FromQuery] bool archived = false, [FromQuery] long? customerId = null,
+        CancellationToken cancellationToken = default)
     {
         var actor = QuoteActorClaims.Read(User);
         if (actor is null) return Forbid();
         return this.ToActionResult(await sender.Send(
-            new GetQuotesQuery(actor, search, status, responsibleUserId, page, pageSize, archived), cancellationToken));
+            new GetQuotesQuery(actor, search, status, responsibleUserId, page, pageSize, archived, customerId),
+            cancellationToken));
     }
 
     [HttpGet("{id:long}", Name = "getCrmQuote")]
