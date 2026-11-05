@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Purchasing.Domain.Documents;
 
 /// <summary>
@@ -31,6 +33,12 @@ public sealed class PurchaseCheckedDocument
     public string PayloadHash { get; private set; } = null!;
     public PurchaseDocumentOrigin Origin { get; private set; }
 
+    /// <summary>The invoice date from <see cref="PayloadJson"/>, kept as a column for the register date filter.</summary>
+    public DateOnly? DocumentDate { get; private set; }
+
+    /// <summary>«З ПДВ» or «Без ПДВ» from <see cref="PayloadJson"/>, kept as a column for the register filter.</summary>
+    public PurchaseVatMode Vat { get; private set; }
+
     /// <summary>OpenAI model that read it; null for a manual file.</summary>
     public string? Model { get; private set; }
 
@@ -57,6 +65,11 @@ public sealed class PurchaseCheckedDocument
         OriginalUrl = document.OriginalFileLink;
         PayloadJson = PurchaseDocumentJson.Write(document);
         PayloadHash = PurchaseDocumentJson.Hash(PayloadJson);
+        DocumentDate = DateOnly.TryParseExact(document.DocumentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+            DateTimeStyles.None, out var date)
+            ? date
+            : null;
+        Vat = document.Vat;
         Origin = origin;
         Model = model;
         CostUsd = costUsd;

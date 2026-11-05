@@ -17,11 +17,13 @@ public sealed class PurchaseCheckedDocumentConfiguration : IEntityTypeConfigurat
         b.Property(x => x.SourceUid).HasMaxLength(64);
         b.Property(x => x.PayloadHash).HasMaxLength(64);
         b.Property(x => x.Origin).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Vat).HasConversion<string>().HasMaxLength(20);
         b.Property(x => x.Model).HasMaxLength(80);
         b.Property(x => x.CostUsd).HasPrecision(12, 6);
         b.Property(x => x.CheckedBy).HasMaxLength(PurchaseCheckedDocument.ByMaxLength);
         b.HasIndex(x => x.MessageId);
         b.HasIndex(x => x.SourceUid);
+        b.HasIndex(x => x.DocumentDate);
         b.HasOne<PurchaseMessageFile>().WithOne().HasForeignKey<PurchaseCheckedDocument>(x => x.Id).OnDelete(DeleteBehavior.Restrict);
         b.HasOne<PurchaseMessage>().WithMany().HasForeignKey(x => x.MessageId).OnDelete(DeleteBehavior.Restrict);
     }

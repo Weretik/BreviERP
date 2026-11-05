@@ -42,6 +42,9 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 6)
                         .HasColumnType("numeric(12,6)");
 
+                    b.Property<DateOnly?>("DocumentDate")
+                        .HasColumnType("date");
+
                     b.Property<string>("MessageId")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -74,7 +77,14 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<string>("Vat")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("DocumentDate");
 
                     b.HasIndex("MessageId");
 

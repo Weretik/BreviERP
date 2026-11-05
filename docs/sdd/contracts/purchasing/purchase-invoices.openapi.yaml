@@ -48,6 +48,23 @@ paths:
         schema:
           type: integer
           minimum: 1
+      - name: documentFrom
+        in: query
+        description: Only cards with a checked document dated on or after this day.
+        schema:
+          type: string
+          format: date
+      - name: documentTo
+        in: query
+        description: Only cards with a checked document dated on or before this day; not earlier than documentFrom.
+        schema:
+          type: string
+          format: date
+      - name: vat
+        in: query
+        description: Only cards with a checked document of this VAT mode.
+        schema:
+          $ref: '#/components/schemas/PurchaseDocumentVat'
       responses:
         '200':
           description: OK

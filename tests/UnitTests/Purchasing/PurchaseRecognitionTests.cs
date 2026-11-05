@@ -75,6 +75,26 @@ public sealed class PurchaseRecognitionTests
     }
 
     [Test]
+    public async Task The_register_filters_by_invoice_date_and_vat_of_the_checked_facts()
+    {
+        harness.Recognizer.Answers.Enqueue(FakeRecognizer.Json(PurchaseDocumentRulesTests.VatOnTop));
+        await RecognizeAsync();
+
+        async Task<IEnumerable<string>> Uids(DateOnly? from = null, DateOnly? to = null, PurchaseDocumentVat? vat = null) =>
+            (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers)
+                .Handle(new GetPurchaseInvoicesQuery(1, 50, null, PurchaseInvoiceFilter.All, null, from, to, vat),
+                    CancellationToken.None)).Value.Items.Select(x => x.SourceUid);
+
+        Assert.That(await Uids(new DateOnly(2026, 11, 3), new DateOnly(2026, 11, 3)), Is.EqualTo(new[] { "391813863" }));
+        Assert.That(await Uids(from: new DateOnly(2026, 11, 4)), Is.Empty);
+        Assert.That(await Uids(vat: PurchaseDocumentVat.WithVat), Is.EqualTo(new[] { "391813863" }));
+        Assert.That(await Uids(vat: PurchaseDocumentVat.WithoutVat), Is.Empty);
+        var saved = harness.Fresh().CheckedDocuments.Single();
+        Assert.That((saved.DocumentDate, saved.Vat),
+            Is.EqualTo(((DateOnly?)new DateOnly(2026, 11, 3), global::Purchasing.Domain.Documents.PurchaseVatMode.WithVat)));
+    }
+
+    [Test]
     public async Task A_failed_check_is_retried_once_with_the_strong_model()
     {
         harness.Recognizer.Answers.Enqueue(FakeRecognizer.Json(PurchaseDocumentRulesTests.VatOnTop.Replace("1560.00", "1500.00")));
