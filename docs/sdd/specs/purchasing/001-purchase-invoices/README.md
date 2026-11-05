@@ -30,6 +30,7 @@ The client's technical description of version 217 is kept outside the repository
 | 2 | Manual supplier link and note with optimistic version and audit | planned |
 | 3 | Checked invoice JSON: validation of VAT arithmetic in kopecks, hash, idempotent save; move the one old checked document | planned |
 | 4 | Read-only «Рахунки на закупку» in the supplier card; «КП» and «Завдання в цех» in the client card | planned |
+| 5 | Copies of the original documents on the Brevi CDN (`invoices/`): downloaded on sync, the card opens the copy; the Dropbox URL stays the identity (user request 2026-11-05) | planned |
 
 ## Stage 1 rules
 
