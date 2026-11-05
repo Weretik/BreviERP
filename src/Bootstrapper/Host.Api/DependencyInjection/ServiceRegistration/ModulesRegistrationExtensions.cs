@@ -24,6 +24,7 @@ using Media.Infrastructure.DependencyInjection;
 using Host.Api.Production;
 using Production.Application.Abstractions;
 using Production.Infrastructure.DependencyInjection;
+using Purchasing.Infrastructure.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 
@@ -55,6 +56,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IEmbroideryMediaReader, EmbroideryMediaReader>();
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
+        services.AddPurchasingInfrastructure(configuration);
         services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();
         services.AddHttpClient<IProductPhotoSource, CatalogProductPhotoSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddScoped<IMediaUsageReader, MediaProductUsageReader>();

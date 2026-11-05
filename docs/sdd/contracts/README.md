@@ -31,6 +31,8 @@ Do not create a public OpenAPI document for internal-only changes. Before adding
 
 - Crm: [clients and contacts](crm/clients-quotes.openapi.yaml), [КП (commercial proposals)](crm/quotes.openapi.yaml), [manager tasks](crm/tasks.openapi.yaml), [embroidery price](crm/embroidery.openapi.yaml).
 
+- Purchasing: [«Рахунки на закупку» register](purchasing/purchase-invoices.openapi.yaml) — purchase invoices read from the Google Sheet «финансы».
+
 - Reminders: [Telegram reminders admin API](reminders/telegram-reminders.openapi.yaml) — tasks, periods, chats, non-working days and bot connection. The Telegram webhook is intentionally not in the contract.
 
 ## Access

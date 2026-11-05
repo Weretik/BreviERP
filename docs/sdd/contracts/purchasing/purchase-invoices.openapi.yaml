@@ -1,0 +1,324 @@
+openapi: 3.1.0
+info:
+  title: 'Purchasing: «Рахунки на закупку» register'
+  version: 1.0.0
+  description: 'Register of purchase invoices read from the Google Sheet «БРЕВІ команда» / «финансы» (PUR-001). Policy
+    CanUsePurchaseInvoices: Director, Accountant and Admin; managers get 403. The sheet is only read, never written.'
+security:
+- Bearer: []
+paths:
+  /api/purchasing/invoices:
+    get:
+      tags:
+      - Purchasing
+      operationId: getPurchaseInvoices
+      description: One page of cards, one per Telegram message, newest message first (unknown dates last). Search matches
+        the message text (case-insensitive) or an exact UID.
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 1
+          minimum: 1
+          maximum: 10000
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          minimum: 1
+          maximum: 100
+      - name: search
+        in: query
+        schema:
+          type: string
+          maxLength: 200
+      - name: filter
+        in: query
+        schema:
+          $ref: '#/components/schemas/PurchaseInvoiceFilter'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseInvoicePage'
+        '400':
+          description: Invalid page, page size, search or filter
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+  /api/purchasing/invoices/sync-state:
+    get:
+      tags:
+      - Purchasing
+      operationId: getPurchaseInvoicesSyncState
+      responses:
+        '200':
+          description: OK; nulls and zeros before the first sync
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseSyncStateResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+  /api/purchasing/invoices/sync:
+    post:
+      tags:
+      - Purchasing
+      operationId: syncPurchaseInvoices
+      description: '«Оновити зараз»: reads the whole sheet, checks it, then applies it in one transaction. Safe to repeat;
+        manual supplier links and notes are never changed. Rows and links missing from the sheet become inactive.'
+      responses:
+        '200':
+          description: Synced
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseSyncResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+        '409':
+          description: Another sync is running; body is an array of messages
+        '422':
+          description: The sheet breaks a register rule (header, duplicate UID, different payment marks in one message, a UID
+            moved to another message); nothing changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseErrors'
+        '503':
+          description: Google Sheets cannot be read (no access, not found, not responding); nothing changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseErrors'
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    PurchaseInvoiceFilter:
+      type: string
+      enum:
+      - All
+      - NeedsReview
+    PurchaseInvoiceState:
+      type: string
+      description: NeedsReview when the representative row has problems, otherwise AwaitingRecognition.
+      enum:
+      - NeedsReview
+      - AwaitingRecognition
+    PurchaseInvoiceLinkResponse:
+      type: object
+      required:
+      - id
+      - url
+      - safe
+      properties:
+        id:
+          type: string
+          description: File id, SHA-256 of messageId:url.
+        url:
+          type: string
+          description: The exact link from the sheet.
+        safe:
+          type: boolean
+          description: True only for an HTTPS dropbox.com link without user or password; show other links as text.
+    PurchaseInvoiceResponse:
+      type: object
+      required:
+      - messageId
+      - telegramKey
+      - sourceUid
+      - rowNumber
+      - sourceRowCount
+      - text
+      - statusOriginal
+      - markedPaid
+      - reviewVersion
+      - state
+      - issues
+      - links
+      properties:
+        messageId:
+          type: string
+        telegramKey:
+          type: string
+          description: ChatId:MessageId.
+        sourceUid:
+          type: string
+          description: UID of the representative row (smallest row number).
+        rowNumber:
+          type: integer
+          format: int32
+        sourceRowCount:
+          type: integer
+          format: int32
+          description: Active sheet rows of this message.
+        chatName:
+          type:
+          - string
+          - 'null'
+        fromUser:
+          type:
+          - string
+          - 'null'
+          description: Author of the message.
+        messageAt:
+          type:
+          - string
+          - 'null'
+          description: The DateTime cell as written in the sheet.
+        text:
+          type: string
+        statusOriginal:
+          type: string
+        markAt:
+          type:
+          - string
+          - 'null'
+        markBy:
+          type:
+          - string
+          - 'null'
+          description: Who set the payment mark (FromUserStatus).
+        markedPaid:
+          type: boolean
+          description: Status is exactly «СПЛАЧЕНО». A note from the sheet, not a payment.
+        supplierId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Brevi supplier linked by hand.
+        reviewNote:
+          type:
+          - string
+          - 'null'
+        reviewVersion:
+          type: integer
+          format: int32
+        state:
+          $ref: '#/components/schemas/PurchaseInvoiceState'
+        issues:
+          type: array
+          items:
+            type: string
+          description: Reasons for a manual check, in Ukrainian.
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseInvoiceLinkResponse'
+    PurchaseInvoicePage:
+      type: object
+      required:
+      - items
+      - total
+      - page
+      - pageSize
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseInvoiceResponse'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+    PurchaseSyncStateResponse:
+      type: object
+      required:
+      - recordCount
+      - fileCount
+      properties:
+        lastSuccessAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        lastAttemptAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        error:
+          type:
+          - string
+          - 'null'
+          description: Reason of the last failed attempt; null after a success.
+        recordCount:
+          type: integer
+          format: int32
+          description: Active sheet rows after the last successful sync.
+        fileCount:
+          type: integer
+          format: int32
+    PurchaseSyncResponse:
+      type: object
+      required:
+      - recordCount
+      - fileCount
+      - messagesAdded
+      - messagesUpdated
+      - rowsAdded
+      - rowsUpdated
+      - rowsDeactivated
+      - filesAdded
+      - filesDeactivated
+      - syncedAt
+      properties:
+        recordCount:
+          type: integer
+          format: int32
+        fileCount:
+          type: integer
+          format: int32
+        messagesAdded:
+          type: integer
+          format: int32
+        messagesUpdated:
+          type: integer
+          format: int32
+        rowsAdded:
+          type: integer
+          format: int32
+        rowsUpdated:
+          type: integer
+          format: int32
+        rowsDeactivated:
+          type: integer
+          format: int32
+        filesAdded:
+          type: integer
+          format: int32
+        filesDeactivated:
+          type: integer
+          format: int32
+        syncedAt:
+          type: string
+          format: date-time
+    PurchaseErrors:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string

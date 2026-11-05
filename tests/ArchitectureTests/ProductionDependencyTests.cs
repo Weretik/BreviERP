@@ -3,7 +3,7 @@ namespace ArchitectureTests;
 
 public sealed class ProductionDependencyTests
 {
-    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Media"];
+    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Media", "Purchasing"];
 
     [Test]
     public void ProductionLayersReferenceOnlyBuildingBlocksAndLowerLayers()

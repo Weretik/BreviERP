@@ -54,6 +54,10 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 - [Embroidery price](crm/embroidery-price.md) — «Ціна вишивки»: live cost and three prices of embroidery or chevrons; settings for Director and Admin; «Збережені», «Додати в КП», «Макет» and the link to production orders.
 - [Manager tasks](crm/manager-tasks.md) — Director and Admin give tasks to managers and track workload; managers move them on the «Мої завдання» kanban.
 
+## Purchasing
+
+- [Purchase invoices «Рахунки на закупку»](purchasing/purchase-invoices.md) — register of purchase invoices from the Google Sheet «финансы»: sync, problems with reasons, search; Director, Accountant and Admin.
+
 ## Media
 
 - [Photo library «Фото»](media/library.md) — folders and subfolders on the Brevi CDN, upload, search by name or folder, move and delete; products keep the photo id.

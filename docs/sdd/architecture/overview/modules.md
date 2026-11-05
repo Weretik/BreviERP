@@ -28,6 +28,10 @@ Owns the photo library in schema `media`: folders and photos on the Brevi CDN (a
 
 Owns the sewing workshop «Швейний цех» in schema `production`: workers (no sign-in), fabric norms per Catalog model code and, in later stages, orders, stock, work log and payroll. Admin APIs live under `/api/production` for WorkshopChief and Admin. Catalog models and payroll coefficients from «Параметри ціноутворення» are read through host ports ([PRD-001](../../specs/production/001-workshop-references/README.md)).
 
+## Purchasing module
+
+Owns the purchase invoice register «Рахунки на закупку» in schema `purchasing`: Telegram messages read from the Google Sheet «финансы», their sheet rows, raw history and document links. Admin APIs live under `/api/purchasing` for Accountant and Admin (the Director holds Admin). Suppliers are referenced by Reference supplier id without a database link ([PUR-001](../../specs/purchasing/001-purchase-invoices/README.md)).
+
 ## Reminders module
 
 Owns deadline reminder tasks, their periods and action history, Telegram chats and extra non-working days in schema `reminders`. Admin APIs live under `/api/reminders`; the Telegram webhook is in the same module, and the daily send runs as the `Host.Seed --reminders-dispatch=true` mode. See the [feature map](../../features/reminders/telegram-reminders.md).
