@@ -34,7 +34,7 @@ internal static class AuditTrail
         JsonSerializer.Serialize(FinanceTransferResponse.From(transfer, names), Json);
 
     public static string Snapshot(FinanceCounterparty counterparty, FinanceNames names) =>
-        JsonSerializer.Serialize(FinanceCounterpartyResponse.From(counterparty, names, 0), Json);
+        JsonSerializer.Serialize(FinanceCounterpartyResponse.From(counterparty, names), Json);
 
     public static void Add(IAccountingDbContext db, AuditEntity entity, Guid entityId, AuditAction action, string by,
         DateTimeOffset at, string? before, string? after) =>

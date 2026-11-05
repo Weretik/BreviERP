@@ -88,8 +88,12 @@ public sealed class FinanceTransferTests
         await Account(harness, "Каса", 500_00);
         await Account(harness, "Євро", 10_00, "EUR");
         var materials = await Category(harness, "Матеріали");
+        var fabric = await Category(harness, "Тканини", parentId: materials.Id);
+        var rent = await Category(harness, "Оренда");
         var sales = await Category(harness, "Продажі", CategoryDirection.Income);
-        await Spend(harness, Fields(bank.Id, materials.Id, 300_00));
+        await Spend(harness, Fields(bank.Id, materials.Id, 100_00));
+        await Spend(harness, Fields(bank.Id, fabric.Id, 120_00));
+        await Spend(harness, Fields(bank.Id, rent.Id, 80_00));
         await Spend(harness, Fields(bank.Id, sales.Id, 800_00, new DateOnly(2026, 11, 2), CategoryDirection.Income));
         var handler = new GetFinanceOverviewQueryHandler(harness.Fresh());
         Task<Result<FinanceOverviewResponse>> Get(LedgerScope? scope, DateOnly from) =>
@@ -108,6 +112,12 @@ public sealed class FinanceTransferTests
             Assert.That(uah.IncomeMinor, Is.EqualTo(800_00));
             Assert.That(uah.ExpenseMinor, Is.EqualTo(300_00));
             Assert.That(uah.DifferenceMinor, Is.EqualTo(500_00));
+            Assert.That((uah.IncomeCount, uah.ExpenseCount), Is.EqualTo((1, 3)));
+            Assert.That(uah.TopExpenses.Select(x => (x.Name, x.AmountMinor)), Is.EqualTo(new[]
+            {
+                ("Матеріали", 220_00L), ("Оренда", 80_00L),
+            }), "subcategories fold into their root, largest first");
+            Assert.That((uah.OtherExpenseMinor, uah.OtherExpenseCategoryCount), Is.EqualTo((0L, 0)));
             Assert.That(november.Currencies[0].ExpenseMinor, Is.Zero);
             Assert.That(november.Currencies[0].BalanceMinor, Is.EqualTo(2_500_00), "balances ignore the period");
             Assert.That(all.Currencies[0].BalanceMinor, Is.EqualTo(2_000_00), "opening balances plus every movement");

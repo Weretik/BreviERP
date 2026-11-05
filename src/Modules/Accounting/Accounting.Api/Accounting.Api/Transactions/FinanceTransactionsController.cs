@@ -76,7 +76,7 @@ public sealed class FinanceTransactionsController(ISender sender) : ControllerBa
     public async Task<ActionResult<FinanceTransactionResponse>> Review(Guid id, [FromBody] FinanceTransactionReviewInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new ReviewFinanceTransactionCommand(id, input.CategoryId, input.Counterparty,
-            input.OneoffName, input.Version, AccountingAccess.By(User)), cancellationToken));
+            input.OneoffName, input.Version, AccountingAccess.By(User), input.RememberCategory), cancellationToken));
 
     [HttpPost("{id:guid}/promote-oneoff", Name = "promoteFinanceOneoff")]
     public async Task<ActionResult<FinanceTransactionResponse>> PromoteOneoff(Guid id, [FromBody] FinanceVersionInput input,

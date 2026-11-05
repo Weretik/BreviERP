@@ -1,3 +1,4 @@
+using Accounting.Application.Counterparties;
 using Accounting.Application.Lookup;
 using Accounting.Domain.Counterparties;
 
@@ -23,6 +24,8 @@ public sealed record FinanceCounterpartyRefResponse(CounterpartyKind Kind, strin
 /// <summary>
 /// A finance counterparty of «Контрагенти → Фінансові». <c>DefaultCategoryId</c> is the chosen category (a
 /// subcategory or a root); <c>DefaultCategoryRootName</c>/<c>DefaultSubcategoryName</c> name it.
+/// <c>OperationCount</c> counts active operations of both areas; <c>CurrentTurnoverMinor</c> is incomes minus expenses
+/// of the current books, in kopecks.
 /// </summary>
 public sealed record FinanceCounterpartyResponse(
     Guid Id,
@@ -40,24 +43,30 @@ public sealed record FinanceCounterpartyResponse(
     bool Active,
     Guid? MergedIntoId,
     int OperationCount,
+    long CurrentTurnoverMinor,
     int Version,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt)
 {
-    internal static FinanceCounterpartyResponse From(FinanceCounterparty x, FinanceNames names, int operationCount)
+    internal static FinanceCounterpartyResponse From(FinanceCounterparty x, FinanceNames names,
+        FinanceOperationStats stats = default)
     {
         var category = names.Category(x.DefaultCategoryId);
         var root = names.Root(category);
         return new FinanceCounterpartyResponse(x.Id.Value, x.Name, x.Edrpou, x.Iban, x.BankName, x.Details.AliasList,
             x.DefaultCategoryId?.Value, root?.Name, category is { IsRoot: false } ? category.Name : null,
-            x.AutoApplyCategory, x.Note, x.Verified, x.Active, x.MergedIntoId?.Value, operationCount, x.Version,
+            x.AutoApplyCategory, x.Note, x.Verified, x.Active, x.MergedIntoId?.Value, stats.Count, stats.CurrentTurnoverMinor,
+            x.Version,
             x.CreatedAt, x.UpdatedAt);
     }
 }
 
-/// <summary>A client of «Клієнти» or a supplier of «Постачальники» in «Контрагенти»; read-only here.</summary>
+/// <summary>
+/// A client of «Клієнти» or a supplier of «Постачальники» in «Контрагенти»; read-only here. <c>CurrentTurnoverMinor</c>
+/// is incomes minus expenses of the current books.
+/// </summary>
 public sealed record FinancePartyResponse(CounterpartyKind Kind, string Id, string Name, string TaxId, bool Active,
-    int OperationCount);
+    int OperationCount, long CurrentTurnoverMinor);
 
 /// <summary>
 /// One page of «Контрагенти» for one tab: <c>Financial</c> for «Фінансові», <c>Parties</c> for «Клієнти» and

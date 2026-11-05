@@ -6,16 +6,20 @@ using Accounting.Application.Journal;
 using Accounting.Application.Lookup;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
+using Accounting.Domain.Counterparties;
 using Accounting.Domain.Transactions;
 
 namespace Accounting.Application.Transactions;
 
 /// <summary>
 /// «Перевірити» an operation of «Потребують перевірки»: the category and who it is with, nothing else. A finance
-/// counterparty must be confirmed first; a stale <paramref name="Version"/> gets 409.
+/// counterparty must be confirmed first; a stale <paramref name="Version"/> gets 409. <paramref name="RememberCategory"/>
+/// makes the category the default of the chosen finance counterparty and applies it to its next operations; it does
+/// nothing for a client, a supplier or a one-off name.
 /// </summary>
 public sealed record ReviewFinanceTransactionCommand(Guid Id, Guid CategoryId, FinanceCounterpartyLinkInput? Counterparty,
-    string? OneoffName, int Version, string By) : ICommand<Result<FinanceTransactionResponse>>;
+    string? OneoffName, int Version, string By, bool RememberCategory = false)
+    : ICommand<Result<FinanceTransactionResponse>>;
 
 public sealed class ReviewFinanceTransactionCommandValidator : AbstractValidator<ReviewFinanceTransactionCommand>
 {
@@ -54,11 +58,27 @@ public sealed class ReviewFinanceTransactionCommandHandler(IAccountingDbContext 
         var names = (await FinanceNames.LoadAsync(db, cancellationToken)).With(states);
         var before = AuditTrail.Snapshot(transaction, names);
         var now = clock.GetUtcNow();
-        if (!transaction.Review(category, counterparty, command.OneoffName, now))
-            return Result.Success(FinanceTransactionResponse.From(transaction, names));
-
-        AuditTrail.Add(db, AuditEntity.Transaction, command.Id, AuditAction.Review, command.By, now, before,
-            AuditTrail.Snapshot(transaction, names));
+        var reviewed = transaction.Review(category, counterparty, command.OneoffName, now);
+        if (reviewed)
+            AuditTrail.Add(db, AuditEntity.Transaction, command.Id, AuditAction.Review, command.By, now, before,
+                AuditTrail.Snapshot(transaction, names));
+        var remembered = command.RememberCategory && transaction.Counterparty is { Kind: CounterpartyKind.Financial } chosen
+            && await RememberAsync(Guid.Parse(chosen.Id), category, names, command.By, now, cancellationToken);
+        if (!reviewed && !remembered) return Result.Success(FinanceTransactionResponse.From(transaction, names));
         return await FinanceTransactionSave.SaveAsync(db, transaction, names, cancellationToken);
+    }
+
+    /// <summary>«Запамʼятати»: the category becomes the counterparty's default and applies to its next operations.</summary>
+    private async Task<bool> RememberAsync(Guid counterpartyId, FinanceCategory category, FinanceNames names, string by,
+        DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var counterparty = await FinanceCounterpartyChange.FindAsync(db, counterpartyId, cancellationToken);
+        if (counterparty is null || counterparty.MergedIntoId is not null) return false;
+        var before = AuditTrail.Snapshot(counterparty, names);
+        var details = counterparty.Details with { DefaultCategoryId = category.Id, AutoApplyCategory = true };
+        if (!counterparty.Update(details, category, now)) return false;
+        AuditTrail.Add(db, AuditEntity.Counterparty, counterpartyId, AuditAction.Update, by, now, before,
+            AuditTrail.Snapshot(counterparty, names));
+        return true;
     }
 }
