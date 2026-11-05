@@ -3,6 +3,7 @@ using Production.Application.Contracts;
 using Production.Application.Orders;
 using Production.Application.Orders.Access;
 using Production.Application.Orders.Validation;
+using Production.Application.Payroll;
 using Production.Domain.Work;
 
 namespace Production.Application.Work.RecordWork;
@@ -51,6 +52,8 @@ public sealed class CreateProductionWorkCommandHandler(IProductionDbContext db, 
         if (!command.Actor.CanRecordWork(order)) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
         if (item.SewingRate is not > 0) return Invalid(nameof(input.Kind), WorkMessages.NoRate);
         if (input.WorkDate > WorkshopDay.Today(clock)) return Invalid(nameof(input.WorkDate), WorkMessages.FutureDate);
+        if (await PayrollMonths.IsClosedAsync(db, input.WorkDate, cancellationToken))
+            return Result<ProductionItemWorkResponse>.Conflict(PayrollMessages.Closed);
         var employee = await db.Employees.AsNoTracking()
             .SingleOrDefaultAsync(x => x.Id == input.EmployeeId && x.IsActive, cancellationToken);
         if (employee is null) return Invalid(nameof(input.EmployeeId), WorkMessages.EmployeeNotFound);
@@ -106,6 +109,8 @@ public sealed class VoidProductionWorkCommandHandler(IProductionDbContext db, IP
         if (order is null) return Result<ProductionItemWorkResponse>.NotFound(OrderMessages.NotFound);
         if (!command.Actor.CanRecordWork(order)) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
         if (work.IsVoided) return Result<ProductionItemWorkResponse>.Conflict(WorkMessages.AlreadyVoided);
+        if (await PayrollMonths.IsClosedAsync(db, work.WorkDate, cancellationToken))
+            return Result<ProductionItemWorkResponse>.Conflict(PayrollMessages.Closed);
         var actorName = await OrderActors.NameAsync(staff, command.Actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
         work.Void(command.Input.Reason, actorName, clock.GetUtcNow());

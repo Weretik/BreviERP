@@ -47,6 +47,15 @@ public sealed record ProductionActor(int UserId, bool IsAdmin, bool IsManager, b
     /// <summary>The order of «Прогноз пошиття».</summary>
     public bool CanReorderForecast => IsAdmin || IsWorkshopChief;
 
+    /// <summary>«Робочий час»: Admin and the head of the workshop mark the hours (PRD-D41).</summary>
+    public bool CanKeepTime => IsAdmin || IsWorkshopChief;
+
+    /// <summary>«Зарплата»: the calculation, the roles and the embroidery of a month (PRD-D46).</summary>
+    public bool SeesPayroll => IsAdmin || IsWorkshopChief;
+
+    /// <summary>Payments, adjustments, «Видано», closing and reopening a month: Admin only (PRD-D46).</summary>
+    public bool CanPay => IsAdmin;
+
     /// <summary>«Налаштування цеху».</summary>
     public bool CanManageSettings => IsAdmin || IsWorkshopChief;
 

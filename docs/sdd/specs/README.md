@@ -42,6 +42,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Production | [003 Stages, shipments, files, Telegram](production/003-order-tracking/README.md) | stage 3 implemented 2026-11-04 |
 | Production | [004 Fabric stock](production/004-fabric-stock/README.md) | stage 4 implemented 2026-11-04 |
 | Production | [005 Work log and sewing forecast](production/005-work-log/README.md) | stage 5 implemented 2026-11-05 |
+| Production | [006 Timesheet and payroll](production/006-timesheet-payroll/README.md) | stage 6 implemented 2026-11-05 |
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Identity | [001 Cookie sign-in like Kedr](identity/001-cookie-sign-in/README.md) | implemented 2026-11-03; not deployed |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
