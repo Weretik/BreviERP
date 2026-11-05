@@ -4,7 +4,6 @@ using Production.Application.Orders;
 using Production.Application.Orders.Access;
 using Production.Application.Orders.Validation;
 using Production.Application.Reports;
-using Production.Domain.Payroll;
 
 namespace Production.Application.Payroll.Close;
 
@@ -33,7 +32,7 @@ public sealed class ClosePayrollMonthCommandHandler(PayrollChanges changes, Payr
         await changes.ApplyAsync(command.Actor, command.Month, adminOnly: true, async change =>
         {
             var snapshot = await sheets.ReadAsync(change.Period.Month, cancellationToken);
-            if (snapshot.Month.Warnings.Except(NotBlocking).Any()) return Result.Conflict(PayrollMessages.HasWarnings);
+            if (PayrollMessages.BlocksClosing(snapshot.Month.Warnings)) return Result.Conflict(PayrollMessages.HasWarnings);
             var closed = snapshot with
             {
                 Month = snapshot.Month with
@@ -47,10 +46,6 @@ public sealed class ClosePayrollMonthCommandHandler(PayrollChanges changes, Payr
                 change.Now);
             return null;
         }, cancellationToken);
-
-    /// <summary>Without a master or a chief their share is not paid; that does not keep the month open.</summary>
-    private static readonly string[] NotBlocking =
-        [PayrollMessages.Warning(PayrollWarning.NoMaster), PayrollMessages.Warning(PayrollWarning.NoChief)];
 }
 
 /// <summary>Opens a closed month again (Admin): it is counted afresh from the current data.</summary>

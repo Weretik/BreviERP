@@ -24,6 +24,13 @@ internal static class PayrollMessages
     public const string Stitches = "Кількість стібків — ціле число від 0.";
     public const string Year = "Рік від 2020 до 2100.";
 
+    /// <summary>
+    /// True when a warning keeps the month open; an unchosen master or chief does not (PRD-D51): that share is simply
+    /// not paid.
+    /// </summary>
+    public static bool BlocksClosing(IEnumerable<string> warnings) =>
+        warnings.Except([Warning(PayrollWarning.NoMaster), Warning(PayrollWarning.NoChief)]).Any();
+
     public static string Warning(PayrollWarning warning) => warning switch
     {
         PayrollWarning.NoMaster => "Не обрано майстра цеху: його частка не нарахована.",

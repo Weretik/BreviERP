@@ -4,6 +4,7 @@ using Production.Application.Dashboard;
 using Production.Application.Orders.Access;
 using Production.Application.Payroll;
 using Production.Application.Payroll.Close;
+using Production.Application.Payroll.GetMonth;
 using Production.Application.PayrollParameters;
 using Production.Application.Reports;
 using Production.Application.Reports.GetReport;
@@ -36,6 +37,7 @@ public sealed class WorkshopReportHandlerTests
         var tooLong = new GetWorkshopReportQueryValidator()
             .Validate(new GetWorkshopReportQuery(Admin, "2025-01", Month, null, null));
         Rates(workshop);
+        var month = await new GetPayrollMonthQueryHandler(Changes(workshop)).Handle(new(Admin, Month), CancellationToken.None);
         var closed = await new ClosePayrollMonthCommandHandler(Changes(workshop), Sheets(workshop), Reports(workshop))
             .Handle(new(Admin, Month), CancellationToken.None);
         workshop.Fabrics.Fabrics[0] = workshop.Fabrics.Fabrics[0] with { Price = 1m };
@@ -61,6 +63,7 @@ public sealed class WorkshopReportHandlerTests
             Assert.That(byChief.Status, Is.EqualTo(ResultStatus.Forbidden));
             Assert.That(future.Status, Is.EqualTo(ResultStatus.Invalid));
             Assert.That(tooLong.IsValid, Is.False);
+            Assert.That(month.Value.Permissions.CanClose, Is.True, "the warning about the chief does not block");
             Assert.That(closed.IsSuccess, Is.True, "no chief is not a reason to keep the month open");
             Assert.That(closed.Value.Warnings, Has.Some.Contains("начальника"));
             Assert.That(kept.Value.Current.ClosedMonths, Is.EqualTo(new[] { Month }));
