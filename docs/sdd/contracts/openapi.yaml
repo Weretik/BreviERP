@@ -35,6 +35,24 @@ paths:
     $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1categories~1{id}
   /api/accounting/categories/{id}/history:
     $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1categories~1{id}~1history
+  /api/accounting/overview:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1overview
+  /api/accounting/transactions:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1transactions
+  /api/accounting/transactions/{id}:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1transactions~1{id}
+  /api/accounting/transactions/{id}/void:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1transactions~1{id}~1void
+  /api/accounting/transactions/{id}/history:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1transactions~1{id}~1history
+  /api/accounting/transfers:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1transfers
+  /api/accounting/transfers/{id}:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1transfers~1{id}
+  /api/accounting/transfers/{id}/void:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1transfers~1{id}~1void
+  /api/accounting/transfers/{id}/history:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1transfers~1{id}~1history
   /api/admin/users:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users
   /api/admin/users/{userId}:

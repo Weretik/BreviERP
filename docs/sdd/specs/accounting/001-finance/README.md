@@ -1,6 +1,6 @@
 # ACC-001 «Бухгалтерія»
 
-**Status:** stage 1 implemented 2026-11-05. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
+**Status:** stages 1–2 implemented 2026-11-05. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
 
 ## Goal
 
@@ -28,7 +28,7 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 | Stage | Scope | Status |
 | --- | --- | --- |
 | 1 | «Рахунки і каси» (create, edit, archive, restore, delete, balance on 01.10) and «Категорії» (two levels, per area and direction), change log, settings | implemented 2026-11-05 |
-| 2 | Operations and transfers, account balances, «Огляд», archive view; delete rules: an account with movements is only archived, a category in use is switched off | planned |
+| 2 | Operations and transfers, account balances, «Огляд», archive view; delete rules: an account with movements is only archived, a category in use is switched off | implemented 2026-11-05 |
 | 3 | Counterparties and «Потребують перевірки» | planned |
 | 4 | Attachments in a private bucket | planned |
 | 5 | Import of the old data (JSON export + attachments ZIP) | planned |
@@ -42,6 +42,19 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 - Account: name 1–120 characters (trimmed, spaces collapsed), type Bank/Card/Cash/Other, currency three Latin letters (upper-cased, UAH by default), IBAN letters and digits only (upper-cased, at most 64), opening balance in kopecks and its date (2000-01-01…2100-12-31), note at most 600, sort order.
 - «Залишок на 01.10»: `confirmed = true` needs an amount and stores who and when; `confirmed = false` clears both.
 - «Архівувати» hides the account from the default list; «Показати архівні» lists archived ones last. «Відновити» brings it back.
-- «Видалити» in stage 1 removes the record; the log keeps its last snapshot. A category root is deleted with its subcategories, each with its own entry.
+- «Видалити» removes an unused record; the log keeps its last snapshot. A category root is deleted with its subcategories, each with its own entry. Stage 2 adds the rules for used records below.
 - A subcategory must have an active root of the same area and direction; there is no third level.
-- Contract: [finance.openapi.yaml](../../../contracts/accounting/finance.openapi.yaml). Feature card: [Finance accounts and categories](../../../features/accounting/finance.md).
+- Contract: [finance.openapi.yaml](../../../contracts/accounting/finance.openapi.yaml). Feature card: [«Бухгалтерія»](../../../features/accounting/finance.md).
+
+## Stage 2 rules
+
+- An operation is an income or an expense of one account: positive amount in kopecks (`Type` gives the sign), currency from the account, one chosen category (a subcategory, or a root when none is picked), optional one-off name (≤ 250, one line), description (≤ 250) and note (≤ 1500). Source `Manual`; `BankImport` and `HomeAccountingImport` are reserved for stages 5–6 and cannot be edited by the general form.
+- The area of a record (`Current` from 2026-10-01, `LegacyArchive` — «Домашня бухгалтерія» — before it) is set by the screen and never changes. A new date must fall into the area; an unchanged date of an existing record is kept. The date is not earlier than the account opening date.
+- The current books need an active account and an active category; «Домашня бухгалтерія» accepts an archived account. An account or category the record already had stays allowed after it was archived or switched off. The category must be of the same area and direction.
+- A transfer moves money between two different own accounts of one currency; it is neither an income nor an expense. No balance check: an account may go below zero. Note ≤ 1500.
+- «Анулювати» makes the record `Void` with a new version and a log entry; nothing is deleted, there is no way back for a hand-made record, and a cancelled record cannot be changed. Cancelled records are shown only with «Показати анульовані» and never count in balances or totals.
+- Journals: 50 rows per page (fixed), newest first (ties: the newest saved first, by the time-ordered id); sort by date or amount. Filters: period (inclusive), account (either side for transfers), type, category (a root takes its subcategories) or exact subcategory, text (description, note, one-off name; case-insensitive), amount from/to in kopecks, source, cancelled. Totals cover the whole filtered selection per currency without cancelled rows; transfer totals count each transfer once. Sorting by account, category or counterparty from the old journal is left out.
+- Balances (counted on read, never stored): `legacy` = opening balance + active archive movements; `current` = confirmed balance on 01.10.2026 + active current movements, null while not confirmed; `total` = opening balance + every active movement of both areas (not legacy + current). `hasHistory` is true once any movement, cancelled ones too, uses the account.
+- «Огляд»: per currency of the active accounts, the balance of the chosen area (both areas when no area is picked) counted from the start of the area and not limited by the period; income, expense and difference of active operations of the period. For the current books the balance sums confirmed accounts only and `unconfirmedCutoverCount` tells the admin to show «Не підтверджено».
+- An account with any movement (cancelled ones too) cannot be deleted (409) — only archived; its currency is fixed, and its opening date cannot move past the earliest movement. Deleting a category that any operation uses switches the whole branch off (`Active = false`, log action `Deactivate`) and keeps the ids.
+- Log entities `Transaction` and `Transfer`; actions `Void` and `Deactivate`. Snapshots carry the account and category names of that moment.

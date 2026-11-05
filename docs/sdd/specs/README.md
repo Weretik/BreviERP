@@ -45,7 +45,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Production | [006 Timesheet and payroll](production/006-timesheet-payroll/README.md) | stage 6 implemented 2026-11-05 |
 | Production | [007 Reports and overview](production/007-workshop-reports/README.md) | stage 7 implemented 2026-11-05 |
 | Ai | [001 «Налаштування ШІ»](ai/001-ai-settings/README.md) | implemented 2026-11-05 |
-| Accounting | [001 «Бухгалтерія»](accounting/001-finance/README.md) | stage 1 implemented 2026-11-05 |
+| Accounting | [001 «Бухгалтерія»](accounting/001-finance/README.md) | stages 1–2 implemented 2026-11-05 |
 | Purchasing | [001 «Рахунки на закупку»](purchasing/001-purchase-invoices/README.md) | stages 1–3 implemented 2026-11-05 |
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Identity | [001 Cookie sign-in like Kedr](identity/001-cookie-sign-in/README.md) | implemented 2026-11-03; not deployed |

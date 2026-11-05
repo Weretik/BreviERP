@@ -80,6 +80,19 @@ public sealed class FinanceCategory : IAggregateRoot
         return true;
     }
 
+    /// <summary>
+    /// Switches off a category that is already used, instead of deleting it: old operations keep it, new ones cannot
+    /// pick it. Returns false when it is already off.
+    /// </summary>
+    public bool Deactivate(DateTimeOffset now)
+    {
+        if (!Active) return false;
+        Active = false;
+        Version++;
+        UpdatedAt = now;
+        return true;
+    }
+
     private static void Guard(CategoryDirection direction, LedgerScope scope)
     {
         if (!Enum.IsDefined(direction))

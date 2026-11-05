@@ -1,9 +1,10 @@
 openapi: 3.1.0
 info:
-  title: 'Accounting: «Бухгалтерія» accounts and categories'
-  version: 1.0.0
-  description: 'Stage 1 of «Бухгалтерія» (ACC-001): «Рахунки і каси» and «Категорії» with a change log. Policy CanUseAccounting:
-    Director only; other roles get 403. Money is a whole number of kopecks.'
+  title: 'Accounting: «Бухгалтерія»'
+  version: 2.0.0
+  description: '«Бухгалтерія» (ACC-001): «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази» and «Огляд» for
+    the current books and «Домашня бухгалтерія», with a change log. Policy CanUseAccounting: Director only; other roles get
+    403. Money is a whole number of kopecks.'
 security:
 - Bearer: []
 paths:
@@ -78,7 +79,8 @@ paths:
       tags:
       - Accounting
       operationId: updateFinanceAccount
-      description: Edit an account. A save that changes nothing keeps the version.
+      description: Edit an account. A save that changes nothing keeps the version. With movements the currency is fixed and
+        the opening date cannot be later than the earliest movement (400).
       parameters:
       - name: id
         in: path
@@ -113,7 +115,8 @@ paths:
       tags:
       - Accounting
       operationId: deleteFinanceAccount
-      description: Delete an account; the change log keeps its last snapshot.
+      description: 'Delete an account; the change log keeps its last snapshot. An account with any operation or transfer (cancelled
+        ones too) can only be archived: 409.'
       parameters:
       - name: id
         in: path
@@ -134,7 +137,7 @@ paths:
         '404':
           description: Not found
         '409':
-          description: The version is stale (someone saved first); body is an array of messages
+          description: Stale version, or the account has movements and can only be archived
         '401':
           description: Not signed in
         '403':
@@ -363,7 +366,8 @@ paths:
       tags:
       - Accounting
       operationId: deleteFinanceCategory
-      description: Delete a category; a root goes with its subcategories, each with its own log entry.
+      description: Delete a category; a root goes with its subcategories, each with its own log entry. When an operation (cancelled
+        ones too) uses the category or a subcategory, the whole branch is switched off instead (active false, log action Deactivate).
       parameters:
       - name: id
         in: path
@@ -380,7 +384,7 @@ paths:
           minimum: 1
       responses:
         '204':
-          description: Deleted
+          description: Deleted or switched off
         '404':
           description: Not found
         '409':
@@ -395,6 +399,482 @@ paths:
       - Accounting
       operationId: getFinanceCategoryHistory
       description: Change log of one category, newest first.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceHistoryEntryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/overview:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceOverview
+      description: '«Огляд»: per currency of the active accounts, the balance of the chosen area (both without scope; balances
+        ignore the period) and active income and expense of the inclusive period. For Current, unconfirmedCutoverCount > 0
+        means the total is not known yet.'
+      parameters:
+      - name: from
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: scope
+        in: query
+        schema:
+          $ref: '#/components/schemas/LedgerScope'
+        description: Omit for both areas
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceOverviewResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transactions:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceTransactions
+      description: '«Операції»: one area, newest first by default (ties: newest saved first). Totals cover the whole filtered
+        selection per currency, without cancelled rows.'
+      parameters:
+      - name: scope
+        in: query
+        schema:
+          $ref: '#/components/schemas/LedgerScope'
+        description: Current by default; LegacyArchive is «Домашня бухгалтерія»
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date
+        description: Inclusive
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date
+        description: Inclusive
+      - name: accountId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: type
+        in: query
+        schema:
+          $ref: '#/components/schemas/CategoryDirection'
+      - name: categoryId
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: A root takes its subcategories
+      - name: subcategoryId
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: One exact category; wins over categoryId
+      - name: search
+        in: query
+        schema:
+          type: string
+          maxLength: 200
+        description: Case-insensitive part of the description, note or one-off name
+      - name: minMinor
+        in: query
+        schema:
+          type: integer
+          format: int64
+      - name: maxMinor
+        in: query
+        schema:
+          type: integer
+          format: int64
+      - name: source
+        in: query
+        schema:
+          $ref: '#/components/schemas/MovementSource'
+      - name: includeVoided
+        in: query
+        schema:
+          type: boolean
+          default: false
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/FinanceJournalSort'
+      - name: direction
+        in: query
+        schema:
+          $ref: '#/components/schemas/FinanceSortDirection'
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+        description: 50 rows per page, fixed
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransactionPageResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    post:
+      tags:
+      - Accounting
+      operationId: createFinanceTransaction
+      description: «Додати дохід» / «Додати витрату». The date must fall into the area (Current from 2026-10-01) and be on
+        or after the account opening date; Current needs an active account; the category must be active, of the same area
+        and direction. The currency comes from the account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceTransactionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransactionResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Account or category not found
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transactions/{id}:
+    put:
+      tags:
+      - Accounting
+      operationId: updateFinanceTransaction
+      description: Edit an active hand-made operation; the area stays. An unchanged account or category may already be archived
+        or switched off; a new date must fit the area.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceTransactionUpdateInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransactionResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Operation, account or category not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transactions/{id}/void:
+    post:
+      tags:
+      - Accounting
+      operationId: voidFinanceTransaction
+      description: '«Анулювати»: never deleted; the operation stays in the journal (includeVoided) and the log but no longer
+        counts. A cancelled operation cannot be changed (400).'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransactionResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transactions/{id}/history:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceTransactionHistory
+      description: Change log of one operation, newest first.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceHistoryEntryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transfers:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceTransfers
+      description: '«Перекази»: one area, newest first by default. accountId matches either side. Totals sum active transfers
+        of the whole selection once per transfer, per currency.'
+      parameters:
+      - name: scope
+        in: query
+        schema:
+          $ref: '#/components/schemas/LedgerScope'
+        description: Current by default; LegacyArchive is «Домашня бухгалтерія»
+      - name: from
+        in: query
+        schema:
+          type: string
+          format: date
+        description: Inclusive
+      - name: to
+        in: query
+        schema:
+          type: string
+          format: date
+        description: Inclusive
+      - name: accountId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: search
+        in: query
+        schema:
+          type: string
+          maxLength: 200
+        description: Case-insensitive part of the note
+      - name: minMinor
+        in: query
+        schema:
+          type: integer
+          format: int64
+      - name: maxMinor
+        in: query
+        schema:
+          type: integer
+          format: int64
+      - name: source
+        in: query
+        schema:
+          $ref: '#/components/schemas/MovementSource'
+      - name: includeVoided
+        in: query
+        schema:
+          type: boolean
+          default: false
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/FinanceJournalSort'
+      - name: direction
+        in: query
+        schema:
+          $ref: '#/components/schemas/FinanceSortDirection'
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+        description: 50 rows per page, fixed
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransferPageResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    post:
+      tags:
+      - Accounting
+      operationId: createFinanceTransfer
+      description: «Додати переказ» between two different own accounts of one currency. Date and account rules as for operations,
+        for both accounts. No balance check.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceTransferInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransferResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: An account not found
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transfers/{id}:
+    put:
+      tags:
+      - Accounting
+      operationId: updateFinanceTransfer
+      description: Edit an active hand-made transfer; the area stays.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceTransferUpdateInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransferResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Transfer or account not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transfers/{id}/void:
+    post:
+      tags:
+      - Accounting
+      operationId: voidFinanceTransfer
+      description: '«Анулювати» a transfer: it stays in the journal and the log but no longer moves money.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransferResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transfers/{id}/history:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceTransferHistory
+      description: Change log of one transfer, newest first.
       parameters:
       - name: id
         in: path
@@ -444,6 +924,8 @@ components:
       enum:
       - Account
       - Category
+      - Transaction
+      - Transfer
     AuditAction:
       type: string
       enum:
@@ -454,6 +936,8 @@ components:
       - Delete
       - CutoverConfirm
       - CutoverReset
+      - Void
+      - Deactivate
     AccountingSettingsResponse:
       type: object
       properties:
@@ -522,6 +1006,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        balance:
+          oneOf:
+          - $ref: '#/components/schemas/FinanceAccountBalanceResponse'
+          - type: 'null'
+          description: Counted on every read; null only inside change log snapshots.
       required:
       - id
       - name
@@ -540,6 +1029,33 @@ components:
       - version
       - createdAt
       - updatedAt
+      - balance
+    FinanceAccountBalanceResponse:
+      type: object
+      properties:
+        legacyMinor:
+          type: integer
+          format: int64
+          description: Opening balance plus active «Домашня бухгалтерія» movements
+        currentMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: Confirmed balance on 01.10.2026 plus active current movements; null while not confirmed (unknown, not
+            zero)
+        totalMinor:
+          type: integer
+          format: int64
+          description: Opening balance plus every active movement of both areas; not legacy + current
+        hasHistory:
+          type: boolean
+          description: True once any movement, cancelled ones too, uses the account
+      required:
+      - legacyMinor
+      - currentMinor
+      - totalMinor
+      - hasHistory
     FinanceAccountInput:
       type: object
       properties:
@@ -770,3 +1286,460 @@ components:
       - at
       - beforeJson
       - afterJson
+    MovementSource:
+      type: string
+      enum:
+      - Manual
+      - BankImport
+      - HomeAccountingImport
+    MovementStatus:
+      type: string
+      enum:
+      - Active
+      - Void
+    VerificationStatus:
+      type: string
+      enum:
+      - Verified
+      - NeedsCategory
+      - NeedsCounterpartyReview
+    FinanceJournalSort:
+      type: string
+      enum:
+      - Date
+      - Amount
+    FinanceSortDirection:
+      type: string
+      enum:
+      - Desc
+      - Asc
+    FinanceOverviewResponse:
+      type: object
+      properties:
+        scope:
+          oneOf:
+          - $ref: '#/components/schemas/LedgerScope'
+          - type: 'null'
+          description: 'null: both areas'
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinanceOverviewCurrencyResponse'
+      required:
+      - scope
+      - from
+      - to
+      - currencies
+    FinanceOverviewCurrencyResponse:
+      type: object
+      properties:
+        currency:
+          type: string
+        balanceMinor:
+          type: integer
+          format: int64
+          description: Sum of known balances of active accounts
+        unconfirmedCutoverCount:
+          type: integer
+          format: int32
+        incomeMinor:
+          type: integer
+          format: int64
+        expenseMinor:
+          type: integer
+          format: int64
+        differenceMinor:
+          type: integer
+          format: int64
+        accountCount:
+          type: integer
+          format: int32
+      required:
+      - currency
+      - balanceMinor
+      - unconfirmedCutoverCount
+      - incomeMinor
+      - expenseMinor
+      - differenceMinor
+      - accountCount
+    FinanceTransactionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        type:
+          $ref: '#/components/schemas/CategoryDirection'
+        accountId:
+          type: string
+          format: uuid
+        accountName:
+          type: string
+        amountMinor:
+          type: integer
+          format: int64
+          description: Positive; type gives the sign
+        currency:
+          type: string
+        categoryId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        categoryRootId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        categoryRootName:
+          type:
+          - string
+          - 'null'
+        subcategoryName:
+          type:
+          - string
+          - 'null'
+          description: Set only when a subcategory was chosen
+        oneoffName:
+          type: string
+        description:
+          type: string
+        comment:
+          type: string
+        source:
+          $ref: '#/components/schemas/MovementSource'
+        verification:
+          $ref: '#/components/schemas/VerificationStatus'
+        scope:
+          $ref: '#/components/schemas/LedgerScope'
+        status:
+          $ref: '#/components/schemas/MovementStatus'
+        version:
+          type: integer
+          format: int32
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - date
+      - type
+      - accountId
+      - accountName
+      - amountMinor
+      - currency
+      - categoryId
+      - categoryRootId
+      - categoryRootName
+      - subcategoryName
+      - oneoffName
+      - description
+      - comment
+      - source
+      - verification
+      - scope
+      - status
+      - version
+      - createdBy
+      - createdAt
+      - updatedAt
+    FinanceTransactionTotalResponse:
+      type: object
+      properties:
+        currency:
+          type: string
+        incomeMinor:
+          type: integer
+          format: int64
+        expenseMinor:
+          type: integer
+          format: int64
+        differenceMinor:
+          type: integer
+          format: int64
+      required:
+      - currency
+      - incomeMinor
+      - expenseMinor
+      - differenceMinor
+    FinanceTransactionPageResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinanceTransactionResponse'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totals:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinanceTransactionTotalResponse'
+      required:
+      - items
+      - total
+      - page
+      - pageSize
+      - totals
+    FinanceTransactionInput:
+      type: object
+      properties:
+        scope:
+          $ref: '#/components/schemas/LedgerScope'
+        date:
+          type: string
+          format: date
+        type:
+          $ref: '#/components/schemas/CategoryDirection'
+        accountId:
+          type: string
+          format: uuid
+        amountMinor:
+          type: integer
+          format: int64
+          minimum: 1
+        categoryId:
+          type: string
+          format: uuid
+        oneoffName:
+          type:
+          - string
+          - 'null'
+          maxLength: 270
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 270
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 1520
+      required:
+      - scope
+      - date
+      - type
+      - accountId
+      - amountMinor
+      - categoryId
+    FinanceTransactionUpdateInput:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        type:
+          $ref: '#/components/schemas/CategoryDirection'
+        accountId:
+          type: string
+          format: uuid
+        amountMinor:
+          type: integer
+          format: int64
+          minimum: 1
+        categoryId:
+          type: string
+          format: uuid
+        oneoffName:
+          type:
+          - string
+          - 'null'
+          maxLength: 270
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 270
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 1520
+        version:
+          type: integer
+          format: int32
+      required:
+      - date
+      - type
+      - accountId
+      - amountMinor
+      - categoryId
+      - version
+    FinanceTransferResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        fromAccountId:
+          type: string
+          format: uuid
+        fromAccountName:
+          type: string
+        toAccountId:
+          type: string
+          format: uuid
+        toAccountName:
+          type: string
+        amountMinor:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        note:
+          type: string
+        source:
+          $ref: '#/components/schemas/MovementSource'
+        scope:
+          $ref: '#/components/schemas/LedgerScope'
+        status:
+          $ref: '#/components/schemas/MovementStatus'
+        version:
+          type: integer
+          format: int32
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - date
+      - fromAccountId
+      - fromAccountName
+      - toAccountId
+      - toAccountName
+      - amountMinor
+      - currency
+      - note
+      - source
+      - scope
+      - status
+      - version
+      - createdBy
+      - createdAt
+      - updatedAt
+    FinanceTransferTotalResponse:
+      type: object
+      properties:
+        currency:
+          type: string
+        amountMinor:
+          type: integer
+          format: int64
+      required:
+      - currency
+      - amountMinor
+    FinanceTransferPageResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinanceTransferResponse'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totals:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinanceTransferTotalResponse'
+      required:
+      - items
+      - total
+      - page
+      - pageSize
+      - totals
+    FinanceTransferInput:
+      type: object
+      properties:
+        scope:
+          $ref: '#/components/schemas/LedgerScope'
+        date:
+          type: string
+          format: date
+        fromAccountId:
+          type: string
+          format: uuid
+        toAccountId:
+          type: string
+          format: uuid
+        amountMinor:
+          type: integer
+          format: int64
+          minimum: 1
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 1520
+      required:
+      - scope
+      - date
+      - fromAccountId
+      - toAccountId
+      - amountMinor
+    FinanceTransferUpdateInput:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        fromAccountId:
+          type: string
+          format: uuid
+        toAccountId:
+          type: string
+          format: uuid
+        amountMinor:
+          type: integer
+          format: int64
+          minimum: 1
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 1520
+        version:
+          type: integer
+          format: int32
+      required:
+      - date
+      - fromAccountId
+      - toAccountId
+      - amountMinor
+      - version

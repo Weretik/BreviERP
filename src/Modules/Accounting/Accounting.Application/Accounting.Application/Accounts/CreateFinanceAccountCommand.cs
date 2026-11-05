@@ -31,6 +31,7 @@ public sealed class CreateFinanceAccountCommandHandler(IAccountingDbContext db, 
         AuditTrail.Add(db, AuditEntity.Account, account.Id.Value, AuditAction.Create, command.By, now, null,
             AuditTrail.Snapshot(account));
         await db.SaveChangesAsync(cancellationToken);
-        return Result.Success(FinanceAccountResponse.From(account));
+        return Result.Success(FinanceAccountResponse.From(account,
+            new FinanceAccountBalanceResponse(account.OpeningMinor, null, account.OpeningMinor, false)));
     }
 }
