@@ -128,9 +128,13 @@ public static partial class PurchaseDocumentRules
         if (unit is { Length: 0 }) unit = null;
         if (unit is { Length: > 30 }) problems.Add($"{prefix}: одиниця довша за 30 символів.");
         var price = Text(item, "price")?.Trim();
-        if (price is null || !Decimal4().IsMatch(price)) problems.Add($"{prefix}: ціна має бути числом з крапкою (до 4 знаків).");
         var sum = Text(item, "sum")?.Trim();
         if (sum is null || !Money().IsMatch(sum)) problems.Add($"{prefix}: сума має бути числом з крапкою (до 2 знаків).");
+        // Many invoices print only the sum of a line (no «Ціна» column): the price is then sum ÷ quantity.
+        if (string.IsNullOrEmpty(price) && problems.Count == before)
+            price = UnitPrice(sum!, quantity!);
+        else if (price is null || !Decimal4().IsMatch(price))
+            problems.Add($"{prefix}: ціна має бути числом з крапкою (до 4 знаків).");
         if (problems.Count > before) return null;
 
         // Rounded unit prices are common, so only a clear difference counts: more than 1 грн and 1 %.
@@ -141,6 +145,14 @@ public static partial class PurchaseDocumentRules
             gaps.Add(new LineGap(position, expected, sum!, actual < expected && actual >= expected * MinDiscountedShare));
 
         return new PurchaseDocumentItem(position, name!, quantity!, unit, price!, sum!);
+    }
+
+    /// <summary>Sum ÷ quantity with up to 4 decimals and no trailing zeros: «3805.00» ÷ «1» → «3805».</summary>
+    private static string UnitPrice(string sum, string quantity)
+    {
+        var value = Math.Round(decimal.Parse(sum, CultureInfo.InvariantCulture) / decimal.Parse(quantity, CultureInfo.InvariantCulture),
+            4, MidpointRounding.AwayFromZero);
+        return value.ToString("0.####", CultureInfo.InvariantCulture);
     }
 
     /// <summary>True when the positions add up to the total; otherwise adds the problem.</summary>
