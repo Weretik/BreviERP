@@ -41,6 +41,7 @@ internal sealed class PayrollMonthConfiguration : IEntityTypeConfiguration<Payro
         builder.ToTable("PayrollMonths");
         builder.HasKey(x => x.Month);
         builder.Property(x => x.Snapshot).HasColumnType("jsonb");
+        builder.Property(x => x.ReportSnapshot).HasColumnType("jsonb");
         builder.Property(x => x.ClosedByName).HasMaxLength(ProductionOrder.PersonMaxLength);
         builder.Property(x => x.UpdatedByName).HasMaxLength(ProductionOrder.PersonMaxLength);
         builder.Property(x => x.Version).IsConcurrencyToken();

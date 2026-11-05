@@ -6,6 +6,7 @@ using Production.Application.Payroll.Close;
 using Production.Application.Payroll.GetMonth;
 using Production.Application.Payroll.Payments;
 using Production.Application.Payroll.Setup;
+using Production.Application.Reports;
 using Production.Application.PayrollParameters;
 using Production.Application.Timesheet;
 using Production.Application.Work;
@@ -209,6 +210,7 @@ public sealed class ProductionPayrollHandlerTests
             .Handle(new(actor, month, new(employeeId, Day, "Advance", amount, null)), CancellationToken.None);
 
     private static async Task<Result<PayrollMonthResponse>> Close(ProductionTestHarness workshop, ProductionActor actor) =>
-        await new ClosePayrollMonthCommandHandler(Changes(workshop), Sheets(workshop))
+        await new ClosePayrollMonthCommandHandler(Changes(workshop), Sheets(workshop),
+                new WorkshopReports(workshop.Db, Sheets(workshop), workshop.Fabrics))
             .Handle(new(actor, Month), CancellationToken.None);
 }

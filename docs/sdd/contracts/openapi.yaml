@@ -341,6 +341,10 @@ paths:
     $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1forecast
   /api/production/forecast/queue:
     $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1forecast~1queue
+  /api/production/reports:
+    $ref: ./production/workshop-reports.openapi.yaml#/paths/~1api~1production~1reports
+  /api/production/dashboard:
+    $ref: ./production/workshop-reports.openapi.yaml#/paths/~1api~1production~1dashboard
   /api/production/timesheet:
     $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1timesheet
   /api/production/payroll/{month}:

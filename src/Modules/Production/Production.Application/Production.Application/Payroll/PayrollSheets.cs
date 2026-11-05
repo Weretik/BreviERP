@@ -44,7 +44,7 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
             Permissions = new PayrollPermissionsResponse(
                 actor.SeesPayroll && !month.IsClosed,
                 actor.CanPay && !month.IsClosed && started,
-                actor.CanPay && !month.IsClosed && started,
+                actor.CanPay && !month.IsClosed && started && !PayrollMessages.BlocksClosing(month.Warnings),
                 actor.CanPay && month.IsClosed)
         };
     }

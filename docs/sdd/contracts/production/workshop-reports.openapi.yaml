@@ -1,0 +1,375 @@
+openapi: 3.1.0
+info:
+  title: 'Production: reports and overview'
+  version: 1.0.0
+  description: 'Stage 7 of «Швейний цех» (PRD-007). «Звіти цеху» (Admin, the director holds Admin): output at the КП price,
+    accruals of «Зарплата», fabric issued and the stock at the end at the price of «Тканини». A month closed in «Зарплата»
+    keeps its report. «Огляд виробництва»: the «Нове» orders by the stage of their slowest item for everyone with production
+    orders.'
+servers:
+- url: /
+security:
+- Bearer: []
+paths:
+  /api/production/reports:
+    get:
+      tags: &id002
+      - Production
+      operationId: getWorkshopReport
+      summary: «Звіти цеху» of the months from..to (at most 12) and, with both compare months, the months to compare with
+        (Admin)
+      parameters:
+      - in: query
+        name: from
+        required: true
+        schema: &id001
+          type: string
+          pattern: ^\d{4}-\d{2}$
+      - in: query
+        name: to
+        required: true
+        schema: *id001
+      - in: query
+        name: compareFrom
+        required: false
+        schema: *id001
+      - in: query
+        name: compareTo
+        required: false
+        schema: *id001
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkshopReportPairResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid months, more than 12 or a future month
+  /api/production/dashboard:
+    get:
+      tags: *id002
+      operationId: getWorkshopDashboard
+      summary: '«Огляд виробництва»: open orders by stage, late and ready to ship (everyone with production orders)'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkshopDashboardResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    WorkshopReportPairResponse:
+      type: object
+      required:
+      - current
+      - comparison
+      properties:
+        current:
+          $ref: '#/components/schemas/WorkshopReportResponse'
+        comparison:
+          oneOf:
+          - $ref: '#/components/schemas/WorkshopReportResponse'
+          - type: 'null'
+          description: Only when compareFrom and compareTo are given.
+    WorkshopReportResponse:
+      type: object
+      required:
+      - from
+      - to
+      - closedMonths
+      - openMonths
+      - totals
+      - output
+      - staff
+      - materials
+      - stock
+      - warnings
+      properties:
+        from: &id003
+          type: string
+        to: *id003
+        closedMonths:
+          type: array
+          items: *id003
+          description: 'Months closed in «Зарплата»: read as they were closed.'
+        openMonths:
+          type: array
+          items: *id003
+          description: Counted from the current data; can still change.
+        totals:
+          $ref: '#/components/schemas/WorkshopReportTotalsResponse'
+        output:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportOutputRowResponse'
+        staff:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportStaffRowResponse'
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportIssueRowResponse'
+        stock:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportStockRowResponse'
+        warnings:
+          type: array
+          items: *id003
+          description: Warnings of «Зарплата» in the months.
+      description: «Звіти цеху» of the months from..to; several months are the sum of their months, the stock is at the end
+        of the last one.
+    WorkshopReportTotalsResponse:
+      type: object
+      required:
+      - sewnPieces
+      - outputValue
+      - unpricedPieces
+      - accrued
+      - minutes
+      - issuedMeters
+      - issuedValue
+      - unpricedIssuedMeters
+      - stockMeters
+      - stockValue
+      - unpricedStockMeters
+      properties:
+        sewnPieces: &id004
+          type: integer
+        outputValue:
+          type: number
+          description: Only pieces with a КП price.
+        unpricedPieces: *id004
+        accrued: &id005
+          type: number
+        minutes: *id004
+        issuedMeters: *id005
+        issuedValue: *id005
+        unpricedIssuedMeters: *id005
+        stockMeters: *id005
+        stockValue:
+          type: number
+          description: Positive balances at the current price of «Тканини».
+        unpricedStockMeters: *id005
+    ReportOutputRowResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - modelName
+      - quantity
+      - unitPrice
+      - value
+      properties:
+        orderId: *id004
+        orderNumber: *id004
+        clientName: *id003
+        itemId: *id004
+        modelName: *id003
+        quantity:
+          type: integer
+          description: Pieces sewn within the plan, not cancelled.
+        unitPrice:
+          type:
+          - number
+          - 'null'
+          description: The item report price of the КП.
+        value:
+          type:
+          - number
+          - 'null'
+    ReportStaffRowResponse:
+      type: object
+      required:
+      - employeeId
+      - name
+      - position
+      - minutes
+      - sewn
+      - cut
+      - accrued
+      - dayAverage
+      properties:
+        employeeId: *id004
+        name: *id003
+        position: *id003
+        minutes: *id004
+        sewn: *id004
+        cut: *id004
+        accrued: *id005
+        dayAverage:
+          type:
+          - number
+          - 'null'
+          description: Accrued per 8 hours of «Робочий час»; null without hours.
+    ReportIssueRowResponse:
+      type: object
+      required:
+      - movementId
+      - issuedOn
+      - fabricCode
+      - fabricName
+      - color
+      - orderId
+      - orderNumber
+      - modelName
+      - meters
+      - pricePerMeter
+      - value
+      properties:
+        movementId: *id004
+        issuedOn: &id006
+          type: string
+          format: date
+        fabricCode: *id003
+        fabricName: *id003
+        color: *id003
+        orderId:
+          type:
+          - integer
+          - 'null'
+        orderNumber:
+          type:
+          - integer
+          - 'null'
+        modelName:
+          type:
+          - string
+          - 'null'
+        meters: *id005
+        pricePerMeter:
+          type:
+          - number
+          - 'null'
+        value:
+          type:
+          - number
+          - 'null'
+    ReportStockRowResponse:
+      type: object
+      required:
+      - stockId
+      - fabricCode
+      - fabricName
+      - color
+      - meters
+      - pricePerMeter
+      - value
+      properties:
+        stockId: *id004
+        fabricCode: *id003
+        fabricName: *id003
+        color: *id003
+        meters:
+          type: number
+          description: Balance at the end of the last month; may be negative.
+        pricePerMeter:
+          type:
+          - number
+          - 'null'
+        value:
+          type:
+          - number
+          - 'null'
+    WorkshopDashboardResponse:
+      type: object
+      required:
+      - today
+      - openOrders
+      - openPieces
+      - lateOrders
+      - readyOrders
+      - readyPieces
+      - stages
+      - hours
+      properties:
+        today: *id006
+        openOrders: *id004
+        openPieces: *id004
+        lateOrders: *id004
+        readyOrders: *id004
+        readyPieces: *id004
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardStageResponse'
+        hours:
+          oneOf:
+          - type: array
+            items:
+              $ref: '#/components/schemas/DashboardHoursResponse'
+          - type: 'null'
+          description: This week by active worker; only for WorkshopChief and Admin.
+      description: '«Огляд виробництва» on the admin home: «Нове» orders, no prices or rates.'
+    DashboardStageResponse:
+      type: object
+      required:
+      - stage
+      - label
+      - orders
+      properties:
+        stage:
+          type: integer
+          minimum: 1
+          maximum: 7
+        label: *id003
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardOrderResponse'
+    DashboardOrderResponse:
+      type: object
+      required:
+      - id
+      - number
+      - clientName
+      - product
+      - items
+      - quantity
+      - progress
+      - dueDate
+      - isLate
+      properties:
+        id: *id004
+        number: *id004
+        clientName: *id003
+        product:
+          type: string
+          description: The model of the first item.
+        items: *id004
+        quantity: *id004
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Share of pieces sewn within the plan.
+        dueDate: *id006
+        isLate:
+          type: boolean
+    DashboardHoursResponse:
+      type: object
+      required:
+      - employeeId
+      - name
+      - minutes
+      properties:
+        employeeId: *id004
+        name: *id003
+        minutes: *id004

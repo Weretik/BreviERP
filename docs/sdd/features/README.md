@@ -73,6 +73,7 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 - [Fabric stock «Склад тканин»](production/fabric-stock.md) — balances by fabric and colour, movements with history, reservation from norms, issues to order items, value, consumption summary, transfer of the old stock (stage 4).
 - [Work log and sewing forecast](production/work-log.md) — «Журнал робіт» with rate snapshot, over-plan reasons and «Сторно», «Робота» of an item, «Прогноз пошиття» with the saved queue, transfer of the old log (stage 5).
 - [Timesheet and payroll](production/payroll.md) — «Робочий час» with change history, «Зарплата» of a month from the work log and «Параметри ціноутворення», payments and adjustments, closing a month (stage 6).
+- [Workshop reports and overview](production/reports.md) — «Звіти цеху» of whole months with output at the КП price, pay, fabric issued, stock and a comparison; a closed month keeps its report; «Огляд виробництва» on the admin home (stage 7).
 
 ## Reminders
 

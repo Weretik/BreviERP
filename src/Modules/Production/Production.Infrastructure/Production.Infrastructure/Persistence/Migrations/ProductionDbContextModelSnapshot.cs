@@ -598,6 +598,9 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.Property<int?>("EmbroideryEmployeeId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("ReportSnapshot")
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("Snapshot")
                         .HasColumnType("jsonb");
 

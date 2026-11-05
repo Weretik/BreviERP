@@ -28,6 +28,9 @@ public sealed class PayrollMonth
     /// <summary>The calculation of a closed month as JSON.</summary>
     public string? Snapshot { get; private set; }
 
+    /// <summary>«Звіти цеху» of the month as it was closed, as JSON (PRD-D49).</summary>
+    public string? ReportSnapshot { get; private set; }
+
     public int Version { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
     public string? UpdatedByName { get; private set; }
@@ -43,10 +46,11 @@ public sealed class PayrollMonth
         Touch(actorName, now);
     }
 
-    public void Close(string snapshot, string actorName, DateTimeOffset now)
+    public void Close(string snapshot, string reportSnapshot, string actorName, DateTimeOffset now)
     {
         EnsureOpen();
         Snapshot = snapshot;
+        ReportSnapshot = reportSnapshot;
         ClosedAt = now;
         ClosedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         Touch(actorName, now);
@@ -56,6 +60,7 @@ public sealed class PayrollMonth
     {
         if (!IsClosed) throw new InvalidOperationException("The month is open.");
         Snapshot = null;
+        ReportSnapshot = null;
         ClosedAt = null;
         ClosedByName = null;
         Touch(actorName, now);

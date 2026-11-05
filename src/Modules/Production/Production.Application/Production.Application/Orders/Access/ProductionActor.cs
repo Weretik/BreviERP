@@ -56,6 +56,9 @@ public sealed record ProductionActor(int UserId, bool IsAdmin, bool IsManager, b
     /// <summary>Payments, adjustments, «Видано», closing and reopening a month: Admin only (PRD-D46).</summary>
     public bool CanPay => IsAdmin;
 
+    /// <summary>«Звіти цеху»: Admin, the director holds Admin (PRD-D48).</summary>
+    public bool SeesReports => IsAdmin;
+
     /// <summary>«Налаштування цеху».</summary>
     public bool CanManageSettings => IsAdmin || IsWorkshopChief;
 
