@@ -1,6 +1,7 @@
 using Crm.Application.Embroidery.Access;
 using Crm.Application.Embroidery.Contracts;
 using Crm.Application.Embroidery.GetCalculations;
+using Crm.Application.Embroidery.ImportArchive;
 using Crm.Application.Embroidery.SaveCalculation;
 using Crm.Domain.Embroidery.Saved;
 
@@ -47,5 +48,23 @@ public sealed class EmbroiderySavedTests
         Assert.That(validator.Validate(new GetEmbroideryCalculationsQuery(actor, null)).IsValid, Is.True);
         Assert.That(validator.Validate(new GetEmbroideryCalculationsQuery(actor, null, 1, 101)).IsValid, Is.False);
         Assert.That(validator.Validate(new GetEmbroideryCalculationsQuery(actor, null, 0)).IsValid, Is.False);
+    }
+
+    [Test]
+    public void ArchiveImportNeedsRowsWithAnIdAndPrices()
+    {
+        var validator = new ImportEmbroideryArchiveCommandValidator();
+        var actor = new EmbroideryActor(1, true);
+        var settings = new SaveEmbroiderySettingsInput(0, new EmbroideryRatesDto(0.3m, 10m, 300m, 24m),
+            [new("Опт", 60m), new("Стандарт", 90m), new("Терміново", 120m)], new EmbroideryMaterialDto(20m, 90m),
+            new EmbroideryMaterialDto(80m, 150m), 40m, [new("18", "18 см", 22m, 22m, null)], []);
+        var row = new EmbroideryArchiveRow("old-1", "Поло", DateTimeOffset.UnixEpoch.AddYears(56), null, Form(), 1m,
+            settings, [new(1m, 50m, 1m)]);
+        Assert.That(validator.Validate(new ImportEmbroideryArchiveCommand(actor, [row], true)).IsValid, Is.True);
+        Assert.That(validator.Validate(new ImportEmbroideryArchiveCommand(actor, [], true)).IsValid, Is.False);
+        Assert.That(validator.Validate(new ImportEmbroideryArchiveCommand(actor, [row with { LegacyId = " " }], true))
+            .IsValid, Is.False);
+        Assert.That(validator.Validate(new ImportEmbroideryArchiveCommand(actor, [row with { Prices = [] }], true))
+            .IsValid, Is.False);
     }
 }

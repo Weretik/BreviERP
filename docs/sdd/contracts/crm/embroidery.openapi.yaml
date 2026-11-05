@@ -123,6 +123,37 @@ paths:
         "400": { $ref: "#/components/responses/Invalid" }
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role and a numeric actor claim required. }
+  /api/crm/embroidery/calculations/import:
+    post:
+      operationId: importCrmEmbroideryArchive
+      security:
+        - bearerAuth: []
+      description: >-
+        «Імпорт архіву» (Director and Admin). Moves calculations of the old calculator's archive into «Збережені» with
+        their own dates, authors (matched by email, otherwise the email is shown) and frozen rates. Each record is
+        priced with its old rates and must give the old saved prices to the kopeck, otherwise its line is `error`.
+        A record already moved (same `legacyId`) is `unchanged`. With `dryRun=true`, or when any line is `error`,
+        nothing is saved and `dryRun` in the answer is true.
+      parameters:
+        - { name: dryRun, in: query, required: false, schema: { type: boolean, default: false } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              minItems: 1
+              maxItems: 2000
+              items: { $ref: "#/components/schemas/CrmEmbroideryArchiveRow" }
+      responses:
+        "200":
+          description: What was moved, or would be.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroideryArchiveImportResult" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin role required (the Director also holds Admin). }
   /api/crm/embroidery/calculations/{id}:
     parameters:
       - { name: id, in: path, required: true, schema: { type: integer, format: int64, minimum: 1 } }
@@ -178,6 +209,49 @@ components:
         name: { type: [string, "null"], maxLength: 1000, description: Trimmed and cut to 120; empty is «Без назви». }
         customerPublicId: { type: [string, "null"], format: uuid, description: An active client of «Клієнти». }
         calculation: { $ref: "#/components/schemas/CrmCalculateEmbroideryInput" }
+    CrmEmbroideryArchiveRow:
+      type: object
+      required: [legacyId, createdAt, calculation, stitchRate, settings, prices]
+      properties:
+        legacyId: { type: string, minLength: 1, maxLength: 64, description: The old record id. }
+        name: { type: [string, "null"], maxLength: 1000 }
+        createdAt: { type: string, format: date-time }
+        createdByEmail: { type: [string, "null"], maxLength: 200 }
+        calculation: { $ref: "#/components/schemas/CrmCalculateEmbroideryInput" }
+        stitchRate: { type: number, exclusiveMinimum: 0, description: The embroiderer's rate per 1000 stitches then. }
+        settings: { $ref: "#/components/schemas/CrmSaveEmbroiderySettingsInput" }
+        prices:
+          type: array
+          minItems: 1
+          description: The old saved prices, «Опт», «Стандарт», «Терміново» in order.
+          items: { $ref: "#/components/schemas/CrmEmbroideryArchivePrice" }
+    CrmEmbroideryArchivePrice:
+      type: object
+      required: [unit, total, repeatUnit]
+      properties:
+        unit: { type: number }
+        total: { type: number }
+        repeatUnit: { type: number }
+    CrmEmbroideryArchiveImportResult:
+      type: object
+      required: [dryRun, created, unchanged, errors, lines]
+      properties:
+        dryRun: { type: boolean, description: True when nothing was saved. }
+        created: { type: integer }
+        unchanged: { type: integer }
+        errors: { type: integer }
+        lines: { type: array, items: { $ref: "#/components/schemas/CrmEmbroideryArchiveImportLine" } }
+    CrmEmbroideryArchiveImportLine:
+      type: object
+      required: [legacyId, name, createdAt, createdByName, action]
+      properties:
+        legacyId: { type: string }
+        name: { type: string }
+        createdAt: { type: string, format: date-time }
+        createdByName: { type: string }
+        action: { type: string, enum: [created, unchanged, error] }
+        message: { type: [string, "null"] }
+        number: { type: [string, "null"], description: «ВШ-0042» once saved. }
     CrmEmbroiderySavedPrice:
       type: object
       required: [name, unit, total, repeatUnit]
