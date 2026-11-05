@@ -95,7 +95,8 @@ public sealed class ProductionOrderHandlerTests
     public async Task Draft_shows_rates_to_admin_but_not_to_a_manager()
     {
         using var workshop = Workshop();
-        var handler = new GetProductionQuoteDraftQueryHandler(workshop.Quotes, workshop.Resolver());
+        var handler = new GetProductionQuoteDraftQueryHandler(workshop.Quotes, workshop.Resolver(),
+            workshop.Embroideries);
 
         var admin = await handler.Handle(new(Admin, 10), CancellationToken.None);
         var manager = await handler.Handle(new(Manager, 10), CancellationToken.None);
@@ -116,7 +117,8 @@ public sealed class ProductionOrderHandlerTests
         var item = created.Items.Single();
         var details = Details(5) with { AdditionalColors = [], SizesText = "M-3, L-2" };
 
-        var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time)
+        var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+            workshop.EmbroideryLinks(), workshop.Time)
             .Handle(new(Chief, created.Id, new UpdateProductionOrderInput(created.Version, created.ClientName,
                 created.OrderDate, null, [new(item.Id, details, 300m)])), CancellationToken.None);
         var history = (await new GetProductionOrderHistoryQueryHandler(workshop.Db)
@@ -140,7 +142,8 @@ public sealed class ProductionOrderHandlerTests
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
         var lines = created.Items.Select(x => new UpdateProductionItemInput(x.Id, Details(4), null)).ToArray();
-        var handler = new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time);
+        var handler = new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+            workshop.EmbroideryLinks(), workshop.Time);
 
         var other = await handler.Handle(new(OtherManager, created.Id,
             new(created.Version, "Інший", created.OrderDate, null, lines)), CancellationToken.None);
@@ -161,7 +164,8 @@ public sealed class ProductionOrderHandlerTests
         var created = (await Create(workshop, Manager, Input())).Value;
         var item = created.Items.Single();
 
-        await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time)
+        await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+            workshop.EmbroideryLinks(), workshop.Time)
             .Handle(new(Manager, created.Id, new(created.Version, created.ClientName, created.OrderDate, null,
                 [new(item.Id, Details(3), 1m)])), CancellationToken.None);
 
@@ -267,6 +271,89 @@ public sealed class ProductionOrderHandlerTests
         });
     }
 
+    [Test]
+    public async Task Embroidery_links_a_saved_calculation_and_the_card_shows_it_as_it_is_now()
+    {
+        using var workshop = Workshop();
+        workshop.Embroideries.Calculations[42] = Calculation(42);
+        var input = Input() with
+        {
+            Items = [new CreateProductionItemInput(100, 1000, Details(3) with
+            {
+                Applications = [new ItemApplicationInput("Embroidery", "Спина", "Логотип", "Помаранчевий", 42)]
+            })]
+        };
+
+        var created = await Create(workshop, Manager, input);
+        workshop.Embroideries.Calculations.Remove(42);
+        var after = await new GetProductionOrderQueryHandler(workshop.Cards())
+            .Handle(new(Manager, created.Value.Id), CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(created.IsSuccess, Is.True, string.Join("; ", created.Errors));
+            var application = created.Value.Items.Single().Applications.Single();
+            Assert.That(application.EmbroideryNumber, Is.EqualTo("ВШ-0042"));
+            Assert.That(application.Embroidery!.StabilizerMetres, Is.EqualTo(0.6m));
+            Assert.That(application.Embroidery.MockupUrl, Is.EqualTo("https://cdn.test/logo.png"));
+            var kept = after.Value.Items.Single().Applications.Single();
+            Assert.That(kept.EmbroideryNumber, Is.EqualTo("ВШ-0042"), "the number stays when the calculation is removed");
+            Assert.That(kept.Embroidery, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task Missing_calculation_is_refused_and_a_kept_link_survives_an_edit()
+    {
+        using var workshop = Workshop();
+        var missing = await Create(workshop, Manager, Input() with
+        {
+            Items = [new CreateProductionItemInput(100, 1000, Details(3) with
+            {
+                Applications = [new ItemApplicationInput("Embroidery", null, null, null, 7)]
+            })]
+        });
+        workshop.Embroideries.Calculations[42] = Calculation(42);
+        var linked = Details(3) with { Applications = [new ItemApplicationInput("Embroidery", null, null, null, 42)] };
+        var created = (await Create(workshop, Manager, Input() with
+        {
+            Items = [new CreateProductionItemInput(100, 1000, linked)]
+        })).Value;
+        workshop.Embroideries.Calculations.Clear();
+
+        var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+                workshop.EmbroideryLinks(), workshop.Time)
+            .Handle(new(Manager, created.Id, new UpdateProductionOrderInput(created.Version, created.ClientName,
+                created.OrderDate, "ок", [new(created.Items[0].Id, linked, null)])), CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(missing.Status, Is.EqualTo(ResultStatus.Invalid));
+            Assert.That(updated.IsSuccess, Is.True, string.Join("; ", updated.Errors));
+            Assert.That(updated.Value.Items[0].Applications[0].EmbroideryNumber, Is.EqualTo("ВШ-0042"));
+        });
+    }
+
+    [Test]
+    public async Task Draft_brings_the_quotes_embroidery_rows_that_still_exist()
+    {
+        using var workshop = Workshop();
+        workshop.Embroideries.Calculations[42] = Calculation(42);
+        workshop.Quotes.Quotes[0] = workshop.Quotes.Quotes[0] with
+        {
+            Embroideries = [new ProductionQuoteEmbroidery(101, 42, "Вишивка логотипу"), new(102, 9, "Видалена")]
+        };
+
+        var draft = await new GetProductionQuoteDraftQueryHandler(workshop.Quotes, workshop.Resolver(),
+            workshop.Embroideries).Handle(new(Manager, 10), CancellationToken.None);
+
+        Assert.That(draft.Value.Embroideries.Select(x => (x.QuoteItemId, x.Calculation.Number)),
+            Is.EqualTo(new[] { (101L, "ВШ-0042") }));
+    }
+
+    private static ProductionEmbroideryResponse Calculation(long id) => new(id, $"ВШ-{id:D4}", "Логотип", "Геофізика",
+        "Garment", 3, 8000, "20×20", 3, 0.6m, null, "https://cdn.test/logo.png", "https://cdn.test/logo-thumb.webp");
+
     internal static ProductionTestHarness Workshop()
     {
         var workshop = new ProductionTestHarness();
@@ -297,7 +384,7 @@ public sealed class ProductionOrderHandlerTests
     internal static Task<Result<ProductionOrderResponse>> Create(ProductionTestHarness workshop, ProductionActor actor,
         CreateProductionOrderInput input) =>
         new CreateProductionOrderCommandHandler(workshop.Db, workshop.Quotes, workshop.Staff, workshop.Resolver(),
-            workshop.Cards(), workshop.Time).Handle(new(actor, input), CancellationToken.None).AsTask();
+            workshop.Cards(), workshop.EmbroideryLinks(), workshop.Time).Handle(new(actor, input), CancellationToken.None).AsTask();
 
     private static ProductionOrderImportRow Row(string id, int number, string status, string client) => new(id, number,
         "27-10-2026", client, "anastasia@brevi.ua", "Анастасія", status, new DateOnly(2026, 10, 9), null,

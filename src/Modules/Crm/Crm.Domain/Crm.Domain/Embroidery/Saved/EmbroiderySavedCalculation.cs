@@ -53,6 +53,9 @@ public sealed class EmbroiderySavedCalculation
     /// <summary>Some ticked costs had no rate: the prices were «Орієнтовна».</summary>
     public bool Incomplete { get; private set; }
 
+    /// <summary>A photo or mockup of the design from the Media library, for the workshop; null when none.</summary>
+    public int? MockupMediaFileId { get; private set; }
+
     public int CreatedByUserId { get; private set; }
     public string CreatedByName { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
@@ -68,6 +71,9 @@ public sealed class EmbroiderySavedCalculation
         {
             LegacyId = Cut(legacyId.Trim(), LegacyIdMaxLength),
         };
+
+    /// <summary>Sets or clears the mockup; the only thing that changes after saving.</summary>
+    public void SetMockup(int? mediaFileId) => MockupMediaFileId = mediaFileId;
 
     /// <summary>«ВШ-0042»: the id with the prefix, never stored.</summary>
     public static string NumberOf(long id) => "ВШ-" + id.ToString("D4", CultureInfo.InvariantCulture);

@@ -5,6 +5,7 @@ using Crm.Application.Embroidery.DeleteCalculation;
 using Crm.Application.Embroidery.GetCalculation;
 using Crm.Application.Embroidery.GetCalculations;
 using Crm.Application.Embroidery.GetSettings;
+using Crm.Application.Embroidery.Mockup;
 using Crm.Application.Embroidery.SaveCalculation;
 using Crm.Application.Embroidery.SaveSettings;
 using Crm.Application.Embroidery.StitchRate;
@@ -20,6 +21,7 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
     private readonly QuoteTestStaff _staff = new();
     private readonly QuoteTestClock _clock = new(new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero));
     private readonly FixedStitchRate _stitchRate = new();
+    private readonly FakeMedia _media = new();
 
     private static CalculateEmbroideryInput Form() =>
         new("Garment", 50, 10_000, "18", 1, 1, 1, "New", 60, null, "UsedBlanks", null);
@@ -35,14 +37,14 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
     private async Task<Result<EmbroiderySavedCalculationResponse>> Get(EmbroideryActor actor, long id)
     {
         await using var db = Context();
-        return await new GetEmbroideryCalculationQueryHandler(db)
+        return await new GetEmbroideryCalculationQueryHandler(db, _media)
             .Handle(new GetEmbroideryCalculationQuery(actor, id), default);
     }
 
     private async Task<EmbroiderySavedPageResponse> List(string? search)
     {
         await using var db = Context();
-        return (await new GetEmbroideryCalculationsQueryHandler(db)
+        return (await new GetEmbroideryCalculationsQueryHandler(db, _media)
             .Handle(new GetEmbroideryCalculationsQuery(Olena, search), default)).Value;
     }
 
@@ -122,6 +124,47 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
         }
 
         Assert.That((await Get(Director, saved.Summary.Id)).Status, Is.EqualTo(ResultStatus.NotFound));
+    }
+
+    [Test]
+    public async Task MockupIsPickedFromTheMediaLibraryAndBlocksItsDeletion()
+    {
+        var saved = (await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form()))).Value;
+        _media.Files[5] = new EmbroideryMockupResponse(5, "logo.png", "https://cdn.test/logo.png", null);
+
+        await using (var db = Context())
+        {
+            var handler = new SetEmbroideryMockupCommandHandler(db, _media);
+            var missing = await handler.Handle(new SetEmbroideryMockupCommand(Olena, saved.Summary.Id,
+                new SetEmbroideryMockupInput(99)), default);
+            var set = await handler.Handle(new SetEmbroideryMockupCommand(Olena, saved.Summary.Id,
+                new SetEmbroideryMockupInput(5)), default);
+            Assert.That(missing.Status, Is.EqualTo(ResultStatus.Invalid));
+            Assert.That(set.Value.Summary.Mockup!.Url, Is.EqualTo("https://cdn.test/logo.png"));
+        }
+
+        Assert.That((await Get(Olena, saved.Summary.Id)).Value.Summary.Mockup!.MediaFileId, Is.EqualTo(5));
+        Assert.That((await List(null)).Items.Single().Mockup!.FileName, Is.EqualTo("logo.png"));
+        await using (var db = Context())
+        {
+            var usages = (await new GetEmbroideryMockupUsagesQueryHandler(db)
+                .Handle(new GetEmbroideryMockupUsagesQuery([5, 6]), default)).Value;
+            Assert.That(usages.Single().Title, Is.EqualTo(saved.Summary.Number + " Поло"));
+
+            var cleared = await new SetEmbroideryMockupCommandHandler(db, _media).Handle(
+                new SetEmbroideryMockupCommand(Olena, saved.Summary.Id, new SetEmbroideryMockupInput(null)), default);
+            Assert.That(cleared.Value.Summary.Mockup, Is.Null);
+        }
+    }
+
+    internal sealed class FakeMedia : IEmbroideryMediaReader
+    {
+        public Dictionary<int, EmbroideryMockupResponse> Files { get; } = [];
+
+        public Task<IReadOnlyDictionary<int, EmbroideryMockupResponse>> ReadAsync(
+            IReadOnlyCollection<int> mediaFileIds, CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlyDictionary<int, EmbroideryMockupResponse>>(Files
+                .Where(x => mediaFileIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
     }
 
     private sealed class FixedStitchRate : IEmbroideryStitchRateReader

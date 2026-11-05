@@ -1,5 +1,6 @@
 using Crm.Application.Embroidery.Persistence;
 using Crm.Application.Embroidery.StitchRate;
+using Crm.Application.Embroidery.Mockup;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Import;
 using Crm.Application.Quotes.CustomSewing;
@@ -51,6 +52,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IQuoteImportLookup, QuoteImportLookup>();
         services.AddScoped<ITaskStaffReader, TaskStaffReader>();
         services.AddScoped<IEmbroideryStitchRateReader, EmbroideryStitchRateReader>();
+        services.AddScoped<IEmbroideryMediaReader, EmbroideryMediaReader>();
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
         services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();
@@ -66,6 +68,7 @@ public static class ModuleRegistrationsExtensions
         services.AddProductionInfrastructure(configuration);
         services.AddScoped<IProductionModelReader, ProductionModelReader>();
         services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
+        services.AddScoped<IProductionEmbroideryReader, ProductionEmbroideryReader>();
         services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
         services.AddScoped<IProductionSupplierReader, ProductionSupplierReader>();
         services.AddScoped<IProductionStaffReader, ProductionStaffReader>();

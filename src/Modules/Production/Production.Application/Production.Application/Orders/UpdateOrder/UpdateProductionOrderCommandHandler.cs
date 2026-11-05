@@ -1,11 +1,12 @@
 using Production.Application.Abstractions;
 using Production.Application.Contracts;
+using Production.Application.Orders.Embroidery;
 using Production.Domain.Orders;
 
 namespace Production.Application.Orders.UpdateOrder;
 
 public sealed class UpdateProductionOrderCommandHandler(IProductionDbContext db, IProductionStaffReader staff,
-    OrderCards cards, TimeProvider clock)
+    OrderCards cards, EmbroideryLinks embroidery, TimeProvider clock)
     : ICommandHandler<UpdateProductionOrderCommand, Result<ProductionOrderResponse>>
 {
     public async ValueTask<Result<ProductionOrderResponse>> Handle(UpdateProductionOrderCommand command,
@@ -27,11 +28,15 @@ public sealed class UpdateProductionOrderCommandHandler(IProductionDbContext db,
         var actorName = await OrderActors.NameAsync(staff, actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.ActorUnknown);
 
+        var numbers = await embroidery.NumbersAsync(actor.UserId, input.Items.Select(x => x.Details), order,
+            cancellationToken);
+        if (!numbers.IsSuccess) return Result<ProductionOrderResponse>.Invalid(numbers.ValidationErrors.ToArray());
+
         var norms = await OrderNorms.ReadAsync(db, order.Items.Select(x => x.ModelCode), cancellationToken);
         var updates = input.Items.ToDictionary(x => x.Id, x =>
         {
             var item = order.Items.Single(i => i.Id == x.Id);
-            var details = x.Details.ToDetails();
+            var details = x.Details.ToDetails(numbers.Value);
             var colors = 1 + details.AdditionalColors.Count(c => !string.IsNullOrWhiteSpace(c));
             var plan = FabricPlan.Meters(item.ModelCode is null ? null : norms.GetValueOrDefault(item.ModelCode),
                 colors, details.Quantity);

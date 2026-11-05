@@ -36,6 +36,11 @@ public sealed class ItemApplicationInputValidator : AbstractValidator<ItemApplic
         RuleFor(x => x.Place).MaximumLength(ItemApplication.TextMaxLength);
         RuleFor(x => x.Description).MaximumLength(ItemApplication.TextMaxLength);
         RuleFor(x => x.Color).MaximumLength(ItemApplication.TextMaxLength);
+        RuleFor(x => x.EmbroideryCalculationId).GreaterThan(0).When(x => x.EmbroideryCalculationId is not null);
+        RuleFor(x => x.EmbroideryCalculationId).Null()
+            .When(x => Enum.TryParse<ItemApplicationKind>(x.Kind, true, out var kind) &&
+                kind != ItemApplicationKind.Embroidery)
+            .WithMessage("Розрахунок вишивки можна обрати лише для вишивки.");
     }
 }
 

@@ -32,6 +32,9 @@ public sealed class ProductionOrdersContractTests
     [TestCase(typeof(ProductionQuoteDraftResponse))]
     [TestCase(typeof(ProductionQuoteDraftItem))]
     [TestCase(typeof(ProductionQuoteDraftOption))]
+    [TestCase(typeof(ProductionQuoteDraftEmbroidery))]
+    [TestCase(typeof(ProductionEmbroideryResponse))]
+    [TestCase(typeof(ProductionEmbroideryChoiceResponse))]
     [TestCase(typeof(ProductionOrderImportResult))]
     [TestCase(typeof(ProductionOrderImportLine))]
     [TestCase(typeof(ProductionShipmentResponse))]
@@ -70,7 +73,7 @@ public sealed class ProductionOrdersContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "CanUseProductionOrders" }));
-            Assert.That(operations, Has.Length.EqualTo(23));
+            Assert.That(operations, Has.Length.EqualTo(24));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

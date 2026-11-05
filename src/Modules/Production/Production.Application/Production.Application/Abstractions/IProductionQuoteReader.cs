@@ -21,7 +21,11 @@ public sealed record ProductionQuoteSummary(
 /// <param name="IsSent">Only a sent КП goes to the workshop.</param>
 public sealed record ProductionQuote(
     long Id, string Number, bool IsSent, bool IsArchived, string ClientName, long? CustomerId, int ResponsibleUserId,
-    string ResponsibleName, IReadOnlyList<ProductionQuoteItem> Items);
+    string ResponsibleName, IReadOnlyList<ProductionQuoteItem> Items,
+    IReadOnlyList<ProductionQuoteEmbroidery>? Embroideries = null);
+
+/// <summary>An «Вишивка» row of the КП: the saved calculation it was added from.</summary>
+public sealed record ProductionQuoteEmbroidery(long QuoteItemId, long CalculationId, string Name);
 
 /// <param name="ProductId">The Catalog model; null for a «Виріб з нуля».</param>
 public sealed record ProductionQuoteItem(

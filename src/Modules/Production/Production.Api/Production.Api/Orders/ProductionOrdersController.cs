@@ -8,6 +8,7 @@ using Production.Application.Contracts;
 using Production.Application.Orders.CopyOrder;
 using Production.Application.Orders.CreateOrder;
 using Production.Application.Orders.DeleteOrder;
+using Production.Application.Orders.Embroidery;
 using Production.Application.Orders.GetHistory;
 using Production.Application.Orders.GetOrder;
 using Production.Application.Orders.GetOrders;
@@ -56,6 +57,14 @@ public sealed class ProductionOrdersController(ISender sender) : ControllerBase
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new GetProductionQuoteDraftQuery(actor, quoteId), cancellationToken))
+            : Forbid();
+
+    /// <summary>«Розрахунок вишивки»: saved «Ціна вишивки» calculations to link to an embroidery.</summary>
+    [HttpGet("embroideries", Name = "getProductionEmbroideries")]
+    public async Task<ActionResult<IReadOnlyList<ProductionEmbroideryChoiceResponse>>> Embroideries(
+        [FromQuery] string? search, CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new GetProductionEmbroideriesQuery(actor, search), cancellationToken))
             : Forbid();
 
     /// <summary>«Передати в цех». A repeat with the same request id returns the same order.</summary>

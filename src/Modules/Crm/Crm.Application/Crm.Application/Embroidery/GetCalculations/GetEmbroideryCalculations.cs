@@ -1,6 +1,7 @@
 using Crm.Application.Embroidery.Access;
 using Crm.Application.Embroidery.Contracts;
 using Crm.Application.Embroidery.Mapping;
+using Crm.Application.Embroidery.Mockup;
 using Crm.Application.Embroidery.Persistence;
 using Crm.Domain.Embroidery.Saved;
 
@@ -10,7 +11,7 @@ namespace Crm.Application.Embroidery.GetCalculations;
 public sealed record GetEmbroideryCalculationsQuery(EmbroideryActor Actor, string? Search, int Page = 1,
     int PageSize = 25) : IQuery<Result<EmbroiderySavedPageResponse>>;
 
-public sealed class GetEmbroideryCalculationsQueryHandler(IEmbroideryStore store)
+public sealed class GetEmbroideryCalculationsQueryHandler(IEmbroideryStore store, IEmbroideryMediaReader media)
     : IQueryHandler<GetEmbroideryCalculationsQuery, Result<EmbroiderySavedPageResponse>>
 {
     public async ValueTask<Result<EmbroiderySavedPageResponse>> Handle(GetEmbroideryCalculationsQuery query,
@@ -28,7 +29,9 @@ public sealed class GetEmbroideryCalculationsQueryHandler(IEmbroideryStore store
         var total = await rows.CountAsync(cancellationToken);
         var page = await rows.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id)
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize).ToListAsync(cancellationToken);
-        return Result.Success(new EmbroiderySavedPageResponse([.. page.Select(x => x.ToSummary())], query.Page,
+        var mockups = await media.ReadForAsync(page.Select(x => x.MockupMediaFileId), cancellationToken);
+        return Result.Success(new EmbroiderySavedPageResponse(
+            [.. page.Select(x => x.ToSummary(mockups.Of(x.MockupMediaFileId)))], query.Page,
             query.PageSize, total));
     }
 }
