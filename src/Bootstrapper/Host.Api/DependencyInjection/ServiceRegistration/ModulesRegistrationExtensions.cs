@@ -27,6 +27,7 @@ using Production.Infrastructure.DependencyInjection;
 using Host.Api.Purchasing;
 using Purchasing.Application.Abstractions;
 using Purchasing.Infrastructure.DependencyInjection;
+using Ai.Infrastructure.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 
@@ -60,6 +61,10 @@ public static class ModuleRegistrationsExtensions
         services.AddMediaInfrastructure(configuration);
         services.AddPurchasingInfrastructure(configuration);
         services.AddScoped<IPurchasingSupplierReader, PurchasingSupplierReader>();
+        // Recognition runs only in the API: the recognizer reaches the Ai module through Mediator.
+        services.AddScoped<IPurchaseDocumentRecognizer, PurchaseDocumentRecognizer>();
+        services.AddScoped<global::Purchasing.Application.Documents.Recognize.PurchaseFileRecognition>();
+        services.AddAiInfrastructure(configuration);
         services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();
         services.AddHttpClient<IProductPhotoSource, CatalogProductPhotoSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddScoped<IMediaUsageReader, MediaProductUsageReader>();

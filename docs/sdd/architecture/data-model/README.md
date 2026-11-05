@@ -63,11 +63,19 @@ BreviERP PostgreSQL
 │   ├── TimeEntries, TimeChanges       # «Робочий час» and its history
 │   ├── PayrollMonths, PayrollRoles    # «Зарплата»: month, embroidery, closing; master and chief
 │   └── PayrollPayments, PayrollAdjustments, PayrollIssued  # payments, adjustments, «Видано»
-├── purchasing / PurchasingDbContext — 5 tables + own history
+├── ai / AiDbContext — 3 tables + own history
+│   ├── Settings                       # «Налаштування ШІ»: encrypted OpenAI key, models, prices, limit
+│   ├── UsageMonths                    # requests, tokens and cost per month
+│   └── Prompts                        # the admin's extra rules per request kind
+├── purchasing / PurchasingDbContext — 9 tables + own history
 │   ├── Messages                       # «Рахунки на закупку»: one Telegram message
 │   ├── SourceRows                     # one UID of the sheet «финансы»
 │   ├── SourceRevisions                # raw history of a row
 │   ├── MessageFiles                   # links to original invoices
+│   ├── ReviewChanges                  # history of the supplier link and note
+│   ├── CheckedDocuments               # checked facts of one original
+│   ├── CheckedDocumentHistory         # replaced facts
+│   ├── RecognitionAttempts            # each «Розпізнати» with its problems
 │   └── SyncStates                     # last sheet sync
 ├── reminders / RemindersDbContext — 6 tables + own history
 │   ├── Tasks                          # reminder tasks and schedule
@@ -91,6 +99,7 @@ BreviERP PostgreSQL
 | `reference` / Reference | [Reference tables, PKs, and FKs](reference.md) |
 | `identity` / Identity | [Identity tables, PKs, and FKs](identity.md) |
 | `accounting` / Accounting | [TransactionCategories](accounting.md) |
+| `ai` / Ai | [AI settings](ai.md) |
 | `purchasing` / Purchasing | [Purchase invoice register](purchasing.md) |
 
 The module documents cover 28 business and Identity model tables; the [module schema decision](../../specs/platform/001-module-schemas/README.md) describes the operational migration history. Schema `crm` holds five client tables and six КП tables; see [Crm](crm.md). The earlier counts/tree above are the historical 2026-10-21 snapshot, not a current total. Module documents explain cross-module IDs without physical FKs. After a schema change, update only the affected module and this tree if the table list or placement changed.

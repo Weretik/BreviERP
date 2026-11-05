@@ -10,6 +10,7 @@ using Reminders.Infrastructure.DependencyInjection;
 using Media.Infrastructure.DependencyInjection;
 using Production.Infrastructure.DependencyInjection;
 using Purchasing.Infrastructure.DependencyInjection;
+using Ai.Infrastructure.DependencyInjection;
 using CatalogImport.Persistence;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,7 @@ public static class SeedHostServicesExtensions
         services.AddMediaInfrastructure(configuration);
         services.AddProductionInfrastructure(configuration);
         services.AddPurchasingInfrastructure(configuration);
+        services.AddAiInfrastructure(configuration);
         services.AddDbContext<CatalogImportDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Default")));
         services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogImportDbContext>>();

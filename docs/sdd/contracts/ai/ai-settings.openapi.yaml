@@ -1,0 +1,380 @@
+openapi: 3.1.0
+info:
+  title: 'Ai: «Налаштування ШІ»'
+  version: 1.0.0
+  description: 'The OpenAI account of Brevi (AI-001). Policy RequireAdminRole (Admin; the Director also holds Admin). The API
+    key is write-only: responses carry only hasKey and its last four characters.'
+security:
+- Bearer: []
+paths:
+  /api/ai/settings:
+    get:
+      tags:
+      - Ai
+      operationId: getAiSettings
+      description: Settings, this month's use (UTC) and the editable extra rules. Defaults before the first save.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSettingsResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Admin
+    put:
+      tags:
+      - Ai
+      operationId: updateAiSettings
+      description: Models, prices per 1M tokens, on/off and the monthly limit in USD. version is the one the admin saw.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiSettingsRequest'
+      responses:
+        '200':
+          description: Saved (or unchanged)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSettingsResponse'
+        '400':
+          description: Invalid model name, price or limit, or switching on without a key
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Admin
+        '409':
+          description: The version is stale; body is an array of messages
+  /api/ai/settings/key:
+    put:
+      tags:
+      - Ai
+      operationId: setAiKey
+      description: Replaces the OpenAI key. It is stored encrypted (ASP.NET Data Protection) and never returned or logged.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiKeyRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSettingsResponse'
+        '400':
+          description: The key is not 20–300 characters without spaces
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Admin
+    delete:
+      tags:
+      - Ai
+      operationId: removeAiKey
+      description: Removes the key and switches the AI off.
+      responses:
+        '200':
+          description: Removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSettingsResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Admin
+  /api/ai/settings/prompts/{key}:
+    put:
+      tags:
+      - Ai
+      operationId: updateAiPrompt
+      description: Extra rules of one request kind (purchase-invoices = «Умови розпізнавання рахунків»), added after the
+        fixed instruction of the module. Empty text removes them.
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 60
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiPromptRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSettingsResponse'
+        '400':
+          description: Longer than 4000 characters
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Admin
+        '404':
+          description: Unknown key
+  /api/ai/settings/test:
+    post:
+      tags:
+      - Ai
+      operationId: testAiConnection
+      description: '«Перевірити»: a tiny request to the model of the tier (works while the AI is off). Its cost is added to
+        the month.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiTestRequest'
+      responses:
+        '200':
+          description: OpenAI answered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiTestResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Admin
+        '422':
+          description: OpenAI refused (key, model, balance or limit); the message says which
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiErrors'
+        '503':
+          description: No key, the monthly limit is reached, or OpenAI does not answer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiErrors'
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    AiModelTier:
+      type: string
+      description: Fast is tried first; Strong is the retry when the fast answer fails its checks.
+      enum:
+      - Fast
+      - Strong
+    AiUsageResponse:
+      type: object
+      required:
+      - month
+      - requests
+      - inputTokens
+      - outputTokens
+      - costUsd
+      properties:
+        month:
+          type: string
+          description: yyyy-MM (UTC)
+        requests:
+          type: integer
+          format: int32
+        inputTokens:
+          type: integer
+          format: int64
+        outputTokens:
+          type: integer
+          format: int64
+        costUsd:
+          type: number
+          description: Counted from the token usage and the prices in settings.
+    AiPromptResponse:
+      type: object
+      required:
+      - key
+      - title
+      - text
+      properties:
+        key:
+          type: string
+        title:
+          type: string
+        text:
+          type: string
+        updatedBy:
+          type:
+          - string
+          - 'null'
+        updatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    AiSettingsResponse:
+      type: object
+      required:
+      - hasKey
+      - enabled
+      - fastModel
+      - fastInputPrice
+      - fastOutputPrice
+      - strongModel
+      - strongInputPrice
+      - strongOutputPrice
+      - monthlyLimitUsd
+      - version
+      - usage
+      - prompts
+      properties:
+        hasKey:
+          type: boolean
+        keyHint:
+          type:
+          - string
+          - 'null'
+          description: Last four characters of the key.
+        enabled:
+          type: boolean
+        fastModel:
+          type: string
+        fastInputPrice:
+          type: number
+          description: USD per 1M input tokens.
+        fastOutputPrice:
+          type: number
+        strongModel:
+          type: string
+        strongInputPrice:
+          type: number
+        strongOutputPrice:
+          type: number
+        monthlyLimitUsd:
+          type: number
+        version:
+          type: integer
+          format: int32
+        updatedBy:
+          type:
+          - string
+          - 'null'
+        updatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        usage:
+          $ref: '#/components/schemas/AiUsageResponse'
+        prompts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiPromptResponse'
+    AiSettingsRequest:
+      type: object
+      required:
+      - enabled
+      - fastModel
+      - fastInputPrice
+      - fastOutputPrice
+      - strongModel
+      - strongInputPrice
+      - strongOutputPrice
+      - monthlyLimitUsd
+      - version
+      properties:
+        enabled:
+          type: boolean
+        fastModel:
+          type: string
+          maxLength: 80
+        fastInputPrice:
+          type: number
+          minimum: 0
+          maximum: 1000
+        fastOutputPrice:
+          type: number
+          minimum: 0
+          maximum: 1000
+        strongModel:
+          type: string
+          maxLength: 80
+        strongInputPrice:
+          type: number
+          minimum: 0
+          maximum: 1000
+        strongOutputPrice:
+          type: number
+          minimum: 0
+          maximum: 1000
+        monthlyLimitUsd:
+          type: number
+          minimum: 0
+          maximum: 10000
+        version:
+          type: integer
+          format: int32
+          minimum: 0
+    AiKeyRequest:
+      type: object
+      required:
+      - apiKey
+      properties:
+        apiKey:
+          type: string
+          minLength: 20
+          maxLength: 300
+          writeOnly: true
+    AiPromptRequest:
+      type: object
+      properties:
+        text:
+          type:
+          - string
+          - 'null'
+          maxLength: 4000
+    AiTestRequest:
+      type: object
+      required:
+      - tier
+      properties:
+        tier:
+          $ref: '#/components/schemas/AiModelTier'
+    AiTestResponse:
+      type: object
+      required:
+      - tier
+      - model
+      - inputTokens
+      - outputTokens
+      - costUsd
+      properties:
+        tier:
+          $ref: '#/components/schemas/AiModelTier'
+        model:
+          type: string
+        inputTokens:
+          type: integer
+          format: int64
+        outputTokens:
+          type: integer
+          format: int64
+        costUsd:
+          type: number
+    AiErrors:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
