@@ -231,6 +231,8 @@ paths:
     $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1settings
   /api/crm/embroidery/calculations:
     $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1calculations
+  /api/crm/embroidery/calculations/import:
+    $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1calculations~1import
   /api/crm/embroidery/calculations/{id}:
     $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1calculations~1{id}
   /api/crm/tasks:

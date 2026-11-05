@@ -251,6 +251,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<string>("LegacyId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<string>("Mode")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -277,6 +281,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasIndex("CreatedAt");
 
                     b.HasIndex("CustomerPublicId");
+
+                    b.HasIndex("LegacyId")
+                        .IsUnique()
+                        .HasFilter("\"LegacyId\" IS NOT NULL");
 
                     b.ToTable("EmbroideryCalculations", "crm", t =>
                         {

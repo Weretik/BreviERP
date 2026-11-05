@@ -23,5 +23,7 @@ public sealed class EmbroideryCalculationConfiguration : IEntityTypeConfiguratio
         JsonColumns.Map(b.Property(x => x.Result));
         b.HasIndex(x => x.CreatedAt);
         b.HasIndex(x => x.CustomerPublicId);
+        b.Property(x => x.LegacyId).HasMaxLength(EmbroiderySavedCalculation.LegacyIdMaxLength);
+        b.HasIndex(x => x.LegacyId).IsUnique().HasFilter("\"LegacyId\" IS NOT NULL");
     }
 }

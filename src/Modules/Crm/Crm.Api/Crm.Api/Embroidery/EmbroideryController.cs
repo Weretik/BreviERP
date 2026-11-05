@@ -7,6 +7,7 @@ using Crm.Application.Embroidery.GetCalculation;
 using Crm.Application.Embroidery.GetCalculations;
 using Crm.Application.Embroidery.GetForm;
 using Crm.Application.Embroidery.GetSettings;
+using Crm.Application.Embroidery.ImportArchive;
 using Crm.Application.Embroidery.SaveCalculation;
 using Crm.Application.Embroidery.SaveSettings;
 using Mediator;
@@ -82,6 +83,25 @@ public sealed class EmbroideryController(ISender sender) : ControllerBase
         var actor = ReadActor();
         if (actor is null) return Forbid();
         return this.ToActionResult(await sender.Send(new SaveEmbroideryCalculationCommand(actor, input),
+            cancellationToken));
+    }
+
+    /// <summary>
+    /// «Імпорт архіву» (Director and Admin): moves the old calculator's saved calculations; with <c>dryRun</c> only
+    /// shows what would happen.
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("calculations/import", Name = "importCrmEmbroideryArchive")]
+    [ProducesResponseType<EmbroideryArchiveImportResult>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [RequestSizeLimit(20_000_000)]
+    public async Task<ActionResult<EmbroideryArchiveImportResult>> ImportArchive(
+        [FromBody] IReadOnlyList<EmbroideryArchiveRow> rows, [FromQuery] bool dryRun,
+        CancellationToken cancellationToken)
+    {
+        var actor = ReadActor();
+        if (actor is null) return Forbid();
+        return this.ToActionResult(await sender.Send(new ImportEmbroideryArchiveCommand(actor, rows, dryRun),
             cancellationToken));
     }
 
