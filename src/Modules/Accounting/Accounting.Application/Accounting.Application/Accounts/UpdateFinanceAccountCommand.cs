@@ -1,11 +1,15 @@
 using Accounting.Application.Abstractions;
+using Accounting.Application.Balances;
 using Accounting.Application.Contracts;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
 
 namespace Accounting.Application.Accounts;
 
-/// <summary>«Змінити рахунок»: <paramref name="Version"/> is the version the user opened; a stale one is refused.</summary>
+/// <summary>
+/// «Змінити рахунок»: <paramref name="Version"/> is the version the user opened; a stale one is refused. With movements
+/// the currency is fixed and the opening date stays on or before the earliest movement.
+/// </summary>
 public sealed record UpdateFinanceAccountCommand(Guid Id, FinanceAccountFields Fields, int Version, string By)
     : ICommand<Result<FinanceAccountResponse>>;
 
@@ -28,7 +32,8 @@ public sealed class UpdateFinanceAccountCommandHandler(IAccountingDbContext db, 
     {
         var now = clock.GetUtcNow();
         var details = command.Fields.ToDetails();
+        var usage = await FinanceBalances.UsageAsync(db, FinanceAccountId.From(command.Id), cancellationToken);
         return await FinanceAccountChange.ApplyAsync(db, command.Id, command.Version, command.By, now,
-            account => account.Update(details, now) ? AuditAction.Update : null, cancellationToken);
+            account => account.Update(details, usage, now) ? AuditAction.Update : null, cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 using Accounting.Application.Abstractions;
 using Accounting.Application.Audit;
+using Accounting.Application.Balances;
 using Accounting.Application.Contracts;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
@@ -22,7 +23,7 @@ internal static class FinanceAccountChange
 
         var before = AuditTrail.Snapshot(account);
         var action = change(account);
-        if (action is null) return Result.Success(FinanceAccountResponse.From(account));
+        if (action is null) return await ResponseAsync(db, account, cancellationToken);
 
         AuditTrail.Add(db, AuditEntity.Account, id, action.Value, by, now, before, AuditTrail.Snapshot(account));
         try
@@ -34,6 +35,10 @@ internal static class FinanceAccountChange
             return Result.Conflict(AccountingMessages.Stale);
         }
 
-        return Result.Success(FinanceAccountResponse.From(account));
+        return await ResponseAsync(db, account, cancellationToken);
     }
+
+    public static async Task<Result<FinanceAccountResponse>> ResponseAsync(IAccountingDbContext db, FinanceAccount account,
+        CancellationToken cancellationToken) =>
+        Result.Success(FinanceAccountResponse.From(account, await FinanceBalances.ForAsync(db, account, cancellationToken)));
 }

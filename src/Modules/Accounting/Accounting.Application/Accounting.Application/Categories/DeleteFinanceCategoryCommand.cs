@@ -6,8 +6,9 @@ using Accounting.Domain.Categories;
 namespace Accounting.Application.Categories;
 
 /// <summary>
-/// «Видалити» a category; a root goes with its subcategories, each with its own log entry. Stage 1 has no movements
-/// yet; from stage 2 a category in use is only switched off and keeps its id.
+/// «Видалити» a category; a root goes with its subcategories, each with its own log entry. When any operation (cancelled
+/// ones too) uses the category or one of its subcategories, the whole branch is only switched off
+/// (<see cref="AuditAction.Deactivate"/>) and keeps its ids, so old operations still show it.
 /// </summary>
 public sealed record DeleteFinanceCategoryCommand(Guid Id, int Version, string By) : ICommand<Result>;
 
@@ -32,12 +33,23 @@ public sealed class DeleteFinanceCategoryCommandHandler(IAccountingDbContext db,
         if (category.Version != command.Version) return Result.Conflict(AccountingMessages.Stale);
 
         var now = clock.GetUtcNow();
-        var children = await db.Categories.Where(x => x.ParentId == id).ToListAsync(cancellationToken);
-        foreach (var child in children.Append(category))
+        var branch = (await db.Categories.Where(x => x.ParentId == id).ToListAsync(cancellationToken))
+            .Append(category).ToList();
+        var ids = branch.Select(x => (FinanceCategoryId?)x.Id).ToList();
+        var used = await db.Transactions.AnyAsync(x => ids.Contains(x.CategoryId), cancellationToken);
+        foreach (var item in branch)
         {
-            AuditTrail.Add(db, AuditEntity.Category, child.Id.Value, AuditAction.Delete, command.By, now,
-                AuditTrail.Snapshot(child), null);
-            db.Categories.Remove(child);
+            var before = AuditTrail.Snapshot(item);
+            if (used)
+            {
+                if (item.Deactivate(now))
+                    AuditTrail.Add(db, AuditEntity.Category, item.Id.Value, AuditAction.Deactivate, command.By, now,
+                        before, AuditTrail.Snapshot(item));
+                continue;
+            }
+
+            AuditTrail.Add(db, AuditEntity.Category, item.Id.Value, AuditAction.Delete, command.By, now, before, null);
+            db.Categories.Remove(item);
         }
 
         try

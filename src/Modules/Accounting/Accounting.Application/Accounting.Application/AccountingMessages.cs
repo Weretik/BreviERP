@@ -8,4 +8,10 @@ public static class AccountingMessages
     public const string ParentNotFound = "Кореневу категорію не знайдено. Оновіть список.";
     public const string Stale = "Запис уже змінили. Відкрийте його знову, щоб побачити нові дані.";
     public const string DuplicateCategory = "Категорія з такою назвою вже є на цьому рівні.";
+    public const string TransactionNotFound = "Операцію не знайдено. Оновіть журнал.";
+    public const string TransferNotFound = "Переказ не знайдено. Оновіть журнал.";
+    public const string FromAccountNotFound = "Рахунок списання не знайдено. Оновіть список.";
+    public const string ToAccountNotFound = "Рахунок зарахування не знайдено. Оновіть список.";
+    public const string AccountHasHistory =
+        "По рахунку вже є рух коштів (зокрема анульований), тому його можна лише архівувати.";
 }

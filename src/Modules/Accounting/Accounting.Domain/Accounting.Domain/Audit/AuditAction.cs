@@ -13,4 +13,6 @@ public enum AuditAction
     Delete,
     CutoverConfirm,
     CutoverReset,
+    Void,
+    Deactivate,
 }

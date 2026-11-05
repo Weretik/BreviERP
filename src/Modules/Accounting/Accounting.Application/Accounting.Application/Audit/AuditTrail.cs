@@ -5,7 +5,10 @@ using Accounting.Application.Abstractions;
 using Accounting.Application.Contracts;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
+using Accounting.Application.Lookup;
 using Accounting.Domain.Categories;
+using Accounting.Domain.Transactions;
+using Accounting.Domain.Transfers;
 
 namespace Accounting.Application.Audit;
 
@@ -18,10 +21,16 @@ internal static class AuditTrail
         Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
     };
 
-    public static string Snapshot(FinanceAccount account) => JsonSerializer.Serialize(FinanceAccountResponse.From(account), Json);
+    public static string Snapshot(FinanceAccount account) => JsonSerializer.Serialize(FinanceAccountResponse.From(account, null), Json);
 
     public static string Snapshot(FinanceCategory category) =>
         JsonSerializer.Serialize(FinanceCategoryResponse.From(category), Json);
+
+    public static string Snapshot(FinanceTransaction transaction, FinanceNames names) =>
+        JsonSerializer.Serialize(FinanceTransactionResponse.From(transaction, names), Json);
+
+    public static string Snapshot(FinanceTransfer transfer, FinanceNames names) =>
+        JsonSerializer.Serialize(FinanceTransferResponse.From(transfer, names), Json);
 
     public static void Add(IAccountingDbContext db, AuditEntity entity, Guid entityId, AuditAction action, string by,
         DateTimeOffset at, string? before, string? after) =>

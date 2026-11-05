@@ -1,12 +1,18 @@
 using System.Text.Json;
 using Accounting.Api.Accounts;
 using Accounting.Api.Categories;
+using Accounting.Api.Overview;
 using Accounting.Api.Settings;
+using Accounting.Api.Transactions;
+using Accounting.Api.Transfers;
+using Accounting.Application.Journal;
 using Accounting.Application.Contracts;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
+using Accounting.Domain.Movements;
+using Accounting.Domain.Transactions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
@@ -26,6 +32,19 @@ public sealed class AccountingContractTests
     [TestCase(typeof(FinanceCategoryInput), "FinanceCategoryInput")]
     [TestCase(typeof(FinanceCategoryUpdateInput), "FinanceCategoryUpdateInput")]
     [TestCase(typeof(FinanceHistoryEntryResponse), "FinanceHistoryEntryResponse")]
+    [TestCase(typeof(FinanceAccountBalanceResponse), "FinanceAccountBalanceResponse")]
+    [TestCase(typeof(FinanceOverviewResponse), "FinanceOverviewResponse")]
+    [TestCase(typeof(FinanceOverviewCurrencyResponse), "FinanceOverviewCurrencyResponse")]
+    [TestCase(typeof(FinanceTransactionResponse), "FinanceTransactionResponse")]
+    [TestCase(typeof(FinanceTransactionTotalResponse), "FinanceTransactionTotalResponse")]
+    [TestCase(typeof(FinanceTransactionPageResponse), "FinanceTransactionPageResponse")]
+    [TestCase(typeof(FinanceTransactionInput), "FinanceTransactionInput")]
+    [TestCase(typeof(FinanceTransactionUpdateInput), "FinanceTransactionUpdateInput")]
+    [TestCase(typeof(FinanceTransferResponse), "FinanceTransferResponse")]
+    [TestCase(typeof(FinanceTransferTotalResponse), "FinanceTransferTotalResponse")]
+    [TestCase(typeof(FinanceTransferPageResponse), "FinanceTransferPageResponse")]
+    [TestCase(typeof(FinanceTransferInput), "FinanceTransferInput")]
+    [TestCase(typeof(FinanceTransferUpdateInput), "FinanceTransferUpdateInput")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -38,6 +57,11 @@ public sealed class AccountingContractTests
     [TestCase(typeof(LedgerScope), "LedgerScope")]
     [TestCase(typeof(AuditEntity), "AuditEntity")]
     [TestCase(typeof(AuditAction), "AuditAction")]
+    [TestCase(typeof(MovementSource), "MovementSource")]
+    [TestCase(typeof(MovementStatus), "MovementStatus")]
+    [TestCase(typeof(VerificationStatus), "VerificationStatus")]
+    [TestCase(typeof(FinanceJournalSort), "FinanceJournalSort")]
+    [TestCase(typeof(FinanceSortDirection), "FinanceSortDirection")]
     public void Enum_values_match_the_machine_contract(Type type, string schema)
     {
         var values = (YamlSequenceNode)((YamlMappingNode)Schemas()[schema])["enum"];
@@ -47,7 +71,8 @@ public sealed class AccountingContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_director_policy()
     {
-        var controllers = new[] { typeof(FinanceAccountsController), typeof(FinanceCategoriesController), typeof(AccountingSettingsController) };
+        var controllers = new[] { typeof(FinanceAccountsController), typeof(FinanceCategoriesController), typeof(AccountingSettingsController),
+            typeof(FinanceOverviewController), typeof(FinanceTransactionsController), typeof(FinanceTransfersController) };
         var policies = controllers.Select(c => c.GetCustomAttributes(typeof(AuthorizeAttribute), false)
             .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
         var operations = controllers.SelectMany(c => c.GetMethods())
@@ -57,7 +82,7 @@ public sealed class AccountingContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "CanUseAccounting" }));
-            Assert.That(operations, Has.Length.EqualTo(14));
+            Assert.That(operations, Has.Length.EqualTo(25));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

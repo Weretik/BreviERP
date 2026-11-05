@@ -68,10 +68,19 @@ public sealed class FinanceAccount : IAggregateRoot
     public FinanceAccountDetails Details =>
         new(Name, Type, Currency, Iban, OpeningMinor, OpeningDate, Note, SortOrder);
 
-    /// <summary>Changes the editable fields; returns false when nothing differs (the version stays).</summary>
-    public bool Update(FinanceAccountDetails details, DateTimeOffset now)
+    /// <summary>
+    /// Changes the editable fields; returns false when nothing differs (the version stays). Once the account has
+    /// movements its currency is fixed and its opening date cannot move past the earliest one.
+    /// </summary>
+    public bool Update(FinanceAccountDetails details, FinanceAccountUsage usage, DateTimeOffset now)
     {
         if (details == Details) return false;
+        if (usage.HasHistory && details.Currency != Currency)
+            throw AccountingDomainError.Fail("Accounting.Account.Currency",
+                "По рахунку вже є рух коштів, його валюту змінити не можна.");
+        if (usage.EarliestDate is { } earliest && details.OpeningDate > earliest)
+            throw AccountingDomainError.Fail("Accounting.Account.OpeningDate",
+                $"Найраніший запис рахунку — {earliest:dd.MM.yyyy}; дата початкового залишку не може бути пізнішою.");
         Apply(details);
         Touch(now);
         return true;

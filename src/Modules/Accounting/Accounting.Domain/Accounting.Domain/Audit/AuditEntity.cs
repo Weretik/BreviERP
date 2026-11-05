@@ -8,4 +8,6 @@ public enum AuditEntity
 {
     Account,
     Category,
+    Transaction,
+    Transfer,
 }
