@@ -164,6 +164,10 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
                     title.Span(number + "  ").FontColor(AccentText).SemiBold();
                     title.Span(item.Name).FontSize(12.5f).Bold();
                 });
+                if (Recommended(item) is { } badge)
+                    text.Item().PaddingVertical(2).Row(row => row.AutoItem().Background(Accent).CornerRadius(3)
+                        .PaddingVertical(2).PaddingHorizontal(7)
+                        .Text(badge).FontSize(7.5f).Bold().FontColor(Graphite).LetterSpacing(0.04f));
                 var line = Join(item.Code is { } code ? $"Код {code}" : null, item.Subtitle, item.Season);
                 if (line.Length > 0) text.Item().Text(line).FontSize(8).FontColor(Muted);
                 if (item.Description is { } description) text.Item().PaddingTop(3).Text(description).FontSize(9);
@@ -257,6 +261,15 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
                     });
                 });
             });
+
+    /// <summary>
+    /// The mark of an item with a variant the manager recommends (R-28): the whole position shows it, and with
+    /// several variants it names the recommended one.
+    /// </summary>
+    internal static string? Recommended(QuotePdfItem item) =>
+        item.Options.FirstOrDefault(x => x.IsRecommended) is not { } option ? null
+        : item.Options.Count == 1 ? "РЕКОМЕНДУЄМО"
+        : $"РЕКОМЕНДУЄМО: {option.Title.ToUpperInvariant()}";
 
     private static string Price(decimal? value) => value is null ? "—" : $"{QuotePdfParts.Money(value)} грн";
 

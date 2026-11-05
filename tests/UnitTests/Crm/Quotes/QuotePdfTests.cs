@@ -97,6 +97,21 @@ public sealed class QuotePdfTests
         Assert.That(QuotePdfText.FillClient(QuoteSettingsDefaults.IntroText, null), Does.StartWith("Підібрали добірку"));
 
     [Test]
+    public void ARecommendedVariantMarksTheWholePosition()
+    {
+        Assert.That(QuotePdfDocument.Recommended(Item(new QuotePdfOption("Ціна", null, true, 100m, null, null))),
+            Is.EqualTo("РЕКОМЕНДУЄМО"));
+        Assert.That(QuotePdfDocument.Recommended(Item(
+                new QuotePdfOption("Саржа", null, false, 100m, null, null),
+                new QuotePdfOption("Габардин", null, true, 120m, null, null))),
+            Is.EqualTo("РЕКОМЕНДУЄМО: ГАБАРДИН"));
+        Assert.That(QuotePdfDocument.Recommended(Item(new QuotePdfOption("Саржа", null, false, 100m, null, null))), Is.Null);
+
+        static QuotePdfItem Item(params QuotePdfOption[] options) =>
+            new("Куртка", null, null, null, null, null, null, "Варіант тканини", options, QuotePdfPrices.Columns(options));
+    }
+
+    [Test]
     public void MarksAreFilledFromTheManagerContact() =>
         Assert.That(QuotePdfModelBuilder.FillMarks("{managerName}, {managerPhone}, {managerEmail}, {site}, {quoteNumber}",
                 new QuotePdfContact("Анастасія", null, "a@brevi.test"), "https://brevi.com.ua/", "1-11-2026"),
