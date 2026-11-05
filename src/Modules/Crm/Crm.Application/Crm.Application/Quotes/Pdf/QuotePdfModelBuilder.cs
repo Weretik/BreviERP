@@ -19,6 +19,9 @@ public static class QuotePdfModelBuilder
             .ToArray();
         var options = items.SelectMany(x => x.Options).ToArray();
         var contact = new QuotePdfContact(manager.Name, manager.Phone, manager.Email);
+        var intro = QuotePdfText.FillClient(
+            string.IsNullOrWhiteSpace(settings.Pdf.IntroText) ? QuoteSettingsDefaults.IntroText : settings.Pdf.IntroText,
+            quote.CompanyName ?? quote.RecipientName);
 
         return new QuotePdfModel(
             quote.Number,
@@ -29,6 +32,7 @@ public static class QuotePdfModelBuilder
                 settings.Company.Site, settings.Company.LogoUrl),
             quote.RecipientName,
             quote.CompanyName,
+            FillMarks(intro, contact, settings.Company.Site, quote.Number),
             items,
             new QuotePdfTiers(
                 options.Any(x => x.Retail is not null),
@@ -51,15 +55,18 @@ public static class QuotePdfModelBuilder
             .Replace("{site}", site ?? "", StringComparison.Ordinal)
             .Replace("{quoteNumber}", quoteNumber, StringComparison.Ordinal);
 
-    private static QuotePdfItem ToItem(QuoteItem item, IReadOnlyDictionary<int, string> photos) =>
-        new(item.Name, item.Code, item.Subtitle, item.Season, item.Description,
+    private static QuotePdfItem ToItem(QuoteItem item, IReadOnlyDictionary<int, string> photos)
+    {
+        var options = item.Options.OrderBy(x => x.Position)
+            .Where(x => x.ShowsPositivePrice)
+            .Select(x => new QuotePdfOption(x.Title, x.Details, x.IsRecommended, Visible(x.Retail),
+                Visible(x.Wholesale), Visible(x.Large)))
+            .ToArray();
+        return new QuotePdfItem(item.Name, item.Code, item.Subtitle, item.Season, QuotePdfText.Unwrap(item.Description),
             QuoteItemPhotos.Resolve(item.ProductId, item.PhotoUrl, photos), item.SiteUrl,
             item.Kind is QuoteItemKind.Sewing or QuoteItemKind.CustomSewing ? "Варіант тканини" : "Ціна за одиницю",
-            item.Options.OrderBy(x => x.Position)
-                .Where(x => x.ShowsPositivePrice)
-                .Select(x => new QuotePdfOption(x.Title, x.Details, x.IsRecommended, Visible(x.Retail),
-                    Visible(x.Wholesale), Visible(x.Large)))
-                .ToArray());
+            options, QuotePdfPrices.Columns(options));
+    }
 
     private static decimal? Visible(QuotePrice price) => price.IsVisiblePositive ? price.Amount : null;
 }

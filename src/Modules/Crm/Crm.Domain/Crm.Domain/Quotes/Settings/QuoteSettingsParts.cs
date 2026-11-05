@@ -15,13 +15,17 @@ public sealed record QuoteCompanyDetails(
 /// <summary>The letter that goes with a КП (stage 3); marks in braces are filled when sending.</summary>
 public sealed record QuoteEmailTemplate(string Subject, string Body);
 
-/// <summary>Texts of the КП PDF; the contact template takes the responsible manager's marks.</summary>
+/// <summary>
+/// Texts of the КП PDF; the contact template takes the responsible manager's marks. <see cref="IntroText"/> opens
+/// the КП under the client's name and takes {client} as well; empty means <see cref="QuoteSettingsDefaults.IntroText"/>.
+/// </summary>
 public sealed record QuotePdfTexts(
     string Title,
     string? VatNotice,
     string? CtaTitle,
     string? CtaText,
-    string? CtaContactTemplate);
+    string? CtaContactTemplate,
+    string? IntroText = null);
 
 /// <summary>One of the five «Переваги» of the introduction catalogue.</summary>
 public sealed record QuoteAdvantage(string Title, string? Text);

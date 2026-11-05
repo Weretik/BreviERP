@@ -6,6 +6,11 @@ namespace Crm.Domain.Quotes.Settings;
 /// </summary>
 public static class QuoteSettingsDefaults
 {
+    /// <summary>The opening text of the old Calculator КП; «для {client}» is left out when the КП has no client.</summary>
+    public const string IntroText =
+        "Підібрали для {client} добірку відповідно до вашого запиту. Для кожної позиції вказані характеристики " +
+        "та ціна, щоб ви могли швидко сформувати потрібний набір.";
+
     public static QuoteSettingsContent Content { get; } = new(
         new QuoteCompanyDetails(
             "ПП «Бреві»",
@@ -29,7 +34,8 @@ public static class QuoteSettingsDefaults
             "Ми підготуємо альтернативні рішення — економніші або з посиленою комплектацією — та одразу " +
             "покажемо, як кожна зміна вплине на вартість.",
             "Зв’яжіться з {managerName} за телефоном {managerPhone} або електронною поштою {managerEmail}, " +
-            "щоб обрати варіант, який найкраще відповідає вашим задачам і бюджету."),
+            "щоб обрати варіант, який найкраще відповідає вашим задачам і бюджету.",
+            IntroText),
         new QuoteIntroductionTexts(
             "Український виробник спецодягу\nПрацюємо з 2003 року",
             "Спецодяг, створений для реальної роботи",

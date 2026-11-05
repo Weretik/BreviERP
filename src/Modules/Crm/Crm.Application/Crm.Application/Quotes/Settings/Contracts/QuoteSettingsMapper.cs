@@ -37,7 +37,7 @@ public static class QuoteSettingsMapper
                 Text(input.Company.Email), Text(input.Company.Site), Text(input.Company.LogoUrl)),
             new QuoteEmailTemplate(input.Email.Subject.Trim(), input.Email.Body.Trim()),
             new QuotePdfTexts(input.Pdf.Title.Trim(), Text(input.Pdf.VatNotice), Text(input.Pdf.CtaTitle),
-                Text(input.Pdf.CtaText), Text(input.Pdf.CtaContactTemplate)),
+                Text(input.Pdf.CtaText), Text(input.Pdf.CtaContactTemplate), Text(input.Pdf.IntroText)),
             new QuoteIntroductionTexts(
                 Text(input.Introduction.LogoText), Text(input.Introduction.SummerTitle),
                 Text(input.Introduction.WinterTitle), Text(input.Introduction.Subtitle),
@@ -66,7 +66,7 @@ public static class QuoteSettingsMapper
         new(x.Name, x.Edrpou, x.TaxId, x.Iban, x.Address, x.Phone, x.Email, x.Site, x.LogoUrl);
 
     private static QuotePdfTextsDto ToDto(QuotePdfTexts x) =>
-        new(x.Title, x.VatNotice, x.CtaTitle, x.CtaText, x.CtaContactTemplate);
+        new(x.Title, x.VatNotice, x.CtaTitle, x.CtaText, x.CtaContactTemplate, x.IntroText);
 
     private static QuoteIntroductionTextsDto ToDto(QuoteIntroductionTexts x) =>
         new(x.LogoText, x.SummerTitle, x.WinterTitle, x.Subtitle, x.SummerBannerUrl, x.WinterBannerUrl, x.ModelsTitle,

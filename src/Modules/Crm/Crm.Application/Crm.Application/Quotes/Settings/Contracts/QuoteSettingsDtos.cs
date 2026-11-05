@@ -15,12 +15,14 @@ public sealed record QuoteCompanyDto(
 public sealed record QuoteEmailTemplateDto(string Subject, string Body);
 
 /// <param name="CtaContactTemplate">Marks: {managerName}, {managerPhone}, {managerEmail}.</param>
+/// <param name="IntroText">Marks: {client} and the manager's; empty means the standard text.</param>
 public sealed record QuotePdfTextsDto(
     string Title,
     string? VatNotice,
     string? CtaTitle,
     string? CtaText,
-    string? CtaContactTemplate);
+    string? CtaContactTemplate,
+    string? IntroText = null);
 
 public sealed record QuoteAdvantageDto(string Title, string? Text);
 
