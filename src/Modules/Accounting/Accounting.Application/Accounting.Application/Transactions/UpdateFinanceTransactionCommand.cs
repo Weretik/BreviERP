@@ -1,6 +1,7 @@
 using Accounting.Application.Abstractions;
 using Accounting.Application.Audit;
 using Accounting.Application.Contracts;
+using Accounting.Application.Counterparties;
 using Accounting.Application.Journal;
 using Accounting.Application.Lookup;
 using Accounting.Domain.Audit;
@@ -23,7 +24,8 @@ public sealed class UpdateFinanceTransactionCommandValidator : AbstractValidator
     }
 }
 
-public sealed class UpdateFinanceTransactionCommandHandler(IAccountingDbContext db, TimeProvider clock)
+public sealed class UpdateFinanceTransactionCommandHandler(IAccountingDbContext db, IAccountingCustomerReader customers,
+    IAccountingSupplierReader suppliers, TimeProvider clock)
     : ICommandHandler<UpdateFinanceTransactionCommand, Result<FinanceTransactionResponse>>
 {
     public async ValueTask<Result<FinanceTransactionResponse>> Handle(UpdateFinanceTransactionCommand command,
@@ -36,11 +38,17 @@ public sealed class UpdateFinanceTransactionCommandHandler(IAccountingDbContext 
         if (transaction.Version != command.Version) return Result.Conflict(AccountingMessages.Stale);
         var (account, category, missing) = await command.Fields.LoadAsync(db, cancellationToken);
         if (missing is not null) return Result.NotFound(missing);
+        var readers = new CounterpartyReaders(db, customers, suppliers);
+        var states = await CounterpartyStates.LoadAsync(readers, [details.Counterparty, transaction.Counterparty],
+            cancellationToken);
+        var counterparty = states.Of(details.Counterparty);
+        if (details.Counterparty is not null && counterparty is null)
+            return Result.NotFound(AccountingMessages.CounterpartyNotFound);
 
-        var names = await FinanceNames.LoadAsync(db, cancellationToken);
+        var names = (await FinanceNames.LoadAsync(db, cancellationToken)).With(states);
         var before = AuditTrail.Snapshot(transaction, names);
         var now = clock.GetUtcNow();
-        if (!transaction.Update(details, account, category, now))
+        if (!transaction.Update(details, account, category, counterparty, now))
             return Result.Success(FinanceTransactionResponse.From(transaction, names));
 
         AuditTrail.Add(db, AuditEntity.Transaction, command.Id, AuditAction.Update, command.By, now, before,

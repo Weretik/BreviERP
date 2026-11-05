@@ -29,7 +29,7 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 | --- | --- | --- |
 | 1 | «Рахунки і каси» (create, edit, archive, restore, delete, balance on 01.10) and «Категорії» (two levels, per area and direction), change log, settings | implemented 2026-11-05 |
 | 2 | Operations and transfers, account balances, «Огляд», archive view; delete rules: an account with movements is only archived, a category in use is switched off | implemented 2026-11-05 |
-| 3 | Counterparties and «Потребують перевірки» | planned |
+| 3 | Counterparties and «Потребують перевірки» | implemented 2026-11-05 |
 | 4 | Attachments in a private bucket | planned |
 | 5 | Import of the old data (JSON export + attachments ZIP) | planned |
 | 6 | PrivatBank statement import (XLSX/CSV) with preview and duplicates | planned |
@@ -58,3 +58,17 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 - «Огляд»: per currency of the active accounts, the balance of the chosen area (both areas when no area is picked) counted from the start of the area and not limited by the period; income, expense and difference of active operations of the period. For the current books the balance sums confirmed accounts only and `unconfirmedCutoverCount` tells the admin to show «Не підтверджено».
 - An account with any movement (cancelled ones too) cannot be deleted (409) — only archived; its currency is fixed, and its opening date cannot move past the earliest movement. Deleting a category that any operation uses switches the whole branch off (`Active = false`, log action `Deactivate`) and keeps the ids.
 - Log entities `Transaction` and `Transfer`; actions `Void` and `Deactivate`. Snapshots carry the account and category names of that moment.
+
+## Stage 3 rules
+
+- Who an operation is with: a finance counterparty of this module («Фінансові»), a client of «Клієнти» (Crm, by `PublicId`) or a supplier of «Постачальники» (Reference, by id) — stored as `CounterpartyKind` + `CounterpartyId` text without a database link — or a one-off name typed for this operation only, or nobody. A chosen counterparty and a one-off name never go together. The name is never the identity.
+- A newly chosen counterparty must be active (archived client, supplier or finance counterparty: 400); the one an operation already has stays allowed. A gone client or supplier gives 404 on save; a row still shows the link with `missing = true`.
+- Finance counterparty: name ≤ 250 (one line), ЄДРПОУ/ІПН digits only ≤ 32 (spaces removed), IBAN letters and digits upper-cased ≤ 64, name in the bank ≤ 250, other names (≤ 20, each ≤ 250, repeats and the name itself dropped), default category of the current books (a subcategory or a root, active when newly chosen), auto-apply (for the statement import of stage 6; needs a confirmed counterparty with a default category), note ≤ 600. The form creates it unchecked; «Зберегти як фінансового контрагента» from an operation creates it confirmed.
+- Check status: no category → `NeedsCategory` (bank lines, stage 6); an unconfirmed finance counterparty → `NeedsCounterpartyReview`; otherwise `Verified`. Clients and suppliers never need a review. The status is only the quality of the classification: such operations still count in balances, totals and «Огляд».
+- «Потребують перевірки» is the current journal with `needsReview`; «Огляд» shows `needsReviewCount` of active current operations whatever the period. «Перевірити» sets only the category and who the operation is with (the date, account and amount stay), needs a confirmed finance counterparty, takes the version (409 when stale) and writes `Review`.
+- «Підтвердити» a finance counterparty moves its active operations out of review (to `NeedsCategory` without a category) without a new version of each operation; one `Verify` entry on the counterparty.
+- «Зробити постійним» on a one-off name creates a confirmed finance counterparty with that name and links only that operation (`Promote` on the operation, `Create` on the counterparty); other operations with the same name stay as they are.
+- «Об'єднати» a duplicate into another active finance counterparty: its operations (cancelled ones too) move to the target, its name and other names become other names of the target, empty codes of the target are filled from it, and it stays archived with `MergedIntoId` and cannot be changed. `Merge` entries on both.
+- «Контрагенти» tabs: «Фінансові», «Клієнти», «Постачальники» (read-only here, with the number of active operations), «Разові» (operations with a one-off name, both areas). 50 rows per page; counts of every tab with the same search; «Показати архівні» adds archived records and cancelled operations. Choices of the operation form: active finance counterparties, clients and suppliers matching the search, at most 15 of each kind in that order.
+- A category used as a default of a counterparty counts as used: deleting it switches the branch off.
+- Crm gives other modules client names through `GetCustomerLookupQuery` (every client regardless of its manager, merged ones never); only «Бухгалтерія» (director) uses it.

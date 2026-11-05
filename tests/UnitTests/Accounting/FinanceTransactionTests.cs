@@ -53,7 +53,7 @@ public sealed class FinanceTransactionTests
         var materials = await Category(harness, "Матеріали");
         var sales = await Category(harness, "Продажі", CategoryDirection.Income);
         var oldCosts = await Category(harness, "Побут", scope: LedgerScope.LegacyArchive);
-        var handler = new CreateFinanceTransactionCommandHandler(harness.Db, harness.Time);
+        var handler = new CreateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
         Task Create(FinanceTransactionFields fields, LedgerScope scope = LedgerScope.Current) =>
             handler.Handle(new CreateFinanceTransactionCommand(scope, fields, AccountingTestHarness.Director), default).AsTask();
 
@@ -88,14 +88,14 @@ public sealed class FinanceTransactionTests
         var bank = await Account(harness, openingMinor: 0);
         var materials = await Category(harness, "Матеріали");
         var created = await Spend(harness, Fields(bank.Id, materials.Id, 300_00));
-        var update = new UpdateFinanceTransactionCommandHandler(harness.Db, harness.Time);
+        var update = new UpdateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
 
         var updated = await update.Handle(new UpdateFinanceTransactionCommand(created.Id,
             Fields(bank.Id, materials.Id, 250_00, description: "Нитки"), created.Version, AccountingTestHarness.Director),
             default);
         var stale = await update.Handle(new UpdateFinanceTransactionCommand(created.Id,
             Fields(bank.Id, materials.Id, 1_00), created.Version, AccountingTestHarness.Director), default);
-        var voided = await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Time).Handle(
+        var voided = await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new VoidFinanceTransactionCommand(created.Id, updated.Value.Version, AccountingTestHarness.Director), default);
         var history = await new GetFinanceHistoryQueryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Transaction, created.Id), default);
@@ -132,9 +132,9 @@ public sealed class FinanceTransactionTests
         await Spend(harness, Fields(bank.Id, rent.Id, 5_000_00, new DateOnly(2026, 10, 2)));
         await Spend(harness, Fields(bank.Id, sales.Id, 10_000_00, type: CategoryDirection.Income));
         var voided = await Spend(harness, Fields(bank.Id, rent.Id, 7_00));
-        await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Time).Handle(
+        await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new VoidFinanceTransactionCommand(voided.Id, voided.Version, AccountingTestHarness.Director), default);
-        var handler = new GetFinanceTransactionsQueryHandler(harness.Fresh());
+        var handler = new GetFinanceTransactionsQueryHandler(harness.Fresh(), harness.Parties, harness.Parties);
         Task<Result<FinanceTransactionPageResponse>> List(FinanceTransactionFilter f,
             int page = 1, FinanceJournalSort sort = FinanceJournalSort.Date) =>
             handler.Handle(new GetFinanceTransactionsQuery(f, sort, FinanceSortDirection.Desc, page), default).AsTask();
@@ -216,7 +216,7 @@ public sealed class FinanceTransactionTests
             Assert.That(history.Value[0].Action, Is.EqualTo(AuditAction.Deactivate));
         });
         await Assert.ThrowsAsync<DomainException>(() => Spend(harness, Fields(bank.Id, fabric.Id, 1_00)), "switched off");
-        var kept = await new UpdateFinanceTransactionCommandHandler(harness.Db, harness.Time).Handle(
+        var kept = await new UpdateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new UpdateFinanceTransactionCommand(created.Id, Fields(bank.Id, fabric.Id, 2_00), created.Version,
                 AccountingTestHarness.Director), default);
         Assert.That(kept.IsSuccess, Is.True, "an operation keeps its switched-off category");

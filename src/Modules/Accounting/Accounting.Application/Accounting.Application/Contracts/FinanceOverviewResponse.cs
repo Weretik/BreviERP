@@ -4,9 +4,10 @@ namespace Accounting.Application.Contracts;
 
 /// <summary>
 /// «Огляд» for <c>Scope</c> (null — both areas) and the inclusive period. One row per currency of the active accounts.
+/// <c>NeedsReviewCount</c> is the number of active current operations of «Потребують перевірки», whatever the period.
 /// </summary>
 public sealed record FinanceOverviewResponse(LedgerScope? Scope, DateOnly From, DateOnly To,
-    IReadOnlyList<FinanceOverviewCurrencyResponse> Currencies);
+    IReadOnlyList<FinanceOverviewCurrencyResponse> Currencies, int NeedsReviewCount);
 
 /// <summary>
 /// <c>BalanceMinor</c>: the balances of the active accounts in the chosen area, counted from its start, not limited by

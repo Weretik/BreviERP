@@ -1,14 +1,26 @@
 using Accounting.Application.Abstractions;
+using Accounting.Application.Counterparties;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Categories;
 
 namespace Accounting.Application.Lookup;
 
-/// <summary>Account and category names for journal rows; both lists are small, so they are read whole.</summary>
+/// <summary>
+/// Account and category names for journal rows; both lists are small, so they are read whole. Counterparty names are
+/// added for the rows at hand with <see cref="With"/>.
+/// </summary>
 internal sealed class FinanceNames(IEnumerable<FinanceAccount> accounts, IEnumerable<FinanceCategory> categories)
 {
     private readonly Dictionary<FinanceAccountId, FinanceAccount> accounts = accounts.ToDictionary(x => x.Id);
     private readonly Dictionary<FinanceCategoryId, FinanceCategory> categories = categories.ToDictionary(x => x.Id);
+
+    public CounterpartyStates Counterparties { get; private set; } = CounterpartyStates.Empty;
+
+    public FinanceNames With(CounterpartyStates counterparties)
+    {
+        Counterparties = counterparties;
+        return this;
+    }
 
     public static async Task<FinanceNames> LoadAsync(IAccountingDbContext db, CancellationToken cancellationToken) =>
         new(await db.Accounts.AsNoTracking().ToListAsync(cancellationToken),

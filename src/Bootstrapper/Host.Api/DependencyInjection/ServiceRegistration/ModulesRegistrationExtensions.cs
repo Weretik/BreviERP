@@ -8,7 +8,9 @@ using Crm.Application.Quotes.Staff;
 using Crm.Application.Tasks.Staff;
 using Crm.Infrastructure.DependencyInjection;
 using Host.Api.Crm;
+using Accounting.Application.Abstractions;
 using Accounting.Infrastructure.DependencyInjection;
+using Host.Api.Accounting;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Contracts.SlugGeneration;
 using Catalog.Infrastructure.Products.SlugGeneration;
@@ -46,6 +48,8 @@ public static class ModuleRegistrationsExtensions
 
         services.AddReferenceInfrastructureServices(configuration);
         services.AddAccountingInfrastructure(configuration);
+        services.AddScoped<IAccountingCustomerReader, AccountingCustomerReader>();
+        services.AddScoped<IAccountingSupplierReader, AccountingSupplierReader>();
         services.AddCatalogInfrastructureServices(configuration);
         services.AddCrmDbContextServices(configuration);
         services.AddCrmKeepinCrmSync(configuration);

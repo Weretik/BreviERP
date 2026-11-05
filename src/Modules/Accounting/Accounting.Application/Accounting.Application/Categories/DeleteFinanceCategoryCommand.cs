@@ -36,7 +36,9 @@ public sealed class DeleteFinanceCategoryCommandHandler(IAccountingDbContext db,
         var branch = (await db.Categories.Where(x => x.ParentId == id).ToListAsync(cancellationToken))
             .Append(category).ToList();
         var ids = branch.Select(x => (FinanceCategoryId?)x.Id).ToList();
-        var used = await db.Transactions.AnyAsync(x => ids.Contains(x.CategoryId), cancellationToken);
+        // A default category of a counterparty counts as use too: the link must keep pointing at a record.
+        var used = await db.Transactions.AnyAsync(x => ids.Contains(x.CategoryId), cancellationToken)
+            || await db.Counterparties.AnyAsync(x => ids.Contains(x.DefaultCategoryId), cancellationToken);
         foreach (var item in branch)
         {
             var before = AuditTrail.Snapshot(item);

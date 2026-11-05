@@ -23,6 +23,7 @@ internal sealed class AccountingTestHarness : IDisposable
 
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 5, 8, 0, 0, TimeSpan.Zero));
     public AccountingDbContext Db { get; }
+    public FakeAccountingParties Parties { get; } = new();
 
     public static FinanceAccountFields Fields(string name = "ПриватБанк ФОП", long openingMinor = 1_000_00,
         string? iban = "ua21 3052 9900 0002 6007 0000 0000 1", int sortOrder = 10) =>

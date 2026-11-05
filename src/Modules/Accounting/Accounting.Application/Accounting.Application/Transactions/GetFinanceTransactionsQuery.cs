@@ -1,9 +1,11 @@
 using Accounting.Application.Abstractions;
 using Accounting.Application.Contracts;
+using Accounting.Application.Counterparties;
 using Accounting.Application.Journal;
 using Accounting.Application.Lookup;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Categories;
+using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Transactions;
@@ -13,7 +15,8 @@ namespace Accounting.Application.Transactions;
 /// <summary>
 /// Filters of «Операції». Dates are inclusive; <c>CategoryId</c> takes a root with its subcategories,
 /// <c>SubcategoryId</c> one exact category; <c>Search</c> looks in the description, the note and the one-off name;
-/// amounts are kopecks. Without <c>IncludeVoided</c> only active operations are listed.
+/// amounts are kopecks. Without <c>IncludeVoided</c> only active operations are listed. <c>NeedsReview</c> keeps the
+/// operations of «Потребують перевірки»; <c>Counterparty</c> keeps those with exactly that counterparty.
 /// </summary>
 public sealed record FinanceTransactionFilter(
     LedgerScope Scope,
@@ -27,7 +30,9 @@ public sealed record FinanceTransactionFilter(
     long? MinMinor,
     long? MaxMinor,
     MovementSource? Source,
-    bool IncludeVoided);
+    bool IncludeVoided,
+    bool NeedsReview = false,
+    CounterpartyLink? Counterparty = null);
 
 /// <summary>«Операції»: 50 rows per page, newest first by default, with totals of the whole selection.</summary>
 public sealed record GetFinanceTransactionsQuery(FinanceTransactionFilter Filter, FinanceJournalSort Sort,
@@ -50,7 +55,8 @@ public sealed class GetFinanceTransactionsQueryValidator : AbstractValidator<Get
     }
 }
 
-public sealed class GetFinanceTransactionsQueryHandler(IAccountingDbContext db)
+public sealed class GetFinanceTransactionsQueryHandler(IAccountingDbContext db, IAccountingCustomerReader customers,
+    IAccountingSupplierReader suppliers)
     : IQueryHandler<GetFinanceTransactionsQuery, Result<FinanceTransactionPageResponse>>
 {
     public async ValueTask<Result<FinanceTransactionPageResponse>> Handle(GetFinanceTransactionsQuery query,
@@ -75,6 +81,8 @@ public sealed class GetFinanceTransactionsQueryHandler(IAccountingDbContext db)
         var page = await Order(filtered, query.Sort, query.Direction)
             .Skip((query.Page - 1) * FinanceJournal.PageSize).Take(FinanceJournal.PageSize)
             .ToListAsync(cancellationToken);
+        names.With(await CounterpartyStates.LoadAsync(new CounterpartyReaders(db, customers, suppliers),
+            page.Select(x => x.Counterparty), cancellationToken));
         return Result.Success(new FinanceTransactionPageResponse(
             page.Select(x => FinanceTransactionResponse.From(x, names)).ToList(), total, query.Page,
             FinanceJournal.PageSize, totals));
@@ -108,6 +116,9 @@ public sealed class GetFinanceTransactionsQueryHandler(IAccountingDbContext db)
         if (f.MinMinor is { } min) rows = rows.Where(x => x.AmountMinor >= min);
         if (f.MaxMinor is { } max) rows = rows.Where(x => x.AmountMinor <= max);
         if (f.Source is { } source) rows = rows.Where(x => x.Source == source);
+        if (f.NeedsReview) rows = rows.Where(x => x.Verification != VerificationStatus.Verified);
+        if (f.Counterparty is { } link)
+            rows = rows.Where(x => x.CounterpartyKind == link.Kind && x.CounterpartyId == link.Id);
         var search = FinanceText.Clean(f.Search).ToLowerInvariant();
         if (search.Length > 0)
             rows = rows.Where(x => x.Description.ToLower().Contains(search) || x.Comment.ToLower().Contains(search)

@@ -1,15 +1,18 @@
 using System.Text.Json;
 using Accounting.Api.Accounts;
 using Accounting.Api.Categories;
+using Accounting.Api.Counterparties;
 using Accounting.Api.Overview;
 using Accounting.Api.Settings;
 using Accounting.Api.Transactions;
 using Accounting.Api.Transfers;
 using Accounting.Application.Journal;
 using Accounting.Application.Contracts;
+using Accounting.Application.Transactions;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
+using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Transactions;
@@ -45,6 +48,17 @@ public sealed class AccountingContractTests
     [TestCase(typeof(FinanceTransferPageResponse), "FinanceTransferPageResponse")]
     [TestCase(typeof(FinanceTransferInput), "FinanceTransferInput")]
     [TestCase(typeof(FinanceTransferUpdateInput), "FinanceTransferUpdateInput")]
+    [TestCase(typeof(FinanceCounterpartyLinkInput), "FinanceCounterpartyLinkInput")]
+    [TestCase(typeof(FinanceCounterpartyRefResponse), "FinanceCounterpartyRefResponse")]
+    [TestCase(typeof(FinanceCounterpartyResponse), "FinanceCounterpartyResponse")]
+    [TestCase(typeof(FinancePartyResponse), "FinancePartyResponse")]
+    [TestCase(typeof(FinanceCounterpartyCountsResponse), "FinanceCounterpartyCountsResponse")]
+    [TestCase(typeof(FinanceCounterpartyPageResponse), "FinanceCounterpartyPageResponse")]
+    [TestCase(typeof(FinanceCounterpartyChoiceResponse), "FinanceCounterpartyChoiceResponse")]
+    [TestCase(typeof(FinanceCounterpartyInput), "FinanceCounterpartyInput")]
+    [TestCase(typeof(FinanceCounterpartyUpdateInput), "FinanceCounterpartyUpdateInput")]
+    [TestCase(typeof(FinanceCounterpartyMergeInput), "FinanceCounterpartyMergeInput")]
+    [TestCase(typeof(FinanceTransactionReviewInput), "FinanceTransactionReviewInput")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -62,6 +76,8 @@ public sealed class AccountingContractTests
     [TestCase(typeof(VerificationStatus), "VerificationStatus")]
     [TestCase(typeof(FinanceJournalSort), "FinanceJournalSort")]
     [TestCase(typeof(FinanceSortDirection), "FinanceSortDirection")]
+    [TestCase(typeof(CounterpartyKind), "CounterpartyKind")]
+    [TestCase(typeof(FinanceCounterpartyTab), "FinanceCounterpartyTab")]
     public void Enum_values_match_the_machine_contract(Type type, string schema)
     {
         var values = (YamlSequenceNode)((YamlMappingNode)Schemas()[schema])["enum"];
@@ -72,7 +88,8 @@ public sealed class AccountingContractTests
     public void Every_operation_is_in_the_contract_and_needs_the_director_policy()
     {
         var controllers = new[] { typeof(FinanceAccountsController), typeof(FinanceCategoriesController), typeof(AccountingSettingsController),
-            typeof(FinanceOverviewController), typeof(FinanceTransactionsController), typeof(FinanceTransfersController) };
+            typeof(FinanceOverviewController), typeof(FinanceTransactionsController), typeof(FinanceTransfersController),
+            typeof(FinanceCounterpartiesController) };
         var policies = controllers.Select(c => c.GetCustomAttributes(typeof(AuthorizeAttribute), false)
             .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
         var operations = controllers.SelectMany(c => c.GetMethods())
@@ -82,7 +99,7 @@ public sealed class AccountingContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "CanUseAccounting" }));
-            Assert.That(operations, Has.Length.EqualTo(25));
+            Assert.That(operations, Has.Length.EqualTo(36));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

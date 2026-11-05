@@ -1,6 +1,7 @@
 using Accounting.Application.Abstractions;
 using Accounting.Application.Audit;
 using Accounting.Application.Contracts;
+using Accounting.Application.Counterparties;
 using Accounting.Application.Journal;
 using Accounting.Application.Lookup;
 using Accounting.Domain.Audit;
@@ -25,7 +26,8 @@ public sealed class VoidFinanceTransactionCommandValidator : AbstractValidator<V
     }
 }
 
-public sealed class VoidFinanceTransactionCommandHandler(IAccountingDbContext db, TimeProvider clock)
+public sealed class VoidFinanceTransactionCommandHandler(IAccountingDbContext db, IAccountingCustomerReader customers,
+    IAccountingSupplierReader suppliers, TimeProvider clock)
     : ICommandHandler<VoidFinanceTransactionCommand, Result<FinanceTransactionResponse>>
 {
     public async ValueTask<Result<FinanceTransactionResponse>> Handle(VoidFinanceTransactionCommand command,
@@ -36,7 +38,8 @@ public sealed class VoidFinanceTransactionCommandHandler(IAccountingDbContext db
         if (transaction is null) return Result.NotFound(AccountingMessages.TransactionNotFound);
         if (transaction.Version != command.Version) return Result.Conflict(AccountingMessages.Stale);
 
-        var names = await FinanceNames.LoadAsync(db, cancellationToken);
+        var names = (await FinanceNames.LoadAsync(db, cancellationToken)).With(await CounterpartyStates.LoadAsync(
+            new CounterpartyReaders(db, customers, suppliers), [transaction.Counterparty], cancellationToken));
         var before = AuditTrail.Snapshot(transaction, names);
         var now = clock.GetUtcNow();
         transaction.Void(now);

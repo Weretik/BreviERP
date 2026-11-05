@@ -35,11 +35,11 @@ internal static class FinanceMovementFixture
 
     public static FinanceTransactionFields Fields(Guid accountId, Guid categoryId, long amountMinor, DateOnly? date = null,
         CategoryDirection type = CategoryDirection.Expense, string? description = null) =>
-        new(date ?? Current, type, accountId, amountMinor, categoryId, null, description, null);
+        new(date ?? Current, type, accountId, amountMinor, categoryId, null, null, description, null);
 
     public static async Task<FinanceTransactionResponse> Spend(AccountingTestHarness harness, FinanceTransactionFields fields,
         LedgerScope scope = LedgerScope.Current) =>
-        (await new CreateFinanceTransactionCommandHandler(harness.Db, harness.Time).Handle(
+        (await new CreateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new CreateFinanceTransactionCommand(scope, fields, AccountingTestHarness.Director), default)).Value;
 
     public static async Task<FinanceTransferResponse> Move(AccountingTestHarness harness, Guid from, Guid to, long amountMinor,

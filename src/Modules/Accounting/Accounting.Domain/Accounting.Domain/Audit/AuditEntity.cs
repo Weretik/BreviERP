@@ -10,4 +10,5 @@ public enum AuditEntity
     Category,
     Transaction,
     Transfer,
+    Counterparty,
 }
