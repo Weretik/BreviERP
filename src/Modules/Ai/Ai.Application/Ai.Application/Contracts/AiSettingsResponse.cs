@@ -21,5 +21,8 @@ public sealed record AiSettingsResponse(
 /// <summary>Use of the current month (UTC).</summary>
 public sealed record AiUsageResponse(string Month, int Requests, long InputTokens, long OutputTokens, decimal CostUsd);
 
-/// <summary>Extra rules of one request kind; empty text when none.</summary>
-public sealed record AiPromptResponse(string Key, string Title, string Text, string? UpdatedBy, DateTimeOffset? UpdatedAt);
+/// <summary>
+/// One request kind: the fixed instruction the module sends (read-only, empty when unknown) and the admin's extra
+/// rules (empty text when none).
+/// </summary>
+public sealed record AiPromptResponse(string Key, string Title, string BaseText, string Text, string? UpdatedBy, DateTimeOffset? UpdatedAt);

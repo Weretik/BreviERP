@@ -203,14 +203,19 @@ components:
       required:
       - key
       - title
+      - baseText
       - text
       properties:
         key:
           type: string
         title:
           type: string
+        baseText:
+          type: string
+          description: The fixed instruction the module sends for this request kind; read-only, empty when unknown.
         text:
           type: string
+          description: The admin's extra rules added after the fixed instruction; empty when none.
         updatedBy:
           type:
           - string
