@@ -130,7 +130,8 @@ public sealed class ProductionItem
         TechnicalChanges = OrderText.Optional(details.TechnicalChanges, LongTextMaxLength);
         Comment = OrderText.Optional(details.Comment, LongTextMaxLength);
         _applications = details.Applications
-            .Select(x => ItemApplication.Create(x.Kind, x.Place, x.Description, x.Color)).ToList();
+            .Select(x => ItemApplication.Create(x.Kind, x.Place, x.Description, x.Color, x.EmbroideryCalculationId,
+                x.EmbroideryNumber)).ToList();
     }
 }
 

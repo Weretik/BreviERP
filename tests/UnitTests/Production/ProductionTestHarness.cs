@@ -2,7 +2,9 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
 using Production.Application.Abstractions;
+using Production.Application.Contracts;
 using Production.Application.Orders;
+using Production.Application.Orders.Embroidery;
 using Production.Application.Orders.QuoteSources;
 using Production.Application.Orders.Tracking;
 using Production.Application.Stock;
@@ -38,6 +40,23 @@ internal sealed class FakeProductionQuoteReader : IProductionQuoteReader
     public Task<ProductionQuote?> ReadAsync(ProductionQuoteReaderActor actor, long quoteId,
         CancellationToken cancellationToken) =>
         Task.FromResult(Quotes.FirstOrDefault(x => x.Id == quoteId && (actor.CanSeeAll || x.ResponsibleUserId == actor.UserId)));
+}
+
+/// <summary>Saved «Ціна вишивки» calculations by id.</summary>
+internal sealed class FakeProductionEmbroideryReader : IProductionEmbroideryReader
+{
+    public Dictionary<long, ProductionEmbroideryResponse> Calculations { get; } = [];
+
+    public Task<IReadOnlyList<ProductionEmbroideryChoiceResponse>> SearchAsync(int userId, string? search,
+        CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ProductionEmbroideryChoiceResponse>>(Calculations.Values
+            .Where(x => search is null || x.Name.Contains(search, StringComparison.OrdinalIgnoreCase) || x.Number == search)
+            .Select(x => x.ToChoice()).ToList());
+
+    public Task<IReadOnlyDictionary<long, ProductionEmbroideryResponse>> ReadAsync(int userId,
+        IReadOnlyCollection<long> ids, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyDictionary<long, ProductionEmbroideryResponse>>(Calculations
+            .Where(x => ids.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
 }
 
 internal sealed class FakeProductionFabricReader : IProductionFabricReader
@@ -134,6 +153,7 @@ internal sealed class ProductionTestHarness : IDisposable
     public FakeProductionModelReader Models { get; } = new();
     public FakeProductionQuoteReader Quotes { get; } = new();
     public FakeProductionFabricReader Fabrics { get; } = new();
+    public FakeProductionEmbroideryReader Embroideries { get; } = new();
     public FakeProductionStaffReader Staff { get; } = new();
     public FakeProductionSupplierReader Suppliers { get; } = new();
     public FakeProductionFileStorage Files { get; } = new();
@@ -143,7 +163,9 @@ internal sealed class ProductionTestHarness : IDisposable
 
     public QuoteItemResolver Resolver() => new(Db, Models, Fabrics);
 
-    public OrderCards Cards() => new(Db, Telegram);
+    public EmbroideryLinks EmbroideryLinks() => new(Embroideries);
+
+    public OrderCards Cards() => new(Db, Telegram, EmbroideryLinks());
 
     public OrderTracking Tracking() => new(Db, Staff, Cards(), Time);
 

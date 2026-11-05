@@ -165,6 +165,31 @@ paths:
           description: The КП is not sent or is archived.
         '401': *id001
         '403': *id002
+  /api/production/orders/embroideries:
+    get:
+      tags:
+      - Production
+      operationId: getProductionEmbroideries
+      summary: '«Розрахунок вишивки»: saved «Ціна вишивки» calculations to link to an embroidery, newest first, at most 50; no prices'
+      parameters:
+      - in: query
+        name: search
+        required: false
+        description: Name, client or «ВШ-0042».
+        schema:
+          type: string
+          maxLength: 300
+      responses:
+        '200':
+          description: Calculations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductionEmbroideryChoiceResponse'
+        '401': *id001
+        '403': *id002
   /api/production/orders/import:
     post:
       tags:
@@ -705,6 +730,13 @@ components:
           - string
           - 'null'
           maxLength: 300
+        embroideryCalculationId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          minimum: 1
+          description: A saved «Ціна вишивки» calculation; only for an embroidery. It must exist when first linked.
     ProductionItemDetailsInput:
       type: object
       required:
@@ -1053,6 +1085,9 @@ components:
       - place
       - description
       - color
+      - embroideryCalculationId
+      - embroideryNumber
+      - embroidery
       properties:
         kind:
           type: string
@@ -1068,6 +1103,114 @@ components:
           - string
           - 'null'
         color:
+          type:
+          - string
+          - 'null'
+        embroideryCalculationId:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        embroideryNumber:
+          type:
+          - string
+          - 'null'
+          description: «ВШ-0042», kept even when the calculation was removed.
+        embroidery:
+          oneOf:
+          - $ref: '#/components/schemas/ProductionEmbroideryResponse'
+          - type: 'null'
+          description: The calculation as it is now; null when none or it was removed.
+    ProductionEmbroideryResponse:
+      type: object
+      description: The saved calculation of an embroidery for the workshop; no prices. Materials are shown only, the stock is not changed.
+      required:
+      - id
+      - number
+      - name
+      - customerName
+      - mode
+      - quantity
+      - stitchesPerUnit
+      - hoopLabel
+      - hoopings
+      - stabilizerMetres
+      - fabricMetres
+      - mockupUrl
+      - mockupThumbnailUrl
+      properties:
+        id:
+          type: integer
+          format: int64
+        number:
+          type: string
+        name:
+          type: string
+        customerName:
+          type:
+          - string
+          - 'null'
+        mode:
+          type: string
+          enum:
+          - Garment
+          - Chevron
+        quantity:
+          type: integer
+        stitchesPerUnit:
+          type: integer
+        hoopLabel:
+          type: string
+        hoopings:
+          type: integer
+        stabilizerMetres:
+          type:
+          - number
+          - 'null'
+          description: Флізелін to cut, metres.
+        fabricMetres:
+          type:
+          - number
+          - 'null'
+          description: Fabric under the chevrons, metres; null for embroidery on a garment.
+        mockupUrl:
+          type:
+          - string
+          - 'null'
+        mockupThumbnailUrl:
+          type:
+          - string
+          - 'null'
+    ProductionEmbroideryChoiceResponse:
+      type: object
+      required:
+      - id
+      - number
+      - name
+      - customerName
+      - quantity
+      - stitchesPerUnit
+      - hoopLabel
+      - mockupThumbnailUrl
+      properties:
+        id:
+          type: integer
+          format: int64
+        number:
+          type: string
+        name:
+          type: string
+        customerName:
+          type:
+          - string
+          - 'null'
+        quantity:
+          type: integer
+        stitchesPerUnit:
+          type: integer
+        hoopLabel:
+          type: string
+        mockupThumbnailUrl:
           type:
           - string
           - 'null'
@@ -1355,6 +1498,7 @@ components:
       - clientName
       - managerName
       - items
+      - embroideries
       properties:
         quoteId: *id013
         number:
@@ -1367,6 +1511,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductionQuoteDraftItem'
+        embroideries:
+          type: array
+          description: «Вишивка» rows of the КП whose calculation still exists; the form puts them into the items' applications.
+          items:
+            $ref: '#/components/schemas/ProductionQuoteDraftEmbroidery'
+    ProductionQuoteDraftEmbroidery:
+      type: object
+      required:
+      - quoteItemId
+      - calculation
+      properties:
+        quoteItemId:
+          type: integer
+          format: int64
+        calculation:
+          $ref: '#/components/schemas/ProductionEmbroideryChoiceResponse'
     ProductionOrderImportLine:
       type: object
       required:

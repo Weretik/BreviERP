@@ -60,7 +60,7 @@ public sealed class EmbroideryArchivePersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var saved = (await new GetEmbroideryCalculationQueryHandler(db)
+            var saved = (await new GetEmbroideryCalculationQueryHandler(db, new EmbroiderySavedPersistenceTests.FakeMedia())
                 .Handle(new GetEmbroideryCalculationQuery(Director, 1), default)).Value;
             Assert.That(saved.Summary.CreatedAt, Is.EqualTo(OldDate));
             Assert.That(saved.Summary.CreatedByName, Is.EqualTo("Олена"));

@@ -11,7 +11,8 @@ public static class EmbroiderySavedMapper
         input.StabilizerLayers, input.FabricLayers, input.Program.ToString(), input.ProgramMinutes,
         input.MachineMinutes, input.MaterialMode.ToString(), input.ExpenseOverrides);
 
-    public static EmbroiderySavedSummaryResponse ToSummary(this EmbroiderySavedCalculation saved) => new(
+    public static EmbroiderySavedSummaryResponse ToSummary(this EmbroiderySavedCalculation saved,
+        EmbroideryMockupResponse? mockup = null) => new(
         saved.Id,
         EmbroiderySavedCalculation.NumberOf(saved.Id),
         saved.Name,
@@ -24,14 +25,16 @@ public static class EmbroiderySavedMapper
         saved.Incomplete,
         [.. saved.Result.Prices.Select(x => new EmbroiderySavedPriceResponse(x.Name, x.Unit, x.Total, x.RepeatUnit))],
         saved.CreatedAt,
-        saved.CreatedByName);
+        saved.CreatedByName,
+        mockup);
 
     /// <summary>A Manager gets the saved prices and layout, never the cost or the frozen rates (R-02).</summary>
-    public static EmbroiderySavedCalculationResponse ToResponse(this EmbroiderySavedCalculation saved, bool seesCost)
+    public static EmbroiderySavedCalculationResponse ToResponse(this EmbroiderySavedCalculation saved, bool seesCost,
+        EmbroideryMockupResponse? mockup = null)
     {
         var settings = saved.Snapshot.Settings;
         return new EmbroiderySavedCalculationResponse(
-            saved.ToSummary(),
+            saved.ToSummary(mockup),
             saved.Input.ToContract(),
             saved.Result.ToResponse(seesCost),
             seesCost

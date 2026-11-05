@@ -235,6 +235,8 @@ paths:
     $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1calculations~1import
   /api/crm/embroidery/calculations/{id}:
     $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1calculations~1{id}
+  /api/crm/embroidery/calculations/{id}/mockup:
+    $ref: ./crm/embroidery.openapi.yaml#/paths/~1api~1crm~1embroidery~1calculations~1{id}~1mockup
   /api/crm/tasks:
     $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks
   /api/crm/tasks/board:
@@ -273,6 +275,8 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1quote-sources
   /api/production/orders/quote-sources/{quoteId}:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1quote-sources~1{quoteId}
+  /api/production/orders/embroideries:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1embroideries
   /api/production/orders/import:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1import
   /api/production/orders/{id}:

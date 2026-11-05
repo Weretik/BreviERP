@@ -8,6 +8,7 @@ using Crm.Application.Embroidery.GetCalculations;
 using Crm.Application.Embroidery.GetForm;
 using Crm.Application.Embroidery.GetSettings;
 using Crm.Application.Embroidery.ImportArchive;
+using Crm.Application.Embroidery.Mockup;
 using Crm.Application.Embroidery.SaveCalculation;
 using Crm.Application.Embroidery.SaveSettings;
 using Mediator;
@@ -83,6 +84,20 @@ public sealed class EmbroideryController(ISender sender) : ControllerBase
         var actor = ReadActor();
         if (actor is null) return Forbid();
         return this.ToActionResult(await sender.Send(new SaveEmbroideryCalculationCommand(actor, input),
+            cancellationToken));
+    }
+
+    /// <summary>«Макет»: a Media library photo of the design for the workshop; null clears it.</summary>
+    [HttpPut("calculations/{id:long}/mockup", Name = "setCrmEmbroideryMockup")]
+    [ProducesResponseType<EmbroiderySavedCalculationResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EmbroiderySavedCalculationResponse>> SetMockup(long id,
+        SetEmbroideryMockupInput input, CancellationToken cancellationToken)
+    {
+        var actor = ReadActor();
+        if (actor is null) return Forbid();
+        return this.ToActionResult(await sender.Send(new SetEmbroideryMockupCommand(actor, id, input),
             cancellationToken));
     }
 

@@ -45,7 +45,27 @@ public sealed record ProductionFileResponse(
 public sealed record ProductionTelegramResponse(
     string Status, DateTimeOffset? SentAt, string? SentByName, string? Error, bool Ready);
 
-public sealed record ItemApplicationResponse(string Kind, string? Place, string? Description, string? Color);
+/// <param name="EmbroideryNumber">«ВШ-0042», kept even when the calculation was removed.</param>
+/// <param name="Embroidery">The calculation as it is now; null when none or it was removed.</param>
+public sealed record ItemApplicationResponse(string Kind, string? Place, string? Description, string? Color,
+    long? EmbroideryCalculationId, string? EmbroideryNumber, ProductionEmbroideryResponse? Embroidery);
+
+/// <summary>The saved «Ціна вишивки» calculation of an embroidery, for the workshop; no prices.</summary>
+/// <param name="Mode">`Garment` or `Chevron`.</param>
+/// <param name="StabilizerMetres">Флізелін to cut; shown only, the stock is not changed.</param>
+/// <param name="FabricMetres">Fabric under the chevrons; null for embroidery on a garment.</param>
+public sealed record ProductionEmbroideryResponse(
+    long Id, string Number, string Name, string? CustomerName, string Mode, int Quantity, int StitchesPerUnit, string HoopLabel,
+    int Hoopings, decimal? StabilizerMetres, decimal? FabricMetres, string? MockupUrl, string? MockupThumbnailUrl)
+{
+    public ProductionEmbroideryChoiceResponse ToChoice() =>
+        new(Id, Number, Name, CustomerName, Quantity, StitchesPerUnit, HoopLabel, MockupThumbnailUrl);
+}
+
+/// <summary>A saved calculation for «Розрахунок вишивки» in the order form.</summary>
+public sealed record ProductionEmbroideryChoiceResponse(
+    long Id, string Number, string Name, string? CustomerName, int Quantity, int StitchesPerUnit, string HoopLabel,
+    string? MockupThumbnailUrl);
 
 /// <param name="SewingRate">Null for a manager.</param>
 /// <param name="ReportUnitPrice">Null for anyone but Admin and Director.</param>
@@ -107,8 +127,13 @@ public sealed record ProductionQuoteSourceResponse(
     long Id, string Number, string ClientName, string ResponsibleName, DateTimeOffset? LastSentAt, int OrdersCount);
 
 /// <summary>The КП as the order form needs it: its sewing items with every fabric variant.</summary>
+/// <param name="Embroideries">«Вишивка» rows of the КП; the form puts them into the items' applications.</param>
 public sealed record ProductionQuoteDraftResponse(
-    long QuoteId, string Number, string ClientName, string ManagerName, IReadOnlyList<ProductionQuoteDraftItem> Items);
+    long QuoteId, string Number, string ClientName, string ManagerName, IReadOnlyList<ProductionQuoteDraftItem> Items,
+    IReadOnlyList<ProductionQuoteDraftEmbroidery> Embroideries);
+
+/// <summary>A «Вишивка» row of the КП whose saved calculation still exists.</summary>
+public sealed record ProductionQuoteDraftEmbroidery(long QuoteItemId, ProductionEmbroideryChoiceResponse Calculation);
 
 /// <param name="Norm">The workshop norm of the model; null when there is none.</param>
 public sealed record ProductionQuoteDraftItem(

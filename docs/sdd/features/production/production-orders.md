@@ -16,7 +16,7 @@ src/Modules/Production/
   Production.Domain/Production.Domain/Settings/WorkshopSettings.cs   # «Налаштування цеху»: group, topic, on/off
   Production.Application/Production.Application/
     Abstractions/                # IProductionQuoteReader, IProductionFabricReader, IProductionStaffReader, IProductionModelReader,
-                                 # IProductionFileStorage, IProductionTelegram
+                                 # IProductionFileStorage, IProductionTelegram, IProductionEmbroideryReader
     Contracts/ProductionOrderInputs.cs, ProductionTrackingInputs.cs, ProductionOrderResponses.cs
     Orders/
       Access/ProductionActor.cs  # who may create, edit, delete; which prices they see
@@ -26,6 +26,7 @@ src/Modules/Production/
       Telegram/                  # the message text and «Надіслати в цех»
       ImportProgress/            # stages, file links and Telegram marks of old orders
       Validation/                # item details and application validators, shared rules
+      Embroidery/                # «Вишивка» → saved «ВШ-…» calculation: checks, card details, picker (PRD-D41)
       OrderCards.cs              # the card: order + files + Telegram mark
       OrderMapping.cs, OrderNorms.cs, OrderNumbers.cs, OrderActors.cs, OrderMessages.cs
     Settings/WorkshopSettingsCommands.cs   # get, save, test line
@@ -34,7 +35,8 @@ src/Modules/Production/
   Production.Api/Production.Api/Orders/ProductionOrderTrackingController.cs   # stages, shipments, status, files, telegram, progress-import
   Production.Api/Production.Api/Settings/WorkshopSettingsController.cs        # /api/production/settings
 src/Bootstrapper/Host.Api/Production/
-  ProductionQuoteReader.cs       # Crm GetQuotesQuery / GetQuoteQuery, sewn items only
+  ProductionQuoteReader.cs       # Crm GetQuotesQuery / GetQuoteQuery, sewn items and «Вишивка» rows
+  ProductionEmbroideryReader.cs  # Crm saved embroidery calculations, without prices
   ProductionFabricReader.cs      # Reference GetAllFabricQuery
   ProductionStaffReader.cs       # Identity users by id and email
   ProductionModelReader.cs       # + Catalog GetSewingArticleSummaryQuery for the seamstress labour
@@ -55,6 +57,7 @@ flowchart LR
   UseCases --> Staff[IProductionStaffReader] -.host.-> Identity[Identity users]
   UseCases --> Files[IProductionFileStorage] -.host.-> Media[Media CDN storage]
   UseCases --> Bot[IProductionTelegram] -.host.-> Reminders[Reminders bot and groups]
+  UseCases --> Embroidery[IProductionEmbroideryReader] -.host.-> CrmEmb[Crm «Ціна вишивки»]
 ```
 
 ## Tests
