@@ -47,6 +47,15 @@ public sealed class AiSettingsTests
     }
 
     [Test]
+    public async Task The_fixed_instruction_is_shown_next_to_the_extra_rules()
+    {
+        var prompt = (await new GetAiSettingsQueryHandler(harness.Db, harness.Store())
+            .Handle(new GetAiSettingsQuery(), CancellationToken.None)).Value.Prompts.Single();
+
+        Assert.That((prompt.BaseText, prompt.Text), Is.EqualTo((FakeBasePrompt.Instruction, string.Empty)));
+    }
+
+    [Test]
     public async Task The_key_is_stored_encrypted_and_only_its_last_four_characters_come_back()
     {
         var response = (await SetKeyAsync()).Value;

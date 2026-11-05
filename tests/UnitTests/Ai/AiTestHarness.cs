@@ -20,6 +20,15 @@ internal sealed class FakeKeyProtector : IAiKeyProtector
             : null;
 }
 
+internal sealed class FakeBasePrompt : IAiBasePrompt
+{
+    public const string Instruction = "Read the invoice as printed.";
+
+    public string Key => AiPromptKeys.PurchaseInvoices;
+
+    public string Text => Instruction;
+}
+
 internal sealed class FakeOpenAiClient : IOpenAiClient
 {
     public List<OpenAiRequest> Requests { get; } = [];
@@ -50,7 +59,7 @@ internal sealed class AiTestHarness : IDisposable
     public FakeKeyProtector Protector { get; } = new();
     public FakeOpenAiClient OpenAi { get; } = new();
 
-    public AiSettingsStore Store() => new(Db, Time);
+    public AiSettingsStore Store() => new(Db, Time, [new FakeBasePrompt()]);
 
     public AiCaller Caller() => new(Db, Protector, OpenAi, Time, NullLogger<AiCaller>.Instance);
 
