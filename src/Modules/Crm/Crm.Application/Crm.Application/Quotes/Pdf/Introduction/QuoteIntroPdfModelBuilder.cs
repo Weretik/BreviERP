@@ -1,4 +1,5 @@
 using Crm.Application.Quotes.Building;
+using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Introductions.Building;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
@@ -11,8 +12,11 @@ public static class QuoteIntroPdfModelBuilder
     public const string DefaultAccent = "#E8780F";
     private const string DefaultButton = "Детальніше";
 
-    public static QuoteIntroPdfModel Build(Quote quote, QuoteSettingsContent settings, QuoteStaffContact manager)
+    /// <param name="catalogPhotos">Main photos of the products whose items have none (R-29).</param>
+    public static QuoteIntroPdfModel Build(Quote quote, QuoteSettingsContent settings, QuoteStaffContact manager,
+        IReadOnlyDictionary<int, string>? catalogPhotos = null)
     {
+        var photos = catalogPhotos ?? new Dictionary<int, string>();
         var introduction = quote.Introduction
             ?? throw new InvalidOperationException("Only a «КП для знайомства» has catalogue pages.");
         var texts = settings.Introduction;
@@ -24,7 +28,7 @@ public static class QuoteIntroPdfModelBuilder
                 texts.Subtitle,
                 page.Season == QuoteIntroSeason.Summer ? texts.SummerBannerUrl : texts.WinterBannerUrl,
                 texts.ModelsTitle,
-                page.Items.Select((item, index) => ToCard(item, index == 0)).ToArray()))
+                page.Items.Select((item, index) => ToCard(item, index == 0, photos)).ToArray()))
             .ToArray();
 
         return new QuoteIntroPdfModel(
@@ -46,10 +50,11 @@ public static class QuoteIntroPdfModelBuilder
             new QuotePdfContact(manager.Name, manager.Phone, manager.Email));
     }
 
-    private static QuoteIntroPdfCard ToCard(QuoteItem item, bool isMain)
+    private static QuoteIntroPdfCard ToCard(QuoteItem item, bool isMain, IReadOnlyDictionary<int, string> photos)
     {
         var option = item.Options.OrderBy(x => x.Position).FirstOrDefault();
-        return new QuoteIntroPdfCard(item.Name, option?.Title, item.PhotoUrl, item.SiteUrl,
+        return new QuoteIntroPdfCard(item.Name, option?.Title,
+            QuoteItemPhotos.Resolve(item.ProductId, item.PhotoUrl, photos), item.SiteUrl,
             option?.Large.IsVisiblePositive == true ? option.Large.Amount : null, isMain);
     }
 }

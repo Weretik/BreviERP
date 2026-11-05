@@ -96,9 +96,9 @@ public sealed class QuoteSettingsPersistenceTests : CrmDatabaseFixture
         var renderer = new QuoteTestRenderer();
         await using (var db = Context())
         {
-            var own = await new GetQuotePdfQueryHandler(db, new QuotePdfComposer(db, _staff, renderer)).Handle(new GetQuotePdfQuery(Olena, quoteId), default);
+            var own = await new GetQuotePdfQueryHandler(db, new QuotePdfComposer(db, _staff, renderer, new QuoteTestNoCatalog())).Handle(new GetQuotePdfQuery(Olena, quoteId), default);
             Assert.That(own.Value.FileName, Is.EqualTo("КП 1-11-2026.pdf"));
-            var other = await new GetQuotePdfQueryHandler(db, new QuotePdfComposer(db, _staff, renderer))
+            var other = await new GetQuotePdfQueryHandler(db, new QuotePdfComposer(db, _staff, renderer, new QuoteTestNoCatalog()))
                 .Handle(new GetQuotePdfQuery(new QuoteActor(18, false), quoteId), default);
             Assert.That(other.Status, Is.EqualTo(ResultStatus.NotFound));
         }
