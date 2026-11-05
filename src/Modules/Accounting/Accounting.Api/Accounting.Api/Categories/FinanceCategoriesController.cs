@@ -1,4 +1,5 @@
 using Accounting.Api.Access;
+using Accounting.Api.Results;
 using Accounting.Application.Categories;
 using Accounting.Application.Contracts;
 using Accounting.Application.History;

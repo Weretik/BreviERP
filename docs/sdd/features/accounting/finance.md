@@ -25,6 +25,7 @@ src/Modules/Accounting/
     DependencyInjection/
   Accounting.Api/Accounting.Api/
     Access/            # policy CanUseAccounting (Director), who made the change
+    Results/           # 204 for deletes
     Accounts/          # /api/accounting/accounts
     Categories/        # /api/accounting/categories
     Settings/          # /api/accounting/settings
