@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Accounting.Api.Accounts;
+using Accounting.Api.Attachments;
 using Accounting.Api.Categories;
 using Accounting.Api.Counterparties;
 using Accounting.Api.Overview;
@@ -60,6 +61,7 @@ public sealed class AccountingContractTests
     [TestCase(typeof(FinanceCounterpartyUpdateInput), "FinanceCounterpartyUpdateInput")]
     [TestCase(typeof(FinanceCounterpartyMergeInput), "FinanceCounterpartyMergeInput")]
     [TestCase(typeof(FinanceTransactionReviewInput), "FinanceTransactionReviewInput")]
+    [TestCase(typeof(FinanceAttachmentResponse), "FinanceAttachmentResponse")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -90,7 +92,7 @@ public sealed class AccountingContractTests
     {
         var controllers = new[] { typeof(FinanceAccountsController), typeof(FinanceCategoriesController), typeof(AccountingSettingsController),
             typeof(FinanceOverviewController), typeof(FinanceTransactionsController), typeof(FinanceTransfersController),
-            typeof(FinanceCounterpartiesController) };
+            typeof(FinanceCounterpartiesController), typeof(FinanceAttachmentsController) };
         var policies = controllers.Select(c => c.GetCustomAttributes(typeof(AuthorizeAttribute), false)
             .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
         var operations = controllers.SelectMany(c => c.GetMethods())
@@ -100,7 +102,7 @@ public sealed class AccountingContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "CanUseAccounting" }));
-            Assert.That(operations, Has.Length.EqualTo(36));
+            Assert.That(operations, Has.Length.EqualTo(40));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

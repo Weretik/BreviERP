@@ -1,5 +1,6 @@
 using Accounting.Application.Abstractions;
 using Accounting.Domain.Accounts;
+using Accounting.Domain.Attachments;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
@@ -18,6 +19,7 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
     public DbSet<FinanceTransfer> Transfers => Set<FinanceTransfer>();
     public DbSet<FinanceCounterparty> Counterparties => Set<FinanceCounterparty>();
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+    public DbSet<FinanceAttachment> Attachments => Set<FinanceAttachment>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
