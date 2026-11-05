@@ -4,6 +4,7 @@ using Accounting.Application.Contracts;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
+using Accounting.Domain.Transactions;
 
 namespace Accounting.Application.Overview;
 
@@ -54,6 +55,8 @@ public sealed class GetFinanceOverviewQueryHandler(IAccountingDbContext db)
                     own.Count);
             }).ToList();
 
-        return Result.Success(new FinanceOverviewResponse(query.Scope, query.From, query.To, currencies));
+        var needsReview = await db.Transactions.AsNoTracking().CountAsync(x => x.Scope == LedgerScope.Current
+            && x.Status == MovementStatus.Active && x.Verification != VerificationStatus.Verified, cancellationToken);
+        return Result.Success(new FinanceOverviewResponse(query.Scope, query.From, query.To, currencies, needsReview));
     }
 }

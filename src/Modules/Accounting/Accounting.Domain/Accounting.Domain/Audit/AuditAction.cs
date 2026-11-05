@@ -15,4 +15,8 @@ public enum AuditAction
     CutoverReset,
     Void,
     Deactivate,
+    Verify,
+    Merge,
+    Review,
+    Promote,
 }

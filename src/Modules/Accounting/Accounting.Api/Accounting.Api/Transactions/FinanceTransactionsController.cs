@@ -6,6 +6,7 @@ using Accounting.Application.Journal;
 using Accounting.Application.Transactions;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
+using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using BuildingBlocks.Api.Result;
@@ -15,7 +16,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Accounting.Api.Transactions;
 
-/// <summary>«Бухгалтерія → Операції» and the operations of «Домашня бухгалтерія». 409 on a stale version.</summary>
+/// <summary>
+/// «Бухгалтерія → Операції», «Потребують перевірки» (<c>needsReview</c>) and the operations of «Домашня бухгалтерія».
+/// 409 on a stale version.
+/// </summary>
 [ApiController]
 [Authorize(Policy = AccountingAccess.Policy)]
 [Route("api/accounting/transactions")]
@@ -35,13 +39,19 @@ public sealed class FinanceTransactionsController(ISender sender) : ControllerBa
         [FromQuery] long? maxMinor = null,
         [FromQuery] MovementSource? source = null,
         [FromQuery] bool includeVoided = false,
+        [FromQuery] bool needsReview = false,
+        [FromQuery] CounterpartyKind? counterpartyKind = null,
+        [FromQuery] string? counterpartyId = null,
         [FromQuery] FinanceJournalSort sort = FinanceJournalSort.Date,
         [FromQuery] FinanceSortDirection direction = FinanceSortDirection.Desc,
         [FromQuery] int page = 1,
         CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(new GetFinanceTransactionsQuery(
             new FinanceTransactionFilter(scope, from, to, accountId, type, categoryId, subcategoryId, search, minMinor,
-                maxMinor, source, includeVoided), sort, direction, page), cancellationToken));
+                maxMinor, source, includeVoided, needsReview,
+                counterpartyKind is { } kind && !string.IsNullOrWhiteSpace(counterpartyId)
+                    ? CounterpartyLink.Of(kind, counterpartyId)
+                    : null), sort, direction, page), cancellationToken));
 
     [HttpPost(Name = "createFinanceTransaction")]
     public async Task<ActionResult<FinanceTransactionResponse>> Create([FromBody] FinanceTransactionInput input,
@@ -60,6 +70,18 @@ public sealed class FinanceTransactionsController(ISender sender) : ControllerBa
     public async Task<ActionResult<FinanceTransactionResponse>> Void(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new VoidFinanceTransactionCommand(id, input.Version, AccountingAccess.By(User)),
+            cancellationToken));
+
+    [HttpPut("{id:guid}/review", Name = "reviewFinanceTransaction")]
+    public async Task<ActionResult<FinanceTransactionResponse>> Review(Guid id, [FromBody] FinanceTransactionReviewInput input,
+        CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new ReviewFinanceTransactionCommand(id, input.CategoryId, input.Counterparty,
+            input.OneoffName, input.Version, AccountingAccess.By(User)), cancellationToken));
+
+    [HttpPost("{id:guid}/promote-oneoff", Name = "promoteFinanceOneoff")]
+    public async Task<ActionResult<FinanceTransactionResponse>> PromoteOneoff(Guid id, [FromBody] FinanceVersionInput input,
+        CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new PromoteFinanceOneoffCommand(id, input.Version, AccountingAccess.By(User)),
             cancellationToken));
 
     [HttpGet("{id:guid}/history", Name = "getFinanceTransactionHistory")]

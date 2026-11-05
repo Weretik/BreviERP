@@ -50,7 +50,7 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 ## Accounting
 
-- [«Бухгалтерія»](accounting/finance.md) — «Рахунки і каси» with balances, «Категорії» (two levels), «Операції», «Перекази» and «Огляд» for the current books and «Домашня бухгалтерія», change log; Director only.
+- [«Бухгалтерія»](accounting/finance.md) — «Рахунки і каси» with balances, «Категорії» (two levels), «Операції», «Перекази», «Огляд», «Контрагенти» and «Потребують перевірки» for the current books and «Домашня бухгалтерія», change log; Director only.
 
 ## Crm
 

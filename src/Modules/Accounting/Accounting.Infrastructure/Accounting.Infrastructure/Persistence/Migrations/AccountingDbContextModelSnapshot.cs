@@ -193,6 +193,86 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.ToTable("Categories", "accounting");
                 });
 
+            modelBuilder.Entity("Accounting.Domain.Counterparties.FinanceCounterparty", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Aliases")
+                        .IsRequired()
+                        .HasMaxLength(5020)
+                        .HasColumnType("character varying(5020)");
+
+                    b.Property<bool>("AutoApplyCategory")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DefaultCategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Edrpou")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Iban")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("MergedIntoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)");
+
+                    b.Property<string>("SearchText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Verified")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DefaultCategoryId");
+
+                    b.HasIndex("Edrpou");
+
+                    b.HasIndex("Iban");
+
+                    b.HasIndex("MergedIntoId");
+
+                    b.HasIndex("Active", "Name");
+
+                    b.ToTable("Counterparties", "accounting");
+                });
+
             modelBuilder.Entity("Accounting.Domain.Transactions.FinanceTransaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -211,6 +291,14 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(1500)
                         .HasColumnType("character varying(1500)");
+
+                    b.Property<string>("CounterpartyId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("CounterpartyKind")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -275,6 +363,10 @@ namespace Accounting.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("CounterpartyKind", "CounterpartyId");
+
+                    b.HasIndex("Verification", "Date");
+
                     b.HasIndex("AccountId", "Status", "Scope", "Date");
 
                     b.HasIndex("Scope", "Status", "Date", "Id");
@@ -282,6 +374,8 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.ToTable("Transactions", "accounting", t =>
                         {
                             t.HasCheckConstraint("CK_Transactions_Amount", "\"AmountMinor\" > 0");
+
+                            t.HasCheckConstraint("CK_Transactions_Counterparty", "(\"CounterpartyKind\" IS NULL) = (\"CounterpartyId\" IS NULL)");
                         });
                 });
 
@@ -364,6 +458,19 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.HasOne("Accounting.Domain.Categories.FinanceCategory", null)
                         .WithMany()
                         .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Accounting.Domain.Counterparties.FinanceCounterparty", b =>
+                {
+                    b.HasOne("Accounting.Domain.Categories.FinanceCategory", null)
+                        .WithMany()
+                        .HasForeignKey("DefaultCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Accounting.Domain.Counterparties.FinanceCounterparty", null)
+                        .WithMany()
+                        .HasForeignKey("MergedIntoId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

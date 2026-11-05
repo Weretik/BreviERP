@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: 'Accounting: «Бухгалтерія»'
-  version: 2.0.0
-  description: '«Бухгалтерія» (ACC-001): «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази» and «Огляд» for
-    the current books and «Домашня бухгалтерія», with a change log. Policy CanUseAccounting: Director only; other roles get
-    403. Money is a whole number of kopecks.'
+  version: 3.0.0
+  description: '«Бухгалтерія» (ACC-001): «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази», «Огляд», «Контрагенти»
+    and «Потребують перевірки» for the current books and «Домашня бухгалтерія», with a change log. Policy CanUseAccounting:
+    Director only; other roles get 403. Money is a whole number of kopecks.'
 security:
 - Bearer: []
 paths:
@@ -464,7 +464,8 @@ paths:
       - Accounting
       operationId: getFinanceTransactions
       description: '«Операції»: one area, newest first by default (ties: newest saved first). Totals cover the whole filtered
-        selection per currency, without cancelled rows.'
+        selection per currency, without cancelled rows. needsReview keeps «Потребують перевірки» (verification other than
+        Verified); counterpartyKind with counterpartyId keeps one counterparty.'
       parameters:
       - name: scope
         in: query
@@ -510,6 +511,21 @@ paths:
           type: string
           maxLength: 200
         description: Case-insensitive part of the description, note or one-off name
+      - name: needsReview
+        in: query
+        schema:
+          type: boolean
+          default: false
+      - name: counterpartyKind
+        in: query
+        schema:
+          $ref: '#/components/schemas/CounterpartyKind'
+      - name: counterpartyId
+        in: query
+        schema:
+          type: string
+          maxLength: 64
+        description: 'With counterpartyKind: UUID for Financial and Client, a number for Supplier'
       - name: minMinor
         in: query
         schema:
@@ -564,7 +580,8 @@ paths:
       operationId: createFinanceTransaction
       description: «Додати дохід» / «Додати витрату». The date must fall into the area (Current from 2026-10-01) and be on
         or after the account opening date; Current needs an active account; the category must be active, of the same area
-        and direction. The currency comes from the account.
+        and direction. The currency comes from the account. A finance counterparty that is not confirmed yet gives verification
+        NeedsCounterpartyReview; an archived counterparty cannot be newly chosen.
       requestBody:
         required: true
         content:
@@ -895,6 +912,390 @@ paths:
           description: Not signed in
         '403':
           description: Not Director
+  /api/accounting/transactions/{id}/review:
+    put:
+      tags:
+      - Accounting
+      operationId: reviewFinanceTransaction
+      description: '«Перевірити» an operation of «Потребують перевірки»: sets the category and who it is with, nothing else
+        (date, account and amount of a bank line stay). A finance counterparty must be confirmed first (400). The result is
+        Verified.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceTransactionReviewInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransactionResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Operation, category or counterparty not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/transactions/{id}/promote-oneoff:
+    post:
+      tags:
+      - Accounting
+      operationId: promoteFinanceOneoff
+      description: '«Зробити постійним»: a confirmed finance counterparty is created from the one-off name and the operation
+        is linked to it. Other operations with the same name are not changed.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceTransactionResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/counterparties:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceCounterparties
+      description: '«Контрагенти», one tab: Financial (financial), Clients and Suppliers (parties, read-only, from «Клієнти»
+        and «Постачальники»), Oneoffs (operations with a one-off name). 50 rows per page; counts of every tab with the same
+        search. Without includeArchived archived records and cancelled operations are left out.'
+      parameters:
+      - name: tab
+        in: query
+        schema:
+          $ref: '#/components/schemas/FinanceCounterpartyTab'
+      - name: search
+        in: query
+        schema:
+          type: string
+          maxLength: 200
+        description: Name, other names, ЄДРПОУ/ІПН or IBAN
+      - name: includeArchived
+        in: query
+        schema:
+          type: boolean
+          default: false
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          default: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCounterpartyPageResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    post:
+      tags:
+      - Accounting
+      operationId: createFinanceCounterparty
+      description: '«Додати фінансового» (verified false: waits for «Підтвердити») or «Зберегти як фінансового контрагента»
+        from an operation (verified true). ЄДРПОУ keeps digits, IBAN letters and digits.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceCounterpartyInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCounterpartyResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Default category not found
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/counterparties/choices:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceCounterpartyChoices
+      description: 'Choices of the counterparty field of an operation: active finance counterparties, clients and suppliers
+        matching search, at most 15 of each kind in that order.'
+      parameters:
+      - name: search
+        in: query
+        schema:
+          type: string
+          maxLength: 200
+        description: Name or ЄДРПОУ/ІПН
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceCounterpartyChoiceResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/counterparties/{id}:
+    put:
+      tags:
+      - Accounting
+      operationId: updateFinanceCounterparty
+      description: Edit a finance counterparty. The default category must be of the current books; auto-apply needs a confirmed
+        counterparty with a default category.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceCounterpartyUpdateInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCounterpartyResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Counterparty or default category not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/counterparties/{id}/verify:
+    post:
+      tags:
+      - Accounting
+      operationId: verifyFinanceCounterparty
+      description: '«Підтвердити»: its active operations leave «Потребують перевірки» (without a category they stay as NeedsCategory)
+        without a new version of each operation.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCounterpartyResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Counterparty not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/counterparties/{id}/archive:
+    post:
+      tags:
+      - Accounting
+      operationId: archiveFinanceCounterparty
+      description: '«Архівувати»: it cannot be chosen for new operations; operations keep the link.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCounterpartyResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Counterparty not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/counterparties/{id}/restore:
+    post:
+      tags:
+      - Accounting
+      operationId: restoreFinanceCounterparty
+      description: «Відновити» an archived finance counterparty.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCounterpartyResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Counterparty not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/counterparties/{id}/merge:
+    post:
+      tags:
+      - Accounting
+      operationId: mergeFinanceCounterparty
+      description: '«Об''єднати»: the counterparty is a duplicate of targetId. Its operations move to the target, its names
+        become other names of the target, and it is archived with mergedIntoId. Returns the target.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceCounterpartyMergeInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCounterpartyResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Counterparty not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/counterparties/{id}/history:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceCounterpartyHistory
+      description: Change log of one finance counterparty, newest first.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceHistoryEntryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
 components:
   securitySchemes:
     Bearer:
@@ -926,6 +1327,7 @@ components:
       - Category
       - Transaction
       - Transfer
+      - Counterparty
     AuditAction:
       type: string
       enum:
@@ -938,6 +1340,10 @@ components:
       - CutoverReset
       - Void
       - Deactivate
+      - Verify
+      - Merge
+      - Review
+      - Promote
     AccountingSettingsResponse:
       type: object
       properties:
@@ -1331,11 +1737,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FinanceOverviewCurrencyResponse'
+        needsReviewCount:
+          type: integer
+          format: int32
+          description: Active current operations of «Потребують перевірки», whatever the period
       required:
       - scope
       - from
       - to
       - currencies
+      - needsReviewCount
     FinanceOverviewCurrencyResponse:
       type: object
       properties:
@@ -1434,6 +1845,11 @@ components:
         updatedAt:
           type: string
           format: date-time
+        counterparty:
+          oneOf:
+          - $ref: '#/components/schemas/FinanceCounterpartyRefResponse'
+          - type: 'null'
+          description: The chosen counterparty; null with an optional oneoffName
       required:
       - id
       - date
@@ -1457,6 +1873,7 @@ components:
       - createdBy
       - createdAt
       - updatedAt
+      - counterparty
     FinanceTransactionTotalResponse:
       type: object
       properties:
@@ -1537,6 +1954,11 @@ components:
           - string
           - 'null'
           maxLength: 1520
+        counterparty:
+          oneOf:
+          - $ref: '#/components/schemas/FinanceCounterpartyLinkInput'
+          - type: 'null'
+          description: Picked from the list; cannot go together with oneoffName
       required:
       - scope
       - date
@@ -1580,6 +2002,11 @@ components:
         version:
           type: integer
           format: int32
+        counterparty:
+          oneOf:
+          - $ref: '#/components/schemas/FinanceCounterpartyLinkInput'
+          - type: 'null'
+          description: Picked from the list; cannot go together with oneoffName
       required:
       - date
       - type
@@ -1742,4 +2169,368 @@ components:
       - fromAccountId
       - toAccountId
       - amountMinor
+      - version
+    CounterpartyKind:
+      type: string
+      enum:
+      - Financial
+      - Client
+      - Supplier
+    FinanceCounterpartyTab:
+      type: string
+      enum:
+      - Financial
+      - Clients
+      - Suppliers
+      - Oneoffs
+    FinanceCounterpartyLinkInput:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/CounterpartyKind'
+        id:
+          type: string
+          maxLength: 64
+          description: UUID for Financial and Client, a number for Supplier
+      required:
+      - kind
+      - id
+    FinanceCounterpartyRefResponse:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/CounterpartyKind'
+        id:
+          type: string
+        name:
+          type: string
+        active:
+          type: boolean
+        verified:
+          type: boolean
+          description: False only for a finance counterparty waiting for «Підтвердити»
+        missing:
+          type: boolean
+          description: The record is gone from its list; the link stays
+      required:
+      - kind
+      - id
+      - name
+      - active
+      - verified
+      - missing
+    FinanceCounterpartyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        edrpou:
+          type: string
+        iban:
+          type: string
+        bankName:
+          type: string
+        aliases:
+          type: array
+          items:
+            type: string
+        defaultCategoryId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        defaultCategoryRootName:
+          type:
+          - string
+          - 'null'
+        defaultSubcategoryName:
+          type:
+          - string
+          - 'null'
+        autoApplyCategory:
+          type: boolean
+        note:
+          type: string
+        verified:
+          type: boolean
+        active:
+          type: boolean
+        mergedIntoId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        operationCount:
+          type: integer
+          format: int32
+          description: Active operations of both areas
+        version:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - edrpou
+      - iban
+      - bankName
+      - aliases
+      - defaultCategoryId
+      - defaultCategoryRootName
+      - defaultSubcategoryName
+      - autoApplyCategory
+      - note
+      - verified
+      - active
+      - mergedIntoId
+      - operationCount
+      - version
+      - createdAt
+      - updatedAt
+    FinancePartyResponse:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/CounterpartyKind'
+        id:
+          type: string
+        name:
+          type: string
+        taxId:
+          type: string
+        active:
+          type: boolean
+        operationCount:
+          type: integer
+          format: int32
+      required:
+      - kind
+      - id
+      - name
+      - taxId
+      - active
+      - operationCount
+    FinanceCounterpartyCountsResponse:
+      type: object
+      properties:
+        financial:
+          type: integer
+          format: int32
+        clients:
+          type: integer
+          format: int32
+        suppliers:
+          type: integer
+          format: int32
+        oneoffs:
+          type: integer
+          format: int32
+      required:
+      - financial
+      - clients
+      - suppliers
+      - oneoffs
+    FinanceCounterpartyPageResponse:
+      type: object
+      properties:
+        tab:
+          $ref: '#/components/schemas/FinanceCounterpartyTab'
+        financial:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinanceCounterpartyResponse'
+        parties:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancePartyResponse'
+        oneoffs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinanceTransactionResponse'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        counts:
+          $ref: '#/components/schemas/FinanceCounterpartyCountsResponse'
+      required:
+      - tab
+      - financial
+      - parties
+      - oneoffs
+      - total
+      - page
+      - pageSize
+      - counts
+    FinanceCounterpartyChoiceResponse:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/CounterpartyKind'
+        id:
+          type: string
+        name:
+          type: string
+        hint:
+          type: string
+          description: ЄДРПОУ/ІПН or empty
+        verified:
+          type: boolean
+        defaultCategoryId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+      required:
+      - kind
+      - id
+      - name
+      - hint
+      - verified
+      - defaultCategoryId
+    FinanceCounterpartyInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 270
+        edrpou:
+          type:
+          - string
+          - 'null'
+          maxLength: 64
+        iban:
+          type:
+          - string
+          - 'null'
+          maxLength: 128
+        bankName:
+          type:
+          - string
+          - 'null'
+          maxLength: 270
+        aliases:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+            maxLength: 270
+          maxItems: 40
+        defaultCategoryId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        autoApplyCategory:
+          type: boolean
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 620
+        verified:
+          type: boolean
+      required:
+      - name
+      - autoApplyCategory
+      - verified
+    FinanceCounterpartyUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 270
+        edrpou:
+          type:
+          - string
+          - 'null'
+          maxLength: 64
+        iban:
+          type:
+          - string
+          - 'null'
+          maxLength: 128
+        bankName:
+          type:
+          - string
+          - 'null'
+          maxLength: 270
+        aliases:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+            maxLength: 270
+          maxItems: 40
+        defaultCategoryId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        autoApplyCategory:
+          type: boolean
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 620
+        version:
+          type: integer
+          format: int32
+      required:
+      - name
+      - autoApplyCategory
+      - version
+    FinanceCounterpartyMergeInput:
+      type: object
+      properties:
+        targetId:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int32
+        targetVersion:
+          type: integer
+          format: int32
+      required:
+      - targetId
+      - version
+      - targetVersion
+    FinanceTransactionReviewInput:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        counterparty:
+          oneOf:
+          - $ref: '#/components/schemas/FinanceCounterpartyLinkInput'
+          - type: 'null'
+          description: Picked from the list; cannot go together with oneoffName
+        oneoffName:
+          type:
+          - string
+          - 'null'
+          maxLength: 270
+        version:
+          type: integer
+          format: int32
+      required:
+      - categoryId
       - version

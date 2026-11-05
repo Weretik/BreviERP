@@ -7,6 +7,7 @@ using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
 using Accounting.Application.Lookup;
 using Accounting.Domain.Categories;
+using Accounting.Domain.Counterparties;
 using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
 
@@ -31,6 +32,9 @@ internal static class AuditTrail
 
     public static string Snapshot(FinanceTransfer transfer, FinanceNames names) =>
         JsonSerializer.Serialize(FinanceTransferResponse.From(transfer, names), Json);
+
+    public static string Snapshot(FinanceCounterparty counterparty, FinanceNames names) =>
+        JsonSerializer.Serialize(FinanceCounterpartyResponse.From(counterparty, names, 0), Json);
 
     public static void Add(IAccountingDbContext db, AuditEntity entity, Guid entityId, AuditAction action, string by,
         DateTimeOffset at, string? before, string? after) =>

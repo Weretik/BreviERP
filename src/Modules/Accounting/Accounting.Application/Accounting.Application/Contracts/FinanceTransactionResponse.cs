@@ -9,7 +9,8 @@ namespace Accounting.Application.Contracts;
 /// <summary>
 /// A row of «Операції». <c>AmountMinor</c> is positive kopecks; <c>Type</c> gives the sign. <c>CategoryId</c> is the
 /// chosen category; <c>CategoryRootId</c>/<c>CategoryRootName</c> is its root (the same for a root) and
-/// <c>SubcategoryName</c> is set only when a subcategory was chosen.
+/// <c>SubcategoryName</c> is set only when a subcategory was chosen. <c>Counterparty</c> is the chosen one, or null with
+/// an optional <c>OneoffName</c>.
 /// </summary>
 public sealed record FinanceTransactionResponse(
     Guid Id,
@@ -23,6 +24,7 @@ public sealed record FinanceTransactionResponse(
     Guid? CategoryRootId,
     string? CategoryRootName,
     string? SubcategoryName,
+    FinanceCounterpartyRefResponse? Counterparty,
     string OneoffName,
     string Description,
     string Comment,
@@ -41,7 +43,8 @@ public sealed record FinanceTransactionResponse(
         var root = names.Root(category);
         return new FinanceTransactionResponse(x.Id.Value, x.Date, x.Type, x.AccountId.Value, names.Account(x.AccountId),
             x.AmountMinor, x.Currency, x.CategoryId?.Value, root?.Id.Value, root?.Name,
-            category is { IsRoot: false } ? category.Name : null, x.OneoffName, x.Description, x.Comment, x.Source,
+            category is { IsRoot: false } ? category.Name : null, FinanceCounterpartyRefResponse.From(x.Counterparty, names),
+            x.OneoffName, x.Description, x.Comment, x.Source,
             x.Verification, x.Scope, x.Status, x.Version, x.CreatedBy, x.CreatedAt, x.UpdatedAt);
     }
 }

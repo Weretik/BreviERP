@@ -12,6 +12,8 @@ public static class AccountingMessages
     public const string TransferNotFound = "Переказ не знайдено. Оновіть журнал.";
     public const string FromAccountNotFound = "Рахунок списання не знайдено. Оновіть список.";
     public const string ToAccountNotFound = "Рахунок зарахування не знайдено. Оновіть список.";
+    public const string CounterpartyNotFound = "Контрагента не знайдено. Оновіть список.";
+    public const string DefaultCategoryNotFound = "Категорію за замовчуванням не знайдено. Оновіть список.";
     public const string AccountHasHistory =
         "По рахунку вже є рух коштів (зокрема анульований), тому його можна лише архівувати.";
 }

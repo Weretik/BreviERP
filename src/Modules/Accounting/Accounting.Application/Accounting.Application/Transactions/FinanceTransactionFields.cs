@@ -1,6 +1,7 @@
 using Accounting.Application.Abstractions;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Categories;
+using Accounting.Domain.Counterparties;
 using Accounting.Domain.Transactions;
 
 namespace Accounting.Application.Transactions;
@@ -12,12 +13,14 @@ public sealed record FinanceTransactionFields(
     Guid AccountId,
     long AmountMinor,
     Guid CategoryId,
+    FinanceCounterpartyLinkInput? Counterparty,
     string? OneoffName,
     string? Description,
     string? Comment)
 {
     public FinanceTransactionDetails ToDetails() => FinanceTransactionDetails.Of(Date, Type,
-        FinanceAccountId.From(AccountId), AmountMinor, FinanceCategoryId.From(CategoryId), OneoffName, Description, Comment);
+        FinanceAccountId.From(AccountId), AmountMinor, FinanceCategoryId.From(CategoryId), Counterparty?.ToLink(), OneoffName,
+        Description, Comment);
 
     /// <summary>The chosen account and category; <c>Missing</c> is the message when one of them is gone.</summary>
     internal async Task<(FinanceAccount Account, FinanceCategory Category, string? Missing)> LoadAsync(
@@ -39,8 +42,24 @@ public sealed class FinanceTransactionFieldsValidator : AbstractValidator<Financ
         RuleFor(x => x.AccountId).NotEmpty().WithMessage("Оберіть рахунок.");
         RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Оберіть категорію.");
         RuleFor(x => x.AmountMinor).GreaterThan(0).WithMessage("Сума має бути більшою за нуль.");
+        RuleFor(x => x.Counterparty!).SetValidator(new FinanceCounterpartyLinkInputValidator()).When(x => x.Counterparty is not null);
         RuleFor(x => x.OneoffName).MaximumLength(FinanceTransactionDetails.OneoffNameMaxLength + 20);
         RuleFor(x => x.Description).MaximumLength(FinanceTransactionDetails.DescriptionMaxLength + 20);
         RuleFor(x => x.Comment).MaximumLength(FinanceTransactionDetails.CommentMaxLength + 20);
+    }
+}
+
+/// <summary>The counterparty picked in a form: its kind and id as text.</summary>
+public sealed record FinanceCounterpartyLinkInput(CounterpartyKind Kind, string Id)
+{
+    public CounterpartyLink ToLink() => CounterpartyLink.Of(Kind, Id);
+}
+
+public sealed class FinanceCounterpartyLinkInputValidator : AbstractValidator<FinanceCounterpartyLinkInput>
+{
+    public FinanceCounterpartyLinkInputValidator()
+    {
+        RuleFor(x => x.Kind).IsInEnum();
+        RuleFor(x => x.Id).NotEmpty().MaximumLength(CounterpartyLink.IdMaxLength);
     }
 }
