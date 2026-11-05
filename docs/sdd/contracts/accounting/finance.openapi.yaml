@@ -1,0 +1,772 @@
+openapi: 3.1.0
+info:
+  title: 'Accounting: «Бухгалтерія» accounts and categories'
+  version: 1.0.0
+  description: 'Stage 1 of «Бухгалтерія» (ACC-001): «Рахунки і каси» and «Категорії» with a change log. Policy CanUseAccounting:
+    Director only; other roles get 403. Money is a whole number of kopecks.'
+security:
+- Bearer: []
+paths:
+  /api/accounting/settings:
+    get:
+      tags:
+      - Accounting
+      operationId: getAccountingSettings
+      description: Cutover date between «Домашня бухгалтерія» and the current books, the time zone and today in Kyiv.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingSettingsResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/accounts:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceAccounts
+      description: '«Рахунки і каси»: active accounts by order and name; with includeArchived archived ones follow.'
+      parameters:
+      - name: includeArchived
+        in: query
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceAccountResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    post:
+      tags:
+      - Accounting
+      operationId: createFinanceAccount
+      description: «Додати рахунок». The name is trimmed, the currency upper-cased, the IBAN keeps letters and digits.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceAccountInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceAccountResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/accounts/{id}:
+    put:
+      tags:
+      - Accounting
+      operationId: updateFinanceAccount
+      description: Edit an account. A save that changes nothing keeps the version.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceAccountUpdateInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceAccountResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    delete:
+      tags:
+      - Accounting
+      operationId: deleteFinanceAccount
+      description: Delete an account; the change log keeps its last snapshot.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: version
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/accounts/{id}/cutover:
+    put:
+      tags:
+      - Accounting
+      operationId: setFinanceAccountCutover
+      description: '«Залишок на 01.10»: confirm the starting balance of the current books (who and when are stored) or clear
+        it with confirmed false.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceAccountCutoverInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceAccountResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/accounts/{id}/archive:
+    post:
+      tags:
+      - Accounting
+      operationId: archiveFinanceAccount
+      description: '«Архівувати»: the account leaves the active list.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceAccountResponse'
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/accounts/{id}/restore:
+    post:
+      tags:
+      - Accounting
+      operationId: restoreFinanceAccount
+      description: «Відновити» an archived account.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceAccountResponse'
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/accounts/{id}/history:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceAccountHistory
+      description: Change log of one account, newest first.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceHistoryEntryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/categories:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceCategories
+      description: «Категорії» of one area of the books (all areas without scope), roots and subcategories in one flat list.
+      parameters:
+      - name: scope
+        in: query
+        schema:
+          $ref: '#/components/schemas/LedgerScope'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceCategoryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    post:
+      tags:
+      - Accounting
+      operationId: createFinanceCategory
+      description: «Додати категорію», or a subcategory with parentId. A subcategory must match its root in direction and
+        scope; only two levels.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceCategoryInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCategoryResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Parent not found
+        '409':
+          description: The same level already has this name (case-insensitive)
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/categories/{id}:
+    put:
+      tags:
+      - Accounting
+      operationId: updateFinanceCategory
+      description: Rename a category or change its note and order.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceCategoryUpdateInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceCategoryResponse'
+        '400':
+          description: Invalid fields; body is a list of validation errors
+        '404':
+          description: Not found
+        '409':
+          description: Stale version or the name is taken at this level
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    delete:
+      tags:
+      - Accounting
+      operationId: deleteFinanceCategory
+      description: Delete a category; a root goes with its subcategories, each with its own log entry.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: version
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not found
+        '409':
+          description: The version is stale (someone saved first); body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/categories/{id}/history:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceCategoryHistory
+      description: Change log of one category, newest first.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceHistoryEntryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    FinanceAccountType:
+      type: string
+      enum:
+      - Bank
+      - Card
+      - Cash
+      - Other
+    CategoryDirection:
+      type: string
+      enum:
+      - Income
+      - Expense
+    LedgerScope:
+      type: string
+      enum:
+      - Current
+      - LegacyArchive
+      description: 'Current: from 2026-10-01; LegacyArchive: «Домашня бухгалтерія» before it.'
+    AuditEntity:
+      type: string
+      enum:
+      - Account
+      - Category
+    AuditAction:
+      type: string
+      enum:
+      - Create
+      - Update
+      - Archive
+      - Restore
+      - Delete
+      - CutoverConfirm
+      - CutoverReset
+    AccountingSettingsResponse:
+      type: object
+      properties:
+        cutoverDate:
+          type: string
+          format: date
+        timeZone:
+          type: string
+        today:
+          type: string
+          format: date
+      required:
+      - cutoverDate
+      - timeZone
+      - today
+    FinanceAccountResponse:
+      type: object
+      description: Money is in kopecks; version goes back with the next change.
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/FinanceAccountType'
+        currency:
+          type: string
+        iban:
+          type: string
+        openingMinor:
+          type: integer
+          format: int64
+        openingDate:
+          type: string
+          format: date
+        cutoverBalanceMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        cutoverConfirmed:
+          type: boolean
+        cutoverConfirmedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        cutoverConfirmedBy:
+          type:
+          - string
+          - 'null'
+        note:
+          type: string
+        active:
+          type: boolean
+        sortOrder:
+          type: integer
+          format: int32
+        version:
+          type: integer
+          format: int32
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - type
+      - currency
+      - iban
+      - openingMinor
+      - openingDate
+      - cutoverBalanceMinor
+      - cutoverConfirmed
+      - cutoverConfirmedAt
+      - cutoverConfirmedBy
+      - note
+      - active
+      - sortOrder
+      - version
+      - createdAt
+      - updatedAt
+    FinanceAccountInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 140
+        type:
+          $ref: '#/components/schemas/FinanceAccountType'
+        currency:
+          type: string
+          maxLength: 10
+          description: ISO code, UAH by default
+        iban:
+          type:
+          - string
+          - 'null'
+          maxLength: 128
+        openingMinor:
+          type: integer
+          format: int64
+          description: Opening balance in kopecks
+        openingDate:
+          type: string
+          format: date
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 620
+        sortOrder:
+          type: integer
+          format: int32
+      required:
+      - name
+      - type
+      - currency
+      - openingMinor
+      - openingDate
+      - sortOrder
+    FinanceAccountUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 140
+        type:
+          $ref: '#/components/schemas/FinanceAccountType'
+        currency:
+          type: string
+          maxLength: 10
+          description: ISO code, UAH by default
+        iban:
+          type:
+          - string
+          - 'null'
+          maxLength: 128
+        openingMinor:
+          type: integer
+          format: int64
+          description: Opening balance in kopecks
+        openingDate:
+          type: string
+          format: date
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 620
+        sortOrder:
+          type: integer
+          format: int32
+        version:
+          type: integer
+          format: int32
+      required:
+      - name
+      - type
+      - currency
+      - openingMinor
+      - openingDate
+      - sortOrder
+      - version
+    FinanceAccountCutoverInput:
+      type: object
+      properties:
+        balanceMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: Required when confirmed
+        confirmed:
+          type: boolean
+        version:
+          type: integer
+          format: int32
+      required:
+      - confirmed
+      - version
+    FinanceVersionInput:
+      type: object
+      properties:
+        version:
+          type: integer
+          format: int32
+      required:
+      - version
+    FinanceCategoryResponse:
+      type: object
+      description: parentId is null for a root.
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        direction:
+          $ref: '#/components/schemas/CategoryDirection'
+        scope:
+          $ref: '#/components/schemas/LedgerScope'
+        parentId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        note:
+          type: string
+        active:
+          type: boolean
+        sortOrder:
+          type: integer
+          format: int32
+        version:
+          type: integer
+          format: int32
+      required:
+      - id
+      - name
+      - direction
+      - scope
+      - parentId
+      - note
+      - active
+      - sortOrder
+      - version
+    FinanceCategoryInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 140
+        direction:
+          $ref: '#/components/schemas/CategoryDirection'
+        scope:
+          $ref: '#/components/schemas/LedgerScope'
+        parentId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 620
+        sortOrder:
+          type: integer
+          format: int32
+      required:
+      - name
+      - direction
+      - scope
+      - sortOrder
+    FinanceCategoryUpdateInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 140
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 620
+        sortOrder:
+          type: integer
+          format: int32
+        version:
+          type: integer
+          format: int32
+      required:
+      - name
+      - sortOrder
+      - version
+    FinanceHistoryEntryResponse:
+      type: object
+      description: Snapshots are the JSON text of the record before and after (null when absent).
+      properties:
+        id:
+          type: integer
+          format: int64
+        entity:
+          $ref: '#/components/schemas/AuditEntity'
+        entityId:
+          type: string
+          format: uuid
+        action:
+          $ref: '#/components/schemas/AuditAction'
+        by:
+          type: string
+        at:
+          type: string
+          format: date-time
+        beforeJson:
+          type:
+          - string
+          - 'null'
+        afterJson:
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - entity
+      - entityId
+      - action
+      - by
+      - at
+      - beforeJson
+      - afterJson

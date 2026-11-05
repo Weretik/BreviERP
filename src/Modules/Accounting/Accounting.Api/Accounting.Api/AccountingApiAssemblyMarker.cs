@@ -1,3 +1,3 @@
-﻿namespace Accounting.Api;
+namespace Accounting.Api;
 
-public class AccountingApiAssemblyMarker { }
+public sealed class AccountingApiAssemblyMarker;

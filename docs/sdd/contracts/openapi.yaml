@@ -15,6 +15,26 @@ paths:
     $ref: ./identity/session.openapi.yaml#/paths/~1api~1auth~1cookie~1logout
   /api/auth/session/me:
     $ref: ./identity/session.openapi.yaml#/paths/~1api~1auth~1session~1me
+  /api/accounting/settings:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1settings
+  /api/accounting/accounts:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1accounts
+  /api/accounting/accounts/{id}:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1accounts~1{id}
+  /api/accounting/accounts/{id}/cutover:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1accounts~1{id}~1cutover
+  /api/accounting/accounts/{id}/archive:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1accounts~1{id}~1archive
+  /api/accounting/accounts/{id}/restore:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1accounts~1{id}~1restore
+  /api/accounting/accounts/{id}/history:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1accounts~1{id}~1history
+  /api/accounting/categories:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1categories
+  /api/accounting/categories/{id}:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1categories~1{id}
+  /api/accounting/categories/{id}/history:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1categories~1{id}~1history
   /api/admin/users:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users
   /api/admin/users/{userId}:

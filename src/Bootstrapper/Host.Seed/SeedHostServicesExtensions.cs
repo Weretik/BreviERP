@@ -30,7 +30,7 @@ public static class SeedHostServicesExtensions
 
         services.AddReferenceDbContextServices(configuration);
         services.AddReferenceKeepinCrmSync(configuration);
-        services.AddAccountingDbContextServices(configuration);
+        services.AddAccountingInfrastructure(configuration);
         services.AddCatalogDbContextServices(configuration);
         services.AddCrmDbContextServices(configuration);
         services.AddCrmKeepinCrmSync(configuration);

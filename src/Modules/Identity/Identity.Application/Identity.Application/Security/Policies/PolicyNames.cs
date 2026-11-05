@@ -14,4 +14,5 @@ public static class PolicyNames
     public const string CanManageWorkshop = "CanManageWorkshop";
     public const string CanUseProductionOrders = "CanUseProductionOrders";
     public const string CanUsePurchaseInvoices = "CanUsePurchaseInvoices";
+    public const string CanUseAccounting = "CanUseAccounting";
 }

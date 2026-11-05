@@ -1,3 +1,4 @@
+using Accounting.Application;
 using BuildingBlocks.Application;
 using Catalog.Application;
 using Crm.Application;
@@ -30,6 +31,7 @@ public static class MediatorRegistrationExtensions
                 typeof(MediaApplicationAssemblyMarker).Assembly,
                 typeof(ProductionApplicationAssemblyMarker).Assembly,
                 typeof(PurchasingApplicationAssemblyMarker).Assembly,
+                typeof(AccountingApplicationAssemblyMarker).Assembly,
                 typeof(AiApplicationAssemblyMarker).Assembly,
                 typeof(ApplicationAssemblyMarker).Assembly
             ];
