@@ -1,4 +1,5 @@
 using Crm.Application.Quotes.Building;
+using Crm.Application.Quotes.Catalog;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 
@@ -7,10 +8,13 @@ namespace Crm.Application.Quotes.Pdf;
 /// <summary>Builds the client view of a saved КП for the PDF (R-14).</summary>
 public static class QuotePdfModelBuilder
 {
-    public static QuotePdfModel Build(Quote quote, QuoteSettingsContent settings, QuoteStaffContact manager)
+    /// <param name="catalogPhotos">Main photos of the products whose items have none (R-29).</param>
+    public static QuotePdfModel Build(Quote quote, QuoteSettingsContent settings, QuoteStaffContact manager,
+        IReadOnlyDictionary<int, string>? catalogPhotos = null)
     {
+        var photos = catalogPhotos ?? new Dictionary<int, string>();
         var items = quote.Items.OrderBy(x => x.Position)
-            .Select(ToItem)
+            .Select(x => ToItem(x, photos))
             .Where(x => x.Options.Count > 0)
             .ToArray();
         var options = items.SelectMany(x => x.Options).ToArray();
@@ -47,8 +51,9 @@ public static class QuotePdfModelBuilder
             .Replace("{site}", site ?? "", StringComparison.Ordinal)
             .Replace("{quoteNumber}", quoteNumber, StringComparison.Ordinal);
 
-    private static QuotePdfItem ToItem(QuoteItem item) =>
-        new(item.Name, item.Code, item.Subtitle, item.Season, item.Description, item.PhotoUrl, item.SiteUrl,
+    private static QuotePdfItem ToItem(QuoteItem item, IReadOnlyDictionary<int, string> photos) =>
+        new(item.Name, item.Code, item.Subtitle, item.Season, item.Description,
+            QuoteItemPhotos.Resolve(item.ProductId, item.PhotoUrl, photos), item.SiteUrl,
             item.Kind is QuoteItemKind.Sewing or QuoteItemKind.CustomSewing ? "Варіант тканини" : "Ціна за одиницю",
             item.Options.OrderBy(x => x.Position)
                 .Where(x => x.ShowsPositivePrice)

@@ -56,13 +56,16 @@ public sealed class ProductOverviewItemReader(
             ? new Dictionary<int, ProductMediaFile>()
             : await media.GetFilesAsync(photoIds, cancellationToken);
 
-        return rows.Select(row => (row.Type == ProductType.Ppe
-            ? Ppe(row, ppePrices.GetValueOrDefault(row.Id))
-            : Sewing(row, byProduct[row.Id], names)) with
+        return rows.Select(row =>
         {
-            MainPhotoUrl = row.MainPhotoFileId is { } fileId && photos.TryGetValue(fileId, out var file)
-                ? file.ThumbnailUrl ?? file.PublicUrl
-                : null
+            var file = row.MainPhotoFileId is { } fileId ? photos.GetValueOrDefault(fileId) : null;
+            return (row.Type == ProductType.Ppe
+                ? Ppe(row, ppePrices.GetValueOrDefault(row.Id))
+                : Sewing(row, byProduct[row.Id], names)) with
+            {
+                MainPhotoUrl = file is null ? null : file.ThumbnailUrl ?? file.PublicUrl,
+                MainPhotoFullUrl = file?.PublicUrl
+            };
         }).ToList();
     }
 

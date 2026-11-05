@@ -73,7 +73,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         await using var db = Context();
         var own = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Olena, null, null, null), default);
         var all = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Director, null, null, null), default);
-        var foreign = await new GetQuoteQueryHandler(db).Handle(new GetQuoteQuery(Olena, petros.Id), default);
+        var foreign = await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, petros.Id), default);
         var search = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Director, "будів", null, null), default);
 
         Assert.That(own.Value.Total, Is.EqualTo(1));
@@ -126,7 +126,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var quote = await new GetQuoteQueryHandler(db).Handle(new GetQuoteQuery(Olena, created.Id), default);
+            var quote = await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default);
             Assert.That(quote.Value.Items.Single().Options.Single().Retail.Amount, Is.EqualTo(1000m));
         }
     }
@@ -143,7 +143,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
 
         Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
         Assert.That(byDirector.Value.Responsible.Name, Is.EqualTo("Петро"));
-        var visibleToOlena = await new GetQuoteQueryHandler(db).Handle(new GetQuoteQuery(Olena, created.Id), default);
+        var visibleToOlena = await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default);
         Assert.That(visibleToOlena.Status, Is.EqualTo(ResultStatus.NotFound));
     }
 
@@ -182,7 +182,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         sewing.PerMeter = 300m;
         await using (var db = Context())
         {
-            var loaded = (await new GetQuoteQueryHandler(db).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
+            var loaded = (await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
             var item = loaded.Items.Single();
             Assert.Multiple(() =>
             {
@@ -228,7 +228,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var loaded = (await new GetQuoteQueryHandler(db).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
+            var loaded = (await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
             var item = loaded.Items.Single();
             Assert.Multiple(() =>
             {
