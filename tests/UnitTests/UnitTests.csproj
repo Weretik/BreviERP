@@ -60,6 +60,10 @@
       <ProjectReference Include="..\..\src\Modules\Production\Production.Application\Production.Application\Production.Application.csproj" />
       <ProjectReference Include="..\..\src\Modules\Production\Production.Infrastructure\Production.Infrastructure\Production.Infrastructure.csproj" />
       <ProjectReference Include="..\..\src\Modules\Production\Production.Api\Production.Api\Production.Api.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Purchasing\Purchasing.Domain\Purchasing.Domain\Purchasing.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Purchasing\Purchasing.Application\Purchasing.Application\Purchasing.Application.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Purchasing\Purchasing.Infrastructure\Purchasing.Infrastructure\Purchasing.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Purchasing\Purchasing.Api\Purchasing.Api\Purchasing.Api.csproj" />
       <ProjectReference Include="..\..\src\Modules\Crm\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
       <ProjectReference Include="..\..\src\Modules\Crm\Crm.Api\Crm.Api\Crm.Api.csproj" />
     </ItemGroup>

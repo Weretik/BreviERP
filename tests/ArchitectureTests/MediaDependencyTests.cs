@@ -3,7 +3,7 @@ namespace ArchitectureTests;
 
 public sealed class MediaDependencyTests
 {
-    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders"];
+    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Purchasing"];
 
     [Test]
     public void MediaLayersReferenceOnlyBuildingBlocksAndLowerLayers()
