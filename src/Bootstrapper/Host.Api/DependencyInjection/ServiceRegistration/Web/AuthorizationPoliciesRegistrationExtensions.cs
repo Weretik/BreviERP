@@ -49,6 +49,10 @@ public static class AuthorizationPoliciesRegistrationExtensions
             options.AddPolicy(PolicyNames.CanUsePurchaseInvoices, policy =>
                 policy.RequireRole(RoleNames.Accountant, RoleNames.Admin));
 
+            // «Бухгалтерія»: only the Director (user decision 2026-11-05); Admin and Accountant do not see it.
+            options.AddPolicy(PolicyNames.CanUseAccounting, policy =>
+                policy.RequireRole(RoleNames.Director));
+
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));
         });

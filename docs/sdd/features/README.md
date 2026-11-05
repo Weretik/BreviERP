@@ -46,7 +46,11 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
 ## Other modules
 
-The [module map](../architecture/overview/modules.md) describes Accounting/Crm boundaries; implemented Crm workflows are listed below.
+The [module map](../architecture/overview/modules.md) describes module boundaries; implemented workflows are listed below.
+
+## Accounting
+
+- [«Бухгалтерія»: accounts and categories](accounting/finance.md) — «Рахунки і каси» with the balance on 01.10.2026 and «Категорії» (two levels, current books and «Домашня бухгалтерія»), change log; Director only.
 
 ## Crm
 

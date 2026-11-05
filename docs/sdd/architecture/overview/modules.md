@@ -14,7 +14,7 @@ Owns reference data for suppliers, fabrics, accessories, garment parts, operatio
 
 ## Accounting module
 
-Owns wallets, transactions, and transaction categories. At the audit date, the module's API scenarios are not yet represented by controllers.
+Owns «Бухгалтерія» in schema `accounting` with its own migration history: accounts and cash desks, income and expense categories and one change log (stage 1); operations, transfers, counterparties, attachments, bank import and reports follow by stage. Admin APIs live under `/api/accounting` for the Director only. Crm clients and Reference suppliers will be referenced by id without a database link ([ACC-001](../../specs/accounting/001-finance/README.md)).
 
 ## Crm module
 

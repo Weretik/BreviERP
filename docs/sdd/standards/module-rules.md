@@ -54,6 +54,6 @@ Existing code that does not follow these rules yet. Do not copy it into new modu
 | Where | Deviation | Plan |
 | --- | --- | --- |
 | `Catalog` | Tables in the `public` schema | Keep: moving tables needs a separate migration and rollout plan |
-| `Accounting`, `Identity`, `Reference` | Own schema, but migration history in `public.__EFMigrationsHistory` | Move history with a separate migration decision; new modules follow `Crm` |
+| `Identity`, `Reference` | Own schema, but migration history in `public.__EFMigrationsHistory` | Move history with a separate migration decision; new modules follow `Crm` |
 | 56 of 105 commands and queries | No FluentValidation validator | Next backend audit decides which accept client input and need one |
 | `Crm.Api` `UploadPrivateFileRequest`, `Catalog.Api` PPE pricing requests | Data annotations on request models | Move rules into the use-case validator when the request changes |

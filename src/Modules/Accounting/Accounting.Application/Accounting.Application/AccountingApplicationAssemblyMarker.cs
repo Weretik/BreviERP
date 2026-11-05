@@ -1,5 +1,3 @@
-﻿namespace Accounting.Application;
+namespace Accounting.Application;
 
-public class AccountingApplicationAssemblyMarker
-{
-}
+public sealed class AccountingApplicationAssemblyMarker;

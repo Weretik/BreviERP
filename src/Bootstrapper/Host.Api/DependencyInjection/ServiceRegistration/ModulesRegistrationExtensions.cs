@@ -45,7 +45,7 @@ public static class ModuleRegistrationsExtensions
         services.AddInfrastructureServices(configuration);
 
         services.AddReferenceInfrastructureServices(configuration);
-        services.AddAccountingInfrastructureServices(configuration);
+        services.AddAccountingInfrastructure(configuration);
         services.AddCatalogInfrastructureServices(configuration);
         services.AddCrmDbContextServices(configuration);
         services.AddCrmKeepinCrmSync(configuration);

@@ -43,8 +43,10 @@ BreviERP PostgreSQL
 │   ├── AspNetUserLogins               # external logins
 │   ├── AspNetUserTokens               # tokens
 │   └── DataProtectionKeys            # keys that sign the session cookie
-├── accounting / AccountingDbContext — 1 table
-│   └── TransactionCategories          # transaction categories
+├── accounting / AccountingDbContext — 3 tables + own history
+│   ├── Accounts                       # «Рахунки і каси» with the balance on 01.10
+│   ├── Categories                     # «Категорії»: two levels per area and direction
+│   └── AuditEntries                   # change log with JSON snapshots
 ├── media / MediaDbContext — 2 tables + own history
 │   ├── Folders                        # photo folder tree
 │   └── Files                          # photos on the CDN
@@ -98,7 +100,7 @@ BreviERP PostgreSQL
 | `catalog` / Catalog | [Catalog tables, PKs, and FKs](catalog.md) |
 | `reference` / Reference | [Reference tables, PKs, and FKs](reference.md) |
 | `identity` / Identity | [Identity tables, PKs, and FKs](identity.md) |
-| `accounting` / Accounting | [TransactionCategories](accounting.md) |
+| `accounting` / Accounting | [«Бухгалтерія» accounts, categories, change log](accounting.md) |
 | `ai` / Ai | [AI settings](ai.md) |
 | `purchasing` / Purchasing | [Purchase invoice register](purchasing.md) |
 
