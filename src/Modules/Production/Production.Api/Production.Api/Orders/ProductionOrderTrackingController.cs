@@ -7,6 +7,7 @@ using Production.Api.Access;
 using Production.Application.Contracts;
 using Production.Application.Orders.Files;
 using Production.Application.Orders.ImportProgress;
+using Production.Application.Orders.ImportReportPrices;
 using Production.Application.Orders.Telegram;
 using Production.Application.Orders.Tracking;
 
@@ -102,6 +103,16 @@ public sealed class ProductionOrderTrackingController(ISender sender) : Controll
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new ImportProductionProgressCommand(actor, rows, dryRun), cancellationToken))
+            : Forbid();
+
+    /// <summary>«Ціни КП» of orders moved from the old «Цех» for «Звіти цеху» (Admin); <c>dryRun</c> only shows them.</summary>
+    [HttpPost("report-price-import", Name = "importProductionReportPrices")]
+    public async Task<ActionResult<ProductionReportPriceImportResult>> ImportReportPrices(
+        [FromBody] IReadOnlyList<ProductionReportPriceImportRow> rows, [FromQuery] bool dryRun,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new ImportProductionReportPricesCommand(actor, rows, dryRun),
+                cancellationToken))
             : Forbid();
 
     /// <summary>20 MB file and the form fields around it.</summary>

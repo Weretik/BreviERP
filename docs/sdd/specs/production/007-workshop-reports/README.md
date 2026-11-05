@@ -15,6 +15,7 @@ The owner sees what the workshop produced and spent over a period: output at the
 | PRD-D50 | The overview `GET /api/production/dashboard` (everyone with production orders, no prices or rates): «Нове» orders not deleted; an order sits in the column of its slowest item not yet shipped, from «Нове» to «Готово до відвантаження»; progress = pieces sewn within the plan / quantity; late = the earliest «Готово до» of the items not fully shipped is before today in Kyiv; ready = items at «Готово до відвантаження» with pieces not shipped. The hours of this week by active worker only for WorkshopChief and Admin. |
 | PRD-D51 | Closing a month of «Зарплата» is no longer refused when the only warnings are an unchosen master or chief: that share is simply not paid (the owner pays no chief, 2026-11-05). Every other warning still blocks; `permissions.canClose` of the month says the same, so the page does not decide it. |
 | PRD-D52 | Nothing is transferred: the old export has no frozen report months (`report_monthly_snapshots` is empty) and its saved report prices are all «unavailable». |
+| PRD-D53 | The КП prices of the 28 moved orders come from the imported КП instead (2026-11-05, after the first report showed 272 pieces without a price): `POST /api/production/orders/report-price-import` (Admin, `dryRun` preview, any error saves nothing) takes `production-report-prices.json` and fills only items without a price, without a history line because the price is hidden from managers. The file matches the order's КП number, model and fabric; the column is the one the КП showed, «Опт» when it showed several, otherwise the cheapest shown. |
 
 ## Acceptance
 
@@ -25,6 +26,7 @@ The owner sees what the workshop produced and spent over a period: output at the
 | PRD-007-A3 | A closed month keeps its report when the fabric price changes. Closing without a chief succeeds. |
 | PRD-007-A4 | Months add up; the stock is the last month's. |
 | PRD-007-A5 | The overview puts an order at its slowest stage, marks it late, and gives the hours only to the head of the workshop and Admin. |
+| PRD-007-A6 | «Ціни КП» is Admin only, a preview changes nothing, a missing position is an error, and an item that has a price keeps it. |
 
 ## File-role map
 
@@ -32,7 +34,8 @@ The owner sees what the workshop produced and spent over a period: output at the
 | --- | --- |
 | Use cases | `Reports/WorkshopReports.cs` (a month, kept month, sum), `Reports/GetReport/GetWorkshopReportQuery.cs`, `Reports/ReportMessages.cs`, `Dashboard/GetWorkshopDashboardQuery.cs`; `Payroll/Close/PayrollCloseCommands.cs` keeps the report |
 | Domain | `Payroll/PayrollMonth.cs` gains `ReportSnapshot` |
-| Contracts | `Contracts/ReportContracts.cs` |
+| Contracts | `Contracts/ReportContracts.cs`; `Contracts/ProductionTrackingInputs.cs` and `ProductionOrderResponses.cs` gain the «Ціни КП» import |
+| Import | `Orders/ImportReportPrices/ImportProductionReportPricesCommand.cs`; `ProductionItem.FillReportPrice` |
 | Persistence | `Configurations/PayrollConfiguration.cs`; migration `WorkshopReports` |
 | API | `Production.Api/Reports/WorkshopReportsController.cs`, `Dashboard/WorkshopDashboardController.cs` |
 | Contract | `docs/sdd/contracts/production/workshop-reports.openapi.yaml` |

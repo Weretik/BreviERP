@@ -659,6 +659,37 @@ paths:
               type: array
               items:
                 $ref: '#/components/schemas/ProductionProgressImportRow'
+  /api/production/orders/report-price-import:
+    post:
+      tags:
+      - Production
+      operationId: importProductionReportPrices
+      summary: 'Admin: «Ціни КП» of orders moved from the old «Цех» for «Звіти цеху»; only an item without a price takes
+        one; dryRun only shows them; any error saves nothing'
+      parameters:
+      - in: query
+        name: dryRun
+        required: false
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: What changed or would change.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionReportPriceImportResult'
+        '401': *id007
+        '403': *id008
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductionReportPriceImportRow'
   /api/production/settings:
     get:
       tags:
@@ -1839,6 +1870,80 @@ components:
           type:
           - string
           - 'null'
+    ProductionReportPriceImportRow:
+      type: object
+      required:
+      - legacyId
+      - items
+      properties:
+        legacyId:
+          type: string
+          description: The order's id in the old app, as in production-orders.json.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionItemReportPriceImportRow'
+    ProductionItemReportPriceImportRow:
+      type: object
+      required:
+      - position
+      - unitPrice
+      properties:
+        position:
+          type: integer
+          description: The item's place in the order, from 1.
+        unitPrice:
+          type: number
+          description: UAH per item from the КП.
+    ProductionReportPriceImportLine:
+      type: object
+      required:
+      - number
+      - legacyId
+      - prices
+      - action
+      - error
+      properties:
+        number:
+          type:
+          - integer
+          - 'null'
+        legacyId:
+          type: string
+        prices:
+          type: integer
+          description: Items that take a price; an item that already has one keeps it.
+        action:
+          type: string
+          enum:
+          - updated
+          - unchanged
+          - error
+        error:
+          type:
+          - string
+          - 'null'
+    ProductionReportPriceImportResult:
+      type: object
+      required:
+      - dryRun
+      - updated
+      - unchanged
+      - errors
+      - lines
+      properties:
+        dryRun:
+          type: boolean
+        updated:
+          type: integer
+        unchanged:
+          type: integer
+        errors:
+          type: integer
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionReportPriceImportLine'
     ProductionProgressImportRow:
       type: object
       required:
