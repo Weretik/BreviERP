@@ -58,10 +58,10 @@ public sealed class GetFinanceCounterpartiesQueryHandler(IAccountingDbContext db
             case FinanceCounterpartyTab.Financial:
                 var page = await financial.OrderBy(x => x.Name).ThenBy(x => x.Id).Skip(skip).Take(PageSize)
                     .ToListAsync(cancellationToken);
-                var financialCounts = await FinanceCounterpartyChange.OperationCountsAsync(db, CounterpartyKind.Financial,
+                var financialStats = await FinanceCounterpartyChange.OperationStatsAsync(db, CounterpartyKind.Financial,
                     page.Select(x => x.Link.Id).ToList(), cancellationToken);
                 financialRows = page.Select(x => FinanceCounterpartyResponse.From(x, names,
-                    financialCounts.GetValueOrDefault(x.Link.Id))).ToList();
+                    financialStats.GetValueOrDefault(x.Link.Id))).ToList();
                 total = counts.Financial;
                 break;
             case FinanceCounterpartyTab.Clients:
@@ -108,12 +108,13 @@ public sealed class GetFinanceCounterpartiesQueryHandler(IAccountingDbContext db
     private async Task<IReadOnlyList<FinancePartyResponse>> PartiesAsync(CounterpartyKind kind,
         IReadOnlyList<AccountingParty> rows, CancellationToken cancellationToken)
     {
-        var counts = await FinanceCounterpartyChange.OperationCountsAsync(db, kind,
+        var stats = await FinanceCounterpartyChange.OperationStatsAsync(db, kind,
             rows.Select(x => CounterpartyLink.Of(kind, x.Id).Id).ToList(), cancellationToken);
         return rows.Select(x =>
         {
             var id = CounterpartyLink.Of(kind, x.Id).Id;
-            return new FinancePartyResponse(kind, id, x.Name, x.TaxId, x.Active, counts.GetValueOrDefault(id));
+            var own = stats.GetValueOrDefault(id);
+            return new FinancePartyResponse(kind, id, x.Name, x.TaxId, x.Active, own.Count, own.CurrentTurnoverMinor);
         }).ToList();
     }
 }

@@ -24,7 +24,7 @@ src/Modules/Accounting/
     Counterparties/    # tabs with counts, choices, create, update, verify, archive/restore, merge; CounterpartyStates (names of linked ones), FinanceCounterpartyChange
     Transfers/         # journal with filters and totals, create, update, void; fields, save
     Balances/          # FinanceBalances: legacy, current, total, history, earliest date
-    Overview/          # GetFinanceOverviewQuery (per currency)
+    Overview/          # GetFinanceOverviewQuery (per currency: counts, top expense roots, review reasons)
     Journal/           # sort keys, page size, ValidBy
     Lookup/            # FinanceNames: account and category names for rows and snapshots
     History/           # GetFinanceHistoryQuery
@@ -63,4 +63,4 @@ flowchart LR
 
 ## Tests
 
-`tests/UnitTests/Accounting/`: accounts on SQLite in memory (create with cleaning, update and stale version, cutover confirm and reset, archive/restore and list order, delete with log), categories (subcategory rules, unique names per level, rename, delete with children, filter by area), settings (today in Kyiv); operations (`FinanceTransactionTests`: balances per area, area/date/category rules, archived account, update/void/history, journal filters, paging and totals, used account and category rules) and transfers with «Огляд» (`FinanceTransferTests`); counterparties (`FinanceCounterpartyTests`: review until confirmed, clients and suppliers by id, «Перевірити», one-off to permanent, merge, cleaning and auto category, tabs and choices, default category keeps a category); contract. Clients and suppliers: `FakeAccountingParties`. Shared data: `FinanceMovementFixture`. Command: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Accounting"`. Module references and schema: `tests/ArchitectureTests/AccountingDependencyTests.cs`.
+`tests/UnitTests/Accounting/`: accounts on SQLite in memory (create with cleaning, update and stale version, cutover confirm and reset, archive/restore and list order, delete with log), categories (subcategory rules, unique names per level, rename, delete with children, filter by area), settings (today in Kyiv); operations (`FinanceTransactionTests`: balances per area, area/date/category rules, archived account, update/void/history, journal filters, paging and totals, used account and category rules) and transfers with «Огляд» (`FinanceTransferTests`); counterparties (`FinanceCounterpartyTests`: review until confirmed, clients and suppliers by id, «Перевірити» with «Запамʼятати» and current turnover, one-off to permanent, merge, cleaning and auto category, tabs and choices, default category keeps a category); contract. Clients and suppliers: `FakeAccountingParties`. Shared data: `FinanceMovementFixture`. Command: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Accounting"`. Module references and schema: `tests/ArchitectureTests/AccountingDependencyTests.cs`.

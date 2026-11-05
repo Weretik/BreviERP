@@ -41,6 +41,6 @@ public sealed class CreateFinanceCounterpartyCommandHandler(IAccountingDbContext
         AuditTrail.Add(db, AuditEntity.Counterparty, counterparty.Id.Value, AuditAction.Create, command.By, now, null,
             AuditTrail.Snapshot(counterparty, names));
         await db.SaveChangesAsync(cancellationToken);
-        return Result.Success(FinanceCounterpartyResponse.From(counterparty, names, 0));
+        return Result.Success(FinanceCounterpartyResponse.From(counterparty, names));
     }
 }

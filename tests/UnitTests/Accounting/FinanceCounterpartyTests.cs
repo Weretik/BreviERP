@@ -43,6 +43,8 @@ public sealed class FinanceCounterpartyTests
                 landlord.Id.ToString("D"), "ФОП Орендодавець", true, false, false)));
             Assert.That(waiting.Items.Select(x => x.Id), Is.EqualTo(new[] { operation.Id }));
             Assert.That(overview.NeedsReviewCount, Is.EqualTo(1));
+            Assert.That(overview.NeedsCounterpartyCount, Is.EqualTo(1));
+            Assert.That(overview.NeedsCategoryCount, Is.Zero);
             Assert.That(verified.Value.Verified, Is.True);
             Assert.That(verified.Value.OperationCount, Is.EqualTo(1));
             Assert.That(after.Verification, Is.EqualTo(VerificationStatus.Verified));
@@ -125,6 +127,34 @@ public sealed class FinanceCounterpartyTests
             Assert.That(reviewed.Value.Version, Is.EqualTo(operation.Version + 1));
             Assert.That(reviewed.Value.AmountMinor, Is.EqualTo(100_00));
             Assert.That(history.Value.Select(x => x.Action).First(), Is.EqualTo(AuditAction.Review));
+        });
+    }
+
+    [Test]
+    public async Task Review_can_remember_the_category_for_the_next_operations_of_the_counterparty()
+    {
+        using var harness = new AccountingTestHarness();
+        var bank = await Account(harness);
+        var delivery = await Category(harness, "Доставка");
+        var courier = await Counterparty(harness, "Делівері", verified: true);
+        var operation = await Spend(harness, Fields(bank.Id, delivery.Id, 192_00) with { Counterparty = Link(courier) });
+        var handler = new ReviewFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
+
+        var reviewed = await handler.Handle(new ReviewFinanceTransactionCommand(operation.Id, delivery.Id, Link(courier),
+            null, operation.Version, AccountingTestHarness.Director, RememberCategory: true), default);
+        var remembered = (await List(harness, FinanceCounterpartyTab.Financial)).Financial.Single();
+        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh()).Handle(
+            new GetFinanceHistoryQuery(AuditEntity.Counterparty, courier.Id), default);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(reviewed.IsSuccess, Is.True);
+            Assert.That(remembered.DefaultCategoryId, Is.EqualTo(delivery.Id));
+            Assert.That(remembered.AutoApplyCategory, Is.True);
+            Assert.That(remembered.Version, Is.EqualTo(courier.Version + 1));
+            Assert.That(remembered.OperationCount, Is.EqualTo(1));
+            Assert.That(remembered.CurrentTurnoverMinor, Is.EqualTo(-192_00), "an expense lowers the turnover");
+            Assert.That(history.Value.Select(x => x.Action).First(), Is.EqualTo(AuditAction.Update));
         });
     }
 

@@ -38,6 +38,7 @@ public sealed class AccountingContractTests
     [TestCase(typeof(FinanceAccountBalanceResponse), "FinanceAccountBalanceResponse")]
     [TestCase(typeof(FinanceOverviewResponse), "FinanceOverviewResponse")]
     [TestCase(typeof(FinanceOverviewCurrencyResponse), "FinanceOverviewCurrencyResponse")]
+    [TestCase(typeof(FinanceOverviewCategoryResponse), "FinanceOverviewCategoryResponse")]
     [TestCase(typeof(FinanceTransactionResponse), "FinanceTransactionResponse")]
     [TestCase(typeof(FinanceTransactionTotalResponse), "FinanceTransactionTotalResponse")]
     [TestCase(typeof(FinanceTransactionPageResponse), "FinanceTransactionPageResponse")]

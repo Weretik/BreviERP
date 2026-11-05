@@ -1741,12 +1741,22 @@ components:
           type: integer
           format: int32
           description: Active current operations of «Потребують перевірки», whatever the period
+        needsCategoryCount:
+          type: integer
+          format: int32
+          description: Of them, without a category
+        needsCounterpartyCount:
+          type: integer
+          format: int32
+          description: Of them, with an unconfirmed finance counterparty
       required:
       - scope
       - from
       - to
       - currencies
       - needsReviewCount
+      - needsCategoryCount
+      - needsCounterpartyCount
     FinanceOverviewCurrencyResponse:
       type: object
       properties:
@@ -1771,6 +1781,27 @@ components:
         accountCount:
           type: integer
           format: int32
+        incomeCount:
+          type: integer
+          format: int32
+          description: Active incomes of the period
+        expenseCount:
+          type: integer
+          format: int32
+          description: Active expenses of the period
+        topExpenses:
+          type: array
+          maxItems: 5
+          description: Largest expense root categories of the period, largest first
+          items:
+            $ref: '#/components/schemas/FinanceOverviewCategoryResponse'
+        otherExpenseMinor:
+          type: integer
+          format: int64
+          description: Expenses of the period outside topExpenses
+        otherExpenseCategoryCount:
+          type: integer
+          format: int32
       required:
       - currency
       - balanceMinor
@@ -1779,6 +1810,29 @@ components:
       - expenseMinor
       - differenceMinor
       - accountCount
+      - incomeCount
+      - expenseCount
+      - topExpenses
+      - otherExpenseMinor
+      - otherExpenseCategoryCount
+    FinanceOverviewCategoryResponse:
+      type: object
+      properties:
+        categoryId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: 'null: operations without a category («Без категорії»)'
+        name:
+          type: string
+        amountMinor:
+          type: integer
+          format: int64
+      required:
+      - categoryId
+      - name
+      - amountMinor
     FinanceTransactionResponse:
       type: object
       properties:
@@ -2267,6 +2321,10 @@ components:
           type: integer
           format: int32
           description: Active operations of both areas
+        currentTurnoverMinor:
+          type: integer
+          format: int64
+          description: Incomes minus expenses of the current books, kopecks
         version:
           type: integer
           format: int32
@@ -2292,6 +2350,7 @@ components:
       - active
       - mergedIntoId
       - operationCount
+      - currentTurnoverMinor
       - version
       - createdAt
       - updatedAt
@@ -2311,6 +2370,10 @@ components:
         operationCount:
           type: integer
           format: int32
+        currentTurnoverMinor:
+          type: integer
+          format: int64
+          description: Incomes minus expenses of the current books, kopecks
       required:
       - kind
       - id
@@ -2318,6 +2381,7 @@ components:
       - taxId
       - active
       - operationCount
+      - currentTurnoverMinor
     FinanceCounterpartyCountsResponse:
       type: object
       properties:
@@ -2531,6 +2595,11 @@ components:
         version:
           type: integer
           format: int32
+        rememberCategory:
+          type: boolean
+          default: false
+          description: «Запамʼятати» — the category becomes the default of the chosen finance counterparty and applies
+            to its next operations; ignored for a client, a supplier or a one-off name
       required:
       - categoryId
       - version

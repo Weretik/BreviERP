@@ -3,7 +3,9 @@ using Accounting.Application.Audit;
 using Accounting.Application.Contracts;
 using Accounting.Application.Lookup;
 using Accounting.Domain.Audit;
+using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
+using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Transactions;
 
@@ -60,21 +62,32 @@ internal static class FinanceCounterpartyChange
     public static async Task<FinanceCounterpartyResponse> ResponseAsync(IAccountingDbContext db,
         FinanceCounterparty counterparty, FinanceNames names, CancellationToken cancellationToken)
     {
-        var counts = await OperationCountsAsync(db, CounterpartyKind.Financial, [counterparty.Link.Id], cancellationToken);
-        return FinanceCounterpartyResponse.From(counterparty, names, counts.GetValueOrDefault(counterparty.Link.Id));
+        var stats = await OperationStatsAsync(db, CounterpartyKind.Financial, [counterparty.Link.Id], cancellationToken);
+        return FinanceCounterpartyResponse.From(counterparty, names, stats.GetValueOrDefault(counterparty.Link.Id));
     }
 
-    /// <summary>Active operations of each counterparty of one kind, both areas.</summary>
-    public static async Task<Dictionary<string, int>> OperationCountsAsync(IAccountingDbContext db, CounterpartyKind kind,
-        IReadOnlyCollection<string> ids, CancellationToken cancellationToken)
+    /// <summary>
+    /// Active operations of each counterparty of one kind: their count in both areas and the turnover of the current
+    /// books (incomes minus expenses).
+    /// </summary>
+    public static async Task<Dictionary<string, FinanceOperationStats>> OperationStatsAsync(IAccountingDbContext db,
+        CounterpartyKind kind, IReadOnlyCollection<string> ids, CancellationToken cancellationToken)
     {
         if (ids.Count == 0) return [];
         var rows = await db.Transactions.AsNoTracking()
             .Where(x => x.Status == MovementStatus.Active && x.CounterpartyKind == kind && ids.Contains(x.CounterpartyId!))
             .GroupBy(x => x.CounterpartyId!)
-            .Select(g => new { Id = g.Key, Count = g.Count() })
+            .Select(g => new
+            {
+                Id = g.Key,
+                Count = g.Count(),
+                Income = g.Where(x => x.Scope == LedgerScope.Current && x.Type == CategoryDirection.Income)
+                    .Sum(x => (long?)x.AmountMinor) ?? 0,
+                Expense = g.Where(x => x.Scope == LedgerScope.Current && x.Type == CategoryDirection.Expense)
+                    .Sum(x => (long?)x.AmountMinor) ?? 0,
+            })
             .ToListAsync(cancellationToken);
-        return rows.ToDictionary(x => x.Id, x => x.Count);
+        return rows.ToDictionary(x => x.Id, x => new FinanceOperationStats(x.Count, x.Income - x.Expense));
     }
 
     /// <summary>Operations linked to a finance counterparty, cancelled ones too, tracked for a change.</summary>
@@ -86,3 +99,6 @@ internal static class FinanceCounterpartyChange
             .ToListAsync(cancellationToken);
     }
 }
+
+/// <summary>Active operations of a counterparty: count in both areas, turnover of the current books.</summary>
+internal readonly record struct FinanceOperationStats(int Count, long CurrentTurnoverMinor);
