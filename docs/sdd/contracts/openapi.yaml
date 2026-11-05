@@ -321,6 +321,20 @@ paths:
     $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1items~1{itemId}~1fabric-issues
   /api/production/orders/{id}/fabric-issues/{issueId}/reverse:
     $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1fabric-issues~1{issueId}~1reverse
+  /api/production/work:
+    $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1work
+  /api/production/work/choices:
+    $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1work~1choices
+  /api/production/orders/{id}/items/{itemId}/work:
+    $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1orders~1{id}~1items~1{itemId}~1work
+  /api/production/work/{workId}/void:
+    $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1work~1{workId}~1void
+  /api/production/work/import:
+    $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1work~1import
+  /api/production/forecast:
+    $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1forecast
+  /api/production/forecast/queue:
+    $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1forecast~1queue
   /api/production/settings:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings
   /api/production/settings/telegram-test:

@@ -1,9 +1,11 @@
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
+using Production.Domain.Forecast;
 using Production.Domain.Orders;
 using Production.Domain.Settings;
 using Production.Domain.Staff;
 using Production.Domain.Stock;
+using Production.Domain.Work;
 
 namespace Production.Infrastructure.Persistence;
 
@@ -22,6 +24,8 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<FabricStock> FabricStocks => Set<FabricStock>();
     public DbSet<FabricMovement> FabricMovements => Set<FabricMovement>();
     public DbSet<FabricIssue> FabricIssues => Set<FabricIssue>();
+    public DbSet<ProductionWork> Work => Set<ProductionWork>();
+    public DbSet<ForecastQueue> ForecastQueues => Set<ForecastQueue>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

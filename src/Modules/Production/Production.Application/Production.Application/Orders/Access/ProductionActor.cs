@@ -38,6 +38,15 @@ public sealed record ProductionActor(int UserId, bool IsAdmin, bool IsManager, b
     /// <summary>«Видача» to an item: the stock keepers on a «Нове» order.</summary>
     public bool CanIssueFabric(ProductionOrder order) => CanMoveStock && CanTrack(order);
 
+    /// <summary>«Журнал робіт» and «Робота» of an item: the people who see the sewing rate (PRD-D37).</summary>
+    public bool SeesWork => SeesSewingRate;
+
+    /// <summary>Records and «Сторно» of work: Admin and the head of the workshop on a «Нове» order.</summary>
+    public bool CanRecordWork(ProductionOrder order) => CanTrack(order);
+
+    /// <summary>The order of «Прогноз пошиття».</summary>
+    public bool CanReorderForecast => IsAdmin || IsWorkshopChief;
+
     /// <summary>«Налаштування цеху».</summary>
     public bool CanManageSettings => IsAdmin || IsWorkshopChief;
 

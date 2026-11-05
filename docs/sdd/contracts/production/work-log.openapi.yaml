@@ -1,0 +1,699 @@
+openapi: 3.1.0
+info:
+  title: 'Production: work log and sewing forecast'
+  version: 1.0.0
+  description: 'Stage 5 of «Швейний цех» (PRD-005). «Журнал робіт»: a worker sewed or cut pieces of an item on a day, with
+    the item sewing rate kept; work beyond the plan only as «понад план» with a reason; a record is never edited, only cancelled
+    by «Сторно». WorkshopChief and Admin see and record it; managers do not. «Прогноз пошиття»: «Нове» orders in the saved
+    queue, the work left in UAH of rate divided by seamstresses × shift minutes × minute cost of «Параметри ціноутворення»,
+    in working days. Everyone with production orders sees the dates; minutes for those who see the rate.'
+servers:
+- url: /
+security:
+- Bearer: []
+paths:
+  /api/production/work:
+    get:
+      tags: &id002
+      - Production
+      operationId: getWorkLog
+      summary: «Журнал робіт» of a month, optionally of one worker or order
+      parameters:
+      - in: query
+        name: month
+        required: true
+        schema:
+          type: string
+          pattern: ^\d{4}-\d{2}$
+        description: YYYY-MM
+      - in: query
+        name: employeeId
+        required: false
+        schema: &id001
+          type: integer
+      - in: query
+        name: orderId
+        required: false
+        schema: *id001
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkLogResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid month
+  /api/production/work/choices:
+    get:
+      tags: *id002
+      operationId: getWorkChoices
+      summary: Workers, items of «Нове» orders and over-plan reasons
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkChoicesResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+  /api/production/orders/{id}/items/{itemId}/work:
+    get:
+      tags: *id002
+      operationId: getProductionItemWork
+      summary: «Робота» of an item
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: *id001
+      - in: path
+        name: itemId
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemWorkResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '404':
+          description: No such order or item
+    post:
+      tags: *id002
+      operationId: createProductionWork
+      summary: Records sewn or cut pieces; beyond the plan only as over-plan with a reason
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema: *id001
+      - in: path
+        name: itemId
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductionWorkInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemWorkResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid, no rate, future date or no such worker
+        '404':
+          description: No such order or item
+        '409':
+          description: More than left of the plan
+  /api/production/work/{workId}/void:
+    post:
+      tags: *id002
+      operationId: voidProductionWork
+      summary: «Сторно» of a record with a reason
+      parameters:
+      - in: path
+        name: workId
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoidProductionWorkInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemWorkResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '404':
+          description: No such record
+        '409':
+          description: Already cancelled
+  /api/production/work/import:
+    post:
+      tags: *id002
+      operationId: importProductionWork
+      summary: Moves the work log of the old «Цех» (Admin); nothing is saved unless every row is fine
+      parameters:
+      - in: query
+        name: dryRun
+        required: false
+        schema: &id004
+          type: boolean
+        description: Only check and show.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductionWorkImportInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionWorkImportResult'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid file
+  /api/production/forecast:
+    get:
+      tags: *id002
+      operationId: getSewingForecast
+      summary: '«Прогноз пошиття»: the queue with approximate ends of sewing'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForecastResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+  /api/production/forecast/queue:
+    put:
+      tags: *id002
+      operationId: saveSewingForecastQueue
+      summary: Sets the order of the queue (WorkshopChief and Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveForecastQueueInput'
+      responses:
+        '204':
+          description: Saved
+        '400':
+          description: Invalid
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '409':
+          description: Stale version or an order left the queue
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    ProductionWorkResponse:
+      type: object
+      required:
+      - id
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - modelName
+      - employeeId
+      - employeeName
+      - kind
+      - quantity
+      - workDate
+      - overPlan
+      - reason
+      - comment
+      - rate
+      - isVoided
+      - voidedAt
+      - voidedByName
+      - voidReason
+      - createdByName
+      - createdAt
+      properties:
+        id: *id001
+        orderId: *id001
+        orderNumber: *id001
+        clientName: &id003
+          type: string
+        itemId: *id001
+        modelName: *id003
+        employeeId: *id001
+        employeeName: *id003
+        kind: &id005
+          type: string
+          enum:
+          - Sewing
+          - Cutting
+        quantity: *id001
+        workDate: &id006
+          type: string
+          format: date
+        overPlan:
+          type: boolean
+          description: Beyond the item quantity; does not count toward the plan.
+        reason:
+          type:
+          - string
+          - 'null'
+          description: Why over plan.
+        comment:
+          type:
+          - string
+          - 'null'
+        rate:
+          type: number
+          description: Sewing rate of the item in UAH when the work was recorded.
+        isVoided: *id004
+        voidedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        voidedByName:
+          type:
+          - string
+          - 'null'
+        voidReason:
+          type:
+          - string
+          - 'null'
+        createdByName: *id003
+        createdAt: &id007
+          type: string
+          format: date-time
+    WorkEmployeeChoice:
+      type: object
+      required:
+      - id
+      - fullName
+      - position
+      properties:
+        id: *id001
+        fullName: *id003
+        position: *id003
+    WorkItemChoice:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - modelName
+      - quantity
+      - sewn
+      - cut
+      - sewingRate
+      properties:
+        orderId: *id001
+        orderNumber: *id001
+        clientName: *id003
+        itemId: *id001
+        modelName: *id003
+        quantity: *id001
+        sewn: *id001
+        cut: *id001
+        sewingRate:
+          type:
+          - number
+          - 'null'
+    WorkChoicesResponse:
+      type: object
+      required:
+      - employees
+      - items
+      - overPlanReasons
+      properties:
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkEmployeeChoice'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkItemChoice'
+          description: Items of «Нове» orders.
+        overPlanReasons:
+          type: array
+          items: *id003
+    WorkLogTotals:
+      type: object
+      required:
+      - sewn
+      - cut
+      - records
+      properties:
+        sewn: *id001
+        cut: *id001
+        records: *id001
+      description: Pieces of records not cancelled.
+    WorkLogResponse:
+      type: object
+      required:
+      - month
+      - rows
+      - totals
+      properties:
+        month: *id003
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionWorkResponse'
+        totals:
+          $ref: '#/components/schemas/WorkLogTotals'
+    ProductionItemWorkResponse:
+      type: object
+      required:
+      - orderId
+      - itemId
+      - orderNumber
+      - modelName
+      - quantity
+      - sewingRate
+      - sewn
+      - cut
+      - rows
+      - canRecord
+      - cannotRecord
+      properties:
+        orderId: *id001
+        itemId: *id001
+        orderNumber: *id001
+        modelName: *id003
+        quantity: *id001
+        sewingRate:
+          type:
+          - number
+          - 'null'
+        sewn:
+          type: integer
+          description: Plan pieces sewn (not cancelled, not over plan).
+        cut: *id001
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionWorkResponse'
+        canRecord:
+          type: boolean
+          description: WorkshopChief and Admin on a «Нове» order with a sewing rate.
+        cannotRecord:
+          type:
+          - string
+          - 'null'
+          description: Why work cannot be recorded, for those who see the work.
+    CreateProductionWorkInput:
+      type: object
+      required:
+      - employeeId
+      - kind
+      - quantity
+      - workDate
+      - overPlan
+      - reason
+      - comment
+      properties:
+        employeeId:
+          type: integer
+          minimum: 1
+        kind: *id005
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100000
+        workDate: *id006
+        overPlan: *id004
+        reason:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Запас
+          - Заміна браку
+          - Зміна кількості
+          - Зразок
+          - Повторне пошиття
+          - Інше
+          - null
+          description: Required when overPlan.
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+    VoidProductionWorkInput:
+      type: object
+      required:
+      - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+    ProductionWorkImportRow:
+      type: object
+      required:
+      - legacyId
+      - orderLegacyId
+      - position
+      - employeeName
+      - kind
+      - quantity
+      - overPlan
+      - reason
+      - comment
+      - rate
+      - workDate
+      - at
+      - actorEmail
+      - voidedAt
+      - voidReason
+      properties:
+        legacyId: *id003
+        orderLegacyId: *id003
+        position: *id001
+        employeeName: *id003
+        kind: *id005
+        quantity: *id001
+        overPlan: *id004
+        reason:
+          type:
+          - string
+          - 'null'
+        comment:
+          type:
+          - string
+          - 'null'
+        rate: &id008
+          type: number
+        workDate: *id006
+        at: *id007
+        actorEmail:
+          type:
+          - string
+          - 'null'
+        voidedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        voidReason:
+          type:
+          - string
+          - 'null'
+    ProductionWorkImportInput:
+      type: object
+      required:
+      - rows
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionWorkImportRow'
+    ProductionWorkImportLine:
+      type: object
+      required:
+      - legacyId
+      - orderNumber
+      - position
+      - employeeName
+      - kind
+      - quantity
+      - action
+      - error
+      properties:
+        legacyId: *id003
+        orderNumber:
+          type:
+          - integer
+          - 'null'
+        position: *id001
+        employeeName: *id003
+        kind: *id003
+        quantity: *id001
+        action:
+          type: string
+          enum:
+          - created
+          - unchanged
+          - error
+        error:
+          type:
+          - string
+          - 'null'
+    ProductionWorkImportResult:
+      type: object
+      required:
+      - dryRun
+      - created
+      - unchanged
+      - errors
+      - lines
+      properties:
+        dryRun: *id004
+        created: *id001
+        unchanged: *id001
+        errors: *id001
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionWorkImportLine'
+    ForecastRowResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - managerName
+      - remaining
+      - minutes
+      - finishOn
+      - status
+      - reason
+      - dueDate
+      - isLate
+      properties:
+        orderId: *id001
+        orderNumber: *id001
+        clientName: *id003
+        managerName: *id003
+        remaining:
+          type: integer
+          description: Pieces left to sew.
+        minutes:
+          type:
+          - number
+          - 'null'
+          description: Sewing minutes left; only for those who see the sewing rate.
+        finishOn:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Approximate end of sewing, not a delivery date.
+        status:
+          type: string
+          enum:
+          - Estimated
+          - Complete
+          - Unknown
+        reason:
+          type:
+          - string
+          - 'null'
+          enum:
+          - MissingRate
+          - UnknownPredecessor
+          - BeyondHorizon
+          - null
+        dueDate:
+          type: string
+          format: date
+          description: The earliest «Готово до» of the items.
+        isLate:
+          type: boolean
+          description: finishOn is after dueDate.
+    ForecastSettingsResponse:
+      type: object
+      required:
+      - seamstressCount
+      - shiftMinutes
+      - minuteCost
+      properties:
+        seamstressCount: *id001
+        shiftMinutes: *id008
+        minuteCost:
+          type:
+          - number
+          - 'null'
+          description: Admin only.
+    ForecastResponse:
+      type: object
+      required:
+      - startDate
+      - settings
+      - problem
+      - rows
+      - canReorder
+      - version
+      properties:
+        startDate: *id006
+        settings:
+          oneOf:
+          - $ref: '#/components/schemas/ForecastSettingsResponse'
+          - type: 'null'
+          description: Only for those who see the sewing rate.
+        problem:
+          type:
+          - string
+          - 'null'
+          description: Why no date is counted at all.
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/ForecastRowResponse'
+        canReorder: *id004
+        version:
+          type: integer
+          description: Queue version; 0 before the first save.
+    SaveForecastQueueInput:
+      type: object
+      required:
+      - version
+      - orderIds
+      properties:
+        version:
+          type: integer
+          minimum: 0
+        orderIds:
+          type: array
+          items: *id001
+          description: Orders in the new order; the rest follow by order date.

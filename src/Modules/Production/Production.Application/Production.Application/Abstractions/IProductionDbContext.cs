@@ -1,8 +1,10 @@
 using Production.Domain.FabricNorms;
+using Production.Domain.Forecast;
 using Production.Domain.Orders;
 using Production.Domain.Settings;
 using Production.Domain.Staff;
 using Production.Domain.Stock;
+using Production.Domain.Work;
 
 namespace Production.Application.Abstractions;
 
@@ -19,5 +21,7 @@ public interface IProductionDbContext
     DbSet<FabricStock> FabricStocks { get; }
     DbSet<FabricMovement> FabricMovements { get; }
     DbSet<FabricIssue> FabricIssues { get; }
+    DbSet<ProductionWork> Work { get; }
+    DbSet<ForecastQueue> ForecastQueues { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

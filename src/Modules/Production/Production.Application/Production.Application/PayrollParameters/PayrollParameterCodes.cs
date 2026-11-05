@@ -11,6 +11,7 @@ public static class PayrollParameterCodes
     public const string EmbroideryRate = "EMBROIDERY_RATE_1000_STITCHES";
     public const string SeamstressCount = "SEAMSTRESS_COUNT";
     public const string MinuteCost = "MINUTE_COST_SEAMSTRESS";
+    public const string ShiftMinutes = "MINUTES_SHIFT";
 
     public static IReadOnlyList<(string Code, string Purpose)> All { get; } =
     [
@@ -21,6 +22,7 @@ public static class PayrollParameterCodes
         (ShopManagerRate, "Начальник цеху: частка від загальної суми за пошиття всіх швачок"),
         (EmbroideryRate, "Вишивка: оплата за 1000 стібків"),
         (SeamstressCount, "Прогноз пошиття: кількість швачок"),
+        (ShiftMinutes, "Прогноз пошиття: хвилин у зміні"),
         (MinuteCost, "Прогноз пошиття: вартість хвилини роботи швачки"),
     ];
 }
