@@ -341,6 +341,32 @@ paths:
     $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1forecast
   /api/production/forecast/queue:
     $ref: ./production/work-log.openapi.yaml#/paths/~1api~1production~1forecast~1queue
+  /api/production/timesheet:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1timesheet
+  /api/production/payroll/{month}:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}
+  /api/production/payroll/{month}/employees/{employeeId}:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1employees~1{employeeId}
+  /api/production/payroll/history/{year}:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1history~1{year}
+  /api/production/payroll/{month}/roles:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1roles
+  /api/production/payroll/{month}/embroidery:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1embroidery
+  /api/production/payroll/{month}/payments:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1payments
+  /api/production/payroll/payments/{paymentId}/void:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1payments~1{paymentId}~1void
+  /api/production/payroll/{month}/adjustments:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1adjustments
+  /api/production/payroll/adjustments/{adjustmentId}/void:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1adjustments~1{adjustmentId}~1void
+  /api/production/payroll/{month}/issued:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1issued
+  /api/production/payroll/{month}/close:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1close
+  /api/production/payroll/{month}/reopen:
+    $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1reopen
   /api/production/settings:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings
   /api/production/settings/telegram-test:

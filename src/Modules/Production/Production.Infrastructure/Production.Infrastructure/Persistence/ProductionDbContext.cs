@@ -2,9 +2,11 @@ using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Domain.Forecast;
 using Production.Domain.Orders;
+using Production.Domain.Payroll;
 using Production.Domain.Settings;
 using Production.Domain.Staff;
 using Production.Domain.Stock;
+using Production.Domain.Timesheet;
 using Production.Domain.Work;
 
 namespace Production.Infrastructure.Persistence;
@@ -26,6 +28,13 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<FabricIssue> FabricIssues => Set<FabricIssue>();
     public DbSet<ProductionWork> Work => Set<ProductionWork>();
     public DbSet<ForecastQueue> ForecastQueues => Set<ForecastQueue>();
+    public DbSet<WorkshopTimeEntry> TimeEntries => Set<WorkshopTimeEntry>();
+    public DbSet<WorkshopTimeChange> TimeChanges => Set<WorkshopTimeChange>();
+    public DbSet<PayrollMonth> PayrollMonths => Set<PayrollMonth>();
+    public DbSet<PayrollRole> PayrollRoles => Set<PayrollRole>();
+    public DbSet<PayrollPayment> PayrollPayments => Set<PayrollPayment>();
+    public DbSet<PayrollAdjustment> PayrollAdjustments => Set<PayrollAdjustment>();
+    public DbSet<PayrollIssued> PayrollIssued => Set<PayrollIssued>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

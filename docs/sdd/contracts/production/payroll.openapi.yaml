@@ -1,0 +1,1036 @@
+openapi: 3.1.0
+info:
+  title: 'Production: timesheet and payroll'
+  version: 1.0.0
+  description: 'Stage 6 of «Швейний цех» (PRD-006). «Робочий час»: hours per worker and day in steps of 15 minutes, every
+    change kept. «Зарплата»: sewing = pieces × the item sewing rate; cutting = pieces × rate × «Коефіцієнт крою»; the seamstress
+    bonus once her sewing reaches the threshold; the master and the chief get a share of all sewing; embroidery by 1000 stitches;
+    adjustments add or deduct. All shares come from «Параметри ціноутворення». WorkshopChief and Admin see it and set roles
+    and embroidery; payments, adjustments, «Видано», closing and reopening are for Admin. A closed month keeps its calculation
+    and refuses changes of work, hours and pay in it.'
+servers:
+- url: /
+security:
+- Bearer: []
+paths:
+  /api/production/timesheet:
+    get:
+      tags: &id001
+      - Production
+      operationId: getTimesheetDay
+      summary: «Робочий час» of a day with the totals of its month
+      parameters:
+      - in: query
+        name: date
+        required: true
+        schema: &id004
+          type: string
+          format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimesheetDayResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid date
+    put:
+      tags: *id001
+      operationId: saveTimesheetDay
+      summary: Saves the changed marks of a day; each change is kept in the history
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveTimesheetDayInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimesheetDayResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid minutes, future day or no such worker
+        '409':
+          description: Stale version or the month is closed
+  /api/production/payroll/{month}:
+    get:
+      tags: *id001
+      operationId: getPayrollMonth
+      summary: «Зарплата» of a month
+      parameters:
+      - &id002
+        in: path
+        name: month
+        required: true
+        schema:
+          type: string
+          pattern: ^\d{4}-\d{2}$
+        description: YYYY-MM
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid month
+  /api/production/payroll/{month}/employees/{employeeId}:
+    get:
+      tags: *id001
+      operationId: getPayrollEmployee
+      summary: A worker's month in detail
+      parameters:
+      - *id002
+      - in: path
+        name: employeeId
+        required: true
+        schema: &id003
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollEmployeeResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid month
+        '404':
+          description: The worker has nothing in the month
+  /api/production/payroll/history/{year}:
+    get:
+      tags: *id001
+      operationId: getPayrollYear
+      summary: «Історія за рік»
+      parameters:
+      - in: path
+        name: year
+        required: true
+        schema: *id003
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollYearResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid year
+  /api/production/payroll/{month}/roles:
+    put:
+      tags: *id001
+      operationId: setPayrollRoles
+      summary: Chooses the master and the chief (holds for every open month)
+      parameters:
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '409':
+          description: Month closed or not started
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPayrollRolesInput'
+  /api/production/payroll/{month}/embroidery:
+    put:
+      tags: *id001
+      operationId: setPayrollEmbroidery
+      summary: Stitches of the month and who embroidered them
+      parameters:
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '409':
+          description: Month closed or not started
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPayrollEmbroideryInput'
+  /api/production/payroll/{month}/payments:
+    post:
+      tags: *id001
+      operationId: createPayrollPayment
+      summary: Adds a payment (Admin)
+      parameters:
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '409':
+          description: Month closed or not started
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePayrollPaymentInput'
+  /api/production/payroll/payments/{paymentId}/void:
+    post:
+      tags: *id001
+      operationId: voidPayrollPayment
+      summary: Cancels a payment with a reason (Admin)
+      parameters:
+      - in: path
+        name: paymentId
+        required: true
+        schema: *id003
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '404':
+          description: No such payment
+        '409':
+          description: Already cancelled or the month is closed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoidPayrollEntryInput'
+  /api/production/payroll/{month}/adjustments:
+    post:
+      tags: *id001
+      operationId: createPayrollAdjustment
+      summary: Adds an extra accrual or a deduction with a reason (Admin)
+      parameters:
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '409':
+          description: Month closed or not started
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePayrollAdjustmentInput'
+  /api/production/payroll/adjustments/{adjustmentId}/void:
+    post:
+      tags: *id001
+      operationId: voidPayrollAdjustment
+      summary: Cancels an adjustment with a reason (Admin)
+      parameters:
+      - in: path
+        name: adjustmentId
+        required: true
+        schema: *id003
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '404':
+          description: No such adjustment
+        '409':
+          description: Already cancelled or the month is closed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoidPayrollEntryInput'
+  /api/production/payroll/{month}/issued:
+    put:
+      tags: *id001
+      operationId: setPayrollIssued
+      summary: Sets «Видано» of a worker (Admin)
+      parameters:
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '409':
+          description: Month closed or not started
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPayrollIssuedInput'
+  /api/production/payroll/{month}/close:
+    post:
+      tags: *id001
+      operationId: closePayrollMonth
+      summary: 'Closes the month: keeps the calculation and locks work, hours and pay in it (Admin)'
+      parameters:
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '409':
+          description: Closed already, not started or the calculation has warnings
+  /api/production/payroll/{month}/reopen:
+    post:
+      tags: *id001
+      operationId: reopenPayrollMonth
+      summary: Opens a closed month again (Admin)
+      parameters:
+      - *id002
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollMonthResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '409':
+          description: The month is not closed
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    TimesheetDayResponse:
+      type: object
+      required:
+      - date
+      - canEdit
+      - isMonthClosed
+      - rows
+      - changes
+      - month
+      properties:
+        date: *id004
+        canEdit:
+          type: boolean
+          description: The day has come and its month is not closed.
+        isMonthClosed: &id006
+          type: boolean
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimesheetRowResponse'
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimesheetChangeResponse'
+        month:
+          $ref: '#/components/schemas/TimesheetMonthResponse'
+    TimesheetRowResponse:
+      type: object
+      required:
+      - employeeId
+      - name
+      - position
+      - isActive
+      - minutes
+      - version
+      properties:
+        employeeId: *id003
+        name: &id005
+          type: string
+        position: *id005
+        isActive: *id006
+        minutes:
+          type:
+          - integer
+          - 'null'
+          description: Null while the day is not marked; 0 means absent.
+        version:
+          type:
+          - integer
+          - 'null'
+    TimesheetChangeResponse:
+      type: object
+      required:
+      - id
+      - employeeId
+      - employeeName
+      - beforeMinutes
+      - afterMinutes
+      - changedAt
+      - changedByName
+      properties:
+        id: *id003
+        employeeId: *id003
+        employeeName: *id005
+        beforeMinutes:
+          type:
+          - integer
+          - 'null'
+          description: Null on the first mark.
+        afterMinutes: *id003
+        changedAt: &id009
+          type: string
+          format: date-time
+        changedByName: *id005
+    TimesheetMonthResponse:
+      type: object
+      required:
+      - month
+      - days
+      - employees
+      properties:
+        month: *id005
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimesheetMonthDayResponse'
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimesheetMonthEmployeeResponse'
+    TimesheetMonthDayResponse:
+      type: object
+      required:
+      - date
+      - people
+      - minutes
+      properties:
+        date: *id004
+        people: *id003
+        minutes: *id003
+    TimesheetMonthEmployeeResponse:
+      type: object
+      required:
+      - employeeId
+      - name
+      - position
+      - days
+      - minutes
+      properties:
+        employeeId: *id003
+        name: *id005
+        position: *id005
+        days: *id003
+        minutes: *id003
+    SaveTimesheetDayInput:
+      type: object
+      required:
+      - date
+      - entries
+      properties:
+        date: *id004
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimesheetEntryInput'
+    TimesheetEntryInput:
+      type: object
+      required:
+      - employeeId
+      - minutes
+      - version
+      properties:
+        employeeId:
+          type: integer
+          minimum: 1
+        minutes:
+          type: integer
+          minimum: 0
+          maximum: 1440
+          multipleOf: 15
+        version:
+          type:
+          - integer
+          - 'null'
+          description: The version read; null for a first mark.
+    PayrollMonthResponse:
+      type: object
+      required:
+      - month
+      - isClosed
+      - closedAt
+      - closedByName
+      - rates
+      - master
+      - chief
+      - stitches
+      - embroideryEmployee
+      - totalSewing
+      - warnings
+      - lines
+      - totals
+      - payments
+      - adjustments
+      - permissions
+      properties:
+        month: *id005
+        isClosed: *id006
+        closedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        closedByName:
+          type:
+          - string
+          - 'null'
+        rates:
+          $ref: '#/components/schemas/PayrollRatesResponse'
+        master: &id007
+          oneOf:
+          - $ref: '#/components/schemas/PayrollPersonResponse'
+          - type: 'null'
+        chief: *id007
+        stitches: *id003
+        embroideryEmployee: *id007
+        totalSewing:
+          type: number
+          description: Sewing of all workers in UAH; the base of the master and chief shares.
+        warnings:
+          type: array
+          items: *id005
+          description: Problems of the calculation; they block closing.
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayrollLineResponse'
+        totals:
+          $ref: '#/components/schemas/PayrollTotalsResponse'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayrollPaymentResponse'
+        adjustments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayrollAdjustmentResponse'
+        permissions:
+          $ref: '#/components/schemas/PayrollPermissionsResponse'
+      description: A month of «Зарплата»; a closed month as it was when closed.
+    PayrollRatesResponse:
+      type: object
+      required:
+      - bonus
+      - bonusThreshold
+      - cutting
+      - master
+      - chief
+      - embroidery
+      properties:
+        bonus:
+          type:
+          - number
+          - 'null'
+        bonusThreshold:
+          type:
+          - number
+          - 'null'
+        cutting:
+          type:
+          - number
+          - 'null'
+        master:
+          type:
+          - number
+          - 'null'
+        chief:
+          type:
+          - number
+          - 'null'
+        embroidery:
+          type:
+          - number
+          - 'null'
+      description: Shares of «Параметри ціноутворення» as fractions (0.08 = 8 %); null when not filled in.
+    PayrollPersonResponse:
+      type: object
+      required:
+      - employeeId
+      - name
+      - isAssigned
+      properties:
+        employeeId: *id003
+        name: *id005
+        isAssigned:
+          type: boolean
+          description: False when found by position.
+    PayrollLineResponse:
+      type: object
+      required:
+      - employeeId
+      - name
+      - position
+      - isActive
+      - minutes
+      - sewn
+      - sewing
+      - cut
+      - cutting
+      - bonus
+      - master
+      - chief
+      - embroidery
+      - other
+      - accrued
+      - paid
+      - due
+      - issued
+      properties:
+        employeeId: *id003
+        name: *id005
+        position: *id005
+        isActive: *id006
+        minutes: *id003
+        sewn: *id003
+        sewing: &id008
+          type: number
+        cut: *id003
+        cutting: *id008
+        bonus: *id008
+        master: *id008
+        chief: *id008
+        embroidery: *id008
+        other:
+          type: number
+          description: 'Adjustments: extra accruals minus deductions.'
+        accrued: *id008
+        paid: *id008
+        due: *id008
+        issued:
+          type:
+          - number
+          - 'null'
+          description: «Видано», when entered.
+    PayrollTotalsResponse:
+      type: object
+      required:
+      - minutes
+      - sewing
+      - cutting
+      - bonus
+      - master
+      - chief
+      - embroidery
+      - other
+      - accrued
+      - paid
+      - due
+      - issued
+      properties:
+        minutes: *id003
+        sewing: *id008
+        cutting: *id008
+        bonus: *id008
+        master: *id008
+        chief: *id008
+        embroidery: *id008
+        other: *id008
+        accrued: *id008
+        paid: *id008
+        due: *id008
+        issued: *id008
+    PayrollPaymentResponse:
+      type: object
+      required:
+      - id
+      - employeeId
+      - employeeName
+      - paidOn
+      - kind
+      - amount
+      - comment
+      - createdAt
+      - createdByName
+      - voidedAt
+      - voidedByName
+      - voidReason
+      properties:
+        id: *id003
+        employeeId: *id003
+        employeeName: *id005
+        paidOn: *id004
+        kind:
+          type: string
+          enum:
+          - Advance
+          - Card
+          - Cash
+          - Other
+        amount: *id008
+        comment:
+          type:
+          - string
+          - 'null'
+        createdAt: *id009
+        createdByName: *id005
+        voidedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        voidedByName:
+          type:
+          - string
+          - 'null'
+        voidReason:
+          type:
+          - string
+          - 'null'
+    PayrollAdjustmentResponse:
+      type: object
+      required:
+      - id
+      - employeeId
+      - employeeName
+      - amount
+      - reason
+      - createdAt
+      - createdByName
+      - voidedAt
+      - voidedByName
+      - voidReason
+      properties:
+        id: *id003
+        employeeId: *id003
+        employeeName: *id005
+        amount:
+          type: number
+          description: 'Positive: extra accrual; negative: deduction.'
+        reason: *id005
+        createdAt: *id009
+        createdByName: *id005
+        voidedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        voidedByName:
+          type:
+          - string
+          - 'null'
+        voidReason:
+          type:
+          - string
+          - 'null'
+    PayrollPermissionsResponse:
+      type: object
+      required:
+      - canSetUp
+      - canPay
+      - canClose
+      - canReopen
+      properties:
+        canSetUp:
+          type: boolean
+          description: 'Roles and embroidery: WorkshopChief and Admin on an open month.'
+        canPay:
+          type: boolean
+          description: 'Payments, adjustments, «Видано»: Admin on an open month that has started.'
+        canClose: *id006
+        canReopen: *id006
+    PayrollEmployeeResponse:
+      type: object
+      required:
+      - month
+      - isClosed
+      - line
+      - work
+      - payments
+      - adjustments
+      properties:
+        month: *id005
+        isClosed: *id006
+        line:
+          $ref: '#/components/schemas/PayrollLineResponse'
+        work:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayrollWorkRowResponse'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayrollPaymentResponse'
+        adjustments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayrollAdjustmentResponse'
+    PayrollWorkRowResponse:
+      type: object
+      required:
+      - workId
+      - employeeId
+      - workDate
+      - orderId
+      - orderNumber
+      - modelName
+      - kind
+      - quantity
+      - rate
+      - amount
+      - overPlan
+      properties:
+        workId: *id003
+        employeeId: *id003
+        workDate: *id004
+        orderId: *id003
+        orderNumber: *id003
+        modelName: *id005
+        kind:
+          type: string
+          enum:
+          - Sewing
+          - Cutting
+        quantity: *id003
+        rate:
+          type: number
+          description: 'Sewing rate the month is paid by: the item current rate while the month is open.'
+        amount: *id008
+        overPlan: *id006
+    PayrollYearResponse:
+      type: object
+      required:
+      - year
+      - months
+      - rows
+      properties:
+        year: *id003
+        months:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayrollYearMonthResponse'
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayrollYearRowResponse'
+    PayrollYearMonthResponse:
+      type: object
+      required:
+      - month
+      - isClosed
+      - accrued
+      properties:
+        month: *id005
+        isClosed: *id006
+        accrued: *id008
+    PayrollYearRowResponse:
+      type: object
+      required:
+      - employeeId
+      - name
+      - position
+      - accrued
+      - total
+      properties:
+        employeeId: *id003
+        name: *id005
+        position: *id005
+        accrued:
+          type: array
+          items:
+            type:
+            - number
+            - 'null'
+          minItems: 12
+          maxItems: 12
+          description: January first; null where nothing was earned.
+        total: *id008
+    SetPayrollRolesInput:
+      type: object
+      required:
+      - masterEmployeeId
+      - chiefEmployeeId
+      properties:
+        masterEmployeeId:
+          type:
+          - integer
+          - 'null'
+        chiefEmployeeId:
+          type:
+          - integer
+          - 'null'
+    SetPayrollEmbroideryInput:
+      type: object
+      required:
+      - stitches
+      - employeeId
+      properties:
+        stitches:
+          type: integer
+          minimum: 0
+          maximum: 1000000000
+        employeeId:
+          type:
+          - integer
+          - 'null'
+    CreatePayrollPaymentInput:
+      type: object
+      required:
+      - employeeId
+      - paidOn
+      - kind
+      - amount
+      - comment
+      properties:
+        employeeId:
+          type: integer
+          minimum: 1
+        paidOn: *id004
+        kind:
+          type: string
+          enum:
+          - Advance
+          - Card
+          - Cash
+          - Other
+        amount:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 10000000
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+    CreatePayrollAdjustmentInput:
+      type: object
+      required:
+      - employeeId
+      - amount
+      - reason
+      properties:
+        employeeId:
+          type: integer
+          minimum: 1
+        amount:
+          type: number
+          minimum: -10000000
+          maximum: 10000000
+          description: Not zero; negative for a deduction.
+        reason:
+          type: string
+          minLength: 3
+          maxLength: 500
+    VoidPayrollEntryInput:
+      type: object
+      required:
+      - reason
+      properties:
+        reason:
+          type: string
+          minLength: 3
+          maxLength: 500
+    SetPayrollIssuedInput:
+      type: object
+      required:
+      - employeeId
+      - amount
+      properties:
+        employeeId:
+          type: integer
+          minimum: 1
+        amount:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+          maximum: 10000000
+          description: Null clears it.

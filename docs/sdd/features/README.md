@@ -68,6 +68,7 @@ The [module map](../architecture/overview/modules.md) describes Accounting/Crm b
 - [Production orders «Виробничі завдання»](production/production-orders.md) — orders from sent КП with snapshot, history, copy, soft delete and transfer of old orders (stage 2); stages, shipments, close/cancel, files on the CDN, one Telegram message to the workshop group, «Налаштування цеху» (stage 3).
 - [Fabric stock «Склад тканин»](production/fabric-stock.md) — balances by fabric and colour, movements with history, reservation from norms, issues to order items, value, consumption summary, transfer of the old stock (stage 4).
 - [Work log and sewing forecast](production/work-log.md) — «Журнал робіт» with rate snapshot, over-plan reasons and «Сторно», «Робота» of an item, «Прогноз пошиття» with the saved queue, transfer of the old log (stage 5).
+- [Timesheet and payroll](production/payroll.md) — «Робочий час» with change history, «Зарплата» of a month from the work log and «Параметри ціноутворення», payments and adjustments, closing a month (stage 6).
 
 ## Reminders
 
