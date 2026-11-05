@@ -6,7 +6,9 @@ namespace Purchasing.Domain.Documents;
 
 /// <summary>
 /// Reads a document from JSON (an AI answer or a file uploaded by hand) and checks it. Money is compared in kopecks:
-/// the positions must add up to the total (plus VAT when prices are without VAT). Unknown fields are dropped.
+/// the positions must add up to the total (plus VAT when prices are without VAT). A line whose sum is up to 30 % below
+/// quantity × price is a discount and is accepted when the totals add up; a larger sum is a misreading. Unknown fields
+/// are dropped.
 /// </summary>
 public static partial class PurchaseDocumentRules
 {
@@ -65,6 +67,7 @@ public static partial class PurchaseDocumentRules
             && json.TryGetProperty("pricesIncludeVat", out var include) && include.ValueKind == JsonValueKind.True;
 
         var items = new List<PurchaseDocumentItem>();
+        var gaps = new List<LineGap>();
         if (!json.TryGetProperty("items", out var array) || array.ValueKind != JsonValueKind.Array || array.GetArrayLength() == 0)
             problems.Add("Немає жодної позиції.");
         else if (array.GetArrayLength() > MaxItems)
@@ -75,7 +78,7 @@ public static partial class PurchaseDocumentRules
             foreach (var item in array.EnumerateArray())
             {
                 position++;
-                var row = ReadItem(item, position, problems);
+                var row = ReadItem(item, position, problems, gaps);
                 if (row is not null) items.Add(row);
             }
         }
@@ -92,14 +95,22 @@ public static partial class PurchaseDocumentRules
             problems.Add("Рахунок без ПДВ не може мати суму ПДВ.");
         else vatAmount = null;
 
-        if (problems.Count == 0) CheckArithmetic(items, vat!.Value, pricesIncludeVat, vatAmount, total!, problems);
+        var totalsAddUp = problems.Count == 0 && CheckArithmetic(items, vat!.Value, pricesIncludeVat, vatAmount, total!, problems);
+        foreach (var gap in gaps.Where(x => !(totalsAddUp && x.Discount)))
+            problems.Add($"Позиція {gap.Position}: кількість × ціна = {gap.Expected.ToString("0.00", CultureInfo.InvariantCulture)}, а сума {gap.Sum}.");
         if (problems.Count > 0) return (null, problems);
 
         return (new PurchaseDocument(sourceUid, originalFileLink, documentType!, number!, date!, supplier!, vat!.Value,
             pricesIncludeVat, items, vatAmount, total!), problems);
     }
 
-    private static PurchaseDocumentItem? ReadItem(JsonElement item, int position, List<string> problems)
+    /// <summary>A discount of up to 30 %: a lower sum than that is more likely a misread quantity or price.</summary>
+    private const decimal MinDiscountedShare = 0.7m;
+
+    /// <summary>A line whose sum differs from quantity × price; a sum lower by up to 30 % is a discount.</summary>
+    private sealed record LineGap(int Position, decimal Expected, string Sum, bool Discount);
+
+    private static PurchaseDocumentItem? ReadItem(JsonElement item, int position, List<string> problems, List<LineGap> gaps)
     {
         var prefix = $"Позиція {position}";
         if (item.ValueKind != JsonValueKind.Object)
@@ -122,27 +133,29 @@ public static partial class PurchaseDocumentRules
         if (sum is null || !Money().IsMatch(sum)) problems.Add($"{prefix}: сума має бути числом з крапкою (до 2 знаків).");
         if (problems.Count > before) return null;
 
-        // Rounded unit prices are common, so only a clear misreading is a problem: more than 1 грн and 1 %.
+        // Rounded unit prices are common, so only a clear difference counts: more than 1 грн and 1 %.
         var expected = decimal.Parse(quantity!, CultureInfo.InvariantCulture) * decimal.Parse(price!, CultureInfo.InvariantCulture);
         var actual = decimal.Parse(sum!, CultureInfo.InvariantCulture);
         var gap = Math.Abs(expected - actual);
         if (gap > 1m && gap > actual * 0.01m)
-            problems.Add($"{prefix}: кількість × ціна = {expected.ToString("0.00", CultureInfo.InvariantCulture)}, а сума {sum}.");
+            gaps.Add(new LineGap(position, expected, sum!, actual < expected && actual >= expected * MinDiscountedShare));
 
         return new PurchaseDocumentItem(position, name!, quantity!, unit, price!, sum!);
     }
 
-    private static void CheckArithmetic(IReadOnlyList<PurchaseDocumentItem> items, PurchaseVatMode vat, bool pricesIncludeVat,
+    /// <summary>True when the positions add up to the total; otherwise adds the problem.</summary>
+    private static bool CheckArithmetic(IReadOnlyList<PurchaseDocumentItem> items, PurchaseVatMode vat, bool pricesIncludeVat,
         string? vatAmount, string total, List<string> problems)
     {
         var lines = items.Sum(x => Kopecks(x.Sum)!.Value);
         var expected = Kopecks(total)!.Value;
         var withVat = vat == PurchaseVatMode.WithVat && !pricesIncludeVat ? lines + Kopecks(vatAmount!)!.Value : lines;
-        if (withVat == expected) return;
+        if (withVat == expected) return true;
 
         problems.Add(vat == PurchaseVatMode.WithVat && !pricesIncludeVat
             ? $"Сума позицій {Format(lines)} + ПДВ {vatAmount} = {Format(withVat)}, а до оплати {total}."
             : $"Сума позицій {Format(lines)}, а до оплати {total}.");
+        return false;
     }
 
     /// <summary>Exact kopecks of a money string; null when it is not one.</summary>

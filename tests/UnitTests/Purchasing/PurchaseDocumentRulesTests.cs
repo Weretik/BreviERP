@@ -91,6 +91,33 @@ public sealed class PurchaseDocumentRulesTests
     }
 
     [Test]
+    public void A_discounted_line_is_accepted_when_the_totals_add_up()
+    {
+        // file_798: 5 % discount, 477.00 × 0.95 = 453.15 per line, the total is the sum of the discounted lines.
+        const string items = """
+            [{"name":"Рукавиці","quantity":"10","unit":"пар","price":"47.70","sum":"453.15"},
+             {"name":"Рукавиці","quantity":"20","unit":"пар","price":"47.70","sum":"906.30"}]
+            """;
+        var discounted = With(WithoutVat, x =>
+        {
+            x["items"] = System.Text.Json.Nodes.JsonNode.Parse(items);
+            x["totalPayable"] = "1359.45";
+        });
+        var (document, problems) = Read(discounted);
+        Assert.That(problems, Is.Empty);
+        Assert.That(document!.Items[1].Sum, Is.EqualTo("906.30"));
+
+        Assert.That(Read(With(discounted, x => x["totalPayable"] = "1431.00")).Problems, Is.EqualTo(new[]
+        {
+            "Сума позицій 1359.45, а до оплати 1431.00.",
+            "Позиція 1: кількість × ціна = 477.00, а сума 453.15.",
+            "Позиція 2: кількість × ціна = 954.00, а сума 906.30.",
+        }));
+        Assert.That(Read(With(WithoutVat, x => x["items"]![0]!["price"] = "7000")).Problems,
+            Is.EqualTo(new[] { "Позиція 1: кількість × ціна = 7000.00, а сума 8000.00." }));
+    }
+
+    [Test]
     public void Without_vat_cannot_carry_a_vat_amount_and_with_vat_needs_one()
     {
         Assert.That(Read(With(WithoutVat, x => x["vatAmount"] = "10.00")).Problems,
