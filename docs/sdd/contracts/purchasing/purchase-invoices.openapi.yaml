@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 'Purchasing: «Рахунки на закупку» register'
-  version: 1.0.0
+  version: 1.1.0
   description: 'Register of purchase invoices read from the Google Sheet «БРЕВІ команда» / «финансы» (PUR-001). Policy
     CanUsePurchaseInvoices: Director, Accountant and Admin; managers get 403. The sheet is only read, never written.'
 security:
@@ -13,7 +13,7 @@ paths:
       - Purchasing
       operationId: getPurchaseInvoices
       description: One page of cards, one per Telegram message, newest message first (unknown dates last). Search matches
-        the message text (case-insensitive) or an exact UID.
+        the message text (case-insensitive) or an exact UID. Filter WithoutSupplier lists cards with no supplier linked.
       parameters:
       - name: page
         in: query
@@ -53,6 +53,64 @@ paths:
           description: Not signed in
         '403':
           description: Not Director, Accountant or Admin
+  /api/purchasing/invoices/suppliers:
+    get:
+      tags:
+      - Purchasing
+      operationId: getPurchaseInvoiceSuppliers
+      description: Active Brevi suppliers (Reference) by name, for the supplier link. Offered here because the accountant
+        cannot read the Reference supplier list.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PurchaseSupplierOption'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+  /api/purchasing/invoices/{messageId}/review:
+    put:
+      tags:
+      - Purchasing
+      operationId: reviewPurchaseInvoice
+      description: 'Links a supplier (or none) and writes a note (stage 2). version is the reviewVersion the user saw; each
+        real change adds 1 and a history entry with the values before and after. Saving the same values changes nothing.
+        The sheet sync never touches these fields.'
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseInvoiceReviewRequest'
+      responses:
+        '200':
+          description: Saved (or unchanged)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseInvoiceReviewResponse'
+        '400':
+          description: Note longer than 1000 characters or invalid supplier id
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+        '404':
+          description: Card not found, or the supplier is unknown or no longer used (an inactive supplier may stay linked)
+        '409':
+          description: The version is stale (someone saved first) or the sheet sync is running; body is an array of messages
   /api/purchasing/invoices/sync-state:
     get:
       tags:
@@ -113,6 +171,7 @@ components:
       enum:
       - All
       - NeedsReview
+      - WithoutSupplier
     PurchaseInvoiceState:
       type: string
       description: NeedsReview when the representative row has problems, otherwise AwaitingRecognition.
@@ -202,6 +261,11 @@ components:
           - 'null'
           format: int32
           description: Brevi supplier linked by hand.
+        supplierName:
+          type:
+          - string
+          - 'null'
+          description: Name of the linked supplier; null when none is linked or the supplier no longer exists.
         reviewNote:
           type:
           - string
@@ -209,6 +273,17 @@ components:
         reviewVersion:
           type: integer
           format: int32
+          description: Send it back with the next review.
+        reviewedBy:
+          type:
+          - string
+          - 'null'
+          description: E-mail of who last changed the supplier link or note.
+        reviewedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
         state:
           $ref: '#/components/schemas/PurchaseInvoiceState'
         issues:
@@ -220,6 +295,71 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PurchaseInvoiceLinkResponse'
+    PurchaseSupplierOption:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+    PurchaseInvoiceReviewRequest:
+      type: object
+      required:
+      - version
+      properties:
+        supplierId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Null removes the link.
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+          description: Trimmed; empty removes the note.
+        version:
+          type: integer
+          format: int32
+          minimum: 0
+    PurchaseInvoiceReviewResponse:
+      type: object
+      required:
+      - messageId
+      - reviewVersion
+      properties:
+        messageId:
+          type: string
+        supplierId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        supplierName:
+          type:
+          - string
+          - 'null'
+        reviewNote:
+          type:
+          - string
+          - 'null'
+        reviewVersion:
+          type: integer
+          format: int32
+        reviewedBy:
+          type:
+          - string
+          - 'null'
+        reviewedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
     PurchaseInvoicePage:
       type: object
       required:

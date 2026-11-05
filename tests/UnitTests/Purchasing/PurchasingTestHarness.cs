@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Purchasing.Application.Abstractions;
+using Purchasing.Application.Register.Review;
 using Purchasing.Application.Register.Sync;
 using Purchasing.Domain.Files;
 using Purchasing.Domain.Ingestion;
@@ -41,6 +42,19 @@ internal sealed class FakeSheetReader : IPurchaseSheetReader
             : Task.FromResult(new PurchaseSheetContent(SpreadsheetId, SheetId, Rows.ToList()));
 }
 
+internal sealed class FakeSupplierReader : IPurchasingSupplierReader
+{
+    public List<PurchasingSupplier> Suppliers { get; } =
+    [
+        new(7, "Текстиль-Контакт", true),
+        new(8, "ФОП Бистров", true),
+        new(9, "Старий постачальник", false),
+    ];
+
+    public Task<IReadOnlyList<PurchasingSupplier>> ListAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<PurchasingSupplier>>(Suppliers.ToList());
+}
+
 /// <summary>The real module DbContext on in-memory SQLite; the PostgreSQL advisory lock becomes a flag.</summary>
 internal sealed class SqlitePurchasingDb(PurchasingDbContext db) : IPurchasingDbContext
 {
@@ -52,13 +66,14 @@ internal sealed class SqlitePurchasingDb(PurchasingDbContext db) : IPurchasingDb
     public DbSet<PurchaseSourceRevision> SourceRevisions => db.SourceRevisions;
     public DbSet<PurchaseMessageFile> Files => db.Files;
     public DbSet<PurchaseSyncState> SyncStates => db.SyncStates;
+    public DbSet<PurchaseReviewChange> ReviewChanges => db.ReviewChanges;
 
-    public async Task<IPurchaseSyncScope?> TryBeginSyncAsync(CancellationToken cancellationToken) =>
+    public async Task<IPurchaseWriteScope?> TryBeginWriteAsync(CancellationToken cancellationToken) =>
         LockHeld ? null : new Scope(await db.Database.BeginTransactionAsync(cancellationToken));
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 
-    private sealed class Scope(Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction) : IPurchaseSyncScope
+    private sealed class Scope(Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction) : IPurchaseWriteScope
     {
         private bool disposed;
         public Task CommitAsync(CancellationToken cancellationToken) => transaction.CommitAsync(cancellationToken);
@@ -88,8 +103,11 @@ internal sealed class PurchasingTestHarness : IDisposable
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 5, 8, 0, 0, TimeSpan.Zero));
     public FakeSheetReader Sheet { get; } = new();
     public SqlitePurchasingDb Db { get; }
+    public FakeSupplierReader Suppliers { get; } = new();
 
     public PurchaseRegisterSync Sync() => new(Db, Sheet, Time, NullLogger<PurchaseRegisterSync>.Instance);
+
+    public ReviewPurchaseInvoiceCommandHandler Review() => new(Db, Suppliers, Time);
 
     /// <summary>A fresh context on the same database, so reads do not see tracked entities.</summary>
     public PurchasingDbContext Fresh() =>

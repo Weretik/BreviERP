@@ -373,6 +373,10 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings~1telegram-test
   /api/purchasing/invoices:
     $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices
+  /api/purchasing/invoices/suppliers:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1suppliers
+  /api/purchasing/invoices/{messageId}/review:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1{messageId}~1review
   /api/purchasing/invoices/sync-state:
     $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1sync-state
   /api/purchasing/invoices/sync:

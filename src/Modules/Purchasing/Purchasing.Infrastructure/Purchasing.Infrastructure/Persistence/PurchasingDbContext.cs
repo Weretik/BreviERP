@@ -11,22 +11,23 @@ public sealed class PurchasingDbContext(DbContextOptions<PurchasingDbContext> op
 {
     public const string Schema = "purchasing";
 
-    /// <summary>pg advisory lock key of the sheet sync ("PURCH" in ASCII digits, unique among Brevi locks).</summary>
-    private const long SyncLockKey = 8_085_826_772;
+    /// <summary>pg advisory lock key of register writes: the sheet sync and manual reviews ("PURCH" in ASCII digits, unique among Brevi locks).</summary>
+    private const long WriteLockKey = 8_085_826_772;
 
     public DbSet<PurchaseMessage> Messages => Set<PurchaseMessage>();
     public DbSet<PurchaseSourceRow> SourceRows => Set<PurchaseSourceRow>();
     public DbSet<PurchaseSourceRevision> SourceRevisions => Set<PurchaseSourceRevision>();
     public DbSet<PurchaseMessageFile> Files => Set<PurchaseMessageFile>();
     public DbSet<PurchaseSyncState> SyncStates => Set<PurchaseSyncState>();
+    public DbSet<PurchaseReviewChange> ReviewChanges => Set<PurchaseReviewChange>();
 
-    public async Task<IPurchaseSyncScope?> TryBeginSyncAsync(CancellationToken cancellationToken)
+    public async Task<IPurchaseWriteScope?> TryBeginWriteAsync(CancellationToken cancellationToken)
     {
         var transaction = await Database.BeginTransactionAsync(cancellationToken);
         var locked = await Database
-            .SqlQuery<bool>($"SELECT pg_try_advisory_xact_lock({SyncLockKey}) AS \"Value\"")
+            .SqlQuery<bool>($"SELECT pg_try_advisory_xact_lock({WriteLockKey}) AS \"Value\"")
             .SingleAsync(cancellationToken);
-        if (locked) return new PurchaseSyncScope(transaction);
+        if (locked) return new PurchaseWriteScope(transaction);
         await transaction.DisposeAsync();
         return null;
     }
