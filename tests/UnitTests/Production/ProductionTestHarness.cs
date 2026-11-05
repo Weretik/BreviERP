@@ -138,6 +138,7 @@ internal sealed class ProductionTestHarness : IDisposable
     public FakeProductionSupplierReader Suppliers { get; } = new();
     public FakeProductionFileStorage Files { get; } = new();
     public FakeProductionTelegram Telegram { get; } = new();
+    public FakePayrollParameterReader Parameters { get; } = new();
     public ProductionLinks Links { get; } = new("https://office.test");
 
     public QuoteItemResolver Resolver() => new(Db, Models, Fabrics);

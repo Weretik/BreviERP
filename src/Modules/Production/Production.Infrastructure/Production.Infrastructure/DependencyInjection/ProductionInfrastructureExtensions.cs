@@ -6,6 +6,8 @@ using Production.Application.Orders.QuoteSources;
 using Production.Application.Orders.Tracking;
 using Production.Application.Stock;
 using Production.Application.Stock.Issues;
+using Production.Application.Work;
+using Production.Application.Forecast;
 using Production.Infrastructure.Persistence;
 
 namespace Production.Infrastructure.DependencyInjection;
@@ -27,6 +29,8 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<StockRows>();
         services.AddScoped<StockChanges>();
         services.AddScoped<ItemFabricCards>();
+        services.AddScoped<WorkCards>();
+        services.AddScoped<ForecastQueueReader>();
         services.TryAddSingleton(new ProductionLinks(configuration["Production:AdminUrl"] is { Length: > 0 } url
             ? url
             : "https://office.brevi.com.ua"));
