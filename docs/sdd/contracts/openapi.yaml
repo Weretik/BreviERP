@@ -371,6 +371,14 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings
   /api/production/settings/telegram-test:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings~1telegram-test
+  /api/ai/settings:
+    $ref: ./ai/ai-settings.openapi.yaml#/paths/~1api~1ai~1settings
+  /api/ai/settings/key:
+    $ref: ./ai/ai-settings.openapi.yaml#/paths/~1api~1ai~1settings~1key
+  /api/ai/settings/prompts/{key}:
+    $ref: ./ai/ai-settings.openapi.yaml#/paths/~1api~1ai~1settings~1prompts~1{key}
+  /api/ai/settings/test:
+    $ref: ./ai/ai-settings.openapi.yaml#/paths/~1api~1ai~1settings~1test
   /api/purchasing/invoices:
     $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices
   /api/purchasing/invoices/suppliers:
@@ -381,6 +389,14 @@ paths:
     $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1sync-state
   /api/purchasing/invoices/sync:
     $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1sync
+  /api/purchasing/invoices/files/{fileId}/recognize:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1files~1{fileId}~1recognize
+  /api/purchasing/invoices/recognize-new:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1recognize-new
+  /api/purchasing/invoices/files/{fileId}/document:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1files~1{fileId}~1document
+  /api/purchasing/invoices/files/{fileId}/document-template:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1files~1{fileId}~1document-template
   /api/reminders/non-working-days:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1non-working-days
   /api/reminders/non-working-days/{date}:

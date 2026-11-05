@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 'Purchasing: «Рахунки на закупку» register'
-  version: 1.1.0
+  version: 1.2.0
   description: 'Register of purchase invoices read from the Google Sheet «БРЕВІ команда» / «финансы» (PUR-001). Policy
     CanUsePurchaseInvoices: Director, Accountant and Admin; managers get 403. The sheet is only read, never written.'
 security:
@@ -13,7 +13,9 @@ paths:
       - Purchasing
       operationId: getPurchaseInvoices
       description: One page of cards, one per Telegram message, newest message first (unknown dates last). Search matches
-        the message text (case-insensitive) or an exact UID. Filter WithoutSupplier lists cards with no supplier linked.
+        the message text (case-insensitive) or an exact UID. Filter WithoutSupplier lists cards with no supplier linked;
+        NotRecognized lists cards with a link that has no checked facts; NeedsReview also includes cards whose last
+        recognition of a file failed.
       parameters:
       - name: page
         in: query
@@ -160,7 +162,123 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PurchaseErrors'
+  /api/purchasing/invoices/files/{fileId}/recognize:
+    post:
+      tags:
+      - Purchasing
+      operationId: recognizePurchaseFile
+      description: '«Розпізнати» / «Розпізнати знову» (stage 3): downloads the Dropbox original (PDF or picture, at most
+        20 MB), reads it with the fast model of «Налаштування ШІ», checks the facts in kopecks and retries once with the
+        strong model. Valid facts are saved (earlier ones go to history); otherwise the problems are recorded and shown on
+        the card. Problems of the answer come back with 200.'
+      parameters:
+      - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: Tried; see result and problems
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseRecognitionResponse'
+        '400':
+          description: The link is not a safe Dropbox link
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+        '404':
+          description: File not found or its message has no active rows
+        '409':
+          description: The sheet sync is running; body is an array of messages
+        '503':
+          description: The AI is off, has no key or reached its monthly limit; nothing was sent or recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseErrors'
+  /api/purchasing/invoices/recognize-new:
+    post:
+      tags:
+      - Purchasing
+      operationId: recognizeNewPurchaseFiles
+      description: 'One batch (5 files) of «Розпізнати всі нові»: active safe links never tried before, newest messages
+        first. Repeat while remaining is above 0 and stopReason is null. Failed files are not retried here; use
+        recognizePurchaseFile.'
+      responses:
+        '200':
+          description: Batch done
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseRecognitionBatchResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+  /api/purchasing/invoices/files/{fileId}/document:
+    put:
+      tags:
+      - Purchasing
+      operationId: savePurchaseDocument
+      description: '«Завантажити JSON»: checked facts prepared by hand. sourceUID must be an active row of the file''s
+        message and originalFileLink the exact link. The same facts again change nothing; different saved facts need
+        replace = true (the old ones go to history).'
+      parameters:
+      - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseDocumentSaveRequest'
+      responses:
+        '200':
+          description: Saved or unchanged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseDocumentSaveResponse'
+        '400':
+          description: The facts fail the checks (problems in Ukrainian) or the UID does not belong to the message
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+        '404':
+          description: File not found
+        '409':
+          description: Other facts are saved and replace is false, or the sheet sync is running
+  /api/purchasing/invoices/files/{fileId}/document-template:
+    get:
+      tags:
+      - Purchasing
+      operationId: getPurchaseDocumentTemplate
+      description: '«Шаблон JSON»: the saved facts, else the last AI answer, else empty fields, with sourceUID and
+        originalFileLink filled in.'
+      parameters:
+      - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseDocumentFile'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director, Accountant or Admin
+        '404':
+          description: File not found or its message has no active rows
 components:
+  parameters:
+    FileId:
+      name: fileId
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 64
   securitySchemes:
     Bearer:
       type: http
@@ -172,12 +290,15 @@ components:
       - All
       - NeedsReview
       - WithoutSupplier
+      - NotRecognized
     PurchaseInvoiceState:
       type: string
-      description: NeedsReview when the representative row has problems, otherwise AwaitingRecognition.
+      description: NeedsReview when the representative row or the last recognition of a file has problems; Recognized
+        when every safe link has checked facts; otherwise AwaitingRecognition. Shown only as problems, never as a badge.
       enum:
       - NeedsReview
       - AwaitingRecognition
+      - Recognized
     PurchaseInvoiceLinkResponse:
       type: object
       required:
@@ -194,6 +315,16 @@ components:
         safe:
           type: boolean
           description: True only for an HTTPS dropbox.com link without user or password; show other links as text.
+        document:
+          description: Checked facts of the original; null until recognised or uploaded.
+          oneOf:
+          - $ref: '#/components/schemas/PurchaseDocumentResponse'
+          - type: 'null'
+        recognition:
+          description: The last recognition while there are no checked facts; null otherwise.
+          oneOf:
+          - $ref: '#/components/schemas/PurchaseRecognitionAttemptResponse'
+          - type: 'null'
     PurchaseInvoiceResponse:
       type: object
       required:
@@ -453,6 +584,274 @@ components:
         syncedAt:
           type: string
           format: date-time
+    PurchaseDocumentVat:
+      type: string
+      description: WithVat only when VAT is clearly printed; otherwise WithoutVat.
+      enum:
+      - WithVat
+      - WithoutVat
+    PurchaseDocumentSource:
+      type: string
+      enum:
+      - Ai
+      - Manual
+    PurchaseRecognitionResult:
+      type: string
+      description: Skipped means the type cannot be read by AI (Excel, Word); upload JSON by hand.
+      enum:
+      - Recognized
+      - NeedsReview
+      - Failed
+      - Skipped
+    PurchaseDocumentItemResponse:
+      type: object
+      required:
+      - position
+      - name
+      - quantity
+      - price
+      - sum
+      properties:
+        position:
+          type: integer
+          format: int32
+        name:
+          type: string
+        quantity:
+          type: string
+          description: Decimal with a dot, up to 4 places.
+        unit:
+          type:
+          - string
+          - 'null'
+        price:
+          type: string
+          description: As printed; with VAT when pricesIncludeVat.
+        sum:
+          type: string
+          description: Up to 2 places.
+    PurchaseDocumentResponse:
+      type: object
+      required:
+      - documentType
+      - documentNumber
+      - documentDate
+      - supplierName
+      - vat
+      - pricesIncludeVat
+      - totalPayable
+      - items
+      - source
+      - checkedBy
+      - checkedAt
+      properties:
+        documentType:
+          type: string
+        documentNumber:
+          type: string
+        documentDate:
+          type: string
+          format: date
+        supplierName:
+          type: string
+          description: As printed; never links a Brevi supplier by itself.
+        vat:
+          $ref: '#/components/schemas/PurchaseDocumentVat'
+        pricesIncludeVat:
+          type: boolean
+        vatAmount:
+          type:
+          - string
+          - 'null'
+        totalPayable:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseDocumentItemResponse'
+        source:
+          $ref: '#/components/schemas/PurchaseDocumentSource'
+        model:
+          type:
+          - string
+          - 'null'
+          description: OpenAI model that read it; null for a manual file.
+        checkedBy:
+          type: string
+        checkedAt:
+          type: string
+          format: date-time
+    PurchaseRecognitionAttemptResponse:
+      type: object
+      required:
+      - result
+      - problems
+      - costUsd
+      - by
+      - at
+      properties:
+        result:
+          $ref: '#/components/schemas/PurchaseRecognitionResult'
+        problems:
+          type: array
+          items:
+            type: string
+        model:
+          type:
+          - string
+          - 'null'
+        costUsd:
+          type: number
+        by:
+          type: string
+        at:
+          type: string
+          format: date-time
+    PurchaseRecognitionResponse:
+      type: object
+      required:
+      - fileId
+      - result
+      - problems
+      - costUsd
+      properties:
+        fileId:
+          type: string
+        result:
+          $ref: '#/components/schemas/PurchaseRecognitionResult'
+        problems:
+          type: array
+          items:
+            type: string
+        model:
+          type:
+          - string
+          - 'null'
+        costUsd:
+          type: number
+    PurchaseRecognitionBatchResponse:
+      type: object
+      required:
+      - recognized
+      - needsReview
+      - failed
+      - skipped
+      - remaining
+      - costUsd
+      properties:
+        recognized:
+          type: integer
+          format: int32
+        needsReview:
+          type: integer
+          format: int32
+        failed:
+          type: integer
+          format: int32
+        skipped:
+          type: integer
+          format: int32
+        remaining:
+          type: integer
+          format: int32
+          description: New files still waiting after this batch.
+        costUsd:
+          type: number
+        stopReason:
+          type:
+          - string
+          - 'null'
+          description: Why the batch stopped early (AI off, no key, monthly limit, sync running).
+    PurchaseDocumentFile:
+      type: object
+      description: 'The JSON of checked facts. Decimals are strings with a dot. vat: with_vat or without_vat.'
+      required:
+      - sourceUID
+      - originalFileLink
+      - documentType
+      - documentNumber
+      - documentDate
+      - supplierName
+      - vat
+      - pricesIncludeVat
+      - items
+      - vatAmount
+      - totalPayable
+      properties:
+        sourceUID:
+          type: string
+        originalFileLink:
+          type: string
+        documentType:
+          type: string
+        documentNumber:
+          type: string
+        documentDate:
+          type: string
+          description: YYYY-MM-DD
+        supplierName:
+          type: string
+        vat:
+          type: string
+          enum:
+          - with_vat
+          - without_vat
+        pricesIncludeVat:
+          type: boolean
+        items:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items:
+            type: object
+            required:
+            - name
+            - quantity
+            - price
+            - sum
+            properties:
+              name:
+                type: string
+              quantity:
+                type: string
+              unit:
+                type:
+                - string
+                - 'null'
+              price:
+                type: string
+              sum:
+                type: string
+        vatAmount:
+          type:
+          - string
+          - 'null'
+        totalPayable:
+          type: string
+    PurchaseDocumentSaveRequest:
+      type: object
+      required:
+      - document
+      - replace
+      properties:
+        document:
+          $ref: '#/components/schemas/PurchaseDocumentFile'
+        replace:
+          type: boolean
+          description: Confirms replacing different saved facts.
+    PurchaseDocumentSaveResponse:
+      type: object
+      required:
+      - fileId
+      - unchanged
+      - replaced
+      properties:
+        fileId:
+          type: string
+        unchanged:
+          type: boolean
+        replaced:
+          type: boolean
     PurchaseErrors:
       type: object
       required:

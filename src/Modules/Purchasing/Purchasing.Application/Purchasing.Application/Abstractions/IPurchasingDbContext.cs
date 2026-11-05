@@ -1,3 +1,4 @@
+using Purchasing.Domain.Documents;
 using Purchasing.Domain.Files;
 using Purchasing.Domain.Messages;
 using Purchasing.Domain.Sources;
@@ -14,6 +15,9 @@ public interface IPurchasingDbContext
     DbSet<PurchaseMessageFile> Files { get; }
     DbSet<PurchaseSyncState> SyncStates { get; }
     DbSet<PurchaseReviewChange> ReviewChanges { get; }
+    DbSet<PurchaseCheckedDocument> CheckedDocuments { get; }
+    DbSet<PurchaseCheckedDocumentHistory> CheckedDocumentHistory { get; }
+    DbSet<PurchaseRecognitionAttempt> RecognitionAttempts { get; }
 
     /// <summary>
     /// Opens a register write transaction under the module lock; null while another write (usually the sheet sync)

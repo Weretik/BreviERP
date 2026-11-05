@@ -18,6 +18,13 @@ public sealed class PurchaseInvoicesContractTests
     [TestCase(typeof(PurchaseSupplierOption), "PurchaseSupplierOption")]
     [TestCase(typeof(PurchaseInvoiceReviewRequest), "PurchaseInvoiceReviewRequest")]
     [TestCase(typeof(PurchaseInvoiceReviewResponse), "PurchaseInvoiceReviewResponse")]
+    [TestCase(typeof(PurchaseDocumentResponse), "PurchaseDocumentResponse")]
+    [TestCase(typeof(PurchaseDocumentItemResponse), "PurchaseDocumentItemResponse")]
+    [TestCase(typeof(PurchaseRecognitionAttemptResponse), "PurchaseRecognitionAttemptResponse")]
+    [TestCase(typeof(PurchaseRecognitionResponse), "PurchaseRecognitionResponse")]
+    [TestCase(typeof(PurchaseRecognitionBatchResponse), "PurchaseRecognitionBatchResponse")]
+    [TestCase(typeof(PurchaseDocumentSaveRequest), "PurchaseDocumentSaveRequest")]
+    [TestCase(typeof(PurchaseDocumentSaveResponse), "PurchaseDocumentSaveResponse")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -27,6 +34,9 @@ public sealed class PurchaseInvoicesContractTests
 
     [TestCase(typeof(PurchaseInvoiceState), "PurchaseInvoiceState")]
     [TestCase(typeof(PurchaseInvoiceFilter), "PurchaseInvoiceFilter")]
+    [TestCase(typeof(PurchaseDocumentVat), "PurchaseDocumentVat")]
+    [TestCase(typeof(PurchaseDocumentSource), "PurchaseDocumentSource")]
+    [TestCase(typeof(PurchaseRecognitionResult), "PurchaseRecognitionResult")]
     public void Enum_values_match_the_machine_contract(Type type, string schema)
     {
         var values = (YamlSequenceNode)((YamlMappingNode)Schemas()[schema])["enum"];
@@ -45,7 +55,7 @@ public sealed class PurchaseInvoicesContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.EqualTo("CanUsePurchaseInvoices"));
-            Assert.That(operations, Has.Length.EqualTo(5));
+            Assert.That(operations, Has.Length.EqualTo(9));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

@@ -8,6 +8,7 @@ using Reminders.Api;
 using Media.Api;
 using Production.Api;
 using Purchasing.Api;
+using Ai.Api;
 using Host.Api.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -28,6 +29,7 @@ public static class ControllersExtensions
             .AddApplicationPart(typeof(RemindersApiAssemblyMarker).Assembly)
             .AddApplicationPart(typeof(MediaApiAssemblyMarker).Assembly)
             .AddApplicationPart(typeof(ProductionApiAssemblyMarker).Assembly)
-            .AddApplicationPart(typeof(PurchasingApiAssemblyMarker).Assembly);
+            .AddApplicationPart(typeof(PurchasingApiAssemblyMarker).Assembly)
+            .AddApplicationPart(typeof(AiApiAssemblyMarker).Assembly);
     }
 }

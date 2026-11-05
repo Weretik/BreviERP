@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Purchasing.Application.Abstractions;
+using Purchasing.Domain.Documents;
 using Purchasing.Domain.Files;
 using Purchasing.Domain.Messages;
 using Purchasing.Domain.Sources;
@@ -20,6 +21,9 @@ public sealed class PurchasingDbContext(DbContextOptions<PurchasingDbContext> op
     public DbSet<PurchaseMessageFile> Files => Set<PurchaseMessageFile>();
     public DbSet<PurchaseSyncState> SyncStates => Set<PurchaseSyncState>();
     public DbSet<PurchaseReviewChange> ReviewChanges => Set<PurchaseReviewChange>();
+    public DbSet<PurchaseCheckedDocument> CheckedDocuments => Set<PurchaseCheckedDocument>();
+    public DbSet<PurchaseCheckedDocumentHistory> CheckedDocumentHistory => Set<PurchaseCheckedDocumentHistory>();
+    public DbSet<PurchaseRecognitionAttempt> RecognitionAttempts => Set<PurchaseRecognitionAttempt>();
 
     public async Task<IPurchaseWriteScope?> TryBeginWriteAsync(CancellationToken cancellationToken)
     {
