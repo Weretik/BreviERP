@@ -9,6 +9,7 @@ using Production.Application.Stock.Issues;
 using Production.Application.Work;
 using Production.Application.Forecast;
 using Production.Application.Payroll;
+using Production.Application.Reports;
 using Production.Application.Timesheet;
 using Production.Infrastructure.Persistence;
 
@@ -35,6 +36,7 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<WorkCards>();
         services.AddScoped<ForecastQueueReader>();
         services.AddScoped<PayrollSheets>();
+        services.AddScoped<WorkshopReports>();
         services.AddScoped<PayrollChanges>();
         services.AddScoped<TimesheetDays>();
         services.TryAddSingleton(new ProductionLinks(configuration["Production:AdminUrl"] is { Length: > 0 } url

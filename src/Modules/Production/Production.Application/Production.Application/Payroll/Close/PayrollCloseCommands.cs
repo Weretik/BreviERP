@@ -3,12 +3,15 @@ using Production.Application.Contracts;
 using Production.Application.Orders;
 using Production.Application.Orders.Access;
 using Production.Application.Orders.Validation;
+using Production.Application.Reports;
+using Production.Domain.Payroll;
 
 namespace Production.Application.Payroll.Close;
 
 /// <summary>
-/// «Закрити розрахунковий місяць» (PRD-D43): keeps the calculation as it is now and locks the month. Refused while the
-/// calculation has warnings.
+/// «Закрити розрахунковий місяць» (PRD-D43): keeps the calculation and the report of the month (PRD-D49) as they are now
+/// and locks the month. Refused while the calculation has a warning other than an unchosen master or chief, whose share
+/// is then simply not paid.
 /// </summary>
 public sealed record ClosePayrollMonthCommand(ProductionActor Actor, string Month) : ICommand<Result<PayrollMonthResponse>>;
 
@@ -21,7 +24,8 @@ public sealed class ClosePayrollMonthCommandValidator : AbstractValidator<CloseP
     }
 }
 
-public sealed class ClosePayrollMonthCommandHandler(PayrollChanges changes, PayrollSheets sheets)
+public sealed class ClosePayrollMonthCommandHandler(PayrollChanges changes, PayrollSheets sheets,
+    WorkshopReports reports)
     : ICommandHandler<ClosePayrollMonthCommand, Result<PayrollMonthResponse>>
 {
     public async ValueTask<Result<PayrollMonthResponse>> Handle(ClosePayrollMonthCommand command,
@@ -29,7 +33,7 @@ public sealed class ClosePayrollMonthCommandHandler(PayrollChanges changes, Payr
         await changes.ApplyAsync(command.Actor, command.Month, adminOnly: true, async change =>
         {
             var snapshot = await sheets.ReadAsync(change.Period.Month, cancellationToken);
-            if (snapshot.Month.Warnings.Count > 0) return Result.Conflict(PayrollMessages.HasWarnings);
+            if (snapshot.Month.Warnings.Except(NotBlocking).Any()) return Result.Conflict(PayrollMessages.HasWarnings);
             var closed = snapshot with
             {
                 Month = snapshot.Month with
@@ -37,9 +41,16 @@ public sealed class ClosePayrollMonthCommandHandler(PayrollChanges changes, Payr
                     IsClosed = true, ClosedAt = change.Now, ClosedByName = change.ActorName
                 }
             };
-            change.Period.Close(PayrollSheets.Serialize(closed), change.ActorName, change.Now);
+            var report = await reports.CalculateAsync(change.Period.Month, cancellationToken);
+            report = report with { ClosedMonths = [report.From], OpenMonths = [] };
+            change.Period.Close(PayrollSheets.Serialize(closed), WorkshopReports.Serialize(report), change.ActorName,
+                change.Now);
             return null;
         }, cancellationToken);
+
+    /// <summary>Without a master or a chief their share is not paid; that does not keep the month open.</summary>
+    private static readonly string[] NotBlocking =
+        [PayrollMessages.Warning(PayrollWarning.NoMaster), PayrollMessages.Warning(PayrollWarning.NoChief)];
 }
 
 /// <summary>Opens a closed month again (Admin): it is counted afresh from the current data.</summary>

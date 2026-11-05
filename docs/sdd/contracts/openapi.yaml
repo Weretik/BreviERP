@@ -367,6 +367,10 @@ paths:
     $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1close
   /api/production/payroll/{month}/reopen:
     $ref: ./production/payroll.openapi.yaml#/paths/~1api~1production~1payroll~1{month}~1reopen
+  /api/production/reports:
+    $ref: ./production/workshop-reports.openapi.yaml#/paths/~1api~1production~1reports
+  /api/production/dashboard:
+    $ref: ./production/workshop-reports.openapi.yaml#/paths/~1api~1production~1dashboard
   /api/production/settings:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1settings
   /api/production/settings/telegram-test:

@@ -368,7 +368,7 @@ paths:
         '400':
           description: Invalid
         '409':
-          description: Closed already, not started or the calculation has warnings
+          description: Closed already, not started or the calculation has warnings other than an unchosen master or chief
   /api/production/payroll/{month}/reopen:
     post:
       tags: *id001
@@ -588,7 +588,7 @@ components:
         warnings:
           type: array
           items: *id005
-          description: Problems of the calculation; they block closing.
+          description: Problems of the calculation; they block closing, except an unchosen master or chief (that share is not paid).
         lines:
           type: array
           items:
