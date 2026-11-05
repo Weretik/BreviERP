@@ -1,0 +1,322 @@
+openapi: 3.1.0
+info:
+  title: 'Production: archive'
+  version: 1.0.0
+  description: 'Stage 8 of «Швейний цех» (PRD-008). «Архів цеху»: read-only lines of the old «Цех», the sheet «ГРАФИК работы»
+    (2017–2026) and the old requests, for everyone with production orders; moved by Admin from workshop-archive.json.'
+servers:
+- url: /
+security:
+- Bearer: []
+paths:
+  /api/production/archive:
+    get:
+      tags:
+      - Production
+      operationId: getWorkshopArchive
+      summary: 'A page of «Архів цеху»: one old book, newest first, found by every word and limited by date'
+      parameters:
+      - in: query
+        name: kind
+        required: true
+        schema:
+          type: string
+          enum:
+          - Schedule
+          - Request
+      - in: query
+        name: search
+        required: false
+        schema:
+          type: string
+          maxLength: 200
+      - in: query
+        name: from
+        required: false
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: to
+        required: false
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - in: query
+        name: pageSize
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkshopArchivePageResponse'
+        '400':
+          description: Unknown kind, wrong period or page
+        '401': &id001
+          description: Not signed in
+        '403': &id002
+          description: Not allowed
+  /api/production/archive/import:
+    post:
+      tags:
+      - Production
+      operationId: importWorkshopArchive
+      summary: 'Admin: move workshop-archive.json; dryRun only counts; a line already moved is skipped; any error saves nothing'
+      parameters:
+      - in: query
+        name: dryRun
+        required: false
+        schema:
+          type: boolean
+          default: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WorkshopArchiveImportRow'
+      responses:
+        '200':
+          description: What was or would be moved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkshopArchiveImportResult'
+        '400':
+          description: Empty file or more than 5000 rows
+        '401': *id001
+        '403': *id002
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    WorkshopArchivePageResponse:
+      type: object
+      required:
+      - kind
+      - page
+      - pageSize
+      - total
+      - items
+      properties:
+        kind:
+          type: string
+          enum:
+          - Schedule
+          - Request
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkshopArchiveRowResponse'
+    WorkshopArchiveRowResponse:
+      type: object
+      required:
+      - id
+      - sourceRow
+      - date
+      - dateText
+      - number
+      - client
+      - product
+      - quantity
+      - fabric
+      - status
+      - notes
+      - fields
+      - links
+      properties:
+        id:
+          type: integer
+        sourceRow:
+          type: integer
+          description: Row of the old book.
+        date:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: Null when the old book had no readable date.
+        dateText:
+          type:
+          - string
+          - 'null'
+          description: The date as written when it is not a date.
+        number:
+          type:
+          - string
+          - 'null'
+        client:
+          type:
+          - string
+          - 'null'
+        product:
+          type:
+          - string
+          - 'null'
+        quantity:
+          type:
+          - string
+          - 'null'
+          description: Free text such as «10+4».
+        fabric:
+          type:
+          - string
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+        notes:
+          type:
+          - string
+          - 'null'
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkshopArchiveFieldResponse'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkshopArchiveLinkResponse'
+    WorkshopArchiveFieldResponse:
+      type: object
+      required:
+      - label
+      - value
+      properties:
+        label:
+          type: string
+        value:
+          type: string
+      description: Another column of the old book, such as «Сезон» or «Пошив».
+    WorkshopArchiveLinkResponse:
+      type: object
+      required:
+      - label
+      - url
+      properties:
+        label:
+          type: string
+        url:
+          type: string
+          format: uri
+    WorkshopArchiveImportRow:
+      type: object
+      required:
+      - kind
+      - sourceKey
+      - sourceRow
+      - fields
+      - links
+      properties:
+        kind:
+          type: string
+          enum:
+          - Schedule
+          - Request
+        sourceKey:
+          type: string
+          description: 'Unique: «schedule:12» or the old request id.'
+        sourceRow:
+          type: integer
+        date:
+          type:
+          - string
+          - 'null'
+          format: date
+        dateText:
+          type:
+          - string
+          - 'null'
+        number:
+          type:
+          - string
+          - 'null'
+        client:
+          type:
+          - string
+          - 'null'
+        product:
+          type:
+          - string
+          - 'null'
+        quantity:
+          type:
+          - string
+          - 'null'
+        fabric:
+          type:
+          - string
+          - 'null'
+        status:
+          type:
+          - string
+          - 'null'
+        notes:
+          type:
+          - string
+          - 'null'
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkshopArchiveFieldResponse'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkshopArchiveLinkResponse'
+    WorkshopArchiveImportResult:
+      type: object
+      required:
+      - dryRun
+      - created
+      - unchanged
+      - errors
+      - errorLines
+      properties:
+        dryRun:
+          type: boolean
+        created:
+          type: integer
+        unchanged:
+          type: integer
+          description: Lines already in the archive.
+        errors:
+          type: integer
+        errorLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkshopArchiveImportError'
+    WorkshopArchiveImportError:
+      type: object
+      required:
+      - sourceKey
+      - error
+      properties:
+        sourceKey:
+          type: string
+        error:
+          type: string

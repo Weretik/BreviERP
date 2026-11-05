@@ -345,6 +345,10 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1progress-import
   /api/production/orders/report-price-import:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1report-price-import
+  /api/production/archive:
+    $ref: ./production/workshop-archive.openapi.yaml#/paths/~1api~1production~1archive
+  /api/production/archive/import:
+    $ref: ./production/workshop-archive.openapi.yaml#/paths/~1api~1production~1archive~1import
   /api/production/fabric-stock:
     $ref: ./production/fabric-stock.openapi.yaml#/paths/~1api~1production~1fabric-stock
   /api/production/fabric-stock/choices:

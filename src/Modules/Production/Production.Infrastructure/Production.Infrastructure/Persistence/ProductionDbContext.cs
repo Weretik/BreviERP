@@ -2,6 +2,7 @@ using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Domain.Forecast;
 using Production.Domain.Orders;
+using Production.Domain.Archive;
 using Production.Domain.Payroll;
 using Production.Domain.Settings;
 using Production.Domain.Staff;
@@ -35,6 +36,7 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<PayrollPayment> PayrollPayments => Set<PayrollPayment>();
     public DbSet<PayrollAdjustment> PayrollAdjustments => Set<PayrollAdjustment>();
     public DbSet<PayrollIssued> PayrollIssued => Set<PayrollIssued>();
+    public DbSet<WorkshopArchiveRecord> Archive => Set<WorkshopArchiveRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

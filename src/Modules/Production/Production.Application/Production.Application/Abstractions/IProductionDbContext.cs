@@ -1,3 +1,4 @@
+using Production.Domain.Archive;
 using Production.Domain.FabricNorms;
 using Production.Domain.Forecast;
 using Production.Domain.Orders;
@@ -32,5 +33,6 @@ public interface IProductionDbContext
     DbSet<PayrollPayment> PayrollPayments { get; }
     DbSet<PayrollAdjustment> PayrollAdjustments { get; }
     DbSet<PayrollIssued> PayrollIssued { get; }
+    DbSet<WorkshopArchiveRecord> Archive { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
