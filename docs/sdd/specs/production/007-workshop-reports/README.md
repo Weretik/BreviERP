@@ -1,6 +1,6 @@
 # PRD-007 «Швейний цех»: reports and the admin overview
 
-Status: stage 7 implemented 2026-11-05. Follows [PRD-006](../006-timesheet-payroll/README.md); the archive and the cutover come with stage 8.
+Status: stage 7 implemented 2026-11-05. Follows [PRD-006](../006-timesheet-payroll/README.md); the archive and the cutover come with [stage 8](../008-workshop-archive/README.md).
 
 ## Goal
 
