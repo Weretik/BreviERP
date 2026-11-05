@@ -53,7 +53,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
     private async Task<Result<QuoteResponse>> Send(QuoteActor actor, long id, int version)
     {
         await using var db = Context();
-        return await new SendQuoteCommandHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer()), _gmail,
+        return await new SendQuoteCommandHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer(), new QuoteTestNoCatalog()), _gmail,
                 _protector, _clock, NullLogger<SendQuoteCommandHandler>.Instance)
             .Handle(new SendQuoteCommand(actor, id, new SendQuoteInput(version, "client@agro.test; boss@agro.test",
                 "КП № 1-11-2026", "Добрий день")), default);
@@ -157,7 +157,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
     {
         var id = await AddQuote();
         await using var db = Context();
-        var draft = (await new GetQuoteSendDraftQueryHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer()), _gmail)
+        var draft = (await new GetQuoteSendDraftQueryHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer(), new QuoteTestNoCatalog()), _gmail)
             .Handle(new GetQuoteSendDraftQuery(Olena, id), default)).Value;
 
         Assert.That(draft.FromEmail, Is.Null);

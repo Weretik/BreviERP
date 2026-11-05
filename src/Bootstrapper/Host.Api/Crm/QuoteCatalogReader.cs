@@ -1,4 +1,3 @@
-using Catalog.Application.Features.Product.GetAdminDetail;
 using Catalog.Application.Features.Product.Overview.GetList;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
 using Catalog.Application.Features.Product.Overview.GetOne;
@@ -26,7 +25,7 @@ internal sealed class QuoteCatalogReader(ISender sender) : IQuoteCatalogReader
 
         var result = await sender.Send(OverviewPage(type, search, page, pageSize), cancellationToken);
         if (!result.IsSuccess) return new QuoteCatalogPage([], page, pageSize, 0);
-        var items = result.Value.Items.Select(x => Map(x, fabrics, null)).ToArray();
+        var items = result.Value.Items.Select(x => Map(x, fabrics)).ToArray();
         return new QuoteCatalogPage(items, result.Value.Page, result.Value.PageSize, result.Value.Total);
     }
 
@@ -49,7 +48,7 @@ internal sealed class QuoteCatalogReader(ISender sender) : IQuoteCatalogReader
 
         var matching = rows.Where(x => string.Equals(x.Season?.Trim(), season, StringComparison.OrdinalIgnoreCase))
             .ToArray();
-        var items = matching.Skip((page - 1) * pageSize).Take(pageSize).Select(x => Map(x, fabrics, null)).ToArray();
+        var items = matching.Skip((page - 1) * pageSize).Take(pageSize).Select(x => Map(x, fabrics)).ToArray();
         return new QuoteCatalogPage(items, page, pageSize, matching.Length);
     }
 
@@ -65,13 +64,7 @@ internal sealed class QuoteCatalogReader(ISender sender) : IQuoteCatalogReader
         foreach (var id in productIds)
         {
             var item = await sender.Send(new GetProductOverviewItemQuery(id), cancellationToken);
-            if (!item.IsSuccess) continue;
-            var detail = await sender.Send(new GetAdminProductDetailQuery(id), cancellationToken);
-            var photo = detail.IsSuccess
-                ? detail.Value.Photos.Where(x => x.IsVisible).OrderByDescending(x => x.IsMain).ThenBy(x => x.SortOrder)
-                    .Select(x => x.Url).FirstOrDefault()
-                : null;
-            products[id] = Map(item.Value, fabrics, photo);
+            if (item.IsSuccess) products[id] = Map(item.Value, fabrics);
         }
 
         return products;
@@ -81,12 +74,12 @@ internal sealed class QuoteCatalogReader(ISender sender) : IQuoteCatalogReader
         (await sender.Send(new GetAllFabricQuery(), cancellationToken)).Value?.ToDictionary(x => x.Id)
         ?? new Dictionary<int, FabricRowDTO>();
 
-    private static QuoteCatalogProduct Map(ProductOverviewItem item, IReadOnlyDictionary<int, FabricRowDTO> fabrics,
-        string? photoUrl)
+    /// <summary>The main photo of the card tab «Фото» in full size (CAT-019).</summary>
+    private static QuoteCatalogProduct Map(ProductOverviewItem item, IReadOnlyDictionary<int, FabricRowDTO> fabrics)
     {
         var kind = item.Type == nameof(ProductType.Ppe) ? QuoteItemKind.Ppe : QuoteItemKind.Sewing;
         return new QuoteCatalogProduct(item.Id, kind, item.Code, item.Name, item.Season, item.IsActive,
-            item.CurrentSiteUrl, item.QuoteDescription, photoUrl, null, Tiers(item.Prices), item.Problems,
+            item.CurrentSiteUrl, item.QuoteDescription, item.MainPhotoFullUrl, null, Tiers(item.Prices), item.Problems,
             item.Variants.Select(x => Map(x, fabrics)).ToArray());
     }
 

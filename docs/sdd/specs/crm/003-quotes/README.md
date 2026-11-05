@@ -64,6 +64,7 @@ Stage 3 design: Google OAuth web client with `openid email gmail.send` only (no 
 - **R-26:** A «Виріб з нуля» variant (client remark, 2026-11-04) is a set of 1–10 different fabrics with metres; its cost is the sum of those fabrics plus the shared accessories, services and operations. A КП item has 1–20 such variants, each priced separately, all saved, any one marked «рекомендуємо». The variant title is the fabric names joined by « + ». Variants with the same fabrics and metres are not allowed. Existing variants keep their one fabric.
 - **R-27:** A Catalog model row in another fabric (client remark, 2026-11-04): next to the model's Catalog variants the manager adds any fabric from the Reference with its metres; the row is priced by the same formula from the model's current shared lines (accessories, services, extra fabrics, operations) and keeps its price on save until its fabric or metres change. «Перерахувати» prices it again from the model's current composition.
 - **R-28:** The КП shows prices as numbers without the currency sign; the PDF marks the recommended variant with «РЕКОМЕНДУЄМО» and a tinted row.
+- **R-29:** A Catalog item shows the product's main photo (card tab «Фото», full size): the catalogue search, the introduction setup, the editor and the PDF. An item without its own photo, or with a photo of the old site (brevi.com.ua, the imported КП), gets the main photo when the КП is opened or its PDF is built; saving keeps it. A photo picked with «Змінити фото» stays. Code: `Quotes/Catalog/QuoteItemPhotos.cs`.
 
 Stage 4 design: `Quotes` gains `IntroLayout`, `RecipientEmail`, `LetterName` (null for a request КП). An introduction is saved by its own endpoints with pages of models (`productId`, `articleId`, optional saved `itemId`); the server turns them into ordinary sewing items with one option each (only від 41 шт. shown) through `QuoteItemsBuilder`, so saved prices stay until «Перерахувати» (R-11), and then checks the layout, seasons, main models and repeats. `crm.QuoteIntroTemplates` keeps a template as jsonb pages of `productId`/`articleId` with the product and fabric names for display. The editor reads the main models and letter names from `GET /api/crm/quote-lookups/introduction` (managers cannot read the settings) and season models from `searchCrmQuoteCatalog` with `season`. The PDF composer draws the catalogue for Introduction and the item table for Request.
 
@@ -163,6 +164,7 @@ The file map is in the [feature card](../../../features/crm/clients-and-quotes.m
 | 5c | History, archive, copy: R-22–R-24 | done 2026-11-04 |
 | 6 | Old Calculator КП transfer: R-25 | done 2026-11-04 |
 | 7 | Client remarks: multi-fabric variants, model in another fabric, no currency sign: R-26–R-28 | done 2026-11-04 |
+| 8 | Main product photo everywhere in the КП: R-29 | done 2026-11-05 |
 
 Admin screens: brevi-web [QTE-001 screens](https://github.com/Weretik/brevi-web/blob/master/docs/specs/admin/quotes/001-quotes/README.md).
 

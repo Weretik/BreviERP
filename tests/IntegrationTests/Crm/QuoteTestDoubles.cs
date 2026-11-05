@@ -1,6 +1,8 @@
+using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Pdf;
 using Crm.Application.Quotes.Pdf.Introduction;
 using Crm.Application.Quotes.Staff;
+using Crm.Domain.Quotes;
 
 namespace IntegrationTests.Crm;
 
@@ -39,4 +41,15 @@ internal sealed class QuoteTestRenderer : IQuotePdfRenderer
 internal sealed class QuoteTestClock(DateTimeOffset now) : TimeProvider
 {
     public override DateTimeOffset GetUtcNow() => now;
+}
+
+/// <summary>A Catalog with no products: items keep their own photos.</summary>
+internal sealed class QuoteTestNoCatalog : IQuoteCatalogReader
+{
+    public Task<QuoteCatalogPage> SearchAsync(QuoteItemKind kind, string? search, string? season, int page,
+        int pageSize, CancellationToken cancellationToken) => Task.FromResult(new QuoteCatalogPage([], page, pageSize, 0));
+
+    public Task<IReadOnlyDictionary<int, QuoteCatalogProduct>> GetAsync(IReadOnlyCollection<int> productIds,
+        CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyDictionary<int, QuoteCatalogProduct>>(new Dictionary<int, QuoteCatalogProduct>());
 }
