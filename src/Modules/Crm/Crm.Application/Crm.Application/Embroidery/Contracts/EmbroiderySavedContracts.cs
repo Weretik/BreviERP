@@ -16,6 +16,7 @@ public sealed record EmbroiderySavedPriceResponse(string Name, decimal Unit, dec
 /// <param name="Mode">`Garment` or `Chevron`.</param>
 /// <param name="HoopLabel">The hoop label at save time.</param>
 /// <param name="Incomplete">Some ticked costs had no rate: the prices were «Орієнтовна».</param>
+/// <param name="Mockup">«Макет» from the Media library; null when none or the photo was removed.</param>
 public sealed record EmbroiderySavedSummaryResponse(
     long Id,
     string Number,
@@ -29,7 +30,14 @@ public sealed record EmbroiderySavedSummaryResponse(
     bool Incomplete,
     IReadOnlyList<EmbroiderySavedPriceResponse> Prices,
     DateTimeOffset CreatedAt,
-    string CreatedByName);
+    string CreatedByName,
+    EmbroideryMockupResponse? Mockup);
+
+/// <summary>A photo or mockup of the design for the workshop.</summary>
+public sealed record EmbroideryMockupResponse(int MediaFileId, string FileName, string Url, string? ThumbnailUrl);
+
+/// <summary>«Макет»: a Media library photo, or null to clear it.</summary>
+public sealed record SetEmbroideryMockupInput(int? MediaFileId);
 
 public sealed record EmbroiderySavedPageResponse(
     IReadOnlyList<EmbroiderySavedSummaryResponse> Items,

@@ -255,6 +255,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<int?>("MockupMediaFileId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Mode")
                         .IsRequired()
                         .HasMaxLength(20)

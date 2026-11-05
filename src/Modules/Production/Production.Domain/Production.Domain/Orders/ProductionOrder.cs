@@ -290,7 +290,7 @@ public sealed class ProductionOrder
         string.Join(", ", new[]
         {
             x.Kind == ItemApplicationKind.Embroidery ? "Вишивка" : "Друк",
-            x.Place?.Trim(), x.Description?.Trim(), x.Color?.Trim()
+            x.EmbroideryNumber, x.Place?.Trim(), x.Description?.Trim(), x.Color?.Trim()
         }.Where(part => !string.IsNullOrEmpty(part)))));
 }
 

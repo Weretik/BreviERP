@@ -1,5 +1,6 @@
 using Crm.Application.Embroidery.Persistence;
 using Crm.Application.Embroidery.StitchRate;
+using Crm.Application.Embroidery.Mockup;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Import;
 using Crm.Application.Quotes.CustomSewing;
@@ -23,6 +24,7 @@ using Media.Infrastructure.DependencyInjection;
 using Host.Api.Production;
 using Production.Application.Abstractions;
 using Production.Infrastructure.DependencyInjection;
+using Purchasing.Infrastructure.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 
@@ -51,8 +53,10 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IQuoteImportLookup, QuoteImportLookup>();
         services.AddScoped<ITaskStaffReader, TaskStaffReader>();
         services.AddScoped<IEmbroideryStitchRateReader, EmbroideryStitchRateReader>();
+        services.AddScoped<IEmbroideryMediaReader, EmbroideryMediaReader>();
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
+        services.AddPurchasingInfrastructure(configuration);
         services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();
         services.AddHttpClient<IProductPhotoSource, CatalogProductPhotoSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddScoped<IMediaUsageReader, MediaProductUsageReader>();
@@ -66,6 +70,7 @@ public static class ModuleRegistrationsExtensions
         services.AddProductionInfrastructure(configuration);
         services.AddScoped<IProductionModelReader, ProductionModelReader>();
         services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
+        services.AddScoped<IProductionEmbroideryReader, ProductionEmbroideryReader>();
         services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
         services.AddScoped<IProductionSupplierReader, ProductionSupplierReader>();
         services.AddScoped<IProductionStaffReader, ProductionStaffReader>();

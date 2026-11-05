@@ -1,5 +1,6 @@
 using Production.Application.Abstractions;
 using Production.Application.Contracts;
+using Production.Application.Orders.Embroidery;
 using Production.Application.Orders.QuoteSources;
 using Production.Domain.Orders;
 
@@ -7,7 +8,7 @@ namespace Production.Application.Orders.CreateOrder;
 
 public sealed class CreateProductionOrderCommandHandler(
     IProductionDbContext db, IProductionQuoteReader quotes, IProductionStaffReader staff, QuoteItemResolver resolver,
-    OrderCards cards, TimeProvider clock)
+    OrderCards cards, EmbroideryLinks embroidery, TimeProvider clock)
     : ICommandHandler<CreateProductionOrderCommand, Result<ProductionOrderResponse>>
 {
     public async ValueTask<Result<ProductionOrderResponse>> Handle(CreateProductionOrderCommand command,
@@ -30,6 +31,10 @@ public sealed class CreateProductionOrderCommandHandler(
         var actorName = await OrderActors.NameAsync(staff, actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.ActorUnknown);
 
+        var numbers = await embroidery.NumbersAsync(actor.UserId, input.Items.Select(x => x.Details), null,
+            cancellationToken);
+        if (!numbers.IsSuccess) return Result<ProductionOrderResponse>.Invalid(numbers.ValidationErrors.ToArray());
+
         var tier = Enum.Parse<ReportPriceTier>(input.PriceTier, ignoreCase: true);
         var items = new List<ProductionItem>(input.Items.Count);
         foreach (var line in input.Items)
@@ -41,7 +46,7 @@ public sealed class CreateProductionOrderCommandHandler(
 
             var resolved = await resolver.ResolveAsync(quoteItem, cancellationToken);
             var variant = resolved.Options.Single(x => x.Option.Id == option.Id);
-            var details = line.Details.ToDetails();
+            var details = line.Details.ToDetails(numbers.Value);
             var source = new ItemSource(quoteItem.Id, option.Id, quoteItem.ProductId, option.ArticleId,
                 resolved.ModelCode, quoteItem.Name, option.FabricId, variant.FabricCode, variant.FabricName,
                 variant.SewingRate, variant.Price(tier));

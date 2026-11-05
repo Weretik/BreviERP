@@ -12,6 +12,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | `keepin-clients` | KeepinCRM → Brevi client refresh | the same key | [below](#keepin-clients) |
 | `sewing-prices` | Publishes Sewing prices whose inputs changed | none | [below](#sewing-prices) |
 | `media-thumbnails` | Makes size and previews for library photos without them | `storage-login`, `storage-password` → `AdmToolsStorage__Login`, `AdmToolsStorage__Password` | [below](#media-thumbnails) |
+| `purchase-invoices` | Google Sheet «финансы» → «Рахунки на закупку» | none; the sheet is shared with the runtime service account | [below](#purchase-invoices) |
 | `ppe-supplier-prices` | Mondays only: АВ-Центр, 3C-Маркет, Перчатка-центр and the Трєле cabinet; other days nothing | `trele-login`, `trele-password` → `SupplierCabinets__Trele__…` (optional) | [below](#ppe-supplier-prices) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
@@ -85,3 +86,16 @@ Step log: one line per source `<source>: checked N, changed N, unchanged N, skip
 It is the dealer account the client's script kept in Script Properties (`TRELE_LOGIN`, `TRELE_PASSWORD`). Create the two secrets in Secret Manager and give the Cloud Run runtime service account (the one that reads `keepincrm-api-key`) the «Secret Manager Secret Accessor» role on them; the next deploy attaches them. Without both the deploy still succeeds and the Трєле cabinet stays off. The secrets `insight-login` and `insight-password` are no longer used and can be deleted. Locally: `dotnet user-secrets set "SupplierCabinets:Trele:Login" "<login>" --project src/Bootstrapper/Host.Api/Host.Api.csproj` (and the password).
 
 On demand: «Імпорт цін» → source → «Оновити зараз» calls `POST /api/v1/pricing/ppe/supplier-prices/{key}/refresh` (preview, then `?dryRun=false`).
+
+## purchase-invoices
+
+Feature: [Purchase invoices](../../features/purchasing/purchase-invoices.md), specification [PUR-001](../../specs/purchasing/001-purchase-invoices/README.md). The same run as «Оновити зараз» (`POST /api/purchasing/invoices/sync`).
+
+The step reads the Google Sheet «БРЕВІ команда» (`Purchasing:Sheet:SpreadsheetId`, `SheetId` 824424675, `SheetTitle` «финансы»; the defaults are in code) with Application Default Credentials, scope `spreadsheets.readonly`. No secret is needed. One-time setup in project `brevistoreapi`:
+
+1. Enable Google Sheets API (APIs & Services → Library → Google Sheets API → Enable).
+2. Share the spreadsheet with the runtime service account of `brevierp-api` and `brevierp-sync` (Cloud Run → service → Security → Service account; the default compute account is `<project-number>-compute@developer.gserviceaccount.com`) as a viewer.
+
+Locally: `gcloud auth application-default login --scopes=https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/spreadsheets.readonly` with an account that can open the sheet.
+
+The whole sheet is read and checked first, then applied in one transaction under a lock; a failure changes nothing and is saved as the last error. Step log: `Rows N, files N; messages added N, updated N; rows added N, updated N, gone N; files added N, gone N`.

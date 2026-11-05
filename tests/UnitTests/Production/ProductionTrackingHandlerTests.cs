@@ -90,7 +90,7 @@ public sealed class ProductionTrackingHandlerTests
             CancellationToken.None);
 
         var updated = await new global::Production.Application.Orders.UpdateOrder.UpdateProductionOrderCommandHandler(
-                workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time)
+                workshop.Db, workshop.Staff, workshop.Cards(), workshop.EmbroideryLinks(), workshop.Time)
             .Handle(new(Admin, order.Id, new(shipped.Value.Version, order.ClientName, order.OrderDate, null,
                 [new UpdateProductionItemInput(order.Items[0].Id, ProductionOrderHandlerTests.Details(1), null)])),
                 CancellationToken.None);

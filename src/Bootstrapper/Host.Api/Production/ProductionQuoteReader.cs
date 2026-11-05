@@ -7,7 +7,7 @@ using Production.Application.Abstractions;
 
 namespace Host.Api.Production;
 
-/// <summary>Sent КП of Crm for «Передати в цех», read through the Crm quote queries; only sewn items count.</summary>
+/// <summary>Sent КП of Crm for «Передати в цех», read through the Crm quote queries; sewn items and the «Вишивка» rows.</summary>
 internal sealed class ProductionQuoteReader(ISender sender) : IProductionQuoteReader
 {
     private const int MaxSources = 100;
@@ -35,7 +35,9 @@ internal sealed class ProductionQuoteReader(ISender sender) : IProductionQuoteRe
         return new ProductionQuote(quote.Id, quote.Number, quote.Status == "Sent" && quote.Kind == "Request",
             quote.ArchivedAt is not null, quote.CompanyName ?? quote.InternalName, quote.CustomerId,
             quote.Responsible.UserId, quote.Responsible.Name,
-            quote.Items.Where(IsSewn).Select(Item).ToArray());
+            quote.Items.Where(IsSewn).Select(Item).ToArray(),
+            quote.Items.Where(x => x is { Kind: "Embroidery", EmbroideryCalculationId: not null })
+                .Select(x => new ProductionQuoteEmbroidery(x.Id, x.EmbroideryCalculationId!.Value, x.Name)).ToArray());
     }
 
     private static bool IsSewn(QuoteItemResponse item) => item.Kind is "Sewing" or "CustomSewing";

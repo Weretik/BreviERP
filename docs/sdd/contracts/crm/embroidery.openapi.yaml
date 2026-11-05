@@ -181,6 +181,29 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: Admin role required. }
         "404": { description: Not found. }
+  /api/crm/embroidery/calculations/{id}/mockup:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer, format: int64, minimum: 1 } }
+    put:
+      operationId: setCrmEmbroideryMockup
+      security:
+        - bearerAuth: []
+      description: «Макет» — a Media library photo of the design for the workshop; `mediaFileId` null clears it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmSetEmbroideryMockupInput" }
+      responses:
+        "200":
+          description: The saved calculation with its mockup.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmEmbroiderySavedCalculation" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
+        "404": { description: Not found. }
 components:
   responses:
     Invalid:
@@ -263,7 +286,7 @@ components:
     CrmEmbroiderySavedSummary:
       type: object
       required: [id, number, name, customerPublicId, customerName, mode, quantity, stitchesPerUnit, hoopLabel, incomplete,
-        prices, createdAt, createdByName]
+        prices, createdAt, createdByName, mockup]
       properties:
         id: { type: integer, format: int64 }
         number: { type: string, description: «ВШ-0042»; not stored. }
@@ -280,6 +303,23 @@ components:
           items: { $ref: "#/components/schemas/CrmEmbroiderySavedPrice" }
         createdAt: { type: string, format: date-time }
         createdByName: { type: string }
+        mockup:
+          oneOf:
+            - { $ref: "#/components/schemas/CrmEmbroideryMockup" }
+            - { type: "null" }
+          description: «Макет» from the Media library; null when none or the photo was removed.
+    CrmEmbroideryMockup:
+      type: object
+      required: [mediaFileId, fileName, url, thumbnailUrl]
+      properties:
+        mediaFileId: { type: integer }
+        fileName: { type: string }
+        url: { type: string }
+        thumbnailUrl: { type: [string, "null"] }
+    CrmSetEmbroideryMockupInput:
+      type: object
+      properties:
+        mediaFileId: { type: [integer, "null"], minimum: 1, description: A Media library photo; null clears the mockup. }
     CrmEmbroiderySavedPage:
       type: object
       required: [items, page, pageSize, total]

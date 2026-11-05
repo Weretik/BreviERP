@@ -26,5 +26,6 @@ internal static class OrderMessages
     public const string FileEmpty = "Файл порожній.";
     public const string CannotSend = "Повідомлення вже надіслано або його не можна надіслати.";
     public const string TelegramNotReady = "Telegram для цеху не налаштовано: оберіть групу в «Налаштування цеху».";
+    public const string EmbroideryNotFound = "Розрахунок вишивки не знайдено. Оберіть інший у «Ціна вишивки».";
     public const string SendingInProgress = "Повідомлення вже надсилається.";
 }

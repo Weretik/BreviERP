@@ -1,7 +1,9 @@
 namespace Production.Application.Contracts;
 
 /// <param name="Kind">Embroidery or Print.</param>
-public sealed record ItemApplicationInput(string Kind, string? Place, string? Description, string? Color);
+/// <param name="EmbroideryCalculationId">A saved «Ціна вишивки» calculation; only for an embroidery.</param>
+public sealed record ItemApplicationInput(string Kind, string? Place, string? Description, string? Color,
+    long? EmbroideryCalculationId = null);
 
 /// <summary>What the manager or the head of the workshop fill in for an item.</summary>
 public sealed record ProductionItemDetailsInput(

@@ -26,6 +26,7 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<IDatabaseMigrator, DbMigrator<ProductionDbContext>>();
         services.AddScoped<QuoteItemResolver>();
         services.AddScoped<OrderCards>();
+        services.AddScoped<Production.Application.Orders.Embroidery.EmbroideryLinks>();
         services.AddScoped<OrderTracking>();
         services.AddScoped<StockReservations>();
         services.AddScoped<StockRows>();

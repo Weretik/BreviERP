@@ -18,7 +18,8 @@ public sealed class GetProductionQuoteDraftQueryValidator : AbstractValidator<Ge
 }
 
 public sealed class GetProductionQuoteDraftQueryHandler(
-    Abstractions.IProductionQuoteReader quotes, QuoteItemResolver resolver)
+    Abstractions.IProductionQuoteReader quotes, QuoteItemResolver resolver,
+    Abstractions.IProductionEmbroideryReader embroideries)
     : IQueryHandler<GetProductionQuoteDraftQuery, Result<ProductionQuoteDraftResponse>>
 {
     public async ValueTask<Result<ProductionQuoteDraftResponse>> Handle(GetProductionQuoteDraftQuery query,
@@ -39,7 +40,15 @@ public sealed class GetProductionQuoteDraftQueryHandler(
                     query.Actor.SeesSewingRate ? x.SewingRate : null)).ToArray()));
         }
 
+        var rows = quote.Embroideries ?? [];
+        var calculations = rows.Count == 0
+            ? new Dictionary<long, ProductionEmbroideryResponse>()
+            : await embroideries.ReadAsync(query.Actor.UserId, rows.Select(x => x.CalculationId).Distinct().ToArray(),
+                cancellationToken);
+        var embroidery = rows.Where(x => calculations.ContainsKey(x.CalculationId))
+            .Select(x => new ProductionQuoteDraftEmbroidery(x.QuoteItemId, calculations[x.CalculationId].ToChoice()))
+            .ToArray();
         return Result.Success(new ProductionQuoteDraftResponse(quote.Id, quote.Number, quote.ClientName,
-            quote.ResponsibleName, items));
+            quote.ResponsibleName, items, embroidery));
     }
 }

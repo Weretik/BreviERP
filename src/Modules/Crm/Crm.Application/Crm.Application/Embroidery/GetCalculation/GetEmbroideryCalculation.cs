@@ -1,6 +1,7 @@
 using Crm.Application.Embroidery.Access;
 using Crm.Application.Embroidery.Contracts;
 using Crm.Application.Embroidery.Mapping;
+using Crm.Application.Embroidery.Mockup;
 using Crm.Application.Embroidery.Persistence;
 
 namespace Crm.Application.Embroidery.GetCalculation;
@@ -9,7 +10,7 @@ namespace Crm.Application.Embroidery.GetCalculation;
 public sealed record GetEmbroideryCalculationQuery(EmbroideryActor Actor, long Id)
     : IQuery<Result<EmbroiderySavedCalculationResponse>>;
 
-public sealed class GetEmbroideryCalculationQueryHandler(IEmbroideryStore store)
+public sealed class GetEmbroideryCalculationQueryHandler(IEmbroideryStore store, IEmbroideryMediaReader media)
     : IQueryHandler<GetEmbroideryCalculationQuery, Result<EmbroiderySavedCalculationResponse>>
 {
     public async ValueTask<Result<EmbroiderySavedCalculationResponse>> Handle(GetEmbroideryCalculationQuery query,
@@ -17,9 +18,9 @@ public sealed class GetEmbroideryCalculationQueryHandler(IEmbroideryStore store)
     {
         var saved = await store.EmbroideryCalculations.AsNoTracking()
             .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
-        return saved is null
-            ? Result.NotFound(EmbroideryMessages.CalculationNotFound)
-            : Result.Success(saved.ToResponse(query.Actor.SeesCost));
+        if (saved is null) return Result.NotFound(EmbroideryMessages.CalculationNotFound);
+        var mockups = await media.ReadForAsync([saved.MockupMediaFileId], cancellationToken);
+        return Result.Success(saved.ToResponse(query.Actor.SeesCost, mockups.Of(saved.MockupMediaFileId)));
     }
 }
 

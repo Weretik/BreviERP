@@ -45,6 +45,10 @@ public static class AuthorizationPoliciesRegistrationExtensions
             options.AddPolicy(PolicyNames.CanUseProductionOrders, policy =>
                 policy.RequireRole(RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Admin));
 
+            // «Рахунки на закупку»: the accountant and Admin; the director also holds Admin. Managers do not see it.
+            options.AddPolicy(PolicyNames.CanUsePurchaseInvoices, policy =>
+                policy.RequireRole(RoleNames.Accountant, RoleNames.Admin));
+
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));
         });

@@ -19,6 +19,7 @@ A manager passes their sent КП to the workshop as a «Виробниче за�
 | PRD-D14 | «Видалити» is soft: the order leaves lists and detail, its rows and history stay. «Копіювати» makes a new «Нове» order dated today with the same items, owned by the person who copies. |
 | PRD-D15 | Colours are free text for now; the colour list of a fabric comes with the stock in stage 4. «Нанесення» is a list of kind (вишивка, друк), place, description and colour. |
 | PRD-D16 | Old orders move through `POST /api/production/orders/import` with a preview first; an order already moved (same old id) stays unchanged; any wrong order saves nothing. The manager is matched by email. Item stages move with [PRD-003](../003-order-tracking/README.md). |
+| PRD-D41 | (2026-11-05, EMB-001 stage 4) A «Вишивка» may point to a saved «Ціна вишивки» calculation (`embroideryCalculationId`). A new link must exist (400 otherwise); its number «ВШ-…» is kept in the item, so a link survives when the calculation is removed later and an edit keeps it. A print never has one. The card reads the calculation as it is now through `IProductionEmbroideryReader` (no prices): name, quantity, stitches, hoop, hoopings, флізелін and fabric metres, mockup. The form picks one from `GET /api/production/orders/embroideries`; the КП draft lists its «Вишивка» rows (`embroideries`) to fill the items in. Materials are shown only; the stock does not change. |
 
 ## Acceptance
 
