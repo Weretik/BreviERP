@@ -4,8 +4,9 @@ namespace Crm.Application.Leads.Sheet;
 
 /// <summary>
 /// Turns the rows of the leads tab into <see cref="LeadSheetRow"/> (LEAD-001 R-02). Columns are found by their header,
-/// so the AI may add or move columns; «ID» and «Предприятие» are required. A row without a whole-number ID is skipped
-/// (an empty line or a note); the same ID twice stops the sync.
+/// so the AI may add or move columns; «ID» and «Предприятие» are required. A row without a whole-number ID or a company
+/// is skipped (an empty line or a note). Rows are matched by the company name (<see cref="Lead.KeyOf"/>), not by the ID
+/// the AI may repeat (owner, 2026-11-08); a company written twice keeps its first row and the repeats are reported.
 /// </summary>
 public static class LeadSheetParser
 {
@@ -24,7 +25,7 @@ public static class LeadSheetParser
             throw new LeadSheetFormatException("В аркуші лідів немає колонки «ID» або «Предприятие».");
 
         var result = new List<LeadSheetRow>();
-        var seen = new Dictionary<int, int>();
+        var lines = new Dictionary<string, List<int>>(StringComparer.Ordinal);
         var skipped = 0;
         for (var i = 1; i < rows.Count; i++)
         {
@@ -43,9 +44,21 @@ public static class LeadSheetParser
                 continue;
             }
 
+            var key = Lead.KeyOf(company);
+            if (key.Length == 0)
+            {
+                skipped++;
+                continue;
+            }
+
             var line = i + 1;
-            if (!seen.TryAdd(id, line))
-                throw new LeadSheetFormatException($"ID {id} записано двічі: рядки {seen[id]} і {line}. Виправте таблицю.");
+            if (lines.TryGetValue(key, out var taken))
+            {
+                taken.Add(line);
+                continue;
+            }
+
+            lines[key] = [line];
 
             result.Add(new LeadSheetRow(
                 id,
@@ -72,7 +85,11 @@ public static class LeadSheetParser
                     Cell(Column.Comment))));
         }
 
-        return new LeadSheetParseResult(result, skipped);
+        var duplicates = result
+            .Where(x => lines[Lead.KeyOf(x.Company)].Count > 1)
+            .Select(x => new LeadSheetDuplicate(x.Company, lines[Lead.KeyOf(x.Company)]))
+            .ToList();
+        return new LeadSheetParseResult(result, skipped, duplicates);
     }
 
     public static DateOnly? Date(string? text) =>
@@ -143,4 +160,21 @@ public static class LeadSheetParser
 }
 
 /// <param name="Skipped">Rows with text but without a whole-number ID or a company name.</param>
-public sealed record LeadSheetParseResult(IReadOnlyList<LeadSheetRow> Rows, int Skipped);
+/// <param name="Duplicates">Companies written on more than one row; only the first of those rows is applied.</param>
+public sealed record LeadSheetParseResult(
+    IReadOnlyList<LeadSheetRow> Rows,
+    int Skipped,
+    IReadOnlyList<LeadSheetDuplicate> Duplicates)
+{
+    /// <summary>The rows left out as repeats of a company.</summary>
+    public int Repeats => Duplicates.Sum(x => x.Lines.Count - 1);
+
+    /// <summary>««Ромашка» — рядки 121, 122» for the statistics page, or null without repeats.</summary>
+    public string? DuplicatesWarning => Duplicates.Count == 0
+        ? null
+        : "Підприємство записано в таблиці кілька разів, взято перший рядок: " +
+          string.Join("; ", Duplicates.Select(x => $"«{x.Company}» — рядки {string.Join(", ", x.Lines)}")) + ".";
+}
+
+/// <summary>A company the sheet has on several rows, with those row numbers; the first one is loaded.</summary>
+public sealed record LeadSheetDuplicate(string Company, IReadOnlyList<int> Lines);

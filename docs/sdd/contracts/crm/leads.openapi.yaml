@@ -320,8 +320,16 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: No right to sync. }
         "409": { $ref: "#/components/responses/Conflict" }
+        "422":
+          description: The sheet has an unexpected shape (no tab with the saved id, too many rows); nothing changed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmLeadSyncFailure" }
         "503":
           description: Google cannot be read now (access, network); nothing changed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmLeadSyncFailure" }
 components:
   parameters:
     LeadId:
@@ -376,7 +384,7 @@ components:
          nextContactAt, isOverdue, callCount, addedOn, inSheet, version]
       properties:
         id: { type: integer, format: int64 }
-        sourceId: { type: integer, description: The «ID» column of the sheet. }
+        sourceId: { type: integer, description: "The «ID» column of the sheet; not unique, leads match by company name." }
         company: { type: string }
         category: { type: [string, "null"] }
         region: { type: [string, "null"] }
@@ -503,9 +511,17 @@ components:
         code: { type: string }
         description: { type: [string, "null"] }
         leads: { type: integer }
+    CrmLeadSyncFailure:
+      type: object
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          description: Ukrainian messages for the Admin, also saved as the last sync error.
+          items: { type: string }
     CrmLeadSync:
       type: object
-      required: [rows, added, updated, gone, skipped, at]
+      required: [rows, added, updated, gone, skipped, at, duplicates, warning]
       properties:
         rows: { type: integer }
         added: { type: integer }
@@ -513,9 +529,11 @@ components:
         gone: { type: integer, description: Leads that disappeared from the sheet in this run. }
         skipped: { type: integer, description: Rows with text but without a whole-number ID or a company. }
         at: { type: string, format: date-time }
+        duplicates: { type: integer, description: "Rows left out because their company is already on an earlier row (rows match by company name, not ID)." }
+        warning: { type: [string, "null"], description: Which rows were left out and why; null when none. }
     CrmLeadSyncState:
       type: object
-      required: [lastRunAt, lastSuccessAt, rows, added, updated, error]
+      required: [lastRunAt, lastSuccessAt, rows, added, updated, error, warning]
       properties:
         lastRunAt: { type: [string, "null"], format: date-time }
         lastSuccessAt: { type: [string, "null"], format: date-time }
@@ -523,6 +541,7 @@ components:
         added: { type: integer }
         updated: { type: integer }
         error: { type: [string, "null"], description: Why the last run failed; null after a success. }
+        warning: { type: [string, "null"], description: "What the last successful run left out (repeated companies); null when nothing." }
     CrmLeadManagerStats:
       type: object
       required: [manager, inWork, calls, reachedPercent, offers, clients, overdue]

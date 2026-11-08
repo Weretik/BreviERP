@@ -78,28 +78,35 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
     }
 
     [Test]
-    public async Task SyncAddsUpdatesAndMarksGoneWithoutTouchingTheWork()
+    public async Task SyncMatchesByCompanyNameAndMarksGoneWithoutTouchingTheWork()
     {
         var first = await Sync();
         Assert.That((first.Rows, first.Added, first.Updated, first.Gone), Is.EqualTo((3, 3, 0, 0)));
 
         var taken = (await Take(Anastasia, await IdOf(1))).Value;
-        _sheet.Rows = [Header, ["1", "2026-08-19", null, "A", "L&S Distributions LLC", "Львів", "Склад", "Новий склад"],
-            ["2", "2026-08-20", null, "B", "ERC Київ", "Київ", "Склад", "Комплектувальники"]];
+        // The AI changed the IDs, rewrote the quotes and repeated one ID and one company: rows still match by name.
+        _sheet.Rows = [Header, ["5", "2026-08-19", null, "A", "«L&S Distributions»", "Львів", "Склад", "Новий склад"],
+            ["5", "2026-08-20", null, "B", "ERC Київ", "Київ", "Склад", "Комплектувальники"],
+            ["9", "2026-08-22", null, "B", "erc  київ", "Київ", "Склад", "Повтор"]];
         var second = await Sync();
 
         await using var db = Context();
-        var lead = await db.Leads.SingleAsync(x => x.SourceId == 1);
+        var lead = await db.Leads.SingleAsync(x => x.Id == taken.Id);
         Assert.Multiple(() =>
         {
-            Assert.That((second.Added, second.Updated, second.Gone), Is.EqualTo((0, 1, 1)));
-            Assert.That(lead.Company, Is.EqualTo("L&S Distributions LLC"));
+            Assert.That((second.Rows, second.Added, second.Updated, second.Gone), Is.EqualTo((2, 0, 2, 1)));
+            Assert.That(second.Duplicates, Is.EqualTo(1));
+            Assert.That(second.Warning, Does.Contain("«ERC Київ» — рядки 3, 4"));
+            Assert.That(lead.SourceId, Is.EqualTo(5));
+            Assert.That(lead.Company, Is.EqualTo("«L&S Distributions»"));
             Assert.That(lead.OwnerUserId, Is.EqualTo(17));
             Assert.That(lead.SheetNotes, Is.EqualTo("Хто взяв: Анастасия"));
             Assert.That(taken.Stage, Is.EqualTo("InWork"));
-            Assert.That(db.Leads.Single(x => x.SourceId == 3).InSheet, Is.False);
+            Assert.That(db.Leads.Count(), Is.EqualTo(3));
+            Assert.That(db.Leads.Single(x => x.Company == "Suziria Group").InSheet, Is.False);
             Assert.That(db.LeadCategories.Select(x => x.Code).OrderBy(x => x).ToList(), Is.EqualTo(new[] { "A", "B" }));
             Assert.That(db.LeadSyncStates.Single().Rows, Is.EqualTo(2));
+            Assert.That(db.LeadSyncStates.Single().Warning, Is.EqualTo(second.Warning));
         });
     }
 

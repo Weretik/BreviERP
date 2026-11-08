@@ -12,5 +12,6 @@ public sealed class LeadSyncStateConfiguration : IEntityTypeConfiguration<LeadSy
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).HasMaxLength(40);
         b.Property(x => x.Error).HasMaxLength(LeadLimits.LongText);
+        b.Property(x => x.Warning).HasMaxLength(LeadLimits.LongText);
     }
 }

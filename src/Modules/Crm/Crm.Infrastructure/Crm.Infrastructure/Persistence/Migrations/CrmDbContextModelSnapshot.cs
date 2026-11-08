@@ -386,6 +386,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
+                    b.Property<string>("NameKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<DateTimeOffset?>("NextContactAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -468,8 +473,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Category");
 
-                    b.HasIndex("SourceId")
+                    b.HasIndex("NameKey")
                         .IsUnique();
+
+                    b.HasIndex("SourceId");
 
                     b.HasIndex("Stage", "OwnerUserId");
 
@@ -680,6 +687,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("Updated")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Warning")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.HasKey("Id");
 

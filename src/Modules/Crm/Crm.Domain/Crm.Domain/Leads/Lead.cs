@@ -23,8 +23,11 @@ public sealed class Lead
 
     public long Id { get; private set; }
 
-    /// <summary>The «ID» column of the sheet: the key the sync matches rows by.</summary>
+    /// <summary>The «ID» column of the sheet: the number managers search by. The AI may repeat it, so it is not a key.</summary>
     public int SourceId { get; private set; }
+
+    /// <summary>The company name reduced by <see cref="KeyOf"/>: the key the sync matches rows by (owner, 2026-11-08).</summary>
+    public string NameKey { get; private set; } = null!;
 
     public DateOnly? AddedOn { get; private set; }
     public string? Category { get; private set; }
@@ -73,6 +76,7 @@ public sealed class Lead
     public bool ApplySheet(LeadSheetRow row, DateTimeOffset now)
     {
         var changed = !InSheet
+                      || SourceId != row.SourceId
                       || AddedOn != row.AddedOn
                       || Category != Text(row.Category, LeadLimits.CategoryMaxLength)
                       || Company != Text(row.Company, LeadLimits.ShortText)
@@ -93,6 +97,8 @@ public sealed class Lead
                       || Reliability != Text(row.Reliability, LeadLimits.ShortText)
                       || Email != Text(row.Email, LeadLimits.ShortText);
 
+        SourceId = row.SourceId;
+        NameKey = KeyOf(row.Company);
         AddedOn = row.AddedOn;
         Category = Text(row.Category, LeadLimits.CategoryMaxLength);
         Company = Text(row.Company, LeadLimits.ShortText) ?? $"Лід {row.SourceId}";
@@ -115,6 +121,17 @@ public sealed class Lead
         InSheet = true;
         SyncedAt = now;
         return changed;
+    }
+
+    /// <summary>
+    /// «ТОВ "Ромашка"» and «тов  ромашка» give the same key: case, quotes and extra spaces are ignored, so the AI
+    /// rewriting the quotes does not make a new lead.
+    /// </summary>
+    public static string KeyOf(string company)
+    {
+        var text = new string(company.Select(c => "\"'«»„“”‘’`".Contains(c) ? ' ' : char.ToLowerInvariant(c)).ToArray());
+        var key = string.Join(' ', text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        return key.Length <= LeadLimits.ShortText ? key : key[..LeadLimits.ShortText];
     }
 
     public void MarkGoneFromSheet(DateTimeOffset now)

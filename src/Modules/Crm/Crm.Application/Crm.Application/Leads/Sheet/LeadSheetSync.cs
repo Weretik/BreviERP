@@ -8,7 +8,7 @@ namespace Crm.Application.Leads.Sheet;
 /// <summary>
 /// Sheet «Лиды Brevi» → leads, used by «Синхронізувати зараз» and the daily brevierp-sync step (LEAD-001 R-03). Reads
 /// and checks the whole sheet first, then applies it in one transaction under a lock: a failed run changes nothing, a
-/// parallel run is refused. Rows are matched by «ID»; the calling work of a lead is never touched; a row missing from
+/// parallel run is refused. Rows are matched by the company name, not «ID»; the calling work of a lead is never touched; a row missing from
 /// the sheet only marks its lead «немає в таблиці».
 /// </summary>
 public sealed class LeadSheetSync(
@@ -41,10 +41,10 @@ public sealed class LeadSheetSync(
         {
             if (scope is null) return Result<LeadSyncResponse>.Conflict(LeadMessages.SyncRunning);
 
-            var leads = await store.Leads.ToDictionaryAsync(x => x.SourceId, cancellationToken);
+            var leads = await store.Leads.ToDictionaryAsync(x => x.NameKey, StringComparer.Ordinal, cancellationToken);
             foreach (var row in sheet.Rows)
             {
-                if (leads.Remove(row.SourceId, out var lead))
+                if (leads.Remove(Lead.KeyOf(row.Company), out var lead))
                 {
                     if (lead.ApplySheet(row, now)) updated++;
                 }
@@ -67,14 +67,16 @@ public sealed class LeadSheetSync(
 
             var state = await store.LeadSyncStates.FindAsync([LeadSyncState.GoogleSheet], cancellationToken);
             if (state is null) store.LeadSyncStates.Add(state = new LeadSyncState(LeadSyncState.GoogleSheet));
-            state.Succeeded(now, sheet.Rows.Count, added, updated);
+            state.Succeeded(now, sheet.Rows.Count, added, updated, sheet.DuplicatesWarning);
             await store.SaveChangesAsync(cancellationToken);
             await scope.CommitAsync(cancellationToken);
         }
 
-        logger.LogInformation("Leads synced: {Rows} rows, {Added} added, {Updated} updated, {Gone} gone, {Skipped} skipped",
-            sheet.Rows.Count, added, updated, gone, sheet.Skipped);
-        return Result.Success(new LeadSyncResponse(sheet.Rows.Count, added, updated, gone, sheet.Skipped, now));
+        logger.LogInformation(
+            "Leads synced: {Rows} rows, {Added} added, {Updated} updated, {Gone} gone, {Skipped} skipped, {Repeats} repeated companies",
+            sheet.Rows.Count, added, updated, gone, sheet.Skipped, sheet.Repeats);
+        return Result.Success(new LeadSyncResponse(sheet.Rows.Count, added, updated, gone, sheet.Skipped, now,
+            sheet.Repeats, sheet.DuplicatesWarning));
     }
 
     private async Task RecordFailureAsync(DateTimeOffset now, string error, CancellationToken cancellationToken)
