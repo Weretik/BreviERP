@@ -13,7 +13,8 @@ internal static class QuoteResponseMapper
         quote.CreatedAt, quote.UpdatedAt, quote.LastSentAt, quote.Version,
         quote.Items.OrderBy(x => x.Position).Select(ToResponse).ToArray(),
         quote.IntroLayout is { } layout
-            ? new QuoteIntroductionResponse(layout.ToString(), quote.RecipientEmail, quote.LetterName)
+            ? new QuoteIntroductionResponse(layout.ToString(), quote.RecipientEmail, quote.LetterName,
+                quote.LetterSubject, quote.LetterBody)
             : null);
 
     private static QuoteItemResponse ToResponse(QuoteItem item) => new(

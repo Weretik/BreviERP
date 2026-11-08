@@ -3,7 +3,7 @@ using Crm.Application.Quotes.Contracts;
 namespace Crm.Application.Quotes.Introductions.Contracts;
 
 /// <summary>What the introduction editor needs and a Manager cannot read from the settings.</summary>
-/// <param name="Letters">Letter variant names with their subjects, in the settings order.</param>
+/// <param name="Letters">Letter variants with their subjects and texts, in the settings order.</param>
 public sealed record QuoteIntroductionSetupResponse(
     QuoteIntroMainModelResponse Summer,
     QuoteIntroMainModelResponse Winter,
@@ -13,7 +13,8 @@ public sealed record QuoteIntroductionSetupResponse(
 /// <param name="Problem">Why the page cannot be built; null when it can.</param>
 public sealed record QuoteIntroMainModelResponse(string Code, QuoteCatalogProductResponse? Product, string? Problem);
 
-public sealed record QuoteIntroLetterResponse(string Name, string Subject);
+/// <summary>A letter variant as written in the settings, with its {marks} filled only when sending.</summary>
+public sealed record QuoteIntroLetterResponse(string Name, string Subject, string Body);
 
 public sealed record QuoteIntroTemplateResponse(
     long Id,

@@ -1470,16 +1470,17 @@ components:
       description: «КП для знайомства — рекламний каталог».
       properties:
         logoText: { type: [string, "null"] }
-        summerTitle: { type: [string, "null"] }
-        winterTitle: { type: [string, "null"] }
+        summerTitle: { type: [string, "null"], description: "A word in *asterisks* is printed in the accent colour." }
+        winterTitle: { type: [string, "null"], description: "A word in *asterisks* is printed in the accent colour." }
         subtitle: { type: [string, "null"] }
-        summerBannerUrl: { type: [string, "null"], format: uri }
-        winterBannerUrl: { type: [string, "null"], format: uri }
+        summerBannerUrl: { type: [string, "null"], format: uri, description: "1600×640 JPG; null prints the built-in summer banner." }
+        winterBannerUrl: { type: [string, "null"], format: uri, description: "1600×640 JPG; null prints the built-in winter banner." }
         modelsTitle: { type: [string, "null"] }
         assortmentLinkText: { type: [string, "null"] }
         assortmentUrl: { type: [string, "null"], format: uri }
         productButtonText: { type: [string, "null"] }
         nextStepText: { type: [string, "null"] }
+        pricesNote: { type: [string, "null"], maxLength: 300, description: "The line under the models; null hides it." }
         accentColor: { type: [string, "null"], pattern: "^#[0-9A-Fa-f]{6}$" }
         summerMainCode: { type: [string, "null"], maxLength: 100, description: "Main summer model code; null means MOD-166 «Імпульс»." }
         winterMainCode: { type: [string, "null"], maxLength: 100, description: "Main winter model code; null means MOD-169 «Прайм»." }
@@ -1590,6 +1591,8 @@ components:
         layout: { $ref: "#/components/schemas/CrmQuoteIntroLayout" }
         recipientEmail: { type: [string, "null"] }
         letterName: { type: [string, "null"] }
+        letterSubject: { type: [string, "null"], description: "The letter subject changed for this КП; null keeps the variant's." }
+        letterBody: { type: [string, "null"], description: "The letter text changed for this КП; null keeps the variant's." }
     CrmQuoteIntroModelInput:
       type: object
       required: [productId, articleId]
@@ -1621,6 +1624,8 @@ components:
         managerNote: { type: [string, "null"], maxLength: 4000 }
         layout: { $ref: "#/components/schemas/CrmQuoteIntroLayout" }
         letterName: { type: [string, "null"], maxLength: 300 }
+        letterSubject: { type: [string, "null"], maxLength: 300, description: "The variant's subject changed for this КП only; null keeps the variant's." }
+        letterBody: { type: [string, "null"], maxLength: 4000, description: "The variant's text changed for this КП only; null keeps the variant's." }
         pages:
           type: array
           description: One page per season of the layout, summer first; a model only once.
@@ -1634,10 +1639,11 @@ components:
         problem: { type: [string, "null"], description: Why the page cannot be built; null when it can. }
     CrmQuoteIntroLetter:
       type: object
-      required: [name, subject]
+      required: [name, subject, body]
       properties:
         name: { type: string }
         subject: { type: string }
+        body: { type: string, description: "As written in the settings; {marks} are filled when sending." }
     CrmQuoteIntroductionSetup:
       type: object
       required: [summer, winter, letters]

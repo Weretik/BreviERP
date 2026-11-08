@@ -8,6 +8,8 @@ namespace Crm.Application.Quotes.Introductions.Contracts;
 /// <param name="Layout">`General`, `Summer` or `Winter`.</param>
 /// <param name="LetterName">A letter variant of «Налаштування КП».</param>
 /// <param name="Pages">One page per season of the layout, summer first.</param>
+/// <param name="LetterSubject">The variant's subject changed for this КП; null keeps the variant's.</param>
+/// <param name="LetterBody">The variant's text changed for this КП; null keeps the variant's.</param>
 public sealed record SaveQuoteIntroductionInput(
     int Version,
     string InternalName,
@@ -18,7 +20,9 @@ public sealed record SaveQuoteIntroductionInput(
     string? ManagerNote,
     string Layout,
     string? LetterName,
-    IReadOnlyList<QuoteIntroPageInput> Pages);
+    IReadOnlyList<QuoteIntroPageInput> Pages,
+    string? LetterSubject = null,
+    string? LetterBody = null);
 
 /// <param name="Season">`Summer` or `Winter`.</param>
 /// <param name="Models">The main model of the season first, then three more.</param>

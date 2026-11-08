@@ -9,5 +9,6 @@ internal static class QuoteIntroductionInputMapper
         new(input.InternalName, input.CustomerId, input.RecipientName, input.CompanyName, null, input.ManagerNote);
 
     public static QuoteIntroduction ToIntroduction(this SaveQuoteIntroductionInput input) =>
-        new(Enum.Parse<QuoteIntroLayout>(input.Layout), input.RecipientEmail, input.LetterName);
+        new(Enum.Parse<QuoteIntroLayout>(input.Layout), input.RecipientEmail, input.LetterName, input.LetterSubject,
+            input.LetterBody);
 }

@@ -71,6 +71,10 @@ public sealed class SaveQuoteIntroductionInputValidator : AbstractValidator<Save
         RuleFor(x => x.CompanyName).MaximumLength(QuoteLimits.NameMaxLength);
         RuleFor(x => x.ManagerNote).MaximumLength(QuoteLimits.TextMaxLength);
         RuleFor(x => x.LetterName).MaximumLength(QuoteLimits.LetterNameMaxLength);
+        RuleFor(x => x.LetterSubject).MaximumLength(QuoteLimits.LetterSubjectMaxLength)
+            .WithMessage($"Тема листа — до {QuoteLimits.LetterSubjectMaxLength} символів.");
+        RuleFor(x => x.LetterBody).MaximumLength(QuoteLimits.LetterBodyMaxLength)
+            .WithMessage($"Текст листа — до {QuoteLimits.LetterBodyMaxLength} символів.");
         QuoteIntroPagesRules.Apply(this, x => x.Layout, x => x.Pages);
     }
 }

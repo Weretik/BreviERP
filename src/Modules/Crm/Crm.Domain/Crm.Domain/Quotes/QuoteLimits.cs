@@ -10,6 +10,8 @@ public static class QuoteLimits
     public const int NumberMaxLength = 20;
     public const int EmailMaxLength = 320;
     public const int LetterNameMaxLength = 300;
+    public const int LetterSubjectMaxLength = 300;
+    public const int LetterBodyMaxLength = 4000;
     public const int IntroModelsPerPage = 4;
     public const int MaxItems = 100;
     public const int MaxOptionsPerItem = 20;

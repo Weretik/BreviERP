@@ -66,9 +66,17 @@ public sealed class Quote
     /// <summary>The letter variant chosen for the introduction (R-17, R-18).</summary>
     public string? LetterName { get; private set; }
 
+    /// <summary>The letter subject changed for this КП only; null keeps the variant's subject.</summary>
+    public string? LetterSubject { get; private set; }
+
+    /// <summary>The letter text changed for this КП only; null keeps the variant's text.</summary>
+    public string? LetterBody { get; private set; }
+
     /// <summary>The introduction fields together; null for a КП «під запит».</summary>
     public QuoteIntroduction? Introduction =>
-        IntroLayout is { } layout ? new QuoteIntroduction(layout, RecipientEmail, LetterName) : null;
+        IntroLayout is { } layout
+            ? new QuoteIntroduction(layout, RecipientEmail, LetterName, LetterSubject, LetterBody)
+            : null;
 
     /// <summary>When the КП was last sent by Gmail (R-15); null for a draft.</summary>
     public DateTimeOffset? LastSentAt { get; private set; }
@@ -171,6 +179,8 @@ public sealed class Quote
         IntroLayout = introduction.Layout;
         RecipientEmail = QuoteText.Normalize(introduction.RecipientEmail)?.ToLowerInvariant();
         LetterName = QuoteText.Normalize(introduction.LetterName);
+        LetterSubject = QuoteText.Normalize(introduction.LetterSubject);
+        LetterBody = QuoteText.Normalize(introduction.LetterBody);
     }
 
     public void AssignResponsible(QuotePerson person, QuotePerson by, DateTimeOffset now)
@@ -209,8 +219,16 @@ public sealed class Quote
     }
 }
 
-/// <summary>The layout, recipient address and letter of a «КП для знайомства» (R-16, R-17).</summary>
-public sealed record QuoteIntroduction(QuoteIntroLayout Layout, string? RecipientEmail, string? LetterName)
+/// <summary>
+/// The layout, recipient address and letter of a «КП для знайомства» (R-16, R-17). The subject and text, when set,
+/// replace the chosen variant's for this КП only.
+/// </summary>
+public sealed record QuoteIntroduction(
+    QuoteIntroLayout Layout,
+    string? RecipientEmail,
+    string? LetterName,
+    string? LetterSubject = null,
+    string? LetterBody = null)
 {
     public IReadOnlyList<QuoteIntroSeason> Pages => Layout switch
     {

@@ -434,7 +434,15 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LastSentAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("LetterBody")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
                     b.Property<string>("LetterName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("LetterSubject")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
