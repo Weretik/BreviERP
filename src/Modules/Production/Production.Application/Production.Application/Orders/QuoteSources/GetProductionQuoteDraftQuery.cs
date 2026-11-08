@@ -28,7 +28,7 @@ public sealed class GetProductionQuoteDraftQueryHandler(
         if (!query.Actor.CanCreate) return Result<ProductionQuoteDraftResponse>.Forbidden(OrderMessages.CannotCreate);
         var quote = await quotes.ReadAsync(query.Actor.QuoteReader, query.QuoteId, cancellationToken);
         if (quote is null) return Result<ProductionQuoteDraftResponse>.NotFound(OrderMessages.QuoteNotFound);
-        if (!quote.IsSent) return Result<ProductionQuoteDraftResponse>.Conflict(OrderMessages.QuoteNotSent);
+        if (!quote.ForWorkshop) return Result<ProductionQuoteDraftResponse>.Conflict(OrderMessages.QuoteNotForWorkshop);
 
         var items = new List<ProductionQuoteDraftItem>(quote.Items.Count);
         foreach (var item in quote.Items)

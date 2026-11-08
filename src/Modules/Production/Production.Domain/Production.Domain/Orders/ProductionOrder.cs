@@ -3,7 +3,7 @@ using System.Globalization;
 namespace Production.Domain.Orders;
 
 /// <summary>
-/// «Виробниче завдання»: what the workshop sews for one КП. The manager creates it from their sent КП («Передати в
+/// «Виробниче завдання»: what the workshop sews for one КП. The manager creates it from their КП «під запит» («Передати в
 /// цех»); the client, manager and every item are copied then. <see cref="CreateRequestId"/> makes a repeated press of
 /// the button return the same order instead of a duplicate.
 /// </summary>
