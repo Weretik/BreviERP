@@ -320,8 +320,16 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: No right to sync. }
         "409": { $ref: "#/components/responses/Conflict" }
+        "422":
+          description: The sheet has an unexpected shape (no tab with the saved id, too many rows); nothing changed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmLeadSyncFailure" }
         "503":
           description: Google cannot be read now (access, network); nothing changed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmLeadSyncFailure" }
 components:
   parameters:
     LeadId:
@@ -503,6 +511,14 @@ components:
         code: { type: string }
         description: { type: [string, "null"] }
         leads: { type: integer }
+    CrmLeadSyncFailure:
+      type: object
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          description: Ukrainian messages for the Admin, also saved as the last sync error.
+          items: { type: string }
     CrmLeadSync:
       type: object
       required: [rows, added, updated, gone, skipped, at]
