@@ -1,4 +1,6 @@
+using Identity.Api.Contracts.Access;
 using Identity.Api.Contracts.Auth;
+using Identity.Application.Features.Access.GetMyAccess;
 using Identity.Application.Features.Auth.SessionMe;
 
 namespace Identity.Api.Controllers;
@@ -23,5 +25,19 @@ public sealed class AuthSessionController(ISender sender) : ControllerBase
         }
 
         return Ok(SessionMeResponse.From(result.Value));
+    }
+
+    /// <summary>
+    /// What the signed-in user may do, by page of «Права доступу»: the admin hides menu items and buttons by it; the
+    /// server checks the same rights on every request.
+    /// </summary>
+    [HttpGet("access", Name = "getSessionAccess")]
+    [Authorize]
+    [ProducesResponseType(typeof(MyAccessResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<MyAccessResponse>> Access(CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetMyAccessQuery(), cancellationToken);
+        return Ok(MyAccessResponse.From(result.Value));
     }
 }

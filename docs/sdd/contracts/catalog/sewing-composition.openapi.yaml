@@ -27,7 +27,7 @@ paths:
     post:
       operationId: createSewingArticle
       summary: Create a fabric variant of a Sewing Product
-      description: Requires CanManageProducts. Creates the variant (Article) with its fabric and metres per product in one transaction (CAT-015). Sale SKU is globally unique, trimmed and compared using ordinal case-sensitive equality.
+      description: Requires access:products. Creates the variant (Article) with its fabric and metres per product in one transaction (CAT-015). Sale SKU is globally unique, trimmed and compared using ordinal case-sensitive equality.
       security:
         - bearerAuth: []
       requestBody:
@@ -46,7 +46,7 @@ paths:
               schema: { $ref: '#/components/schemas/SewingArticle' }
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { description: Access token missing or invalid. }
-        '403': { description: Caller does not satisfy CanManageProducts. }
+        '403': { description: 'Caller does not satisfy access:products.' }
         '404': { description: Product not found or is not a Sewing Product. }
         '409': { $ref: '#/components/responses/ConflictError' }
   /api/v1/products/{productId}/composition:
@@ -82,7 +82,7 @@ paths:
       operationId: replaceSewingComposition
       summary: Replace model-wide Sewing composition
       description: >-
-        Requires CanManageProducts. Replaces all model-wide materials and operations
+        Requires access:products. Replaces all model-wide materials and operations
         atomically. A stale expectedVersion returns 409; clients must not replay
         automatically and should retain the user's draft for resolution.
       security:
@@ -100,7 +100,7 @@ paths:
               schema: { $ref: '#/components/schemas/SewingComposition' }
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { description: Access token missing or invalid. }
-        '403': { description: Caller does not satisfy CanManageProducts. }
+        '403': { description: 'Caller does not satisfy access:products.' }
         '404': { description: 'Product not found, is not Sewing, or referenced entity is missing.' }
         '409': { $ref: '#/components/responses/ConflictError' }
   /api/v1/products/{productId}/articles/{articleId}:
@@ -111,7 +111,7 @@ paths:
       operationId: updateSewingArticle
       summary: Change a fabric variant
       description: >-
-        Requires CanManageProducts. Changes the sale SKU, activity and the variant's fabric with metres per
+        Requires access:products. Changes the sale SKU, activity and the variant's fabric with metres per
         product (CAT-015). A stale expectedVersion returns 409.
       security:
         - bearerAuth: []
@@ -128,14 +128,14 @@ paths:
               schema: { $ref: '#/components/schemas/SewingArticle' }
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { description: Access token missing or invalid. }
-        '403': { description: Caller does not satisfy CanManageProducts. }
+        '403': { description: 'Caller does not satisfy access:products.' }
         '404': { description: 'Product, Article or fabric not found.' }
         '409': { $ref: '#/components/responses/ConflictError' }
     delete:
       operationId: deleteSewingArticle
       summary: Remove a fabric variant
       description: >-
-        Requires CanManageProducts. Removes the variant with its fabric line. A variant that already has saved
+        Requires access:products. Removes the variant with its fabric line. A variant that already has saved
         prices returns 409 and can be switched off instead.
       security:
         - bearerAuth: []
@@ -148,7 +148,7 @@ paths:
         '204': { description: Variant removed. }
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { description: Access token missing or invalid. }
-        '403': { description: Caller does not satisfy CanManageProducts. }
+        '403': { description: 'Caller does not satisfy access:products.' }
         '404': { description: Product or Article not found. }
         '409': { $ref: '#/components/responses/ConflictError' }
 components:

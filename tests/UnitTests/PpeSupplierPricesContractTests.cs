@@ -35,8 +35,8 @@ public sealed class PpeSupplierPricesContractTests
 
     [TestCase("listPpePriceSources", "CatalogRead")]
     [TestCase("updatePpePriceSource", "RequireAdminRole")]
-    [TestCase("importPpeSupplierPrices", "CanManageProducts")]
-    [TestCase("refreshPpeSupplierPrices", "CanManageProducts")]
+    [TestCase("importPpeSupplierPrices", "access:price-import")]
+    [TestCase("refreshPpeSupplierPrices", "access:price-import")]
     public void Operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
         var methods = typeof(Catalog.Api.Controllers.SewingArticlesController).Assembly.GetTypes()

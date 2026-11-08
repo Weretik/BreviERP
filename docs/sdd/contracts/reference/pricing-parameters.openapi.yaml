@@ -29,7 +29,7 @@ paths:
     post:
       operationId: createPricingParameter
       summary: Add a pricing parameter
-      description: Requires CanManageProducts. The ID is assigned by Brevi; updatedOn becomes today (Kyiv).
+      description: Requires access:pricing-parameters. The ID is assigned by Brevi; updatedOn becomes today (Kyiv).
       security:
         - bearerAuth: []
       requestBody:
@@ -51,7 +51,7 @@ paths:
       operationId: importPricingSettings
       summary: Import both tables of the Calculator sheet «Налаштування цін»
       description: >-
-        Requires CanManageProducts. Parameters are matched by code, PPE markup rules by name; the row number becomes
+        Requires access:pricing-parameters. Parameters are matched by code, PPE markup rules by name; the row number becomes
         the display order. dryRun (default) returns the preview only. Otherwise nothing is saved when any row has an
         error. deleteMissing deletes parameters and rules that are not in the sheet. Repeating the same file changes
         nothing.
@@ -81,7 +81,7 @@ paths:
       operationId: updatePricingParameter
       summary: Update a pricing parameter
       description: >-
-        Requires CanManageProducts. The code cannot change. When the value or type changes, updatedOn becomes today
+        Requires access:pricing-parameters. The code cannot change. When the value or type changes, updatedOn becomes today
         (Kyiv). A calculated parameter takes no value.
       security:
         - bearerAuth: []
@@ -122,7 +122,7 @@ paths:
     post:
       operationId: createPpeMarkupRule
       summary: Add a PPE markup rule
-      description: Requires CanManageProducts. The name is unique and cannot change later; PPE offers refer to it.
+      description: Requires access:pricing-parameters. The name is unique and cannot change later; PPE offers refer to it.
       security:
         - bearerAuth: []
       requestBody:

@@ -24,7 +24,7 @@ paths:
     post:
       operationId: createGarmentPartOperation
       summary: Create a garment part operation with a client supplied ID
-      description: Requires CanManageProducts. The code (OP-…) is unique when given; a duplicate is a 400 on Request.Code. Numeric edits append an approved pricing revision when the reference is versioned.
+      description: Requires access:operations. The code (OP-…) is unique when given; a duplicate is a 400 on Request.Code. Numeric edits append an approved pricing revision when the reference is versioned.
       security:
         - bearerAuth: []
       requestBody:
@@ -47,7 +47,7 @@ paths:
       operationId: importGarmentPartOperations
       summary: Import the Calculator sheet «Операції»
       description: >-
-        Requires CanManageProducts. The caller sends the sheet rows as JSON (one-time transfer from the Calculator
+        Requires access:operations. The caller sends the sheet rows as JSON (one-time transfer from the Calculator
         sheet). A row is matched by code (OP-…); the rest are created with the next ID. «Група деталей» is matched by
         name (case and punctuation ignored); an unknown one becomes a new group. dryRun (default) returns the preview
         only. Otherwise nothing is saved when any row has an error. deleteMissing deletes operations that are not in
@@ -79,7 +79,7 @@ paths:
     put:
       operationId: updateGarmentPartOperation
       summary: Update a garment part operation
-      description: Requires CanManageProducts. Numeric edits append an approved pricing revision when the reference is versioned.
+      description: Requires access:operations. Numeric edits append an approved pricing revision when the reference is versioned.
       security:
         - bearerAuth: []
       requestBody:
@@ -97,7 +97,7 @@ paths:
     delete:
       operationId: deleteGarmentPartOperation
       summary: Delete a garment part operation
-      description: Requires CanManageProducts. Numeric edits append an approved pricing revision when the reference is versioned.
+      description: Requires access:operations. Numeric edits append an approved pricing revision when the reference is versioned.
       security:
         - bearerAuth: []
       responses:

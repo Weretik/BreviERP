@@ -26,7 +26,7 @@ public sealed class SewingCompositionController(ISender sender) : ControllerBase
     }
 
     [HttpPut("composition", Name = "replaceSewingComposition")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     [ProducesResponseType(typeof(SewingComposition), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

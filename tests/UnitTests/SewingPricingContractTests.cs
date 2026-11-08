@@ -53,11 +53,11 @@ public sealed class SewingPricingContractTests
             Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
     }
 
-    [TestCase("saveSewingCalculation", "CanManageProducts")]
+    [TestCase("saveSewingCalculation", "access:products")]
     [TestCase("getSewingCalculation", "CatalogRead")]
-    [TestCase("publishSewingCalculation", "CanManageProducts")]
+    [TestCase("publishSewingCalculation", "access:products")]
     [TestCase("getPublishedSewingPrice", "CatalogRead")]
-    [TestCase("createSewingSettingsVersion", "CanManageProducts")]
+    [TestCase("createSewingSettingsVersion", "access:pricing-parameters")]
     [TestCase("getSewingSettings", "CatalogRead")]
     [TestCase("getPublishedSewingProducts", "CatalogRead")]
     [TestCase("getSewingArticleSummary", "CatalogRead")]

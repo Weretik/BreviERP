@@ -16,7 +16,7 @@ public sealed class PpePricingRulesController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetPpeRuleQuery(code), cancellationToken));
 
     [HttpPost("versions", Name = "createPpeRuleVersion")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     public async Task<ActionResult<PpeRuleVersion>> Create([FromBody] CreatePpeRuleVersionRequest request, CancellationToken cancellationToken)
     {
         var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);

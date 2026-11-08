@@ -4,7 +4,7 @@ info:
   version: 3.1.0
   description: '«Бухгалтерія» (ACC-001): «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази», «Огляд», «Контрагенти»
     and «Потребують перевірки» for the current books and «Домашня бухгалтерія», with a change log and private files
-    of operations. Policy CanUseAccounting:
+    of operations. Policy access:accounting («Права доступу»; only the Director by default):
     Director only; other roles get 403. Money is a whole number of kopecks.'
 security:
 - Bearer: []

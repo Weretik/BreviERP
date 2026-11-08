@@ -10,7 +10,7 @@ namespace Production.Api.Dashboard;
 
 /// <summary>«Огляд виробництва» on the admin home (PRD-D50): everyone with production orders.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.Orders)]
 [Route("api/production/dashboard")]
 public sealed class WorkshopDashboardController(ISender sender) : ControllerBase
 {

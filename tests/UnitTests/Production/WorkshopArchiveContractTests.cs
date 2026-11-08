@@ -29,7 +29,7 @@ public sealed class WorkshopArchiveContractTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(Policy(typeof(WorkshopArchiveController)), Is.EqualTo("CanUseProductionOrders"));
+            Assert.That(Policy(typeof(WorkshopArchiveController)), Is.EqualTo("access:workshop-archive"));
             Assert.That(Operations(typeof(WorkshopArchiveController)), Is.EquivalentTo(ContractOperations()));
         });
     }

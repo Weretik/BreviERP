@@ -23,7 +23,7 @@ public sealed class ProductSectionsController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetProductSectionsQuery(), cancellationToken));
 
     [HttpPost]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:product-sections")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -42,7 +42,7 @@ public sealed class ProductSectionsController(ISender sender) : ControllerBase
     /// an error.
     /// </summary>
     [HttpPost("import")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:product-sections")]
     [ProducesResponseType(typeof(ProductSectionImportResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -53,7 +53,7 @@ public sealed class ProductSectionsController(ISender sender) : ControllerBase
             new ImportProductSectionsCommand(request.Rows, request.DryRun, request.DeleteMissing), cancellationToken));
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:product-sections")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -70,7 +70,7 @@ public sealed class ProductSectionsController(ISender sender) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:product-sections")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

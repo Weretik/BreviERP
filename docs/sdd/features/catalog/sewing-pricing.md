@@ -10,7 +10,7 @@ Catalog settings and Reference costs/norms are immutable effective versions. Cal
 
 The sewing product card ([CAT-007](../../specs/catalog/007-sewing-product-card/README.md)) reads `GET /api/v1/products/{productId}/articles/pricing-summary`: a live, non-saving calculation of every fabric variant with blockers and the latest published tiers, plus the variant fabric names and the shared composition with reference names, so the card needs one request ([CAT-016](../../specs/catalog/016-sewing-card-one-request/README.md); `Features/Pricing/Sewing/ArticleSummary/`, `SewingArticleSummaryController`).
 
-Complete settings revisions and OtherCost revisions use expected-current-version IDs and request UUIDs. Numeric edits to previously versioned fabrics, accessories and operation norms append approved input revisions atomically. Existing Reference reads remain anonymous; those writes require CanManageProducts. See [Reference version ownership](../reference/pricing-input-versions.md).
+Complete settings revisions and OtherCost revisions use expected-current-version IDs and request UUIDs. Numeric edits to previously versioned fabrics, accessories and operation norms append approved input revisions atomically. Existing Reference reads remain anonymous; those writes require the page's «Права доступу» policy. See [Reference version ownership](../reference/pricing-input-versions.md).
 
 ## Code structure
 

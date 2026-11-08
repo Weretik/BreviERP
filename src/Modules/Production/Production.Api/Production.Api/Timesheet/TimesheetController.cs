@@ -10,7 +10,7 @@ namespace Production.Api.Timesheet;
 
 /// <summary>«Робочий час»: the head of the workshop and Admin mark the hours of each worker (PRD-D41).</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.Policy)]
+[Authorize(Policy = ProductionAccess.Timesheet)]
 [Route("api/production/timesheet")]
 public sealed class TimesheetController(ISender sender) : ControllerBase
 {

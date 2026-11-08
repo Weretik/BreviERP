@@ -12,7 +12,7 @@ using Catalog.Application.Features.ProductCategory.Update.DTOs;
 namespace Catalog.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = "CanManageProducts")]
+[Authorize(Policy = "access:product-sections")]
 [Route("api/reference/product-categories")]
 public sealed class ProductCategoriesController(ISender sender) : ControllerBase
 {

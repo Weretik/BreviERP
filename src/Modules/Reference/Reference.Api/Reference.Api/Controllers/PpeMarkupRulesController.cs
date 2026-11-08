@@ -21,7 +21,7 @@ public sealed class PpeMarkupRulesController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetPpeMarkupRulesQuery(), cancellationToken));
 
     [HttpPost]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -37,7 +37,7 @@ public sealed class PpeMarkupRulesController(ISender sender) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -55,7 +55,7 @@ public sealed class PpeMarkupRulesController(ISender sender) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

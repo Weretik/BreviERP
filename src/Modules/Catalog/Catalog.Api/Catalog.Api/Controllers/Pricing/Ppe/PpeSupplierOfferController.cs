@@ -17,7 +17,7 @@ public sealed class PpeSupplierOfferController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetPpeSupplierOfferQuery(productId), cancellationToken));
 
     [HttpPut(Name = "updatePpeSupplierOffer")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     public async Task<ActionResult<PpeSupplierOffer>> Update(
         int productId, [FromBody] UpdatePpeSupplierOfferRequest request, CancellationToken cancellationToken)
     {

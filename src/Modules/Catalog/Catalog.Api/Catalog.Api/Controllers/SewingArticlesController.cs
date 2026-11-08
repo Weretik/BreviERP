@@ -23,7 +23,7 @@ public sealed class SewingArticlesController(ISender sender) : ControllerBase
     }
 
     [HttpPost("articles", Name = "createSewingArticle")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     [ProducesResponseType(typeof(SewingArticleView), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -44,7 +44,7 @@ public sealed class SewingArticlesController(ISender sender) : ControllerBase
 
     /// <summary>Changes the sale SKU, activity and fabric of one fabric variant (CAT-015).</summary>
     [HttpPut("articles/{articleId:long}", Name = "updateSewingArticle")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     [ProducesResponseType(typeof(SewingArticleView), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -61,7 +61,7 @@ public sealed class SewingArticlesController(ISender sender) : ControllerBase
 
     /// <summary>Removes a fabric variant that has no saved prices yet (CAT-015).</summary>
     [HttpDelete("articles/{articleId:long}", Name = "deleteSewingArticle")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

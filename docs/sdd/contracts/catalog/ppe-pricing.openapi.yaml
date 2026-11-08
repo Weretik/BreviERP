@@ -115,7 +115,7 @@
     "/api/v1/pricing/ppe/rules/versions": {
       "post": {
         "operationId": "createPpeRuleVersion",
-        "description": "CanManageProducts. Append and approve a version using server actor/time. expectedVersionId null only for first enrollment. Request UUID retries are actor/payload-bound.",
+        "description": "access:pricing-parameters. Append and approve a version using server actor/time. expectedVersionId null only for first enrollment. Request UUID retries are actor/payload-bound.",
         "security": [
           {
             "bearerAuth": []
@@ -163,7 +163,7 @@
     "/api/v1/pricing/ppe/products/{productId}/offer/versions": {
       "post": {
         "operationId": "createPpeOfferVersion",
-        "description": "CanManageProducts. Append and approve a version using server actor/time. expectedVersionId null only for first enrollment. Request UUID retries are actor/payload-bound.",
+        "description": "access:products. Append and approve a version using server actor/time. expectedVersionId null only for first enrollment. Request UUID retries are actor/payload-bound.",
         "security": [
           {
             "bearerAuth": []
@@ -256,7 +256,7 @@
       },
       "put": {
         "operationId": "updatePpeSupplierOffer",
-        "description": "CanManageProducts. Replaces the supplier fields. When the supplier price or the rule changes, appends an approved offer version (source «Картка ЗІЗ», server actor/time) that keeps the Insight prices; expectedOfferVersionId must name the current version (null when none).",
+        "description": "access:products. Replaces the supplier fields. When the supplier price or the rule changes, appends an approved offer version (source «Картка ЗІЗ», server actor/time) that keeps the Insight prices; expectedOfferVersionId must name the current version (null when none).",
         "security": [
           {
             "bearerAuth": []

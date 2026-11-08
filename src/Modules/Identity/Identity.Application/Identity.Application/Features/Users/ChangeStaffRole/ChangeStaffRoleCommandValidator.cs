@@ -8,6 +8,6 @@ public sealed class ChangeStaffRoleCommandValidator : AbstractValidator<ChangeSt
     public ChangeStaffRoleCommandValidator()
     {
         RuleFor(x => x.UserId).GreaterThan(0);
-        RuleFor(x => x.Role).Must(StaffRoles.IsStaffRole).WithMessage("Role must be Director, Admin, Accountant, Manager or WorkshopChief.");
+        RuleFor(x => x.Role).Must(StaffRoles.IsAssignable).WithMessage("Role must be a staff role from «Права доступу».");
     }
 }

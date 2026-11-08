@@ -60,7 +60,7 @@ public sealed class FabricStockContractTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(policies, Is.EqualTo(new[] { "CanUseProductionOrders" }));
+            Assert.That(policies, Is.EqualTo(new[] { "access:fabric-stock", "access:production-orders" }));
             Assert.That(operations, Has.Length.EqualTo(11));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });

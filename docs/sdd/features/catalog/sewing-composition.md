@@ -43,7 +43,7 @@ src/Modules/Catalog/
 
 ```mermaid
 flowchart LR
-    API[SewingCompositionController] --> Policies[CatalogRead / CanManageProducts]
+    API[SewingCompositionController] --> Policies[CatalogRead / access:products]
     API --> Handlers[Article and composition handlers]
     Handlers --> Reference[Existing Reference read contract]
     Handlers --> Product[Product aggregate and scoped lines]

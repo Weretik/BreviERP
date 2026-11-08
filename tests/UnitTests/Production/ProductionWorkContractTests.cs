@@ -47,7 +47,7 @@ public sealed class ProductionWorkContractTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(policies, Is.EqualTo(new[] { "CanUseProductionOrders" }));
+            Assert.That(policies, Is.EqualTo(new[] { "access:work-log", "access:forecast" }));
             Assert.That(operations, Has.Length.EqualTo(8));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });

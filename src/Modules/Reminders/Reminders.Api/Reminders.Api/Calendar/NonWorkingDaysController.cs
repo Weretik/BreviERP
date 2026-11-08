@@ -11,7 +11,7 @@ using Reminders.Application.Contracts;
 namespace Reminders.Api.Calendar;
 
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = RemindersAccess.Policy)]
 [Route("api/reminders/non-working-days")]
 public sealed class NonWorkingDaysController(ISender sender) : ControllerBase
 {
