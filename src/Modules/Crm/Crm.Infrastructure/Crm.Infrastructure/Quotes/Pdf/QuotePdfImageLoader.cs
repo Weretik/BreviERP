@@ -32,13 +32,34 @@ internal sealed class QuotePdfImageLoader(HttpClient http, ILogger<QuotePdfImage
             if (bytes.Length is 0 or > MaxBytes) return null;
             var isSvg = response.Content.Headers.ContentType?.MediaType == "image/svg+xml" ||
                 url.EndsWith(".svg", StringComparison.OrdinalIgnoreCase);
-            return isSvg ? new QuotePdfImage(null, System.Text.Encoding.UTF8.GetString(bytes)) : new QuotePdfImage(bytes, null);
+            var image = isSvg ? new QuotePdfImage(null, System.Text.Encoding.UTF8.GetString(bytes)) : new QuotePdfImage(bytes, null);
+            if (CanDraw(image)) return image;
+            logger.LogWarning("КП PDF: photo {Url} is not an image the PDF can draw", url);
+            return null;
         }
         catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException
                                               && !cancellationToken.IsCancellationRequested)
         {
             logger.LogWarning(exception, "КП PDF: photo {Url} is unavailable", url);
             return null;
+        }
+    }
+
+    /// <summary>
+    /// A link may answer with a page or a format the PDF cannot decode (HEIC, a broken file); such a photo is left
+    /// out instead of failing the whole PDF.
+    /// </summary>
+    internal static bool CanDraw(QuotePdfImage image)
+    {
+        try
+        {
+            if (image.Svg is not null) QuestPDF.Infrastructure.SvgImage.FromText(image.Svg);
+            else QuestPDF.Infrastructure.Image.FromBinaryData(image.Bitmap!);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 
