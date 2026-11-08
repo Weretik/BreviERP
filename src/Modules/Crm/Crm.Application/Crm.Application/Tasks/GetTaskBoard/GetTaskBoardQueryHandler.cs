@@ -8,9 +8,6 @@ namespace Crm.Application.Tasks.GetTaskBoard;
 public sealed class GetTaskBoardQueryHandler(ITaskStore store, TimeProvider clock)
     : IQueryHandler<GetTaskBoardQuery, Result<TaskBoardResponse>>
 {
-    /// <summary>How long a done task stays in «Виконано».</summary>
-    public static readonly TimeSpan DoneWindow = TimeSpan.FromDays(7);
-
     /// <summary>A safety cap; a board with more cards than this is not readable anyway.</summary>
     public const int MaxCards = 500;
 
@@ -18,19 +15,19 @@ public sealed class GetTaskBoardQueryHandler(ITaskStore store, TimeProvider cloc
         CancellationToken cancellationToken)
     {
         var now = clock.GetUtcNow();
-        var doneSince = now - DoneWindow;
-        var rows = await store.Visible(query.Actor, query.AssigneeUserId)
-            .Where(x => x.Status != ManagerTaskStatus.Done || x.CompletedAt >= doneSince)
+        var (from, to) = TaskBoardPeriods.Range(query.Period, now);
+        var tasks = store.Visible(query.Actor, query.AssigneeUserId);
+        if (from is { } since) tasks = tasks.Where(x => x.Status != ManagerTaskStatus.Done || x.CompletedAt >= since);
+        if (to is { } until) tasks = tasks.Where(x => x.Status != ManagerTaskStatus.Done || x.CompletedAt < until);
+        // Newest added on top in every column (round 2, item 11); open cards win the cap over old done ones.
+        var rows = await tasks
             .OrderBy(x => x.Status == ManagerTaskStatus.Done)
-            .ThenByDescending(x => x.IsUrgent)
-            .ThenBy(x => x.DueAt)
-            .ThenBy(x => x.Id)
+            .ThenByDescending(x => x.CreatedAt)
+            .ThenByDescending(x => x.Id)
             .Take(MaxCards)
             .ToSummaries(now)
             .ToListAsync(cancellationToken);
         var cards = rows.Select(x => x.Complete(now)).ToArray();
-        var open = cards.Where(x => x.Status != nameof(ManagerTaskStatus.Done));
-        var done = cards.Where(x => x.Status == nameof(ManagerTaskStatus.Done)).OrderByDescending(x => x.CompletedAt);
-        return Result.Success(new TaskBoardResponse(open.Concat(done).ToArray(), now));
+        return Result.Success(new TaskBoardResponse(cards, now));
     }
 }

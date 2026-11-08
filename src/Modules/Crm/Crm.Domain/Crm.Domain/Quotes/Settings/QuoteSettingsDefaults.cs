@@ -62,8 +62,8 @@ public static class QuoteSettingsDefaults
             Labels),
         new QuoteIntroductionTexts(
             "Український виробник спецодягу\nПрацюємо з 2003 року",
-            "Спецодяг, створений для реальної роботи",
-            "Зимовий спецодяг, створений для реальної роботи",
+            "Спецодяг, *створений* для реальної роботи",
+            "Зимовий спецодяг, *створений* для реальної роботи",
             "Кожне замовлення виготовляємо під конкретного клієнта: модель, тканина, кольори, комплектація " +
             "та брендування.",
             null,
@@ -82,7 +82,8 @@ public static class QuoteSettingsDefaults
                 new QuoteAdvantage("Брендування одягу", "Ваш логотип на нашій якості"),
             ],
             QuoteIntroductionTexts.DefaultSummerMainCode,
-            QuoteIntroductionTexts.DefaultWinterMainCode),
+            QuoteIntroductionTexts.DefaultWinterMainCode,
+            "Ціни за одиницю в обраній тканині, за замовлення від 41 шт., з ПДВ."),
         [
             new QuoteLetterVariant(
                 "Запит на коротку відповідь",

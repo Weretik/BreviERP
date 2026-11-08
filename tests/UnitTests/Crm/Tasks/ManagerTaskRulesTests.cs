@@ -1,3 +1,4 @@
+using Crm.Application.Tasks.GetTaskBoard;
 using Crm.Application.Tasks.Access;
 using Crm.Application.Tasks.ChangeTaskStatus;
 using Crm.Application.Tasks.Contracts;
@@ -95,4 +96,17 @@ public sealed class ManagerTaskRulesTests
     public void OnlyKnownListFilters(string? filter, bool valid) =>
         Assert.That(new GetTasksQueryValidator().Validate(new GetTasksQuery(Admin, null, filter, null)).IsValid,
             Is.EqualTo(valid));
+
+    [Test]
+    public void BoardPeriodsFollowTheKyivWeek()
+    {
+        // Wednesday 2026-11-04 12:00 UTC; Kyiv is UTC+2 in November.
+        var now = new DateTimeOffset(2026, 11, 4, 12, 0, 0, TimeSpan.Zero);
+        Assert.That(TaskBoardPeriods.Range(TaskBoardPeriod.Week, now),
+            Is.EqualTo(((DateTimeOffset?)new DateTimeOffset(2026, 11, 1, 22, 0, 0, TimeSpan.Zero), (DateTimeOffset?)null)));
+        Assert.That(TaskBoardPeriods.Range(TaskBoardPeriod.LastWeek, now),
+            Is.EqualTo(((DateTimeOffset?)new DateTimeOffset(2026, 10, 25, 22, 0, 0, TimeSpan.Zero),
+                (DateTimeOffset?)new DateTimeOffset(2026, 11, 1, 22, 0, 0, TimeSpan.Zero))));
+        Assert.That(TaskBoardPeriods.Range(TaskBoardPeriod.All, now), Is.EqualTo(((DateTimeOffset?)null, (DateTimeOffset?)null)));
+    }
 }

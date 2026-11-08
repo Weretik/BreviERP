@@ -140,7 +140,8 @@ public sealed record QuoteIntroductionTexts(
     string? AccentColor,
     IReadOnlyList<QuoteAdvantage> Advantages,
     string? SummerMainCode = null,
-    string? WinterMainCode = null)
+    string? WinterMainCode = null,
+    string? PricesNote = null)
 {
     public const string DefaultSummerMainCode = "MOD-166";
     public const string DefaultWinterMainCode = "MOD-169";

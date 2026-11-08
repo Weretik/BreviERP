@@ -15,9 +15,10 @@ public sealed class SaveEmbroiderySettingsCommandValidator : AbstractValidator<S
 }
 
 /// <summary>The same rules as <see cref="EmbroiderySettingsRules"/>, with Ukrainian messages for the page.</summary>
+/// <param name="markupCount">Two on the page; the old calculator's archive has three.</param>
 public sealed class SaveEmbroiderySettingsInputValidator : AbstractValidator<SaveEmbroiderySettingsInput>
 {
-    public SaveEmbroiderySettingsInputValidator()
+    public SaveEmbroiderySettingsInputValidator(int markupCount = R.MarkupCount)
     {
         RuleFor(x => x.Version).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Rates).NotNull().ChildRules(rates =>
@@ -27,11 +28,11 @@ public sealed class SaveEmbroiderySettingsInputValidator : AbstractValidator<Sav
             Amount(rates.RuleFor(x => x.ProgramHourRate), "Розробка програми");
             Amount(rates.RuleFor(x => x.TaxPercent), "Податкове навантаження");
         });
-        RuleFor(x => x.Markups).NotNull().Must(x => x is { Count: R.MarkupCount })
-            .WithMessage("Має бути рівно три націнки.");
+        RuleFor(x => x.Markups).NotNull().Must(x => x is not null && x.Count == markupCount)
+            .WithMessage(markupCount == R.MarkupCount ? "Має бути рівно дві категорії ціни." : "Має бути рівно три націнки.");
         RuleForEach(x => x.Markups).NotNull().ChildRules(markup =>
         {
-            markup.RuleFor(x => x.Name).NotEmpty().WithMessage("Вкажіть назву націнки.").MaximumLength(R.NameMaxLength);
+            markup.RuleFor(x => x.Name).NotEmpty().WithMessage("Вкажіть назву категорії.").MaximumLength(R.NameMaxLength);
             Amount(markup.RuleFor(x => x.Percent), "Націнка");
         });
         RuleFor(x => x.Stabilizer).NotNull().SetValidator(new MaterialValidator("Флізелін"));

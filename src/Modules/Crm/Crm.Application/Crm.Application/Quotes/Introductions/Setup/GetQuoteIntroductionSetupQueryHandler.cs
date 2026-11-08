@@ -16,7 +16,7 @@ public sealed class GetQuoteIntroductionSetupQueryHandler(IQuoteStore store, IQu
         var settings = await store.SettingsContentAsync(cancellationToken);
         var summer = await MainModelAsync(settings.Introduction.MainCode(QuoteIntroSeason.Summer), cancellationToken);
         var winter = await MainModelAsync(settings.Introduction.MainCode(QuoteIntroSeason.Winter), cancellationToken);
-        var letters = settings.LetterVariants.Select(x => new QuoteIntroLetterResponse(x.Name, x.Subject)).ToArray();
+        var letters = settings.LetterVariants.Select(x => new QuoteIntroLetterResponse(x.Name, x.Subject, x.Body)).ToArray();
         return Result.Success(new QuoteIntroductionSetupResponse(summer, winter, letters));
     }
 

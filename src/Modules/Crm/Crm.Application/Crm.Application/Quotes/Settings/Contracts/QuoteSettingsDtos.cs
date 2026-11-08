@@ -66,7 +66,8 @@ public sealed record QuoteIntroductionTextsDto(
     string? AccentColor,
     IReadOnlyList<QuoteAdvantageDto> Advantages,
     string? SummerMainCode = null,
-    string? WinterMainCode = null);
+    string? WinterMainCode = null,
+    string? PricesNote = null);
 
 public sealed record QuoteLetterVariantDto(string Name, string Subject, string Body);
 

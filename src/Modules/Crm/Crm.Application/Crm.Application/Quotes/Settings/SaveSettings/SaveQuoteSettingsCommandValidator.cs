@@ -116,6 +116,7 @@ public sealed class QuoteIntroductionValidator : AbstractValidator<QuoteIntroduc
         RuleFor(x => x.AssortmentLinkText).MaximumLength(L.ShortTextMaxLength);
         RuleFor(x => x.ProductButtonText).MaximumLength(L.ShortTextMaxLength);
         RuleFor(x => x.NextStepText).MaximumLength(L.TextMaxLength);
+        RuleFor(x => x.PricesNote).MaximumLength(L.ShortTextMaxLength);
         RuleFor(x => x.SummerBannerUrl).Must(SaveQuoteSettingsInputValidator.IsWebUrl)
             .WithMessage("Фото банера — посилання https://…").MaximumLength(L.UrlMaxLength);
         RuleFor(x => x.WinterBannerUrl).Must(SaveQuoteSettingsInputValidator.IsWebUrl)

@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Settings;
 using Crm.Application.Embroidery.Access;
 using Crm.Application.Embroidery.Contracts;
 using Crm.Application.Embroidery.GetCalculations;
@@ -32,12 +33,21 @@ public sealed class EmbroiderySavedTests
     }
 
     [Test]
-    public void SaveChecksTheFormAndTheCustomerId()
+    public void SaveChecksTheFormTheCustomerIdAndTheCategory()
     {
-        Assert.That(Valid(new SaveEmbroideryCalculationInput(null, null, Form())), Is.True);
-        Assert.That(Valid(new SaveEmbroideryCalculationInput(null, Guid.Empty, Form())), Is.False);
-        Assert.That(Valid(new SaveEmbroideryCalculationInput(null, null, Form() with { Quantity = 0 })), Is.False);
-        Assert.That(Valid(new SaveEmbroideryCalculationInput(new string('а', 1001), null, Form())), Is.False);
+        Assert.That(Valid(new SaveEmbroideryCalculationInput(null, null, Form(), "Категорія 1")), Is.True);
+        Assert.That(Valid(new SaveEmbroideryCalculationInput(null, Guid.Empty, Form(), "Категорія 1")), Is.False);
+        Assert.That(Valid(new SaveEmbroideryCalculationInput(null, null, Form() with { Quantity = 0 }, "Категорія 1")), Is.False);
+        Assert.That(Valid(new SaveEmbroideryCalculationInput(new string('а', 1001), null, Form(), "Категорія 1")), Is.False);
+        Assert.That(Valid(new SaveEmbroideryCalculationInput(null, null, Form(), " ")), Is.False);
+    }
+
+    [Test]
+    public void OldPriceNamesAreShownAsCategories()
+    {
+        Assert.That(EmbroideryCategories.Label("Стандарт"), Is.EqualTo("Категорія 1"));
+        Assert.That(EmbroideryCategories.Label("Терміново"), Is.EqualTo("Категорія 2"));
+        Assert.That(EmbroideryCategories.Label("Категорія 2"), Is.EqualTo("Категорія 2"));
     }
 
     [Test]

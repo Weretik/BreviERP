@@ -19,6 +19,7 @@
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="Quotes\Pdf\Fonts\*.ttf" />
+        <EmbeddedResource Include="Quotes\Pdf\Banners\*.jpg" LogicalName="Brevi.Quotes.Pdf.Banners.%(Filename)%(Extension)" />
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="UnitTests" />

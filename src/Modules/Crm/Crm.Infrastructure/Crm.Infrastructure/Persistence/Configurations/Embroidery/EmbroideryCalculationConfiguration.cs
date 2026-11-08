@@ -18,6 +18,8 @@ public sealed class EmbroideryCalculationConfiguration : IEntityTypeConfiguratio
         b.Property(x => x.CustomerName).HasMaxLength(EmbroiderySavedCalculation.CustomerNameMaxLength);
         b.Property(x => x.CreatedByName).HasMaxLength(EmbroiderySavedCalculation.PersonNameMaxLength);
         b.Property(x => x.Mode).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Category).HasMaxLength(EmbroiderySavedCalculation.CategoryMaxLength);
+        b.Ignore(x => x.Price);
         JsonColumns.Map(b.Property(x => x.Input));
         JsonColumns.Map(b.Property(x => x.Snapshot));
         JsonColumns.Map(b.Property(x => x.Result));

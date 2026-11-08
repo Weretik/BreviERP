@@ -19,7 +19,7 @@ public sealed record EmbroiderySettingsContent(
 /// <param name="TaxPercent">«Податкове навантаження»: a multiplier after the markup, not VAT.</param>
 public sealed record EmbroideryRates(decimal ThreadRate, decimal HoopingRate, decimal ProgramHourRate, decimal TaxPercent);
 
-/// <summary>One of exactly three price variants («Опт», «Стандарт», «Терміново»).</summary>
+/// <summary>One of exactly two price categories («Категорія 1», «Категорія 2»).</summary>
 public sealed record EmbroideryMarkup(string Name, decimal Percent);
 
 /// <summary>A roll material: price per running metre and roll width in cm.</summary>

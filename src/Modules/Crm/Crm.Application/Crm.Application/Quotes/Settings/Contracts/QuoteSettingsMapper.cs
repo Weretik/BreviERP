@@ -47,7 +47,8 @@ public static class QuoteSettingsMapper
                 Text(input.Introduction.AssortmentUrl), Text(input.Introduction.ProductButtonText),
                 Text(input.Introduction.NextStepText), Text(input.Introduction.AccentColor),
                 input.Introduction.Advantages.Select(x => new QuoteAdvantage(x.Title.Trim(), Text(x.Text))).ToArray(),
-                Text(input.Introduction.SummerMainCode), Text(input.Introduction.WinterMainCode)),
+                Text(input.Introduction.SummerMainCode), Text(input.Introduction.WinterMainCode),
+                Text(input.Introduction.PricesNote)),
             input.LetterVariants.Select(x => new QuoteLetterVariant(x.Name.Trim(), x.Subject.Trim(), x.Body.Trim()))
                 .ToArray(),
             input.StaffContacts
@@ -91,7 +92,7 @@ public static class QuoteSettingsMapper
         new(x.LogoText, x.SummerTitle, x.WinterTitle, x.Subtitle, x.SummerBannerUrl, x.WinterBannerUrl, x.ModelsTitle,
             x.AssortmentLinkText, x.AssortmentUrl, x.ProductButtonText, x.NextStepText, x.AccentColor,
             x.Advantages.Select(a => new QuoteAdvantageDto(a.Title, a.Text)).ToArray(),
-            x.MainCode(QuoteIntroSeason.Summer), x.MainCode(QuoteIntroSeason.Winter));
+            x.MainCode(QuoteIntroSeason.Summer), x.MainCode(QuoteIntroSeason.Winter), x.PricesNote);
 
     private static string? Text(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

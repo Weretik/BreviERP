@@ -128,16 +128,37 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
         Assert.That((await List(Olha, search: "зд-0003")).Items.Single().Id, Is.EqualTo(active.Id));
     }
 
-    [Test]
-    public async Task DoneTasksLeaveTheBoardAfterAWeek()
+    private async Task<IReadOnlyList<string>> Board(TaskBoardPeriod period)
     {
-        var task = await Create(Input());
-        await Status(Olha, task, "Done");
+        await using var db = Context();
+        return (await new GetTaskBoardQueryHandler(db, _clock)
+            .Handle(new GetTaskBoardQuery(Director, null, period), default)).Value.Items.Select(x => x.Title).ToArray();
+    }
+
+    [Test]
+    public async Task PeriodFiltersOnlyDoneTasksAndOpenOnesStay()
+    {
+        // 2026-11-04 is a Wednesday: «Цей тиждень» starts on Monday 2026-11-02 in Kyiv.
+        await Status(Olha, await Create(Input(title: "Done")), "Done");
+        await Create(Input(dueInHours: -200, title: "Open"));
         _clock.Now = _clock.Now.AddDays(8);
 
-        await using var db = Context();
-        var board = (await new GetTaskBoardQueryHandler(db, _clock).Handle(new GetTaskBoardQuery(Director, null), default)).Value;
-        Assert.That(board.Items, Is.Empty);
+        Assert.That(await Board(TaskBoardPeriod.Week), Is.EqualTo(new[] { "Open" }));
+        Assert.That(await Board(TaskBoardPeriod.LastWeek), Is.EquivalentTo(new[] { "Open", "Done" }));
+        Assert.That(await Board(TaskBoardPeriod.Month), Is.EquivalentTo(new[] { "Open", "Done" }));
+        _clock.Now = _clock.Now.AddDays(400);
+        Assert.That(await Board(TaskBoardPeriod.Year), Is.EqualTo(new[] { "Open" }));
+        Assert.That(await Board(TaskBoardPeriod.All), Is.EquivalentTo(new[] { "Open", "Done" }));
+    }
+
+    [Test]
+    public async Task NewestAddedTasksComeFirst()
+    {
+        await Create(Input(title: "Old"));
+        _clock.Now = _clock.Now.AddHours(1);
+        await Create(Input(title: "New"));
+
+        Assert.That(await Board(TaskBoardPeriod.Week), Is.EqualTo(new[] { "New", "Old" }));
     }
 
     [Test]

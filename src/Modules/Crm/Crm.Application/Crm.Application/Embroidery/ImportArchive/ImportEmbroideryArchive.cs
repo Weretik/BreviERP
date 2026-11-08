@@ -8,6 +8,7 @@ using Crm.Application.Embroidery.SaveSettings;
 using Crm.Application.Quotes.Staff;
 using Crm.Domain.Embroidery.Calculation;
 using Crm.Domain.Embroidery.Saved;
+using Crm.Domain.Embroidery.Settings;
 
 namespace Crm.Application.Embroidery.ImportArchive;
 
@@ -117,7 +118,7 @@ public sealed class ImportEmbroideryArchiveCommandValidator : AbstractValidator<
             row.RuleFor(x => x.CreatedAt).NotEqual(default(DateTimeOffset));
             row.RuleFor(x => x.StitchRate).GreaterThan(0);
             row.RuleFor(x => x.Calculation).NotNull().SetValidator(new CalculateEmbroideryInputValidator());
-            row.RuleFor(x => x.Settings).NotNull().SetValidator(new SaveEmbroiderySettingsInputValidator());
+            row.RuleFor(x => x.Settings).NotNull().SetValidator(new SaveEmbroiderySettingsInputValidator(EmbroiderySettingsRules.LegacyMarkupCount));
             row.RuleFor(x => x.Prices).NotNull().Must(x => x is { Count: > 0 })
                 .WithMessage("Немає збережених цін старого розрахунку.");
         });

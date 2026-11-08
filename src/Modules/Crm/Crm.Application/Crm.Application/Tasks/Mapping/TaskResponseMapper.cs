@@ -22,7 +22,8 @@ internal static class TaskResponseMapper
             x.Steps.Count(s => s.IsDone),
             x.CompletedAt,
             x.UpdatedAt,
-            x.Version));
+            x.Version,
+            x.CreatedAt));
 
     /// <summary>Fills the number and lane after the SQL read.</summary>
     public static TaskSummaryResponse Complete(this TaskSummaryResponse row, DateTimeOffset now) =>

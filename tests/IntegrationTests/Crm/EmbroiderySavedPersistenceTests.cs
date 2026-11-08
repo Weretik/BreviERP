@@ -65,21 +65,23 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
     public async Task SavedCalculationKeepsItsRatesAfterTheSettingsChange()
     {
         await RaiseHoopingRate(12m);
-        var saved = await Save(Olena, new SaveEmbroideryCalculationInput("  Логотип на поло  ", null, Form()));
+        var saved = await Save(Olena, new SaveEmbroideryCalculationInput("  Логотип на поло  ", null, Form(), "Категорія 1"));
         Assert.That(saved.IsSuccess, Is.True, string.Join(",", saved.Errors));
         Assert.That(saved.Value.Summary.Number, Is.EqualTo("ВШ-0001"));
         Assert.That(saved.Value.Summary.Name, Is.EqualTo("Логотип на поло"));
         Assert.That(saved.Value.Summary.CreatedByName, Is.EqualTo("Олена"));
         Assert.That(saved.Value.Result.Cost, Is.Null, "A Manager never gets the cost.");
         Assert.That(saved.Value.Rates, Is.Null, "A Manager never gets the frozen rates.");
-        var prices = saved.Value.Summary.Prices.Select(x => x.Total).ToArray();
+        var total = saved.Value.Summary.Price!.Total;
+        Assert.That(saved.Value.Summary.Price.Name, Is.EqualTo("Категорія 1"));
+        Assert.That(saved.Value.Result.Prices.Select(x => x.Name), Is.EqualTo(new[] { "Категорія 1" }));
 
         await RaiseHoopingRate(30m);
 
         var reloaded = (await Get(Director, saved.Value.Summary.Id)).Value;
         Assert.That(reloaded.Rates!.Rates.HoopingRate, Is.EqualTo(12m));
         Assert.That(reloaded.Result.Cost!.Rows.Single(x => x.Kind == "Hooping").Amount, Is.EqualTo(600m));
-        Assert.That(reloaded.Summary.Prices.Select(x => x.Total), Is.EqualTo(prices));
+        Assert.That(reloaded.Summary.Price!.Total, Is.EqualTo(total));
         Assert.That(reloaded.Input, Is.EqualTo(Form()).Using<CalculateEmbroideryInput>((a, b) =>
             a.Mode == b.Mode && a.Quantity == b.Quantity && a.HoopId == b.HoopId && a.Program == b.Program));
     }
@@ -87,9 +89,9 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
     [Test]
     public async Task ListIsNewestFirstAndSearchesByNameAndNumber()
     {
-        Assert.That((await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form()))).IsSuccess, Is.True);
+        Assert.That((await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form(), "Категорія 1"))).IsSuccess, Is.True);
         Assert.That((await Save(Olena, new SaveEmbroideryCalculationInput(null, null,
-            Form() with { Quantity = 10 }))).IsSuccess, Is.True);
+            Form() with { Quantity = 10 }, "Категорія 1"))).IsSuccess, Is.True);
 
         var all = await List(null);
         Assert.That(all.Total, Is.EqualTo(2));
@@ -104,15 +106,17 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
     [Test]
     public async Task UnknownCustomerAndMissingCalculationAreRejected()
     {
-        var unknown = await Save(Olena, new SaveEmbroideryCalculationInput(null, Guid.NewGuid(), Form()));
+        var unknown = await Save(Olena, new SaveEmbroideryCalculationInput(null, Guid.NewGuid(), Form(), "Категорія 1"));
         Assert.That(unknown.Status, Is.EqualTo(ResultStatus.Invalid));
+        var noCategory = await Save(Olena, new SaveEmbroideryCalculationInput(null, null, Form(), "Опт"));
+        Assert.That(noCategory.Status, Is.EqualTo(ResultStatus.Invalid));
         Assert.That((await Get(Olena, 99)).Status, Is.EqualTo(ResultStatus.NotFound));
     }
 
     [Test]
     public async Task OnlyDirectorOrAdminDeletes()
     {
-        var saved = (await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form()))).Value;
+        var saved = (await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form(), "Категорія 1"))).Value;
 
         await using (var db = Context())
         {
@@ -129,7 +133,7 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
     [Test]
     public async Task MockupIsPickedFromTheMediaLibraryAndBlocksItsDeletion()
     {
-        var saved = (await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form()))).Value;
+        var saved = (await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form(), "Категорія 1"))).Value;
         _media.Files[5] = new EmbroideryMockupResponse(5, "logo.png", "https://cdn.test/logo.png", null);
 
         await using (var db = Context())

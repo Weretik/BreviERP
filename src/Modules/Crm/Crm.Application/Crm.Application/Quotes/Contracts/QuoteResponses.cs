@@ -42,7 +42,14 @@ public sealed record QuoteEventResponse(long Id, string Kind, DateTimeOffset At,
     string? Details);
 
 /// <summary>The fields of a «КП для знайомства»; null for a КП «під запит».</summary>
-public sealed record QuoteIntroductionResponse(string Layout, string? RecipientEmail, string? LetterName);
+/// <param name="LetterSubject">The letter subject changed for this КП; null keeps the variant's.</param>
+/// <param name="LetterBody">The letter text changed for this КП; null keeps the variant's.</param>
+public sealed record QuoteIntroductionResponse(
+    string Layout,
+    string? RecipientEmail,
+    string? LetterName,
+    string? LetterSubject,
+    string? LetterBody);
 
 public sealed record QuoteItemResponse(
     long Id,

@@ -1,5 +1,6 @@
 using System.Globalization;
 using Crm.Domain.Embroidery.Calculation;
+using Crm.Domain.Embroidery.Settings;
 
 namespace Crm.Domain.Embroidery.Saved;
 
@@ -13,13 +14,17 @@ public sealed class EmbroiderySavedCalculation
     public const int CustomerNameMaxLength = 300;
     public const int PersonNameMaxLength = 200;
     public const int LegacyIdMaxLength = 64;
+    public const int CategoryMaxLength = 120;
 
     private EmbroiderySavedCalculation() { }
 
     public EmbroiderySavedCalculation(string? name, Guid? customerPublicId, string? customerName, EmbroideryInput input,
         EmbroideryRateSnapshot snapshot, EmbroideryResult result, int createdByUserId, string createdByName,
-        DateTimeOffset now)
+        DateTimeOffset now, string? category = null)
     {
+        if (category is not null && result.Prices.All(x => x.Name != category))
+            throw new ArgumentException("The category is one of the result's prices.", nameof(category));
+        Category = category;
         Name = NormalizeName(name);
         CustomerPublicId = customerPublicId;
         CustomerName = customerPublicId is null || customerName is null ? null : Cut(customerName, CustomerNameMaxLength);
@@ -49,6 +54,17 @@ public sealed class EmbroiderySavedCalculation
     public EmbroideryInput Input { get; private set; } = null!;
     public EmbroideryRateSnapshot Snapshot { get; private set; } = null!;
     public EmbroideryResult Result { get; private set; } = null!;
+
+    /// <summary>
+    /// The one price category chosen when saving («Категорія 1» or «Категорія 2»), a name of <see cref="Result"/>
+    /// prices; null for a calculation saved before the choice, which stands for «Стандарт» (shown as «Категорія 1»).
+    /// </summary>
+    public string? Category { get; private set; }
+
+    /// <summary>The saved price: the chosen category, else «Стандарт», else the first price; null without prices.</summary>
+    public EmbroideryPrice? Price =>
+        Result.Prices.FirstOrDefault(x => x.Name == (Category ?? EmbroideryCategories.LegacyChosen))
+        ?? Result.Prices.FirstOrDefault();
 
     /// <summary>Some ticked costs had no rate: the prices were «Орієнтовна».</summary>
     public bool Incomplete { get; private set; }

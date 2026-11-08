@@ -15,7 +15,7 @@ paths:
       operationId: getCrmEmbroideryForm
       security:
         - bearerAuth: []
-      description: Hoops, extra costs and the three price names for the form. No rates are returned.
+      description: Hoops, extra costs and the two price category names for the form. No rates are returned.
       responses:
         "200":
           description: The form.
@@ -227,11 +227,18 @@ components:
   schemas:
     CrmSaveEmbroideryCalculationInput:
       type: object
-      required: [calculation]
+      required: [calculation, category]
       properties:
         name: { type: [string, "null"], maxLength: 1000, description: Trimmed and cut to 120; empty is «Без назви». }
         customerPublicId: { type: [string, "null"], format: uuid, description: An active client of «Клієнти». }
         calculation: { $ref: "#/components/schemas/CrmCalculateEmbroideryInput" }
+        category:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: >-
+            The one price category kept, a price name of the result («Категорія 1» or «Категорія 2»); another name
+            is 400.
     CrmEmbroideryArchiveRow:
       type: object
       required: [legacyId, createdAt, calculation, stitchRate, settings, prices]
@@ -286,7 +293,7 @@ components:
     CrmEmbroiderySavedSummary:
       type: object
       required: [id, number, name, customerPublicId, customerName, mode, quantity, stitchesPerUnit, hoopLabel, incomplete,
-        prices, createdAt, createdByName, mockup]
+        price, createdAt, createdByName, mockup]
       properties:
         id: { type: integer, format: int64 }
         number: { type: string, description: «ВШ-0042»; not stored. }
@@ -298,9 +305,13 @@ components:
         stitchesPerUnit: { type: integer }
         hoopLabel: { type: string, description: The hoop name from the frozen settings. }
         incomplete: { type: boolean, description: Some ticked costs had no rate; the prices were «Орієнтовна». }
-        prices:
-          type: array
-          items: { $ref: "#/components/schemas/CrmEmbroiderySavedPrice" }
+        price:
+          oneOf:
+            - { $ref: "#/components/schemas/CrmEmbroiderySavedPrice" }
+            - { type: "null" }
+          description: >-
+            The one saved price category. A calculation saved before the choice keeps «Стандарт», named
+            «Категорія 1». Null only for a calculation without prices.
         createdAt: { type: string, format: date-time }
         createdByName: { type: string }
         mockup:
@@ -336,7 +347,9 @@ components:
       properties:
         summary: { $ref: "#/components/schemas/CrmEmbroiderySavedSummary" }
         input: { $ref: "#/components/schemas/CrmCalculateEmbroideryInput" }
-        result: { $ref: "#/components/schemas/CrmEmbroideryCalculation" }
+        result:
+          $ref: "#/components/schemas/CrmEmbroideryCalculation"
+          description: The saved result with only the saved price category in `prices`.
         rates:
           description: The rates frozen at saving; null for a Manager.
           oneOf:
@@ -540,7 +553,12 @@ components:
       properties:
         version: { type: integer, minimum: 0 }
         rates: { $ref: "#/components/schemas/CrmEmbroideryRates" }
-        markups: { type: array, items: { $ref: "#/components/schemas/CrmEmbroideryMarkup" }, minItems: 3, maxItems: 3 }
+        markups:
+          type: array
+          items: { $ref: "#/components/schemas/CrmEmbroideryMarkup" }
+          minItems: 2
+          maxItems: 3
+          description: Exactly two price categories when saving the settings; a row of the old archive has three.
         stabilizer: { $ref: "#/components/schemas/CrmEmbroideryMaterial" }
         fabric: { $ref: "#/components/schemas/CrmEmbroideryMaterial" }
         fabricIncreasePercent: { type: number, minimum: 0 }

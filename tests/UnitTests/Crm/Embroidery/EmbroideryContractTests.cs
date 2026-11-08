@@ -36,7 +36,7 @@ public sealed class EmbroideryContractTests
 
         Assert.That(Valid(input), Is.True);
         Assert.That(input.Version, Is.Zero);
-        Assert.That(input.Markups.Select(x => x.Name), Is.EqualTo(new[] { "Опт", "Стандарт", "Терміново" }));
+        Assert.That(input.Markups.Select(x => x.Name), Is.EqualTo(new[] { "Категорія 1", "Категорія 2" }));
         Assert.That(input.ToContent(), Is.Not.Null);
         Assert.DoesNotThrow(() => EmbroiderySettingsRules.EnsureValid(input.ToContent()));
     }
@@ -46,7 +46,8 @@ public sealed class EmbroideryContractTests
     {
         var input = DefaultInput();
 
-        Assert.That(Valid(input with { Markups = input.Markups.Take(2).ToArray() }), Is.False);
+        Assert.That(Valid(input with { Markups = input.Markups.Take(1).ToArray() }), Is.False);
+        Assert.That(Valid(input with { Markups = [.. input.Markups, input.Markups[0]] }), Is.False);
         Assert.That(Valid(input with { Stabilizer = input.Stabilizer with { WidthCm = 0 } }), Is.False);
         Assert.That(Valid(input with { Hoops = [] }), Is.False);
         Assert.That(Valid(input with { Hoops = [.. input.Hoops, input.Hoops[0]] }), Is.False);
@@ -93,6 +94,7 @@ public sealed class EmbroideryContractTests
         Assert.That(manager.Stabilizer!.Charged, Is.Null);
         Assert.That(manager.Prices.Select(x => x.Unit), Is.EqualTo(director.Prices.Select(x => x.Unit)));
         Assert.That(director.Cost!.Total, Is.EqualTo(2055m));
-        Assert.That(director.Prices[0].Unit, Is.EqualTo(81.54m));
+        Assert.That(director.Prices.Select(x => x.Name), Is.EqualTo(new[] { "Категорія 1", "Категорія 2" }));
+        Assert.That(director.Prices[0].Unit, Is.EqualTo(96.83m), "Категорія 1 is the old «Стандарт», +90 %.");
     }
 }

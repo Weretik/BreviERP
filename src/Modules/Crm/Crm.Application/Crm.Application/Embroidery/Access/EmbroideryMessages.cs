@@ -14,6 +14,7 @@ internal static class EmbroideryMessages
     public const string ImportDuplicate = "Цей розрахунок у файлі двічі.";
     public const string ImportPricesDiffer =
         "Ціни не збігаються зі збереженими у старому калькуляторі. Розрахунок не перенесено.";
+    public const string CategoryNotFound = "Оберіть категорію ціни.";
     public const string MockupNotFound = "Фото не знайдено в медіатеці.";
     public const string DeleteForbidden = "Видаляти збережені розрахунки може лише директор або адміністратор.";
 }

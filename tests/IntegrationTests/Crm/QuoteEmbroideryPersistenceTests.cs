@@ -38,7 +38,7 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
             .Handle(new SaveEmbroideryCalculationCommand(new EmbroideryActor(17, false),
                 new SaveEmbroideryCalculationInput("Логотип на поло", null,
                     new CalculateEmbroideryInput("Garment", 50, 10_000, "18", 1, 1, 1, "New", 60, null, "UsedBlanks",
-                        null))), default);
+                        null), "Категорія 2")), default);
         Assert.That(saved.IsSuccess, Is.True, string.Join(",", saved.ValidationErrors.Select(x => x.ErrorMessage)));
         return saved.Value.Summary.Id;
     }
@@ -50,20 +50,20 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
             .Handle(new CreateQuoteCommand(Olena, OneOff()), default)).Value;
     }
 
-    private async Task<Result<QuoteResponse>> Add(QuoteActor actor, long quoteId, long calculationId, string level)
+    private async Task<Result<QuoteResponse>> Add(QuoteActor actor, long quoteId, long calculationId)
     {
         await using var db = Context();
         return await new AddEmbroideryToQuoteCommandHandler(db, db, _staff, _clock)
-            .Handle(new AddEmbroideryToQuoteCommand(actor, quoteId, calculationId, level), default);
+            .Handle(new AddEmbroideryToQuoteCommand(actor, quoteId, calculationId), default);
     }
 
     [Test]
-    public async Task AddedEmbroideryShowsTheChosenPriceInEveryTierAndSurvivesSaveAndCopy()
+    public async Task AddedEmbroideryShowsTheSavedCategoryInEveryTierAndSurvivesSaveAndCopy()
     {
         var calculationId = await SaveCalculation();
         var quote = await CreateQuote();
 
-        var added = await Add(Olena, quote.Id, calculationId, "Стандарт");
+        var added = await Add(Olena, quote.Id, calculationId);
         Assert.That(added.IsSuccess, Is.True, string.Join(",", added.Errors));
         var item = added.Value.Items[^1];
         Assert.That(item.Kind, Is.EqualTo("Embroidery"));
@@ -71,7 +71,7 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
         Assert.That(item.Name, Is.EqualTo("Логотип на поло"));
         Assert.That(item.Subtitle, Is.EqualTo("Вишивка · ВШ-0001"));
         var option = item.Options.Single();
-        Assert.That(option.Title, Is.EqualTo("Стандарт"));
+        Assert.That(option.Title, Is.EqualTo("Категорія 2"));
         Assert.That(new[] { option.Retail.Amount, option.Wholesale.Amount, option.Large.Amount }.Distinct().Single(),
             Is.GreaterThan(0m));
         Assert.That(option.Retail.Shown && option.Wholesale.Shown && option.Large.Shown, Is.True);
@@ -104,9 +104,8 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
         var calculationId = await SaveCalculation();
         var quote = await CreateQuote();
 
-        Assert.That((await Add(Petro, quote.Id, calculationId, "Стандарт")).Status, Is.EqualTo(ResultStatus.NotFound));
-        Assert.That((await Add(Olena, quote.Id, calculationId, "Дорого")).Status, Is.EqualTo(ResultStatus.Invalid));
-        Assert.That((await Add(Olena, quote.Id, 999, "Опт")).Status, Is.EqualTo(ResultStatus.Invalid));
+        Assert.That((await Add(Petro, quote.Id, calculationId)).Status, Is.EqualTo(ResultStatus.NotFound));
+        Assert.That((await Add(Olena, quote.Id, 999)).Status, Is.EqualTo(ResultStatus.Invalid));
 
         var typed = new QuoteItemInput(null, "Embroidery", null, null, null, null, null,
             [new QuoteOptionInput(null, null, false, new(true, null), new(true, null), new(true, null), null)]);

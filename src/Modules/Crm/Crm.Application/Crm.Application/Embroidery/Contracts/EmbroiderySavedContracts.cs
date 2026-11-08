@@ -3,12 +3,14 @@ namespace Crm.Application.Embroidery.Contracts;
 /// <summary>«Зберегти розрахунок»: the server prices the form again with today's rates and freezes them.</summary>
 /// <param name="Name">Optional; trimmed and cut to 120 characters.</param>
 /// <param name="CustomerPublicId">A Crm client the calculation is for, optional.</param>
+/// <param name="Category">The one price category kept: a price name of the result, «Категорія 1» or «Категорія 2».</param>
 public sealed record SaveEmbroideryCalculationInput(
     string? Name,
     Guid? CustomerPublicId,
-    CalculateEmbroideryInput Calculation);
+    CalculateEmbroideryInput Calculation,
+    string Category);
 
-/// <summary>A price of a saved calculation as the list shows it; no markup percents.</summary>
+/// <summary>The price of a saved calculation; no markup percent. <c>Name</c> is the category («Категорія 1»).</summary>
 public sealed record EmbroiderySavedPriceResponse(string Name, decimal Unit, decimal Total, decimal RepeatUnit);
 
 /// <summary>One row of «Збережені».</summary>
@@ -16,6 +18,7 @@ public sealed record EmbroiderySavedPriceResponse(string Name, decimal Unit, dec
 /// <param name="Mode">`Garment` or `Chevron`.</param>
 /// <param name="HoopLabel">The hoop label at save time.</param>
 /// <param name="Incomplete">Some ticked costs had no rate: the prices were «Орієнтовна».</param>
+/// <param name="Price">The one saved price category; null only for a calculation without prices.</param>
 /// <param name="Mockup">«Макет» from the Media library; null when none or the photo was removed.</param>
 public sealed record EmbroiderySavedSummaryResponse(
     long Id,
@@ -28,7 +31,7 @@ public sealed record EmbroiderySavedSummaryResponse(
     int StitchesPerUnit,
     string HoopLabel,
     bool Incomplete,
-    IReadOnlyList<EmbroiderySavedPriceResponse> Prices,
+    EmbroiderySavedPriceResponse? Price,
     DateTimeOffset CreatedAt,
     string CreatedByName,
     EmbroideryMockupResponse? Mockup);

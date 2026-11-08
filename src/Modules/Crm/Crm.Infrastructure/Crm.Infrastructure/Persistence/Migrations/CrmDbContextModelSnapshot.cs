@@ -226,6 +226,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -786,7 +790,15 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LastSentAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("LetterBody")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
                     b.Property<string>("LetterName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("LetterSubject")
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
