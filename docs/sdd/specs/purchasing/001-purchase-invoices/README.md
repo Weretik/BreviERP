@@ -16,7 +16,7 @@ The client's technical description of version 217 is kept outside the repository
 | D2 | Same deterministic ids as the Calculator (SHA-256 of `telegram:<ChatId>:<MessageId>`, `<spreadsheetId>:<sheetId>:<UID>`, `<messageId>:<url>`, `<sourceId>:<rawJson>`), and `rawJson` written like JavaScript `JSON.stringify`. Checked against the old database export on 2026-11-05: 740 of 740 rows give the same ids and raw text, so a fresh sync recreates the same records. |
 | D3 | One server-side sync instead of the Calculator's three-step plan/chunk/finish (needed there only for Cloudflare limits): read and check the whole sheet, then apply it in one transaction under a PostgreSQL advisory lock. A failed or parallel run changes nothing (fixes the old SI-05/SI-14 gaps). |
 | D4 | The sheet is read with the Cloud Run runtime service account (Application Default Credentials, scope `spreadsheets.readonly`); the sheet is shared with that account as a viewer. No key file, no owner OAuth token. |
-| D5 | Access by role, not by one e-mail: policy `CanUsePurchaseInvoices` = Accountant and Admin (the Director also holds Admin). Managers get 403 (user decision 2026-11-05). |
+| D5 | Access by role, not by one e-mail: policy `CanUsePurchaseInvoices` = Director only (client corrections item 10, 2026-11-08; before that Accountant and Admin). Others get 403; the admin page moved to «Бухгалтерія → Рахунки на закупку». |
 | D6 | The sync never changes the manual supplier link, note and their version. Rows and links missing from the sheet become inactive and stay. |
 | D7 | No «all good» status: the card shows only problems with their reason (`NeedsReview` + issues). |
 | D8 | The «Фінанси» tab of version 217 is not moved: Brevi has no finance module. |

@@ -64,7 +64,7 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 ## Purchasing
 
-- [Purchase invoices «Рахунки на закупку»](purchasing/purchase-invoices.md) — register of purchase invoices from the Google Sheet «финансы»: sync, problems with reasons, search, supplier link and note, invoice facts read by AI with a kopeck check or uploaded as JSON; Director, Accountant and Admin.
+- [Purchase invoices «Рахунки на закупку»](purchasing/purchase-invoices.md) — register of purchase invoices from the Google Sheet «финансы»: sync, problems with reasons, search, supplier link and note, invoice facts read by AI with a kopeck check or uploaded as JSON; Director only.
 
 ## Media
 

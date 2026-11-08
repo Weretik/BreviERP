@@ -2,6 +2,6 @@ namespace Purchasing.Api.Access;
 
 internal static class PurchasingAccess
 {
-    /// <summary>«Рахунки на закупку»: Director, Accountant and Admin (the director also holds Admin); not managers.</summary>
+    /// <summary>«Бухгалтерія → Рахунки на закупку»: only the Director (client corrections item 10, 2026-11-08).</summary>
     public const string Policy = "CanUsePurchaseInvoices";
 }
