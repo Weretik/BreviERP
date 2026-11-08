@@ -215,4 +215,28 @@ public sealed class QuotePdfTests
         if (Environment.GetEnvironmentVariable("BREVI_QUOTE_PDF_OUT") is { Length: > 0 } path)
             await File.WriteAllBytesAsync(path, pdf);
     }
+
+    [Test]
+    public async Task RendersVariantsWithAllThreePrices()
+    {
+        static QuoteItemOption Option(int position, bool recommended) => new(position, 100 + position, 5,
+            $"Тканина {position}", "65% поліестер, 210 г/м²", recommended,
+            new QuotePrice(1364.17m, null, true), new QuotePrice(1290m, null, true), new QuotePrice(1200m, null, true),
+            DateTimeOffset.UnixEpoch);
+        var item = new QuoteItem(0, QuoteItemKind.Sewing, 10,
+            new QuoteItemTexts("MOD-1", "Вест Бери спина", null, null, null, null, null, null),
+            [Option(0, true), Option(1, false)]);
+        var quote = new Quote(new QuoteNumber(2026, 11, 23), QuoteKind.Request, new QuotePerson(5, "Юлія"),
+            new QuoteHeader("Агробат", null, null, "Агробат ТОВ", null, null), [item], DateTimeOffset.UnixEpoch);
+        var model = QuotePdfModelBuilder.Build(quote, QuoteSettingsDefaults.Content, Manager);
+        var renderer = new QuotePdfRenderer(new QuotePdfImageLoader(new HttpClient(), NullLogger<QuotePdfImageLoader>.Instance));
+
+        var pdf = await renderer.RenderAsync(model, CancellationToken.None);
+
+        Assert.That(System.Text.Encoding.ASCII.GetString(pdf, 0, 5), Is.EqualTo("%PDF-"));
+    }
+
+    [Test]
+    public void APhotoLinkThatAnswersWithAPageIsLeftOut() =>
+        Assert.That(QuotePdfImageLoader.CanDraw(new QuotePdfImage("<html>нема</html>"u8.ToArray(), null)), Is.False);
 }

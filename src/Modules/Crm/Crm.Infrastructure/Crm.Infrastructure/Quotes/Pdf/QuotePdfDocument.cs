@@ -193,7 +193,11 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
     {
         if (item.Options.Count == 1 && item.OptionsTitle is null)
         {
-            container.Row(row => Tiles(row, item.Options[0].Tiles));
+            container.Row(row =>
+            {
+                Tiles(row, item.Options[0].Tiles);
+                row.RelativeItem();
+            });
             return;
         }
 
@@ -216,6 +220,7 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
                         cell.Item().Text(option.Title).SemiBold();
                         if (option.Details is { } details) cell.Item().Text(details).FontColor(Muted).FontSize(8);
                     });
+                    // Three tiles fill the column exactly: a trailing filler would add one more gap and break the page.
                     line.ConstantItem(TileWidth * 3 + TileGap * 2).Row(tiles => Tiles(tiles, option.Tiles));
                 });
             }
@@ -236,7 +241,6 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
                 cell.Item().Background(TileBody).PaddingVertical(5).AlignCenter()
                     .Text(Price(tile.Price)).FontSize(11).Bold();
             });
-        row.RelativeItem();
     }
 
     /// <summary>The note before the footer (R-30): dark, as in the «Каталог» concept the owner chose.</summary>
