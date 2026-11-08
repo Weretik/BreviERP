@@ -30,7 +30,7 @@ public sealed class PurchaseInvoiceReviewTests
 
     private async Task<PurchaseInvoicePage> ListAsync(PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All,
         int? supplierId = null) =>
-        (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers)
+        (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
             .Handle(new GetPurchaseInvoicesQuery(1, 50, null, filter, supplierId), CancellationToken.None)).Value;
 
     [Test]

@@ -489,6 +489,12 @@ paths:
     $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1suppliers
   /api/purchasing/invoices/{messageId}/review:
     $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1{messageId}~1review
+  /api/purchasing/invoices/{messageId}/payments/candidates:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1{messageId}~1payments~1candidates
+  /api/purchasing/invoices/{messageId}/payments:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1{messageId}~1payments
+  /api/purchasing/invoices/{messageId}/payments/unlink:
+    $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1{messageId}~1payments~1unlink
   /api/purchasing/invoices/sync-state:
     $ref: ./purchasing/purchase-invoices.openapi.yaml#/paths/~1api~1purchasing~1invoices~1sync-state
   /api/purchasing/invoices/sync:

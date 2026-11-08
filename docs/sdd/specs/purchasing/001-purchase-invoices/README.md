@@ -32,6 +32,7 @@ The client's technical description of version 217 is kept outside the repository
 | 2 | Manual supplier link and note with optimistic version and history; filter «Без постачальника» | implemented 2026-11-05 |
 | 3 | Invoice data: recognition of the original by OpenAI (Ai module), kopeck check (a mismatch → strong model, then «Потребує перевірки»), «Розпізнати всі нові» in batches, «Розпізнати знову», manual JSON, hash, history of replaced facts; move the one old checked document | implemented 2026-11-05 |
 | 4 | Read-only «Рахунки на закупку» in the supplier card; «КП» and «Завдання в цех» in the client card | planned |
+| — | Payment links to expenses of «Бухгалтерія» ([ACC-001](../../accounting/001-finance/README.md) stage 9) | implemented 2026-11-08 |
 | 5 | Copies of the original documents on the Brevi CDN (`invoices/`): downloaded on sync, the card opens the copy; the Dropbox URL stays the identity (user request 2026-11-05) | planned |
 
 ## Stage 1 rules
@@ -61,10 +62,17 @@ The client's technical description of version 217 is kept outside the repository
 - `supplierName` from the document never links a Brevi supplier by itself.
 - Recognition, saving and the sheet sync share the register lock; during a sync → 409.
 
+## Payment links (accounting stage 9)
+
+- «Прив'язати оплату» links an active expense of «Бухгалтерія» to the card (`POST …/{messageId}/payments` with `transactionId` and the `version` the user saw); «Відв'язати» removes it (`POST …/payments/unlink`). Each change adds 1 to `reviewVersion` (the same version as the supplier link and note) and runs under the register lock; a stale version → 409.
+- An income, a voided or unknown operation → 400; the same operation linked twice to one card → 409. One operation may pay several invoices. A removed link stays in `Payments` with who removed it and when; linking again adds a row.
+- `GET …/payments/candidates` offers at most 20 expenses: without a search those of the linked supplier, or, without a supplier, those equal to the invoice total; with a search any expense by text or amount. Already linked ones are left out; `sameAmount` marks those equal to the total, which come first.
+- The card gets `totalPayableMinor` (sum of «До сплати» of its checked documents), `payments` as they are now in «Бухгалтерія» and `paymentIssues`: a voided or missing operation, an operation not in hryvnias, and paid hryvnias that differ from the total. Payment problems do not change `state` and are not in the «Потребує перевірки» filter. A sheet «СПЛАЧЕНО» without a link is not a problem (old cards).
+
 ## Contract and tests
 
-[OpenAPI](../../../contracts/purchasing/purchase-invoices.openapi.yaml): `getPurchaseInvoices`, `getPurchaseInvoicesSyncState`, `syncPurchaseInvoices`, `getPurchaseInvoiceSuppliers`, `reviewPurchaseInvoice`, `recognizePurchaseFile`, `recognizeNewPurchaseFiles`, `savePurchaseDocument`, `getPurchaseDocumentTemplate`. Tests: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Purchasing"` (source rules, sync on SQLite, list query, review, facts rules, recognition, manual JSON, contract) and `tests/ArchitectureTests/PurchasingDependencyTests.cs`.
+[OpenAPI](../../../contracts/purchasing/purchase-invoices.openapi.yaml): `getPurchaseInvoices`, `getPurchaseInvoicesSyncState`, `syncPurchaseInvoices`, `getPurchaseInvoiceSuppliers`, `reviewPurchaseInvoice`, `recognizePurchaseFile`, `recognizeNewPurchaseFiles`, `savePurchaseDocument`, `getPurchaseDocumentTemplate`, `getPurchasePaymentCandidates`, `linkPurchasePayment`, `unlinkPurchasePayment`. Tests: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Purchasing"` (source rules, sync on SQLite, list query, review, facts rules, recognition, manual JSON, contract) and `tests/ArchitectureTests/PurchasingDependencyTests.cs`.
 
 ## Deployment
 
-The migrations `InitialPurchasing`, `AddPurchaseReview` and `AddPurchaseDocuments` run with the normal deploy. Stage 3 needs the OpenAI key in «Налаштування ШІ» ([AI-001](../../ai/001-ai-settings/README.md)). Before the first sync: enable Google Sheets API in project `brevistoreapi` and share the sheet with the runtime service account as a viewer ([runbook](../../../operations/jobs/sync-job.md#purchase-invoices)).
+The migrations `InitialPurchasing`, `AddPurchaseReview`, `AddPurchaseDocuments`, `AddPurchaseDocumentFilters` and `AddPurchasePayments` run with the normal deploy. Stage 3 needs the OpenAI key in «Налаштування ШІ» ([AI-001](../../ai/001-ai-settings/README.md)). Before the first sync: enable Google Sheets API in project `brevistoreapi` and share the sheet with the runtime service account as a viewer ([runbook](../../../operations/jobs/sync-job.md#purchase-invoices)).

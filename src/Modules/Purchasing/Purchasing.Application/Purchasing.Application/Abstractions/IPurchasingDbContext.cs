@@ -18,6 +18,7 @@ public interface IPurchasingDbContext
     DbSet<PurchaseCheckedDocument> CheckedDocuments { get; }
     DbSet<PurchaseCheckedDocumentHistory> CheckedDocumentHistory { get; }
     DbSet<PurchaseRecognitionAttempt> RecognitionAttempts { get; }
+    DbSet<PurchasePayment> Payments { get; }
 
     /// <summary>
     /// Opens a register write transaction under the module lock; null while another write (usually the sheet sync)

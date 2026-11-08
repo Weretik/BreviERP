@@ -303,6 +303,50 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                     b.ToTable("Messages", "purchasing");
                 });
 
+            modelBuilder.Entity("Purchasing.Domain.Messages.PurchasePayment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("LinkedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LinkedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("MessageId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("UnlinkedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UnlinkedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionId");
+
+                    b.HasIndex("MessageId", "Id");
+
+                    b.HasIndex("MessageId", "TransactionId")
+                        .IsUnique()
+                        .HasFilter("\"UnlinkedAt\" IS NULL");
+
+                    b.ToTable("Payments", "purchasing");
+                });
+
             modelBuilder.Entity("Purchasing.Domain.Messages.PurchaseReviewChange", b =>
                 {
                     b.Property<long>("Id")
@@ -504,6 +548,15 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Purchasing.Domain.Files.PurchaseMessageFile", b =>
+                {
+                    b.HasOne("Purchasing.Domain.Messages.PurchaseMessage", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Purchasing.Domain.Messages.PurchasePayment", b =>
                 {
                     b.HasOne("Purchasing.Domain.Messages.PurchaseMessage", null)
                         .WithMany()

@@ -1,6 +1,6 @@
 # Purchasing schema
 
-Code model reviewed 2026-11-05. `Purchasing.Infrastructure.Persistence.PurchasingDbContext` owns schema `purchasing`; migration history is `purchasing.__EFMigrationsHistory`. Migration `InitialPurchasing` creates the register tables; `AddPurchaseReview` adds ReviewedBy/ReviewedAt and ReviewChanges; `AddPurchaseDocuments` adds CheckedDocuments, CheckedDocumentHistory and RecognitionAttempts; `AddPurchaseDocumentFilters` adds CheckedDocuments.DocumentDate and Vat, filled from PayloadJson ([PUR-001](../../specs/purchasing/001-purchase-invoices/README.md)).
+Code model reviewed 2026-11-05. `Purchasing.Infrastructure.Persistence.PurchasingDbContext` owns schema `purchasing`; migration history is `purchasing.__EFMigrationsHistory`. Migration `InitialPurchasing` creates the register tables; `AddPurchaseReview` adds ReviewedBy/ReviewedAt and ReviewChanges; `AddPurchaseDocuments` adds CheckedDocuments, CheckedDocumentHistory and RecognitionAttempts; `AddPurchaseDocumentFilters` adds CheckedDocuments.DocumentDate and Vat, filled from PayloadJson; `AddPurchasePayments` adds Payments ([PUR-001](../../specs/purchasing/001-purchase-invoices/README.md)).
 
 | Table | Identity / relationships / purpose |
 | --- | --- |
@@ -12,6 +12,7 @@ Code model reviewed 2026-11-05. `Purchasing.Infrastructure.Persistence.Purchasin
 | CheckedDocuments | PK Id = file id (one per file); FK → MessageFiles (restrict); MessageId FK → Messages (restrict). SourceUid, OriginalUrl, PayloadJson (canonical facts JSON), PayloadHash (SHA-256 of it), DocumentDate (indexed) and Vat (WithVat/WithoutVat) copied from it for the register filters, Origin (Ai/Manual), Model, CostUsd, CheckedBy, CheckedAt |
 | CheckedDocumentHistory | PK Id (identity); FileId FK → MessageFiles (restrict); index (FileId, Id). The replaced PayloadJson/PayloadHash/Origin/CheckedBy/CheckedAt, ReplacedBy, ReplacedAt. Append-only |
 | RecognitionAttempts | PK Id (identity); FileId FK → MessageFiles, MessageId FK → Messages (restrict); index (FileId, Id). Outcome (Recognized/NeedsReview/Failed/Skipped), Problems (text[]), Model, CostUsd, OutputJson (last AI answer that failed the checks), By, At. Append-only |
+| Payments | PK Id (identity); MessageId FK → Messages (restrict); index (MessageId, Id), index TransactionId; unique (MessageId, TransactionId) while UnlinkedAt is null. TransactionId (Accounting operation id, no FK), LinkedBy, LinkedAt, UnlinkedBy, UnlinkedAt. A removed link stays as history |
 | SyncStates | PK Id (`google-finance`). LastAttemptAt, LastSuccessAt, Error, RecordCount (active rows), FileCount |
 
 Nothing is deleted: rows and links missing from the sheet get `Active = false`.

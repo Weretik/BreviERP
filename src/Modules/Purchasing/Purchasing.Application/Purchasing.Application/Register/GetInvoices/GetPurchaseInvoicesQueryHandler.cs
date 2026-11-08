@@ -1,13 +1,15 @@
 using Purchasing.Application.Abstractions;
 using Purchasing.Application.Contracts;
 using Purchasing.Application.Documents;
+using Purchasing.Application.Register.Payments;
 using Purchasing.Domain.Documents;
 using Purchasing.Domain.Ingestion;
 using Purchasing.Domain.Messages;
 
 namespace Purchasing.Application.Register.GetInvoices;
 
-public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPurchasingSupplierReader suppliers)
+public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPurchasingSupplierReader suppliers,
+    IPurchasingPaymentReader paymentReader)
     : IQueryHandler<GetPurchaseInvoicesQuery, Result<PurchaseInvoicePage>>
 {
     public async ValueTask<Result<PurchaseInvoicePage>> Handle(GetPurchaseInvoicesQuery query, CancellationToken cancellationToken)
@@ -92,6 +94,10 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
             ? (await suppliers.ListAsync(cancellationToken)).ToDictionary(x => x.Id, x => x.Name)
             : new Dictionary<int, string>();
 
+        var paymentLinks = await PurchasePayments.ActiveLinksAsync(db, messageIds, cancellationToken);
+        var operations = await PurchasePayments.OperationsAsync(paymentReader, paymentLinks.SelectMany(x => x),
+            cancellationToken);
+
         var items = page.Select(x =>
         {
             var raw = PurchaseRawCells.Read(x.Row!.RawJson);
@@ -106,6 +112,8 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
                 : cardLinks.Any(l => l.Safe) && cardLinks.Where(l => l.Safe).All(l => l.Document is not null)
                     ? PurchaseInvoiceState.Recognized
                     : PurchaseInvoiceState.AwaitingRecognition;
+            var totalMinor = PurchasePayments.TotalMinor(cardLinks.Select(l => l.Document).OfType<PurchaseDocumentResponse>());
+            var payments = PurchasePayments.Respond(paymentLinks[x.Message.Id], operations);
             return new PurchaseInvoiceResponse(
                 x.Message.Id, x.Message.TelegramKey, x.Row.SourceUid, x.Row.RowNumber, x.RowCount,
                 raw.ChatName, raw.FromUser, x.Message.MessageAt, x.Message.Text, x.Message.StatusOriginal,
@@ -115,7 +123,10 @@ public sealed class GetPurchaseInvoicesQueryHandler(IPurchasingDbContext db, IPu
                 x.Message.ReviewNote, x.Message.ReviewVersion, x.Message.ReviewedBy, x.Message.ReviewedAt,
                 state,
                 issues,
-                cardLinks);
+                cardLinks,
+                totalMinor,
+                payments,
+                PurchasePayments.Issues(payments, totalMinor));
         }).ToList();
 
         return Result.Success(new PurchaseInvoicePage(items, total, query.Page, query.PageSize));

@@ -38,7 +38,7 @@ public sealed class PurchaseRecognitionTests
         harness.Recognition().RecognizeAsync(id ?? fileId, By, CancellationToken.None);
 
     private async Task<PurchaseInvoicePage> ListAsync(PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All) =>
-        (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers)
+        (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
             .Handle(new GetPurchaseInvoicesQuery(1, 50, null, filter), CancellationToken.None)).Value;
 
     private Task<Result<PurchaseDocumentSaveResponse>> SaveAsync(string json, bool replace = false)
@@ -81,7 +81,7 @@ public sealed class PurchaseRecognitionTests
         await RecognizeAsync();
 
         async Task<IEnumerable<string>> Uids(DateOnly? from = null, DateOnly? to = null, PurchaseDocumentVat? vat = null) =>
-            (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers)
+            (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
                 .Handle(new GetPurchaseInvoicesQuery(1, 50, null, PurchaseInvoiceFilter.All, null, from, to, vat),
                     CancellationToken.None)).Value.Items.Select(x => x.SourceUid);
 
