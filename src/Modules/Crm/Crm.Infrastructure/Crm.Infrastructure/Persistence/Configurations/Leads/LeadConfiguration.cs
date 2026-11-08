@@ -16,7 +16,9 @@ public sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
         });
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).ValueGeneratedOnAdd();
-        b.HasIndex(x => x.SourceId).IsUnique();
+        b.Property(x => x.NameKey).HasMaxLength(LeadLimits.ShortText);
+        b.HasIndex(x => x.NameKey).IsUnique();
+        b.HasIndex(x => x.SourceId);
 
         b.Property(x => x.Category).HasMaxLength(LeadLimits.CategoryMaxLength);
         b.Property(x => x.Company).HasMaxLength(LeadLimits.ShortText);

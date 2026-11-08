@@ -17,7 +17,10 @@ public sealed class LeadSyncState
     public int Updated { get; private set; }
     public string? Error { get; private set; }
 
-    public void Succeeded(DateTimeOffset now, int rows, int added, int updated)
+    /// <summary>What the last successful run left out (rows with a repeated ID); null when nothing.</summary>
+    public string? Warning { get; private set; }
+
+    public void Succeeded(DateTimeOffset now, int rows, int added, int updated, string? warning = null)
     {
         LastRunAt = now;
         LastSuccessAt = now;
@@ -25,6 +28,7 @@ public sealed class LeadSyncState
         Added = added;
         Updated = updated;
         Error = null;
+        Warning = warning is null ? null : LeadLimits.Cut(warning, LeadLimits.LongText);
     }
 
     public void Failed(DateTimeOffset now, string error)

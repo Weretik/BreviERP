@@ -94,7 +94,15 @@ public sealed record LeadCallResultResponse(long Id, string Name, string Outcome
 
 public sealed record LeadCategoryResponse(string Code, string? Description, int Leads);
 
-public sealed record LeadSyncResponse(int Rows, int Added, int Updated, int Gone, int Skipped, DateTimeOffset At);
+public sealed record LeadSyncResponse(
+    int Rows,
+    int Added,
+    int Updated,
+    int Gone,
+    int Skipped,
+    DateTimeOffset At,
+    int Duplicates,
+    string? Warning);
 
 public sealed record LeadSyncStateResponse(
     DateTimeOffset? LastRunAt,
@@ -102,7 +110,8 @@ public sealed record LeadSyncStateResponse(
     int Rows,
     int Added,
     int Updated,
-    string? Error);
+    string? Error,
+    string? Warning);
 
 /// <summary>A manager row of «Зведення» for the period.</summary>
 /// <param name="ReachedPercent">Calls whose result is not «не дозвонились»-like, of all calls; null without calls.</param>

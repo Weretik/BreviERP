@@ -89,6 +89,6 @@ public sealed class GetLeadStatsQueryHandler(ILeadStore store, TimeProvider cloc
             sync is null
                 ? null
                 : new LeadSyncStateResponse(sync.LastRunAt, sync.LastSuccessAt, sync.Rows, sync.Added, sync.Updated,
-                    sync.Error)));
+                    sync.Error, sync.Warning)));
     }
 }

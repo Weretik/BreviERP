@@ -54,14 +54,32 @@ public sealed class LeadRulesTests
     }
 
     [Test]
-    public void Parser_skips_rows_without_an_id_and_stops_on_a_repeated_id()
+    public void Parser_skips_rows_without_an_id_and_matches_rows_by_company_not_by_id()
     {
         var parsed = LeadSheetParser.Parse([Header, Row("", "Без ID"), new string?[25], Row("x", "Текст"), Row("3", "Три")]);
         Assert.That(parsed.Rows.Select(x => x.SourceId), Is.EqualTo(new[] { 3 }));
         Assert.That(parsed.Skipped, Is.EqualTo(2));
+        Assert.That(parsed.DuplicatesWarning, Is.Null);
 
-        Assert.Throws<LeadSheetFormatException>(() => LeadSheetParser.Parse([Header, Row("3", "А"), Row("3", "Б")]));
+        var repeated = LeadSheetParser.Parse(
+            [Header, Row("120", "ТОВ \"Ромашка\""), Row("120", "Сокіл"), Row("121", " тов  «ромашка» ")]);
+        Assert.Multiple(() =>
+        {
+            Assert.That(repeated.Rows.Select(x => x.Company), Is.EqualTo(new[] { "ТОВ \"Ромашка\"", "Сокіл" }));
+            Assert.That(repeated.Repeats, Is.EqualTo(1));
+            Assert.That(repeated.DuplicatesWarning, Is.EqualTo(
+                "Підприємство записано в таблиці кілька разів, взято перший рядок: «ТОВ \"Ромашка\"» — рядки 2, 4."));
+        });
+
         Assert.Throws<LeadSheetFormatException>(() => LeadSheetParser.Parse([["Назва", "Регион"], ["А", "Київ"]]));
+    }
+
+    [Test]
+    public void Company_key_ignores_case_quotes_and_spaces()
+    {
+        Assert.That(Lead.KeyOf(" ТОВ  «Ромашка» "), Is.EqualTo(Lead.KeyOf("тов \"ромашка\"")));
+        Assert.That(Lead.KeyOf("ТОВ Ромашка"), Is.EqualTo("тов ромашка"));
+        Assert.That(Lead.KeyOf("Ромашка"), Is.Not.EqualTo(Lead.KeyOf("Сокіл")));
     }
 
     [Test]
