@@ -81,9 +81,35 @@ Every other operation needs a signed-in user, and every admin operation names a 
 
 A class-level `[AllowAnonymous]` overrides any `[Authorize]` on its methods, so put it only on the single public action.
 
+## New feature or page: «Права доступу» checklist
+
+Every staff page of the admin and every API it calls must be configurable on «Права доступу». The page lists `AccessCatalog.Areas`, so a page missing from the catalogue can't be granted to anyone. Decide the access in the SDD, then do the following in the same change.
+
+1. **Choose the page.** If the feature is a new screen or menu item, add an `AccessArea` to `Identity.Domain/Authorization/AccessCatalog.cs` with:
+   - a constant key (kebab-case, stable: it is stored in `identity.role_access`);
+   - its group (the admin menu group, in Ukrainian) and a Ukrainian title, in menu order;
+   - only the actions the page really has (`View`, `Create`, `Edit`, `Delete`);
+   - defaults for the built-in roles. The defaults decide what people see right after deploy, before anyone saves the page, so give exactly the roles the SDD names.
+
+   If the feature only adds a part of an existing page (a tab, a panel, a button), reuse that page's key and pick the action instead. Add a new key only when the director would want to grant it separately.
+2. **Guard every endpoint** with `[Authorize(Policy = "access:<page>")]`. Put the constant in the module's `Api/Access/*Access.cs`, like `CrmAccess` or `ProductionAccess`.
+   - The HTTP method gives the action: GET view, POST create, PUT/PATCH edit, DELETE delete.
+   - When the method doesn't match the meaning, name the action: `access:<page>:delete` for a delete done by POST, or `[AccessAction(AccessActionNames.Edit)]` for a POST that only edits (send, reprice).
+   - Never `[Authorize(Roles = …)]` on a work page. Users, «Права доступу» and system settings stay `CanManageUsers`, and shared catalogue reads stay `CatalogRead`.
+3. **Keep business rules inside Application.** Rules such as "a manager sees only their own КП" stay in the handler. The page right only decides whether the person may open the page or do the action. Write down in the SDD how a role made on «Права доступу» is treated by those rules: today it is treated like a manager.
+4. **Tests:**
+   - Update the module's policy assertions in its contract tests.
+   - `tests/HostApiTests/ApiAccessTests.cs` must still pass. It fails on an endpoint without a policy or with an unknown one.
+   - `AccessRightsTests` covers the catalogue and its defaults.
+5. **Docs:**
+   - Add the row to the pages table above.
+   - In the feature card, state the page key and default rights.
+   - In the OpenAPI contract, write `Requires access:<page>` in each operation's description, quoted inside a flow mapping, because a bare `:` breaks YAML there.
+6. **Hand off to the frontend:** the admin needs the same key on its menu item and its route, and its actions on buttons. See the brevi-web standard `docs/standards/admin/access-rights.md`.
+
 ## Adding a policy or role
 
-1. A new admin page: add it to `AccessCatalog` with its actions and defaults, and guard its endpoints with `access:<page>`; the admin menu reads the same key.
+1. A new admin page: follow the checklist above.
 2. Check whether an existing policy already covers the business operation.
 3. If not, define the policy name in Identity Application and its role requirement in Host.Api.
 4. If a new built-in role is needed, add its constant in Identity Domain and deliberately configure seeding; define which existing and future users receive it.

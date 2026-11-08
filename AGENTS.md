@@ -47,6 +47,7 @@ Do not run a full `dotnet build`/`dotnet test BreviERP.sln`, all integration tes
 | Implement an accepted specification | `$backend-feature-delivery` | [Delivery rules](docs/sdd/standards/delivery-rules.md) |
 | Multiple agents at the user's explicit request | `$backend-feature-orchestrator` | [Specifications and dependencies](docs/sdd/specs/README.md) |
 | Code audit / systemic remediation plan | `$backend-code-audit` / `$backend-remediation-plan` | [Architecture](docs/sdd/architecture/README.md) and [standards](docs/sdd/standards/README.md) |
+| New admin page, endpoint or action (who may see or do it) | — | [«Права доступу» checklist](docs/sdd/architecture/security/authorization/roles-and-policies.md#new-feature-or-page-права-доступу-checklist): `AccessCatalog` entry, `access:<page>` policy, defaults |
 | HTTP/API and external contracts | `$backend-api-contract-sync` | [Contracts](docs/sdd/contracts/README.md) |
 | Operational jobs: catalogue import, pricing verification and activation | — | [Jobs overview](src/Jobs/README.md); run only through `Host.Seed`; runbooks in [data operations](docs/sdd/operations/data/migrations-and-seeding.md) |
 | Find database tables and relationships | — | [Database map](docs/sdd/architecture/data-model/README.md): start with the tree, then read only the relevant owner's file |
