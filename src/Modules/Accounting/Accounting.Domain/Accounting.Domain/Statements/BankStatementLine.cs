@@ -63,6 +63,9 @@ public sealed class BankStatementLine : IEntity<BankStatementLineId>
     public FinanceTransactionId? TransactionId { get; private set; }
     public FinanceTransferId? TransferId { get; private set; }
 
+    /// <summary>«Провести виписку» created the finance counterparty of this line («Відкотити» may archive it).</summary>
+    public bool CreatedCounterparty { get; private set; }
+
     public CounterpartyLink? Counterparty =>
         CounterpartyKind is { } kind && CounterpartyId is { } id ? new CounterpartyLink(kind, id) : null;
 
@@ -180,7 +183,29 @@ public sealed class BankStatementLine : IEntity<BankStatementLineId>
     }
 
     /// <summary>A finance counterparty created for the line when the statement is booked.</summary>
-    public void UseCreatedCounterparty(CounterpartyState counterparty) => SetCounterparty(counterparty);
+    public void UseCreatedCounterparty(CounterpartyState counterparty)
+    {
+        SetCounterparty(counterparty);
+        CreatedCounterparty = true;
+    }
+
+    /// <summary>
+    /// «Відкотити виписку»: the line forgets its operation or transfer. A counterparty the booking created is refreshed
+    /// to <paramref name="created"/>, its state now, or dropped (null) when the rollback archived it, so the line waits
+    /// for a counterparty again.
+    /// </summary>
+    public void Unbook(CounterpartyState? created)
+    {
+        TransactionId = null;
+        TransferId = null;
+        if (CreatedCounterparty)
+        {
+            SetCounterparty(created);
+            CreatedCounterparty = created is not null;
+        }
+
+        Refresh();
+    }
 
     public void Booked(FinanceTransactionId transactionId) => TransactionId = transactionId;
 

@@ -74,6 +74,7 @@ public sealed class AccountingContractTests
     [TestCase(typeof(BankStatementDetailsResponse), "BankStatementDetailsResponse")]
     [TestCase(typeof(BankLineStateCount), "BankLineStateCount")]
     [TestCase(typeof(BankStatementTotals), "BankStatementTotals")]
+    [TestCase(typeof(BankStatementRollback), "BankStatementRollback")]
     [TestCase(typeof(BankStatementLineResponse), "BankStatementLineResponse")]
     [TestCase(typeof(BankStatementLineInput), "BankStatementLineInput")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
@@ -122,7 +123,7 @@ public sealed class AccountingContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "CanUseAccounting" }));
-            Assert.That(operations, Has.Length.EqualTo(46));
+            Assert.That(operations, Has.Length.EqualTo(47));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

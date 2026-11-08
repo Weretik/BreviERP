@@ -1661,6 +1661,46 @@ paths:
           description: Not signed in
         '403':
           description: Not Director
+  /api/accounting/statements/{id}/rollback:
+    post:
+      tags:
+      - Accounting
+      operationId: rollbackBankStatement
+      description: '«Відкотити виписку» (stage 7): every active operation and transfer the statement booked is cancelled
+        (Void, kept in the journal and the change log) and gives up its bank identity, so the lines are no duplicates
+        when booked again; a record cancelled by hand before stays as it is. Unconfirmed finance counterparties the
+        booking created are archived when no active operation outside the statement uses them. The statement becomes
+        a Preview again with its lines unlinked. One save.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankStatementResponse'
+        '400':
+          description: Statement not booked
+        '404':
+          description: Statement not found
+        '409':
+          description: Stale version
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
 components:
   securitySchemes:
     Bearer:
@@ -3308,6 +3348,11 @@ components:
         pageSize:
           type: integer
           format: int32
+        rollback:
+          description: Only for a Booked statement — what «Відкотити виписку» would do.
+          oneOf:
+          - $ref: '#/components/schemas/BankStatementRollback'
+          - type: 'null'
       required:
       - statement
       - states
@@ -3316,6 +3361,28 @@ components:
       - total
       - page
       - pageSize
+    BankStatementRollback:
+      type: object
+      description: Active operations and transfers a rollback would cancel, how many of them were changed by hand after
+        the booking, and how many are cancelled already.
+      properties:
+        transactions:
+          type: integer
+          format: int32
+        transfers:
+          type: integer
+          format: int32
+        changed:
+          type: integer
+          format: int32
+        cancelled:
+          type: integer
+          format: int32
+      required:
+      - transactions
+      - transfers
+      - changed
+      - cancelled
     BankLineStateCount:
       type: object
       properties:
