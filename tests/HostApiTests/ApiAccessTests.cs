@@ -86,6 +86,19 @@ public sealed class ApiAccessTests
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
     }
 
+    [TestCase("Accountant")]
+    [TestCase("Admin")]
+    [TestCase("Manager")]
+    public async Task Only_the_director_opens_purchase_invoices(string role)
+    {
+        await using var host = await Fixture.CreateAsync();
+        host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", role);
+
+        var response = await host.Client.GetAsync("/api/purchasing/invoices/sync-state");
+
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+    }
+
     private static string Describe(Endpoint endpoint)
     {
         var route = ((RouteEndpoint)endpoint).RoutePattern.RawText!.Replace(":int", string.Empty);

@@ -34,7 +34,7 @@ Owns «Налаштування ШІ» in schema `ai`: the OpenAI key (encrypted
 
 ## Purchasing module
 
-Owns the purchase invoice register «Рахунки на закупку» in schema `purchasing`: Telegram messages read from the Google Sheet «финансы», their sheet rows, raw history, document links, the manual supplier link and note, and the checked facts of each original (read by the Ai module or uploaded by hand). Admin APIs live under `/api/purchasing` for Accountant and Admin (the Director holds Admin). Suppliers are referenced by Reference supplier id without a database link ([PUR-001](../../specs/purchasing/001-purchase-invoices/README.md)).
+Owns the purchase invoice register «Рахунки на закупку» in schema `purchasing`: Telegram messages read from the Google Sheet «финансы», their sheet rows, raw history, document links, the manual supplier link and note, and the checked facts of each original (read by the Ai module or uploaded by hand). Admin APIs live under `/api/purchasing` for the Director only. Suppliers are referenced by Reference supplier id without a database link ([PUR-001](../../specs/purchasing/001-purchase-invoices/README.md)).
 
 ## Reminders module
 
