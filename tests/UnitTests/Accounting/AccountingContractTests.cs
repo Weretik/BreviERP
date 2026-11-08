@@ -7,6 +7,7 @@ using Accounting.Api.Import;
 using Accounting.Api.Statements;
 using Accounting.Domain.Statements;
 using Accounting.Api.Overview;
+using Accounting.Api.Reports;
 using Accounting.Api.Settings;
 using Accounting.Api.Transactions;
 using Accounting.Api.Transfers;
@@ -77,6 +78,11 @@ public sealed class AccountingContractTests
     [TestCase(typeof(BankStatementRollback), "BankStatementRollback")]
     [TestCase(typeof(BankStatementLineResponse), "BankStatementLineResponse")]
     [TestCase(typeof(BankStatementLineInput), "BankStatementLineInput")]
+    [TestCase(typeof(FinanceReportResponse), "FinanceReportResponse")]
+    [TestCase(typeof(FinanceReportTotalResponse), "FinanceReportTotalResponse")]
+    [TestCase(typeof(FinanceReportRowResponse), "FinanceReportRowResponse")]
+    [TestCase(typeof(FinanceAuditPageResponse), "FinanceAuditPageResponse")]
+    [TestCase(typeof(FinanceAuditEntryResponse), "FinanceAuditEntryResponse")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -101,6 +107,8 @@ public sealed class AccountingContractTests
     [TestCase(typeof(BankLineState), "BankLineState")]
     [TestCase(typeof(BankDuplicate), "BankDuplicate")]
     [TestCase(typeof(LegacyImportMovement), "LegacyImportMovement")]
+    [TestCase(typeof(FinanceReportKind), "FinanceReportKind")]
+    [TestCase(typeof(FinanceReportRowType), "FinanceReportRowType")]
     public void Enum_values_match_the_machine_contract(Type type, string schema)
     {
         var values = (YamlSequenceNode)((YamlMappingNode)Schemas()[schema])["enum"];
@@ -113,7 +121,8 @@ public sealed class AccountingContractTests
         var controllers = new[] { typeof(FinanceAccountsController), typeof(FinanceCategoriesController), typeof(AccountingSettingsController),
             typeof(FinanceOverviewController), typeof(FinanceTransactionsController), typeof(FinanceTransfersController),
             typeof(FinanceCounterpartiesController), typeof(FinanceAttachmentsController),
-            typeof(LegacyFinanceImportController), typeof(BankStatementsController) };
+            typeof(LegacyFinanceImportController), typeof(BankStatementsController), typeof(FinanceReportsController),
+            typeof(FinanceAuditController), typeof(FinanceExportController) };
         var policies = controllers.Select(c => c.GetCustomAttributes(typeof(AuthorizeAttribute), false)
             .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
         var operations = controllers.SelectMany(c => c.GetMethods())
@@ -122,8 +131,8 @@ public sealed class AccountingContractTests
 
         Assert.Multiple(() =>
         {
+            Assert.That(operations, Has.Length.EqualTo(51));
             Assert.That(policies, Is.EqualTo(new[] { "access:accounting" }));
-            Assert.That(operations, Has.Length.EqualTo(47));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }
