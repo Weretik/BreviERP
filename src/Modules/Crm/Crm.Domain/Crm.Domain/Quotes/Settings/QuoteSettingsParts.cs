@@ -92,7 +92,8 @@ public enum QuotePdfIntroCase
 
 /// <summary>
 /// The small texts of the КП PDF (R-35). <see cref="ContactLine"/> goes under the price note and takes the manager's
-/// marks.
+/// marks. <see cref="ClientTitle"/> is the small heading over the client («ДЛЯ»); <see cref="ShowClient"/> false leaves
+/// the client block out of the PDF (null means shown, as in settings saved before it).
 /// </summary>
 public sealed record QuotePdfLabels(
     string? ContactLine,
@@ -100,7 +101,9 @@ public sealed record QuotePdfLabels(
     string? SiteLink,
     string? FabricsTitle,
     string? Recommended,
-    string? CommentTitle)
+    string? CommentTitle,
+    string? ClientTitle = null,
+    bool? ShowClient = null)
 {
     public static QuotePdfLabels Merge(QuotePdfLabels? saved, QuotePdfLabels standard) => new(
         Pick(saved?.ContactLine, standard.ContactLine),
@@ -108,7 +111,9 @@ public sealed record QuotePdfLabels(
         Pick(saved?.SiteLink, standard.SiteLink),
         Pick(saved?.FabricsTitle, standard.FabricsTitle),
         Pick(saved?.Recommended, standard.Recommended),
-        Pick(saved?.CommentTitle, standard.CommentTitle));
+        Pick(saved?.CommentTitle, standard.CommentTitle),
+        Pick(saved?.ClientTitle, standard.ClientTitle),
+        saved?.ShowClient ?? standard.ShowClient);
 
     private static string? Pick(string? saved, string? standard) => string.IsNullOrWhiteSpace(saved) ? standard : saved;
 }

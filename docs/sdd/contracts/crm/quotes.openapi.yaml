@@ -1457,6 +1457,8 @@ components:
         fabricsTitle: { type: [string, "null"], maxLength: 300, description: "Above the fabric variants of a sewing item." }
         recommended: { type: [string, "null"], maxLength: 300, description: "Mark of the recommended variant." }
         commentTitle: { type: [string, "null"], maxLength: 300, description: "Above the client comment." }
+        clientTitle: { type: [string, "null"], maxLength: 300, description: "Small heading over the client, «Для»." }
+        showClient: { type: [boolean, "null"], description: "False leaves the client block («Для», company and recipient) out of the PDF; null means shown." }
     CrmQuoteAdvantage:
       type: object
       required: [title]

@@ -76,7 +76,7 @@ public static class QuoteSettingsMapper
                 x.Intro(QuotePdfIntroCase.Ppe), x.Intro(QuotePdfIntroCase.SewingAndPpe),
                 x.Intro(QuotePdfIntroCase.Fallback)),
             new QuotePdfLabelsDto(labels.ContactLine, labels.CodeLabel, labels.SiteLink, labels.FabricsTitle,
-                labels.Recommended, labels.CommentTitle));
+                labels.Recommended, labels.CommentTitle, labels.ClientTitle, labels.ShowClient));
     }
 
     private static QuotePdfIntroTexts? ToIntros(QuotePdfIntroTextsDto? x) => x is null ? null
@@ -85,7 +85,7 @@ public static class QuoteSettingsMapper
 
     private static QuotePdfLabels? ToLabels(QuotePdfLabelsDto? x) => x is null ? null
         : new(Text(x.ContactLine), Text(x.CodeLabel), Text(x.SiteLink), Text(x.FabricsTitle), Text(x.Recommended),
-            Text(x.CommentTitle));
+            Text(x.CommentTitle), Text(x.ClientTitle), x.ShowClient);
 
     private static QuoteIntroductionTextsDto ToDto(QuoteIntroductionTexts x) =>
         new(x.LogoText, x.SummerTitle, x.WinterTitle, x.Subtitle, x.SummerBannerUrl, x.WinterBannerUrl, x.ModelsTitle,

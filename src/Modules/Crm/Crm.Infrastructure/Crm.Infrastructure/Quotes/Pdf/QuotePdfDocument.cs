@@ -133,14 +133,17 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
 
     private void Client(IContainer container)
     {
-        var client = model.ClientCompanyName ?? model.RecipientName;
+        // «Показувати блок «Для»» off in the settings leaves the client out (R-35).
+        var client = model.Labels.ShowClient == false ? null : model.ClientCompanyName ?? model.RecipientName;
         var person = model.ClientCompanyName is not null ? model.RecipientName : null;
         container.Row(row =>
         {
             if (client is not null)
                 row.ConstantItem(160).PaddingRight(18).Column(column =>
                 {
-                    column.Item().Text("ДЛЯ").FontSize(7.5f).FontColor(Muted).LetterSpacing(0.08f);
+                    if (model.Labels.ClientTitle is { } heading)
+                        column.Item().Text(heading.ToUpperInvariant()).FontSize(7.5f).FontColor(Muted)
+                            .LetterSpacing(0.08f);
                     column.Item().Text(client).FontSize(12).Bold();
                     if (person is not null) column.Item().Text(person).FontSize(8.5f).FontColor(Muted);
                 });
