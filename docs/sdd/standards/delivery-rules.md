@@ -37,7 +37,7 @@ Implement a feature in stages (one scenario, task slice, or layer at a time). Af
 
 ## Closing checklist
 
-Before reporting a feature complete, check each item that applies: the feature card and [feature map](../features/README.md) row are created or updated; the [specification index](../specs/README.md) row and traceability are current; the card's "Tests" section is current; the contract is updated and the consumer handoff is noted; every client input has a FluentValidation validator; architecture documentation is updated when a module is added or its boundaries change; the staged structure checks are done.
+Before reporting a feature complete, check each item that applies: the feature card and [feature map](../features/README.md) row are created or updated; the [specification index](../specs/README.md) row and traceability are current; the card's "Tests" section is current; the contract is updated and the consumer handoff is noted; every client input has a FluentValidation validator; a new admin page or action is on «Права доступу» (catalogue entry, `access:<page>` on every endpoint, defaults decided; see the [checklist](../architecture/security/authorization/roles-and-policies.md#new-feature-or-page-права-доступу-checklist)); architecture documentation is updated when a module is added or its boundaries change; the staged structure checks are done.
 
 When changing an existing feature, open its card and the code and tests it lists before editing.
 
