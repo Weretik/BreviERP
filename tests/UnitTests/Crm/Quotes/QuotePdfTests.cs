@@ -187,6 +187,18 @@ public sealed class QuotePdfTests
             Is.EqualTo("Анастасія, , a@brevi.test, https://brevi.com.ua/, 1-11-2026"));
 
     [Test]
+    public void ClientAndCompanyMarksComeFromTheQuoteAndAreEmptyWithoutThem()
+    {
+        var contact = new QuotePdfContact("Анастасія", null, null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(QuotePdfModelBuilder.FillMarks("Добрий день, {clientName} ({companyName})", contact, null, "1",
+                " Олена Коваль ", "ТОВ «Приклад»"), Is.EqualTo("Добрий день, Олена Коваль (ТОВ «Приклад»)"));
+            Assert.That(QuotePdfModelBuilder.FillMarks("{clientName}{companyName}", contact, null, "1"), Is.Empty);
+        });
+    }
+
+    [Test]
     public void PriceIsWrittenWithoutACurrencySign() =>
         Assert.That(QuotePdfParts.Money(1364.17m).Replace(' ', ' ').Replace(' ', ' '),
             Is.EqualTo("1 364,17"));

@@ -36,7 +36,7 @@ public static class QuotePdfModelBuilder
                 settings.Company.Site, settings.Company.LogoUrl),
             quote.RecipientName,
             quote.CompanyName,
-            FillMarks(intro, contact, settings.Company.Site, quote.Number),
+            FillMarks(intro, contact, settings.Company.Site, quote.Number, quote.RecipientName, quote.CompanyName),
             items,
             new QuotePdfTiers(
                 options.Any(x => x.Retail is not null),
@@ -46,15 +46,21 @@ public static class QuotePdfModelBuilder
             settings.Pdf.VatNotice,
             settings.Pdf.CtaTitle,
             settings.Pdf.CtaText,
-            FillMarks(settings.Pdf.CtaContactTemplate, contact, settings.Company.Site, quote.Number),
+            FillMarks(settings.Pdf.CtaContactTemplate, contact, settings.Company.Site, quote.Number, quote.RecipientName, quote.CompanyName),
             contact,
             labels,
-            FillMarks(labels.ContactLine, contact, settings.Company.Site, quote.Number));
+            FillMarks(labels.ContactLine, contact, settings.Company.Site, quote.Number, quote.RecipientName, quote.CompanyName));
     }
 
-    /// <summary>Replaces {managerName}, {managerPhone}, {managerEmail}, {site} and {quoteNumber}.</summary>
-    public static string? FillMarks(string? template, QuotePdfContact manager, string? site, string quoteNumber) =>
+    /// <summary>
+    /// Replaces {managerName}, {managerPhone}, {managerEmail}, {site}, {quoteNumber} and the КП's «Отримувач»
+    /// {clientName} and «Підприємство» {companyName} (empty when the КП has none).
+    /// </summary>
+    public static string? FillMarks(string? template, QuotePdfContact manager, string? site, string quoteNumber,
+        string? clientName = null, string? companyName = null) =>
         template?
+            .Replace("{clientName}", clientName?.Trim() ?? "", StringComparison.Ordinal)
+            .Replace("{companyName}", companyName?.Trim() ?? "", StringComparison.Ordinal)
             .Replace("{managerName}", manager.Name, StringComparison.Ordinal)
             .Replace("{managerPhone}", manager.Phone ?? "", StringComparison.Ordinal)
             .Replace("{managerEmail}", manager.Email ?? "", StringComparison.Ordinal)
