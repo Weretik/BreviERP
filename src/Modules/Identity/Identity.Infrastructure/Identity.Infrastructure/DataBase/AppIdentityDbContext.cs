@@ -10,6 +10,9 @@ public class AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options
     // Data Protection keys sign the session cookie; shared by every Cloud Run instance.
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
+    // «Права доступу»: the saved rights of each role.
+    public DbSet<RoleAccess> RoleAccess => Set<RoleAccess>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema("identity");

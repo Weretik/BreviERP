@@ -20,7 +20,7 @@ namespace Production.Api.Orders;
 
 /// <summary>«Виробничі завдання»: orders the workshop sews, created from sent КП.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.Orders)]
 [Route("api/production/orders")]
 public sealed class ProductionOrdersController(ISender sender) : ControllerBase
 {

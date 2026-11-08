@@ -8,6 +8,7 @@ using Reminders.Application.Abstractions;
 using Reminders.Application.Telegram;
 using Reminders.Application.Telegram.ConnectWebhook;
 using Reminders.Application.Telegram.HandleUpdate;
+using Reminders.Api.Access;
 
 namespace Reminders.Api.Telegram;
 
@@ -28,7 +29,7 @@ public sealed class TelegramWebhookController(ISender sender, ITelegramWebhookSe
         return Ok();
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = RemindersAccess.Policy)]
     [HttpPost("connect", Name = "connectTelegramWebhook")]
     public async Task<ActionResult<string>> Connect(CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new ConnectTelegramWebhookCommand(), cancellationToken));

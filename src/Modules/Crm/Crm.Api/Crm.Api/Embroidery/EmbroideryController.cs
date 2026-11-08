@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Crm.Api.Access;
 
 namespace Crm.Api.Embroidery;
 
@@ -24,7 +25,7 @@ namespace Crm.Api.Embroidery;
 /// Admin) see the cost and change «Налаштування».
 /// </summary>
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.Embroidery)]
 [Route("api/crm/embroidery")]
 public sealed class EmbroideryController(ISender sender) : ControllerBase
 {

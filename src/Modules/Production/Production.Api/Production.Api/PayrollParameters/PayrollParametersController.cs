@@ -10,7 +10,7 @@ namespace Production.Api.PayrollParameters;
 
 /// <summary>«Правила зарплати»: read-only view of the payroll values kept in «Параметри ціноутворення».</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.Policy)]
+[Authorize(Policy = ProductionAccess.PayrollRules)]
 [Route("api/production/payroll-parameters")]
 public sealed class PayrollParametersController(ISender sender) : ControllerBase
 {

@@ -11,7 +11,7 @@ namespace Production.Api.Archive;
 
 /// <summary>«Архів цеху» (PRD-D54): read-only lines of the old «Цех» for everyone with production orders.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.Archive)]
 [Route("api/production/archive")]
 public sealed class WorkshopArchiveController(ISender sender) : ControllerBase
 {

@@ -10,7 +10,7 @@ namespace Production.Api.Reports;
 
 /// <summary>«Звіти цеху» (PRD-D48): Admin only; the director also holds Admin.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.Policy)]
+[Authorize(Policy = ProductionAccess.Reports)]
 [Route("api/production/reports")]
 public sealed class WorkshopReportsController(ISender sender) : ControllerBase
 {

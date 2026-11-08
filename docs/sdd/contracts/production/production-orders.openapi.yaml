@@ -96,7 +96,7 @@ paths:
         '401': &id001
           description: Unauthenticated.
         '403': &id002
-          description: Manager, WorkshopChief or Admin role required (policy CanUseProductionOrders).
+          description: «Права доступу» page access:production-orders required (Manager, WorkshopChief and Admin by default).
     post:
       tags:
       - Production
@@ -389,7 +389,7 @@ paths:
         '401': &id007
           description: Unauthenticated.
         '403': &id008
-          description: Manager, WorkshopChief or Admin role required (policy CanUseProductionOrders); the person may not make
+          description: «Права доступу» page access:production-orders required (Manager, WorkshopChief and Admin by default); the person may not make
             this change.
   /api/production/orders/{id}/items/{itemId}/shipments:
     parameters:

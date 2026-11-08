@@ -14,7 +14,7 @@ namespace Crm.Api.Quotes;
 /// <summary>«КП для знайомства»: a catalogue of season pages, 4 models each (R-16–R-18).
 /// It is read, listed, sent and deleted through <c>api/crm/quotes</c>.</summary>
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.Quotes)]
 [Route("api/crm/quote-introductions")]
 public sealed class QuoteIntroductionsController(ISender sender) : ControllerBase
 {

@@ -9,11 +9,19 @@ namespace Production.Api.Access;
 
 internal static class ProductionAccess
 {
-    /// <summary>«Швейний цех»: the head of the workshop, Admin and Director.</summary>
-    public const string Policy = "CanManageWorkshop";
-
-    /// <summary>«Виробничі завдання»: managers, the head of the workshop, Admin and Director.</summary>
-    public const string OrdersPolicy = "CanUseProductionOrders";
+    // «Права доступу» pages of «Швейний цех»: the action comes from the HTTP method; the director always passes.
+    public const string Orders = "access:production-orders";
+    public const string FabricStock = "access:fabric-stock";
+    public const string WorkLog = "access:work-log";
+    public const string Forecast = "access:forecast";
+    public const string Staff = "access:workshop-staff";
+    public const string FabricNorms = "access:fabric-norms";
+    public const string PayrollRules = "access:payroll-rules";
+    public const string Settings = "access:workshop-settings";
+    public const string Archive = "access:workshop-archive";
+    public const string Payroll = "access:payroll";
+    public const string Timesheet = "access:timesheet";
+    public const string Reports = "access:workshop-reports";
 
     /// <summary>The person and their roles for the order rules; null without a user id.</summary>
     public static ProductionActor? Actor(this ControllerBase controller) =>

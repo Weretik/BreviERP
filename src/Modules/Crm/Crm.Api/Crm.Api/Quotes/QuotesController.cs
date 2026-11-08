@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
 using Crm.Api.Quotes.Requests;
@@ -25,7 +26,7 @@ namespace Crm.Api.Quotes;
 
 /// <summary>КП (commercial proposals) of the «Менеджер сервісу» block. A Manager sees only own КП.</summary>
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.Quotes)]
 [Route("api/crm/quotes")]
 public sealed class QuotesController(ISender sender) : ControllerBase
 {
@@ -96,15 +97,16 @@ public sealed class QuotesController(ISender sender) : ControllerBase
         return this.ToActionResult(await sender.Send(new SaveQuoteCommand(actor, id, input), cancellationToken));
     }
 
-    /// <summary>«Видалити КП»: only the Director for now; a КП with a production order stays (409).</summary>
+    /// <summary>«Видалити КП»: the «Видаляти» right of «Права доступу» (the Director by default); a КП with a production order stays (409).</summary>
     [HttpDelete("{id:long}", Name = "deleteCrmQuote")]
+    [Authorize(Policy = CrmAccess.QuotesDelete)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult> Delete(long id, [FromQuery] int version, CancellationToken cancellationToken)
     {
-        var actor = QuoteActorClaims.Read(User);
+        var actor = QuoteActorClaims.Read(User, canDelete: true);
         if (actor is null) return Forbid();
         var result = await sender.Send(new DeleteQuoteCommand(actor, id, version), cancellationToken);
         return result.IsSuccess ? NoContent() : this.ToActionResult(result);
@@ -112,6 +114,7 @@ public sealed class QuotesController(ISender sender) : ControllerBase
 
     /// <summary>«Перерахувати за актуальними цінами»: preview with apply=false, then apply=true.</summary>
     [HttpPost("{id:long}/reprice", Name = "repriceCrmQuote")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [ProducesResponseType<QuoteRepriceReport>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -152,6 +155,7 @@ public sealed class QuotesController(ISender sender) : ControllerBase
 
     /// <summary>Sends the PDF of the saved КП from the signed-in person's Gmail; 409 carries the reason of a failure.</summary>
     [HttpPost("{id:long}/send", Name = "sendCrmQuote")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [ProducesResponseType<QuoteResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -178,28 +182,31 @@ public sealed class QuotesController(ISender sender) : ControllerBase
 
     /// <summary>How many КП are left from the removed «Архів»; the Director sees it before deleting them.</summary>
     [HttpGet("legacy-archive", Name = "getCrmLegacyArchivedQuotes")]
+    [Authorize(Policy = CrmAccess.QuotesDelete)]
     [ProducesResponseType<LegacyArchivedQuotesResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<LegacyArchivedQuotesResponse>> LegacyArchive(CancellationToken cancellationToken)
     {
-        var actor = QuoteActorClaims.Read(User);
+        var actor = QuoteActorClaims.Read(User, canDelete: true);
         if (actor is null) return Forbid();
         return this.ToActionResult(await sender.Send(new GetLegacyArchivedQuotesQuery(actor), cancellationToken));
     }
 
     /// <summary>Deletes the КП left from the removed «Архів»; one with a production order returns to the list.</summary>
     [HttpDelete("legacy-archive", Name = "purgeCrmLegacyArchivedQuotes")]
+    [Authorize(Policy = CrmAccess.QuotesDelete)]
     [ProducesResponseType<LegacyArchivePurgeResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<LegacyArchivePurgeResponse>> PurgeLegacyArchive(CancellationToken cancellationToken)
     {
-        var actor = QuoteActorClaims.Read(User);
+        var actor = QuoteActorClaims.Read(User, canDelete: true);
         if (actor is null) return Forbid();
         return this.ToActionResult(await sender.Send(new PurgeLegacyArchivedQuotesCommand(actor), cancellationToken));
     }
 
     /// <summary>«Додати в КП» from «Ціна вишивки»: appends the saved calculation as one item; no version needed.</summary>
     [HttpPost("{id:long}/embroidery", Name = "addCrmQuoteEmbroidery")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [ProducesResponseType<QuoteResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

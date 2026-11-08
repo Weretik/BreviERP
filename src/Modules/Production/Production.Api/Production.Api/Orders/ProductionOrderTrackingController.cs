@@ -15,7 +15,7 @@ namespace Production.Api.Orders;
 
 /// <summary>Work on an order after «Передати в цех»: stages, shipments, status, files and the Telegram message.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.Orders)]
 [Route("api/production/orders")]
 public sealed class ProductionOrderTrackingController(ISender sender) : ControllerBase
 {

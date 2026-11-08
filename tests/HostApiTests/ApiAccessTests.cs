@@ -49,7 +49,7 @@ public sealed class ApiAccessTests
     public async Task Every_other_endpoint_needs_a_role_or_policy_except_own_session_actions()
     {
         await using var host = await Fixture.CreateAsync();
-        string[] signedInOnly = ["GET api/auth/session/me", "POST api/auth/cookie/logout"];
+        string[] signedInOnly = ["GET api/auth/session/me", "GET api/auth/session/access", "POST api/auth/cookie/logout"];
 
         var withoutStaffRule = host.ControllerEndpoints()
             .Where(endpoint => endpoint.Metadata.GetMetadata<IAllowAnonymous>() is null)
@@ -99,6 +99,46 @@ public sealed class ApiAccessTests
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
     }
 
+    [Test]
+    public async Task Every_policy_an_endpoint_names_exists()
+    {
+        await using var host = await Fixture.CreateAsync();
+        var provider = host.Services.GetRequiredService<IAuthorizationPolicyProvider>();
+        var names = host.ControllerEndpoints()
+            .SelectMany(endpoint => endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>())
+            .Select(data => data.Policy)
+            .OfType<string>()
+            .Distinct()
+            .ToArray();
+
+        var missing = new List<string>();
+        foreach (var name in names)
+        {
+            if (await provider.GetPolicyAsync(name) is null) missing.Add(name);
+        }
+
+        Assert.That(missing, Is.Empty);
+    }
+
+    // «Права доступу» defaults keep the old rules (client corrections item 11).
+    [TestCase("WorkshopChief", "GET", "/api/crm/quotes")]
+    [TestCase("Manager", "GET", "/api/production/staff")]
+    [TestCase("Accountant", "GET", "/api/crm/tasks")]
+    [TestCase("Admin", "DELETE", "/api/crm/quotes/1?version=1")]
+    [TestCase("Manager", "GET", "/api/crm/quotes/legacy-archive")]
+    [TestCase("Admin", "GET", "/api/accounting/overview")]
+    [TestCase("custom-1a2b3c", "GET", "/api/crm/quotes")]
+    [TestCase("Manager", "GET", "/api/admin/access")]
+    public async Task A_role_without_the_right_gets_403(string role, string method, string path)
+    {
+        await using var host = await Fixture.CreateAsync();
+        host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", role);
+
+        var response = await host.Client.SendAsync(new HttpRequestMessage(new HttpMethod(method), path));
+
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+    }
+
     private static string Describe(Endpoint endpoint)
     {
         var route = ((RouteEndpoint)endpoint).RoutePattern.RawText!.Replace(":int", string.Empty);
@@ -109,6 +149,8 @@ public sealed class ApiAccessTests
     private sealed class Fixture(WebApplication app, HttpClient client) : IAsyncDisposable
     {
         public HttpClient Client { get; } = client;
+
+        public IServiceProvider Services => app.Services;
 
         public Endpoint[] ControllerEndpoints() => ((IEndpointRouteBuilder)app).DataSources
             .SelectMany(source => source.Endpoints)

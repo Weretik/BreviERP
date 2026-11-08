@@ -1,5 +1,5 @@
 openapi: 3.1.0
-info: { title: BreviERP Session API, version: 2.0.0 }
+info: { title: BreviERP Session API, version: 2.1.0 }
 paths:
   /api/auth/cookie/login:
     post:
@@ -40,6 +40,16 @@ paths:
       responses:
         '200': { description: Current user, content: { application/json: { schema: { $ref: '#/components/schemas/SessionMeResponse' } } } }
         '401': { description: Not signed in }
+  /api/auth/session/access:
+    get:
+      operationId: getSessionAccess
+      summary: What the signed-in user may do
+      tags: [Session]
+      security: [{ cookieAuth: [] }]
+      description: Rights by page of «Права доступу» ([ACC-001](../../specs/identity/002-access-rights/README.md)); the admin hides menu items and buttons by them, the server checks the same rights.
+      responses:
+        '200': { description: Rights, content: { application/json: { schema: { $ref: '#/components/schemas/MyAccessResponse' } } } }
+        '401': { description: Not signed in }
 components:
   securitySchemes:
     cookieAuth: { type: apiKey, in: cookie, name: __Host-brevi.session }
@@ -62,5 +72,24 @@ components:
         userId: { type: string }
         email: { type: string, format: email }
         fullName: { type: string }
-        roles: { type: array, items: { type: string, enum: [Director, Admin, Accountant, Manager, WorkshopChief, User] } }
+        roles: { type: array, items: { type: string, description: 'Director, Admin, Accountant, Manager, WorkshopChief, User or a role made on «Права доступу» (custom-…)' } }
         avatarUrl: { type: [string, 'null'], format: uri, description: 'Profile photo on the CDN; null shows the initial and a color' }
+    AccessAction: { type: string, enum: [view, create, edit, delete] }
+    AccessGrants:
+      type: object
+      description: Page key → allowed actions.
+      additionalProperties: { type: array, items: { $ref: '#/components/schemas/AccessAction' } }
+    RoleTitleResponse:
+      type: object
+      required: [name, title, builtIn]
+      properties:
+        name: { type: string }
+        title: { type: string }
+        builtIn: { type: boolean }
+    MyAccessResponse:
+      type: object
+      required: [allowAll, roles, grants]
+      properties:
+        allowAll: { type: boolean, description: 'The director: every page and action, also pages added later' }
+        roles: { type: array, items: { $ref: '#/components/schemas/RoleTitleResponse' } }
+        grants: { $ref: '#/components/schemas/AccessGrants' }

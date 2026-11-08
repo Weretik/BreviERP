@@ -3,7 +3,7 @@ info:
   title: 'Purchasing: «Рахунки на закупку» register'
   version: 1.3.0
   description: 'Register of purchase invoices read from the Google Sheet «БРЕВІ команда» / «финансы» (PUR-001). Policy
-    CanUsePurchaseInvoices: only the Director; other roles get 403. The sheet is only read, never written.'
+    access:purchase-invoices («Права доступу»): only the Director by default; other roles get 403. The sheet is only read, never written.'
 security:
 - Bearer: []
 paths:

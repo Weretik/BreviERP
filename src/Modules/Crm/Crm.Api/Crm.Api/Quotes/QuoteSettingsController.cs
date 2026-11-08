@@ -12,7 +12,7 @@ namespace Crm.Api.Quotes;
 
 /// <summary>«Налаштування КП» (R-13): Director and Admin only (the Director also holds Admin).</summary>
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = CrmAccess.QuoteSettings)]
 [Route("api/crm/quote-settings")]
 public sealed class QuoteSettingsController(ISender sender) : ControllerBase
 {

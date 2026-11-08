@@ -16,7 +16,7 @@ public sealed class SewingPricingSettingsController(ISender sender) : Controller
         => this.ToActionResult(await sender.Send(new GetSewingSettingsQuery(), cancellationToken));
 
     [HttpPost("versions", Name = "createSewingSettingsVersion")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     public async Task<ActionResult<SewingPricingSettingsSelection>> Create(
         [FromBody] CreateSewingSettingsVersionRequest request, CancellationToken cancellationToken)
     {

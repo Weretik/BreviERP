@@ -6,8 +6,8 @@ namespace Media.Api.Access;
 
 internal static class MediaAccess
 {
-    /// <summary>Same staff as product management: Manager and Admin.</summary>
-    public const string Policy = "CanManageProducts";
+    /// <summary>«Бібліотека фото» on «Права доступу»: Manager and Admin until someone saves other rights.</summary>
+    public const string Policy = "access:media";
 
     /// <summary>Hard ceiling for the multipart body; the configured photo limit is checked by the upload validator.</summary>
     public const long MaxRequestBytes = 32L * 1024 * 1024;

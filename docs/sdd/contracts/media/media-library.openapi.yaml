@@ -5,7 +5,7 @@ info:
   description: >-
     Photo library of the Media module (MED-001): folders and subfolders, upload to the Brevi CDN, search by name or folder,
     rename, move and delete. Folders exist only in the database, so moving a folder or a photo never changes the CDN URL.
-    Product photos (Catalog) keep the library photo id. Access: Manager or Admin (policy CanManageProducts).
+    Product photos (Catalog) keep the library photo id. Access: Manager or Admin (policy access:media).
 servers:
   - url: /
 security:

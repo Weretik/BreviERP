@@ -24,7 +24,7 @@ paths:
     post:
       operationId: createGarmentAccessory
       summary: Create a garment accessory with a client supplied ID
-      description: Requires CanManageProducts. Numeric edits append an approved pricing revision when the reference is versioned.
+      description: Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.
       security:
         - bearerAuth: []
       requestBody:
@@ -46,7 +46,7 @@ paths:
       operationId: importGarmentAccessories
       summary: Import the Calculator sheet «Фурнітура»
       description: >-
-        Requires CanManageProducts. Same rules as importFabrics with FUR- codes. unit is one of шт., м, послуга
+        Requires access:materials. Same rules as importFabrics with FUR- codes. unit is one of шт., м, послуга
         («шт», «м.», «Послуга» are accepted); an unknown unit is a row error.
       security:
         - bearerAuth: []
@@ -74,7 +74,7 @@ paths:
     put:
       operationId: updateGarmentAccessory
       summary: Update a garment accessory
-      description: Requires CanManageProducts. Numeric edits append an approved pricing revision when the reference is versioned.
+      description: Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.
       security:
         - bearerAuth: []
       requestBody:
@@ -92,7 +92,7 @@ paths:
     delete:
       operationId: deleteGarmentAccessory
       summary: Delete a garment accessory
-      description: Requires CanManageProducts. Numeric edits append an approved pricing revision when the reference is versioned.
+      description: Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.
       security:
         - bearerAuth: []
       responses:

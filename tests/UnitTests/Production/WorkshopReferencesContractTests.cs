@@ -27,10 +27,10 @@ public sealed class WorkshopReferencesContractTests
             Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
     }
 
-    [TestCase(typeof(WorkshopStaffController))]
-    [TestCase(typeof(FabricNormsController))]
-    [TestCase(typeof(PayrollParametersController))]
-    public void Every_operation_is_in_the_contract_and_needs_the_workshop_policy(Type controller)
+    [TestCase(typeof(WorkshopStaffController), "access:workshop-staff")]
+    [TestCase(typeof(FabricNormsController), "access:fabric-norms")]
+    [TestCase(typeof(PayrollParametersController), "access:payroll-rules")]
+    public void Every_operation_is_in_the_contract_and_needs_the_workshop_policy(Type controller, string expected)
     {
         var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
         var operations = controller.GetMethods()
@@ -39,7 +39,7 @@ public sealed class WorkshopReferencesContractTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(policy, Is.EqualTo("CanManageWorkshop"));
+            Assert.That(policy, Is.EqualTo(expected));
             Assert.That(operations, Is.Not.Empty);
             Assert.That(Operations(), Is.SupersetOf(operations));
         });

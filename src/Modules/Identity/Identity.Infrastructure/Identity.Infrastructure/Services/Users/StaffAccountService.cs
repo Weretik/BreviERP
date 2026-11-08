@@ -27,7 +27,7 @@ public sealed class StaffAccountService(
                 from user in dbContext.Users
                 join userRole in dbContext.UserRoles on user.Id equals userRole.UserId
                 join role in dbContext.Roles on userRole.RoleId equals role.Id
-                where StaffRoles.All.Contains(role.Name!)
+                where StaffRoles.All.Contains(role.Name!) || role.Scope == AppRole.CustomScope
                 orderby user.Email
                 select new { user.Id, user.Email, user.FullName, user.AvatarPath, user.PhoneNumber, Role = role.Name!, user.LockoutEnd })
             .ToListAsync(cancellationToken);
@@ -52,6 +52,11 @@ public sealed class StaffAccountService(
         if (await userManager.FindByEmailAsync(email) is not null)
         {
             return Result.Conflict("A user with this email already exists.");
+        }
+
+        if (!await IsKnownRoleAsync(role, cancellationToken))
+        {
+            return UnknownRole();
         }
 
         if (role == RoleNames.Director && await DirectorExistsAsync(exceptUserId: null))
@@ -101,12 +106,18 @@ public sealed class StaffAccountService(
         }
 
         var user = target.Value;
+        if (!await IsKnownRoleAsync(role, cancellationToken))
+        {
+            return UnknownRole();
+        }
+
         if (role == RoleNames.Director && await DirectorExistsAsync(exceptUserId: userId))
         {
             return Result.Conflict(OneDirectorMessage);
         }
 
-        var currentRoles = (await userManager.GetRolesAsync(user)).Where(StaffRoles.IsStaffRole).ToArray();
+        var staffRoles = await StaffRoleNamesAsync(cancellationToken);
+        var currentRoles = (await userManager.GetRolesAsync(user)).Where(staffRoles.Contains).ToArray();
         var removed = await userManager.RemoveFromRolesAsync(user, currentRoles);
         var added = removed.Succeeded ? await userManager.AddToRolesAsync(user, StaffRoles.GrantedRoles(role)) : removed;
         if (!added.Succeeded)
@@ -251,7 +262,8 @@ public sealed class StaffAccountService(
         }
 
         var roles = await userManager.GetRolesAsync(user);
-        if (!roles.Any(StaffRoles.IsStaffRole))
+        var staffRoles = await StaffRoleNamesAsync(CancellationToken.None);
+        if (!roles.Any(staffRoles.Contains))
         {
             return Result.NotFound();
         }
@@ -263,6 +275,23 @@ public sealed class StaffAccountService(
 
         return Result.Success(user);
     }
+
+    /// <summary>Built-in staff roles and roles made on «Права доступу».</summary>
+    private async Task<HashSet<string>> StaffRoleNamesAsync(CancellationToken cancellationToken)
+    {
+        var custom = await dbContext.Roles.AsNoTracking()
+            .Where(x => x.Scope == AppRole.CustomScope)
+            .Select(x => x.Name!)
+            .ToListAsync(cancellationToken);
+        return StaffRoles.All.Concat(custom).ToHashSet(StringComparer.Ordinal);
+    }
+
+    private async Task<bool> IsKnownRoleAsync(string role, CancellationToken cancellationToken) =>
+        StaffRoles.IsStaffRole(role)
+        || await dbContext.Roles.AnyAsync(x => x.Name == role && x.Scope == AppRole.CustomScope, cancellationToken);
+
+    private static Result UnknownRole() =>
+        Result.Invalid(new ValidationError("Unknown role. Pick one from «Права доступу»."));
 
     private async Task<bool> DirectorExistsAsync(int? exceptUserId)
     {

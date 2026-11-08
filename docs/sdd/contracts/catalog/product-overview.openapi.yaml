@@ -76,7 +76,7 @@ paths:
       operationId: createCatalogProduct
       summary: Create a product from the page «Новий ЗІЗ» or «Нова модель»
       description: >-
-        Requires CanManageProducts and an actor (CAT-009). The server picks the ID (largest + 1) and the slug (from the
+        Requires access:products and an actor (CAT-009). The server picks the ID (largest + 1) and the slug (from the
         Ukrainian name; the code and then a number are added when it is taken). The name is Ukrainian only. An empty
         sewing code takes the next free MOD-XXX. The section must belong to the type. A PPE product needs the ppe
         block; the first price version is appended with source «Створення ЗІЗ». priceSaved is false when the product was
@@ -149,7 +149,7 @@ paths:
       operationId: updateProductOverview
       summary: Replace the «Товари» page fields of a product
       description: >-
-        Requires CanManageProducts (open while temporary anonymous access is on). Every field is replaced. A PPE
+        Requires access:products (open while temporary anonymous access is on). Every field is replaced. A PPE
         product needs a code (site article). The section must exist in Reference «Типи і розділи» and belong to the
         product type. Season is for sewing only.
       security:
@@ -171,7 +171,7 @@ paths:
       operationId: importSheetProducts
       summary: Import all products from the Calculator sheet (preview or apply)
       description: >-
-        Requires CanManageProducts and an actor (CAT-010). One-time transfer of the tabs «Товари» (with «Прайс на
+        Requires access:products and an actor (CAT-010). One-time transfer of the tabs «Товари» (with «Прайс на
         сайт», «Комплектація виробів», «Трудовитрати виробів») and «ЗІЗ». A row matches a stored product by type and
         code (sewing model ID, PPE site article), else by the exact name of the same type; a matched product keeps
         its ID and slug, the rest are created (ID largest + 1, slug as in createCatalogProduct). Names are Ukrainian

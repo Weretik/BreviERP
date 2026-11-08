@@ -6,13 +6,8 @@ public static class PolicyNames
     public const string RequireManagerRole = "RequireManagerRole";
     public const string RequireTenantAccess = "RequireTenantAccess";
     public const string CanManageUsers = "CanManageUsers";
-    public const string CanManageProducts = "CanManageProducts";
     public const string CanManageOrders = "CanManageOrders";
     public const string CatalogRead = "CatalogRead";
     public const string OwnProfile = "OwnProfile";
     public const string OrderCreate = "OrderCreate";
-    public const string CanManageWorkshop = "CanManageWorkshop";
-    public const string CanUseProductionOrders = "CanUseProductionOrders";
-    public const string CanUsePurchaseInvoices = "CanUsePurchaseInvoices";
-    public const string CanUseAccounting = "CanUseAccounting";
 }

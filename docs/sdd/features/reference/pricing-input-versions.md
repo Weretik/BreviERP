@@ -6,7 +6,7 @@ Fabric, accessory and operation numeric edits append an approved effective versi
 
 Operation minutes retain up to eight decimal places after the precision migration. Pricing edits use SaveChangesAsync; the synchronous SaveChanges path rejects numeric pricing edits so it cannot bypass version capture.
 
-Existing Reference GET operations remain anonymous. Their POST/PUT/DELETE operations now require CanManageProducts. OtherCost revision is a separate protected command: it accepts an existing code, expected latest version ID, nonnegative value and request UUID, preserves its unit/activity/source identity and returns the new version ID. Retrying the same request returns the original ID; changed payloads or stale expected versions conflict. Creating entirely new cost codes is outside this revision workflow.
+Existing Reference GET operations remain anonymous. Their POST/PUT/DELETE operations now require the page's «Права доступу» policy (`access:<page>`). OtherCost revision is a separate protected command: it accepts an existing code, expected latest version ID, nonnegative value and request UUID, preserves its unit/activity/source identity and returns the new version ID. Retrying the same request returns the original ID; changed payloads or stale expected versions conflict. Creating entirely new cost codes is outside this revision workflow.
 
 ## Code structure
 

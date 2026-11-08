@@ -50,10 +50,10 @@ public sealed class PpePricingContractTests
 
     [TestCase("getPpeProductPrices", "CatalogRead")]
     [TestCase("getPpePricingRule", "CatalogRead")]
-    [TestCase("createPpeRuleVersion", "CanManageProducts")]
-    [TestCase("createPpeOfferVersion", "CanManageProducts")]
+    [TestCase("createPpeRuleVersion", "access:pricing-parameters")]
+    [TestCase("createPpeOfferVersion", "access:products")]
     [TestCase("getPpeSupplierOffer", "CatalogRead")]
-    [TestCase("updatePpeSupplierOffer", "CanManageProducts")]
+    [TestCase("updatePpeSupplierOffer", "access:products")]
     [TestCase("previewPpePrices", "CatalogRead")]
     public void Pricing_operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {

@@ -54,7 +54,7 @@ public sealed class PurchaseInvoicesContractTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(policy, Is.EqualTo("CanUsePurchaseInvoices"));
+            Assert.That(policy, Is.EqualTo("access:purchase-invoices"));
             Assert.That(operations, Has.Length.EqualTo(9));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });

@@ -57,7 +57,7 @@ public sealed class ProductionPayrollContractTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(policies, Is.EqualTo(new[] { "CanManageWorkshop" }));
+            Assert.That(policies, Is.EqualTo(new[] { "access:payroll", "access:timesheet" }));
             Assert.That(operations, Has.Length.EqualTo(14));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });

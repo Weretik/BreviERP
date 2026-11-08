@@ -6,6 +6,7 @@ using Catalog.Application.Features.Product.SheetImport.DTOs;
 using Catalog.Domain.Products.Enums;
 using Catalog.Infrastructure.DataBase;
 using Host.Api.DependencyInjection.ServiceRegistration;
+using Identity.Infrastructure.DataBase;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -490,6 +491,9 @@ internal sealed class SheetImportDatabase : IAsyncDisposable
             await reference.Database.MigrateAsync();
         await using (var catalog = new CatalogDbContext(new DbContextOptionsBuilder<CatalogDbContext>().UseNpgsql(connection).Options))
             await catalog.Database.MigrateAsync();
+        // The full host checks «Права доступу» against identity.role_access.
+        await using (var identity = new AppIdentityDbContext(new DbContextOptionsBuilder<AppIdentityDbContext>().UseNpgsql(connection).Options))
+            await identity.Database.MigrateAsync();
         return new SheetImportDatabase(maintenance, name, connection);
     }
 

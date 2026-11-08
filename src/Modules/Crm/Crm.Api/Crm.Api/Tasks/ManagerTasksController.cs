@@ -25,7 +25,7 @@ namespace Crm.Api.Tasks;
 /// only own tasks on «Мої завдання», moves them and ticks steps. `assigneeUserId` is ignored for a Manager.
 /// </summary>
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.Tasks)]
 [Route("api/crm/tasks")]
 public sealed class ManagerTasksController(ISender sender) : ControllerBase
 {

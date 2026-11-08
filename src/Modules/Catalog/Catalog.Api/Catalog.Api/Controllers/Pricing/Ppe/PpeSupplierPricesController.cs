@@ -54,7 +54,7 @@ public sealed class PpeSupplierPricesController(ISender sender) : ControllerBase
     /// price. With <c>dryRun=false</c> it saves the changed prices; the admin sends the same files again to apply.
     /// </summary>
     [HttpPost("{key}/import", Name = "importPpeSupplierPrices")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:price-import")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(MaxRequestBytes)]
     [RequestFormLimits(MultipartBodyLengthLimit = MaxRequestBytes)]
@@ -82,7 +82,7 @@ public sealed class PpeSupplierPricesController(ISender sender) : ControllerBase
     /// the supplier with its old and new price. With <c>dryRun=false</c> it reads them again and saves the changed prices.
     /// </summary>
     [HttpPost("{key}/refresh", Name = "refreshPpeSupplierPrices")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:price-import")]
     public async Task<ActionResult<PpePriceImportResult>> Refresh(
         string key, [FromQuery] bool dryRun = true, CancellationToken cancellationToken = default)
     {

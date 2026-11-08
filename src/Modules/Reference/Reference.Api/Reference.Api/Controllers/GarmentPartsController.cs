@@ -10,7 +10,7 @@ using Reference.Application.Features.GarmentPart.Update.DTOs;
 namespace Reference.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = "CanManageProducts")]
+[Authorize(Policy = "access:operations")]
 [Route("api/reference/garment-parts")]
 public sealed class GarmentPartsController(ISender sender) : ControllerBase
 {

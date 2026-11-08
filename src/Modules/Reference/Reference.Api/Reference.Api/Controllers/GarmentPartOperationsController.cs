@@ -28,7 +28,7 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
     }
 
     [HttpPost]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:operations")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -61,7 +61,7 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
     /// still used by products or price history is marked «Не використовується» instead.
     /// </summary>
     [HttpPost("import")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:operations")]
     [ProducesResponseType(typeof(GarmentPartOperationImportResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -78,7 +78,7 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:operations")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -108,7 +108,7 @@ public sealed class GarmentPartOperationsController(ISender sender) : Controller
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:operations")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -28,7 +28,7 @@ public sealed class GarmentAccessoriesController(ISender sender) : ControllerBas
     }
 
     [HttpPost]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:materials")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -57,7 +57,7 @@ public sealed class GarmentAccessoriesController(ISender sender) : ControllerBas
     /// saved when none has an error.
     /// </summary>
     [HttpPost("import")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:materials")]
     [ProducesResponseType(typeof(ReferenceImportResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -73,7 +73,7 @@ public sealed class GarmentAccessoriesController(ISender sender) : ControllerBas
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:materials")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -101,7 +101,7 @@ public sealed class GarmentAccessoriesController(ISender sender) : ControllerBas
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:materials")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

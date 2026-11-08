@@ -98,7 +98,7 @@
     "/api/v1/pricing/ppe/supplier-prices/{key}/import": {
       "post": {
         "operationId": "importPpeSupplierPrices",
-        "description": "CanManageProducts. Reads the supplier's files (Insight: 3 XML; СЕМТО: 1 PDF; each may be gzipped) and returns every product of the supplier with old and new prices. dryRun=false saves changed prices as new approved offer versions; manual-price and inactive products are skipped. Request limit 30 MB.",
+        "description": "access:price-import. Reads the supplier's files (Insight: 3 XML; СЕМТО: 1 PDF; each may be gzipped) and returns every product of the supplier with old and new prices. dryRun=false saves changed prices as new approved offer versions; manual-price and inactive products are skipped. Request limit 30 MB.",
         "security": [
           {
             "bearerAuth": []
@@ -185,7 +185,7 @@
     "/api/v1/pricing/ppe/supplier-prices/{key}/refresh": {
       "post": {
         "operationId": "refreshPpeSupplierPrices",
-        "description": "CanManageProducts. «Оновити зараз» for a connected website, Google Sheets or dealer cabinet source (av-center, 3c-market, perchatka-centr, trele): reads the supplier's pages, the six 3C lists or the cabinet pages now and returns every product of the supplier with old and new prices. A page without a price or a failed page is a row problem; a 3C list that does not load, or a cabinet login that is missing or refused, fails the request with 400 and changes nothing. The cabinet changes only the dealer price. dryRun=false reads again and saves changed prices as new approved offer versions. File and not yet connected sources answer 400.",
+        "description": "access:price-import. «Оновити зараз» for a connected website, Google Sheets or dealer cabinet source (av-center, 3c-market, perchatka-centr, trele): reads the supplier's pages, the six 3C lists or the cabinet pages now and returns every product of the supplier with old and new prices. A page without a price or a failed page is a row problem; a 3C list that does not load, or a cabinet login that is missing or refused, fails the request with 400 and changes nothing. The cabinet changes only the dealer price. dryRun=false reads again and saves changed prices as new approved offer versions. File and not yet connected sources answer 400.",
         "security": [
           {
             "bearerAuth": []

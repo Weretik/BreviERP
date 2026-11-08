@@ -5,7 +5,7 @@ info:
   description: >-
     Stage 1 of the sewing workshop «Швейний цех» (PRD-001): workers of the workshop, fabric norms per Catalog sewing model
     and a read-only view of the payroll coefficients kept in «Параметри ціноутворення». Workers do not sign in; the head of
-    the workshop records their work. Access: WorkshopChief or Admin (policy CanManageWorkshop; the director also holds Admin).
+    the workshop records their work. Access: «Права доступу» pages access:workshop-staff, access:fabric-norms, access:payroll-rules (WorkshopChief and Admin by default; the director always).
 servers:
   - url: /
 security:
