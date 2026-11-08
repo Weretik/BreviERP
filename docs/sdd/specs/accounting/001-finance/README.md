@@ -1,6 +1,6 @@
 # ACC-001 «Бухгалтерія»
 
-**Status:** stages 1–5 implemented 2026-11-05…08, stage 6 in progress. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
+**Status:** stages 1–6 implemented 2026-11-05…08. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
 
 ## Goal
 
@@ -32,7 +32,7 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 | 3 | Counterparties and «Потребують перевірки» | implemented 2026-11-05 |
 | 4 | Attachments in a private bucket | implemented 2026-11-08 |
 | 5 | Import of the old data (JSON export; the export holds no files) | implemented 2026-11-08 |
-| 6 | PrivatBank statement import (XLSX/XLS/CSV) with preview and duplicates | in progress 2026-11-08 |
+| 6 | PrivatBank statement import (XLSX/XLS/CSV) with preview and duplicates | implemented 2026-11-08 (brevi-web «Виписки банку») |
 | 7 | Import rollback and restore | planned |
 | 8 | Reports, «Журнал змін» tab and JSON export | planned |
 | 9 | Links: «Фінанси» in the counterparty card, invoice payment | later |
