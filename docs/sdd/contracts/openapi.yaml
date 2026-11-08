@@ -273,6 +273,8 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-intro-templates~1{id}
   /api/crm/quote-lookups/products:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1products
+  /api/crm/quote-lookups/fabrics:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1fabrics
   /api/crm/quote-lookups/introduction:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1introduction
   /api/crm/quote-lookups/custom-sewing-price:

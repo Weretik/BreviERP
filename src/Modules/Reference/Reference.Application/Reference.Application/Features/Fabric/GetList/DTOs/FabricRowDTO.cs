@@ -13,7 +13,8 @@ public sealed record FabricRowDTO(
     DateOnly? PriceUpdatedAt,
     bool IsActive,
     string? Comment,
-    string? ProposalDescription);
+    string? ProposalDescription,
+    int ProviderId);
 
 internal sealed record FabricProjectionDTO(
     int Id,

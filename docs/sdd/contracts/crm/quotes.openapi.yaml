@@ -659,6 +659,36 @@ paths:
         "400": { $ref: "#/components/responses/Invalid" }
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role required. }
+  /api/crm/quote-lookups/fabrics:
+    get:
+      operationId: getCrmQuoteFabricFacts
+      security:
+        - bearerAuth: []
+      description: >-
+        R-31. The manager line under each КП fabric: composition, density, price per metre and supplier from the current
+        Reference fabric. Not shown in the PDF; unknown ids are left out.
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: array
+            minItems: 1
+            maxItems: 200
+            items: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Fabrics.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CrmQuoteFabricFacts" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
   /api/crm/quote-lookups/introduction:
     get:
       operationId: getCrmQuoteIntroductionSetup
@@ -1315,6 +1345,17 @@ components:
         fabricInfo: { type: [string, "null"], description: "For the manager only, fabric price and supplier." }
         prices: { oneOf: [{ $ref: "#/components/schemas/CrmQuoteTierPrices" }, { type: "null" }] }
         problem: { type: [string, "null"], description: Why it cannot be added; null when it can. }
+    CrmQuoteFabricFacts:
+      type: object
+      required: [fabricId, name, composition, density, pricePerMeter, supplierId, supplierName]
+      properties:
+        fabricId: { type: integer }
+        name: { type: string }
+        composition: { type: [string, "null"] }
+        density: { type: [string, "null"] }
+        pricePerMeter: { type: number, minimum: 0 }
+        supplierId: { type: [integer, "null"] }
+        supplierName: { type: [string, "null"] }
     CrmQuoteCatalogProduct:
       type: object
       required: [productId, kind, name, variants]

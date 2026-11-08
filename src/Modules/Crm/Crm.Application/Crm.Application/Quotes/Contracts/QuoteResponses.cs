@@ -134,3 +134,15 @@ public sealed record QuoteCatalogVariantResponse(
     string? Problem);
 
 public sealed record QuoteStaffResponse(int UserId, string Name, string? Email);
+
+/// <summary>
+/// The manager line under a КП fabric (R-31): composition, density, price per metre and supplier. Not in the PDF.
+/// </summary>
+public sealed record QuoteFabricFactsResponse(
+    int FabricId,
+    string Name,
+    string? Composition,
+    string? Density,
+    decimal PricePerMeter,
+    int? SupplierId,
+    string? SupplierName);
