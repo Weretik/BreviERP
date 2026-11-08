@@ -1,10 +1,13 @@
 using BuildingBlocks.Api.Result;
 using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.CustomSewing;
+using Crm.Application.Quotes.FabricFacts;
 using Crm.Application.Quotes.GetCatalogProducts;
 using Crm.Application.Quotes.GetStaff;
 using Crm.Application.Quotes.Introductions.Contracts;
 using Crm.Application.Quotes.Introductions.Setup;
+using Crm.Application.Quotes.Photos;
+using Crm.Api.Quotes.Requests;
 using Crm.Application.Quotes.SearchCatalog;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -36,6 +39,17 @@ public sealed class QuoteLookupsController(ISender sender) : ControllerBase
     public async Task<ActionResult<IReadOnlyList<QuoteCatalogProductResponse>>> Products(
         [FromQuery] int[] ids, CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new GetQuoteCatalogProductsQuery(ids), cancellationToken));
+
+    /// <summary>
+    /// The manager line under each КП fabric: composition, density, price per metre and supplier (at most 200).
+    /// Fabrics that no longer exist are missing.
+    /// </summary>
+    [HttpGet("fabrics", Name = "getCrmQuoteFabricFacts")]
+    [ProducesResponseType<IReadOnlyList<QuoteFabricFactsResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyList<QuoteFabricFactsResponse>>> Fabrics(
+        [FromQuery] int[] ids, CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new GetQuoteFabricFactsQuery(ids), cancellationToken));
 
     /// <summary>What «КП для знайомства» starts from: the main model of each season and the letter variants.</summary>
     [HttpGet("introduction", Name = "getCrmQuoteIntroductionSetup")]
@@ -71,4 +85,23 @@ public sealed class QuoteLookupsController(ISender sender) : ControllerBase
     [ProducesResponseType<IReadOnlyList<QuoteStaffResponse>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<QuoteStaffResponse>>> Staff(CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new GetQuoteStaffQuery(), cancellationToken));
+
+    /// <summary>«Змінити фото → Завантажити своє»: stores the photo in the CDN folder of КП photos (R-34).</summary>
+    [HttpPost("photos", Name = "uploadCrmQuotePhoto")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(MaxPhotoRequestBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = MaxPhotoRequestBytes)]
+    [ProducesResponseType<QuotePhotoResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<QuotePhotoResponse>> UploadPhoto([FromForm] UploadQuotePhotoRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.File is null) return BadRequest(new { error = "Оберіть фото." });
+        await using var content = request.File.OpenReadStream();
+        return this.ToActionResult(await sender.Send(new UploadQuotePhotoCommand(content, request.File.FileName,
+            request.File.ContentType, request.File.Length), cancellationToken));
+    }
+
+    /// <summary>Hard ceiling for the multipart body; the photo size limit of the library is checked on upload.</summary>
+    private const long MaxPhotoRequestBytes = 32L * 1024 * 1024;
 }

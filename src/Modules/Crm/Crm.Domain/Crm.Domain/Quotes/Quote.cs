@@ -73,12 +73,15 @@ public sealed class Quote
     /// <summary>When the КП was last sent by Gmail (R-15); null for a draft.</summary>
     public DateTimeOffset? LastSentAt { get; private set; }
 
-    /// <summary>When the КП was moved to «Архів» (R-23); null while it is in work.</summary>
+    /// <summary>
+    /// When the КП was moved to the removed «Архів» (R-23). Such a КП is no longer listed; the Director deletes it,
+    /// or it returns to the list when a production order keeps it. Null for every other КП.
+    /// </summary>
     public DateTimeOffset? ArchivedAt { get; private set; }
 
     public string? ArchivedByName { get; private set; }
 
-    public bool IsArchived => ArchivedAt is not null;
+    public bool IsLegacyArchived => ArchivedAt is not null;
 
     public int Version { get; private set; }
 
@@ -132,19 +135,10 @@ public sealed class Quote
     public void Record(QuoteEventKind kind, QuotePerson actor, string? details, DateTimeOffset at) =>
         _events.Add(new QuoteEvent(kind, actor, details, at));
 
-    /// <summary>«В архів» (R-23): the КП leaves the working list and cannot change until it is restored.</summary>
-    public void Archive(QuotePerson person, DateTimeOffset now)
+    /// <summary>A КП of the removed «Архів» that a production order keeps returns to the list (R-23).</summary>
+    public void ReturnFromLegacyArchive(QuotePerson person, DateTimeOffset now)
     {
-        if (IsArchived) return;
-        ArchivedAt = now;
-        ArchivedByName = person.Name;
-        Touch(now);
-        Record(QuoteEventKind.Archived, person, null, now);
-    }
-
-    public void Restore(QuotePerson person, DateTimeOffset now)
-    {
-        if (!IsArchived) return;
+        if (!IsLegacyArchived) return;
         ArchivedAt = null;
         ArchivedByName = null;
         Touch(now);

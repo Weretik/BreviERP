@@ -1,6 +1,5 @@
 using Ardalis.Result;
 using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Archive;
 using Crm.Application.Quotes.Building;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.Contracts;
@@ -11,12 +10,15 @@ using Crm.Application.Quotes.DeleteQuote;
 using Crm.Application.Quotes.GetQuote;
 using Crm.Application.Quotes.GetQuotes;
 using Crm.Application.Quotes.History;
+using Crm.Application.Quotes.LegacyArchive;
+using Crm.Application.Quotes.ProductionLinks;
 using Crm.Application.Quotes.RepriceQuote;
 using Crm.Application.Quotes.SaveQuote;
 using Crm.Application.Quotes.SetResponsible;
 using Crm.Application.Quotes.Staff;
 using Crm.Domain.Quotes;
 using Crm.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace IntegrationTests.Crm;
 
@@ -26,7 +28,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
 {
     private static readonly QuoteActor Olena = new(17, false);
     private static readonly QuoteActor Petro = new(18, false);
-    private static readonly QuoteActor Director = new(1, true);
+    private static readonly QuoteActor Director = new(1, true, CanDelete: true);
 
     private readonly Catalog _catalog = new();
     private readonly Staff _staff = new();
@@ -165,16 +167,23 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     }
 
     [Test]
-    public async Task DraftIsDeletedWithItsItems()
+    public async Task OnlyTheDirectorDeletesAQuoteWithoutProductionOrders()
     {
         var created = await Create(Olena);
+        var kept = await Create(Olena, "ТОВ «Цех»");
+        var production = new ProductionOrders(kept.Id);
 
         await using var db = Context();
-        var deleted = await new DeleteQuoteCommandHandler(db)
-            .Handle(new DeleteQuoteCommand(Olena, created.Id, created.Version), default);
+        var handler = new DeleteQuoteCommandHandler(db, production);
+        var byManager = await handler.Handle(new DeleteQuoteCommand(Olena, created.Id, created.Version), default);
+        var withOrder = await handler.Handle(new DeleteQuoteCommand(Director, kept.Id, kept.Version), default);
+        var deleted = await handler.Handle(new DeleteQuoteCommand(Director, created.Id, created.Version), default);
 
+        Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
+        Assert.That(withOrder.Status, Is.EqualTo(ResultStatus.Conflict));
         Assert.That(deleted.IsSuccess, Is.True);
-        Assert.That(db.Set<QuoteItemOption>().Count(), Is.Zero);
+        Assert.That(db.Quotes.Select(x => x.Id), Is.EqualTo(new[] { kept.Id }));
+        Assert.That(db.QuoteEvents.Count(x => x.QuoteId == created.Id), Is.Zero);
     }
 
     [Test]
@@ -294,30 +303,29 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     }
 
     [Test]
-    public async Task ArchivedQuoteLeavesTheListAndCannotChangeUntilRestored()
+    public async Task OldArchiveIsHiddenAndThePurgeKeepsQuotesWithProductionOrders()
     {
-        var created = await Create(Olena);
-        var item = created.Items.Single();
+        var gone = await Create(Olena);
+        var kept = await Create(Olena, "ТОВ «Цех»");
+        var working = await Create(Olena, "ТОВ «Робота»");
 
         await using var db = Context();
-        var archive = new SetQuoteArchivedCommandHandler(db, _staff, _clock);
-        var archived = await archive.Handle(new SetQuoteArchivedCommand(Olena, created.Id, created.Version, true), default);
-        Assert.That(archived.Value.ArchivedAt, Is.Not.Null);
-        Assert.That(archived.Value.ArchivedByName, Is.EqualTo("Олена"));
+        await db.Database.ExecuteSqlInterpolatedAsync(
+            $"UPDATE crm.\"Quotes\" SET \"ArchivedAt\" = now(), \"ArchivedByName\" = 'Олена' WHERE \"Id\" IN ({gone.Id}, {kept.Id})");
+        var listed = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Olena, null, null, null), default);
+        var count = await new GetLegacyArchivedQuotesQueryHandler(db).Handle(new GetLegacyArchivedQuotesQuery(Director), default);
+        var refused = await new PurgeLegacyArchivedQuotesCommandHandler(db, new ProductionOrders(kept.Id), _staff, _clock)
+            .Handle(new PurgeLegacyArchivedQuotesCommand(Olena), default);
+        var purged = await new PurgeLegacyArchivedQuotesCommandHandler(db, new ProductionOrders(kept.Id), _staff, _clock)
+            .Handle(new PurgeLegacyArchivedQuotesCommand(Director), default);
 
-        var working = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Olena, null, null, null), default);
-        var inArchive = await new GetQuotesQueryHandler(db)
-            .Handle(new GetQuotesQuery(Olena, null, null, null, Archived: true), default);
-        var save = await Save(db, created.Id, Input(archived.Value.Version, "Інша", item.Id, item.Options.Single().Id));
-        Assert.That(working.Value.Total, Is.Zero);
-        Assert.That(inArchive.Value.Items.Single().ArchivedAt, Is.Not.Null);
-        Assert.That(save.Status, Is.EqualTo(ResultStatus.Conflict));
-
-        var restored = await archive.Handle(
-            new SetQuoteArchivedCommand(Olena, created.Id, archived.Value.Version, false), default);
-        Assert.That(restored.Value.ArchivedAt, Is.Null);
-        var saved = await Save(db, created.Id, Input(restored.Value.Version, "Інша", item.Id, item.Options.Single().Id));
-        Assert.That(saved.IsSuccess, Is.True);
+        Assert.That(listed.Value.Items.Select(x => x.Id), Is.EqualTo(new[] { working.Id }));
+        Assert.That(count.Value.Count, Is.EqualTo(2));
+        Assert.That(refused.Status, Is.EqualTo(ResultStatus.Forbidden));
+        Assert.That(purged.Value, Is.EqualTo(new LegacyArchivePurgeResponse(1, 1)));
+        await using var fresh = Context();
+        Assert.That(fresh.Quotes.OrderBy(x => x.Id).Select(x => x.Id), Is.EqualTo(new[] { kept.Id, working.Id }));
+        Assert.That(fresh.Quotes.Count(x => x.ArchivedAt != null), Is.Zero);
     }
 
     [Test]
@@ -409,6 +417,14 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
 
         public Task<QuoteStaffMember?> FindAsync(int userId, CancellationToken cancellationToken) =>
             Task.FromResult(Members.FirstOrDefault(x => x.UserId == userId));
+    }
+
+    /// <summary>The КП that have a production order.</summary>
+    private sealed class ProductionOrders(params long[] withOrders) : IQuoteProductionOrders
+    {
+        public Task<IReadOnlySet<long>> WithOrdersAsync(IReadOnlyCollection<long> quoteIds,
+            CancellationToken cancellationToken) =>
+            Task.FromResult<IReadOnlySet<long>>(quoteIds.Where(withOrders.Contains).ToHashSet());
     }
 
     private sealed class FixedClock(DateTimeOffset now) : TimeProvider

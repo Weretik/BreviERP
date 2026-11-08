@@ -13,7 +13,7 @@ public sealed record QuoteSummaryResponse(
     int ItemsCount,
     DateTimeOffset UpdatedAt,
     DateTimeOffset? LastSentAt,
-    DateTimeOffset? ArchivedAt);
+    int Version);
 
 public sealed record QuotePageResponse(IReadOnlyList<QuoteSummaryResponse> Items, int Page, int PageSize, int Total);
 
@@ -33,8 +33,6 @@ public sealed record QuoteResponse(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     DateTimeOffset? LastSentAt,
-    DateTimeOffset? ArchivedAt,
-    string? ArchivedByName,
     int Version,
     IReadOnlyList<QuoteItemResponse> Items,
     QuoteIntroductionResponse? Introduction);
@@ -131,6 +129,30 @@ public sealed record QuoteCatalogVariantResponse(
     string Title,
     string? FabricInfo,
     QuoteTierPricesResponse? Prices,
-    string? Problem);
+    string? Problem,
+    int? FabricId = null);
 
 public sealed record QuoteStaffResponse(int UserId, string Name, string? Email);
+
+/// <summary>
+/// The manager line under a КП fabric (R-31): composition, density, price per metre and supplier. Not in the PDF.
+/// </summary>
+public sealed record QuoteFabricFactsResponse(
+    int FabricId,
+    string Name,
+    string? Composition,
+    string? Density,
+    decimal PricePerMeter,
+    int? SupplierId,
+    string? SupplierName);
+
+/// <summary>«Видалити старий архів» (R-23).</summary>
+/// <param name="Deleted">КП deleted with their items and history.</param>
+/// <param name="Returned">КП kept by a production order; they are back in the list.</param>
+public sealed record LegacyArchivePurgeResponse(int Deleted, int Returned);
+
+/// <summary>КП left from the removed «Архів» (R-23).</summary>
+public sealed record LegacyArchivedQuotesResponse(int Count);
+
+/// <summary>A photo uploaded for one КП item (R-34).</summary>
+public sealed record QuotePhotoResponse(string Url);

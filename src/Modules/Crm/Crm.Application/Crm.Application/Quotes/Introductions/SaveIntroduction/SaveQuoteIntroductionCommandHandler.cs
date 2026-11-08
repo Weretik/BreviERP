@@ -20,7 +20,6 @@ public sealed class SaveQuoteIntroductionCommandHandler(
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Kind != QuoteKind.Introduction) return Result.Conflict(QuoteMessages.WrongKind);
         if (quote.Version != command.Input.Version) return Result.Conflict(QuoteMessages.Stale);
-        if (quote.IsArchived) return Result.Conflict(QuoteMessages.Archived);
 
         var actor = await staff.PersonAsync(command.Actor, cancellationToken);
         if (actor is null) return Result.Forbidden(QuoteMessages.ActorUnknown);

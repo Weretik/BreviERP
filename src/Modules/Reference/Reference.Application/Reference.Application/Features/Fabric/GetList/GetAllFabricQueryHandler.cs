@@ -38,7 +38,8 @@ public sealed class GetAllFabricQueryHandler(
                 f.PriceUpdatedAt,
                 f.IsActive,
                 f.Comment,
-                f.ProposalDescription))
+                f.ProposalDescription,
+                f.ProviderId))
             .ToList();
 
         return Result.Success(result);

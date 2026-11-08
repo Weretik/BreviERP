@@ -130,7 +130,7 @@ components:
         severity: { type: integer }
     FabricRow:
       type: object
-      required: [id, name, price, providerName, code, nameRu, composition, compositionRu, density, priceUpdatedAt, isActive, comment, proposalDescription]
+      required: [id, name, price, providerName, code, nameRu, composition, compositionRu, density, priceUpdatedAt, isActive, comment, proposalDescription, providerId]
       properties:
         id: { type: integer, format: int32, minimum: 1 }
         name: { type: string }
@@ -145,6 +145,7 @@ components:
         isActive: { type: boolean, description: «Активна». Inactive fabrics stay for history. }
         comment: { type: [string, 'null'] }
         proposalDescription: { type: [string, 'null'], description: Short description for commercial proposals (КП). }
+        providerId: { type: integer, format: int32, description: Supplier (Reference) of the fabric. }
     CreateFabricRequest:
       allOf:
         - $ref: '#/components/schemas/UpdateFabricRequest'

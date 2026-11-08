@@ -21,7 +21,6 @@ public sealed class RepriceQuoteCommandHandler(
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Version != command.Version) return Result.Conflict(QuoteMessages.Stale);
-        if (quote.IsArchived) return Result.Conflict(QuoteMessages.Archived);
 
         var productIds = quote.Items.Where(x => x.ProductId is not null).Select(x => x.ProductId!.Value).Distinct()
             .ToArray();

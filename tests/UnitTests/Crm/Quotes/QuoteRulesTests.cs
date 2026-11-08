@@ -96,24 +96,6 @@ public sealed class QuoteRulesTests
     }
 
     [Test]
-    public void ArchiveIsRecordedOnceAndRestoreBringsItBack()
-    {
-        var person = new QuotePerson(5, "Олена");
-        var quote = new Quote(new QuoteNumber(2026, 11, 1), QuoteKind.Request, person,
-            new QuoteHeader("Клієнт", null, null, null, null, null), [], DateTimeOffset.UnixEpoch);
-
-        quote.Archive(person, DateTimeOffset.UnixEpoch);
-        quote.Archive(person, DateTimeOffset.UnixEpoch);
-        Assert.That(quote.IsArchived, Is.True);
-        Assert.That(quote.Version, Is.EqualTo(2));
-        quote.Restore(person, DateTimeOffset.UnixEpoch);
-
-        Assert.That(quote.IsArchived, Is.False);
-        Assert.That(quote.Events.Select(x => x.Kind),
-            Is.EqualTo(new[] { QuoteEventKind.Created, QuoteEventKind.Archived, QuoteEventKind.Restored }));
-    }
-
-    [Test]
     public void CopyKeepsManualPricesAndCompositionButNotTheStatus()
     {
         var option = new QuoteItemOption(0, null, 5, "Саржа", null, true, new QuotePrice(100m, 120m, true),

@@ -18,7 +18,6 @@ public sealed class SetQuoteResponsibleCommandHandler(IQuoteStore store, IQuoteS
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Version != command.Version) return Result.Conflict(QuoteMessages.Stale);
-        if (quote.IsArchived) return Result.Conflict(QuoteMessages.Archived);
 
         var member = await staff.FindAsync(command.UserId, cancellationToken);
         if (member is null) return Result.Invalid(new ValidationError(QuoteMessages.StaffNotFound));

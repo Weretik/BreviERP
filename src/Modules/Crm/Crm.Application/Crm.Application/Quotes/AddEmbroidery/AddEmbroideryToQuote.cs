@@ -32,7 +32,6 @@ public sealed class AddEmbroideryToQuoteCommandHandler(
         var quote = await quotes.LoadAsync(command.QuoteId, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Kind != QuoteKind.Request) return Result.Conflict(QuoteMessages.WrongKind);
-        if (quote.IsArchived) return Result.Conflict(QuoteMessages.Archived);
         if (quote.Items.Count >= QuoteLimits.MaxItems) return Result.Conflict(Full);
 
         var actor = await staff.PersonAsync(command.Actor, cancellationToken);

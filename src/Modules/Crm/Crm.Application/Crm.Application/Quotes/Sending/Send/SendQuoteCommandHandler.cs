@@ -18,7 +18,6 @@ public sealed class SendQuoteCommandHandler(IQuoteStore store, QuotePdfComposer 
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Version != command.Input.Version) return Result.Conflict(QuoteMessages.Stale);
-        if (quote.IsArchived) return Result.Conflict(QuoteMessages.Archived);
         if (!gmail.IsConfigured) return Result.Conflict(QuoteSendingMessages.NotConfigured);
 
         var mailbox = await store.StaffMailboxes.AsNoTracking()

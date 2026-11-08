@@ -5,10 +5,10 @@ internal static class QuoteMessages
 {
     public const string NotFound = "КП не знайдено.";
     public const string Stale = "КП змінили в іншому вікні. Оновіть сторінку.";
-    public const string OnlyDraftDeleted = "Видалити можна лише чернетку.";
+    public const string DeleteForbidden = "Видаляти КП може лише директор.";
+    public const string HasProductionOrder = "КП не можна видалити: за ним є виробниче завдання.";
     public const string AssignForbidden = "Передати КП може лише директор або адміністратор.";
     public const string StaffNotFound = "Співробітника не знайдено або він заблокований.";
     public const string ActorUnknown = "Не вдалося визначити користувача.";
-    public const string Archived = "КП в архіві. Спочатку поверніть його з архіву.";
     public const string WrongKind = "Це КП іншого виду: відкрийте його з переліку КП.";
 }
