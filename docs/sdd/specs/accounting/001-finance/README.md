@@ -1,6 +1,6 @@
 # ACC-001 «Бухгалтерія»
 
-**Status:** stages 1–8 implemented 2026-11-05…08. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
+**Status:** stages 1–9 implemented 2026-11-05…08. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
 
 ## Goal
 
@@ -35,7 +35,7 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 | 6 | PrivatBank statement import (XLSX/XLS/CSV) with preview and duplicates | implemented 2026-11-08 (brevi-web «Виписки банку») |
 | 7 | «Відкотити виписку»: rollback of a booked statement | implemented 2026-11-08 |
 | 8 | Reports, «Журнал змін» tab and JSON export | implemented 2026-11-08 |
-| 9 | Links: «Фінанси» in the counterparty card, invoice payment | later |
+| 9 | Links: «Фінанси» in the client and supplier cards, payment of a purchase invoice | implemented 2026-11-08 |
 
 ## Stage 1 rules
 
@@ -114,3 +114,8 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 - «Завантажити CSV» (`GET /api/accounting/reports/csv`) gives the same report for Excel: UTF-8 with BOM, «;», CRLF, every field quoted, sums in hryvnias with a decimal comma, dates dd.MM.yyyy. Text that Excel would read as a formula gets a leading apostrophe.
 - «Журнал змін» (`GET /api/accounting/audit`) lists the changes of all records, newest first, 50 per page, optionally of one kind of record or one action. Each row names the record from its snapshot (a name, or date, sum and description) and opens what changed.
 - «Резервна копія» (`GET /api/accounting/export`) downloads every stored field of every finance record in one JSON file (`brevi-finance-YYYY-MM-DD.json`, format `brevi-erp-finance-v1`), cancelled records, the change log and bank statements with their lines included. Files of operations are not in it; they stay in the private bucket. It is a copy for safekeeping; restoring from it is not ported (stage 7 rules).
+
+## Stage 9 rules
+
+- «Фінанси» in the client card and in the viewed supplier card (brevi-web) lists the active income and expense with that counterparty through `GET /api/accounting/transactions?counterpartyKind=&counterpartyId=` (client: public id, supplier: number): 50 per page, newest first, totals per currency (zero hryvnias when empty), «Поточний облік» / «Домашня бухгалтерія» tabs, an optional period «З»/«По» applied on «Показати». Transfers are not here. A row opens the operation panel of «Операції». The tab needs the «Бухгалтерія» right (`access:accounting`); no new page or key.
+- Payment of a purchase invoice (user decision 2026-11-08: manual link with a hint) is kept in Purchasing (`purchasing.Payments`, [PUR-001](../../purchasing/001-purchase-invoices/README.md#payment-links-accounting-stage-9)); nothing is booked in «Бухгалтерія». Accounting answers two in-process queries for the host: `GetFinanceTransactionsByIdsQuery` (operations by id, voided too) and `GetFinancePaymentCandidatesQuery` (active expenses of both areas: of a supplier, or by text or amount in hryvnias, or equal to the invoice total; that amount first, then the newest; at most 20).

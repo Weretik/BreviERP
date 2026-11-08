@@ -136,6 +136,114 @@ paths:
           description: Card not found, or the supplier is unknown or no longer used (an inactive supplier may stay linked)
         '409':
           description: The version is stale (someone saved first) or the sheet sync is running; body is an array of messages
+  /api/purchasing/invoices/{messageId}/payments/candidates:
+    get:
+      tags:
+      - Purchasing
+      operationId: getPurchasePaymentCandidates
+      description: 'Expenses of «Бухгалтерія» for «Прив''язати оплату» (accounting stage 9), at most 20, active, of both
+        scopes. Without search — the expenses of the linked supplier, or without a supplier those equal to the invoice
+        total; with search — any expense whose description, note or one-off name contains it, or whose amount equals it.
+        Already linked ones are left out; those equal to the invoice total come first (sameAmount).'
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      - name: search
+        in: query
+        schema:
+          type: string
+          maxLength: 200
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PurchasePaymentCandidateResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No «Рахунки на закупку» right
+        '404':
+          description: Card not found
+  /api/purchasing/invoices/{messageId}/payments:
+    post:
+      tags:
+      - Purchasing
+      operationId: linkPurchasePayment
+      description: 'Links an active expense of «Бухгалтерія» as a payment of the invoice and adds 1 to reviewVersion. The
+        same operation may pay several invoices; nothing is booked in «Бухгалтерія».'
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchasePaymentRequest'
+      responses:
+        '200':
+          description: Linked; the payments of the invoice now
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseInvoicePaymentsResponse'
+        '400':
+          description: The operation is not an active expense
+        '401':
+          description: Not signed in
+        '403':
+          description: No «Рахунки на закупку» right
+        '404':
+          description: Card not found
+        '409':
+          description: The version is stale, the operation is already linked or the sheet sync is running
+  /api/purchasing/invoices/{messageId}/payments/unlink:
+    post:
+      tags:
+      - Purchasing
+      operationId: unlinkPurchasePayment
+      description: Removes an active payment link and adds 1 to reviewVersion; the link stays in the history with who removed
+        it and when.
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchasePaymentRequest'
+      responses:
+        '200':
+          description: Removed; the payments of the invoice now
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseInvoicePaymentsResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No «Рахунки на закупку» right
+        '404':
+          description: Card not found
+        '409':
+          description: The version is stale, the link is already removed or the sheet sync is running
   /api/purchasing/invoices/sync-state:
     get:
       tags:
@@ -363,6 +471,8 @@ components:
       - state
       - issues
       - links
+      - payments
+      - paymentIssues
       properties:
         messageId:
           type: string
@@ -432,7 +542,7 @@ components:
           type:
           - string
           - 'null'
-          description: E-mail of who last changed the supplier link or note.
+          description: E-mail of who last changed the supplier link, note or payments.
         reviewedAt:
           type:
           - string
@@ -449,6 +559,145 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PurchaseInvoiceLinkResponse'
+        totalPayableMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: Sum of «До сплати» of the checked documents in kopecks; null without a document.
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseInvoicePaymentResponse'
+          description: Expenses of «Бухгалтерія» linked as payments, oldest link first.
+        paymentIssues:
+          type: array
+          items:
+            type: string
+          description: Payment problems in Ukrainian (voided, not found, not in hryvnias, another amount); they do not change
+            state.
+    PurchasePaymentRequest:
+      type: object
+      required:
+      - transactionId
+      - version
+      properties:
+        transactionId:
+          type: string
+          format: uuid
+          description: Operation id in «Бухгалтерія».
+        version:
+          type: integer
+          format: int32
+          description: The reviewVersion the user saw.
+    PurchaseInvoicePaymentResponse:
+      type: object
+      required:
+      - transactionId
+      - missing
+      - voided
+      - linkedBy
+      - linkedAt
+      properties:
+        transactionId:
+          type: string
+          format: uuid
+        date:
+          type:
+          - string
+          - 'null'
+          format: date
+        amountMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        currency:
+          type:
+          - string
+          - 'null'
+        accountName:
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+        counterpartyName:
+          type:
+          - string
+          - 'null'
+        missing:
+          type: boolean
+          description: The operation is not found in «Бухгалтерія»; its fields are null.
+        voided:
+          type: boolean
+          description: The operation was voided after linking.
+        linkedBy:
+          type: string
+        linkedAt:
+          type: string
+          format: date-time
+    PurchasePaymentCandidateResponse:
+      type: object
+      required:
+      - transactionId
+      - date
+      - amountMinor
+      - currency
+      - accountName
+      - description
+      - sameAmount
+      properties:
+        transactionId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        amountMinor:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        accountName:
+          type: string
+        description:
+          type: string
+        counterpartyName:
+          type:
+          - string
+          - 'null'
+        sameAmount:
+          type: boolean
+          description: Equals the invoice total.
+    PurchaseInvoicePaymentsResponse:
+      type: object
+      required:
+      - messageId
+      - reviewVersion
+      - payments
+      - paymentIssues
+      properties:
+        messageId:
+          type: string
+        reviewVersion:
+          type: integer
+          format: int32
+        totalPayableMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseInvoicePaymentResponse'
+        paymentIssues:
+          type: array
+          items:
+            type: string
     PurchaseSupplierOption:
       type: object
       required:

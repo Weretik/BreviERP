@@ -1,6 +1,11 @@
 namespace Purchasing.Application.Contracts;
 
-/// <summary>One register card: a Telegram message with its representative sheet row and all its active links.</summary>
+/// <summary>
+/// One register card: a Telegram message with its representative sheet row and all its active links.
+/// <c>TotalPayableMinor</c> is the sum of «До сплати» of its checked documents (null without one); <c>Payments</c> are the
+/// linked expenses of «Бухгалтерія» and <c>PaymentIssues</c> their problems (voided, not found, another amount). Payment
+/// problems do not change <c>State</c>.
+/// </summary>
 public sealed record PurchaseInvoiceResponse(
     string MessageId,
     string TelegramKey,
@@ -23,4 +28,7 @@ public sealed record PurchaseInvoiceResponse(
     DateTimeOffset? ReviewedAt,
     PurchaseInvoiceState State,
     IReadOnlyList<string> Issues,
-    IReadOnlyList<PurchaseInvoiceLinkResponse> Links);
+    IReadOnlyList<PurchaseInvoiceLinkResponse> Links,
+    long? TotalPayableMinor,
+    IReadOnlyList<PurchaseInvoicePaymentResponse> Payments,
+    IReadOnlyList<string> PaymentIssues);

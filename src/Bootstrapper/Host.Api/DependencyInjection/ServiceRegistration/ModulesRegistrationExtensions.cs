@@ -71,6 +71,7 @@ public static class ModuleRegistrationsExtensions
         services.AddMediaInfrastructure(configuration);
         services.AddPurchasingInfrastructure(configuration);
         services.AddScoped<IPurchasingSupplierReader, PurchasingSupplierReader>();
+        services.AddScoped<IPurchasingPaymentReader, PurchasingPaymentReader>();
         // Recognition runs only in the API: the recognizer reaches the Ai module through Mediator.
         services.AddScoped<IPurchaseDocumentRecognizer, PurchaseDocumentRecognizer>();
         services.AddSingleton<global::Ai.Application.Abstractions.IAiBasePrompt, PurchaseInvoiceBasePrompt>();

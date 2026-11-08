@@ -13,6 +13,7 @@ using Purchasing.Application.Documents.Save;
 using Purchasing.Application.Documents.Template;
 using Purchasing.Application.Register.GetInvoices;
 using Purchasing.Application.Register.GetSyncState;
+using Purchasing.Application.Register.Payments;
 using Purchasing.Application.Register.Review;
 using Purchasing.Application.Register.Sync;
 
@@ -76,6 +77,29 @@ public sealed class PurchaseInvoicesController(ISender sender) : ControllerBase
             cancellationToken));
     }
 
+    /// <summary>«Прив'язати оплату»: expenses of «Бухгалтерія» that may pay this invoice (at most 20).</summary>
+    [HttpGet("{messageId}/payments/candidates", Name = "getPurchasePaymentCandidates")]
+    public async Task<ActionResult<IReadOnlyList<PurchasePaymentCandidateResponse>>> PaymentCandidates(string messageId,
+        [FromQuery] string? search = null, CancellationToken cancellationToken = default) =>
+        this.ToActionResult(await sender.Send(new GetPurchasePaymentCandidatesQuery(messageId, search), cancellationToken));
+
+    /// <summary>
+    /// Links an active expense as a payment: 400 when it is not one, 409 when the version is stale, it is already linked
+    /// or a sync is running.
+    /// </summary>
+    [HttpPost("{messageId}/payments", Name = "linkPurchasePayment")]
+    public async Task<ActionResult<PurchaseInvoicePaymentsResponse>> LinkPayment(string messageId,
+        [FromBody] PurchasePaymentRequest request, CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(
+            new LinkPurchasePaymentCommand(messageId, request.TransactionId, request.Version, By()), cancellationToken));
+
+    /// <summary>Removes a payment link (it stays in the history): 409 when the version is stale or it is already removed.</summary>
+    [HttpPost("{messageId}/payments/unlink", Name = "unlinkPurchasePayment")]
+    public async Task<ActionResult<PurchaseInvoicePaymentsResponse>> UnlinkPayment(string messageId,
+        [FromBody] PurchasePaymentRequest request, CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(
+            new UnlinkPurchasePaymentCommand(messageId, request.TransactionId, request.Version, By()), cancellationToken));
+
     /// <summary>
     /// «Розпізнати» / «Розпізнати знову» one file with the AI. 503 when the AI is off, has no key or reached its limit;
     /// 409 while the sheet sync runs. Problems of the answer come back with 200 and show on the card.
@@ -121,3 +145,6 @@ public sealed record PurchaseDocumentSaveRequest(JsonElement Document, bool Repl
 
 /// <summary><c>Version</c> is the <c>reviewVersion</c> the user saw; <c>SupplierId</c> null unlinks.</summary>
 public sealed record PurchaseInvoiceReviewRequest(int? SupplierId, string? Note, int Version);
+
+/// <summary><c>Version</c> is the <c>reviewVersion</c> the user saw.</summary>
+public sealed record PurchasePaymentRequest(Guid TransactionId, int Version);

@@ -57,6 +57,29 @@ internal sealed class FakeSupplierReader : IPurchasingSupplierReader
         Task.FromResult<IReadOnlyList<PurchasingSupplier>>(Suppliers.ToList());
 }
 
+/// <summary>Operations of «Бухгалтерія»; candidates follow the reader rules in memory.</summary>
+internal sealed class FakePaymentReader : IPurchasingPaymentReader
+{
+    public List<PurchasingPayment> Operations { get; } = [];
+    public List<(int? SupplierId, long? AmountMinor, string? Search)> CandidateRequests { get; } = [];
+    public Dictionary<Guid, int> SupplierOf { get; } = [];
+
+    public Task<IReadOnlyList<PurchasingPayment>> FindAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<PurchasingPayment>>(Operations.Where(x => ids.Contains(x.Id)).ToList());
+
+    public Task<IReadOnlyList<PurchasingPayment>> CandidatesAsync(int? supplierId, long? amountMinor, string? search,
+        CancellationToken cancellationToken)
+    {
+        CandidateRequests.Add((supplierId, amountMinor, search));
+        var rows = Operations.Where(x => x is { Expense: true, Active: true });
+        rows = search is not null ? rows.Where(x => x.Description.Contains(search, StringComparison.OrdinalIgnoreCase))
+            : supplierId is { } id ? rows.Where(x => SupplierOf.GetValueOrDefault(x.Id) == id)
+            : rows.Where(x => x.AmountMinor == amountMinor);
+        return Task.FromResult<IReadOnlyList<PurchasingPayment>>(rows.OrderByDescending(x => x.AmountMinor == amountMinor)
+            .ThenByDescending(x => x.Date).ToList());
+    }
+}
+
 internal sealed class FakeFileDownloader : IPurchaseFileDownloader
 {
     public List<string> Downloads { get; } = [];
@@ -106,6 +129,7 @@ internal sealed class SqlitePurchasingDb(PurchasingDbContext db) : IPurchasingDb
     public DbSet<PurchaseCheckedDocument> CheckedDocuments => db.CheckedDocuments;
     public DbSet<PurchaseCheckedDocumentHistory> CheckedDocumentHistory => db.CheckedDocumentHistory;
     public DbSet<PurchaseRecognitionAttempt> RecognitionAttempts => db.RecognitionAttempts;
+    public DbSet<PurchasePayment> Payments => db.Payments;
 
     public async Task<IPurchaseWriteScope?> TryBeginWriteAsync(CancellationToken cancellationToken) =>
         LockHeld ? null : new Scope(await db.Database.BeginTransactionAsync(cancellationToken));
@@ -143,6 +167,7 @@ internal sealed class PurchasingTestHarness : IDisposable
     public FakeSheetReader Sheet { get; } = new();
     public SqlitePurchasingDb Db { get; }
     public FakeSupplierReader Suppliers { get; } = new();
+    public FakePaymentReader Payments { get; } = new();
 
     public PurchaseRegisterSync Sync() => new(Db, Sheet, Time, NullLogger<PurchaseRegisterSync>.Instance);
 

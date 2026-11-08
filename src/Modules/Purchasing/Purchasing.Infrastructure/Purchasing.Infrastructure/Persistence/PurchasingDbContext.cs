@@ -24,6 +24,7 @@ public sealed class PurchasingDbContext(DbContextOptions<PurchasingDbContext> op
     public DbSet<PurchaseCheckedDocument> CheckedDocuments => Set<PurchaseCheckedDocument>();
     public DbSet<PurchaseCheckedDocumentHistory> CheckedDocumentHistory => Set<PurchaseCheckedDocumentHistory>();
     public DbSet<PurchaseRecognitionAttempt> RecognitionAttempts => Set<PurchaseRecognitionAttempt>();
+    public DbSet<PurchasePayment> Payments => Set<PurchasePayment>();
 
     public async Task<IPurchaseWriteScope?> TryBeginWriteAsync(CancellationToken cancellationToken)
     {

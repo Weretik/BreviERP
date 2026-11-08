@@ -15,7 +15,7 @@ public sealed class PurchaseInvoiceQueryTests
 
     private async Task<PurchaseInvoicePage> ListAsync(string? search = null, PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All)
     {
-        var result = await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers)
+        var result = await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
             .Handle(new GetPurchaseInvoicesQuery(1, 50, search, filter), CancellationToken.None);
         Assert.That(result.IsSuccess, Is.True);
         return result.Value;
