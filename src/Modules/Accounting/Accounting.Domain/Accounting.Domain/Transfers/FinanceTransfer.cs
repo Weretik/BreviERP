@@ -2,6 +2,7 @@ using Accounting.Domain.Accounts;
 using Accounting.Domain.Errors;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
+using Accounting.Domain.Statements;
 
 namespace Accounting.Domain.Transfers;
 
@@ -89,6 +90,39 @@ public sealed class FinanceTransfer : IAggregateRoot
             Currency = from.Currency,
             Note = MovementRules.Text(note, FinanceTransferDetails.NoteMaxLength, "Примітка"),
         };
+    }
+
+    /// <summary>
+    /// A statement line whose counterparty IBAN is another own account (stage 6): an expense line goes from
+    /// <paramref name="account"/> to <paramref name="other"/>, an income line comes the other way. The note is the bank
+    /// purpose and the director's note.
+    /// </summary>
+    public static FinanceTransfer FromBank(FinanceTransferId id, BankStatementLine line, FinanceAccount account,
+        FinanceAccount other, string by, DateTimeOffset now)
+    {
+        if (line.Date is not { } date || line.Type is not { } type || line.AmountMinor is not { } amount
+            || line.TransferAccountId != other.Id)
+            throw new InvalidOperationException("Only a read transfer line becomes a transfer.");
+        var (from, to) = type == Categories.CategoryDirection.Expense ? (account, other) : (other, account);
+        var note = string.Join('\n', new[] { line.Purpose, line.Comment }.Where(x => x.Length > 0));
+        if (note.Length > FinanceTransferDetails.NoteMaxLength) note = note[..FinanceTransferDetails.NoteMaxLength];
+        var transfer = new FinanceTransfer
+        {
+            Id = id,
+            Scope = LedgerScope.Current,
+            Source = MovementSource.BankImport,
+            Status = MovementStatus.Active,
+            Version = 1,
+            CreatedBy = by,
+            CreatedAt = now,
+            UpdatedAt = now,
+            ExternalId = line.BankId,
+            Fingerprint = line.Fingerprint,
+        };
+        MovementRules.CheckAmount(amount);
+        transfer.Check(new FinanceTransferDetails(date, from.Id, to.Id, amount, note), from, to, isNew: true);
+        transfer.Apply(new FinanceTransferDetails(date, from.Id, to.Id, amount, note.Trim()), from);
+        return transfer;
     }
 
     /// <summary>Changes the fields; returns false when nothing differs (the version stays).</summary>

@@ -1,0 +1,111 @@
+using System.Security.Cryptography;
+using Accounting.Application.Abstractions;
+using Accounting.Application.Contracts;
+using Accounting.Application.Journal;
+using Accounting.Application.Statements.Reading;
+using Accounting.Domain.Accounts;
+using Accounting.Domain.Statements;
+
+namespace Accounting.Application.Statements;
+
+/// <summary>
+/// «Завантажити виписку»: reads an XLSX, XLS or CSV statement of one account into a preview with recognised lines.
+/// Nothing reaches the books until «Провести виписку». The same file of the same account returns the statement
+/// uploaded before.
+/// </summary>
+public sealed record UploadBankStatementCommand(Guid AccountId, Stream Content, string FileName, string By)
+    : ICommand<Result<BankStatementResponse>>
+{
+    public static readonly string[] Extensions = [".xlsx", ".xls", ".csv"];
+
+    /// <summary>The file name without any folder path a browser may send.</summary>
+    public string DisplayName => FileName is null ? string.Empty : FileName[(FileName.LastIndexOfAny(['/', '\\']) + 1)..].Trim();
+}
+
+public sealed class UploadBankStatementCommandValidator : AbstractValidator<UploadBankStatementCommand>
+{
+    public UploadBankStatementCommandValidator()
+    {
+        RuleFor(x => x.AccountId).NotEmpty();
+        RuleFor(x => x.Content).NotNull();
+        RuleFor(x => x.DisplayName).NotEmpty().WithMessage("Назва файлу обовʼязкова.")
+            .Must(x => UploadBankStatementCommand.Extensions.Any(e => x.EndsWith(e, StringComparison.OrdinalIgnoreCase)))
+            .WithMessage(StatementMessages.WrongType);
+        RuleFor(x => x.By).ValidBy();
+    }
+}
+
+public sealed class UploadBankStatementCommandHandler(IAccountingDbContext db, IBankStatementFileReader reader,
+    IAccountingCustomerReader customers, IAccountingSupplierReader suppliers, TimeProvider clock)
+    : ICommandHandler<UploadBankStatementCommand, Result<BankStatementResponse>>
+{
+    public async ValueTask<Result<BankStatementResponse>> Handle(UploadBankStatementCommand command,
+        CancellationToken cancellationToken)
+    {
+        var accountId = FinanceAccountId.From(command.AccountId);
+        var account = await db.Accounts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == accountId, cancellationToken);
+        if (account is null) return Result.NotFound(AccountingMessages.AccountNotFound);
+
+        using var buffer = new MemoryStream();
+        await CopyAtMostAsync(command.Content, buffer, BankStatement.MaxBytes + 1, cancellationToken);
+        if (buffer.Length == 0) return Invalid(StatementMessages.Empty);
+        if (buffer.Length > BankStatement.MaxBytes) return Invalid(StatementMessages.TooLarge);
+        var hash = Convert.ToHexStringLower(SHA256.HashData(buffer.GetBuffer().AsSpan(0, (int)buffer.Length)));
+
+        var earlier = await FindAsync(accountId, hash, cancellationToken);
+        if (earlier is not null) return Result.Success(BankStatementResponse.From(earlier, account.Name, existing: true));
+
+        IReadOnlyList<BankLineData> rows;
+        try
+        {
+            buffer.Position = 0;
+            var sheets = await reader.ReadAsync(buffer, command.DisplayName, cancellationToken);
+            rows = BankStatementParser.Parse(sheets, account, command.DisplayName);
+        }
+        catch (BankStatementFileException error)
+        {
+            return Invalid(error.Message);
+        }
+
+        var (statement, lines) = BankStatement.Create(BankStatementId.New(), account, command.DisplayName, hash, rows,
+            command.By, clock.GetUtcNow());
+        await BankLineRecognition.RecogniseAsync(db, customers, suppliers, account, lines, cancellationToken);
+        db.BankStatements.Add(statement);
+        db.BankStatementLines.AddRange(lines);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            // The same file was uploaded at the same moment; show that statement.
+            db.ClearTracked();
+            earlier = await FindAsync(accountId, hash, cancellationToken);
+            if (earlier is null) throw;
+            return Result.Success(BankStatementResponse.From(earlier, account.Name, existing: true));
+        }
+
+        return Result.Success(BankStatementResponse.From(statement, account.Name));
+    }
+
+    private Task<BankStatement?> FindAsync(FinanceAccountId accountId, string hash, CancellationToken cancellationToken) =>
+        db.BankStatements.AsNoTracking().FirstOrDefaultAsync(x => x.AccountId == accountId && x.FileHash == hash,
+            cancellationToken);
+
+    private static Result<BankStatementResponse> Invalid(string message) =>
+        Result.Invalid(new ValidationError("File", message));
+
+    private static async Task CopyAtMostAsync(Stream source, Stream target, long limit, CancellationToken cancellationToken)
+    {
+        var chunk = new byte[81920];
+        long total = 0;
+        int read;
+        while (total < limit &&
+               (read = await source.ReadAsync(chunk.AsMemory(0, (int)Math.Min(chunk.Length, limit - total)),
+                   cancellationToken)) > 0)
+        {
+            await target.WriteAsync(chunk.AsMemory(0, read), cancellationToken);
+            total += read;
+        }
+    }
+}

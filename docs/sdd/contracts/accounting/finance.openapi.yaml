@@ -1477,6 +1477,190 @@ paths:
           description: Not signed in
         '403':
           description: Not Director
+  /api/accounting/statements:
+    get:
+      tags:
+      - Accounting
+      operationId: getBankStatements
+      description: «Історія виписок» (stage 6) — the last 100 uploaded statements of all accounts, newest first.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BankStatementResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    post:
+      tags:
+      - Accounting
+      operationId: uploadBankStatement
+      description: '«Завантажити виписку» (stage 6): a statement of one account as the bank gave it — XLSX, XLS or CSV,
+        at most 12 MiB and 10 000 rows. It becomes a preview with recognised lines (duplicates, transfers between own
+        accounts, counterparties by ЄДРПОУ, IBAN or name, auto categories); nothing reaches the books until book. The
+        same file of the same account returns the statement uploaded before with existing=true.'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                accountId:
+                  type: string
+                  format: uuid
+                file:
+                  type: string
+                  format: binary
+              required:
+              - accountId
+              - file
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankStatementResponse'
+        '400':
+          description: No file, a wrong type, no header, ambiguous columns, a statement of another account, an archived
+            account or larger than the limits; body is a list of validation errors
+        '404':
+          description: Account not found
+        '413':
+          description: The request is larger than 13 MiB
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/statements/{id}:
+    get:
+      tags:
+      - Accounting
+      operationId: getBankStatement
+      description: A statement with 100 of its lines in file order (optionally of one state), the number of lines in
+        each state and what book would add now.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: state
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/BankLineState'
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+          minimum: 1
+          maximum: 1000
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankStatementDetailsResponse'
+        '404':
+          description: Statement not found
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/statements/{id}/lines/{lineId}:
+    put:
+      tags:
+      - Accounting
+      operationId: updateBankStatementLine
+      description: The director's choice for one line of a statement that is not booked — category of the current books
+        in the direction of the line (or none), a counterparty or a one-off name (not both), description, note and
+        excluded. A transfer line takes only the note and excluded; an error line and an exact duplicate cannot be
+        included. The bank data never change.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: lineId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankStatementLineInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankStatementLineResponse'
+        '400':
+          description: A broken rule (the statement is booked, a wrong category, both a counterparty and a one-off name)
+        '404':
+          description: Statement, line, category or counterparty not found
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/statements/{id}/book:
+    post:
+      tags:
+      - Accounting
+      operationId: bookBankStatement
+      description: '«Провести виписку»: every included line of states Ready, NeedsCategory and NewCounterparty becomes an
+        operation (source BankImport) and every Transfer line a transfer, in one save, after the exact duplicates are
+        checked again. A line nobody was recognised for creates an unconfirmed finance counterparty (one per ЄДРПОУ,
+        IBAN or name). The statement becomes Booked and no longer changes.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceVersionInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankStatementResponse'
+        '400':
+          description: Already booked or nothing to book
+        '404':
+          description: Statement not found
+        '409':
+          description: Stale version
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
 components:
   securitySchemes:
     Bearer:
@@ -3004,3 +3188,334 @@ components:
       - cutoverMinor
       - currentMinor
       - differenceMinor
+    BankStatementStatus:
+      type: string
+      enum:
+      - Preview
+      - Booked
+    BankLineState:
+      type: string
+      description: Worst first — Error is never booked, Duplicate is already in the books, Transfer goes to another own
+        account, NewCounterparty has nobody recognised (or an unconfirmed finance counterparty), NeedsCategory has no
+        category.
+      enum:
+      - Ready
+      - NeedsCategory
+      - NewCounterparty
+      - Transfer
+      - Duplicate
+      - Error
+    BankDuplicate:
+      type: string
+      description: Exact — the same bank id or fingerprint, never booked; Probable — a similar record, excluded at first
+        but may be included.
+      enum:
+      - None
+      - Probable
+      - Exact
+    BankStatementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        accountName:
+          type: string
+        fileName:
+          type: string
+        status:
+          $ref: '#/components/schemas/BankStatementStatus'
+        lineCount:
+          type: integer
+          format: int32
+        firstDate:
+          type:
+          - string
+          - 'null'
+          format: date
+        lastDate:
+          type:
+          - string
+          - 'null'
+          format: date
+        transactionCount:
+          type: integer
+          format: int32
+        transferCount:
+          type: integer
+          format: int32
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        bookedBy:
+          type:
+          - string
+          - 'null'
+        bookedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        version:
+          type: integer
+          format: int32
+        existing:
+          type: boolean
+          description: True when the same file was uploaded before and that statement is returned
+      required:
+      - id
+      - accountId
+      - accountName
+      - fileName
+      - status
+      - lineCount
+      - firstDate
+      - lastDate
+      - transactionCount
+      - transferCount
+      - createdBy
+      - createdAt
+      - bookedBy
+      - bookedAt
+      - version
+      - existing
+    BankStatementDetailsResponse:
+      type: object
+      properties:
+        statement:
+          $ref: '#/components/schemas/BankStatementResponse'
+        states:
+          type: array
+          items:
+            $ref: '#/components/schemas/BankLineStateCount'
+        totals:
+          $ref: '#/components/schemas/BankStatementTotals'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/BankStatementLineResponse'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+      required:
+      - statement
+      - states
+      - totals
+      - lines
+      - total
+      - page
+      - pageSize
+    BankLineStateCount:
+      type: object
+      properties:
+        state:
+          $ref: '#/components/schemas/BankLineState'
+        count:
+          type: integer
+          format: int32
+      required:
+      - state
+      - count
+    BankStatementTotals:
+      type: object
+      description: Lines book would add now — operations with their income and expense in kopecks, and transfers.
+      properties:
+        operations:
+          type: integer
+          format: int32
+        incomeMinor:
+          type: integer
+          format: int64
+        expenseMinor:
+          type: integer
+          format: int64
+        transfers:
+          type: integer
+          format: int32
+      required:
+      - operations
+      - incomeMinor
+      - expenseMinor
+      - transfers
+    BankStatementLineResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        rowNumber:
+          type: integer
+          format: int32
+          description: Row of the file, from 1
+        date:
+          type:
+          - string
+          - 'null'
+          format: date
+        time:
+          type:
+          - string
+          - 'null'
+          description: HH:mm:ss from a time column
+        type:
+          oneOf:
+          - $ref: '#/components/schemas/CategoryDirection'
+          - type: 'null'
+        amountMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        currency:
+          type:
+          - string
+          - 'null'
+        bankName:
+          type: string
+        edrpou:
+          type: string
+        iban:
+          type: string
+        purpose:
+          type: string
+        document:
+          type: string
+        bankId:
+          type:
+          - string
+          - 'null'
+        error:
+          type: string
+          description: Why the line cannot be booked; empty when it can
+        duplicate:
+          $ref: '#/components/schemas/BankDuplicate'
+        duplicateNote:
+          type: string
+        transferAccountId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        transferAccountName:
+          type:
+          - string
+          - 'null'
+        counterparty:
+          oneOf:
+          - $ref: '#/components/schemas/FinanceCounterpartyRefResponse'
+          - type: 'null'
+        categoryId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        categoryRootId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        categoryRootName:
+          type:
+          - string
+          - 'null'
+        subcategoryName:
+          type:
+          - string
+          - 'null'
+        oneoffName:
+          type: string
+        description:
+          type: string
+        comment:
+          type: string
+        excluded:
+          type: boolean
+        state:
+          $ref: '#/components/schemas/BankLineState'
+        willBook:
+          type: boolean
+          description: Whether book turns this line into a record
+        transactionId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        transferId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+      required:
+      - id
+      - rowNumber
+      - date
+      - time
+      - type
+      - amountMinor
+      - currency
+      - bankName
+      - edrpou
+      - iban
+      - purpose
+      - document
+      - bankId
+      - error
+      - duplicate
+      - duplicateNote
+      - transferAccountId
+      - transferAccountName
+      - counterparty
+      - categoryId
+      - categoryRootId
+      - categoryRootName
+      - subcategoryName
+      - oneoffName
+      - description
+      - comment
+      - excluded
+      - state
+      - willBook
+      - transactionId
+      - transferId
+    BankStatementLineInput:
+      type: object
+      properties:
+        categoryId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        counterparty:
+          oneOf:
+          - $ref: '#/components/schemas/FinanceCounterpartyLinkInput'
+          - type: 'null'
+        oneoffName:
+          type:
+          - string
+          - 'null'
+          maxLength: 250
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 250
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 1500
+        excluded:
+          type: boolean
+      required:
+      - excluded

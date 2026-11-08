@@ -4,6 +4,7 @@ using Accounting.Domain.Attachments;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
+using Accounting.Domain.Statements;
 using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,6 +22,8 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
     public DbSet<FinanceCounterparty> Counterparties => Set<FinanceCounterparty>();
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
     public DbSet<FinanceAttachment> Attachments => Set<FinanceAttachment>();
+    public DbSet<BankStatement> BankStatements => Set<BankStatement>();
+    public DbSet<BankStatementLine> BankStatementLines => Set<BankStatementLine>();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
         Database.BeginTransactionAsync(cancellationToken);

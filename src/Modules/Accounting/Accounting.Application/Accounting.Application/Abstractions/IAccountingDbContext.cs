@@ -3,6 +3,7 @@ using Accounting.Domain.Attachments;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
+using Accounting.Domain.Statements;
 using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -19,6 +20,8 @@ public interface IAccountingDbContext
     DbSet<FinanceCounterparty> Counterparties { get; }
     DbSet<AuditEntry> AuditEntries { get; }
     DbSet<FinanceAttachment> Attachments { get; }
+    DbSet<BankStatement> BankStatements { get; }
+    DbSet<BankStatementLine> BankStatementLines { get; }
 
     /// <summary>Saves; a concurrent change of the same version throws <see cref="DbUpdateConcurrencyException"/>.</summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

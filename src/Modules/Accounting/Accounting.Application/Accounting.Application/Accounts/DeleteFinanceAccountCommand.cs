@@ -32,6 +32,8 @@ public sealed class DeleteFinanceAccountCommandHandler(IAccountingDbContext db, 
         if (account.Version != command.Version) return Result.Conflict(AccountingMessages.Stale);
         if ((await FinanceBalances.UsageAsync(db, account.Id, cancellationToken)).HasHistory)
             return Result.Conflict(AccountingMessages.AccountHasHistory);
+        if (await db.BankStatements.AnyAsync(x => x.AccountId == account.Id, cancellationToken))
+            return Result.Conflict(AccountingMessages.AccountHasStatements);
 
         AuditTrail.Add(db, AuditEntity.Account, command.Id, AuditAction.Delete, command.By, clock.GetUtcNow(),
             AuditTrail.Snapshot(account), null);
