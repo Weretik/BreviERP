@@ -3,6 +3,8 @@ using Crm.Application.Embroidery.StitchRate;
 using Crm.Application.Embroidery.Mockup;
 using Crm.Application.Quotes.Catalog;
 using Crm.Application.Quotes.FabricFacts;
+using Crm.Application.Quotes.Photos;
+using Crm.Application.Quotes.ProductionLinks;
 using Crm.Application.Quotes.Import;
 using Crm.Application.Quotes.CustomSewing;
 using Crm.Application.Quotes.Staff;
@@ -56,6 +58,8 @@ public static class ModuleRegistrationsExtensions
         services.AddCrmKeepinCrmSync(configuration);
         services.AddScoped<IQuoteCatalogReader, QuoteCatalogReader>();
         services.AddScoped<IQuoteFabricFactsReader, QuoteFabricFactsReader>();
+        services.AddScoped<IQuoteProductionOrders, QuoteProductionOrders>();
+        services.AddScoped<IQuotePhotoStorage, QuotePhotoStorage>();
         services.AddScoped<IQuoteSewingCalculator, QuoteSewingCalculator>();
         services.AddScoped<IQuoteModelCompositionReader, QuoteModelCompositionReader>();
         services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();

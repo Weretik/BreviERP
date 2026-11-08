@@ -243,10 +243,8 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1send
   /api/crm/quotes/{id}/history:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1history
-  /api/crm/quotes/{id}/archive:
-    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1archive
-  /api/crm/quotes/{id}/restore:
-    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1restore
+  /api/crm/quotes/legacy-archive:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1legacy-archive
   /api/crm/quotes/{id}/copy:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}~1copy
   /api/crm/quotes/{id}/embroidery:
@@ -275,6 +273,8 @@ paths:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1products
   /api/crm/quote-lookups/fabrics:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1fabrics
+  /api/crm/quote-lookups/photos:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1photos
   /api/crm/quote-lookups/introduction:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quote-lookups~1introduction
   /api/crm/quote-lookups/custom-sewing-price:

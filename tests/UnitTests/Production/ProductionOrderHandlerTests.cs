@@ -192,6 +192,25 @@ public sealed class ProductionOrderHandlerTests
     }
 
     [Test]
+    public async Task A_quote_with_an_order_that_is_not_deleted_is_kept_from_deletion()
+    {
+        using var workshop = Workshop();
+        var created = (await Create(workshop, Manager, Input())).Value;
+        var query = new GetQuotesWithOrdersQueryHandler(workshop.Db);
+
+        var before = (await query.Handle(new([10, 11]), CancellationToken.None)).Value;
+        await new DeleteProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Time)
+            .Handle(new(Admin, created.Id, created.Version), CancellationToken.None);
+        var after = (await query.Handle(new([10]), CancellationToken.None)).Value;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(before, Is.EqualTo(new long[] { 10 }));
+            Assert.That(after, Is.Empty);
+        });
+    }
+
+    [Test]
     public async Task Only_admin_deletes_and_a_deleted_order_leaves_the_list()
     {
         using var workshop = Workshop();
@@ -384,7 +403,7 @@ public sealed class ProductionOrderHandlerTests
         workshop.Db.FabricNorms.Add(new ModelFabricNorm("MOD-052",
             new FabricNormValues(2.5m, 2.2m, 0.3m, null, null, null), 1, workshop.Time.GetUtcNow()));
         workshop.Db.SaveChanges();
-        workshop.Quotes.Quotes.Add(new ProductionQuote(10, "12-11-2026", true, false, "Геофізика", 9, 2, "Анастасія",
+        workshop.Quotes.Quotes.Add(new ProductionQuote(10, "12-11-2026", true, "Геофізика", 9, 2, "Анастасія",
         [
             new ProductionQuoteItem(100, 5, "MOD-052", "Куртка «Віол»",
                 [new ProductionQuoteOption(1000, 77, 23, "Грета", 1800m, 1500m, 1300m)])

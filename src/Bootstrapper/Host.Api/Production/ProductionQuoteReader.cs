@@ -33,7 +33,7 @@ internal sealed class ProductionQuoteReader(ISender sender) : IProductionQuoteRe
         if (!result.IsSuccess) return null;
         var quote = result.Value;
         return new ProductionQuote(quote.Id, quote.Number, quote.Status == "Sent" && quote.Kind == "Request",
-            quote.ArchivedAt is not null, quote.CompanyName ?? quote.InternalName, quote.CustomerId,
+            quote.CompanyName ?? quote.InternalName, quote.CustomerId,
             quote.Responsible.UserId, quote.Responsible.Name,
             quote.Items.Where(IsSewn).Select(Item).ToArray(),
             quote.Items.Where(x => x is { Kind: "Embroidery", EmbroideryCalculationId: not null })

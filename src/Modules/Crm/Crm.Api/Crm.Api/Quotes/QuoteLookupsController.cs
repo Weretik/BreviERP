@@ -6,6 +6,8 @@ using Crm.Application.Quotes.GetCatalogProducts;
 using Crm.Application.Quotes.GetStaff;
 using Crm.Application.Quotes.Introductions.Contracts;
 using Crm.Application.Quotes.Introductions.Setup;
+using Crm.Application.Quotes.Photos;
+using Crm.Api.Quotes.Requests;
 using Crm.Application.Quotes.SearchCatalog;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -83,4 +85,23 @@ public sealed class QuoteLookupsController(ISender sender) : ControllerBase
     [ProducesResponseType<IReadOnlyList<QuoteStaffResponse>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<QuoteStaffResponse>>> Staff(CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new GetQuoteStaffQuery(), cancellationToken));
+
+    /// <summary>«Змінити фото → Завантажити своє»: stores the photo in the CDN folder of КП photos (R-34).</summary>
+    [HttpPost("photos", Name = "uploadCrmQuotePhoto")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(MaxPhotoRequestBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = MaxPhotoRequestBytes)]
+    [ProducesResponseType<QuotePhotoResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<QuotePhotoResponse>> UploadPhoto([FromForm] UploadQuotePhotoRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.File is null) return BadRequest(new { error = "Оберіть фото." });
+        await using var content = request.File.OpenReadStream();
+        return this.ToActionResult(await sender.Send(new UploadQuotePhotoCommand(content, request.File.FileName,
+            request.File.ContentType, request.File.Length), cancellationToken));
+    }
+
+    /// <summary>Hard ceiling for the multipart body; the photo size limit of the library is checked on upload.</summary>
+    private const long MaxPhotoRequestBytes = 32L * 1024 * 1024;
 }

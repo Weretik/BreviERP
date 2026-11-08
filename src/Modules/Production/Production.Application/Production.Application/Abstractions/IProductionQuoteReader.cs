@@ -20,7 +20,7 @@ public sealed record ProductionQuoteSummary(
 
 /// <param name="IsSent">Only a sent КП goes to the workshop.</param>
 public sealed record ProductionQuote(
-    long Id, string Number, bool IsSent, bool IsArchived, string ClientName, long? CustomerId, int ResponsibleUserId,
+    long Id, string Number, bool IsSent, string ClientName, long? CustomerId, int ResponsibleUserId,
     string ResponsibleName, IReadOnlyList<ProductionQuoteItem> Items,
     IReadOnlyList<ProductionQuoteEmbroidery>? Embroideries = null);
 

@@ -2,7 +2,6 @@ using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
 using Crm.Api.Quotes.Requests;
 using Crm.Application.Quotes.AddEmbroidery;
-using Crm.Application.Quotes.Archive;
 using Crm.Application.Quotes.Contracts;
 using Crm.Application.Quotes.CopyQuote;
 using Crm.Application.Quotes.CreateQuote;
@@ -10,6 +9,7 @@ using Crm.Application.Quotes.DeleteQuote;
 using Crm.Application.Quotes.GetQuote;
 using Crm.Application.Quotes.GetQuotes;
 using Crm.Application.Quotes.History;
+using Crm.Application.Quotes.LegacyArchive;
 using Crm.Application.Quotes.Pdf.GetPdf;
 using Crm.Application.Quotes.RepriceQuote;
 using Crm.Application.Quotes.SaveQuote;
@@ -33,13 +33,13 @@ public sealed class QuotesController(ISender sender) : ControllerBase
     [ProducesResponseType<QuotePageResponse>(StatusCodes.Status200OK)]
     public async Task<ActionResult<QuotePageResponse>> List([FromQuery] string? search, [FromQuery] string? status,
         [FromQuery] int? responsibleUserId, [FromQuery] int page = 1, [FromQuery] int pageSize = 50,
-        [FromQuery] bool archived = false, [FromQuery] long? customerId = null,
+        [FromQuery] long? customerId = null,
         CancellationToken cancellationToken = default)
     {
         var actor = QuoteActorClaims.Read(User);
         if (actor is null) return Forbid();
         return this.ToActionResult(await sender.Send(
-            new GetQuotesQuery(actor, search, status, responsibleUserId, page, pageSize, archived, customerId),
+            new GetQuotesQuery(actor, search, status, responsibleUserId, page, pageSize, customerId),
             cancellationToken));
     }
 
@@ -96,8 +96,10 @@ public sealed class QuotesController(ISender sender) : ControllerBase
         return this.ToActionResult(await sender.Send(new SaveQuoteCommand(actor, id, input), cancellationToken));
     }
 
+    /// <summary>«Видалити КП»: only the Director for now; a КП with a production order stays (409).</summary>
     [HttpDelete("{id:long}", Name = "deleteCrmQuote")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult> Delete(long id, [FromQuery] int version, CancellationToken cancellationToken)
@@ -174,20 +176,27 @@ public sealed class QuotesController(ISender sender) : ControllerBase
         return this.ToActionResult(await sender.Send(new GetQuoteHistoryQuery(actor, id), cancellationToken));
     }
 
-    /// <summary>«В архів»: the КП leaves the working list and is read-only until it is restored.</summary>
-    [HttpPost("{id:long}/archive", Name = "archiveCrmQuote")]
-    [ProducesResponseType<QuoteResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public Task<ActionResult<QuoteResponse>> Archive(long id, QuoteVersionRequest request,
-        CancellationToken cancellationToken) => SetArchived(id, request.Version, true, cancellationToken);
+    /// <summary>How many КП are left from the removed «Архів»; the Director sees it before deleting them.</summary>
+    [HttpGet("legacy-archive", Name = "getCrmLegacyArchivedQuotes")]
+    [ProducesResponseType<LegacyArchivedQuotesResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<LegacyArchivedQuotesResponse>> LegacyArchive(CancellationToken cancellationToken)
+    {
+        var actor = QuoteActorClaims.Read(User);
+        if (actor is null) return Forbid();
+        return this.ToActionResult(await sender.Send(new GetLegacyArchivedQuotesQuery(actor), cancellationToken));
+    }
 
-    [HttpPost("{id:long}/restore", Name = "restoreCrmQuote")]
-    [ProducesResponseType<QuoteResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public Task<ActionResult<QuoteResponse>> Restore(long id, QuoteVersionRequest request,
-        CancellationToken cancellationToken) => SetArchived(id, request.Version, false, cancellationToken);
+    /// <summary>Deletes the КП left from the removed «Архів»; one with a production order returns to the list.</summary>
+    [HttpDelete("legacy-archive", Name = "purgeCrmLegacyArchivedQuotes")]
+    [ProducesResponseType<LegacyArchivePurgeResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<LegacyArchivePurgeResponse>> PurgeLegacyArchive(CancellationToken cancellationToken)
+    {
+        var actor = QuoteActorClaims.Read(User);
+        if (actor is null) return Forbid();
+        return this.ToActionResult(await sender.Send(new PurgeLegacyArchivedQuotesCommand(actor), cancellationToken));
+    }
 
     /// <summary>«Додати в КП» from «Ціна вишивки»: appends the saved calculation as one item; no version needed.</summary>
     [HttpPost("{id:long}/embroidery", Name = "addCrmQuoteEmbroidery")]
@@ -216,14 +225,5 @@ public sealed class QuotesController(ISender sender) : ControllerBase
         return result.IsSuccess
             ? CreatedAtAction(nameof(Detail), new { id = result.Value.Id }, result.Value)
             : this.ToActionResult(result);
-    }
-
-    private async Task<ActionResult<QuoteResponse>> SetArchived(long id, int version, bool archived,
-        CancellationToken cancellationToken)
-    {
-        var actor = QuoteActorClaims.Read(User);
-        if (actor is null) return Forbid();
-        return this.ToActionResult(await sender.Send(
-            new SetQuoteArchivedCommand(actor, id, version, archived), cancellationToken));
     }
 }

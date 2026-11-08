@@ -31,7 +31,7 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.Property(x => x.RecipientEmail).HasMaxLength(QuoteLimits.EmailMaxLength);
         b.Property(x => x.LetterName).HasMaxLength(QuoteLimits.LetterNameMaxLength);
         b.Property(x => x.ArchivedByName).HasMaxLength(QuoteLimits.NameMaxLength);
-        b.Ignore(x => x.IsArchived);
+        b.Ignore(x => x.IsLegacyArchived);
         b.Property(x => x.Version).IsConcurrencyToken();
 
         b.HasIndex(x => x.Number).IsUnique();

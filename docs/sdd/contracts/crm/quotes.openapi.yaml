@@ -33,13 +33,9 @@ paths:
         - name: pageSize
           in: query
           schema: { type: integer, default: 50, minimum: 1, maximum: 100 }
-        - name: archived
-          in: query
-          description: True lists only «Архів», false (default) only КП in work.
-          schema: { type: boolean, default: false }
         - name: customerId
           in: query
-          description: The client card tab «КП»; only this client's КП, in work and archived together (archived is ignored).
+          description: The client card tab «КП»; only this client's КП.
           schema: { type: integer, format: int64, minimum: 1 }
       responses:
         "200":
@@ -111,7 +107,9 @@ paths:
       operationId: deleteCrmQuote
       security:
         - bearerAuth: []
-      description: Deletes a draft.
+      description: >-
+        R-33. «Видалити КП»: a КП of any status with its items and history. Only the Director for now; a КП with a
+        production order that is not deleted stays (409).
       parameters:
         - name: version
           in: query
@@ -121,7 +119,7 @@ paths:
         "204": { description: Deleted. }
         "400": { $ref: "#/components/responses/Invalid" }
         "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role required. }
+        "403": { description: Admin or Manager role required, and only the Director deletes. }
         "404": { description: Not found or not visible to the actor. }
         "409": { $ref: "#/components/responses/Conflict" }
   /api/crm/quotes/{id}/reprice:
@@ -193,7 +191,7 @@ paths:
       security:
         - bearerAuth: []
       description: >-
-        «Історія змін»: who created, saved, sent, repriced, passed, archived, restored or copied the КП; newest first,
+        «Історія змін»: who created, saved, sent, repriced, passed, copied or (before R-23) archived the КП; newest first,
         at most 500 lines.
       responses:
         "200":
@@ -206,55 +204,37 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role and a numeric actor claim required. }
         "404": { description: Not found or not the actor's КП. }
-  /api/crm/quotes/{id}/archive:
-    parameters:
-      - $ref: "#/components/parameters/QuoteId"
-    post:
-      operationId: archiveCrmQuote
+  /api/crm/quotes/legacy-archive:
+    get:
+      operationId: getCrmLegacyArchivedQuotes
       security:
         - bearerAuth: []
       description: >-
-        «В архів»: the КП of any status leaves the working list. Save, send, reprice and passing it to another manager
-        return 409 until it is restored; it can still be opened, printed, copied and deleted (a draft).
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/CrmQuoteVersionRequest" }
+        R-23. «Архів» is removed; its КП are no longer listed. How many are left, shown to the Director before deleting
+        them.
       responses:
         "200":
-          description: Archived; the version grows.
+          description: The count.
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/CrmQuote" }
-        "400": { $ref: "#/components/responses/Invalid" }
+              schema: { $ref: "#/components/schemas/CrmLegacyArchivedQuotes" }
         "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role and a numeric actor claim required. }
-        "404": { description: Not found. }
-        "409": { $ref: "#/components/responses/Conflict" }
-  /api/crm/quotes/{id}/restore:
-    parameters:
-      - $ref: "#/components/parameters/QuoteId"
-    post:
-      operationId: restoreCrmQuote
+        "403": { description: Only the Director. }
+    delete:
+      operationId: purgeCrmLegacyArchivedQuotes
       security:
         - bearerAuth: []
-      description: «Повернути з архіву»; the version grows.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/CrmQuoteVersionRequest" }
+      description: >-
+        R-23. Deletes every КП left from «Архів» with its items and history; one with a production order returns to the
+        list instead.
       responses:
         "200":
-          description: Back in work.
+          description: What was deleted and returned.
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/CrmQuote" }
-        "400": { $ref: "#/components/responses/Invalid" }
+              schema: { $ref: "#/components/schemas/CrmLegacyArchivePurge" }
         "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role and a numeric actor claim required. }
-        "404": { description: Not found. }
+        "403": { description: Only the Director. }
         "409": { $ref: "#/components/responses/Conflict" }
   /api/crm/quotes/{id}/copy:
     parameters:
@@ -265,7 +245,7 @@ paths:
         - bearerAuth: []
       description: >-
         «Копіювати»: a new draft with the next number, the same header, introduction and items with their saved
-        prices. The actor becomes its author and responsible. An archived КП can be copied.
+        prices. The actor becomes its author and responsible.
       responses:
         "201":
           description: The new КП.
@@ -286,7 +266,7 @@ paths:
         «Додати в КП» from «Ціна вишивки» (EMB-001 R-12): appends a saved embroidery calculation as one `Embroidery`
         item at the end. Its one row is titled with the chosen level, and that level's saved unit price stands, shown,
         in all three tiers; it is never repriced. No version is needed: the call only adds, and raises the version.
-        A Manager adds only to own КП (404 otherwise); an archived КП or an introduction is 409; an unknown
+        A Manager adds only to own КП (404 otherwise); an introduction is 409; an unknown
         calculation or level is 400.
       requestBody:
         required: true
@@ -689,6 +669,32 @@ paths:
         "400": { $ref: "#/components/responses/Invalid" }
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role required. }
+  /api/crm/quote-lookups/photos:
+    post:
+      operationId: uploadCrmQuotePhoto
+      security:
+        - bearerAuth: []
+      description: >-
+        R-34. «Змінити фото → Завантажити своє»: stores a JPG, PNG or WebP photo in the media library folder «Фото КП»
+        (its CDN path) and returns its address. The editor puts it into one item; it is not added to the product.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        "200":
+          description: Stored.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuotePhoto" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role required. }
   /api/crm/quote-lookups/introduction:
     get:
       operationId: getCrmQuoteIntroductionSetup
@@ -944,11 +950,6 @@ components:
               prices:
                 oneOf: [{ $ref: "#/components/schemas/CrmQuoteTierPrices" }, { type: "null" }]
               problems: { type: array, items: { type: string }, description: Why prices is null. }
-    CrmQuoteVersionRequest:
-      type: object
-      required: [version]
-      properties:
-        version: { type: integer, minimum: 1 }
     CrmQuoteEvent:
       type: object
       required: [id, kind, at, actor]
@@ -1118,8 +1119,6 @@ components:
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         lastSentAt: { type: [string, "null"], format: date-time, description: Last time Gmail accepted the КП. }
-        archivedAt: { type: [string, "null"], format: date-time, description: Set while the КП is in «Архів». }
-        archivedByName: { type: [string, "null"] }
         version: { type: integer }
         items:
           type: array
@@ -1129,7 +1128,7 @@ components:
           description: Only a «КП для знайомства» has it; its items go page by page, 4 per page.
     CrmQuoteSummary:
       type: object
-      required: [id, number, kind, status, internalName, responsible, itemsCount, updatedAt]
+      required: [id, number, kind, status, internalName, responsible, itemsCount, updatedAt, version]
       properties:
         id: { type: integer, format: int64 }
         number: { type: string }
@@ -1141,7 +1140,23 @@ components:
         itemsCount: { type: integer }
         updatedAt: { type: string, format: date-time }
         lastSentAt: { type: [string, "null"], format: date-time }
-        archivedAt: { type: [string, "null"], format: date-time }
+        version: { type: integer, description: For «Видалити» from the list. }
+    CrmLegacyArchivedQuotes:
+      type: object
+      required: [count]
+      properties:
+        count: { type: integer, minimum: 0 }
+    CrmLegacyArchivePurge:
+      type: object
+      required: [deleted, returned]
+      properties:
+        deleted: { type: integer, minimum: 0 }
+        returned: { type: integer, minimum: 0, description: Kept by a production order; back in the list. }
+    CrmQuotePhoto:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string, format: uri }
     CrmQuotePage:
       type: object
       required: [items, page, pageSize, total]
