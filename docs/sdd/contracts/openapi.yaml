@@ -91,6 +91,14 @@ paths:
     $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1statements~1{id}~1book
   /api/accounting/statements/{id}/rollback:
     $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1statements~1{id}~1rollback
+  /api/accounting/reports:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1reports
+  /api/accounting/reports/csv:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1reports~1csv
+  /api/accounting/audit:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1audit
+  /api/accounting/export:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1export
   /api/admin/users:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users
   /api/admin/users/{userId}:

@@ -1,6 +1,6 @@
 # ACC-001 «Бухгалтерія»
 
-**Status:** stages 1–7 implemented 2026-11-05…08. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
+**Status:** stages 1–8 implemented 2026-11-05…08. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
 
 ## Goal
 
@@ -34,7 +34,7 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 | 5 | Import of the old data (JSON export; the export holds no files) | implemented 2026-11-08 |
 | 6 | PrivatBank statement import (XLSX/XLS/CSV) with preview and duplicates | implemented 2026-11-08 (brevi-web «Виписки банку») |
 | 7 | «Відкотити виписку»: rollback of a booked statement | implemented 2026-11-08 |
-| 8 | Reports, «Журнал змін» tab and JSON export | planned |
+| 8 | Reports, «Журнал змін» tab and JSON export | implemented 2026-11-08 |
 | 9 | Links: «Фінанси» in the counterparty card, invoice payment | later |
 
 ## Stage 1 rules
@@ -103,3 +103,14 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 - An unconfirmed finance counterparty the booking created (`CreatedCounterparty` of the line) is archived when no active operation outside the statement uses it; a confirmed, merged or used one stays and its lines keep it. Lines of an archived one wait for a counterparty again.
 - The statement becomes a preview: no booked numbers, who and when booked cleared, lines unlinked from their records, version + 1. Correct it and book it again, or leave it.
 - The old Calculator's "restore from a JSON backup" is not ported: the archive move of stage 5 and these rollbacks cover it.
+
+## Stage 8 rules
+
+- «Звіти» (`GET /api/accounting/reports`) builds one of six reports for an inclusive period, an area (or both), and optionally an account, a type, a category branch and one counterparty: «Зведений», «Структура витрат», «За категоріями», «За рахунками», «За контрагентами», «Журнал операцій». Only active income and expense count; totals are per currency, with no conversion, and never include transfers.
+- «Структура витрат» is always expenses: a root category row holds its subcategories, which follow it; direct spending on a root that also has subcategories is «Без підкатегорії». The rows must not be added up together.
+- «За рахунками» shows the movement of the period, not the balance: income, expense, transfers in and out, and the net movement. Transfers are filtered only by the period, area and account.
+- «За контрагентами» names the counterparty (finance, client or supplier); a one-off name is marked «(разовий)», no counterparty is «Без контрагента», and a link to a removed record is «Контрагента не знайдено».
+- «Журнал операцій» lists the operations oldest first: 100 on the screen, up to 50 000 in the CSV file. A longer period is split by dates.
+- «Завантажити CSV» (`GET /api/accounting/reports/csv`) gives the same report for Excel: UTF-8 with BOM, «;», CRLF, every field quoted, sums in hryvnias with a decimal comma, dates dd.MM.yyyy. Text that Excel would read as a formula gets a leading apostrophe.
+- «Журнал змін» (`GET /api/accounting/audit`) lists the changes of all records, newest first, 50 per page, optionally of one kind of record or one action. Each row names the record from its snapshot (a name, or date, sum and description) and opens what changed.
+- «Резервна копія» (`GET /api/accounting/export`) downloads every stored field of every finance record in one JSON file (`brevi-finance-YYYY-MM-DD.json`, format `brevi-erp-finance-v1`), cancelled records, the change log and bank statements with their lines included. Files of operations are not in it; they stay in the private bucket. It is a copy for safekeeping; restoring from it is not ported (stage 7 rules).
