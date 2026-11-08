@@ -52,6 +52,12 @@ public sealed class Lead
     /// <summary>The manager columns of the sheet at the first sync («Кто взял», «Результат звонка», …).</summary>
     public string? SheetNotes { get; private set; }
 
+    /// <summary>The last «Кто взял в работу» of the sheet that was applied, so the same value is applied only once.</summary>
+    public string? SheetOwner { get; private set; }
+
+    /// <summary>The last «Результат звонка» of the sheet that was applied, so the same value is applied only once.</summary>
+    public string? SheetResult { get; private set; }
+
     /// <summary>False when the row disappeared from the sheet; the lead and its calls stay.</summary>
     public bool InSheet { get; private set; }
 
@@ -153,6 +159,36 @@ public sealed class Lead
         if (Stage == LeadStage.New) Stage = LeadStage.InWork;
         Touch(now);
         return true;
+    }
+
+    /// <summary>
+    /// «Кто взял в работу» of the sheet (owner, 2026-11-08): a new value naming a Brevi manager takes a free lead for
+    /// them, once. Giving the lead back in Brevi is not undone by the next sync, because the sheet value is not new.
+    /// A name without a manager is not remembered, so it applies once that manager exists. True when the lead was taken.
+    /// </summary>
+    public bool ApplySheetOwner(string? sheetOwner, LeadPerson? manager, DateTimeOffset now)
+    {
+        var owner = LeadLimits.Cut(sheetOwner, LeadLimits.NameMaxLength);
+        if (owner == SheetOwner) return false;
+        if (owner is not null && manager is null) return false;
+        SheetOwner = owner;
+        return manager is not null && OwnerUserId is null && IsOpen && Take(manager, now);
+    }
+
+    /// <summary>
+    /// «Результат звонка» of the sheet (owner, 2026-11-08): a new value becomes a call of the manager who has the lead,
+    /// once; <paramref name="result"/> null (such as «Не звонили») only remembers the value. A closed lead or a lead of
+    /// somebody else is left as it is. Returns the call, or null when none was recorded.
+    /// </summary>
+    public LeadCall? ApplySheetCall(string sheetResult, LeadPerson by, LeadCallResult? result, string? comment,
+        DateTimeOffset? nextContactAt, DateTimeOffset at)
+    {
+        var value = LeadLimits.Cut(sheetResult, LeadLimits.ShortText);
+        if (value is null || value == SheetResult) return null;
+        SheetResult = value;
+        return result is not null && IsOpen && IsOwnedBy(by.UserId)
+            ? RecordCall(by, result, comment, nextContactAt, at)
+            : null;
     }
 
     /// <summary>Gives the lead back to «Вільні»; calls stay, the next contact is cleared (R-04).</summary>

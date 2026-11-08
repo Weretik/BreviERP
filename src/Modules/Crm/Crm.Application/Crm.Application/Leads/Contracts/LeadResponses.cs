@@ -102,6 +102,8 @@ public sealed record LeadSyncResponse(
     int Skipped,
     DateTimeOffset At,
     int Duplicates,
+    int Assigned,
+    int Calls,
     string? Warning);
 
 public sealed record LeadSyncStateResponse(

@@ -18,7 +18,8 @@ internal sealed class LeadsSyncTask : ISyncTask
         if (!result.IsSuccess)
             throw new InvalidOperationException(string.Join(" ", result.Errors));
         var value = result.Value;
-        logger.LogInformation("Lead rows {Rows}; added {Added}, updated {Updated}, gone {Gone}, skipped {Skipped}",
-            value.Rows, value.Added, value.Updated, value.Gone, value.Skipped);
+        logger.LogInformation(
+            "Lead rows {Rows}; added {Added}, updated {Updated}, gone {Gone}, skipped {Skipped}, taken for managers {Assigned}, calls from the sheet {Calls}",
+            value.Rows, value.Added, value.Updated, value.Gone, value.Skipped, value.Assigned, value.Calls);
     }
 }
