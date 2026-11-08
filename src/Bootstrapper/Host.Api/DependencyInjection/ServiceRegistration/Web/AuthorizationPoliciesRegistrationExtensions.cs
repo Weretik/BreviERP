@@ -1,6 +1,9 @@
+using Host.Api.Security.Access;
+using Identity.Application.Security.Access;
 using Identity.Application.Security.Policies;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration.Web;
 
@@ -8,6 +11,7 @@ public static class AuthorizationPoliciesRegistrationExtensions
 {
     public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
     {
+        services.AddAccessPolicies();
         services.AddAuthorization(options =>
         {
             options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -23,35 +27,19 @@ public static class AuthorizationPoliciesRegistrationExtensions
             options.AddPolicy(PolicyNames.CanManageUsers, policy =>
                 policy.RequireRole(RoleNames.Admin));
 
-            options.AddPolicy(PolicyNames.CanManageProducts, policy =>
-                policy.RequireRole(RoleNames.Manager, RoleNames.Admin));
-
             options.AddPolicy(PolicyNames.CanManageOrders, policy =>
                 policy.RequireRole(RoleNames.Manager, RoleNames.Admin));
 
-            // The director also holds Admin; the accountant only reads the catalogue for now.
+            // Shared catalogue reads (pickers in КП, workshop and reference pages): the director also holds Admin; a role
+            // made on «Права доступу» reads too, its pages decide what it changes.
             options.AddPolicy(PolicyNames.CatalogRead, policy =>
-                policy.RequireRole(RoleNames.User, RoleNames.Accountant, RoleNames.Manager, RoleNames.Admin));
+                policy.RequireAssertion(context => HasAnyRole(context.User,
+                    RoleNames.User, RoleNames.Accountant, RoleNames.Manager, RoleNames.Admin)));
 
-            // «Мій кабінет»: every staff account; the director also holds Admin.
+            // «Мій кабінет»: every staff account, including roles made on «Права доступу»; the director also holds Admin.
             options.AddPolicy(PolicyNames.OwnProfile, policy =>
-                policy.RequireRole(RoleNames.Accountant, RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Admin));
-
-            // «Швейний цех»: the head of the workshop; the director also holds Admin.
-            options.AddPolicy(PolicyNames.CanManageWorkshop, policy =>
-                policy.RequireRole(RoleNames.WorkshopChief, RoleNames.Admin));
-
-            // «Виробничі завдання»: managers create them from their КП, the head of the workshop sews them.
-            options.AddPolicy(PolicyNames.CanUseProductionOrders, policy =>
-                policy.RequireRole(RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Admin));
-
-            // «Бухгалтерія → Рахунки на закупку»: only the Director (client corrections item 10, 2026-11-08).
-            options.AddPolicy(PolicyNames.CanUsePurchaseInvoices, policy =>
-                policy.RequireRole(RoleNames.Director));
-
-            // «Бухгалтерія»: only the Director (user decision 2026-11-05); Admin and Accountant do not see it.
-            options.AddPolicy(PolicyNames.CanUseAccounting, policy =>
-                policy.RequireRole(RoleNames.Director));
+                policy.RequireAssertion(context => HasAnyRole(context.User,
+                    RoleNames.Accountant, RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Admin)));
 
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));
@@ -59,4 +47,22 @@ public static class AuthorizationPoliciesRegistrationExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// «Права доступу»: work pages use <c>access:&lt;page&gt;[:&lt;action&gt;]</c> policies, checked against the rights saved
+    /// for each role (Identity registers the database source; without it the catalogue defaults apply).
+    /// </summary>
+    public static IServiceCollection AddAccessPolicies(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddSingleton<IAuthorizationPolicyProvider, AccessPolicyProvider>();
+        services.AddScoped<IAuthorizationHandler, AccessRequirementHandler>();
+        services.TryAddScoped<IAccessGrantSource, DefaultAccessGrantSource>();
+        return services;
+    }
+
+    /// <summary>One of the given built-in roles, or a role made on «Права доступу».</summary>
+    private static bool HasAnyRole(System.Security.Claims.ClaimsPrincipal user, params string[] builtIn) =>
+        AccessClaims.RolesOf(user).Any(role =>
+            builtIn.Contains(role, StringComparer.Ordinal) || (!AccessCatalog.IsBuiltIn(role) && !AccessCatalog.IsOutsider(role)));
 }

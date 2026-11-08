@@ -13,6 +13,8 @@ public sealed class GetProductionOrdersQueryHandler(IProductionDbContext db)
         var orders = db.Orders.AsNoTracking().Where(x => x.DeletedAt == null);
         if (query.CustomerId is { } customerId)
             orders = orders.Where(x => x.CustomerId == customerId);
+        if (query.QuoteId is { } quoteId)
+            orders = orders.Where(x => x.QuoteId == quoteId);
 
         if (!string.IsNullOrWhiteSpace(query.Manager))
         {

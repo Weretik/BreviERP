@@ -121,7 +121,7 @@ public sealed record ProductionOrderChangeResponse(
     long Id, int? ItemId, string? ItemName, string Field, string? Before, string? After, string ActorName,
     DateTimeOffset At);
 
-/// <summary>A sent КП the person may pass to the workshop.</summary>
+/// <summary>A КП «під запит» the person may pass to the workshop.</summary>
 /// <param name="OrdersCount">Orders already made from it.</param>
 public sealed record ProductionQuoteSourceResponse(
     long Id, string Number, string ClientName, string ResponsibleName, DateTimeOffset? LastSentAt, int OrdersCount);

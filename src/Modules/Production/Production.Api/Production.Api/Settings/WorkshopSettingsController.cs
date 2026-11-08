@@ -10,7 +10,7 @@ namespace Production.Api.Settings;
 
 /// <summary>«Налаштування цеху»: where the bot posts new orders.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.Settings)]
 [Route("api/production/settings")]
 public sealed class WorkshopSettingsController(ISender sender) : ControllerBase
 {

@@ -13,7 +13,7 @@ namespace Crm.Api.Quotes;
 
 /// <summary>«Готові шаблони» of «КП для знайомства»: shared by all staff, no prices (R-19).</summary>
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.Quotes)]
 [Route("api/crm/quote-intro-templates")]
 public sealed class QuoteIntroTemplatesController(ISender sender) : ControllerBase
 {

@@ -11,7 +11,7 @@ namespace Production.Api.Forecast;
 
 /// <summary>«Прогноз пошиття»: everyone with production orders sees it; the workshop chief and Admin reorder it.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.Forecast)]
 [Route("api/production/forecast")]
 public sealed class ProductionForecastController(ISender sender) : ControllerBase
 {

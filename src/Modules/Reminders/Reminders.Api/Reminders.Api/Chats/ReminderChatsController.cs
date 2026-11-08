@@ -11,7 +11,7 @@ using Reminders.Application.Contracts;
 namespace Reminders.Api.Chats;
 
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = RemindersAccess.Policy)]
 [Route("api/reminders/chats")]
 public sealed class ReminderChatsController(ISender sender) : ControllerBase
 {

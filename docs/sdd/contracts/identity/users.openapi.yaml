@@ -1,5 +1,5 @@
 openapi: 3.1.0
-info: { title: BreviERP Staff Accounts API, version: 0.1.0 }
+info: { title: BreviERP Staff Accounts API, version: 0.2.0 }
 paths:
   /api/admin/users:
     get:
@@ -133,7 +133,7 @@ components:
       required: true
       schema: { type: integer, format: int32, minimum: 1 }
   schemas:
-    StaffRole: { type: string, enum: [Director, Admin, Accountant, Manager, WorkshopChief] }
+    StaffRole: { type: string, maxLength: 256, description: 'Director, Admin, Accountant, Manager, WorkshopChief or a role made on «Права доступу» (custom-…); an unknown role returns 400' }
     StaffAccountResponse:
       type: object
       required: [id, email, fullName, role, isBlocked, avatarUrl, phoneNumber]

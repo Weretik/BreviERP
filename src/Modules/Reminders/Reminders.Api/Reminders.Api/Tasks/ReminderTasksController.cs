@@ -14,7 +14,7 @@ using Reminders.Application.Tasks.UpdateTask;
 namespace Reminders.Api.Tasks;
 
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = RemindersAccess.Policy)]
 [Route("api/reminders/tasks")]
 public sealed class ReminderTasksController(ISender sender) : ControllerBase
 {

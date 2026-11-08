@@ -15,6 +15,14 @@ paths:
     $ref: ./identity/session.openapi.yaml#/paths/~1api~1auth~1cookie~1logout
   /api/auth/session/me:
     $ref: ./identity/session.openapi.yaml#/paths/~1api~1auth~1session~1me
+  /api/auth/session/access:
+    $ref: ./identity/session.openapi.yaml#/paths/~1api~1auth~1session~1access
+  /api/admin/access:
+    $ref: ./identity/access.openapi.yaml#/paths/~1api~1admin~1access
+  /api/admin/access/roles:
+    $ref: ./identity/access.openapi.yaml#/paths/~1api~1admin~1access~1roles
+  /api/admin/access/roles/{role}:
+    $ref: ./identity/access.openapi.yaml#/paths/~1api~1admin~1access~1roles~1{role}
   /api/accounting/settings:
     $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1settings
   /api/accounting/accounts:

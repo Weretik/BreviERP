@@ -13,12 +13,13 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Api.Access;
 
 namespace Crm.Api.Quotes;
 
 /// <summary>What the КП editor picks from: Catalog products and managers.</summary>
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.QuotesView)]
 [Route("api/crm/quote-lookups")]
 public sealed class QuoteLookupsController(ISender sender) : ControllerBase
 {

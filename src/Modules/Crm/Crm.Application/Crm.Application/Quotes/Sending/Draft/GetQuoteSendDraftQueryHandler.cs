@@ -22,7 +22,7 @@ public sealed class GetQuoteSendDraftQueryHandler(IQuoteStore store, QuotePdfCom
         var mailbox = await store.StaffMailboxes.AsNoTracking()
             .Where(x => x.UserId == query.Actor.UserId).Select(x => x.Email).SingleOrDefaultAsync(cancellationToken);
         var site = context.Settings.Company.Site;
-        string Fill(string text) => QuoteMarks.Fill(text, sender, site, quote.Number);
+        string Fill(string text) => QuoteMarks.Fill(text, sender, site, quote.Number, quote.RecipientName, quote.CompanyName);
 
         var standard = new QuoteLetterResponse(StandardLetter, Fill(context.Settings.Email.Subject),
             Fill(context.Settings.Email.Body));

@@ -1,0 +1,114 @@
+openapi: 3.1.0
+info: { title: BreviERP Access Rights API, version: 0.1.0 }
+paths:
+  /api/admin/access:
+    get:
+      operationId: getAccessRights
+      summary: Pages of «Права доступу» and every staff role with its rights
+      tags: [Access]
+      security: [{ cookieAuth: [] }]
+      description: Policy `CanManageUsers` (Admin; the director also holds Admin). Built-in roles first in a fixed order, then new roles by title. A role never saved shows its defaults with version 0.
+      responses:
+        '200': { description: Pages and roles, content: { application/json: { schema: { $ref: '#/components/schemas/AccessRightsResponse' } } } }
+        '401': { description: Not signed in }
+        '403': { description: Not an administrator }
+  /api/admin/access/roles:
+    post:
+      operationId: createRole
+      summary: Add a role
+      description: The role starts with no rights and gets a generated name `custom-…`.
+      tags: [Access]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateRoleRequest' } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/AccessRoleResponse' } } } }
+        '400': { description: Empty or longer than 100 characters }
+        '401': { description: Not signed in }
+        '403': { description: Not an administrator }
+        '409': { description: A role with this title exists }
+  /api/admin/access/roles/{role}:
+    put:
+      operationId: saveRoleAccess
+      summary: Save a role's rights
+      description: Replaces every page of the role; a page left out is hidden from it. Every action needs «view» on the same page.
+      tags: [Access]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Role'
+        - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/SaveRoleAccessRequest' } } }
+      responses:
+        '200': { description: Saved, content: { application/json: { schema: { $ref: '#/components/schemas/AccessRoleResponse' } } } }
+        '400': { description: 'The director, an unknown page or action, or an action without view' }
+        '401': { description: Not signed in }
+        '403': { description: Not an administrator }
+        '404': { description: No such staff role }
+        '409': { description: Someone saved this role after the page was loaded }
+    delete:
+      operationId: deleteRole
+      summary: Delete a role made on this page
+      tags: [Access]
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Role'
+        - $ref: './session.openapi.yaml#/components/parameters/CsrfHeader'
+      responses:
+        '204': { description: Deleted }
+        '400': { description: A built-in role }
+        '401': { description: Not signed in }
+        '403': { description: Not an administrator }
+        '404': { description: No such role }
+        '409': { description: The role has users }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: __Host-brevi.session }
+  parameters:
+    Role:
+      name: role
+      in: path
+      required: true
+      schema: { type: string, maxLength: 256 }
+  schemas:
+    AccessAreaResponse:
+      type: object
+      required: [key, group, title, actions]
+      properties:
+        key: { type: string }
+        group: { type: string }
+        title: { type: string }
+        actions: { type: array, items: { $ref: './session.openapi.yaml#/components/schemas/AccessAction' } }
+    AccessRoleResponse:
+      type: object
+      required: [name, title, locked, builtIn, userCount, version, updatedByName, updatedAt, grants]
+      properties:
+        name: { type: string }
+        title: { type: string }
+        locked: { type: boolean, description: 'The director: every right, not editable' }
+        builtIn: { type: boolean, description: Never deleted }
+        userCount: { type: integer, format: int32 }
+        version: { type: integer, format: int32, description: '0 until the first save; send it back on save' }
+        updatedByName: { type: [string, 'null'] }
+        updatedAt: { type: [string, 'null'], format: date-time }
+        grants: { $ref: './session.openapi.yaml#/components/schemas/AccessGrants' }
+    AccessRightsResponse:
+      type: object
+      required: [areas, roles]
+      properties:
+        areas: { type: array, items: { $ref: '#/components/schemas/AccessAreaResponse' } }
+        roles: { type: array, items: { $ref: '#/components/schemas/AccessRoleResponse' } }
+    SaveRoleAccessRequest:
+      type: object
+      required: [version, grants]
+      properties:
+        version: { type: integer, format: int32, minimum: 0 }
+        grants: { $ref: './session.openapi.yaml#/components/schemas/AccessGrants' }
+    CreateRoleRequest:
+      type: object
+      required: [title]
+      properties: { title: { type: string, maxLength: 100 } }

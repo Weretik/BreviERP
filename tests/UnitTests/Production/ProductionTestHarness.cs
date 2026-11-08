@@ -31,10 +31,10 @@ internal sealed class FakeProductionQuoteReader : IProductionQuoteReader
 {
     public List<ProductionQuote> Quotes { get; } = [];
 
-    public Task<IReadOnlyList<ProductionQuoteSummary>> ListSentAsync(ProductionQuoteReaderActor actor, string? search,
+    public Task<IReadOnlyList<ProductionQuoteSummary>> ListForWorkshopAsync(ProductionQuoteReaderActor actor, string? search,
         CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<ProductionQuoteSummary>>(Quotes
-            .Where(x => x.IsSent && (actor.CanSeeAll || x.ResponsibleUserId == actor.UserId))
+            .Where(x => x.ForWorkshop && (actor.CanSeeAll || x.ResponsibleUserId == actor.UserId))
             .Select(x => new ProductionQuoteSummary(x.Id, x.Number, x.ClientName, x.ResponsibleName, null)).ToList());
 
     public Task<ProductionQuote?> ReadAsync(ProductionQuoteReaderActor actor, long quoteId,

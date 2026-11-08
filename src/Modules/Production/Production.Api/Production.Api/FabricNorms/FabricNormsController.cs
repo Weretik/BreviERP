@@ -13,7 +13,7 @@ namespace Production.Api.FabricNorms;
 
 /// <summary>«Норми витрати тканини» per Catalog sewing model, in metres.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.Policy)]
+[Authorize(Policy = ProductionAccess.FabricNorms)]
 [Route("api/production/fabric-norms")]
 public sealed class FabricNormsController(ISender sender) : ControllerBase
 {

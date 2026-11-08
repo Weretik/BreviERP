@@ -81,10 +81,10 @@ public sealed class ProductionOrderHandlerTests
     }
 
     [Test]
-    public async Task Draft_quote_is_not_passed_to_the_workshop()
+    public async Task Introduction_quote_is_not_passed_to_the_workshop()
     {
         using var workshop = Workshop();
-        workshop.Quotes.Quotes[0] = workshop.Quotes.Quotes[0] with { IsSent = false };
+        workshop.Quotes.Quotes[0] = workshop.Quotes.Quotes[0] with { ForWorkshop = false };
 
         var result = await Create(workshop, Manager, Input());
 

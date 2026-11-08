@@ -10,7 +10,7 @@ namespace Production.Api.Orders;
 
 /// <summary>Tab «Тканина» of an item: plan by colour, «Видати» and «Сторно видачі».</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.Orders)]
 [Route("api/production/orders")]
 public sealed class ProductionOrderFabricController(ISender sender) : ControllerBase
 {

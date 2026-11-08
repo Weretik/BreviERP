@@ -34,7 +34,7 @@ src/Modules/Purchasing/
     Dropbox/           # DropboxFileDownloader (dl=1, 20 MB, PDF and pictures)
     DependencyInjection/
   Purchasing.Api/Purchasing.Api/
-    Register/PurchaseInvoicesController.cs   # /api/purchasing/invoices, policy CanUsePurchaseInvoices
+    Register/PurchaseInvoicesController.cs   # /api/purchasing/invoices, policy access:purchase-invoices
 src/Bootstrapper/Host.Seed/Jobs/Sync/PurchaseInvoicesSyncTask.cs   # daily step purchase-invoices
 src/Bootstrapper/Host.Api/Purchasing/PurchasingSupplierReader.cs     # Reference suppliers for the link
 src/Bootstrapper/Host.Api/Purchasing/PurchaseDocumentRecognizer.cs   # reading originals through the Ai module

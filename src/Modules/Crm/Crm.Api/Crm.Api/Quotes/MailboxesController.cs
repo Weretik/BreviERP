@@ -15,7 +15,7 @@ namespace Crm.Api.Quotes;
 /// signs in to their Gmail on the Google page and allows sending only.
 /// </summary>
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.QuotesView)]
 [Route("api/crm/mailboxes")]
 public sealed class MailboxesController(ISender sender) : ControllerBase
 {

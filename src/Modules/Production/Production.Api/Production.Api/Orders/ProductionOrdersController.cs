@@ -18,9 +18,9 @@ using Production.Application.Orders.UpdateOrder;
 
 namespace Production.Api.Orders;
 
-/// <summary>«Виробничі завдання»: orders the workshop sews, created from sent КП.</summary>
+/// <summary>«Виробничі завдання»: orders the workshop sews, created from КП «під запит».</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.Orders)]
 [Route("api/production/orders")]
 public sealed class ProductionOrdersController(ISender sender) : ControllerBase
 {
@@ -28,9 +28,10 @@ public sealed class ProductionOrdersController(ISender sender) : ControllerBase
     public async Task<ActionResult<ProductionOrderPageResponse>> List([FromQuery] string? search,
         [FromQuery] string? status, [FromQuery] string? manager, [FromQuery] DateOnly? dueTo,
         [FromQuery] string? stage, [FromQuery] int page = 1, [FromQuery] int pageSize = 50,
-        [FromQuery] long? customerId = null, CancellationToken cancellationToken = default) =>
+        [FromQuery] long? customerId = null, [FromQuery] long? quoteId = null,
+        CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(
-            new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize, stage, customerId),
+            new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize, stage, customerId, quoteId),
             cancellationToken));
 
     [HttpGet("{id:int}", Name = "getProductionOrder")]
@@ -44,7 +45,7 @@ public sealed class ProductionOrdersController(ISender sender) : ControllerBase
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new GetProductionOrderHistoryQuery(id), cancellationToken));
 
-    /// <summary>Sent КП the person may pass to the workshop.</summary>
+    /// <summary>КП «під запит» the person may pass to the workshop.</summary>
     [HttpGet("quote-sources", Name = "getProductionQuoteSources")]
     public async Task<ActionResult<IReadOnlyList<ProductionQuoteSourceResponse>>> QuoteSources(
         [FromQuery] string? search, CancellationToken cancellationToken) =>

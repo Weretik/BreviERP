@@ -1,6 +1,8 @@
+using Identity.Application.Security.Access;
 using Identity.Application.Services;
 using Identity.Infrastructure.Avatars;
 using Identity.Infrastructure.Options;
+using Identity.Infrastructure.Services.Access;
 using Identity.Infrastructure.Services.Profile;
 using Identity.Infrastructure.Services.Sessions;
 using Identity.Infrastructure.Services.Users;
@@ -22,6 +24,10 @@ public static class IdentityInfrastructureExtensions
         services.AddScoped<ICookieSessionService, CookieSessionService>();
         services.AddScoped<IStaffAccountService, StaffAccountService>();
         services.AddScoped<IProfileService, ProfileService>();
+        // «Права доступу»: replaces the defaults-only source Host.Api registers for its authorization handler.
+        services.AddMemoryCache();
+        services.AddScoped<IAccessGrantSource, AccessGrantSource>();
+        services.AddScoped<IAccessRightsService, AccessRightsService>();
         services.AddSingleton<AvatarImageProcessor>();
         services.AddScoped<AvatarService>();
         // Host.Api registers the CDN storage first; elsewhere avatars are switched off.

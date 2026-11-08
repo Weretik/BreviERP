@@ -24,7 +24,7 @@ paths:
     post:
       operationId: createFabric
       summary: Create a fabric with a client supplied ID
-      description: Requires CanManageProducts. Numeric edits append an approved pricing revision when the reference is versioned.
+      description: Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.
       security:
         - bearerAuth: []
       requestBody:
@@ -46,7 +46,7 @@ paths:
       operationId: importFabrics
       summary: Import the Calculator sheet «Тканини»
       description: >-
-        Requires CanManageProducts. The caller sends the sheet rows as JSON (one-time transfer from the Calculator sheet). A row is matched by code (FAB-…);
+        Requires access:materials. The caller sends the sheet rows as JSON (one-time transfer from the Calculator sheet). A row is matched by code (FAB-…);
         an older fabric without a code is linked when its name matches (case and punctuation ignored); the rest are
         created with the next ID. Supplier names are matched like the KeepinCRM sync; an unknown one becomes a new
         manual supplier, an empty one «Не вказано». dryRun (default) returns the preview only. Otherwise nothing is
@@ -79,7 +79,7 @@ paths:
       operationId: updateFabric
       summary: Update a fabric
       description: >-
-        Requires CanManageProducts. Numeric edits append an approved pricing revision when the reference is versioned.
+        Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.
         A price change sets priceUpdatedAt to today (Kyiv).
       security:
         - bearerAuth: []
@@ -98,7 +98,7 @@ paths:
     delete:
       operationId: deleteFabric
       summary: Delete a fabric
-      description: Requires CanManageProducts. Numeric edits append an approved pricing revision when the reference is versioned.
+      description: Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.
       security:
         - bearerAuth: []
       responses:

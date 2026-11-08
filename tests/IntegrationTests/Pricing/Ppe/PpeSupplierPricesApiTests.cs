@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Host.Api.DependencyInjection.ServiceRegistration.Web;
 
 namespace IntegrationTests.Pricing.Ppe;
 
@@ -166,9 +167,10 @@ public sealed class PpeSupplierPricesApiTests
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("CatalogRead", policy => policy.RequireRole("User", "Manager", "Admin"));
-                options.AddPolicy("CanManageProducts", policy => policy.RequireRole("Manager", "Admin"));
                 options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
             });
+            // «Права доступу»: `access:` policies with the catalogue defaults.
+            builder.Services.AddAccessPolicies();
             builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly);
             var app = builder.Build();
             app.UseAuthentication();

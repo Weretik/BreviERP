@@ -16,7 +16,7 @@ namespace Production.Api.Payroll;
 /// payments, adjustments, «Видано» and closing are for Admin.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.Policy)]
+[Authorize(Policy = ProductionAccess.Payroll)]
 [Route("api/production/payroll")]
 public sealed class PayrollController(ISender sender) : ControllerBase
 {

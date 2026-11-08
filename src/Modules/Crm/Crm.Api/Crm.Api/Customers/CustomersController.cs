@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Crm.Api.Customers;
 
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.Counterparties)]
 [Route("api/crm/customers")]
 public sealed class CustomersController(ISender sender) : ControllerBase
 {

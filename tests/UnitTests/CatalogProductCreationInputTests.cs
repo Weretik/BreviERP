@@ -145,7 +145,7 @@ public sealed class CatalogProductCreationInputTests
             Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
     }
 
-    [TestCase("createCatalogProduct", "CanManageProducts")]
+    [TestCase("createCatalogProduct", "access:products")]
     [TestCase("getProductCodeCheck", "CatalogRead")]
     public void Creation_operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {

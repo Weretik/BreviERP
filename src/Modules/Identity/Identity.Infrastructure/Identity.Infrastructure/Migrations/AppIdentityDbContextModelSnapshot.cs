@@ -183,6 +183,36 @@ namespace Identity.Infrastructure.Migrations
                     b.ToTable("AspNetUserRoles", "identity");
                 });
 
+            modelBuilder.Entity("Identity.Infrastructure.Entities.RoleAccess", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("role_id");
+
+                    b.Property<string>("Grants")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("grants");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedByName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("updated_by_name");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("RoleId");
+
+                    b.ToTable("role_access", "identity");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
                 {
                     b.Property<int>("Id")
@@ -307,6 +337,17 @@ namespace Identity.Infrastructure.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Identity.Infrastructure.Entities.RoleAccess", b =>
+                {
+                    b.HasOne("Identity.Infrastructure.Entities.AppRole", "Role")
+                        .WithOne()
+                        .HasForeignKey("Identity.Infrastructure.Entities.RoleAccess", "RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

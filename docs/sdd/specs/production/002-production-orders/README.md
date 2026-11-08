@@ -50,3 +50,7 @@ A manager passes their sent КП to the workshop as a «Виробниче за�
 
 - Unit: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Production` — 61 passed (2026-11-04), including `ProductionOrderHandlerTests` (13) and `ProductionOrdersContractTests`.
 - Architecture: `dotnet test tests/ArchitectureTests/ArchitectureTests.csproj` — 13 passed.
+
+## Changes after delivery
+
+- 2026-11-08, client corrections item 9: a КП «під запит» goes to the workshop once saved, not only after «Надіслати» (managers often send the PDF by hand). The КП editor has «Передати в цех» and lists the КП's orders (`GET /api/production/orders?quoteId=`). The 28 imported orders keep their old КП number as text.

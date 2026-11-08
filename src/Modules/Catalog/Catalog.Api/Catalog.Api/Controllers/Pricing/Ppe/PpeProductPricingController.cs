@@ -14,7 +14,7 @@ public sealed class PpeProductPricingController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetPpeProductPricesQuery(productIds), cancellationToken));
 
     [HttpPost("{productId:int}/offer/versions", Name = "createPpeOfferVersion")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     public async Task<ActionResult<PpeOfferVersion>> Create(int productId, [FromBody] CreatePpeOfferVersionRequest request, CancellationToken cancellationToken)
     {
         var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);

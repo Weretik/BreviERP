@@ -63,7 +63,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetProductOverviewItemQuery(id), cancellationToken));
 
     [HttpPut("{id:int}/overview")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -76,7 +76,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
             request.QuoteDescription), cancellationToken));
 
     [HttpPost("overview", Name = "createCatalogProduct")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     [ProducesResponseType(typeof(CreatedCatalogProduct), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -104,7 +104,7 @@ public sealed class ProductOverviewController(ISender sender) : ControllerBase
     /// not in the sheet are deleted.
     /// </summary>
     [HttpPost("sheet-import", Name = "importSheetProducts")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:products")]
     [ProducesResponseType(typeof(SheetImportReport), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

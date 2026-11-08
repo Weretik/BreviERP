@@ -155,7 +155,7 @@ public sealed class CatalogSheetImportHandlerTests
             Assert.That(methods[0].GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>()
                 .Single().Template, Is.EqualTo("sheet-import"));
             Assert.That(methods[0].GetCustomAttributes(typeof(AuthorizeAttribute), true)
-                .Cast<AuthorizeAttribute>().Select(attribute => attribute.Policy), Does.Contain("CanManageProducts"));
+                .Cast<AuthorizeAttribute>().Select(attribute => attribute.Policy), Does.Contain("access:products"));
             Assert.That(methods[0].IsDefined(typeof(AllowAnonymousAttribute), true), Is.False);
         });
     }

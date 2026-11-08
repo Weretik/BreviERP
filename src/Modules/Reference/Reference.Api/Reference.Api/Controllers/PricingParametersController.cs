@@ -23,7 +23,7 @@ public sealed class PricingParametersController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetPricingParametersQuery(), cancellationToken));
 
     [HttpPost]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -43,7 +43,7 @@ public sealed class PricingParametersController(ISender sender) : ControllerBase
     /// rows are saved when none has an error.
     /// </summary>
     [HttpPost("import")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     [ProducesResponseType(typeof(PricingSettingsImportResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -58,7 +58,7 @@ public sealed class PricingParametersController(ISender sender) : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -76,7 +76,7 @@ public sealed class PricingParametersController(ISender sender) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = "CanManageProducts")]
+    [Authorize(Policy = "access:pricing-parameters")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

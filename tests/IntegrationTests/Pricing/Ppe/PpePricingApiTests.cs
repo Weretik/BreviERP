@@ -26,6 +26,7 @@ using Catalog.Application.Features.Pricing.Sewing.Settings.CreateVersion;
 using Catalog.Application.Features.Pricing.Sewing.Publications.GetCurrent;
 using Catalog.Application.Features.Pricing.Sewing.Publications.Publish;
 using Catalog.Application.Features.Pricing.Sewing.Calculations.Save;
+using Host.Api.DependencyInjection.ServiceRegistration.Web;
 namespace IntegrationTests.Pricing.Ppe;
 
 [NonParallelizable]
@@ -113,8 +114,9 @@ public sealed class PpePricingApiTests
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("CatalogRead", policy => policy.RequireRole("User", "Manager", "Admin"));
-                options.AddPolicy("CanManageProducts", policy => policy.RequireRole("Manager", "Admin"));
             });
+            // «Права доступу»: `access:` policies with the catalogue defaults.
+            builder.Services.AddAccessPolicies();
             builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly)
                 .AddApplicationPart(typeof(Reference.Api.Controllers.FabricsController).Assembly);
 

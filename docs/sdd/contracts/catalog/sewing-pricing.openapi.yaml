@@ -26,7 +26,7 @@ paths:
       description: Save an immutable calculation using server time. A request UUID is
         globally unique; retries return the original snapshot, even after inputs
         change. Blocked results are saved for diagnosis. Requires
-        CanManageProducts.
+        access:products.
       security:
         - bearerAuth: []
       responses:
@@ -118,7 +118,7 @@ paths:
       operationId: publishSewingCalculation
       description: Publish an unblocked current calculation. Replaying an already
         published calculation returns its original publication without replacing
-        the current price. Requires CanManageProducts.
+        the current price. Requires access:products.
       security:
         - bearerAuth: []
       responses:
@@ -181,7 +181,7 @@ paths:
       description: Append a complete approved settings revision effective at server
         time. expectedVersionId must match the latest revision; no partial
         setting updates. requestId makes retries idempotent. Requires
-        CanManageProducts.
+        access:pricing-parameters.
       security:
         - bearerAuth: []
       responses:
@@ -243,7 +243,7 @@ paths:
       description: Append an approved revision to an existing non-inventory service
         cost. Unit and source identity are preserved. requestId makes retries
         idempotent; expectedVersionId prevents lost updates. Requires
-        CanManageProducts.
+        access:pricing-parameters.
       security:
         - bearerAuth: []
       responses:

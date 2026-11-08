@@ -34,8 +34,8 @@ public sealed class WorkshopReportsContractTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(Policy(typeof(WorkshopReportsController)), Is.EqualTo("CanManageWorkshop"));
-            Assert.That(Policy(typeof(WorkshopDashboardController)), Is.EqualTo("CanUseProductionOrders"));
+            Assert.That(Policy(typeof(WorkshopReportsController)), Is.EqualTo("access:workshop-reports"));
+            Assert.That(Policy(typeof(WorkshopDashboardController)), Is.EqualTo("access:production-orders"));
             Assert.That(Operations(typeof(WorkshopReportsController)).Concat(Operations(typeof(WorkshopDashboardController))),
                 Is.EquivalentTo(ContractOperations()));
         });

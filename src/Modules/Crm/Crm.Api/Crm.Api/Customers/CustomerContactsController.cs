@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Crm.Api.Customers;
 
 [ApiController]
-[Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = CrmAccess.Counterparties)]
 [Route("api/crm/customers/{customerId:guid}/contacts")]
 public sealed class CustomerContactsController(ISender sender) : ControllerBase
 {

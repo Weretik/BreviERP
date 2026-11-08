@@ -3,6 +3,7 @@ using Identity.Application.Features.Avatars;
 using Identity.Application.Features.Profile.Shared;
 using Identity.Application.Features.Users.Shared;
 using Identity.Application.Services;
+using Identity.Domain.Authorization;
 using Identity.Infrastructure.Avatars;
 using Identity.Infrastructure.Entities;
 
@@ -32,7 +33,10 @@ public sealed class ProfileService(
         }
 
         var roles = await userManager.GetRolesAsync(user);
-        var role = StaffRoles.All.FirstOrDefault(roles.Contains) ?? string.Empty;
+        // A role made on «Права доступу» comes after the built-in ones.
+        var role = StaffRoles.All.FirstOrDefault(roles.Contains)
+            ?? roles.FirstOrDefault(x => !AccessCatalog.IsOutsider(x))
+            ?? string.Empty;
         return Result.Success(new ProfileDto(user.Id, user.Email ?? string.Empty, user.FullName, role, avatarStorage.BuildUrl(user.AvatarPath), user.PhoneNumber));
     }
 

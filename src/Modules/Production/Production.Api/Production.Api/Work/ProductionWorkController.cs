@@ -14,7 +14,7 @@ namespace Production.Api.Work;
 
 /// <summary>«Журнал робіт» and «Робота» of an item: Admin and the head of the workshop (PRD-D37).</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.WorkLog)]
 [Route("api/production")]
 public sealed class ProductionWorkController(ISender sender) : ControllerBase
 {

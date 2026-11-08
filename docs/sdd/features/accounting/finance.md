@@ -45,7 +45,7 @@ src/Modules/Accounting/
     Persistence/       # AccountingDbContext (schema accounting), configurations, converters, migrations, design-time factory
     DependencyInjection/
   Accounting.Api/Accounting.Api/
-    Access/            # policy CanUseAccounting (Director), who made the change
+    Access/            # policy access:accounting (Director by default), who made the change
     Results/           # 204 for deletes, 503 while the file storage is off
     Accounts/          # /api/accounting/accounts
     Categories/        # /api/accounting/categories

@@ -14,7 +14,7 @@ namespace Production.Api.Staff;
 
 /// <summary>«Працівники цеху»: the workers the head of the workshop records work and pay for.</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.Policy)]
+[Authorize(Policy = ProductionAccess.Staff)]
 [Route("api/production/staff")]
 public sealed class WorkshopStaffController(ISender sender) : ControllerBase
 {

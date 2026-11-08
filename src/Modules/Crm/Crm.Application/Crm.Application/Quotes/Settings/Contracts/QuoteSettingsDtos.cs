@@ -11,10 +11,10 @@ public sealed record QuoteCompanyDto(
     string? Site,
     string? LogoUrl);
 
-/// <param name="Body">Marks: {quoteNumber}, {managerName}, {managerPhone}, {managerEmail}, {site}.</param>
+/// <param name="Body">Marks: {quoteNumber}, {managerName}, {managerPhone}, {managerEmail}, {site}, {clientName}, {companyName}.</param>
 public sealed record QuoteEmailTemplateDto(string Subject, string Body);
 
-/// <param name="CtaContactTemplate">Marks: {managerName}, {managerPhone}, {managerEmail}.</param>
+/// <param name="CtaContactTemplate">Marks: {managerName}, {managerPhone}, {managerEmail}, {clientName}, {companyName}.</param>
 /// <param name="Intros">«Вступний текст у КП» (R-35); the response fills empty ones with the standard text.</param>
 /// <param name="Labels">Small PDF texts (R-35); the response fills empty ones with the standard text.</param>
 public sealed record QuotePdfTextsDto(
@@ -36,7 +36,7 @@ public sealed record QuotePdfIntroTextsDto(
     string? SewingAndPpe,
     string? Fallback);
 
-/// <param name="ContactLine">Marks: {managerName}, {managerPhone}, {managerEmail}.</param>
+/// <param name="ContactLine">Marks: {managerName}, {managerPhone}, {managerEmail}, {clientName}, {companyName}.</param>
 public sealed record QuotePdfLabelsDto(
     string? ContactLine,
     string? CodeLabel,

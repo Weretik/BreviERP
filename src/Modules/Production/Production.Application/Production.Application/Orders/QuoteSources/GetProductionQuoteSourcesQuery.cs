@@ -3,7 +3,7 @@ using Production.Application.Orders.Access;
 
 namespace Production.Application.Orders.QuoteSources;
 
-/// <summary>Sent КП the person may pass to the workshop, with how many orders each already has.</summary>
+/// <summary>КП «під запит» the person may pass to the workshop, with how many orders each already has.</summary>
 public sealed record GetProductionQuoteSourcesQuery(ProductionActor Actor, string? Search)
     : IQuery<Result<IReadOnlyList<ProductionQuoteSourceResponse>>>;
 
@@ -25,7 +25,7 @@ public sealed class GetProductionQuoteSourcesQueryHandler(
     {
         if (!query.Actor.CanCreate)
             return Result<IReadOnlyList<ProductionQuoteSourceResponse>>.Forbidden(OrderMessages.CannotCreate);
-        var sent = await quotes.ListSentAsync(query.Actor.QuoteReader, query.Search, cancellationToken);
+        var sent = await quotes.ListForWorkshopAsync(query.Actor.QuoteReader, query.Search, cancellationToken);
         var ids = sent.Select(x => (long?)x.Id).ToArray();
         var counts = await db.Orders.AsNoTracking()
             .Where(x => x.DeletedAt == null && ids.Contains(x.QuoteId))

@@ -131,8 +131,8 @@ public sealed class AccountingContractTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(policies, Is.EqualTo(new[] { "CanUseAccounting" }));
             Assert.That(operations, Has.Length.EqualTo(51));
+            Assert.That(policies, Is.EqualTo(new[] { "access:accounting" }));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

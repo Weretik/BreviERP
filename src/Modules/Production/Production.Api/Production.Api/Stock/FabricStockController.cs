@@ -15,7 +15,7 @@ namespace Production.Api.Stock;
 
 /// <summary>«Склад тканин»: lines, movements, the period summary and the transfer from the old «Цех».</summary>
 [ApiController]
-[Authorize(Policy = ProductionAccess.OrdersPolicy)]
+[Authorize(Policy = ProductionAccess.FabricStock)]
 [Route("api/production/fabric-stock")]
 public sealed class FabricStockController(ISender sender) : ControllerBase
 {

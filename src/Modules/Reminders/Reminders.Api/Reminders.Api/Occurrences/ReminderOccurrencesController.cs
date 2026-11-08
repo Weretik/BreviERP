@@ -11,7 +11,7 @@ using Reminders.Application.Occurrences.ReopenOccurrence;
 namespace Reminders.Api.Occurrences;
 
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = RemindersAccess.Policy)]
 [Route("api/reminders/occurrences")]
 public sealed class ReminderOccurrencesController(ISender sender) : ControllerBase
 {
