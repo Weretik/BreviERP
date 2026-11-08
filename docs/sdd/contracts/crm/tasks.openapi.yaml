@@ -66,10 +66,18 @@ paths:
       security:
         - bearerAuth: []
       description: >-
-        «Мої завдання» kanban: every open task and those done in the last 7 days (at most 500 cards). Open cards come
-        first (urgent, then by due time), done ones newest first; the Admin groups them by `lane`.
+        «Мої завдання» kanban: every open task and those done in `period` (at most 500 cards). Open cards come
+        first, then done ones; each group is newest added first; the Admin groups them by `lane`.
       parameters:
         - $ref: "#/components/parameters/AssigneeUserId"
+        - name: period
+          in: query
+          required: false
+          description: >-
+            Which done tasks are shown, by the time they were done: `Week` («Цей тиждень», since Monday in Kyiv,
+            default), `LastWeek` (the week before), `Month` (30 days), `Quarter` (90 days), `Year` (365 days) or `All`.
+            Open tasks are always shown.
+          schema: { type: string, enum: [Week, LastWeek, Month, Quarter, Year, All], default: Week }
       responses:
         "200":
           description: The cards.
@@ -300,7 +308,7 @@ components:
       type: object
       required:
         [id, number, title, status, lane, isUrgent, isOverdue, dueAt, assignee, customerName, stepsTotal, stepsDone,
-         completedAt, updatedAt, version]
+         completedAt, updatedAt, version, createdAt]
       properties:
         id: { type: integer, format: int64 }
         number: { type: string, description: "«ЗД-0142»", examples: ["ЗД-0142"] }
@@ -317,6 +325,7 @@ components:
         completedAt: { type: [string, "null"], format: date-time }
         updatedAt: { type: string, format: date-time }
         version: { type: integer }
+        createdAt: { type: string, format: date-time, description: When the task was added; the board sorts by it. }
     CrmTaskPage:
       type: object
       required: [items, page, pageSize, total]

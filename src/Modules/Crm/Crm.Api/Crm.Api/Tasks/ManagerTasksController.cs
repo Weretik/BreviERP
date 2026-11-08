@@ -45,11 +45,11 @@ public sealed class ManagerTasksController(ISender sender) : ControllerBase
     [HttpGet("board", Name = "getCrmTaskBoard")]
     [ProducesResponseType<TaskBoardResponse>(StatusCodes.Status200OK)]
     public async Task<ActionResult<TaskBoardResponse>> Board([FromQuery] int? assigneeUserId,
-        CancellationToken cancellationToken)
+        [FromQuery] TaskBoardPeriod? period, CancellationToken cancellationToken)
     {
         var actor = TaskActorClaims.Read(User);
         if (actor is null) return Forbid();
-        return this.ToActionResult(await sender.Send(new GetTaskBoardQuery(actor, assigneeUserId), cancellationToken));
+        return this.ToActionResult(await sender.Send(new GetTaskBoardQuery(actor, assigneeUserId, period ?? TaskBoardPeriod.Week), cancellationToken));
     }
 
     [HttpGet("overview", Name = "getCrmTaskOverview")]
