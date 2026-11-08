@@ -23,6 +23,15 @@ internal sealed class AccountingCustomerReader(ISender sender) : IAccountingCust
         return result.Items.Select(Party).ToArray();
     }
 
+    public async Task<IReadOnlyList<AccountingParty>> FindByKeepinIdsAsync(IReadOnlyCollection<string> keepinIds,
+        CancellationToken cancellationToken)
+    {
+        if (keepinIds.Count == 0) return [];
+        var rows = await sender.Send(new GetCustomersByKeepinIdsQuery(keepinIds), cancellationToken);
+        return rows.Select(x => new AccountingParty(x.PublicId.ToString("D"), x.DisplayName, x.TaxIdentity ?? string.Empty,
+            x.Active, x.KeepinId)).ToArray();
+    }
+
     private static AccountingParty Party(CustomerLookup x) =>
         new(x.PublicId.ToString("D"), x.DisplayName, x.TaxIdentity ?? string.Empty, x.Active);
 }

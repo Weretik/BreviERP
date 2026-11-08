@@ -20,7 +20,7 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 | D8 | One change log table `AuditEntries` for all records: entity, id, action, who (e-mail), when, JSON snapshots before and after. |
 | D9 | Every change sends the `Version` the user opened; a stale version → 409 «Запис уже змінили…». Saving the same values changes nothing. |
 | D10 | Clients come from Crm and suppliers from Reference by id without a database link; only finance counterparties are owned here (stage 3). |
-| D11 | The old migration tools and the Home Accounting runner are not moved; stage 5 is one `Host.Seed` import of a fresh `brevi-finance-v5.json` with reconciliation. The old bank preview and rollback history is not moved (user decision 2026-11-05). |
+| D11 | The old migration tools and the Home Accounting runner are not moved; stage 5 is one import of a fresh `brevi-finance-v5.json` with reconciliation — from the admin page «Імпорт» (revised 2026-11-08: the file is uploaded gzipped through the API instead of a `Host.Seed` job, so the director needs no cloud console). The old bank preview and rollback history is not moved (user decision 2026-11-05). |
 | D12 | Attachments go to a private GCS bucket (stage 4; user decision 2026-11-05, if it stays within the free tier). |
 
 ## Stages
@@ -30,8 +30,8 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 | 1 | «Рахунки і каси» (create, edit, archive, restore, delete, balance on 01.10) and «Категорії» (two levels, per area and direction), change log, settings | implemented 2026-11-05 |
 | 2 | Operations and transfers, account balances, «Огляд», archive view; delete rules: an account with movements is only archived, a category in use is switched off | implemented 2026-11-05 |
 | 3 | Counterparties and «Потребують перевірки» | implemented 2026-11-05 |
-| 4 | Attachments in a private bucket | planned |
-| 5 | Import of the old data (JSON export + attachments ZIP) | planned |
+| 4 | Attachments in a private bucket | implemented 2026-11-08 |
+| 5 | Import of the old data (JSON export; the export holds no files) | implemented 2026-11-08 |
 | 6 | PrivatBank statement import (XLSX/CSV) with preview and duplicates | planned |
 | 7 | Import rollback and restore | planned |
 | 8 | Reports, «Журнал змін» tab and JSON export | planned |
@@ -72,3 +72,12 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 - «Контрагенти» tabs: «Фінансові», «Клієнти», «Постачальники» (read-only here, with the number of active operations), «Разові» (operations with a one-off name, both areas). 50 rows per page; counts of every tab with the same search; «Показати архівні» adds archived records and cancelled operations. Choices of the operation form: active finance counterparties, clients and suppliers matching the search, at most 15 of each kind in that order.
 - A category used as a default of a counterparty counts as used: deleting it switches the branch off.
 - Crm gives other modules client names through `GetCustomerLookupQuery` (every client regardless of its manager, merged ones never); only «Бухгалтерія» (director) uses it.
+
+## Stage 5 rules
+
+- `POST /api/accounting/legacy-import?dryRun=true|false` takes finance.json (format `brevi-finance-v5`, `complete = true`, `financeCutoverDate = 2026-10-01`), as is or gzipped by the browser; unpacked at most 200 MiB, request at most 32 MiB. A check (`dryRun=true`) writes nothing; the move writes only when the check has no errors, in parts inside one transaction.
+- Records keep their old ids, area, source (`HOME_ACCOUNTING` → `HomeAccountingImport`, `BANK_IMPORT` → `BankImport`, `MANUAL` → `Manual`), state, version, author and times. Operations also keep the bank identity (external id, fingerprint, bank id, payment purpose) for the statement import of stage 6. A transfer's personal note is added to its note on a new line. One-off names (none in the current export) are not moved.
+- A record whose id Brevi already has is skipped as moved earlier, so a second run adds only what is missing. An account with the name of another Brevi account, or a category with the name of a sibling, under a different id stops the move; so does any record that breaks a rule (the date outside its area, a missing account, category or root). A cancelled record keeps the area it had in the old system.
+- Finance counterparties move with their ids and check state, without default categories. Old clients and suppliers used in operations are linked to «Клієнти» by KeepinCRM id (`GetCustomersByKeepinIdsQuery`, archived clients too) and to «Постачальники» by KeepinCRM id or a name only one supplier has; unknown ones become finance counterparties with the old id and a note; unused ones are not moved.
+- The five old change logs move for the records added in this run (`CREATE`/`BANK_IMPORT`/`CREATE_FINANCIAL`/`BANK_IMPORT_CREATE` → `Create`, `UPDATE`/`BANK_DETAILS_UPDATE` → `Update`, `VOID`/`ROLLBACK`/`BANK_IMPORT_ROLLBACK` → `Void`, `REPLAY`/`BANK_IMPORT_REPLAY` → `Restore`, `VERIFY` → `Verify`, `CUTOVER_BALANCE_CONFIRM`/`RESET` → `CutoverConfirm`/`CutoverReset`, others → `Update` with a warning). Bank statement previews, links, rollbacks and import batches are not moved.
+- The report: per kind in the file, to add, already moved and left out; how clients and suppliers were linked; totals by area, kind and state; per account the balance on 30.09 (opening + archive), the confirmed balance on 01.10 and today, with a warning when the confirmed balance differs from the archive one. Checked on the real export of 2026-11-05: 16 accounts, 492 categories, 41 046 operations, 2 234 transfers, 638 log entries; balances equal the old ones.

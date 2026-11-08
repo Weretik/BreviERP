@@ -33,6 +33,11 @@ internal sealed class FinanceTransactionConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.Scope).HasConversion<string>().HasMaxLength(16);
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(16);
         builder.Property(x => x.CreatedBy).HasMaxLength(MovementRules.ByMaxLength).IsRequired();
+        builder.Property(x => x.ExternalId).HasMaxLength(LegacyMovement.ExternalIdMaxLength);
+        builder.Property(x => x.Fingerprint).HasMaxLength(LegacyMovement.FingerprintMaxLength);
+        builder.Property(x => x.BankTransactionId).HasMaxLength(LegacyMovement.ExternalIdMaxLength);
+        builder.Property(x => x.BankPurpose).HasMaxLength(FinanceTransactionDetails.CommentMaxLength).IsRequired()
+            .HasDefaultValue(string.Empty);
         builder.Property(x => x.Version).IsConcurrencyToken();
         builder.Ignore(x => x.Details);
         builder.Ignore(x => x.Counterparty);
@@ -46,5 +51,8 @@ internal sealed class FinanceTransactionConfiguration : IEntityTypeConfiguration
         builder.HasIndex(x => x.CategoryId);
         builder.HasIndex(x => new { x.CounterpartyKind, x.CounterpartyId });
         builder.HasIndex(x => new { x.Verification, x.Date });
+        // A later bank statement finds lines it already has by these.
+        builder.HasIndex(x => x.Fingerprint);
+        builder.HasIndex(x => x.ExternalId);
     }
 }

@@ -28,6 +28,12 @@ public sealed class FinanceTransfer : IAggregateRoot
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
+    /// <summary>Id of the line in the system it came from; null for hand-made ones.</summary>
+    public string? ExternalId { get; private set; }
+
+    /// <summary>Identity hash of a bank line, so the same statement line is not added twice.</summary>
+    public string? Fingerprint { get; private set; }
+
     public FinanceTransferDetails Details => new(Date, FromAccountId, ToAccountId, AmountMinor, Note);
 
     public static FinanceTransfer Create(FinanceTransferId id, LedgerScope scope, FinanceTransferDetails details,
@@ -48,6 +54,41 @@ public sealed class FinanceTransfer : IAggregateRoot
         transfer.Check(details, from, to, isNew: true);
         transfer.Apply(details, from);
         return transfer;
+    }
+
+    /// <summary>A transfer of the old Calculator «Фінанси» with its id, source, state and identity (stage 5).</summary>
+    public static FinanceTransfer FromLegacy(FinanceTransferId id, LedgerScope scope, LegacyMovement legacy,
+        DateOnly date, FinanceAccount from, FinanceAccount to, long amountMinor, string? note)
+    {
+        MovementRules.CheckScope(scope);
+        legacy.Check();
+        // A cancelled record keeps the area it had in the old system (an early test may sit on the wrong side of 01.10).
+        MovementRules.CheckDate(date, scope, legacy.Status == MovementStatus.Void ? date : null);
+        MovementRules.CheckAmount(amountMinor);
+        if (from.Id == to.Id)
+            throw AccountingDomainError.Fail("Accounting.Transfer.Accounts", "Переказ з рахунку на той самий рахунок.");
+        if (from.Currency != to.Currency)
+            throw AccountingDomainError.Fail("Accounting.Transfer.Currency",
+                $"Переказ можливий лише між рахунками однієї валюти ({from.Currency} і {to.Currency}).");
+        return new FinanceTransfer
+        {
+            Id = id,
+            Scope = scope,
+            Source = legacy.Source,
+            Status = legacy.Status,
+            Version = legacy.Version,
+            CreatedBy = legacy.CreatedBy,
+            CreatedAt = legacy.CreatedAt,
+            UpdatedAt = legacy.UpdatedAt,
+            ExternalId = legacy.ExternalId,
+            Fingerprint = legacy.Fingerprint,
+            Date = date,
+            FromAccountId = from.Id,
+            ToAccountId = to.Id,
+            AmountMinor = amountMinor,
+            Currency = from.Currency,
+            Note = MovementRules.Text(note, FinanceTransferDetails.NoteMaxLength, "Примітка"),
+        };
     }
 
     /// <summary>Changes the fields; returns false when nothing differs (the version stays).</summary>

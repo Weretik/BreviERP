@@ -6,6 +6,7 @@ using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Accounting.Infrastructure.Persistence;
 
@@ -20,6 +21,11 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
     public DbSet<FinanceCounterparty> Counterparties => Set<FinanceCounterparty>();
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
     public DbSet<FinanceAttachment> Attachments => Set<FinanceAttachment>();
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
+        Database.BeginTransactionAsync(cancellationToken);
+
+    public void ClearTracked() => ChangeTracker.Clear();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

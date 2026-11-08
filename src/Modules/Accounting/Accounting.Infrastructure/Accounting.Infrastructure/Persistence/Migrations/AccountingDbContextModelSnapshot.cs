@@ -344,6 +344,17 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.Property<long>("AmountMinor")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("BankPurpose")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(1500)
+                        .HasColumnType("character varying(1500)")
+                        .HasDefaultValue("");
+
+                    b.Property<string>("BankTransactionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<Guid?>("CategoryId")
                         .HasColumnType("uuid");
 
@@ -381,6 +392,14 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
+
+                    b.Property<string>("ExternalId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Fingerprint")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("OneoffName")
                         .IsRequired()
@@ -423,6 +442,10 @@ namespace Accounting.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("ExternalId");
+
+                    b.HasIndex("Fingerprint");
+
                     b.HasIndex("CounterpartyKind", "CounterpartyId");
 
                     b.HasIndex("Verification", "Date");
@@ -464,6 +487,14 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
+                    b.Property<string>("ExternalId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Fingerprint")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<Guid>("FromAccountId")
                         .HasColumnType("uuid");
 
@@ -498,6 +529,10 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExternalId");
+
+                    b.HasIndex("Fingerprint");
 
                     b.HasIndex("FromAccountId");
 

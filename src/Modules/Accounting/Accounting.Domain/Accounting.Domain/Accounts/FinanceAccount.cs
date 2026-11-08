@@ -65,6 +65,29 @@ public sealed class FinanceAccount : IAggregateRoot
     public static FinanceAccount Create(FinanceAccountId id, FinanceAccountDetails details, DateTimeOffset now) =>
         new(id, details, now);
 
+    /// <summary>An account of the old Calculator «Фінанси» with its id, balance on 01.10 and archive state (stage 5).</summary>
+    public static FinanceAccount FromLegacy(FinanceAccountId id, FinanceAccountDetails details, long? cutoverMinor,
+        bool cutoverConfirmed, DateTimeOffset? cutoverConfirmedAt, string? cutoverConfirmedBy, bool active,
+        DateTimeOffset createdAt, DateTimeOffset updatedAt)
+    {
+        if (cutoverConfirmed && cutoverMinor is null)
+            throw AccountingDomainError.Fail("Accounting.Account.Cutover", "Підтверджений залишок на 01.10 без суми.");
+        if (cutoverMinor is { } amount && !MoneyMinor.InRange(amount))
+            throw AccountingDomainError.Fail("Accounting.Account.Cutover", "Залишок завеликий.");
+        return new FinanceAccount(id, details, createdAt)
+        {
+            CutoverBalanceMinor = cutoverMinor,
+            CutoverConfirmed = cutoverConfirmed,
+            CutoverConfirmedAt = cutoverConfirmed ? cutoverConfirmedAt ?? updatedAt : null,
+            CutoverConfirmedBy = cutoverConfirmed ? Shorten(cutoverConfirmedBy) : null,
+            Active = active,
+            UpdatedAt = updatedAt,
+        };
+    }
+
+    private static string Shorten(string? by) =>
+        string.IsNullOrWhiteSpace(by) ? "Калькулятор" : by.Trim()[..Math.Min(by.Trim().Length, ByMaxLength)];
+
     public FinanceAccountDetails Details =>
         new(Name, Type, Currency, Iban, OpeningMinor, OpeningDate, Note, SortOrder);
 
