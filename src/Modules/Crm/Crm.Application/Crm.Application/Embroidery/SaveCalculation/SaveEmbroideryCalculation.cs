@@ -11,7 +11,7 @@ namespace Crm.Application.Embroidery.SaveCalculation;
 
 /// <summary>
 /// «Зберегти розрахунок»: the server prices the form with the rates in force now (the browser sends no prices),
-/// freezes those rates and stores a new record. An «Орієнтовна» price can be saved; a price that failed cannot.
+/// freezes those rates and stores a new record with the one price category chosen. An «Орієнтовна» price can be saved; a price that failed cannot.
 /// </summary>
 public sealed record SaveEmbroideryCalculationCommand(EmbroideryActor Actor, SaveEmbroideryCalculationInput Input)
     : ICommand<Result<EmbroiderySavedCalculationResponse>>;
@@ -40,9 +40,12 @@ public sealed class SaveEmbroideryCalculationCommandHandler(
         var priced = await EmbroideryPricing.PriceAsync(store, stitchRate, input, cancellationToken);
         if (priced.Calculation.Result is not { } result || priced.Snapshot is not { } snapshot)
             return Result.Invalid(new ValidationError(priced.Calculation.Error!));
+        var category = command.Input.Category.Trim();
+        if (result.Prices.All(x => x.Name != category))
+            return Result.Invalid(new ValidationError(EmbroideryMessages.CategoryNotFound));
 
         var saved = new EmbroiderySavedCalculation(command.Input.Name, command.Input.CustomerPublicId, customerName,
-            input, snapshot, result, actor.UserId, actor.Name, clock.GetUtcNow());
+            input, snapshot, result, actor.UserId, actor.Name, clock.GetUtcNow(), category);
         store.EmbroideryCalculations.Add(saved);
         await store.SaveChangesAsync(cancellationToken);
         return Result.Success(saved.ToResponse(command.Actor.SeesCost));
@@ -62,6 +65,8 @@ public sealed class SaveEmbroideryCalculationCommandValidator : AbstractValidato
             input.RuleFor(x => x.Name).MaximumLength(RawNameMaxLength);
             input.RuleFor(x => x.CustomerPublicId).NotEqual(Guid.Empty).When(x => x.CustomerPublicId is not null);
             input.RuleFor(x => x.Calculation).NotNull().SetValidator(new CalculateEmbroideryInputValidator());
+            input.RuleFor(x => x.Category).NotEmpty().WithMessage(EmbroideryMessages.CategoryNotFound)
+                .MaximumLength(EmbroiderySavedCalculation.CategoryMaxLength);
         });
     }
 }

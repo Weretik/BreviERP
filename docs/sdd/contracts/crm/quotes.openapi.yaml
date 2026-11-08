@@ -264,20 +264,19 @@ paths:
         - bearerAuth: []
       description: >-
         «Додати в КП» from «Ціна вишивки» (EMB-001 R-12): appends a saved embroidery calculation as one `Embroidery`
-        item at the end. Its one row is titled with the chosen level, and that level's saved unit price stands, shown,
+        item at the end. Its one row is titled with the saved price category, and that category's unit price stands, shown,
         in all three tiers; it is never repriced. No version is needed: the call only adds, and raises the version.
         A Manager adds only to own КП (404 otherwise); an introduction is 409; an unknown
-        calculation or level is 400.
+        calculation or one without a price is 400.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [calculationId, level]
+              required: [calculationId]
               properties:
                 calculationId: { type: integer, format: int64, minimum: 1 }
-                level: { type: string, maxLength: 120, description: «Опт», «Стандарт» or «Терміново». }
       responses:
         "200":
           description: The КП with the new item.

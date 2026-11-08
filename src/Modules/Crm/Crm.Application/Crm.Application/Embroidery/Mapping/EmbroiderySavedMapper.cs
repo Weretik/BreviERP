@@ -1,6 +1,7 @@
 using Crm.Application.Embroidery.Contracts;
 using Crm.Domain.Embroidery.Calculation;
 using Crm.Domain.Embroidery.Saved;
+using Crm.Domain.Embroidery.Settings;
 
 namespace Crm.Application.Embroidery.Mapping;
 
@@ -23,12 +24,21 @@ public static class EmbroiderySavedMapper
         saved.Input.StitchesPerUnit,
         saved.Snapshot.Settings.Hoops.FirstOrDefault(x => x.Id == saved.Input.HoopId)?.Label ?? saved.Input.HoopId,
         saved.Incomplete,
-        [.. saved.Result.Prices.Select(x => new EmbroiderySavedPriceResponse(x.Name, x.Unit, x.Total, x.RepeatUnit))],
+        saved.Price is { } price
+            ? new EmbroiderySavedPriceResponse(EmbroideryCategories.Label(price.Name), price.Unit, price.Total,
+                price.RepeatUnit)
+            : null,
         saved.CreatedAt,
         saved.CreatedByName,
         mockup);
 
-    /// <summary>A Manager gets the saved prices and layout, never the cost or the frozen rates (R-02).</summary>
+    /// <summary>The saved result with only the chosen price, under its category name.</summary>
+    private static EmbroideryResult Chosen(EmbroiderySavedCalculation saved) => saved.Result with
+    {
+        Prices = saved.Price is { } price ? [price with { Name = EmbroideryCategories.Label(price.Name) }] : [],
+    };
+
+    /// <summary>A Manager gets the saved price and layout, never the cost or the frozen rates (R-02).</summary>
     public static EmbroiderySavedCalculationResponse ToResponse(this EmbroiderySavedCalculation saved, bool seesCost,
         EmbroideryMockupResponse? mockup = null)
     {
@@ -36,7 +46,7 @@ public static class EmbroiderySavedMapper
         return new EmbroiderySavedCalculationResponse(
             saved.ToSummary(mockup),
             saved.Input.ToContract(),
-            saved.Result.ToResponse(seesCost),
+            Chosen(saved).ToResponse(seesCost),
             seesCost
                 ? new EmbroiderySnapshotRatesResponse(
                     saved.Snapshot.StitchRate,

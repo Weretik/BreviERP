@@ -18,6 +18,9 @@ public sealed class EmbroideryArchivePersistenceTests : CrmDatabaseFixture
     private static readonly DateTimeOffset OldDate = new(2026, 10, 26, 14, 55, 16, TimeSpan.Zero);
     private readonly QuoteTestStaff _staff = new();
 
+    /// <summary>The old calculator still had three markups.</summary>
+    private static readonly EmbroideryMarkupDto[] OldMarkups = [new("Опт", 60m), new("Стандарт", 90m), new("Терміново", 120m)];
+
     /// <summary>A real record of the old archive («енерджи групп», 78 pcs) with the old rates it was saved with.</summary>
     private static EmbroideryArchiveRow Row(string legacyId = "7ff8c09a", string? email = "o@brevi.test")
     {
@@ -26,7 +29,7 @@ public sealed class EmbroideryArchivePersistenceTests : CrmDatabaseFixture
             new CalculateEmbroideryInput("Garment", 78, 7000, "18", 1, 1, 1, "New", 60, null, "UsedBlanks",
                 new Dictionary<string, bool> { ["edge"] = false, ["preparation"] = true }),
             1m,
-            new SaveEmbroiderySettingsInput(0, settings.Rates, settings.Markups, settings.Stabilizer, settings.Fabric,
+            new SaveEmbroiderySettingsInput(0, settings.Rates, OldMarkups, settings.Stabilizer, settings.Fabric,
                 settings.FabricIncreasePercent, settings.Hoops, settings.Expenses),
             [new(65.84m, 5135.52m, 58.21m), new(78.19m, 6098.82m, 69.13m), new(90.53m, 7061.34m, 80.04m)]);
     }
@@ -64,7 +67,8 @@ public sealed class EmbroideryArchivePersistenceTests : CrmDatabaseFixture
                 .Handle(new GetEmbroideryCalculationQuery(Director, 1), default)).Value;
             Assert.That(saved.Summary.CreatedAt, Is.EqualTo(OldDate));
             Assert.That(saved.Summary.CreatedByName, Is.EqualTo("Олена"));
-            Assert.That(saved.Summary.Prices.Select(x => x.Unit), Is.EqualTo(new[] { 65.84m, 78.19m, 90.53m }));
+            Assert.That(saved.Summary.Price!.Unit, Is.EqualTo(78.19m), "An old record keeps «Стандарт».");
+            Assert.That(saved.Summary.Price.Name, Is.EqualTo("Категорія 1"));
             Assert.That(saved.Rates!.StitchRate, Is.EqualTo(1m));
         }
 

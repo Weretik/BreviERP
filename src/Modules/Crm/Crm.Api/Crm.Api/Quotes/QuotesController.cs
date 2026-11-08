@@ -217,7 +217,7 @@ public sealed class QuotesController(ISender sender) : ControllerBase
         var actor = QuoteActorClaims.Read(User);
         if (actor is null) return Forbid();
         return this.ToActionResult(await sender.Send(
-            new AddEmbroideryToQuoteCommand(actor, id, request.CalculationId, request.Level), cancellationToken));
+            new AddEmbroideryToQuoteCommand(actor, id, request.CalculationId), cancellationToken));
     }
 
     /// <summary>«Копіювати»: a new draft with the next number and the same items and saved prices.</summary>

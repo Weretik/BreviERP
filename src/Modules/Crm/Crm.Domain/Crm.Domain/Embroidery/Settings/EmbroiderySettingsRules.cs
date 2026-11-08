@@ -3,7 +3,10 @@ namespace Crm.Domain.Embroidery.Settings;
 /// <summary>Limits and invariants of the embroidery settings (EMB-001, R-03). Input validators show the same rules in Ukrainian.</summary>
 public static class EmbroiderySettingsRules
 {
-    public const int MarkupCount = 3;
+    public const int MarkupCount = 2;
+
+    /// <summary>The old calculator's «Опт», «Стандарт», «Терміново»: only its archive still has three.</summary>
+    public const int LegacyMarkupCount = 3;
     public const int MinHoops = 1;
     public const int MaxHoops = 30;
     public const int MaxExpenses = 100;
@@ -14,7 +17,7 @@ public static class EmbroiderySettingsRules
     public static void EnsureValid(EmbroiderySettingsContent content)
     {
         ArgumentNullException.ThrowIfNull(content);
-        Require(content.Markups.Count == MarkupCount, "Exactly three markups.");
+        Require(content.Markups.Count == MarkupCount, "Exactly two markups.");
         Require(content.Hoops.Count is >= MinHoops and <= MaxHoops, "1–30 hoops.");
         Require(content.Expenses.Count <= MaxExpenses, "At most 100 extra costs.");
         Require(content.Stabilizer.WidthCm > 0 && content.Fabric.WidthCm > 0, "Roll widths are positive.");

@@ -1,22 +1,20 @@
 using System.Globalization;
 using Crm.Domain.Embroidery.Calculation;
 using Crm.Domain.Embroidery.Saved;
+using Crm.Domain.Embroidery.Settings;
 using Crm.Domain.Quotes;
 
 namespace Crm.Application.Quotes.Embroidery;
 
 /// <summary>
-/// Turns a saved «Ціна вишивки» calculation into a КП item (EMB-001 R-12): the chosen level's unit price stands in all
-/// three КП tiers (the owner's choice of 2026-11-04), and the item is never repriced.
+/// Turns a saved «Ціна вишивки» calculation into a КП item (EMB-001 R-12): the unit price of its one saved category
+/// stands in all three КП tiers (the owner's choice of 2026-11-04), and the item is never repriced.
 /// </summary>
 public static class QuoteEmbroideryItems
 {
     public const string GarmentName = "Вишивка";
     public const string ChevronName = "Шеврони";
 
-    /// <summary>The level by its name («Опт», «Стандарт», «Терміново»), or null.</summary>
-    public static EmbroideryPrice? Level(EmbroiderySavedCalculation saved, string level) =>
-        saved.Result.Prices.FirstOrDefault(x => string.Equals(x.Name, level.Trim(), StringComparison.Ordinal));
 
     public static QuoteItem Create(int position, EmbroiderySavedCalculation saved, EmbroideryPrice price) =>
         QuoteItem.Embroidery(position, saved.Id, Texts(saved), Option(saved, price));
@@ -53,7 +51,7 @@ public static class QuoteEmbroideryItems
         var shown = new QuotePrice(price.Unit, null, true);
         var uk = CultureInfo.GetCultureInfo("uk-UA");
         var repeat = $"Повтор з готовою програмою — {price.RepeatUnit.ToString("N2", uk)} грн за 1 шт.";
-        return new QuoteItemOption(0, null, null, price.Name, repeat, false, shown, shown, shown, saved.CreatedAt);
+        return new QuoteItemOption(0, null, null, EmbroideryCategories.Label(price.Name), repeat, false, shown, shown, shown, saved.CreatedAt);
     }
 
     private static string Cut(string text, int max) => text.Length <= max ? text : text[..max];

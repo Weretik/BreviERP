@@ -8,7 +8,7 @@ public static class EmbroiderySettingsDefaults
 {
     public static EmbroiderySettingsContent Content { get; } = new(
         new EmbroideryRates(ThreadRate: 0.30m, HoopingRate: 10m, ProgramHourRate: 300m, TaxPercent: 24m),
-        [new EmbroideryMarkup("Опт", 60m), new EmbroideryMarkup("Стандарт", 90m), new EmbroideryMarkup("Терміново", 120m)],
+        [new EmbroideryMarkup(EmbroideryCategories.First, 90m), new EmbroideryMarkup(EmbroideryCategories.Second, 120m)],
         new EmbroideryMaterial(PricePerMetre: 20m, WidthCm: 90m),
         new EmbroideryMaterial(PricePerMetre: 80m, WidthCm: 150m),
         FabricIncreasePercent: 40m,
