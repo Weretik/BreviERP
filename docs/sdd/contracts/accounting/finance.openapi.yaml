@@ -1429,6 +1429,54 @@ paths:
           description: Not signed in
         '403':
           description: Not Director
+  /api/accounting/legacy-import:
+    post:
+      tags:
+      - Accounting
+      operationId: importLegacyFinance
+      description: '«Імпорт архіву Фінансів» (stage 5): finance.json of the old Calculator export (format brevi-finance-v5),
+        as is or gzipped by the browser (told by the gzip signature; unpacked up to 200 MiB). dryRun=true only checks
+        and reports. dryRun=false moves the records with their old ids in one transaction and only when the check has
+        no errors; otherwise the report comes back with applied=false and nothing is written. A record whose id Brevi
+        already has is skipped, so a second run adds only what is missing. Old clients and suppliers used in
+        operations are linked to «Клієнти» by KeepinCRM id and to «Постачальники» by KeepinCRM id or a unique name;
+        unknown ones become finance counterparties. Bank statement previews and files are not moved.'
+      parameters:
+      - name: dryRun
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegacyFinanceImportReport'
+        '400':
+          description: No file, not JSON, a broken archive or larger than the limit; body is a list of validation errors
+        '409':
+          description: Records were added meanwhile; nothing is written, check again
+        '413':
+          description: The request is larger than 32 MiB
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
 components:
   securitySchemes:
     Bearer:
@@ -2772,3 +2820,187 @@ components:
       required:
       - categoryId
       - version
+    LegacyFinanceImportReport:
+      type: object
+      description: What the move finds (a check) or did (applied). canApply is false while errors is not empty;
+        errorCount counts every error, errors lists the first 100, warnings at most 100. Totals and balances are
+        counted from the file, so they reconcile with the old system.
+      properties:
+        applied:
+          type: boolean
+        canApply:
+          type: boolean
+        exportedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        counts:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegacyImportCountResponse'
+        parties:
+          $ref: '#/components/schemas/LegacyImportPartiesResponse'
+        totals:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegacyImportTotalResponse'
+        balances:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegacyImportBalanceResponse'
+        errorCount:
+          type: integer
+          format: int32
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+      required:
+      - applied
+      - canApply
+      - exportedAt
+      - counts
+      - parties
+      - totals
+      - balances
+      - errorCount
+      - errors
+      - warnings
+    LegacyImportKind:
+      type: string
+      enum:
+      - Accounts
+      - Categories
+      - Counterparties
+      - Transactions
+      - Transfers
+      - AuditEntries
+    LegacyImportCountResponse:
+      type: object
+      description: 'Records of one kind: in the file, to add, already moved earlier (same id), left out on purpose
+        (counterparties: linked to a Brevi client or supplier, or unused; log entries: of records not added now).'
+      properties:
+        kind:
+          $ref: '#/components/schemas/LegacyImportKind'
+        inFile:
+          type: integer
+          format: int32
+        toAdd:
+          type: integer
+          format: int32
+        alreadyMoved:
+          type: integer
+          format: int32
+        skipped:
+          type: integer
+          format: int32
+      required:
+      - kind
+      - inFile
+      - toAdd
+      - alreadyMoved
+      - skipped
+    LegacyImportPartiesResponse:
+      type: object
+      description: Old clients and suppliers used in operations, linked to Brevi or kept as finance counterparties;
+        unused ones are not moved.
+      properties:
+        clientsLinked:
+          type: integer
+          format: int32
+        clientsAsFinancial:
+          type: integer
+          format: int32
+        suppliersLinked:
+          type: integer
+          format: int32
+        suppliersAsFinancial:
+          type: integer
+          format: int32
+        unused:
+          type: integer
+          format: int32
+      required:
+      - clientsLinked
+      - clientsAsFinancial
+      - suppliersLinked
+      - suppliersAsFinancial
+      - unused
+    LegacyImportMovement:
+      type: string
+      enum:
+      - Income
+      - Expense
+      - Transfer
+    LegacyImportTotalResponse:
+      type: object
+      description: Movements of the file by area, kind and state, in kopecks.
+      properties:
+        scope:
+          $ref: '#/components/schemas/LedgerScope'
+        movement:
+          $ref: '#/components/schemas/LegacyImportMovement'
+        status:
+          $ref: '#/components/schemas/MovementStatus'
+        currency:
+          type: string
+        count:
+          type: integer
+          format: int32
+        amountMinor:
+          type: integer
+          format: int64
+      required:
+      - scope
+      - movement
+      - status
+      - currency
+      - count
+      - amountMinor
+    LegacyImportBalanceResponse:
+      type: object
+      description: 'An account after the move, from the file: archiveMinor — on 30.09.2026 (opening plus active archive
+        movements); currentMinor — confirmed balance on 01.10 plus the current books, null while not confirmed;
+        differenceMinor — confirmed minus archive balance when they differ.'
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        currency:
+          type: string
+        active:
+          type: boolean
+        archiveMinor:
+          type: integer
+          format: int64
+        cutoverMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        currentMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+        differenceMinor:
+          type:
+          - integer
+          - 'null'
+          format: int64
+      required:
+      - accountId
+      - name
+      - currency
+      - active
+      - archiveMinor
+      - cutoverMinor
+      - currentMinor
+      - differenceMinor

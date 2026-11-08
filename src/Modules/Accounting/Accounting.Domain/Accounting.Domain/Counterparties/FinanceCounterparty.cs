@@ -73,6 +73,20 @@ public sealed class FinanceCounterparty : IAggregateRoot
         return counterparty;
     }
 
+    /// <summary>
+    /// A finance counterparty of the old Calculator «Фінанси» (or a client or supplier that Brevi does not know) with
+    /// its id and state (stage 5).
+    /// </summary>
+    public static FinanceCounterparty FromLegacy(FinanceCounterpartyId id, FinanceCounterpartyDetails details,
+        bool verified, bool active, DateTimeOffset createdAt, DateTimeOffset updatedAt)
+    {
+        var counterparty = Create(id, details with { DefaultCategoryId = null, AutoApplyCategory = false }, null,
+            verified, createdAt);
+        counterparty.Active = active;
+        counterparty.UpdatedAt = updatedAt;
+        return counterparty;
+    }
+
     /// <summary>Changes the fields; returns false when nothing differs (the version stays).</summary>
     public bool Update(FinanceCounterpartyDetails details, FinanceCategory? defaultCategory, DateTimeOffset now)
     {

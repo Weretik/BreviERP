@@ -49,6 +49,18 @@ public sealed class FinanceTransaction : IAggregateRoot
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
+    /// <summary>Id of the line in the system it came from (a bank or «Домашня бухгалтерія»); null for hand-made ones.</summary>
+    public string? ExternalId { get; private set; }
+
+    /// <summary>Identity hash of a bank line, so the same statement line is not added twice.</summary>
+    public string? Fingerprint { get; private set; }
+
+    /// <summary>The bank's own id of the operation; null when unknown.</summary>
+    public string? BankTransactionId { get; private set; }
+
+    /// <summary>The bank's payment purpose as it came in the statement; empty for other operations.</summary>
+    public string BankPurpose { get; private set; } = string.Empty;
+
     public FinanceTransactionDetails Details => new(Date, Type, AccountId, AmountMinor, CategoryId,
         Counterparty, OneoffName, Description, Comment);
 
@@ -75,6 +87,56 @@ public sealed class FinanceTransaction : IAggregateRoot
         transaction.CheckCounterparty(details.Counterparty, counterparty, isNew: true);
         transaction.Apply(details, account, counterparty);
         return transaction;
+    }
+
+    /// <summary>
+    /// An income or expense of the old Calculator «Фінанси» with its id, source, state, check status and bank
+    /// identity (stage 5). The date must fit the area; the currency comes from the account.
+    /// </summary>
+    public static FinanceTransaction FromLegacy(FinanceTransactionId id, LedgerScope scope, LegacyMovement legacy,
+        DateOnly date, CategoryDirection type, FinanceAccount account, long amountMinor, FinanceCategory? category,
+        CounterpartyLink? counterparty, string? description, string? comment, VerificationStatus verification,
+        string? bankTransactionId, string? bankPurpose)
+    {
+        MovementRules.CheckScope(scope);
+        legacy.Check();
+        // A cancelled record keeps the area it had in the old system (an early test may sit on the wrong side of 01.10).
+        MovementRules.CheckDate(date, scope, legacy.Status == MovementStatus.Void ? date : null);
+        MovementRules.CheckAmount(amountMinor);
+        if (!Enum.IsDefined(type) || !Enum.IsDefined(verification))
+            throw new ArgumentOutOfRangeException(nameof(type), "Unknown type or check status of a moved operation.");
+        if (category is not null && (category.Direction != type || category.Scope != scope))
+            throw AccountingDomainError.Fail("Accounting.Transaction.Category",
+                $"Категорія «{category.Name}» не підходить до цієї операції.");
+        if (bankTransactionId?.Length > LegacyMovement.ExternalIdMaxLength)
+            throw new ArgumentException("Bank id is too long.", nameof(bankTransactionId));
+        return new FinanceTransaction
+        {
+            Id = id,
+            Scope = scope,
+            Source = legacy.Source,
+            Status = legacy.Status,
+            Version = legacy.Version,
+            CreatedBy = legacy.CreatedBy,
+            CreatedAt = legacy.CreatedAt,
+            UpdatedAt = legacy.UpdatedAt,
+            ExternalId = legacy.ExternalId,
+            Fingerprint = legacy.Fingerprint,
+            Date = date,
+            Type = type,
+            AccountId = account.Id,
+            Currency = account.Currency,
+            AmountMinor = amountMinor,
+            CategoryId = category?.Id,
+            CounterpartyKind = counterparty?.Kind,
+            CounterpartyId = counterparty?.Id,
+            OneoffName = string.Empty,
+            Description = MovementRules.Text(description, FinanceTransactionDetails.DescriptionMaxLength, "Опис", oneLine: true),
+            Comment = MovementRules.Text(comment, FinanceTransactionDetails.CommentMaxLength, "Коментар"),
+            Verification = category is null ? VerificationStatus.NeedsCategory : verification,
+            BankTransactionId = string.IsNullOrWhiteSpace(bankTransactionId) ? null : bankTransactionId.Trim(),
+            BankPurpose = MovementRules.Text(bankPurpose, FinanceTransactionDetails.CommentMaxLength, "Призначення платежу"),
+        };
     }
 
     /// <summary>Changes the fields; returns false when nothing differs (the version stays).</summary>

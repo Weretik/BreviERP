@@ -23,6 +23,8 @@ internal sealed class FinanceTransferConfiguration : IEntityTypeConfiguration<Fi
         builder.Property(x => x.Scope).HasConversion<string>().HasMaxLength(16);
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(16);
         builder.Property(x => x.CreatedBy).HasMaxLength(MovementRules.ByMaxLength).IsRequired();
+        builder.Property(x => x.ExternalId).HasMaxLength(LegacyMovement.ExternalIdMaxLength);
+        builder.Property(x => x.Fingerprint).HasMaxLength(LegacyMovement.FingerprintMaxLength);
         builder.Property(x => x.Version).IsConcurrencyToken();
         builder.Ignore(x => x.Details);
 
@@ -32,5 +34,7 @@ internal sealed class FinanceTransferConfiguration : IEntityTypeConfiguration<Fi
         builder.HasIndex(x => new { x.Scope, x.Status, x.Date, x.Id });
         builder.HasIndex(x => x.FromAccountId);
         builder.HasIndex(x => x.ToAccountId);
+        builder.HasIndex(x => x.Fingerprint);
+        builder.HasIndex(x => x.ExternalId);
     }
 }
