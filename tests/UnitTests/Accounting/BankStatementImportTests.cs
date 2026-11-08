@@ -4,6 +4,7 @@ using Accounting.Application.Abstractions;
 using Accounting.Application.Contracts;
 using Accounting.Application.Statements;
 using Accounting.Domain.Accounts;
+using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
@@ -126,6 +127,71 @@ public sealed class BankStatementImportTests
             Assert.That(db.BankStatementLines.Count(x => x.TransactionId != null || x.TransferId != null), Is.EqualTo(4));
             Assert.That(db.AuditEntries.Count(), Is.EqualTo(3 + 1 + 1), "operations, transfer and created counterparty");
             Assert.That(again.Status, Is.EqualTo(ResultStatus.Error).Or.EqualTo(ResultStatus.Conflict).Or.EqualTo(ResultStatus.Invalid));
+        });
+    }
+
+    [Test]
+    public async Task Rollback_cancels_what_the_statement_booked_and_it_can_be_booked_again()
+    {
+        using var harness = await Harness();
+        var booked = (await Book(harness, (await Upload(harness, Csv(Rows))).Value)).Value;
+        var before = await Details(harness, booked.Id);
+
+        var rolledBack = await Rollback(harness, booked);
+        var db = harness.Fresh();
+        var details = await Details(harness, booked.Id);
+        var created = db.Counterparties.Single(x => x.Edrpou == "32252472");
+        var voided = (db.Transactions.Count(x => x.Status == MovementStatus.Void),
+            db.Transfers.Count(x => x.Status == MovementStatus.Void));
+        var linked = db.BankStatementLines.Count(x => x.TransactionId != null || x.TransferId != null);
+        var voids = db.AuditEntries.Count(x => x.Action == AuditAction.Void);
+        var rebooked = await Book(harness, rolledBack.Value);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(before.Rollback, Is.EqualTo(new BankStatementRollback(3, 1, 0, 0)));
+            Assert.That(rolledBack.IsSuccess, Is.True);
+            Assert.That(rolledBack.Value.Status, Is.EqualTo(BankStatementStatus.Preview));
+            Assert.That((rolledBack.Value.TransactionCount, rolledBack.Value.TransferCount), Is.EqualTo((0, 0)));
+            Assert.That(voided, Is.EqualTo((3, 1)));
+            Assert.That(created.Active, Is.False, "the unconfirmed counterparty the booking created is archived");
+            Assert.That(linked, Is.Zero);
+            Assert.That(details.Rollback, Is.Null);
+            Assert.That(details.Lines.Single(x => x.RowNumber == 4).State, Is.EqualTo(BankLineState.NewCounterparty));
+            Assert.That(voids, Is.EqualTo(4));
+            Assert.That(rebooked.IsSuccess, Is.True, "cancelled records are no duplicates");
+            Assert.That((rebooked.Value.TransactionCount, rebooked.Value.TransferCount), Is.EqualTo((3, 1)));
+            Assert.That(harness.Fresh().Transactions.Count(x => x.Status == MovementStatus.Active), Is.EqualTo(3));
+        });
+    }
+
+    [Test]
+    public async Task Rollback_keeps_a_confirmed_counterparty_and_counts_records_changed_by_hand()
+    {
+        using var harness = await Harness();
+        var booked = (await Book(harness, (await Upload(harness, Csv(Rows))).Value)).Value;
+        await using (var db = harness.Fresh())
+        {
+            db.Counterparties.Single(x => x.Edrpou == "32252472").Verify(harness.Time.GetUtcNow());
+            db.Transactions.Single(x => x.BankTransactionId == "JBKLQACOEXFIG2.Y").Void(harness.Time.GetUtcNow());
+            await db.SaveChangesAsync();
+        }
+
+        var details = await Details(harness, booked.Id);
+        var stale = await Rollback(harness, booked with { Version = booked.Version - 1 });
+        var rolledBack = await Rollback(harness, booked);
+        var notBooked = await Rollback(harness, rolledBack.Value);
+        var line = (await Details(harness, booked.Id)).Lines.Single(x => x.RowNumber == 4);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(details.Rollback, Is.EqualTo(new BankStatementRollback(2, 1, 0, 1)));
+            Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
+            Assert.That(rolledBack.IsSuccess, Is.True);
+            Assert.That(harness.Fresh().Counterparties.Single(x => x.Edrpou == "32252472").Active, Is.True);
+            Assert.That(line.Counterparty?.Verified, Is.True, "the line keeps the confirmed counterparty");
+            Assert.That(line.State, Is.Not.EqualTo(BankLineState.NewCounterparty));
+            Assert.That(notBooked.Status, Is.EqualTo(ResultStatus.Invalid));
         });
     }
 
@@ -297,6 +363,21 @@ public sealed class BankStatementImportTests
         {
             return await new BookBankStatementCommandHandler(db, harness.Parties, harness.Parties, harness.Time)
                 .Handle(new BookBankStatementCommand(statement.Id, statement.Version, AccountingTestHarness.Director), default);
+        }
+        catch (BuildingBlocks.Domain.Exceptions.DomainException error)
+        {
+            return Result.Invalid(new ValidationError("Statement", error.Message));
+        }
+    }
+
+    private static async Task<Result<BankStatementResponse>> Rollback(AccountingTestHarness harness,
+        BankStatementResponse statement)
+    {
+        await using var db = harness.Fresh();
+        try
+        {
+            return await new RollbackBankStatementCommandHandler(db, harness.Parties, harness.Parties, harness.Time)
+                .Handle(new RollbackBankStatementCommand(statement.Id, statement.Version, AccountingTestHarness.Director), default);
         }
         catch (BuildingBlocks.Domain.Exceptions.DomainException error)
         {

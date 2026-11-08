@@ -442,6 +442,9 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.Property<bool>("CounterpartyVerified")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("CreatedCounterparty")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Currency")
                         .HasMaxLength(3)
                         .HasColumnType("character(3)")

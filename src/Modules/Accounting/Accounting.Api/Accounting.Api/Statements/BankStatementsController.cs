@@ -13,7 +13,7 @@ namespace Accounting.Api.Statements;
 
 /// <summary>
 /// «Виписки банку»: upload a statement into a preview, correct its lines and book it. Nothing reaches the books before
-/// <c>book</c>; a booked statement no longer changes. 409 on a stale version.
+/// <c>book</c>; a booked statement changes only through <c>rollback</c>. 409 on a stale version.
 /// </summary>
 [ApiController]
 [Authorize(Policy = AccountingAccess.Policy)]
@@ -57,5 +57,12 @@ public sealed class BankStatementsController(ISender sender) : ControllerBase
     public async Task<ActionResult<BankStatementResponse>> Book(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new BookBankStatementCommand(id, input.Version, AccountingAccess.By(User)),
+            cancellationToken));
+
+    /// <summary>«Відкотити виписку»: cancels what the statement booked and turns it into a preview again.</summary>
+    [HttpPost("{id:guid}/rollback", Name = "rollbackBankStatement")]
+    public async Task<ActionResult<BankStatementResponse>> Rollback(Guid id, [FromBody] FinanceVersionInput input,
+        CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new RollbackBankStatementCommand(id, input.Version, AccountingAccess.By(User)),
             cancellationToken));
 }

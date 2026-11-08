@@ -1,6 +1,6 @@
 # ACC-001 «Бухгалтерія»
 
-**Status:** stages 1–6 implemented 2026-11-05…08. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
+**Status:** stages 1–7 implemented 2026-11-05…08. **Module:** Accounting (schema `accounting`, own migration history). **Consumer:** brevi-web «Бухгалтерія».
 
 ## Goal
 
@@ -33,7 +33,7 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 | 4 | Attachments in a private bucket | implemented 2026-11-08 |
 | 5 | Import of the old data (JSON export; the export holds no files) | implemented 2026-11-08 |
 | 6 | PrivatBank statement import (XLSX/XLS/CSV) with preview and duplicates | implemented 2026-11-08 (brevi-web «Виписки банку») |
-| 7 | Import rollback and restore | planned |
+| 7 | «Відкотити виписку»: rollback of a booked statement | implemented 2026-11-08 |
 | 8 | Reports, «Журнал змін» tab and JSON export | planned |
 | 9 | Links: «Фінанси» in the counterparty card, invoice payment | later |
 
@@ -95,3 +95,11 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 - The category: the default category of the matched finance counterparty when it has auto-apply. Line states, in this order: error; exact or probable duplicate; transfer; new counterparty (none matched, or an unconfirmed finance counterparty); needs category; ready. The director can change a line before the statement is booked: category of the current books in the direction of the line, counterparty or a one-off name, description, note, include or exclude; transfer lines only take a note. Date, amount, account and the bank data stay protected.
 - «Провести виписку» books every included line of states ready, needs category and new counterparty, plus transfers, in one database transaction, after checking exact duplicates again: operations with source `BankImport`, bank id as the external id, the fingerprint, the bank id and purpose, check status from the category and the counterparty (no category → «Потребують перевірки»); transfers between the two accounts (an expense line goes from the chosen account, an income line comes into it) with the purpose and the note as the note. A line without a counterparty that has a bank name, ЄДРПОУ or IBAN creates one unconfirmed finance counterparty per ЄДРПОУ, else IBAN, else name in the statement. `Create` log entries for each record. The statement becomes booked with the numbers of operations and transfers and remembers the record of each line for the rollback of stage 7.
 - «Історія виписок»: the last 100 statements with the account, file, who uploaded it and when, the range of line dates, the number of lines, the state and the booked numbers.
+
+## Stage 7 rules
+
+- «Відкотити виписку» on a booked statement (`POST /api/accounting/statements/{id}/rollback` with the version the page loaded) asks first and shows what it will do: the active operations and transfers of the statement, how many of them were changed by hand after the booking (version above 1) and how many are cancelled already (`rollback` of the statement details).
+- In one save: every active operation and transfer the statement booked is cancelled (Void, kept in the journal, one «Анулювання» entry each in the change log) and gives up its bank identity (bank id, external id, fingerprint), so the lines are no duplicates when the statement is booked again. A record the director cancelled by hand before keeps its identity and the line is again an exact duplicate.
+- An unconfirmed finance counterparty the booking created (`CreatedCounterparty` of the line) is archived when no active operation outside the statement uses it; a confirmed, merged or used one stays and its lines keep it. Lines of an archived one wait for a counterparty again.
+- The statement becomes a preview: no booked numbers, who and when booked cleared, lines unlinked from their records, version + 1. Correct it and book it again, or leave it.
+- The old Calculator's "restore from a JSON backup" is not ported: the archive move of stage 5 and these rollbacks cover it.
