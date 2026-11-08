@@ -1,11 +1,13 @@
 using Crm.Application.Customers.KeepinCrmSync;
 using Crm.Application.Embroidery.Persistence;
+using Crm.Application.Leads.Persistence;
 using Crm.Application.Quotes.Persistence;
 using Crm.Application.Tasks.Persistence;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Embroidery.Settings;
+using Crm.Domain.Leads;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Introductions;
 using Crm.Domain.Quotes.Sending;
@@ -16,8 +18,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Crm.Infrastructure.Persistence;
 
-public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbContext(options), IQuoteStore, ITaskStore, IEmbroideryStore
+public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbContext(options), IQuoteStore, ITaskStore, IEmbroideryStore,
+    ILeadStore
 {
+    /// <summary>pg advisory lock of the leads sheet sync (LEAD-001 R-03): «leads» in ASCII.</summary>
+    private const long LeadSyncLockKey = 0x6C65616473;
+
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<CustomerContact> Contacts => Set<CustomerContact>();
     public DbSet<CustomerMutationRecord> MutationRequests => Set<CustomerMutationRecord>();
@@ -30,12 +36,37 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<ManagerTask> ManagerTasks => Set<ManagerTask>();
     public DbSet<EmbroiderySettings> EmbroiderySettings => Set<EmbroiderySettings>();
     public DbSet<EmbroiderySavedCalculation> EmbroideryCalculations => Set<EmbroiderySavedCalculation>();
+    public DbSet<Lead> Leads => Set<Lead>();
+    public DbSet<LeadCall> LeadCalls => Set<LeadCall>();
+    public DbSet<LeadCallResult> LeadCallResults => Set<LeadCallResult>();
+    public DbSet<LeadCategory> LeadCategories => Set<LeadCategory>();
+    public DbSet<LeadSyncState> LeadSyncStates => Set<LeadSyncState>();
 
     Task<int> IQuoteStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
 
     Task<int> ITaskStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
 
     Task<int> IEmbroideryStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
+
+    Task<int> ILeadStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
+
+    public async Task<ILeadSyncScope?> TryBeginSyncAsync(CancellationToken cancellationToken)
+    {
+        var transaction = await Database.BeginTransactionAsync(cancellationToken);
+        var locked = await Database
+            .SqlQuery<bool>($"SELECT pg_try_advisory_xact_lock({LeadSyncLockKey}) AS \"Value\"")
+            .SingleAsync(cancellationToken);
+        if (locked) return new LeadSyncScope(transaction);
+        await transaction.DisposeAsync();
+        return null;
+    }
+
+    private sealed class LeadSyncScope(Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction) : ILeadSyncScope
+    {
+        public Task CommitAsync(CancellationToken cancellationToken) => transaction.CommitAsync(cancellationToken);
+
+        public ValueTask DisposeAsync() => transaction.DisposeAsync();
+    }
 
     public Task<string?> FindCustomerNameAsync(Guid publicId, CancellationToken cancellationToken) =>
         Customers.AsNoTracking()

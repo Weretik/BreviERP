@@ -13,6 +13,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 | `sewing-prices` | Publishes Sewing prices whose inputs changed | none | [below](#sewing-prices) |
 | `media-thumbnails` | Makes size and previews for library photos without them | `storage-login`, `storage-password` → `AdmToolsStorage__Login`, `AdmToolsStorage__Password` | [below](#media-thumbnails) |
 | `purchase-invoices` | Google Sheet «финансы» → «Рахунки на закупку» | none; the sheet is shared with the runtime service account | [below](#purchase-invoices) |
+| `leads` | Google Sheet «Лиды Brevi» → «Ліди» | none; the sheet is shared with the runtime service account | [below](#leads) |
 | `ppe-supplier-prices` | Mondays only: АВ-Центр, 3C-Маркет, Перчатка-центр and the Трєле cabinet; other days nothing | `trele-login`, `trele-password` → `SupplierCabinets__Trele__…` (optional) | [below](#ppe-supplier-prices) |
 
 `--sync-tasks=keepin-suppliers,...` runs only the named steps (for a manual execution with overridden arguments). An unknown name stops the job before anything runs.
@@ -101,3 +102,11 @@ Locally: `gcloud auth application-default login --scopes=https://www.googleapis.
 The whole sheet is read and checked first, then applied in one transaction under a lock; a failure changes nothing and is saved as the last error. Step log: `Rows N, files N; messages added N, updated N; rows added N, updated N, gone N; files added N, gone N`.
 
 Invoice facts are not read by this step: recognition runs only from the admin («Розпізнати», «Розпізнати всі нові») with the OpenAI key from «Налаштування ШІ» ([AI-001](../../specs/ai/001-ai-settings/README.md)).
+
+## leads
+
+Feature: [Leads](../../features/crm/leads.md), specification [LEAD-001](../../specs/crm/006-leads/README.md). The same run as «Синхронізувати зараз» (`POST /api/crm/lead-stats/sync`).
+
+The step reads the Google Sheet «Лиды Brevi» (`Crm:LeadSheet:SpreadsheetId` `1KRW3OeGi2fBTcGCdDWuww7qveGT1vbntgXt17brd2FQ`, `SheetId` 2104296700; the defaults are in code; the tab is found by id, its title may change) with Application Default Credentials, scope `spreadsheets.readonly`. No secret is needed: share the spreadsheet with the runtime service account of `brevierp-api` and `brevierp-sync` as a viewer, the same account as for [purchase-invoices](#purchase-invoices).
+
+Columns are found by their header; «ID» and «Предприятие» are required. The whole sheet is read and checked first, then applied in one transaction under a lock; a failure changes nothing and is saved as the last error shown on «Адміністрування › Ліди». Step log: `Lead rows N; added N, updated N, gone N, skipped N`.

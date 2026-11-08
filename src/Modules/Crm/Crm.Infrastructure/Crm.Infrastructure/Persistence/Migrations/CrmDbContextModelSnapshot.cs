@@ -330,6 +330,362 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Crm.Domain.Leads.Lead", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateOnly?>("AddedOn")
+                        .HasColumnType("date");
+
+                    b.Property<int>("CallCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CallReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Contacts")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("FactOrPlan")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("InSheet")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Industry")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset?>("LastCallAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastResultName")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTimeOffset?>("NextContactAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Offer")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("OwnerName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("OwnerUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Region")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Reliability")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Scale")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("SheetNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Signal")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateOnly?>("SignalDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("SignalUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("SourceId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("SyncedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("TakenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TenderCheck")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VolumeReason")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("WhomToCall")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("SourceId")
+                        .IsUnique();
+
+                    b.HasIndex("Stage", "OwnerUserId");
+
+                    b.HasIndex("OwnerUserId", "Stage", "NextContactAt");
+
+                    b.ToTable("Leads", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_Leads_Owner", "(\"OwnerUserId\" IS NULL) = (\"OwnerName\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_Leads_SourceId", "\"SourceId\" > 0");
+
+                            t.HasCheckConstraint("CK_Leads_Version", "\"Version\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Leads.LeadCall", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("ByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<long>("LeadId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("NextContactAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("ResultId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ResultName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("At");
+
+                    b.HasIndex("LeadId");
+
+                    b.HasIndex("ByUserId", "At");
+
+                    b.ToTable("LeadCalls", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Domain.Leads.LeadCallResult", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RetryDays")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LeadCallResults", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_LeadCallResults_RetryDays", "(\"Outcome\" = 'Retry' AND \"RetryDays\" BETWEEN 1 AND 60) OR (\"Outcome\" <> 'Retry' AND \"RetryDays\" IS NULL)");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            IsActive = true,
+                            Name = "Не дозвонились",
+                            Outcome = "Retry",
+                            Position = 10,
+                            RetryDays = 1
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            IsActive = true,
+                            Name = "Не відповідають",
+                            Outcome = "Retry",
+                            Position = 20,
+                            RetryDays = 2
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            IsActive = true,
+                            Name = "Передзвонити",
+                            Outcome = "Callback",
+                            Position = 30
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            IsActive = true,
+                            Name = "Вийшли на відповідального",
+                            Outcome = "Talking",
+                            Position = 40
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            IsActive = true,
+                            Name = "Надіслали пропозицію",
+                            Outcome = "Offer",
+                            Position = 50
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            IsActive = true,
+                            Name = "Перенесено в CRM",
+                            Outcome = "Client",
+                            Position = 60
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            IsActive = true,
+                            Name = "Відмова",
+                            Outcome = "Closed",
+                            Position = 70
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            IsActive = true,
+                            Name = "Нецільове підприємство",
+                            Outcome = "Closed",
+                            Position = 80
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Leads.LeadCategory", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("LeadCategories", "crm");
+                });
+
+            modelBuilder.Entity("Crm.Domain.Leads.LeadSyncState", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<int>("Added")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset?>("LastRunAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("LastSuccessAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Rows")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Updated")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LeadSyncStates", "crm");
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Introductions.QuoteIntroTemplate", b =>
                 {
                     b.Property<long>("Id")
@@ -1037,6 +1393,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsUrgent")
                         .HasColumnType("boolean");
 
+                    b.Property<long?>("LeadId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1057,6 +1416,8 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CompletedAt");
+
+                    b.HasIndex("LeadId", "Status");
 
                     b.HasIndex("Status", "DueAt");
 
@@ -1223,6 +1584,15 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Crm.Domain.Leads.LeadCall", b =>
+                {
+                    b.HasOne("Crm.Domain.Leads.Lead", null)
+                        .WithMany("Calls")
+                        .HasForeignKey("LeadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.QuoteEvent", b =>
                 {
                     b.HasOne("Crm.Domain.Quotes.Quote", null)
@@ -1305,6 +1675,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Navigation("Contacts");
 
                     b.Navigation("ExternalIdentities");
+                });
+
+            modelBuilder.Entity("Crm.Domain.Leads.Lead", b =>
+                {
+                    b.Navigation("Calls");
                 });
 
             modelBuilder.Entity("Crm.Domain.Quotes.Quote", b =>

@@ -39,6 +39,9 @@ public sealed class ManagerTask
     public Guid? CustomerPublicId { get; private set; }
     public string? CustomerName { get; private set; }
     public DateTimeOffset? CompletedAt { get; private set; }
+
+    /// <summary>The lead whose next call this task is (LEAD-001 R-08); null for tasks the director gives.</summary>
+    public long? LeadId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
     public int Version { get; private set; }
@@ -57,6 +60,10 @@ public sealed class ManagerTask
         : ManagerTaskLane.Active;
 
     public ManagerTaskLane LaneAt(DateTimeOffset now) => LaneOf(Status, DueAt, IsUrgent, now);
+
+    /// <summary>A «Подзвонити» task made by a recorded lead call (LEAD-001 R-08).</summary>
+    public static ManagerTask ForLeadCall(long leadId, ManagerTaskDraft draft, ManagerTaskPerson author,
+        DateTimeOffset now) => new(draft, author, now) { LeadId = leadId };
 
     /// <summary>Director or Admin saves the side panel; history records reassignment and a new due time.</summary>
     public void Edit(ManagerTaskDraft draft, ManagerTaskPerson by, DateTimeOffset now)

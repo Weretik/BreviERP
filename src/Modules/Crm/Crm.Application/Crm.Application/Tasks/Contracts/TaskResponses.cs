@@ -50,7 +50,8 @@ public sealed record TaskDetailResponse(
     DateTimeOffset? CompletedAt,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
-    int Version);
+    int Version,
+    long? LeadId = null);
 
 /// <summary>Counts for the metric strip and the filter chips (R-09).</summary>
 /// <param name="OnTimePercent">Share of tasks done in the last 30 days that were done by their due time; null when none.</param>

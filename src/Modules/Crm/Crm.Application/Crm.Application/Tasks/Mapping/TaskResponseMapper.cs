@@ -57,5 +57,6 @@ internal static class TaskResponseMapper
             task.CompletedAt,
             task.CreatedAt,
             task.UpdatedAt,
-            task.Version);
+            task.Version,
+            task.LeadId);
 }

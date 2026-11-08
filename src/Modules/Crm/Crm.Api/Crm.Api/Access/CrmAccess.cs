@@ -24,6 +24,15 @@ internal static class CrmAccess
     /// <summary>«Мої завдання».</summary>
     public const string Tasks = "access:tasks";
 
+    /// <summary>«Ліди»: «Мій день» and «Усі ліди» (LEAD-001).</summary>
+    public const string Leads = "access:leads";
+
+    /// <summary>«Адміністрування › Ліди»: statistics, references; creating is «Синхронізувати зараз».</summary>
+    public const string LeadStats = "access:lead-stats";
+
+    /// <summary>«Синхронізувати зараз» (Director and Admin until someone hands it out).</summary>
+    public const string LeadSync = "access:lead-stats:create";
+
     /// <summary>«Контрагенти»: clients and their contacts.</summary>
     public const string Counterparties = "access:counterparties";
 }

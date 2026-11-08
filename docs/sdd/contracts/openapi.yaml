@@ -347,6 +347,32 @@ paths:
     $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1urgent
   /api/crm/tasks/{id}/steps/{stepId}:
     $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1steps~1{stepId}
+  /api/crm/leads:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1leads
+  /api/crm/leads/my-day:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1leads~1my-day
+  /api/crm/leads/call-results:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1leads~1call-results
+  /api/crm/leads/{id}:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1leads~1{id}
+  /api/crm/leads/{id}/take:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1leads~1{id}~1take
+  /api/crm/leads/{id}/release:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1leads~1{id}~1release
+  /api/crm/leads/{id}/calls:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1leads~1{id}~1calls
+  /api/crm/lead-stats:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1lead-stats
+  /api/crm/lead-stats/call-results:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1lead-stats~1call-results
+  /api/crm/lead-stats/call-results/{id}:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1lead-stats~1call-results~1{id}
+  /api/crm/lead-stats/categories:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1lead-stats~1categories
+  /api/crm/lead-stats/categories/{code}:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1lead-stats~1categories~1{code}
+  /api/crm/lead-stats/sync:
+    $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1lead-stats~1sync
   /api/production/staff:
     $ref: ./production/workshop-references.openapi.yaml#/paths/~1api~1production~1staff
   /api/production/staff/{id}:
