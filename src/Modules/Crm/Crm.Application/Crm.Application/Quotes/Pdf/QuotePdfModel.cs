@@ -1,3 +1,5 @@
+using Crm.Domain.Quotes.Settings;
+
 namespace Crm.Application.Quotes.Pdf;
 
 /// <summary>
@@ -19,7 +21,9 @@ public sealed record QuotePdfModel(
     string? CtaTitle,
     string? CtaText,
     string? CtaContact,
-    QuotePdfContact Manager);
+    QuotePdfContact Manager,
+    QuotePdfLabels Labels,
+    string? ContactLine);
 
 public sealed record QuotePdfCompany(
     string Name,
@@ -42,15 +46,11 @@ public sealed record QuotePdfItem(
     string? Description,
     string? PhotoUrl,
     string? SiteUrl,
-    string OptionsLabel,
-    IReadOnlyList<QuotePdfOption> Options,
-    IReadOnlyList<QuotePdfPriceColumn> Columns);
+    string? OptionsTitle,
+    IReadOnlyList<QuotePdfOption> Options);
 
-/// <summary>
-/// One price column of an item: only quantities the item shows, and one column for a range when every variant
-/// costs the same in it (R-30). <see cref="Prices"/> follow <see cref="QuotePdfItem.Options"/>.
-/// </summary>
-public sealed record QuotePdfPriceColumn(string Label, IReadOnlyList<decimal?> Prices);
+/// <summary>One price tile: the quantity above, the price below (R-35).</summary>
+public sealed record QuotePdfPriceTile(string Label, decimal Price);
 
 /// <summary>A price is null when it is hidden from the client.</summary>
 public sealed record QuotePdfOption(
@@ -59,7 +59,11 @@ public sealed record QuotePdfOption(
     bool IsRecommended,
     decimal? Retail,
     decimal? Wholesale,
-    decimal? Large);
+    decimal? Large)
+{
+    /// <summary>The prices the client sees, shifted left without gaps.</summary>
+    public IReadOnlyList<QuotePdfPriceTile> Tiles => QuotePdfPrices.Tiles(Retail, Wholesale, Large);
+}
 
 /// <summary>Which quantity columns at least one row shows.</summary>
 public sealed record QuotePdfTiers(bool Retail, bool Wholesale, bool Large);

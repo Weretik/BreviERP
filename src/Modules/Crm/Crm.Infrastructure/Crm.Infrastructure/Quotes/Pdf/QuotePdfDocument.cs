@@ -8,7 +8,7 @@ namespace Crm.Infrastructure.Quotes.Pdf;
 /// <summary>
 /// The КП page «Класика+» (R-30): the logo, number and company requisites in the header of the first page and a
 /// short header after it; the client and the opening text; numbered items one after another with the photo, the
-/// description and only the prices the client may see; the client comment, the VAT note and the dark call to
+/// description, then only the prices the client may see as tiles; the client comment, the VAT note and the dark call to
 /// action; the responsible manager's contacts in the dark footer of every page.
 /// </summary>
 internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<string, QuotePdfImage> images)
@@ -25,6 +25,8 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
     private const string Ink = QuotePdfParts.Ink;
     private const string Muted = "#555555";
     private const string Line = "#E2DED8";
+    private const string TileBand = "#ECEBE8";
+    private const string TileBody = "#F8F7F5";
 
     public DocumentMetadata GetMetadata() => new()
     {
@@ -123,7 +125,7 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
             if (model.ClientComment is { } comment)
                 column.Item().Background(Paper).Padding(12).Column(box =>
                 {
-                    box.Item().Text("Коментар").Bold();
+                    if (model.Labels.CommentTitle is { } heading) box.Item().Text(heading).Bold();
                     box.Item().Text(comment);
                 });
             column.Item().Element(CallToAction);
@@ -146,82 +148,95 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
             {
                 if (model.Intro is { } intro) column.Item().Text(intro);
                 if (model.VatNotice is { } vat) column.Item().PaddingTop(2).Text(vat).SemiBold();
+                if (model.ContactLine is { } contact) column.Item().PaddingTop(2).Text(contact);
             });
         });
     }
 
     private void Item(IContainer container, string number, QuotePdfItem item) =>
-        container.EnsureSpace(190).BorderTop(1).BorderColor(Line).PaddingTop(14).Row(row =>
+        container.EnsureSpace(190).BorderTop(1).BorderColor(Line).PaddingTop(14).Column(column =>
         {
-            if (item.PhotoUrl is { } url && images.TryGetValue(url, out var photo))
-                row.ConstantItem(140).PaddingRight(16).Height(182).Background(PhotoBack).Padding(4)
-                    .Element(x => QuotePdfParts.Picture(x, photo));
-            row.RelativeItem().Column(text =>
+            column.Item().Row(row =>
             {
-                text.Spacing(3);
-                text.Item().Text(title =>
+                if (item.PhotoUrl is { } url && images.TryGetValue(url, out var photo))
+                    row.ConstantItem(140).PaddingRight(16).Height(182).Background(PhotoBack).Padding(4)
+                        .Element(x => QuotePdfParts.Picture(x, photo));
+                row.RelativeItem().Column(text =>
                 {
-                    title.Span(number + "  ").FontColor(AccentText).SemiBold();
-                    title.Span(item.Name).FontSize(12.5f).Bold();
+                    text.Spacing(3);
+                    text.Item().Text(title =>
+                    {
+                        title.Span(number + "  ").FontColor(AccentText).SemiBold();
+                        title.Span(item.Name).FontSize(12.5f).Bold();
+                    });
+                    if (Recommended(item, model.Labels.Recommended) is { } badge)
+                        text.Item().PaddingVertical(2).Row(row => row.AutoItem().Background(Accent).CornerRadius(3)
+                            .PaddingVertical(2).PaddingHorizontal(7)
+                            .Text(badge).FontSize(7.5f).Bold().FontColor(Graphite).LetterSpacing(0.04f));
+                    var code = item.Code is not { } value ? null
+                        : model.Labels.CodeLabel is { } label ? $"{label} {value}" : value;
+                    var line = Join(item.Subtitle, item.Season is { } season ? $"Сезон: {season}" : null, code);
+                    if (line.Length > 0) text.Item().Text(line).FontSize(8).FontColor(Muted);
+                    if (item.SiteUrl is { } site && model.Labels.SiteLink is { } link)
+                        text.Item().Hyperlink(site).Text(link).Underline().FontColor(AccentText).FontSize(8.5f);
+                    if (item.Description is { } description) text.Item().PaddingTop(3).Text(description).FontSize(9);
                 });
-                if (Recommended(item) is { } badge)
-                    text.Item().PaddingVertical(2).Row(row => row.AutoItem().Background(Accent).CornerRadius(3)
-                        .PaddingVertical(2).PaddingHorizontal(7)
-                        .Text(badge).FontSize(7.5f).Bold().FontColor(Graphite).LetterSpacing(0.04f));
-                var line = Join(item.Code is { } code ? $"Код {code}" : null, item.Subtitle, item.Season);
-                if (line.Length > 0) text.Item().Text(line).FontSize(8).FontColor(Muted);
-                if (item.Description is { } description) text.Item().PaddingTop(3).Text(description).FontSize(9);
-                if (item.SiteUrl is { } site)
-                    text.Item().Hyperlink(site).Text("Детальніше на сайті").FontColor(AccentText).FontSize(8.5f);
-                text.Item().PaddingTop(6).Element(x => Prices(x, item));
             });
+            column.Item().PaddingTop(10).Element(x => Prices(x, item));
         });
 
+    /// <summary>
+    /// Prices as tiles (R-35): the quantity on a grey band above, the price below. A single price set is one row of
+    /// tiles; variants are rows with their name on the left and their tiles on the right. Hidden prices leave no gap.
+    /// </summary>
     private void Prices(IContainer container, QuotePdfItem item)
     {
-        if (item.Options.Count == 1)
+        if (item.Options.Count == 1 && item.OptionsTitle is null)
         {
-            // One price set: a strip of the quantities the client sees.
-            container.Border(1).BorderColor(Line).Row(row =>
-            {
-                foreach (var column in item.Columns)
-                    row.RelativeItem().PaddingVertical(6).PaddingHorizontal(10).Column(cell =>
-                    {
-                        cell.Item().Text(column.Label).FontSize(8).FontColor(Muted);
-                        cell.Item().Text(Price(column.Prices[0])).FontSize(12).Bold();
-                    });
-            });
+            container.Row(row => Tiles(row, item.Options[0].Tiles));
             return;
         }
 
-        container.Table(table =>
+        container.Column(column =>
         {
-            table.ColumnsDefinition(columns =>
+            if (item.OptionsTitle is { } title)
+                column.Item().PaddingBottom(4).Text(title.ToUpperInvariant()).FontSize(7.5f).SemiBold()
+                    .FontColor(Muted).LetterSpacing(0.06f);
+            foreach (var option in item.Options)
             {
-                columns.RelativeColumn(2.6f);
-                foreach (var _ in item.Columns) columns.RelativeColumn(1.3f);
-            });
-            table.Header(header =>
-            {
-                header.Cell().Element(HeadCell).Text(item.OptionsLabel);
-                foreach (var column in item.Columns) header.Cell().Element(HeadCell).AlignRight().Text(column.Label);
-            });
-            for (var index = 0; index < item.Options.Count; index++)
-            {
-                var option = item.Options[index];
-                // The recommended row is tinted and marked, so the client sees it first.
-                IContainer Cell(IContainer cell) => option.IsRecommended ? BodyCell(cell).Background(Soft) : BodyCell(cell);
-                table.Cell().Element(Cell).Column(cell =>
+                var row = column.Item().BorderTop(1).BorderColor(Line);
+                (option.IsRecommended ? row.Background(Soft) : row).PaddingVertical(6).PaddingHorizontal(4).Row(line =>
                 {
-                    if (option.IsRecommended)
-                        cell.Item().Text("РЕКОМЕНДУЄМО").FontColor(AccentText).FontSize(7).Bold().LetterSpacing(0.05f);
-                    cell.Item().Text(option.Title).SemiBold();
-                    if (option.Details is { } details) cell.Item().Text(details).FontColor(Muted).FontSize(8);
+                    line.RelativeItem().PaddingRight(10).Column(cell =>
+                    {
+                        // With one variant the item badge already says it.
+                        if (option.IsRecommended && item.Options.Count > 1 && model.Labels.Recommended is { } mark)
+                            cell.Item().Text(mark.ToUpperInvariant()).FontColor(AccentText).FontSize(7).Bold()
+                                .LetterSpacing(0.05f);
+                        cell.Item().Text(option.Title).SemiBold();
+                        if (option.Details is { } details) cell.Item().Text(details).FontColor(Muted).FontSize(8);
+                    });
+                    line.ConstantItem(TileWidth * 3 + TileGap * 2).Row(tiles => Tiles(tiles, option.Tiles));
                 });
-                foreach (var column in item.Columns)
-                    table.Cell().Element(Cell).AlignRight().Text(Price(column.Prices[index])).SemiBold();
             }
         });
+    }
+
+    private const float TileWidth = 88;
+    private const float TileGap = 6;
+
+    private static void Tiles(RowDescriptor row, IReadOnlyList<QuotePdfPriceTile> tiles)
+    {
+        row.Spacing(TileGap);
+        foreach (var tile in tiles)
+            row.ConstantItem(TileWidth).Column(cell =>
+            {
+                cell.Item().Background(TileBand).PaddingVertical(3).AlignCenter()
+                    .Text(tile.Label).FontSize(7.5f).SemiBold().FontColor(Muted);
+                cell.Item().Background(TileBody).PaddingVertical(5).AlignCenter()
+                    .Text(Price(tile.Price)).FontSize(11).Bold();
+            });
+        row.RelativeItem();
     }
 
     /// <summary>The note before the footer (R-30): dark, as in the «Каталог» concept the owner chose.</summary>
@@ -266,22 +281,15 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
     /// The mark of an item with a variant the manager recommends (R-28): the whole position shows it, and with
     /// several variants it names the recommended one.
     /// </summary>
-    internal static string? Recommended(QuotePdfItem item) =>
-        item.Options.FirstOrDefault(x => x.IsRecommended) is not { } option ? null
-        : item.Options.Count == 1 ? "РЕКОМЕНДУЄМО"
-        : $"РЕКОМЕНДУЄМО: {option.Title.ToUpperInvariant()}";
+    internal static string? Recommended(QuotePdfItem item, string? label) =>
+        label is null || item.Options.FirstOrDefault(x => x.IsRecommended) is not { } option ? null
+        : item.Options.Count == 1 ? label.ToUpperInvariant()
+        : $"{label.ToUpperInvariant()}: {option.Title.ToUpperInvariant()}";
 
-    private static string Price(decimal? value) => value is null ? "—" : $"{QuotePdfParts.Money(value)} грн";
+    private static string Price(decimal value) => $"{QuotePdfParts.Money(value)} грн";
 
     private static string? Prefixed(string label, string? value) => value is null ? null : $"{label} {value}";
 
     private static string Join(params string?[] parts) =>
         string.Join(" · ", parts.Where(x => !string.IsNullOrWhiteSpace(x)));
-
-    private static IContainer HeadCell(IContainer container) =>
-        container.BorderBottom(1).BorderColor(Line).PaddingVertical(4).PaddingHorizontal(4)
-            .DefaultTextStyle(x => x.FontSize(8).FontColor(Muted));
-
-    private static IContainer BodyCell(IContainer container) =>
-        container.BorderBottom(1).BorderColor(Line).PaddingVertical(5).PaddingHorizontal(4);
 }

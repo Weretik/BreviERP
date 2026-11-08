@@ -37,7 +37,8 @@ public static class QuoteSettingsMapper
                 Text(input.Company.Email), Text(input.Company.Site), Text(input.Company.LogoUrl)),
             new QuoteEmailTemplate(input.Email.Subject.Trim(), input.Email.Body.Trim()),
             new QuotePdfTexts(input.Pdf.Title.Trim(), Text(input.Pdf.VatNotice), Text(input.Pdf.CtaTitle),
-                Text(input.Pdf.CtaText), Text(input.Pdf.CtaContactTemplate), Text(input.Pdf.IntroText)),
+                Text(input.Pdf.CtaText), Text(input.Pdf.CtaContactTemplate), ToIntros(input.Pdf.Intros),
+                ToLabels(input.Pdf.Labels)),
             new QuoteIntroductionTexts(
                 Text(input.Introduction.LogoText), Text(input.Introduction.SummerTitle),
                 Text(input.Introduction.WinterTitle), Text(input.Introduction.Subtitle),
@@ -65,8 +66,26 @@ public static class QuoteSettingsMapper
     private static QuoteCompanyDto ToDto(QuoteCompanyDetails x) =>
         new(x.Name, x.Edrpou, x.TaxId, x.Iban, x.Address, x.Phone, x.Email, x.Site, x.LogoUrl);
 
-    private static QuotePdfTextsDto ToDto(QuotePdfTexts x) =>
-        new(x.Title, x.VatNotice, x.CtaTitle, x.CtaText, x.CtaContactTemplate, x.IntroText);
+    /// <summary>The page edits every text it prints, so empty ones come back as the standard text (R-35).</summary>
+    private static QuotePdfTextsDto ToDto(QuotePdfTexts x)
+    {
+        var labels = x.ResolvedLabels();
+        return new(x.Title, x.VatNotice, x.CtaTitle, x.CtaText, x.CtaContactTemplate,
+            new QuotePdfIntroTextsDto(x.Intro(QuotePdfIntroCase.OnePpe), x.Intro(QuotePdfIntroCase.OneSewing),
+                x.Intro(QuotePdfIntroCase.OneSewingOnePpe), x.Intro(QuotePdfIntroCase.Sewing),
+                x.Intro(QuotePdfIntroCase.Ppe), x.Intro(QuotePdfIntroCase.SewingAndPpe),
+                x.Intro(QuotePdfIntroCase.Fallback)),
+            new QuotePdfLabelsDto(labels.ContactLine, labels.CodeLabel, labels.SiteLink, labels.FabricsTitle,
+                labels.Recommended, labels.CommentTitle));
+    }
+
+    private static QuotePdfIntroTexts? ToIntros(QuotePdfIntroTextsDto? x) => x is null ? null
+        : new(Text(x.OnePpe), Text(x.OneSewing), Text(x.OneSewingOnePpe), Text(x.Sewing), Text(x.Ppe),
+            Text(x.SewingAndPpe), Text(x.Fallback));
+
+    private static QuotePdfLabels? ToLabels(QuotePdfLabelsDto? x) => x is null ? null
+        : new(Text(x.ContactLine), Text(x.CodeLabel), Text(x.SiteLink), Text(x.FabricsTitle), Text(x.Recommended),
+            Text(x.CommentTitle));
 
     private static QuoteIntroductionTextsDto ToDto(QuoteIntroductionTexts x) =>
         new(x.LogoText, x.SummerTitle, x.WinterTitle, x.Subtitle, x.SummerBannerUrl, x.WinterBannerUrl, x.ModelsTitle,

@@ -23,11 +23,4 @@ public static class QuotePdfText
 
         return result.ToString();
     }
-
-    /// <summary>Fills {client} with the client's company or name; without a client «для {client}» is left out.</summary>
-    public static string? FillClient(string? template, string? client) =>
-        template is null ? null
-        : client is null
-            ? template.Replace(" для {client}", "", StringComparison.Ordinal).Replace("{client}", "", StringComparison.Ordinal)
-            : template.Replace("{client}", client, StringComparison.Ordinal);
 }
