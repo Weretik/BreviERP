@@ -141,7 +141,7 @@ paths:
               schema: { $ref: "#/components/schemas/CrmLead" }
         "400": { $ref: "#/components/responses/Invalid" }
         "401": { description: Authentication required. }
-        "403": { description: No right to the page, or somebody else's lead for a manager. }
+        "403": { description: "No right to the page, or somebody else's lead for a manager." }
         "404": { description: Not found. }
         "409": { $ref: "#/components/responses/Conflict" }
   /api/crm/leads/{id}/calls:
@@ -169,7 +169,7 @@ paths:
               schema: { $ref: "#/components/schemas/CrmLead" }
         "400": { $ref: "#/components/responses/Invalid" }
         "401": { description: Authentication required. }
-        "403": { description: No right to the page, or the lead is somebody else's. }
+        "403": { description: "No right to the page, or the lead is somebody else's." }
         "404": { description: Not found. }
         "409": { $ref: "#/components/responses/Conflict" }
   /api/crm/lead-stats:
