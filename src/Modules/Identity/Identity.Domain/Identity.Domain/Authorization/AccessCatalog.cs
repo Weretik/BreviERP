@@ -34,6 +34,7 @@ public static class AccessCatalog
     public const string QuoteSettings = "quote-settings";
     public const string Embroidery = "embroidery";
     public const string Tasks = "tasks";
+    public const string Leads = "leads";
     public const string ProductionOrders = "production-orders";
     public const string FabricStock = "fabric-stock";
     public const string WorkLog = "work-log";
@@ -57,6 +58,7 @@ public static class AccessCatalog
     public const string PricingParameters = "pricing-parameters";
     public const string PriceImport = "price-import";
     public const string Media = "media";
+    public const string LeadStats = "lead-stats";
 
     private const string Service = "Менеджер сервісу";
     private const string Workshop = "Швейний цех";
@@ -64,6 +66,7 @@ public static class AccessCatalog
     private const string RemindersGroup = "Нагадування";
     private const string References = "Загальні довідники";
     private const string Photos = "Фото";
+    private const string Administration = "Адміністрування";
 
     private static Dictionary<string, AccessAction> Grant(params (string Role, AccessAction Actions)[] grants) =>
         grants.ToDictionary(x => x.Role, x => x.Actions, StringComparer.Ordinal);
@@ -77,6 +80,7 @@ public static class AccessCatalog
         new(QuoteSettings, Service, "Налаштування КП", VE, Grant((RoleNames.Admin, VE))),
         new(Embroidery, Service, "Ціна вишивки", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
         new(Tasks, Service, "Мої завдання", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
+        new(Leads, Service, "Ліди", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
 
         new(ProductionOrders, Workshop, "Виробничі завдання", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All))),
@@ -117,7 +121,9 @@ public static class AccessCatalog
         new(PriceImport, References, "Імпорт цін", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V))),
 
-        new(Media, Photos, "Бібліотека фото", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All)))
+        new(Media, Photos, "Бібліотека фото", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All))),
+
+        new(LeadStats, Administration, "Ліди: зведення, довідники, синхронізація", VCE, Grant((RoleNames.Admin, VCE)))
     ];
 
     private static readonly Dictionary<string, AccessArea> ByKey = Areas.ToDictionary(x => x.Key, StringComparer.Ordinal);

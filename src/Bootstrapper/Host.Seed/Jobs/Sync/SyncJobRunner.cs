@@ -21,6 +21,7 @@ internal static class SyncJobRunner
         new MediaThumbnailsSyncTask(),
         new PpeSupplierPricesSyncTask(),
         new PurchaseInvoicesSyncTask(),
+        new LeadsSyncTask(),
     ];
 
     public static async Task RunAsync(IServiceProvider services, IConfiguration configuration)
