@@ -2,6 +2,7 @@ using Accounting.Domain.Accounts;
 using Accounting.Domain.Attachments;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
+using Accounting.Domain.Statements;
 using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -19,4 +20,7 @@ internal static class AccountingConverters
     public static readonly ValueConverter<FinanceAttachmentId, Guid> AttachmentId =
         new(id => id.Value, v => FinanceAttachmentId.From(v));
     public static readonly ValueConverter<FinanceTransferId, Guid> TransferId = new(id => id.Value, v => FinanceTransferId.From(v));
+    public static readonly ValueConverter<BankStatementId, Guid> StatementId = new(id => id.Value, v => BankStatementId.From(v));
+    public static readonly ValueConverter<BankStatementLineId, Guid> StatementLineId =
+        new(id => id.Value, v => BankStatementLineId.From(v));
 }

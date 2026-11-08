@@ -19,6 +19,13 @@ public interface IAccountingCustomerReader
     /// </summary>
     Task<IReadOnlyList<AccountingParty>> FindByKeepinIdsAsync(IReadOnlyCollection<string> keepinIds,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Active clients whose ЄДРПОУ/ІПН is one of <paramref name="taxIds"/>; the statement import (stage 6) recognises a
+    /// payer by it.
+    /// </summary>
+    Task<IReadOnlyList<AccountingParty>> FindByTaxIdsAsync(IReadOnlyCollection<string> taxIds,
+        CancellationToken cancellationToken);
 }
 
 /// <summary>«Постачальники» of the Reference module for operations; implemented in the host.</summary>

@@ -16,4 +16,5 @@ public static class AccountingMessages
     public const string DefaultCategoryNotFound = "Категорію за замовчуванням не знайдено. Оновіть список.";
     public const string AccountHasHistory =
         "По рахунку вже є рух коштів (зокрема анульований), тому його можна лише архівувати.";
+    public const string AccountHasStatements = "До рахунку вже завантажували виписки, тому його можна лише архівувати.";
 }
