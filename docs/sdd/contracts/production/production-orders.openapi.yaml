@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: 'Production: orders'
   version: 1.0.0
-  description: 'Stages 2-3 of «Швейний цех» (PRD-002, PRD-003): «Виробничі завдання» created from sent КП, then етапи, відвантаження,
+  description: 'Stages 2-3 of «Швейний цех» (PRD-002, PRD-003): «Виробничі завдання» created from КП «під запит», then етапи, відвантаження,
     files, status and the one Telegram message to the workshop. Manager: creates from own КП, edits own orders and their files,
     never sees the sewing rate or КП price kept for reports. WorkshopChief: sees and edits every order with the rate, without
     КП prices, ticks stages and ships. Admin (the director also holds Admin): everything, alone deletes, reopens and moves
@@ -70,6 +70,14 @@ paths:
           minimum: 1
         description: The client card tab «Завдання в цех»; only orders made from this client's КП.
       - in: query
+        name: quoteId
+        required: false
+        schema:
+          type: integer
+          format: int64
+          minimum: 1
+        description: The КП editor; only orders made from this КП.
+      - in: query
         name: page
         required: false
         schema:
@@ -101,7 +109,7 @@ paths:
       tags:
       - Production
       operationId: createProductionOrder
-      summary: '«Передати в цех»: an order from a sent КП; a repeat with the same requestId returns the same order'
+      summary: '«Передати в цех»: an order from a КП «під запит» (saved or sent); a repeat with the same requestId returns the same order'
       requestBody:
         required: true
         content:
@@ -128,7 +136,7 @@ paths:
       tags:
       - Production
       operationId: getProductionQuoteSources
-      summary: 'Sent КП «під запит» the person may pass to the workshop (Manager: own; Admin: all)'
+      summary: 'КП «під запит» (saved or sent) the person may pass to the workshop (Manager: own; Admin: all)'
       parameters:
       - in: query
         name: search

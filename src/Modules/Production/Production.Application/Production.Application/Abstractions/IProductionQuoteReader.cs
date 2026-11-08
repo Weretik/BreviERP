@@ -1,12 +1,12 @@
 namespace Production.Application.Abstractions;
 
 /// <summary>
-/// Sent КП of Crm for «Передати в цех»; implemented in the host over the Crm quote queries. A Manager reads only the
+/// КП «під запит» of Crm for «Передати в цех» (saved or sent: managers often send the PDF themselves); implemented in the host over the Crm quote queries. A Manager reads only the
 /// КП they are responsible for; Admin and Director read all.
 /// </summary>
 public interface IProductionQuoteReader
 {
-    Task<IReadOnlyList<ProductionQuoteSummary>> ListSentAsync(ProductionQuoteReaderActor actor, string? search,
+    Task<IReadOnlyList<ProductionQuoteSummary>> ListForWorkshopAsync(ProductionQuoteReaderActor actor, string? search,
         CancellationToken cancellationToken);
 
     /// <returns>Null when the КП is missing or the person may not see it.</returns>
@@ -18,9 +18,9 @@ public sealed record ProductionQuoteReaderActor(int UserId, bool CanSeeAll);
 public sealed record ProductionQuoteSummary(
     long Id, string Number, string ClientName, string ResponsibleName, DateTimeOffset? LastSentAt);
 
-/// <param name="IsSent">Only a sent КП goes to the workshop.</param>
+/// <param name="ForWorkshop">Only a КП «під запит» goes to the workshop; «для знайомства» does not.</param>
 public sealed record ProductionQuote(
-    long Id, string Number, bool IsSent, string ClientName, long? CustomerId, int ResponsibleUserId,
+    long Id, string Number, bool ForWorkshop, string ClientName, long? CustomerId, int ResponsibleUserId,
     string ResponsibleName, IReadOnlyList<ProductionQuoteItem> Items,
     IReadOnlyList<ProductionQuoteEmbroidery>? Embroideries = null);
 

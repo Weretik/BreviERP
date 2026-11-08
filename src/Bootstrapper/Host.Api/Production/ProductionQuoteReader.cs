@@ -12,11 +12,11 @@ internal sealed class ProductionQuoteReader(ISender sender) : IProductionQuoteRe
 {
     private const int MaxSources = 100;
 
-    public async Task<IReadOnlyList<ProductionQuoteSummary>> ListSentAsync(ProductionQuoteReaderActor actor,
+    public async Task<IReadOnlyList<ProductionQuoteSummary>> ListForWorkshopAsync(ProductionQuoteReaderActor actor,
         string? search, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetQuotesQuery(new QuoteActor(actor.UserId, actor.CanSeeAll),
-            string.IsNullOrWhiteSpace(search) ? null : search.Trim(), "Sent", null, 1, MaxSources), cancellationToken);
+            string.IsNullOrWhiteSpace(search) ? null : search.Trim(), null, null, 1, MaxSources), cancellationToken);
         if (!result.IsSuccess) throw new InvalidOperationException("Crm quotes could not be read.");
         return result.Value.Items
             .Where(x => x.Kind == "Request")
@@ -32,7 +32,7 @@ internal sealed class ProductionQuoteReader(ISender sender) : IProductionQuoteRe
             cancellationToken);
         if (!result.IsSuccess) return null;
         var quote = result.Value;
-        return new ProductionQuote(quote.Id, quote.Number, quote.Status == "Sent" && quote.Kind == "Request",
+        return new ProductionQuote(quote.Id, quote.Number, quote.Kind == "Request",
             quote.CompanyName ?? quote.InternalName, quote.CustomerId,
             quote.Responsible.UserId, quote.Responsible.Name,
             quote.Items.Where(IsSewn).Select(Item).ToArray(),

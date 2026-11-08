@@ -24,7 +24,7 @@ public sealed class CreateProductionOrderCommandHandler(
 
         var quote = await quotes.ReadAsync(actor.QuoteReader, input.QuoteId, cancellationToken);
         if (quote is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.QuoteNotFound);
-        if (!quote.IsSent) return Result<ProductionOrderResponse>.Conflict(OrderMessages.QuoteNotSent);
+        if (!quote.ForWorkshop) return Result<ProductionOrderResponse>.Conflict(OrderMessages.QuoteNotForWorkshop);
         if (input.Items.Select(x => x.QuoteOptionId).Distinct().Count() != input.Items.Count)
             return Result<ProductionOrderResponse>.Invalid(new ValidationError(OrderMessages.DuplicateItem));
 

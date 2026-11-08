@@ -4,7 +4,7 @@ internal static class OrderMessages
 {
     public const string NotFound = "Завдання не знайдено.";
     public const string QuoteNotFound = "КП не знайдено або воно не ваше.";
-    public const string QuoteNotSent = "Передати в цех можна лише відправлене КП.";
+    public const string QuoteNotForWorkshop = "Передати в цех можна лише КП під запит.";
     public const string QuoteItemNotFound = "Позиції або варіанту тканини немає в цьому КП.";
     public const string CannotCreate = "Створювати завдання може менеджер або адміністратор.";
     public const string CannotEdit = "Це завдання не можна змінювати.";
