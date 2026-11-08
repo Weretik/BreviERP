@@ -131,7 +131,8 @@ public sealed record QuoteCatalogVariantResponse(
     string Title,
     string? FabricInfo,
     QuoteTierPricesResponse? Prices,
-    string? Problem);
+    string? Problem,
+    int? FabricId = null);
 
 public sealed record QuoteStaffResponse(int UserId, string Name, string? Email);
 

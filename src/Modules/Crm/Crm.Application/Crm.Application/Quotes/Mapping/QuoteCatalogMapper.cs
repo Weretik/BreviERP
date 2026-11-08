@@ -19,7 +19,8 @@ internal static class QuoteCatalogMapper
         variant.ArticleId, variant.Sku, variant.Title, variant.FabricInfo, ToResponse(variant.Prices),
         !variant.IsActive ? "Варіант вимкнений."
         : variant.Prices is null ? Problems(variant.Problems, "Немає опублікованої ціни.")
-        : null);
+        : null,
+        variant.FabricId);
 
     private static string? ProductProblem(QuoteCatalogProduct product)
     {

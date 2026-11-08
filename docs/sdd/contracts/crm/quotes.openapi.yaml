@@ -1345,6 +1345,7 @@ components:
         fabricInfo: { type: [string, "null"], description: "For the manager only, fabric price and supplier." }
         prices: { oneOf: [{ $ref: "#/components/schemas/CrmQuoteTierPrices" }, { type: "null" }] }
         problem: { type: [string, "null"], description: Why it cannot be added; null when it can. }
+        fabricId: { type: [integer, "null"], description: Reference fabric of the variant (R-31). }
     CrmQuoteFabricFacts:
       type: object
       required: [fabricId, name, composition, density, pricePerMeter, supplierId, supplierName]
