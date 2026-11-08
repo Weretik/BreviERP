@@ -66,6 +66,22 @@ public sealed class FinanceCategory : IAggregateRoot
             sortOrder, now);
     }
 
+    /// <summary>
+    /// A category of the old Calculator «Фінанси» with its id and state (stage 5); a subcategory sits in a root of the
+    /// same direction and area.
+    /// </summary>
+    public static FinanceCategory FromLegacy(FinanceCategoryId id, string? name, CategoryDirection direction,
+        LedgerScope scope, FinanceCategory? parent, string? note, bool active, int sortOrder, DateTimeOffset createdAt,
+        DateTimeOffset updatedAt)
+    {
+        Guard(direction, scope);
+        if (parent is not null && (!parent.IsRoot || parent.Direction != direction || parent.Scope != scope))
+            throw AccountingDomainError.Fail("Accounting.Category.Level",
+                $"Підкатегорія «{name}» не підходить до кореневої «{parent.Name}».");
+        return new FinanceCategory(id, name ?? string.Empty, direction, scope, parent?.Id, note ?? string.Empty,
+            sortOrder, createdAt) { Active = active, UpdatedAt = updatedAt };
+    }
+
     /// <summary>Changes the name, note and order; returns false when nothing differs.</summary>
     public bool Update(string? name, string? note, int sortOrder, DateTimeOffset now)
     {

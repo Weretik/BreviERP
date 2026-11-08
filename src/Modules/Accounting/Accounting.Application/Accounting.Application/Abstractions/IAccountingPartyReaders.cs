@@ -12,6 +12,13 @@ public interface IAccountingCustomerReader
 
     /// <summary>The clients with these ids, archived too, so an old link still shows its name.</summary>
     Task<IReadOnlyList<AccountingParty>> FindAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The clients linked to these KeepinCRM client ids (archived too), with the KeepinCRM id in
+    /// <see cref="AccountingParty.ExternalId"/>; used when the old finance archive is moved over (stage 5).
+    /// </summary>
+    Task<IReadOnlyList<AccountingParty>> FindByKeepinIdsAsync(IReadOnlyCollection<string> keepinIds,
+        CancellationToken cancellationToken);
 }
 
 /// <summary>«Постачальники» of the Reference module for operations; implemented in the host.</summary>
@@ -21,7 +28,10 @@ public interface IAccountingSupplierReader
     Task<IReadOnlyList<AccountingParty>> ListAsync(CancellationToken cancellationToken);
 }
 
-/// <summary>A client or supplier as «Бухгалтерія» shows it; <c>Id</c> is its id as text, <c>TaxId</c> its ЄДРПОУ/ІПН.</summary>
-public sealed record AccountingParty(string Id, string Name, string TaxId, bool Active);
+/// <summary>
+/// A client or supplier as «Бухгалтерія» shows it; <c>Id</c> is its id as text, <c>TaxId</c> its ЄДРПОУ/ІПН and
+/// <c>ExternalId</c> its KeepinCRM id when known.
+/// </summary>
+public sealed record AccountingParty(string Id, string Name, string TaxId, bool Active, string? ExternalId = null);
 
 public sealed record AccountingPartyPage(IReadOnlyList<AccountingParty> Items, int Total);

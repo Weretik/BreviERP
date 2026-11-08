@@ -24,6 +24,9 @@ public sealed class FinanceAttachmentTests
         var operation = await Operation(harness);
 
         var uploaded = await Upload(harness, storage, operation.Id, Pdf, @"C:\Users\me\Рахунок 12.pdf");
+        // The list is in upload order; with the fixed test clock two uploads would share a moment and their
+        // time-ordered ids, made within one millisecond, could come in either order.
+        harness.Time.Advance(TimeSpan.FromSeconds(1));
         var png = await Upload(harness, storage, operation.Id, Png, "чек.png");
         var list = await new GetFinanceAttachmentsQueryHandler(harness.Fresh())
             .Handle(new GetFinanceAttachmentsQuery(operation.Id), default);

@@ -13,7 +13,8 @@ internal sealed class AccountingSupplierReader(ISender sender) : IAccountingSupp
         var result = await sender.Send(new GetSuppliersQuery(), cancellationToken);
         if (!result.IsSuccess) throw new InvalidOperationException("Reference suppliers could not be read.");
         return result.Value
-            .Select(x => new AccountingParty(x.Id.ToString(CultureInfo.InvariantCulture), x.Name, string.Empty, x.IsActive))
+            .Select(x => new AccountingParty(x.Id.ToString(CultureInfo.InvariantCulture), x.Name, string.Empty, x.IsActive,
+                x.KeepinCrmId))
             .ToArray();
     }
 }

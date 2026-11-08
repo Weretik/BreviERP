@@ -20,6 +20,11 @@ internal sealed class FakeAccountingParties : IAccountingCustomerReader, IAccoun
         Task.FromResult<IReadOnlyList<AccountingParty>>(
             Clients.Where(x => ids.Contains(Guid.Parse(x.Id))).ToList());
 
+    public Task<IReadOnlyList<AccountingParty>> FindByKeepinIdsAsync(IReadOnlyCollection<string> keepinIds,
+        CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<AccountingParty>>(
+            Clients.Where(x => x.ExternalId is not null && keepinIds.Contains(x.ExternalId)).ToList());
+
     public Task<IReadOnlyList<AccountingParty>> ListAsync(CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<AccountingParty>>(Suppliers);
 }
