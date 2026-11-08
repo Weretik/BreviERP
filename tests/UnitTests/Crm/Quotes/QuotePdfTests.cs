@@ -125,6 +125,24 @@ public sealed class QuotePdfTests
     }
 
     [Test]
+    public async Task TheClientBlockCanBeRetitledOrLeftOut()
+    {
+        var standard = QuoteSettingsDefaults.Content.Pdf.ResolvedLabels();
+        Assert.That((standard.ClientTitle, standard.ShowClient), Is.EqualTo(("Для", (bool?)true)));
+        var hidden = QuoteSettingsDefaults.Content.Pdf with
+        {
+            Labels = new QuotePdfLabels(null, null, null, null, null, null, "Замовник", false),
+        };
+        Assert.That((hidden.ResolvedLabels().ClientTitle, hidden.ResolvedLabels().ShowClient),
+            Is.EqualTo(("Замовник", (bool?)false)));
+
+        var model = QuotePdfModelBuilder.Build(SampleQuote(), QuoteSettingsDefaults.Content with { Pdf = hidden }, Manager);
+        var renderer = new QuotePdfRenderer(new QuotePdfImageLoader(new HttpClient(), NullLogger<QuotePdfImageLoader>.Instance));
+        var pdf = await renderer.RenderAsync(model, CancellationToken.None);
+        Assert.That(System.Text.Encoding.ASCII.GetString(pdf, 0, 5), Is.EqualTo("%PDF-"));
+    }
+
+    [Test]
     public void SettingsSavedBeforeTheIntroVariantsStillRead()
     {
         const string saved = """{"title":"КП","vatNotice":null,"ctaTitle":null,"ctaText":null,"ctaContactTemplate":null,"introText":"Старий вступ"}""";

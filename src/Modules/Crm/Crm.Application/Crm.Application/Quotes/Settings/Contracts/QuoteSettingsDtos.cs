@@ -37,13 +37,17 @@ public sealed record QuotePdfIntroTextsDto(
     string? Fallback);
 
 /// <param name="ContactLine">Marks: {managerName}, {managerPhone}, {managerEmail}, {clientName}, {companyName}.</param>
+/// <param name="ClientTitle">The small heading over the client in the PDF («Для»).</param>
+/// <param name="ShowClient">False leaves the client block («Для» with the company and the recipient) out of the PDF.</param>
 public sealed record QuotePdfLabelsDto(
     string? ContactLine,
     string? CodeLabel,
     string? SiteLink,
     string? FabricsTitle,
     string? Recommended,
-    string? CommentTitle);
+    string? CommentTitle,
+    string? ClientTitle = null,
+    bool? ShowClient = null);
 
 public sealed record QuoteAdvantageDto(string Title, string? Text);
 

@@ -49,6 +49,7 @@ public sealed class SaveQuoteSettingsInputValidator : AbstractValidator<SaveQuot
                 labels.RuleFor(x => x.FabricsTitle).MaximumLength(L.ShortTextMaxLength);
                 labels.RuleFor(x => x.Recommended).MaximumLength(L.ShortTextMaxLength);
                 labels.RuleFor(x => x.CommentTitle).MaximumLength(L.ShortTextMaxLength);
+                labels.RuleFor(x => x.ClientTitle).MaximumLength(L.ShortTextMaxLength);
             }).When(x => x.Labels is not null);
         });
         RuleFor(x => x.Introduction).NotNull().SetValidator(new QuoteIntroductionValidator());

@@ -30,7 +30,9 @@ public static class QuoteSettingsDefaults
         "Переглянути товар на сайті",
         "Варіанти тканини",
         "Рекомендуємо",
-        "Коментар до пропозиції");
+        "Коментар до пропозиції",
+        "Для",
+        true);
 
     public static QuoteSettingsContent Content { get; } = new(
         new QuoteCompanyDetails(
