@@ -359,7 +359,7 @@ components:
       type: object
       required:
         [id, number, title, description, status, lane, isUrgent, isOverdue, dueAt, assignee, author, customerPublicId,
-         customerName, steps, history, completedAt, createdAt, updatedAt, version]
+         customerName, steps, history, completedAt, createdAt, updatedAt, version, leadId]
       properties:
         id: { type: integer, format: int64 }
         number: { type: string }
@@ -384,6 +384,10 @@ components:
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         version: { type: integer }
+        leadId:
+          type: [integer, "null"]
+          format: int64
+          description: The lead whose next call this is («Подзвонити», LEAD-001 R-08); null for tasks the director gives.
     CrmTaskLoad:
       type: object
       required: [userId, name, open, overdue, urgent, inProgress, doneLastWeek, onTimePercent]

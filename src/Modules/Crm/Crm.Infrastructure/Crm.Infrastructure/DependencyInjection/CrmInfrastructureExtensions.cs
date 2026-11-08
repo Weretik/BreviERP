@@ -1,6 +1,8 @@
 using BuildingBlocks.Infrastructure.Migrations;
 using Crm.Application.Customers.Persistence;
 using Crm.Application.Embroidery.Persistence;
+using Crm.Application.Leads.Persistence;
+using Crm.Application.Leads.Sheet;
 using Crm.Application.Quotes.Building;
 using Crm.Application.Quotes.Introductions.Building;
 using Crm.Application.Quotes.Pdf;
@@ -8,6 +10,7 @@ using Crm.Application.Quotes.Pdf.Composing;
 using Crm.Application.Quotes.Sending.Gmail;
 using Crm.Application.Quotes.Persistence;
 using Crm.Application.Tasks.Persistence;
+using Crm.Infrastructure.Leads;
 using Crm.Infrastructure.Persistence;
 using Crm.Infrastructure.Persistence.Customers.Reading;
 using Crm.Infrastructure.Persistence.Customers.Writing;
@@ -32,6 +35,10 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<IQuoteStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<ITaskStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<IEmbroideryStore>(provider => provider.GetRequiredService<CrmDbContext>());
+        services.AddScoped<ILeadStore>(provider => provider.GetRequiredService<CrmDbContext>());
+        services.Configure<LeadSheetOptions>(configuration.GetSection(LeadSheetOptions.Section));
+        services.AddHttpClient<ILeadSheetReader, GoogleLeadSheetReader>(client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.AddScoped<LeadSheetSync>();
         services.AddScoped<QuoteItemsBuilder>();
         services.AddScoped<QuoteNumbering>();
         services.AddScoped<QuoteIntroductionBuilder>();

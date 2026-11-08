@@ -27,6 +27,8 @@ public sealed class ManagerTaskConfiguration : IEntityTypeConfiguration<ManagerT
         b.HasIndex(x => new { x.AssigneeUserId, x.Status, x.DueAt });
         b.HasIndex(x => new { x.Status, x.DueAt });
         b.HasIndex(x => x.CompletedAt);
+        // The lead of a «Подзвонити» task (LEAD-001 R-08), without a foreign key: tasks never block leads.
+        b.HasIndex(x => new { x.LeadId, x.Status });
 
         // A Crm customer by its public id, without a foreign key: the KeepinCRM sync may replace customers.
         b.HasMany(x => x.Steps).WithOne().HasForeignKey(x => x.TaskId).OnDelete(DeleteBehavior.Cascade);
