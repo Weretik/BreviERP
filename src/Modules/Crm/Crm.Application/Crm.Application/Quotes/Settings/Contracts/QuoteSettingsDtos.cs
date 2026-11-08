@@ -15,14 +15,35 @@ public sealed record QuoteCompanyDto(
 public sealed record QuoteEmailTemplateDto(string Subject, string Body);
 
 /// <param name="CtaContactTemplate">Marks: {managerName}, {managerPhone}, {managerEmail}.</param>
-/// <param name="IntroText">Marks: {client} and the manager's; empty means the standard text.</param>
+/// <param name="Intros">«Вступний текст у КП» (R-35); the response fills empty ones with the standard text.</param>
+/// <param name="Labels">Small PDF texts (R-35); the response fills empty ones with the standard text.</param>
 public sealed record QuotePdfTextsDto(
     string Title,
     string? VatNotice,
     string? CtaTitle,
     string? CtaText,
     string? CtaContactTemplate,
-    string? IntroText = null);
+    QuotePdfIntroTextsDto? Intros = null,
+    QuotePdfLabelsDto? Labels = null);
+
+/// <summary>Marks: {recipient}, {sewingModel}, {fabricName}, {ppeItem} and the manager's.</summary>
+public sealed record QuotePdfIntroTextsDto(
+    string? OnePpe,
+    string? OneSewing,
+    string? OneSewingOnePpe,
+    string? Sewing,
+    string? Ppe,
+    string? SewingAndPpe,
+    string? Fallback);
+
+/// <param name="ContactLine">Marks: {managerName}, {managerPhone}, {managerEmail}.</param>
+public sealed record QuotePdfLabelsDto(
+    string? ContactLine,
+    string? CodeLabel,
+    string? SiteLink,
+    string? FabricsTitle,
+    string? Recommended,
+    string? CommentTitle);
 
 public sealed record QuoteAdvantageDto(string Title, string? Text);
 

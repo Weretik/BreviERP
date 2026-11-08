@@ -54,37 +54,109 @@ public sealed class QuotePdfTests
     }
 
     [Test]
-    public void IntroNamesTheClientAndPricesShowOnlyTheirQuantities()
+    public void IntroFitsTheCompositionAndPricesShowOnlyTheirQuantities()
     {
         var model = QuotePdfModelBuilder.Build(SampleQuote(), QuoteSettingsDefaults.Content, Manager);
 
-        Assert.That(model.Intro, Does.StartWith("Підібрали для ТОВ «Агро» добірку"));
-        Assert.That(model.Items[0].Columns.Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "від 41 шт." }));
-        Assert.That(model.Items[1].Columns.Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "10–40 шт.", "від 41 шт." }));
+        Assert.That(model.Intro, Is.EqualTo(
+            "Підготували для ТОВ «Агро» комплексне рішення: Костюм «Імпульс» у запропонованій тканині та Рукавиці. " +
+            "Нижче — характеристики кожної позиції та ціна, щоб було зручно оцінити пропозицію цілком."));
+        Assert.That(model.ContactLine, Is.EqualTo("Контакт для зв’язку: Юлія Согоконь +38 095 164 58 55 pp.brevi@gmail.com"));
+        Assert.That(model.Items[0].OptionsTitle, Is.EqualTo("Варіанти тканини"));
+        Assert.That(model.Items[1].OptionsTitle, Is.Null);
+        Assert.That(model.Items[0].Options[0].Tiles.Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "від 41 шт." }));
+        Assert.That(model.Items[1].Options[0].Tiles.Select(x => x.Label),
+            Is.EqualTo(new[] { "до 9 шт.", "10–40 шт.", "від 41 шт." }));
+    }
+
+    private static QuotePdfIntroItem Sewing(string name, params string[] fabrics) => new(true, false, name, fabrics);
+    private static QuotePdfIntroItem Ppe(string name) => new(false, true, name, ["Ціна"]);
+    private static QuotePdfIntroItem Embroidery() => new(false, false, "Вишивка", ["Ціна"]);
+
+    private static IEnumerable<TestCaseData> IntroCases()
+    {
+        yield return new TestCaseData(new[] { Ppe("Рукавиці") }, QuotePdfIntroCase.OnePpe).SetName("One PPE");
+        yield return new TestCaseData(new[] { Sewing("Куртка", "Тканина «Грета»") }, QuotePdfIntroCase.OneSewing)
+            .SetName("One model with one fabric");
+        yield return new TestCaseData(new[] { Sewing("Куртка", "Грета"), Ppe("Рукавиці") }, QuotePdfIntroCase.OneSewingOnePpe)
+            .SetName("One model and one PPE");
+        yield return new TestCaseData(new[] { Sewing("Куртка", "Грета", "Саржа") }, QuotePdfIntroCase.Sewing)
+            .SetName("One model with two fabrics");
+        yield return new TestCaseData(new[] { Sewing("Куртка", "Грета"), Sewing("Штани", "Грета") }, QuotePdfIntroCase.Sewing)
+            .SetName("Two models");
+        yield return new TestCaseData(new[] { Ppe("Рукавиці"), Ppe("Каска") }, QuotePdfIntroCase.Ppe).SetName("Two PPE");
+        yield return new TestCaseData(new[] { Sewing("Куртка", "Грета", "Саржа"), Ppe("Рукавиці") },
+            QuotePdfIntroCase.SewingAndPpe).SetName("Sewing with two fabrics and PPE");
+        yield return new TestCaseData(new[] { Ppe("Рукавиці"), Embroidery() }, QuotePdfIntroCase.OnePpe)
+            .SetName("Embroidery does not change the case");
+        yield return new TestCaseData(new[] { Embroidery() }, QuotePdfIntroCase.Fallback).SetName("Only embroidery");
+    }
+
+    [TestCaseSource(nameof(IntroCases))]
+    public void IntroCaseFollowsTheItemsTheClientSees(QuotePdfIntroItem[] items, QuotePdfIntroCase expected) =>
+        Assert.That(QuotePdfIntro.Choose(items).Case, Is.EqualTo(expected));
+
+    [Test]
+    public void IntroMarksTakeTheModelFabricAndPpeNames()
+    {
+        var choice = QuotePdfIntro.Choose([Sewing("Куртка «Фрост»", "Тканина «Грета»")]);
+        Assert.That(QuotePdfIntro.Fill(QuoteSettingsDefaults.Intros.OneSewing!, choice, null), Does.StartWith(
+            "Підібрали для вас Куртка «Фрост» у тканині «Грета»."));
+        var ppe = QuotePdfIntro.Choose([Ppe("Рукавиці")]);
+        Assert.That(QuotePdfIntro.Fill("Підібрали {recipient} {ppeItem}.", ppe, "ТОВ «Агро»"),
+            Is.EqualTo("Підібрали для ТОВ «Агро» Рукавиці."));
+        Assert.That(QuotePdfIntro.Fill("Підібрали для {client} добірку.", ppe, null), Is.EqualTo("Підібрали добірку."));
+    }
+
+    [Test]
+    public void SavedTextsWinAndEmptyOnesFallBackToTheStandardOnes()
+    {
+        var pdf = QuoteSettingsDefaults.Content.Pdf with
+        {
+            Intros = new QuotePdfIntroTexts("Свій текст {ppeItem}", null, null, null, null, null, null),
+            Labels = new QuotePdfLabels(null, "Код", null, null, null, " "),
+        };
+        Assert.That(pdf.Intro(QuotePdfIntroCase.OnePpe), Is.EqualTo("Свій текст {ppeItem}"));
+        Assert.That(pdf.Intro(QuotePdfIntroCase.Ppe), Is.EqualTo(QuoteSettingsDefaults.Intros.Ppe));
+        Assert.That(pdf.ResolvedLabels().CodeLabel, Is.EqualTo("Код"));
+        Assert.That(pdf.ResolvedLabels().CommentTitle, Is.EqualTo("Коментар до пропозиції"));
+        Assert.That((pdf with { Intros = null, Labels = null }).Intro(QuotePdfIntroCase.Fallback),
+            Is.EqualTo(QuoteSettingsDefaults.Intros.Fallback));
+    }
+
+    [Test]
+    public void SettingsSavedBeforeTheIntroVariantsStillRead()
+    {
+        const string saved = """{"title":"КП","vatNotice":null,"ctaTitle":null,"ctaText":null,"ctaContactTemplate":null,"introText":"Старий вступ"}""";
+        var pdf = System.Text.Json.JsonSerializer.Deserialize<QuotePdfTexts>(saved,
+            new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
+
+        Assert.That(pdf.Intros, Is.Null);
+        Assert.That(pdf.Intro(QuotePdfIntroCase.Sewing), Is.EqualTo(QuoteSettingsDefaults.Intros.Sewing));
+        Assert.That(pdf.ResolvedLabels(), Is.EqualTo(QuoteSettingsDefaults.Labels));
     }
 
     [TestCase(1620, 1620, 1620, "Ціна за 1 шт.")]
     [TestCase(null, 1620, 1620, "від 10 шт.")]
     [TestCase(1620, 1620, null, "до 40 шт.")]
     [TestCase(null, null, 1620, "від 41 шт.")]
-    public void EqualPricesBecomeOneColumn(int? retail, int? wholesale, int? large, string label)
+    public void EqualPricesBecomeOneTile(int? retail, int? wholesale, int? large, string label)
     {
-        var columns = QuotePdfPrices.Columns([new QuotePdfOption("Ціна", null, false, retail, wholesale, large)]);
+        var tiles = QuotePdfPrices.Tiles(retail, wholesale, large);
 
-        Assert.That(columns.Select(x => x.Label), Is.EqualTo(new[] { label }));
-        Assert.That(columns[0].Prices, Is.EqualTo(new decimal?[] { 1620m }));
+        Assert.That(tiles.Select(x => x.Label), Is.EqualTo(new[] { label }));
+        Assert.That(tiles[0].Price, Is.EqualTo(1620m));
     }
 
     [Test]
-    public void DifferentOrSplitPricesKeepTheirColumns()
+    public void HiddenPricesLeaveNoGapAndDifferentPricesKeepTheirTiles()
     {
-        Assert.That(QuotePdfPrices.Columns([new QuotePdfOption("Ціна", null, false, 1620m, null, 1620m)])
-            .Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "від 41 шт." }));
-        Assert.That(QuotePdfPrices.Columns(
-            [
-                new QuotePdfOption("Саржа", null, true, 100m, 100m, 100m),
-                new QuotePdfOption("Габардин", null, false, 120m, 110m, 100m),
-            ]).Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "10–40 шт.", "від 41 шт." }));
+        Assert.That(QuotePdfPrices.Tiles(1620m, null, 1620m).Select(x => x.Label),
+            Is.EqualTo(new[] { "до 9 шт.", "від 41 шт." }));
+        Assert.That(QuotePdfPrices.Tiles(null, 110m, 100m).Select(x => x.Label),
+            Is.EqualTo(new[] { "10–40 шт.", "від 41 шт." }));
+        Assert.That(QuotePdfPrices.Tiles(120m, 110m, 100m).Select(x => x.Price), Is.EqualTo(new[] { 120m, 110m, 100m }));
+        Assert.That(QuotePdfPrices.Tiles(null, null, null), Is.Empty);
     }
 
     [Test]
@@ -93,22 +165,19 @@ public sealed class QuotePdfTests
             Is.EqualTo("Кишені: нагрудна, 2 нижні накладні кишені у бічних швах.\nКомір стійка.\n\nСпинка з рельєфними швами."));
 
     [Test]
-    public void IntroWithoutAClientLeavesTheNameOut() =>
-        Assert.That(QuotePdfText.FillClient(QuoteSettingsDefaults.IntroText, null), Does.StartWith("Підібрали добірку"));
-
-    [Test]
     public void ARecommendedVariantMarksTheWholePosition()
     {
-        Assert.That(QuotePdfDocument.Recommended(Item(new QuotePdfOption("Ціна", null, true, 100m, null, null))),
+        Assert.That(QuotePdfDocument.Recommended(Item(new QuotePdfOption("Ціна", null, true, 100m, null, null)), "Рекомендуємо"),
             Is.EqualTo("РЕКОМЕНДУЄМО"));
         Assert.That(QuotePdfDocument.Recommended(Item(
                 new QuotePdfOption("Саржа", null, false, 100m, null, null),
-                new QuotePdfOption("Габардин", null, true, 120m, null, null))),
+                new QuotePdfOption("Габардин", null, true, 120m, null, null)), "Рекомендуємо"),
             Is.EqualTo("РЕКОМЕНДУЄМО: ГАБАРДИН"));
-        Assert.That(QuotePdfDocument.Recommended(Item(new QuotePdfOption("Саржа", null, false, 100m, null, null))), Is.Null);
+        Assert.That(QuotePdfDocument.Recommended(Item(new QuotePdfOption("Саржа", null, false, 100m, null, null)), "Рекомендуємо"),
+            Is.Null);
 
         static QuotePdfItem Item(params QuotePdfOption[] options) =>
-            new("Куртка", null, null, null, null, null, null, "Варіант тканини", options, QuotePdfPrices.Columns(options));
+            new("Куртка", null, null, null, null, null, null, "Варіанти тканини", options);
     }
 
     [Test]

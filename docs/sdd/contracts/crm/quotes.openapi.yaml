@@ -1434,7 +1434,29 @@ components:
         ctaTitle: { type: [string, "null"], maxLength: 300 }
         ctaText: { type: [string, "null"], maxLength: 4000 }
         ctaContactTemplate: { type: [string, "null"], maxLength: 4000, description: "Marks: {managerName}, {managerPhone}, {managerEmail}." }
-        introText: { type: [string, "null"], maxLength: 4000, description: "Opening text under the client name. Marks: {client}, {managerName}, {managerPhone}, {managerEmail}, {site}, {quoteNumber}. Empty means the standard text." }
+        intros: { oneOf: [{ $ref: "#/components/schemas/CrmQuotePdfIntroTexts" }, { type: "null" }] }
+        labels: { oneOf: [{ $ref: "#/components/schemas/CrmQuotePdfLabels" }, { type: "null" }] }
+    CrmQuotePdfIntroTexts:
+      type: object
+      description: "«Вступний текст у КП» (R-35): the PDF takes the one that fits the КП composition. Marks: {recipient} («для <client>» or «для вас»), {sewingModel}, {fabricName}, {ppeItem} and the manager's. The response fills empty ones with the standard text; empty on save means the standard text."
+      properties:
+        onePpe: { type: [string, "null"], maxLength: 4000, description: "Only one PPE item." }
+        oneSewing: { type: [string, "null"], maxLength: 4000, description: "One sewing model with one fabric variant." }
+        oneSewingOnePpe: { type: [string, "null"], maxLength: 4000, description: "One sewing model with one fabric variant and one PPE item." }
+        sewing: { type: [string, "null"], maxLength: 4000, description: "Several sewing models or fabric variants, no PPE." }
+        ppe: { type: [string, "null"], maxLength: 4000, description: "Several PPE items, no sewing." }
+        sewingAndPpe: { type: [string, "null"], maxLength: 4000, description: "Several items with both sewing and PPE." }
+        fallback: { type: [string, "null"], maxLength: 4000, description: "None of the above, for example only embroidery." }
+    CrmQuotePdfLabels:
+      type: object
+      description: "Small texts of the КП PDF (R-35); the response fills empty ones with the standard text."
+      properties:
+        contactLine: { type: [string, "null"], maxLength: 4000, description: "Under the price note. Marks: {managerName}, {managerPhone}, {managerEmail}." }
+        codeLabel: { type: [string, "null"], maxLength: 300, description: "Before the product code, «арт.»." }
+        siteLink: { type: [string, "null"], maxLength: 300, description: "Link to the product on the site." }
+        fabricsTitle: { type: [string, "null"], maxLength: 300, description: "Above the fabric variants of a sewing item." }
+        recommended: { type: [string, "null"], maxLength: 300, description: "Mark of the recommended variant." }
+        commentTitle: { type: [string, "null"], maxLength: 300, description: "Above the client comment." }
     CrmQuoteAdvantage:
       type: object
       required: [title]

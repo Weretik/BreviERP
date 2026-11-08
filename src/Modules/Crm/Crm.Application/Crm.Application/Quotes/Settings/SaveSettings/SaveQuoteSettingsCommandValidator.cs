@@ -31,7 +31,25 @@ public sealed class SaveQuoteSettingsInputValidator : AbstractValidator<SaveQuot
             pdf.RuleFor(x => x.CtaTitle).MaximumLength(L.ShortTextMaxLength);
             pdf.RuleFor(x => x.CtaText).MaximumLength(L.TextMaxLength);
             pdf.RuleFor(x => x.CtaContactTemplate).MaximumLength(L.TextMaxLength);
-            pdf.RuleFor(x => x.IntroText).MaximumLength(L.TextMaxLength);
+            pdf.RuleFor(x => x.Intros!).ChildRules(intros =>
+            {
+                intros.RuleFor(x => x.OnePpe).MaximumLength(L.TextMaxLength);
+                intros.RuleFor(x => x.OneSewing).MaximumLength(L.TextMaxLength);
+                intros.RuleFor(x => x.OneSewingOnePpe).MaximumLength(L.TextMaxLength);
+                intros.RuleFor(x => x.Sewing).MaximumLength(L.TextMaxLength);
+                intros.RuleFor(x => x.Ppe).MaximumLength(L.TextMaxLength);
+                intros.RuleFor(x => x.SewingAndPpe).MaximumLength(L.TextMaxLength);
+                intros.RuleFor(x => x.Fallback).MaximumLength(L.TextMaxLength);
+            }).When(x => x.Intros is not null);
+            pdf.RuleFor(x => x.Labels!).ChildRules(labels =>
+            {
+                labels.RuleFor(x => x.ContactLine).MaximumLength(L.TextMaxLength);
+                labels.RuleFor(x => x.CodeLabel).MaximumLength(L.ShortTextMaxLength);
+                labels.RuleFor(x => x.SiteLink).MaximumLength(L.ShortTextMaxLength);
+                labels.RuleFor(x => x.FabricsTitle).MaximumLength(L.ShortTextMaxLength);
+                labels.RuleFor(x => x.Recommended).MaximumLength(L.ShortTextMaxLength);
+                labels.RuleFor(x => x.CommentTitle).MaximumLength(L.ShortTextMaxLength);
+            }).When(x => x.Labels is not null);
         });
         RuleFor(x => x.Introduction).NotNull().SetValidator(new QuoteIntroductionValidator());
         RuleFor(x => x.LetterVariants).NotNull()
