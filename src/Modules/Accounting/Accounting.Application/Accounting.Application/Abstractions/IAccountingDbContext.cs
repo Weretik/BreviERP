@@ -1,4 +1,5 @@
 using Accounting.Domain.Accounts;
+using Accounting.Domain.Attachments;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
@@ -16,6 +17,7 @@ public interface IAccountingDbContext
     DbSet<FinanceTransfer> Transfers { get; }
     DbSet<FinanceCounterparty> Counterparties { get; }
     DbSet<AuditEntry> AuditEntries { get; }
+    DbSet<FinanceAttachment> Attachments { get; }
 
     /// <summary>Saves; a concurrent change of the same version throws <see cref="DbUpdateConcurrencyException"/>.</summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

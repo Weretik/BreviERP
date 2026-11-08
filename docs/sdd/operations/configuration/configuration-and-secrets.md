@@ -19,6 +19,7 @@ Environment variable keys use double underscores, for example `ConnectionStrings
 | `TrustedProxy:SharedSecret` | Secret the [Cloudflare Worker](../deployment/cloudflare-api-proxy.md) sends; only then the client IP from the Worker is trusted. Production: Secret Manager `api-proxy-shared-secret` | Yes |
 | `AdmToolsStorage` | Photo library CDN storage (Media module); staff avatars use it too, folder `/avatars`. Without a login avatars are off (upload answers 503) | Login, password: yes |
 | `MediaUpload` | Maximum photo size and CDN folder for new originals | No |
+| `Accounting:Files` | `Bucket`: the private Google Cloud Storage bucket of «Бухгалтерія» files (production `brevistoreapi-accounting-files`, set by the deploy as `Accounting__Files__Bucket`; the runtime service account needs Storage Object Admin on it). `LocalPath`: a folder for a local run instead. With neither, uploads answer 503 «Сховище файлів бухгалтерії ще не налаштоване» | No |
 | `Reminders:Telegram` | Bot token, webhook secret and public webhook URL for [Telegram reminders](../jobs/telegram-reminders.md) | Token and secret: yes |
 
 ## Photo library uploads

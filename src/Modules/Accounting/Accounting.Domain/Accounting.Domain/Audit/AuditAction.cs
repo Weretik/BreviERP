@@ -19,4 +19,6 @@ public enum AuditAction
     Merge,
     Review,
     Promote,
+    AttachmentAdd,
+    AttachmentDelete,
 }

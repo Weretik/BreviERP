@@ -1,9 +1,10 @@
 openapi: 3.1.0
 info:
   title: 'Accounting: «Бухгалтерія»'
-  version: 3.0.0
+  version: 3.1.0
   description: '«Бухгалтерія» (ACC-001): «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази», «Огляд», «Контрагенти»
-    and «Потребують перевірки» for the current books and «Домашня бухгалтерія», with a change log. Policy CanUseAccounting:
+    and «Потребують перевірки» for the current books and «Домашня бухгалтерія», with a change log and private files
+    of operations. Policy CanUseAccounting:
     Director only; other roles get 403. Money is a whole number of kopecks.'
 security:
 - Bearer: []
@@ -1296,6 +1297,138 @@ paths:
           description: Not signed in
         '403':
           description: Not Director
+  /api/accounting/transactions/{id}/attachments:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceAttachments
+      description: Files of one income or expense, oldest first; removed files are left out.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FinanceAttachmentResponse'
+        '404':
+          description: No such operation
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+    post:
+      tags:
+      - Accounting
+      operationId: uploadFinanceAttachment
+      description: '«Додати файл»: a PDF, JPEG or PNG from 1 byte to 10 MiB, told by its first bytes, into the private
+        storage under finance/<transactionId>/<attachmentId>.<ext>. A voided operation takes no files. Logged as
+        AttachmentAdd of the Transaction.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinanceAttachmentResponse'
+        '400':
+          description: Wrong type, empty or larger than 10 MiB, or the operation is voided; body is a list of validation errors
+        '404':
+          description: No such operation
+        '503':
+          description: The file storage is not configured; body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/attachments/{id}:
+    delete:
+      tags:
+      - Accounting
+      operationId: deleteFinanceAttachment
+      description: '«Видалити»: the file leaves the operation and the storage; the change log keeps its name
+        (AttachmentDelete of the Transaction).'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: No such file
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
+  /api/accounting/attachments/{id}/content:
+    get:
+      tags:
+      - Accounting
+      operationId: getFinanceAttachmentContent
+      description: 'The content for an inline view: Content-Disposition inline, Cache-Control private, no-store,
+        X-Content-Type-Options nosniff.'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: No such file
+        '503':
+          description: The file storage is not configured; body is an array of messages
+        '401':
+          description: Not signed in
+        '403':
+          description: Not Director
 components:
   securitySchemes:
     Bearer:
@@ -1344,6 +1477,8 @@ components:
       - Merge
       - Review
       - Promote
+      - AttachmentAdd
+      - AttachmentDelete
     AccountingSettingsResponse:
       type: object
       properties:
@@ -1656,6 +1791,40 @@ components:
       - name
       - sortOrder
       - version
+    FinanceAttachmentResponse:
+      type: object
+      description: A file of an operation; its content is GET /api/accounting/attachments/{id}/content.
+      properties:
+        id:
+          type: string
+          format: uuid
+        transactionId:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        contentType:
+          type: string
+          enum:
+          - application/pdf
+          - image/jpeg
+          - image/png
+        sizeBytes:
+          type: integer
+          format: int64
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - transactionId
+      - fileName
+      - contentType
+      - sizeBytes
+      - createdBy
+      - createdAt
     FinanceHistoryEntryResponse:
       type: object
       description: Snapshots are the JSON text of the record before and after (null when absent).
