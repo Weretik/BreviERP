@@ -119,7 +119,7 @@ paths:
         "204": { description: Deleted. }
         "400": { $ref: "#/components/responses/Invalid" }
         "401": { description: Authentication required. }
-        "403": { description: Admin or Manager role required, and only the Director deletes. }
+        "403": { description: "Admin or Manager role required, and only the Director deletes." }
         "404": { description: Not found or not visible to the actor. }
         "409": { $ref: "#/components/responses/Conflict" }
   /api/crm/quotes/{id}/reprice:
