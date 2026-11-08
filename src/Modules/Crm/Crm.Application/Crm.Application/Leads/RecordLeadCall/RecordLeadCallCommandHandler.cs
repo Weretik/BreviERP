@@ -51,8 +51,7 @@ public sealed class RecordLeadCallCommandHandler(ILeadStore store, ITaskStaffRea
         foreach (var open in await store.OpenTasksAsync(lead.Id, cancellationToken))
             open.ChangeStatus(ManagerTaskStatus.Done, taskPerson, now);
         if (call.NextContactAt is { } nextAt)
-            store.ManagerTasks.Add(ManagerTask.ForLeadCall(lead.Id, TaskDraft(lead, call, taskPerson, nextAt),
-                taskPerson, now));
+            store.ManagerTasks.Add(LeadCallTask.Create(lead, call, taskPerson, nextAt, now));
 
         return await store.TrySaveAsync(cancellationToken)
             ? Result.Success(await store.DetailAsync(lead, now, cancellationToken))
@@ -65,15 +64,4 @@ public sealed class RecordLeadCallCommandHandler(ILeadStore store, ITaskStaffRea
         : given is { } date ? date.ToUniversalTime()
         : result.Outcome == LeadOutcome.Retry ? now.AddDays(result.RetryDays ?? 1)
         : null;
-
-    private static ManagerTaskDraft TaskDraft(Lead lead, LeadCall call, ManagerTaskPerson assignee,
-        DateTimeOffset dueAt)
-    {
-        var lines = new List<string> { $"Лід № {lead.SourceId} · останній дзвінок: {call.ResultName}." };
-        if (call.Comment is not null) lines.Add(call.Comment);
-        if (lead.CallReason is not null) lines.Add($"Привід для дзвінка: {lead.CallReason}");
-        var title = LeadLimits.Cut($"Подзвонити: {lead.Company}", ManagerTaskLimits.TitleMaxLength)!;
-        var description = LeadLimits.Cut(string.Join("\n", lines), ManagerTaskLimits.DescriptionMaxLength);
-        return new ManagerTaskDraft(title, description, assignee, dueAt, false, null, null, []);
-    }
 }

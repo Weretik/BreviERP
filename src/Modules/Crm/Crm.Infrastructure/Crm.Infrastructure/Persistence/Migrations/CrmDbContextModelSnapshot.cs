@@ -421,6 +421,14 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<string>("SheetOwner")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SheetResult")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<string>("Signal")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");

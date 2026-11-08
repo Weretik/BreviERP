@@ -521,7 +521,7 @@ components:
           items: { type: string }
     CrmLeadSync:
       type: object
-      required: [rows, added, updated, gone, skipped, at, duplicates, warning]
+      required: [rows, added, updated, gone, skipped, at, duplicates, assigned, calls, warning]
       properties:
         rows: { type: integer }
         added: { type: integer }
@@ -530,7 +530,9 @@ components:
         skipped: { type: integer, description: Rows with text but without a whole-number ID or a company. }
         at: { type: string, format: date-time }
         duplicates: { type: integer, description: "Rows left out because their company is already on an earlier row (rows match by company name, not ID)." }
-        warning: { type: [string, "null"], description: Which rows were left out and why; null when none. }
+        assigned: { type: integer, description: "Free leads taken for the Brevi manager named in «Кто взял в работу»." }
+        calls: { type: integer, description: "Calls brought into the history from a new «Результат звонка» of the sheet." }
+        warning: { type: [string, "null"], description: "Which rows were left out or which sheet owners or call results are unknown; null when none." }
     CrmLeadSyncState:
       type: object
       required: [lastRunAt, lastSuccessAt, rows, added, updated, error, warning]
@@ -541,7 +543,7 @@ components:
         added: { type: integer }
         updated: { type: integer }
         error: { type: [string, "null"], description: Why the last run failed; null after a success. }
-        warning: { type: [string, "null"], description: "What the last successful run left out (repeated companies); null when nothing." }
+        warning: { type: [string, "null"], description: "What the last successful run left out (repeated companies, sheet owners without a manager); null when nothing." }
     CrmLeadManagerStats:
       type: object
       required: [manager, inWork, calls, reachedPercent, offers, clients, overdue]

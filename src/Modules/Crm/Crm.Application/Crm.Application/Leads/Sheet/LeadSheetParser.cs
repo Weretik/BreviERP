@@ -82,7 +82,11 @@ public static class LeadSheetParser
                 Cell(Column.Reliability),
                 Cell(Column.Email),
                 Notes(Cell(Column.Owner), Cell(Column.Status), Cell(Column.CallResult), Cell(Column.NextContact),
-                    Cell(Column.Comment))));
+                    Cell(Column.Comment)),
+                Cell(Column.Owner),
+                Cell(Column.CallResult),
+                Cell(Column.Comment),
+                Date(Cell(Column.NextContact))));
         }
 
         var duplicates = result

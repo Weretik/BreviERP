@@ -38,6 +38,8 @@ public sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
         b.Property(x => x.Reliability).HasMaxLength(LeadLimits.ShortText);
         b.Property(x => x.Email).HasMaxLength(LeadLimits.ShortText);
         b.Property(x => x.SheetNotes).HasMaxLength(LeadLimits.LongText);
+        b.Property(x => x.SheetOwner).HasMaxLength(LeadLimits.NameMaxLength);
+        b.Property(x => x.SheetResult).HasMaxLength(LeadLimits.ShortText);
         b.Property(x => x.OwnerName).HasMaxLength(LeadLimits.NameMaxLength);
         b.Property(x => x.LastResultName).HasMaxLength(LeadLimits.ResultNameMaxLength);
         b.Property(x => x.Stage).HasConversion<string>().HasMaxLength(20);

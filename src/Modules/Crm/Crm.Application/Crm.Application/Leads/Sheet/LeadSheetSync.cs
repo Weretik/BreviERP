@@ -1,7 +1,10 @@
 using Crm.Application.Leads.Access;
+using Crm.Application.Leads.Calling;
 using Crm.Application.Leads.Contracts;
 using Crm.Application.Leads.Persistence;
+using Crm.Application.Tasks.Staff;
 using Crm.Domain.Leads;
+using Crm.Domain.Tasks;
 
 namespace Crm.Application.Leads.Sheet;
 
@@ -9,11 +12,14 @@ namespace Crm.Application.Leads.Sheet;
 /// Sheet «Лиды Brevi» → leads, used by «Синхронізувати зараз» and the daily brevierp-sync step (LEAD-001 R-03). Reads
 /// and checks the whole sheet first, then applies it in one transaction under a lock: a failed run changes nothing, a
 /// parallel run is refused. Rows are matched by the company name, not «ID»; the calling work of a lead is never touched; a row missing from
-/// the sheet only marks its lead «немає в таблиці».
+/// the sheet only marks its lead «немає в таблиці». A new «Кто взял в работу» naming a Brevi manager takes a free lead
+/// for that manager (<see cref="Lead.ApplySheetOwner"/>), and a new «Результат звонка» becomes that manager's call with
+/// «Комментарий» and «Следующий контакт» (<see cref="Lead.ApplySheetCall"/>); a next contact makes a «Подзвонити» task.
 /// </summary>
 public sealed class LeadSheetSync(
     ILeadStore store,
     ILeadSheetReader reader,
+    ITaskStaffReader staff,
     TimeProvider clock,
     ILogger<LeadSheetSync> logger)
 {
@@ -36,12 +42,19 @@ public sealed class LeadSheetSync(
             return Result<LeadSyncResponse>.Error(error.Message);
         }
 
-        int added = 0, updated = 0, gone = 0;
+        var managers = await staff.ListAssigneesAsync(cancellationToken);
+        var unknownOwners = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);
+        var unknownResults = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);
+        var callTasks = new List<(Lead Lead, LeadCall Call, LeadPerson By)>();
+        int added = 0, updated = 0, gone = 0, assigned = 0, calls = 0;
+        string? warning;
         await using (var scope = await store.TryBeginSyncAsync(cancellationToken))
         {
             if (scope is null) return Result<LeadSyncResponse>.Conflict(LeadMessages.SyncRunning);
 
             var leads = await store.Leads.ToDictionaryAsync(x => x.NameKey, StringComparer.Ordinal, cancellationToken);
+            var results = await store.LeadCallResults.Where(x => x.IsActive).OrderBy(x => x.Position)
+                .ToListAsync(cancellationToken);
             foreach (var row in sheet.Rows)
             {
                 if (leads.Remove(Lead.KeyOf(row.Company), out var lead))
@@ -50,9 +63,29 @@ public sealed class LeadSheetSync(
                 }
                 else
                 {
-                    store.Leads.Add(new Lead(row, now));
+                    store.Leads.Add(lead = new Lead(row, now));
                     added++;
                 }
+
+                var manager = LeadSheetOwners.Find(row.Owner, managers);
+                if (lead.ApplySheetOwner(row.Owner, manager, now)) assigned++;
+                else if (manager is null && row.Owner is not null && lead.OwnerUserId is null) unknownOwners.Add(row.Owner);
+
+                if (manager is null || row.CallResult is null) continue;
+                var match = LeadSheetResults.Find(row.CallResult, results);
+                if (!match.Known)
+                {
+                    unknownResults.Add(row.CallResult);
+                    continue;
+                }
+
+                var call = lead.ApplySheetCall(row.CallResult, manager, match.Result,
+                    LeadSheetResults.Comment(row.CallResult, match.Exact, row.CallComment),
+                    match.Result is { } r && !r.Outcome.Closes() ? KyivMorning(row.NextContact) : null,
+                    KyivMorning(row.AddedOn) is { } addedOn && addedOn < now ? addedOn : now);
+                if (call is null) continue;
+                calls++;
+                if (call.NextContactAt is not null) callTasks.Add((lead, call, manager));
             }
 
             foreach (var missing in leads.Values.Where(x => x.InSheet))
@@ -67,16 +100,53 @@ public sealed class LeadSheetSync(
 
             var state = await store.LeadSyncStates.FindAsync([LeadSyncState.GoogleSheet], cancellationToken);
             if (state is null) store.LeadSyncStates.Add(state = new LeadSyncState(LeadSyncState.GoogleSheet));
-            state.Succeeded(now, sheet.Rows.Count, added, updated, sheet.DuplicatesWarning);
+            warning = Warning(sheet.DuplicatesWarning, unknownOwners, unknownResults);
+            state.Succeeded(now, sheet.Rows.Count, added, updated, warning);
             await store.SaveChangesAsync(cancellationToken);
+
+            // The tasks point at the lead, so they wait until a new lead has its id.
+            foreach (var (lead, call, by) in callTasks)
+            {
+                var person = new ManagerTaskPerson(by.UserId, by.Name);
+                store.ManagerTasks.Add(LeadCallTask.Create(lead, call, person, call.NextContactAt!.Value, now));
+            }
+
+            if (callTasks.Count > 0) await store.SaveChangesAsync(cancellationToken);
             await scope.CommitAsync(cancellationToken);
         }
 
         logger.LogInformation(
-            "Leads synced: {Rows} rows, {Added} added, {Updated} updated, {Gone} gone, {Skipped} skipped, {Repeats} repeated companies",
-            sheet.Rows.Count, added, updated, gone, sheet.Skipped, sheet.Repeats);
+            "Leads synced: {Rows} rows, {Added} added, {Updated} updated, {Gone} gone, {Skipped} skipped, {Repeats} repeated companies, {Assigned} taken for managers, {Calls} calls from the sheet, {Unknown} unknown sheet owners, {UnknownResults} unknown results",
+            sheet.Rows.Count, added, updated, gone, sheet.Skipped, sheet.Repeats, assigned, calls, unknownOwners.Count,
+            unknownResults.Count);
         return Result.Success(new LeadSyncResponse(sheet.Rows.Count, added, updated, gone, sheet.Skipped, now,
-            sheet.Repeats, sheet.DuplicatesWarning));
+            sheet.Repeats, assigned, calls, warning));
+    }
+
+    private static readonly TimeZoneInfo Kyiv = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
+
+    /// <summary>A sheet date as 09:00 Kyiv time, the start of the working day.</summary>
+    private static DateTimeOffset? KyivMorning(DateOnly? date)
+    {
+        if (date is not { } day) return null;
+        var local = day.ToDateTime(new TimeOnly(9, 0));
+        return new DateTimeOffset(local, Kyiv.GetUtcOffset(local)).ToUniversalTime();
+    }
+
+    private static string? Warning(string? duplicates, IReadOnlyCollection<string> unknownOwners,
+        IReadOnlyCollection<string> unknownResults)
+    {
+        var results = unknownResults.Count == 0
+            ? null
+            : "Невідомі значення «Результат звонка», їх не перенесено в історію: " +
+              string.Join(", ", unknownResults.Select(x => $"«{x}»")) +
+              ". Додайте такий результат у «Довідники», і він перенесеться при наступній синхронізації.";
+        var owners = unknownOwners.Count == 0
+            ? null
+            : "У колонці «Кто взял в работу» є імена без менеджера в Brevi: " +
+              string.Join(", ", unknownOwners.Select(x => $"«{x}»")) +
+              ". Ці ліди лишились вільними; вони закріпляться, коли ім'я збіжеться з менеджером.";
+        return string.Join(" ", new[] { duplicates, owners, results }.OfType<string>()) is { Length: > 0 } text ? text : null;
     }
 
     private async Task RecordFailureAsync(DateTimeOffset now, string error, CancellationToken cancellationToken)

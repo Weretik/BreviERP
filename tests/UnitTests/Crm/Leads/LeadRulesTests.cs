@@ -1,4 +1,5 @@
 using Crm.Application.Leads.Sheet;
+using Crm.Application.Tasks.Staff;
 using Crm.Domain.Leads;
 using Identity.Domain.Authorization;
 
@@ -72,6 +73,76 @@ public sealed class LeadRulesTests
         });
 
         Assert.Throws<LeadSheetFormatException>(() => LeadSheetParser.Parse([["Назва", "Регион"], ["А", "Київ"]]));
+    }
+
+    [Test]
+    public void Sheet_owner_finds_the_manager_across_russian_and_ukrainian_spelling()
+    {
+        TaskStaffMember[] managers = [new(17, "Анастасія Петренко", null), new(18, "Вадим", null), new(19, "Вадим Л.", null)];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(LeadSheetOwners.Find("Анастасия", managers), Is.EqualTo(new LeadPerson(17, "Анастасія Петренко")));
+            Assert.That(LeadSheetOwners.Find("анастасія (з понеділка)", managers)?.UserId, Is.EqualTo(17));
+            Assert.That(LeadSheetOwners.Find("Вадим", managers), Is.Null, "two managers match");
+            Assert.That(LeadSheetOwners.Find("Олег", managers), Is.Null);
+            Assert.That(LeadSheetOwners.Find(null, managers), Is.Null);
+        });
+    }
+
+    [Test]
+    public void Sheet_owner_takes_a_free_lead_once_and_a_release_in_brevi_stays()
+    {
+        var lead = NewLead();
+
+        Assert.That(lead.ApplySheetOwner("Олег", null, Now), Is.False, "no manager: not remembered");
+        Assert.That(lead.SheetOwner, Is.Null);
+        Assert.That(lead.ApplySheetOwner("Анастасия", Anastasia, Now), Is.True);
+        Assert.That((lead.OwnerUserId, lead.Stage), Is.EqualTo(((int?)Anastasia.UserId, LeadStage.InWork)));
+
+        lead.Release(Now);
+        Assert.That(lead.ApplySheetOwner("Анастасия", Anastasia, Now), Is.False, "same sheet value");
+        Assert.That(lead.OwnerUserId, Is.Null);
+
+        lead.Take(Vadym, Now);
+        Assert.That(lead.ApplySheetOwner("Анастасия П.", Anastasia, Now), Is.False, "taken in Brevi");
+        Assert.That(lead.OwnerUserId, Is.EqualTo(Vadym.UserId));
+    }
+
+    [Test]
+    public void Sheet_results_map_the_russian_values_to_the_call_results()
+    {
+        LeadCallResult[] active =
+        [
+            new("Не дозвонились", LeadOutcome.Retry, 1, 10), new("Передзвонити", LeadOutcome.Callback, null, 30),
+            new("Надіслали КП", LeadOutcome.Offer, null, 50), new("Відмова", LeadOutcome.Closed, null, 70),
+        ];
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(LeadSheetResults.Find("не дозвонились ", active), Is.EqualTo(new LeadSheetResults.Match(true, active[0], true)));
+            Assert.That(LeadSheetResults.Find("Узнать позже", active).Result, Is.SameAs(active[1]));
+            Assert.That(LeadSheetResults.Find("отправили на почту ", active).Result, Is.SameAs(active[2]), "renamed: by outcome");
+            Assert.That(LeadSheetResults.Find("Не звонили", active), Is.EqualTo(new LeadSheetResults.Match(true, null, true)));
+            Assert.That(LeadSheetResults.Find("Щось нове", active).Known, Is.False);
+            Assert.That(LeadSheetResults.Find("Вышли на ответственного", active).Known, Is.False, "no Talking result");
+            Assert.That(LeadSheetResults.Comment("Отказ", false, "Є постачальник"), Is.EqualTo("У таблиці: «Отказ». Є постачальник"));
+            Assert.That(LeadSheetResults.Comment("Відмова", true, null), Is.Null);
+        });
+    }
+
+    [Test]
+    public void Sheet_call_is_recorded_once_and_only_on_an_open_lead_of_that_manager()
+    {
+        var lead = NewLead();
+        var noAnswer = new LeadCallResult("Не дозвонились", LeadOutcome.Retry, 1, 10);
+        lead.ApplySheetOwner("Анастасия", Anastasia, Now);
+
+        Assert.That(lead.ApplySheetCall("Не дозвонились", Vadym, noAnswer, null, null, Now), Is.Null, "not his lead");
+        Assert.That(lead.ApplySheetCall("Не дозвонились", Anastasia, noAnswer, null, null, Now), Is.Null, "value already seen");
+        Assert.That(lead.ApplySheetCall("Отказ", Anastasia, Result(LeadOutcome.Closed), "Ні", null, Now), Is.Not.Null);
+        Assert.That(lead.ApplySheetCall("Не дозвонились", Anastasia, noAnswer, null, null, Now), Is.Null, "closed");
+        Assert.That((lead.CallCount, lead.Stage), Is.EqualTo((1, LeadStage.Closed)));
     }
 
     [Test]

@@ -1,6 +1,6 @@
 # «Менеджер сервісу»: leads
 
-**Implemented:** backend of [LEAD-001](../../specs/crm/006-leads/README.md) (2026-11-08). The AI writes companies into the Google sheet «Лиды Brevi»; the step `leads` of the daily sync job and «Синхронізувати зараз» bring them in by company name (not by the «ID» the AI may repeat) without touching the calling work. Managers take free leads («Усі ліди»), call them on «Мій день» and record a result; a next contact makes a «Подзвонити» task in «Мої завдання» and closes the previous one. «Адміністрування › Ліди» shows «Зведення», edits «Довідники» (call results, category descriptions) and runs the sync.
+**Implemented:** backend of [LEAD-001](../../specs/crm/006-leads/README.md) (2026-11-08). The AI writes companies into the Google sheet «Лиды Brevi»; the step `leads` of the daily sync job and «Синхронізувати зараз» bring them in by company name (not by the «ID» the AI may repeat) without touching the calling work; a new «Кто взял в работу» / «Результат звонка» / «Следующий контакт» of the sheet takes the lead for that manager and records the call once. Managers take free leads («Усі ліди»), call them on «Мій день» and record a result; a next contact makes a «Подзвонити» task in «Мої завдання» and closes the previous one. «Адміністрування › Ліди» shows «Зведення», edits «Довідники» (call results, category descriptions) and runs the sync.
 
 Access: page `leads` (view, edit) — Admin, Manager; page `lead-stats` (view, create = sync, edit = references) — Admin; the director always.
 
