@@ -167,6 +167,33 @@ public sealed class QuotePdfTests
     }
 
     [Test]
+    public void PricesAreRoundedUpToWholeHryvnias()
+    {
+        Assert.That(QuotePdfPrices.Tiles(1871.86m, 1594.10m, 1509m).Select(x => x.Price),
+            Is.EqualTo(new[] { 1872m, 1595m, 1509m }));
+        Assert.That(QuotePdfPrices.Tiles(1620.10m, 1620.90m, null).Select(x => (x.Label, x.Price)),
+            Is.EqualTo(new[] { ("до 40 шт.", 1621m) }));
+    }
+
+    [Test]
+    public async Task APositionTallerThanAPageIsStillPrinted()
+    {
+        var item = new QuoteItem(0, QuoteItemKind.Sewing, 10,
+            new QuoteItemTexts("MOD-1", "Костюм", null, string.Join(" ", Enumerable.Repeat("Довгий опис моделі.", 600)),
+                null, null, null, null),
+            [new QuoteItemOption(0, 100, 5, "Саржа", null, true, new QuotePrice(100m, null, true),
+                new QuotePrice(90m, null, true), new QuotePrice(80m, null, true), DateTimeOffset.UnixEpoch)]);
+        var quote = new Quote(new QuoteNumber(2026, 11, 24), QuoteKind.Request, new QuotePerson(5, "Юлія"),
+            new QuoteHeader("Довге", null, null, null, null, null), [item, item], DateTimeOffset.UnixEpoch);
+        var model = QuotePdfModelBuilder.Build(quote, QuoteSettingsDefaults.Content, Manager);
+        var renderer = new QuotePdfRenderer(new QuotePdfImageLoader(new HttpClient(), NullLogger<QuotePdfImageLoader>.Instance));
+
+        var pdf = await renderer.RenderAsync(model, CancellationToken.None);
+
+        Assert.That(System.Text.Encoding.ASCII.GetString(pdf, 0, 5), Is.EqualTo("%PDF-"));
+    }
+
+    [Test]
     public void HiddenPricesLeaveNoGapAndDifferentPricesKeepTheirTiles()
     {
         Assert.That(QuotePdfPrices.Tiles(1620m, null, 1620m).Select(x => x.Label),

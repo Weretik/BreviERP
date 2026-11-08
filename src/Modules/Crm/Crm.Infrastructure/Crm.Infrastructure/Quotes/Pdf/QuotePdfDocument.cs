@@ -156,8 +156,12 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
         });
     }
 
+    /// <summary>
+    /// One position: photo, texts and prices stay on one page; a position that does not fit moves whole to the next
+    /// page, and only one taller than a page is split.
+    /// </summary>
     private void Item(IContainer container, string number, QuotePdfItem item) =>
-        container.EnsureSpace(190).BorderTop(1).BorderColor(Line).PaddingTop(14).Column(column =>
+        container.PreventPageBreak().BorderTop(1).BorderColor(Line).PaddingTop(14).Column(column =>
         {
             column.Item().Row(row =>
             {
@@ -293,7 +297,8 @@ internal sealed class QuotePdfDocument(QuotePdfModel model, IReadOnlyDictionary<
         : item.Options.Count == 1 ? label.ToUpperInvariant()
         : $"{label.ToUpperInvariant()}: {option.Title.ToUpperInvariant()}";
 
-    private static string Price(decimal value) => $"{QuotePdfParts.Money(value)} грн";
+    /// <summary>Whole hryvnias: the tiles already hold prices rounded up (R-35).</summary>
+    private static string Price(decimal value) => $"{value.ToString("#,##0", QuotePdfParts.Uk)} грн";
 
     private static string? Prefixed(string label, string? value) => value is null ? null : $"{label} {value}";
 
