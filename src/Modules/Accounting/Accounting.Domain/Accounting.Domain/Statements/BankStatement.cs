@@ -89,4 +89,17 @@ public sealed class BankStatement : IAggregateRoot
         BookedAt = now;
         Version++;
     }
+
+    /// <summary>«Відкотити виписку»: the statement is a preview again; its operations and transfers were cancelled.</summary>
+    public void Rollback()
+    {
+        if (Status != BankStatementStatus.Booked)
+            throw AccountingDomainError.Fail("Accounting.Statement.NotBooked", "Виписку ще не проведено; відкочувати нічого.");
+        Status = BankStatementStatus.Preview;
+        TransactionCount = 0;
+        TransferCount = 0;
+        BookedBy = null;
+        BookedAt = null;
+        Version++;
+    }
 }

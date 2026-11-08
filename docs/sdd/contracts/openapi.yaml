@@ -89,6 +89,8 @@ paths:
     $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1statements~1{id}~1lines~1{lineId}
   /api/accounting/statements/{id}/book:
     $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1statements~1{id}~1book
+  /api/accounting/statements/{id}/rollback:
+    $ref: ./accounting/finance.openapi.yaml#/paths/~1api~1accounting~1statements~1{id}~1rollback
   /api/admin/users:
     $ref: ./identity/users.openapi.yaml#/paths/~1api~1admin~1users
   /api/admin/users/{userId}:

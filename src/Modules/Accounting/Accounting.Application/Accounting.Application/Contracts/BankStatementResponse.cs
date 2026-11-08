@@ -43,7 +43,14 @@ public sealed record BankStatementDetailsResponse(
     IReadOnlyList<BankStatementLineResponse> Lines,
     int Total,
     int Page,
-    int PageSize);
+    int PageSize,
+    BankStatementRollback? Rollback = null);
+
+/// <summary>
+/// What «Відкотити виписку» would do to a booked statement: active operations and transfers to cancel, how many of
+/// them were changed by hand after the booking, and how many are cancelled already.
+/// </summary>
+public sealed record BankStatementRollback(int Transactions, int Transfers, int Changed, int Cancelled);
 
 public sealed record BankLineStateCount(BankLineState State, int Count);
 

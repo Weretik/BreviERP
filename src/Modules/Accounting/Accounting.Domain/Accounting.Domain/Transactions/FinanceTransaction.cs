@@ -260,6 +260,19 @@ public sealed class FinanceTransaction : IAggregateRoot
         Touch(now);
     }
 
+    /// <summary>
+    /// «Відкотити виписку»: a cancelled record of a rolled back statement gives up its bank identity, so the same bank
+    /// line can be booked again and is not taken for a duplicate.
+    /// </summary>
+    public void ReleaseBankIdentity()
+    {
+        if (Status != MovementStatus.Void)
+            throw new InvalidOperationException("Only a cancelled record gives up its bank identity.");
+        ExternalId = null;
+        Fingerprint = null;
+        BankTransactionId = null;
+    }
+
     /// <summary>«Анулювати»: the operation stays in the journal and the log but no longer counts.</summary>
     public void Void(DateTimeOffset now)
     {
