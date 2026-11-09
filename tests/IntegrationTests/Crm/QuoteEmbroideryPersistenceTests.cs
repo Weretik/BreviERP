@@ -70,6 +70,7 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
         Assert.That(item.EmbroideryCalculationId, Is.EqualTo(calculationId));
         Assert.That(item.Name, Is.EqualTo("Логотип на поло"));
         Assert.That(item.Subtitle, Is.EqualTo("Вишивка · ВШ-0001"));
+        Assert.That(item.Description, Is.Null, "no quantity, stitches or hoop for the client");
         var option = item.Options.Single();
         Assert.That(option.Title, Is.EqualTo("Категорія 2"));
         Assert.That(new[] { option.Retail.Amount, option.Wholesale.Amount, option.Large.Amount }.Distinct().Single(),
