@@ -32,18 +32,8 @@ public static class QuoteEmbroideryItems
         var kind = chevron ? ChevronName : GarmentName;
         var name = string.IsNullOrWhiteSpace(saved.Name) ? kind : saved.Name;
         return new QuoteItemTexts(null, Cut(name, QuoteLimits.NameMaxLength),
-            $"{kind} · {EmbroiderySavedCalculation.NumberOf(saved.Id)}", Description(saved), null, null,
+            $"{kind} · {EmbroiderySavedCalculation.NumberOf(saved.Id)}", null, null, null,
             null, null);
-    }
-
-    /// <summary>«120 шт · 8 000 стібків на 1 шт · п’яльця 18 см.»; the manager can change it in the КП.</summary>
-    public static string Description(EmbroiderySavedCalculation saved)
-    {
-        var uk = CultureInfo.GetCultureInfo("uk-UA");
-        var hoop = saved.Snapshot.Settings.Hoops.FirstOrDefault(x => x.Id == saved.Input.HoopId)?.Label
-                   ?? saved.Input.HoopId;
-        var stitches = saved.Input.StitchesPerUnit.ToString("N0", uk);
-        return $"{saved.Quantity.ToString("N0", uk)} шт · {stitches} стібків на 1 шт · п’яльця {hoop}.";
     }
 
     private static QuoteItemOption Option(EmbroiderySavedCalculation saved, EmbroideryPrice price)
