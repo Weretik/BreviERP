@@ -4,8 +4,9 @@ info:
   version: 1.0.0
   description: >-
     Stage 1 of the sewing workshop «Швейний цех» (PRD-001): workers of the workshop, fabric norms per Catalog sewing model
-    and a read-only view of the payroll coefficients kept in «Параметри ціноутворення». Workers do not sign in; the head of
-    the workshop records their work. Access: «Права доступу» pages access:workshop-staff, access:fabric-norms, access:payroll-rules (WorkshopChief and Admin by default; the director always).
+    and the composition of every model read from Catalog (PRD-009). Payroll coefficients are kept and shown only in
+    «Параметри ціноутворення». Workers do not sign in; the head of the workshop records their work. Access: «Права
+    доступу» pages access:workshop-staff, access:fabric-norms (WorkshopChief and Admin by default; the director always).
 servers:
   - url: /
 security:
@@ -125,6 +126,19 @@ paths:
               schema:
                 type: array
                 items: { $ref: '#/components/schemas/FabricNormRowResponse' }
+  /api/production/fabric-norms/compositions:
+    get:
+      tags: [Production]
+      operationId: getModelCompositions
+      summary: Every Catalog sewing model by code with its lining, insulation and fleece and its full composition from «Товари» (read-only)
+      responses:
+        '200':
+          description: One block per model; a model without composition has empty lists.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ModelCompositionResponse' }
   /api/production/fabric-norms/{modelCode}:
     parameters:
       - { in: path, name: modelCode, required: true, schema: { type: string, maxLength: 32 }, description: 'Catalog model code, for example MOD-025 (case-insensitive).' }
@@ -174,19 +188,6 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/FabricNormImportResult' }
         '400': { description: 'Empty list, more than 1000 rows, a repeated model code or an invalid norm.' }
-  /api/production/payroll-parameters:
-    get:
-      tags: [Production]
-      operationId: getPayrollParameters
-      summary: Payroll coefficients read from «Параметри ціноутворення» (edited there, not here)
-      responses:
-        '200':
-          description: One row per coefficient the workshop pays by, in a fixed order.
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/PayrollParameterResponse' }
 components:
   securitySchemes:
     Bearer:
@@ -252,6 +253,8 @@ components:
         threeColorsTotal: { type: [number, 'null'] }
         updatedAt: { type: [string, 'null'], format: date-time }
         problem: { type: [string, 'null'], description: 'Set only when something is wrong, for example the model is gone from Catalog.' }
+        productId: { type: [integer, 'null'], description: 'Catalog product of the model, for a link to its card; null when the model is gone.' }
+        season: { type: [string, 'null'], description: '«Літо» or «Зима» from Catalog; null when not set.' }
     FabricNormImportRow:
       type: object
       required: [modelCode, norm]
@@ -277,14 +280,40 @@ components:
               modelName: { type: [string, 'null'] }
               action: { type: string, enum: [created, updated, unchanged, error] }
               error: { type: [string, 'null'] }
-    PayrollParameterResponse:
+    ModelCompositionResponse:
       type: object
-      required: [code, purpose]
+      required: [modelCode, modelName, modelIsActive, layers, lines]
       properties:
-        code: { type: string, description: 'Code in «Параметри ціноутворення», for example SHOP_MANAGER_RATE.' }
-        purpose: { type: string, description: What the workshop uses it for. }
-        name: { type: [string, 'null'], description: Name in «Параметри ціноутворення»; null when the parameter is missing. }
-        value: { type: [number, 'null'] }
-        unit: { type: [string, 'null'] }
-        updatedOn: { type: [string, 'null'], format: date }
-        problem: { type: [string, 'null'], description: Set only when the parameter is missing or has no value. }
+        modelCode: { type: string }
+        modelName: { type: string }
+        productId: { type: [integer, 'null'] }
+        season: { type: [string, 'null'] }
+        modelIsActive: { type: boolean }
+        layers:
+          type: array
+          description: Composition lines that are an extra layer, recognised by the material name.
+          items: { $ref: '#/components/schemas/ModelLayerResponse' }
+        lines:
+          type: array
+          description: Full composition; fabric variants first, then the lines of the whole model in card order.
+          items: { $ref: '#/components/schemas/ModelCompositionLineResponse' }
+    ModelLayerResponse:
+      type: object
+      required: [purpose, quantity, unit]
+      properties:
+        purpose: { type: string, enum: [Підкладка, Утеплювач, Фліс] }
+        code: { type: [string, 'null'] }
+        name: { type: [string, 'null'] }
+        quantity: { type: number }
+        unit: { type: string, enum: [Metre, Piece, Service, Kilogram] }
+    ModelCompositionLineResponse:
+      type: object
+      required: [kind, quantity, unit]
+      properties:
+        kind: { type: string, enum: [Fabric, Accessory, OtherCost] }
+        article: { type: [string, 'null'], description: 'Sale SKU of the fabric variant; null for a line of the whole model.' }
+        code: { type: [string, 'null'], description: 'FAB-…, FUR-… or the cost code; null when unknown.' }
+        name: { type: [string, 'null'], description: 'Reference name; null when the reference is gone.' }
+        quantity: { type: number }
+        unit: { type: string, enum: [Metre, Piece, Service, Kilogram] }
+        comment: { type: [string, 'null'] }

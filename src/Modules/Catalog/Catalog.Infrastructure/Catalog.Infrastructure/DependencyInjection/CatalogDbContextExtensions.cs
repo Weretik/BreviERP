@@ -28,7 +28,9 @@ public static class CatalogDbContextExtensions
         services.AddScoped(typeof(ICatalogRepository<>), typeof(CatalogEfRepository<>));
         services.AddScoped(typeof(ICatalogReadRepository<>), typeof(CatalogReadEfRepository<>));
         services.AddScoped<Catalog.Application.Features.Product.Sewing.ISewingCompositionStore, SewingCompositionStore>();
-        services.AddScoped<Catalog.Application.Features.Product.Sewing.ISewingCompositionReadStore, SewingCompositionReadStore>();
+        services.AddScoped<SewingCompositionReadStore>();
+        services.AddScoped<Catalog.Application.Features.Product.Sewing.ISewingCompositionReadStore>(provider => provider.GetRequiredService<SewingCompositionReadStore>());
+        services.AddScoped<Catalog.Application.Features.Product.Sewing.ISewingCompositionListReader>(provider => provider.GetRequiredService<SewingCompositionReadStore>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogDbContext>>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.ISewingPricingInputReader, Catalog.Infrastructure.Pricing.Reading.SewingPricingInputReader>();
         services.AddScoped<Catalog.Application.Contracts.Pricing.ISewingPricingSettingsReader, Catalog.Infrastructure.Pricing.Reading.SewingPricingSettingsReader>();

@@ -18,6 +18,7 @@ src/Modules/Catalog/
 │   │   ├── DeleteArticle/                                         # variant without price history
 │   │   ├── ListArticles/                                          # list query, result and handler
 │   │   ├── GetComposition/                                        # effective composition query and handler
+│   │   ├── ListCompositions/                                      # every model's lines with codes and names, for the workshop (PRD-009)
 │   │   ├── ReplaceComposition/                                    # shared norms replacement
 │   │   └── Shared/{DTOs,Validators,Mapping}/                       # genuinely shared line contracts, validation and assembly
 │   └── Contracts/Persistence/Sewing/                              # separate read/write contracts and projection snapshot
@@ -34,7 +35,7 @@ src/Modules/Catalog/
 │   └── ValueObjects/                                               # typed child and Reference IDs
 └── Catalog.Infrastructure/Catalog.Infrastructure/
     ├── Repositories/SewingCompositionStore.cs                       # tracked writes and conflict mapping
-    ├── Repositories/SewingCompositionReadStore.cs                   # no-tracking read projections
+    ├── Repositories/SewingCompositionReadStore.cs                   # no-tracking read projections; ReadAllAsync for all models
     ├── Congigurations/Sewing*Configuration.cs                       # integrity and typed ID mappings
     └── Migrations/20261024215605_AddSewingComposition.cs              # additive rollout
 ```

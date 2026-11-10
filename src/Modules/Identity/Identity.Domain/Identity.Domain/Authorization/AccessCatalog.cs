@@ -41,7 +41,6 @@ public static class AccessCatalog
     public const string Forecast = "forecast";
     public const string WorkshopStaff = "workshop-staff";
     public const string FabricNorms = "fabric-norms";
-    public const string PayrollRules = "payroll-rules";
     public const string WorkshopSettings = "workshop-settings";
     public const string WorkshopArchive = "workshop-archive";
     public const string Payroll = "payroll";
@@ -92,7 +91,6 @@ public static class AccessCatalog
         new(WorkshopStaff, Workshop, "Працівники цеху", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
         new(FabricNorms, Workshop, "Норми витрати тканини", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
-        new(PayrollRules, Workshop, "Правила зарплати", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
         new(WorkshopSettings, Workshop, "Налаштування цеху", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
         new(WorkshopArchive, Workshop, "Архів цеху", VE,

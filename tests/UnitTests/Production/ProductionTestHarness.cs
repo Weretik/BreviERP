@@ -24,6 +24,11 @@ internal sealed class FakeProductionModelReader : IProductionModelReader
 
     public Task<ProductionModelCosts?> ReadCostsAsync(int productId, CancellationToken cancellationToken) =>
         Task.FromResult(Costs.GetValueOrDefault(productId));
+
+    public List<ProductionModelComposition> Compositions { get; } = [];
+
+    public Task<IReadOnlyList<ProductionModelComposition>> ListCompositionsAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ProductionModelComposition>>(Compositions);
 }
 
 /// <summary>КП by id; a manager sees only the КП they are responsible for, like the Crm query.</summary>

@@ -17,7 +17,7 @@ public sealed class GetFabricNormsQueryHandler(IProductionDbContext db, IProduct
             norms.Remove(model.Code, out var norm);
             var values = norm?.Values;
             rows.Add(new(model.Code, model.Name, model.IsActive, values?.ToInput(), values?.TwoColorsTotal,
-                values?.ThreeColorsTotal, norm?.UpdatedAt, null));
+                values?.ThreeColorsTotal, norm?.UpdatedAt, null, model.ProductId, model.Season));
         }
 
         rows.AddRange(norms.Values.OrderBy(x => x.ModelCode, StringComparer.Ordinal).Select(x => new FabricNormRowResponse(

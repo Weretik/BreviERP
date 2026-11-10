@@ -16,7 +16,6 @@ internal static class ProductionAccess
     public const string Forecast = "access:forecast";
     public const string Staff = "access:workshop-staff";
     public const string FabricNorms = "access:fabric-norms";
-    public const string PayrollRules = "access:payroll-rules";
     public const string Settings = "access:workshop-settings";
     public const string Archive = "access:workshop-archive";
     public const string Payroll = "access:payroll";
