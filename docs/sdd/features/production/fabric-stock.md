@@ -19,7 +19,7 @@ src/Modules/Production/
       StockReservations.cs       # plans of «Нове» orders minus what issues covered
       StockRows.cs               # row with available and value; permissions
       StockChanges.cs            # actor, fabric, line lookup or creation, save with 409, card
-      GetChoices (fabrics and suppliers for the forms), GetStock, GetStockLine, Movements (opening/receipt, correction, reversal), Issues (ItemFabricCards, tab query, issue, reversal),
+      GetChoices (fabrics, suppliers and «Кольори» colours for the forms; a new line takes a listed colour, REF-006), GetStock, GetStockLine, Movements (opening/receipt, correction, reversal), Issues (ItemFabricCards, tab query, issue, reversal),
       Consumption (period summary), ImportStock (old «Цех»)
       StockMessages.cs
   Production.Infrastructure/.../Persistence/Configurations/FabricStockConfiguration.cs

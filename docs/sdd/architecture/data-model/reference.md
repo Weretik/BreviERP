@@ -11,6 +11,7 @@
 | `GarmentPartOperations` | `Id` | Operations: `Code` (OP-…, unique when set), `GarmentPartId`, `Element`, `Variant`, `Name` (unique within a group), `Min` numeric(24,8) (0 when `MinutesPerProduct`), `MinutesPerProduct`, `IsActive`, `Notes`; the pricing revision workflow accepts values fitting numeric(20,8). |
 | `PricingParameters` | `Id` | «Параметри ціноутворення» from the sheet «Налаштування цін»: unique `Code`, `Group`, `Name`, `Value` (fraction for %, null when `IsCalculated`), `Unit`, `UpdatedOn`, `Comment`, `SortOrder`. Old PPE products may hold its `Id` in `RetailAdditionalReferenceId`/`WholesaleAdditionalReferenceId` (no FK). |
 | `PpeMarkupRules` | `Id` | PPE markup rules: unique `Name` (the rule code of PPE offers), `RetailMarkup`, `WholesaleMarkup`, `LargeWholesaleMarkup` (fractions), `PriceNote`, `AppliesTo`, `SortOrder`. |
+| `FabricColors` | `Id` | «Кольори»: unique `Name` (≤ 80), `IsActive`, `SortOrder`; the migration adds the 61 sheet colours. Production keeps colours as text (no FK). |
 | `ProductSections` | `Id` | «Типи і розділи»: `Type` (Sewing/Ppe, string), unique `Name`, `IsActive`, `Comment`, `SortOrder`. Products will refer to it by ID. |
 | `PricingInputVersions` | generated long `Id` | Immutable effective Fabric/Accessory/Operation input or OtherCost code, decimal value/unit, revision, approval/activity and source provenance. Exactly one reference; same-module FKs retain history. |
 

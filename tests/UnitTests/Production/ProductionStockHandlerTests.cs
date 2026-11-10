@@ -171,7 +171,7 @@ public sealed class ProductionStockHandlerTests
 
     private static Task<Result<FabricStockLineResponse>> Receive(ProductionTestHarness workshop, ProductionActor actor,
         string kind, decimal meters, int? version, int? supplierId = null) =>
-        new CreateFabricMovementCommandHandler(workshop.StockChanges(), workshop.Suppliers)
+        new CreateFabricMovementCommandHandler(workshop.StockChanges(), workshop.Suppliers, workshop.Colors())
             .Handle(new(actor, new(kind, 23, "Темно-сірий", meters, Day, supplierId, "рах 12137", null, version)),
                 CancellationToken.None).AsTask();
 

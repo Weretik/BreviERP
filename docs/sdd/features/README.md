@@ -31,6 +31,7 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 
 - [Suppliers](reference/suppliers.md) — CRUD, list reads and KeepinCRM refresh.
 - [Fabrics](reference/fabrics.md) — CRUD, list reads and import of the Calculator sheet «Тканини».
+- [Colours](reference/fabric-colors.md) — «Кольори» of «Матеріали»: the sheet colours list, CRUD; the workshop picks colours only from it.
 - [Garment accessories](reference/garment-accessories.md) — CRUD, list reads and import of the Calculator sheet «Фурнітура».
 - [Garment parts](reference/garment-parts.md) — CRUD and list reads.
 - [Sewing operations](reference/garment-part-operations.md) — CRUD, list reads, and import of the Calculator sheet «Операції».

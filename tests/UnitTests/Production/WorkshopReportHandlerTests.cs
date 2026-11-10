@@ -126,7 +126,7 @@ public sealed class WorkshopReportHandlerTests
 
     private static async Task<(int OrderId, int ItemId)> SewnOrderAsync(ProductionTestHarness workshop, int seamstress)
     {
-        await new CreateFabricMovementCommandHandler(workshop.StockChanges(), workshop.Suppliers)
+        await new CreateFabricMovementCommandHandler(workshop.StockChanges(), workshop.Suppliers, workshop.Colors())
             .Handle(new(Chief, new("Opening", 23, "Темно-сірий", 10m, Day, null, null, null, null)),
                 CancellationToken.None);
         var order = (await ProductionOrderHandlerTests.Create(workshop, Manager, ProductionOrderHandlerTests.Input())).Value;

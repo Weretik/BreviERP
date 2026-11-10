@@ -8,6 +8,10 @@ namespace Production.Application.Orders;
 
 internal static class OrderMapping
 {
+    /// <summary>The main and additional fabric colours of an item, as picked from «Кольори».</summary>
+    public static IEnumerable<string> Colors(this ProductionItemDetailsInput input) =>
+        (input.AdditionalColors ?? []).Prepend(input.MainColor);
+
     /// <param name="embroideryNumbers">«ВШ-…» of the linked calculations; a link not in it is dropped.</param>
     public static ItemDetails ToDetails(this ProductionItemDetailsInput input,
         IReadOnlyDictionary<long, string>? embroideryNumbers = null) => new(

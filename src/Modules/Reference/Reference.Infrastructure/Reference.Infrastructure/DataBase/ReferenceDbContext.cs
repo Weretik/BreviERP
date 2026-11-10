@@ -1,4 +1,5 @@
 using Reference.Application.Contracts.Persistence;
+using Reference.Domain.FabricColors.Entities;
 using Reference.Domain.PpeMarkupRules.Entities;
 using Reference.Domain.PricingParameters.Entities;
 using Reference.Domain.ProductSections.Entities;
@@ -15,6 +16,7 @@ public partial class ReferenceDbContext(DbContextOptions<ReferenceDbContext> opt
     public DbSet<PpeMarkupRule> PpeMarkupRules => Set<PpeMarkupRule>();
     public DbSet<ProductSection> ProductSections => Set<ProductSection>();
     public DbSet<Fabric> Fabrics => Set<Fabric>();
+    public DbSet<FabricColor> FabricColors => Set<FabricColor>();
     public DbSet<GarmentAccessory> GarmentAccessories => Set<GarmentAccessory>();
     public DbSet<GarmentPart> GarmentParts => Set<GarmentPart>();
     public DbSet<GarmentPartOperation> GarmentPartOperations => Set<GarmentPartOperation>();

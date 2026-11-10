@@ -1,5 +1,6 @@
 using Reference.Domain.GarmentPartOperations.ValueObjects;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Reference.Domain.FabricColors.ValueObjects;
 using Reference.Domain.PpeMarkupRules.ValueObjects;
 using Reference.Domain.ProductSections.ValueObjects;
 using Reference.Domain.PricingParameters.ValueObjects;
@@ -19,6 +20,11 @@ public static class ReferenceConverters
         new(
             id => id.Value,
             v => PpeMarkupRuleId.From(v)
+        );
+    public static readonly ValueConverter<FabricColorId, int> FabricColorIdConvert =
+        new(
+            id => id.Value,
+            v => FabricColorId.From(v)
         );
     public static readonly ValueConverter<ProductSectionId, int> ProductSectionIdConvert =
         new(

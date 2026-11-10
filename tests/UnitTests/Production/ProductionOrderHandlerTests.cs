@@ -118,7 +118,7 @@ public sealed class ProductionOrderHandlerTests
         var details = Details(5) with { AdditionalColors = [], SizesText = "M-3, L-2" };
 
         var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
-            workshop.EmbroideryLinks(), workshop.Time)
+            workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time)
             .Handle(new(Chief, created.Id, new UpdateProductionOrderInput(created.Version, created.ClientName,
                 created.OrderDate, null, [new(item.Id, details, 300m)])), CancellationToken.None);
         var history = (await new GetProductionOrderHistoryQueryHandler(workshop.Db)
@@ -143,7 +143,7 @@ public sealed class ProductionOrderHandlerTests
         var created = (await Create(workshop, Manager, Input())).Value;
         var lines = created.Items.Select(x => new UpdateProductionItemInput(x.Id, Details(4), null)).ToArray();
         var handler = new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
-            workshop.EmbroideryLinks(), workshop.Time);
+            workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time);
 
         var other = await handler.Handle(new(OtherManager, created.Id,
             new(created.Version, "Інший", created.OrderDate, null, lines)), CancellationToken.None);
@@ -165,7 +165,7 @@ public sealed class ProductionOrderHandlerTests
         var item = created.Items.Single();
 
         await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
-            workshop.EmbroideryLinks(), workshop.Time)
+            workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time)
             .Handle(new(Manager, created.Id, new(created.Version, created.ClientName, created.OrderDate, null,
                 [new(item.Id, Details(3), 1m)])), CancellationToken.None);
 
@@ -359,7 +359,7 @@ public sealed class ProductionOrderHandlerTests
         workshop.Embroideries.Calculations.Clear();
 
         var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
-                workshop.EmbroideryLinks(), workshop.Time)
+                workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time)
             .Handle(new(Manager, created.Id, new UpdateProductionOrderInput(created.Version, created.ClientName,
                 created.OrderDate, "ок", [new(created.Items[0].Id, linked, null)])), CancellationToken.None);
 
@@ -421,7 +421,7 @@ public sealed class ProductionOrderHandlerTests
     internal static Task<Result<ProductionOrderResponse>> Create(ProductionTestHarness workshop, ProductionActor actor,
         CreateProductionOrderInput input) =>
         new CreateProductionOrderCommandHandler(workshop.Db, workshop.Quotes, workshop.Staff, workshop.Resolver(),
-            workshop.Cards(), workshop.EmbroideryLinks(), workshop.Time).Handle(new(actor, input), CancellationToken.None).AsTask();
+            workshop.Cards(), workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time).Handle(new(actor, input), CancellationToken.None).AsTask();
 
     private static ProductionOrderImportRow Row(string id, int number, string status, string client) => new(id, number,
         "27-10-2026", client, "anastasia@brevi.ua", "Анастасія", status, new DateOnly(2026, 10, 9), null,

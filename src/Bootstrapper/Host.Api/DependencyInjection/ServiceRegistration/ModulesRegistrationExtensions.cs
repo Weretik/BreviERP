@@ -92,6 +92,7 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
         services.AddScoped<IProductionEmbroideryReader, ProductionEmbroideryReader>();
         services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
+        services.AddScoped<IProductionColorReader, ProductionColorReader>();
         services.AddScoped<IProductionSupplierReader, ProductionSupplierReader>();
         services.AddScoped<IProductionStaffReader, ProductionStaffReader>();
         services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();

@@ -1,11 +1,12 @@
 using Production.Application.Abstractions;
+using Production.Application.Colors;
 using Production.Application.Contracts;
 using Production.Application.Orders.Access;
 using Production.Application.Orders.Validation;
 
 namespace Production.Application.Stock.GetChoices;
 
-/// <summary>Fabrics with a FAB- code and active suppliers for the stock forms.</summary>
+/// <summary>Fabrics with a FAB- code, active suppliers and the colours of «Кольори» for the stock forms.</summary>
 public sealed record GetFabricStockChoicesQuery(ProductionActor Actor) : IQuery<Result<FabricStockChoicesResponse>>;
 
 public sealed class GetFabricStockChoicesQueryValidator : AbstractValidator<GetFabricStockChoicesQuery>
@@ -14,7 +15,7 @@ public sealed class GetFabricStockChoicesQueryValidator : AbstractValidator<GetF
 }
 
 public sealed class GetFabricStockChoicesQueryHandler(IProductionFabricReader fabrics,
-    IProductionSupplierReader suppliers) : IQueryHandler<GetFabricStockChoicesQuery, Result<FabricStockChoicesResponse>>
+    IProductionSupplierReader suppliers, ProductionColors colors) : IQueryHandler<GetFabricStockChoicesQuery, Result<FabricStockChoicesResponse>>
 {
     public async ValueTask<Result<FabricStockChoicesResponse>> Handle(GetFabricStockChoicesQuery query,
         CancellationToken cancellationToken)
@@ -27,6 +28,7 @@ public sealed class GetFabricStockChoicesQueryHandler(IProductionFabricReader fa
             ? (await suppliers.ListAsync(cancellationToken)).Select(x => new FabricStockSupplierChoice(x.Id, x.Name))
                 .OrderBy(x => x.Name, StringComparer.CurrentCulture).ToList()
             : [];
-        return Result.Success(new FabricStockChoicesResponse(fabricList, supplierList));
+        return Result.Success(new FabricStockChoicesResponse(fabricList, supplierList,
+            await colors.ListAsync(cancellationToken)));
     }
 }
