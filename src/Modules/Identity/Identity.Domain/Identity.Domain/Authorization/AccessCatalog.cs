@@ -58,6 +58,7 @@ public static class AccessCatalog
     public const string PriceImport = "price-import";
     public const string Media = "media";
     public const string LeadStats = "lead-stats";
+    public const string ContentProducts = "content-products";
 
     private const string Service = "Менеджер сервісу";
     private const string Workshop = "Швейний цех";
@@ -65,6 +66,7 @@ public static class AccessCatalog
     private const string RemindersGroup = "Нагадування";
     private const string References = "Загальні довідники";
     private const string Photos = "Фото";
+    private const string SiteContent = "Контент";
     private const string Administration = "Адміністрування";
 
     private static Dictionary<string, AccessAction> Grant(params (string Role, AccessAction Actions)[] grants) =>
@@ -120,6 +122,8 @@ public static class AccessCatalog
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V))),
 
         new(Media, Photos, "Бібліотека фото", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All))),
+
+        new(ContentProducts, SiteContent, "Товари сайту", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
 
         new(LeadStats, Administration, "Ліди: зведення, довідники, синхронізація", VCE, Grant((RoleNames.Admin, VCE)))
     ];

@@ -559,3 +559,9 @@ paths:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1tasks~1assign-chat
   /api/reminders/telegram/connect:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1telegram~1connect
+  /api/content/products:
+    $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products
+  /api/content/products/{productId}:
+    $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1{productId}
+  /api/content/products/{productId}/visibility:
+    $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1{productId}~1visibility

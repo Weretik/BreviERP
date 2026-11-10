@@ -32,6 +32,9 @@ using Production.Infrastructure.DependencyInjection;
 using Host.Api.Purchasing;
 using Purchasing.Application.Abstractions;
 using Purchasing.Infrastructure.DependencyInjection;
+using Content.Application.Abstractions;
+using Content.Infrastructure.DependencyInjection;
+using Host.Api.Content;
 using Ai.Infrastructure.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
@@ -70,6 +73,8 @@ public static class ModuleRegistrationsExtensions
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
         services.AddPurchasingInfrastructure(configuration);
+        services.AddContentInfrastructure(configuration);
+        services.AddScoped<IContentCatalogReader, ContentCatalogReader>();
         services.AddScoped<IPurchasingSupplierReader, PurchasingSupplierReader>();
         services.AddScoped<IPurchasingPaymentReader, PurchasingPaymentReader>();
         // Recognition runs only in the API: the recognizer reaches the Ai module through Mediator.

@@ -59,6 +59,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes; reads stay `CatalogRead` | Admin, Manager; Accountant view |
 | `counterparties` | suppliers, clients and their contacts | Admin, Manager |
 | `media` | `/api/media/**` | Admin, Manager |
+| `content-products` | `/api/content/products` ([CNT-002](../../../specs/content/002-product-pages/README.md)) | Admin; Manager view |
 
 Do not use `RequireTenantAccess` on an endpoint until it is registered in Host and its policy semantics are agreed.
 

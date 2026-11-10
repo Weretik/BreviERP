@@ -1,0 +1,549 @@
+openapi: 3.1.0
+info:
+  title: 'Content: «Контент → Товари» site pages of products'
+  version: 1.0.0
+  description: 'Site pages of Catalog products (CNT-002): the «Показувати на сайті» mark, the address and texts in
+    Ukrainian and Russian. Policy access:content-products («Права доступу»): the Director and Admin may do everything,
+    Manager only reads; other roles get 403. Product name, code, section, photo, fabrics and prices come from Catalog and
+    Reference and are read-only here.'
+security:
+- Bearer: []
+paths:
+  /api/content/products:
+    get:
+      tags:
+      - Content
+      operationId: getContentProducts
+      description: One page of every Catalog product (sewing first, by code) with the state of its site page. Search
+        matches the code, the name or the address, case-insensitive.
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 1
+          minimum: 1
+          maximum: 10000
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 50
+          minimum: 1
+          maximum: 100
+      - name: search
+        in: query
+        schema:
+          type: string
+          maxLength: 200
+      - name: type
+        in: query
+        schema:
+          type: string
+          enum:
+          - Sewing
+          - Ppe
+      - name: sectionId
+        in: query
+        description: A section of «Типи і розділи».
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: onSite
+        in: query
+        description: true keeps products the site shows (mark set and product active); false keeps the rest.
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentProductPage'
+        '400':
+          description: Invalid page, page size, search, type or section
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Товари сайту»
+  /api/content/products/{productId}:
+    parameters:
+    - $ref: '#/components/parameters/ProductId'
+    get:
+      tags:
+      - Content
+      operationId: getContentProduct
+      description: The editor of one product. A product without a page comes with revision 0, empty texts and an offered
+        address built from its name.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentProductResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Товари сайту»
+        '404':
+          description: No such Catalog product
+    put:
+      tags:
+      - Content
+      operationId: saveContentProduct
+      description: Creates the page or replaces it as a whole. revision is the number the editor showed (0 without a page).
+        An empty slug keeps the current address or builds one from the name. A language without any text is not kept.
+        Texts are trimmed; empty facts, blocks and characteristic rows are dropped.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveContentProductRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentProductResponse'
+        '400':
+          description: Invalid address or a text over its limit
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Товари сайту»
+        '404':
+          description: No such Catalog product
+        '409':
+          description: The page was changed by someone else, or the address belongs to another product
+    delete:
+      tags:
+      - Content
+      operationId: deleteContentProduct
+      description: Removes the site page with its texts. The Catalog product stays and the site stops showing it.
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to delete in «Товари сайту»
+        '404':
+          description: The product has no page
+  /api/content/products/{productId}/visibility:
+    parameters:
+    - $ref: '#/components/parameters/ProductId'
+    patch:
+      tags:
+      - Content
+      operationId: setContentProductVisibility
+      description: «Показувати на сайті» from the list. A product without a page gets an empty one with an address built
+        from its name.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentProductVisibilityRequest'
+      responses:
+        '200':
+          description: Saved (or unchanged)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentProductVisibilityResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Товари сайту»
+        '404':
+          description: No such Catalog product
+        '409':
+          description: The page was changed by someone else at the same moment
+components:
+  parameters:
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      description: Catalog product id.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    ProductTextBlockKind:
+      type: string
+      enum:
+      - Paragraph
+      - Heading
+      - List
+    ProductFact:
+      type: object
+      description: A short fact next to the photo, for example «Сезон» and «весна, літо, осінь». The label may be empty.
+      required:
+      - text
+      properties:
+        label:
+          type:
+          - string
+          - 'null'
+          maxLength: 80
+        text:
+          type: string
+          maxLength: 1000
+    ProductTextBlock:
+      type: object
+      description: One block of the description. A paragraph may open with a bold lead; a list keeps its lines in items.
+      required:
+      - kind
+      properties:
+        kind:
+          $ref: '#/components/schemas/ProductTextBlockKind'
+        text:
+          type:
+          - string
+          - 'null'
+        lead:
+          type:
+          - string
+          - 'null'
+        items:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+    ProductSpecRow:
+      type: object
+      required:
+      - name
+      - value
+      properties:
+        name:
+          type: string
+          maxLength: 120
+        value:
+          type: string
+          maxLength: 500
+    ProductSpecGroup:
+      type: object
+      description: Characteristics of one garment part, for example «Куртка».
+      required:
+      - rows
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+          maxLength: 120
+        rows:
+          type: array
+          maxItems: 60
+          items:
+            $ref: '#/components/schemas/ProductSpecRow'
+    ProductPageTextInput:
+      type: object
+      description: Texts of one language as staff type them.
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        seoTitle:
+          type:
+          - string
+          - 'null'
+          maxLength: 120
+        seoDescription:
+          type:
+          - string
+          - 'null'
+          maxLength: 320
+        summary:
+          type:
+          - array
+          - 'null'
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/ProductFact'
+        description:
+          type:
+          - array
+          - 'null'
+          maxItems: 200
+          description: At most 20000 characters in all blocks together.
+          items:
+            $ref: '#/components/schemas/ProductTextBlock'
+        specs:
+          type:
+          - array
+          - 'null'
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/ProductSpecGroup'
+    SaveContentProductRequest:
+      type: object
+      required:
+      - revision
+      - showOnSite
+      properties:
+        revision:
+          type: integer
+          format: int32
+          minimum: 0
+        slug:
+          type:
+          - string
+          - 'null'
+          description: Lower-case Latin letters, digits and single hyphens, 3 to 120 characters.
+        showOnSite:
+          type: boolean
+        uk:
+          oneOf:
+          - $ref: '#/components/schemas/ProductPageTextInput'
+          - type: 'null'
+        ru:
+          oneOf:
+          - $ref: '#/components/schemas/ProductPageTextInput'
+          - type: 'null'
+    ContentProductVisibilityRequest:
+      type: object
+      required:
+      - showOnSite
+      properties:
+        showOnSite:
+          type: boolean
+    ContentProductVisibilityResponse:
+      type: object
+      required:
+      - productId
+      - showOnSite
+      - onSite
+      - revision
+      - slug
+      properties:
+        productId:
+          type: integer
+          format: int32
+        showOnSite:
+          type: boolean
+        onSite:
+          type: boolean
+        revision:
+          type: integer
+          format: int32
+        slug:
+          type: string
+    ContentProductRow:
+      type: object
+      description: hasPage is false when nobody has made the page yet. onSite is true only when the mark is set and the
+        Catalog product is active. The has… flags say what the site would miss.
+      required:
+      - productId
+      - type
+      - name
+      - isActive
+      - hasPrice
+      - hasPage
+      - showOnSite
+      - onSite
+      - hasUkrainianText
+      - hasRussianText
+      - hasSeo
+      properties:
+        productId:
+          type: integer
+          format: int32
+        type:
+          type: string
+          enum:
+          - Sewing
+          - Ppe
+        code:
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        sectionId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        sectionName:
+          type:
+          - string
+          - 'null'
+        isActive:
+          type: boolean
+        mainPhotoUrl:
+          type:
+          - string
+          - 'null'
+        hasPrice:
+          type: boolean
+        hasPage:
+          type: boolean
+        showOnSite:
+          type: boolean
+        onSite:
+          type: boolean
+        slug:
+          type:
+          - string
+          - 'null'
+        hasUkrainianText:
+          type: boolean
+        hasRussianText:
+          type: boolean
+        hasSeo:
+          type: boolean
+          description: SEO title and description are written in both languages.
+        updatedAtUtc:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    ContentProductPage:
+      type: object
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentProductRow'
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+    ContentProductTextResponse:
+      type: object
+      required:
+      - summary
+      - description
+      - specs
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+        seoTitle:
+          type:
+          - string
+          - 'null'
+        seoDescription:
+          type:
+          - string
+          - 'null'
+        summary:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductFact'
+        description:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductTextBlock'
+        specs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductSpecGroup'
+    ContentPriceTiersResponse:
+      type: object
+      description: Prices for 1–9, 10–40 and from 41 pieces.
+      required:
+      - retail
+      - wholesale
+      - largeWholesale
+      properties:
+        retail:
+          type: number
+          format: double
+        wholesale:
+          type: number
+          format: double
+        largeWholesale:
+          type: number
+          format: double
+    ContentProductVariantResponse:
+      type: object
+      description: A fabric variant of a sewing model with its published prices. PPE products have none.
+      required:
+      - articleId
+      - saleSku
+      - isActive
+      properties:
+        articleId:
+          type: integer
+          format: int64
+        saleSku:
+          type: string
+        isActive:
+          type: boolean
+        fabricName:
+          type:
+          - string
+          - 'null'
+        fabricDetails:
+          type:
+          - string
+          - 'null'
+        prices:
+          oneOf:
+          - $ref: '#/components/schemas/ContentPriceTiersResponse'
+          - type: 'null'
+    ContentProductResponse:
+      type: object
+      required:
+      - product
+      - revision
+      - slug
+      - uk
+      - ru
+      - variants
+      properties:
+        product:
+          $ref: '#/components/schemas/ContentProductRow'
+        revision:
+          type: integer
+          format: int32
+          description: 0 when the product has no page yet.
+        slug:
+          type: string
+          description: The address of the page, or the offered one when there is no page yet.
+        updatedBy:
+          type:
+          - string
+          - 'null'
+        uk:
+          $ref: '#/components/schemas/ContentProductTextResponse'
+        ru:
+          $ref: '#/components/schemas/ContentProductTextResponse'
+        prices:
+          oneOf:
+          - $ref: '#/components/schemas/ContentPriceTiersResponse'
+          - type: 'null'
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentProductVariantResponse'

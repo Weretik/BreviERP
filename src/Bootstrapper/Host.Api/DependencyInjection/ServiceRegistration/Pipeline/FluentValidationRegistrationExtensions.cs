@@ -8,6 +8,7 @@ using Reminders.Application;
 using Media.Application;
 using Production.Application;
 using Purchasing.Application;
+using Content.Application;
 using Ai.Application;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
@@ -50,6 +51,10 @@ public static class FluentValidationRegistrationExtensions
 
         services.AddValidatorsFromAssembly(
             typeof(PurchasingApplicationAssemblyMarker).Assembly,
+            includeInternalTypes: true);
+
+        services.AddValidatorsFromAssembly(
+            typeof(ContentApplicationAssemblyMarker).Assembly,
             includeInternalTypes: true);
 
         services.AddValidatorsFromAssembly(
