@@ -68,6 +68,10 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 - [Purchase invoices «Рахунки на закупку»](purchasing/purchase-invoices.md) — register of purchase invoices from the Google Sheet «финансы»: sync, problems with reasons, search, supplier link and note, invoice facts read by AI with a kopeck check or uploaded as JSON; Director only.
 
+## Content
+
+- [Product pages «Контент → Товари»](content/product-pages.md) — the site page of each Catalog product: «Показувати на сайті», address, name, SEO, short facts, description and characteristics in Ukrainian and Russian; Admin edits, Manager reads.
+
 ## Media
 
 - [Photo library «Фото»](media/library.md) — folders and subfolders on the Brevi CDN, upload, search by name or folder, move and delete; products keep the photo id.

@@ -86,6 +86,9 @@ BreviERP PostgreSQL
 │   ├── CheckedDocumentHistory         # replaced facts
 │   ├── RecognitionAttempts            # each «Розпізнати» with its problems
 │   └── SyncStates                     # last sheet sync
+├── content / ContentDbContext — 2 tables + own history
+│   ├── ProductPages                   # site page of a Catalog product: mark, address, revision
+│   └── ProductPageTexts               # its texts in one language (uk, ru)
 ├── reminders / RemindersDbContext — 6 tables + own history
 │   ├── Tasks                          # reminder tasks and schedule
 │   ├── Occurrences                    # one period per task: deadline, status, who closed
@@ -110,5 +113,6 @@ BreviERP PostgreSQL
 | `accounting` / Accounting | [«Бухгалтерія» accounts, categories, operations, transfers, counterparties, change log](accounting.md) |
 | `ai` / Ai | [AI settings](ai.md) |
 | `purchasing` / Purchasing | [Purchase invoice register](purchasing.md) |
+| `content` / Content | [Site pages of products](content.md) |
 
 The module documents cover 28 business and Identity model tables; the [module schema decision](../../specs/platform/001-module-schemas/README.md) describes the operational migration history. Schema `crm` holds five client tables and six КП tables; see [Crm](crm.md). The earlier counts/tree above are the historical 2026-10-21 snapshot, not a current total. Module documents explain cross-module IDs without physical FKs. After a schema change, update only the affected module and this tree if the table list or placement changed.
