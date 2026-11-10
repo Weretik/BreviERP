@@ -565,3 +565,5 @@ paths:
     $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1{productId}
   /api/content/products/{productId}/visibility:
     $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1{productId}~1visibility
+  /api/content/products/old-site-import:
+    $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1old-site-import

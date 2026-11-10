@@ -2,6 +2,7 @@ using Content.Application.Abstractions;
 using Content.Application.ProductPages.Delete;
 using Content.Application.ProductPages.GetList;
 using Content.Application.ProductPages.GetOne;
+using Content.Application.ProductPages.ImportOldSite;
 using Content.Application.ProductPages.Save;
 using Content.Application.ProductPages.SetVisibility;
 using Content.Domain.ProductPages;
@@ -77,6 +78,7 @@ internal sealed class ContentTestHarness : IDisposable
     public SetContentProductVisibilityCommandHandler Visibility() => new(new SqliteContentDb(Open()), Catalog, Time);
     public DeleteContentProductCommandHandler Delete() => new(new SqliteContentDb(Open()));
     public GetContentProductQueryHandler One() => new(new SqliteContentDb(Open()), Catalog);
+    public ImportOldSiteProductPagesCommandHandler Import() => new(new SqliteContentDb(Open()), Catalog, Time);
     public GetContentProductsQueryHandler List() => new(new SqliteContentDb(Open()), Catalog);
 
     public ContentDbContext Open()

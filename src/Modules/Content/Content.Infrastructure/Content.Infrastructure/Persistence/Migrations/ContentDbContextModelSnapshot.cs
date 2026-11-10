@@ -80,8 +80,8 @@ namespace Content.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(320)");
 
                     b.Property<string>("SeoTitle")
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Specs")
                         .IsRequired()

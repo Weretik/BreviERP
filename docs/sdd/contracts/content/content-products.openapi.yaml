@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 'Content: «Контент → Товари» site pages of products'
-  version: 1.0.0
+  version: 1.1.0
   description: 'Site pages of Catalog products (CNT-002): the «Показувати на сайті» mark, the address and texts in
     Ukrainian and Russian. Policy access:content-products («Права доступу»): the Director and Admin may do everything,
     Manager only reads; other roles get 403. Product name, code, section, photo, fabrics and prices come from Catalog and
@@ -166,6 +166,35 @@ paths:
           description: No such Catalog product
         '409':
           description: The page was changed by someone else at the same moment
+  /api/content/products/old-site-import:
+    post:
+      tags:
+      - Content
+      operationId: importOldSiteProductPages
+      description: One-time transfer of old-site texts and SEO. A page is matched to a Catalog product by the old-site
+        link of its card (the whole path in either language, then the last part of the path). With dryRun (the default)
+        nothing is written and the answer says what would happen. A new page takes the old address when it is free.
+        Pages that already have texts are kept unless overwrite is true. showOnSite switches transferred pages on and
+        never switches a page off. Needs the create right.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportOldSiteProductPagesRequest'
+      responses:
+        '200':
+          description: Counted (dryRun) or transferred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OldSiteImportResponse'
+        '400':
+          description: No pages, more than 500 pages, a missing link or a text over its limit
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to create in «Товари сайту»
 components:
   parameters:
     ProductId:
@@ -265,7 +294,7 @@ components:
           type:
           - string
           - 'null'
-          maxLength: 120
+          maxLength: 200
         seoDescription:
           type:
           - string
@@ -318,6 +347,97 @@ components:
           oneOf:
           - $ref: '#/components/schemas/ProductPageTextInput'
           - type: 'null'
+    OldSiteProductPage:
+      type: object
+      required:
+      - url
+      properties:
+        url:
+          type: string
+          maxLength: 500
+          description: Link of the Ukrainian page on the old site.
+        urlRu:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+        uk:
+          oneOf:
+          - $ref: '#/components/schemas/ProductPageTextInput'
+          - type: 'null'
+        ru:
+          oneOf:
+          - $ref: '#/components/schemas/ProductPageTextInput'
+          - type: 'null'
+    ImportOldSiteProductPagesRequest:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items:
+            $ref: '#/components/schemas/OldSiteProductPage'
+        dryRun:
+          type: boolean
+          default: true
+        showOnSite:
+          type: boolean
+          default: false
+        overwrite:
+          type: boolean
+          default: false
+    OldSiteImportNote:
+      type: object
+      required:
+      - url
+      - reason
+      properties:
+        url:
+          type: string
+        name:
+          type:
+          - string
+          - 'null'
+        reason:
+          type: string
+    OldSiteImportResponse:
+      type: object
+      required:
+      - dryRun
+      - total
+      - created
+      - updated
+      - kept
+      - notMatched
+      - problems
+      properties:
+        dryRun:
+          type: boolean
+        total:
+          type: integer
+          format: int32
+        created:
+          type: integer
+          format: int32
+        updated:
+          type: integer
+          format: int32
+          description: Pages whose texts were replaced.
+        kept:
+          type: integer
+          format: int32
+          description: Pages left as they are because they already had texts.
+        notMatched:
+          type: array
+          items:
+            $ref: '#/components/schemas/OldSiteImportNote'
+        problems:
+          type: array
+          items:
+            $ref: '#/components/schemas/OldSiteImportNote'
     ContentProductVisibilityRequest:
       type: object
       required:

@@ -6,6 +6,7 @@ using Content.Application.Contracts;
 using Content.Application.ProductPages.Delete;
 using Content.Application.ProductPages.GetList;
 using Content.Application.ProductPages.GetOne;
+using Content.Application.ProductPages.ImportOldSite;
 using Content.Application.ProductPages.Save;
 using Content.Application.ProductPages.SetVisibility;
 using Mediator;
@@ -53,6 +54,17 @@ public sealed class ContentProductsController(ISender sender) : ControllerBase
         [FromBody] ContentProductVisibilityRequest request, CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(
             new SetContentProductVisibilityCommand(productId, request.ShowOnSite, By()), cancellationToken));
+
+    /// <summary>
+    /// One-time transfer of old-site texts and SEO; needs the create right. Counts only unless <c>dryRun</c> is false.
+    /// </summary>
+    [HttpPost("old-site-import", Name = "importOldSiteProductPages")]
+    [RequestSizeLimit(20 * 1024 * 1024)]
+    public async Task<ActionResult<OldSiteImportResponse>> ImportOldSite(
+        [FromBody] ImportOldSiteProductPagesRequest request, CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(
+            new ImportOldSiteProductPagesCommand(request.DryRun, request.ShowOnSite, request.Overwrite, request.Items,
+                By()), cancellationToken));
 
     /// <summary>Removes the site page; the Catalog product stays.</summary>
     [HttpDelete("{productId:int}", Name = "deleteContentProduct")]

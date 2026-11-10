@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Content.Api.ProductPages;
 using Content.Application.Contracts;
+using Content.Application.ProductPages.ImportOldSite;
 using Content.Domain.ProductPages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -21,6 +22,10 @@ public sealed class ContentProductsContractTests
     [TestCase(typeof(ContentProductVisibilityResponse), "ContentProductVisibilityResponse")]
     [TestCase(typeof(SaveContentProductRequest), "SaveContentProductRequest")]
     [TestCase(typeof(ContentProductVisibilityRequest), "ContentProductVisibilityRequest")]
+    [TestCase(typeof(ImportOldSiteProductPagesRequest), "ImportOldSiteProductPagesRequest")]
+    [TestCase(typeof(OldSiteProductPage), "OldSiteProductPage")]
+    [TestCase(typeof(OldSiteImportNote), "OldSiteImportNote")]
+    [TestCase(typeof(OldSiteImportResponse), "OldSiteImportResponse")]
     [TestCase(typeof(ProductPageTextInput), "ProductPageTextInput")]
     [TestCase(typeof(ProductFact), "ProductFact")]
     [TestCase(typeof(ProductTextBlock), "ProductTextBlock")]
@@ -57,7 +62,7 @@ public sealed class ContentProductsContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.EqualTo($"access:{AccessCatalog.ContentProducts}"));
-            Assert.That(operations, Has.Length.EqualTo(5));
+            Assert.That(operations, Has.Length.EqualTo(6));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }
