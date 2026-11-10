@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
 using Production.Application.Contracts;
 using Production.Application.FabricNorms.DeleteNorm;
+using Production.Application.FabricNorms.GetCompositions;
 using Production.Application.FabricNorms.GetNorms;
 using Production.Application.FabricNorms.ImportNorms;
 using Production.Application.FabricNorms.SaveNorm;
@@ -21,6 +22,11 @@ public sealed class FabricNormsController(ISender sender) : ControllerBase
     [HttpGet(Name = "getFabricNorms")]
     public async Task<ActionResult<IReadOnlyList<FabricNormRowResponse>>> List(CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new GetFabricNormsQuery(), cancellationToken));
+
+    /// <summary>«Комплектація моделей»: every Catalog sewing model with its lining, insulation and fleece and the full composition from «Товари».</summary>
+    [HttpGet("compositions", Name = "getModelCompositions")]
+    public async Task<ActionResult<IReadOnlyList<ModelCompositionResponse>>> Compositions(CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new GetModelCompositionsQuery(), cancellationToken));
 
     [HttpPut("{modelCode}", Name = "saveFabricNorm")]
     public async Task<ActionResult<FabricNormRowResponse>> Save(string modelCode, FabricNormInput input, CancellationToken cancellationToken) =>

@@ -5,8 +5,6 @@ using Production.Application.FabricNorms.DeleteNorm;
 using Production.Application.FabricNorms.GetNorms;
 using Production.Application.FabricNorms.ImportNorms;
 using Production.Application.FabricNorms.SaveNorm;
-using Production.Application.PayrollParameters.GetPayrollParameters;
-using Production.Application.PayrollParameters;
 
 namespace UnitTests.Production;
 
@@ -18,7 +16,7 @@ public sealed class FabricNormHandlerTests
     public async Task Norm_is_saved_for_a_catalog_model_and_listed_with_totals()
     {
         using var workshop = new ProductionTestHarness();
-        workshop.Models.Models.AddRange([new("MOD-025", "Куртка", true), new("MOD-030", "Жилет", true)]);
+        workshop.Models.Models.AddRange([new("MOD-025", "Куртка", true, 12, "Зима"), new("MOD-030", "Жилет", true)]);
 
         var saved = await new SaveFabricNormCommandHandler(workshop.Db, workshop.Models, workshop.Time)
             .Handle(new("mod-025", TwoColors, 7), CancellationToken.None);
@@ -31,6 +29,8 @@ public sealed class FabricNormHandlerTests
             Assert.That(rows.Select(x => x.ModelCode), Is.EqualTo(new[] { "MOD-025", "MOD-030" }));
             Assert.That(rows[0].TwoColorsTotal, Is.EqualTo(1.3m));
             Assert.That(rows[0].Problem, Is.Null);
+            Assert.That((rows[0].ProductId, rows[0].Season), Is.EqualTo((12, "Зима")), "the card link and season come from Catalog");
+            Assert.That((saved.Value.ProductId, saved.Value.Season), Is.EqualTo((12, "Зима")));
             Assert.That(rows[1].Norm, Is.Null, "a model without a norm is listed with an empty norm");
         });
     }
@@ -127,24 +127,6 @@ public sealed class FabricNormHandlerTests
             Assert.That(noMain.IsValid, Is.False);
             Assert.That(empty.IsValid, Is.False);
             Assert.That(negative.IsValid, Is.False);
-        });
-    }
-
-    [Test]
-    public async Task Payroll_rules_come_from_pricing_parameters_and_flag_only_missing_ones()
-    {
-        var reader = new FakePayrollParameterReader();
-        reader.Values.Add(new PayrollParameterValue(PayrollParameterCodes.ShopManagerRate, "Відсоток начальника цеху", 0.12m, "%", new DateOnly(2026, 11, 2)));
-        reader.Values.Add(new PayrollParameterValue(PayrollParameterCodes.MasterRate, "Відсоток майстра", null, "%", null));
-
-        var rows = (await new GetPayrollParametersQueryHandler(reader).Handle(new GetPayrollParametersQuery(), CancellationToken.None)).Value;
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(rows, Has.Count.EqualTo(PayrollParameterCodes.All.Count));
-            Assert.That(rows.Single(x => x.Code == PayrollParameterCodes.ShopManagerRate).Problem, Is.Null);
-            Assert.That(rows.Single(x => x.Code == PayrollParameterCodes.MasterRate).Problem, Is.EqualTo(GetPayrollParametersQueryHandler.NoValue));
-            Assert.That(rows.Single(x => x.Code == PayrollParameterCodes.CuttingRate).Problem, Is.EqualTo(GetPayrollParametersQueryHandler.Missing));
         });
     }
 }

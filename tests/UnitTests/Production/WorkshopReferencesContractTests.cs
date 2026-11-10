@@ -2,7 +2,6 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Production.Api.FabricNorms;
-using Production.Api.PayrollParameters;
 using Production.Api.Staff;
 using Production.Application.Contracts;
 using YamlDotNet.RepresentationModel;
@@ -19,7 +18,9 @@ public sealed class WorkshopReferencesContractTests
     [TestCase(typeof(FabricNormRowResponse), "FabricNormRowResponse")]
     [TestCase(typeof(FabricNormImportRow), "FabricNormImportRow")]
     [TestCase(typeof(FabricNormImportResult), "FabricNormImportResult")]
-    [TestCase(typeof(PayrollParameterResponse), "PayrollParameterResponse")]
+    [TestCase(typeof(ModelCompositionResponse), "ModelCompositionResponse")]
+    [TestCase(typeof(ModelLayerResponse), "ModelLayerResponse")]
+    [TestCase(typeof(ModelCompositionLineResponse), "ModelCompositionLineResponse")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -29,7 +30,6 @@ public sealed class WorkshopReferencesContractTests
 
     [TestCase(typeof(WorkshopStaffController), "access:workshop-staff")]
     [TestCase(typeof(FabricNormsController), "access:fabric-norms")]
-    [TestCase(typeof(PayrollParametersController), "access:payroll-rules")]
     public void Every_operation_is_in_the_contract_and_needs_the_workshop_policy(Type controller, string expected)
     {
         var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;

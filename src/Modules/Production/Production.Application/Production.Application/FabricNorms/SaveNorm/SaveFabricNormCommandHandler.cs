@@ -22,6 +22,6 @@ public sealed class SaveFabricNormCommandHandler(IProductionDbContext db, IProdu
         await db.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new FabricNormRowResponse(code, model.Name, model.IsActive, norm.Values.ToInput(),
-            norm.Values.TwoColorsTotal, norm.Values.ThreeColorsTotal, norm.UpdatedAt, null));
+            norm.Values.TwoColorsTotal, norm.Values.ThreeColorsTotal, norm.UpdatedAt, null, model.ProductId, model.Season));
     }
 }
