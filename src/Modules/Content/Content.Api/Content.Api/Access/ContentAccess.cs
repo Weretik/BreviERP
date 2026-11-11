@@ -16,4 +16,7 @@ internal static class ContentAccess
 
     /// <summary>«Контент → Налаштування SEO сайту» on «Права доступу» (CNT-006 R-03): Admin view and edit, Manager view.</summary>
     public const string SeoSettingsPolicy = "access:content-seo-settings";
+
+    /// <summary>«Контент → Сторінки сайту» on «Права доступу» (CNT-007 R-04): Admin view and edit, Manager view.</summary>
+    public const string SitePagesPolicy = "access:content-site-pages";
 }

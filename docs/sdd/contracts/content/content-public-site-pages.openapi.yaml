@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: 'Content: public site page texts'
+  version: 1.0.0
+  description: 'Read-only search texts of the fixed pages for the public site (CNT-007). No sign-in. Only what every page
+    shows in its source anyway: the title and the description. Every answer has Cache-Control: public, max-age=300.
+    The server reads the texts at most once a minute.'
+security: []
+paths:
+  /api/public/site-pages:
+    get:
+      tags:
+      - PublicSitePages
+      operationId: getPublicSitePages
+      description: The saved texts by page key; a page that is not listed, or an empty text, keeps the site's own text.
+      responses:
+        '200':
+          description: Texts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicSitePagesResponse'
+components:
+  schemas:
+    SitePageText:
+      type: object
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+        description:
+          type:
+          - string
+          - 'null'
+    PublicSitePage:
+      type: object
+      required:
+      - key
+      - uk
+      - ru
+      properties:
+        key:
+          type: string
+        uk:
+          $ref: '#/components/schemas/SitePageText'
+        ru:
+          $ref: '#/components/schemas/SitePageText'
+    PublicSitePagesResponse:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicSitePage'

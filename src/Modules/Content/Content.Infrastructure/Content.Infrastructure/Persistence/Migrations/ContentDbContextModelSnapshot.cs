@@ -309,6 +309,45 @@ namespace Content.Infrastructure.Persistence.Migrations
                     b.ToTable("SiteCategoryTexts", "content");
                 });
 
+            modelBuilder.Entity("Content.Domain.SitePages.SitePage", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("DescriptionRu")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("DescriptionUk")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TitleRu")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("TitleUk")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("SitePages", "content");
+                });
+
             modelBuilder.Entity("Content.Domain.SiteSettings.SiteSeoSettings", b =>
                 {
                     b.Property<int>("Id")

@@ -12,6 +12,7 @@ Code model reviewed 2026-11-11. `Content.Infrastructure.Persistence.ContentDbCon
 | Articles | PK Id (identity). ShowOnSite, Slug (unique, 3–120), PublishedOn (date, indexed), CoverPhotoId = Media library photo id (no FK to `media`), Revision (concurrency token), UpdatedAtUtc, UpdatedBy |
 | SiteRedirects | PK Id (identity). FromPath (normalized old address, unique, ≤ 500), ToPath (page of the new site under /uk or /ru, indexed, ≤ 500), Source (int: 1 Manual, 2 OldSite, 3 SlugChange), Note (≤ 200), UpdatedAtUtc, UpdatedBy. No links to other tables |
 | SiteSeoSettings | PK Id, always 1 (check `CK_SiteSeoSettings_Single`). GoogleAnalyticsId, GoogleTagManagerId (≤ 20), GoogleSiteVerification, BingSiteVerification (≤ 100), DefaultOgPhotoId = Media library photo id (no FK to `media`), Revision (concurrency token), UpdatedAtUtc, UpdatedBy |
+| SitePages | PK Key (≤ 40, a page of `SitePageCatalog`). TitleUk, TitleRu (≤ 200), DescriptionUk, DescriptionRu (≤ 320), Revision (concurrency token), UpdatedAtUtc, UpdatedBy. Seeded with the site's texts by `AddSitePages` |
 | ArticleTexts | PK (ArticleId, Language); ArticleId FK → Articles (cascade). Title, Excerpt, SeoTitle, SeoDescription; Body is a jsonb list of blocks (paragraph, heading, list, image with a Media photo id and alt) |
 
 A product without a row in ProductPages has no site page. A language without any text has no row in ProductPageTexts. Deleting a Catalog product does not delete its page here; the site and the admin list read Catalog first, so such a page is never shown.

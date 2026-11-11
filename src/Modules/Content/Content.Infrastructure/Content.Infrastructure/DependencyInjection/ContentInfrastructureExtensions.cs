@@ -3,6 +3,7 @@ using Content.Application.Abstractions;
 using Content.Application.PublicArticles;
 using Content.Application.PublicCatalog;
 using Content.Application.PublicRedirects;
+using Content.Application.PublicSitePages;
 using Content.Application.PublicSiteSettings;
 using Content.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ public static class ContentInfrastructureExtensions
         services.AddScoped<IPublicArticlesSource, PublicArticlesSource>();
         services.AddScoped<IPublicRedirectsSource, PublicRedirectsSource>();
         services.AddScoped<IPublicSiteSettingsSource, PublicSiteSettingsSource>();
+        services.AddScoped<IPublicSitePagesSource, PublicSitePagesSource>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

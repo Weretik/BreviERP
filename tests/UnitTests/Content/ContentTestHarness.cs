@@ -14,7 +14,10 @@ using Content.Application.ProductPages.SetVisibility;
 using Content.Application.PublicArticles;
 using Content.Application.PublicCatalog;
 using Content.Application.PublicRedirects;
+using Content.Application.PublicSitePages;
 using Content.Application.PublicSiteSettings;
+using Content.Application.SitePages.GetList;
+using Content.Application.SitePages.Save;
 using Content.Application.SiteSettings.Get;
 using Content.Application.SiteSettings.Save;
 using Content.Application.Redirects.Delete;
@@ -31,6 +34,7 @@ using Content.Application.SiteCategories.SetVisibility;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Domain.Redirects;
+using Content.Domain.SitePages;
 using Content.Domain.SiteSettings;
 using Content.Domain.SiteCategories;
 using Content.Infrastructure.Persistence;
@@ -105,6 +109,7 @@ internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
     public DbSet<Article> Articles => db.Articles;
     public DbSet<SiteRedirect> SiteRedirects => db.SiteRedirects;
     public DbSet<SiteSeoSettings> SiteSeoSettings => db.SiteSeoSettings;
+    public DbSet<SitePage> SitePages => db.SitePages;
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 }
 
@@ -190,6 +195,12 @@ internal sealed class ContentTestHarness : IDisposable
 
     public SaveSiteSeoSettingsCommandHandler SaveSeoSettings() => new(new SqliteContentDb(Open()), Media, Time);
     public GetSiteSeoSettingsQueryHandler SeoSettings() => new(new SqliteContentDb(Open()), Media);
+
+    public SaveSitePageCommandHandler SaveSitePage() => new(new SqliteContentDb(Open()), Time);
+    public GetSitePagesQueryHandler SitePages() => new(new SqliteContentDb(Open()));
+
+    public PublicSitePagesSource PublicSitePages(IMemoryCache? cache = null) =>
+        new(new SqliteContentDb(Open()), cache ?? new MemoryCache(new MemoryCacheOptions()));
 
     public PublicSiteSettingsSource PublicSiteSettings(IMemoryCache? cache = null) =>
         new(new SqliteContentDb(Open()), Media, cache ?? new MemoryCache(new MemoryCacheOptions()));
