@@ -8,7 +8,7 @@ The titles and descriptions that search engines show for the 16 fixed pages of t
 
 ## Decision
 
-A row per fixed page in `content.SitePages`, keyed by a stable page key the site knows (`home`, `wholesale`, …). The list of pages is fixed in code (`SitePageCatalog`): staff edit texts, not pages. The migration seeds the texts the site shows today, so the page opens filled. The site keeps its own texts as the fallback for an empty text or an unavailable API. Product, category and article pages keep their SEO in their own sections. Visible page texts and FAQ are a later stage.
+A row per fixed page in `content.SitePages`, keyed by a stable page key the site knows (`home`, `wholesale`, …). The list of pages is fixed in code (`SitePageCatalog`): staff edit texts, not pages. The migration seeds the texts the site shows today, so the page opens filled. The site keeps its own texts as the fallback for an empty text or an unavailable API. Product, category and article pages keep their SEO in their own sections. Visible page texts and FAQ came later in [CNT-010](../010-site-page-texts/README.md).
 
 ## Rules
 

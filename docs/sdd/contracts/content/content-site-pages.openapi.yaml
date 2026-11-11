@@ -2,8 +2,8 @@ openapi: 3.1.0
 info:
   title: 'Content: «Контент → Сторінки сайту»'
   version: 1.0.0
-  description: 'Search texts of the fixed pages of the public site (CNT-007): for each page the title and the
-    description in Ukrainian and Russian. The list of pages is fixed by the server; product, category and article
+  description: 'Texts of the fixed pages of the public site: for each page the search title and description (CNT-007),
+    the main text and the frequent questions (CNT-010) in Ukrainian and Russian. The list of pages is fixed by the server; product, category and article
     pages have their own SEO. An empty text leaves the site its own text. Policy access:content-site-pages («Права
     доступу»): the Director and Admin view and edit, Manager only reads; other roles get 403.'
 security:
@@ -87,7 +87,8 @@ components:
         type: string
     SitePageText:
       type: object
-      description: Texts of one language; null leaves the site its own text.
+      description: Texts of one language; null or an empty list leaves the site its own text. Responses always list text
+        and faq; a save without them clears them (CNT-010).
       properties:
         title:
           type:
@@ -99,6 +100,36 @@ components:
           - string
           - 'null'
           maxLength: 320
+        text:
+          type:
+          - array
+          - 'null'
+          description: Main text at the bottom of the page from the visual editor; at most 200 blocks and 20000
+            characters.
+          maxItems: 200
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/ProductTextBlock
+        faq:
+          type:
+          - array
+          - 'null'
+          description: Frequent questions of the page in the order shown; a question without its answer is dropped.
+          maxItems: 12
+          items:
+            $ref: '#/components/schemas/SiteFaqItem'
+    SiteFaqItem:
+      type: object
+      required:
+      - question
+      - answer
+      properties:
+        question:
+          type: string
+          maxLength: 200
+        answer:
+          type: string
+          description: One paragraph of plain text.
+          maxLength: 1500
     SitePageResponse:
       type: object
       required:

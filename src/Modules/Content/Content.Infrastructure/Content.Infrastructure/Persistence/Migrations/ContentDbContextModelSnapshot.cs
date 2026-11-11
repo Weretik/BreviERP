@@ -387,9 +387,25 @@ namespace Content.Infrastructure.Persistence.Migrations
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)");
 
+                    b.Property<string>("FaqRu")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("FaqUk")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.Property<int>("Revision")
                         .IsConcurrencyToken()
                         .HasColumnType("integer");
+
+                    b.Property<string>("TextRu")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("TextUk")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("TitleRu")
                         .HasMaxLength(200)

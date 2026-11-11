@@ -2,6 +2,7 @@ using System.Text.Json;
 using Content.Api.PublicSitePages;
 using Content.Api.SitePages;
 using Content.Application.Contracts;
+using Content.Domain.SitePages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -11,7 +12,7 @@ namespace UnitTests.Content;
 
 /// <summary>
 /// «Сторінки сайту» and the public page texts match docs/sdd/contracts/content/content-site-pages.openapi.yaml and
-/// content-public-site-pages.openapi.yaml (CNT-007).
+/// content-public-site-pages.openapi.yaml (CNT-007, CNT-010).
 /// </summary>
 public sealed class SitePagesContractTests
 {
@@ -22,6 +23,7 @@ public sealed class SitePagesContractTests
     [TestCase(typeof(SitePageListResponse), Admin, "SitePageListResponse")]
     [TestCase(typeof(SitePageText), Admin, "SitePageText")]
     [TestCase(typeof(SaveSitePageRequest), Admin, "SaveSitePageRequest")]
+    [TestCase(typeof(SiteFaqItem), Admin, "SiteFaqItem")]
     [TestCase(typeof(PublicSitePagesResponse), Public, "PublicSitePagesResponse")]
     [TestCase(typeof(PublicSitePage), Public, "PublicSitePage")]
     [TestCase(typeof(SitePageText), Public, "SitePageText")]
