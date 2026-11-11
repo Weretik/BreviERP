@@ -30,10 +30,32 @@ public sealed class ProductionOrdersController(ISender sender) : ControllerBase
         [FromQuery] string? status, [FromQuery] string? manager, [FromQuery] DateOnly? dueTo,
         [FromQuery] string? stage, [FromQuery] int page = 1, [FromQuery] int pageSize = 50,
         [FromQuery] long? customerId = null, [FromQuery] long? quoteId = null,
-        CancellationToken cancellationToken = default) =>
+        [FromQuery] string? client = null, [FromQuery] DateOnly? from = null, [FromQuery] DateOnly? to = null,
+        [FromQuery] string? model = null, [FromQuery] string? fabric = null, [FromQuery] string? color = null,
+        [FromQuery] string? season = null, CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(
-            new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize, stage, customerId, quoteId),
+            new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize, stage, customerId, quoteId,
+                new ProductionOrderFilters(client, from, to, model, fabric, color, season)),
             cancellationToken));
+
+    /// <summary>«Зведення за моделями»: the same filters as the list, all pages, pieces by model.</summary>
+    [HttpGet("model-summary", Name = "getProductionModelSummary")]
+    public async Task<ActionResult<ProductionModelSummaryResponse>> ModelSummary([FromQuery] string? search,
+        [FromQuery] string? status, [FromQuery] string? manager, [FromQuery] DateOnly? dueTo,
+        [FromQuery] string? stage, [FromQuery] string? client = null, [FromQuery] DateOnly? from = null,
+        [FromQuery] DateOnly? to = null, [FromQuery] string? model = null, [FromQuery] string? fabric = null,
+        [FromQuery] string? color = null, [FromQuery] string? season = null,
+        CancellationToken cancellationToken = default) =>
+        this.ToActionResult(await sender.Send(new GetProductionModelSummaryQuery(
+            new GetProductionOrdersQuery(search, status, manager, dueTo, Stage: stage,
+                Filters: new ProductionOrderFilters(client, from, to, model, fabric, color, season))),
+            cancellationToken));
+
+    /// <summary>What «Фільтри» offer: clients, models, fabrics, colours and seasons of the orders.</summary>
+    [HttpGet("filter-options", Name = "getProductionOrderFilterOptions")]
+    public async Task<ActionResult<ProductionOrderFilterOptionsResponse>> FilterOptions(
+        CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new GetProductionOrderFilterOptionsQuery(), cancellationToken));
 
     [HttpGet("{id:int}", Name = "getProductionOrder")]
     public async Task<ActionResult<ProductionOrderResponse>> Detail(int id, CancellationToken cancellationToken) =>

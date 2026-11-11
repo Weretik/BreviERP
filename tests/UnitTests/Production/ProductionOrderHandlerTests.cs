@@ -219,7 +219,7 @@ public sealed class ProductionOrderHandlerTests
 
         var manager = await handler.Handle(new(Manager, created.Id, created.Version), CancellationToken.None);
         var admin = await handler.Handle(new(Admin, created.Id, created.Version), CancellationToken.None);
-        var list = (await new GetProductionOrdersQueryHandler(workshop.Db)
+        var list = (await new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models)
             .Handle(new(null, null, null, null), CancellationToken.None)).Value;
         var detail = await new GetProductionOrderQueryHandler(workshop.Cards())
             .Handle(new(Admin, created.Id), CancellationToken.None);
@@ -239,7 +239,7 @@ public sealed class ProductionOrderHandlerTests
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
         await Import(workshop, false, Row("a", 1, "New", "Геофізика"));
-        var handler = new GetProductionOrdersQueryHandler(workshop.Db);
+        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models);
 
         var client = (await handler.Handle(new(null, null, null, null, CustomerId: 9), CancellationToken.None)).Value;
         var other = (await handler.Handle(new(null, null, null, null, CustomerId: 8), CancellationToken.None)).Value;
@@ -256,7 +256,7 @@ public sealed class ProductionOrderHandlerTests
     {
         using var workshop = Workshop();
         await Import(workshop, false, Row("a", 1, "Closed", "Геофізика"), Row("b", 2, "New", "School 5"));
-        var handler = new GetProductionOrdersQueryHandler(workshop.Db);
+        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models);
 
         var newOnly = (await handler.Handle(new(null, "New", null, null), CancellationToken.None)).Value;
         var search = (await handler.Handle(new("school", null, null, null), CancellationToken.None)).Value;
