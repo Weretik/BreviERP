@@ -76,15 +76,39 @@ public sealed class GetFabricMovementsQueryHandler(IWarehouseDbContext db)
             .OrderByDescending(x => x.OperationDate).ThenByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id)
             .Skip((query.Page - 1) * PageSize).Take(PageSize + 1).ToList();
 
-        var page = rows.Take(PageSize).Select(x => Map(x, query.Actor)).ToList();
+        var products = await ProductsAsync(rows.Take(PageSize), cancellationToken);
+        var page = rows.Take(PageSize)
+            .Select(x => Map(x, query.Actor, x.IssueLineId is { } line ? products.GetValueOrDefault(line) : null))
+            .ToList();
         return Result.Success(new FabricMovementPageResponse(page, query.Page, rows.Count > PageSize,
             StockList.Permissions(query.Actor)));
     }
 
-    public static FabricMovementRowResponse Map(FabricMovement x, WarehouseActor actor) => new(x.Id, x.StockId,
+    /// <summary>
+    /// «На 1 виріб» (TZ §6.3): the products cut for the issue each movement belongs to, by its issue line; issues made
+    /// before issues by actual cutting have no count.
+    /// </summary>
+    private async Task<Dictionary<int, int>> ProductsAsync(IEnumerable<FabricMovement> movements,
+        CancellationToken cancellationToken)
+    {
+        var lines = movements.Select(x => x.IssueLineId).OfType<int>().Distinct().ToArray();
+        if (lines.Length == 0) return [];
+        var issues = await db.FabricIssues.AsNoTracking().Include(x => x.Lines)
+            .Where(x => x.IssuedQuantity != null && x.Lines.Any(l => lines.Contains(l.Id)))
+            .ToListAsync(cancellationToken);
+        return issues.SelectMany(x => x.Lines.Select(l => (l.Id, Products: x.IssuedQuantity!.Value)))
+            .Where(x => lines.Contains(x.Id))
+            .ToDictionary(x => x.Id, x => x.Products);
+    }
+
+    /// <summary>Metres of the movement per product, to thousandths; null without a products count.</summary>
+    public static decimal? PerProduct(decimal delta, int? products) =>
+        products is > 0 ? decimal.Round(Math.Abs(delta) / products.Value, 3, MidpointRounding.AwayFromZero) : null;
+
+    public static FabricMovementRowResponse Map(FabricMovement x, WarehouseActor actor, int? products = null) => new(x.Id, x.StockId,
         x.Kind.ToString(), x.OperationDate, x.CreatedAt, x.Stock.FabricCode, FabricAliases.Canonical(x.Stock.FabricCode),
         x.Stock.FabricName, x.Stock.Color, x.SupplierName, x.Document, x.OrderId, x.ItemId, x.OrderNumber, x.ModelName,
         x.Destination, x.Delta, x.MetersAfter, x.Note, x.CreatedByName, x.IsReversed, x.ReversesMovementId,
         actor.CanMoveStock && ReverseFabricMovementCommandHandler.CanReverse(x), x.IsVoided, x.Revision,
-        actor.CanMoveStock && x.CanRevise);
+        actor.CanMoveStock && x.CanRevise, PerProduct(x.Delta, products));
 }

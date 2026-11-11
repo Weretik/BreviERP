@@ -11,6 +11,16 @@ internal static class WarehouseAccess
     // тканин» stays as it was in «Швейний цех», so the rights saved for it keep working.
     public const string FabricStock = "access:fabric-stock";
 
+    /// <summary>The reports of «Склад тканин», one page of «Права доступу» each.</summary>
+    public const string FabricPlanFact = "access:fabric-plan-fact";
+
+    public const string FabricBooking = "access:fabric-booking";
+
+    /// <summary>The owner's page: defaults to Admin (the director) only.</summary>
+    public const string FabricValuation = "access:fabric-valuation";
+
+    public const string HardwareOrder = "access:hardware-order";
+
     /// <summary>The «Тканина» tab lives on the order card of «Виробничі завдання».</summary>
     public const string ProductionOrders = "access:production-orders";
 

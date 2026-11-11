@@ -30,6 +30,7 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<Production.Application.Colors.ProductionColors>();
         services.AddScoped<WorkCards>();
         services.AddScoped<Production.Application.FabricPlans.ProductionFabricPlans>();
+        services.AddScoped<Production.Application.FabricPlans.ProductionAssemblies>();
         services.AddScoped<ForecastQueueReader>();
         services.AddScoped<PayrollSheets>();
         services.AddScoped<WorkshopReports>();

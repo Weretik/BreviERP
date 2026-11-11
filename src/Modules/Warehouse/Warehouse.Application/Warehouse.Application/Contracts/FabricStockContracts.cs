@@ -68,7 +68,8 @@ public sealed record FabricMovementRowResponse(
     bool CanReverse,
     bool IsVoided,
     int Revision,
-    bool CanEdit);
+    bool CanEdit,
+    decimal? PerProduct = null);
 
 /// <summary>A page of 50 movements, newest operation date first.</summary>
 public sealed record FabricMovementPageResponse(

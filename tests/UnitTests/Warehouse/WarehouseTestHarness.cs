@@ -43,7 +43,8 @@ internal sealed class HarnessWarehouseStaffReader(ProductionTestHarness workshop
 }
 
 /// <summary>The real Production plans over the Production harness, mapped the way the host maps them.</summary>
-internal sealed class HarnessWarehouseProductionReader(ProductionFabricPlans plans) : IWarehouseProductionReader
+internal sealed class HarnessWarehouseProductionReader(ProductionFabricPlans plans,
+    ProductionAssemblies assemblies) : IWarehouseProductionReader
 {
     public async Task<IReadOnlyList<WarehousePlanItem>> OpenItemsAsync(string? fabricCode,
         CancellationToken cancellationToken) =>
@@ -51,6 +52,16 @@ internal sealed class HarnessWarehouseProductionReader(ProductionFabricPlans pla
 
     public async Task<WarehousePlanItem?> ItemAsync(int orderId, int itemId, CancellationToken cancellationToken) =>
         await plans.ItemAsync(orderId, itemId, cancellationToken) is { } item ? Map(item) : null;
+
+    public async Task<IReadOnlyList<WarehousePlanItem>> ItemsAsync(IReadOnlyCollection<int> itemIds,
+        CancellationToken cancellationToken) =>
+        (await plans.ItemsAsync(itemIds, cancellationToken)).Select(Map).ToArray();
+
+    public async Task<IReadOnlyList<WarehouseAssemblyItem>> OpenAssembliesAsync(CancellationToken cancellationToken) =>
+        (await assemblies.OpenAsync(cancellationToken)).Select(x => new WarehouseAssemblyItem(x.OrderId, x.OrderNumber,
+            x.ClientName, x.OrderCreatedAt, x.ItemId, x.ModelName, x.ModelCode, x.Quantity,
+            x.Lines?.Select(l => new WarehouseAssemblyLine(l.Kind, l.Code, l.Name, l.Quantity, l.Unit, l.Comment))
+                .ToArray())).ToArray();
 
     public async Task<IReadOnlyList<WarehouseLegacyOrder>> LegacyOrdersAsync(IReadOnlyCollection<string> legacyIds,
         CancellationToken cancellationToken) =>
@@ -65,7 +76,8 @@ internal sealed class HarnessWarehouseProductionReader(ProductionFabricPlans pla
 
     private static WarehousePlanItem Map(ProductionPlanItem x) => new(x.OrderId, x.OrderNumber, x.OrderVersion,
         x.IsOpen, x.ClientName, x.ItemId, x.ModelName, x.FabricCode, x.FabricName, x.Quantity, x.HasNorm,
-        x.Parts.Select(p => new WarehousePlanPart(p.FabricCode, p.Color, p.ColorKey, p.Meters)).ToArray());
+        x.Parts.Select(p => new WarehousePlanPart(p.FabricCode, p.Color, p.ColorKey, p.Meters)).ToArray(), x.ModelCode,
+        x.OrderCreatedAt, x.DueDate);
 }
 
 /// <summary>The stock facts for «Звіти цеху», mapped the way the host maps them.</summary>
@@ -100,7 +112,8 @@ internal sealed class WarehouseTestHarness : IDisposable
         Db = new WarehouseDbContext(new DbContextOptionsBuilder<WarehouseDbContext>().UseSqlite(_connection).Options);
         Db.Database.EnsureCreated();
         Staff = new HarnessWarehouseStaffReader(workshop);
-        Production = new HarnessWarehouseProductionReader(new ProductionFabricPlans(workshop.Db, workshop.Time));
+        Production = new HarnessWarehouseProductionReader(new ProductionFabricPlans(workshop.Db, workshop.Time),
+            new ProductionAssemblies(workshop.Db, workshop.Models));
     }
 
     public ProductionTestHarness Workshop { get; }

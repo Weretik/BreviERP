@@ -7,7 +7,7 @@ using YamlDotNet.RepresentationModel;
 
 namespace UnitTests.Warehouse;
 
-/// <summary>Stock types and operations match docs/sdd/contracts/warehouse/fabric-stock.openapi.yaml (WH-001…WH-004).</summary>
+/// <summary>Stock types and operations match docs/sdd/contracts/warehouse/fabric-stock.openapi.yaml (WH-001…WH-005).</summary>
 public sealed class FabricStockContractTests
 {
     [TestCase(typeof(FabricStockPermissions))]
@@ -52,6 +52,23 @@ public sealed class FabricStockContractTests
     [TestCase(typeof(FabricStockImportInput))]
     [TestCase(typeof(FabricStockImportLine))]
     [TestCase(typeof(FabricStockImportResult))]
+    [TestCase(typeof(FabricPlanFactResponse))]
+    [TestCase(typeof(FabricPlanFactRowResponse))]
+    [TestCase(typeof(FabricPlanFactModelResponse))]
+    [TestCase(typeof(FabricPlanFactItemResponse))]
+    [TestCase(typeof(FabricPlanFactMaterialResponse))]
+    [TestCase(typeof(FabricBookingResponse))]
+    [TestCase(typeof(FabricBookingPairResponse))]
+    [TestCase(typeof(FabricBookingItemResponse))]
+    [TestCase(typeof(FabricBookingUnknownResponse))]
+    [TestCase(typeof(FabricValuationResponse))]
+    [TestCase(typeof(FabricValuationFabricResponse))]
+    [TestCase(typeof(FabricValuationColorResponse))]
+    [TestCase(typeof(FabricValuationShortageResponse))]
+    [TestCase(typeof(HardwareOrderResponse))]
+    [TestCase(typeof(HardwareNeedResponse))]
+    [TestCase(typeof(HardwareNeedOrderResponse))]
+    [TestCase(typeof(HardwareIncompleteResponse))]
     public void Serialized_properties_match_the_machine_contract(Type type)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[type.Name])["properties"];
@@ -73,7 +90,33 @@ public sealed class FabricStockContractTests
         {
             Assert.That(policies, Is.EqualTo(new[] { "access:fabric-stock", "access:production-orders" }));
             Assert.That(operations, Has.Length.EqualTo(22));
-            Assert.That(Operations(), Is.EquivalentTo(operations));
+            Assert.That(Operations().Where(x => !Reports.Contains(x)), Is.EquivalentTo(operations));
+        });
+    }
+
+    private static readonly string[] Reports = ["getFabricPlanFact", "getFabricBooking", "getFabricValuation", "getHardwareOrder"];
+
+    [Test]
+    public void Every_report_is_in_the_contract_and_is_its_own_page_of_access_rights()
+    {
+        var actions = typeof(StockReportsController).GetMethods()
+            .Select(x => (Route: x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>()
+                .SingleOrDefault(), Policy: x.GetCustomAttributes(typeof(AuthorizeAttribute), false)
+                .Cast<AuthorizeAttribute>().SingleOrDefault()?.Policy))
+            .Where(x => x.Route is not null).ToArray();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(actions.Select(x => x.Route!.Name), Is.EquivalentTo(Reports));
+            Assert.That(Operations().Where(Reports.Contains), Is.EquivalentTo(Reports));
+            Assert.That(actions.Select(x => x.Policy), Is.EquivalentTo(new[]
+            {
+                "access:fabric-plan-fact", "access:fabric-booking", "access:fabric-valuation", "access:hardware-order"
+            }));
+            Assert.That(actions.Select(x => global::Identity.Application.Security.Access.AccessPolicies.Parse(x.Policy!)),
+                Has.None.Null, "every policy names a page of «Права доступу»");
+            Assert.That(global::Identity.Domain.Authorization.AccessCatalog.DefaultsOf("Manager"),
+                Does.Not.ContainKey(global::Identity.Domain.Authorization.AccessCatalog.FabricValuation), "the owner's page");
         });
     }
 
