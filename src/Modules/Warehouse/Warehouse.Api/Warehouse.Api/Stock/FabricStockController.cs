@@ -13,9 +13,9 @@ using Warehouse.Application.Stock.Adjustments;
 using Warehouse.Application.Stock.OneOff;
 using Warehouse.Application.Stock.Opening;
 using Warehouse.Application.Stock.Receipts;
-using Warehouse.Application.Stock.ImportStock;
 using Warehouse.Application.Stock.Movements;
 using Warehouse.Application.Stock.Revisions;
+using Warehouse.Application.Stock.Transfer;
 
 namespace Warehouse.Api.Stock;
 
@@ -178,12 +178,17 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
             ? this.ToActionResult(await sender.Send(new GetFabricConsumptionQuery(actor, from, to), cancellationToken))
             : Forbid();
 
-    /// <summary>Moves the stock of the old «Цех» (Admin); <c>dryRun</c> only shows it.</summary>
-    [HttpPost("import", Name = "importFabricStock")]
-    public async Task<ActionResult<FabricStockImportResult>> Import(FabricStockImportInput input,
-        [FromQuery] bool dryRun, CancellationToken cancellationToken) =>
+    /// <summary>
+    /// «Перенесення з v133» (Admin): replaces the stock with the D1 export of the old «Цех». <c>dryRun</c> checks and
+    /// rolls back; <c>confirmReplace</c> allows removing records entered in Brevi itself.
+    /// </summary>
+    [HttpPost("transfer", Name = "transferFabricStock")]
+    [RequestSizeLimit(50_000_000)]
+    public async Task<ActionResult<StockTransferResult>> Transfer(StockTransferInput input, [FromQuery] bool dryRun,
+        [FromQuery] bool confirmReplace, CancellationToken cancellationToken) =>
         this.Actor() is { } actor
-            ? this.ToActionResult(await sender.Send(new ImportFabricStockCommand(actor, input, dryRun), cancellationToken))
+            ? this.ToActionResult(await sender.Send(new TransferStockCommand(actor, input, dryRun, confirmReplace),
+                cancellationToken))
             : Forbid();
 }
 

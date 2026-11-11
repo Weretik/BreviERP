@@ -55,6 +55,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Warehouse | [003 Edit, void and restore of movements](warehouse/003-movement-revisions/README.md) | stage 3 implemented 2026-11-11 |
 | Warehouse | [004 Issue by actual cutting](warehouse/004-issue-by-cutting/README.md) | stage 4 implemented 2026-11-11 |
 | Warehouse | [005 The four stock reports](warehouse/005-reports/README.md) | stage 5 implemented 2026-11-11 |
+| Warehouse | [006 «Перенесення з v133»](warehouse/006-v133-transfer/README.md) | stage 6 implemented 2026-11-11 |
 | Ai | [001 «Налаштування ШІ»](ai/001-ai-settings/README.md) | implemented 2026-11-05 |
 | Accounting | [001 «Бухгалтерія»](accounting/001-finance/README.md) | stages 1–3 implemented 2026-11-05 |
 | Purchasing | [001 «Рахунки на закупку»](purchasing/001-purchase-invoices/README.md) | stages 1–3 implemented 2026-11-05 |

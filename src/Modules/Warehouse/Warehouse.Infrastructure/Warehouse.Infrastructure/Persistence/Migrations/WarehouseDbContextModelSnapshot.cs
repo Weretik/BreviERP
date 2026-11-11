@@ -539,6 +539,52 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.ToTable("StockOperations", "warehouse");
                 });
 
+            modelBuilder.Entity("Warehouse.Domain.Stock.StockTransfer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .IsFixedLength();
+
+                    b.Property<int>("Issues")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Lines")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Meters")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)");
+
+                    b.Property<int>("Movements")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Snapshot")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Hash");
+
+                    b.ToTable("StockTransfers", "warehouse");
+                });
+
             modelBuilder.Entity("Warehouse.Domain.Stock.FabricIssueLine", b =>
                 {
                     b.HasOne("Warehouse.Domain.Stock.FabricIssue", null)

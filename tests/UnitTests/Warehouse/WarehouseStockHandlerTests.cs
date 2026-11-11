@@ -6,7 +6,6 @@ using Warehouse.Application.Access;
 using Warehouse.Application.Contracts;
 using Warehouse.Application.Stock.GetChoices;
 using Warehouse.Application.Stock.GetStock;
-using Warehouse.Application.Stock.ImportStock;
 using Warehouse.Application.Stock.Issues;
 using Warehouse.Application.Stock.Movements;
 using Warehouse.Application.Stock.Opening;
@@ -147,31 +146,6 @@ public sealed class WarehouseStockHandlerTests
     }
 
     [Test]
-    public async Task Import_checks_every_line_and_a_repeat_changes_nothing()
-    {
-        using var workshop = Workshop();
-        var good = Line("s1", 12.5m, Movement("m1", "Opening", 0m, 10m), Movement("m2", "Receipt", 10m, 2.5m));
-        var broken = Line("s2", 5m, Movement("m3", "Opening", 0m, 4m));
-
-        var withError = await Import(workshop, false, good, broken);
-        var preview = await Import(workshop, true, good);
-        var saved = await Import(workshop, false, good);
-        var repeat = await Import(workshop, false, good);
-        var line = await workshop.Db.FabricStocks.Include(x => x.Movements).SingleAsync();
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(withError.Value.Errors, Is.EqualTo(1));
-            Assert.That(withError.Value.Lines[1].Error, Does.Contain("залишок 5"));
-            Assert.That(preview.Value.DryRun, Is.True);
-            Assert.That(saved.Value, Has.Property("Created").EqualTo(1).And.Property("DryRun").EqualTo(false));
-            Assert.That(repeat.Value, Has.Property("Created").EqualTo(0).And.Property("Unchanged").EqualTo(1));
-            Assert.That(line.Meters, Is.EqualTo(12.5m));
-            Assert.That(line.Movements.Select(x => x.CreatedByName), Is.All.EqualTo("Власниця"));
-        });
-    }
-
-    [Test]
     public async Task New_stock_line_takes_a_colour_from_the_list_and_choices_list_it()
     {
         using var workshop = Workshop();
@@ -280,17 +254,4 @@ public sealed class WarehouseStockHandlerTests
             .Handle(new(actor, orderId, itemId, new(operationId ?? Guid.NewGuid(), version, saved, Day, cut, null, lines)),
                 CancellationToken.None);
     }
-
-    private static FabricStockImportRow Line(string id, decimal meters, params FabricMovementImportRow[] movements) =>
-        new(id, "FAB-023", id == "s1" ? "Темно-сірий" : "Жовтий", meters, movements);
-
-    private static FabricMovementImportRow Movement(string id, string kind, decimal before, decimal delta) =>
-        new(id, kind, before, delta, before + delta, new DateOnly(2026, 10, 6),
-            new DateTimeOffset(2026, 10, 6, 9, 0, 0, TimeSpan.Zero), null, null, null, "owner@brevi.ua", null, null);
-
-    private static Task<Result<FabricStockImportResult>> Import(WarehouseTestHarness workshop, bool dryRun,
-        params FabricStockImportRow[] rows) =>
-        new ImportFabricStockCommandHandler(workshop.Db, workshop.Reference, workshop.Production, workshop.Staff,
-                workshop.Reservations())
-            .Handle(new(Admin, new(rows, [], []), dryRun), CancellationToken.None).AsTask();
 }

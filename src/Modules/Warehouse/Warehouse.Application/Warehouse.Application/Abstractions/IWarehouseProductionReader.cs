@@ -64,7 +64,8 @@ public sealed record WarehousePlanItem(
 public sealed record WarehouseLegacyOrder(string LegacyId, int OrderId, int Number,
     IReadOnlyList<WarehouseLegacyItem> Items);
 
-public sealed record WarehouseLegacyItem(int Position, int ItemId, string ModelName);
+public sealed record WarehouseLegacyItem(int Position, int ItemId, string ModelName, string? ModelCode = null,
+    int Quantity = 0);
 
 /// <summary>An item of an open order and what its model takes besides fabric.</summary>
 /// <param name="Lines">Null when the model has no composition.</param>

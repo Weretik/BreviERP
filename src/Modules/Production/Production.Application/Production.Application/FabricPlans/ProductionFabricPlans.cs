@@ -27,7 +27,8 @@ public sealed record ProductionPlanItem(
 public sealed record ProductionLegacyOrder(string LegacyId, int OrderId, int Number,
     IReadOnlyList<ProductionLegacyItem> Items);
 
-public sealed record ProductionLegacyItem(int Position, int ItemId, string ModelName);
+public sealed record ProductionLegacyItem(int Position, int ItemId, string ModelName, string? ModelCode = null,
+    int Quantity = 0);
 
 /// <summary>
 /// What «Склад тканин» (Warehouse) needs of the workshop: the plan of items by colour from the norms (PRD-D28), the
@@ -81,7 +82,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
             .Where(x => x.LegacyId != null && ids.Contains(x.LegacyId) && x.DeletedAt == null)
             .ToListAsync(cancellationToken);
         return orders.Select(o => new ProductionLegacyOrder(o.LegacyId!, o.Id, o.Number,
-            o.Items.Select(i => new ProductionLegacyItem(i.Position, i.Id, i.ModelName)).ToList())).ToList();
+            o.Items.Select(i => new ProductionLegacyItem(i.Position, i.Id, i.ModelName, i.ModelCode, i.Quantity)).ToList())).ToList();
     }
 
     /// <summary>Adds «Тканина» to the history of the item; nothing when the order is gone.</summary>

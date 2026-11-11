@@ -315,38 +315,50 @@ paths:
           description: Not allowed
         '400':
           description: Invalid period
-  /api/warehouse/fabric-stock/import:
+  /api/warehouse/fabric-stock/transfer:
     post:
       tags:
       - Production
-      operationId: importFabricStock
-      summary: Moves the stock of the old «Цех» (Admin); nothing is saved unless every row is fine
+      operationId: transferFabricStock
+      summary: «Перенесення з v133» (Admin) replaces the stock with the D1 export of the old «Цех»
+      description: >-
+        WH-006. The body holds the rows of nine D1 tables (camelCase columns, values as exported). Every link,
+        before + change = after, the chain of every line and the issued metres are checked; truncated values are
+        refused. The stock is emptied and written in one transaction, revisions are replayed, and every movement and
+        line is compared with the export; any difference rolls back. A dry run rolls back too. Records entered in
+        Brevi itself are removed only with confirmReplace. The same export again changes nothing.
       parameters:
       - in: query
         name: dryRun
         required: false
         schema:
           type: boolean
-        description: Only check and show.
+        description: Do everything, show the result, and roll back.
+      - in: query
+        name: confirmReplace
+        required: false
+        schema:
+          type: boolean
+        description: Allow removing stock lines, movements and issues entered in Brevi.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FabricStockImportInput'
+              $ref: '#/components/schemas/StockTransferInput'
       responses:
         '200':
-          description: OK
+          description: OK; applied is false on a dry run, with errors, or while a confirmation is needed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FabricStockImportResult'
+                $ref: '#/components/schemas/StockTransferResult'
         '401':
           description: Not signed in
         '403':
-          description: Not allowed
+          description: Only Admin
         '400':
-          description: Invalid file
+          description: A table is missing or too large
   /api/warehouse/orders/{id}/items/{itemId}/fabric:
     get:
       tags:
@@ -1746,251 +1758,6 @@ components:
           type:
           - number
           - 'null'
-    FabricMovementImportRow:
-      type: object
-      required:
-      - legacyId
-      - kind
-      - metersBefore
-      - delta
-      - metersAfter
-      - operationDate
-      - at
-      - supplier
-      - document
-      - note
-      - actorEmail
-      - orderLegacyId
-      - position
-      properties:
-        legacyId:
-          type: string
-        kind:
-          type: string
-          enum:
-          - Opening
-          - Receipt
-          - Issue
-          - Adjustment
-          - Reversal
-        metersBefore:
-          type: number
-        delta:
-          type: number
-        metersAfter:
-          type: number
-        operationDate:
-          type: string
-          format: date
-        at:
-          type: string
-          format: date-time
-        supplier:
-          type:
-          - string
-          - 'null'
-        document:
-          type:
-          - string
-          - 'null'
-        note:
-          type:
-          - string
-          - 'null'
-        actorEmail:
-          type:
-          - string
-          - 'null'
-        orderLegacyId:
-          type:
-          - string
-          - 'null'
-        position:
-          type:
-          - integer
-          - 'null'
-    FabricStockImportRow:
-      type: object
-      required:
-      - legacyId
-      - fabricCode
-      - color
-      - meters
-      - movements
-      properties:
-        legacyId:
-          type: string
-        fabricCode:
-          type: string
-        color:
-          type: string
-        meters:
-          type: number
-        movements:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricMovementImportRow'
-    FabricIssueLineImportRow:
-      type: object
-      required:
-      - purpose
-      - planFabricCode
-      - planColor
-      - plannedMeters
-      - movementLegacyId
-      - coveredMeters
-      properties:
-        purpose:
-          type: string
-          enum:
-          - Planned
-          - Replacement
-          - Additional
-        planFabricCode:
-          type:
-          - string
-          - 'null'
-        planColor:
-          type:
-          - string
-          - 'null'
-        plannedMeters:
-          type:
-          - number
-          - 'null'
-        movementLegacyId:
-          type: string
-        coveredMeters:
-          type: number
-    FabricIssueImportRow:
-      type: object
-      required:
-      - legacyId
-      - orderLegacyId
-      - position
-      - issuedOn
-      - at
-      - actorEmail
-      - note
-      - lines
-      properties:
-        legacyId:
-          type: string
-        orderLegacyId:
-          type: string
-        position:
-          type: integer
-        issuedOn:
-          type: string
-          format: date
-        at:
-          type: string
-          format: date-time
-        actorEmail:
-          type:
-          - string
-          - 'null'
-        note:
-          type:
-          - string
-          - 'null'
-        lines:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricIssueLineImportRow'
-    FabricReservationImportRow:
-      type: object
-      required:
-      - fabricCode
-      - color
-      - meters
-      properties:
-        fabricCode:
-          type: string
-        color:
-          type: string
-        meters:
-          type: number
-    FabricStockImportInput:
-      type: object
-      required:
-      - stocks
-      - issues
-      - oldReservations
-      properties:
-        stocks:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricStockImportRow'
-        issues:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricIssueImportRow'
-        oldReservations:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricReservationImportRow'
-    FabricStockImportLine:
-      type: object
-      required:
-      - fabricCode
-      - color
-      - movements
-      - action
-      - error
-      properties:
-        fabricCode:
-          type: string
-        color:
-          type: string
-        movements:
-          type: integer
-        action:
-          type: string
-          enum:
-          - created
-          - unchanged
-          - error
-        error:
-          type:
-          - string
-          - 'null'
-    FabricStockImportResult:
-      type: object
-      required:
-      - dryRun
-      - created
-      - unchanged
-      - errors
-      - movements
-      - issues
-      - reservationDifferences
-      - lines
-      - issueErrors
-      properties:
-        dryRun:
-          type: boolean
-        created:
-          type: integer
-        unchanged:
-          type: integer
-        errors:
-          type: integer
-        movements:
-          type: integer
-        issues:
-          type: integer
-        reservationDifferences:
-          type: integer
-          description: Fabric and colour pairs whose recomputed reservation differs from the old app.
-        lines:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricStockImportLine'
-        issueErrors:
-          type: array
-          items:
-            type: string
     EditFabricMovementInput:
       type: object
       required:
@@ -2845,3 +2612,547 @@ components:
         calculatedAt:
           type: string
           format: date-time
+    StockTransferInput:
+      type: object
+      required:
+      - snapshot
+      - fabricStock
+      - fabricStockMovements
+      - fabricMovementRevisions
+      - fabricIssueBatches
+      - fabricIssueLines
+      - fabricIssueComponents
+      - fabricReservations
+      - productionOrders
+      - productionItems
+      properties:
+        snapshot:
+          type:
+          - string
+          - 'null'
+        fabricStock:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133StockRow'
+        fabricStockMovements:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133MovementRow'
+        fabricMovementRevisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133RevisionRow'
+        fabricIssueBatches:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133BatchRow'
+        fabricIssueLines:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133IssueLineRow'
+        fabricIssueComponents:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133IssueComponentRow'
+        fabricReservations:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133ReservationRow'
+        productionOrders:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133OrderRow'
+        productionItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/V133ItemRow'
+    V133StockRow:
+      type: object
+      required:
+      - id
+      - fabricId
+      - fabricName
+      - color
+      - normalizedColor
+      - hundredthsOfMeter
+      - lastMovementId
+      - updatedAt
+      properties:
+        id:
+          type: string
+        fabricId:
+          type: string
+        fabricName:
+          type:
+          - string
+          - 'null'
+        color:
+          type: string
+        normalizedColor:
+          type:
+          - string
+          - 'null'
+        hundredthsOfMeter:
+          type: integer
+        lastMovementId:
+          type:
+          - string
+          - 'null'
+        updatedAt:
+          type:
+          - string
+          - 'null'
+    V133MovementRow:
+      type: object
+      required:
+      - id
+      - stockId
+      - fabricId
+      - fabricName
+      - color
+      - kind
+      - beforeHundredths
+      - deltaHundredths
+      - afterHundredths
+      - orderId
+      - itemId
+      - orderNumber
+      - modelName
+      - clientName
+      - itemQuantity
+      - supplier
+      - reference
+      - note
+      - actorEmail
+      - at
+      - operationDate
+      properties:
+        id:
+          type: string
+        stockId:
+          type: string
+        fabricId:
+          type:
+          - string
+          - 'null'
+        fabricName:
+          type:
+          - string
+          - 'null'
+        color:
+          type:
+          - string
+          - 'null'
+        kind:
+          type: string
+        beforeHundredths:
+          type: integer
+        deltaHundredths:
+          type: integer
+        afterHundredths:
+          type: integer
+        orderId:
+          type:
+          - string
+          - 'null'
+        itemId:
+          type:
+          - string
+          - 'null'
+        orderNumber:
+          type:
+          - string
+          - 'null'
+        modelName:
+          type:
+          - string
+          - 'null'
+        clientName:
+          type:
+          - string
+          - 'null'
+        itemQuantity:
+          type:
+          - integer
+          - 'null'
+        supplier:
+          type:
+          - string
+          - 'null'
+        reference:
+          type:
+          - string
+          - 'null'
+        note:
+          type:
+          - string
+          - 'null'
+        actorEmail:
+          type:
+          - string
+          - 'null'
+        at:
+          type: string
+        operationDate:
+          type:
+          - string
+          - 'null'
+    V133RevisionRow:
+      type: object
+      required:
+      - id
+      - operationId
+      - movementId
+      - beforeJson
+      - afterJson
+      - actorEmail
+      - at
+      properties:
+        id:
+          type: string
+        operationId:
+          type:
+          - string
+          - 'null'
+        movementId:
+          type: string
+        beforeJson:
+          type: string
+        afterJson:
+          type: string
+        actorEmail:
+          type:
+          - string
+          - 'null'
+        at:
+          type: string
+    V133BatchRow:
+      type: object
+      required:
+      - id
+      - itemId
+      - actorEmail
+      - resultJson
+      - createdAt
+      properties:
+        id:
+          type: string
+        itemId:
+          type: string
+        actorEmail:
+          type:
+          - string
+          - 'null'
+        resultJson:
+          type:
+          - string
+          - 'null'
+        createdAt:
+          type: string
+    V133IssueLineRow:
+      type: object
+      required:
+      - id
+      - batchId
+      - itemId
+      - stockId
+      - purpose
+      - planKey
+      - plannedFabricId
+      - plannedColor
+      - plannedHundredths
+      - actualFabricId
+      - actualColor
+      - actualHundredths
+      - coveredPlanHundredths
+      - note
+      - createdAt
+      - plannedComponentJson
+      - voidedAt
+      properties:
+        id:
+          type: string
+        batchId:
+          type: string
+        itemId:
+          type: string
+        stockId:
+          type: string
+        purpose:
+          type: string
+        planKey:
+          type:
+          - string
+          - 'null'
+        plannedFabricId:
+          type:
+          - string
+          - 'null'
+        plannedColor:
+          type:
+          - string
+          - 'null'
+        plannedHundredths:
+          type:
+          - integer
+          - 'null'
+        actualFabricId:
+          type:
+          - string
+          - 'null'
+        actualColor:
+          type:
+          - string
+          - 'null'
+        actualHundredths:
+          type: integer
+        coveredPlanHundredths:
+          type: integer
+        note:
+          type:
+          - string
+          - 'null'
+        createdAt:
+          type: string
+        plannedComponentJson:
+          type:
+          - string
+          - 'null'
+        voidedAt:
+          type:
+          - string
+          - 'null'
+    V133IssueComponentRow:
+      type: object
+      required:
+      - movementId
+      - lineId
+      properties:
+        movementId:
+          type: string
+        lineId:
+          type: string
+    V133ReservationRow:
+      type: object
+      required:
+      - id
+      - orderId
+      - itemId
+      - fabricId
+      - color
+      - hundredthsOfMeter
+      properties:
+        id:
+          type: string
+        orderId:
+          type:
+          - string
+          - 'null'
+        itemId:
+          type: string
+        fabricId:
+          type: string
+        color:
+          type: string
+        hundredthsOfMeter:
+          type: integer
+    V133OrderRow:
+      type: object
+      required:
+      - id
+      - seq
+      - status
+      - deletedAt
+      properties:
+        id:
+          type: string
+        seq:
+          type: integer
+        status:
+          type:
+          - string
+          - 'null'
+        deletedAt:
+          type:
+          - string
+          - 'null'
+    V133ItemRow:
+      type: object
+      required:
+      - id
+      - orderId
+      - modelArticle
+      - modelName
+      - quantity
+      properties:
+        id:
+          type: string
+        orderId:
+          type: string
+        modelArticle:
+          type:
+          - string
+          - 'null'
+        modelName:
+          type:
+          - string
+          - 'null'
+        quantity:
+          type: integer
+    StockTransferResult:
+      type: object
+      required:
+      - applied
+      - unchanged
+      - hash
+      - source
+      - target
+      - current
+      - needsConfirmation
+      - errors
+      - notes
+      - lastTransferAt
+      properties:
+        applied:
+          type: boolean
+        unchanged:
+          type: boolean
+        hash:
+          type: string
+        source:
+          $ref: '#/components/schemas/StockTransferSource'
+        target:
+          oneOf:
+          - $ref: '#/components/schemas/StockTransferTarget'
+          - type: 'null'
+        current:
+          $ref: '#/components/schemas/StockTransferCurrent'
+        needsConfirmation:
+          type: boolean
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockTransferProblem'
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockTransferProblem'
+        lastTransferAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+    StockTransferSource:
+      type: object
+      required:
+      - lines
+      - pairs
+      - movements
+      - openings
+      - receipts
+      - issues
+      - adjustments
+      - voided
+      - revisions
+      - packages
+      - issueLines
+      - reservations
+      - meters
+      - negativePairs
+      - zeroPairs
+      properties:
+        lines:
+          type: integer
+        pairs:
+          type: integer
+        movements:
+          type: integer
+        openings:
+          type: integer
+        receipts:
+          type: integer
+        issues:
+          type: integer
+        adjustments:
+          type: integer
+        voided:
+          type: integer
+        revisions:
+          type: integer
+        packages:
+          type: integer
+        issueLines:
+          type: integer
+        reservations:
+          type: integer
+        meters:
+          type: number
+        negativePairs:
+          type: integer
+        zeroPairs:
+          type: integer
+    StockTransferTarget:
+      type: object
+      required:
+      - lines
+      - movements
+      - revisions
+      - issues
+      - issueLines
+      - plans
+      - meters
+      properties:
+        lines:
+          type: integer
+        movements:
+          type: integer
+        revisions:
+          type: integer
+        issues:
+          type: integer
+        issueLines:
+          type: integer
+        plans:
+          type: integer
+        meters:
+          type: number
+    StockTransferCurrent:
+      type: object
+      required:
+      - lines
+      - movements
+      - issues
+      - plans
+      - ownLines
+      - ownMovements
+      - ownIssues
+      properties:
+        lines:
+          type: integer
+        movements:
+          type: integer
+        issues:
+          type: integer
+        plans:
+          type: integer
+        ownLines:
+          type: integer
+        ownMovements:
+          type: integer
+        ownIssues:
+          type: integer
+    StockTransferProblem:
+      type: object
+      required:
+      - table
+      - rowId
+      - message
+      properties:
+        table:
+          type: string
+        rowId:
+          type:
+          - string
+          - 'null'
+        message:
+          type: string

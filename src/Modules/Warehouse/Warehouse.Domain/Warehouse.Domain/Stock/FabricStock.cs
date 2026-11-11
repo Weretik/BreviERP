@@ -142,6 +142,18 @@ public sealed class FabricStock
         return Add(kind, delta, details, actorName, at, null, legacyId);
     }
 
+    /// <summary>
+    /// A movement of the old «Цех» in the state it was first made (WH-006); the caller applies its revisions and restates
+    /// the chains, and only then compares with the export.
+    /// </summary>
+    public FabricMovement Import(FabricMovementKind kind, decimal delta, FabricMovementDetails details,
+        string actorName, DateTimeOffset at, string legacyId)
+    {
+        if (kind is FabricMovementKind.Reversal) throw new ArgumentException("The old «Цех» has no reversals.", nameof(kind));
+        if (string.IsNullOrWhiteSpace(legacyId)) throw new ArgumentException("Old id is required.", nameof(legacyId));
+        return Add(kind, delta, details, actorName, at, null, legacyId);
+    }
+
     private FabricMovement Add(FabricMovementKind kind, decimal delta, FabricMovementDetails details,
         string actorName, DateTimeOffset now, int? reverses, string? legacyId)
     {
