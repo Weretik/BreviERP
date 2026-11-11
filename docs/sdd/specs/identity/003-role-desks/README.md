@@ -1,6 +1,6 @@
 # DESK-001 Role «SEO-фахівець» and «Робочі столи»
 
-**Status:** stage 1 implemented 2026-11-11. **Module:** Identity (`AccessCatalog`, roles; no schema change). **Consumer:** brevi-web «Робочий стіл» (admin home `/`), «Користувачі», «Права доступу». **Source:** owner request 2026-11-11, [concept](https://claude.ai/artifact/BABr1LD9V1954wsa6w4Uip).
+**Status:** stages 1–2 implemented 2026-11-11. **Module:** Identity (`AccessCatalog`, roles; no schema change). **Consumer:** brevi-web «Робочий стіл» (admin home `/`), «Користувачі», «Права доступу». **Source:** owner request 2026-11-11, [concept](https://claude.ai/artifact/BABr1LD9V1954wsa6w4Uip).
 
 ## Goal
 
@@ -17,13 +17,14 @@ Every built-in role opens its own «Робочий стіл» with the blocks of
 | D5 | A block inside a desk reads an existing endpoint and is shown only with view on that block's own page (for example money needs `accounting`, which Admin does not have by default). No new endpoint in stage 1. |
 | D6 | Desk pages reach roles saved before them (`AccessArea.DefaultsForSavedRoles`): a saved row that does not mention a desk gets the role's default, and every save writes each desk explicitly (0 when unticked), so nobody loses the home page on deploy and the director's later choice wins. Other pages keep the old rule (a saved role gets a new page only when ticked). |
 | D7 | No role for seamstresses: they do not sign in; the workshop desk serves the head of the workshop (owner, 2026-11-11). |
+| D8 | The manager desk reads existing endpoints: «Мій день» of leads, the task overview and open tasks of the signed-in person, their КП (`responsibleUserId`), their open production orders (`managerUserId`, nearest due date first). Only overdue or urgent tasks and late orders are marked. |
 
 ## Stages
 
 | Stage | Scope | Status |
 | --- | --- | --- |
 | 1 | Role `Seo`, group «Робочі столи»; admin: desk frame, workshop desk (old «Огляд виробництва» without КП, with fabric and hardware shortages) | implemented 2026-11-11 |
-| 2 | Manager desk | planned |
+| 2 | Manager desk; `GET /api/production/orders?managerUserId=` keeps the orders of one manager (the КП responsible) | implemented 2026-11-11 |
 | 3 | SEO desk («SEO-огляд» on the desk) | planned |
 | 4 | Accountant desk | planned |
 | 5 | Director and admin main desk; every desk as a foldable block; summary «КП за місяць» | planned |
