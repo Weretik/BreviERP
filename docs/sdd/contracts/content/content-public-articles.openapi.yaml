@@ -1,0 +1,220 @@
+openapi: 3.1.0
+info:
+  title: 'Content: public articles of the site'
+  version: 1.0.0
+  description: 'Read-only articles for the public site (CNT-004 stage 4). No sign-in. Only articles marked «Показувати
+    на сайті» come back, and nothing internal (no ids, revision or staff names). An article without a Russian title and
+    text comes back in Ukrainian, and `language` says so. Pictures are CDN addresses of the «Фото» library; a photo
+    deleted from the library is left out. Every answer has Cache-Control: public, max-age=300. The server reads the
+    articles at most once a minute, so a change in the Admin reaches these answers within a minute.'
+security: []
+paths:
+  /api/public/articles:
+    get:
+      tags:
+      - PublicArticles
+      operationId: getPublicArticles
+      description: Every article on the site, the newest date first, with its title, excerpt and cover.
+      parameters:
+      - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Articles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicArticleList'
+        '400':
+          description: Wrong language
+  /api/public/articles/{slug}:
+    get:
+      tags:
+      - PublicArticles
+      operationId: getPublicArticle
+      description: An article page by its address with SEO and the text.
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 120
+      - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicArticle'
+        '400':
+          description: Wrong language
+        '404':
+          description: No such address, or the article is hidden
+components:
+  parameters:
+    Language:
+      name: language
+      in: query
+      schema:
+        type: string
+        enum:
+        - uk
+        - ru
+        default: uk
+  schemas:
+    PublicArticleLanguage:
+      type: string
+      description: The language of the texts that came back.
+      enum:
+      - uk
+      - ru
+    PublicArticleBlockKind:
+      type: string
+      enum:
+      - Paragraph
+      - Heading
+      - List
+      - Image
+    PublicArticlePhoto:
+      type: object
+      required:
+      - url
+      properties:
+        url:
+          type: string
+        thumbnailUrl:
+          type:
+          - string
+          - 'null'
+          description: The small WebP copy for lists; null until the library has made it.
+        width:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        height:
+          type:
+          - integer
+          - 'null'
+          format: int32
+    PublicArticleCard:
+      type: object
+      required:
+      - slug
+      - publishedOn
+      - language
+      - title
+      - hasRussian
+      - updatedAtUtc
+      properties:
+        slug:
+          type: string
+        publishedOn:
+          type: string
+          format: date
+          description: The date readers see.
+        language:
+          $ref: '#/components/schemas/PublicArticleLanguage'
+        title:
+          type: string
+        excerpt:
+          type:
+          - string
+          - 'null'
+          description: The short text for lists; may hold bold and italic as **…** and *…*.
+        cover:
+          oneOf:
+          - $ref: '#/components/schemas/PublicArticlePhoto'
+          - type: 'null'
+        hasRussian:
+          type: boolean
+          description: The article has a Russian title and text, so the Russian page is its own.
+        updatedAtUtc:
+          type: string
+          format: date-time
+    PublicArticleList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicArticleCard'
+    PublicArticleBlock:
+      type: object
+      description: One block of the text. A paragraph may open with a bold lead; texts may hold bold and italic as
+        **…** and *…* (a typed asterisk is \*). A list keeps its lines in items. An image carries its photo and alt
+        text.
+      required:
+      - kind
+      - items
+      properties:
+        kind:
+          $ref: '#/components/schemas/PublicArticleBlockKind'
+        text:
+          type:
+          - string
+          - 'null'
+        lead:
+          type:
+          - string
+          - 'null'
+        items:
+          type: array
+          items:
+            type: string
+        photo:
+          oneOf:
+          - $ref: '#/components/schemas/PublicArticlePhoto'
+          - type: 'null'
+        alt:
+          type:
+          - string
+          - 'null'
+    PublicArticle:
+      type: object
+      required:
+      - slug
+      - publishedOn
+      - language
+      - hasRussian
+      - title
+      - body
+      - updatedAtUtc
+      properties:
+        slug:
+          type: string
+        publishedOn:
+          type: string
+          format: date
+        language:
+          $ref: '#/components/schemas/PublicArticleLanguage'
+        hasRussian:
+          type: boolean
+        title:
+          type: string
+        excerpt:
+          type:
+          - string
+          - 'null'
+        seoTitle:
+          type:
+          - string
+          - 'null'
+        seoDescription:
+          type:
+          - string
+          - 'null'
+        cover:
+          oneOf:
+          - $ref: '#/components/schemas/PublicArticlePhoto'
+          - type: 'null'
+        body:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicArticleBlock'
+        updatedAtUtc:
+          type: string
+          format: date-time

@@ -639,3 +639,7 @@ paths:
     $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1category-slugs
   /api/public/catalog/product-slugs:
     $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1product-slugs
+  /api/public/articles:
+    $ref: ./content/content-public-articles.openapi.yaml#/paths/~1api~1public~1articles
+  /api/public/articles/{slug}:
+    $ref: ./content/content-public-articles.openapi.yaml#/paths/~1api~1public~1articles~1{slug}

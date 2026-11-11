@@ -4,7 +4,7 @@ Articles of the public site. Each has an address, the date readers see, the «П
 
 A one-time transfer brings the articles of the old site from a prepared file: preview first, then apply; pictures are downloaded from `brevi.com.ua` into «Фото», folder «Старий сайт / Статті», an existing article is kept unless «перезаписати» is asked, and a picture that failed is named in the report.
 
-Not yet built: the public API and the site reading it (stage 4).
+The public site reads the shown articles without sign-in from `/api/public/articles` ([contract](../../contracts/content/content-public-articles.openapi.yaml)): the list, newest first, and a page by address with SEO, text and CDN pictures; an article without a Russian text comes back in Ukrainian. Answers are rebuilt at most once a minute.
 
 ## Code structure
 
@@ -24,10 +24,12 @@ src/Modules/Content/
     Articles/Delete/
     Articles/ImportOldSite/  # old-site transfer: file shape, allowed picture addresses, handler
     Articles/Shared/         # mapping, free slug, photo read, messages
+    PublicArticles/          # public list and page, language fallback, source kept for a minute
   Content.Infrastructure/Content.Infrastructure/
     Persistence/Configurations/ArticleConfiguration.cs
   Content.Api/Content.Api/
     Articles/ContentArticlesController.cs   # /api/content/articles, policy access:content-articles
+    PublicArticles/PublicArticlesController.cs # /api/public/articles, anonymous, read-only
 src/Bootstrapper/Host.Api/Content/ContentMediaReader.cs   # IContentMediaReader over the Media module
 src/Bootstrapper/Host.Api/Content/ContentPhotoImporter.cs # IContentPhotoImporter over the Catalog photo downloader
 ```
@@ -38,6 +40,7 @@ src/Bootstrapper/Host.Api/Content/ContentPhotoImporter.cs # IContentPhotoImporte
 tests/UnitTests/Content/ArticlesTests.cs           # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~Articles"
 tests/UnitTests/Content/ArticlesContractTests.cs
 tests/UnitTests/Content/ArticlesOldSiteImportTests.cs
+tests/UnitTests/Content/PublicArticlesTests.cs
 ```
 
 ## Data
