@@ -16,6 +16,7 @@ using Content.Application.PublicCatalog;
 using Content.Application.PublicRedirects;
 using Content.Application.PublicSitePages;
 using Content.Application.PublicSiteSettings;
+using Content.Application.SeoOverview;
 using Content.Application.SitePages.GetList;
 using Content.Application.SitePages.Save;
 using Content.Application.SiteSettings.Get;
@@ -198,6 +199,7 @@ internal sealed class ContentTestHarness : IDisposable
 
     public SaveSitePageCommandHandler SaveSitePage() => new(new SqliteContentDb(Open()), Time);
     public GetSitePagesQueryHandler SitePages() => new(new SqliteContentDb(Open()));
+    public GetSeoOverviewQueryHandler SeoOverview() => new(new SqliteContentDb(Open()), Catalog);
 
     public PublicSitePagesSource PublicSitePages(IMemoryCache? cache = null) =>
         new(new SqliteContentDb(Open()), cache ?? new MemoryCache(new MemoryCacheOptions()));

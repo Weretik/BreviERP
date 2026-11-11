@@ -1,0 +1,134 @@
+openapi: 3.1.0
+info:
+  title: 'Content: «Контент → SEO-огляд»'
+  version: 1.0.0
+  description: 'What the public site misses for search (CNT-008), read-only. Only problems are listed: products,
+    categories and articles shown on the site and the fixed pages (except «Заявка»), plus site-wide settings that are
+    not filled. Policy access:content-seo-overview («Права доступу»): the Director, Admin and Manager view; other
+    roles get 403.'
+security:
+- Bearer: []
+paths:
+  /api/content/seo-overview:
+    get:
+      tags:
+      - Content
+      operationId: getSeoOverview
+      description: Site-wide problems, counts per area and every page with at least one problem.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeoOverviewResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «SEO-огляд»
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    SeoArea:
+      type: string
+      enum:
+      - Product
+      - Category
+      - Article
+      - Page
+    SeoProblemKind:
+      type: string
+      description: 'NoTitle and NoDescription: the SEO text is empty; TitleTooLong over 60 and DescriptionTooLong
+        over 160 characters; DuplicateTitle: another page shows the same title in this language; NoRussian: the
+        Russian page shows the Ukrainian texts.'
+      enum:
+      - NoTitle
+      - NoDescription
+      - TitleTooLong
+      - DescriptionTooLong
+      - DuplicateTitle
+      - NoRussian
+    SeoSiteProblem:
+      type: string
+      description: A site-wide setting of «Налаштування SEO сайту» that is not filled.
+      enum:
+      - NoAnalytics
+      - NoGoogleVerification
+      - NoBingVerification
+      - NoSharePicture
+    SeoProblem:
+      type: object
+      required:
+      - kind
+      properties:
+        kind:
+          $ref: '#/components/schemas/SeoProblemKind'
+        language:
+          type:
+          - string
+          - 'null'
+          enum:
+          - uk
+          - ru
+          - null
+          description: Null for a problem of the whole page.
+    SeoIssue:
+      type: object
+      required:
+      - area
+      - id
+      - name
+      - path
+      - problems
+      properties:
+        area:
+          $ref: '#/components/schemas/SeoArea'
+        id:
+          type: string
+          description: The product, category or article id, or the page key.
+        name:
+          type: string
+        path:
+          type: string
+          description: The address on the site without the language.
+        problems:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeoProblem'
+    SeoAreaSummary:
+      type: object
+      required:
+      - area
+      - onSite
+      - withProblems
+      properties:
+        area:
+          $ref: '#/components/schemas/SeoArea'
+        onSite:
+          type: integer
+          format: int32
+        withProblems:
+          type: integer
+          format: int32
+    SeoOverviewResponse:
+      type: object
+      required:
+      - siteProblems
+      - areas
+      - issues
+      properties:
+        siteProblems:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeoSiteProblem'
+        areas:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeoAreaSummary'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeoIssue'
