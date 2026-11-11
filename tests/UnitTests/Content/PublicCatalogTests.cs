@@ -234,6 +234,12 @@ public sealed class PublicCatalogTests
     [TestCase(typeof(PublicCatalogVariant), "PublicCatalogVariant")]
     [TestCase(typeof(PublicCatalogProduct), "PublicCatalogProduct")]
     [TestCase(typeof(PublicCatalogSlug), "PublicCatalogSlug")]
+    [TestCase(typeof(PublicCatalogCategoryTree), "PublicCatalogCategoryTree")]
+    [TestCase(typeof(PublicCatalogCategory), "PublicCatalogCategory")]
+    [TestCase(typeof(PublicCatalogCategoryLink), "PublicCatalogCategoryLink")]
+    [TestCase(typeof(PublicCatalogChildCategory), "PublicCatalogChildCategory")]
+    [TestCase(typeof(PublicCatalogCategoryPage), "PublicCatalogCategoryPage")]
+    [TestCase(typeof(PublicCatalogProductCategory), "PublicCatalogProductCategory")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -255,7 +261,7 @@ public sealed class PublicCatalogTests
             Assert.That(controller.GetCustomAttributes(typeof(AllowAnonymousAttribute), false), Is.Not.Empty);
             Assert.That(methods.All(x => x is HttpGetAttribute), Is.True);
             Assert.That(methods.Select(x => x.Name), Is.EquivalentTo(Operations()));
-            Assert.That(methods, Has.Length.EqualTo(4));
+            Assert.That(methods, Has.Length.EqualTo(7));
             Assert.That((cache.Duration, cache.Location), Is.EqualTo((300, ResponseCacheLocation.Any)));
         });
     }
@@ -267,7 +273,8 @@ public sealed class PublicCatalogTests
         var names = new[]
             {
                 typeof(PublicCatalogCard), typeof(PublicCatalogProduct), typeof(PublicCatalogVariant),
-                typeof(PublicCatalogSection), typeof(PublicCatalogSlug),
+                typeof(PublicCatalogSection), typeof(PublicCatalogSlug), typeof(PublicCatalogCategory),
+                typeof(PublicCatalogCategoryPage), typeof(PublicCatalogProductCategory),
             }
             .SelectMany(x => x.GetProperties()).Select(x => x.Name).ToArray();
 

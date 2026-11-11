@@ -593,5 +593,11 @@ paths:
     $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1products
   /api/public/catalog/products/{slug}:
     $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1products~1{slug}
+  /api/public/catalog/categories:
+    $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1categories
+  /api/public/catalog/categories/{slug}:
+    $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1categories~1{slug}
+  /api/public/catalog/category-slugs:
+    $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1category-slugs
   /api/public/catalog/product-slugs:
     $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1product-slugs

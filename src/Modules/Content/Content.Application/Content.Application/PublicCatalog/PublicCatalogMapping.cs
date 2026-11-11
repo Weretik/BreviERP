@@ -1,6 +1,7 @@
 using Content.Application.Abstractions;
 using Content.Application.Contracts;
 using Content.Domain.ProductPages;
+using Content.Domain.SiteCategories;
 
 namespace Content.Application.PublicCatalog;
 
@@ -39,8 +40,39 @@ internal static class PublicCatalogMapping
         new(entry.Page.Slug, entry.Product.Type, entry.Product.Code, Name(entry, language), entry.Product.SectionId,
             entry.Product.MainPhotoPreviewUrl ?? entry.Product.MainPhotoUrl, PriceFrom(entry.Product));
 
+    /// <summary>The texts of a category for a language, with the same fallback as a product page.</summary>
+    public static SiteCategoryText? TextFor(SiteCategory category, string language)
+    {
+        var own = category.TextIn(language);
+        return own is not null && (own.Name is not null || own.Text.Count > 0)
+            ? own
+            : category.TextIn(ProductPageRules.Ukrainian);
+    }
+
+    public static bool HasRussian(SiteCategory category) =>
+        TextFor(category, ProductPageRules.Russian)?.Language == ProductPageRules.Russian;
+
+    public static string Name(SiteCategory category, string language) =>
+        TextFor(category, language)?.Name
+        ?? category.TextIn(ProductPageRules.Ukrainian)?.Name
+        ?? category.Slug;
+
+    public static PublicCatalogCategoryLink Link(SiteCategory category, string language) =>
+        new(category.Slug, Name(category, language));
+
+    /// <summary>Shown categories the product was put into, in tree order, each with its top-level category.</summary>
+    public static IReadOnlyList<PublicCatalogProductCategory> CategoriesOf(PublicCatalogSnapshot snapshot,
+        int productId, string language) =>
+        snapshot.Categories.Where(x => x.OwnProductIds.Contains(productId))
+            .Select(x => new PublicCatalogProductCategory(x.Category.Slug, Name(x.Category, language),
+                snapshot.Categories.FirstOrDefault(parent => parent.Category.Id == x.Category.ParentId) is { } parent
+                    ? Link(parent.Category, language)
+                    : null))
+            .ToArray();
+
     public static PublicCatalogProduct Product(PublicCatalogEntry entry, string language,
-        PublicCatalogSnapshotSection? section, IReadOnlyList<ContentCatalogPhoto> photos)
+        PublicCatalogSnapshotSection? section, IReadOnlyList<ContentCatalogPhoto> photos,
+        IReadOnlyList<PublicCatalogProductCategory> categories)
     {
         var text = TextFor(entry.Page, language);
         var product = entry.Product;
@@ -53,7 +85,7 @@ internal static class PublicCatalogMapping
             product.Variants.Where(x => x.IsActive)
                 .Select(x => new PublicCatalogVariant(x.SaleSku, x.FabricName, x.FabricDetails, Tiers(x.Prices)))
                 .ToArray(),
-            entry.Page.UpdatedAtUtc);
+            entry.Page.UpdatedAtUtc, categories);
     }
 
     private static ContentPriceTiersResponse? Tiers(ContentPriceTiers? prices) =>

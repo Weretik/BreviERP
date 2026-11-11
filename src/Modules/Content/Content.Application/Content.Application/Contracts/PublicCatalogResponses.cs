@@ -36,10 +36,47 @@ public sealed record PublicCatalogVariant(
     ContentPriceTiersResponse? Prices);
 
 /// <summary>
+/// The category tree of the site (CNT-003 R-06): shown categories in their order, each with its shown subcategories.
+/// </summary>
+public sealed record PublicCatalogCategoryTree(IReadOnlyList<PublicCatalogCategory> Categories);
+
+/// <param name="NameRu">The Russian name, or the Ukrainian one when there is none.</param>
+/// <param name="ProductCount">Products on the site in the category and its subcategories, each counted once.</param>
+public sealed record PublicCatalogCategory(
+    string Slug,
+    string NameUk,
+    string NameRu,
+    int ProductCount,
+    IReadOnlyList<PublicCatalogCategory> Children);
+
+public sealed record PublicCatalogCategoryLink(string Slug, string Name);
+
+public sealed record PublicCatalogChildCategory(string Slug, string Name, int ProductCount);
+
+/// <summary>
+/// A category page of the site. <paramref name="Language"/> is the language of the texts that came back: a category
+/// without Russian texts answers a Russian request with the Ukrainian ones.
+/// </summary>
+public sealed record PublicCatalogCategoryPage(
+    string Slug,
+    string Name,
+    string Language,
+    PublicCatalogCategoryLink? Parent,
+    IReadOnlyList<PublicCatalogChildCategory> Children,
+    string? SeoTitle,
+    string? SeoDescription,
+    IReadOnlyList<ProductTextBlock> Text,
+    int ProductCount,
+    DateTimeOffset UpdatedAtUtc);
+
+/// <summary>A category the product is in, with its top-level category for the breadcrumbs.</summary>
+public sealed record PublicCatalogProductCategory(string Slug, string Name, PublicCatalogCategoryLink? Parent);
+
+/// <summary>
 /// A product page of the site. <paramref name="Language"/> is the language of the texts that came back: a product
 /// without Russian texts answers a Russian request with the Ukrainian ones. <paramref name="Prices"/> are the rule
 /// prices of a PPE product or the lowest tier prices of a sewing model; <paramref name="Variants"/> are the active
-/// fabrics of a sewing model.
+/// fabrics of a sewing model. <paramref name="Categories"/> are the shown site categories of the product, in tree order.
 /// </summary>
 public sealed record PublicCatalogProduct(
     string Slug,
@@ -57,7 +94,8 @@ public sealed record PublicCatalogProduct(
     decimal? PriceFrom,
     ContentPriceTiersResponse? Prices,
     IReadOnlyList<PublicCatalogVariant> Variants,
-    DateTimeOffset UpdatedAtUtc);
+    DateTimeOffset UpdatedAtUtc,
+    IReadOnlyList<PublicCatalogProductCategory> Categories);
 
 /// <summary>An address for the sitemap. <paramref name="HasRussian"/> is false when the Russian page shows Ukrainian texts.</summary>
 public sealed record PublicCatalogSlug(string Slug, DateTimeOffset UpdatedAtUtc, bool HasRussian);
