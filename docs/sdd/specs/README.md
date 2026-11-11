@@ -42,6 +42,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Crm      | [004 Manager tasks and kanban (TSK-001)](crm/004-manager-tasks/README.md) | backend implemented 2026-11-04; Admin in brevi-web |
 | Crm      | [005 «Ціна вишивки» (EMB-001)](crm/005-embroidery-price/README.md) | stage 1 (Розрахунок + Налаштування) implemented 2026-11-04 |
 | Crm      | [006 «Ліди» (LEAD-001)](crm/006-leads/README.md) | backend implemented 2026-11-08; Admin in brevi-web |
+| Crm      | [007 «Заявки з сайту» (LEAD-002)](crm/007-site-requests/README.md) | backend implemented 2026-11-11; Admin and site in brevi-web |
 | Reference | [001 Suppliers from the Calculator and KeepinCRM](reference/001-suppliers-keepincrm/README.md) | implemented 2026-11-02; live KeepinCRM run pending secret |
 | Reference | [002 Fabrics and accessories from the Calculator sheet](reference/002-fabrics-accessories-sheet/README.md) | implemented 2026-11-02 |
 | Reference | [003 Operations from the Calculator sheet](reference/003-operations-sheet/README.md) | implemented 2026-11-02 |

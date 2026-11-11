@@ -2,6 +2,7 @@ using Crm.Application.Customers.KeepinCrmSync;
 using Crm.Application.Embroidery.Persistence;
 using Crm.Application.Leads.Persistence;
 using Crm.Application.Quotes.Persistence;
+using Crm.Application.SiteRequests.Abstractions;
 using Crm.Application.Tasks.Persistence;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
@@ -12,6 +13,7 @@ using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Introductions;
 using Crm.Domain.Quotes.Sending;
 using Crm.Domain.Quotes.Settings;
+using Crm.Domain.SiteRequests;
 using Crm.Domain.Tasks;
 using Crm.Infrastructure.Persistence.Quotes;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +21,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Crm.Infrastructure.Persistence;
 
 public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbContext(options), IQuoteStore, ITaskStore, IEmbroideryStore,
-    ILeadStore
+    ILeadStore, ISiteRequestStore
 {
     /// <summary>pg advisory lock of the leads sheet sync (LEAD-001 R-03): «leads» in ASCII.</summary>
     private const long LeadSyncLockKey = 0x6C65616473;
@@ -41,6 +43,7 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<LeadCallResult> LeadCallResults => Set<LeadCallResult>();
     public DbSet<LeadCategory> LeadCategories => Set<LeadCategory>();
     public DbSet<LeadSyncState> LeadSyncStates => Set<LeadSyncState>();
+    public DbSet<SiteRequest> SiteRequests => Set<SiteRequest>();
 
     Task<int> IQuoteStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
 
@@ -49,6 +52,8 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     Task<int> IEmbroideryStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
 
     Task<int> ILeadStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
+
+    Task<int> ISiteRequestStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
 
     public async Task<ILeadSyncScope?> TryBeginSyncAsync(CancellationToken cancellationToken)
     {

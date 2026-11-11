@@ -1,3 +1,4 @@
+using Crm.Application.SiteRequests.Abstractions;
 using Crm.Application.Embroidery.Persistence;
 using Crm.Application.Embroidery.StitchRate;
 using Crm.Application.Embroidery.Mockup;
@@ -66,6 +67,8 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<IQuoteFabricFactsReader, QuoteFabricFactsReader>();
         services.AddScoped<IQuoteProductionOrders, QuoteProductionOrders>();
         services.AddScoped<IQuotePhotoStorage, QuotePhotoStorage>();
+        services.AddScoped<ISiteRequestFileStorage, SiteRequestFileStorage>();
+        services.AddScoped<ISiteRequestNotifier, SiteRequestNotifier>();
         services.AddScoped<IQuoteSewingCalculator, QuoteSewingCalculator>();
         services.AddScoped<IQuoteModelCompositionReader, QuoteModelCompositionReader>();
         services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();

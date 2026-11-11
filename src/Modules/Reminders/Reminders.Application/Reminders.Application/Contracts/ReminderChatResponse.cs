@@ -8,4 +8,5 @@ public sealed record ReminderChatResponse(
     string? DisplayName,
     bool IsApproved,
     bool IsBotMember,
-    DateTimeOffset DiscoveredAt);
+    DateTimeOffset DiscoveredAt,
+    bool ReceivesSiteRequests);

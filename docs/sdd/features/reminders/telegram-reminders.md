@@ -11,7 +11,7 @@ src/Modules/Reminders/
     Schedules/         # ReminderPeriod, ReminderPeriodicity, DueRule (+kind)
     Tasks/             # ReminderTask, ReminderSchedule, ReminderOrganization
     Occurrences/       # ReminderOccurrence (one period), ReminderAction journal, ReminderActor
-    Chats/             # ReminderChat (discovered, approved)
+    Chats/             # ReminderChat (discovered, approved, receives site requests)
     Dispatching/       # ReminderPlanner (should remind, notice), ReminderSnooze, SentReminderMessage
     ReminderTime.cs    # Kyiv time zone
   Reminders.Application/Reminders.Application/

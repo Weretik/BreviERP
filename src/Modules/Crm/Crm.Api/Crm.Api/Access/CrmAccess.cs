@@ -33,6 +33,9 @@ internal static class CrmAccess
     /// <summary>«Синхронізувати зараз» (Director and Admin until someone hands it out).</summary>
     public const string LeadSync = "access:lead-stats:create";
 
+    /// <summary>«Заявки з сайту» (LEAD-002).</summary>
+    public const string SiteRequests = "access:site-requests";
+
     /// <summary>«Контрагенти»: clients and their contacts.</summary>
     public const string Counterparties = "access:counterparties";
 }
