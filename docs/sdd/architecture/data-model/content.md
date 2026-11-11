@@ -1,6 +1,6 @@
 # Content schema
 
-Code model reviewed 2026-11-11. `Content.Infrastructure.Persistence.ContentDbContext` owns schema `content`; migration history is `content.__EFMigrationsHistory`. Migration `InitialContent` creates both tables; `ExtendProductPageSeoTitle` widens SeoTitle from 120 to 200 ([CNT-002](../../specs/content/002-product-pages/README.md)); `AddSiteCategories` adds the three category tables ([CNT-003](../../specs/content/003-site-categories/README.md)).
+Code model reviewed 2026-11-11. `Content.Infrastructure.Persistence.ContentDbContext` owns schema `content`; migration history is `content.__EFMigrationsHistory`. Migration `InitialContent` creates both tables; `ExtendProductPageSeoTitle` widens SeoTitle from 120 to 200 ([CNT-002](../../specs/content/002-product-pages/README.md)); `AddSiteCategories` adds the three category tables ([CNT-003](../../specs/content/003-site-categories/README.md)); `AddArticles` adds the two article tables ([CNT-004](../../specs/content/004-articles/README.md)).
 
 | Table | Identity / relationships / purpose |
 | --- | --- |
@@ -9,5 +9,7 @@ Code model reviewed 2026-11-11. `Content.Infrastructure.Persistence.ContentDbCon
 | SiteCategories | PK Id (identity). ParentId FK → SiteCategories (restrict; null for a category, set for a subcategory, two levels only). ShowOnSite, Slug (unique, 3–120), SortOrder (index with ParentId), Revision (concurrency token), UpdatedAtUtc, UpdatedBy |
 | SiteCategoryTexts | PK (CategoryId, Language); CategoryId FK → SiteCategories (cascade). Name, SeoTitle, SeoDescription; Text is a jsonb list of text blocks |
 | SiteCategoryProducts | PK (CategoryId, ProductId); CategoryId FK → SiteCategories (cascade). ProductId = Catalog product id (indexed, no FK to `catalog`); SortOrder inside the category |
+| Articles | PK Id (identity). ShowOnSite, Slug (unique, 3–120), PublishedOn (date, indexed), CoverPhotoId = Media library photo id (no FK to `media`), Revision (concurrency token), UpdatedAtUtc, UpdatedBy |
+| ArticleTexts | PK (ArticleId, Language); ArticleId FK → Articles (cascade). Title, Excerpt, SeoTitle, SeoDescription; Body is a jsonb list of blocks (paragraph, heading, list, image with a Media photo id and alt) |
 
 A product without a row in ProductPages has no site page. A language without any text has no row in ProductPageTexts. Deleting a Catalog product does not delete its page here; the site and the admin list read Catalog first, so such a page is never shown.

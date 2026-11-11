@@ -60,6 +60,7 @@ public static class AccessCatalog
     public const string LeadStats = "lead-stats";
     public const string ContentProducts = "content-products";
     public const string ContentCategories = "content-categories";
+    public const string ContentArticles = "content-articles";
 
     private const string Service = "Менеджер сервісу";
     private const string Workshop = "Швейний цех";
@@ -128,6 +129,7 @@ public static class AccessCatalog
 
         new(ContentProducts, SiteContent, "Товари сайту", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
         new(ContentCategories, SiteContent, "Розділи сайту", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
+        new(ContentArticles, SiteContent, "Статті", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
 
         new(LeadStats, Administration, "Ліди: зведення, довідники, синхронізація", VCE, Grant((RoleNames.Admin, VCE)))
     ];

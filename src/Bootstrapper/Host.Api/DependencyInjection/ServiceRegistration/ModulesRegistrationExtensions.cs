@@ -78,6 +78,7 @@ public static class ModuleRegistrationsExtensions
         services.AddPurchasingInfrastructure(configuration);
         services.AddContentInfrastructure(configuration);
         services.AddScoped<IContentCatalogReader, ContentCatalogReader>();
+        services.AddScoped<IContentMediaReader, ContentMediaReader>();
         services.AddScoped<IPurchasingSupplierReader, PurchasingSupplierReader>();
         services.AddScoped<IPurchasingPaymentReader, PurchasingPaymentReader>();
         // Recognition runs only in the API: the recognizer reaches the Ai module through Mediator.

@@ -4,7 +4,7 @@ The category tree of the public site, owned by the site and not tied to «Тип
 
 A product is put into categories from its page in «Контент → Товари» (`categoryIds` of the product editor); the list of products shows how many categories each is in. `POST /api/content/categories/old-site-import` is the one-time transfer of the old-site tree with SEO, texts and products: it counts first (`dryRun`), keeps existing categories unless asked to overwrite, and only adds products.
 
-The public catalog serves this tree (`/api/public/catalog/categories`, `categories/{slug}`, `category-slugs`, `products?category=`, `categories` of a product; code in `Content.Application/PublicCatalog/`, tests `PublicCatalogCategoriesTests.cs`). Not yet built: the site reading it (stage 5, brevi-web).
+The public catalog serves this tree (`/api/public/catalog/categories`, `categories/{slug}`, `category-slugs`, `products?category=`, `categories` of a product; code in `Content.Application/PublicCatalog/`, tests `PublicCatalogCategoriesTests.cs`). The site reads it since stage 5 (brevi-web).
 
 ## Code structure
 

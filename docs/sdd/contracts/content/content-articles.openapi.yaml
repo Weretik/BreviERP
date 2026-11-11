@@ -1,0 +1,448 @@
+openapi: 3.1.0
+info:
+  title: 'Content: «Контент → Статті» articles of the site'
+  version: 1.0.0
+  description: 'Articles of the public site (CNT-004): the address, the date readers see, the «Показувати на сайті»
+    mark, the cover and texts in Ukrainian and Russian with SEO. Pictures are photos of the «Фото» library (CDN) named
+    by id. Policy access:content-articles («Права доступу»): the Director and Admin may do everything, Manager only
+    reads; other roles get 403.'
+security:
+- Bearer: []
+paths:
+  /api/content/articles:
+    get:
+      tags:
+      - Content
+      operationId: getContentArticles
+      description: Every article, the newest first.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleList'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Статті»
+    post:
+      tags:
+      - Content
+      operationId: createContentArticle
+      description: Adds an article, hidden unless showOnSite is true. revision is 0. An empty slug is built from the
+        Ukrainian title. A language without any text is not kept.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveContentArticleRequest'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '400':
+          description: No Ukrainian title, an invalid address or date, a picture block without a photo or a text over
+            its limit
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to create in «Статті»
+        '409':
+          description: The address belongs to another article or a photo is not in the «Фото» library
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+  /api/content/articles/{id}:
+    parameters:
+    - $ref: '#/components/parameters/ArticleId'
+    get:
+      tags:
+      - Content
+      operationId: getContentArticle
+      description: The editor of one article with the photos it uses.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Статті»
+        '404':
+          description: No such article
+    put:
+      tags:
+      - Content
+      operationId: saveContentArticle
+      description: Replaces the article as a whole. revision is the number the editor showed. An empty slug keeps the
+        current address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveContentArticleRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '400':
+          description: No Ukrainian title, an invalid address or date, a picture block without a photo or a text over
+            its limit
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit in «Статті»
+        '404':
+          description: No such article
+        '409':
+          description: The revision is stale, the address belongs to another article or a photo is not in the «Фото»
+            library
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+    delete:
+      tags:
+      - Content
+      operationId: deleteContentArticle
+      description: Removes the article with its texts. Its photos stay in the «Фото» library.
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to delete in «Статті»
+        '404':
+          description: No such article
+  /api/content/articles/{id}/visibility:
+    parameters:
+    - $ref: '#/components/parameters/ArticleId'
+    patch:
+      tags:
+      - Content
+      operationId: setContentArticleVisibility
+      description: «Показувати на сайті» from the list.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentArticleVisibilityRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleVisibilityResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit in «Статті»
+        '404':
+          description: No such article
+components:
+  parameters:
+    ArticleId:
+      name: id
+      in: path
+      required: true
+      description: Article id.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Messages:
+      type: array
+      description: Ukrainian texts for staff that say why the action was refused.
+      items:
+        type: string
+    ArticleBlockKind:
+      type: string
+      enum:
+      - Paragraph
+      - Heading
+      - List
+      - Image
+    ArticleBlock:
+      type: object
+      description: One block of the article body. A paragraph may open with a bold lead; a list keeps its lines in
+        items; an image names a photo of the «Фото» library by photoId with its alt text.
+      required:
+      - kind
+      properties:
+        kind:
+          $ref: '#/components/schemas/ArticleBlockKind'
+        text:
+          type:
+          - string
+          - 'null'
+        lead:
+          type:
+          - string
+          - 'null'
+        items:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        photoId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          minimum: 1
+          description: Required for an Image block.
+        alt:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+    ArticleTextInput:
+      type: object
+      description: What staff type for one language. The body is edited in the visual editor and sent as blocks.
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        excerpt:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+          description: The short text of the article in lists.
+        seoTitle:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        seoDescription:
+          type:
+          - string
+          - 'null'
+          maxLength: 320
+        body:
+          type:
+          - array
+          - 'null'
+          maxItems: 300
+          description: At most 60000 characters in all blocks together.
+          items:
+            $ref: '#/components/schemas/ArticleBlock'
+    SaveContentArticleRequest:
+      type: object
+      required:
+      - revision
+      - publishedOn
+      - showOnSite
+      - uk
+      properties:
+        revision:
+          type: integer
+          format: int32
+          minimum: 0
+        slug:
+          type:
+          - string
+          - 'null'
+          description: Lower-case Latin letters, digits and single hyphens, 3 to 120 characters.
+        publishedOn:
+          type: string
+          format: date
+          description: The date readers see; newer articles come first.
+        showOnSite:
+          type: boolean
+        coverPhotoId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          minimum: 1
+          description: A photo of the «Фото» library, or null for an article without a cover.
+        uk:
+          description: The Ukrainian title is required.
+          $ref: '#/components/schemas/ArticleTextInput'
+        ru:
+          oneOf:
+          - $ref: '#/components/schemas/ArticleTextInput'
+          - type: 'null'
+    ContentArticleVisibilityRequest:
+      type: object
+      required:
+      - showOnSite
+      properties:
+        showOnSite:
+          type: boolean
+    ArticleRow:
+      type: object
+      required:
+      - id
+      - slug
+      - publishedOn
+      - showOnSite
+      - hasUkrainianText
+      - hasRussianText
+      - hasSeo
+      - updatedAtUtc
+      properties:
+        id:
+          type: integer
+          format: int32
+        slug:
+          type: string
+        publishedOn:
+          type: string
+          format: date
+        showOnSite:
+          type: boolean
+        titleUk:
+          type:
+          - string
+          - 'null'
+        titleRu:
+          type:
+          - string
+          - 'null'
+        hasUkrainianText:
+          type: boolean
+        hasRussianText:
+          type: boolean
+        hasSeo:
+          type: boolean
+          description: SEO title and description are written in both languages.
+        coverUrl:
+          type:
+          - string
+          - 'null'
+          description: The small copy of the cover, or the photo itself without one; null without a cover.
+        updatedAtUtc:
+          type: string
+          format: date-time
+    ArticleList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArticleRow'
+    ArticleTextResponse:
+      type: object
+      required:
+      - body
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+        excerpt:
+          type:
+          - string
+          - 'null'
+        seoTitle:
+          type:
+          - string
+          - 'null'
+        seoDescription:
+          type:
+          - string
+          - 'null'
+        body:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArticleBlock'
+    ArticlePhoto:
+      type: object
+      description: A photo of the «Фото» library that the article uses.
+      required:
+      - id
+      - url
+      properties:
+        id:
+          type: integer
+          format: int32
+        url:
+          type: string
+        thumbnailUrl:
+          type:
+          - string
+          - 'null'
+        width:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        height:
+          type:
+          - integer
+          - 'null'
+          format: int32
+    ArticleResponse:
+      type: object
+      required:
+      - article
+      - revision
+      - updatedBy
+      - uk
+      - ru
+      - photos
+      properties:
+        article:
+          $ref: '#/components/schemas/ArticleRow'
+        revision:
+          type: integer
+          format: int32
+        updatedBy:
+          type: string
+        coverPhotoId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        uk:
+          $ref: '#/components/schemas/ArticleTextResponse'
+        ru:
+          $ref: '#/components/schemas/ArticleTextResponse'
+        photos:
+          type: array
+          description: The cover and the photos of the bodies that the library still has.
+          items:
+            $ref: '#/components/schemas/ArticlePhoto'
+    ArticleVisibilityResponse:
+      type: object
+      required:
+      - id
+      - showOnSite
+      - revision
+      properties:
+        id:
+          type: integer
+          format: int32
+        showOnSite:
+          type: boolean
+        revision:
+          type: integer
+          format: int32

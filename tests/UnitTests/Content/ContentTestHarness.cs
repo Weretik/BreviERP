@@ -1,4 +1,9 @@
 using Content.Application.Abstractions;
+using Content.Application.Articles.Delete;
+using Content.Application.Articles.GetList;
+using Content.Application.Articles.GetOne;
+using Content.Application.Articles.Save;
+using Content.Application.Articles.SetVisibility;
 using Content.Application.ProductPages.Delete;
 using Content.Application.ProductPages.GetList;
 using Content.Application.ProductPages.GetOne;
@@ -13,6 +18,7 @@ using Content.Application.SiteCategories.ImportOldSite;
 using Content.Application.SiteCategories.Reorder;
 using Content.Application.SiteCategories.Save;
 using Content.Application.SiteCategories.SetVisibility;
+using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
 using Content.Infrastructure.Persistence;
@@ -44,6 +50,15 @@ internal sealed class FakeCatalogReader : IContentCatalogReader
         Task.FromResult<IReadOnlyList<ContentCatalogPhoto>>(Photos.GetValueOrDefault(productId) ?? []);
 }
 
+/// <summary>Photos of the «Фото» library kept in memory instead of the host port over Media.</summary>
+internal sealed class FakeMediaReader : IContentMediaReader
+{
+    public List<ContentMediaPhoto> Photos { get; } = [];
+
+    public Task<IReadOnlyList<ContentMediaPhoto>> GetAsync(IReadOnlyCollection<int> ids, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ContentMediaPhoto>>(Photos.Where(x => ids.Contains(x.Id)).ToList());
+}
+
 /// <summary>The real module DbContext on in-memory SQLite.</summary>
 internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
 {
@@ -51,6 +66,7 @@ internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
     public DbSet<ProductPage> ProductPages => db.ProductPages;
     public DbSet<SiteCategory> SiteCategories => db.SiteCategories;
     public DbSet<SiteCategoryProduct> SiteCategoryProducts => db.SiteCategoryProducts;
+    public DbSet<Article> Articles => db.Articles;
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 }
 
@@ -71,6 +87,16 @@ internal sealed class ContentTestHarness : IDisposable
 
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 11, 8, 0, 0, TimeSpan.Zero));
     public FakeCatalogReader Catalog { get; } = new();
+    public FakeMediaReader Media { get; } = new();
+
+    /// <summary>A photo of the library with a small copy.</summary>
+    public ContentMediaPhoto AddPhoto(int id, bool withThumbnail = true)
+    {
+        var photo = new ContentMediaPhoto(id, $"https://cdn.test/photos/{id}.jpg",
+            withThumbnail ? $"https://cdn.test/photos/{id}-small.webp" : null, 1200, 800);
+        Media.Photos.Add(photo);
+        return photo;
+    }
 
     /// <summary>A sewing model with two fabric variants; the name gives the slug <c>kostyum-lider</c>.</summary>
     public ContentCatalogProduct AddSewing(int id = 1, string name = "Костюм Лідер", string code = "MOD-001",
@@ -109,6 +135,12 @@ internal sealed class ContentTestHarness : IDisposable
     public ImportOldSiteCategoriesCommandHandler ImportCategories() => new(new SqliteContentDb(Open()), Catalog, Time);
     public GetSiteCategoryQueryHandler Category() => new(new SqliteContentDb(Open()));
     public GetSiteCategoriesQueryHandler Categories() => new(new SqliteContentDb(Open()));
+
+    public SaveContentArticleCommandHandler SaveArticle() => new(new SqliteContentDb(Open()), Media, Time);
+    public SetContentArticleVisibilityCommandHandler ArticleVisibility() => new(new SqliteContentDb(Open()), Time);
+    public DeleteContentArticleCommandHandler DeleteArticle() => new(new SqliteContentDb(Open()));
+    public GetContentArticleQueryHandler Article() => new(new SqliteContentDb(Open()), Media);
+    public GetContentArticlesQueryHandler Articles() => new(new SqliteContentDb(Open()), Media);
 
     /// <summary>The public catalog as one request sees it; <paramref name="cache"/> is shared to test its lifetime.</summary>
     public PublicCatalogSource Site(IMemoryCache? cache = null) =>
