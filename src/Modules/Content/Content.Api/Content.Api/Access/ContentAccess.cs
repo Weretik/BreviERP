@@ -25,4 +25,10 @@ internal static class ContentAccess
 
     /// <summary>«Контент → Контакти та компанія» on «Права доступу» (CNT-009 R-04): Admin view and edit, Manager view.</summary>
     public const string CompanyPolicy = "access:content-company";
+
+    /// <summary>«Контент → Наші роботи» on «Права доступу» (CNT-011 R-07): Admin view and edit, Manager view.</summary>
+    public const string WorksPolicy = "access:content-works";
+
+    /// <summary>«Контент → Сертифікати» on «Права доступу» (CNT-011 R-07): Admin view and edit, Manager view.</summary>
+    public const string CertificatesPolicy = "access:content-certificates";
 }

@@ -1,0 +1,80 @@
+openapi: 3.1.0
+info:
+  title: 'Content: public works and certificates'
+  version: 1.0.0
+  description: 'Read-only pictures of «Наші роботи» and «Сертифікати» for the public site (CNT-011). No sign-in. Only what
+    those pages show anyway. Every answer has Cache-Control: public, max-age=300. The server reads the lists at most once
+    a minute.'
+security: []
+paths:
+  /api/public/galleries:
+    get:
+      tags:
+      - PublicSiteGalleries
+      operationId: getPublicSiteGalleries
+      description: Both lists; an empty list means the site keeps its own pictures. A file the site keeps has an address
+        on the site itself (/assets/…); a library photo has its CDN address. A deleted library photo is left out.
+      responses:
+        '200':
+          description: Pictures
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicSiteGalleriesResponse'
+components:
+  schemas:
+    GalleryText:
+      type: object
+      description: A text in Ukrainian and Russian; an empty Russian text shows the Ukrainian one on the site.
+      properties:
+        uk:
+          type:
+          - string
+          - 'null'
+        ru:
+          type:
+          - string
+          - 'null'
+    PublicGalleryItem:
+      type: object
+      required:
+      - url
+      - thumbnailUrl
+      - title
+      - note
+      - standards
+      properties:
+        url:
+          type: string
+        thumbnailUrl:
+          type: string
+        width:
+          type:
+          - integer
+          - 'null'
+        height:
+          type:
+          - integer
+          - 'null'
+        title:
+          $ref: '#/components/schemas/GalleryText'
+        note:
+          $ref: '#/components/schemas/GalleryText'
+        standards:
+          type: array
+          items:
+            type: string
+    PublicSiteGalleriesResponse:
+      type: object
+      required:
+      - works
+      - certificates
+      properties:
+        works:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicGalleryItem'
+        certificates:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicGalleryItem'

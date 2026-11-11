@@ -635,6 +635,14 @@ paths:
     $ref: ./content/content-seo-settings.openapi.yaml#/paths/~1api~1content~1seo-settings
   /api/content/company:
     $ref: ./content/content-company.openapi.yaml#/paths/~1api~1content~1company
+  /api/content/works:
+    $ref: ./content/content-galleries.openapi.yaml#/paths/~1api~1content~1works
+  /api/content/works/transfer:
+    $ref: ./content/content-galleries.openapi.yaml#/paths/~1api~1content~1works~1transfer
+  /api/content/certificates:
+    $ref: ./content/content-galleries.openapi.yaml#/paths/~1api~1content~1certificates
+  /api/content/certificates/transfer:
+    $ref: ./content/content-galleries.openapi.yaml#/paths/~1api~1content~1certificates~1transfer
   /api/content/seo-overview:
     $ref: ./content/content-seo-overview.openapi.yaml#/paths/~1api~1content~1seo-overview
   /api/content/site-pages:
@@ -665,5 +673,7 @@ paths:
     $ref: ./content/content-public-site-settings.openapi.yaml#/paths/~1api~1public~1site-settings
   /api/public/company:
     $ref: ./content/content-public-company.openapi.yaml#/paths/~1api~1public~1company
+  /api/public/galleries:
+    $ref: ./content/content-public-galleries.openapi.yaml#/paths/~1api~1public~1galleries
   /api/public/site-pages:
     $ref: ./content/content-public-site-pages.openapi.yaml#/paths/~1api~1public~1site-pages

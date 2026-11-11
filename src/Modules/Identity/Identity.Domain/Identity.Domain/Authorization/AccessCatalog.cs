@@ -79,6 +79,8 @@ public static class AccessCatalog
     public const string ContentSitePages = "content-site-pages";
     public const string ContentSeoOverview = "content-seo-overview";
     public const string ContentCompany = "content-company";
+    public const string ContentWorks = "content-works";
+    public const string ContentCertificates = "content-certificates";
 
     private const string Desks = "Робочі столи";
     private const string Service = "Менеджер сервісу";
@@ -177,6 +179,10 @@ public static class AccessCatalog
         new(ContentSeoOverview, SiteContent, "SEO-огляд", V,
             Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.Seo, V))),
         new(ContentCompany, SiteContent, "Контакти та компанія", VE,
+            Grant((RoleNames.Admin, VE), (RoleNames.Manager, V), (RoleNames.Seo, VE))),
+        new(ContentWorks, SiteContent, "Наші роботи", VE,
+            Grant((RoleNames.Admin, VE), (RoleNames.Manager, V), (RoleNames.Seo, VE))),
+        new(ContentCertificates, SiteContent, "Сертифікати", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.Manager, V), (RoleNames.Seo, VE))),
 
         new(LeadStats, Administration, "Ліди: зведення, довідники, синхронізація", VCE, Grant((RoleNames.Admin, VCE)))

@@ -32,6 +32,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Content  | [008 «Контент → SEO-огляд»](content/008-seo-overview/README.md) | stage 1 (backend) implemented 2026-11-11; stage 2 in brevi-web |
 | Content  | [009 «Контент → Контакти та компанія»](content/009-site-company/README.md) | stage 1 (backend) implemented 2026-11-11; stage 2 in brevi-web |
 | Content  | [010 Main texts and frequent questions of the site pages](content/010-site-page-texts/README.md) | stage 1 (backend) implemented 2026-11-11; stage 2 in brevi-web |
+| Content  | [011 «Наші роботи» and «Сертифікати» in the «Фото» library](content/011-site-galleries/README.md) | stage 1 (backend) implemented 2026-11-11; stage 2 in brevi-web |
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |
 | Catalog  | [Media files](catalog/media-files/README.md)                                                             | history; moved to Media MED-001                                                                                    |
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |

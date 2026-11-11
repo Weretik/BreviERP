@@ -4,6 +4,7 @@ using Content.Domain.ProductPages;
 using Content.Domain.Redirects;
 using Content.Domain.SiteCategories;
 using Content.Domain.SiteCompany;
+using Content.Domain.SiteGalleries;
 using Content.Domain.SitePages;
 using Content.Domain.SiteSettings;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ public sealed class ContentDbContext(DbContextOptions<ContentDbContext> options)
     public DbSet<SiteSeoSettings> SiteSeoSettings => Set<SiteSeoSettings>();
     public DbSet<SitePage> SitePages => Set<SitePage>();
     public DbSet<SiteCompanyInfo> CompanyInfo => Set<SiteCompanyInfo>();
+    public DbSet<SiteGallery> SiteGalleries => Set<SiteGallery>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
