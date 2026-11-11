@@ -3,7 +3,7 @@ namespace ArchitectureTests;
 
 public sealed class RemindersDependencyTests
 {
-    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Media", "Purchasing"];
+    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Media", "Purchasing", "Warehouse"];
 
     [Test]
     public void RemindersLayersReferenceOnlyBuildingBlocksAndLowerLayers()

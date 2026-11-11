@@ -70,6 +70,7 @@
       <ProjectReference Include="..\..\Modules\Production\Production.Infrastructure\Production.Infrastructure\Production.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Purchasing\Purchasing.Infrastructure\Purchasing.Infrastructure\Purchasing.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Content\Content.Infrastructure\Content.Infrastructure\Content.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Warehouse\Warehouse.Infrastructure\Warehouse.Infrastructure\Warehouse.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Ai\Ai.Infrastructure\Ai.Infrastructure\Ai.Infrastructure.csproj" />
     </ItemGroup>
 

@@ -2,17 +2,17 @@ using System.Text.Json;
 using Production.Application.Abstractions;
 using Production.Application.Contracts;
 using Production.Application.Payroll;
-using Production.Domain.Stock;
 using Production.Domain.Work;
 
 namespace Production.Application.Reports;
 
 /// <summary>
-/// «Звіти цеху» (PRD-D48, D49). A month is counted from the work log, «Зарплата», the fabric movements and the prices
-/// of «Тканини»; a month closed in «Зарплата» keeps its report as it was. Several months are the sum of their months;
+/// «Звіти цеху» (PRD-D48, D49). A month is counted from the work log, «Зарплата», the fabric movements of «Склад
+/// тканин» and the prices of «Тканини»; a month closed in «Зарплата» keeps its report as it was. Several months are the sum of their months;
 /// the stock is the balance at the end of the last one.
 /// </summary>
-public sealed class WorkshopReports(IProductionDbContext db, PayrollSheets sheets, IProductionFabricReader fabrics)
+public sealed class WorkshopReports(IProductionDbContext db, PayrollSheets sheets, IProductionFabricReader fabrics,
+    IProductionStockReader stockReader)
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -46,39 +46,27 @@ public sealed class WorkshopReports(IProductionDbContext db, PayrollSheets sheet
         var staff = payroll.Lines.Where(x => x.Accrued != 0 || x.Minutes > 0 || x.Sewn > 0 || x.Cut > 0)
             .Select(StaffRow).ToList();
 
-        var issues = await db.FabricMovements.AsNoTracking().Include(x => x.Stock)
-            .Where(x => x.Kind == FabricMovementKind.Issue && !x.IsReversed &&
-                        x.OperationDate >= month && x.OperationDate < next)
-            .OrderBy(x => x.OperationDate).ThenBy(x => x.Id)
-            .ToListAsync(cancellationToken);
-        var materials = issues.Select(x =>
+        var materials = (await stockReader.IssuesAsync(month, next, cancellationToken)).Select(x =>
         {
-            var meters = -x.Delta;
-            var price = PriceOf(x.Stock.FabricCode);
-            return new ReportIssueRowResponse(x.Id, x.OperationDate, x.Stock.FabricCode, x.Stock.FabricName,
-                x.Stock.Color, x.OrderId, x.OrderNumber, x.ModelName, meters, price,
-                price is { } p ? Money(meters * p) : null);
+            var price = PriceOf(x.FabricCode);
+            return new ReportIssueRowResponse(x.MovementId, x.OperationDate, x.FabricCode, x.FabricName, x.Color,
+                x.OrderId, x.OrderNumber, x.ModelName, x.Meters, price, price is { } p ? Money(x.Meters * p) : null);
         }).ToList();
 
-        var stocks = await db.FabricStocks.AsNoTracking().ToListAsync(cancellationToken);
-        var later = (await db.FabricMovements.AsNoTracking().Where(x => x.OperationDate >= next)
-                .Select(x => new { x.StockId, x.Delta }).ToListAsync(cancellationToken))
-            .GroupBy(x => x.StockId).ToDictionary(x => x.Key, x => x.Sum(m => m.Delta));
-        var stock = stocks
+        var stockRows = (await stockReader.BalancesAsync(next, cancellationToken))
             .Select(x =>
             {
-                var meters = x.Meters - later.GetValueOrDefault(x.Id);
                 var price = PriceOf(x.FabricCode);
-                return new ReportStockRowResponse(x.Id, x.FabricCode, x.FabricName, x.Color, meters, price,
-                    price is { } p ? Money(Math.Max(0m, meters) * p) : null);
+                return new ReportStockRowResponse(x.StockId, x.FabricCode, x.FabricName, x.Color, x.Meters, price,
+                    price is { } p ? Money(Math.Max(0m, x.Meters) * p) : null);
             })
             .Where(x => x.Meters != 0)
             .OrderBy(x => x.FabricCode, StringComparer.Ordinal).ThenBy(x => x.Color, StringComparer.CurrentCulture)
             .ToList();
 
         var text = PayrollMonths.Format(month);
-        return new WorkshopReportResponse(text, text, [], [text], Totals(output, staff, materials, stock), output, staff,
-            materials, stock, payroll.Warnings);
+        return new WorkshopReportResponse(text, text, [], [text], Totals(output, staff, materials, stockRows), output,
+            staff, materials, stockRows, payroll.Warnings);
     }
 
     private async Task<List<ReportOutputRowResponse>> OutputAsync(DateOnly month, DateOnly next,

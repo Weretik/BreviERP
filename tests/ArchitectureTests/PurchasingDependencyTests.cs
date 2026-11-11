@@ -3,7 +3,7 @@ namespace ArchitectureTests;
 
 public sealed class PurchasingDependencyTests
 {
-    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Media", "Production", "Ai"];
+    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Media", "Production", "Ai", "Warehouse"];
 
     [Test]
     public void PurchasingLayersReferenceOnlyBuildingBlocksAndLowerLayers()

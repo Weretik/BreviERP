@@ -1,6 +1,6 @@
 using Production.Application.Abstractions;
 using Production.Application.Contracts;
-using Production.Domain.Stock;
+using Production.Domain.FabricPlans;
 
 namespace Production.Application.Orders.GetOrders;
 
@@ -29,7 +29,7 @@ public sealed class GetProductionOrderFilterOptionsQueryHandler(IProductionDbCon
             .OrderBy(x => x.Code, StringComparer.Ordinal).ToList();
         var colors = items.SelectMany(x => x.AdditionalColors.Prepend(x.MainColor))
             .Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
-            .GroupBy(StockColor.Key).Select(g => g.First()).Order(culture).ToList();
+            .GroupBy(PlanColor.Key).Select(g => g.First()).Order(culture).ToList();
         var codes = modelsUsed.Select(x => x.Code).ToHashSet(StringComparer.Ordinal);
         var seasons = (await models.ListSewingModelsAsync(cancellationToken))
             .Where(x => x.Season is not null && codes.Contains(x.Code.Trim().ToUpperInvariant()))

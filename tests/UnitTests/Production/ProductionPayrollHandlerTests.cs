@@ -211,6 +211,6 @@ public sealed class ProductionPayrollHandlerTests
 
     private static async Task<Result<PayrollMonthResponse>> Close(ProductionTestHarness workshop, ProductionActor actor) =>
         await new ClosePayrollMonthCommandHandler(Changes(workshop), Sheets(workshop),
-                new WorkshopReports(workshop.Db, Sheets(workshop), workshop.Fabrics))
+                new WorkshopReports(workshop.Db, Sheets(workshop), workshop.Fabrics, workshop.Stock))
             .Handle(new(actor, Month), CancellationToken.None);
 }

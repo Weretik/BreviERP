@@ -63,6 +63,7 @@ public static class AccessCatalog
 
     private const string Service = "Менеджер сервісу";
     private const string Workshop = "Швейний цех";
+    private const string WarehouseGroup = "Склад тканин";
     private const string Finance = "Бухгалтерія";
     private const string RemindersGroup = "Нагадування";
     private const string References = "Загальні довідники";
@@ -86,8 +87,6 @@ public static class AccessCatalog
 
         new(ProductionOrders, Workshop, "Виробничі завдання", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All))),
-        new(FabricStock, Workshop, "Склад тканин", VE,
-            Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
         new(WorkLog, Workshop, "Журнал робіт", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
         new(Forecast, Workshop, "Прогноз пошиття", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
@@ -101,6 +100,9 @@ public static class AccessCatalog
         new(Payroll, Workshop, "Зарплата", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
         new(Timesheet, Workshop, "Робочий час", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
         new(WorkshopReports, Workshop, "Звіти цеху", V, Grant((RoleNames.Admin, V))),
+
+        new(FabricStock, WarehouseGroup, "Залишки, рух і витрата тканини", VE,
+            Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
 
         new(Accounting, Finance, "Бухгалтерія: облік, перекази, рахунки і каси, звіти", VE, Nobody),
         new(PurchaseInvoices, Finance, "Рахунки на закупку", VE, Nobody),

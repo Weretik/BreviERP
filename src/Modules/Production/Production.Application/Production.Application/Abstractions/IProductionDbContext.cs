@@ -5,7 +5,6 @@ using Production.Domain.Orders;
 using Production.Domain.Payroll;
 using Production.Domain.Settings;
 using Production.Domain.Staff;
-using Production.Domain.Stock;
 using Production.Domain.Timesheet;
 using Production.Domain.Work;
 
@@ -21,9 +20,6 @@ public interface IProductionDbContext
     DbSet<ProductionOrderFile> OrderFiles { get; }
     DbSet<ProductionTelegramDelivery> TelegramDeliveries { get; }
     DbSet<WorkshopSettings> Settings { get; }
-    DbSet<FabricStock> FabricStocks { get; }
-    DbSet<FabricMovement> FabricMovements { get; }
-    DbSet<FabricIssue> FabricIssues { get; }
     DbSet<ProductionWork> Work { get; }
     DbSet<ForecastQueue> ForecastQueues { get; }
     DbSet<WorkshopTimeEntry> TimeEntries { get; }

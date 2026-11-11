@@ -3,7 +3,7 @@ namespace ArchitectureTests;
 
 public sealed class ContentDependencyTests
 {
-    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Media", "Production", "Ai", "Purchasing"];
+    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Media", "Production", "Ai", "Purchasing", "Warehouse"];
 
     [Test]
     public void ContentLayersReferenceOnlyBuildingBlocksAndLowerLayers()

@@ -35,6 +35,9 @@ using Purchasing.Infrastructure.DependencyInjection;
 using Content.Application.Abstractions;
 using Content.Infrastructure.DependencyInjection;
 using Host.Api.Content;
+using Host.Api.Warehouse;
+using Warehouse.Application.Abstractions;
+using Warehouse.Infrastructure.DependencyInjection;
 using Ai.Infrastructure.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
@@ -92,13 +95,18 @@ public static class ModuleRegistrationsExtensions
         services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();
         services.AddScoped<IPricingSettingsChangeNotifier, CatalogPricingSettingsSync>();
+        // Warehouse before Production: its first migration takes over «Склад тканин» from the production schema.
+        services.AddWarehouseInfrastructure(configuration);
+        services.AddScoped<IWarehouseReferenceReader, WarehouseReferenceReader>();
+        services.AddScoped<IWarehouseStaffReader, WarehouseStaffReader>();
+        services.AddScoped<IWarehouseProductionReader, WarehouseProductionReader>();
         services.AddProductionInfrastructure(configuration);
         services.AddScoped<IProductionModelReader, ProductionModelReader>();
         services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
         services.AddScoped<IProductionEmbroideryReader, ProductionEmbroideryReader>();
         services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
         services.AddScoped<IProductionColorReader, ProductionColorReader>();
-        services.AddScoped<IProductionSupplierReader, ProductionSupplierReader>();
+        services.AddScoped<IProductionStockReader, ProductionStockReader>();
         services.AddScoped<IProductionStaffReader, ProductionStaffReader>();
         services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();
         services.AddScoped<IProductionFileStorage, ProductionFileStorage>();

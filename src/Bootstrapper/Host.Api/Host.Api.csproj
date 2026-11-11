@@ -57,6 +57,9 @@
       <ProjectReference Include="..\..\Modules\Content\Content.Api\Content.Api\Content.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Content\Content.Application\Content.Application\Content.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Content\Content.Infrastructure\Content.Infrastructure\Content.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Warehouse\Warehouse.Api\Warehouse.Api\Warehouse.Api.csproj" />
+      <ProjectReference Include="..\..\Modules\Warehouse\Warehouse.Application\Warehouse.Application\Warehouse.Application.csproj" />
+      <ProjectReference Include="..\..\Modules\Warehouse\Warehouse.Infrastructure\Warehouse.Infrastructure\Warehouse.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Ai\Ai.Api\Ai.Api\Ai.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Ai\Ai.Application\Ai.Application\Ai.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Ai\Ai.Infrastructure\Ai.Infrastructure\Ai.Infrastructure.csproj" />

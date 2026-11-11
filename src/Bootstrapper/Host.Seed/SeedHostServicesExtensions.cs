@@ -11,6 +11,7 @@ using Media.Infrastructure.DependencyInjection;
 using Production.Infrastructure.DependencyInjection;
 using Purchasing.Infrastructure.DependencyInjection;
 using Content.Infrastructure.DependencyInjection;
+using Warehouse.Infrastructure.DependencyInjection;
 using Ai.Infrastructure.DependencyInjection;
 using CatalogImport.Persistence;
 using BuildingBlocks.Infrastructure.Migrations;
@@ -41,6 +42,8 @@ public static class SeedHostServicesExtensions
         services.AddRemindersInfrastructure(configuration);
         services.AddRemindersSeeders();
         services.AddMediaInfrastructure(configuration);
+        // Warehouse before Production: its first migration takes over «Склад тканин» from the production schema.
+        services.AddWarehouseInfrastructure(configuration);
         services.AddProductionInfrastructure(configuration);
         services.AddPurchasingInfrastructure(configuration);
         services.AddContentInfrastructure(configuration);

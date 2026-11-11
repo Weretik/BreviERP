@@ -82,11 +82,14 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 - [Workshop references «Швейний цех»](production/workshop-references.md) — workers of the workshop, fabric norms per sewing model, payroll coefficients from «Параметри ціноутворення» (stage 1 of the «Цех» port).
 - [Production orders «Виробничі завдання»](production/production-orders.md) — orders from КП «під запит» (any saved one, client corrections item 9) with snapshot, history, copy, soft delete and transfer of old orders (stage 2); stages, shipments, close/cancel, files on the CDN, one Telegram message to the workshop group, «Налаштування цеху» (stage 3).
-- [Fabric stock «Склад тканин»](production/fabric-stock.md) — balances by fabric and colour, movements with history, reservation from norms, issues to order items, value, consumption summary, transfer of the old stock (stage 4).
 - [Work log and sewing forecast](production/work-log.md) — «Журнал робіт» with rate snapshot, over-plan reasons and «Сторно», «Робота» of an item, «Прогноз пошиття» with the saved queue, transfer of the old log (stage 5).
 - [Timesheet and payroll](production/payroll.md) — «Робочий час» with change history, «Зарплата» of a month from the work log and «Параметри ціноутворення», payments and adjustments, closing a month (stage 6).
 - [Workshop reports and overview](production/reports.md) — «Звіти цеху» of whole months with output at the КП price, pay, fabric issued, stock and a comparison; a closed month keeps its report; «Огляд виробництва» on the admin home (stage 7).
 - [Workshop archive «Архів цеху»](production/archive.md) — read-only «ГРАФИК работы» and old requests of the old «Цех», search and dates, transfer with a preview (stage 8).
+
+## Warehouse
+
+- [Fabric stock «Склад тканин»](warehouse/fabric-stock.md) — own module and schema `warehouse` (WH-001): balances by fabric and colour, movements with history, reservation from the workshop norms, issues to order items, value, consumption summary, transfer of the old stock; «Звіти цеху» read it through a port.
 
 ## Reminders
 

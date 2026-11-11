@@ -1,6 +1,6 @@
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
-using Production.Domain.Stock;
+using Production.Domain.FabricPlans;
 
 namespace Production.Application.Orders.GetOrders;
 
@@ -96,11 +96,11 @@ internal static class ProductionOrderFiltering
         if (filters.HasColor)
         {
             // Additional colours are a JSON column, so the match runs over the loaded items.
-            var key = StockColor.Key(filters.Color!);
+            var key = PlanColor.Key(filters.Color!);
             var ids = (await db.Orders.AsNoTracking().Include(x => x.Items).Where(x => x.DeletedAt == null)
                     .ToListAsync(cancellationToken))
                 .Where(order => order.Items.Any(item =>
-                    item.AdditionalColors.Prepend(item.MainColor).Any(color => StockColor.Key(color) == key)))
+                    item.AdditionalColors.Prepend(item.MainColor).Any(color => PlanColor.Key(color) == key)))
                 .Select(order => order.Id).ToList();
             orders = orders.Where(x => ids.Contains(x.Id));
         }

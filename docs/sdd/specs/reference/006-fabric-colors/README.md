@@ -29,7 +29,7 @@ Client sheet `brevi.xlsx` of 2026-11-11, tab «Тканини», column «Заг
 - Domain: `Reference.Domain/FabricColors/` (`FabricColor`: `Name` ≤ 80, the same limit as a stock colour, `IsActive`, `SortOrder`).
 - Application: `Features/FabricColor/` (Create, Update, Delete, GetList, `Shared/FabricColorNames` duplicate key).
 - API: `api/reference/fabric-colors` GET/POST/PUT/DELETE. Contract: [fabric-colors.openapi.yaml](../../../contracts/reference/fabric-colors.openapi.yaml).
-- Production: `IProductionColorReader` (host adapter `ProductionColorReader`, active colours only), `Colors/ProductionColors` (check used by create and update order and by «Початковий залишок» / «Прихід» of a new line), `GET /api/production/orders/colors` for the item form, and `colors` in `GET /api/production/fabric-stock/choices`. Contracts: [production orders](../../../contracts/production/production-orders.openapi.yaml), [fabric stock](../../../contracts/production/fabric-stock.openapi.yaml).
+- Production: `IProductionColorReader` (host adapter `ProductionColorReader`, active colours only), `Colors/ProductionColors` (check used by create and update order and by «Початковий залишок» / «Прихід» of a new line), `GET /api/production/orders/colors` for the item form, and `colors` in `GET /api/production/fabric-stock/choices`. Contracts: [production orders](../../../contracts/production/production-orders.openapi.yaml), [fabric stock](../../../contracts/warehouse/fabric-stock.openapi.yaml).
 - Data: migration `AddFabricColors` creates `reference.FabricColors` (unique `Name`) and inserts the 61 colours. Additive; rollback is the migration `Down`.
 
 ## Tasks
