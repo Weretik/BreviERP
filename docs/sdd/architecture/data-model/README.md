@@ -57,16 +57,12 @@ BreviERP PostgreSQL
 ├── media / MediaDbContext — 2 tables + own history
 │   ├── Folders                        # photo folder tree
 │   └── Files                          # photos on the CDN
-├── production / ProductionDbContext — 22 tables + own history
+├── production / ProductionDbContext — 18 tables + own history
 │   ├── Employees                      # workers of the workshop
 │   ├── FabricNorms                    # fabric per item of a sewing model
 │   ├── Orders                         # «Виробничі завдання» from КП
 │   ├── Items                          # positions of an order with their snapshot
 │   ├── OrderChanges                   # «Історія змін» of an order
-│   ├── FabricStocks                   # «Склад тканин»: fabric + colour balance
-│   ├── FabricMovements                # every change of a balance
-│   ├── FabricIssues                   # «Видача» packages to order items
-│   ├── FabricIssueLines               # lines of a package with plan coverage
 │   ├── Work                           # «Журнал робіт»: pieces sewn or cut
 │   ├── ForecastQueues                 # saved order of «Прогноз пошиття»
 │   ├── TimeEntries, TimeChanges       # «Робочий час» and its history
@@ -86,6 +82,11 @@ BreviERP PostgreSQL
 │   ├── CheckedDocumentHistory         # replaced facts
 │   ├── RecognitionAttempts            # each «Розпізнати» with its problems
 │   └── SyncStates                     # last sheet sync
+├── warehouse / WarehouseDbContext — 4 tables + own history
+│   ├── FabricStocks                   # «Склад тканин»: fabric + colour balance
+│   ├── FabricMovements                # every change of a balance
+│   ├── FabricIssues                   # «Видача» packages to order items
+│   └── FabricIssueLines               # lines of a package with plan coverage
 ├── content / ContentDbContext — 2 tables + own history
 │   ├── ProductPages                   # site page of a Catalog product: mark, address, revision
 │   └── ProductPageTexts               # its texts in one language (uk, ru)
@@ -114,5 +115,6 @@ BreviERP PostgreSQL
 | `ai` / Ai | [AI settings](ai.md) |
 | `purchasing` / Purchasing | [Purchase invoice register](purchasing.md) |
 | `content` / Content | [Site pages of products](content.md) |
+| `warehouse` / Warehouse | [«Склад тканин»: lines, movements, issues](warehouse.md) |
 
 The module documents cover 28 business and Identity model tables; the [module schema decision](../../specs/platform/001-module-schemas/README.md) describes the operational migration history. Schema `crm` holds five client tables and six КП tables; see [Crm](crm.md). The earlier counts/tree above are the historical 2026-10-21 snapshot, not a current total. Module documents explain cross-module IDs without physical FKs. After a schema change, update only the affected module and this tree if the table list or placement changed.

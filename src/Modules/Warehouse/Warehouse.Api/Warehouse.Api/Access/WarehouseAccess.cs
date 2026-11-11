@@ -1,0 +1,24 @@
+using System.Globalization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using Warehouse.Application.Access;
+
+namespace Warehouse.Api.Access;
+
+internal static class WarehouseAccess
+{
+    // «Права доступу» pages: the action comes from the HTTP method; the director always passes. The key of «Склад
+    // тканин» stays as it was in «Швейний цех», so the rights saved for it keep working.
+    public const string FabricStock = "access:fabric-stock";
+
+    /// <summary>The «Тканина» tab lives on the order card of «Виробничі завдання».</summary>
+    public const string ProductionOrders = "access:production-orders";
+
+    /// <summary>The person and their roles for the stock rules; null without a user id.</summary>
+    public static WarehouseActor? Actor(this ControllerBase controller) =>
+        int.TryParse(controller.User.FindFirstValue(ClaimTypes.NameIdentifier), NumberStyles.Integer,
+            CultureInfo.InvariantCulture, out var id) && id > 0
+            ? new WarehouseActor(id, controller.User.IsInRole("Admin"), controller.User.IsInRole("Manager"),
+                controller.User.IsInRole("WorkshopChief"))
+            : null;
+}

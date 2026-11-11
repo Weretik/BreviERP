@@ -11,7 +11,6 @@ internal static class ProductionAccess
 {
     // «Права доступу» pages of «Швейний цех»: the action comes from the HTTP method; the director always passes.
     public const string Orders = "access:production-orders";
-    public const string FabricStock = "access:fabric-stock";
     public const string WorkLog = "access:work-log";
     public const string Forecast = "access:forecast";
     public const string Staff = "access:workshop-staff";

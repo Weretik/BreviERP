@@ -8,11 +8,10 @@ using Production.Application.Payroll.GetMonth;
 using Production.Application.PayrollParameters;
 using Production.Application.Reports;
 using Production.Application.Reports.GetReport;
-using Production.Application.Stock.Issues;
-using Production.Application.Stock.Movements;
 using Production.Application.Work;
 using Production.Application.Work.RecordWork;
 using Production.Domain.Staff;
+using UnitTests.Warehouse;
 
 namespace UnitTests.Production;
 
@@ -126,15 +125,15 @@ public sealed class WorkshopReportHandlerTests
 
     private static async Task<(int OrderId, int ItemId)> SewnOrderAsync(ProductionTestHarness workshop, int seamstress)
     {
-        await new CreateFabricMovementCommandHandler(workshop.StockChanges(), workshop.Suppliers, workshop.Colors())
-            .Handle(new(Chief, new("Opening", 23, "Темно-сірий", 10m, Day, null, null, null, null)),
-                CancellationToken.None);
+        var stock = new WarehouseTestHarness(workshop, ownsWorkshop: false);
+        workshop.Attached.Add(stock);
+        workshop.Stock = new HarnessProductionStockReader(stock.Facts());
+        var keeper = new global::Warehouse.Application.Access.WarehouseActor(4, false, false, true);
+        await WarehouseStockHandlerTests.Receive(stock, keeper, "Opening", 10m, null);
         var order = (await ProductionOrderHandlerTests.Create(workshop, Manager, ProductionOrderHandlerTests.Input())).Value;
         var itemId = order.Items[0].Id;
-        await new CreateFabricIssueCommandHandler(workshop.Db, workshop.StockChanges(), workshop.Reservations(),
-                workshop.ItemFabric())
-            .Handle(new(Chief, order.Id, itemId, new(order.Version, Day, null,
-                [new("Planned", "темно-сірий", 23, "Темно-сірий", 4m)])), CancellationToken.None);
+        await WarehouseStockHandlerTests.Issue(stock, keeper, order.Id, itemId, order.Version,
+            WarehouseStockHandlerTests.L("Planned", "темно-сірий", 23, "Темно-сірий", 4m));
         var record = new CreateProductionWorkCommandHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db),
             workshop.Time);
         await record.Handle(new(Chief, order.Id, itemId, new(seamstress, "Sewing", 3, Day, false, null, null)),
@@ -172,7 +171,7 @@ public sealed class WorkshopReportHandlerTests
         new(workshop.Db, workshop.Staff, Sheets(workshop), workshop.Time);
 
     private static WorkshopReports Reports(ProductionTestHarness workshop) =>
-        new(workshop.Db, Sheets(workshop), workshop.Fabrics);
+        new(workshop.Db, Sheets(workshop), workshop.Fabrics, workshop.Stock);
 
     private static async Task<Result<WorkshopReportPairResponse>> Report(ProductionTestHarness workshop,
         ProductionActor actor, string from, string to, string? compareFrom = null, string? compareTo = null) =>

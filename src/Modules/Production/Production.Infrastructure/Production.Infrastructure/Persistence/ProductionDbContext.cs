@@ -6,7 +6,6 @@ using Production.Domain.Archive;
 using Production.Domain.Payroll;
 using Production.Domain.Settings;
 using Production.Domain.Staff;
-using Production.Domain.Stock;
 using Production.Domain.Timesheet;
 using Production.Domain.Work;
 
@@ -24,9 +23,6 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<ProductionOrderFile> OrderFiles => Set<ProductionOrderFile>();
     public DbSet<ProductionTelegramDelivery> TelegramDeliveries => Set<ProductionTelegramDelivery>();
     public DbSet<WorkshopSettings> Settings => Set<WorkshopSettings>();
-    public DbSet<FabricStock> FabricStocks => Set<FabricStock>();
-    public DbSet<FabricMovement> FabricMovements => Set<FabricMovement>();
-    public DbSet<FabricIssue> FabricIssues => Set<FabricIssue>();
     public DbSet<ProductionWork> Work => Set<ProductionWork>();
     public DbSet<ForecastQueue> ForecastQueues => Set<ForecastQueue>();
     public DbSet<WorkshopTimeEntry> TimeEntries => Set<WorkshopTimeEntry>();

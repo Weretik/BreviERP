@@ -8,8 +8,6 @@ using Production.Application.Orders;
 using Production.Application.Orders.Embroidery;
 using Production.Application.Orders.QuoteSources;
 using Production.Application.Orders.Tracking;
-using Production.Application.Stock;
-using Production.Application.Stock.Issues;
 using Production.Infrastructure.Persistence;
 
 namespace UnitTests.Production;
@@ -100,12 +98,14 @@ internal sealed class FakePayrollParameterReader : IPayrollParameterReader
         Task.FromResult<IReadOnlyList<PayrollParameterValue>>(Values.Where(x => codes.Contains(x.Code)).ToList());
 }
 
-internal sealed class FakeProductionSupplierReader : IProductionSupplierReader
+/// <summary>An empty «Склад тканин»; a test that needs the stock sets the Warehouse harness instead.</summary>
+internal sealed class EmptyProductionStockReader : IProductionStockReader
 {
-    public List<ProductionSupplier> Suppliers { get; } = [];
+    public Task<IReadOnlyList<ProductionStockIssue>> IssuesAsync(DateOnly from, DateOnly to,
+        CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<ProductionStockIssue>>([]);
 
-    public Task<IReadOnlyList<ProductionSupplier>> ListAsync(CancellationToken cancellationToken) =>
-        Task.FromResult<IReadOnlyList<ProductionSupplier>>(Suppliers);
+    public Task<IReadOnlyList<ProductionStockBalance>> BalancesAsync(DateOnly before,
+        CancellationToken cancellationToken) => Task.FromResult<IReadOnlyList<ProductionStockBalance>>([]);
 }
 
 /// <summary>CDN in memory: keys of stored and deleted files.</summary>
@@ -170,7 +170,10 @@ internal sealed class ProductionTestHarness : IDisposable
     public FakeProductionEmbroideryReader Embroideries { get; } = new();
     public FakeProductionColorReader ColorList { get; } = new();
     public FakeProductionStaffReader Staff { get; } = new();
-    public FakeProductionSupplierReader Suppliers { get; } = new();
+    public IProductionStockReader Stock { get; set; } = new EmptyProductionStockReader();
+
+    /// <summary>Harnesses of other modules that share this test; disposed with it.</summary>
+    public List<IDisposable> Attached { get; } = [];
     public FakeProductionFileStorage Files { get; } = new();
     public FakeProductionTelegram Telegram { get; } = new();
     public FakePayrollParameterReader Parameters { get; } = new();
@@ -186,16 +189,9 @@ internal sealed class ProductionTestHarness : IDisposable
 
     public OrderTracking Tracking() => new(Db, Staff, Cards(), Time);
 
-    public StockReservations Reservations() => new(Db);
-
-    public StockRows StockRows() => new(Fabrics);
-
-    public StockChanges StockChanges() => new(Db, Staff, Fabrics, Reservations(), StockRows(), Time);
-
-    public ItemFabricCards ItemFabric() => new(Db, Reservations());
-
     public void Dispose()
     {
+        foreach (var attached in Attached) attached.Dispose();
         Db.Dispose();
         _connection.Dispose();
     }

@@ -1,6 +1,6 @@
 # PRD-004 «Швейний цех»: fabric stock
 
-Status: stage 4 implemented 2026-11-04. Follows [PRD-003](../003-order-tracking/README.md).
+Status: stage 4 implemented 2026-11-04. Follows [PRD-003](../003-order-tracking/README.md). Moved to its own module Warehouse on 2026-11-11: see [WH-001](../../warehouse/001-warehouse-module/README.md); paths below are history.
 
 ## Goal
 

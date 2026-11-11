@@ -3,8 +3,6 @@ using Production.Application.Colors;
 using Production.Application.Contracts;
 using Production.Application.Orders.Access;
 using Production.Application.Orders.UpdateOrder;
-using Production.Application.Stock.GetChoices;
-using Production.Application.Stock.Movements;
 
 namespace UnitTests.Production;
 
@@ -77,28 +75,13 @@ public sealed class ProductionColorTests
     }
 
     [Test]
-    public async Task New_stock_line_takes_a_colour_from_the_list_and_choices_list_it()
+    public async Task Colours_query_lists_the_active_colours_in_order()
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
-        var handler = new CreateFabricMovementCommandHandler(workshop.StockChanges(), workshop.Suppliers,
-            workshop.Colors());
 
-        var rejected = await handler.Handle(new(Chief, new CreateFabricMovementInput("Opening", 23, "Бузковий", 5m, Day,
-            null, null, null, null)), CancellationToken.None);
-        var accepted = await handler.Handle(new(Chief, new CreateFabricMovementInput("Opening", 23, "Жовтий", 5m, Day,
-            null, null, null, null)), CancellationToken.None);
-        var choices = await new GetFabricStockChoicesQueryHandler(workshop.Fabrics, workshop.Suppliers,
-            workshop.Colors()).Handle(new(Chief), CancellationToken.None);
         var colors = await new GetProductionColorsQueryHandler(workshop.Colors())
             .Handle(new GetProductionColorsQuery(), CancellationToken.None);
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(rejected.Status, Is.EqualTo(ResultStatus.Invalid));
-            Assert.That(accepted.IsSuccess, Is.True,
-                string.Join("; ", accepted.ValidationErrors.Select(x => x.ErrorMessage)));
-            Assert.That(choices.Value.Colors, Is.EqualTo(workshop.ColorList.Colors));
-            Assert.That(colors.Value, Is.EqualTo(workshop.ColorList.Colors));
-        });
+        Assert.That(colors.Value, Is.EqualTo(workshop.ColorList.Colors));
     }
 }

@@ -3,7 +3,7 @@ namespace ArchitectureTests;
 
 public sealed class AiDependencyTests
 {
-    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Media", "Production", "Purchasing"];
+    private static readonly string[] OtherModules = ["Catalog", "Reference", "Identity", "Crm", "Accounting", "Reminders", "Media", "Production", "Purchasing", "Warehouse"];
 
     [Test]
     public void AiLayersReferenceOnlyBuildingBlocksAndLowerLayers()

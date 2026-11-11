@@ -1,5 +1,5 @@
 using Production.Application.Abstractions;
-using Production.Domain.Stock;
+using Production.Domain.FabricPlans;
 
 namespace Production.Application.Colors;
 
@@ -18,12 +18,12 @@ public sealed class ProductionColors(IProductionColorReader colors)
     public async Task<IReadOnlyList<ValidationError>> CheckAsync(IEnumerable<string?> values, IEnumerable<string?> kept,
         CancellationToken cancellationToken)
     {
-        var allowed = (await colors.ListActiveAsync(cancellationToken)).Select(StockColor.Key)
-            .Concat(kept.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => StockColor.Key(x!)))
+        var allowed = (await colors.ListActiveAsync(cancellationToken)).Select(PlanColor.Key)
+            .Concat(kept.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => PlanColor.Key(x!)))
             .ToHashSet(StringComparer.Ordinal);
         return values.Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x!.Trim())
-            .Where(x => !allowed.Contains(StockColor.Key(x)))
+            .Where(x => !allowed.Contains(PlanColor.Key(x)))
             .Distinct(StringComparer.CurrentCultureIgnoreCase)
             .Select(x => new ValidationError("Color", string.Format(NotInList, x)))
             .ToArray();
