@@ -2,6 +2,7 @@ using Content.Application.Abstractions;
 using Content.Application.Articles.Delete;
 using Content.Application.Articles.GetList;
 using Content.Application.Articles.GetOne;
+using Content.Application.Articles.ImportOldSite;
 using Content.Application.Articles.Save;
 using Content.Application.Articles.SetVisibility;
 using Content.Application.ProductPages.Delete;
@@ -59,6 +60,30 @@ internal sealed class FakeMediaReader : IContentMediaReader
         Task.FromResult<IReadOnlyList<ContentMediaPhoto>>(Photos.Where(x => ids.Contains(x.Id)).ToList());
 }
 
+/// <summary>The old site and the «Фото» library in memory: pictures in <see cref="Broken"/> fail to download.</summary>
+internal sealed class FakePhotoImporter(FakeMediaReader media) : IContentPhotoImporter
+{
+    private int _nextId = 500;
+    public Dictionary<string, int> Imported { get; } = new(StringComparer.Ordinal);
+    public HashSet<string> Broken { get; } = [];
+    public List<(Uri Url, string Key, string Folder)> Downloads { get; } = [];
+
+    public Task<IReadOnlyDictionary<string, int>> FindImportedAsync(IReadOnlyCollection<string> sourceKeys,
+        CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyDictionary<string, int>>(
+            Imported.Where(x => sourceKeys.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
+
+    public Task<ContentPhotoDownload> DownloadAsync(Uri url, string sourceKey, IReadOnlyList<string> folderPath,
+        CancellationToken cancellationToken)
+    {
+        Downloads.Add((url, sourceKey, string.Join('/', folderPath)));
+        if (Broken.Contains(url.AbsoluteUri)) return Task.FromResult(new ContentPhotoDownload(null, "сайт відповів 404"));
+        var id = Imported[sourceKey] = _nextId++;
+        media.Photos.Add(new ContentMediaPhoto(id, $"https://cdn.test/photos/{id}.jpg", null, 800, 600));
+        return Task.FromResult(new ContentPhotoDownload(id, null));
+    }
+}
+
 /// <summary>The real module DbContext on in-memory SQLite.</summary>
 internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
 {
@@ -88,6 +113,8 @@ internal sealed class ContentTestHarness : IDisposable
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 11, 8, 0, 0, TimeSpan.Zero));
     public FakeCatalogReader Catalog { get; } = new();
     public FakeMediaReader Media { get; } = new();
+    public FakePhotoImporter OldSitePhotos => _oldSitePhotos ??= new FakePhotoImporter(Media);
+    private FakePhotoImporter? _oldSitePhotos;
 
     /// <summary>A photo of the library with a small copy.</summary>
     public ContentMediaPhoto AddPhoto(int id, bool withThumbnail = true)
@@ -140,6 +167,7 @@ internal sealed class ContentTestHarness : IDisposable
     public SetContentArticleVisibilityCommandHandler ArticleVisibility() => new(new SqliteContentDb(Open()), Time);
     public DeleteContentArticleCommandHandler DeleteArticle() => new(new SqliteContentDb(Open()));
     public GetContentArticleQueryHandler Article() => new(new SqliteContentDb(Open()), Media);
+    public ImportOldSiteArticlesCommandHandler ImportArticles() => new(new SqliteContentDb(Open()), OldSitePhotos, Time);
     public GetContentArticlesQueryHandler Articles() => new(new SqliteContentDb(Open()), Media);
 
     /// <summary>The public catalog as one request sees it; <paramref name="cache"/> is shared to test its lifetime.</summary>

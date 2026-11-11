@@ -1,6 +1,6 @@
 # CNT-004 — «Контент → Статті»: articles of the public site (Content module)
 
-**Status:** accepted by the owner 2026-11-11 (all articles of the old site moved, articles added and edited in the Admin with SEO, pictures kept on our CDN); stage 1 (module code, admin API) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md) and [CNT-003](../003-site-categories/README.md).
+**Status:** accepted by the owner 2026-11-11 (all articles of the old site moved, articles added and edited in the Admin with SEO, pictures kept on our CDN); stage 1 (module code, admin API) and stage 3 (old-site transfer, this repository's part) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md) and [CNT-003](../003-site-categories/README.md).
 
 ## Why
 
@@ -18,6 +18,7 @@ Articles are owned by Content next to product pages and site categories: the sam
 - R-04: A new article is hidden until staff mark «Показувати на сайті». The list shows the newest date first.
 - R-05: Access: page key `content-articles` («Статті», group «Контент»), actions View, Create, Edit, Delete; defaults Director and Admin all, Manager view.
 - R-06: Long texts are edited in the visual editor of the Admin; nothing is typed as markup.
+- R-08 (stage 3): the old-site transfer takes a prepared file of at most 200 articles, matches an article by its address, keeps an article that already exists unless «перезаписати» is asked, and takes pictures only from `https://brevi.com.ua/image/...` (jpg, jpeg, png, webp). A picture is downloaded once into the «Фото» library, folder «Старий сайт / Статті», and found again by its old address. A picture that could not be downloaded is left out and named in the report; the article is still saved. The preview writes nothing.
 - R-07 (stage 4): the public site reads only articles with `ShowOnSite`; an article without a text in the asked language is shown in Ukrainian with a canonical link to the Ukrainian page.
 
 ## Scenarios
@@ -55,6 +56,21 @@ Admin API `/api/content/articles` ([contract](../../../contracts/content/content
 
 Rollout: the migration only adds two tables, so the running code keeps working; rollback is the migration `Down`. The site keeps its own articles until stage 4.
 
+## Stage 3 design (implemented)
+
+`POST /api/content/articles/old-site-import` (`importOldSiteArticles`, policy `access:content-articles`, action Create, request up to 20 MB). Body: `items` (address, date, cover address, Ukrainian and Russian title, excerpt, SEO and body blocks with picture addresses), `dryRun` (default true), `showOnSite`, `overwrite`. Answer: counts of all, created, updated and kept articles, pictures to download (preview) or downloaded, and a list of problems in Ukrainian. Every article is saved on its own, so one bad article does not stop the rest; the Admin sends the real transfer in small batches and adds the reports up. Validation (FluentValidation): at most 200 items, address shape, date, the limits of R-01, picture addresses of R-08. No schema change.
+
+| Path | Role |
+| --- | --- |
+| `Content.Application/Abstractions/IContentPhotoImporter.cs` | port: find pictures already moved, download one into a folder of «Фото» |
+| `Content.Application/Articles/ImportOldSite/OldSiteArticlePhotos.cs` | which old-site picture addresses are allowed, their key and folder |
+| `Content.Application/Articles/ImportOldSite/ImportOldSiteArticlesCommand.cs` | file shape, validators, handler, messages |
+| `Content.Api/Articles/` | request body and the controller action |
+| `Host.Api/Content/ContentPhotoImporter.cs` | the port over the Catalog photo downloader (same keys as the product photo transfer) |
+| `tests/UnitTests/Content/ArticlesOldSiteImportTests.cs` | scenario SC-06 |
+
+Rollout: no migration. The owner runs the transfer once in the Admin with the prepared file; rollback is deleting the moved articles (photos stay in the library).
+
 ## Traceability
 
 | Rule / scenario | Tests |
@@ -64,3 +80,4 @@ Rollout: the migration only adds two tables, so the running code keeps working; 
 | R-04, SC-01, SC-03 | `List_shows_the_newest_first`, `Visibility_switch_raises_the_revision_only_when_it_changes`, `Seo_is_ready_only_when_both_languages_have_title_and_description` |
 | SC-04 | `Delete_removes_the_article_with_its_texts` |
 | R-05 | `ArticlesContractTests` |
+| R-08, SC-06 | `Dry_run_counts_articles_and_pictures_and_writes_nothing`, `Transfer_brings_each_picture_once_and_a_repeated_run_keeps_the_articles`, `Existing_article_is_kept_unless_overwrite_and_is_never_switched_off`, `Picture_that_fails_is_left_out_with_a_reason_and_the_article_is_saved`, `Only_pictures_of_the_old_site_are_accepted`, `Validator_checks_the_file` |

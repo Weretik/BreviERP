@@ -1,3 +1,4 @@
+using Content.Application.Articles.ImportOldSite;
 using Content.Domain.Articles;
 
 namespace Content.Api.Articles;
@@ -16,3 +17,7 @@ public sealed record SaveContentArticleRequest(
     ArticleTextInput? Ru);
 
 public sealed record ContentArticleVisibilityRequest(bool ShowOnSite);
+
+/// <summary>Body of <c>importOldSiteArticles</c>; without <c>DryRun = false</c> nothing is written.</summary>
+public sealed record ImportOldSiteArticlesRequest(
+    IReadOnlyList<OldSiteArticle> Items, bool DryRun = true, bool ShowOnSite = false, bool Overwrite = false);

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Content.Api.Articles;
+using Content.Application.Articles.ImportOldSite;
 using Content.Application.Contracts;
 using Content.Domain.Articles;
 using Identity.Domain.Authorization;
@@ -22,6 +23,11 @@ public sealed class ArticlesContractTests
     [TestCase(typeof(ContentArticleVisibilityRequest), "ContentArticleVisibilityRequest")]
     [TestCase(typeof(ArticleTextInput), "ArticleTextInput")]
     [TestCase(typeof(ArticleBlock), "ArticleBlock")]
+    [TestCase(typeof(OldSiteArticleBlock), "OldSiteArticleBlock")]
+    [TestCase(typeof(OldSiteArticleText), "OldSiteArticleText")]
+    [TestCase(typeof(OldSiteArticle), "OldSiteArticle")]
+    [TestCase(typeof(ImportOldSiteArticlesRequest), "ImportOldSiteArticlesRequest")]
+    [TestCase(typeof(OldSiteArticleImportResponse), "OldSiteArticleImportResponse")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -41,7 +47,7 @@ public sealed class ArticlesContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.EqualTo($"access:{AccessCatalog.ContentArticles}"));
-            Assert.That(operations, Has.Length.EqualTo(6));
+            Assert.That(operations, Has.Length.EqualTo(7));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }
