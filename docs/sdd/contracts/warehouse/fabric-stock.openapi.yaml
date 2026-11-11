@@ -1674,7 +1674,7 @@ components:
           - string
           - 'null'
           maxLength: 80
-          description: 'With fabricId or fabricCode: the colour of the target.'
+          description: 'A receipt: another colour (alone: the same offer). An issue, with fabricCode: the colour of the target pair.'
         supplierName:
           type:
           - string

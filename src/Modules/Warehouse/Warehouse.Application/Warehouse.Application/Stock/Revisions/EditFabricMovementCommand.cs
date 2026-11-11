@@ -95,8 +95,11 @@ public sealed class EditFabricMovementCommandHandler(StockChanges changes, Stock
         var from = movement.Stock;
         switch (movement.Kind)
         {
-            case FabricMovementKind.Receipt when input.FabricId is { } fabricId:
+            case FabricMovementKind.Receipt when input.FabricId is not null || !string.IsNullOrWhiteSpace(input.Color):
             {
+                // Only a colour: the same offer in another colour.
+                if ((input.FabricId ?? from.FabricId) is not { } fabricId)
+                    return Result<FabricStock>.Invalid(new ValidationError("FabricId", StockMessages.FabricNotFound));
                 var fabric = await changes.OfferAsync(fabricId, cancellationToken);
                 if (!fabric.IsSuccess) return fabric.Map(_ => default(FabricStock)!);
                 var color = string.IsNullOrWhiteSpace(input.Color) ? from.Color : input.Color;

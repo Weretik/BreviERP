@@ -52,7 +52,7 @@ public sealed class WarehouseRevisionTests
         await Receive(workshop, Chief, "Receipt", 12m);
         var receipt = await Row(workshop, "Receipt");
 
-        var moved = await Edit(workshop, Chief, receipt, 12m, fabricId: 23, color: "Червоний");
+        var moved = await Edit(workshop, Chief, receipt, 12m, color: "Червоний");
         var list = await List(workshop, Chief);
         var restored = await Restore(workshop, receipt.Id, 1);
         var back = await List(workshop, Chief);
