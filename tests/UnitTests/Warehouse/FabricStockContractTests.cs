@@ -7,7 +7,7 @@ using YamlDotNet.RepresentationModel;
 
 namespace UnitTests.Warehouse;
 
-/// <summary>Stock types and operations match docs/sdd/contracts/warehouse/fabric-stock.openapi.yaml (WH-001, WH-002).</summary>
+/// <summary>Stock types and operations match docs/sdd/contracts/warehouse/fabric-stock.openapi.yaml (WH-001, WH-002, WH-003).</summary>
 public sealed class FabricStockContractTests
 {
     [TestCase(typeof(FabricStockPermissions))]
@@ -25,6 +25,12 @@ public sealed class FabricStockContractTests
     [TestCase(typeof(AdjustFabricStockInput))]
     [TestCase(typeof(ReverseFabricMovementInput))]
     [TestCase(typeof(FabricStockOperationResponse))]
+    [TestCase(typeof(EditFabricMovementInput))]
+    [TestCase(typeof(VoidFabricMovementInput))]
+    [TestCase(typeof(RestoreFabricMovementInput))]
+    [TestCase(typeof(FabricMovementStateResponse))]
+    [TestCase(typeof(FabricMovementRevisionResponse))]
+    [TestCase(typeof(FabricMovementHistoryResponse))]
     [TestCase(typeof(FabricPlanPartResponse))]
     [TestCase(typeof(FabricIssueLineResponse))]
     [TestCase(typeof(FabricIssueResponse))]
@@ -62,7 +68,7 @@ public sealed class FabricStockContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "access:fabric-stock", "access:production-orders" }));
-            Assert.That(operations, Has.Length.EqualTo(14));
+            Assert.That(operations, Has.Length.EqualTo(18));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

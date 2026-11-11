@@ -185,6 +185,11 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsReversed")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsVoided")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<int?>("ItemId")
                         .HasColumnType("integer");
 
@@ -228,6 +233,12 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.Property<int?>("ReversesMovementId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<int>("StockId")
                         .HasColumnType("integer");
 
@@ -254,6 +265,110 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.HasIndex("StockId", "Id");
 
                     b.ToTable("FabricMovements", "warehouse");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.FabricMovementRevision", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal>("AfterDelta")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("AfterDestination")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("AfterDocument")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("AfterIsVoided")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly>("AfterOperationDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("AfterStockId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AfterSupplierName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<decimal>("BeforeDelta")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("BeforeDestination")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
+                    b.Property<string>("BeforeDocument")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("BeforeIsVoided")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly>("BeforeOperationDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("BeforeStockId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BeforeSupplierName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsUndone")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MovementId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("RestoresRevisionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AfterStockId");
+
+                    b.HasIndex("BeforeStockId");
+
+                    b.HasIndex("RestoresRevisionId");
+
+                    b.HasIndex("MovementId", "Number")
+                        .IsUnique();
+
+                    b.ToTable("FabricMovementRevisions", "warehouse");
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Stock.FabricStock", b =>
@@ -403,6 +518,36 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Stock");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.FabricMovementRevision", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Stock.FabricStock", "AfterStock")
+                        .WithMany()
+                        .HasForeignKey("AfterStockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Stock.FabricStock", null)
+                        .WithMany()
+                        .HasForeignKey("BeforeStockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Stock.FabricMovement", "Movement")
+                        .WithMany()
+                        .HasForeignKey("MovementId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Stock.FabricMovementRevision", null)
+                        .WithMany()
+                        .HasForeignKey("RestoresRevisionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AfterStock");
+
+                    b.Navigation("Movement");
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Stock.FabricIssue", b =>

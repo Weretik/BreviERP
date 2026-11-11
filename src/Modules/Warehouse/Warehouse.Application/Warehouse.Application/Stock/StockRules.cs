@@ -15,6 +15,11 @@ internal static class StockRules
     public static IRuleBuilderOptions<T, string> Reason<T>(this IRuleBuilder<T, string> rule) =>
         rule.NotEmpty().WithMessage(StockMessages.Note).MaximumLength(FabricMovement.NoteMaxLength);
 
+    /// <summary>«Скасувати», «Сторно» and an edit's reason: 3…500 characters.</summary>
+    public static IRuleBuilderOptions<T, string?> RevisionReason<T>(this IRuleBuilder<T, string?> rule) =>
+        rule.Must(x => x?.Trim().Length is >= 3 and <= FabricMovementRevision.ReasonMaxLength)
+            .WithMessage(StockMessages.Reason);
+
     public static IRuleBuilderOptions<T, DateOnly> OperationDate<T>(this IRuleBuilder<T, DateOnly> rule) =>
         rule.Must(x => x >= FirstDate && x <= LastDate).WithMessage(StockMessages.OperationDate);
 

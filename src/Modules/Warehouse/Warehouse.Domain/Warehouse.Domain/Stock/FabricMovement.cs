@@ -125,7 +125,41 @@ public sealed class FabricMovement
     /// <summary>Id of the movement in the old «Цех»; makes a repeated transfer skip it.</summary>
     public string? LegacyId { get; private set; }
 
+    /// <summary>«Скасовано»: kept in the history with no effect; its delta is zero and the original is in a revision.</summary>
+    public bool IsVoided { get; private set; }
+
+    /// <summary>How many edits, voids and restores the movement had; a form sends it back to catch a change in between.</summary>
+    public int Revision { get; private set; }
+
+    /// <summary>
+    /// Openings, receipts, adjustments and issues without an order may be edited, voided and restored here; an order
+    /// issue changes on its order, a «Сторно» or a movement it took back stays as it is.
+    /// </summary>
+    public bool CanRevise => Kind != FabricMovementKind.Reversal && !IsReversed && ItemId is null;
+
+    public FabricMovementState State => new(StockId, OperationDate, Delta, SupplierName, Document, Destination, IsVoided);
+
     internal void MarkReversed() => IsReversed = true;
+
+    /// <summary>Applies a new state with a revision; the chains of the lines it left and joined are restated after.</summary>
+    internal FabricMovementRevision Revise(FabricStock line, FabricMovementState state,
+        FabricMovementRevisionAction action, string? reason, string actorName, DateTimeOffset now, Guid operationId,
+        FabricMovementRevision? restores)
+    {
+        var before = State;
+        Stock = line;
+        StockId = line.Id;
+        OperationDate = state.OperationDate;
+        Delta = state.Delta;
+        SupplierName = Optional(state.SupplierName, SupplierMaxLength);
+        Document = Optional(state.Document, DocumentMaxLength);
+        Destination = Optional(state.Destination, FormTextMaxLength);
+        IsVoided = state.IsVoided;
+        Revision++;
+        restores?.MarkUndone();
+        return new FabricMovementRevision(this, Revision, action, before, line, State, reason,
+            actorName, now, operationId, restores?.Id);
+    }
 
     /// <summary>Puts the movement after <paramref name="before"/> in its line's chain.</summary>
     internal void Chain(decimal before)

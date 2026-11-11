@@ -46,11 +46,43 @@ internal sealed class FabricMovementConfiguration : IEntityTypeConfiguration<Fab
         builder.Property(x => x.LegacyId).HasMaxLength(FabricMovement.LegacyIdMaxLength);
         builder.HasOne<FabricMovement>().WithMany().HasForeignKey(x => x.ReversesMovementId)
             .OnDelete(DeleteBehavior.Restrict);
+        builder.Property(x => x.IsVoided).HasDefaultValue(false);
+        builder.Property(x => x.Revision).HasDefaultValue(0).IsConcurrencyToken();
         builder.HasIndex(x => new { x.StockId, x.Id });
         builder.HasIndex(x => x.OperationDate);
         builder.HasIndex(x => x.ItemId);
         builder.HasIndex(x => x.LegacyId).IsUnique();
         builder.HasIndex(x => x.OperationId);
+    }
+}
+
+internal sealed class FabricMovementRevisionConfiguration : IEntityTypeConfiguration<FabricMovementRevision>
+{
+    public void Configure(EntityTypeBuilder<FabricMovementRevision> builder)
+    {
+        builder.ToTable("FabricMovementRevisions");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).UseIdentityByDefaultColumn();
+        builder.Property(x => x.Action).HasConversion<string>().HasMaxLength(20);
+        builder.Property(x => x.BeforeDelta).HasPrecision(12, FabricStock.Decimals);
+        builder.Property(x => x.AfterDelta).HasPrecision(12, FabricStock.Decimals);
+        builder.Property(x => x.BeforeSupplierName).HasMaxLength(FabricMovement.SupplierMaxLength);
+        builder.Property(x => x.AfterSupplierName).HasMaxLength(FabricMovement.SupplierMaxLength);
+        builder.Property(x => x.BeforeDocument).HasMaxLength(FabricMovement.DocumentMaxLength);
+        builder.Property(x => x.AfterDocument).HasMaxLength(FabricMovement.DocumentMaxLength);
+        builder.Property(x => x.BeforeDestination).HasMaxLength(FabricMovement.FormTextMaxLength);
+        builder.Property(x => x.AfterDestination).HasMaxLength(FabricMovement.FormTextMaxLength);
+        builder.Property(x => x.Reason).HasMaxLength(FabricMovementRevision.ReasonMaxLength);
+        builder.Property(x => x.CreatedByName).HasMaxLength(FabricMovement.PersonMaxLength).IsRequired();
+        builder.Ignore(x => x.Before);
+        builder.Ignore(x => x.After);
+        builder.HasOne(x => x.Movement).WithMany().HasForeignKey(x => x.MovementId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.AfterStock).WithMany().HasForeignKey(x => x.AfterStockId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<FabricStock>().WithMany().HasForeignKey(x => x.BeforeStockId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<FabricMovementRevision>().WithMany().HasForeignKey(x => x.RestoresRevisionId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(x => new { x.MovementId, x.Number }).IsUnique();
     }
 }
 

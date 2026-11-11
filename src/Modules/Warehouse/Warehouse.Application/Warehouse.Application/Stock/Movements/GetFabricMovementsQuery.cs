@@ -58,7 +58,7 @@ public sealed class GetFabricMovementsQueryHandler(IWarehouseDbContext db)
         {
             FabricMovementFilter.Receipt => movements.Where(x => x.Kind == FabricMovementKind.Receipt),
             FabricMovementFilter.Issue => movements.Where(x => x.Kind == FabricMovementKind.Issue),
-            FabricMovementFilter.Opening => movements.Where(x => x.Kind == FabricMovementKind.Opening && !x.IsReversed),
+            FabricMovementFilter.Opening => movements.Where(x => x.Kind == FabricMovementKind.Opening && !x.IsReversed && !x.IsVoided),
             _ => movements
         };
         if (!string.IsNullOrWhiteSpace(query.FabricCode))
@@ -85,5 +85,6 @@ public sealed class GetFabricMovementsQueryHandler(IWarehouseDbContext db)
         x.Kind.ToString(), x.OperationDate, x.CreatedAt, x.Stock.FabricCode, FabricAliases.Canonical(x.Stock.FabricCode),
         x.Stock.FabricName, x.Stock.Color, x.SupplierName, x.Document, x.OrderId, x.ItemId, x.OrderNumber, x.ModelName,
         x.Destination, x.Delta, x.MetersAfter, x.Note, x.CreatedByName, x.IsReversed, x.ReversesMovementId,
-        actor.CanMoveStock && ReverseFabricMovementCommandHandler.CanReverse(x));
+        actor.CanMoveStock && ReverseFabricMovementCommandHandler.CanReverse(x), x.IsVoided, x.Revision,
+        actor.CanMoveStock && x.CanRevise);
 }

@@ -16,7 +16,7 @@ public sealed class ReverseFabricMovementCommandValidator : AbstractValidator<Re
         RuleFor(x => x.Actor).ValidActor();
         RuleFor(x => x.MovementId).GreaterThan(0);
         RuleFor(x => x.Input).NotNull();
-        When(x => x.Input is not null, () => RuleFor(x => x.Input.Reason).Reason());
+        When(x => x.Input is not null, () => RuleFor(x => x.Input.Reason).RevisionReason());
     }
 }
 
@@ -32,6 +32,7 @@ public sealed class ReverseFabricMovementCommandHandler(IWarehouseDbContext db, 
         var movement = await db.FabricMovements.SingleOrDefaultAsync(x => x.Id == command.MovementId, cancellationToken);
         if (movement is null) return Result<FabricStockOperationResponse>.NotFound(StockMessages.MovementNotFound);
         if (movement.IsReversed) return Result<FabricStockOperationResponse>.Conflict(StockMessages.AlreadyReversed);
+        if (movement.IsVoided) return Result<FabricStockOperationResponse>.Conflict(StockMessages.Voided);
         if (!CanReverse(movement)) return Result<FabricStockOperationResponse>.Conflict(StockMessages.CannotReverse);
 
         var line = await db.FabricStocks.SingleAsync(x => x.Id == movement.StockId, cancellationToken);
@@ -46,7 +47,7 @@ public sealed class ReverseFabricMovementCommandHandler(IWarehouseDbContext db, 
     }
 
     /// <summary>Openings, receipts, corrections and issues without an order may be reversed here.</summary>
-    public static bool CanReverse(FabricMovement x) => !x.IsReversed &&
+    public static bool CanReverse(FabricMovement x) => !x.IsReversed && !x.IsVoided &&
         (x.Kind is FabricMovementKind.Opening or FabricMovementKind.Receipt or FabricMovementKind.Adjustment ||
          x.Kind == FabricMovementKind.Issue && x.ItemId is null);
 }

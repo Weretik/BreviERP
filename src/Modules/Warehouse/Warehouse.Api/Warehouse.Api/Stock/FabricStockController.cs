@@ -14,6 +14,7 @@ using Warehouse.Application.Stock.Opening;
 using Warehouse.Application.Stock.Receipts;
 using Warehouse.Application.Stock.ImportStock;
 using Warehouse.Application.Stock.Movements;
+using Warehouse.Application.Stock.Revisions;
 
 namespace Warehouse.Api.Stock;
 
@@ -94,6 +95,42 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
         ReverseFabricMovementInput input, CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new ReverseFabricMovementCommand(actor, movementId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>Edits an opening, receipt, correction or issue without an order; both lines are restated.</summary>
+    [HttpPut("movements/{movementId:int}", Name = "editFabricMovement")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Edit(int movementId, EditFabricMovementInput input,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new EditFabricMovementCommand(actor, movementId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Скасувати»: the movement stays in the history with no effect on the balance.</summary>
+    [HttpPost("movements/{movementId:int}/void", Name = "voidFabricMovement")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Void(int movementId, VoidFabricMovementInput input,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new VoidFabricMovementCommand(actor, movementId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Скасувати останню правку»: the state before the last edit or void comes back.</summary>
+    [HttpPost("movements/{movementId:int}/restore", Name = "restoreFabricMovement")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Restore(int movementId,
+        RestoreFabricMovementInput input, CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new RestoreFabricMovementCommand(actor, movementId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Історія правок» of a movement, newest first.</summary>
+    [HttpGet("movements/{movementId:int}/revisions", Name = "getFabricMovementHistory")]
+    public async Task<ActionResult<FabricMovementHistoryResponse>> History(int movementId,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new GetFabricMovementHistoryQuery(actor, movementId),
                 cancellationToken))
             : Forbid();
 

@@ -65,7 +65,10 @@ public sealed record FabricMovementRowResponse(
     string CreatedByName,
     bool IsReversed,
     int? ReversesMovementId,
-    bool CanReverse);
+    bool CanReverse,
+    bool IsVoided,
+    int Revision,
+    bool CanEdit);
 
 /// <summary>A page of 50 movements, newest operation date first.</summary>
 public sealed record FabricMovementPageResponse(
@@ -139,6 +142,64 @@ public sealed record AdjustFabricStockInput(
 
 /// <summary>«Сторно» of an opening, receipt or correction, with a reason.</summary>
 public sealed record ReverseFabricMovementInput(string Reason);
+
+/// <summary>
+/// An edit of one movement. <paramref name="Meters"/> is the amount: positive for a receipt and an issue, from zero
+/// for an opening, the signed non-zero change for an adjustment. A receipt may move to another offer
+/// (<paramref name="FabricId"/>) and colour; an issue to another pair the stock holds (<paramref name="FabricCode"/>
+/// and <paramref name="Color"/>). Supplier and document belong to a receipt, destination to an issue.
+/// </summary>
+/// <param name="ExpectedRevision">The movement's revision shown on the form.</param>
+public sealed record EditFabricMovementInput(
+    Guid OperationId,
+    int ExpectedRevision,
+    DateOnly OperationDate,
+    decimal Meters,
+    int? FabricId,
+    string? FabricCode,
+    string? Color,
+    string? SupplierName,
+    string? Document,
+    string? Destination,
+    string? Reason);
+
+/// <summary>«Скасувати»: the movement stays in the history with no effect, with a reason.</summary>
+public sealed record VoidFabricMovementInput(Guid OperationId, int ExpectedRevision, string Reason);
+
+/// <summary>«Скасувати останню правку»: the state before the last edit or void comes back.</summary>
+public sealed record RestoreFabricMovementInput(Guid OperationId, int ExpectedRevision);
+
+/// <summary>The parts of a movement before or after a revision.</summary>
+public sealed record FabricMovementStateResponse(
+    string FabricCode,
+    string Color,
+    DateOnly OperationDate,
+    decimal Delta,
+    string? SupplierName,
+    string? Document,
+    string? Destination,
+    bool IsVoided);
+
+/// <param name="Action">Edit, Void or Restore.</param>
+/// <param name="IsUndone">Taken back by a later restore.</param>
+public sealed record FabricMovementRevisionResponse(
+    int Id,
+    int Number,
+    string Action,
+    FabricMovementStateResponse Before,
+    FabricMovementStateResponse After,
+    string? Reason,
+    string CreatedByName,
+    DateTimeOffset CreatedAt,
+    bool IsUndone);
+
+/// <summary>«Історія правок» of a movement, newest first.</summary>
+/// <param name="CanRestore">The last edit or void can be taken back now.</param>
+public sealed record FabricMovementHistoryResponse(
+    int MovementId,
+    int Revision,
+    bool CanRestore,
+    IReadOnlyList<FabricMovementRevisionResponse> Revisions);
 
 /// <summary>The pair after a stock operation.</summary>
 /// <param name="Replayed">True when the same operation id was saved before and nothing moved now.</param>

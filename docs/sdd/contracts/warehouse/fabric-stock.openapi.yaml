@@ -2,11 +2,13 @@ openapi: 3.1.0
 info:
   title: 'Warehouse: fabric stock'
   version: 1.0.0
-  description: 'Warehouse module (WH-001, WH-002): «Склад тканин». A stock line is one offer of «Тканини» (FAB- code) in one colour;
-    lines of a reviewed alias group (FAB-023/067, FAB-078/077) and a normalised colour form one pair, which «Залишки», openings, issues
-    without an order and «Уточнити» work on. Balances change only through movements (opening, receipt, issue, correction, reversal);
+  description: 'Warehouse module (WH-001, WH-002, WH-003): «Склад тканин». A stock line is one offer of «Тканини» (FAB- code) in one
+    colour; lines of a reviewed alias group (FAB-023/067, FAB-078/077) and a normalised colour form one pair, which «Залишки», openings,
+    issues without an order and «Уточнити» work on. Balances change only through movements (opening, receipt, issue, correction, reversal);
     each line''s chain runs by operation date, record time and id. Every stock form sends an operation id, so a repeat never moves the
-    fabric twice. Everyone with access reads the stock; WorkshopChief and Admin move it; Admin alone moves the old stock.'
+    fabric twice. Everyone with access reads the stock; WorkshopChief and Admin move it; Admin alone moves the old stock. Openings,
+    receipts, corrections and issues without an order can be edited, voided («Скасувати») and restored to the state before the last
+    change; every change is a revision with the values before and after.'
 servers:
 - url: /
 security:
@@ -452,6 +454,137 @@ paths:
           description: No such issue
         '409':
           description: Stale or already reversed
+  /api/warehouse/fabric-stock/movements/{movementId}:
+    put:
+      tags:
+      - Production
+      operationId: editFabricMovement
+      summary: Edits an opening, receipt, correction or issue without an order; the chains of both lines are restated
+      parameters:
+      - in: path
+        name: movementId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditFabricMovementInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockOperationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid, wrong sign for the kind, nothing changed, or a target change of an opening or correction
+        '404':
+          description: No such movement, or the stock never held the target pair
+        '409':
+          description: Changed by someone else, voided, reversed, an issue to an order, or the operation id was used for other data
+  /api/warehouse/fabric-stock/movements/{movementId}/void:
+    post:
+      tags:
+      - Production
+      operationId: voidFabricMovement
+      summary: '«Скасувати»: the movement stays in the history with no effect on the balance'
+      parameters:
+      - in: path
+        name: movementId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoidFabricMovementInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockOperationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '404':
+          description: No such movement
+        '409':
+          description: Changed by someone else, voided, reversed, an issue to an order, or the operation id was used for other data
+  /api/warehouse/fabric-stock/movements/{movementId}/restore:
+    post:
+      tags:
+      - Production
+      operationId: restoreFabricMovement
+      summary: '«Скасувати останню правку»: the state before the newest edit or void not yet taken back comes back, only while the movement
+        still is what it left'
+      parameters:
+      - in: path
+        name: movementId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreFabricMovementInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockOperationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid or out of range
+        '404':
+          description: No such movement
+        '409':
+          description: Nothing to restore, changed since, or the operation id was used for other data
+  /api/warehouse/fabric-stock/movements/{movementId}/revisions:
+    get:
+      tags:
+      - Production
+      operationId: getFabricMovementHistory
+      summary: «Історія правок» of a movement, newest first
+      parameters:
+      - in: path
+        name: movementId
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricMovementHistoryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '404':
+          description: No such movement
 components:
   securitySchemes:
     Bearer:
@@ -596,6 +729,9 @@ components:
       - isReversed
       - reversesMovementId
       - canReverse
+      - isVoided
+      - revision
+      - canEdit
       properties:
         id:
           type: integer
@@ -675,6 +811,15 @@ components:
           - 'null'
         canReverse:
           type: boolean
+        isVoided:
+          type: boolean
+          description: '«Скасовано»: kept in the history with no effect on the balance.'
+        revision:
+          type: integer
+          description: Number of edits, voids and restores; send it back as expectedRevision.
+        canEdit:
+          type: boolean
+          description: Edit, «Скасувати» and «Історія правок» actions are offered.
       description: A row of «Рух тканини».
     FabricMovementPageResponse:
       type: object
@@ -1489,3 +1634,195 @@ components:
           type: array
           items:
             type: string
+    EditFabricMovementInput:
+      type: object
+      required:
+      - operationId
+      - expectedRevision
+      - operationDate
+      - meters
+      properties:
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        expectedRevision:
+          type: integer
+          minimum: 0
+          description: The movement revision shown on the form; another one is 409.
+        operationDate:
+          type: string
+          format: date
+          description: The day the fabric really came or went, 1900-01-01…2100-12-31.
+        meters:
+          type: number
+          format: double
+          description: 'Amount without sign: >0 for a receipt or issue, ≥0 for an opening; a correction is signed and ≠0.'
+        fabricId:
+          type:
+          - integer
+          - 'null'
+          description: 'A receipt only: another offer of «Тканини».'
+        fabricCode:
+          type:
+          - string
+          - 'null'
+          maxLength: 32
+          description: 'An issue only: another pair the stock holds.'
+        color:
+          type:
+          - string
+          - 'null'
+          maxLength: 80
+          description: 'With fabricId or fabricCode: the colour of the target.'
+        supplierName:
+          type:
+          - string
+          - 'null'
+          maxLength: 160
+          description: A receipt only.
+        document:
+          type:
+          - string
+          - 'null'
+          maxLength: 160
+          description: A receipt only.
+        destination:
+          type:
+          - string
+          - 'null'
+          maxLength: 160
+          description: An issue only.
+        reason:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+    VoidFabricMovementInput:
+      type: object
+      required:
+      - operationId
+      - expectedRevision
+      - reason
+      properties:
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        expectedRevision:
+          type: integer
+          minimum: 0
+          description: The movement revision shown on the form; another one is 409.
+        reason:
+          type: string
+          minLength: 3
+          maxLength: 500
+    RestoreFabricMovementInput:
+      type: object
+      required:
+      - operationId
+      - expectedRevision
+      properties:
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        expectedRevision:
+          type: integer
+          minimum: 0
+          description: The movement revision shown on the form; another one is 409.
+    FabricMovementStateResponse:
+      type: object
+      required:
+      - fabricCode
+      - color
+      - operationDate
+      - delta
+      - supplierName
+      - document
+      - destination
+      - isVoided
+      properties:
+        fabricCode:
+          type: string
+        color:
+          type: string
+        operationDate:
+          type: string
+          format: date
+        delta:
+          type: number
+          format: double
+        supplierName:
+          type:
+          - string
+          - 'null'
+        document:
+          type:
+          - string
+          - 'null'
+        destination:
+          type:
+          - string
+          - 'null'
+        isVoided:
+          type: boolean
+      description: A movement before or after a revision.
+    FabricMovementRevisionResponse:
+      type: object
+      required:
+      - id
+      - number
+      - action
+      - before
+      - after
+      - reason
+      - createdByName
+      - createdAt
+      - isUndone
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        action:
+          type: string
+          enum:
+          - Edit
+          - Void
+          - Restore
+        before:
+          $ref: '#/components/schemas/FabricMovementStateResponse'
+        after:
+          $ref: '#/components/schemas/FabricMovementStateResponse'
+        reason:
+          type:
+          - string
+          - 'null'
+        createdByName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        isUndone:
+          type: boolean
+          description: Taken back by a later restore.
+    FabricMovementHistoryResponse:
+      type: object
+      required:
+      - movementId
+      - revision
+      - canRestore
+      - revisions
+      properties:
+        movementId:
+          type: integer
+        revision:
+          type: integer
+        canRestore:
+          type: boolean
+          description: «Скасувати останню правку» is offered.
+        revisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricMovementRevisionResponse'

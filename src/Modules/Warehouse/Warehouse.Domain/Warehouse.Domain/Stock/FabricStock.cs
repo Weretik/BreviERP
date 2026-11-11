@@ -110,6 +110,30 @@ public sealed class FabricStock
         return Add(FabricMovementKind.Reversal, -original.Delta, details, actorName, now, original.Id, null);
     }
 
+    /// <summary>
+    /// Puts <paramref name="movement"/> on this line with a new state and records the revision. The movement keeps its
+    /// kind and its sign: a receipt and an opening stay positive (an opening may be zero), an issue negative, an
+    /// adjustment non-zero; a voided movement has no effect. The caller restates the lines it left and joined.
+    /// </summary>
+    public FabricMovementRevision Revise(FabricMovement movement, FabricMovementState state,
+        FabricMovementRevisionAction action, string? reason, string actorName, DateTimeOffset now, Guid operationId,
+        FabricMovementRevision? restores = null)
+    {
+        if (!movement.CanRevise) throw new InvalidOperationException("This movement cannot be revised here.");
+        if (!IsValidMeters(state.Delta)) throw new ArgumentOutOfRangeException(nameof(state));
+        var signed = state.IsVoided ? state.Delta == 0 : movement.Kind switch
+        {
+            FabricMovementKind.Opening => state.Delta >= 0,
+            FabricMovementKind.Receipt => state.Delta > 0,
+            FabricMovementKind.Issue => state.Delta < 0,
+            _ => state.Delta != 0
+        };
+        if (!signed) throw new ArgumentOutOfRangeException(nameof(state));
+        HasMovements = true;
+        UpdatedAt = now;
+        return movement.Revise(this, state, action, reason, actorName, now, operationId, restores);
+    }
+
     /// <summary>A movement of the old «Цех» exactly as it was; its «before» must be the current balance.</summary>
     public FabricMovement Transfer(FabricMovementKind kind, decimal before, decimal delta,
         FabricMovementDetails details, string actorName, DateTimeOffset at, string legacyId)

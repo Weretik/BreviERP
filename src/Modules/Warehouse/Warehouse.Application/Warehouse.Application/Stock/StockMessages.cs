@@ -35,5 +35,13 @@ internal static class StockMessages
     public const string Note = "Вкажіть причину.";
     public const string ItemNotFound = "Завдання не знайдено.";
     public const string OrderStale = "Завдання вже змінили. Оновіть сторінку.";
+    public const string CannotRevise =
+        "Цей рух не можна змінити тут: видачу на завдання змінюють у завданні, а сторно і сторнований рух — ніколи.";
+    public const string Voided = "Рух скасовано. Спершу скасуйте останню правку, щоб повернути його.";
+    public const string RevisionStale = "Рух уже змінили. Оновіть сторінку.";
+    public const string NothingToRestore = "Немає правки, яку можна скасувати.";
+    public const string RestoreConflict = "Після цієї правки рух уже змінили. Оновіть історію.";
+    public const string WrongSign = "Метри не підходять до виду руху: прихід і витрата — більше нуля, початковий залишок — від нуля, уточнення — не нуль.";
+    public const string NoTargetChange = "Тканину й колір можна змінити лише в приході або разовій витраті.";
     public const string CannotImport = "Переносити склад може лише адміністратор.";
 }
