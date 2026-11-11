@@ -41,6 +41,7 @@ Do not create a public OpenAPI document for internal-only changes. Before adding
 - Content: [«Контент → Налаштування SEO сайту»](content/content-seo-settings.openapi.yaml) — analytics ids, verification codes and the default sharing picture.
 - Content: [public site settings](content/content-public-site-settings.openapi.yaml) — anonymous read of those settings for the site.
 - Content: [«Контент → Сторінки сайту»](content/content-site-pages.openapi.yaml) — search titles and descriptions of the fixed site pages.
+- Content: [«Контент → SEO-огляд»](content/content-seo-overview.openapi.yaml) — read-only list of what the site misses for search.
 - Content: [public site page texts](content/content-public-site-pages.openapi.yaml) — anonymous read of those texts for the site.
 - Content: [public redirects of the site](content/content-public-redirects.openapi.yaml) — anonymous list of every redirect with the final page of its chain.
 - Content: [public articles of the site](content/content-public-articles.openapi.yaml) — anonymous read-only list and page of the articles marked «Показувати на сайті», with SEO, text and CDN pictures; Ukrainian when there is no Russian text.

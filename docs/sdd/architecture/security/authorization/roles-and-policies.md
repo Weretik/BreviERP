@@ -68,6 +68,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `content-redirects` | `/api/content/redirects` ([CNT-005](../../../specs/content/005-redirects/README.md)) | Admin; Manager view |
 | `content-seo-settings` | `/api/content/seo-settings` ([CNT-006](../../../specs/content/006-seo-settings/README.md)) | Admin view and edit; Manager view |
 | `content-site-pages` | `/api/content/site-pages` ([CNT-007](../../../specs/content/007-site-pages/README.md)) | Admin view and edit; Manager view |
+| `content-seo-overview` | `/api/content/seo-overview` ([CNT-008](../../../specs/content/008-seo-overview/README.md)) | Admin, Manager view (read-only page) |
 
 Do not use `RequireTenantAccess` on an endpoint until it is registered in Host and its policy semantics are agreed.
 

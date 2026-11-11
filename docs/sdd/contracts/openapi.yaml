@@ -633,6 +633,8 @@ paths:
     $ref: ./content/content-redirects.openapi.yaml#/paths/~1api~1content~1redirects~1{id}
   /api/content/seo-settings:
     $ref: ./content/content-seo-settings.openapi.yaml#/paths/~1api~1content~1seo-settings
+  /api/content/seo-overview:
+    $ref: ./content/content-seo-overview.openapi.yaml#/paths/~1api~1content~1seo-overview
   /api/content/site-pages:
     $ref: ./content/content-site-pages.openapi.yaml#/paths/~1api~1content~1site-pages
   /api/content/site-pages/{key}:
