@@ -16,6 +16,7 @@ public sealed class GetProductionOrdersQueryValidator : AbstractValidator<GetPro
         RuleFor(x => x.Manager).MaximumLength(ProductionOrder.PersonMaxLength);
         RuleFor(x => x.CustomerId).GreaterThan(0).When(x => x.CustomerId is not null);
         RuleFor(x => x.QuoteId).GreaterThan(0).When(x => x.QuoteId is not null);
+        RuleFor(x => x.ManagerUserId).GreaterThan(0).When(x => x.ManagerUserId is not null);
         When(x => x.Filters is not null, () =>
         {
             RuleFor(x => x.Filters!.Client).MaximumLength(ProductionOrder.ClientMaxLength);

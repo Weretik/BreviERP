@@ -21,6 +21,9 @@ internal static class ProductionOrderFiltering
         if (query.QuoteId is { } quoteId)
             orders = orders.Where(x => x.QuoteId == quoteId);
 
+        if (query.ManagerUserId is { } managerUserId)
+            orders = orders.Where(x => x.ManagerUserId == managerUserId);
+
         if (!string.IsNullOrWhiteSpace(query.Manager))
         {
             var manager = query.Manager.Trim();

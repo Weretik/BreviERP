@@ -47,6 +47,25 @@ public sealed class ProductionOrderFilterTests
     }
 
     [Test]
+    public async Task List_keeps_only_the_orders_of_one_manager_for_the_manager_desk()
+    {
+        using var workshop = await Seeded();
+        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time);
+
+        async Task<int> Count(int managerUserId) =>
+            (await handler.Handle(new(null, "New", null, null, ManagerUserId: managerUserId), CancellationToken.None))
+            .Value.Total;
+
+        var own = await Count(2);
+        var other = await Count(3);
+
+        Assert.That(own, Is.EqualTo(2), "Анастасія's open orders");
+        Assert.That(other, Is.Zero, "another manager");
+        Assert.That(new GetProductionOrdersQueryValidator().Validate(new GetProductionOrdersQuery(null, null, null, null, ManagerUserId: 0)).IsValid,
+            Is.False);
+    }
+
+    [Test]
     public async Task Summary_groups_every_filtered_item_by_model_regardless_of_page()
     {
         using var workshop = await Seeded();

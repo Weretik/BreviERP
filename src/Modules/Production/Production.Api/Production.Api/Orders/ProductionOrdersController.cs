@@ -32,11 +32,11 @@ public sealed class ProductionOrdersController(ISender sender) : ControllerBase
         [FromQuery] long? customerId = null, [FromQuery] long? quoteId = null,
         [FromQuery] string? client = null, [FromQuery] DateOnly? from = null, [FromQuery] DateOnly? to = null,
         [FromQuery] string? model = null, [FromQuery] string? fabric = null, [FromQuery] string? color = null,
-        [FromQuery] string? season = null, [FromQuery] string? sort = null,
+        [FromQuery] string? season = null, [FromQuery] string? sort = null, [FromQuery] int? managerUserId = null,
         CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(
             new GetProductionOrdersQuery(search, status, manager, dueTo, page, pageSize, stage, customerId, quoteId,
-                new ProductionOrderFilters(client, from, to, model, fabric, color, season), sort),
+                new ProductionOrderFilters(client, from, to, model, fabric, color, season), sort, managerUserId),
             cancellationToken));
 
     /// <summary>«Зведення за моделями»: the same filters as the list, all pages, pieces by model.</summary>
