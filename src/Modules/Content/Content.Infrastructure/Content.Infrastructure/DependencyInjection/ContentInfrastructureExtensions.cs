@@ -3,6 +3,7 @@ using Content.Application.Abstractions;
 using Content.Application.PublicArticles;
 using Content.Application.PublicCatalog;
 using Content.Application.PublicRedirects;
+using Content.Application.PublicSiteSettings;
 using Content.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +14,7 @@ namespace Content.Infrastructure.DependencyInjection;
 
 public static class ContentInfrastructureExtensions
 {
-    /// <summary>DbContext of schema <c>content</c>, its migrator and the short-lived sources of the public catalog, articles and redirects.</summary>
+    /// <summary>DbContext of schema <c>content</c>, its migrator and the short-lived sources of the public catalog, articles, redirects and site settings.</summary>
     public static IServiceCollection AddContentInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
@@ -25,6 +26,7 @@ public static class ContentInfrastructureExtensions
         services.AddScoped<IPublicCatalogSource, PublicCatalogSource>();
         services.AddScoped<IPublicArticlesSource, PublicArticlesSource>();
         services.AddScoped<IPublicRedirectsSource, PublicRedirectsSource>();
+        services.AddScoped<IPublicSiteSettingsSource, PublicSiteSettingsSource>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

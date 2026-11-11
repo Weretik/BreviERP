@@ -87,7 +87,7 @@ BreviERP PostgreSQL
 │   ├── FabricMovements                # every change of a balance
 │   ├── FabricIssues                   # «Видача» packages to order items
 │   └── FabricIssueLines               # lines of a package with plan coverage
-├── content / ContentDbContext — 8 tables + own history
+├── content / ContentDbContext — 9 tables + own history
 │   ├── ProductPages                   # site page of a Catalog product: mark, address, revision
 │   ├── ProductPageTexts               # its texts in one language (uk, ru)
 │   ├── SiteCategories                 # category tree of the site (two levels)
@@ -95,7 +95,8 @@ BreviERP PostgreSQL
 │   ├── SiteCategoryProducts           # products of a category
 │   ├── Articles                       # site article: address, date, mark, cover photo id
 │   ├── ArticleTexts                   # title, excerpt, SEO and body of an article in one language
-│   └── SiteRedirects                  # 301 redirects of the site: old address → new page
+│   ├── SiteRedirects                  # 301 redirects of the site: old address → new page
+│   └── SiteSeoSettings                # one row: analytics ids, verification codes, sharing picture
 ├── reminders / RemindersDbContext — 6 tables + own history
 │   ├── Tasks                          # reminder tasks and schedule
 │   ├── Occurrences                    # one period per task: deadline, status, who closed
@@ -120,7 +121,7 @@ BreviERP PostgreSQL
 | `accounting` / Accounting | [«Бухгалтерія» accounts, categories, operations, transfers, counterparties, change log](accounting.md) |
 | `ai` / Ai | [AI settings](ai.md) |
 | `purchasing` / Purchasing | [Purchase invoice register](purchasing.md) |
-| `content` / Content | [Site pages of products, site categories, articles, redirects](content.md) |
+| `content` / Content | [Site pages of products, site categories, articles, redirects, SEO settings](content.md) |
 | `warehouse` / Warehouse | [«Склад тканин»: lines, movements, issues](warehouse.md) |
 
 The module documents cover 28 business and Identity model tables; the [module schema decision](../../specs/platform/001-module-schemas/README.md) describes the operational migration history. Schema `crm` holds five client tables and six КП tables; see [Crm](crm.md). The earlier counts/tree above are the historical 2026-10-21 snapshot, not a current total. Module documents explain cross-module IDs without physical FKs. After a schema change, update only the affected module and this tree if the table list or placement changed.

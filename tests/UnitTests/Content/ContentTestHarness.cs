@@ -14,6 +14,9 @@ using Content.Application.ProductPages.SetVisibility;
 using Content.Application.PublicArticles;
 using Content.Application.PublicCatalog;
 using Content.Application.PublicRedirects;
+using Content.Application.PublicSiteSettings;
+using Content.Application.SiteSettings.Get;
+using Content.Application.SiteSettings.Save;
 using Content.Application.Redirects.Delete;
 using Content.Application.Redirects.GetList;
 using Content.Application.Redirects.ImportOldSite;
@@ -28,6 +31,7 @@ using Content.Application.SiteCategories.SetVisibility;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Domain.Redirects;
+using Content.Domain.SiteSettings;
 using Content.Domain.SiteCategories;
 using Content.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
@@ -100,6 +104,7 @@ internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
     public DbSet<SiteCategoryProduct> SiteCategoryProducts => db.SiteCategoryProducts;
     public DbSet<Article> Articles => db.Articles;
     public DbSet<SiteRedirect> SiteRedirects => db.SiteRedirects;
+    public DbSet<SiteSeoSettings> SiteSeoSettings => db.SiteSeoSettings;
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 }
 
@@ -182,6 +187,12 @@ internal sealed class ContentTestHarness : IDisposable
     public DeleteSiteRedirectCommandHandler DeleteRedirect() => new(new SqliteContentDb(Open()));
     public GetSiteRedirectsQueryHandler Redirects() => new(new SqliteContentDb(Open()));
     public ImportOldSiteRedirectsCommandHandler ImportRedirects() => new(new SqliteContentDb(Open()), Catalog, Time);
+
+    public SaveSiteSeoSettingsCommandHandler SaveSeoSettings() => new(new SqliteContentDb(Open()), Media, Time);
+    public GetSiteSeoSettingsQueryHandler SeoSettings() => new(new SqliteContentDb(Open()), Media);
+
+    public PublicSiteSettingsSource PublicSiteSettings(IMemoryCache? cache = null) =>
+        new(new SqliteContentDb(Open()), Media, cache ?? new MemoryCache(new MemoryCacheOptions()));
 
     /// <summary>The public redirects as one request sees them; <paramref name="cache"/> is shared to test its lifetime.</summary>
     public PublicRedirectsSource PublicRedirects(IMemoryCache? cache = null) =>

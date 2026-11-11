@@ -66,6 +66,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `content-categories` | `/api/content/categories` ([CNT-003](../../../specs/content/003-site-categories/README.md)) | Admin; Manager view |
 | `content-articles` | `/api/content/articles` ([CNT-004](../../../specs/content/004-articles/README.md)) | Admin; Manager view |
 | `content-redirects` | `/api/content/redirects` ([CNT-005](../../../specs/content/005-redirects/README.md)) | Admin; Manager view |
+| `content-seo-settings` | `/api/content/seo-settings` ([CNT-006](../../../specs/content/006-seo-settings/README.md)) | Admin view and edit; Manager view |
 
 Do not use `RequireTenantAccess` on an endpoint until it is registered in Host and its policy semantics are agreed.
 
@@ -88,10 +89,11 @@ Only these operations are public; `tests/HostApiTests/ApiAccessTests.cs` fails w
 | `GET /api/public/catalog/*` (tree, products, product by address, product addresses) | Catalog of the public site, read-only: only products marked «Показувати на сайті», nothing internal (CNT-002). |
 | `GET /api/public/articles`, `GET /api/public/articles/{slug}` | Articles of the public site, read-only: only articles marked «Показувати на сайті» (CNT-004). |
 | `GET /api/public/redirects` | Redirects of the public site, read-only: old address and final page, nothing internal (CNT-005). |
+| `GET /api/public/site-settings` | Analytics ids, verification codes and the sharing picture of the public site, all visible in its pages anyway (CNT-006). |
 
 Every other operation needs a signed-in user, and every admin operation names a role or policy: work pages `access:<page>`, shared reads `CatalogRead`, users and system settings `Admin`. The same test fails when an endpoint has neither, except `GET /api/auth/session/me`, `GET /api/auth/session/access` and `POST /api/auth/cookie/logout`, which only need a session; another test fails when a named policy does not exist.
 
-A class-level `[AllowAnonymous]` overrides any `[Authorize]` on its methods, so put it only on the single public action. The exceptions are `PublicCatalogController`, `PublicArticlesController` and `PublicRedirectsController`, where every action is public by design.
+A class-level `[AllowAnonymous]` overrides any `[Authorize]` on its methods, so put it only on the single public action. The exceptions are `PublicCatalogController`, `PublicArticlesController`, `PublicRedirectsController` and `PublicSiteSettingsController`, where every action is public by design.
 
 ## New feature or page: «Права доступу» checklist
 

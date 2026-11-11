@@ -13,4 +13,7 @@ internal static class ContentAccess
 
     /// <summary>«Контент → Переадресації» on «Права доступу» (CNT-005 R-03): Admin all, Manager view by default.</summary>
     public const string RedirectsPolicy = "access:content-redirects";
+
+    /// <summary>«Контент → Налаштування SEO сайту» on «Права доступу» (CNT-006 R-03): Admin view and edit, Manager view.</summary>
+    public const string SeoSettingsPolicy = "access:content-seo-settings";
 }

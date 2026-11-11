@@ -309,6 +309,50 @@ namespace Content.Infrastructure.Persistence.Migrations
                     b.ToTable("SiteCategoryTexts", "content");
                 });
 
+            modelBuilder.Entity("Content.Domain.SiteSettings.SiteSeoSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BingSiteVerification")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("DefaultOgPhotoId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GoogleAnalyticsId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("GoogleSiteVerification")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("GoogleTagManagerId")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SiteSeoSettings", "content", t =>
+                        {
+                            t.HasCheckConstraint("CK_SiteSeoSettings_Single", "\"Id\" = 1");
+                        });
+                });
+
             modelBuilder.Entity("Content.Domain.Articles.ArticleText", b =>
                 {
                     b.HasOne("Content.Domain.Articles.Article", null)
