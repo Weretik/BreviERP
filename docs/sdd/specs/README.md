@@ -25,7 +25,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Content  | [001 «Контент сайту» site content](content/001-site-content/README.md) | planned only (draft) |
 | Content  | [002 «Контент → Товари» product pages for the site](content/002-product-pages/README.md) | stage 1 (module, admin API) implemented 2026-11-11 |
 | Content  | [003 «Контент → Розділи» categories of the site](content/003-site-categories/README.md) | stages 1–5 implemented 2026-11-11 (stages 2 and 5 in brevi-web) |
-| Content  | [004 «Контент → Статті» articles of the site](content/004-articles/README.md) | stage 1 (admin API) implemented 2026-11-11; stages 2–4 planned |
+| Content  | [004 «Контент → Статті» articles of the site](content/004-articles/README.md) | stages 1 (admin API) and 3 (old-site transfer) implemented 2026-11-11; stage 4 planned |
 | Catalog  | [Admin product category list](catalog/admin-product-list/README.md)                                      | verified 2026-07-27                                                                                                |
 | Catalog  | [Media files](catalog/media-files/README.md)                                                             | history; moved to Media MED-001                                                                                    |
 | Catalog  | [Early product snapshot](catalog/product-page/README.md)                                                 | history; superseded by 001                                                                                         |

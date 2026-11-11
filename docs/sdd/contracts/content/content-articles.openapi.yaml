@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 'Content: «Контент → Статті» articles of the site'
-  version: 1.0.0
+  version: 1.1.0
   description: 'Articles of the public site (CNT-004): the address, the date readers see, the «Показувати на сайті»
     mark, the cover and texts in Ukrainian and Russian with SEO. Pictures are photos of the «Фото» library (CDN) named
     by id. Policy access:content-articles («Права доступу»): the Director and Admin may do everything, Manager only
@@ -58,6 +58,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Messages'
+  /api/content/articles/old-site-import:
+    post:
+      tags:
+      - Content
+      operationId: importOldSiteArticles
+      description: One-time transfer of the old-site articles with SEO, texts and pictures. An article is matched by its
+        address. With dryRun (the default) nothing is written and the answer says what would happen. Articles that
+        already exist are kept unless overwrite is true. Pictures (the cover and pictures of the text) are downloaded
+        from the old site into the folder «Старий сайт / Статті» of the «Фото» library, each once; a picture that
+        fails is left out and named in problems, the article is still saved. showOnSite switches transferred articles
+        on and never switches one off. Every article is saved on its own, so a repeated run continues where the
+        previous one stopped. Needs the create right.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportOldSiteArticlesRequest'
+      responses:
+        '200':
+          description: Counted (dryRun) or transferred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OldSiteArticleImportResponse'
+        '400':
+          description: No articles, more than 200 articles, an invalid address or date, a picture that is not on the
+            old site or a text over its limit
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to create in «Статті»
   /api/content/articles/{id}:
     parameters:
     - $ref: '#/components/parameters/ArticleId'
@@ -446,3 +478,151 @@ components:
         revision:
           type: integer
           format: int32
+    OldSiteArticleBlock:
+      type: object
+      description: A block of an old-site article; a picture is named by its address on the old site.
+      required:
+      - kind
+      properties:
+        kind:
+          $ref: '#/components/schemas/ArticleBlockKind'
+        text:
+          type:
+          - string
+          - 'null'
+        lead:
+          type:
+          - string
+          - 'null'
+        items:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        imageUrl:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+          description: Required for an Image block. https on brevi.com.ua, a JPG, PNG or WebP file.
+        alt:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+    OldSiteArticleText:
+      type: object
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        excerpt:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+        seoTitle:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        seoDescription:
+          type:
+          - string
+          - 'null'
+          maxLength: 320
+        body:
+          type:
+          - array
+          - 'null'
+          maxItems: 300
+          items:
+            $ref: '#/components/schemas/OldSiteArticleBlock'
+    OldSiteArticle:
+      type: object
+      required:
+      - slug
+      - publishedOn
+      properties:
+        slug:
+          type: string
+          description: Lower-case Latin letters, digits and single hyphens, 3 to 120 characters.
+        publishedOn:
+          type: string
+          format: date
+        coverUrl:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+          description: The cover on the old site (https on brevi.com.ua, a JPG, PNG or WebP file).
+        uk:
+          oneOf:
+          - $ref: '#/components/schemas/OldSiteArticleText'
+          - type: 'null'
+        ru:
+          oneOf:
+          - $ref: '#/components/schemas/OldSiteArticleText'
+          - type: 'null'
+    ImportOldSiteArticlesRequest:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/OldSiteArticle'
+        dryRun:
+          type: boolean
+          default: true
+        showOnSite:
+          type: boolean
+          default: false
+        overwrite:
+          type: boolean
+          default: false
+    OldSiteArticleImportResponse:
+      type: object
+      required:
+      - dryRun
+      - total
+      - created
+      - updated
+      - kept
+      - photosToDownload
+      - photosDownloaded
+      - problems
+      properties:
+        dryRun:
+          type: boolean
+        total:
+          type: integer
+          format: int32
+        created:
+          type: integer
+          format: int32
+        updated:
+          type: integer
+          format: int32
+        kept:
+          type: integer
+          format: int32
+          description: Articles that already exist and were not replaced.
+        photosToDownload:
+          type: integer
+          format: int32
+          description: Pictures of the articles to write that the «Фото» library does not have yet.
+        photosDownloaded:
+          type: integer
+          format: int32
+        problems:
+          type: array
+          description: Articles left out and pictures that could not be brought, each with the reason.
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/OldSiteImportNote

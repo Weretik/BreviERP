@@ -36,7 +36,7 @@ Do not create a public OpenAPI document for internal-only changes. Before adding
 - Accounting: [«Бухгалтерія»](accounting/finance.openapi.yaml) — «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази», «Огляд», «Контрагенти», «Потребують перевірки» and their change log; director only.
 - Content: [«Контент → Товари» site pages of products](content/content-products.openapi.yaml) — the «Показувати на сайті» mark, address and texts in two languages.
 - Content: [«Контент → Розділи» categories of the site](content/content-categories.openapi.yaml) — the two-level tree, the «Показувати на сайті» mark, address, order and texts in two languages.
-- Content: [«Контент → Статті» articles of the site](content/content-articles.openapi.yaml) — the «Показувати на сайті» mark, address, date, cover and texts with SEO in two languages; pictures are photos of the «Фото» library.
+- Content: [«Контент → Статті» articles of the site](content/content-articles.openapi.yaml) — the «Показувати на сайті» mark, address, date, cover and texts with SEO in two languages; pictures are photos of the «Фото» library; one-time transfer of the old-site articles with their pictures.
 - Content: [public catalog of the site](content/content-public-catalog.openapi.yaml) — anonymous read-only tree, site categories with SEO and text, product cards with «від» (also by category), product by address, addresses for the sitemap.
 - Purchasing: [«Рахунки на закупку» register](purchasing/purchase-invoices.openapi.yaml) — purchase invoices read from the Google Sheet «финансы».
 
