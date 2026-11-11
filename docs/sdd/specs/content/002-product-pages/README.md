@@ -1,6 +1,6 @@
 # CNT-002 — «Контент → Товари»: product pages of the public site (Content module)
 
-**Status:** accepted by the product owner 2026-11-11; stage 1 implemented 2026-11-11. **Date:** 2026-11-11. **Module:** new module `Content`, schema `content`, own migration history `content.__EFMigrationsHistory` ([module rules](../../../standards/module-rules.md)). Continues the plan [CNT-001](../001-site-content/README.md).
+**Status:** accepted by the product owner 2026-11-11; stages 1, 3 (backend) and 4 implemented 2026-11-11. **Date:** 2026-11-11. **Module:** new module `Content`, schema `content`, own migration history `content.__EFMigrationsHistory` ([module rules](../../../standards/module-rules.md)). Continues the plan [CNT-001](../001-site-content/README.md).
 
 ## Why
 
@@ -33,7 +33,9 @@ The new public site ([brevi-web site catalog](https://github.com/Weretik/brevi-w
 - R-06: Deleting a page removes its texts and takes the product off the site. The Catalog product stays.
 - R-07: The public API is anonymous, read-only, and returns nothing internal: no cost, supplier, problems of calculation, staff names or unpublished products.
 - R-08: Public prices: a sewing variant shows the three published tier prices of its Article; a PPE product shows its three rule prices. «Від» is the lowest large-wholesale price among the active variants. A variant or product without a price is shown without it («ціну уточнюйте»).
-- R-09: The catalog tree of the site: two types (`Sewing`, `Ppe`) and under them the active sections of «Типи і розділи» that have at least one product on the site, in the display order of the reference.
+- R-09: The catalog tree of the site: two types (`Sewing`, `Ppe`) and under them the active sections of «Типи і розділи» that have at least one product on the site, in the display order of the reference. A type without products on the site is left out. A section address is built from its Ukrainian name; a repeated name gets the section id at the end.
+- R-11: The public API takes `language` (`uk` by default, or `ru`). A product without Russian texts answers a Russian request with the Ukrainian texts and says which language came back; the address list marks such pages so the site can point their canonical link to the Ukrainian page.
+- R-12: The public API answers from a snapshot of what the site shows, rebuilt at most once a minute. An anonymous caller therefore cannot make the server read the whole catalog on every request, and a change in the Admin reaches the API within a minute.
 - R-10: Access: page key `content-products`, group «Контент», actions View, Create, Edit, Delete (Create covers only the old-site transfer of stage 3, the one `POST`); defaults Director and Admin all, Manager view. A role made on «Права доступу» has exactly the rights it was given; there are no per-owner rules.
 
 ## Scenarios
@@ -69,13 +71,13 @@ Admin, [content-products.openapi.yaml](../../../contracts/content/content-produc
 | `deleteContentProduct` | `DELETE /api/content/products/{productId}` | 204; 404 when there is no page |
 | `importOldSiteProductPages` | `POST /api/content/products/old-site-import` | stage 3; `dryRun` true by default; create action; at most 500 pages per request |
 
-Public (stage 4), `content-public-catalog.openapi.yaml`, anonymous, `Cache-Control: public, max-age=300`:
+Public (stage 4), [content-public-catalog.openapi.yaml](../../../contracts/content/content-public-catalog.openapi.yaml), anonymous, `Cache-Control: public, max-age=300`:
 
 | Operation | Route |
 | --- | --- |
 | `getPublicCatalogTree` | `GET /api/public/catalog/tree` |
-| `getPublicCatalogProducts` | `GET /api/public/catalog/products?type=&sectionId=&page=&pageSize=` |
-| `getPublicCatalogProduct` | `GET /api/public/catalog/products/{slug}` |
+| `getPublicCatalogProducts` | `GET /api/public/catalog/products?language=&type=&sectionId=&page=&pageSize=` (page size 24 by default, ≤ 100) |
+| `getPublicCatalogProduct` | `GET /api/public/catalog/products/{slug}?language=` |
 | `getPublicCatalogProductSlugs` | `GET /api/public/catalog/product-slugs` (for the sitemap and static paths) |
 
 Validators (FluentValidation, one per command or query with client input): `GetContentProductsQueryValidator` (paging, lengths), `SaveContentProductCommandValidator` (R-03, R-04 shapes), `SetContentProductVisibilityCommandValidator`, `ImportOldSiteProductPagesCommandValidator`, `GetPublicCatalogProductsQueryValidator`, `GetPublicCatalogProductQueryValidator`. Uniqueness of the slug and the revision check stay in the handler and the domain.
@@ -95,7 +97,7 @@ src/Modules/Content/
 └── Content.Api/Content.Api/
     ├── Access/ContentAccess.cs                         # access:content-products
     ├── ProductPages/ContentProductsController.cs       # admin API
-    └── Public/PublicCatalogController.cs               # anonymous read API (stage 4)
+    └── PublicCatalog/PublicCatalogController.cs        # anonymous read API (stage 4)
 src/Bootstrapper/Host.Api/Content/ContentCatalogReader.cs   # port adapter over Catalog and Reference queries (planned)
 src/Modules/Identity/Identity.Domain/Authorization/AccessCatalog.cs  # existing; add the area `content-products`
 tests/ArchitectureTests/ContentDependencyTests.cs       # module isolation (planned)
@@ -109,7 +111,7 @@ tests/UnitTests/Content*Tests.cs                        # domain and handlers (p
 | 1 | Module scaffold, `ProductPages`, admin API (list, read, save, visibility, delete), access area, contract | BreviERP | implemented 2026-11-11 |
 | 2 | Admin page «Контент → Товари»: list with the «на сайті» switch and missing-content marks, editor in the side panel | brevi-web | planned |
 | 3 | Transfer of old-site texts and SEO (SC-05); the import file is built from the site snapshot | both | backend implemented 2026-11-11 (endpoint, migration `ExtendProductPageSeoTitle`); admin button and the import file follow; applied on production only after the owner's «да» |
-| 4 | Public API: tree, cards with «від», product with fabrics and prices | BreviERP | planned |
+| 4 | Public API: tree, cards with «від», product with fabrics and prices | BreviERP | implemented 2026-11-11 |
 | 5 | Site reads the public API: tree from types and sections, prices, fabric choice; the old-site snapshot is removed | brevi-web | planned |
 
 ## Tasks of stage 1
@@ -123,6 +125,10 @@ tests/UnitTests/Content*Tests.cs                        # domain and handlers (p
 - TS-06: OpenAPI contract, feature card `docs/sdd/features/content/product-pages.md`, feature map, module map, data model page.
 
 Evidence of stage 1: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Content"` (45 tests: slug and text rules, list, editor, save, stale revision, taken address, visibility, delete, validators, contract and access defaults) and `dotnet test tests/ArchitectureTests/ArchitectureTests.csproj` (`ContentDependencyTests`). The migration was generated with `dotnet ef migrations add InitialContent`; it runs on deploy and was not applied to a live database here.
+
+## Stage 4 evidence
+
+Use cases in `Content.Application/PublicCatalog/` (`PublicCatalogSource` snapshot, tree, cards, product, addresses), `PublicCatalogController`, two new reads of the port `IContentCatalogReader` (sections in reference order, photos of a product). No database change. `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Content"` (80 tests; `PublicCatalogTests` cover the tree, repeated section names, filters and paging, «від», language fallback, hidden and inactive products, the snapshot lifetime, validators, the contract and that no internal field is returned), `ArchitectureTests` (21) and `HostApiTests` `ApiAccessTests` (the four public endpoints are the only new anonymous ones).
 
 ## Risks and open points
 

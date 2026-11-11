@@ -79,10 +79,11 @@ Only these operations are public; `tests/HostApiTests/ApiAccessTests.cs` fails w
 | `POST /api/reminders/telegram/webhook` | Telegram calls it; checked by the webhook secret header. |
 | `GET /api/crm/mailboxes/google-callback` | Google returns the browser here after Gmail consent; accepted only with the signed, 15-minute `state` issued by `POST /api/crm/mailboxes/{userId}/connect`, and it only redirects to the admin. |
 | `GET /api/reference/product-categories/store/{language}` | Public storefront categories, read-only. |
+| `GET /api/public/catalog/*` (tree, products, product by address, product addresses) | Catalog of the public site, read-only: only products marked «Показувати на сайті», nothing internal (CNT-002). |
 
 Every other operation needs a signed-in user, and every admin operation names a role or policy: work pages `access:<page>`, shared reads `CatalogRead`, users and system settings `Admin`. The same test fails when an endpoint has neither, except `GET /api/auth/session/me`, `GET /api/auth/session/access` and `POST /api/auth/cookie/logout`, which only need a session; another test fails when a named policy does not exist.
 
-A class-level `[AllowAnonymous]` overrides any `[Authorize]` on its methods, so put it only on the single public action.
+A class-level `[AllowAnonymous]` overrides any `[Authorize]` on its methods, so put it only on the single public action. The one exception is `PublicCatalogController`, where every action is public by design.
 
 ## New feature or page: «Права доступу» checklist
 
