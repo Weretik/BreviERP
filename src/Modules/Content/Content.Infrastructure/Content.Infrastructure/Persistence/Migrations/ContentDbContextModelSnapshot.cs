@@ -309,6 +309,70 @@ namespace Content.Infrastructure.Persistence.Migrations
                     b.ToTable("SiteCategoryTexts", "content");
                 });
 
+            modelBuilder.Entity("Content.Domain.SiteCompany.SiteCompanyInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BankDetails")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Managers")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MapQuery")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Schedule")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Socials")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SiteCompany", "content", t =>
+                        {
+                            t.HasCheckConstraint("CK_SiteCompany_Single", "\"Id\" = 1");
+                        });
+                });
+
             modelBuilder.Entity("Content.Domain.SitePages.SitePage", b =>
                 {
                     b.Property<string>("Key")

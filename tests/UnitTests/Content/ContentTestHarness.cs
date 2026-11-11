@@ -16,7 +16,10 @@ using Content.Application.PublicCatalog;
 using Content.Application.PublicRedirects;
 using Content.Application.PublicSitePages;
 using Content.Application.PublicSiteSettings;
+using Content.Application.PublicSiteCompany;
 using Content.Application.SeoOverview;
+using Content.Application.SiteCompany.Get;
+using Content.Application.SiteCompany.Save;
 using Content.Application.SitePages.GetList;
 using Content.Application.SitePages.Save;
 using Content.Application.SiteSettings.Get;
@@ -35,6 +38,7 @@ using Content.Application.SiteCategories.SetVisibility;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Domain.Redirects;
+using Content.Domain.SiteCompany;
 using Content.Domain.SitePages;
 using Content.Domain.SiteSettings;
 using Content.Domain.SiteCategories;
@@ -111,6 +115,7 @@ internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
     public DbSet<SiteRedirect> SiteRedirects => db.SiteRedirects;
     public DbSet<SiteSeoSettings> SiteSeoSettings => db.SiteSeoSettings;
     public DbSet<SitePage> SitePages => db.SitePages;
+    public DbSet<SiteCompanyInfo> CompanyInfo => db.CompanyInfo;
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 }
 
@@ -200,6 +205,12 @@ internal sealed class ContentTestHarness : IDisposable
     public SaveSitePageCommandHandler SaveSitePage() => new(new SqliteContentDb(Open()), Time);
     public GetSitePagesQueryHandler SitePages() => new(new SqliteContentDb(Open()));
     public GetSeoOverviewQueryHandler SeoOverview() => new(new SqliteContentDb(Open()), Catalog);
+
+    public SaveSiteCompanyCommandHandler SaveCompany() => new(new SqliteContentDb(Open()), Time);
+    public GetSiteCompanyQueryHandler Company() => new(new SqliteContentDb(Open()));
+
+    public PublicSiteCompanySource PublicCompany(IMemoryCache? cache = null) =>
+        new(new SqliteContentDb(Open()), cache ?? new MemoryCache(new MemoryCacheOptions()));
 
     public PublicSitePagesSource PublicSitePages(IMemoryCache? cache = null) =>
         new(new SqliteContentDb(Open()), cache ?? new MemoryCache(new MemoryCacheOptions()));

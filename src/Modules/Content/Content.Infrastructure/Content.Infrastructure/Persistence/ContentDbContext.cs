@@ -3,6 +3,7 @@ using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Domain.Redirects;
 using Content.Domain.SiteCategories;
+using Content.Domain.SiteCompany;
 using Content.Domain.SitePages;
 using Content.Domain.SiteSettings;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ public sealed class ContentDbContext(DbContextOptions<ContentDbContext> options)
     public DbSet<SiteRedirect> SiteRedirects => Set<SiteRedirect>();
     public DbSet<SiteSeoSettings> SiteSeoSettings => Set<SiteSeoSettings>();
     public DbSet<SitePage> SitePages => Set<SitePage>();
+    public DbSet<SiteCompanyInfo> CompanyInfo => Set<SiteCompanyInfo>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
