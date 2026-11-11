@@ -1,6 +1,6 @@
 # CNT-004 — «Контент → Статті»: articles of the public site (Content module)
 
-**Status:** accepted by the owner 2026-11-11 (all articles of the old site moved, articles added and edited in the Admin with SEO, pictures kept on our CDN); stage 1 (module code, admin API) and stage 3 (old-site transfer, this repository's part) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md) and [CNT-003](../003-site-categories/README.md).
+**Status:** accepted by the owner 2026-11-11 (all articles of the old site moved, articles added and edited in the Admin with SEO, pictures kept on our CDN); stage 1 (module code, admin API), stage 3 (old-site transfer, this repository's part) and stage 4 (public API, this repository's part) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md) and [CNT-003](../003-site-categories/README.md).
 
 ## Why
 
@@ -71,6 +71,21 @@ Rollout: the migration only adds two tables, so the running code keeps working; 
 
 Rollout: no migration. The owner runs the transfer once in the Admin with the prepared file; rollback is deleting the moved articles (photos stay in the library).
 
+## Stage 4 design (implemented in this repository)
+
+Public API `/api/public/articles` ([contract](../../../contracts/content/content-public-articles.openapi.yaml)), no sign-in, `Cache-Control: public, max-age=300`: `getPublicArticles` (every shown article, the newest first, with title, excerpt and cover) and `getPublicArticle` (one article by address with SEO and the text; hidden or unknown is 404). Both take `language` (`uk`, `ru`). A language counts as the article's own when it has a title and a text; otherwise the Ukrainian text comes back and `language` says `uk`, so the site can point the canonical link at the Ukrainian page (R-07). Pictures are the CDN addresses of the «Фото» library with their size; a photo deleted from the library is left out. The server reads the shown articles and their photos at most once a minute (memory cache), so an anonymous caller cannot make it read the database on every request. No schema change.
+
+| Path | Role |
+| --- | --- |
+| `Content.Application/PublicArticles/PublicArticlesSource.cs` | shown articles with their photos, kept for a minute |
+| `Content.Application/PublicArticles/PublicArticleMapping.cs` | language fallback, card, page, blocks with photos |
+| `Content.Application/PublicArticles/GetPublicArticlesQuery.cs`, `GetPublicArticleQuery.cs` | list and page with validators |
+| `Content.Application/Contracts/PublicArticleResponses.cs` | answers |
+| `Content.Api/PublicArticles/PublicArticlesController.cs` | `/api/public/articles`, anonymous, read-only |
+| `tests/UnitTests/Content/PublicArticlesTests.cs`, `tests/HostApiTests/ApiAccessTests.cs` | SC-07 and the open endpoints |
+
+Rollout: no migration; the site switches to these answers in its own PR. Rollback: the site keeps working from its own copy until that PR is merged.
+
 ## Traceability
 
 | Rule / scenario | Tests |
@@ -81,3 +96,4 @@ Rollout: no migration. The owner runs the transfer once in the Admin with the pr
 | SC-04 | `Delete_removes_the_article_with_its_texts` |
 | R-05 | `ArticlesContractTests` |
 | R-08, SC-06 | `Dry_run_counts_articles_and_pictures_and_writes_nothing`, `Transfer_brings_each_picture_once_and_a_repeated_run_keeps_the_articles`, `Existing_article_is_kept_unless_overwrite_and_is_never_switched_off`, `Picture_that_fails_is_left_out_with_a_reason_and_the_article_is_saved`, `Only_pictures_of_the_old_site_are_accepted`, `Validator_checks_the_file` |
+| R-07, SC-07 | `PublicArticlesTests` |

@@ -11,6 +11,7 @@ using Content.Application.ProductPages.GetOne;
 using Content.Application.ProductPages.ImportOldSite;
 using Content.Application.ProductPages.Save;
 using Content.Application.ProductPages.SetVisibility;
+using Content.Application.PublicArticles;
 using Content.Application.PublicCatalog;
 using Content.Application.SiteCategories.Delete;
 using Content.Application.SiteCategories.GetList;
@@ -173,6 +174,10 @@ internal sealed class ContentTestHarness : IDisposable
     /// <summary>The public catalog as one request sees it; <paramref name="cache"/> is shared to test its lifetime.</summary>
     public PublicCatalogSource Site(IMemoryCache? cache = null) =>
         new(new SqliteContentDb(Open()), Catalog, cache ?? new MemoryCache(new MemoryCacheOptions()));
+
+    /// <summary>The public articles as one request sees them; <paramref name="cache"/> is shared to test its lifetime.</summary>
+    public PublicArticlesSource PublicArticles(IMemoryCache? cache = null) =>
+        new(new SqliteContentDb(Open()), Media, cache ?? new MemoryCache(new MemoryCacheOptions()));
 
     public ContentDbContext Open()
     {
