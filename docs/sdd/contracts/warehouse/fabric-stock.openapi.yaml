@@ -844,6 +844,7 @@ components:
       required:
       - canMove
       - seesValue
+      - canTransfer
       properties:
         canMove:
           type: boolean
@@ -851,6 +852,9 @@ components:
         seesValue:
           type: boolean
           description: 'Prices of «Тканини» on the forms: WorkshopChief and Admin.'
+        canTransfer:
+          type: boolean
+          description: '«Перенесення з v133»: Admin only.'
     FabricStockSourceResponse:
       type: object
       required:

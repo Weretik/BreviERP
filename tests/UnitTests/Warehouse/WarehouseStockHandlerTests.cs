@@ -52,6 +52,7 @@ public sealed class WarehouseStockHandlerTests
         await Receive(workshop, Chief, "Opening", 10m);
         var byManager = await Receive(workshop, Manager, "Receipt", 1m);
         var managerList = await List(workshop, Manager);
+        var chiefList = await List(workshop, Chief);
         var managerMovements = await Movements(workshop, Manager, FabricMovementFilter.All);
         var managerChoices = await Choices(workshop, Manager);
         var chiefChoices = await Choices(workshop, Chief);
@@ -61,6 +62,7 @@ public sealed class WarehouseStockHandlerTests
             Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
             Assert.That(Pair(managerList, "Темно-сірий").Meters, Is.EqualTo(10m));
             Assert.That(managerList.Permissions.CanMove, Is.False);
+            Assert.That(chiefList.Permissions, Is.EqualTo(new FabricStockPermissions(true, true, false)));
             Assert.That(managerMovements.Rows.Single().CanReverse, Is.False);
             Assert.That(managerChoices.Fabrics.Select(x => x.Price), Is.All.Null);
             Assert.That(managerChoices.Suppliers, Is.Empty);
