@@ -16,7 +16,7 @@ Requests live in Crm next to leads, but in their own table and page «Заявк
 - **R-02 Form.** Phone is required: 10 digits from `0` or 12 from `380` after removing spaces, brackets, dashes and `+`. Workwear ≤ 200, quantity ≤ 60, comment ≤ 1000 characters, locale `uk` or `ru`. One optional file ≤ 10 MB: pdf, doc, docx, xls, xlsx, zip, rar, 7z, jpg, jpeg, png, cdr, ai, eps, psd. The form is limited to 20 requests per 10 minutes per IP (policy `SiteRequest`).
 - **R-03 Save first.** The file goes to the CDN `/site-requests/{yyyy-MM}/{guid}{ext}`, then the request is saved, then Telegram is tried. A Telegram failure keeps the request and stores the reason (`NotifyError`); the visitor still gets 200.
 - **R-04 Telegram.** The bot posts the request (HTML-escaped texts, file link, link to «Заявки з сайту») to every approved chat where the bot is a member and «Заявки з сайту» is ticked on «Нагадування». No ticked chat or no bot token is a stored reason, not an error.
-- **R-05 Work.** Statuses `New` → `InWork` → `Done` or `Spam`; «Взяти» makes a new request the actor's; «Виконано» / «Спам» close it with an optional note; «Повернути» reopens a closed one as `InWork` of its owner (or `New` when nobody had it). Only the owner or Director/Admin manage a taken request. Every change checks the version (409 on a stale one).
+- **R-05 Work.** Statuses `New` → `InWork` → `Done` or `Spam`. «Беру» makes an open request the actor's; «Готово» / «Не заявка» close it with an optional note (the closer becomes the owner when nobody was); «Повернути в нові» makes it `New` again without an owner. Anyone with edit takes a free request; only its owner or an Admin (the director holds it) closes or frees a taken one. Every change checks the version (409 on a stale one).
 - **R-06 List.** Tabs «Нові та в роботі», «Мої», «Закриті», «Усі» with counts, newest first, 50 per page.
 
 ## Scenarios
@@ -25,7 +25,7 @@ Requests live in Crm next to leads, but in their own table and page «Заявк
 - **SC-02** A bad phone, a long text, a wrong locale or a 12 MB file → 400 with Ukrainian messages; nothing is saved.
 - **SC-03** No ticked group → the request is saved with «Не вибрано групу…» as the Telegram reason.
 - **SC-04** A manager takes a new request; another manager cannot close it (403); the director can.
-- **SC-05** «Спам» closes it with a note; «Повернути» brings it back.
+- **SC-05** «Не заявка» closes it with a note; «Повернути в нові» brings it back as new.
 
 ## Design
 
