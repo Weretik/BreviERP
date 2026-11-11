@@ -14,6 +14,7 @@ public sealed record SewingModelCompositionSummary(
 /// <param name="Code">Reference code (FAB-…, FUR-…) or the cost code; null when unknown.</param>
 /// <param name="Name">Reference name; null when the reference is gone.</param>
 /// <param name="Unit">Metre, Piece, Service or Kilogram.</param>
+/// <param name="ArticleId">The fabric variant (article) id; null for a line shared by the whole model.</param>
 public sealed record SewingCompositionSummaryLine(
     string Kind,
     string? Article,
@@ -21,4 +22,5 @@ public sealed record SewingCompositionSummaryLine(
     string? Name,
     decimal Quantity,
     string Unit,
-    string? Comment);
+    string? Comment,
+    long? ArticleId = null);

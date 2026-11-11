@@ -44,6 +44,6 @@ internal sealed class ProductionModelReader(ISender sender) : IProductionModelRe
         if (!result.IsSuccess) throw new InvalidOperationException("Catalog sewing compositions could not be read.");
         return result.Value.Select(model => new ProductionModelComposition(model.ProductId, model.ModelCode,
             model.Lines.Select(line => new ProductionCompositionLine(line.Kind, line.Article, line.Code, line.Name,
-                line.Quantity, line.Unit, line.Comment)).ToList())).ToList();
+                line.Quantity, line.Unit, line.Comment, line.ArticleId)).ToList())).ToList();
     }
 }

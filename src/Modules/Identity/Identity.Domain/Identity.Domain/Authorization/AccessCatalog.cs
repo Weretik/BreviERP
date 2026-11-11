@@ -37,6 +37,10 @@ public static class AccessCatalog
     public const string Leads = "leads";
     public const string ProductionOrders = "production-orders";
     public const string FabricStock = "fabric-stock";
+    public const string FabricPlanFact = "fabric-plan-fact";
+    public const string FabricBooking = "fabric-booking";
+    public const string FabricValuation = "fabric-valuation";
+    public const string HardwareOrder = "hardware-order";
     public const string WorkLog = "work-log";
     public const string Forecast = "forecast";
     public const string WorkshopStaff = "workshop-staff";
@@ -104,6 +108,13 @@ public static class AccessCatalog
 
         new(FabricStock, WarehouseGroup, "Залишки, рух і витрата тканини", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
+        new(FabricPlanFact, WarehouseGroup, "План і факт", V,
+            Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.WorkshopChief, V))),
+        new(FabricBooking, WarehouseGroup, "Бронь і що замовити", V,
+            Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.WorkshopChief, V))),
+        new(FabricValuation, WarehouseGroup, "Вартість складу", V, Grant((RoleNames.Admin, V))),
+        new(HardwareOrder, WarehouseGroup, "Фурнітура до замовлення", V,
+            Grant((RoleNames.Admin, V), (RoleNames.WorkshopChief, V))),
 
         new(Accounting, Finance, "Бухгалтерія: облік, перекази, рахунки і каси, звіти", VE, Nobody),
         new(PurchaseInvoices, Finance, "Рахунки на закупку", VE, Nobody),

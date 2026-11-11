@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: 'Warehouse: fabric stock'
   version: 1.0.0
-  description: 'Warehouse module (WH-001…WH-004): «Склад тканин». A stock line is one offer of «Тканини» (FAB- code) in one colour;
+  description: 'Warehouse module (WH-001…WH-005): «Склад тканин». A stock line is one offer of «Тканини» (FAB- code) in one colour;
     lines of a reviewed alias group (FAB-023/067, FAB-078/077) and a normalised colour form one pair, which «Залишки», openings, issues
     without an order and «Уточнити» work on. Balances change only through movements (opening, receipt, issue, correction, reversal);
     each line''s chain runs by operation date, record time and id. Every stock form sends an operation id, so a repeat never moves the
@@ -10,7 +10,8 @@ info:
     receipts, corrections and issues without an order can be edited, voided («Скасувати») and restored to the state before the last
     change; every change is a revision with the values before and after. Fabric goes to an item by actual cutting: the products cut
     and the real pairs; each planned part is compared with P × n / N, the plan of an item is saved at its first issue and changes only
-    by «Оновити план».'
+    by «Оновити план». Four reports read the stock and the plans without changing them: «План і факт», «Бронь і що замовити», «Вартість
+    складу» and «Фурнітура до замовлення», each its own page of «Права доступу».'
 servers:
 - url: /
 security:
@@ -724,6 +725,102 @@ paths:
           description: No such order or item
         '409':
           description: Order closed or changed, plan changed, nothing saved yet or the norm did not change
+  /api/warehouse/reports/plan-fact:
+    get:
+      tags:
+      - Warehouse
+      operationId: getFabricPlanFact
+      summary: '«План і факт»: main fabric by model for items issued for all their products (access:fabric-plan-fact)'
+      parameters:
+      - in: query
+        name: model
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+      - in: query
+        name: client
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+      - in: query
+        name: fabric
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        description: A planned or issued fabric code, name or colour.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricPlanFactResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to the page in «Права доступу»
+        '400':
+          description: A filter is too long
+  /api/warehouse/reports/booking:
+    get:
+      tags:
+      - Warehouse
+      operationId: getFabricBooking
+      summary: '«Бронь і що замовити»: stock handed to the plans of open orders by order date; reads only (access:fabric-booking)'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricBookingResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to the page in «Права доступу»
+  /api/warehouse/reports/valuation:
+    get:
+      tags:
+      - Warehouse
+      operationId: getFabricValuation
+      summary: '«Вартість складу»: positive balances at today''s prices of «Тканини»; owner only by default (access:fabric-valuation)'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricValuationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to the page in «Права доступу»
+  /api/warehouse/reports/hardware:
+    get:
+      tags:
+      - Warehouse
+      operationId: getHardwareOrder
+      summary: '«Фурнітура до замовлення»: full accessory need of open orders by model composition (access:hardware-order)'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HardwareOrderResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to the page in «Права доступу»
 components:
   securitySchemes:
     Bearer:
@@ -871,6 +968,7 @@ components:
       - isVoided
       - revision
       - canEdit
+      - perProduct
       properties:
         id:
           type: integer
@@ -959,6 +1057,11 @@ components:
         canEdit:
           type: boolean
           description: Edit, «Скасувати» and «Історія правок» actions are offered.
+        perProduct:
+          type:
+          - number
+          - 'null'
+          description: '«На 1 виріб»: metres per product cut, to thousandths; null without a products count.'
       description: A row of «Рух тканини».
     FabricMovementPageResponse:
       type: object
@@ -2165,3 +2268,580 @@ components:
             $ref: '#/components/schemas/FabricIssueItemResponse'
         hasMore:
           type: boolean
+    FabricPlanFactRowResponse:
+      type: object
+      required:
+      - orders
+      - products
+      - planPerProduct
+      - factPerProduct
+      - differencePerProduct
+      - difference
+      - result
+      - uncomparableItems
+      properties:
+        orders:
+          type: integer
+          description: Unique orders.
+        products:
+          type: integer
+          description: Each item once.
+        planPerProduct:
+          type:
+          - number
+          - 'null'
+          description: Saved main-fabric plan over the products of the items with a plan, to thousandths.
+        factPerProduct:
+          type: number
+          description: Issued main fabric over the products, to thousandths.
+        differencePerProduct:
+          type:
+          - number
+          - 'null'
+          description: Null when any item cannot be compared.
+        difference:
+          type:
+          - number
+          - 'null'
+          description: Fact − plan, metres; null when any item cannot be compared.
+        result:
+          type: string
+          enum:
+          - Economy
+          - Overrun
+          - OnPlan
+          - NoPlan
+          - NeedsCheck
+          description: Economy (fact < plan), Overrun, OnPlan, NoPlan, or NeedsCheck when the items cannot be compared.
+        uncomparableItems:
+          type: integer
+      description: Totals of a model or of the report; weighted by products.
+    FabricPlanFactMaterialResponse:
+      type: object
+      required:
+      - layer
+      - planFabricCode
+      - planFabricName
+      - planColor
+      - plan
+      - fact
+      - difference
+      - used
+      properties:
+        layer:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Upper
+          - Lining
+          - Insulation
+          - Fleece
+          - null
+        planFabricCode:
+          type:
+          - string
+          - 'null'
+        planFabricName:
+          type:
+          - string
+          - 'null'
+        planColor:
+          type:
+          - string
+          - 'null'
+        plan:
+          type:
+          - number
+          - 'null'
+        fact:
+          type:
+          - number
+          - 'null'
+          description: Null for a planned part with nothing issued («не зафіксовано»).
+        difference:
+          type:
+          - number
+          - 'null'
+        used:
+          type: array
+          items:
+            type: string
+          description: Fabric code and colour actually issued.
+      description: A planned part, or fabric issued beyond the plan (no plan fields).
+    FabricPlanFactItemResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - products
+      - plan
+      - fact
+      - difference
+      - result
+      - reason
+      - materials
+      properties:
+        orderId:
+          type: integer
+        orderNumber:
+          type: integer
+        clientName:
+          type: string
+        itemId:
+          type: integer
+        products:
+          type: integer
+        plan:
+          type:
+          - number
+          - 'null'
+          description: Saved main-fabric plan; null without one.
+        fact:
+          type: number
+        difference:
+          type:
+          - number
+          - 'null'
+        result:
+          type: string
+          enum:
+          - Economy
+          - Overrun
+          - OnPlan
+          - NoPlan
+          - NeedsCheck
+          description: Economy (fact < plan), Overrun, OnPlan, NoPlan, or NeedsCheck when the items cannot be compared.
+        reason:
+          type:
+          - string
+          - 'null'
+          description: Why the item cannot be compared.
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricPlanFactMaterialResponse'
+    FabricPlanFactModelResponse:
+      type: object
+      required:
+      - modelName
+      - modelCode
+      - summary
+      - items
+      properties:
+        modelName:
+          type: string
+        modelCode:
+          type:
+          - string
+          - 'null'
+        summary:
+          $ref: '#/components/schemas/FabricPlanFactRowResponse'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricPlanFactItemResponse'
+    FabricPlanFactResponse:
+      type: object
+      required:
+      - models
+      - total
+      - inProgressItems
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricPlanFactModelResponse'
+        total:
+          $ref: '#/components/schemas/FabricPlanFactRowResponse'
+        inProgressItems:
+          type: integer
+          description: Items whose issues do not cover all their products yet; left out.
+    FabricBookingItemResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - modelName
+      - dueDate
+      - layer
+      - plan
+      - covered
+      - remaining
+      - reserved
+      - toOrder
+      properties:
+        orderId:
+          type: integer
+        orderNumber:
+          type: integer
+        clientName:
+          type: string
+        itemId:
+          type: integer
+        modelName:
+          type: string
+        dueDate:
+          type:
+          - string
+          - 'null'
+          format: date
+        layer:
+          type: string
+          enum:
+          - Upper
+          - Lining
+          - Insulation
+          - Fleece
+        plan:
+          type: number
+        covered:
+          type: number
+          description: What issues covered of the plan.
+        remaining:
+          type: number
+          description: Plan − covered, not below zero.
+        reserved:
+          type: number
+        toOrder:
+          type: number
+    FabricBookingPairResponse:
+      type: object
+      required:
+      - fabricCode
+      - fabricName
+      - color
+      - stock
+      - need
+      - reserved
+      - free
+      - toOrder
+      - shortage
+      - items
+      properties:
+        fabricCode:
+          type: string
+        fabricName:
+          type: string
+        color:
+          type: string
+        stock:
+          type: number
+          description: May be negative.
+        need:
+          type: number
+        reserved:
+          type: number
+        free:
+          type: number
+        toOrder:
+          type: number
+          description: max(0, −stock) + what the queue misses.
+        shortage:
+          type: number
+          description: The negative balance as a positive figure.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricBookingItemResponse'
+      description: A fabric and colour; items in order of order creation, then number and item.
+    FabricBookingUnknownResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - modelName
+      - reason
+      properties:
+        orderId:
+          type: integer
+        orderNumber:
+          type: integer
+        clientName:
+          type: string
+        itemId:
+          type: integer
+        modelName:
+          type: string
+        reason:
+          type: string
+      description: An item whose need is unknown; not counted as zero.
+    FabricBookingResponse:
+      type: object
+      required:
+      - reserved
+      - free
+      - toOrder
+      - pairs
+      - unknown
+      - calculatedAt
+      properties:
+        reserved:
+          type: number
+        free:
+          type: number
+        toOrder:
+          type: number
+        pairs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricBookingPairResponse'
+        unknown:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricBookingUnknownResponse'
+        calculatedAt:
+          type: string
+          format: date-time
+    FabricValuationColorResponse:
+      type: object
+      required:
+      - color
+      - meters
+      - price
+      - value
+      properties:
+        color:
+          type: string
+        meters:
+          type: number
+        price:
+          type:
+          - number
+          - 'null'
+        value:
+          type:
+          - number
+          - 'null'
+          description: Kopecks = round(hundredths × price), in UAH.
+    FabricValuationFabricResponse:
+      type: object
+      required:
+      - fabricCode
+      - fabricName
+      - price
+      - priceFabricCode
+      - meters
+      - unpricedMeters
+      - value
+      - colors
+      properties:
+        fabricCode:
+          type: string
+        fabricName:
+          type: string
+        price:
+          type:
+          - number
+          - 'null'
+          description: Lowest positive price of the group's active offers, UAH per metre.
+        priceFabricCode:
+          type:
+          - string
+          - 'null'
+        meters:
+          type: number
+        unpricedMeters:
+          type: number
+        value:
+          type: number
+          description: Sum of the rounded values of its colours.
+        colors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricValuationColorResponse'
+    FabricValuationShortageResponse:
+      type: object
+      required:
+      - fabricCode
+      - fabricName
+      - color
+      - meters
+      - price
+      - value
+      properties:
+        fabricCode:
+          type: string
+        fabricName:
+          type: string
+        color:
+          type: string
+        meters:
+          type: number
+          description: The shortage, positive.
+        price:
+          type:
+          - number
+          - 'null'
+        value:
+          type:
+          - number
+          - 'null'
+    FabricValuationResponse:
+      type: object
+      required:
+      - value
+      - positiveMeters
+      - unpricedPairs
+      - unpricedMeters
+      - isPartial
+      - shortageMeters
+      - shortageValue
+      - fabrics
+      - shortages
+      - calculatedAt
+      - priceSource
+      properties:
+        value:
+          type: number
+          description: Sum of priced pairs, UAH.
+        positiveMeters:
+          type: number
+        unpricedPairs:
+          type: integer
+        unpricedMeters:
+          type: number
+        isPartial:
+          type: boolean
+          description: Some positive pairs have no price.
+        shortageMeters:
+          type: number
+        shortageValue:
+          type: number
+        fabrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricValuationFabricResponse'
+        shortages:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricValuationShortageResponse'
+        calculatedAt:
+          type: string
+          format: date-time
+        priceSource:
+          type: string
+    HardwareNeedOrderResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - modelName
+      - norm
+      - products
+      - quantity
+      properties:
+        orderId:
+          type: integer
+        orderNumber:
+          type: integer
+        clientName:
+          type: string
+        itemId:
+          type: integer
+        modelName:
+          type: string
+        norm:
+          type: number
+        products:
+          type: integer
+        quantity:
+          type: number
+          description: norm × products, to 6 decimals.
+    HardwareNeedResponse:
+      type: object
+      required:
+      - code
+      - name
+      - nameChecked
+      - note
+      - unit
+      - quantity
+      - orders
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+          description: Reference name, or the code when it is unknown.
+        nameChecked:
+          type: boolean
+          description: 'False: «Потрібна перевірка назв».'
+        note:
+          type:
+          - string
+          - 'null'
+        unit:
+          type: string
+          description: Metre, Piece, Service or Kilogram.
+        quantity:
+          type: number
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HardwareNeedOrderResponse'
+    HardwareIncompleteResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - modelName
+      - code
+      - name
+      - reason
+      properties:
+        orderId:
+          type: integer
+        orderNumber:
+          type: integer
+        clientName:
+          type: string
+        itemId:
+          type: integer
+        modelName:
+          type: string
+        code:
+          type:
+          - string
+          - 'null'
+        name:
+          type:
+          - string
+          - 'null'
+        reason:
+          type: string
+      description: '«Потреба неповна»: a line whose quantity is unknown.'
+    HardwareOrderResponse:
+      type: object
+      required:
+      - orders
+      - items
+      - needs
+      - incomplete
+      - calculatedAt
+      properties:
+        orders:
+          type: integer
+        items:
+          type: integer
+        needs:
+          type: array
+          items:
+            $ref: '#/components/schemas/HardwareNeedResponse'
+        incomplete:
+          type: array
+          items:
+            $ref: '#/components/schemas/HardwareIncompleteResponse'
+        calculatedAt:
+          type: string
+          format: date-time

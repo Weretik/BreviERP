@@ -479,6 +479,14 @@ paths:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1issue-items~1{orderId}~1{itemId}~1issues
   /api/warehouse/fabric-stock/issue-items/{orderId}/{itemId}/plan:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1issue-items~1{orderId}~1{itemId}~1plan
+  /api/warehouse/reports/plan-fact:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1reports~1plan-fact
+  /api/warehouse/reports/booking:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1reports~1booking
+  /api/warehouse/reports/valuation:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1reports~1valuation
+  /api/warehouse/reports/hardware:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1reports~1hardware
   /api/warehouse/orders/{id}/items/{itemId}/fabric:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1orders~1{id}~1items~1{itemId}~1fabric
   /api/warehouse/orders/{id}/items/{itemId}/fabric-issues:

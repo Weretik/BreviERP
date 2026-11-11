@@ -27,5 +27,7 @@ public sealed record ProductionModelComposition(int ProductId, string? ModelCode
 /// <param name="Kind">Fabric, Accessory or OtherCost.</param>
 /// <param name="Article">The sale SKU of a fabric variant; null for a line of the whole model.</param>
 /// <param name="Unit">Metre, Piece, Service or Kilogram.</param>
+/// <param name="ArticleId">The fabric variant (Catalog article) of a variant line; null for a line of the whole model.</param>
 public sealed record ProductionCompositionLine(
-    string Kind, string? Article, string? Code, string? Name, decimal Quantity, string Unit, string? Comment);
+    string Kind, string? Article, string? Code, string? Name, decimal Quantity, string Unit, string? Comment,
+    long? ArticleId = null);

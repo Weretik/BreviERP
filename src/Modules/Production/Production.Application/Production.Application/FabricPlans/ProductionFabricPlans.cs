@@ -19,7 +19,10 @@ public sealed record ProductionPlanItem(
     string? FabricName,
     int Quantity,
     bool HasNorm,
-    IReadOnlyList<FabricPlanPart> Parts);
+    IReadOnlyList<FabricPlanPart> Parts,
+    string? ModelCode = null,
+    DateTimeOffset OrderCreatedAt = default,
+    DateOnly? DueDate = null);
 
 public sealed record ProductionLegacyOrder(string LegacyId, int OrderId, int Number,
     IReadOnlyList<ProductionLegacyItem> Items);
@@ -53,6 +56,20 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
         var item = order?.Items.FirstOrDefault(x => x.Id == itemId);
         if (order is null || item is null) return null;
         return (await PlanAsync([(order, item)], cancellationToken))[0];
+    }
+
+    /// <summary>The given items of orders that are not deleted, whatever their status; unknown ids are left out.</summary>
+    public async Task<IReadOnlyList<ProductionPlanItem>> ItemsAsync(IReadOnlyCollection<int> itemIds,
+        CancellationToken cancellationToken)
+    {
+        if (itemIds.Count == 0) return [];
+        var ids = itemIds.Distinct().ToArray();
+        var orders = await db.Orders.AsNoTracking().Include(x => x.Items)
+            .Where(x => x.DeletedAt == null && x.Items.Any(i => ids.Contains(i.Id)))
+            .ToListAsync(cancellationToken);
+        var items = orders.SelectMany(o => o.Items.Where(i => ids.Contains(i.Id)).Select(i => (Order: o, Item: i)))
+            .ToList();
+        return await PlanAsync(items, cancellationToken);
     }
 
     /// <summary>Orders moved from the old «Цех» that are not deleted, by their old id.</summary>
@@ -90,7 +107,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
                 x.Item.ModelName,
                 x.Item.FabricCode, x.Item.FabricName, x.Item.Quantity, norm is not null,
                 FabricPlanParts.For(norm, x.Item.FabricCode, x.Item.MainColor, x.Item.AdditionalColors,
-                    x.Item.Quantity));
+                    x.Item.Quantity), x.Item.ModelCode, x.Order.CreatedAt, x.Item.DueDate);
         }).ToList();
     }
 }
