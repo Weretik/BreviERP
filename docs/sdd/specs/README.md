@@ -38,6 +38,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Reference | [003 Operations from the Calculator sheet](reference/003-operations-sheet/README.md) | implemented 2026-11-02 |
 | Reference | [004 Pricing parameters from the Calculator sheet](reference/004-pricing-parameters-sheet/README.md) | backend implemented 2026-11-02 |
 | Reference | [005 Product sections from the Calculator sheet](reference/005-product-sections-sheet/README.md) | backend implemented 2026-11-03 |
+| Reference | [006 Colours «Кольори», picked from the list in the workshop](reference/006-fabric-colors/README.md) | backend implemented 2026-11-11 |
 | Media | [001 «Фото» photo library with folders](media/001-media-library/README.md) | stage 1 backend implemented 2026-11-03 |
 | Production | [001 «Швейний цех»: module, head of the workshop, references](production/001-workshop-references/README.md) | stage 1 implemented 2026-11-04 |
 | Production | [002 Production orders from КП](production/002-production-orders/README.md) | stage 2 implemented 2026-11-04 |

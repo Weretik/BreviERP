@@ -2,6 +2,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
 using Production.Application.Abstractions;
+using Production.Application.Colors;
 using Production.Application.Contracts;
 using Production.Application.Orders;
 using Production.Application.Orders.Embroidery;
@@ -70,6 +71,14 @@ internal sealed class FakeProductionFabricReader : IProductionFabricReader
 
     public Task<IReadOnlyList<ProductionFabric>> ListAsync(CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<ProductionFabric>>(Fabrics);
+}
+
+internal sealed class FakeProductionColorReader : IProductionColorReader
+{
+    public List<string> Colors { get; } = ["Темно-сірий", "Червоний", "Жовтий", "Сірий"];
+
+    public Task<IReadOnlyList<string>> ListActiveAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<string>>(Colors);
 }
 
 internal sealed class FakeProductionStaffReader : IProductionStaffReader
@@ -159,6 +168,7 @@ internal sealed class ProductionTestHarness : IDisposable
     public FakeProductionQuoteReader Quotes { get; } = new();
     public FakeProductionFabricReader Fabrics { get; } = new();
     public FakeProductionEmbroideryReader Embroideries { get; } = new();
+    public FakeProductionColorReader ColorList { get; } = new();
     public FakeProductionStaffReader Staff { get; } = new();
     public FakeProductionSupplierReader Suppliers { get; } = new();
     public FakeProductionFileStorage Files { get; } = new();
@@ -169,6 +179,8 @@ internal sealed class ProductionTestHarness : IDisposable
     public QuoteItemResolver Resolver() => new(Db, Models, Fabrics);
 
     public EmbroideryLinks EmbroideryLinks() => new(Embroideries);
+
+    public ProductionColors Colors() => new(ColorList);
 
     public OrderCards Cards() => new(Db, Telegram, EmbroideryLinks());
 

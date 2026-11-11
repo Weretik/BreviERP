@@ -206,6 +206,27 @@ paths:
                   $ref: '#/components/schemas/ProductionEmbroideryChoiceResponse'
         '401': *id001
         '403': *id002
+  /api/production/orders/colors:
+    get:
+      tags:
+      - Production
+      operationId: getProductionColors
+      summary: 'Active colours of «Кольори» in list order: the main and additional colours of an item are picked from them'
+      description: >-
+        An item's colours must be one of these (case and outer spaces ignored); a colour the item already has stays
+        valid on edit. Without access to «Довідники».
+      responses:
+        '200':
+          description: Colour names.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  maxLength: 80
+        '401': *id001
+        '403': *id002
   /api/production/orders/import:
     post:
       tags:

@@ -379,6 +379,7 @@ components:
       required:
       - fabrics
       - suppliers
+      - colors
       properties:
         fabrics:
           type: array
@@ -389,6 +390,12 @@ components:
           items:
             $ref: '#/components/schemas/FabricStockSupplierChoice'
           description: Active suppliers; empty for people who cannot move stock.
+        colors:
+          type: array
+          items:
+            type: string
+            maxLength: 80
+          description: Active colours of «Кольори» in list order; a new stock line takes one of them.
     FabricStockRowResponse:
       type: object
       required:

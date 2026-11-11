@@ -1,4 +1,5 @@
 using Production.Application.Abstractions;
+using Production.Application.Colors;
 using Production.Application.Contracts;
 using Production.Application.Orders.Access;
 using Production.Application.Orders.Validation;
@@ -42,7 +43,8 @@ public sealed class CreateFabricMovementCommandValidator : AbstractValidator<Cre
     }
 }
 
-public sealed class CreateFabricMovementCommandHandler(StockChanges changes, IProductionSupplierReader suppliers)
+public sealed class CreateFabricMovementCommandHandler(StockChanges changes, IProductionSupplierReader suppliers,
+    ProductionColors colors)
     : ICommandHandler<CreateFabricMovementCommand, Result<FabricStockLineResponse>>
 {
     public async ValueTask<Result<FabricStockLineResponse>> Handle(CreateFabricMovementCommand command,
@@ -63,6 +65,11 @@ public sealed class CreateFabricMovementCommandHandler(StockChanges changes, IPr
         }
 
         var line = await changes.LineAsync(fabric.Value, input.Color, cancellationToken);
+        if (line.Id == 0)
+        {
+            var colorErrors = await colors.CheckAsync([input.Color], [], cancellationToken);
+            if (colorErrors.Count > 0) return Result<FabricStockLineResponse>.Invalid(colorErrors.ToArray());
+        }
         if (line.Id != 0 && line.Version != input.Version) return Result<FabricStockLineResponse>.Conflict(StockMessages.Stale);
         var kind = Enum.Parse<FabricMovementKind>(input.Kind);
         if (kind == FabricMovementKind.Opening && line.HasMovements)

@@ -1,4 +1,5 @@
 using Production.Application.Abstractions;
+using Production.Application.Colors;
 using Production.Application.Contracts;
 using Production.Application.Orders.Embroidery;
 using Production.Application.Orders.QuoteSources;
@@ -8,7 +9,7 @@ namespace Production.Application.Orders.CreateOrder;
 
 public sealed class CreateProductionOrderCommandHandler(
     IProductionDbContext db, IProductionQuoteReader quotes, IProductionStaffReader staff, QuoteItemResolver resolver,
-    OrderCards cards, EmbroideryLinks embroidery, TimeProvider clock)
+    OrderCards cards, EmbroideryLinks embroidery, ProductionColors colors, TimeProvider clock)
     : ICommandHandler<CreateProductionOrderCommand, Result<ProductionOrderResponse>>
 {
     public async ValueTask<Result<ProductionOrderResponse>> Handle(CreateProductionOrderCommand command,
@@ -34,6 +35,9 @@ public sealed class CreateProductionOrderCommandHandler(
         var numbers = await embroidery.NumbersAsync(actor.UserId, input.Items.Select(x => x.Details), null,
             cancellationToken);
         if (!numbers.IsSuccess) return Result<ProductionOrderResponse>.Invalid(numbers.ValidationErrors.ToArray());
+        var colorErrors = await colors.CheckAsync(input.Items.SelectMany(x => x.Details.Colors()), [],
+            cancellationToken);
+        if (colorErrors.Count > 0) return Result<ProductionOrderResponse>.Invalid(colorErrors.ToArray());
 
         var tier = Enum.Parse<ReportPriceTier>(input.PriceTier, ignoreCase: true);
         var items = new List<ProductionItem>(input.Items.Count);

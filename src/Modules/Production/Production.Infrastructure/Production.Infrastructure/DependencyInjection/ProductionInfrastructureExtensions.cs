@@ -32,6 +32,7 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<StockReservations>();
         services.AddScoped<StockRows>();
         services.AddScoped<StockChanges>();
+        services.AddScoped<Production.Application.Colors.ProductionColors>();
         services.AddScoped<ItemFabricCards>();
         services.AddScoped<WorkCards>();
         services.AddScoped<ForecastQueueReader>();

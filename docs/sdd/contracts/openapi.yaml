@@ -149,6 +149,10 @@ paths:
     $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1pricing-parameters~1import
   /api/reference/pricing-parameters/{id}:
     $ref: ./reference/pricing-parameters.openapi.yaml#/paths/~1api~1reference~1pricing-parameters~1{id}
+  /api/reference/fabric-colors:
+    $ref: ./reference/fabric-colors.openapi.yaml#/paths/~1api~1reference~1fabric-colors
+  /api/reference/fabric-colors/{id}:
+    $ref: ./reference/fabric-colors.openapi.yaml#/paths/~1api~1reference~1fabric-colors~1{id}
   /api/reference/product-sections:
     $ref: ./reference/product-sections.openapi.yaml#/paths/~1api~1reference~1product-sections
   /api/reference/product-sections/import:
@@ -397,6 +401,8 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1quote-sources~1{quoteId}
   /api/production/orders/embroideries:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1embroideries
+  /api/production/orders/colors:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1colors
   /api/production/orders/import:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1import
   /api/production/orders/{id}:

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
+using Production.Application.Colors;
 using Production.Application.Contracts;
 using Production.Application.Orders.CopyOrder;
 using Production.Application.Orders.CreateOrder;
@@ -60,6 +61,11 @@ public sealed class ProductionOrdersController(ISender sender) : ControllerBase
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new GetProductionQuoteDraftQuery(actor, quoteId), cancellationToken))
             : Forbid();
+
+    /// <summary>Colours of «Кольори» for the item form: the main and additional colours are picked from it.</summary>
+    [HttpGet("colors", Name = "getProductionColors")]
+    public async Task<ActionResult<IReadOnlyList<string>>> Colors(CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(new GetProductionColorsQuery(), cancellationToken));
 
     /// <summary>«Розрахунок вишивки»: saved «Ціна вишивки» calculations to link to an embroidery.</summary>
     [HttpGet("embroideries", Name = "getProductionEmbroideries")]

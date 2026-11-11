@@ -1,0 +1,121 @@
+openapi: 3.1.0
+info:
+  title: BreviERP Fabric Colours API
+  version: 1.0.0
+  description: >-
+    «Кольори» of «Матеріали» (REF-006): the sheet «Тканини», column «Загальний перелік кольорів». The workshop picks an
+    item's main and additional colours and the colour of a new stock line from the active colours. Records keep the
+    colour as text, so a rename or delete does not change saved items or stock lines.
+servers:
+  - url: /
+paths:
+  /api/reference/fabric-colors:
+    get:
+      operationId: getFabricColors
+      summary: List colours in list order
+      description: Requires CatalogRead. Inactive colours are listed too; an empty list when there are none.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Colours.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/FabricColorRow' }
+        '401': { description: Unauthorized. }
+    post:
+      operationId: createFabricColor
+      summary: Add a colour
+      description: >-
+        Requires access:materials. The ID is assigned by Brevi; a name that differs from another colour only in case or
+        spaces is a duplicate (400).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FabricColorFields' }
+      responses:
+        '200':
+          description: The new colour ID.
+          content:
+            application/json:
+              schema: { type: integer, format: int32 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: «Матеріали» access required. }
+  /api/reference/fabric-colors/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer, format: int32, minimum: 1 }
+    put:
+      operationId: updateFabricColor
+      summary: Edit a colour
+      description: Requires access:materials. The name stays unique; saved items and stock lines keep their text.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FabricColorFields' }
+      responses:
+        '200': { description: Saved. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: «Матеріали» access required. }
+        '404': { description: Not found. }
+    delete:
+      operationId: deleteFabricColor
+      summary: Delete a colour
+      description: Requires access:materials. Saved items and stock lines keep their colour text.
+      security:
+        - bearerAuth: []
+      responses:
+        '200': { description: Deleted. }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { description: Unauthorized. }
+        '403': { description: «Матеріали» access required. }
+        '404': { description: Not found. }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    ValidationError:
+      description: Validation failures including field identifiers.
+      content:
+        application/json:
+          schema:
+            type: array
+            items: { $ref: '#/components/schemas/ValidationError' }
+  schemas:
+    ValidationError:
+      type: object
+      required: [identifier, errorMessage]
+      properties:
+        identifier: { type: string }
+        errorMessage: { type: string }
+        errorCode: { type: [string, 'null'] }
+        severity: { type: integer }
+    FabricColorRow:
+      type: object
+      required: [id, name, isActive, sortOrder]
+      properties:
+        id: { type: integer, format: int32, minimum: 1 }
+        name: { type: string, maxLength: 80 }
+        isActive: { type: boolean }
+        sortOrder: { type: integer, format: int32 }
+    FabricColorFields:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        isActive: { type: boolean, default: true }
+        sortOrder: { type: integer, format: int32, minimum: 0, maximum: 100000, default: 0 }

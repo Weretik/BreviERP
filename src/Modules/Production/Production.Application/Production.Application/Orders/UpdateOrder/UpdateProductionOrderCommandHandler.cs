@@ -1,4 +1,5 @@
 using Production.Application.Abstractions;
+using Production.Application.Colors;
 using Production.Application.Contracts;
 using Production.Application.Orders.Embroidery;
 using Production.Domain.Orders;
@@ -6,7 +7,7 @@ using Production.Domain.Orders;
 namespace Production.Application.Orders.UpdateOrder;
 
 public sealed class UpdateProductionOrderCommandHandler(IProductionDbContext db, IProductionStaffReader staff,
-    OrderCards cards, EmbroideryLinks embroidery, TimeProvider clock)
+    OrderCards cards, EmbroideryLinks embroidery, ProductionColors colors, TimeProvider clock)
     : ICommandHandler<UpdateProductionOrderCommand, Result<ProductionOrderResponse>>
 {
     public async ValueTask<Result<ProductionOrderResponse>> Handle(UpdateProductionOrderCommand command,
@@ -31,6 +32,9 @@ public sealed class UpdateProductionOrderCommandHandler(IProductionDbContext db,
         var numbers = await embroidery.NumbersAsync(actor.UserId, input.Items.Select(x => x.Details), order,
             cancellationToken);
         if (!numbers.IsSuccess) return Result<ProductionOrderResponse>.Invalid(numbers.ValidationErrors.ToArray());
+        var colorErrors = await colors.CheckAsync(input.Items.SelectMany(x => x.Details.Colors()),
+            order.Items.SelectMany(x => x.AdditionalColors.Prepend(x.MainColor)), cancellationToken);
+        if (colorErrors.Count > 0) return Result<ProductionOrderResponse>.Invalid(colorErrors.ToArray());
 
         var norms = await OrderNorms.ReadAsync(db, order.Items.Select(x => x.ModelCode), cancellationToken);
         var updates = input.Items.ToDictionary(x => x.Id, x =>

@@ -66,9 +66,11 @@ public sealed record FabricStockFabricChoice(int Id, string Code, string Name);
 public sealed record FabricStockSupplierChoice(int Id, string Name);
 
 /// <summary>What the stock forms pick from, so the workshop does not need access to «Довідники».</summary>
+/// <param name="Colors">Active colours of «Кольори» in list order; a new stock line takes one of them.</param>
 public sealed record FabricStockChoicesResponse(
     IReadOnlyList<FabricStockFabricChoice> Fabrics,
-    IReadOnlyList<FabricStockSupplierChoice> Suppliers);
+    IReadOnlyList<FabricStockSupplierChoice> Suppliers,
+    IReadOnlyList<string> Colors);
 
 /// <summary>«Початковий залишок» or «Прихід» of a fabric and colour; the stock line is created when it is new.</summary>
 /// <param name="Kind">Opening (only the first movement of a line) or Receipt.</param>

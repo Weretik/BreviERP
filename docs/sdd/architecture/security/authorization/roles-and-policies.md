@@ -56,7 +56,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `workshop-reports` | `/api/production/reports` | Admin (view only) |
 | `accounting`, `purchase-invoices` | `/api/accounting/**`, `/api/purchasing/invoices` | only the director ([PUR-001](../../../specs/purchasing/001-purchase-invoices/README.md)) |
 | `reminders` | `/api/reminders/**` except the Telegram webhook | Admin |
-| `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes; reads stay `CatalogRead` | Admin, Manager; Accountant view |
+| `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes (`materials` covers fabrics, accessories and colours «Кольори»); reads stay `CatalogRead` | Admin, Manager; Accountant view |
 | `counterparties` | suppliers, clients and their contacts | Admin, Manager |
 | `media` | `/api/media/**` | Admin, Manager |
 | `content-products` | `/api/content/products` ([CNT-002](../../../specs/content/002-product-pages/README.md)) | Admin; Manager view |
