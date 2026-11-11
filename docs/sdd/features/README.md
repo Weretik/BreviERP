@@ -73,6 +73,7 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 - [Product pages «Контент → Товари»](content/product-pages.md) — the site page of each Catalog product: «Показувати на сайті», address, name, SEO, short facts, description and characteristics in Ukrainian and Russian; Admin edits, Manager reads. Also the anonymous read-only catalog of the public site `/api/public/catalog`.
 - [Site categories «Контент → Розділи»](content/site-categories.md) — the two-level category tree of the public site: add, edit, move, reorder, hide and delete categories and subcategories; name, SEO and text in Ukrainian and Russian; Admin edits, Manager reads.
+- [Redirects «Контент → Переадресації»](content/redirects.md) — 301 redirects of the public site: list, add, change, delete, one-time transfer of the old-site addresses, automatic redirects when a page address changes; the anonymous list `/api/public/redirects`. Admin edits, Manager reads.
 - [Articles «Контент → Статті»](content/articles.md) — articles of the public site: address, date, «Показувати на сайті», cover, title, SEO and text with pictures from «Фото» in Ukrainian and Russian; Admin edits, Manager reads.
 
 ## Media

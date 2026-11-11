@@ -1,5 +1,6 @@
 using Content.Application.Abstractions;
 using Content.Application.Contracts;
+using Content.Application.Redirects.Shared;
 using Content.Application.SiteCategories.Shared;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
@@ -97,6 +98,7 @@ public sealed class SaveSiteCategoryCommandHandler(IContentDbContext db, TimePro
             return Result.Conflict(SiteCategoryMessages.SlugTaken);
 
         var now = clock.GetUtcNow();
+        var categoryOldSlug = category?.Slug;
         var sortOrder = category is not null && category.ParentId == command.ParentId
             ? category.SortOrder
             : await SiteCategoryReads.NextSortOrderAsync(db, command.ParentId, cancellationToken);
@@ -110,6 +112,11 @@ public sealed class SaveSiteCategoryCommandHandler(IContentDbContext db, TimePro
         if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
         if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
         category.Replace(command.ParentId, sortOrder, slug, command.ShowOnSite, texts, command.UpdatedBy, now);
+
+        // The old address keeps working: a 301 to the new one (CNT-005 R-05).
+        if (categoryOldSlug is not null && categoryOldSlug != slug)
+            await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Categories, categoryOldSlug, slug, command.UpdatedBy,
+                now, cancellationToken);
 
         try
         {
