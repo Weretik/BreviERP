@@ -5,6 +5,7 @@ using Content.Api.Access;
 using Content.Application.Articles.Delete;
 using Content.Application.Articles.GetList;
 using Content.Application.Articles.GetOne;
+using Content.Application.Articles.ImportOldSite;
 using Content.Application.Articles.Save;
 using Content.Application.Articles.SetVisibility;
 using Content.Application.Contracts;
@@ -47,6 +48,18 @@ public sealed class ContentArticlesController(ISender sender) : ControllerBase
         [FromBody] ContentArticleVisibilityRequest request, CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(
             new SetContentArticleVisibilityCommand(id, request.ShowOnSite, By()), cancellationToken));
+
+    /// <summary>
+    /// One-time transfer of the old-site articles with SEO, texts and pictures; needs the create right. Counts only
+    /// unless <c>dryRun</c> is false.
+    /// </summary>
+    [HttpPost("old-site-import", Name = "importOldSiteArticles")]
+    [RequestSizeLimit(20 * 1024 * 1024)]
+    public async Task<ActionResult<OldSiteArticleImportResponse>> ImportOldSite(
+        [FromBody] ImportOldSiteArticlesRequest request, CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(
+            new ImportOldSiteArticlesCommand(request.DryRun, request.ShowOnSite, request.Overwrite, request.Items, By()),
+            cancellationToken));
 
     /// <summary>Removes the article; its photos stay in the library.</summary>
     [HttpDelete("{id:int}", Name = "deleteContentArticle")]
