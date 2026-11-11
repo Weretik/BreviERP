@@ -61,6 +61,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `media` | `/api/media/**` | Admin, Manager |
 | `content-products` | `/api/content/products` ([CNT-002](../../../specs/content/002-product-pages/README.md)) | Admin; Manager view |
 | `content-categories` | `/api/content/categories` ([CNT-003](../../../specs/content/003-site-categories/README.md)) | Admin; Manager view |
+| `content-articles` | `/api/content/articles` ([CNT-004](../../../specs/content/004-articles/README.md)) | Admin; Manager view |
 
 Do not use `RequireTenantAccess` on an endpoint until it is registered in Host and its policy semantics are agreed.
 

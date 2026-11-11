@@ -7,4 +7,7 @@ internal static class ContentAccess
 
     /// <summary>«Контент → Розділи» on «Права доступу» (CNT-003 R-05): Admin all, Manager view by default.</summary>
     public const string CategoriesPolicy = "access:content-categories";
+
+    /// <summary>«Контент → Статті» on «Права доступу» (CNT-004 R-04): Admin all, Manager view by default.</summary>
+    public const string ArticlesPolicy = "access:content-articles";
 }

@@ -1,6 +1,6 @@
 # CNT-003 — «Контент → Розділи»: categories of the public site (Content module)
 
-**Status:** accepted by the owner 2026-11-11 («Свої категорії сайту», with full add, edit, move, delete and hide); stages 1 (module code, admin API), 3 (categories of a product, old-site transfer) and 4 (public API by category) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md).
+**Status:** accepted by the owner 2026-11-11 («Свої категорії сайту», with full add, edit, move, delete and hide); stages 1 (module code, admin API), 3 (categories of a product, old-site transfer) and 4 (public API by category) implemented 2026-11-11; stages 2 and 5 are in brevi-web. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md).
 
 ## Why
 

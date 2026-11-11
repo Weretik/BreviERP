@@ -1,3 +1,4 @@
+using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
 
@@ -9,6 +10,7 @@ public interface IContentDbContext
     DbSet<ProductPage> ProductPages { get; }
     DbSet<SiteCategory> SiteCategories { get; }
     DbSet<SiteCategoryProduct> SiteCategoryProducts { get; }
+    DbSet<Article> Articles { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

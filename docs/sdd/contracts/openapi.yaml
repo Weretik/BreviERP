@@ -587,6 +587,12 @@ paths:
     $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories~1{id}
   /api/content/categories/{id}/visibility:
     $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories~1{id}~1visibility
+  /api/content/articles:
+    $ref: ./content/content-articles.openapi.yaml#/paths/~1api~1content~1articles
+  /api/content/articles/{id}:
+    $ref: ./content/content-articles.openapi.yaml#/paths/~1api~1content~1articles~1{id}
+  /api/content/articles/{id}/visibility:
+    $ref: ./content/content-articles.openapi.yaml#/paths/~1api~1content~1articles~1{id}~1visibility
   /api/public/catalog/tree:
     $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1tree
   /api/public/catalog/products:

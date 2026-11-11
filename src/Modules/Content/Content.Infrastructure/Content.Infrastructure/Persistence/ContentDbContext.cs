@@ -1,4 +1,5 @@
 using Content.Application.Abstractions;
+using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ public sealed class ContentDbContext(DbContextOptions<ContentDbContext> options)
     public DbSet<ProductPage> ProductPages => Set<ProductPage>();
     public DbSet<SiteCategory> SiteCategories => Set<SiteCategory>();
     public DbSet<SiteCategoryProduct> SiteCategoryProducts => Set<SiteCategoryProduct>();
+    public DbSet<Article> Articles => Set<Article>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

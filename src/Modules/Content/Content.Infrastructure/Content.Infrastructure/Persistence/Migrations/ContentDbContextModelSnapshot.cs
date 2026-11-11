@@ -23,6 +23,84 @@ namespace Content.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Content.Domain.Articles.Article", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CoverPhotoId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("PublishedOn")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("ShowOnSite")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PublishedOn");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Articles", "content");
+                });
+
+            modelBuilder.Entity("Content.Domain.Articles.ArticleText", b =>
+                {
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("Excerpt")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("SeoDescription")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("SeoTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("ArticleId", "Language");
+
+                    b.ToTable("ArticleTexts", "content");
+                });
+
             modelBuilder.Entity("Content.Domain.ProductPages.ProductPage", b =>
                 {
                     b.Property<int>("ProductId")
@@ -188,6 +266,15 @@ namespace Content.Infrastructure.Persistence.Migrations
                     b.ToTable("SiteCategoryTexts", "content");
                 });
 
+            modelBuilder.Entity("Content.Domain.Articles.ArticleText", b =>
+                {
+                    b.HasOne("Content.Domain.Articles.Article", null)
+                        .WithMany("Texts")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Content.Domain.ProductPages.ProductPageText", b =>
                 {
                     b.HasOne("Content.Domain.ProductPages.ProductPage", null)
@@ -221,6 +308,11 @@ namespace Content.Infrastructure.Persistence.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Content.Domain.Articles.Article", b =>
+                {
+                    b.Navigation("Texts");
                 });
 
             modelBuilder.Entity("Content.Domain.ProductPages.ProductPage", b =>
