@@ -1,0 +1,172 @@
+openapi: 3.1.0
+info:
+  title: 'Content: «Контент → Налаштування SEO сайту»'
+  version: 1.0.0
+  description: 'Site-wide SEO settings of the public site (CNT-006): Google Analytics 4 and Google Tag Manager ids, the
+    verification codes of Google Search Console and Bing Webmaster Tools, and the default sharing picture (a photo of
+    the «Фото» library). Staff connect the services themselves; the site only places the codes. Policy
+    access:content-seo-settings («Права доступу»): the Director and Admin view and edit, Manager only reads; other roles
+    get 403.'
+security:
+- Bearer: []
+paths:
+  /api/content/seo-settings:
+    get:
+      tags:
+      - Content
+      operationId: getSiteSeoSettings
+      description: The settings; every field empty and revision 0 before the first save.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSeoSettingsResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Налаштування SEO сайту»
+    put:
+      tags:
+      - Content
+      operationId: saveSiteSeoSettings
+      description: Replaces the settings as a whole; an empty field removes that code. Ids are kept in upper case.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSiteSeoSettingsRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSeoSettingsResponse'
+        '400':
+          description: An id or a code of the wrong shape
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Налаштування SEO сайту»
+        '409':
+          description: The revision is stale or the picture is not in the library
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Messages:
+      type: array
+      description: Ukrainian texts for staff that say why the action was refused.
+      items:
+        type: string
+    SitePicture:
+      type: object
+      required:
+      - photoId
+      - url
+      properties:
+        photoId:
+          type: integer
+          format: int32
+        url:
+          type: string
+        width:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        height:
+          type:
+          - integer
+          - 'null'
+          format: int32
+    SiteSeoSettingsResponse:
+      type: object
+      required:
+      - revision
+      properties:
+        googleAnalyticsId:
+          type:
+          - string
+          - 'null'
+          description: G-XXXXXXXXXX
+        googleTagManagerId:
+          type:
+          - string
+          - 'null'
+          description: GTM-XXXXXXX
+        googleSiteVerification:
+          type:
+          - string
+          - 'null'
+        bingSiteVerification:
+          type:
+          - string
+          - 'null'
+        defaultOgImage:
+          oneOf:
+          - $ref: '#/components/schemas/SitePicture'
+          - type: 'null'
+          description: Null without a picture or when it was deleted from the library.
+        revision:
+          type: integer
+          format: int32
+        updatedAtUtc:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        updatedBy:
+          type:
+          - string
+          - 'null'
+    SaveSiteSeoSettingsRequest:
+      type: object
+      required:
+      - revision
+      properties:
+        revision:
+          type: integer
+          format: int32
+          description: The revision the editor read; 0 for the first save.
+        googleAnalyticsId:
+          type:
+          - string
+          - 'null'
+          pattern: ^[Gg]-[A-Za-z0-9]{4,15}$
+        googleTagManagerId:
+          type:
+          - string
+          - 'null'
+          pattern: ^[Gg][Tt][Mm]-[A-Za-z0-9]{4,12}$
+        googleSiteVerification:
+          type:
+          - string
+          - 'null'
+          description: Only the content value of the meta tag google-site-verification.
+          pattern: ^[A-Za-z0-9_-]{8,100}$
+        bingSiteVerification:
+          type:
+          - string
+          - 'null'
+          description: Only the content value of the meta tag msvalidate.01.
+          pattern: ^[A-Za-z0-9_-]{8,100}$
+        defaultOgPhotoId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          minimum: 1

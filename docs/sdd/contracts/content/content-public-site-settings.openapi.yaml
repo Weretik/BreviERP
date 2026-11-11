@@ -1,0 +1,64 @@
+openapi: 3.1.0
+info:
+  title: 'Content: public site settings'
+  version: 1.0.0
+  description: 'Read-only site-wide settings for the public site (CNT-006). No sign-in. Only what every visitor sees in
+    the page source anyway: analytics ids, verification codes and the default sharing picture. Every answer has
+    Cache-Control: public, max-age=300. The server reads the settings at most once a minute.'
+security: []
+paths:
+  /api/public/site-settings:
+    get:
+      tags:
+      - PublicSiteSettings
+      operationId: getPublicSiteSettings
+      description: The settings; empty fields are null.
+      responses:
+        '200':
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicSiteSettingsResponse'
+components:
+  schemas:
+    PublicSitePicture:
+      type: object
+      required:
+      - url
+      properties:
+        url:
+          type: string
+        width:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        height:
+          type:
+          - integer
+          - 'null'
+          format: int32
+    PublicSiteSettingsResponse:
+      type: object
+      properties:
+        googleAnalyticsId:
+          type:
+          - string
+          - 'null'
+        googleTagManagerId:
+          type:
+          - string
+          - 'null'
+        googleSiteVerification:
+          type:
+          - string
+          - 'null'
+        bingSiteVerification:
+          type:
+          - string
+          - 'null'
+        defaultOgImage:
+          oneOf:
+          - $ref: '#/components/schemas/PublicSitePicture'
+          - type: 'null'

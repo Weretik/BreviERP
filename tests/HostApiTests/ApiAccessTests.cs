@@ -37,7 +37,8 @@ public sealed class ApiAccessTests
         "GET api/public/catalog/category-slugs",
         "GET api/public/articles",
         "GET api/public/articles/{slug}",
-        "GET api/public/redirects"
+        "GET api/public/redirects",
+        "GET api/public/site-settings"
     ];
 
     [Test]
