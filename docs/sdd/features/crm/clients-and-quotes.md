@@ -65,6 +65,7 @@ The transaction coordinator retains commit/rollback ownership; the journal uses 
 
 [QTE-001](../../specs/crm/003-quotes/README.md), [API contract](../../contracts/crm/quotes.openapi.yaml), tables `Quotes`, `QuoteItems`, `QuoteItemOptions`, `QuoteItemOptionFabrics`, `QuoteSettings`, `StaffMailboxes`, `QuoteSendings`, `QuoteIntroTemplates`, `QuoteEvents` in [schema crm](../../architecture/data-model/crm.md).
 
+- «КП за місяць» of «Робочий стіл» ([DESK-001](../../specs/identity/003-role-desks/README.md)): `GET /api/crm/quotes/period` counts КП created and sent in a Kyiv period, in total and per responsible person (code `Quotes/Period/`, test `QuotePeriodTests`).
 - Any Manager creates a КП and becomes responsible; a Manager sees and changes only own КП. Admin (the Director also holds Admin) sees all and gives a КП to any active manager (`PUT /api/crm/quotes/{id}/responsible`).
 - Number «n-month-year» (`37-9-2026`), counted per Kyiv month; a parallel create retries with the next number.
 - Items: sewing model with fabric variants, catalog PPE, one-off PPE. Each row has three prices (до 9 / 10–40 / від 41 шт.) with a «show» flag; at least one shown price must be above zero.
