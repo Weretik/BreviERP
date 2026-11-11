@@ -1,6 +1,7 @@
 using Content.Application.Abstractions;
 using Content.Application.Contracts;
 using Content.Application.ProductPages.Shared;
+using Content.Application.Redirects.Shared;
 using Content.Domain.ProductPages;
 
 namespace Content.Application.ProductPages.Save;
@@ -105,6 +106,7 @@ public sealed class SaveContentProductCommandHandler(IContentDbContext db, ICont
             return Result.Conflict(ContentProductMessages.CategoryNotFound);
 
         var now = clock.GetUtcNow();
+        var pageOldSlug = page?.Slug;
         if (page is null)
         {
             page = new ProductPage(product.Id, slug, command.UpdatedBy, now);
@@ -115,6 +117,11 @@ public sealed class SaveContentProductCommandHandler(IContentDbContext db, ICont
         if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
         if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
         page.Replace(slug, command.ShowOnSite, texts, command.UpdatedBy, now);
+
+        // The old address keeps working: a 301 to the new one (CNT-005 R-05).
+        if (pageOldSlug is not null && pageOldSlug != slug)
+            await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Products, pageOldSlug, slug, command.UpdatedBy,
+                now, cancellationToken);
 
         try
         {

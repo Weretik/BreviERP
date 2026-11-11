@@ -13,6 +13,11 @@ using Content.Application.ProductPages.Save;
 using Content.Application.ProductPages.SetVisibility;
 using Content.Application.PublicArticles;
 using Content.Application.PublicCatalog;
+using Content.Application.PublicRedirects;
+using Content.Application.Redirects.Delete;
+using Content.Application.Redirects.GetList;
+using Content.Application.Redirects.ImportOldSite;
+using Content.Application.Redirects.Save;
 using Content.Application.SiteCategories.Delete;
 using Content.Application.SiteCategories.GetList;
 using Content.Application.SiteCategories.GetOne;
@@ -22,6 +27,7 @@ using Content.Application.SiteCategories.Save;
 using Content.Application.SiteCategories.SetVisibility;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
+using Content.Domain.Redirects;
 using Content.Domain.SiteCategories;
 using Content.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
@@ -93,6 +99,7 @@ internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
     public DbSet<SiteCategory> SiteCategories => db.SiteCategories;
     public DbSet<SiteCategoryProduct> SiteCategoryProducts => db.SiteCategoryProducts;
     public DbSet<Article> Articles => db.Articles;
+    public DbSet<SiteRedirect> SiteRedirects => db.SiteRedirects;
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 }
 
@@ -170,6 +177,15 @@ internal sealed class ContentTestHarness : IDisposable
     public GetContentArticleQueryHandler Article() => new(new SqliteContentDb(Open()), Media);
     public ImportOldSiteArticlesCommandHandler ImportArticles() => new(new SqliteContentDb(Open()), OldSitePhotos, Time);
     public GetContentArticlesQueryHandler Articles() => new(new SqliteContentDb(Open()), Media);
+
+    public SaveSiteRedirectCommandHandler SaveRedirect() => new(new SqliteContentDb(Open()), Time);
+    public DeleteSiteRedirectCommandHandler DeleteRedirect() => new(new SqliteContentDb(Open()));
+    public GetSiteRedirectsQueryHandler Redirects() => new(new SqliteContentDb(Open()));
+    public ImportOldSiteRedirectsCommandHandler ImportRedirects() => new(new SqliteContentDb(Open()), Catalog, Time);
+
+    /// <summary>The public redirects as one request sees them; <paramref name="cache"/> is shared to test its lifetime.</summary>
+    public PublicRedirectsSource PublicRedirects(IMemoryCache? cache = null) =>
+        new(new SqliteContentDb(Open()), cache ?? new MemoryCache(new MemoryCacheOptions()));
 
     /// <summary>The public catalog as one request sees it; <paramref name="cache"/> is shared to test its lifetime.</summary>
     public PublicCatalogSource Site(IMemoryCache? cache = null) =>

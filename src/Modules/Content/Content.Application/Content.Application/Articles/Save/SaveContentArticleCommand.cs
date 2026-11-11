@@ -1,6 +1,7 @@
 using Content.Application.Abstractions;
 using Content.Application.Articles.Shared;
 using Content.Application.Contracts;
+using Content.Application.Redirects.Shared;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 
@@ -96,6 +97,7 @@ public sealed class SaveContentArticleCommandHandler(IContentDbContext db, ICont
             return Result.Conflict(ArticleMessages.SlugTaken);
 
         var now = clock.GetUtcNow();
+        var articleOldSlug = article?.Slug;
         if (article is null)
         {
             article = new Article(slug, command.PublishedOn, command.UpdatedBy, now);
@@ -106,6 +108,11 @@ public sealed class SaveContentArticleCommandHandler(IContentDbContext db, ICont
         if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
         if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
         article.Replace(slug, command.PublishedOn, command.ShowOnSite, command.CoverPhotoId, texts, command.UpdatedBy, now);
+
+        // The old address keeps working: a 301 to the new one (CNT-005 R-05).
+        if (articleOldSlug is not null && articleOldSlug != slug)
+            await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Articles, articleOldSlug, slug, command.UpdatedBy,
+                now, cancellationToken);
 
         // Every photo must be in the library: a mistyped id would leave a hole on the site.
         var photos = await ArticleReads.PhotosAsync(media, article.PhotoIds(), cancellationToken);

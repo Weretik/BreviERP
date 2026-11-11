@@ -1,0 +1,45 @@
+openapi: 3.1.0
+info:
+  title: 'Content: public redirects of the site'
+  version: 1.0.0
+  description: 'Read-only redirects for the public site (CNT-005). No sign-in. Each old address comes with the final page
+    of its chain, so the site answers one 301; a loop or a chain of more than five steps is left out. Every answer has
+    Cache-Control: public, max-age=300. The server reads the redirects at most once a minute.'
+security: []
+paths:
+  /api/public/redirects:
+    get:
+      tags:
+      - PublicRedirects
+      operationId: getPublicRedirects
+      description: Every redirect of the site, by the old address.
+      responses:
+        '200':
+          description: Redirects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicRedirectList'
+components:
+  schemas:
+    PublicRedirect:
+      type: object
+      required:
+      - from
+      - to
+      properties:
+        from:
+          type: string
+          description: The old address as a normalized path (lower case, no closing slash, no query).
+        to:
+          type: string
+          description: The page of the new site, starting with /uk or /ru.
+    PublicRedirectList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicRedirect'
