@@ -57,6 +57,40 @@ public sealed class SiteCategoryProductsTests
     }
 
     [Test]
+    public async Task List_keeps_products_of_a_category_with_its_subcategories_or_without_any()
+    {
+        using var h = new ContentTestHarness();
+        h.AddSewing();
+        h.AddPpe();
+        var clothes = await Add(h, "Одяг");
+        var summer = await Add(h, "Літній одяг", clothes);
+        var gloves = await Add(h, "Рукавиці");
+        await h.Save().Handle(Save(0, [summer]), None);
+
+        async Task<int[]> Ids(int? categoryId) =>
+            (await h.List().Handle(new GetContentProductsQuery(1, 50, CategoryId: categoryId), None)).Value.Items
+            .Select(x => x.ProductId).ToArray();
+
+        var all = (await h.List().Handle(new GetContentProductsQuery(1, 50), None)).Value.Items;
+        var invalid = new GetContentProductsQueryValidator().TestValidate(new GetContentProductsQuery(1, 50, CategoryId: -1));
+        var inClothes = await Ids(clothes);
+        var inSummer = await Ids(summer);
+        var inGloves = await Ids(gloves);
+        var without = await Ids(GetContentProductsQuery.WithoutCategory);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(inClothes, Is.EqualTo(new[] { 1 }));
+            Assert.That(inSummer, Is.EqualTo(new[] { 1 }));
+            Assert.That(inGloves, Is.Empty);
+            Assert.That(without, Is.EqualTo(new[] { 50 }));
+            Assert.That(all.Single(x => x.ProductId == 1).CategoryIds, Is.EqualTo(new[] { summer }));
+            Assert.That(all.Single(x => x.ProductId == 50).CategoryIds, Is.Empty);
+            Assert.That(invalid.IsValid, Is.False);
+        });
+    }
+
+    [Test]
     public async Task Unknown_category_is_refused_and_nothing_is_saved()
     {
         using var h = new ContentTestHarness();

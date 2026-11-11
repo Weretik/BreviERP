@@ -32,9 +32,10 @@ public sealed class ContentProductsController(ISender sender) : ControllerBase
         [FromQuery] string? type = null,
         [FromQuery] int? sectionId = null,
         [FromQuery] bool? onSite = null,
+        [FromQuery] int? categoryId = null,
         CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(
-            new GetContentProductsQuery(page, pageSize, search, type, sectionId, onSite), cancellationToken));
+            new GetContentProductsQuery(page, pageSize, search, type, sectionId, onSite, categoryId), cancellationToken));
 
     [HttpGet("{productId:int}", Name = "getContentProduct")]
     public async Task<ActionResult<ContentProductResponse>> Get(int productId, CancellationToken cancellationToken) =>

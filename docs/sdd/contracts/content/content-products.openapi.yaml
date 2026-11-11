@@ -57,6 +57,14 @@ paths:
         description: true keeps products the site shows (mark set and product active); false keeps the rest.
         schema:
           type: boolean
+      - name: categoryId
+        in: query
+        description: A site category («Контент → Розділи сайту»); keeps products of it or of its subcategories. 0 keeps
+          products in no site category.
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
       responses:
         '200':
           description: OK
@@ -65,7 +73,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ContentProductPage'
         '400':
-          description: Invalid page, page size, search, type or section
+          description: Invalid page, page size, search, type, section or site category
         '401':
           description: Not signed in
         '403':
@@ -493,6 +501,7 @@ components:
       - hasRussianText
       - hasSeo
       - categoryCount
+      - categoryIds
       properties:
         productId:
           type: integer
@@ -551,6 +560,12 @@ components:
           type: integer
           format: int32
           description: Number of site categories («Контент → Розділи») the product is in.
+        categoryIds:
+          type: array
+          items:
+            type: integer
+            format: int32
+          description: The site categories the product is in, by id.
     ContentProductPage:
       type: object
       required:
