@@ -1,7 +1,10 @@
+using System.Text.Json.Serialization;
 using Content.Domain.ProductPages;
 
 namespace Content.Domain.Articles;
 
+/// <summary>Written by name in JSON, both in the API and in the stored texts; stored numbers still read.</summary>
+[JsonConverter(typeof(JsonStringEnumConverter<ArticleBlockKind>))]
 public enum ArticleBlockKind
 {
     Paragraph = 1,
