@@ -403,6 +403,10 @@ paths:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1embroideries
   /api/production/orders/colors:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1colors
+  /api/production/orders/model-summary:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1model-summary
+  /api/production/orders/filter-options:
+    $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1filter-options
   /api/production/orders/import:
     $ref: ./production/production-orders.openapi.yaml#/paths/~1api~1production~1orders~1import
   /api/production/orders/{id}:

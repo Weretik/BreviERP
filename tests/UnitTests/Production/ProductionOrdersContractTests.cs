@@ -23,6 +23,10 @@ public sealed class ProductionOrdersContractTests
     [TestCase(typeof(ProductionOrderSummaryResponse))]
     [TestCase(typeof(ProductionOrderCounts))]
     [TestCase(typeof(ProductionOrderPageResponse))]
+    [TestCase(typeof(ProductionModelSummaryRow))]
+    [TestCase(typeof(ProductionModelSummaryResponse))]
+    [TestCase(typeof(ProductionFilterOption))]
+    [TestCase(typeof(ProductionOrderFilterOptionsResponse))]
     [TestCase(typeof(ProductionOrderPermissions))]
     [TestCase(typeof(ItemApplicationResponse))]
     [TestCase(typeof(ProductionItemResponse))]
@@ -77,7 +81,7 @@ public sealed class ProductionOrdersContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policies, Is.EqualTo(new[] { "access:production-orders", "access:workshop-settings" }));
-            Assert.That(operations, Has.Length.EqualTo(26));
+            Assert.That(operations, Has.Length.EqualTo(28));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

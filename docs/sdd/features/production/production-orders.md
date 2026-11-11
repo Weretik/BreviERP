@@ -1,6 +1,6 @@
 # Production orders («Виробничі завдання», stages 2–3)
 
-Managers pass their КП «під запит» to the workshop (saved or sent, since the PDF is often sent by hand; «Передати в цех» in the КП editor opens «Нове завдання» with it, and the editor lists the КП's orders through `quoteId`); the head of the workshop sees every order with the sewing rate and planned fabric; Admin and Director also see the КП price kept for reports. Changes are written to «Історія змін». Old orders of the «Цех» move in through an import; their КП prices, which the old app did not keep, come in through «Ціни КП» (only an item without a price takes one). After «Передати в цех» the head of the workshop ticks stages and records shipments; the order closes when everything is shipped or is cancelled with a reason; files live on the CDN; one Telegram message goes to the workshop group chosen in «Налаштування цеху». The client card tab «Завдання в цех» lists orders by `customerId` (taken from the КП; old imported orders have none). SDD: [stage 2](../../specs/production/002-production-orders/README.md), [stage 3](../../specs/production/003-order-tracking/README.md); [contract](../../contracts/production/production-orders.openapi.yaml), [tables](../../architecture/data-model/production.md). The main and additional colours of an item are picked only from «Кольори» (`GET /api/production/orders/colors`; a colour the item already has stays valid on edit, [REF-006](../../specs/reference/006-fabric-colors/README.md)).
+Managers pass their КП «під запит» to the workshop (saved or sent, since the PDF is often sent by hand; «Передати в цех» in the КП editor opens «Нове завдання» with it, and the editor lists the КП's orders through `quoteId`); the head of the workshop sees every order with the sewing rate and planned fabric; Admin and Director also see the КП price kept for reports. Changes are written to «Історія змін». Old orders of the «Цех» move in through an import; their КП prices, which the old app did not keep, come in through «Ціни КП» (only an item without a price takes one). After «Передати в цех» the head of the workshop ticks stages and records shipments; the order closes when everything is shipped or is cancelled with a reason; files live on the CDN; one Telegram message goes to the workshop group chosen in «Налаштування цеху». The client card tab «Завдання в цех» lists orders by `customerId` (taken from the КП; old imported orders have none). SDD: [stage 2](../../specs/production/002-production-orders/README.md), [stage 3](../../specs/production/003-order-tracking/README.md); [contract](../../contracts/production/production-orders.openapi.yaml), [tables](../../architecture/data-model/production.md). The main and additional colours of an item are picked only from «Кольори» (`GET /api/production/orders/colors`; a colour the item already has stays valid on edit, [REF-006](../../specs/reference/006-fabric-colors/README.md)). The list filters by client, order period, model, fabric, colour and season, and «Зведення за моделями» (`model-summary`) groups the pieces of every filtered order by model with season and category ([PRD-010](../../specs/production/010-order-filters-model-summary/README.md)).
 
 ## Code structure
 
@@ -12,6 +12,7 @@ src/Modules/Production/
     ProductionOrderChange.cs     # a line of «Історія змін»
     ItemApplication.cs, FabricPlan.cs, OrderText.cs, ProductionOrderEnums.cs
     ProductionStages.cs          # stage labels and order
+    ModelCategory.cs             # «Категорія» of «Зведення за моделями», read from the model name
     ProductionShipment.cs, ProductionOrderFile.cs, ProductionTelegramDelivery.cs
   Production.Domain/Production.Domain/Settings/WorkshopSettings.cs   # «Налаштування цеху»: group, topic, on/off
   Production.Application/Production.Application/
@@ -20,7 +21,8 @@ src/Modules/Production/
     Contracts/ProductionOrderInputs.cs, ProductionTrackingInputs.cs, ProductionOrderResponses.cs
     Orders/
       Access/ProductionActor.cs  # who may create, edit, delete; which prices they see
-      GetOrders, GetOrder, GetHistory, QuoteSources, CreateOrder, UpdateOrder, CopyOrder, DeleteOrder, ImportOrders
+      GetOrders/                 # list, filters (ProductionOrderFiltering), filter options, «Зведення за моделями»
+      GetOrder, GetHistory, QuoteSources, CreateOrder, UpdateOrder, CopyOrder, DeleteOrder, ImportOrders
       Tracking/                  # OrderTracking + stages, shipments, close/cancel/reopen
       Files/                     # upload and delete order files
       Telegram/                  # the message text and «Надіслати в цех»
@@ -64,6 +66,7 @@ flowchart LR
 ## Tests
 
 - `tests/UnitTests/Production/ProductionOrderHandlerTests.cs` — create, idempotency, access, hidden prices, history, copy, delete, list filters, import (SQLite in memory, fake ports).
+- `tests/UnitTests/Production/ProductionOrderFilterTests.cs` — filters, model summary, filter options, category from the name.
 - `tests/UnitTests/Production/ProductionTrackingHandlerTests.cs` — stages, shipments, close/cancel/reopen, files, Telegram once, settings, progress import, КП prices of old orders.
 - `tests/UnitTests/Production/ProductionOrdersContractTests.cs` — DTOs and operations against the contract.
 

@@ -23,6 +23,26 @@ public sealed record ProductionOrderPageResponse(
     IReadOnlyList<ProductionOrderSummaryResponse> Items, int Page, int PageSize, int Total,
     ProductionOrderCounts Counts, IReadOnlyList<string> Managers);
 
+/// <summary>A model of «Зведення за моделями»: ordered pieces over the filtered orders.</summary>
+/// <param name="ModelCode">Null for an item without a Catalog model (old orders); then the name groups it.</param>
+/// <param name="Season">Catalog season of the model; null when unknown.</param>
+/// <param name="Category">Read from the model name: «Куртка», «Костюм куртка + брюки»…, else «Інше».</param>
+public sealed record ProductionModelSummaryRow(
+    string? ModelCode, string ModelName, string? Season, string Category, int Quantity, int OrdersCount);
+
+public sealed record ProductionModelSummaryResponse(IReadOnlyList<ProductionModelSummaryRow> Rows, int TotalQuantity);
+
+/// <summary>A model or fabric of an order item: its code and name.</summary>
+public sealed record ProductionFilterOption(string Code, string Name);
+
+/// <summary>Values «Фільтри» of «Виробничі завдання» offer, taken from the orders that are not deleted.</summary>
+public sealed record ProductionOrderFilterOptionsResponse(
+    IReadOnlyList<string> Clients,
+    IReadOnlyList<ProductionFilterOption> Models,
+    IReadOnlyList<ProductionFilterOption> Fabrics,
+    IReadOnlyList<string> Colors,
+    IReadOnlyList<string> Seasons);
+
 /// <summary>What the signed-in person may do with the order and which prices they see.</summary>
 /// <param name="CanTrack">Tick етапи and record shipments: Admin and the head of the workshop on a «Нове» order.</param>
 /// <param name="CanClose">«Закрити»: may track and everything is shipped.</param>

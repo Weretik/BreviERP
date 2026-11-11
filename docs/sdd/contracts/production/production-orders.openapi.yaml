@@ -78,6 +78,55 @@ paths:
           minimum: 1
         description: The КП editor; only orders made from this КП.
       - in: query
+        name: client
+        required: false
+        schema:
+          type: string
+          maxLength: 300
+        description: «Замовник»; the exact client name.
+      - in: query
+        name: from
+        required: false
+        schema:
+          type: string
+          format: date
+        description: «Період від»; order date on or after this day.
+      - in: query
+        name: to
+        required: false
+        schema:
+          type: string
+          format: date
+        description: «Період до»; order date on or before this day; not before «from».
+      - in: query
+        name: model
+        required: false
+        schema:
+          type: string
+          maxLength: 32
+        description: «Модель»; orders with an item of this model code (case ignored).
+      - in: query
+        name: fabric
+        required: false
+        schema:
+          type: string
+          maxLength: 32
+        description: «Тканина»; orders with an item of this fabric code (case ignored).
+      - in: query
+        name: color
+        required: false
+        schema:
+          type: string
+          maxLength: 80
+        description: «Колір»; orders with an item whose main or additional colour matches (case and outer spaces ignored).
+      - in: query
+        name: season
+        required: false
+        schema:
+          type: string
+          maxLength: 50
+        description: «Сезон»; orders with an item whose Catalog model has this season.
+      - in: query
         name: page
         required: false
         schema:
@@ -225,6 +274,132 @@ paths:
                 items:
                   type: string
                   maxLength: 80
+        '401': *id001
+        '403': *id002
+  /api/production/orders/model-summary:
+    get:
+      tags:
+      - Production
+      operationId: getProductionModelSummary
+      summary: '«Зведення за моделями»: items of every order matching the list filters (all pages), grouped by model'
+      description: >-
+        Takes the same filters as getProductionOrders without paging. Quantity is the ordered pieces. Season comes from
+        the Catalog model; category is read from the model name.
+      parameters:
+      - in: query
+        name: search
+        required: false
+        schema:
+          type: string
+          maxLength: 200
+      - in: query
+        name: status
+        required: false
+        schema:
+          type: string
+          enum:
+          - New
+          - Closed
+          - Cancelled
+      - in: query
+        name: manager
+        required: false
+        schema:
+          type: string
+      - in: query
+        name: dueTo
+        required: false
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: stage
+        required: false
+        schema:
+          type: string
+          enum:
+          - New
+          - FabricOrdered
+          - FabricAvailable
+          - Cutting
+          - Application
+          - Sewing
+          - Ready
+          - Shipped
+          - Complete
+      - in: query
+        name: client
+        required: false
+        schema:
+          type: string
+          maxLength: 300
+        description: «Замовник»; the exact client name.
+      - in: query
+        name: from
+        required: false
+        schema:
+          type: string
+          format: date
+        description: «Період від»; order date on or after this day.
+      - in: query
+        name: to
+        required: false
+        schema:
+          type: string
+          format: date
+        description: «Період до»; order date on or before this day; not before «from».
+      - in: query
+        name: model
+        required: false
+        schema:
+          type: string
+          maxLength: 32
+        description: «Модель»; orders with an item of this model code (case ignored).
+      - in: query
+        name: fabric
+        required: false
+        schema:
+          type: string
+          maxLength: 32
+        description: «Тканина»; orders with an item of this fabric code (case ignored).
+      - in: query
+        name: color
+        required: false
+        schema:
+          type: string
+          maxLength: 80
+        description: «Колір»; orders with an item whose main or additional colour matches (case and outer spaces ignored).
+      - in: query
+        name: season
+        required: false
+        schema:
+          type: string
+          maxLength: 50
+        description: «Сезон»; orders with an item whose Catalog model has this season.
+      responses:
+        '200':
+          description: Rows by model and the total pieces.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionModelSummaryResponse'
+        '400':
+          description: Unknown status or wrong period.
+        '401': *id001
+        '403': *id002
+  /api/production/orders/filter-options:
+    get:
+      tags:
+      - Production
+      operationId: getProductionOrderFilterOptions
+      summary: 'Values «Фільтри» offer: clients, models, fabrics, colours and seasons used by not deleted orders'
+      responses:
+        '200':
+          description: Filter values.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionOrderFilterOptionsResponse'
         '401': *id001
         '403': *id002
   /api/production/orders/import:
@@ -1080,6 +1255,85 @@ components:
         new: *id013
         closed: *id013
         cancelled: *id013
+    ProductionModelSummaryRow:
+      type: object
+      required:
+      - modelCode
+      - modelName
+      - season
+      - category
+      - quantity
+      - ordersCount
+      properties:
+        modelCode:
+          type: string
+          nullable: true
+        modelName:
+          type: string
+        season:
+          type: string
+          nullable: true
+        category:
+          type: string
+          description: Read from the model name like the old «Цех»; «Інше» when unknown.
+        quantity:
+          type: integer
+          format: int32
+        ordersCount:
+          type: integer
+          format: int32
+    ProductionModelSummaryResponse:
+      type: object
+      required:
+      - rows
+      - totalQuantity
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionModelSummaryRow'
+        totalQuantity:
+          type: integer
+          format: int32
+    ProductionFilterOption:
+      type: object
+      required:
+      - code
+      - name
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+    ProductionOrderFilterOptionsResponse:
+      type: object
+      required:
+      - clients
+      - models
+      - fabrics
+      - colors
+      - seasons
+      properties:
+        clients:
+          type: array
+          items:
+            type: string
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionFilterOption'
+        fabrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductionFilterOption'
+        colors:
+          type: array
+          items:
+            type: string
+        seasons:
+          type: array
+          items:
+            type: string
     ProductionOrderPageResponse:
       type: object
       required:
