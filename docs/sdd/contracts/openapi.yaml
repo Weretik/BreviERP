@@ -267,6 +267,8 @@ paths:
     $ref: ./crm/clients-quotes.openapi.yaml#/paths/~1api~1crm~1customers~1{customerId}~1merge
   /api/crm/quotes:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes
+  /api/crm/quotes/period:
+    $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1period
   /api/crm/quotes/{id}:
     $ref: ./crm/quotes.openapi.yaml#/paths/~1api~1crm~1quotes~1{id}
   /api/crm/quotes/{id}/pdf:
