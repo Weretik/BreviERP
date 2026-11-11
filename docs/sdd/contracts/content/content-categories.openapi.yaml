@@ -1,0 +1,416 @@
+openapi: 3.1.0
+info:
+  title: 'Content: «Контент → Розділи» categories of the site catalog'
+  version: 1.0.0
+  description: 'Categories and subcategories of the public site catalog (CNT-003): a two-level tree owned by the site,
+    with the «Показувати на сайті» mark, the address, the order and texts in Ukrainian and Russian. Policy
+    access:content-categories («Права доступу»): the Director and Admin may do everything, Manager only reads; other
+    roles get 403.'
+security:
+- Bearer: []
+paths:
+  /api/content/categories:
+    get:
+      tags:
+      - Content
+      operationId: getSiteCategories
+      description: The whole tree in site order, every category followed by its subcategories.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCategoryList'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Розділи сайту»
+    post:
+      tags:
+      - Content
+      operationId: createSiteCategory
+      description: Adds a category (parentId null) or a subcategory at the end of its parent, hidden unless showOnSite
+        is true. revision is 0. An empty slug is built from the Ukrainian name. A language without any text is not kept.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSiteCategoryRequest'
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCategoryResponse'
+        '400':
+          description: No Ukrainian name, an invalid address or a text over its limit
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to create in «Розділи сайту»
+        '409':
+          description: The address belongs to another category, the parent is missing or is a subcategory itself
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+  /api/content/categories/order:
+    put:
+      tags:
+      - Content
+      operationId: reorderSiteCategories
+      description: The new order of the categories of one parent (parentId null for the top level). ids must list exactly
+        the categories of that parent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderSiteCategoriesRequest'
+      responses:
+        '204':
+          description: Saved
+        '400':
+          description: Repeated ids
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit in «Розділи сайту»
+        '409':
+          description: The list of categories was changed meanwhile; nothing is saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+  /api/content/categories/{id}:
+    parameters:
+    - $ref: '#/components/parameters/CategoryId'
+    get:
+      tags:
+      - Content
+      operationId: getSiteCategory
+      description: The editor of one category or subcategory.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCategoryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Розділи сайту»
+        '404':
+          description: No such category
+    put:
+      tags:
+      - Content
+      operationId: saveSiteCategory
+      description: Replaces the category as a whole. revision is the number the editor showed. An empty slug keeps the
+        current address. Another parentId moves the category to the end of the new parent; a category with
+        subcategories cannot become a subcategory.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSiteCategoryRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCategoryResponse'
+        '400':
+          description: No Ukrainian name, an invalid address or a text over its limit
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit in «Розділи сайту»
+        '404':
+          description: No such category
+        '409':
+          description: The revision is stale, the address belongs to another category or the move is not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+    delete:
+      tags:
+      - Content
+      operationId: deleteSiteCategory
+      description: Removes the category with its texts and its product links. Products and their pages stay.
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to delete in «Розділи сайту»
+        '404':
+          description: No such category
+        '409':
+          description: The category has subcategories; move or delete them first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+  /api/content/categories/{id}/visibility:
+    parameters:
+    - $ref: '#/components/parameters/CategoryId'
+    patch:
+      tags:
+      - Content
+      operationId: setSiteCategoryVisibility
+      description: «Показувати на сайті» from the tree. A subcategory is on the site only together with its parent.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteCategoryVisibilityRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCategoryVisibilityResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit in «Розділи сайту»
+        '404':
+          description: No such category
+components:
+  parameters:
+    CategoryId:
+      name: id
+      in: path
+      required: true
+      description: Site category id.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Messages:
+      type: array
+      description: Ukrainian texts for staff that say why the action was refused.
+      items:
+        type: string
+    SiteCategoryTextInput:
+      type: object
+      description: What staff type for one language. The text is edited in the visual editor and sent as blocks.
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        seoTitle:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        seoDescription:
+          type:
+          - string
+          - 'null'
+          maxLength: 320
+        text:
+          type:
+          - array
+          - 'null'
+          maxItems: 200
+          description: At most 20000 characters in all blocks together.
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/ProductTextBlock
+    SaveSiteCategoryRequest:
+      type: object
+      required:
+      - revision
+      - showOnSite
+      - uk
+      properties:
+        revision:
+          type: integer
+          format: int32
+          minimum: 0
+        parentId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          minimum: 1
+          description: Null for a category of the top level; a top-level category id for a subcategory.
+        slug:
+          type:
+          - string
+          - 'null'
+          description: Lower-case Latin letters, digits and single hyphens, 3 to 120 characters.
+        showOnSite:
+          type: boolean
+        uk:
+          description: The Ukrainian name is required.
+          $ref: '#/components/schemas/SiteCategoryTextInput'
+        ru:
+          oneOf:
+          - $ref: '#/components/schemas/SiteCategoryTextInput'
+          - type: 'null'
+    SiteCategoryVisibilityRequest:
+      type: object
+      required:
+      - showOnSite
+      properties:
+        showOnSite:
+          type: boolean
+    ReorderSiteCategoriesRequest:
+      type: object
+      required:
+      - ids
+      properties:
+        parentId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          minimum: 1
+        ids:
+          type: array
+          maxItems: 500
+          items:
+            type: integer
+            format: int32
+    SiteCategoryRow:
+      type: object
+      required:
+      - id
+      - slug
+      - sortOrder
+      - showOnSite
+      - onSite
+      - hasUkrainianText
+      - hasRussianText
+      - hasSeo
+      - productCount
+      - updatedAtUtc
+      properties:
+        id:
+          type: integer
+          format: int32
+        parentId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        slug:
+          type: string
+        sortOrder:
+          type: integer
+          format: int32
+        showOnSite:
+          type: boolean
+        onSite:
+          type: boolean
+          description: True only when the category and its parent are both marked.
+        nameUk:
+          type:
+          - string
+          - 'null'
+        nameRu:
+          type:
+          - string
+          - 'null'
+        hasUkrainianText:
+          type: boolean
+        hasRussianText:
+          type: boolean
+        hasSeo:
+          type: boolean
+          description: SEO title and description are written in both languages.
+        productCount:
+          type: integer
+          format: int32
+          description: Products of the category together with its subcategories.
+        updatedAtUtc:
+          type: string
+          format: date-time
+    SiteCategoryList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteCategoryRow'
+    SiteCategoryTextResponse:
+      type: object
+      required:
+      - text
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+        seoTitle:
+          type:
+          - string
+          - 'null'
+        seoDescription:
+          type:
+          - string
+          - 'null'
+        text:
+          type: array
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/ProductTextBlock
+    SiteCategoryResponse:
+      type: object
+      required:
+      - category
+      - revision
+      - uk
+      - ru
+      properties:
+        category:
+          $ref: '#/components/schemas/SiteCategoryRow'
+        revision:
+          type: integer
+          format: int32
+        updatedBy:
+          type:
+          - string
+          - 'null'
+        uk:
+          $ref: '#/components/schemas/SiteCategoryTextResponse'
+        ru:
+          $ref: '#/components/schemas/SiteCategoryTextResponse'
+    SiteCategoryVisibilityResponse:
+      type: object
+      required:
+      - id
+      - showOnSite
+      - onSite
+      - revision
+      properties:
+        id:
+          type: integer
+          format: int32
+        showOnSite:
+          type: boolean
+        onSite:
+          type: boolean
+        revision:
+          type: integer
+          format: int32

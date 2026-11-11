@@ -96,6 +96,98 @@ namespace Content.Infrastructure.Persistence.Migrations
                     b.ToTable("ProductPageTexts", "content");
                 });
 
+            modelBuilder.Entity("Content.Domain.SiteCategories.SiteCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("ShowOnSite")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("ParentId", "SortOrder");
+
+                    b.ToTable("SiteCategories", "content");
+                });
+
+            modelBuilder.Entity("Content.Domain.SiteCategories.SiteCategoryProduct", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CategoryId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("SiteCategoryProducts", "content");
+                });
+
+            modelBuilder.Entity("Content.Domain.SiteCategories.SiteCategoryText", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Language")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SeoDescription")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)");
+
+                    b.Property<string>("SeoTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("CategoryId", "Language");
+
+                    b.ToTable("SiteCategoryTexts", "content");
+                });
+
             modelBuilder.Entity("Content.Domain.ProductPages.ProductPageText", b =>
                 {
                     b.HasOne("Content.Domain.ProductPages.ProductPage", null)
@@ -105,7 +197,38 @@ namespace Content.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Content.Domain.SiteCategories.SiteCategory", b =>
+                {
+                    b.HasOne("Content.Domain.SiteCategories.SiteCategory", null)
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Content.Domain.SiteCategories.SiteCategoryProduct", b =>
+                {
+                    b.HasOne("Content.Domain.SiteCategories.SiteCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Content.Domain.SiteCategories.SiteCategoryText", b =>
+                {
+                    b.HasOne("Content.Domain.SiteCategories.SiteCategory", null)
+                        .WithMany("Texts")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Content.Domain.ProductPages.ProductPage", b =>
+                {
+                    b.Navigation("Texts");
+                });
+
+            modelBuilder.Entity("Content.Domain.SiteCategories.SiteCategory", b =>
                 {
                     b.Navigation("Texts");
                 });

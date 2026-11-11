@@ -577,6 +577,14 @@ paths:
     $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1{productId}~1visibility
   /api/content/products/old-site-import:
     $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1old-site-import
+  /api/content/categories:
+    $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories
+  /api/content/categories/order:
+    $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories~1order
+  /api/content/categories/{id}:
+    $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories~1{id}
+  /api/content/categories/{id}/visibility:
+    $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories~1{id}~1visibility
   /api/public/catalog/tree:
     $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1tree
   /api/public/catalog/products:
