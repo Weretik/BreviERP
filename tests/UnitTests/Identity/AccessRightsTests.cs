@@ -5,6 +5,7 @@ using Identity.Application.Features.Access.DeleteRole;
 using Identity.Application.Features.Access.SaveRoleAccess;
 using Identity.Application.Security.Access;
 using Identity.Domain.Authorization;
+using Identity.Infrastructure.Services.Access;
 
 namespace UnitTests.Identity;
 
@@ -24,6 +25,64 @@ public sealed class AccessRightsTests
             Assert.That(AccessCatalog.DefaultsOf(RoleNames.Admin), Does.Not.ContainKey(AccessCatalog.Accounting));
             Assert.That(AccessCatalog.DefaultsOf(RoleNames.Admin), Does.Not.ContainKey(AccessCatalog.PurchaseInvoices));
             Assert.That(AccessCatalog.DefaultsOf("custom-new"), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Seo_role_gets_the_site_content_without_delete_and_nothing_of_sales_workshop_or_money()
+    {
+        var seo = AccessCatalog.DefaultsOf(RoleNames.Seo);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(AccessCatalog.IsBuiltIn(RoleNames.Seo));
+            Assert.That(AccessCatalog.BuiltInTitles[RoleNames.Seo], Is.EqualTo("SEO-фахівець"));
+            Assert.That(seo[AccessCatalog.ContentProducts],
+                Is.EqualTo(AccessAction.View | AccessAction.Create | AccessAction.Edit));
+            Assert.That(seo[AccessCatalog.ContentArticles].HasFlag(AccessAction.Delete), Is.False);
+            Assert.That(seo[AccessCatalog.ContentSeoOverview], Is.EqualTo(AccessAction.View));
+            Assert.That(seo[AccessCatalog.Media], Is.EqualTo(AccessAction.View | AccessAction.Create));
+            Assert.That(seo[AccessCatalog.DeskSeo], Is.EqualTo(AccessAction.View));
+            Assert.That(seo, Does.Not.ContainKey(AccessCatalog.Quotes));
+            Assert.That(seo, Does.Not.ContainKey(AccessCatalog.ProductionOrders));
+            Assert.That(seo, Does.Not.ContainKey(AccessCatalog.Accounting));
+        });
+    }
+
+    [Test]
+    public void Each_built_in_role_sees_its_own_desk_and_admin_sees_all_but_the_accountants()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(AccessCatalog.DefaultsOf(RoleNames.Manager).Keys.Where(x => x.StartsWith("desk-")),
+                Is.EquivalentTo(new[] { AccessCatalog.DeskSales }));
+            Assert.That(AccessCatalog.DefaultsOf(RoleNames.WorkshopChief).Keys.Where(x => x.StartsWith("desk-")),
+                Is.EquivalentTo(new[] { AccessCatalog.DeskWorkshop }));
+            Assert.That(AccessCatalog.DefaultsOf(RoleNames.Accountant).Keys.Where(x => x.StartsWith("desk-")),
+                Is.EquivalentTo(new[] { AccessCatalog.DeskAccounting }));
+            Assert.That(AccessCatalog.DefaultsOf(RoleNames.Admin).Keys.Where(x => x.StartsWith("desk-")),
+                Is.EquivalentTo(new[]
+                {
+                    AccessCatalog.DeskMain, AccessCatalog.DeskSales, AccessCatalog.DeskWorkshop, AccessCatalog.DeskSeo
+                }));
+        });
+    }
+
+    [Test]
+    public void A_role_saved_before_the_desks_gets_its_desk_and_an_unticked_desk_stays_unticked()
+    {
+        var savedBefore = AccessGrantSource.Parse("{\"quotes\":7}", RoleNames.Manager);
+        var unticked = AccessGrantSource.Parse(
+            AccessGrantSource.Serialize(new Dictionary<string, AccessAction> { [AccessCatalog.Quotes] = AccessAction.View }),
+            RoleNames.Manager);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(savedBefore[AccessCatalog.DeskSales], Is.EqualTo(AccessAction.View));
+            Assert.That(savedBefore, Does.Not.ContainKey(AccessCatalog.DeskWorkshop));
+            Assert.That(savedBefore, Does.Not.ContainKey(AccessCatalog.Payroll));
+            Assert.That(unticked, Does.Not.ContainKey(AccessCatalog.DeskSales));
+            Assert.That(unticked[AccessCatalog.Quotes], Is.EqualTo(AccessAction.View));
         });
     }
 

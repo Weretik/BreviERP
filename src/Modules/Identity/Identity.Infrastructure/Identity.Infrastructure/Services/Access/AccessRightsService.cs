@@ -206,7 +206,7 @@ public sealed class AccessRightsService(
     {
         var name = role.Name!;
         var grants = AccessCatalog.IsLocked(name) ? AccessCatalog.Everything()
-            : saved is not null ? AccessGrantSource.Parse(saved.Grants)
+            : saved is not null ? AccessGrantSource.Parse(saved.Grants, name)
             : AccessCatalog.DefaultsOf(name);
         return new AccessRoleDto(
             name,

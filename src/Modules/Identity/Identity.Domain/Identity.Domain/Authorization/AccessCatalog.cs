@@ -14,13 +14,16 @@ public enum AccessAction
 /// <summary>
 /// A page (area) of the admin whose API is guarded by «Права доступу». <paramref name="Defaults"/> are the rights the built-in
 /// roles had before the page existed (the admin menu they saw), so nothing changes until someone saves other rights.
+/// With <paramref name="DefaultsForSavedRoles"/> a role saved before the page existed also gets the page's defaults, and a
+/// save keeps the page even when it is unticked, so the director's choice wins from then on (DESK-001).
 /// </summary>
 public sealed record AccessArea(
     string Key,
     string Group,
     string Title,
     AccessAction Actions,
-    IReadOnlyDictionary<string, AccessAction> Defaults);
+    IReadOnlyDictionary<string, AccessAction> Defaults,
+    bool DefaultsForSavedRoles = false);
 
 /// <summary>The pages of «Права доступу» in menu order (ACC-RIGHTS, client corrections item 11).</summary>
 public static class AccessCatalog
@@ -29,7 +32,13 @@ public static class AccessCatalog
     private const AccessAction VE = AccessAction.View | AccessAction.Edit;
     private const AccessAction VCE = AccessAction.View | AccessAction.Create | AccessAction.Edit;
     private const AccessAction All = AccessAction.View | AccessAction.Create | AccessAction.Edit | AccessAction.Delete;
+    private const AccessAction VC = AccessAction.View | AccessAction.Create;
 
+    public const string DeskMain = "desk-main";
+    public const string DeskSales = "desk-sales";
+    public const string DeskWorkshop = "desk-workshop";
+    public const string DeskSeo = "desk-seo";
+    public const string DeskAccounting = "desk-accounting";
     public const string Quotes = "quotes";
     public const string QuoteSettings = "quote-settings";
     public const string Embroidery = "embroidery";
@@ -70,6 +79,7 @@ public static class AccessCatalog
     public const string ContentSitePages = "content-site-pages";
     public const string ContentSeoOverview = "content-seo-overview";
 
+    private const string Desks = "Робочі столи";
     private const string Service = "Менеджер сервісу";
     private const string Workshop = "Швейний цех";
     private const string WarehouseGroup = "Склад тканин";
@@ -87,6 +97,14 @@ public static class AccessCatalog
 
     public static readonly IReadOnlyList<AccessArea> Areas =
     [
+        // «Робочий стіл» (DESK-001): which desks a role sees on the admin home; each block also needs its own page. Roles saved
+        // before the desks existed get their defaults, so nobody loses the home page on deploy.
+        new(DeskMain, Desks, "Головний стіл директора", V, Grant((RoleNames.Admin, V)), DefaultsForSavedRoles: true),
+        new(DeskSales, Desks, "Стіл менеджера", V, Grant((RoleNames.Admin, V), (RoleNames.Manager, V)), DefaultsForSavedRoles: true),
+        new(DeskWorkshop, Desks, "Стіл цеху", V, Grant((RoleNames.Admin, V), (RoleNames.WorkshopChief, V)), DefaultsForSavedRoles: true),
+        new(DeskSeo, Desks, "Стіл SEO", V, Grant((RoleNames.Admin, V), (RoleNames.Seo, V)), DefaultsForSavedRoles: true),
+        new(DeskAccounting, Desks, "Стіл бухгалтера", V, Grant((RoleNames.Accountant, V)), DefaultsForSavedRoles: true),
+
         new(Quotes, Service, "Комерційні пропозиції", All,
             Grant((RoleNames.Admin, VCE), (RoleNames.Manager, VCE))),
         new(QuoteSettings, Service, "Налаштування КП", VE, Grant((RoleNames.Admin, VE))),
@@ -140,15 +158,23 @@ public static class AccessCatalog
         new(PriceImport, References, "Імпорт цін", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V))),
 
-        new(Media, Photos, "Бібліотека фото", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All))),
+        new(Media, Photos, "Бібліотека фото", All,
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Seo, VC))),
 
-        new(ContentProducts, SiteContent, "Товари сайту", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
-        new(ContentCategories, SiteContent, "Розділи сайту", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
-        new(ContentArticles, SiteContent, "Статті", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
-        new(ContentRedirects, SiteContent, "Переадресації", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
-        new(ContentSeoSettings, SiteContent, "Налаштування SEO сайту", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, V))),
-        new(ContentSitePages, SiteContent, "Сторінки сайту", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, V))),
-        new(ContentSeoOverview, SiteContent, "SEO-огляд", V, Grant((RoleNames.Admin, V), (RoleNames.Manager, V))),
+        new(ContentProducts, SiteContent, "Товари сайту", All,
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, V), (RoleNames.Seo, VCE))),
+        new(ContentCategories, SiteContent, "Розділи сайту", All,
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, V), (RoleNames.Seo, VCE))),
+        new(ContentArticles, SiteContent, "Статті", All,
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, V), (RoleNames.Seo, VCE))),
+        new(ContentRedirects, SiteContent, "Переадресації", All,
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, V), (RoleNames.Seo, VCE))),
+        new(ContentSeoSettings, SiteContent, "Налаштування SEO сайту", VE,
+            Grant((RoleNames.Admin, VE), (RoleNames.Manager, V), (RoleNames.Seo, VE))),
+        new(ContentSitePages, SiteContent, "Сторінки сайту", VE,
+            Grant((RoleNames.Admin, VE), (RoleNames.Manager, V), (RoleNames.Seo, VE))),
+        new(ContentSeoOverview, SiteContent, "SEO-огляд", V,
+            Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.Seo, V))),
 
         new(LeadStats, Administration, "Ліди: зведення, довідники, синхронізація", VCE, Grant((RoleNames.Admin, VCE)))
     ];
@@ -162,7 +188,7 @@ public static class AccessCatalog
 
     /// <summary>Built-in roles: the code knows them, so they are never deleted.</summary>
     public static readonly IReadOnlyList<string> BuiltInRoles =
-        [RoleNames.Director, RoleNames.Admin, RoleNames.Manager, RoleNames.Accountant, RoleNames.WorkshopChief];
+        [RoleNames.Director, RoleNames.Admin, RoleNames.Manager, RoleNames.Accountant, RoleNames.WorkshopChief, RoleNames.Seo];
 
     public static bool IsBuiltIn(string role) => BuiltInRoles.Contains(role, StringComparer.Ordinal);
 
@@ -173,7 +199,8 @@ public static class AccessCatalog
         [RoleNames.Admin] = "Адміністратор",
         [RoleNames.Manager] = "Менеджер",
         [RoleNames.Accountant] = "Бухгалтер",
-        [RoleNames.WorkshopChief] = "Начальник цеху"
+        [RoleNames.WorkshopChief] = "Начальник цеху",
+        [RoleNames.Seo] = "SEO-фахівець"
     };
 
     /// <summary>Roles that never reach the admin: shoppers and guests.</summary>

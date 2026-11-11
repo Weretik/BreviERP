@@ -10,6 +10,8 @@
 - Endpoints use `access:<page>` (action from the HTTP method) or `access:<page>:<action>`; `[AccessAction]` overrides the method's action. `AccessPolicyProvider` builds these policies, `AccessRequirementHandler` checks them (Host.Api).
 - Saved rights: `identity.role_access`, versioned (409 on a stale save), cached 30 seconds per instance.
 - A role with users is not deleted (409); built-in roles are never deleted (400).
+- Built-in roles: Director, Admin, Manager, Accountant, WorkshopChief and Seo («SEO-фахівець»: «Контент» without delete, photos view and upload).
+- Group «Робочі столи» (`desk-*`, [DESK-001](../../specs/identity/003-role-desks/README.md)) has no API: it tells the admin home which desks a role sees.
 
 ## Code structure
 

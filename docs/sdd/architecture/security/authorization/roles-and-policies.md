@@ -17,6 +17,7 @@ Canonical role constants are in `Identity.Domain/Authorization/RoleNames.cs`; in
 | `Accountant` | Staff («Бухгалтер»): pages from «Права доступу» | yes |
 | `Manager` | Staff («Менеджер»): pages from «Права доступу» | yes |
 | `WorkshopChief` | Staff («Начальник цеху»): pages from «Права доступу» | yes |
+| `Seo` | Staff («SEO-фахівець», [DESK-001](../../../specs/identity/003-role-desks/README.md)): pages from «Права доступу» | yes |
 | `custom-…` | Roles made on «Права доступу» (`AspNetRoles.Scope = custom`, title in `Description`); deleted there when nobody has them | no |
 | `User` | Regular authenticated user | yes |
 | `Guest` | Role constant defined without an agreed business meaning | no |
@@ -33,8 +34,8 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 | --- | --- |
 | `RequireAdminRole` / `CanManageUsers` | Admin: «Користувачі», «Права доступу», «Налаштування ШІ» ([AI-001](../../../specs/ai/001-ai-settings/README.md)), imports |
 | `RequireManagerRole` / `CanManageOrders` | Manager, Admin (registered, not used by Brevi pages) |
-| `CatalogRead` | User, Accountant, Manager, Admin and every role made on «Права доступу»: shared catalogue reads |
-| `OwnProfile` | Accountant, Manager, WorkshopChief, Admin and every role made on «Права доступу» (`/api/profile`) |
+| `CatalogRead` | User, Accountant, Manager, Seo, Admin and every role made on «Права доступу»: shared catalogue reads |
+| `OwnProfile` | Accountant, Manager, WorkshopChief, Seo, Admin and every role made on «Права доступу» (`/api/profile`) |
 | `OrderCreate` | User, Manager, Admin |
 | `RequireTenantAccess` | Constant is defined; policy is not currently registered |
 | `access:<page>[:<action>]` | «Права доступу» ([ACC-001](../../../specs/identity/002-access-rights/README.md)): the role's saved rights on the page, or the built-in defaults; the director always. |
@@ -45,6 +46,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 
 | Page | Endpoints | Default rights |
 | --- | --- | --- |
+| `desk-main`, `desk-sales`, `desk-workshop`, `desk-seo`, `desk-accounting` | none: which «Робочий стіл» desks the admin home shows ([DESK-001](../../../specs/identity/003-role-desks/README.md)); each block also needs its own page | main: Admin; sales: Admin, Manager; workshop: Admin, WorkshopChief; SEO: Admin, Seo; accounting: Accountant |
 | `quotes` | `/api/crm/quotes`, quote introductions and templates; lookups and mailboxes need view; delete and the old-archive purge need `access:quotes:delete` | Admin, Manager: view, create, edit; delete only the director |
 | `quote-settings` | `/api/crm/quote-settings` | Admin |
 | `embroidery` | `/api/crm/embroidery` (settings stay Admin) | Admin, Manager |
@@ -61,7 +63,8 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `reminders` | `/api/reminders/**` except the Telegram webhook | Admin |
 | `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes (`materials` covers fabrics, accessories and colours «Кольори»); reads stay `CatalogRead` | Admin, Manager; Accountant view |
 | `counterparties` | suppliers, clients and their contacts | Admin, Manager |
-| `media` | `/api/media/**` | Admin, Manager |
+| `media` | `/api/media/**` | Admin, Manager; Seo view and upload |
+| `content-*` | `/api/content/**` («Контент») | Admin; Manager view; Seo view, create and edit (settings, site pages: view and edit; «SEO-огляд»: view) |
 | `content-products` | `/api/content/products` ([CNT-002](../../../specs/content/002-product-pages/README.md)) | Admin; Manager view |
 | `content-categories` | `/api/content/categories` ([CNT-003](../../../specs/content/003-site-categories/README.md)) | Admin; Manager view |
 | `content-articles` | `/api/content/articles` ([CNT-004](../../../specs/content/004-articles/README.md)) | Admin; Manager view |
