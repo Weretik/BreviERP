@@ -71,7 +71,7 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 ## Content
 
-- [Product pages «Контент → Товари»](content/product-pages.md) — the site page of each Catalog product: «Показувати на сайті», address, name, SEO, short facts, description and characteristics in Ukrainian and Russian; Admin edits, Manager reads.
+- [Product pages «Контент → Товари»](content/product-pages.md) — the site page of each Catalog product: «Показувати на сайті», address, name, SEO, short facts, description and characteristics in Ukrainian and Russian; Admin edits, Manager reads. Also the anonymous read-only catalog of the public site `/api/public/catalog`.
 
 ## Media
 

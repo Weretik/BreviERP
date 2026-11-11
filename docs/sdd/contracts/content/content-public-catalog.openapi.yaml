@@ -1,0 +1,374 @@
+openapi: 3.1.0
+info:
+  title: 'Content: public catalog of the site'
+  version: 1.0.0
+  description: 'Read-only catalog for the public site (CNT-002 stage 4). No sign-in. Only products marked «Показувати на
+    сайті» whose Catalog product is active come back, and nothing internal (no cost, supplier, staff names or ids of
+    articles). Every answer has Cache-Control: public, max-age=300. The server builds the catalog at most once a minute,
+    so a change in the Admin reaches these answers within a minute.'
+security: []
+paths:
+  /api/public/catalog/tree:
+    get:
+      tags:
+      - PublicCatalog
+      operationId: getPublicCatalogTree
+      description: The two product types and, under each, the active sections of «Типи і розділи» that have at least one
+        product on the site, in the display order of the reference. A type without products is left out.
+      responses:
+        '200':
+          description: Tree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicCatalogTree'
+  /api/public/catalog/products:
+    get:
+      tags:
+      - PublicCatalog
+      operationId: getPublicCatalogProducts
+      description: One page of product cards, sewing first, by code.
+      parameters:
+      - $ref: '#/components/parameters/Language'
+      - name: type
+        in: query
+        schema:
+          type: string
+          enum:
+          - Sewing
+          - Ppe
+      - name: sectionId
+        in: query
+        description: A section id from the tree.
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 1
+          minimum: 1
+          maximum: 10000
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 24
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: Cards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicCatalogCardPage'
+        '400':
+          description: Wrong language, type, section or paging
+  /api/public/catalog/products/{slug}:
+    get:
+      tags:
+      - PublicCatalog
+      operationId: getPublicCatalogProduct
+      description: A product page by its address. A Russian request for a product without Russian texts gets the
+        Ukrainian texts, and language says which came back.
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 120
+      - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicCatalogProduct'
+        '400':
+          description: Wrong language
+        '404':
+          description: No such address, or the product is hidden or switched off
+  /api/public/catalog/product-slugs:
+    get:
+      tags:
+      - PublicCatalog
+      operationId: getPublicCatalogProductSlugs
+      description: Addresses of every product on the site, for the sitemap and for building pages ahead of time.
+      responses:
+        '200':
+          description: Addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicCatalogSlug'
+components:
+  parameters:
+    Language:
+      name: language
+      in: query
+      schema:
+        type: string
+        enum:
+        - uk
+        - ru
+        default: uk
+  schemas:
+    PublicCatalogTree:
+      type: object
+      required:
+      - types
+      properties:
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicCatalogType'
+    PublicCatalogType:
+      type: object
+      required:
+      - type
+      - productCount
+      - sections
+      properties:
+        type:
+          type: string
+          enum:
+          - Sewing
+          - Ppe
+        productCount:
+          type: integer
+          format: int32
+          description: Products of the type on the site, with and without a section.
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicCatalogSection'
+    PublicCatalogSection:
+      type: object
+      required:
+      - id
+      - slug
+      - name
+      - productCount
+      properties:
+        id:
+          type: integer
+          format: int32
+        slug:
+          type: string
+          description: Built from the Ukrainian name; the same for both languages and unique in the tree.
+        name:
+          type: string
+          description: Ukrainian name of the section (sections have no Russian name yet).
+        productCount:
+          type: integer
+          format: int32
+    PublicCatalogCard:
+      type: object
+      required:
+      - slug
+      - type
+      - name
+      properties:
+        slug:
+          type: string
+        type:
+          type: string
+          enum:
+          - Sewing
+          - Ppe
+        code:
+          type:
+          - string
+          - 'null'
+          description: Model code or PPE code.
+        name:
+          type: string
+        sectionId:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        photoUrl:
+          type:
+          - string
+          - 'null'
+          description: Small copy of the main photo, or the full photo when there is no small copy.
+        priceFrom:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: The lowest large-wholesale price among active fabrics, or the PPE price; null means «ціну уточнюйте».
+    PublicCatalogCardPage:
+      type: object
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicCatalogCard'
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+    PublicCatalogSectionLink:
+      type: object
+      required:
+      - id
+      - slug
+      - name
+      properties:
+        id:
+          type: integer
+          format: int32
+        slug:
+          type: string
+        name:
+          type: string
+    PublicCatalogPhoto:
+      type: object
+      required:
+      - url
+      - isMain
+      properties:
+        url:
+          type: string
+        thumbnailUrl:
+          type:
+          - string
+          - 'null'
+        isMain:
+          type: boolean
+    PublicCatalogVariant:
+      type: object
+      description: An active fabric of a sewing model.
+      required:
+      - sku
+      properties:
+        sku:
+          type: string
+        fabricName:
+          type:
+          - string
+          - 'null'
+        fabricDetails:
+          type:
+          - string
+          - 'null'
+          description: Composition and density of the fabric in words.
+        prices:
+          oneOf:
+          - $ref: ./content-products.openapi.yaml#/components/schemas/ContentPriceTiersResponse
+          - type: 'null'
+    PublicCatalogProduct:
+      type: object
+      required:
+      - slug
+      - type
+      - name
+      - language
+      - summary
+      - description
+      - specs
+      - photos
+      - variants
+      - updatedAtUtc
+      properties:
+        slug:
+          type: string
+        type:
+          type: string
+          enum:
+          - Sewing
+          - Ppe
+        code:
+          type:
+          - string
+          - 'null'
+        name:
+          type: string
+        language:
+          type: string
+          enum:
+          - uk
+          - ru
+          description: Language of the texts that came back.
+        section:
+          oneOf:
+          - $ref: '#/components/schemas/PublicCatalogSectionLink'
+          - type: 'null'
+        seoTitle:
+          type:
+          - string
+          - 'null'
+        seoDescription:
+          type:
+          - string
+          - 'null'
+        summary:
+          type: array
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/ProductFact
+        description:
+          type: array
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/ProductTextBlock
+        specs:
+          type: array
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/ProductSpecGroup
+        photos:
+          type: array
+          description: Photos of the card tab «Фото», the main one first.
+          items:
+            $ref: '#/components/schemas/PublicCatalogPhoto'
+        priceFrom:
+          type:
+          - number
+          - 'null'
+          format: double
+        prices:
+          description: Prices of a PPE product, or the lowest tier prices of a sewing model.
+          oneOf:
+          - $ref: ./content-products.openapi.yaml#/components/schemas/ContentPriceTiersResponse
+          - type: 'null'
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicCatalogVariant'
+        updatedAtUtc:
+          type: string
+          format: date-time
+    PublicCatalogSlug:
+      type: object
+      required:
+      - slug
+      - updatedAtUtc
+      - hasRussian
+      properties:
+        slug:
+          type: string
+        updatedAtUtc:
+          type: string
+          format: date-time
+        hasRussian:
+          type: boolean
+          description: false when the Russian page shows the Ukrainian texts.

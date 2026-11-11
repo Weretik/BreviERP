@@ -34,6 +34,7 @@ Do not create a public OpenAPI document for internal-only changes. Before adding
 - Ai: [«Налаштування ШІ»](ai/ai-settings.openapi.yaml) — the OpenAI key (write-only), models, prices, limit and extra rules.
 - Accounting: [«Бухгалтерія»](accounting/finance.openapi.yaml) — «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази», «Огляд», «Контрагенти», «Потребують перевірки» and their change log; director only.
 - Content: [«Контент → Товари» site pages of products](content/content-products.openapi.yaml) — the «Показувати на сайті» mark, address and texts in two languages.
+- Content: [public catalog of the site](content/content-public-catalog.openapi.yaml) — anonymous read-only tree, product cards with «від», product by address, addresses for the sitemap.
 - Purchasing: [«Рахунки на закупку» register](purchasing/purchase-invoices.openapi.yaml) — purchase invoices read from the Google Sheet «финансы».
 
 - Reminders: [Telegram reminders admin API](reminders/telegram-reminders.openapi.yaml) — tasks, periods, chats, non-working days and bot connection. The Telegram webhook is intentionally not in the contract.

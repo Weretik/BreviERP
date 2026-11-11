@@ -2,6 +2,7 @@ using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Product.Overview.GetList;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
 using Catalog.Application.Features.Product.Overview.GetOne;
+using Catalog.Application.Features.Product.Photos.GetPhotos;
 using Catalog.Domain.Products.Enums;
 using Content.Application.Abstractions;
 using Host.Api.Crm;
@@ -46,6 +47,20 @@ internal sealed class ContentCatalogReader(ISender sender, IProductSectionReader
         return Map(item.Value, await FabricsAsync(cancellationToken), await SectionNamesAsync(cancellationToken));
     }
 
+    public async Task<IReadOnlyList<ContentCatalogSection>> GetSectionsAsync(CancellationToken cancellationToken) =>
+        (await sections.ListAsync(cancellationToken))
+        .Select(x => new ContentCatalogSection(x.Id, x.Type, x.Name, x.IsActive)).ToArray();
+
+    public async Task<IReadOnlyList<ContentCatalogPhoto>> GetPhotosAsync(int productId,
+        CancellationToken cancellationToken)
+    {
+        var photos = await sender.Send(new GetProductPhotosQuery(productId), cancellationToken);
+        if (!photos.IsSuccess) return [];
+        return photos.Value.Photos.Where(x => !x.Missing && x.Url is not null)
+            .OrderByDescending(x => x.IsMain).ThenBy(x => x.SortOrder)
+            .Select(x => new ContentCatalogPhoto(x.Url!, x.ThumbnailUrl, x.IsMain)).ToArray();
+    }
+
     private async Task<IReadOnlyDictionary<int, FabricRowDTO>> FabricsAsync(CancellationToken cancellationToken) =>
         (await sender.Send(new GetAllFabricQuery(), cancellationToken)).Value?.ToDictionary(x => x.Id)
         ?? new Dictionary<int, FabricRowDTO>();
@@ -60,7 +75,7 @@ internal sealed class ContentCatalogReader(ISender sender, IProductSectionReader
         if (item.SectionId is { } sectionId) sectionNames.TryGetValue(sectionId, out sectionName);
         return new ContentCatalogProduct(item.Id, item.Type, item.Code, item.Name, item.SectionId, sectionName,
             item.IsActive, item.CurrentSiteUrl, item.MainPhotoFullUrl, Tiers(item.Prices),
-            item.Variants.Select(x => Map(x, fabrics)).ToArray());
+            item.Variants.Select(x => Map(x, fabrics)).ToArray(), item.MainPhotoUrl);
     }
 
     private static ContentCatalogVariant Map(ProductOverviewVariant variant,

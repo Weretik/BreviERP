@@ -573,3 +573,11 @@ paths:
     $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1{productId}~1visibility
   /api/content/products/old-site-import:
     $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products~1old-site-import
+  /api/public/catalog/tree:
+    $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1tree
+  /api/public/catalog/products:
+    $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1products
+  /api/public/catalog/products/{slug}:
+    $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1products~1{slug}
+  /api/public/catalog/product-slugs:
+    $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1product-slugs

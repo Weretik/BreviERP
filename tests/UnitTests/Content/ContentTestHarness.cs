@@ -5,10 +5,12 @@ using Content.Application.ProductPages.GetOne;
 using Content.Application.ProductPages.ImportOldSite;
 using Content.Application.ProductPages.Save;
 using Content.Application.ProductPages.SetVisibility;
+using Content.Application.PublicCatalog;
 using Content.Domain.ProductPages;
 using Content.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Time.Testing;
 
 namespace UnitTests.Content;
@@ -23,6 +25,15 @@ internal sealed class FakeCatalogReader : IContentCatalogReader
 
     public Task<ContentCatalogProduct?> GetAsync(int productId, CancellationToken cancellationToken) =>
         Task.FromResult(Products.FirstOrDefault(x => x.Id == productId));
+
+    public List<ContentCatalogSection> Sections { get; } = [];
+    public Dictionary<int, List<ContentCatalogPhoto>> Photos { get; } = [];
+
+    public Task<IReadOnlyList<ContentCatalogSection>> GetSectionsAsync(CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ContentCatalogSection>>(Sections.ToList());
+
+    public Task<IReadOnlyList<ContentCatalogPhoto>> GetPhotosAsync(int productId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ContentCatalogPhoto>>(Photos.GetValueOrDefault(productId) ?? []);
 }
 
 /// <summary>The real module DbContext on in-memory SQLite.</summary>
@@ -80,6 +91,10 @@ internal sealed class ContentTestHarness : IDisposable
     public GetContentProductQueryHandler One() => new(new SqliteContentDb(Open()), Catalog);
     public ImportOldSiteProductPagesCommandHandler Import() => new(new SqliteContentDb(Open()), Catalog, Time);
     public GetContentProductsQueryHandler List() => new(new SqliteContentDb(Open()), Catalog);
+
+    /// <summary>The public catalog as one request sees it; <paramref name="cache"/> is shared to test its lifetime.</summary>
+    public PublicCatalogSource Site(IMemoryCache? cache = null) =>
+        new(new SqliteContentDb(Open()), Catalog, cache ?? new MemoryCache(new MemoryCacheOptions()));
 
     public ContentDbContext Open()
     {
