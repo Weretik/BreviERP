@@ -26,14 +26,17 @@ public sealed record FabricMovementDetails(
     int? SupplierId = null,
     string? SupplierName = null,
     string? Document = null,
-    FabricMovementTarget? Target = null);
+    FabricMovementTarget? Target = null,
+    string? Destination = null,
+    Guid? OperationId = null);
 
 /// <summary>The order item a movement went to.</summary>
 public sealed record FabricMovementTarget(int OrderId, int ItemId, int OrderNumber, string ModelName);
 
 /// <summary>
-/// One change of a stock line: before, change and after in metres. It is never edited; a wrong one is taken back by a
-/// «Сторно» movement that points to it.
+/// One change of a stock line: before, change and after in metres. The chain of a line runs by operation date, then
+/// record time, then id, so a back-dated movement restates the ones after it. A wrong one is taken back by a «Сторно»
+/// movement that points to it.
 /// </summary>
 public sealed class FabricMovement
 {
@@ -41,6 +44,9 @@ public sealed class FabricMovement
     public const int DocumentMaxLength = 200;
     public const int SupplierMaxLength = 300;
     public const int LegacyIdMaxLength = 64;
+
+    /// <summary>Supplier, document and «Куди використано» typed on the forms.</summary>
+    public const int FormTextMaxLength = 160;
 
     /// <summary>Model name of the order item, as the workshop keeps it.</summary>
     public const int ModelNameMaxLength = 300;
@@ -67,6 +73,8 @@ public sealed class FabricMovement
         ItemId = details.Target?.ItemId;
         OrderNumber = details.Target?.OrderNumber;
         ModelName = details.Target?.ModelName;
+        Destination = Optional(details.Destination, FormTextMaxLength);
+        OperationId = details.OperationId;
         ReversesMovementId = reversesMovementId;
         CreatedByName = WarehouseText.Clean(actorName, PersonMaxLength);
         CreatedAt = now;
@@ -99,6 +107,12 @@ public sealed class FabricMovement
     public int? OrderNumber { get; private set; }
     public string? ModelName { get; private set; }
 
+    /// <summary>«Куди використано / контрагент» of an issue without an order.</summary>
+    public string? Destination { get; private set; }
+
+    /// <summary>The form submission that made this movement; one submission may move several lines of a pair.</summary>
+    public Guid? OperationId { get; private set; }
+
     /// <summary>The movement a «Сторно» takes back.</summary>
     public int? ReversesMovementId { get; private set; }
 
@@ -112,6 +126,13 @@ public sealed class FabricMovement
     public string? LegacyId { get; private set; }
 
     internal void MarkReversed() => IsReversed = true;
+
+    /// <summary>Puts the movement after <paramref name="before"/> in its line's chain.</summary>
+    internal void Chain(decimal before)
+    {
+        MetersBefore = before;
+        MetersAfter = before + Delta;
+    }
 
     private static string? Optional(string? value, int maxLength)
     {

@@ -1,16 +1,19 @@
 # Fabric stock «Склад тканин» (Warehouse module)
 
-Metres of each fabric of «Тканини» (by FAB- code) in each colour. The balance changes only through movements: opening, receipt from a supplier of «Постачальники», issue to an order item, correction and reversal; each keeps before / change / after, the day and the person. Open orders of «Швейний цех» reserve their plan, computed by Production from the norms by colour, until issues cover it. The «Тканина» tab of an item issues fabric as one package of planned, replacement and additional lines. Managers see the stock; the head of the workshop and Admin move it and see its value. The old «Цех» stock moves in through an import. Own module and schema since [WH-001](../../specs/warehouse/001-warehouse-module/README.md) (first in [PRD-004](../../specs/production/004-fabric-stock/README.md)); [contract](../../contracts/warehouse/fabric-stock.openapi.yaml), [tables](../../architecture/data-model/warehouse.md).
+Metres of each fabric of «Тканини» (by FAB- code) in each colour. A pair is a fabric (canonical code; FAB-067 is FAB-023 and FAB-077 is FAB-078) in a normalised colour; its lines keep their own codes. Balances change only through movements: opening (once per pair, zero allowed), receipt of the offer picked, issue without an order (may go below zero), issue to an order item, «Уточнити» to a counted total with a reason, and reversal. Each movement keeps before / change / after, the operation date apart from the record time, and the person; a line's chain runs by operation date. Every form sends an operation id, so a repeat never moves the fabric twice. Open orders of «Швейний цех» reserve their plan until issues cover it; the «Тканина» tab of an item issues planned, replacement and additional lines. Everyone with access reads «Залишки», «Рух тканини» and «Початкові залишки»; the head of the workshop and Admin write. The old «Цех» stock moves in through an import. Own module and schema since [WH-001](../../specs/warehouse/001-warehouse-module/README.md) (first in [PRD-004](../../specs/production/004-fabric-stock/README.md)); ledger rules [WH-002](../../specs/warehouse/002-ledger-rules/README.md); [contract](../../contracts/warehouse/fabric-stock.openapi.yaml), [tables](../../architecture/data-model/warehouse.md).
 
 ## Code structure
 
 ```text
 src/Modules/Warehouse/
   Warehouse.Domain/Warehouse.Domain/Stock/
-    FabricStock.cs               # line + its movements: Move, Correct, Reverse, Transfer; version
-    FabricMovement.cs            # kinds, details, before/change/after, reversal mark
+    FabricStock.cs               # line + its movements: Move, Reverse, Transfer, Restate (chain by date); version
+    FabricMovement.cs            # kinds, details, before/change/after, destination, operation id, reversal mark
+    FabricAliases.cs             # reviewed alias groups FAB-023/067, FAB-078/077 and their identity
+    StockPair.cs                 # pair of a group and colour: Open, Receive, Issue, Adjust; spending order; version
+    StockOperation.cs            # form submission by operation id (repeat → saved result)
     FabricIssue.cs               # «Видача» package + lines (Planned/Replacement/Additional), reversal
-    StockColor.cs                # colour text and key
+    StockColor.cs                # colour text and NFC key
   Warehouse.Application/Warehouse.Application/
     Abstractions/                # IWarehouseDbContext; ports IWarehouseProductionReader, IWarehouseReferenceReader, IWarehouseStaffReader
     Access/WarehouseActor.cs     # CanMoveStock, SeesStockValue, CanImport, CanIssueFabric(item)
@@ -18,9 +21,12 @@ src/Modules/Warehouse/
     Contracts/FabricStockContracts.cs
     Stock/
       StockReservations.cs       # plans of «Нове» items (from Production) minus what issues covered
-      StockRows.cs               # row with available and value; permissions
-      StockChanges.cs            # actor, fabric, line lookup or creation, save with 409, card
-      GetChoices, GetStock, GetStockLine, Movements (opening/receipt, correction, reversal),
+      StockChanges.cs            # actor, offer check, line lookup or creation, save with 409
+      StockPairs.cs              # load a pair, restate touched ledgers, save with the operation
+      StockOperations.cs         # request hash and replay
+      StockRules.cs, StockList.cs
+      Opening, Receipts, OneOff, Adjustments  # the pair commands
+      GetStock («Залишки»), GetChoices, Movements («Рух тканини» page, «Сторно»),
       Issues (ItemFabricCards, tab query, issue, reversal), Consumption (period summary), ImportStock (old «Цех»)
       Facts/StockFacts.cs        # issues of a period and balances at a date for «Звіти цеху»
       StockMessages.cs
@@ -50,7 +56,8 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Warehouse/WarehouseStockHandlerTests.cs` — before/change/after, 409, access and value, plan by colour, issue purposes, reversal of an issue, import checks and repeat, colours of a new line, stock facts.
+- `tests/UnitTests/Warehouse/WarehouseLedgerTests.cs` — WH-002: opening once per pair, receipt by offer, issue order and shortage, «Уточнити» limits, operation id repeat, chain by date, paging and filters, alias identity, colour key.
+- `tests/UnitTests/Warehouse/WarehouseStockHandlerTests.cs` — receipt and reversal, access and prices, plan by colour, issue purposes, reversal of an issue, import checks and repeat, colours of a new line, stock facts.
 - `tests/UnitTests/Warehouse/FabricStockContractTests.cs` — DTOs and operations against the contract.
 - `tests/ArchitectureTests/WarehouseDependencyTests.cs` — layers and schema.
 

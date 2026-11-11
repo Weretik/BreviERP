@@ -13,7 +13,8 @@ internal sealed class WarehouseReferenceReader(ISender sender) : IWarehouseRefer
     {
         var result = await sender.Send(new GetAllFabricQuery(), cancellationToken);
         if (!result.IsSuccess) throw new InvalidOperationException("Reference fabrics could not be read.");
-        return result.Value.Select(x => new WarehouseFabric(x.Id, x.Code, x.Name, x.Price)).ToArray();
+        return result.Value.Select(x => new WarehouseFabric(x.Id, x.Code, x.Name, x.Price, x.Composition, x.Density,
+            x.ProviderName, x.IsActive)).ToArray();
     }
 
     public async Task<IReadOnlyList<WarehouseSupplier>> SuppliersAsync(CancellationToken cancellationToken)

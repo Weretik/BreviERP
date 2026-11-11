@@ -174,6 +174,10 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("numeric(12,2)");
 
+                    b.Property<string>("Destination")
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)");
+
                     b.Property<string>("Document")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -212,6 +216,9 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("OperationDate")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("OperationId")
+                        .HasColumnType("uuid");
+
                     b.Property<int?>("OrderId")
                         .HasColumnType("integer");
 
@@ -239,6 +246,8 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("OperationDate");
+
+                    b.HasIndex("OperationId");
 
                     b.HasIndex("ReversesMovementId");
 
@@ -308,6 +317,51 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("FabricStocks", "warehouse");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.StockOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("ColorKey")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FabricCode")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<decimal>("MetersAfter")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StockOperations", "warehouse");
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Stock.FabricIssueLine", b =>

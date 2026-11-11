@@ -41,6 +41,7 @@ internal sealed class FabricMovementConfiguration : IEntityTypeConfiguration<Fab
         builder.Property(x => x.SupplierName).HasMaxLength(FabricMovement.SupplierMaxLength);
         builder.Property(x => x.Document).HasMaxLength(FabricMovement.DocumentMaxLength);
         builder.Property(x => x.ModelName).HasMaxLength(FabricMovement.ModelNameMaxLength);
+        builder.Property(x => x.Destination).HasMaxLength(FabricMovement.FormTextMaxLength);
         builder.Property(x => x.CreatedByName).HasMaxLength(FabricMovement.PersonMaxLength).IsRequired();
         builder.Property(x => x.LegacyId).HasMaxLength(FabricMovement.LegacyIdMaxLength);
         builder.HasOne<FabricMovement>().WithMany().HasForeignKey(x => x.ReversesMovementId)
@@ -49,6 +50,23 @@ internal sealed class FabricMovementConfiguration : IEntityTypeConfiguration<Fab
         builder.HasIndex(x => x.OperationDate);
         builder.HasIndex(x => x.ItemId);
         builder.HasIndex(x => x.LegacyId).IsUnique();
+        builder.HasIndex(x => x.OperationId);
+    }
+}
+
+internal sealed class StockOperationConfiguration : IEntityTypeConfiguration<StockOperation>
+{
+    public void Configure(EntityTypeBuilder<StockOperation> builder)
+    {
+        builder.ToTable("StockOperations");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
+        builder.Property(x => x.Kind).HasMaxLength(StockOperation.KindMaxLength).IsRequired();
+        builder.Property(x => x.RequestHash).HasMaxLength(StockOperation.HashLength).IsRequired();
+        builder.Property(x => x.FabricCode).HasMaxLength(FabricStock.CodeMaxLength).IsRequired();
+        builder.Property(x => x.ColorKey).HasMaxLength(StockColor.MaxLength).IsRequired();
+        builder.Property(x => x.Color).HasMaxLength(StockColor.MaxLength).IsRequired();
+        builder.Property(x => x.MetersAfter).HasPrecision(14, FabricStock.Decimals);
     }
 }
 

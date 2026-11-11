@@ -63,24 +63,41 @@ public sealed class FabricStock
         FabricName = WarehouseText.Clean(fabric.Name, NameMaxLength);
     }
 
-    /// <summary>«Початковий залишок», «Прихід» or «Видача» (negative).</summary>
+    /// <summary>
+    /// «Початковий залишок» (the first movement, zero allowed), «Прихід» (positive), «Видача» (negative, may leave the
+    /// balance below zero) or «Уточнення» (any non-zero change).
+    /// </summary>
     public FabricMovement Move(FabricMovementKind kind, decimal delta, FabricMovementDetails details, string actorName,
         DateTimeOffset now)
     {
-        if (kind is FabricMovementKind.Reversal or FabricMovementKind.Adjustment)
-            throw new ArgumentException("Use Reverse or Correct.", nameof(kind));
-        if (kind == FabricMovementKind.Opening && HasMovements)
+        if (kind is FabricMovementKind.Reversal) throw new ArgumentException("Use Reverse.", nameof(kind));
+        if (kind == FabricMovementKind.Opening && (HasMovements || delta < 0))
             throw new InvalidOperationException("Opening balance is only the first movement.");
-        if (kind == FabricMovementKind.Receipt && delta <= 0 || kind == FabricMovementKind.Issue && delta >= 0)
+        if (kind == FabricMovementKind.Receipt && delta <= 0 || kind == FabricMovementKind.Issue && delta >= 0 ||
+            kind == FabricMovementKind.Adjustment && delta == 0)
             throw new ArgumentOutOfRangeException(nameof(delta));
         return Add(kind, delta, details, actorName, now, null, null);
     }
 
-    /// <summary>«Коригування»: the counted metres replace the balance.</summary>
-    public FabricMovement Correct(decimal counted, FabricMovementDetails details, string actorName, DateTimeOffset now)
+    /// <summary>
+    /// Recomputes before and after of every movement of this line in the order of operation date, record time and id
+    /// (unsaved last), and the balance as the last «after».
+    /// </summary>
+    public void Restate(IEnumerable<FabricMovement> movements)
     {
-        if (counted == Meters) throw new InvalidOperationException("Nothing to correct.");
-        return Add(FabricMovementKind.Adjustment, counted - Meters, details, actorName, now, null, null);
+        var chain = movements.Where(x => x.StockId == Id || ReferenceEquals(x.Stock, this)).Distinct()
+            .OrderBy(x => x.OperationDate).ThenBy(x => x.CreatedAt).ThenBy(x => x.Id == 0 ? int.MaxValue : x.Id)
+            .ToList();
+        var balance = 0m;
+        foreach (var movement in chain)
+        {
+            movement.Chain(balance);
+            balance = movement.MetersAfter;
+        }
+
+        if (balance == Meters) return;
+        Meters = balance;
+        Version++;
     }
 
     /// <summary>«Сторно»: the opposite change of a movement of this line, which is marked as taken back.</summary>

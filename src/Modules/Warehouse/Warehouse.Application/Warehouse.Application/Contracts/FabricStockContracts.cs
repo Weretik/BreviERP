@@ -1,96 +1,153 @@
 namespace Warehouse.Application.Contracts;
 
 /// <summary>What the person may do on «Склад тканин».</summary>
+/// <param name="CanMove">Record openings, receipts, issues and «Уточнити».</param>
+/// <param name="SeesValue">Prices of «Тканини» on the forms.</param>
 public sealed record FabricStockPermissions(bool CanMove, bool SeesValue);
 
+/// <summary>A stock line inside a pair: its own code and balance.</summary>
+public sealed record FabricStockSourceResponse(int Id, string FabricCode, decimal Meters);
+
 /// <summary>
-/// A line of «Склад тканин». <c>Id</c> is null for a fabric and colour open orders plan but the stock has never held,
-/// so the shortage is visible. <c>Value</c> and <c>Price</c> are null for people who do not see the value.
+/// A fabric and colour on the shelf: every line of the alias group with that colour summed. <c>Version</c> goes back
+/// with «Уточнити» and a «Разова витрата».
 /// </summary>
-public sealed record FabricStockRowResponse(
-    int? Id,
-    int? FabricId,
-    string FabricCode,
-    string FabricName,
+public sealed record FabricStockColorResponse(
     string Color,
+    string ColorKey,
     decimal Meters,
-    decimal Reserved,
-    decimal Available,
-    decimal? Price,
-    decimal? Value,
-    int Version,
-    DateTimeOffset? UpdatedAt);
+    string Version,
+    IReadOnlyList<FabricStockSourceResponse> Sources);
 
-public sealed record FabricStockTotals(decimal Meters, decimal Reserved, int Lines, int Short, decimal? Value);
+/// <summary>A fabric of «Залишки» by its canonical code with the colours the stock holds.</summary>
+/// <param name="Codes">The codes of «Тканини» that are this fabric, the canonical first.</param>
+public sealed record FabricStockFabricResponse(
+    string FabricCode,
+    IReadOnlyList<string> Codes,
+    string FabricName,
+    string? Composition,
+    string? Density,
+    decimal Meters,
+    IReadOnlyList<FabricStockColorResponse> Colors);
 
+/// <summary>«Залишки»: only fabrics and colours that have stock lines, zero and negative included.</summary>
 public sealed record FabricStockListResponse(
-    IReadOnlyList<FabricStockRowResponse> Rows,
-    FabricStockTotals Totals,
+    IReadOnlyList<FabricStockFabricResponse> Fabrics,
+    decimal Meters,
+    int Pairs,
+    int Negative,
     FabricStockPermissions Permissions);
 
+/// <summary>A row of «Рух тканини».</summary>
 /// <param name="Kind">Opening, Receipt, Issue, Adjustment or Reversal.</param>
-public sealed record FabricMovementResponse(
+/// <param name="FabricCode">The code of the line moved; <c>GroupCode</c> is the fabric the stock shows.</param>
+/// <param name="MetersAfter">Balance of that line after the movement; the pair total is on «Залишки».</param>
+public sealed record FabricMovementRowResponse(
     int Id,
+    int StockId,
     string Kind,
-    decimal MetersBefore,
-    decimal Delta,
-    decimal MetersAfter,
     DateOnly OperationDate,
-    string? Note,
-    int? SupplierId,
+    DateTimeOffset CreatedAt,
+    string FabricCode,
+    string GroupCode,
+    string FabricName,
+    string Color,
     string? SupplierName,
     string? Document,
     int? OrderId,
+    int? ItemId,
     int? OrderNumber,
     string? ModelName,
-    int? ReversesMovementId,
-    bool IsReversed,
-    bool CanReverse,
+    string? Destination,
+    decimal Delta,
+    decimal MetersAfter,
+    string? Note,
     string CreatedByName,
-    DateTimeOffset CreatedAt);
+    bool IsReversed,
+    int? ReversesMovementId,
+    bool CanReverse);
 
-/// <summary>An item of a «Нове» order that holds part of this line.</summary>
-public sealed record FabricReservationResponse(int OrderId, int OrderNumber, int ItemId, string ModelName,
-    decimal Planned, decimal Covered, decimal Reserved);
-
-public sealed record FabricStockLineResponse(
-    FabricStockRowResponse Line,
-    IReadOnlyList<FabricMovementResponse> Movements,
-    IReadOnlyList<FabricReservationResponse> Reservations,
+/// <summary>A page of 50 movements, newest operation date first.</summary>
+public sealed record FabricMovementPageResponse(
+    IReadOnlyList<FabricMovementRowResponse> Rows,
+    int Page,
+    bool HasMore,
     FabricStockPermissions Permissions);
 
-/// <summary>A fabric of «Тканини» with a FAB- code, to pick on the stock.</summary>
-public sealed record FabricStockFabricChoice(int Id, string Code, string Name);
-
-/// <summary>An active supplier of «Постачальники», to pick on a receipt.</summary>
-public sealed record FabricStockSupplierChoice(int Id, string Name);
+/// <summary>An offer of «Тканини» with a FAB- code to pick on the stock forms.</summary>
+/// <param name="GroupCode">The canonical code: offers with the same one are the same fabric on the shelf.</param>
+/// <param name="Price">UAH per metre; null for people who do not see prices.</param>
+public sealed record FabricStockFabricChoice(
+    int Id,
+    string Code,
+    string GroupCode,
+    string Name,
+    string? Composition,
+    string? Density,
+    string? Supplier,
+    decimal? Price);
 
 /// <summary>What the stock forms pick from, so the workshop does not need access to «Довідники».</summary>
-/// <param name="Colors">Active colours of «Кольори» in list order; a new stock line takes one of them.</param>
+/// <param name="Suppliers">Names of active «Постачальники» and of the suppliers of «Тканини»; the form may type another.</param>
+/// <param name="Colors">Active colours of «Кольори» in list order.</param>
 public sealed record FabricStockChoicesResponse(
     IReadOnlyList<FabricStockFabricChoice> Fabrics,
-    IReadOnlyList<FabricStockSupplierChoice> Suppliers,
+    IReadOnlyList<string> Suppliers,
     IReadOnlyList<string> Colors);
 
-/// <summary>«Початковий залишок» or «Прихід» of a fabric and colour; the stock line is created when it is new.</summary>
-/// <param name="Kind">Opening (only the first movement of a line) or Receipt.</param>
-/// <param name="Version">The line's version; null when the line is new.</param>
-public sealed record CreateFabricMovementInput(
-    string Kind,
+/// <summary>«Початковий залишок»: once per fabric and colour, zero allowed.</summary>
+/// <param name="OperationId">A new id per form; the same id repeats the saved result.</param>
+public sealed record OpenFabricStockInput(
+    Guid OperationId,
+    int FabricId,
+    string Color,
+    decimal Meters,
+    DateOnly OperationDate);
+
+/// <summary>«Прихід» of the offer picked.</summary>
+public sealed record ReceiveFabricInput(
+    Guid OperationId,
     int FabricId,
     string Color,
     decimal Meters,
     DateOnly OperationDate,
-    int? SupplierId,
+    string? SupplierName,
     string? Document,
-    string? Note,
-    int? Version);
+    string? Note);
 
-/// <summary>«Коригування»: what was counted on the shelf, with a reason.</summary>
-public sealed record CorrectFabricStockInput(int Version, decimal CountedMeters, DateOnly OperationDate, string Note);
+/// <summary>«Разова витрата / без замовлення» of a pair; the balance may go below zero.</summary>
+/// <param name="ExpectedVersion">The pair version shown on the form; null skips the check.</param>
+public sealed record IssueFabricInput(
+    Guid OperationId,
+    string FabricCode,
+    string Color,
+    string? ExpectedVersion,
+    decimal Meters,
+    DateOnly OperationDate,
+    string? Destination,
+    string? Note);
+
+/// <summary>«Уточнити»: the counted total of a pair with a reason.</summary>
+public sealed record AdjustFabricStockInput(
+    Guid OperationId,
+    string FabricCode,
+    string Color,
+    string ExpectedVersion,
+    decimal TargetMeters,
+    DateOnly OperationDate,
+    string Reason);
 
 /// <summary>«Сторно» of an opening, receipt or correction, with a reason.</summary>
-public sealed record ReverseFabricMovementInput(int Version, string Note);
+public sealed record ReverseFabricMovementInput(string Reason);
+
+/// <summary>The pair after a stock operation.</summary>
+/// <param name="Replayed">True when the same operation id was saved before and nothing moved now.</param>
+public sealed record FabricStockOperationResponse(
+    Guid? OperationId,
+    string FabricCode,
+    string Color,
+    decimal Meters,
+    bool Replayed);
 
 /// <summary>A planned colour of an item and how far issues covered it.</summary>
 /// <param name="StockId">The stock line of that fabric and colour; null when the stock never held it.</param>

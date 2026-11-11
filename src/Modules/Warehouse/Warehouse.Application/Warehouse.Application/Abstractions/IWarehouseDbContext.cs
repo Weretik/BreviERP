@@ -8,5 +8,6 @@ public interface IWarehouseDbContext
     DbSet<FabricStock> FabricStocks { get; }
     DbSet<FabricMovement> FabricMovements { get; }
     DbSet<FabricIssue> FabricIssues { get; }
+    DbSet<StockOperation> StockOperations { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

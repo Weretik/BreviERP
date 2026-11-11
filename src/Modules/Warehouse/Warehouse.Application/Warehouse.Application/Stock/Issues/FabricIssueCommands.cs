@@ -1,7 +1,6 @@
 using Warehouse.Application.Abstractions;
 using Warehouse.Application.Contracts;
 using Warehouse.Application.Access;
-using Warehouse.Application.Stock.Movements;
 using Warehouse.Domain.Stock;
 
 namespace Warehouse.Application.Stock.Issues;
