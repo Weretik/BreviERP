@@ -2,6 +2,7 @@ using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Domain.Redirects;
 using Content.Domain.SiteCategories;
+using Content.Domain.SiteCompany;
 using Content.Domain.SitePages;
 using Content.Domain.SiteSettings;
 
@@ -17,6 +18,7 @@ public interface IContentDbContext
     DbSet<SiteRedirect> SiteRedirects { get; }
     DbSet<SiteSeoSettings> SiteSeoSettings { get; }
     DbSet<SitePage> SitePages { get; }
+    DbSet<SiteCompanyInfo> CompanyInfo { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

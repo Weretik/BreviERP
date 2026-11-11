@@ -64,13 +64,14 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes (`materials` covers fabrics, accessories and colours «Кольори»); reads stay `CatalogRead` | Admin, Manager; Accountant view |
 | `counterparties` | suppliers, clients and their contacts | Admin, Manager |
 | `media` | `/api/media/**` | Admin, Manager; Seo view and upload |
-| `content-*` | `/api/content/**` («Контент») | Admin; Manager view; Seo view, create and edit (settings, site pages: view and edit; «SEO-огляд»: view) |
+| `content-*` | `/api/content/**` («Контент») | Admin; Manager view; Seo view, create and edit (settings, site pages, «Контакти та компанія»: view and edit; «SEO-огляд»: view) |
 | `content-products` | `/api/content/products` ([CNT-002](../../../specs/content/002-product-pages/README.md)) | Admin; Manager view |
 | `content-categories` | `/api/content/categories` ([CNT-003](../../../specs/content/003-site-categories/README.md)) | Admin; Manager view |
 | `content-articles` | `/api/content/articles` ([CNT-004](../../../specs/content/004-articles/README.md)) | Admin; Manager view |
 | `content-redirects` | `/api/content/redirects` ([CNT-005](../../../specs/content/005-redirects/README.md)) | Admin; Manager view |
 | `content-seo-settings` | `/api/content/seo-settings` ([CNT-006](../../../specs/content/006-seo-settings/README.md)) | Admin view and edit; Manager view |
 | `content-site-pages` | `/api/content/site-pages` ([CNT-007](../../../specs/content/007-site-pages/README.md)) | Admin view and edit; Manager view |
+| `content-company` | `/api/content/company` ([CNT-009](../../../specs/content/009-site-company/README.md)) | Admin and Seo view and edit; Manager view |
 | `content-seo-overview` | `/api/content/seo-overview` ([CNT-008](../../../specs/content/008-seo-overview/README.md)) | Admin, Manager view (read-only page) |
 
 Do not use `RequireTenantAccess` on an endpoint until it is registered in Host and its policy semantics are agreed.
@@ -95,6 +96,7 @@ Only these operations are public; `tests/HostApiTests/ApiAccessTests.cs` fails w
 | `GET /api/public/articles`, `GET /api/public/articles/{slug}` | Articles of the public site, read-only: only articles marked «Показувати на сайті» (CNT-004). |
 | `GET /api/public/redirects` | Redirects of the public site, read-only: old address and final page, nothing internal (CNT-005). |
 | `GET /api/public/site-settings` | Analytics ids, verification codes and the sharing picture of the public site, all visible in its pages anyway (CNT-006). |
+| `GET /api/public/company` | Company phones, emails, address, hours, managers, payment details and links, all shown on the site anyway (CNT-009). |
 | `GET /api/public/site-pages` | Search titles and descriptions of the fixed site pages, visible in their pages anyway (CNT-007). |
 
 Every other operation needs a signed-in user, and every admin operation names a role or policy: work pages `access:<page>`, shared reads `CatalogRead`, users and system settings `Admin`. The same test fails when an endpoint has neither, except `GET /api/auth/session/me`, `GET /api/auth/session/access` and `POST /api/auth/cookie/logout`, which only need a session; another test fails when a named policy does not exist.

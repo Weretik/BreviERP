@@ -41,6 +41,7 @@ public sealed class AccessRightsTests
                 Is.EqualTo(AccessAction.View | AccessAction.Create | AccessAction.Edit));
             Assert.That(seo[AccessCatalog.ContentArticles].HasFlag(AccessAction.Delete), Is.False);
             Assert.That(seo[AccessCatalog.ContentSeoOverview], Is.EqualTo(AccessAction.View));
+            Assert.That(seo[AccessCatalog.ContentCompany], Is.EqualTo(AccessAction.View | AccessAction.Edit));
             Assert.That(seo[AccessCatalog.Media], Is.EqualTo(AccessAction.View | AccessAction.Create));
             Assert.That(seo[AccessCatalog.DeskSeo], Is.EqualTo(AccessAction.View));
             Assert.That(seo, Does.Not.ContainKey(AccessCatalog.Quotes));

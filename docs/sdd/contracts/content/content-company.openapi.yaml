@@ -1,0 +1,257 @@
+openapi: 3.1.0
+info:
+  title: 'Content: «Контент → Контакти та компанія»'
+  version: 1.0.0
+  description: 'The company facts of the public site (CNT-009): the company phone and email, the address and the map
+    query, the working hours, the client managers of «Контакти», the payment details and the profile links. One record;
+    the migration seeds what the site showed before. Phones are stored as the site shows them (050 469 86 75). Policy
+    access:content-company («Права доступу»): the Director and Admin view and edit, Manager only reads; other roles
+    get 403.'
+security:
+- Bearer: []
+paths:
+  /api/content/company:
+    get:
+      tags:
+      - Content
+      operationId: getSiteCompany
+      description: The facts; revision 0 only in an empty database.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCompanyResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Контакти та компанія»
+    put:
+      tags:
+      - Content
+      operationId: saveSiteCompany
+      description: Replaces the facts as a whole; spaces inside texts are joined, phones and the IBAN are formatted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSiteCompanyRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCompanyResponse'
+        '400':
+          description: A field is wrong; the answer names it in Ukrainian
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Контакти та компанія»
+        '409':
+          description: The revision is stale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Messages:
+      type: array
+      description: Ukrainian texts for staff that say why the action was refused.
+      items:
+        type: string
+    CompanyText:
+      type: object
+      description: A text in Ukrainian and Russian.
+      required:
+      - uk
+      - ru
+      properties:
+        uk:
+          type: string
+          maxLength: 200
+        ru:
+          type: string
+          maxLength: 200
+    CompanySchedule:
+      type: object
+      required:
+      - days
+      - opens
+      - closes
+      properties:
+        days:
+          type: array
+          description: Working days, Monday = 1 … Sunday = 7, in order.
+          items:
+            type: integer
+            minimum: 1
+            maximum: 7
+        opens:
+          type: string
+          description: Time as HH:mm.
+          pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+        closes:
+          type: string
+          description: Time as HH:mm, later than opens.
+          pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+    CompanyBankDetails:
+      type: object
+      required:
+      - recipient
+      - edrpou
+      - iban
+      - bank
+      properties:
+        recipient:
+          $ref: '#/components/schemas/CompanyText'
+        edrpou:
+          type: string
+          description: 8 digits, or 10 for a sole trader.
+        iban:
+          type: string
+          description: UA and 27 digits; the server stores it grouped as banks print it.
+        bank:
+          $ref: '#/components/schemas/CompanyText'
+    CompanySocials:
+      type: object
+      description: Profile links (https); null hides the link.
+      properties:
+        instagram:
+          type:
+          - string
+          - 'null'
+        youtube:
+          type:
+          - string
+          - 'null'
+        facebook:
+          type:
+          - string
+          - 'null'
+    CompanyManager:
+      type: object
+      required:
+      - name
+      - phones
+      properties:
+        name:
+          $ref: '#/components/schemas/CompanyText'
+        photoUrl:
+          type:
+          - string
+          - 'null'
+          description: A picture of the «Фото» library (https) or of the site itself (/assets/…).
+        phones:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+        email:
+          type:
+          - string
+          - 'null'
+    SiteCompanyResponse:
+      type: object
+      required:
+      - phone
+      - email
+      - city
+      - street
+      - mapQuery
+      - schedule
+      - managers
+      - bankDetails
+      - socials
+      - revision
+      properties:
+        phone:
+          type: string
+          description: The company phone as the site shows it, 050 469 86 75.
+        email:
+          type: string
+        city:
+          $ref: '#/components/schemas/CompanyText'
+        street:
+          $ref: '#/components/schemas/CompanyText'
+        mapQuery:
+          type: string
+          description: What the map link and the embedded map look for.
+        schedule:
+          $ref: '#/components/schemas/CompanySchedule'
+        managers:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/CompanyManager'
+        bankDetails:
+          $ref: '#/components/schemas/CompanyBankDetails'
+        socials:
+          $ref: '#/components/schemas/CompanySocials'
+        revision:
+          type: integer
+          format: int32
+        updatedAtUtc:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        updatedBy:
+          type:
+          - string
+          - 'null'
+    SaveSiteCompanyRequest:
+      type: object
+      required:
+      - revision
+      - phone
+      - email
+      - city
+      - street
+      - mapQuery
+      - schedule
+      - managers
+      - bankDetails
+      - socials
+      properties:
+        revision:
+          type: integer
+          format: int32
+          description: The revision that was read.
+        phone:
+          type: string
+          description: A Ukrainian number in any common form.
+        email:
+          type: string
+          maxLength: 120
+        city:
+          $ref: '#/components/schemas/CompanyText'
+        street:
+          $ref: '#/components/schemas/CompanyText'
+        mapQuery:
+          type: string
+          maxLength: 200
+        schedule:
+          $ref: '#/components/schemas/CompanySchedule'
+        managers:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/CompanyManager'
+        bankDetails:
+          $ref: '#/components/schemas/CompanyBankDetails'
+        socials:
+          $ref: '#/components/schemas/CompanySocials'

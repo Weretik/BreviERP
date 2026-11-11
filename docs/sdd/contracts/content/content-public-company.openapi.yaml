@@ -1,0 +1,160 @@
+openapi: 3.1.0
+info:
+  title: 'Content: public company facts'
+  version: 1.0.0
+  description: 'Read-only company facts for the public site (CNT-009). No sign-in. Only what every visitor sees on the
+    site anyway: phones, emails, address, hours, managers, payment details and profile links. Every answer has
+    Cache-Control: public, max-age=300. The server reads the facts at most once a minute.'
+security: []
+paths:
+  /api/public/company:
+    get:
+      tags:
+      - PublicSiteCompany
+      operationId: getPublicSiteCompany
+      description: The facts; 404 before they exist, and the site then keeps its own.
+      responses:
+        '200':
+          description: Facts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicSiteCompanyResponse'
+        '404':
+          description: No facts yet
+components:
+  schemas:
+    CompanyText:
+      type: object
+      description: A text in Ukrainian and Russian.
+      required:
+      - uk
+      - ru
+      properties:
+        uk:
+          type: string
+          maxLength: 200
+        ru:
+          type: string
+          maxLength: 200
+    CompanySchedule:
+      type: object
+      required:
+      - days
+      - opens
+      - closes
+      properties:
+        days:
+          type: array
+          description: Working days, Monday = 1 … Sunday = 7, in order.
+          items:
+            type: integer
+            minimum: 1
+            maximum: 7
+        opens:
+          type: string
+          description: Time as HH:mm.
+          pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+        closes:
+          type: string
+          description: Time as HH:mm, later than opens.
+          pattern: '^([01]\d|2[0-3]):[0-5]\d$'
+    CompanyBankDetails:
+      type: object
+      required:
+      - recipient
+      - edrpou
+      - iban
+      - bank
+      properties:
+        recipient:
+          $ref: '#/components/schemas/CompanyText'
+        edrpou:
+          type: string
+          description: 8 digits, or 10 for a sole trader.
+        iban:
+          type: string
+          description: UA and 27 digits; the server stores it grouped as banks print it.
+        bank:
+          $ref: '#/components/schemas/CompanyText'
+    CompanySocials:
+      type: object
+      description: Profile links (https); null hides the link.
+      properties:
+        instagram:
+          type:
+          - string
+          - 'null'
+        youtube:
+          type:
+          - string
+          - 'null'
+        facebook:
+          type:
+          - string
+          - 'null'
+    PublicPhone:
+      type: object
+      required:
+      - e164
+      - display
+      properties:
+        e164:
+          type: string
+          description: The tel value, +380504698675.
+        display:
+          type: string
+          description: As the site shows it, 050 469 86 75.
+    PublicCompanyManager:
+      type: object
+      required:
+      - name
+      - phones
+      properties:
+        name:
+          $ref: '#/components/schemas/CompanyText'
+        photoUrl:
+          type:
+          - string
+          - 'null'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicPhone'
+        email:
+          type:
+          - string
+          - 'null'
+    PublicSiteCompanyResponse:
+      type: object
+      required:
+      - phone
+      - email
+      - city
+      - street
+      - mapQuery
+      - schedule
+      - managers
+      - bankDetails
+      - socials
+      properties:
+        phone:
+          $ref: '#/components/schemas/PublicPhone'
+        email:
+          type: string
+        city:
+          $ref: '#/components/schemas/CompanyText'
+        street:
+          $ref: '#/components/schemas/CompanyText'
+        mapQuery:
+          type: string
+        schedule:
+          $ref: '#/components/schemas/CompanySchedule'
+        managers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicCompanyManager'
+        bankDetails:
+          $ref: '#/components/schemas/CompanyBankDetails'
+        socials:
+          $ref: '#/components/schemas/CompanySocials'
