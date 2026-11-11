@@ -22,4 +22,7 @@ internal static class ContentAccess
 
     /// <summary>«Контент → SEO-огляд» on «Права доступу» (CNT-008 R-04): Admin and Manager view.</summary>
     public const string SeoOverviewPolicy = "access:content-seo-overview";
+
+    /// <summary>«Контент → Контакти та компанія» on «Права доступу» (CNT-009 R-04): Admin view and edit, Manager view.</summary>
+    public const string CompanyPolicy = "access:content-company";
 }
