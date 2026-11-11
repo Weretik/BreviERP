@@ -5,7 +5,8 @@ namespace Content.Application.Contracts;
 /// <summary>
 /// A row of «Контент → Товари». <paramref name="HasPage"/> is false when nobody has made the page yet. The
 /// <c>Has…</c> flags say what the site would miss; <paramref name="OnSite"/> is true only when the mark is set and the
-/// Catalog product is active. <paramref name="CategoryCount"/> is the number of site categories the product is in.
+/// Catalog product is active. <paramref name="CategoryCount"/> is the number of site categories the product is in and
+/// <paramref name="CategoryIds"/> names them.
 /// </summary>
 public sealed record ContentProductRow(
     int ProductId,
@@ -25,7 +26,8 @@ public sealed record ContentProductRow(
     bool HasRussianText,
     bool HasSeo,
     DateTimeOffset? UpdatedAtUtc,
-    int CategoryCount = 0);
+    int CategoryCount,
+    IReadOnlyList<int> CategoryIds);
 
 public sealed record ContentProductPage(IReadOnlyList<ContentProductRow> Items, int Page, int PageSize, int Total);
 
