@@ -2,7 +2,7 @@
 
 The site page of each Catalog product: the «Показувати на сайті» mark, the address after `/product/`, and texts in Ukrainian and Russian (name, SEO title and description, short facts next to the photo, description blocks, characteristics by garment part). The list shows every Catalog product of both types with what its page still misses; a page is saved as a whole with a revision check and can be deleted without touching the product. The site shows a product only when the mark is set and the Catalog product is active. Name, code, section, photo, fabrics and prices are read from Catalog and Reference and cannot be changed here. Admin and the Director edit, Manager reads. [SDD](../../specs/content/002-product-pages/README.md), [contract](../../contracts/content/content-products.openapi.yaml), [tables](../../architecture/data-model/content.md).
 
-Not built yet: the transfer of old-site texts (stage 3) and the public API for the site (stage 4).
+`POST /api/content/products/old-site-import` is the one-time transfer of old-site texts and SEO: it matches pages to products by the old-site link of the Catalog card, counts first (`dryRun`), keeps pages that already have texts unless asked to overwrite. Not built yet: the public API for the site (stage 4).
 
 ## Code structure
 
@@ -19,6 +19,7 @@ src/Modules/Content/
     ProductPages/Save/           # create or replace as a whole; revision and slug conflicts
     ProductPages/SetVisibility/  # «Показувати на сайті» from the list
     ProductPages/Delete/
+    ProductPages/ImportOldSite/  # one-time transfer: link matching, dry run, overwrite
     ProductPages/Shared/         # mapping, free slug, messages
   Content.Infrastructure/Content.Infrastructure/
     Persistence/       # ContentDbContext (schema content), configurations (jsonb lists), migrations

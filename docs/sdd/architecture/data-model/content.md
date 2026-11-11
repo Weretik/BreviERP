@@ -1,6 +1,6 @@
 # Content schema
 
-Code model reviewed 2026-11-11. `Content.Infrastructure.Persistence.ContentDbContext` owns schema `content`; migration history is `content.__EFMigrationsHistory`. Migration `InitialContent` creates both tables ([CNT-002](../../specs/content/002-product-pages/README.md)).
+Code model reviewed 2026-11-11. `Content.Infrastructure.Persistence.ContentDbContext` owns schema `content`; migration history is `content.__EFMigrationsHistory`. Migration `InitialContent` creates both tables; `ExtendProductPageSeoTitle` widens SeoTitle from 120 to 200 ([CNT-002](../../specs/content/002-product-pages/README.md)).
 
 | Table | Identity / relationships / purpose |
 | --- | --- |

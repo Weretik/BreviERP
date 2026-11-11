@@ -28,7 +28,7 @@ The new public site ([brevi-web site catalog](https://github.com/Weretik/brevi-w
 - R-01: A product page belongs to one Catalog product (`ProductId`). A product has at most one page. A product without a page is not on the site.
 - R-02: The site shows a product only when its page has `ShowOnSite = true` and the Catalog product is active. Switching the mark never changes the Catalog product.
 - R-03: `Slug` is lower-case Latin letters, digits and `-`, 3–120 characters, unique among pages, the same for both languages. An empty slug on save is built from the Ukrainian name. A slug that is already taken is a 409.
-- R-04: Texts exist per language (`uk`, `ru`): `Name` (required to show on the site in that language; the Ukrainian name falls back to the Catalog name), `SeoTitle` (≤ 120), `SeoDescription` (≤ 320), `Summary` (ordered facts: label ≤ 80 and text ≤ 1000, at most 20), `Description` (ordered blocks: heading, paragraph with an optional bold lead, list; at most 200 blocks, 20 000 characters in total), `Specs` (ordered groups with a title ≤ 120 and rows «name ≤ 120 — value ≤ 500»; at most 20 groups and 60 rows per group).
+- R-04: Texts exist per language (`uk`, `ru`): `Name` (required to show on the site in that language; the Ukrainian name falls back to the Catalog name), `SeoTitle` (≤ 200, because old-site titles are up to 199 characters), `SeoDescription` (≤ 320), `Summary` (ordered facts: label ≤ 80 and text ≤ 1000, at most 20), `Description` (ordered blocks: heading, paragraph with an optional bold lead, list; at most 200 blocks, 20 000 characters in total), `Specs` (ordered groups with a title ≤ 120 and rows «name ≤ 120 — value ≤ 500»; at most 20 groups and 60 rows per group).
 - R-05: Saving a page replaces all its texts (full replacement with a revision check: a stale `revision` is a 409).
 - R-06: Deleting a page removes its texts and takes the product off the site. The Catalog product stays.
 - R-07: The public API is anonymous, read-only, and returns nothing internal: no cost, supplier, problems of calculation, staff names or unpublished products.
@@ -42,7 +42,7 @@ The new public site ([brevi-web site catalog](https://github.com/Weretik/brevi-w
 - SC-02: Staff open a product, edit the slug, the texts and SEO in both languages, and save. A stale revision or a taken slug is refused with a message.
 - SC-03: Staff switch «Показувати на сайті» in the list without opening the product.
 - SC-04: Staff delete the page of a product; it disappears from the site.
-- SC-05: A one-time transfer brings the texts and SEO of the old site: preview first (how many pages are created, updated, not matched and why), then apply. Products are matched by the old-site link of the Catalog card (`CurrentSiteUrl`), then by model code. Transferred pages get `ShowOnSite = true` only when the request says so.
+- SC-05: A one-time transfer brings the texts and SEO of the old site: preview first (how many pages are created, updated, not matched and why), then apply. Products are matched by the old-site link of the Catalog card (`CurrentSiteUrl`): the whole path in either language, then the last part of the path. Model codes are not used because old-site model numbers and PPE codes overlap. A new page takes the old address when it is free; pages that already have texts are kept unless the request asks to overwrite. Transferred pages get `ShowOnSite = true` only when the request says so.
 - SC-06: The site reads the tree, a page of product cards of a section (photo, name, «від»), and a product by slug (texts, photos, model code, fabrics with prices). An unknown or hidden slug is 404.
 
 ## Data
@@ -67,7 +67,7 @@ Admin, [content-products.openapi.yaml](../../../contracts/content/content-produc
 | `saveContentProduct` | `PUT /api/content/products/{productId}` | create or replace; `revision` for an existing page |
 | `setContentProductVisibility` | `PATCH /api/content/products/{productId}/visibility` | `{ showOnSite }`; creates an empty page when there is none |
 | `deleteContentProduct` | `DELETE /api/content/products/{productId}` | 204; 404 when there is no page |
-| `importOldSiteProductPages` | `POST /api/content/products/old-site-import` | stage 3; `dryRun` true by default; edit action |
+| `importOldSiteProductPages` | `POST /api/content/products/old-site-import` | stage 3; `dryRun` true by default; create action; at most 500 pages per request |
 
 Public (stage 4), `content-public-catalog.openapi.yaml`, anonymous, `Cache-Control: public, max-age=300`:
 
@@ -108,7 +108,7 @@ tests/UnitTests/Content*Tests.cs                        # domain and handlers (p
 | --- | --- | --- | --- |
 | 1 | Module scaffold, `ProductPages`, admin API (list, read, save, visibility, delete), access area, contract | BreviERP | implemented 2026-11-11 |
 | 2 | Admin page «Контент → Товари»: list with the «на сайті» switch and missing-content marks, editor in the side panel | brevi-web | planned |
-| 3 | Transfer of old-site texts and SEO (SC-05); the import file is built from the site snapshot | both | planned; applied on production only after the owner's «да» |
+| 3 | Transfer of old-site texts and SEO (SC-05); the import file is built from the site snapshot | both | backend implemented 2026-11-11 (endpoint, migration `ExtendProductPageSeoTitle`); admin button and the import file follow; applied on production only after the owner's «да» |
 | 4 | Public API: tree, cards with «від», product with fabrics and prices | BreviERP | planned |
 | 5 | Site reads the public API: tree from types and sections, prices, fabric choice; the old-site snapshot is removed | brevi-web | planned |
 

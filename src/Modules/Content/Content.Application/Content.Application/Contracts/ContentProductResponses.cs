@@ -62,3 +62,19 @@ public sealed record ContentProductResponse(
     IReadOnlyList<ContentProductVariantResponse> Variants);
 
 public sealed record ContentProductVisibilityResponse(int ProductId, bool ShowOnSite, bool OnSite, int Revision, string Slug);
+
+/// <summary>A page of the old site that was not transferred, with the reason.</summary>
+public sealed record OldSiteImportNote(string Url, string? Name, string Reason);
+
+/// <summary>
+/// Result of the old-site transfer (or what it would do when <paramref name="DryRun"/>): pages created, pages whose
+/// texts were replaced, pages kept because they already had texts, and what was left out.
+/// </summary>
+public sealed record OldSiteImportResponse(
+    bool DryRun,
+    int Total,
+    int Created,
+    int Updated,
+    int Kept,
+    IReadOnlyList<OldSiteImportNote> NotMatched,
+    IReadOnlyList<OldSiteImportNote> Problems);

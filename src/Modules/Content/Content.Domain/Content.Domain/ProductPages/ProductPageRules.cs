@@ -12,7 +12,7 @@ public static class ProductPageRules
     public const int SlugMinLength = 3;
     public const int SlugMaxLength = 120;
     public const int NameMaxLength = 200;
-    public const int SeoTitleMaxLength = 120;
+    public const int SeoTitleMaxLength = 200;
     public const int SeoDescriptionMaxLength = 320;
     public const int FactLabelMaxLength = 80;
     public const int FactTextMaxLength = 1_000;
