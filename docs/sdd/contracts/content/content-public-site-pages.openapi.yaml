@@ -2,8 +2,8 @@ openapi: 3.1.0
 info:
   title: 'Content: public site page texts'
   version: 1.0.0
-  description: 'Read-only search texts of the fixed pages for the public site (CNT-007). No sign-in. Only what every page
-    shows in its source anyway: the title and the description. Every answer has Cache-Control: public, max-age=300.
+  description: 'Read-only texts of the fixed pages for the public site (CNT-007, CNT-010). No sign-in. Only what every
+    page shows anyway: the title, the description, the main text and the frequent questions. Every answer has Cache-Control: public, max-age=300.
     The server reads the texts at most once a minute.'
 security: []
 paths:
@@ -24,6 +24,9 @@ components:
   schemas:
     SitePageText:
       type: object
+      required:
+      - text
+      - faq
       properties:
         title:
           type:
@@ -33,6 +36,17 @@ components:
           type:
           - string
           - 'null'
+        text:
+          type: array
+          description: Main text at the bottom of the page; empty keeps the site's own (CNT-010).
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/ProductTextBlock
+        faq:
+          type: array
+          description: Frequent questions in the order shown, also given to search engines as FAQPage; empty keeps the
+            site's own.
+          items:
+            $ref: ./content-site-pages.openapi.yaml#/components/schemas/SiteFaqItem
     PublicSitePage:
       type: object
       required:

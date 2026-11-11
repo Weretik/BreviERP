@@ -6,8 +6,8 @@ using Content.Domain.SitePages;
 namespace Content.Application.SitePages.Save;
 
 /// <summary>
-/// Replaces the search texts of one page with a revision check (CNT-007 SC-02); an empty text gives the page back its
-/// own text on the site.
+/// Replaces the texts of one page with a revision check (CNT-007 SC-02, CNT-010 SC-01); an empty text gives the page
+/// back its own text on the site.
 /// </summary>
 public sealed record SaveSitePageCommand(
     string Key,
@@ -22,23 +22,37 @@ public sealed class SaveSitePageCommandValidator : AbstractValidator<SaveSitePag
     {
         RuleFor(x => x.Key).NotEmpty().MaximumLength(SitePage.KeyMaxLength);
         RuleFor(x => x.Revision).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.Uk).NotNull();
-        RuleFor(x => x.Ru).NotNull();
-        RuleFor(x => x.Uk.Title).Must(Title).WithMessage(SitePageMessages.TitleTooLong)
-            .OverridePropertyName("Uk.Title").When(x => x.Uk is not null);
-        RuleFor(x => x.Ru.Title).Must(Title).WithMessage(SitePageMessages.TitleTooLong)
-            .OverridePropertyName("Ru.Title").When(x => x.Ru is not null);
-        RuleFor(x => x.Uk.Description).Must(Description).WithMessage(SitePageMessages.DescriptionTooLong)
-            .OverridePropertyName("Uk.Description").When(x => x.Uk is not null);
-        RuleFor(x => x.Ru.Description).Must(Description).WithMessage(SitePageMessages.DescriptionTooLong)
-            .OverridePropertyName("Ru.Description").When(x => x.Ru is not null);
+        RuleFor(x => x.Uk).NotNull().SetValidator(new SitePageTextValidator("Українська"));
+        RuleFor(x => x.Ru).NotNull().SetValidator(new SitePageTextValidator("Російська"));
         RuleFor(x => x.UpdatedBy).NotEmpty();
     }
+}
 
-    private static bool Title(string? value) => (SitePage.Clean(value)?.Length ?? 0) <= SitePage.TitleMaxLength;
-
-    private static bool Description(string? value) =>
-        (SitePage.Clean(value)?.Length ?? 0) <= SitePage.DescriptionMaxLength;
+/// <summary>Shape limits of the texts of one language (CNT-007 R-01, CNT-010 R-01).</summary>
+public sealed class SitePageTextValidator : AbstractValidator<SitePageText>
+{
+    public SitePageTextValidator(string language)
+    {
+        RuleFor(x => x.Title).Must(value => (SitePage.Clean(value)?.Length ?? 0) <= SitePage.TitleMaxLength)
+            .WithMessage(SitePageMessages.TitleTooLong);
+        RuleFor(x => x.Description)
+            .Must(value => (SitePage.Clean(value)?.Length ?? 0) <= SitePage.DescriptionMaxLength)
+            .WithMessage(SitePageMessages.DescriptionTooLong);
+        RuleFor(x => x.Text).Must(blocks => blocks is null || blocks.Count <= SitePage.MaxBlocks)
+            .WithMessage($"{language}: {SitePageMessages.TooManyBlocks}");
+        RuleFor(x => x.Text).Must(blocks => blocks is null || blocks.All(x => x is not null && Enum.IsDefined(x.Kind)))
+            .WithMessage($"{language}: {SitePageMessages.UnknownBlock}");
+        RuleFor(x => x.Text).Must(blocks => SitePage.TextLength(blocks) <= SitePage.TextMaxLength)
+            .WithMessage($"{language}: {SitePageMessages.TextTooLong}");
+        RuleFor(x => x.Faq).Must(items => items is null || items.Count <= SitePage.MaxFaqItems)
+            .WithMessage($"{language}: {SitePageMessages.TooManyQuestions}");
+        RuleFor(x => x.Faq).Must(items => items is null || items.All(x =>
+                x is not null && (SitePage.Clean(x.Question)?.Length ?? 0) <= SitePage.QuestionMaxLength))
+            .WithMessage($"{language}: {SitePageMessages.QuestionTooLong}");
+        RuleFor(x => x.Faq).Must(items => items is null || items.All(x =>
+                x is not null && (SitePage.Clean(x.Answer)?.Length ?? 0) <= SitePage.AnswerMaxLength))
+            .WithMessage($"{language}: {SitePageMessages.AnswerTooLong}");
+    }
 }
 
 public sealed class SaveSitePageCommandHandler(IContentDbContext db, TimeProvider clock)
@@ -59,8 +73,7 @@ public sealed class SaveSitePageCommandHandler(IContentDbContext db, TimeProvide
             db.SitePages.Add(page);
         }
 
-        page.Replace(command.Uk.Title, command.Uk.Description, command.Ru.Title, command.Ru.Description,
-            command.UpdatedBy, now);
+        page.Replace(Input(command.Uk), Input(command.Ru), command.UpdatedBy, now);
         try
         {
             await db.SaveChangesAsync(cancellationToken);
@@ -72,4 +85,7 @@ public sealed class SaveSitePageCommandHandler(IContentDbContext db, TimeProvide
 
         return SitePageMapping.Response(entry, page);
     }
+
+    private static SitePageTextInput Input(SitePageText text) =>
+        new(text.Title, text.Description, text.Text, text.Faq);
 }

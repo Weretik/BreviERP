@@ -97,7 +97,7 @@ BreviERP PostgreSQL
 │   ├── ArticleTexts                   # title, excerpt, SEO and body of an article in one language
 │   ├── SiteRedirects                  # 301 redirects of the site: old address → new page
 │   ├── SiteSeoSettings                # one row: analytics ids, verification codes, sharing picture
-│   ├── SitePages                      # search title and description of a fixed site page (uk, ru)
+│   ├── SitePages                      # search texts, main text and FAQ of a fixed site page (uk, ru)
 │   └── SiteCompany                    # one row: company phone, email, address, hours, managers, bank details, links
 ├── reminders / RemindersDbContext — 6 tables + own history
 │   ├── Tasks                          # reminder tasks and schedule
