@@ -1,3 +1,4 @@
+using Content.Application.SiteCategories.ImportOldSite;
 using Content.Domain.SiteCategories;
 
 namespace Content.Api.SiteCategories;
@@ -13,3 +14,7 @@ public sealed record SiteCategoryVisibilityRequest(bool ShowOnSite);
 
 /// <summary>Body of <c>reorderSiteCategories</c>: all categories of one parent in the new order.</summary>
 public sealed record ReorderSiteCategoriesRequest(int? ParentId, IReadOnlyList<int> Ids);
+
+/// <summary>Body of <c>importOldSiteCategories</c>; without <c>DryRun = false</c> nothing is written.</summary>
+public sealed record ImportOldSiteCategoriesRequest(
+    IReadOnlyList<OldSiteCategory> Items, bool DryRun = true, bool ShowOnSite = false, bool Overwrite = false);

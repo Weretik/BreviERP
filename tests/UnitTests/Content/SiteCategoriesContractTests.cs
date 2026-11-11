@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Content.Api.SiteCategories;
 using Content.Application.Contracts;
+using Content.Application.SiteCategories.ImportOldSite;
 using Content.Domain.SiteCategories;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -21,6 +22,9 @@ public sealed class SiteCategoriesContractTests
     [TestCase(typeof(SiteCategoryVisibilityRequest), "SiteCategoryVisibilityRequest")]
     [TestCase(typeof(ReorderSiteCategoriesRequest), "ReorderSiteCategoriesRequest")]
     [TestCase(typeof(SiteCategoryTextInput), "SiteCategoryTextInput")]
+    [TestCase(typeof(OldSiteCategory), "OldSiteCategory")]
+    [TestCase(typeof(ImportOldSiteCategoriesRequest), "ImportOldSiteCategoriesRequest")]
+    [TestCase(typeof(OldSiteCategoryImportResponse), "OldSiteCategoryImportResponse")]
     public void Serialized_properties_match_the_machine_contract(Type type, string schema)
     {
         var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
@@ -40,7 +44,7 @@ public sealed class SiteCategoriesContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.EqualTo($"access:{AccessCatalog.ContentCategories}"));
-            Assert.That(operations, Has.Length.EqualTo(7));
+            Assert.That(operations, Has.Length.EqualTo(8));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
     }

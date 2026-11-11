@@ -2,7 +2,9 @@
 
 The category tree of the public site, owned by the site and not tied to «Типи і розділи»: categories and their subcategories (two levels). Each has the «Показувати на сайті» mark, an address, a place among its neighbours, and a name, SEO title, SEO description and text in Ukrainian and Russian. Staff add, change, move to another category, reorder, hide and delete them. A subcategory is on the site only together with its category. A category is saved as a whole with a revision check; a taken address, a third level or a stale revision are refused with a Ukrainian message; a category with subcategories cannot be deleted. Deleting removes the texts and the product links, never the products. Admin and the Director edit, Manager reads. [SDD](../../specs/content/003-site-categories/README.md), [contract](../../contracts/content/content-categories.openapi.yaml), [tables](../../architecture/data-model/content.md).
 
-Not yet built (later stages of the SDD): choosing the categories of a product, the old-site transfer, and the public catalog and site reading this tree.
+A product is put into categories from its page in «Контент → Товари» (`categoryIds` of the product editor); the list of products shows how many categories each is in. `POST /api/content/categories/old-site-import` is the one-time transfer of the old-site tree with SEO, texts and products: it counts first (`dryRun`), keeps existing categories unless asked to overwrite, and only adds products.
+
+Not yet built (later stages of the SDD): the public catalog and the site reading this tree.
 
 ## Code structure
 
@@ -19,6 +21,8 @@ src/Modules/Content/
     SiteCategories/SetVisibility/  # «Показувати на сайті» from the tree
     SiteCategories/Reorder/        # order of one parent as a whole list
     SiteCategories/Delete/
+    SiteCategories/ImportOldSite/  # one-time transfer: tree, texts, products by old-site link, dry run
+    ProductPages/Shared/ProductCategoryLinks.cs   # categories of one product
     SiteCategories/Shared/         # mapping, free slug, next place, messages
   Content.Infrastructure/Content.Infrastructure/
     Persistence/Configurations/SiteCategoryConfiguration.cs
@@ -31,6 +35,7 @@ src/Modules/Content/
 ```text
 tests/UnitTests/Content/SiteCategoriesTests.cs           # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteCategories"
 tests/UnitTests/Content/SiteCategoriesContractTests.cs
+tests/UnitTests/Content/SiteCategoryProductsTests.cs     # product categories and the old-site transfer
 ```
 
 ## Data

@@ -6,6 +6,7 @@ using Content.Application.Contracts;
 using Content.Application.SiteCategories.Delete;
 using Content.Application.SiteCategories.GetList;
 using Content.Application.SiteCategories.GetOne;
+using Content.Application.SiteCategories.ImportOldSite;
 using Content.Application.SiteCategories.Reorder;
 using Content.Application.SiteCategories.Save;
 using Content.Application.SiteCategories.SetVisibility;
@@ -56,6 +57,18 @@ public sealed class SiteCategoriesController(ISender sender) : ControllerBase
     public async Task<IActionResult> Reorder([FromBody] ReorderSiteCategoriesRequest request,
         CancellationToken cancellationToken) =>
         Plain(await sender.Send(new ReorderSiteCategoriesCommand(request.ParentId, request.Ids), cancellationToken));
+
+    /// <summary>
+    /// One-time transfer of the old-site category tree with SEO, texts and products; needs the create right. Counts
+    /// only unless <c>dryRun</c> is false.
+    /// </summary>
+    [HttpPost("old-site-import", Name = "importOldSiteCategories")]
+    [RequestSizeLimit(20 * 1024 * 1024)]
+    public async Task<ActionResult<OldSiteCategoryImportResponse>> ImportOldSite(
+        [FromBody] ImportOldSiteCategoriesRequest request, CancellationToken cancellationToken) =>
+        this.ToActionResult(await sender.Send(
+            new ImportOldSiteCategoriesCommand(request.DryRun, request.ShowOnSite, request.Overwrite, request.Items,
+                By()), cancellationToken));
 
     /// <summary>Removes the category; refused with 409 while it has subcategories.</summary>
     [HttpDelete("{id:int}", Name = "deleteSiteCategory")]

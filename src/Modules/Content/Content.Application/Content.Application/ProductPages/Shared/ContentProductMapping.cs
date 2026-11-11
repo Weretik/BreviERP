@@ -6,7 +6,7 @@ namespace Content.Application.ProductPages.Shared;
 
 internal static class ContentProductMapping
 {
-    public static ContentProductRow Row(ContentCatalogProduct product, ProductPage? page)
+    public static ContentProductRow Row(ContentCatalogProduct product, ProductPage? page, int categoryCount)
     {
         var uk = page?.TextIn(ProductPageRules.Ukrainian);
         var ru = page?.TextIn(ProductPageRules.Russian);
@@ -14,7 +14,7 @@ internal static class ContentProductMapping
             product.SectionName, product.IsActive, product.MainPhotoUrl, product.Prices is not null, page is not null,
             page?.ShowOnSite ?? false, page is { ShowOnSite: true } && product.IsActive, page?.Slug,
             uk is { HasText: true }, ru is { HasText: true }, uk is { HasSeo: true } && ru is { HasSeo: true },
-            page?.UpdatedAtUtc);
+            page?.UpdatedAtUtc, categoryCount);
     }
 
     public static ContentProductTextResponse Text(ProductPageText? text) => text is null
@@ -25,10 +25,11 @@ internal static class ContentProductMapping
     public static ContentPriceTiersResponse? Prices(ContentPriceTiers? prices) =>
         prices is null ? null : new ContentPriceTiersResponse(prices.Retail, prices.Wholesale, prices.LargeWholesale);
 
-    public static ContentProductResponse Detail(ContentCatalogProduct product, ProductPage? page, string offeredSlug) =>
-        new(Row(product, page), page?.Revision ?? 0, page?.Slug ?? offeredSlug, page?.UpdatedBy,
+    public static ContentProductResponse Detail(ContentCatalogProduct product, ProductPage? page, string offeredSlug,
+        IReadOnlyList<int> categoryIds) =>
+        new(Row(product, page, categoryIds.Count), page?.Revision ?? 0, page?.Slug ?? offeredSlug, page?.UpdatedBy,
             Text(page?.TextIn(ProductPageRules.Ukrainian)), Text(page?.TextIn(ProductPageRules.Russian)),
             Prices(product.Prices),
             product.Variants.Select(x => new ContentProductVariantResponse(x.ArticleId, x.SaleSku, x.IsActive,
-                x.FabricName, x.FabricDetails, Prices(x.Prices))).ToArray());
+                x.FabricName, x.FabricDetails, Prices(x.Prices))).ToArray(), categoryIds);
 }

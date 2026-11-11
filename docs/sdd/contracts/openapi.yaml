@@ -581,6 +581,8 @@ paths:
     $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories
   /api/content/categories/order:
     $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories~1order
+  /api/content/categories/old-site-import:
+    $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories~1old-site-import
   /api/content/categories/{id}:
     $ref: ./content/content-categories.openapi.yaml#/paths/~1api~1content~1categories~1{id}
   /api/content/categories/{id}/visibility:
