@@ -2,10 +2,13 @@ openapi: 3.1.0
 info:
   title: 'Warehouse: fabric stock'
   version: 1.0.0
-  description: 'Warehouse module (WH-001), moved from stage 4 of «Швейний цех» (PRD-004): «Склад тканин». A line is one fabric of «Тканини» (FAB- code) in one colour;
-    the balance changes only through movements (opening, receipt, issue, correction, reversal). Reservation is computed from
-    the norms of items of «Нове» orders minus what issues covered. Everyone who sees production orders reads the stock; WorkshopChief
-    and Admin move it and see its value in UAH; Admin alone moves the old stock.'
+  description: 'Warehouse module (WH-001, WH-002, WH-003): «Склад тканин». A stock line is one offer of «Тканини» (FAB- code) in one
+    colour; lines of a reviewed alias group (FAB-023/067, FAB-078/077) and a normalised colour form one pair, which «Залишки», openings,
+    issues without an order and «Уточнити» work on. Balances change only through movements (opening, receipt, issue, correction, reversal);
+    each line''s chain runs by operation date, record time and id. Every stock form sends an operation id, so a repeat never moves the
+    fabric twice. Everyone with access reads the stock; WorkshopChief and Admin move it; Admin alone moves the old stock. Openings,
+    receipts, corrections and issues without an order can be edited, voided («Скасувати») and restored to the state before the last
+    change; every change is a revision with the values before and after.'
 servers:
 - url: /
 security:
@@ -13,18 +16,10 @@ security:
 paths:
   /api/warehouse/fabric-stock:
     get:
-      tags: &id001
+      tags:
       - Production
       operationId: getFabricStock
-      summary: Stock lines with reservation and available; planned pairs the stock never held come with a null id
-      parameters:
-      - in: query
-        name: search
-        required: false
-        schema:
-          type: string
-          maxLength: 200
-        description: Code, fabric or colour.
+      summary: '«Залишки»: fabrics by canonical code with every colour the stock holds; alias groups and colours summed'
       responses:
         '200':
           description: OK
@@ -36,13 +31,35 @@ paths:
           description: Not signed in
         '403':
           description: Not allowed
-        '400':
-          description: Invalid
+  /api/warehouse/fabric-stock/{id}:
+    delete:
+      tags:
+      - Production
+      operationId: deleteFabricStock
+      summary: 'Always 410: stock lines keep their history; «Уточнити» brings a balance to zero'
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '410':
+          description: Stock lines are never deleted
+          content:
+            application/problem+json:
+              schema:
+                type: object
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
   /api/warehouse/fabric-stock/choices:
     get:
-      tags: *id001
+      tags:
+      - Production
       operationId: getFabricStockChoices
-      summary: Fabrics with a FAB- code and active suppliers for the stock forms
+      summary: Active offers of «Тканини» with a FAB- code, supplier names and colours for the stock forms
       responses:
         '200':
           description: OK
@@ -54,16 +71,50 @@ paths:
           description: Not signed in
         '403':
           description: Not allowed
-  /api/warehouse/fabric-stock/{id}:
+  /api/warehouse/fabric-stock/movements:
     get:
-      tags: *id001
-      operationId: getFabricStockLine
-      summary: 'Card of a line: movements newest first and the items holding it'
+      tags:
+      - Production
+      operationId: getFabricMovements
+      summary: '«Рух тканини»: 50 per page, newest operation date first (then record time and id)'
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema: &id002
+      - in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - in: query
+        name: kind
+        required: false
+        schema:
+          type: string
+          enum:
+          - All
+          - Receipt
+          - Issue
+          - Opening
+          default: All
+        description: Opening lists openings not taken back («Внесені початкові залишки»).
+      - in: query
+        name: fabricCode
+        required: false
+        schema:
+          type: string
+          maxLength: 32
+        description: Any code of an alias group selects the whole group.
+      - in: query
+        name: color
+        required: false
+        schema:
+          type: string
+          maxLength: 80
+        description: Matched by the normalised colour key.
+      - in: query
+        name: itemId
+        required: false
+        schema:
           type: integer
       responses:
         '200':
@@ -71,88 +122,141 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FabricStockLineResponse'
+                $ref: '#/components/schemas/FabricMovementPageResponse'
         '401':
           description: Not signed in
         '403':
           description: Not allowed
-        '404':
-          description: No such line
-  /api/warehouse/fabric-stock/movements:
+        '400':
+          description: Invalid
+  /api/warehouse/fabric-stock/openings:
     post:
-      tags: *id001
-      operationId: createFabricMovement
-      summary: «Початковий залишок» or «Прихід»; a new fabric and colour opens its line
+      tags:
+      - Production
+      operationId: openFabricStock
+      summary: '«Початковий залишок»: once per fabric and colour (any code of its group), zero allowed'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateFabricMovementInput'
+              $ref: '#/components/schemas/OpenFabricStockInput'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FabricStockLineResponse'
+                $ref: '#/components/schemas/FabricStockOperationResponse'
         '401':
           description: Not signed in
         '403':
           description: Not allowed
         '400':
-          description: Invalid, or the fabric has no FAB- code
+          description: Invalid, inactive fabric, colour not in «Кольори» or changed alias offer
         '404':
-          description: No such fabric or supplier
+          description: No such fabric
         '409':
-          description: Stale version or opening not first
-  /api/warehouse/fabric-stock/{id}/correction:
+          description: The pair is already on the stock, or the operation id was used for other data
+  /api/warehouse/fabric-stock/receipts:
     post:
-      tags: *id001
-      operationId: correctFabricStock
-      summary: «Коригування» to the counted metres, with a reason
-      parameters:
-      - in: path
-        name: id
-        required: true
-        schema: *id002
+      tags:
+      - Production
+      operationId: receiveFabric
+      summary: «Прихід» of the offer picked; the supplier is a name, not a required counterparty
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CorrectFabricStockInput'
+              $ref: '#/components/schemas/ReceiveFabricInput'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FabricStockLineResponse'
+                $ref: '#/components/schemas/FabricStockOperationResponse'
         '401':
           description: Not signed in
         '403':
           description: Not allowed
         '400':
-          description: Invalid or nothing to correct
+          description: Invalid, inactive fabric, colour not in «Кольори» or changed alias offer
         '404':
-          description: No such line
+          description: No such fabric
         '409':
-          description: Stale version
-  /api/warehouse/fabric-stock/{id}/movements/{movementId}/reverse:
+          description: Stale, or the operation id was used for other data
+  /api/warehouse/fabric-stock/issues:
     post:
-      tags: *id001
+      tags:
+      - Production
+      operationId: issueFabric
+      summary: '«Разова витрата / без замовлення»: lines spent in order, the balance may go below zero'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueFabricInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockOperationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '404':
+          description: The stock never held this fabric and colour
+        '409':
+          description: Stale version, or the operation id was used for other data
+  /api/warehouse/fabric-stock/adjustments:
+    post:
+      tags:
+      - Production
+      operationId: adjustFabricStock
+      summary: '«Уточнити»: the counted total of a pair with a reason; it may not end below min(0, current total)'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdjustFabricStockInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockOperationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid, nothing to adjust, or it would create or deepen a negative balance
+        '404':
+          description: The stock never held this fabric and colour
+        '409':
+          description: Stale version, or the operation id was used for other data
+  /api/warehouse/fabric-stock/movements/{movementId}/reverse:
+    post:
+      tags:
+      - Production
       operationId: reverseFabricMovement
-      summary: «Сторно» of an opening, receipt or correction
+      summary: «Сторно» of an opening, receipt, correction or issue without an order
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema: *id002
       - in: path
         name: movementId
         required: true
-        schema: *id002
+        schema:
+          type: integer
       requestBody:
         required: true
         content:
@@ -165,7 +269,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FabricStockLineResponse'
+                $ref: '#/components/schemas/FabricStockOperationResponse'
         '401':
           description: Not signed in
         '403':
@@ -173,25 +277,28 @@ paths:
         '400':
           description: Invalid
         '404':
-          description: No such line or movement
+          description: No such movement
         '409':
-          description: Stale, already reversed, or an issue
+          description: Stale, already reversed, or an issue to an order
   /api/warehouse/fabric-stock/consumption:
     get:
-      tags: *id001
+      tags:
+      - Production
       operationId: getFabricConsumption
       summary: '«Зведення витрати»: received, issued and corrected per line by operation date'
       parameters:
       - in: query
         name: from
         required: true
-        schema: &id003
+        schema:
           type: string
           format: date
       - in: query
         name: to
         required: true
-        schema: *id003
+        schema:
+          type: string
+          format: date
       responses:
         '200':
           description: OK
@@ -207,14 +314,15 @@ paths:
           description: Invalid period
   /api/warehouse/fabric-stock/import:
     post:
-      tags: *id001
+      tags:
+      - Production
       operationId: importFabricStock
       summary: Moves the stock of the old «Цех» (Admin); nothing is saved unless every row is fine
       parameters:
       - in: query
         name: dryRun
         required: false
-        schema: &id006
+        schema:
           type: boolean
         description: Only check and show.
       requestBody:
@@ -238,18 +346,21 @@ paths:
           description: Invalid file
   /api/warehouse/orders/{id}/items/{itemId}/fabric:
     get:
-      tags: *id001
+      tags:
+      - Production
       operationId: getProductionItemFabric
       summary: 'Tab «Тканина»: plan by colour, issues and whether the person may issue'
       parameters:
       - in: path
         name: id
         required: true
-        schema: *id002
+        schema:
+          type: integer
       - in: path
         name: itemId
         required: true
-        schema: *id002
+        schema:
+          type: integer
       responses:
         '200':
           description: OK
@@ -265,18 +376,21 @@ paths:
           description: No such order or item
   /api/warehouse/orders/{id}/items/{itemId}/fabric-issues:
     post:
-      tags: *id001
+      tags:
+      - Production
       operationId: createFabricIssue
       summary: '«Видати»: one package of planned, replacement and additional lines'
       parameters:
       - in: path
         name: id
         required: true
-        schema: *id002
+        schema:
+          type: integer
       - in: path
         name: itemId
         required: true
-        schema: *id002
+        schema:
+          type: integer
       requestBody:
         required: true
         content:
@@ -302,18 +416,21 @@ paths:
           description: Stale order or stock
   /api/warehouse/orders/{id}/fabric-issues/{issueId}/reverse:
     post:
-      tags: *id001
+      tags:
+      - Production
       operationId: reverseFabricIssue
       summary: '«Сторно видачі»: every line returns to the stock and the plan is reserved again'
       parameters:
       - in: path
         name: id
         required: true
-        schema: *id002
+        schema:
+          type: integer
       - in: path
         name: issueId
         required: true
-        schema: *id002
+        schema:
+          type: integer
       requestBody:
         required: true
         content:
@@ -337,6 +454,137 @@ paths:
           description: No such issue
         '409':
           description: Stale or already reversed
+  /api/warehouse/fabric-stock/movements/{movementId}:
+    put:
+      tags:
+      - Production
+      operationId: editFabricMovement
+      summary: Edits an opening, receipt, correction or issue without an order; the chains of both lines are restated
+      parameters:
+      - in: path
+        name: movementId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditFabricMovementInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockOperationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid, wrong sign for the kind, nothing changed, or a target change of an opening or correction
+        '404':
+          description: No such movement, or the stock never held the target pair
+        '409':
+          description: Changed by someone else, voided, reversed, an issue to an order, or the operation id was used for other data
+  /api/warehouse/fabric-stock/movements/{movementId}/void:
+    post:
+      tags:
+      - Production
+      operationId: voidFabricMovement
+      summary: '«Скасувати»: the movement stays in the history with no effect on the balance'
+      parameters:
+      - in: path
+        name: movementId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoidFabricMovementInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockOperationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+        '404':
+          description: No such movement
+        '409':
+          description: Changed by someone else, voided, reversed, an issue to an order, or the operation id was used for other data
+  /api/warehouse/fabric-stock/movements/{movementId}/restore:
+    post:
+      tags:
+      - Production
+      operationId: restoreFabricMovement
+      summary: '«Скасувати останню правку»: the state before the newest edit or void not yet taken back comes back, only while the movement
+        still is what it left'
+      parameters:
+      - in: path
+        name: movementId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreFabricMovementInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricStockOperationResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid or out of range
+        '404':
+          description: No such movement
+        '409':
+          description: Nothing to restore, changed since, or the operation id was used for other data
+  /api/warehouse/fabric-stock/movements/{movementId}/revisions:
+    get:
+      tags:
+      - Production
+      operationId: getFabricMovementHistory
+      summary: «Історія правок» of a movement, newest first
+      parameters:
+      - in: path
+        name: movementId
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricMovementHistoryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '404':
+          description: No such movement
 components:
   securitySchemes:
     Bearer:
@@ -351,29 +599,286 @@ components:
       properties:
         canMove:
           type: boolean
-          description: 'Receipts, corrections, reversals and issues: WorkshopChief and Admin.'
+          description: 'Openings, receipts, issues and «Уточнити»: WorkshopChief and Admin.'
         seesValue:
           type: boolean
-          description: 'The value in UAH: WorkshopChief and Admin.'
+          description: 'Prices of «Тканини» on the forms: WorkshopChief and Admin.'
+    FabricStockSourceResponse:
+      type: object
+      required:
+      - id
+      - fabricCode
+      - meters
+      properties:
+        id:
+          type: integer
+        fabricCode:
+          type: string
+        meters:
+          type: number
+          format: double
+      description: 'A stock line inside a pair: its own code and balance.'
+    FabricStockColorResponse:
+      type: object
+      required:
+      - color
+      - colorKey
+      - meters
+      - version
+      - sources
+      properties:
+        color:
+          type: string
+        colorKey:
+          type: string
+          description: NFC, trimmed, spaces collapsed, lower case (uk-UA).
+        meters:
+          type: number
+          format: double
+        version:
+          type: string
+          description: Changes whenever any line of the pair changes; goes back with «Уточнити» and a «Разова витрата».
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockSourceResponse'
+      description: 'A fabric and colour on the shelf: every line of the alias group with that colour summed.'
+    FabricStockFabricResponse:
+      type: object
+      required:
+      - fabricCode
+      - codes
+      - fabricName
+      - composition
+      - density
+      - meters
+      - colors
+      properties:
+        fabricCode:
+          type: string
+          description: The canonical code (FAB-067 → FAB-023, FAB-077 → FAB-078).
+        codes:
+          type: array
+          items:
+            type: string
+          description: Codes of «Тканини» that are this fabric, the canonical first.
+        fabricName:
+          type: string
+        composition:
+          type:
+          - string
+          - 'null'
+        density:
+          type:
+          - string
+          - 'null'
+        meters:
+          type: number
+          format: double
+        colors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockColorResponse'
+    FabricStockListResponse:
+      type: object
+      required:
+      - fabrics
+      - meters
+      - pairs
+      - negative
+      - permissions
+      properties:
+        fabrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricStockFabricResponse'
+        meters:
+          type: number
+          format: double
+        pairs:
+          type: integer
+        negative:
+          type: integer
+          description: Pairs below zero.
+        permissions:
+          $ref: '#/components/schemas/FabricStockPermissions'
+      description: '«Залишки»: only fabrics and colours that have stock lines, zero and negative included.'
+    FabricMovementRowResponse:
+      type: object
+      required:
+      - id
+      - stockId
+      - kind
+      - operationDate
+      - createdAt
+      - fabricCode
+      - groupCode
+      - fabricName
+      - color
+      - supplierName
+      - document
+      - orderId
+      - itemId
+      - orderNumber
+      - modelName
+      - destination
+      - delta
+      - metersAfter
+      - note
+      - createdByName
+      - isReversed
+      - reversesMovementId
+      - canReverse
+      - isVoided
+      - revision
+      - canEdit
+      properties:
+        id:
+          type: integer
+        stockId:
+          type: integer
+        kind:
+          type: string
+          enum:
+          - Opening
+          - Receipt
+          - Issue
+          - Adjustment
+          - Reversal
+        operationDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        fabricCode:
+          type: string
+          description: Code of the line moved.
+        groupCode:
+          type: string
+          description: The fabric the stock shows.
+        fabricName:
+          type: string
+        color:
+          type: string
+        supplierName:
+          type:
+          - string
+          - 'null'
+        document:
+          type:
+          - string
+          - 'null'
+        orderId:
+          type:
+          - integer
+          - 'null'
+        itemId:
+          type:
+          - integer
+          - 'null'
+        orderNumber:
+          type:
+          - integer
+          - 'null'
+        modelName:
+          type:
+          - string
+          - 'null'
+        destination:
+          type:
+          - string
+          - 'null'
+          description: «Куди використано» of an issue without an order.
+        delta:
+          type: number
+          format: double
+        metersAfter:
+          type: number
+          format: double
+          description: Balance of that line after the movement.
+        note:
+          type:
+          - string
+          - 'null'
+        createdByName:
+          type: string
+        isReversed:
+          type: boolean
+        reversesMovementId:
+          type:
+          - integer
+          - 'null'
+        canReverse:
+          type: boolean
+        isVoided:
+          type: boolean
+          description: '«Скасовано»: kept in the history with no effect on the balance.'
+        revision:
+          type: integer
+          description: Number of edits, voids and restores; send it back as expectedRevision.
+        canEdit:
+          type: boolean
+          description: Edit, «Скасувати» and «Історія правок» actions are offered.
+      description: A row of «Рух тканини».
+    FabricMovementPageResponse:
+      type: object
+      required:
+      - rows
+      - page
+      - hasMore
+      - permissions
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricMovementRowResponse'
+        page:
+          type: integer
+        hasMore:
+          type: boolean
+        permissions:
+          $ref: '#/components/schemas/FabricStockPermissions'
     FabricStockFabricChoice:
       type: object
       required:
       - id
       - code
+      - groupCode
       - name
+      - composition
+      - density
+      - supplier
+      - price
       properties:
-        id: *id002
-        code: &id004
+        id:
+          type: integer
+        code:
           type: string
-        name: *id004
-    FabricStockSupplierChoice:
-      type: object
-      required:
-      - id
-      - name
-      properties:
-        id: *id002
-        name: *id004
+        groupCode:
+          type: string
+          description: Offers with the same group code are the same fabric on the shelf.
+        name:
+          type: string
+        composition:
+          type:
+          - string
+          - 'null'
+        density:
+          type:
+          - string
+          - 'null'
+        supplier:
+          type:
+          - string
+          - 'null'
+        price:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: UAH per metre; null for people who do not see prices.
+      description: An active offer of «Тканини» with a FAB- code.
     FabricStockChoicesResponse:
       type: object
       required:
@@ -388,300 +893,200 @@ components:
         suppliers:
           type: array
           items:
-            $ref: '#/components/schemas/FabricStockSupplierChoice'
-          description: Active suppliers; empty for people who cannot move stock.
+            type: string
+          description: Names of active «Постачальники» and of the suppliers of «Тканини»; empty for people who cannot move stock.
         colors:
           type: array
           items:
             type: string
             maxLength: 80
-          description: Active colours of «Кольори» in list order; a new stock line takes one of them.
-    FabricStockRowResponse:
+          description: Active colours of «Кольори» in list order.
+    OpenFabricStockInput:
       type: object
       required:
-      - id
+      - operationId
       - fabricId
-      - fabricCode
-      - fabricName
       - color
       - meters
-      - reserved
-      - available
-      - price
-      - value
-      - version
-      - updatedAt
+      - operationDate
       properties:
-        id:
-          type:
-          - integer
-          - 'null'
-          description: Null for a fabric and colour open orders plan but the stock never held.
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
         fabricId:
-          type:
-          - integer
-          - 'null'
-        fabricCode: *id004
-        fabricName: *id004
-        color: *id004
+          type: integer
+        color:
+          type: string
+          maxLength: 80
         meters:
           type: number
-          description: Balance; may be negative.
-        reserved:
-          type: number
-          description: Plan of «Нове» orders not yet covered by issues.
-        available:
-          type: number
-          description: Balance − reserved.
-        price:
-          type:
-          - number
-          - 'null'
-          description: UAH per metre of «Тканини»; null without the right to see the value.
-        value:
-          type:
-          - number
-          - 'null'
-        version:
-          type: integer
-          description: 0 for a line that does not exist yet.
-        updatedAt:
-          type:
-          - string
-          - 'null'
-          format: date-time
-    FabricStockTotals:
-      type: object
-      required:
-      - meters
-      - reserved
-      - lines
-      - short
-      - value
-      properties:
-        meters: &id005
-          type: number
-        reserved: *id005
-        lines: *id002
-        short:
-          type: integer
-          description: Lines whose available is below zero.
-        value:
-          type:
-          - number
-          - 'null'
-    FabricStockListResponse:
-      type: object
-      required:
-      - rows
-      - totals
-      - permissions
-      properties:
-        rows:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricStockRowResponse'
-        totals:
-          $ref: '#/components/schemas/FabricStockTotals'
-        permissions:
-          $ref: '#/components/schemas/FabricStockPermissions'
-    FabricMovementResponse:
-      type: object
-      required:
-      - id
-      - kind
-      - metersBefore
-      - delta
-      - metersAfter
-      - operationDate
-      - note
-      - supplierId
-      - supplierName
-      - document
-      - orderId
-      - orderNumber
-      - modelName
-      - reversesMovementId
-      - isReversed
-      - canReverse
-      - createdByName
-      - createdAt
-      properties:
-        id: *id002
-        kind:
+          format: double
+          minimum: 0
+          maximum: 1000000
+          description: 0…1 000 000, at most two decimals.
+        operationDate:
           type: string
-          enum: &id009
-          - Opening
-          - Receipt
-          - Issue
-          - Adjustment
-          - Reversal
-        metersBefore: *id005
-        delta: *id005
-        metersAfter: *id005
-        operationDate: *id003
-        note:
-          type:
-          - string
-          - 'null'
-        supplierId:
-          type:
-          - integer
-          - 'null'
+          format: date
+          description: The day the fabric really came or went, 1900-01-01…2100-12-31.
+    ReceiveFabricInput:
+      type: object
+      required:
+      - operationId
+      - fabricId
+      - color
+      - meters
+      - operationDate
+      properties:
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        fabricId:
+          type: integer
+        color:
+          type: string
+          maxLength: 80
+        meters:
+          type: number
+          format: double
+          exclusiveMinimum: 0
+          maximum: 1000000
+        operationDate:
+          type: string
+          format: date
+          description: The day the fabric really came or went, 1900-01-01…2100-12-31.
         supplierName:
           type:
           - string
           - 'null'
+          maxLength: 160
         document:
           type:
           - string
           - 'null'
-        orderId:
-          type:
-          - integer
-          - 'null'
-        orderNumber:
-          type:
-          - integer
-          - 'null'
-        modelName:
+          maxLength: 160
+        note:
           type:
           - string
           - 'null'
-        reversesMovementId:
-          type:
-          - integer
-          - 'null'
-          description: The movement a «Сторно» takes back.
-        isReversed: *id006
-        canReverse:
-          type: boolean
-          description: An opening, receipt or correction not yet taken back, for those who may move stock.
-        createdByName: *id004
-        createdAt: &id007
-          type: string
-          format: date-time
-    FabricReservationResponse:
+          maxLength: 1000
+    IssueFabricInput:
       type: object
       required:
-      - orderId
-      - orderNumber
-      - itemId
-      - modelName
-      - planned
-      - covered
-      - reserved
-      properties:
-        orderId: *id002
-        orderNumber: *id002
-        itemId: *id002
-        modelName: *id004
-        planned: *id005
-        covered: *id005
-        reserved: *id005
-    FabricStockLineResponse:
-      type: object
-      required:
-      - line
-      - movements
-      - reservations
-      - permissions
-      properties:
-        line:
-          $ref: '#/components/schemas/FabricStockRowResponse'
-        movements:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricMovementResponse'
-        reservations:
-          type: array
-          items:
-            $ref: '#/components/schemas/FabricReservationResponse'
-        permissions:
-          $ref: '#/components/schemas/FabricStockPermissions'
-    CreateFabricMovementInput:
-      type: object
-      required:
-      - kind
-      - fabricId
+      - operationId
+      - fabricCode
       - color
       - meters
       - operationDate
-      - supplierId
-      - document
-      - note
-      - version
       properties:
-        kind:
+        operationId:
           type: string
-          enum:
-          - Opening
-          - Receipt
-          description: Opening only as the first movement of a line.
-        fabricId:
-          type: integer
-          minimum: 1
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        fabricCode:
+          type: string
+          maxLength: 32
         color:
           type: string
-          minLength: 1
           maxLength: 80
+        expectedVersion:
+          type:
+          - string
+          - 'null'
+          maxLength: 64
+          description: The pair version shown on the form; null skips the check.
         meters:
           type: number
+          format: double
           exclusiveMinimum: 0
-          multipleOf: 0.01
-        operationDate: *id003
-        supplierId:
-          type:
-          - integer
-          - 'null'
-        document:
+          maximum: 1000000
+        operationDate:
+          type: string
+          format: date
+          description: The day the fabric really came or went, 1900-01-01…2100-12-31.
+        destination:
           type:
           - string
           - 'null'
-          maxLength: 200
+          maxLength: 160
+          description: «Куди використано / контрагент».
         note:
           type:
           - string
           - 'null'
           maxLength: 1000
-        version:
-          type:
-          - integer
-          - 'null'
-          description: The line version; null when the fabric and colour are new.
-    CorrectFabricStockInput:
+    AdjustFabricStockInput:
       type: object
       required:
-      - version
-      - countedMeters
+      - operationId
+      - fabricCode
+      - color
+      - expectedVersion
+      - targetMeters
       - operationDate
-      - note
+      - reason
       properties:
-        version:
-          type: integer
-          minimum: 1
-        countedMeters:
-          type: number
-          minimum: 0
-          multipleOf: 0.01
-        operationDate: *id003
-        note:
+        operationId:
           type: string
-          minLength: 1
-          maxLength: 1000
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        fabricCode:
+          type: string
+          maxLength: 32
+        color:
+          type: string
+          maxLength: 80
+        expectedVersion:
+          type: string
+          maxLength: 64
+        targetMeters:
+          type: number
+          format: double
+          description: The counted total of the pair; not below min(0, current total).
+        operationDate:
+          type: string
+          format: date
+          description: The day the fabric really came or went, 1900-01-01…2100-12-31.
+        reason:
+          type: string
+          minLength: 3
+          maxLength: 500
     ReverseFabricMovementInput:
       type: object
       required:
-      - version
-      - note
+      - reason
       properties:
-        version:
-          type: integer
-          minimum: 1
-        note:
+        reason:
           type: string
-          minLength: 1
-          maxLength: 1000
+          minLength: 3
+          maxLength: 500
+    FabricStockOperationResponse:
+      type: object
+      required:
+      - operationId
+      - fabricCode
+      - color
+      - meters
+      - replayed
+      properties:
+        operationId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        fabricCode:
+          type: string
+        color:
+          type: string
+        meters:
+          type: number
+          format: double
+          description: The pair total after the operation.
+        replayed:
+          type: boolean
+          description: The same operation id was saved before; nothing moved now.
+      description: The pair after a stock operation.
     FabricPlanPartResponse:
       type: object
       required:
@@ -696,9 +1101,12 @@ components:
       - stockMeters
       - stockAvailable
       properties:
-        fabricCode: *id004
-        color: *id004
-        colorKey: *id004
+        fabricCode:
+          type: string
+        color:
+          type: string
+        colorKey:
+          type: string
         planned:
           type: number
           description: Norm part × quantity.
@@ -715,8 +1123,10 @@ components:
           type:
           - integer
           - 'null'
-        stockMeters: *id005
-        stockAvailable: *id005
+        stockMeters:
+          type: number
+        stockAvailable:
+          type: number
     FabricIssueLineResponse:
       type: object
       required:
@@ -731,10 +1141,11 @@ components:
       - meters
       - coveredMeters
       properties:
-        id: *id002
+        id:
+          type: integer
         purpose:
           type: string
-          enum: &id008
+          enum:
           - Planned
           - Replacement
           - Additional
@@ -746,12 +1157,18 @@ components:
           type:
           - number
           - 'null'
-        stockId: *id002
-        fabricCode: *id004
-        fabricName: *id004
-        color: *id004
-        meters: *id005
-        coveredMeters: *id005
+        stockId:
+          type: integer
+        fabricCode:
+          type: string
+        fabricName:
+          type: string
+        color:
+          type: string
+        meters:
+          type: number
+        coveredMeters:
+          type: number
     FabricIssueResponse:
       type: object
       required:
@@ -766,15 +1183,22 @@ components:
       - reverseReason
       - lines
       properties:
-        id: *id002
-        issuedOn: *id003
+        id:
+          type: integer
+        issuedOn:
+          type: string
+          format: date
         note:
           type:
           - string
           - 'null'
-        createdByName: *id004
-        createdAt: *id007
-        isReversed: *id006
+        createdByName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        isReversed:
+          type: boolean
         reversedAt:
           type:
           - string
@@ -807,9 +1231,12 @@ components:
       - issues
       - canIssue
       properties:
-        orderId: *id002
-        itemId: *id002
-        orderVersion: *id002
+        orderId:
+          type: integer
+        itemId:
+          type: integer
+        orderVersion:
+          type: integer
         fabricCode:
           type:
           - string
@@ -818,13 +1245,16 @@ components:
           type:
           - string
           - 'null'
-        quantity: *id002
-        hasNorm: *id006
+        quantity:
+          type: integer
+        hasNorm:
+          type: boolean
         plan:
           type: array
           items:
             $ref: '#/components/schemas/FabricPlanPartResponse'
-        issued: *id005
+        issued:
+          type: number
         issues:
           type: array
           items:
@@ -843,7 +1273,10 @@ components:
       properties:
         purpose:
           type: string
-          enum: *id008
+          enum:
+          - Planned
+          - Replacement
+          - Additional
         planColorKey:
           type:
           - string
@@ -871,7 +1304,9 @@ components:
         orderVersion:
           type: integer
           minimum: 1
-        issuedOn: *id003
+        issuedOn:
+          type: string
+          format: date
         note:
           type:
           - string
@@ -908,13 +1343,20 @@ components:
       - corrected
       - issuedValue
       properties:
-        stockId: *id002
-        fabricCode: *id004
-        fabricName: *id004
-        color: *id004
-        received: *id005
-        issued: *id005
-        corrected: *id005
+        stockId:
+          type: integer
+        fabricCode:
+          type: string
+        fabricName:
+          type: string
+        color:
+          type: string
+        received:
+          type: number
+        issued:
+          type: number
+        corrected:
+          type: number
         issuedValue:
           type:
           - number
@@ -929,14 +1371,20 @@ components:
       - issued
       - issuedValue
       properties:
-        from: *id003
-        to: *id003
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
         rows:
           type: array
           items:
             $ref: '#/components/schemas/FabricConsumptionRowResponse'
-        received: *id005
-        issued: *id005
+        received:
+          type: number
+        issued:
+          type: number
         issuedValue:
           type:
           - number
@@ -958,15 +1406,28 @@ components:
       - orderLegacyId
       - position
       properties:
-        legacyId: *id004
+        legacyId:
+          type: string
         kind:
           type: string
-          enum: *id009
-        metersBefore: *id005
-        delta: *id005
-        metersAfter: *id005
-        operationDate: *id003
-        at: *id007
+          enum:
+          - Opening
+          - Receipt
+          - Issue
+          - Adjustment
+          - Reversal
+        metersBefore:
+          type: number
+        delta:
+          type: number
+        metersAfter:
+          type: number
+        operationDate:
+          type: string
+          format: date
+        at:
+          type: string
+          format: date-time
         supplier:
           type:
           - string
@@ -1000,10 +1461,14 @@ components:
       - meters
       - movements
       properties:
-        legacyId: *id004
-        fabricCode: *id004
-        color: *id004
-        meters: *id005
+        legacyId:
+          type: string
+        fabricCode:
+          type: string
+        color:
+          type: string
+        meters:
+          type: number
         movements:
           type: array
           items:
@@ -1020,7 +1485,10 @@ components:
       properties:
         purpose:
           type: string
-          enum: *id008
+          enum:
+          - Planned
+          - Replacement
+          - Additional
         planFabricCode:
           type:
           - string
@@ -1033,8 +1501,10 @@ components:
           type:
           - number
           - 'null'
-        movementLegacyId: *id004
-        coveredMeters: *id005
+        movementLegacyId:
+          type: string
+        coveredMeters:
+          type: number
     FabricIssueImportRow:
       type: object
       required:
@@ -1047,11 +1517,18 @@ components:
       - note
       - lines
       properties:
-        legacyId: *id004
-        orderLegacyId: *id004
-        position: *id002
-        issuedOn: *id003
-        at: *id007
+        legacyId:
+          type: string
+        orderLegacyId:
+          type: string
+        position:
+          type: integer
+        issuedOn:
+          type: string
+          format: date
+        at:
+          type: string
+          format: date-time
         actorEmail:
           type:
           - string
@@ -1071,9 +1548,12 @@ components:
       - color
       - meters
       properties:
-        fabricCode: *id004
-        color: *id004
-        meters: *id005
+        fabricCode:
+          type: string
+        color:
+          type: string
+        meters:
+          type: number
     FabricStockImportInput:
       type: object
       required:
@@ -1102,9 +1582,12 @@ components:
       - action
       - error
       properties:
-        fabricCode: *id004
-        color: *id004
-        movements: *id002
+        fabricCode:
+          type: string
+        color:
+          type: string
+        movements:
+          type: integer
         action:
           type: string
           enum:
@@ -1128,12 +1611,18 @@ components:
       - lines
       - issueErrors
       properties:
-        dryRun: *id006
-        created: *id002
-        unchanged: *id002
-        errors: *id002
-        movements: *id002
-        issues: *id002
+        dryRun:
+          type: boolean
+        created:
+          type: integer
+        unchanged:
+          type: integer
+        errors:
+          type: integer
+        movements:
+          type: integer
+        issues:
+          type: integer
         reservationDifferences:
           type: integer
           description: Fabric and colour pairs whose recomputed reservation differs from the old app.
@@ -1143,4 +1632,197 @@ components:
             $ref: '#/components/schemas/FabricStockImportLine'
         issueErrors:
           type: array
-          items: *id004
+          items:
+            type: string
+    EditFabricMovementInput:
+      type: object
+      required:
+      - operationId
+      - expectedRevision
+      - operationDate
+      - meters
+      properties:
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        expectedRevision:
+          type: integer
+          minimum: 0
+          description: The movement revision shown on the form; another one is 409.
+        operationDate:
+          type: string
+          format: date
+          description: The day the fabric really came or went, 1900-01-01…2100-12-31.
+        meters:
+          type: number
+          format: double
+          description: 'Amount without sign: >0 for a receipt or issue, ≥0 for an opening; a correction is signed and ≠0.'
+        fabricId:
+          type:
+          - integer
+          - 'null'
+          description: 'A receipt only: another offer of «Тканини».'
+        fabricCode:
+          type:
+          - string
+          - 'null'
+          maxLength: 32
+          description: 'An issue only: another pair the stock holds.'
+        color:
+          type:
+          - string
+          - 'null'
+          maxLength: 80
+          description: 'A receipt: another colour (alone: the same offer). An issue, with fabricCode: the colour of the target pair.'
+        supplierName:
+          type:
+          - string
+          - 'null'
+          maxLength: 160
+          description: A receipt only.
+        document:
+          type:
+          - string
+          - 'null'
+          maxLength: 160
+          description: A receipt only.
+        destination:
+          type:
+          - string
+          - 'null'
+          maxLength: 160
+          description: An issue only.
+        reason:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+    VoidFabricMovementInput:
+      type: object
+      required:
+      - operationId
+      - expectedRevision
+      - reason
+      properties:
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        expectedRevision:
+          type: integer
+          minimum: 0
+          description: The movement revision shown on the form; another one is 409.
+        reason:
+          type: string
+          minLength: 3
+          maxLength: 500
+    RestoreFabricMovementInput:
+      type: object
+      required:
+      - operationId
+      - expectedRevision
+      properties:
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; the same id with the same data returns the saved result, with other data 409.
+        expectedRevision:
+          type: integer
+          minimum: 0
+          description: The movement revision shown on the form; another one is 409.
+    FabricMovementStateResponse:
+      type: object
+      required:
+      - fabricCode
+      - color
+      - operationDate
+      - delta
+      - supplierName
+      - document
+      - destination
+      - isVoided
+      properties:
+        fabricCode:
+          type: string
+        color:
+          type: string
+        operationDate:
+          type: string
+          format: date
+        delta:
+          type: number
+          format: double
+        supplierName:
+          type:
+          - string
+          - 'null'
+        document:
+          type:
+          - string
+          - 'null'
+        destination:
+          type:
+          - string
+          - 'null'
+        isVoided:
+          type: boolean
+      description: A movement before or after a revision.
+    FabricMovementRevisionResponse:
+      type: object
+      required:
+      - id
+      - number
+      - action
+      - before
+      - after
+      - reason
+      - createdByName
+      - createdAt
+      - isUndone
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        action:
+          type: string
+          enum:
+          - Edit
+          - Void
+          - Restore
+        before:
+          $ref: '#/components/schemas/FabricMovementStateResponse'
+        after:
+          $ref: '#/components/schemas/FabricMovementStateResponse'
+        reason:
+          type:
+          - string
+          - 'null'
+        createdByName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        isUndone:
+          type: boolean
+          description: Taken back by a later restore.
+    FabricMovementHistoryResponse:
+      type: object
+      required:
+      - movementId
+      - revision
+      - canRestore
+      - revisions
+      properties:
+        movementId:
+          type: integer
+        revision:
+          type: integer
+        canRestore:
+          type: boolean
+          description: «Скасувати останню правку» is offered.
+        revisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricMovementRevisionResponse'

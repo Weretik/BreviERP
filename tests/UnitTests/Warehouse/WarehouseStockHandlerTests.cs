@@ -9,6 +9,8 @@ using Warehouse.Application.Stock.GetStock;
 using Warehouse.Application.Stock.ImportStock;
 using Warehouse.Application.Stock.Issues;
 using Warehouse.Application.Stock.Movements;
+using Warehouse.Application.Stock.Opening;
+using Warehouse.Application.Stock.Receipts;
 
 namespace UnitTests.Warehouse;
 
@@ -22,51 +24,48 @@ public sealed class WarehouseStockHandlerTests
     private static readonly DateOnly Day = new(2026, 11, 4);
 
     [Test]
-    public async Task Receipt_correction_and_reversal_keep_before_change_after()
+    public async Task Receipt_and_reversal_keep_before_change_after()
     {
         using var workshop = Workshop();
-        var opened = await Receive(workshop, Chief, "Opening", 10m, null);
-        var received = await Receive(workshop, Chief, "Receipt", 25.5m, opened.Value.Line.Version, supplierId: 7);
-        var stale = await Receive(workshop, Chief, "Receipt", 1m, opened.Value.Line.Version);
-        var line = received.Value.Line;
-        var corrected = await new CorrectFabricStockCommandHandler(workshop.Db, workshop.StockChanges())
-            .Handle(new(Chief, line.Id!.Value, new(line.Version, 30m, Day, "Інвентаризація")), CancellationToken.None);
-        var receipt = corrected.Value.Movements.Single(x => x.Kind == "Receipt");
-        var reversed = await new ReverseFabricMovementCommandHandler(workshop.Db, workshop.StockChanges())
-            .Handle(new(Chief, line.Id.Value, receipt.Id, new(corrected.Value.Line.Version, "Помилкова накладна")),
-                CancellationToken.None);
-        var twice = await new ReverseFabricMovementCommandHandler(workshop.Db, workshop.StockChanges())
-            .Handle(new(Chief, line.Id.Value, receipt.Id, new(reversed.Value.Line.Version, "Ще раз")), CancellationToken.None);
+        await Receive(workshop, Chief, "Opening", 10m);
+        var received = await Receive(workshop, Chief, "Receipt", 25.5m, supplier: "Тексика");
+        var receipt = (await Movements(workshop, Chief, FabricMovementFilter.Receipt)).Rows.Single();
+        var reversed = await Reverse(workshop, Chief, receipt.Id, "Помилкова накладна");
+        var twice = await Reverse(workshop, Chief, receipt.Id, "Ще раз");
+        var history = (await Movements(workshop, Chief, FabricMovementFilter.All)).Rows;
 
         Assert.Multiple(() =>
         {
-            Assert.That(received.Value.Line.Meters, Is.EqualTo(35.5m));
-            Assert.That(received.Value.Movements[0].SupplierName, Is.EqualTo("Тексика"));
-            Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
-            Assert.That(corrected.Value.Movements[0].Delta, Is.EqualTo(-5.5m));
-            Assert.That(reversed.Value.Line.Meters, Is.EqualTo(4.5m));
-            Assert.That(reversed.Value.Movements[0], Has.Property("MetersBefore").EqualTo(30m)
-                .And.Property("MetersAfter").EqualTo(4.5m));
-            Assert.That(reversed.Value.Movements.Single(x => x.Id == receipt.Id).IsReversed, Is.True);
+            Assert.That(received.Value.Meters, Is.EqualTo(35.5m));
+            Assert.That(receipt.SupplierName, Is.EqualTo("Тексика"));
+            Assert.That(receipt.Document, Is.EqualTo("рах 12137"));
+            Assert.That(reversed.Value.Meters, Is.EqualTo(10m));
+            Assert.That(history[0], Has.Property("Kind").EqualTo("Reversal").And.Property("MetersAfter").EqualTo(10m));
+            Assert.That(history.Single(x => x.Id == receipt.Id).IsReversed, Is.True);
             Assert.That(twice.Status, Is.EqualTo(ResultStatus.Conflict));
         });
     }
 
     [Test]
-    public async Task Managers_see_stock_without_value_and_cannot_move_it()
+    public async Task Managers_see_stock_and_movements_but_cannot_move_it_or_see_prices()
     {
         using var workshop = Workshop();
-        await Receive(workshop, Chief, "Opening", 10m, null);
-        var byManager = await Receive(workshop, Manager, "Receipt", 1m, 2);
+        await Receive(workshop, Chief, "Opening", 10m);
+        var byManager = await Receive(workshop, Manager, "Receipt", 1m);
         var managerList = await List(workshop, Manager);
-        var chiefList = await List(workshop, Chief);
+        var managerMovements = await Movements(workshop, Manager, FabricMovementFilter.All);
+        var managerChoices = await Choices(workshop, Manager);
+        var chiefChoices = await Choices(workshop, Chief);
 
         Assert.Multiple(() =>
         {
             Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
-            Assert.That(managerList.Rows.Single().Value, Is.Null);
+            Assert.That(Pair(managerList, "Темно-сірий").Meters, Is.EqualTo(10m));
             Assert.That(managerList.Permissions.CanMove, Is.False);
-            Assert.That(chiefList.Rows.Single().Value, Is.EqualTo(1200m));
+            Assert.That(managerMovements.Rows.Single().CanReverse, Is.False);
+            Assert.That(managerChoices.Fabrics.Select(x => x.Price), Is.All.Null);
+            Assert.That(managerChoices.Suppliers, Is.Empty);
+            Assert.That(chiefChoices.Fabrics.Single(x => x.Code == "FAB-023").Price, Is.EqualTo(120m));
         });
     }
 
@@ -74,7 +73,7 @@ public sealed class WarehouseStockHandlerTests
     public async Task Plan_is_split_by_colour_and_an_issue_takes_it_off_the_reservation()
     {
         using var workshop = Workshop();
-        await Receive(workshop, Chief, "Opening", 10m, null);
+        await Receive(workshop, Chief, "Opening", 10m);
         var order = (await ProductionOrderHandlerTests.Create(workshop.Workshop, OrderManager, ProductionOrderHandlerTests.Input())).Value;
         var itemId = order.Items[0].Id;
         var before = await List(workshop, Chief);
@@ -93,8 +92,9 @@ public sealed class WarehouseStockHandlerTests
         Assert.Multiple(() =>
         {
             Assert.That(tab.Plan.Select(x => (x.Color, x.Planned)), Is.EqualTo(new[] { ("Темно-сірий", 6.6m), ("Червоний", 0.9m) }));
-            Assert.That(before.Rows.Single(x => x.Color == "Темно-сірий").Available, Is.EqualTo(3.4m));
-            Assert.That(before.Rows.Single(x => x.Color == "Червоний").Id, Is.Null, "a planned colour the stock never held");
+            Assert.That(Pair(before, "Темно-сірий").Meters, Is.EqualTo(10m));
+            Assert.That(tab.Plan.Single(x => x.Color == "Темно-сірий").StockAvailable, Is.EqualTo(3.4m));
+            Assert.That(tab.Plan.Single(x => x.Color == "Червоний").StockId, Is.Null, "a planned colour the stock never held");
             var parts = issued.Value.Plan.ToDictionary(x => x.ColorKey);
             Assert.That(parts["темно-сірий"].Covered, Is.EqualTo(4m));
             Assert.That(parts["темно-сірий"].Reserved, Is.EqualTo(2.6m));
@@ -102,9 +102,9 @@ public sealed class WarehouseStockHandlerTests
             Assert.That(parts["червоний"].Reserved, Is.EqualTo(0m));
             Assert.That(issued.Value.Issued, Is.EqualTo(5.5m));
             Assert.That(issued.Value.Issues.Single().Lines.Single(x => x.Purpose == "Additional").CoveredMeters, Is.EqualTo(0m));
-            var grey = after.Rows.Single(x => x.Color == "Темно-сірий");
-            Assert.That((grey.Meters, grey.Reserved, grey.Available), Is.EqualTo((5m, 2.6m, 2.4m)));
-            Assert.That(after.Rows.Single(x => x.Color == "Бордовий").Meters, Is.EqualTo(-0.5m), "the balance may go below zero");
+            Assert.That(Pair(after, "Темно-сірий").Meters, Is.EqualTo(5m));
+            Assert.That(parts["темно-сірий"].StockAvailable, Is.EqualTo(2.4m));
+            Assert.That(Pair(after, "Бордовий").Meters, Is.EqualTo(-0.5m), "the balance may go below zero");
             Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
             Assert.That(wrongPlanned.Status, Is.EqualTo(ResultStatus.Invalid));
         });
@@ -114,7 +114,7 @@ public sealed class WarehouseStockHandlerTests
     public async Task Reversing_an_issue_returns_the_fabric_and_the_reservation()
     {
         using var workshop = Workshop();
-        await Receive(workshop, Chief, "Opening", 10m, null);
+        await Receive(workshop, Chief, "Opening", 10m);
         var order = (await ProductionOrderHandlerTests.Create(workshop.Workshop, OrderManager, ProductionOrderHandlerTests.Input())).Value;
         var itemId = order.Items[0].Id;
         var issued = await Issue(workshop, Chief, order.Id, itemId, order.Version,
@@ -131,7 +131,7 @@ public sealed class WarehouseStockHandlerTests
             Assert.That(issued.Value.Plan[0].Reserved, Is.EqualTo(0m));
             Assert.That(reversed.Value.Issues[0].IsReversed, Is.True);
             Assert.That(reversed.Value.Plan[0].Reserved, Is.EqualTo(6.6m));
-            Assert.That(stock.Rows.Single(x => x.Color == "Темно-сірий").Meters, Is.EqualTo(10m));
+            Assert.That(Pair(stock, "Темно-сірий").Meters, Is.EqualTo(10m));
             Assert.That(history, Is.EqualTo(2));
         });
     }
@@ -165,23 +165,19 @@ public sealed class WarehouseStockHandlerTests
     public async Task New_stock_line_takes_a_colour_from_the_list_and_choices_list_it()
     {
         using var workshop = Workshop();
-        var handler = new CreateFabricMovementCommandHandler(workshop.StockChanges(), workshop.Reference,
-            workshop.Colors());
-
-        var rejected = await handler.Handle(new(Chief, new CreateFabricMovementInput("Opening", 23, "Бузковий", 5m, Day,
-            null, null, null, null)), CancellationToken.None);
-        var accepted = await handler.Handle(new(Chief, new CreateFabricMovementInput("Opening", 23, "Жовтий", 5m, Day,
-            null, null, null, null)), CancellationToken.None);
-        var choices = await new GetFabricStockChoicesQueryHandler(workshop.Reference, workshop.Colors())
-            .Handle(new(Chief), CancellationToken.None);
+        var rejected = await Receive(workshop, Chief, "Opening", 5m, color: "Бузковий");
+        var accepted = await Receive(workshop, Chief, "Opening", 5m, color: "Жовтий");
+        var choices = await Choices(workshop, Chief);
 
         Assert.Multiple(() =>
         {
             Assert.That(rejected.Status, Is.EqualTo(ResultStatus.Invalid));
             Assert.That(accepted.IsSuccess, Is.True,
                 string.Join("; ", accepted.ValidationErrors.Select(x => x.ErrorMessage)));
-            Assert.That(choices.Value.Colors, Is.EqualTo(workshop.Reference.Colors));
-            Assert.That(choices.Value.Suppliers.Single().Name, Is.EqualTo("Тексика"));
+            Assert.That(choices.Colors, Is.EqualTo(workshop.Reference.Colors));
+            Assert.That(choices.Suppliers, Is.EqualTo(new[] { "Тексика", "Черкаси ВВ" }));
+            Assert.That(choices.Fabrics.Where(x => x.GroupCode == "FAB-023").Select(x => x.Code),
+                Is.EqualTo(new[] { "FAB-023", "FAB-067" }));
         });
     }
 
@@ -189,7 +185,7 @@ public sealed class WarehouseStockHandlerTests
     public async Task Stock_facts_give_the_report_issues_and_the_balance_at_a_date()
     {
         using var workshop = Workshop();
-        await Receive(workshop, Chief, "Opening", 10m, null);
+        await Receive(workshop, Chief, "Opening", 10m);
         var order = (await ProductionOrderHandlerTests.Create(workshop.Workshop, OrderManager,
             ProductionOrderHandlerTests.Input())).Value;
         await Issue(workshop, Chief, order.Id, order.Items[0].Id, order.Version,
@@ -213,15 +209,42 @@ public sealed class WarehouseStockHandlerTests
 
     internal static WarehouseTestHarness Workshop() => new(ProductionOrderHandlerTests.Workshop());
 
-    internal static Task<Result<FabricStockLineResponse>> Receive(WarehouseTestHarness workshop, WarehouseActor actor,
-        string kind, decimal meters, int? version, int? supplierId = null) =>
-        new CreateFabricMovementCommandHandler(workshop.StockChanges(), workshop.Reference, workshop.Colors())
-            .Handle(new(actor, new(kind, 23, "Темно-сірий", meters, Day, supplierId, "рах 12137", null, version)),
-                CancellationToken.None).AsTask();
+    /// <summary>«Початковий залишок» («Opening») or «Прихід» («Receipt») of FAB-023 or another offer.</summary>
+    internal static Task<Result<FabricStockOperationResponse>> Receive(WarehouseTestHarness workshop,
+        WarehouseActor actor, string kind, decimal meters, string color = "Темно-сірий", int fabricId = 23,
+        string? supplier = null, DateOnly? date = null, Guid? operationId = null)
+    {
+        var id = operationId ?? Guid.NewGuid();
+        return kind == "Opening"
+            ? new OpenFabricStockCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations(),
+                    workshop.Colors())
+                .Handle(new(actor, new(id, fabricId, color, meters, date ?? Day)), CancellationToken.None).AsTask()
+            : new ReceiveFabricCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations(),
+                    workshop.Colors())
+                .Handle(new(actor, new(id, fabricId, color, meters, date ?? Day, supplier, "рах 12137", null)),
+                    CancellationToken.None).AsTask();
+    }
 
-    private static async Task<FabricStockListResponse> List(WarehouseTestHarness workshop, WarehouseActor actor) =>
-        (await new GetFabricStockQueryHandler(workshop.Db, workshop.Reservations(), workshop.StockRows())
-            .Handle(new(actor, null), CancellationToken.None)).Value;
+    internal static async Task<FabricStockListResponse> List(WarehouseTestHarness workshop, WarehouseActor actor) =>
+        (await new GetFabricStockQueryHandler(workshop.Db, workshop.Reference)
+            .Handle(new(actor), CancellationToken.None)).Value;
+
+    internal static FabricStockColorResponse Pair(FabricStockListResponse list, string color, string code = "FAB-023") =>
+        list.Fabrics.Single(x => x.FabricCode == code).Colors.Single(x => x.Color == color);
+
+    internal static async Task<FabricMovementPageResponse> Movements(WarehouseTestHarness workshop,
+        WarehouseActor actor, FabricMovementFilter kind, int page = 1, string? code = null, string? color = null) =>
+        (await new GetFabricMovementsQueryHandler(workshop.Db)
+            .Handle(new(actor, page, kind, code, color, null), CancellationToken.None)).Value;
+
+    internal static Task<Result<FabricStockOperationResponse>> Reverse(WarehouseTestHarness workshop,
+        WarehouseActor actor, int movementId, string reason) =>
+        new ReverseFabricMovementCommandHandler(workshop.Db, workshop.StockChanges(), workshop.Pairs())
+            .Handle(new(actor, movementId, new(reason)), CancellationToken.None).AsTask();
+
+    private static async Task<FabricStockChoicesResponse> Choices(WarehouseTestHarness workshop, WarehouseActor actor) =>
+        (await new GetFabricStockChoicesQueryHandler(workshop.Reference, workshop.Colors())
+            .Handle(new(actor), CancellationToken.None)).Value;
 
     private static async Task<ProductionItemFabricResponse> Fabric(WarehouseTestHarness workshop, WarehouseActor actor,
         int orderId, int itemId) =>

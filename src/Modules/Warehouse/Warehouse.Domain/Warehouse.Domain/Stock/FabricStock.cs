@@ -63,24 +63,41 @@ public sealed class FabricStock
         FabricName = WarehouseText.Clean(fabric.Name, NameMaxLength);
     }
 
-    /// <summary>«Початковий залишок», «Прихід» or «Видача» (negative).</summary>
+    /// <summary>
+    /// «Початковий залишок» (the first movement, zero allowed), «Прихід» (positive), «Видача» (negative, may leave the
+    /// balance below zero) or «Уточнення» (any non-zero change).
+    /// </summary>
     public FabricMovement Move(FabricMovementKind kind, decimal delta, FabricMovementDetails details, string actorName,
         DateTimeOffset now)
     {
-        if (kind is FabricMovementKind.Reversal or FabricMovementKind.Adjustment)
-            throw new ArgumentException("Use Reverse or Correct.", nameof(kind));
-        if (kind == FabricMovementKind.Opening && HasMovements)
+        if (kind is FabricMovementKind.Reversal) throw new ArgumentException("Use Reverse.", nameof(kind));
+        if (kind == FabricMovementKind.Opening && (HasMovements || delta < 0))
             throw new InvalidOperationException("Opening balance is only the first movement.");
-        if (kind == FabricMovementKind.Receipt && delta <= 0 || kind == FabricMovementKind.Issue && delta >= 0)
+        if (kind == FabricMovementKind.Receipt && delta <= 0 || kind == FabricMovementKind.Issue && delta >= 0 ||
+            kind == FabricMovementKind.Adjustment && delta == 0)
             throw new ArgumentOutOfRangeException(nameof(delta));
         return Add(kind, delta, details, actorName, now, null, null);
     }
 
-    /// <summary>«Коригування»: the counted metres replace the balance.</summary>
-    public FabricMovement Correct(decimal counted, FabricMovementDetails details, string actorName, DateTimeOffset now)
+    /// <summary>
+    /// Recomputes before and after of every movement of this line in the order of operation date, record time and id
+    /// (unsaved last), and the balance as the last «after».
+    /// </summary>
+    public void Restate(IEnumerable<FabricMovement> movements)
     {
-        if (counted == Meters) throw new InvalidOperationException("Nothing to correct.");
-        return Add(FabricMovementKind.Adjustment, counted - Meters, details, actorName, now, null, null);
+        var chain = movements.Where(x => x.StockId == Id || ReferenceEquals(x.Stock, this)).Distinct()
+            .OrderBy(x => x.OperationDate).ThenBy(x => x.CreatedAt).ThenBy(x => x.Id == 0 ? int.MaxValue : x.Id)
+            .ToList();
+        var balance = 0m;
+        foreach (var movement in chain)
+        {
+            movement.Chain(balance);
+            balance = movement.MetersAfter;
+        }
+
+        if (balance == Meters) return;
+        Meters = balance;
+        Version++;
     }
 
     /// <summary>«Сторно»: the opposite change of a movement of this line, which is marked as taken back.</summary>
@@ -91,6 +108,30 @@ public sealed class FabricStock
             throw new InvalidOperationException("This movement cannot be reversed.");
         original.MarkReversed();
         return Add(FabricMovementKind.Reversal, -original.Delta, details, actorName, now, original.Id, null);
+    }
+
+    /// <summary>
+    /// Puts <paramref name="movement"/> on this line with a new state and records the revision. The movement keeps its
+    /// kind and its sign: a receipt and an opening stay positive (an opening may be zero), an issue negative, an
+    /// adjustment non-zero; a voided movement has no effect. The caller restates the lines it left and joined.
+    /// </summary>
+    public FabricMovementRevision Revise(FabricMovement movement, FabricMovementState state,
+        FabricMovementRevisionAction action, string? reason, string actorName, DateTimeOffset now, Guid operationId,
+        FabricMovementRevision? restores = null)
+    {
+        if (!movement.CanRevise) throw new InvalidOperationException("This movement cannot be revised here.");
+        if (!IsValidMeters(state.Delta)) throw new ArgumentOutOfRangeException(nameof(state));
+        var signed = state.IsVoided ? state.Delta == 0 : movement.Kind switch
+        {
+            FabricMovementKind.Opening => state.Delta >= 0,
+            FabricMovementKind.Receipt => state.Delta > 0,
+            FabricMovementKind.Issue => state.Delta < 0,
+            _ => state.Delta != 0
+        };
+        if (!signed) throw new ArgumentOutOfRangeException(nameof(state));
+        HasMovements = true;
+        UpdatedAt = now;
+        return movement.Revise(this, state, action, reason, actorName, now, operationId, restores);
     }
 
     /// <summary>A movement of the old «Цех» exactly as it was; its «before» must be the current balance.</summary>

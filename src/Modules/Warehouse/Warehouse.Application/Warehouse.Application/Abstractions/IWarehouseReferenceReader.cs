@@ -12,7 +12,9 @@ public interface IWarehouseReferenceReader
     Task<IReadOnlyList<string>> ColorsAsync(CancellationToken cancellationToken);
 }
 
-/// <param name="Price">Price per metre of «Тканини», UAH; values the stock.</param>
-public sealed record WarehouseFabric(int Id, string? Code, string Name, decimal? Price = null);
+/// <param name="Price">Price per metre of «Тканини», UAH.</param>
+/// <param name="Supplier">Name of the fabric's supplier in «Тканини».</param>
+public sealed record WarehouseFabric(int Id, string? Code, string Name, decimal? Price = null,
+    string? Composition = null, string? Density = null, string? Supplier = null, bool IsActive = true);
 
 public sealed record WarehouseSupplier(int Id, string Name);

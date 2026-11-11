@@ -16,7 +16,7 @@ The owner decided on 2026-11-11 that «Склад тканин» is a separate b
 ## Stages (owner plan, one backend + Admin PR pair each)
 
 1. **Module** (this document): code and data move from Production; same API behaviour under `/api/warehouse/...`; menu block.
-2. Ledger rules of the specification: hundredths of a metre, operation date apart from the record time, idempotent `operationId`, fabric alias groups (FAB-023/067, FAB-078/077), colour normalisation, negative balance on issue, «Уточнити» to a target balance with a reason; pages «Рух тканини», «Залишки», «Початкові залишки» with Excel.
+2. [WH-002](../002-ledger-rules/README.md) ledger rules of the specification: hundredths of a metre, operation date apart from the record time, idempotent `operationId`, fabric alias groups (FAB-023/067, FAB-078/077), colour normalisation, negative balance on issue, «Уточнити» to a target balance with a reason; pages «Рух тканини», «Залишки», «Початкові залишки» with Excel.
 3. Edit, void and restore of movements with revisions.
 4. Issue by actual cutting: issued quantity, plan key, layers, replacement and additional lines, preview, plan versions.
 5. Reports «План і факт», «Бронь і що замовити», «Вартість складу» (Admin and Director), «Фурнітура до замовлення».

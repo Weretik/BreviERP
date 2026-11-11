@@ -1,17 +1,16 @@
 using Warehouse.Application.Abstractions;
 using Warehouse.Application.Contracts;
 using Warehouse.Application.Access;
-using Warehouse.Application.Stock.GetStockLine;
 using Warehouse.Domain.Stock;
 
 namespace Warehouse.Application.Stock;
 
 /// <summary>
-/// Common steps of a stock change: the person, the line and its version, the fabric of «Тканини», saving with the
-/// concurrency check, and the new card.
+/// Common steps of a stock change: the person, the line and its version, the fabric of «Тканини» and saving with the
+/// concurrency check.
 /// </summary>
 public sealed class StockChanges(IWarehouseDbContext db, IWarehouseStaffReader staff, IWarehouseReferenceReader reference,
-    StockReservations reservations, StockRows rows, TimeProvider clock)
+    TimeProvider clock)
 {
     public DateTimeOffset Now => clock.GetUtcNow();
 
@@ -25,6 +24,22 @@ public sealed class StockChanges(IWarehouseDbContext db, IWarehouseStaffReader s
         if (fabric is null) return Result<StockFabric>.NotFound(StockMessages.FabricNotFound);
         if (string.IsNullOrWhiteSpace(fabric.Code)) return Result<StockFabric>.Invalid(
             new ValidationError(nameof(fabricId), StockMessages.FabricWithoutCode));
+        return Result.Success(new StockFabric(fabric.Id, fabric.Code, fabric.Name));
+    }
+
+    /// <summary>
+    /// The offer picked for an opening or a receipt: active in «Тканини», with a FAB- code and, for a code of an alias
+    /// group, still the reviewed composition and density.
+    /// </summary>
+    public async Task<Result<StockFabric>> OfferAsync(int fabricId, CancellationToken cancellationToken)
+    {
+        var fabric = (await reference.FabricsAsync(cancellationToken)).FirstOrDefault(x => x.Id == fabricId);
+        if (fabric is null) return Result<StockFabric>.NotFound(StockMessages.FabricNotFound);
+        if (string.IsNullOrWhiteSpace(fabric.Code)) return Result<StockFabric>.Invalid(
+            new ValidationError("FabricId", StockMessages.FabricWithoutCode));
+        if (!fabric.IsActive) return Result<StockFabric>.Invalid(new ValidationError("FabricId", StockMessages.FabricInactive));
+        if (!FabricAliases.MatchesGroup(fabric.Code, fabric.Composition, fabric.Density))
+            return Result<StockFabric>.Invalid(new ValidationError("FabricId", StockMessages.IdentityChanged));
         return Result.Success(new StockFabric(fabric.Id, fabric.Code, fabric.Name));
     }
 
@@ -65,8 +80,4 @@ public sealed class StockChanges(IWarehouseDbContext db, IWarehouseStaffReader s
             return Result.Conflict(StockMessages.Stale);
         }
     }
-
-    public async Task<FabricStockLineResponse> CardAsync(WarehouseActor actor, FabricStock line,
-        CancellationToken cancellationToken) =>
-        await GetFabricStockLineQueryHandler.BuildAsync(db, reservations, rows, actor, line, cancellationToken);
 }

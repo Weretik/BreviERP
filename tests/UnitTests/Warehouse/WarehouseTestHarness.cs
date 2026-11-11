@@ -13,7 +13,12 @@ namespace UnitTests.Warehouse;
 
 internal sealed class FakeWarehouseReferenceReader : IWarehouseReferenceReader
 {
-    public List<WarehouseFabric> Fabrics { get; } = [new(23, "FAB-023", "Тканина «Грета»", 120m)];
+    public List<WarehouseFabric> Fabrics { get; } =
+    [
+        new(23, "FAB-023", "Тканина «Грета»", 120m, "53% бавовна, 47% поліестер", "220", "Тексика"),
+        new(67, "FAB-067", "Тканина «Грета»", 110m, "53 % бавовна, 47 % поліестер", "220 г/м²", "Черкаси ВВ"),
+        new(5, "FAB-005", "Оксфорд", 90m, "100% поліестер", "150", "Тексика")
+    ];
     public List<WarehouseSupplier> Suppliers { get; } = [new(7, "Тексика")];
     public List<string> Colors { get; } = ["Темно-сірий", "Червоний", "Жовтий", "Сірий"];
 
@@ -108,9 +113,11 @@ internal sealed class WarehouseTestHarness : IDisposable
 
     public StockReservations Reservations() => new(Db, Production);
 
-    public StockRows StockRows() => new(Reference);
+    public StockChanges StockChanges() => new(Db, Staff, Reference, Workshop.Time);
 
-    public StockChanges StockChanges() => new(Db, Staff, Reference, Reservations(), StockRows(), Workshop.Time);
+    public StockOperations Operations() => new(Db);
+
+    public StockPairs Pairs() => new(Db, Operations(), Workshop.Time);
 
     public ItemFabricCards ItemFabric() => new(Db, Reservations());
 

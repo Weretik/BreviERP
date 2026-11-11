@@ -90,7 +90,7 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 ## Warehouse
 
-- [Fabric stock «Склад тканин»](warehouse/fabric-stock.md) — own module and schema `warehouse` (WH-001): balances by fabric and colour, movements with history, reservation from the workshop norms, issues to order items, value, consumption summary, transfer of the old stock; «Звіти цеху» read it through a port.
+- [Fabric stock «Склад тканин»](warehouse/fabric-stock.md) — own module and schema `warehouse` (WH-001…WH-003): pairs of fabric and colour with alias groups, «Залишки», «Рух тканини», «Початкові залишки», opening, receipt, issue without an order, «Уточнити», edit, void and restore of movements with «Історія правок», operation ids, reservation from the workshop norms, issues to order items, consumption summary, transfer of the old stock; «Звіти цеху» read it through a port.
 
 ## Reminders
 

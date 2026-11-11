@@ -1,66 +1,136 @@
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Warehouse.Api.Access;
 using Warehouse.Application.Contracts;
 using Warehouse.Application.Stock.Consumption;
 using Warehouse.Application.Stock.GetChoices;
 using Warehouse.Application.Stock.GetStock;
-using Warehouse.Application.Stock.GetStockLine;
+using Warehouse.Application.Stock.Adjustments;
+using Warehouse.Application.Stock.OneOff;
+using Warehouse.Application.Stock.Opening;
+using Warehouse.Application.Stock.Receipts;
 using Warehouse.Application.Stock.ImportStock;
 using Warehouse.Application.Stock.Movements;
+using Warehouse.Application.Stock.Revisions;
 
 namespace Warehouse.Api.Stock;
 
-/// <summary>«Склад тканин»: lines, movements, the period summary and the transfer from the old «Цех».</summary>
+/// <summary>
+/// «Склад тканин»: «Залишки», «Рух тканини», «Початкові залишки», the operations of a fabric and colour pair, the period
+/// summary and the transfer from the old «Цех».
+/// </summary>
 [ApiController]
 [Authorize(Policy = WarehouseAccess.FabricStock)]
 [Route("api/warehouse/fabric-stock")]
 public sealed class FabricStockController(ISender sender) : ControllerBase
 {
+    /// <summary>«Залишки»: fabrics with every colour the stock holds, alias groups summed.</summary>
     [HttpGet(Name = "getFabricStock")]
-    public async Task<ActionResult<FabricStockListResponse>> List([FromQuery] string? search,
-        CancellationToken cancellationToken) =>
+    public async Task<ActionResult<FabricStockListResponse>> List(CancellationToken cancellationToken) =>
         this.Actor() is { } actor
-            ? this.ToActionResult(await sender.Send(new GetFabricStockQuery(actor, search), cancellationToken))
+            ? this.ToActionResult(await sender.Send(new GetFabricStockQuery(actor), cancellationToken))
             : Forbid();
 
-    /// <summary>Fabrics with a FAB- code and active suppliers for the forms.</summary>
+    /// <summary>Stock lines are never deleted: their history stays; «Уточнити» brings a balance to zero.</summary>
+    [HttpDelete("{id:int}", Name = "deleteFabricStock")]
+    [ProducesResponseType(StatusCodes.Status410Gone)]
+    public ActionResult Delete(int id) =>
+        Problem(statusCode: StatusCodes.Status410Gone, title: StockApiMessages.Deleted);
+
+    /// <summary>Active offers of «Тканини», supplier names and colours for the forms.</summary>
     [HttpGet("choices", Name = "getFabricStockChoices")]
     public async Task<ActionResult<FabricStockChoicesResponse>> Choices(CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new GetFabricStockChoicesQuery(actor), cancellationToken))
             : Forbid();
 
-    [HttpGet("{id:int}", Name = "getFabricStockLine")]
-    public async Task<ActionResult<FabricStockLineResponse>> Get(int id, CancellationToken cancellationToken) =>
+    /// <summary>«Рух тканини»: 50 per page, newest operation date first; <c>kind</c> All, Receipt, Issue or Opening.</summary>
+    [HttpGet("movements", Name = "getFabricMovements")]
+    public async Task<ActionResult<FabricMovementPageResponse>> Movements([FromQuery] int page = 1,
+        [FromQuery] FabricMovementFilter kind = FabricMovementFilter.All, [FromQuery] string? fabricCode = null,
+        [FromQuery] string? color = null, [FromQuery] int? itemId = null, CancellationToken cancellationToken = default) =>
         this.Actor() is { } actor
-            ? this.ToActionResult(await sender.Send(new GetFabricStockLineQuery(actor, id), cancellationToken))
+            ? this.ToActionResult(await sender.Send(
+                new GetFabricMovementsQuery(actor, page, kind, fabricCode, color, itemId), cancellationToken))
             : Forbid();
 
-    /// <summary>«Початковий залишок» or «Прихід»; a new fabric and colour opens its line.</summary>
-    [HttpPost("movements", Name = "createFabricMovement")]
-    public async Task<ActionResult<FabricStockLineResponse>> Create(CreateFabricMovementInput input,
+    /// <summary>«Початковий залишок» of a new fabric and colour; once per pair.</summary>
+    [HttpPost("openings", Name = "openFabricStock")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Open(OpenFabricStockInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
-            ? this.ToActionResult(await sender.Send(new CreateFabricMovementCommand(actor, input), cancellationToken))
+            ? this.ToActionResult(await sender.Send(new OpenFabricStockCommand(actor, input), cancellationToken))
             : Forbid();
 
-    /// <summary>«Коригування» to the counted metres.</summary>
-    [HttpPost("{id:int}/correction", Name = "correctFabricStock")]
-    public async Task<ActionResult<FabricStockLineResponse>> Correct(int id, CorrectFabricStockInput input,
+    /// <summary>«Прихід».</summary>
+    [HttpPost("receipts", Name = "receiveFabric")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Receive(ReceiveFabricInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
-            ? this.ToActionResult(await sender.Send(new CorrectFabricStockCommand(actor, id, input), cancellationToken))
+            ? this.ToActionResult(await sender.Send(new ReceiveFabricCommand(actor, input), cancellationToken))
             : Forbid();
 
-    /// <summary>«Сторно» of an opening, receipt or correction.</summary>
-    [HttpPost("{id:int}/movements/{movementId:int}/reverse", Name = "reverseFabricMovement")]
-    public async Task<ActionResult<FabricStockLineResponse>> Reverse(int id, int movementId,
+    /// <summary>«Разова витрата / без замовлення»; the balance may go below zero.</summary>
+    [HttpPost("issues", Name = "issueFabric")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Issue(IssueFabricInput input,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new IssueFabricCommand(actor, input), cancellationToken))
+            : Forbid();
+
+    /// <summary>«Уточнити»: the counted total of a pair with a reason.</summary>
+    [HttpPost("adjustments", Name = "adjustFabricStock")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Adjust(AdjustFabricStockInput input,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new AdjustFabricStockCommand(actor, input), cancellationToken))
+            : Forbid();
+
+    /// <summary>«Сторно» of an opening, receipt, correction or issue without an order.</summary>
+    [HttpPost("movements/{movementId:int}/reverse", Name = "reverseFabricMovement")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Reverse(int movementId,
         ReverseFabricMovementInput input, CancellationToken cancellationToken) =>
         this.Actor() is { } actor
-            ? this.ToActionResult(await sender.Send(new ReverseFabricMovementCommand(actor, id, movementId, input),
+            ? this.ToActionResult(await sender.Send(new ReverseFabricMovementCommand(actor, movementId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>Edits an opening, receipt, correction or issue without an order; both lines are restated.</summary>
+    [HttpPut("movements/{movementId:int}", Name = "editFabricMovement")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Edit(int movementId, EditFabricMovementInput input,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new EditFabricMovementCommand(actor, movementId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Скасувати»: the movement stays in the history with no effect on the balance.</summary>
+    [HttpPost("movements/{movementId:int}/void", Name = "voidFabricMovement")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Void(int movementId, VoidFabricMovementInput input,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new VoidFabricMovementCommand(actor, movementId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Скасувати останню правку»: the state before the last edit or void comes back.</summary>
+    [HttpPost("movements/{movementId:int}/restore", Name = "restoreFabricMovement")]
+    public async Task<ActionResult<FabricStockOperationResponse>> Restore(int movementId,
+        RestoreFabricMovementInput input, CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new RestoreFabricMovementCommand(actor, movementId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Історія правок» of a movement, newest first.</summary>
+    [HttpGet("movements/{movementId:int}/revisions", Name = "getFabricMovementHistory")]
+    public async Task<ActionResult<FabricMovementHistoryResponse>> History(int movementId,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new GetFabricMovementHistoryQuery(actor, movementId),
                 cancellationToken))
             : Forbid();
 
@@ -79,4 +149,10 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new ImportFabricStockCommand(actor, input, dryRun), cancellationToken))
             : Forbid();
+}
+
+internal static class StockApiMessages
+{
+    public const string Deleted =
+        "Складську позицію не видаляють, щоб зберегти історію. Уточніть залишок до нуля з причиною.";
 }

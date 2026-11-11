@@ -1,11 +1,15 @@
 using Warehouse.Application.Abstractions;
+using Warehouse.Application.Access;
 using Warehouse.Application.Colors;
 using Warehouse.Application.Contracts;
-using Warehouse.Application.Access;
+using Warehouse.Domain.Stock;
 
 namespace Warehouse.Application.Stock.GetChoices;
 
-/// <summary>Fabrics with a FAB- code, active suppliers and the colours of «Кольори» for the stock forms.</summary>
+/// <summary>
+/// Active offers of «Тканини» with a FAB- code (alias groups share one group code), supplier names and the colours of
+/// «Кольори» for the stock forms. Prices only for people who see them.
+/// </summary>
 public sealed record GetFabricStockChoicesQuery(WarehouseActor Actor) : IQuery<Result<FabricStockChoicesResponse>>;
 
 public sealed class GetFabricStockChoicesQueryValidator : AbstractValidator<GetFabricStockChoicesQuery>
@@ -13,20 +17,28 @@ public sealed class GetFabricStockChoicesQueryValidator : AbstractValidator<GetF
     public GetFabricStockChoicesQueryValidator() => RuleFor(x => x.Actor).ValidActor();
 }
 
-public sealed class GetFabricStockChoicesQueryHandler(IWarehouseReferenceReader reference, WarehouseColors colors) : IQueryHandler<GetFabricStockChoicesQuery, Result<FabricStockChoicesResponse>>
+public sealed class GetFabricStockChoicesQueryHandler(IWarehouseReferenceReader reference, WarehouseColors colors)
+    : IQueryHandler<GetFabricStockChoicesQuery, Result<FabricStockChoicesResponse>>
 {
     public async ValueTask<Result<FabricStockChoicesResponse>> Handle(GetFabricStockChoicesQuery query,
         CancellationToken cancellationToken)
     {
-        var fabricList = (await reference.FabricsAsync(cancellationToken))
-            .Where(x => !string.IsNullOrWhiteSpace(x.Code))
-            .Select(x => new FabricStockFabricChoice(x.Id, x.Code!.Trim().ToUpperInvariant(), x.Name))
-            .OrderBy(x => x.Code, StringComparer.Ordinal).ToList();
-        var supplierList = query.Actor.CanMoveStock
-            ? (await reference.SuppliersAsync(cancellationToken)).Select(x => new FabricStockSupplierChoice(x.Id, x.Name))
-                .OrderBy(x => x.Name, StringComparer.CurrentCulture).ToList()
+        var fabrics = (await reference.FabricsAsync(cancellationToken))
+            .Where(x => x.IsActive && !string.IsNullOrWhiteSpace(x.Code) &&
+                        FabricAliases.MatchesGroup(x.Code, x.Composition, x.Density))
+            .ToList();
+        var fabricList = fabrics
+            .Select(x => new FabricStockFabricChoice(x.Id, FabricAliases.Normalize(x.Code!), FabricAliases.Canonical(x.Code!),
+                x.Name, x.Composition, x.Density, x.Supplier, query.Actor.SeesStockValue ? x.Price : null))
+            .OrderBy(x => x.GroupCode, StringComparer.Ordinal).ThenBy(x => x.Code, StringComparer.Ordinal).ToList();
+        var suppliers = query.Actor.CanMoveStock
+            ? (await reference.SuppliersAsync(cancellationToken)).Select(x => x.Name)
+                .Concat(fabrics.Select(x => x.Supplier ?? string.Empty))
+                .Select(x => x.Trim()).Where(x => x.Length > 0)
+                .Distinct(StringComparer.CurrentCultureIgnoreCase)
+                .OrderBy(x => x, StringComparer.CurrentCulture).ToList()
             : [];
-        return Result.Success(new FabricStockChoicesResponse(fabricList, supplierList,
+        return Result.Success(new FabricStockChoicesResponse(fabricList, suppliers,
             await colors.ListAsync(cancellationToken)));
     }
 }
