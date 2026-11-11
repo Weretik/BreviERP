@@ -23,6 +23,7 @@ public sealed class GetContentProductQueryHandler(IContentDbContext db, IContent
         var page = await db.ProductPages.AsNoTracking().Include(x => x.Texts)
             .FirstOrDefaultAsync(x => x.ProductId == query.ProductId, cancellationToken);
         var offered = page is null ? await ProductPageSlugs.FreeAsync(db, product, cancellationToken) : page.Slug;
-        return ContentProductMapping.Detail(product, page, offered);
+        return ContentProductMapping.Detail(product, page, offered,
+            await ProductCategoryLinks.IdsAsync(db, product.Id, cancellationToken));
     }
 }

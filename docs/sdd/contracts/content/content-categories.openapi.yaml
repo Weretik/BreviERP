@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 'Content: «Контент → Розділи» categories of the site catalog'
-  version: 1.0.0
+  version: 1.1.0
   description: 'Categories and subcategories of the public site catalog (CNT-003): a two-level tree owned by the site,
     with the «Показувати на сайті» mark, the address, the order and texts in Ukrainian and Russian. Policy
     access:content-categories («Права доступу»): the Director and Admin may do everything, Manager only reads; other
@@ -85,6 +85,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Messages'
+  /api/content/categories/old-site-import:
+    post:
+      tags:
+      - Content
+      operationId: importOldSiteCategories
+      description: One-time transfer of the old-site category tree with SEO, texts and products. A category is matched by
+        its address; a product by the old-site link of its Catalog card (the whole path, then the last part). With
+        dryRun (the default) nothing is written and the answer says what would happen. Categories that already exist
+        keep their texts unless overwrite is true. Products are added to a category and never removed. showOnSite
+        switches transferred categories on and never switches one off. A repeated run continues where the previous one
+        stopped. Needs the create right.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportOldSiteCategoriesRequest'
+      responses:
+        '200':
+          description: Counted (dryRun) or transferred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OldSiteCategoryImportResponse'
+        '400':
+          description: No categories, more than 300 categories, an invalid address or a text over its limit
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to create in «Розділи сайту»
   /api/content/categories/{id}:
     parameters:
     - $ref: '#/components/parameters/CategoryId'
@@ -414,3 +444,94 @@ components:
         revision:
           type: integer
           format: int32
+    OldSiteCategory:
+      type: object
+      description: A category of the old site with its products in the order of the old site.
+      required:
+      - slug
+      properties:
+        slug:
+          type: string
+          description: Lower-case Latin letters, digits and single hyphens, 3 to 120 characters.
+        parentSlug:
+          type:
+          - string
+          - 'null'
+          description: Address of the parent category; null on the top level.
+        uk:
+          oneOf:
+          - $ref: '#/components/schemas/SiteCategoryTextInput'
+          - type: 'null'
+        ru:
+          oneOf:
+          - $ref: '#/components/schemas/SiteCategoryTextInput'
+          - type: 'null'
+        productUrls:
+          type:
+          - array
+          - 'null'
+          maxItems: 1000
+          description: Old-site links of the products, or only their last parts.
+          items:
+            type: string
+            maxLength: 500
+    ImportOldSiteCategoriesRequest:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 300
+          items:
+            $ref: '#/components/schemas/OldSiteCategory'
+        dryRun:
+          type: boolean
+          default: true
+        showOnSite:
+          type: boolean
+          default: false
+        overwrite:
+          type: boolean
+          default: false
+    OldSiteCategoryImportResponse:
+      type: object
+      required:
+      - dryRun
+      - total
+      - created
+      - updated
+      - kept
+      - productLinks
+      - notMatched
+      - problems
+      properties:
+        dryRun:
+          type: boolean
+        total:
+          type: integer
+          format: int32
+        created:
+          type: integer
+          format: int32
+        updated:
+          type: integer
+          format: int32
+        kept:
+          type: integer
+          format: int32
+        productLinks:
+          type: integer
+          format: int32
+          description: Products added to categories.
+        notMatched:
+          type: array
+          description: Old-site products without a Catalog product.
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/OldSiteImportNote
+        problems:
+          type: array
+          description: Categories left out, with the reason; url holds the category address.
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/OldSiteImportNote

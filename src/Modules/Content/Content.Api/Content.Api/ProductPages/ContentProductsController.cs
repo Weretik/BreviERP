@@ -46,7 +46,7 @@ public sealed class ContentProductsController(ISender sender) : ControllerBase
         [FromBody] SaveContentProductRequest request, CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(
             new SaveContentProductCommand(productId, request.Revision, request.Slug, request.ShowOnSite, request.Uk,
-                request.Ru, By()), cancellationToken));
+                request.Ru, By(), request.CategoryIds), cancellationToken));
 
     /// <summary>«Показувати на сайті» from the list.</summary>
     [HttpPatch("{productId:int}/visibility", Name = "setContentProductVisibility")]

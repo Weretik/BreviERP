@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 'Content: «Контент → Товари» site pages of products'
-  version: 1.1.0
+  version: 1.2.0
   description: 'Site pages of Catalog products (CNT-002): the «Показувати на сайті» mark, the address and texts in
     Ukrainian and Russian. Policy access:content-products («Права доступу»): the Director and Admin may do everything,
     Manager only reads; other roles get 403. Product name, code, section, photo, fabrics and prices come from Catalog and
@@ -347,6 +347,16 @@ components:
           oneOf:
           - $ref: '#/components/schemas/ProductPageTextInput'
           - type: 'null'
+        categoryIds:
+          type:
+          - array
+          - 'null'
+          maxItems: 50
+          description: Replaces the site categories of the product; null or absent keeps them. An unknown id is a 409.
+          items:
+            type: integer
+            format: int32
+            minimum: 1
     OldSiteProductPage:
       type: object
       required:
@@ -482,6 +492,7 @@ components:
       - hasUkrainianText
       - hasRussianText
       - hasSeo
+      - categoryCount
       properties:
         productId:
           type: integer
@@ -536,6 +547,10 @@ components:
           - string
           - 'null'
           format: date-time
+        categoryCount:
+          type: integer
+          format: int32
+          description: Number of site categories («Контент → Розділи») the product is in.
     ContentProductPage:
       type: object
       required:
@@ -641,6 +656,7 @@ components:
       - uk
       - ru
       - variants
+      - categoryIds
       properties:
         product:
           $ref: '#/components/schemas/ContentProductRow'
@@ -667,3 +683,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContentProductVariantResponse'
+        categoryIds:
+          type: array
+          description: Site categories the product is in.
+          items:
+            type: integer
+            format: int32

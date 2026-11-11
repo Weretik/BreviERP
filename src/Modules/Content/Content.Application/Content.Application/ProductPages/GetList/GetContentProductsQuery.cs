@@ -40,12 +40,14 @@ public sealed class GetContentProductsQueryHandler(IContentDbContext db, IConten
         var products = await catalog.GetAllAsync(cancellationToken);
         var pages = await db.ProductPages.AsNoTracking().Include(x => x.Texts)
             .ToDictionaryAsync(x => x.ProductId, cancellationToken);
+        var categories = (await db.SiteCategoryProducts.AsNoTracking().Select(x => x.ProductId).ToListAsync(cancellationToken))
+            .GroupBy(x => x).ToDictionary(x => x.Key, x => x.Count());
         var search = query.Search?.Trim();
 
         var rows = products
             .Where(x => query.Type is null || x.Type == query.Type)
             .Where(x => query.SectionId is null || x.SectionId == query.SectionId)
-            .Select(x => ContentProductMapping.Row(x, pages.GetValueOrDefault(x.Id)))
+            .Select(x => ContentProductMapping.Row(x, pages.GetValueOrDefault(x.Id), categories.GetValueOrDefault(x.Id)))
             .Where(x => query.OnSite is null || x.OnSite == query.OnSite)
             .Where(x => string.IsNullOrEmpty(search) || Matches(x, search))
             .ToArray();

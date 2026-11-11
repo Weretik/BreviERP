@@ -8,6 +8,7 @@ namespace Content.Application.ProductPages.Save;
 /// <summary>
 /// Creates the page of a product or replaces it as a whole (CNT-002 R-05). <paramref name="Revision"/> is the number
 /// the editor showed: 0 for a product without a page. An empty <paramref name="Slug"/> is built from the name.
+/// <paramref name="CategoryIds"/> replaces the site categories of the product (CNT-003 R-03); null keeps them.
 /// </summary>
 public sealed record SaveContentProductCommand(
     int ProductId,
@@ -16,7 +17,11 @@ public sealed record SaveContentProductCommand(
     bool ShowOnSite,
     ProductPageTextInput? Uk,
     ProductPageTextInput? Ru,
-    string UpdatedBy) : ICommand<Result<ContentProductResponse>>;
+    string UpdatedBy,
+    IReadOnlyList<int>? CategoryIds = null) : ICommand<Result<ContentProductResponse>>
+{
+    public const int MaxCategories = 50;
+}
 
 public sealed class SaveContentProductCommandValidator : AbstractValidator<SaveContentProductCommand>
 {
@@ -27,6 +32,9 @@ public sealed class SaveContentProductCommandValidator : AbstractValidator<SaveC
         RuleFor(x => x.Slug).Must(slug => string.IsNullOrWhiteSpace(slug) || ProductPageRules.IsValidSlug(slug.Trim()))
             .WithMessage(ContentProductMessages.SlugInvalid);
         RuleFor(x => x.UpdatedBy).NotEmpty();
+        RuleFor(x => x.CategoryIds).Must(ids => ids is null || (ids.Count <= SaveContentProductCommand.MaxCategories
+                && ids.All(id => id > 0) && ids.Distinct().Count() == ids.Count))
+            .WithMessage($"Розділи сайту: не більше {SaveContentProductCommand.MaxCategories}, без повторів.");
         RuleFor(x => x.Uk!).SetValidator(new ProductPageTextInputValidator("Українська")).When(x => x.Uk is not null);
         RuleFor(x => x.Ru!).SetValidator(new ProductPageTextInputValidator("Російська")).When(x => x.Ru is not null);
     }
@@ -92,6 +100,10 @@ public sealed class SaveContentProductCommandHandler(IContentDbContext db, ICont
         if (await ProductPageSlugs.TakenAsync(db, slug, product.Id, cancellationToken))
             return Result.Conflict(ContentProductMessages.SlugTaken);
 
+        if (command.CategoryIds is not null
+            && !await ProductCategoryLinks.ReplaceAsync(db, product.Id, command.CategoryIds, cancellationToken))
+            return Result.Conflict(ContentProductMessages.CategoryNotFound);
+
         var now = clock.GetUtcNow();
         if (page is null)
         {
@@ -113,6 +125,7 @@ public sealed class SaveContentProductCommandHandler(IContentDbContext db, ICont
             return Result.Conflict(ContentProductMessages.Stale);
         }
 
-        return ContentProductMapping.Detail(product, page, page.Slug);
+        return ContentProductMapping.Detail(product, page, page.Slug,
+            await ProductCategoryLinks.IdsAsync(db, product.Id, cancellationToken));
     }
 }

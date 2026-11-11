@@ -1,6 +1,6 @@
 # CNT-003 — «Контент → Розділи»: categories of the public site (Content module)
 
-**Status:** accepted by the owner 2026-11-11 («Свої категорії сайту», with full add, edit, move, delete and hide); stage 1 (module code, admin API) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md).
+**Status:** accepted by the owner 2026-11-11 («Свої категорії сайту», with full add, edit, move, delete and hide); stages 1 (module code, admin API) and 3 (categories of a product, old-site transfer) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md).
 
 ## Why
 
@@ -52,3 +52,17 @@ Admin API `/api/content/categories` ([contract](../../../contracts/content/conte
 | `tests/UnitTests/Content/SiteCategoriesTests.cs`, `SiteCategoriesContractTests.cs` | scenarios SC-01..SC-03 on SQLite; contract and «Права доступу» |
 
 Rollout: the migration only adds tables, so the old code keeps working; rollback is the migration `Down` (drops the three tables). The public catalog still builds its tree from «Типи і розділи» until stage 4.
+
+## Stage 3 design (implemented)
+
+- **Categories of a product.** `getContentProduct` and `saveContentProduct` answer with `categoryIds`; the save body takes optional `categoryIds` that replace the categories of the product (null keeps them, an unknown id is a 409 and nothing is saved, at most 50 without repeats). A new link goes to the end of its category. Rows of `getContentProducts` carry `categoryCount`. Same policy `access:content-products`.
+- **Old-site transfer.** `POST /api/content/categories/old-site-import` (`importOldSiteCategories`, create right of `content-categories`) takes up to 300 categories: address, parent address, texts in two languages and the old-site links of its products. A category is matched by address, a product by the old-site link of its Catalog card (as in CNT-002 SC-05). `dryRun` (default) only counts. Existing categories keep their texts unless `overwrite`; products are only added, never removed; `showOnSite` only switches on. Left out with a reason: no Ukrainian name, repeated address, missing parent, a parent that is a subcategory, a category with subcategories that would become a subcategory. The run saves categories of the top level, then subcategories, then product links; a repeated run continues where the previous one stopped.
+- The transfer file is built outside the repository (project files `brevi-site/content-import/build_category_import.mjs`): 65 categories (13 of the top level), 526 product links of 242 old-site products.
+
+| Path | Role |
+| --- | --- |
+| `Content.Application/ProductPages/Shared/ProductCategoryLinks.cs` | reads and replaces the categories of one product |
+| `Content.Application/SiteCategories/ImportOldSite/ImportOldSiteCategoriesCommand.cs` | transfer: matching, dry run, overwrite |
+| `tests/UnitTests/Content/SiteCategoryProductsTests.cs` | SC-04, SC-05 |
+
+No schema change in this stage.

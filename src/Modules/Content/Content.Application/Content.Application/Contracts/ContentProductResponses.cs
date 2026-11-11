@@ -5,7 +5,7 @@ namespace Content.Application.Contracts;
 /// <summary>
 /// A row of «Контент → Товари». <paramref name="HasPage"/> is false when nobody has made the page yet. The
 /// <c>Has…</c> flags say what the site would miss; <paramref name="OnSite"/> is true only when the mark is set and the
-/// Catalog product is active.
+/// Catalog product is active. <paramref name="CategoryCount"/> is the number of site categories the product is in.
 /// </summary>
 public sealed record ContentProductRow(
     int ProductId,
@@ -24,7 +24,8 @@ public sealed record ContentProductRow(
     bool HasUkrainianText,
     bool HasRussianText,
     bool HasSeo,
-    DateTimeOffset? UpdatedAtUtc);
+    DateTimeOffset? UpdatedAtUtc,
+    int CategoryCount = 0);
 
 public sealed record ContentProductPage(IReadOnlyList<ContentProductRow> Items, int Page, int PageSize, int Total);
 
@@ -49,7 +50,7 @@ public sealed record ContentPriceTiersResponse(decimal Retail, decimal Wholesale
 
 /// <summary>
 /// The editor of one product: the row, the page (revision 0 and an offered slug when there is no page yet), texts by
-/// language (<c>uk</c>, <c>ru</c>) and read-only Catalog facts.
+/// language (<c>uk</c>, <c>ru</c>), read-only Catalog facts and the site categories the product is in.
 /// </summary>
 public sealed record ContentProductResponse(
     ContentProductRow Product,
@@ -59,7 +60,8 @@ public sealed record ContentProductResponse(
     ContentProductTextResponse Uk,
     ContentProductTextResponse Ru,
     ContentPriceTiersResponse? Prices,
-    IReadOnlyList<ContentProductVariantResponse> Variants);
+    IReadOnlyList<ContentProductVariantResponse> Variants,
+    IReadOnlyList<int> CategoryIds);
 
 public sealed record ContentProductVisibilityResponse(int ProductId, bool ShowOnSite, bool OnSite, int Revision, string Slug);
 

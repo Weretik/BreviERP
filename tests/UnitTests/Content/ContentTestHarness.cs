@@ -9,6 +9,7 @@ using Content.Application.PublicCatalog;
 using Content.Application.SiteCategories.Delete;
 using Content.Application.SiteCategories.GetList;
 using Content.Application.SiteCategories.GetOne;
+using Content.Application.SiteCategories.ImportOldSite;
 using Content.Application.SiteCategories.Reorder;
 using Content.Application.SiteCategories.Save;
 using Content.Application.SiteCategories.SetVisibility;
@@ -105,6 +106,7 @@ internal sealed class ContentTestHarness : IDisposable
     public SetSiteCategoryVisibilityCommandHandler CategoryVisibility() => new(new SqliteContentDb(Open()), Time);
     public ReorderSiteCategoriesCommandHandler ReorderCategories() => new(new SqliteContentDb(Open()));
     public DeleteSiteCategoryCommandHandler DeleteCategory() => new(new SqliteContentDb(Open()));
+    public ImportOldSiteCategoriesCommandHandler ImportCategories() => new(new SqliteContentDb(Open()), Catalog, Time);
     public GetSiteCategoryQueryHandler Category() => new(new SqliteContentDb(Open()));
     public GetSiteCategoriesQueryHandler Categories() => new(new SqliteContentDb(Open()));
 
