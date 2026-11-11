@@ -17,6 +17,7 @@ public sealed class ReminderChatConfiguration : IEntityTypeConfiguration<Reminde
         b.Property(x => x.DisplayName).HasMaxLength(ReminderChat.NameMaxLength);
         b.HasIndex(x => x.TelegramChatId).IsUnique();
         b.Ignore(x => x.CanReceive);
+        b.Ignore(x => x.GetsSiteRequests);
         b.Ignore(x => x.Name);
         b.Ignore(x => x.DomainEvents);
     }

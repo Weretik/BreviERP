@@ -24,6 +24,22 @@ public static class RateLimitingRegistrationExtensions
                         AutoReplenishment = true
                     });
             });
+
+            // «Заявка» of the public site (LEAD-002): the site posts from its server, so most requests share one
+            // address; the window still stops a flood from reaching the managers' Telegram group.
+            options.AddPolicy("SiteRequest", context =>
+            {
+                var partitionKey = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey,
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 20,
+                        Window = TimeSpan.FromMinutes(10),
+                        QueueLimit = 0,
+                        AutoReplenishment = true
+                    });
+            });
         });
 
         return services;

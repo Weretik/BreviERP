@@ -1,3 +1,4 @@
+using Crm.Application.SiteRequests.Abstractions;
 using BuildingBlocks.Infrastructure.Migrations;
 using Crm.Application.Customers.Persistence;
 using Crm.Application.Embroidery.Persistence;
@@ -36,6 +37,9 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<ITaskStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<IEmbroideryStore>(provider => provider.GetRequiredService<CrmDbContext>());
         services.AddScoped<ILeadStore>(provider => provider.GetRequiredService<CrmDbContext>());
+        services.AddScoped<ISiteRequestStore>(provider => provider.GetRequiredService<CrmDbContext>());
+        services.AddSingleton(provider =>
+            new SiteRequestLinks(provider.GetRequiredService<IOptions<GmailOptions>>().Value.AdminUrl));
         services.Configure<LeadSheetOptions>(configuration.GetSection(LeadSheetOptions.Section));
         services.AddHttpClient<ILeadSheetReader, GoogleLeadSheetReader>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddScoped<LeadSheetSync>();

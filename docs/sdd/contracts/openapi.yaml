@@ -351,6 +351,12 @@ paths:
     $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1urgent
   /api/crm/tasks/{id}/steps/{stepId}:
     $ref: ./crm/tasks.openapi.yaml#/paths/~1api~1crm~1tasks~1{id}~1steps~1{stepId}
+  /api/crm/site-requests:
+    $ref: ./crm/site-requests.openapi.yaml#/paths/~1api~1crm~1site-requests
+  /api/crm/site-requests/{id}/change:
+    $ref: ./crm/site-requests.openapi.yaml#/paths/~1api~1crm~1site-requests~1{id}~1change
+  /api/public/site-requests:
+    $ref: ./crm/site-requests.openapi.yaml#/paths/~1api~1public~1site-requests
   /api/crm/leads:
     $ref: ./crm/leads.openapi.yaml#/paths/~1api~1crm~1leads
   /api/crm/leads/my-day:

@@ -62,6 +62,9 @@ namespace Reminders.Infrastructure.Persistence.Migrations
                     b.Property<int>("Kind")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("ReceivesSiteRequests")
+                        .HasColumnType("boolean");
+
                     b.Property<long>("TelegramChatId")
                         .HasColumnType("bigint");
 

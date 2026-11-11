@@ -41,7 +41,8 @@ public sealed class ApiAccessTests
         "GET api/public/site-settings",
         "GET api/public/site-pages",
         "GET api/public/company",
-        "GET api/public/galleries"
+        "GET api/public/galleries",
+        "POST api/public/site-requests"
     ];
 
     [Test]

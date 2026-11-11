@@ -1,0 +1,302 @@
+openapi: 3.1.0
+info:
+  title: 'CRM: «Заявки з сайту»'
+  version: 1.0.0
+  description: 'Requests of the «Заявка» form of the public site (LEAD-002). The site posts them anonymously from its
+    server (multipart, a phone and optionally a file up to 10 MB, rate policy SiteRequest: 20 per 10 minutes per
+    address, then 429); the file goes to the CDN and the Brevi bot posts the request to the groups ticked «Заявки з
+    сайту» on «Нагадування». Staff with page access:site-requests («Права доступу»; Admin and Manager by default)
+    see them, take a free one, and the owner or an Admin closes or frees it.'
+security:
+- Bearer: []
+paths:
+  /api/public/site-requests:
+    post:
+      tags:
+      - PublicSiteRequests
+      operationId: submitPublicSiteRequest
+      security: []
+      description: Saves the request. A Telegram failure does not refuse it; the reason is kept for staff.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CrmPublicSiteRequestForm'
+      responses:
+        '200':
+          description: Saved; a manager will call
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmSiteRequestReceived'
+        '400':
+          description: The phone, a text or the file is wrong; the answer names it in Ukrainian
+          content:
+            application/json:
+              schema:
+                type: object
+        '413':
+          description: The body is larger than 11 MB
+        '429':
+          description: Too many requests from this address
+  /api/crm/site-requests:
+    get:
+      tags:
+      - CrmSiteRequests
+      operationId: getCrmSiteRequests
+      description: Newest first, with the counts for the tabs.
+      parameters:
+      - name: scope
+        in: query
+        description: Open (default, new and in work), Mine, Closed or All.
+        schema:
+          type: string
+          enum:
+          - Open
+          - Mine
+          - Closed
+          - All
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmSiteRequestPage'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Заявки з сайту»
+  /api/crm/site-requests/{id}/change:
+    post:
+      tags:
+      - CrmSiteRequests
+      operationId: changeCrmSiteRequest
+      description: Take (anyone with edit), Done or Spam with a note, Reopen (the owner or an Admin).
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrmChangeSiteRequestInput'
+      responses:
+        '200':
+          description: Changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrmSiteRequest'
+        '400':
+          description: Unknown action, a long note, or the request is already closed
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit, or the request is another manager's
+        '404':
+          description: No such request
+        '409':
+          description: The version is stale or another manager took it
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    CrmPublicSiteRequestForm:
+      type: object
+      required:
+      - phone
+      properties:
+        phone:
+          type: string
+          maxLength: 32
+          description: A Ukrainian number, 10 digits from 0 or 12 from 380; other characters are ignored.
+        workwear:
+          type: string
+          maxLength: 200
+        quantity:
+          type: string
+          maxLength: 60
+        comment:
+          type: string
+          maxLength: 1000
+        locale:
+          type: string
+          enum:
+          - uk
+          - ru
+        attachment:
+          type: string
+          format: binary
+          description: Up to 10 MB; pdf, doc, docx, xls, xlsx, zip, rar, 7z, jpg, jpeg, png, cdr, ai, eps, psd.
+    CrmSiteRequestReceived:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: integer
+          format: int64
+    CrmSiteRequest:
+      type: object
+      required:
+      - id
+      - phone
+      - locale
+      - status
+      - createdAt
+      - version
+      properties:
+        id:
+          type: integer
+          format: int64
+        phone:
+          type: string
+        workwear:
+          type:
+          - string
+          - 'null'
+        quantity:
+          type:
+          - string
+          - 'null'
+        comment:
+          type:
+          - string
+          - 'null'
+        locale:
+          type: string
+          enum:
+          - uk
+          - ru
+        fileName:
+          type:
+          - string
+          - 'null'
+        fileUrl:
+          type:
+          - string
+          - 'null'
+        status:
+          type: string
+          enum:
+          - New
+          - InWork
+          - Done
+          - Spam
+        ownerUserId:
+          type:
+          - integer
+          - 'null'
+        ownerName:
+          type:
+          - string
+          - 'null'
+        takenAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        closedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        note:
+          type:
+          - string
+          - 'null'
+        createdAt:
+          type: string
+          format: date-time
+        notifiedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        notifyError:
+          type:
+          - string
+          - 'null'
+          description: Why the bot could not post the request; null when it did or it is not known yet.
+        version:
+          type: integer
+    CrmSiteRequestCounts:
+      type: object
+      required:
+      - new
+      - inWork
+      - mine
+      - closed
+      properties:
+        new:
+          type: integer
+        inWork:
+          type: integer
+        mine:
+          type: integer
+          description: In work and taken by the signed-in staff member.
+        closed:
+          type: integer
+    CrmSiteRequestPage:
+      type: object
+      required:
+      - items
+      - total
+      - page
+      - pageSize
+      - counts
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CrmSiteRequest'
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        counts:
+          $ref: '#/components/schemas/CrmSiteRequestCounts'
+    CrmChangeSiteRequestInput:
+      type: object
+      required:
+      - action
+      - version
+      properties:
+        action:
+          type: string
+          enum:
+          - Take
+          - Done
+          - Spam
+          - Reopen
+        version:
+          type: integer
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000

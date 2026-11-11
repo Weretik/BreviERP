@@ -1,6 +1,6 @@
 # Crm schema
 
-`Crm.Infrastructure.Persistence.CrmDbContext` owns schema `crm` («Менеджер сервісу»: clients, КП, manager tasks, leads and the embroidery price settings) in the shared PostgreSQL database; migration history is `crm.__EFMigrationsHistory`. Reviewed 2026-11-04.
+`Crm.Infrastructure.Persistence.CrmDbContext` owns schema `crm` («Менеджер сервісу»: clients, КП, manager tasks, leads, site requests and the embroidery price settings) in the shared PostgreSQL database; migration history is `crm.__EFMigrationsHistory`. Reviewed 2026-11-04.
 
 `RemoveCodexQuoteTables` (2026-11-04) drops the earlier quote, custom sewing, document, PDF, email, delivery, production-package and introduction tables and their trigger functions; their data is not kept. `AddQuotes` then adds the КП tables of [QTE-001](../../specs/crm/003-quotes/README.md); `AddQuoteSettings` adds «Налаштування КП»; `AddQuoteSending` adds Gmail per staff member, the sent-letter log and `Quotes.LastSentAt`; `AddQuoteIntroductions` adds the introduction fields of `Quotes` and «Готові шаблони»; `AddQuoteHistoryAndArchive` adds `QuoteEvents` (filled from existing КП and sent letters) and `Quotes.ArchivedAt`/`ArchivedByName`.
 
@@ -29,6 +29,7 @@
 | LeadCallResults | Generated long ID: «Довідники › Результати дзвінка», Name, Outcome, RetryDays only for Retry (check constraint), IsActive, Position; 8 rows seeded by AddLeads |
 | LeadCategories | Code (primary key, from the sheet) and the director's Description |
 | LeadSyncStates | One row `google-leads`: last run, last success, rows, added, updated, last error |
+| SiteRequests | Generated long ID: a request from the site form «Заявка» ([LEAD-002](../../specs/crm/007-site-requests/README.md), migration AddSiteRequests); Phone, Workwear, Quantity, Comment, Locale, optional attachment FileName and CDN FileUrl; Status (New, InWork, Done, Spam) as text; owner Identity user id and name (no FK), TakenAt, ClosedAt, Note; CreatedAt (indexed), NotifiedAt or NotifyError of the Telegram message, UpdatedAt; Version is the optimistic concurrency token |
 | ManagerTaskSteps | Generated long ID, cascade task FK, Position, text, IsDone |
 | ManagerTaskEvents | Generated long ID, cascade task FK, Kind, who (user id and name), when, kind-specific details |
 

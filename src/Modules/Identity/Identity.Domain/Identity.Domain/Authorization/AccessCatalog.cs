@@ -44,6 +44,7 @@ public static class AccessCatalog
     public const string Embroidery = "embroidery";
     public const string Tasks = "tasks";
     public const string Leads = "leads";
+    public const string SiteRequests = "site-requests";
     public const string ProductionOrders = "production-orders";
     public const string FabricStock = "fabric-stock";
     public const string FabricPlanFact = "fabric-plan-fact";
@@ -114,6 +115,7 @@ public static class AccessCatalog
         new(Embroidery, Service, "Ціна вишивки", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
         new(Tasks, Service, "Мої завдання", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
         new(Leads, Service, "Ліди", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
+        new(SiteRequests, Service, "Заявки з сайту", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
 
         new(ProductionOrders, Workshop, "Виробничі завдання", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All))),

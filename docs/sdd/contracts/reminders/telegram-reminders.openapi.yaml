@@ -591,6 +591,10 @@ components:
           nullable: true
         isApproved:
           type: boolean
+        receivesSiteRequests:
+          type: boolean
+          nullable: true
+          description: «Заявки з сайту» (LEAD-002); null or missing keeps the current choice.
       additionalProperties: false
     ReminderChatResponse:
       type: object
@@ -617,6 +621,9 @@ components:
         discoveredAt:
           type: string
           format: date-time
+        receivesSiteRequests:
+          type: boolean
+          description: The bot also posts the requests of the public site here (LEAD-002) while the chat is approved.
       additionalProperties: false
     ReminderOccurrencePage:
       type: object

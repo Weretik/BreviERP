@@ -30,7 +30,7 @@ Each feature SDD contains `contracts/api-contract.md` for human-readable decisio
 
 Do not create a public OpenAPI document for internal-only changes. Before adding an HTTP contract, agree on the route, method, operation ID, DTOs, examples, errors, security, idempotency for side-effecting writes, and migration path for breaking changes.
 
-- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml), [КП (commercial proposals)](crm/quotes.openapi.yaml), [manager tasks](crm/tasks.openapi.yaml), [leads](crm/leads.openapi.yaml), [embroidery price](crm/embroidery.openapi.yaml).
+- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml), [КП (commercial proposals)](crm/quotes.openapi.yaml), [manager tasks](crm/tasks.openapi.yaml), [leads](crm/leads.openapi.yaml), [site requests](crm/site-requests.openapi.yaml), [embroidery price](crm/embroidery.openapi.yaml).
 
 - Ai: [«Налаштування ШІ»](ai/ai-settings.openapi.yaml) — the OpenAI key (write-only), models, prices, limit and extra rules.
 - Accounting: [«Бухгалтерія»](accounting/finance.openapi.yaml) — «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази», «Огляд», «Контрагенти», «Потребують перевірки» and their change log; director only.
