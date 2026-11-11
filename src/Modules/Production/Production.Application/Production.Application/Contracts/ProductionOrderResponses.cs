@@ -14,14 +14,28 @@ public sealed record ProductionOrderSummaryResponse(
     DateOnly? NearestDueDate,
     bool IsTransferred,
     DateTimeOffset UpdatedAt,
-    string Stage);
+    string Stage,
+    int ShippedQuantity,
+    IReadOnlyList<ProductionOrderSummaryItem> Items);
+
+/// <summary>An item of a list row: the model, its pieces and its current stage, in the order of the card.</summary>
+public sealed record ProductionOrderSummaryItem(string ModelName, int Quantity, string Stage);
 
 /// <summary>Counts by status for the filter chips; they ignore the status filter itself.</summary>
 public sealed record ProductionOrderCounts(int All, int New, int Closed, int Cancelled);
 
+/// <summary>A stage of the «конвеєр»: «Нове» orders whose least advanced item is at it, and how many are overdue.</summary>
+public sealed record ProductionStageCount(string Stage, int Count, int Overdue);
+
+/// <summary>«Нове» orders that need attention: due before today, or due today or within the next three days.</summary>
+public sealed record ProductionOrderAttention(int Overdue, int DueSoon);
+
+/// <param name="Stages">Every stage in workshop order; counts ignore the status and stage filters and take «Нове» orders only.</param>
+/// <param name="Attention">Over the same orders as <paramref name="Stages"/>.</param>
 public sealed record ProductionOrderPageResponse(
     IReadOnlyList<ProductionOrderSummaryResponse> Items, int Page, int PageSize, int Total,
-    ProductionOrderCounts Counts, IReadOnlyList<string> Managers);
+    ProductionOrderCounts Counts, IReadOnlyList<string> Managers,
+    IReadOnlyList<ProductionStageCount> Stages, ProductionOrderAttention Attention);
 
 /// <summary>A model of «Зведення за моделями»: ordered pieces over the filtered orders.</summary>
 /// <param name="ModelCode">Null for an item without a Catalog model (old orders); then the name groups it.</param>
