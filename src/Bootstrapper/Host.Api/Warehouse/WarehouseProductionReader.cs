@@ -25,6 +25,6 @@ internal sealed class WarehouseProductionReader(ProductionFabricPlans plans) : I
         plans.RecordFabricAsync(orderId, itemId, text, actorName, cancellationToken);
 
     internal static WarehousePlanItem Map(ProductionPlanItem x) => new(x.OrderId, x.OrderNumber, x.OrderVersion,
-        x.IsOpen, x.ItemId, x.ModelName, x.FabricCode, x.FabricName, x.Quantity, x.HasNorm,
+        x.IsOpen, x.ClientName, x.ItemId, x.ModelName, x.FabricCode, x.FabricName, x.Quantity, x.HasNorm,
         x.Parts.Select(p => new WarehousePlanPart(p.FabricCode, p.Color, p.ColorKey, p.Meters)).ToArray());
 }

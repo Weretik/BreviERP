@@ -133,7 +133,7 @@ public sealed class WorkshopReportHandlerTests
         var order = (await ProductionOrderHandlerTests.Create(workshop, Manager, ProductionOrderHandlerTests.Input())).Value;
         var itemId = order.Items[0].Id;
         await WarehouseStockHandlerTests.Issue(stock, keeper, order.Id, itemId, order.Version,
-            WarehouseStockHandlerTests.L("Planned", "темно-сірий", 23, "Темно-сірий", 4m));
+            WarehouseStockHandlerTests.L("темно-сірий", "Темно-сірий", 4m));
         var record = new CreateProductionWorkCommandHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db),
             workshop.Time);
         await record.Handle(new(Chief, order.Id, itemId, new(seamstress, "Sewing", 3, Day, false, null, null)),

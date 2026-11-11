@@ -70,43 +70,53 @@ public sealed class WarehouseStockHandlerTests
     }
 
     [Test]
-    public async Task Plan_is_split_by_colour_and_an_issue_takes_it_off_the_reservation()
+    public async Task Plan_is_split_by_colour_and_an_issue_covers_the_plan_of_the_products_cut()
     {
         using var workshop = Workshop();
         await Receive(workshop, Chief, "Opening", 10m);
+        await Receive(workshop, Chief, "Opening", 0.2m, "Сірий");
         var order = (await ProductionOrderHandlerTests.Create(workshop.Workshop, OrderManager, ProductionOrderHandlerTests.Input())).Value;
         var itemId = order.Items[0].Id;
         var before = await List(workshop, Chief);
         var tab = await Fabric(workshop, Chief, order.Id, itemId);
 
-        var issued = await Issue(workshop, Chief, order.Id, itemId, order.Version,
-            L("Planned", "темно-сірий", 23, "Темно-сірий", 4m),
-            L("Replacement", "червоний", 23, "Бордовий", 0.5m),
-            L("Additional", null, 23, "Темно-сірий", 1m));
+        // Two of three products cut: the plan of the cut is 4,4 m of «темно-сірий» and 0,6 m of «червоний».
+        var issued = await IssueCut(workshop, Chief, order.Id, itemId, order.Version, 2,
+            [L("темно-сірий", "Темно-сірий", 4m), L("червоний", "Сірий", 0.5m), L(null, "Темно-сірий", 1m, layer: "Lining")]);
         var after = await List(workshop, Chief);
-        var byManager = await Issue(workshop, Manager, order.Id, itemId, order.Version,
-            L("Additional", null, 23, "Темно-сірий", 1m));
-        var wrongPlanned = await Issue(workshop, Chief, order.Id, itemId, order.Version,
-            L("Planned", "темно-сірий", 23, "Червоний", 1m));
+        var byManager = await Issue(workshop, Manager, order.Id, itemId, order.Version, L(null, "Темно-сірий", 1m));
+        var unknownPart = await Issue(workshop, Chief, order.Id, itemId, order.Version, L("синій", "Темно-сірий", 1m));
+        var notHeld = await Issue(workshop, Chief, order.Id, itemId, order.Version, L(null, "Жовтий", 1m));
 
         Assert.Multiple(() =>
         {
             Assert.That(tab.Plan.Select(x => (x.Color, x.Planned)), Is.EqualTo(new[] { ("Темно-сірий", 6.6m), ("Червоний", 0.9m) }));
+            Assert.That(tab.PlanVersion, Is.EqualTo(0), "no plan is saved before the first issue");
             Assert.That(Pair(before, "Темно-сірий").Meters, Is.EqualTo(10m));
             Assert.That(tab.Plan.Single(x => x.Color == "Темно-сірий").StockAvailable, Is.EqualTo(3.4m));
             Assert.That(tab.Plan.Single(x => x.Color == "Червоний").StockId, Is.Null, "a planned colour the stock never held");
-            var parts = issued.Value.Plan.ToDictionary(x => x.ColorKey);
-            Assert.That(parts["темно-сірий"].Covered, Is.EqualTo(4m));
-            Assert.That(parts["темно-сірий"].Reserved, Is.EqualTo(2.6m));
-            Assert.That(parts["червоний"].Covered, Is.EqualTo(0.9m), "a replacement closes its part");
-            Assert.That(parts["червоний"].Reserved, Is.EqualTo(0m));
-            Assert.That(issued.Value.Issued, Is.EqualTo(5.5m));
-            Assert.That(issued.Value.Issues.Single().Lines.Single(x => x.Purpose == "Additional").CoveredMeters, Is.EqualTo(0m));
+            Assert.That(issued.IsSuccess, Is.True, string.Join("; ", issued.ValidationErrors.Select(x => x.ErrorMessage)));
+            var card = issued.Value;
+            var parts = card.Plan.ToDictionary(x => x.ColorKey);
+            Assert.That(card.PlanVersion, Is.EqualTo(1), "the first issue saves the plan");
+            Assert.That(parts["темно-сірий"].Covered, Is.EqualTo(4.4m));
+            Assert.That(parts["темно-сірий"].Reserved, Is.EqualTo(2.2m));
+            Assert.That(parts["червоний"].Covered, Is.EqualTo(0.6m), "a replacement covers its part");
+            Assert.That(parts["червоний"].Reserved, Is.EqualTo(0.3m));
+            Assert.That(card.Issued, Is.EqualTo(5.5m));
+            var issue = card.Issues.Single();
+            Assert.That(issue.IssuedQuantity, Is.EqualTo(2));
+            Assert.That(issue.Lines.Select(x => x.Purpose), Is.EqualTo(new[] { "Planned", "Replacement", "Additional" }));
+            Assert.That(issue.Lines.Single(x => x.Purpose == "Additional"),
+                Has.Property("CoveredMeters").EqualTo(0m).And.Property("Layer").EqualTo("Lining"));
+            var dark = issue.Comparison.Single(x => x.PlanColorKey == "темно-сірий");
+            Assert.That((dark.Plan, dark.Actual, dark.Difference), Is.EqualTo((4.4m, 4m, -0.4m)));
             Assert.That(Pair(after, "Темно-сірий").Meters, Is.EqualTo(5m));
-            Assert.That(parts["темно-сірий"].StockAvailable, Is.EqualTo(2.4m));
-            Assert.That(Pair(after, "Бордовий").Meters, Is.EqualTo(-0.5m), "the balance may go below zero");
+            Assert.That(parts["темно-сірий"].StockAvailable, Is.EqualTo(2.8m));
+            Assert.That(Pair(after, "Сірий").Meters, Is.EqualTo(-0.3m), "the balance may go below zero");
             Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
-            Assert.That(wrongPlanned.Status, Is.EqualTo(ResultStatus.Invalid));
+            Assert.That(unknownPart.Status, Is.EqualTo(ResultStatus.Invalid));
+            Assert.That(notHeld.Status, Is.EqualTo(ResultStatus.Invalid));
         });
     }
 
@@ -118,7 +128,7 @@ public sealed class WarehouseStockHandlerTests
         var order = (await ProductionOrderHandlerTests.Create(workshop.Workshop, OrderManager, ProductionOrderHandlerTests.Input())).Value;
         var itemId = order.Items[0].Id;
         var issued = await Issue(workshop, Chief, order.Id, itemId, order.Version,
-            L("Planned", "темно-сірий", 23, "Темно-сірий", 6.6m));
+            L("темно-сірий", "Темно-сірий", 6.6m));
         var reversed = await new ReverseFabricIssueCommandHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
                 workshop.ItemFabric())
             .Handle(new(Chief, order.Id, issued.Value.Issues[0].Id, new(order.Version, "Видали не ту тканину")),
@@ -189,7 +199,7 @@ public sealed class WarehouseStockHandlerTests
         var order = (await ProductionOrderHandlerTests.Create(workshop.Workshop, OrderManager,
             ProductionOrderHandlerTests.Input())).Value;
         await Issue(workshop, Chief, order.Id, order.Items[0].Id, order.Version,
-            L("Planned", "темно-сірий", 23, "Темно-сірий", 4m));
+            L("темно-сірий", "Темно-сірий", 4m));
 
         var issues = await workshop.Facts().IssuesAsync(new DateOnly(2026, 11, 1), new DateOnly(2026, 12, 1),
             CancellationToken.None);
@@ -204,8 +214,11 @@ public sealed class WarehouseStockHandlerTests
         });
     }
 
-    internal static FabricIssueLineInput L(string purpose, string? plan, int fabricId, string color, decimal meters) =>
-        new(purpose, plan, fabricId, color, meters);
+    /// <summary>A line of «Видача»: the planned pair it covers (none for an additional one) and the real pair.</summary>
+    internal static FabricIssueLineInput L(string? planColor, string color, decimal meters, string code = "FAB-023",
+        string? planCode = "FAB-023", string? layer = null) =>
+        new(code, color, null, meters, planColor is null ? null : planCode, planColor, planColor is null ? layer : null,
+            null);
 
     internal static WarehouseTestHarness Workshop() => new(ProductionOrderHandlerTests.Workshop());
 
@@ -251,11 +264,22 @@ public sealed class WarehouseStockHandlerTests
         (await new GetProductionItemFabricQueryHandler(workshop.Production, workshop.ItemFabric())
             .Handle(new(actor, orderId, itemId), CancellationToken.None)).Value;
 
+    /// <summary>«Видача» of all three products of the item, against its saved plan version.</summary>
     internal static Task<Result<ProductionItemFabricResponse>> Issue(WarehouseTestHarness workshop,
         WarehouseActor actor, int orderId, int itemId, int version, params FabricIssueLineInput[] lines) =>
-        new CreateFabricIssueCommandHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
-                workshop.Reservations(), workshop.ItemFabric())
-            .Handle(new(actor, orderId, itemId, new(version, Day, null, lines)), CancellationToken.None).AsTask();
+        IssueCut(workshop, actor, orderId, itemId, version, 3, lines);
+
+    internal static async Task<Result<ProductionItemFabricResponse>> IssueCut(WarehouseTestHarness workshop,
+        WarehouseActor actor, int orderId, int itemId, int version, int cut, FabricIssueLineInput[] lines,
+        Guid? operationId = null, int? planVersion = null)
+    {
+        var saved = planVersion ?? await workshop.Db.FabricItemPlans.AsNoTracking().Where(x => x.ItemId == itemId)
+            .Select(x => x.Version).SingleOrDefaultAsync();
+        return await new CreateFabricIssueCommandHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
+                workshop.Pairs(), workshop.Operations(), workshop.Plans(), workshop.ItemFabric())
+            .Handle(new(actor, orderId, itemId, new(operationId ?? Guid.NewGuid(), version, saved, Day, cut, null, lines)),
+                CancellationToken.None);
+    }
 
     private static FabricStockImportRow Line(string id, decimal meters, params FabricMovementImportRow[] movements) =>
         new(id, "FAB-023", id == "s1" ? "Темно-сірий" : "Жовтий", meters, movements);

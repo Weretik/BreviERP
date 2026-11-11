@@ -1,4 +1,5 @@
 using Warehouse.Application.Abstractions;
+using Warehouse.Application.Stock.Issues;
 using Warehouse.Domain.Stock;
 
 namespace Warehouse.Application.Stock;
@@ -10,8 +11,11 @@ public sealed record ItemReservation(int OrderId, int OrderNumber, int ItemId, s
     public decimal Reserved => Math.Max(0m, Part.Meters - Covered);
 }
 
-/// <summary>Plans of items by colour (from «Швейний цех») and what issues of this stock covered of them.</summary>
-public sealed class StockReservations(IWarehouseDbContext db, IWarehouseProductionReader production)
+/// <summary>
+/// Plans of items by colour (the saved plan after the first issue, otherwise from «Швейний цех») and what issues of
+/// this stock covered of them.
+/// </summary>
+public sealed class StockReservations(IWarehouseDbContext db, IWarehouseProductionReader production, ItemPlans plans)
 {
     /// <summary>Every planned part of the items of «Нове» orders; <paramref name="fabricCode"/> narrows to one fabric.</summary>
     public async Task<IReadOnlyList<ItemReservation>> OpenAsync(string? fabricCode, CancellationToken cancellationToken) =>
@@ -39,7 +43,10 @@ public sealed class StockReservations(IWarehouseDbContext db, IWarehouseProducti
         CancellationToken cancellationToken)
     {
         if (items.Count == 0) return [];
-        var covered = await CoveredAsync(items.Select(x => x.ItemId).ToArray(), cancellationToken);
+        var ids = items.Select(x => x.ItemId).ToArray();
+        var covered = await CoveredAsync(ids, cancellationToken);
+        var saved = await plans.SavedAsync(ids, cancellationToken);
+        items = items.Select(x => ItemPlans.Apply(x, saved.GetValueOrDefault(x.ItemId))).ToList();
         return items.SelectMany(x => x.Parts.Select(part => new ItemReservation(x.OrderId, x.OrderNumber, x.ItemId,
                 x.ModelName, part, covered.GetValueOrDefault((x.ItemId, part.Key)))))
             .ToList();

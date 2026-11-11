@@ -12,6 +12,7 @@ public sealed record ProductionPlanItem(
     int OrderNumber,
     int OrderVersion,
     bool IsOpen,
+    string ClientName,
     int ItemId,
     string ModelName,
     string? FabricCode,
@@ -31,15 +32,15 @@ public sealed record ProductionLegacyItem(int Position, int ItemId, string Model
 /// </summary>
 public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider clock)
 {
-    /// <summary>Items of «Нове» orders that plan a fabric; <paramref name="fabricCode"/> narrows to one fabric.</summary>
+    /// <summary>Items of «Нове» orders; <paramref name="fabricCode"/> narrows to the items that plan that fabric.</summary>
     public async Task<IReadOnlyList<ProductionPlanItem>> OpenAsync(string? fabricCode,
         CancellationToken cancellationToken)
     {
         var orders = await db.Orders.AsNoTracking().Include(x => x.Items)
             .Where(x => x.Status == ProductionOrderStatus.New && x.DeletedAt == null)
             .ToListAsync(cancellationToken);
-        var items = orders.SelectMany(o => o.Items.Where(i => i.FabricCode != null &&
-                (fabricCode == null || i.FabricCode == fabricCode)).Select(i => (Order: o, Item: i)))
+        var items = orders.SelectMany(o => o.Items.Where(i => fabricCode == null || i.FabricCode == fabricCode)
+                .Select(i => (Order: o, Item: i)))
             .ToList();
         return await PlanAsync(items, cancellationToken);
     }
@@ -85,7 +86,8 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
         {
             var norm = x.Item.ModelCode is null ? null : norms.GetValueOrDefault(x.Item.ModelCode);
             return new ProductionPlanItem(x.Order.Id, x.Order.Number, x.Order.Version,
-                x.Order is { Status: ProductionOrderStatus.New, IsDeleted: false }, x.Item.Id, x.Item.ModelName,
+                x.Order is { Status: ProductionOrderStatus.New, IsDeleted: false }, x.Order.ClientName, x.Item.Id,
+                x.Item.ModelName,
                 x.Item.FabricCode, x.Item.FabricName, x.Item.Quantity, norm is not null,
                 FabricPlanParts.For(norm, x.Item.FabricCode, x.Item.MainColor, x.Item.AdditionalColors,
                     x.Item.Quantity));

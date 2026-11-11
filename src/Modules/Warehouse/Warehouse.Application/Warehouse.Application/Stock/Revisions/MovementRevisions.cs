@@ -24,6 +24,21 @@ public sealed class MovementRevisions(IWarehouseDbContext db, StockOperations op
         return Result.Success(movement);
     }
 
+    /// <summary>Lines of a «Видача» this movement belongs to follow its new metres, line and void (TZ §8).</summary>
+    private async Task SyncIssueLineAsync(FabricMovement movement, CancellationToken cancellationToken)
+    {
+        if (movement.IssueLineId is not { } lineId) return;
+        var issue = await db.FabricIssues.Include(x => x.Lines).ThenInclude(x => x.Movements).ThenInclude(x => x.Stock)
+            .SingleAsync(x => x.Lines.Any(l => l.Id == lineId), cancellationToken);
+        issue.Lines.Single(x => x.Id == lineId).Sync();
+    }
+
+    /// <summary>How many movements the issue line of <paramref name="movement"/> has; 0 when it has none.</summary>
+    public Task<int> IssueSourcesAsync(FabricMovement movement, CancellationToken cancellationToken) =>
+        movement.IssueLineId is { } lineId
+            ? db.FabricMovements.CountAsync(x => x.IssueLineId == lineId, cancellationToken)
+            : Task.FromResult(0);
+
     /// <summary>
     /// Adds the revision, restates every line the movement left or joined, records the operation and saves. A change by
     /// someone else in between is a conflict; a parallel repeat of the same id returns the saved result.
@@ -38,6 +53,7 @@ public sealed class MovementRevisions(IWarehouseDbContext db, StockOperations op
         var saved = await db.FabricMovements.Where(x => ids.Contains(x.StockId)).ToListAsync(cancellationToken);
         var all = saved.Append(revision.Movement).Distinct().ToList();
         foreach (var line in lines) line.Restate(all.Where(x => ReferenceEquals(x.Stock, line)));
+        await SyncIssueLineAsync(revision.Movement, cancellationToken);
 
         // Saved lines come back as the tracked, restated instances; a line this change created is not saved yet.
         var pair = await pairs.LoadAsync(to.FabricCode, to.Color, cancellationToken);

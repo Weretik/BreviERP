@@ -210,24 +210,34 @@ public sealed record FabricStockOperationResponse(
     decimal Meters,
     bool Replayed);
 
-/// <summary>A planned colour of an item and how far issues covered it.</summary>
-/// <param name="StockId">The stock line of that fabric and colour; null when the stock never held it.</param>
+/// <summary>A planned part of an item and how far issues covered it.</summary>
+/// <param name="FabricCode">The planned fabric as in the plan; the pair is its alias group.</param>
+/// <param name="Layer">Upper, Lining, Insulation or Fleece.</param>
+/// <param name="StockId">The first stock line of that pair; null when the stock never held it.</param>
+/// <param name="StockMeters">Metres of the pair (every line of the alias group in that colour).</param>
+/// <param name="StockAvailable">The pair minus what open orders hold of it; informational.</param>
+/// <param name="Missing">What is still to be cut: the plan minus what issues covered.</param>
 public sealed record FabricPlanPartResponse(
     string FabricCode,
     string Color,
     string ColorKey,
+    string Layer,
     decimal Planned,
     decimal Covered,
     decimal Issued,
     decimal Reserved,
     int? StockId,
     decimal StockMeters,
-    decimal StockAvailable);
+    decimal StockAvailable,
+    decimal Missing);
 
 /// <param name="Purpose">Planned, Replacement or Additional.</param>
+/// <param name="PlannedMeters">The plan of the products cut for its planned part (or the planned part, older issues).</param>
+/// <param name="Layer">Layer of the planned part or role of an additional line; null when unknown.</param>
 public sealed record FabricIssueLineResponse(
     int Id,
     string Purpose,
+    string? PlanFabricCode,
     string? PlanColorKey,
     decimal? PlannedMeters,
     int StockId,
@@ -235,8 +245,26 @@ public sealed record FabricIssueLineResponse(
     string FabricName,
     string Color,
     decimal Meters,
-    decimal CoveredMeters);
+    decimal CoveredMeters,
+    string? Layer,
+    string? Note,
+    bool IsVoided);
 
+/// <summary>Plan and fact of one planned part in an issue by cutting (TZ §7.2).</summary>
+/// <param name="Plan">P × n / N, half up to hundredths; counted once for every line of the part.</param>
+/// <param name="Difference">Fact minus plan; positive is overspending.</param>
+/// <param name="PerProduct">Fact per product cut.</param>
+public sealed record FabricIssueComparisonResponse(
+    string PlanFabricCode,
+    string PlanColorKey,
+    string Color,
+    decimal Plan,
+    decimal Actual,
+    decimal Difference,
+    decimal PerProduct);
+
+/// <param name="IssuedQuantity">Products cut; null for issues before issues by cutting.</param>
+/// <param name="Comparison">Plan and fact by planned part; empty for older issues.</param>
 public sealed record FabricIssueResponse(
     int Id,
     DateOnly IssuedOn,
@@ -247,30 +275,74 @@ public sealed record FabricIssueResponse(
     DateTimeOffset? ReversedAt,
     string? ReversedByName,
     string? ReverseReason,
+    int? IssuedQuantity,
+    IReadOnlyList<FabricIssueComparisonResponse> Comparison,
     IReadOnlyList<FabricIssueLineResponse> Lines);
 
-/// <summary>Tab «Тканина» of an item: plan by colour, issues, and whether the person may issue.</summary>
+/// <summary>Tab «Тканина» of an item: plan by part, issues, and whether the person may issue.</summary>
+/// <param name="PlanVersion">Version of the saved plan; 0 while the plan follows today's norm (no issue yet).</param>
+/// <param name="PlanMissing">Why there is no plan; additional fabric may still be issued.</param>
+/// <param name="CanIssue">The person may move stock and the order is open.</param>
 public sealed record ProductionItemFabricResponse(
     int OrderId,
     int ItemId,
+    int OrderNumber,
+    string ClientName,
+    string ModelName,
     int OrderVersion,
+    bool IsOpen,
     string? FabricCode,
     string? FabricName,
     int Quantity,
     bool HasNorm,
+    int PlanVersion,
+    string? PlanMissing,
     IReadOnlyList<FabricPlanPartResponse> Plan,
     decimal Issued,
     IReadOnlyList<FabricIssueResponse> Issues,
     bool CanIssue);
 
-/// <param name="Purpose">Planned, Replacement or Additional.</param>
-/// <param name="PlanColorKey">The planned colour a planned or replacement line stands for; null for additional.</param>
-/// <param name="FabricId">The fabric of «Тканини» that is really issued.</param>
-public sealed record FabricIssueLineInput(string Purpose, string? PlanColorKey, int FabricId, string Color,
-    decimal Meters);
+/// <summary>A line of an issue by cutting: real metres of one pair of the stock.</summary>
+/// <param name="FabricCode">Any code of the fabric's alias group, as «Залишки» show it.</param>
+/// <param name="ExpectedVersion">The pair version the form showed; null skips the check.</param>
+/// <param name="PlanFabricCode">With <paramref name="PlanColorKey"/>: the planned part this line is for; null for additional.</param>
+/// <param name="Layer">Role of an additional line: Upper, Lining, Insulation or Fleece; null when unknown.</param>
+public sealed record FabricIssueLineInput(
+    string FabricCode,
+    string Color,
+    string? ExpectedVersion,
+    decimal Meters,
+    string? PlanFabricCode,
+    string? PlanColorKey,
+    string? Layer,
+    string? Note);
 
-public sealed record CreateFabricIssueInput(int OrderVersion, DateOnly IssuedOn, string? Note,
+/// <summary>«Видача» by actual cutting: products cut now and the real fabric (TZ §7).</summary>
+/// <param name="PlanVersion">The plan version the form showed (0 before the first issue).</param>
+public sealed record CreateFabricIssueInput(
+    Guid OperationId,
+    int OrderVersion,
+    int PlanVersion,
+    DateOnly IssuedOn,
+    int IssuedQuantity,
+    string? Note,
     IReadOnlyList<FabricIssueLineInput> Lines);
+
+/// <summary>«Оновити план»: the norm of today replaces the saved plan of the item.</summary>
+public sealed record RefreshItemFabricPlanInput(int OrderVersion, int PlanVersion);
+
+/// <summary>An item of an open order that fabric may be issued to.</summary>
+public sealed record FabricIssueItemResponse(
+    int OrderId,
+    int OrderNumber,
+    string ClientName,
+    int ItemId,
+    string ModelName,
+    string? FabricCode,
+    string? FabricName,
+    int Quantity);
+
+public sealed record FabricIssueItemsResponse(IReadOnlyList<FabricIssueItemResponse> Items, bool HasMore);
 
 public sealed record ReverseFabricIssueInput(int OrderVersion, string Reason);
 

@@ -12,6 +12,7 @@ public sealed class WarehouseDbContext(DbContextOptions<WarehouseDbContext> opti
     public DbSet<FabricMovement> FabricMovements => Set<FabricMovement>();
     public DbSet<FabricMovementRevision> FabricMovementRevisions => Set<FabricMovementRevision>();
     public DbSet<FabricIssue> FabricIssues => Set<FabricIssue>();
+    public DbSet<FabricItemPlan> FabricItemPlans => Set<FabricItemPlan>();
     public DbSet<StockOperation> StockOperations => Set<StockOperation>();
 
     protected override void OnModelCreating(ModelBuilder builder)

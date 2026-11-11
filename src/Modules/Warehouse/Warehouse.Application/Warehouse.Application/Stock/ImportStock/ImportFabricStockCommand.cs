@@ -165,7 +165,7 @@ public sealed class ImportFabricStockCommandHandler(IWarehouseDbContext db, IWar
                         ? null
                         : new FabricPlanKey(l.PlanFabricCode.Trim().ToUpperInvariant(), StockColor.Key(l.PlanColor));
                     issue.AddLine(plan is null ? FabricIssuePurpose.Additional : purpose, plan, l.PlannedMeters,
-                        movement.Stock, movement, plan is null ? 0m : l.CoveredMeters);
+                        [movement], plan is null ? 0m : l.CoveredMeters);
                 }
 
                 db.FabricIssues.Add(issue);

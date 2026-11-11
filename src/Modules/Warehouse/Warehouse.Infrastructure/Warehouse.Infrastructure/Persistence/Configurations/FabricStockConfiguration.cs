@@ -53,6 +53,7 @@ internal sealed class FabricMovementConfiguration : IEntityTypeConfiguration<Fab
         builder.HasIndex(x => x.ItemId);
         builder.HasIndex(x => x.LegacyId).IsUnique();
         builder.HasIndex(x => x.OperationId);
+        builder.HasIndex(x => x.IssueLineId);
     }
 }
 
@@ -113,6 +114,7 @@ internal sealed class FabricIssueConfiguration : IEntityTypeConfiguration<Fabric
         builder.Property(x => x.Note).HasMaxLength(FabricIssue.NoteMaxLength);
         builder.Property(x => x.CreatedByName).HasMaxLength(FabricMovement.PersonMaxLength).IsRequired();
         builder.Property(x => x.ReversedByName).HasMaxLength(FabricMovement.PersonMaxLength);
+        builder.HasIndex(x => x.OperationId).IsUnique();
         builder.Property(x => x.ReverseReason).HasMaxLength(FabricIssue.NoteMaxLength);
         builder.Property(x => x.LegacyId).HasMaxLength(FabricStock.LegacyIdMaxLength);
         builder.Ignore(x => x.Target);
@@ -140,9 +142,41 @@ internal sealed class FabricIssueLineConfiguration : IEntityTypeConfiguration<Fa
         builder.Property(x => x.Color).HasMaxLength(StockColor.MaxLength).IsRequired();
         builder.Property(x => x.Meters).HasPrecision(12, FabricStock.Decimals);
         builder.Property(x => x.CoveredMeters).HasPrecision(12, FabricStock.Decimals);
+        builder.Property(x => x.PlanCoverage).HasPrecision(12, FabricStock.Decimals);
+        builder.Property(x => x.Layer).HasConversion<string>().HasMaxLength(20);
+        builder.Property(x => x.Note).HasMaxLength(FabricIssueLine.NoteMaxLength);
         builder.Ignore(x => x.Plan);
+        builder.Ignore(x => x.IsVoided);
         builder.HasOne(x => x.Stock).WithMany().HasForeignKey(x => x.StockId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(x => x.Movement).WithOne().HasForeignKey<FabricIssueLine>(x => x.MovementId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(x => x.Movements).WithOne().HasForeignKey(x => x.IssueLineId).OnDelete(DeleteBehavior.Restrict);
+        builder.Navigation(x => x.Movements).UsePropertyAccessMode(PropertyAccessMode.Field);
+    }
+}
+
+internal sealed class FabricItemPlanConfiguration : IEntityTypeConfiguration<FabricItemPlan>
+{
+    public void Configure(EntityTypeBuilder<FabricItemPlan> builder)
+    {
+        builder.ToTable("FabricItemPlans");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).UseIdentityByDefaultColumn();
+        builder.Property(x => x.Version).IsConcurrencyToken();
+        builder.Property(x => x.UpdatedByName).HasMaxLength(FabricMovement.PersonMaxLength).IsRequired();
+        // OrderId and ItemId point to «Швейний цех» (Production) by value: no foreign key across modules.
+        builder.HasIndex(x => x.ItemId).IsUnique();
+        builder.OwnsMany(x => x.Parts, part =>
+        {
+            part.ToTable("FabricItemPlanParts");
+            part.WithOwner().HasForeignKey("PlanId");
+            part.Property<int>("Id").UseIdentityByDefaultColumn();
+            part.HasKey("Id");
+            part.Property(x => x.FabricCode).HasMaxLength(FabricStock.CodeMaxLength).IsRequired();
+            part.Property(x => x.Color).HasMaxLength(StockColor.MaxLength).IsRequired();
+            part.Property(x => x.ColorKey).HasMaxLength(StockColor.MaxLength).IsRequired();
+            part.Property(x => x.Layer).HasConversion<string>().HasMaxLength(20);
+            part.Property(x => x.Meters).HasPrecision(12, FabricStock.Decimals);
+            part.Ignore(x => x.Key);
+        });
+        builder.Navigation(x => x.Parts).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

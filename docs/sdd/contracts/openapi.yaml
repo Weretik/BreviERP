@@ -471,6 +471,14 @@ paths:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1consumption
   /api/warehouse/fabric-stock/import:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1import
+  /api/warehouse/fabric-stock/issue-items:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1issue-items
+  /api/warehouse/fabric-stock/issue-items/{orderId}/{itemId}:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1issue-items~1{orderId}~1{itemId}
+  /api/warehouse/fabric-stock/issue-items/{orderId}/{itemId}/issues:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1issue-items~1{orderId}~1{itemId}~1issues
+  /api/warehouse/fabric-stock/issue-items/{orderId}/{itemId}/plan:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1issue-items~1{orderId}~1{itemId}~1plan
   /api/warehouse/orders/{id}/items/{itemId}/fabric:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1orders~1{id}~1items~1{itemId}~1fabric
   /api/warehouse/orders/{id}/items/{itemId}/fabric-issues:
