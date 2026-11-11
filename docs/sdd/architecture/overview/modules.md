@@ -38,7 +38,7 @@ Owns the purchase invoice register «Рахунки на закупку» in sch
 
 ## Content module
 
-Owns what the public site says about a product in schema `content`: the «Показувати на сайті» mark, the page address and texts in Ukrainian and Russian (name, SEO, short facts, description, characteristics). Admin APIs live under `/api/content` (policy `access:content-products`). The product itself, its section, fabrics, prices and photos stay in Catalog, Reference and Media; Content keeps only the Catalog product id without a database link and reads the rest through the host port `IContentCatalogReader` ([CNT-002](../../specs/content/002-product-pages/README.md)).
+Owns what the public site says about a product in schema `content`: the «Показувати на сайті» mark, the page address and texts in Ukrainian and Russian (name, SEO, short facts, description, characteristics). It also owns the category tree of the site (categories and subcategories with their mark, address, order, SEO and text, and which products each holds) ([CNT-003](../../specs/content/003-site-categories/README.md)). Admin APIs live under `/api/content` (policies `access:content-products` and `access:content-categories`). The product itself, its section, fabrics, prices and photos stay in Catalog, Reference and Media; Content keeps only the Catalog product id without a database link and reads the rest through the host port `IContentCatalogReader` ([CNT-002](../../specs/content/002-product-pages/README.md)).
 
 ## Reminders module
 

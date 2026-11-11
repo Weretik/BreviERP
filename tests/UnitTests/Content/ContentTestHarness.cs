@@ -6,7 +6,14 @@ using Content.Application.ProductPages.ImportOldSite;
 using Content.Application.ProductPages.Save;
 using Content.Application.ProductPages.SetVisibility;
 using Content.Application.PublicCatalog;
+using Content.Application.SiteCategories.Delete;
+using Content.Application.SiteCategories.GetList;
+using Content.Application.SiteCategories.GetOne;
+using Content.Application.SiteCategories.Reorder;
+using Content.Application.SiteCategories.Save;
+using Content.Application.SiteCategories.SetVisibility;
 using Content.Domain.ProductPages;
+using Content.Domain.SiteCategories;
 using Content.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +48,8 @@ internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
 {
     public ContentDbContext Context => db;
     public DbSet<ProductPage> ProductPages => db.ProductPages;
+    public DbSet<SiteCategory> SiteCategories => db.SiteCategories;
+    public DbSet<SiteCategoryProduct> SiteCategoryProducts => db.SiteCategoryProducts;
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 }
 
@@ -91,6 +100,13 @@ internal sealed class ContentTestHarness : IDisposable
     public GetContentProductQueryHandler One() => new(new SqliteContentDb(Open()), Catalog);
     public ImportOldSiteProductPagesCommandHandler Import() => new(new SqliteContentDb(Open()), Catalog, Time);
     public GetContentProductsQueryHandler List() => new(new SqliteContentDb(Open()), Catalog);
+
+    public SaveSiteCategoryCommandHandler SaveCategory() => new(new SqliteContentDb(Open()), Time);
+    public SetSiteCategoryVisibilityCommandHandler CategoryVisibility() => new(new SqliteContentDb(Open()), Time);
+    public ReorderSiteCategoriesCommandHandler ReorderCategories() => new(new SqliteContentDb(Open()));
+    public DeleteSiteCategoryCommandHandler DeleteCategory() => new(new SqliteContentDb(Open()));
+    public GetSiteCategoryQueryHandler Category() => new(new SqliteContentDb(Open()));
+    public GetSiteCategoriesQueryHandler Categories() => new(new SqliteContentDb(Open()));
 
     /// <summary>The public catalog as one request sees it; <paramref name="cache"/> is shared to test its lifetime.</summary>
     public PublicCatalogSource Site(IMemoryCache? cache = null) =>
