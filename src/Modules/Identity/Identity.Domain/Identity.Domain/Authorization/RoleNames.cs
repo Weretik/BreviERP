@@ -10,6 +10,9 @@ public static class RoleNames
 
     /// <summary>«Начальник цеху»: runs the sewing workshop («Швейний цех»).</summary>
     public const string WorkshopChief = "WorkshopChief";
+
+    /// <summary>«SEO-фахівець»: the site texts and search settings («Контент»).</summary>
+    public const string Seo = "Seo";
     public const string Guest = "Guest";
 
     public static readonly IReadOnlyList<string> All =
@@ -19,6 +22,7 @@ public static class RoleNames
         Accountant,
         Manager,
         WorkshopChief,
+        Seo,
         User,
         Guest
     ];

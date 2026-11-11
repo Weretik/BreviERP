@@ -7,7 +7,7 @@ paths:
       summary: The signed-in staff member's profile («Мій кабінет»)
       tags: [Profile]
       security: [{ cookieAuth: [] }]
-      description: Policy `OwnProfile` (Accountant, Manager, WorkshopChief, Admin; the director also holds Admin).
+      description: Policy `OwnProfile` (Accountant, Manager, WorkshopChief, Seo, Admin; the director also holds Admin).
       responses:
         '200': { description: Profile, content: { application/json: { schema: { $ref: '#/components/schemas/ProfileResponse' } } } }
         '401': { description: Not signed in }

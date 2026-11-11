@@ -38,13 +38,16 @@ public sealed class AccessGrantSource(AppIdentityDbContext dbContext, IMemoryCac
             .Select(x => new { x.Role.Name, x.Grants })
             .ToListAsync(cancellationToken);
         var saved = rows.Where(x => x.Name is not null)
-            .ToDictionary(x => x.Name!, x => Parse(x.Grants), StringComparer.Ordinal);
+            .ToDictionary(x => x.Name!, x => Parse(x.Grants, x.Name!), StringComparer.Ordinal);
         cache.Set(CacheKey, (IReadOnlyDictionary<string, IReadOnlyDictionary<string, AccessAction>>)saved, CacheFor);
         return saved;
     }
 
-    /// <summary>Reads stored JSON; pages the catalogue no longer has and actions a page lacks are dropped.</summary>
-    internal static IReadOnlyDictionary<string, AccessAction> Parse(string json)
+    /// <summary>
+    /// Reads stored JSON of <paramref name="role"/>; pages the catalogue no longer has and actions a page lacks are dropped.
+    /// A page with <see cref="AccessArea.DefaultsForSavedRoles"/> that the save does not mention gets the role's default.
+    /// </summary>
+    internal static IReadOnlyDictionary<string, AccessAction> Parse(string json, string role)
     {
         var stored = JsonSerializer.Deserialize<Dictionary<string, int>>(json) ?? [];
         var result = new Dictionary<string, AccessAction>(StringComparer.Ordinal);
@@ -55,10 +58,19 @@ public sealed class AccessGrantSource(AppIdentityDbContext dbContext, IMemoryCac
             if (actions != AccessAction.None) result[key] = actions;
         }
 
+        foreach (var area in AccessCatalog.Areas.Where(x => x.DefaultsForSavedRoles && !stored.ContainsKey(x.Key)))
+        {
+            var actions = area.Defaults.GetValueOrDefault(role);
+            if (actions != AccessAction.None) result[area.Key] = actions;
+        }
+
         return result;
     }
 
+    /// <summary>Granted pages, plus an explicit 0 for unticked pages whose defaults reach saved roles.</summary>
     internal static string Serialize(IReadOnlyDictionary<string, AccessAction> grants) =>
-        JsonSerializer.Serialize(grants.Where(x => x.Value != AccessAction.None)
-            .ToDictionary(x => x.Key, x => (int)x.Value, StringComparer.Ordinal));
+        JsonSerializer.Serialize(AccessCatalog.Areas
+            .Select(area => (area.Key, Actions: grants.GetValueOrDefault(area.Key), area.DefaultsForSavedRoles))
+            .Where(x => x.Actions != AccessAction.None || x.DefaultsForSavedRoles)
+            .ToDictionary(x => x.Key, x => (int)x.Actions, StringComparer.Ordinal));
 }

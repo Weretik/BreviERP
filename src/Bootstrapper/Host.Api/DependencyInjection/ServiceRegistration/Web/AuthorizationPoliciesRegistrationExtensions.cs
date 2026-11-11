@@ -34,12 +34,12 @@ public static class AuthorizationPoliciesRegistrationExtensions
             // made on «Права доступу» reads too, its pages decide what it changes.
             options.AddPolicy(PolicyNames.CatalogRead, policy =>
                 policy.RequireAssertion(context => HasAnyRole(context.User,
-                    RoleNames.User, RoleNames.Accountant, RoleNames.Manager, RoleNames.Admin)));
+                    RoleNames.User, RoleNames.Accountant, RoleNames.Manager, RoleNames.Seo, RoleNames.Admin)));
 
             // «Мій кабінет»: every staff account, including roles made on «Права доступу»; the director also holds Admin.
             options.AddPolicy(PolicyNames.OwnProfile, policy =>
                 policy.RequireAssertion(context => HasAnyRole(context.User,
-                    RoleNames.Accountant, RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Admin)));
+                    RoleNames.Accountant, RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Seo, RoleNames.Admin)));
 
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
                 policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));

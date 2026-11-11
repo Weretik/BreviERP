@@ -7,7 +7,7 @@ The Admin «Користувачі» page: an administrator or the director list
 ## Rules
 
 - Policy `CanManageUsers` (role Admin) on every operation. The director also holds Admin. A manager or accountant gets `403`.
-- Roles that can be given: `Director`, `Admin`, `Accountant`, `Manager`, `WorkshopChief` (`StaffRoles`) and roles made on [«Права доступу»](access-rights.md) (an unknown role returns `400`). A director account gets both `Director` and `Admin`; the list shows the strongest role. Users with only `User` are not listed.
+- Roles that can be given: `Director`, `Admin`, `Accountant`, `Manager`, `WorkshopChief`, `Seo` (`StaffRoles`) and roles made on [«Права доступу»](access-rights.md) (an unknown role returns `400`). A director account gets both `Director` and `Admin`; the list shows the strongest role. Users with only `User` are not listed.
 - At most one director: creating or promoting a second one returns `409`.
 - Only the director changes the director account (role, block, password, delete); an administrator gets `403`.
 - Nobody blocks or deletes their own account (`400`). Only the director may change their own role (`400` for an administrator).

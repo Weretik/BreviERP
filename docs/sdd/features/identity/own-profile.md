@@ -6,7 +6,7 @@
 
 ## Rules
 
-- Policy `OwnProfile` (Accountant, Manager, WorkshopChief, Admin) on `/api/profile`; phone, email and password also need `RequireAdminRole` (`403` for others).
+- Policy `OwnProfile` (Accountant, Manager, WorkshopChief, Seo, Admin) on `/api/profile`; phone, email and password also need `RequireAdminRole` (`403` for others).
 - Phone: optional, 7 to 15 digits with an optional leading `+`, spaces, dashes or brackets (`AspNetUsers.PhoneNumber`, no new column). It also shows on «Користувачі».
 - Email and password changes need the current password; a wrong one returns `400` on `currentPassword` and counts towards lockout. A taken email returns `409`. Other sessions end; this browser gets a fresh cookie.
 - Photo: JPEG, PNG or WebP, at most 2 MB, at least 128×128 px, at most 24 megapixels. The server applies EXIF orientation, crops the centre square, and stores a 256×256 WebP under a new name, then deletes the previous file. Deleting a staff account deletes its photo.

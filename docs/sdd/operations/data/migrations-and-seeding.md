@@ -21,7 +21,7 @@ Catalog, Identity, Reference, and Accounting module contexts are implemented. Ru
 
 ## Current Identity seeding
 
-- `RoleSeeder` creates any missing role: `Director`, `Admin`, `Accountant`, `Manager`, `WorkshopChief`, `User`.
+- `RoleSeeder` creates any missing role: `Director`, `Admin`, `Accountant`, `Manager`, `WorkshopChief`, `Seo`, `User`.
 - `IdentitySeeder` creates `Identity:AdminUser:Email` (`vitaliythupin@gmail.com`) as Admin when that email has no account and `ADMIN_DEFAULT_PASSWORD` is set. Other existing users do not stop it. It never changes an existing password; it only aligns `LockoutEnabled`.
 
 The password comes only from `ADMIN_DEFAULT_PASSWORD` (Secret Manager `admin-default-password`, attached to the `brevierp-seed` job by the deploy workflow). If the value is absent, administrator creation is skipped and this state is logged. Change the password later on the «Користувачі» page, not by changing the secret.
