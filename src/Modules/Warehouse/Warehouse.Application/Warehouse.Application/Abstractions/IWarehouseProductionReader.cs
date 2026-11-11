@@ -8,7 +8,7 @@ namespace Warehouse.Application.Abstractions;
 /// </summary>
 public interface IWarehouseProductionReader
 {
-    /// <summary>Items of «Нове» orders that plan a fabric; <paramref name="fabricCode"/> narrows to one fabric.</summary>
+    /// <summary>Items of «Нове» orders; <paramref name="fabricCode"/> narrows to the items that plan that fabric.</summary>
     Task<IReadOnlyList<WarehousePlanItem>> OpenItemsAsync(string? fabricCode, CancellationToken cancellationToken);
 
     /// <summary>One item of an order that is not deleted, whatever its status; null when there is none.</summary>
@@ -22,8 +22,9 @@ public interface IWarehouseProductionReader
     Task RecordFabricAsync(int orderId, int itemId, string text, string actorName, CancellationToken cancellationToken);
 }
 
-/// <summary>A planned colour of an item: fabric, colour as typed, key, metres for the whole quantity.</summary>
-public sealed record WarehousePlanPart(string FabricCode, string Color, string ColorKey, decimal Meters)
+/// <summary>A planned colour of an item: fabric, colour as typed, key, metres for the whole quantity, layer.</summary>
+public sealed record WarehousePlanPart(string FabricCode, string Color, string ColorKey, decimal Meters,
+    FabricLayer Layer = FabricLayer.Upper)
 {
     public FabricPlanKey Key => new(FabricCode, ColorKey);
 }
@@ -37,6 +38,7 @@ public sealed record WarehousePlanItem(
     int OrderNumber,
     int OrderVersion,
     bool IsOpen,
+    string ClientName,
     int ItemId,
     string ModelName,
     string? FabricCode,

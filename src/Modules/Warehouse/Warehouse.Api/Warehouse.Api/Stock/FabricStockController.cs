@@ -8,6 +8,7 @@ using Warehouse.Application.Contracts;
 using Warehouse.Application.Stock.Consumption;
 using Warehouse.Application.Stock.GetChoices;
 using Warehouse.Application.Stock.GetStock;
+using Warehouse.Application.Stock.Issues;
 using Warehouse.Application.Stock.Adjustments;
 using Warehouse.Application.Stock.OneOff;
 using Warehouse.Application.Stock.Opening;
@@ -131,6 +132,41 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new GetFabricMovementHistoryQuery(actor, movementId),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Видача на завдання»: open items found by order number, client, model or fabric; newest first.</summary>
+    [HttpGet("issue-items", Name = "getFabricIssueItems")]
+    public async Task<ActionResult<FabricIssueItemsResponse>> IssueItems([FromQuery] string? search,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new GetFabricIssueItemsQuery(actor, search), cancellationToken))
+            : Forbid();
+
+    /// <summary>The fabric card of an item: plan by part, issued, reserved and the issues with plan and fact.</summary>
+    [HttpGet("issue-items/{orderId:int}/{itemId:int}", Name = "getFabricIssueItem")]
+    public async Task<ActionResult<ProductionItemFabricResponse>> IssueItem(int orderId, int itemId,
+        CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new GetProductionItemFabricQuery(actor, orderId, itemId),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Видача» by actual cutting: products cut now and the real pairs; one package per operation id.</summary>
+    [HttpPost("issue-items/{orderId:int}/{itemId:int}/issues", Name = "issueFabricToItem")]
+    public async Task<ActionResult<ProductionItemFabricResponse>> IssueToItem(int orderId, int itemId,
+        CreateFabricIssueInput input, CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new CreateFabricIssueCommand(actor, orderId, itemId, input),
+                cancellationToken))
+            : Forbid();
+
+    /// <summary>«Оновити план»: the saved plan of the item takes today's norm.</summary>
+    [HttpPost("issue-items/{orderId:int}/{itemId:int}/plan", Name = "refreshFabricItemPlan")]
+    public async Task<ActionResult<ProductionItemFabricResponse>> RefreshPlan(int orderId, int itemId,
+        RefreshItemFabricPlanInput input, CancellationToken cancellationToken) =>
+        this.Actor() is { } actor
+            ? this.ToActionResult(await sender.Send(new RefreshItemFabricPlanCommand(actor, orderId, itemId, input),
                 cancellationToken))
             : Forbid();
 

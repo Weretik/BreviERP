@@ -64,7 +64,7 @@ internal sealed class HarnessWarehouseProductionReader(ProductionFabricPlans pla
         plans.RecordFabricAsync(orderId, itemId, text, actorName, cancellationToken);
 
     private static WarehousePlanItem Map(ProductionPlanItem x) => new(x.OrderId, x.OrderNumber, x.OrderVersion,
-        x.IsOpen, x.ItemId, x.ModelName, x.FabricCode, x.FabricName, x.Quantity, x.HasNorm,
+        x.IsOpen, x.ClientName, x.ItemId, x.ModelName, x.FabricCode, x.FabricName, x.Quantity, x.HasNorm,
         x.Parts.Select(p => new WarehousePlanPart(p.FabricCode, p.Color, p.ColorKey, p.Meters)).ToArray());
 }
 
@@ -111,7 +111,9 @@ internal sealed class WarehouseTestHarness : IDisposable
 
     public WarehouseColors Colors() => new(Reference);
 
-    public StockReservations Reservations() => new(Db, Production);
+    public StockReservations Reservations() => new(Db, Production, Plans());
+
+    public ItemPlans Plans() => new(Db);
 
     public StockChanges StockChanges() => new(Db, Staff, Reference, Workshop.Time);
 
@@ -119,7 +121,7 @@ internal sealed class WarehouseTestHarness : IDisposable
 
     public StockPairs Pairs() => new(Db, Operations(), Workshop.Time);
 
-    public ItemFabricCards ItemFabric() => new(Db, Reservations());
+    public ItemFabricCards ItemFabric() => new(Db, Reservations(), Plans());
 
     public StockFacts Facts() => new(Db);
 

@@ -23,11 +23,10 @@ internal static class StockMessages
     public const string OperationDate = "Дата операції — реальна дата від 01.01.1900 до 31.12.2100.";
     public const string OperationId = "Оновіть сторінку складу перед збереженням операції.";
     public const string Reason = "Причина — від 3 до 500 символів.";
-    public const string CannotReverse = "Цей рух не можна сторнувати: видачу сторнують у завданні.";
+    public const string CannotReverse = "Цей рух не можна сторнувати: видачу на завдання сторнують цілою видачею.";
     public const string AlreadyReversed = "Рух уже сторновано.";
     public const string CannotIssue = "Видає тканину начальник цеху або адміністратор у новому завданні.";
     public const string PlanPartNotFound = "У плані позиції немає такого кольору.";
-    public const string PlannedMismatch = "Планова видача — це планова тканина й колір. Для іншої оберіть «Заміна».";
     public const string IssueNotFound = "Видачу не знайдено.";
     public const string IssueAlreadyReversed = "Видачу вже сторновано.";
     public const string TooMuch = "Забагато метрів.";
@@ -36,12 +35,21 @@ internal static class StockMessages
     public const string ItemNotFound = "Завдання не знайдено.";
     public const string OrderStale = "Завдання вже змінили. Оновіть сторінку.";
     public const string CannotRevise =
-        "Цей рух не можна змінити тут: видачу на завдання змінюють у завданні, а сторно і сторнований рух — ніколи.";
+        "Сторно і сторнований рух не змінюють.";
     public const string Voided = "Рух скасовано. Спершу скасуйте останню правку, щоб повернути його.";
     public const string RevisionStale = "Рух уже змінили. Оновіть сторінку.";
     public const string NothingToRestore = "Немає правки, яку можна скасувати.";
     public const string RestoreConflict = "Після цієї правки рух уже змінили. Оновіть історію.";
     public const string WrongSign = "Метри не підходять до виду руху: прихід і витрата — більше нуля, початковий залишок — від нуля, уточнення — не нуль.";
     public const string NoTargetChange = "Тканину й колір можна змінити лише в приході або разовій витраті.";
+    public const string OrderClosed = "Завдання закрите, скасоване або видалене: тканину на нього не видають.";
+    public const string PlanStale = "План позиції вже змінили. Оновіть картку видачі.";
+    public const string IssuedQuantity = "Скільки виробів розкроєно — від 1 до кількості позиції.";
+    public const string PairStale = "Залишок цієї тканини вже змінився. Оновіть картку видачі.";
+    public const string DuplicatePlan = "Плановий компонент указано в іншого кольору цієї тканини.";
+    public const string Layer = "Роль тканини: основна, підкладка, утеплювач або фліс.";
+    public const string MultiSourceTarget =
+        "Цей рядок видачі списано з кількох складських рядків: тканину чи колір у ньому не змінюють. Сторнуйте видачу і видайте наново.";
+    public const string NothingToRefresh = "Норма не змінилася: план той самий.";
     public const string CannotImport = "Переносити склад може лише адміністратор.";
 }

@@ -2,13 +2,15 @@ openapi: 3.1.0
 info:
   title: 'Warehouse: fabric stock'
   version: 1.0.0
-  description: 'Warehouse module (WH-001, WH-002, WH-003): «Склад тканин». A stock line is one offer of «Тканини» (FAB- code) in one
-    colour; lines of a reviewed alias group (FAB-023/067, FAB-078/077) and a normalised colour form one pair, which «Залишки», openings,
-    issues without an order and «Уточнити» work on. Balances change only through movements (opening, receipt, issue, correction, reversal);
+  description: 'Warehouse module (WH-001…WH-004): «Склад тканин». A stock line is one offer of «Тканини» (FAB- code) in one colour;
+    lines of a reviewed alias group (FAB-023/067, FAB-078/077) and a normalised colour form one pair, which «Залишки», openings, issues
+    without an order and «Уточнити» work on. Balances change only through movements (opening, receipt, issue, correction, reversal);
     each line''s chain runs by operation date, record time and id. Every stock form sends an operation id, so a repeat never moves the
     fabric twice. Everyone with access reads the stock; WorkshopChief and Admin move it; Admin alone moves the old stock. Openings,
     receipts, corrections and issues without an order can be edited, voided («Скасувати») and restored to the state before the last
-    change; every change is a revision with the values before and after.'
+    change; every change is a revision with the values before and after. Fabric goes to an item by actual cutting: the products cut
+    and the real pairs; each planned part is compared with P × n / N, the plan of an item is saved at its first issue and changes only
+    by «Оновити план».'
 servers:
 - url: /
 security:
@@ -379,7 +381,7 @@ paths:
       tags:
       - Production
       operationId: createFabricIssue
-      summary: '«Видати»: one package of planned, replacement and additional lines'
+      summary: «Видача» by actual cutting from the item tab; same rules as issueFabricToItem
       parameters:
       - in: path
         name: id
@@ -409,11 +411,11 @@ paths:
         '403':
           description: Not allowed
         '400':
-          description: Invalid line
+          description: Invalid, more products than the item has, a pair the stock never held, or a planned part not in the plan
         '404':
-          description: No such order, item or fabric
+          description: No such order or item
         '409':
-          description: Stale order or stock
+          description: Order closed or changed, plan changed, pair changed, or the operation id was used for other data
   /api/warehouse/orders/{id}/fabric-issues/{issueId}/reverse:
     post:
       tags:
@@ -585,6 +587,143 @@ paths:
           description: Not allowed
         '404':
           description: No such movement
+  /api/warehouse/fabric-stock/issue-items:
+    get:
+      tags:
+      - Production
+      operationId: getFabricIssueItems
+      summary: '«Видача на завдання»: open items found by order number (with or without «Ц-»), client, model or fabric; at most 30,
+        newest first'
+      parameters:
+      - in: query
+        name: search
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+          maxLength: 100
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FabricIssueItemsResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid
+  /api/warehouse/fabric-stock/issue-items/{orderId}/{itemId}:
+    get:
+      tags:
+      - Production
+      operationId: getFabricIssueItem
+      summary: 'The fabric card of an item: plan by part, issued, reserved, issues with plan and fact'
+      parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: itemId
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemFabricResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '404':
+          description: No such order or item
+  /api/warehouse/fabric-stock/issue-items/{orderId}/{itemId}/issues:
+    post:
+      tags:
+      - Production
+      operationId: issueFabricToItem
+      summary: '«Видача» by actual cutting: products cut and the real pairs; one package per operation id'
+      parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: itemId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFabricIssueInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemFabricResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '400':
+          description: Invalid, more products than the item has, a pair the stock never held, or a planned part not in the plan
+        '404':
+          description: No such order or item
+        '409':
+          description: Order closed or changed, plan changed, pair changed, or the operation id was used for other data
+  /api/warehouse/fabric-stock/issue-items/{orderId}/{itemId}/plan:
+    post:
+      tags:
+      - Production
+      operationId: refreshFabricItemPlan
+      summary: '«Оновити план»: the saved plan of the item takes today''s norm'
+      parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: itemId
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshItemFabricPlanInput'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductionItemFabricResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: Not allowed
+        '404':
+          description: No such order or item
+        '409':
+          description: Order closed or changed, plan changed, nothing saved yet or the norm did not change
 components:
   securitySchemes:
     Bearer:
@@ -1093,6 +1232,7 @@ components:
       - fabricCode
       - color
       - colorKey
+      - layer
       - planned
       - covered
       - issued
@@ -1100,6 +1240,7 @@ components:
       - stockId
       - stockMeters
       - stockAvailable
+      - missing
       properties:
         fabricCode:
           type: string
@@ -1107,12 +1248,19 @@ components:
           type: string
         colorKey:
           type: string
+        layer:
+          type: string
+          enum:
+          - Upper
+          - Lining
+          - Insulation
+          - Fleece
         planned:
           type: number
-          description: Norm part × quantity.
+          description: Norm part × quantity (of the saved plan once fabric was issued).
         covered:
           type: number
-          description: What issues covered of the part.
+          description: The plan of the products cut that issues covered.
         issued:
           type: number
           description: Metres of planned and replacement lines for the part.
@@ -1123,15 +1271,22 @@ components:
           type:
           - integer
           - 'null'
+          description: The first stock line of the pair; null when the stock never held it.
         stockMeters:
           type: number
+          description: Metres of the pair (alias group and colour).
         stockAvailable:
           type: number
+          description: The pair minus what open orders hold of it.
+        missing:
+          type: number
+          description: Plan minus covered.
     FabricIssueLineResponse:
       type: object
       required:
       - id
       - purpose
+      - planFabricCode
       - planColorKey
       - plannedMeters
       - stockId
@@ -1140,6 +1295,9 @@ components:
       - color
       - meters
       - coveredMeters
+      - layer
+      - note
+      - isVoided
       properties:
         id:
           type: integer
@@ -1149,6 +1307,10 @@ components:
           - Planned
           - Replacement
           - Additional
+        planFabricCode:
+          type:
+          - string
+          - 'null'
         planColorKey:
           type:
           - string
@@ -1157,6 +1319,7 @@ components:
           type:
           - number
           - 'null'
+          description: The plan of the products cut for its part (the planned part for older issues).
         stockId:
           type: integer
         fabricCode:
@@ -1169,6 +1332,23 @@ components:
           type: number
         coveredMeters:
           type: number
+        layer:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Upper
+          - Lining
+          - Insulation
+          - Fleece
+          - null
+        note:
+          type:
+          - string
+          - 'null'
+        isVoided:
+          type: boolean
+          description: Every movement of the line is «Скасовано».
     FabricIssueResponse:
       type: object
       required:
@@ -1181,6 +1361,8 @@ components:
       - reversedAt
       - reversedByName
       - reverseReason
+      - issuedQuantity
+      - comparison
       - lines
       properties:
         id:
@@ -1212,6 +1394,15 @@ components:
           type:
           - string
           - 'null'
+        issuedQuantity:
+          type:
+          - integer
+          - 'null'
+          description: Products cut; null for older issues.
+        comparison:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricIssueComparisonResponse'
         lines:
           type: array
           items:
@@ -1221,11 +1412,17 @@ components:
       required:
       - orderId
       - itemId
+      - orderNumber
+      - clientName
+      - modelName
       - orderVersion
+      - isOpen
       - fabricCode
       - fabricName
       - quantity
       - hasNorm
+      - planVersion
+      - planMissing
       - plan
       - issued
       - issues
@@ -1235,8 +1432,17 @@ components:
           type: integer
         itemId:
           type: integer
+        orderNumber:
+          type: integer
+        clientName:
+          type: string
+        modelName:
+          type: string
         orderVersion:
           type: integer
+        isOpen:
+          type: boolean
+          description: 'The order is «Нове»: fabric may be issued.'
         fabricCode:
           type:
           - string
@@ -1249,6 +1455,14 @@ components:
           type: integer
         hasNorm:
           type: boolean
+        planVersion:
+          type: integer
+          description: Version of the saved plan; 0 while the plan follows today's norm. Send it back with an issue or a refresh.
+        planMissing:
+          type:
+          - string
+          - 'null'
+          description: Why there is no plan; additional fabric may still be issued.
         plan:
           type: array
           items:
@@ -1261,52 +1475,92 @@ components:
             $ref: '#/components/schemas/FabricIssueResponse'
         canIssue:
           type: boolean
-          description: WorkshopChief and Admin on a «Нове» order.
+          description: WorkshopChief and Admin on an open order.
     FabricIssueLineInput:
       type: object
       required:
-      - purpose
-      - planColorKey
-      - fabricId
+      - fabricCode
       - color
+      - expectedVersion
       - meters
+      - planFabricCode
+      - planColorKey
+      - layer
+      - note
       properties:
-        purpose:
+        fabricCode:
           type: string
-          enum:
-          - Planned
-          - Replacement
-          - Additional
-        planColorKey:
-          type:
-          - string
-          - 'null'
-          description: The planned colour a planned or replacement line stands for; null for additional.
-        fabricId:
-          type: integer
-          minimum: 1
+          minLength: 1
+          maxLength: 32
+          description: A pair the stock holds.
         color:
           type: string
           minLength: 1
           maxLength: 80
+        expectedVersion:
+          type:
+          - string
+          - 'null'
+          description: The pair version shown on the form; another one is 409.
         meters:
           type: number
           exclusiveMinimum: 0
           multipleOf: 0.01
+        planFabricCode:
+          type:
+          - string
+          - 'null'
+          description: The planned part this line covers; null for additional fabric.
+        planColorKey:
+          type:
+          - string
+          - 'null'
+          description: Colour key of the planned part; required with planFabricCode.
+        layer:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Upper
+          - Lining
+          - Insulation
+          - Fleece
+          - null
+          description: Role of an additional line; a planned line takes the layer of its part.
+        note:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
     CreateFabricIssueInput:
       type: object
       required:
+      - operationId
       - orderVersion
+      - planVersion
       - issuedOn
+      - issuedQuantity
       - note
       - lines
       properties:
+        operationId:
+          type: string
+          format: uuid
+          description: A new id per form; a repeat with the same data returns the saved result.
         orderVersion:
           type: integer
           minimum: 1
+        planVersion:
+          type: integer
+          minimum: 0
+          description: planVersion of the card; another one is 409.
         issuedOn:
           type: string
           format: date
+        issuedQuantity:
+          type: integer
+          minimum: 1
+          description: Products cut now, at most the item quantity.
         note:
           type:
           - string
@@ -1826,3 +2080,88 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FabricMovementRevisionResponse'
+    FabricIssueComparisonResponse:
+      type: object
+      required:
+      - planFabricCode
+      - planColorKey
+      - color
+      - plan
+      - actual
+      - difference
+      - perProduct
+      properties:
+        planFabricCode:
+          type: string
+        planColorKey:
+          type: string
+        color:
+          type: string
+        plan:
+          type: number
+          description: P × n / N, half up to hundredths, once per part.
+        actual:
+          type: number
+        difference:
+          type: number
+          description: Fact minus plan; positive is overspending.
+        perProduct:
+          type: number
+          description: Fact per product cut.
+      description: Plan and fact of one planned part in an issue by cutting.
+    RefreshItemFabricPlanInput:
+      type: object
+      required:
+      - orderVersion
+      - planVersion
+      properties:
+        orderVersion:
+          type: integer
+          minimum: 1
+        planVersion:
+          type: integer
+          minimum: 1
+    FabricIssueItemResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - itemId
+      - modelName
+      - fabricCode
+      - fabricName
+      - quantity
+      properties:
+        orderId:
+          type: integer
+        orderNumber:
+          type: integer
+        clientName:
+          type: string
+        itemId:
+          type: integer
+        modelName:
+          type: string
+        fabricCode:
+          type:
+          - string
+          - 'null'
+        fabricName:
+          type:
+          - string
+          - 'null'
+        quantity:
+          type: integer
+    FabricIssueItemsResponse:
+      type: object
+      required:
+      - items
+      - hasMore
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FabricIssueItemResponse'
+        hasMore:
+          type: boolean

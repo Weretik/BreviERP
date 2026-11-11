@@ -66,9 +66,11 @@ public sealed class EditFabricMovementCommandHandler(StockChanges changes, Stock
         var issue = movement.Kind == FabricMovementKind.Issue;
         var state = new FabricMovementState(to.Id, input.OperationDate, delta.Value,
             receipt ? input.SupplierName : movement.SupplierName, receipt ? input.Document : movement.Document,
-            issue ? input.Destination : movement.Destination, false);
+            issue && movement.ItemId is null ? input.Destination : movement.Destination, false);
         if (state with { StockId = 0 } == movement.State with { StockId = 0 } && ReferenceEquals(from, to))
             return Invalid("Meters", "Нічого не змінено.");
+        if (!ReferenceEquals(from, to) && await revisions.IssueSourcesAsync(movement, cancellationToken) > 1)
+            return Invalid("FabricCode", StockMessages.MultiSourceTarget);
         var left = ReferenceEquals(from, to) ? movement.Delta : 0m;
         if (!FabricStock.IsValidMeters(to.Meters - left + delta.Value)) return Invalid("Meters", StockMessages.OutOfRange);
 

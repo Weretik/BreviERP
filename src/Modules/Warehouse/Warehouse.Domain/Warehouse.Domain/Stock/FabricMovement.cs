@@ -131,11 +131,14 @@ public sealed class FabricMovement
     /// <summary>How many edits, voids and restores the movement had; a form sends it back to catch a change in between.</summary>
     public int Revision { get; private set; }
 
+    /// <summary>The line of a «Видача» on an order item this movement belongs to; null for any other movement.</summary>
+    public int? IssueLineId { get; private set; }
+
     /// <summary>
-    /// Openings, receipts, adjustments and issues without an order may be edited, voided and restored here; an order
-    /// issue changes on its order, a «Сторно» or a movement it took back stays as it is.
+    /// Openings, receipts, adjustments and issues (with or without an order) may be edited, voided and restored; a
+    /// «Сторно» or a movement it took back stays as it is.
     /// </summary>
-    public bool CanRevise => Kind != FabricMovementKind.Reversal && !IsReversed && ItemId is null;
+    public bool CanRevise => Kind != FabricMovementKind.Reversal && !IsReversed;
 
     public FabricMovementState State => new(StockId, OperationDate, Delta, SupplierName, Document, Destination, IsVoided);
 

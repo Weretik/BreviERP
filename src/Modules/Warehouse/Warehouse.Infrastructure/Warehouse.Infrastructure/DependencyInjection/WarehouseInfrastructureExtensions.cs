@@ -33,6 +33,7 @@ public static class WarehouseInfrastructureExtensions
         services.AddScoped<StockChanges>();
         services.AddScoped<WarehouseColors>();
         services.AddScoped<ItemFabricCards>();
+        services.AddScoped<ItemPlans>();
         services.AddScoped<StockFacts>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
