@@ -10,6 +10,8 @@ public sealed class GetProductionOrdersQueryValidator : AbstractValidator<GetPro
             .WithMessage("Невідомий статус.");
         RuleFor(x => x.Stage).Must(x => x is null || Enum.TryParse<ProductionStage>(x, true, out var s) && Enum.IsDefined(s))
             .WithMessage("Невідомий етап.");
+        RuleFor(x => x.Sort).Must(x => x is null || GetProductionOrdersQuery.Sorts.Contains(x))
+            .WithMessage("Невідоме сортування.");
         RuleFor(x => x.Search).MaximumLength(200);
         RuleFor(x => x.Manager).MaximumLength(ProductionOrder.PersonMaxLength);
         RuleFor(x => x.CustomerId).GreaterThan(0).When(x => x.CustomerId is not null);

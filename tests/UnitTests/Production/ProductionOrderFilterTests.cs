@@ -1,4 +1,5 @@
 using Ardalis.Result;
+using Microsoft.EntityFrameworkCore;
 using Production.Application.Abstractions;
 using Production.Application.Contracts;
 using Production.Application.Orders.Access;
@@ -8,7 +9,7 @@ using Production.Domain.Orders;
 
 namespace UnitTests.Production;
 
-/// <summary>«Фільтри» and «Зведення за моделями» of «Виробничі завдання» (PRD-012).</summary>
+/// <summary>«Фільтри» and «Зведення за моделями» of «Виробничі завдання» (PRD-010, PRD-011).</summary>
 public sealed class ProductionOrderFilterTests
 {
     private static readonly ProductionActor Admin = new(1, true, false, false);
@@ -17,7 +18,7 @@ public sealed class ProductionOrderFilterTests
     public async Task List_filters_by_client_period_model_fabric_colour_and_season()
     {
         using var workshop = await Seeded();
-        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models);
+        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time);
 
         async Task<int[]> Numbers(ProductionOrderFilters filters) =>
             (await handler.Handle(new(null, null, null, null, Filters: filters), CancellationToken.None)).Value
@@ -65,6 +66,52 @@ public sealed class ProductionOrderFilterTests
             Assert.That(cancelled.Rows.Single().ModelCode, Is.EqualTo("MOD-060"));
             Assert.That(cancelled.TotalQuantity, Is.EqualTo(5));
         });
+    }
+
+    [Test]
+    public async Task List_sorts_by_due_date_and_counts_the_conveyor_of_new_orders()
+    {
+        using var workshop = await Seeded();
+        var order = await workshop.Db.Orders.Include(x => x.Items).Include(x => x.Shipments)
+            .SingleAsync(x => x.Number == 2);
+        var item = order.Items.Single();
+        order.SetItemStages(item.Id, [ProductionStage.FabricOrdered, ProductionStage.Cutting], "Начальник",
+            workshop.Time.GetUtcNow());
+        order.Ship(item.Id, 1, new DateOnly(2026, 11, 3), null, "Начальник", workshop.Time.GetUtcNow());
+        await workshop.Db.SaveChangesAsync();
+        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time);
+
+        var byDue = (await handler.Handle(new(null, null, null, null, Sort: "due"), CancellationToken.None)).Value;
+        var cutting = (await handler.Handle(new(null, null, null, null, Stage: "Cutting"), CancellationToken.None))
+            .Value;
+        var school = (await handler.Handle(new(null, null, null, null, Filters: new(Client: "Школа")),
+            CancellationToken.None)).Value;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(byDue.Items.Select(x => x.Number), Is.EqualTo(new[] { 2, 1, 3 }));
+            var row = byDue.Items[0];
+            Assert.That(row.ShippedQuantity, Is.EqualTo(1));
+            Assert.That(row.Items, Is.EqualTo(new[]
+            {
+                new ProductionOrderSummaryItem("Костюм «Літо» куртка + брюки", 4, "Cutting"),
+            }));
+            Assert.That(cutting.Items.Select(x => x.Number), Is.EqualTo(new[] { 2 }));
+            Assert.That(cutting.Stages.Select(x => (x.Stage, x.Count, x.Overdue)).Where(x => x.Count > 0),
+                Is.EqualTo(new[] { ("New", 1, 0), ("Cutting", 1, 1) }), "the stage filter does not narrow the conveyor; cancelled orders are left out");
+            Assert.That(cutting.Stages, Has.Count.EqualTo(9));
+            Assert.That(cutting.Attention, Is.EqualTo(new ProductionOrderAttention(1, 1)));
+            Assert.That(school.Attention, Is.EqualTo(new ProductionOrderAttention(1, 0)), "other filters narrow it");
+        });
+    }
+
+    [Test]
+    public async Task Unknown_sort_is_rejected()
+    {
+        var result = await new GetProductionOrdersQueryValidator().ValidateAsync(
+            new GetProductionOrdersQuery(null, null, null, null, Sort: "client"));
+
+        Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo("Невідоме сортування."));
     }
 
     [Test]
@@ -117,10 +164,14 @@ public sealed class ProductionOrderFilterTests
             .Handle(new(Admin,
             [
                 Row("a", 1, "New", "Геофізика", new DateOnly(2026, 10, 1),
-                    new("MOD-052", "Куртка «Віол»", "FAB-023", "Грета", 300m, details)),
+                    new("MOD-052", "Куртка «Віол»", "FAB-023", "Грета", 300m,
+                        details with { DueDate = new DateOnly(2026, 11, 6) })),
                 Row("b", 2, "New", "Школа", new DateOnly(2026, 10, 10),
                     new("MOD-060", "Костюм «Літо» куртка + брюки", "FAB-023", "Грета", 500m,
-                        details with { Quantity = 4, MainColor = "Жовтий", AdditionalColors = [] })),
+                        details with
+                        {
+                            Quantity = 4, MainColor = "Жовтий", AdditionalColors = [], DueDate = new DateOnly(2026, 11, 2),
+                        })),
                 Row("c", 3, "Cancelled", "Завод", new DateOnly(2026, 10, 20),
                     new("MOD-060", "Костюм «Літо» куртка + брюки", "FAB-024", "Оксфорд", 500m,
                         details with { Quantity = 5 })),

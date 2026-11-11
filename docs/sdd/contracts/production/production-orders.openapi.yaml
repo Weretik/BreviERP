@@ -17,7 +17,8 @@ paths:
       tags:
       - Production
       operationId: getProductionOrders
-      summary: Not deleted orders, newest number first; counts by status ignore the status filter
+      summary: Not deleted orders, newest number first unless sorted; counts by status ignore the status filter,
+        the stage conveyor and attention take «Нове» orders and ignore the status and stage filters
       parameters:
       - in: query
         name: search
@@ -126,6 +127,20 @@ paths:
           type: string
           maxLength: 50
         description: «Сезон»; orders with an item whose Catalog model has this season.
+      - in: query
+        name: sort
+        required: false
+        schema:
+          type: string
+          enum:
+          - number
+          - -number
+          - due
+          - -due
+          - created
+          - -created
+          default: -number
+        description: «№», «Готово до» (the nearest item due date; orders without one last) or «Створено»; a leading «-» sorts from the largest.
       - in: query
         name: page
         required: false
@@ -1205,6 +1220,8 @@ components:
       - isTransferred
       - updatedAt
       - stage
+      - shippedQuantity
+      - items
       properties:
         id: *id013
         number: *id013
@@ -1243,6 +1260,62 @@ components:
           type: string
           enum: *id015
           description: 'The least advanced item stage: the order is only as far as its slowest item.'
+        shippedQuantity:
+          type: integer
+          format: int32
+          description: Pieces shipped over every item; cancelled shipments are gone.
+        items:
+          type: array
+          description: Items in the order of the card.
+          items:
+            $ref: '#/components/schemas/ProductionOrderSummaryItem'
+    ProductionOrderSummaryItem:
+      type: object
+      required:
+      - modelName
+      - quantity
+      - stage
+      properties:
+        modelName:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+        stage:
+          type: string
+          enum: *id015
+    ProductionStageCount:
+      type: object
+      required:
+      - stage
+      - count
+      - overdue
+      properties:
+        stage:
+          type: string
+          enum: *id015
+        count:
+          type: integer
+          format: int32
+          description: «Нове» orders whose least advanced item is at this stage.
+        overdue:
+          type: integer
+          format: int32
+          description: Of them, due before today (Kyiv).
+    ProductionOrderAttention:
+      type: object
+      required:
+      - overdue
+      - dueSoon
+      properties:
+        overdue:
+          type: integer
+          format: int32
+          description: «Нове» orders with an item due before today (Kyiv).
+        dueSoon:
+          type: integer
+          format: int32
+          description: «Нове» orders whose nearest due date is today or within the next 3 days.
     ProductionOrderCounts:
       type: object
       required:
@@ -1343,6 +1416,8 @@ components:
       - total
       - counts
       - managers
+      - stages
+      - attention
       properties:
         items:
           type: array
@@ -1357,6 +1432,13 @@ components:
           type: array
           items:
             type: string
+        stages:
+          type: array
+          description: Every stage in workshop order, the «конвеєр» of the list.
+          items:
+            $ref: '#/components/schemas/ProductionStageCount'
+        attention:
+          $ref: '#/components/schemas/ProductionOrderAttention'
     ProductionOrderPermissions:
       type: object
       required:

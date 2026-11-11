@@ -7,9 +7,13 @@ namespace Production.Application.Orders.GetOrders;
 /// <summary>Applies «Фільтри» to the orders query. Colour and season are resolved to order ids and model codes first.</summary>
 internal static class ProductionOrderFiltering
 {
-    /// <summary>Every filter of the list except the status, which the status chips count without.</summary>
+    /// <summary>
+    /// Every filter of the list except the status, which the status chips count without. Without
+    /// <paramref name="withStage"/> the stage filter is left out too, for the «конвеєр» counts.
+    /// </summary>
     public static async Task<IQueryable<ProductionOrder>> FilterAsync(IProductionDbContext db,
-        IProductionModelReader models, GetProductionOrdersQuery query, CancellationToken cancellationToken)
+        IProductionModelReader models, GetProductionOrdersQuery query, CancellationToken cancellationToken,
+        bool withStage = true)
     {
         var orders = db.Orders.AsNoTracking().Where(x => x.DeletedAt == null);
         if (query.CustomerId is { } customerId)
@@ -23,7 +27,7 @@ internal static class ProductionOrderFiltering
             orders = orders.Where(x => x.ManagerName == manager);
         }
 
-        if (query.Stage is not null)
+        if (withStage && query.Stage is not null)
         {
             var stage = Enum.Parse<ProductionStage>(query.Stage, ignoreCase: true);
             orders = orders.Where(x => x.Items.Min(item => item.CurrentStage) == stage);

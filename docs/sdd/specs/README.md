@@ -50,6 +50,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Production | [006 Timesheet and payroll](production/006-timesheet-payroll/README.md) | stage 6 implemented 2026-11-05 |
 | Production | [007 Reports and overview](production/007-workshop-reports/README.md) | stage 7 implemented 2026-11-05 |
 | Production | [008 Archive and cutover](production/008-workshop-archive/README.md) | stage 8 implemented 2026-11-05 |
+| Production | [011 Stage conveyor, sorting and item lines of «Виробничі завдання»](production/011-order-conveyor/README.md) | implemented 2026-11-11 |
 | Warehouse | [001 «Склад тканин» as its own module](warehouse/001-warehouse-module/README.md) | stage 1 (module, data move) implemented 2026-11-11 |
 | Warehouse | [002 Ledger rules, «Рух тканини», «Залишки», «Початкові залишки»](warehouse/002-ledger-rules/README.md) | stage 2 implemented 2026-11-11 |
 | Warehouse | [003 Edit, void and restore of movements](warehouse/003-movement-revisions/README.md) | stage 3 implemented 2026-11-11 |
