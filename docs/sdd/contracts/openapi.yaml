@@ -633,6 +633,10 @@ paths:
     $ref: ./content/content-redirects.openapi.yaml#/paths/~1api~1content~1redirects~1{id}
   /api/content/seo-settings:
     $ref: ./content/content-seo-settings.openapi.yaml#/paths/~1api~1content~1seo-settings
+  /api/content/site-pages:
+    $ref: ./content/content-site-pages.openapi.yaml#/paths/~1api~1content~1site-pages
+  /api/content/site-pages/{key}:
+    $ref: ./content/content-site-pages.openapi.yaml#/paths/~1api~1content~1site-pages~1{key}
   /api/public/catalog/tree:
     $ref: ./content/content-public-catalog.openapi.yaml#/paths/~1api~1public~1catalog~1tree
   /api/public/catalog/products:
@@ -655,3 +659,5 @@ paths:
     $ref: ./content/content-public-redirects.openapi.yaml#/paths/~1api~1public~1redirects
   /api/public/site-settings:
     $ref: ./content/content-public-site-settings.openapi.yaml#/paths/~1api~1public~1site-settings
+  /api/public/site-pages:
+    $ref: ./content/content-public-site-pages.openapi.yaml#/paths/~1api~1public~1site-pages

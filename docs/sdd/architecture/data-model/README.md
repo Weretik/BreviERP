@@ -87,7 +87,7 @@ BreviERP PostgreSQL
 │   ├── FabricMovements                # every change of a balance
 │   ├── FabricIssues                   # «Видача» packages to order items
 │   └── FabricIssueLines               # lines of a package with plan coverage
-├── content / ContentDbContext — 9 tables + own history
+├── content / ContentDbContext — 10 tables + own history
 │   ├── ProductPages                   # site page of a Catalog product: mark, address, revision
 │   ├── ProductPageTexts               # its texts in one language (uk, ru)
 │   ├── SiteCategories                 # category tree of the site (two levels)
@@ -96,7 +96,8 @@ BreviERP PostgreSQL
 │   ├── Articles                       # site article: address, date, mark, cover photo id
 │   ├── ArticleTexts                   # title, excerpt, SEO and body of an article in one language
 │   ├── SiteRedirects                  # 301 redirects of the site: old address → new page
-│   └── SiteSeoSettings                # one row: analytics ids, verification codes, sharing picture
+│   ├── SiteSeoSettings                # one row: analytics ids, verification codes, sharing picture
+│   └── SitePages                      # search title and description of a fixed site page (uk, ru)
 ├── reminders / RemindersDbContext — 6 tables + own history
 │   ├── Tasks                          # reminder tasks and schedule
 │   ├── Occurrences                    # one period per task: deadline, status, who closed

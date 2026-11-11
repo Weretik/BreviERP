@@ -1,0 +1,163 @@
+openapi: 3.1.0
+info:
+  title: 'Content: «Контент → Сторінки сайту»'
+  version: 1.0.0
+  description: 'Search texts of the fixed pages of the public site (CNT-007): for each page the title and the
+    description in Ukrainian and Russian. The list of pages is fixed by the server; product, category and article
+    pages have their own SEO. An empty text leaves the site its own text. Policy access:content-site-pages («Права
+    доступу»): the Director and Admin view and edit, Manager only reads; other roles get 403.'
+security:
+- Bearer: []
+paths:
+  /api/content/site-pages:
+    get:
+      tags:
+      - Content
+      operationId: getSitePages
+      description: Every fixed page in menu order with its texts; revision 0 for a page never saved.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SitePageListResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Сторінки сайту»
+  /api/content/site-pages/{key}:
+    parameters:
+    - name: key
+      in: path
+      required: true
+      schema:
+        type: string
+        maxLength: 40
+    put:
+      tags:
+      - Content
+      operationId: saveSitePage
+      description: Replaces the texts of one page; spaces and line breaks inside a text are joined to one line.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSitePageRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SitePageResponse'
+        '400':
+          description: A text is too long
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Сторінки сайту»
+        '404':
+          description: No such page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+        '409':
+          description: The revision is stale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Messages:
+      type: array
+      description: Ukrainian texts for staff that say why the action was refused.
+      items:
+        type: string
+    SitePageText:
+      type: object
+      description: Texts of one language; null leaves the site its own text.
+      properties:
+        title:
+          type:
+          - string
+          - 'null'
+          maxLength: 200
+        description:
+          type:
+          - string
+          - 'null'
+          maxLength: 320
+    SitePageResponse:
+      type: object
+      required:
+      - key
+      - name
+      - path
+      - titleHasBrand
+      - uk
+      - ru
+      - revision
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+          description: The name staff see.
+        path:
+          type: string
+          description: The address without the language, for example /order-in-bulk.
+        titleHasBrand:
+          type: boolean
+          description: True for the home page, whose title is shown as written; the site adds « — Brevi» to the others.
+        uk:
+          $ref: '#/components/schemas/SitePageText'
+        ru:
+          $ref: '#/components/schemas/SitePageText'
+        revision:
+          type: integer
+          format: int32
+        updatedAtUtc:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        updatedBy:
+          type:
+          - string
+          - 'null'
+    SitePageListResponse:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SitePageResponse'
+    SaveSitePageRequest:
+      type: object
+      required:
+      - revision
+      - uk
+      - ru
+      properties:
+        revision:
+          type: integer
+          format: int32
+          description: The revision that was read; 0 for a page never saved.
+        uk:
+          $ref: '#/components/schemas/SitePageText'
+        ru:
+          $ref: '#/components/schemas/SitePageText'

@@ -40,6 +40,8 @@ Do not create a public OpenAPI document for internal-only changes. Before adding
 - Content: [«Контент → Переадресації» redirects of the site](content/content-redirects.openapi.yaml) — 301 redirects: list, add, change, delete and the transfer of the old-site addresses.
 - Content: [«Контент → Налаштування SEO сайту»](content/content-seo-settings.openapi.yaml) — analytics ids, verification codes and the default sharing picture.
 - Content: [public site settings](content/content-public-site-settings.openapi.yaml) — anonymous read of those settings for the site.
+- Content: [«Контент → Сторінки сайту»](content/content-site-pages.openapi.yaml) — search titles and descriptions of the fixed site pages.
+- Content: [public site page texts](content/content-public-site-pages.openapi.yaml) — anonymous read of those texts for the site.
 - Content: [public redirects of the site](content/content-public-redirects.openapi.yaml) — anonymous list of every redirect with the final page of its chain.
 - Content: [public articles of the site](content/content-public-articles.openapi.yaml) — anonymous read-only list and page of the articles marked «Показувати на сайті», with SEO, text and CDN pictures; Ukrainian when there is no Russian text.
 - Content: [public catalog of the site](content/content-public-catalog.openapi.yaml) — anonymous read-only tree, site categories with SEO and text, product cards with «від» (also by category), product by address, addresses for the sitemap.

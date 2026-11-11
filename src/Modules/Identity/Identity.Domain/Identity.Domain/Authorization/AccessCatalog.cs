@@ -67,6 +67,7 @@ public static class AccessCatalog
     public const string ContentArticles = "content-articles";
     public const string ContentRedirects = "content-redirects";
     public const string ContentSeoSettings = "content-seo-settings";
+    public const string ContentSitePages = "content-site-pages";
 
     private const string Service = "Менеджер сервісу";
     private const string Workshop = "Швейний цех";
@@ -145,6 +146,7 @@ public static class AccessCatalog
         new(ContentArticles, SiteContent, "Статті", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
         new(ContentRedirects, SiteContent, "Переадресації", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, V))),
         new(ContentSeoSettings, SiteContent, "Налаштування SEO сайту", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, V))),
+        new(ContentSitePages, SiteContent, "Сторінки сайту", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, V))),
 
         new(LeadStats, Administration, "Ліди: зведення, довідники, синхронізація", VCE, Grant((RoleNames.Admin, VCE)))
     ];
