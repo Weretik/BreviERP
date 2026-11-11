@@ -373,6 +373,33 @@ namespace Content.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Content.Domain.SiteGalleries.SiteGallery", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Items")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("SiteGalleries", "content");
+                });
+
             modelBuilder.Entity("Content.Domain.SitePages.SitePage", b =>
                 {
                     b.Property<string>("Key")

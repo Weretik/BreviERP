@@ -78,6 +78,7 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 - [Site pages «Контент → Сторінки сайту»](content/site-pages.md) — search titles and descriptions of the fixed pages of the public site in two languages; the anonymous `/api/public/site-pages`. Admin edits, Manager reads.
 - [SEO overview «Контент → SEO-огляд»](content/seo-overview.md) — read-only list of what the public site misses for search: empty or too long texts, repeated titles, missing Russian, unfilled site settings. Admin and Manager view.
 - [Company facts «Контент → Контакти та компанія»](content/site-company.md) — company phone, email, address, hours, client managers, payment details and links of the public site; the anonymous `/api/public/company`. Admin edits, Manager reads.
+- [Site pictures «Наші роботи» and «Сертифікати»](content/site-galleries.md) — photos of works and certificate documents of the public site as whole lists, their transfer into the «Фото» library; the anonymous `/api/public/galleries`. Admin and SEO edit, Manager reads.
 - [Articles «Контент → Статті»](content/articles.md) — articles of the public site: address, date, «Показувати на сайті», cover, title, SEO and text with pictures from «Фото» in Ukrainian and Russian; Admin edits, Manager reads.
 
 ## Media

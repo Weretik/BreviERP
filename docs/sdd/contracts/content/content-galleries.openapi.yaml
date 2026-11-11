@@ -1,0 +1,319 @@
+openapi: 3.1.0
+info:
+  title: 'Content: «Контент → Наші роботи» and «Контент → Сертифікати»'
+  version: 1.0.0
+  description: 'The pictures of the site pages «Наші роботи» and «Сертифікати» (CNT-011), each saved as a whole list with
+    a revision. The migration seeds the pictures the site kept among its own files (legacyPath); «Перенести у бібліотеку
+    фото» moves them to the «Фото» library. Policies access:content-works and access:content-certificates («Права
+    доступу»): the Director, Admin and SEO specialist view and edit, Manager only reads; other roles get 403.'
+security:
+- Bearer: []
+paths:
+  /api/content/works:
+    get:
+      tags:
+      - Content
+      operationId: getSiteWorks
+      description: The pictures in the order the site shows them; revision 0 only in an empty database.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteGalleryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Наші роботи»
+    put:
+      tags:
+      - Content
+      operationId: saveSiteWorks
+      description: Replaces the list as a whole. A new picture is a photo of the «Фото» library; a file the site still
+        keeps may stay (by its legacyPath) but cannot be added.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSiteGalleryRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteGalleryResponse'
+        '400':
+          description: A picture or a text is wrong; the answer names it in Ukrainian
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Наші роботи»
+        '409':
+          description: The revision is stale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+  /api/content/works/transfer:
+    post:
+      tags:
+      - Content
+      operationId: transferSiteWorks
+      description: Moves up to 10 pictures the site still keeps as its own files into the «Фото» library (folder
+        «Сайт»), keeping the order and the texts. The Admin repeats the call while moved > 0 and left > 0. A picture
+        already in the library is not downloaded again.
+      responses:
+        '200':
+          description: One step done
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteGalleryTransferResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Наші роботи»
+        '404':
+          description: The list does not exist yet
+  /api/content/certificates:
+    get:
+      tags:
+      - Content
+      operationId: getSiteCertificates
+      description: The documents in the order the site shows them; revision 0 only in an empty database.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteGalleryResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to view «Сертифікати»
+    put:
+      tags:
+      - Content
+      operationId: saveSiteCertificates
+      description: Replaces the list as a whole. A new picture is a photo of the «Фото» library; a file the site still
+        keeps may stay (by its legacyPath) but cannot be added.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveSiteGalleryRequest'
+      responses:
+        '200':
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteGalleryResponse'
+        '400':
+          description: A picture or a text is wrong; the answer names it in Ukrainian
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Сертифікати»
+        '409':
+          description: The revision is stale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Messages'
+  /api/content/certificates/transfer:
+    post:
+      tags:
+      - Content
+      operationId: transferSiteCertificates
+      description: Moves up to 10 pictures the site still keeps as its own files into the «Фото» library (folder
+        «Сайт»), keeping the order and the texts. The Admin repeats the call while moved > 0 and left > 0. A picture
+        already in the library is not downloaded again.
+      responses:
+        '200':
+          description: One step done
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteGalleryTransferResponse'
+        '401':
+          description: Not signed in
+        '403':
+          description: No right to edit «Сертифікати»
+        '404':
+          description: The list does not exist yet
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+  schemas:
+    Messages:
+      type: array
+      description: Ukrainian texts for staff that say why the action was refused.
+      items:
+        type: string
+    GalleryText:
+      type: object
+      description: A text in Ukrainian and Russian; an empty Russian text shows the Ukrainian one on the site.
+      properties:
+        uk:
+          type:
+          - string
+          - 'null'
+        ru:
+          type:
+          - string
+          - 'null'
+    SiteGalleryItemInput:
+      type: object
+      description: One picture as staff send it. Either photoId (a photo of the «Фото» library) or legacyPath (a file the
+        list already has). Works use title as the picture description (up to 300 characters); certificates need a
+        Ukrainian title and may have a note (up to 600) and up to 10 standards (up to 200 each).
+      properties:
+        photoId:
+          type:
+          - integer
+          - 'null'
+        legacyPath:
+          type:
+          - string
+          - 'null'
+          pattern: ^/assets/(works|certificates)/[a-z0-9-]+\.webp$
+        title:
+          oneOf:
+          - $ref: '#/components/schemas/GalleryText'
+          - type: 'null'
+        note:
+          oneOf:
+          - $ref: '#/components/schemas/GalleryText'
+          - type: 'null'
+        standards:
+          type:
+          - array
+          - 'null'
+          maxItems: 10
+          items:
+            type: string
+    SaveSiteGalleryRequest:
+      type: object
+      required:
+      - revision
+      - items
+      properties:
+        revision:
+          type: integer
+          minimum: 0
+        items:
+          type: array
+          description: Up to 300 works or 40 certificates; one photo or file only once.
+          items:
+            $ref: '#/components/schemas/SiteGalleryItemInput'
+    SiteGalleryItemResponse:
+      type: object
+      description: One picture with full addresses for the Admin. missing is true when the library no longer has the
+        photo; the site then leaves it out.
+      required:
+      - missing
+      - title
+      - note
+      - standards
+      properties:
+        photoId:
+          type:
+          - integer
+          - 'null'
+        legacyPath:
+          type:
+          - string
+          - 'null'
+        url:
+          type:
+          - string
+          - 'null'
+        thumbnailUrl:
+          type:
+          - string
+          - 'null'
+        width:
+          type:
+          - integer
+          - 'null'
+        height:
+          type:
+          - integer
+          - 'null'
+        missing:
+          type: boolean
+        title:
+          $ref: '#/components/schemas/GalleryText'
+        note:
+          $ref: '#/components/schemas/GalleryText'
+        standards:
+          type: array
+          items:
+            type: string
+    SiteGalleryResponse:
+      type: object
+      required:
+      - key
+      - items
+      - legacyCount
+      - revision
+      properties:
+        key:
+          type: string
+          enum:
+          - works
+          - certificates
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteGalleryItemResponse'
+        legacyCount:
+          type: integer
+          description: Pictures that are still files of the site and wait for the transfer.
+        revision:
+          type: integer
+        updatedAtUtc:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        updatedBy:
+          type:
+          - string
+          - 'null'
+    SiteGalleryTransferResponse:
+      type: object
+      required:
+      - moved
+      - left
+      - problems
+      - gallery
+      properties:
+        moved:
+          type: integer
+        left:
+          type: integer
+          description: Pictures still waiting after this step, failed ones included.
+        problems:
+          type: array
+          description: Ukrainian texts for the pictures that failed to download.
+          items:
+            type: string
+        gallery:
+          $ref: '#/components/schemas/SiteGalleryResponse'
