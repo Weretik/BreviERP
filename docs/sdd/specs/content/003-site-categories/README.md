@@ -1,6 +1,6 @@
 # CNT-003 — «Контент → Розділи»: categories of the public site (Content module)
 
-**Status:** accepted by the owner 2026-11-11 («Свої категорії сайту», with full add, edit, move, delete and hide); stages 1 (module code, admin API) and 3 (categories of a product, old-site transfer) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md).
+**Status:** accepted by the owner 2026-11-11 («Свої категорії сайту», with full add, edit, move, delete and hide); stages 1 (module code, admin API), 3 (categories of a product, old-site transfer) and 4 (public API by category) implemented 2026-11-11. **Date:** 2026-11-11. **Module:** `Content`, schema `content`. Continues [CNT-002](../002-product-pages/README.md).
 
 ## Why
 
@@ -17,7 +17,7 @@ The site gets its own category tree, owned by Content, with two levels as on the
 - R-03: A product page belongs to any number of site categories (the old site lists a product in several). A listing of a category shows the products of the category and of its subcategories, in the order of the category.
 - R-04: Staff add, change, move, reorder, hide and delete categories. Save replaces a category as a whole with a revision check; a taken slug is a 409; the Ukrainian name is required and gives the slug when none is typed. Another parent moves the category to the end of that parent; a category with subcategories cannot become a subcategory. The order of one parent is saved as a whole list. Deleting a category with subcategories is refused; deleting a category removes only its texts and its links to products.
 - R-05: Access: page key `content-categories`, group «Контент», actions View, Create, Edit, Delete; defaults Director and Admin all, Manager view.
-- R-06: Public API: the tree returns the shown categories with names in both languages; `products` takes `category` (slug); a new `GET /api/public/catalog/categories/{slug}?language=` returns the SEO and the text. `type` and `sectionId` of CNT-002 are removed from the public contract together with the site switch.
+- R-06: Public API: `GET /api/public/catalog/categories` returns the shown categories with names in both languages; `products` takes `category` (slug); `GET /api/public/catalog/categories/{slug}?language=` returns the SEO and the text; a product names its categories. The `tree`, `type` and `sectionId` of CNT-002 stay until the site has switched (stage 5) and are removed after it.
 - R-07: Long texts are edited in the visual editor of the Admin; nothing is typed as markup.
 
 ## Scenarios
@@ -66,3 +66,23 @@ Rollout: the migration only adds tables, so the old code keeps working; rollback
 | `tests/UnitTests/Content/SiteCategoryProductsTests.cs` | SC-04, SC-05 |
 
 No schema change in this stage.
+
+## Stage 4 design (implemented)
+
+Additions to the anonymous `/api/public/catalog` ([contract](../../../contracts/content/content-public-catalog.openapi.yaml) 1.1.0); nothing is removed, so the deployed site keeps working until stage 5.
+
+- `getPublicCatalogCategories` (`GET categories`): shown categories in their order, each with its shown subcategories, names in both languages (the Russian one falls back to Ukrainian) and the number of products on the site. A subcategory of a hidden category is left out; a marked category without products comes back (R-02).
+- `getPublicCatalogCategory` (`GET categories/{slug}?language=`): name, SEO, text, parent, subcategories. Language fallback as for a product page: a category without a Russian name or text answers with the Ukrainian texts and says so in `language`. Hidden or unknown is 404.
+- `getPublicCatalogProducts` takes `category` (slug): the products of the category in its order, then those of its subcategories, each once (R-03); a hidden or unknown category is 404.
+- `getPublicCatalogProduct` adds `categories`: the shown categories the product was put into, in tree order, each with its top-level category for the breadcrumbs.
+- `getPublicCatalogCategorySlugs` (`GET category-slugs`): addresses for the sitemap with `hasRussian`.
+
+The categories are part of the same one-minute snapshot as the products (`PublicCatalogSource`), so an anonymous caller cannot make the server read them on every request. No schema change.
+
+| Path | Role |
+| --- | --- |
+| `Content.Application/PublicCatalog/PublicCatalogSource.cs` | snapshot now holds shown categories with their products |
+| `Content.Application/PublicCatalog/GetPublicCatalogCategoriesQuery.cs`, `GetPublicCatalogCategoryQuery.cs`, `GetPublicCatalogCategorySlugsQuery.cs` | tree, category page, addresses |
+| `Content.Application/PublicCatalog/GetPublicCatalogProductsQuery.cs`, `GetPublicCatalogProductQuery.cs`, `PublicCatalogMapping.cs` | `category` filter, categories of a product, language fallback |
+| `Content.Application/Contracts/PublicCatalogResponses.cs`, `Content.Api/PublicCatalog/PublicCatalogController.cs` | responses and three new anonymous GET operations |
+| `tests/UnitTests/Content/PublicCatalogCategoriesTests.cs`, `PublicCatalogTests.cs`, `tests/HostApiTests/ApiAccessTests.cs` | SC-06 on SQLite; contract; anonymous allow-list |

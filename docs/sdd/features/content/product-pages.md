@@ -24,7 +24,7 @@ src/Modules/Content/
     ProductPages/Delete/
     ProductPages/ImportOldSite/  # one-time transfer: link matching, dry run, overwrite
     ProductPages/Shared/         # mapping, free slug, messages
-    PublicCatalog/     # snapshot of what the site shows (kept for a minute), tree, cards, product, addresses
+    PublicCatalog/     # snapshot of what the site shows (kept for a minute), tree, site categories, cards, product, addresses
   Content.Infrastructure/Content.Infrastructure/
     Persistence/       # ContentDbContext (schema content), configurations (jsonb lists), migrations
     DependencyInjection/

@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: 'Content: public catalog of the site'
-  version: 1.0.0
-  description: 'Read-only catalog for the public site (CNT-002 stage 4). No sign-in. Only products marked «Показувати на
+  version: 1.1.0
+  description: 'Read-only catalog for the public site (CNT-002 stage 4, site categories of CNT-003 stage 4). No sign-in. Only products marked «Показувати на
     сайті» whose Catalog product is active come back, and nothing internal (no cost, supplier, staff names or ids of
     articles). Every answer has Cache-Control: public, max-age=300. The server builds the catalog at most once a minute,
     so a change in the Admin reaches these answers within a minute.'
@@ -44,6 +44,13 @@ paths:
           type: integer
           format: int32
           minimum: 1
+      - name: category
+        in: query
+        description: Address of a shown site category. Its products and those of its subcategories come back in the
+          order of the category.
+        schema:
+          type: string
+          maxLength: 120
       - name: page
         in: query
         schema:
@@ -68,7 +75,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/PublicCatalogCardPage'
         '400':
-          description: Wrong language, type, section or paging
+          description: Wrong language, type, section, category or paging
+        '404':
+          description: No such category, or it is hidden
   /api/public/catalog/products/{slug}:
     get:
       tags:
@@ -95,6 +104,61 @@ paths:
           description: Wrong language
         '404':
           description: No such address, or the product is hidden or switched off
+  /api/public/catalog/categories:
+    get:
+      tags:
+      - PublicCatalog
+      operationId: getPublicCatalogCategories
+      description: The category tree of the site. Categories marked «На сайті» in their order, each with its marked
+        subcategories. A subcategory of a hidden category is left out. A marked category without products comes back too.
+      responses:
+        '200':
+          description: Tree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicCatalogCategoryTree'
+  /api/public/catalog/categories/{slug}:
+    get:
+      tags:
+      - PublicCatalog
+      operationId: getPublicCatalogCategory
+      description: A category page by its address with SEO and text. A Russian request for a category without Russian
+        texts gets the Ukrainian ones, and language says which came back.
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        schema:
+          type: string
+          maxLength: 120
+      - $ref: '#/components/parameters/Language'
+      responses:
+        '200':
+          description: Category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicCatalogCategoryPage'
+        '400':
+          description: Wrong language
+        '404':
+          description: No such address, or the category is hidden
+  /api/public/catalog/category-slugs:
+    get:
+      tags:
+      - PublicCatalog
+      operationId: getPublicCatalogCategorySlugs
+      description: Addresses of every shown category, for the sitemap and for building pages ahead of time.
+      responses:
+        '200':
+          description: Addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicCatalogSlug'
   /api/public/catalog/product-slugs:
     get:
       tags:
@@ -291,6 +355,7 @@ components:
       - photos
       - variants
       - updatedAtUtc
+      - categories
       properties:
         slug:
           type: string
@@ -357,6 +422,133 @@ components:
         updatedAtUtc:
           type: string
           format: date-time
+        categories:
+          type: array
+          description: Shown site categories the product is in, in tree order.
+          items:
+            $ref: '#/components/schemas/PublicCatalogProductCategory'
+    PublicCatalogCategoryTree:
+      type: object
+      required:
+      - categories
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicCatalogCategory'
+    PublicCatalogCategory:
+      type: object
+      required:
+      - slug
+      - nameUk
+      - nameRu
+      - productCount
+      - children
+      properties:
+        slug:
+          type: string
+          description: The same for both languages and unique in the tree.
+        nameUk:
+          type: string
+        nameRu:
+          type: string
+          description: The Russian name, or the Ukrainian one when there is none.
+        productCount:
+          type: integer
+          format: int32
+          description: Products on the site in the category and its subcategories, each counted once.
+        children:
+          type: array
+          description: Subcategories; empty for a subcategory.
+          items:
+            $ref: '#/components/schemas/PublicCatalogCategory'
+    PublicCatalogCategoryLink:
+      type: object
+      required:
+      - slug
+      - name
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+    PublicCatalogChildCategory:
+      type: object
+      required:
+      - slug
+      - name
+      - productCount
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        productCount:
+          type: integer
+          format: int32
+    PublicCatalogCategoryPage:
+      type: object
+      required:
+      - slug
+      - name
+      - language
+      - children
+      - text
+      - productCount
+      - updatedAtUtc
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        language:
+          type: string
+          enum:
+          - uk
+          - ru
+          description: Language of the texts that came back.
+        parent:
+          description: The top-level category of a subcategory.
+          oneOf:
+          - $ref: '#/components/schemas/PublicCatalogCategoryLink'
+          - type: 'null'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicCatalogChildCategory'
+        seoTitle:
+          type:
+          - string
+          - 'null'
+        seoDescription:
+          type:
+          - string
+          - 'null'
+        text:
+          type: array
+          items:
+            $ref: ./content-products.openapi.yaml#/components/schemas/ProductTextBlock
+        productCount:
+          type: integer
+          format: int32
+        updatedAtUtc:
+          type: string
+          format: date-time
+    PublicCatalogProductCategory:
+      type: object
+      required:
+      - slug
+      - name
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        parent:
+          description: The top-level category of a subcategory, for the breadcrumbs.
+          oneOf:
+          - $ref: '#/components/schemas/PublicCatalogCategoryLink'
+          - type: 'null'
     PublicCatalogSlug:
       type: object
       required:

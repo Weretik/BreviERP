@@ -27,6 +27,7 @@ public sealed class GetPublicCatalogProductQueryHandler(IPublicCatalogSource sou
         if (entry is null) return Result.NotFound("Товар не знайдено.");
         var section = snapshot.Sections.FirstOrDefault(x => x.Id == entry.Product.SectionId);
         var photos = await catalog.GetPhotosAsync(entry.Product.Id, cancellationToken);
-        return PublicCatalogMapping.Product(entry, query.Language, section, photos);
+        return PublicCatalogMapping.Product(entry, query.Language, section, photos,
+            PublicCatalogMapping.CategoriesOf(snapshot, entry.Product.Id, query.Language));
     }
 }
