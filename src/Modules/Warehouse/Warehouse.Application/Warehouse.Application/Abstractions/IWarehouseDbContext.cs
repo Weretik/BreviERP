@@ -11,5 +11,15 @@ public interface IWarehouseDbContext
     DbSet<FabricItemPlan> FabricItemPlans { get; }
     DbSet<StockOperation> StockOperations { get; }
     DbSet<FabricMovementRevision> FabricMovementRevisions { get; }
+    DbSet<StockTransfer> StockTransfers { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    /// <summary>Several saves that stand or fall together (the transfer replaces the whole stock).</summary>
+    Task<IWarehouseTransaction> BeginTransactionAsync(CancellationToken cancellationToken);
+}
+
+/// <summary>Rolled back when disposed without <see cref="CommitAsync"/>.</summary>
+public interface IWarehouseTransaction : IAsyncDisposable
+{
+    Task CommitAsync(CancellationToken cancellationToken);
 }

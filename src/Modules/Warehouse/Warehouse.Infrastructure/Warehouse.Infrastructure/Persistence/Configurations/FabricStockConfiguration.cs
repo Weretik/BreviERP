@@ -180,3 +180,18 @@ internal sealed class FabricItemPlanConfiguration : IEntityTypeConfiguration<Fab
         builder.Navigation(x => x.Parts).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
+
+internal sealed class StockTransferConfiguration : IEntityTypeConfiguration<StockTransfer>
+{
+    public void Configure(EntityTypeBuilder<StockTransfer> builder)
+    {
+        builder.ToTable("StockTransfers");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).UseIdentityByDefaultColumn();
+        builder.Property(x => x.Hash).HasMaxLength(StockTransfer.HashLength).IsFixedLength().IsRequired();
+        builder.Property(x => x.Snapshot).HasMaxLength(StockTransfer.SnapshotMaxLength);
+        builder.Property(x => x.Meters).HasPrecision(14, FabricStock.Decimals);
+        builder.Property(x => x.CreatedByName).HasMaxLength(FabricMovement.PersonMaxLength).IsRequired();
+        builder.HasIndex(x => x.Hash);
+    }
+}

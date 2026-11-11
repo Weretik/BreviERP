@@ -469,8 +469,8 @@ paths:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1movements~1{movementId}~1revisions
   /api/warehouse/fabric-stock/consumption:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1consumption
-  /api/warehouse/fabric-stock/import:
-    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1import
+  /api/warehouse/fabric-stock/transfer:
+    $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1transfer
   /api/warehouse/fabric-stock/issue-items:
     $ref: ./warehouse/fabric-stock.openapi.yaml#/paths/~1api~1warehouse~1fabric-stock~1issue-items
   /api/warehouse/fabric-stock/issue-items/{orderId}/{itemId}:

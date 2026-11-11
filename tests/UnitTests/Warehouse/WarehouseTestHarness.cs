@@ -67,7 +67,7 @@ internal sealed class HarnessWarehouseProductionReader(ProductionFabricPlans pla
         CancellationToken cancellationToken) =>
         (await plans.LegacyAsync(legacyIds, cancellationToken))
         .Select(x => new WarehouseLegacyOrder(x.LegacyId, x.OrderId, x.Number,
-            x.Items.Select(i => new WarehouseLegacyItem(i.Position, i.ItemId, i.ModelName)).ToArray()))
+            x.Items.Select(i => new WarehouseLegacyItem(i.Position, i.ItemId, i.ModelName, i.ModelCode, i.Quantity)).ToArray()))
         .ToArray();
 
     public Task RecordFabricAsync(int orderId, int itemId, string text, string actorName,

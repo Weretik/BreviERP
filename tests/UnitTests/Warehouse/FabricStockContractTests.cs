@@ -7,7 +7,7 @@ using YamlDotNet.RepresentationModel;
 
 namespace UnitTests.Warehouse;
 
-/// <summary>Stock types and operations match docs/sdd/contracts/warehouse/fabric-stock.openapi.yaml (WH-001…WH-005).</summary>
+/// <summary>Stock types and operations match docs/sdd/contracts/warehouse/fabric-stock.openapi.yaml (WH-001…WH-006).</summary>
 public sealed class FabricStockContractTests
 {
     [TestCase(typeof(FabricStockPermissions))]
@@ -44,14 +44,21 @@ public sealed class FabricStockContractTests
     [TestCase(typeof(ReverseFabricIssueInput))]
     [TestCase(typeof(FabricConsumptionRowResponse))]
     [TestCase(typeof(FabricConsumptionResponse))]
-    [TestCase(typeof(FabricStockImportRow))]
-    [TestCase(typeof(FabricMovementImportRow))]
-    [TestCase(typeof(FabricIssueImportRow))]
-    [TestCase(typeof(FabricIssueLineImportRow))]
-    [TestCase(typeof(FabricReservationImportRow))]
-    [TestCase(typeof(FabricStockImportInput))]
-    [TestCase(typeof(FabricStockImportLine))]
-    [TestCase(typeof(FabricStockImportResult))]
+    [TestCase(typeof(StockTransferInput))]
+    [TestCase(typeof(V133StockRow))]
+    [TestCase(typeof(V133MovementRow))]
+    [TestCase(typeof(V133RevisionRow))]
+    [TestCase(typeof(V133BatchRow))]
+    [TestCase(typeof(V133IssueLineRow))]
+    [TestCase(typeof(V133IssueComponentRow))]
+    [TestCase(typeof(V133ReservationRow))]
+    [TestCase(typeof(V133OrderRow))]
+    [TestCase(typeof(V133ItemRow))]
+    [TestCase(typeof(StockTransferResult))]
+    [TestCase(typeof(StockTransferSource))]
+    [TestCase(typeof(StockTransferTarget))]
+    [TestCase(typeof(StockTransferCurrent))]
+    [TestCase(typeof(StockTransferProblem))]
     [TestCase(typeof(FabricPlanFactResponse))]
     [TestCase(typeof(FabricPlanFactRowResponse))]
     [TestCase(typeof(FabricPlanFactModelResponse))]
