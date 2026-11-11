@@ -12,6 +12,7 @@ using Crm.Application.Quotes.GetQuotes;
 using Crm.Application.Quotes.History;
 using Crm.Application.Quotes.LegacyArchive;
 using Crm.Application.Quotes.Pdf.GetPdf;
+using Crm.Application.Quotes.Period;
 using Crm.Application.Quotes.RepriceQuote;
 using Crm.Application.Quotes.SaveQuote;
 using Crm.Application.Quotes.Sending.Draft;
@@ -42,6 +43,17 @@ public sealed class QuotesController(ISender sender) : ControllerBase
         return this.ToActionResult(await sender.Send(
             new GetQuotesQuery(actor, search, status, responsibleUserId, page, pageSize, customerId),
             cancellationToken));
+    }
+
+    /// <summary>«КП за місяць» of «Робочий стіл»: created and sent КП of a Kyiv period, by default this month.</summary>
+    [HttpGet("period", Name = "getCrmQuotePeriod")]
+    [ProducesResponseType<QuotePeriodResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<QuotePeriodResponse>> Period([FromQuery] DateOnly? from, [FromQuery] DateOnly? to,
+        CancellationToken cancellationToken)
+    {
+        var actor = QuoteActorClaims.Read(User);
+        if (actor is null) return Forbid();
+        return this.ToActionResult(await sender.Send(new GetQuotePeriodQuery(actor, from, to), cancellationToken));
     }
 
     [HttpGet("{id:long}", Name = "getCrmQuote")]

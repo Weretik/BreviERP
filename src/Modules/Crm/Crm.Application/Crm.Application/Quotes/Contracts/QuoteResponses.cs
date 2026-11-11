@@ -163,3 +163,13 @@ public sealed record LegacyArchivedQuotesResponse(int Count);
 
 /// <summary>A photo uploaded for one КП item (R-34).</summary>
 public sealed record QuotePhotoResponse(string Url);
+
+/// <summary>«КП за місяць» (DESK-001): КП created and sent in a Kyiv period, and the same per responsible person.</summary>
+public sealed record QuotePeriodResponse(
+    DateOnly From,
+    DateOnly To,
+    int Created,
+    int Sent,
+    IReadOnlyList<QuotePeriodManagerResponse> Managers);
+
+public sealed record QuotePeriodManagerResponse(QuotePersonResponse Manager, int Created, int Sent);

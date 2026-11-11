@@ -71,7 +71,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Reminders | [001 Telegram deadline reminders](reminders/001-telegram-reminders/README.md) | implemented and locally verified 2026-11-01; not deployed |
 | Identity | [001 Cookie sign-in like Kedr](identity/001-cookie-sign-in/README.md) | implemented 2026-11-03; not deployed |
 | Identity | [002 «Права доступу» (ACC-001)](identity/002-access-rights/README.md) | implemented 2026-11-08 |
-| Identity | [003 Role «SEO-фахівець» and «Робочі столи» (DESK-001)](identity/003-role-desks/README.md) | stages 1–2 implemented 2026-11-11 |
+| Identity | [003 Role «SEO-фахівець» and «Робочі столи» (DESK-001)](identity/003-role-desks/README.md) | implemented 2026-11-11 |
 | Platform | [001 module schemas](platform/001-module-schemas/README.md)                                              | implementation                                                                                                     |
 
 When a specification's status changes, update its row here in the same change.

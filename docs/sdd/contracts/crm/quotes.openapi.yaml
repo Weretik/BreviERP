@@ -66,6 +66,28 @@ paths:
         "401": { description: Authentication required. }
         "403": { description: Admin or Manager role required. }
         "409": { $ref: "#/components/responses/Conflict" }
+  /api/crm/quotes/period:
+    get:
+      operationId: getCrmQuotePeriod
+      security:
+        - bearerAuth: []
+      description: «КП за місяць» of «Робочий стіл» (DESK-001). КП created and sent in a Kyiv period, both days included, in total and per responsible person; a КП sent more than once counts once. By default the current Kyiv month up to today. A Manager counts only their own.
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: The period.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CrmQuotePeriod" }
+        "400": { $ref: "#/components/responses/Invalid" }
+        "401": { description: Authentication required. }
+        "403": { description: Admin or Manager role and a numeric actor claim required. }
   /api/crm/quotes/{id}:
     parameters:
       - $ref: "#/components/parameters/QuoteId"
@@ -1166,6 +1188,25 @@ components:
         page: { type: integer }
         pageSize: { type: integer }
         total: { type: integer }
+    CrmQuotePeriod:
+      type: object
+      required: [from, to, created, sent, managers]
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }
+        created: { type: integer }
+        sent: { type: integer }
+        managers:
+          type: array
+          description: One line per responsible person, most КП first.
+          items: { $ref: "#/components/schemas/CrmQuotePeriodManager" }
+    CrmQuotePeriodManager:
+      type: object
+      required: [manager, created, sent]
+      properties:
+        manager: { $ref: "#/components/schemas/CrmQuotePerson" }
+        created: { type: integer }
+        sent: { type: integer }
     CrmQuoteTierPrices:
       type: object
       properties:
