@@ -8,6 +8,7 @@ using Warehouse.Application.Colors;
 using Warehouse.Application.Stock;
 using Warehouse.Application.Stock.Facts;
 using Warehouse.Application.Stock.Issues;
+using Warehouse.Application.Stock.Reports;
 using Warehouse.Application.Stock.Revisions;
 using Warehouse.Infrastructure.Persistence;
 
@@ -27,6 +28,7 @@ public static class WarehouseInfrastructureExtensions
         services.AddScoped<IWarehouseDbContext>(sp => sp.GetRequiredService<WarehouseDbContext>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<WarehouseDbContext>>();
         services.AddScoped<StockReservations>();
+        services.AddScoped<FabricBookingCalculator>();
         services.AddScoped<StockOperations>();
         services.AddScoped<StockPairs>();
         services.AddScoped<MovementRevisions>();

@@ -215,7 +215,7 @@ public sealed class WarehouseStockHandlerTests
     }
 
     internal static async Task<FabricStockListResponse> List(WarehouseTestHarness workshop, WarehouseActor actor) =>
-        (await new GetFabricStockQueryHandler(workshop.Db, workshop.Reference)
+        (await new GetFabricStockQueryHandler(workshop.Db, workshop.Reference, workshop.Booking())
             .Handle(new(actor), CancellationToken.None)).Value;
 
     internal static FabricStockColorResponse Pair(FabricStockListResponse list, string color, string code = "FAB-023") =>

@@ -13,15 +13,48 @@ public sealed record FabricStockSourceResponse(int Id, string FabricCode, decima
 /// A fabric and colour on the shelf: every line of the alias group with that colour summed. <c>Version</c> goes back
 /// with «Уточнити» and a «Разова витрата».
 /// </summary>
+/// <param name="Booked">«У броні»: what open production plans still need of this pair (plan − covered by issues).</param>
+/// <param name="Free">«Вільно»: metres − booked; below zero when the stock does not cover the plans.</param>
+/// <param name="ToOrder">What to buy for the plans, the shortage already there included (as «Що замовити»).</param>
+/// <param name="LastMovement">The latest movement that counts (not voided) by operation date; null without one.</param>
+/// <param name="Bookings">The tasks that need this pair, oldest order first.</param>
 public sealed record FabricStockColorResponse(
     string Color,
     string ColorKey,
     decimal Meters,
     string Version,
-    IReadOnlyList<FabricStockSourceResponse> Sources);
+    IReadOnlyList<FabricStockSourceResponse> Sources,
+    decimal Booked = 0,
+    decimal Free = 0,
+    decimal ToOrder = 0,
+    FabricStockLastMovementResponse? LastMovement = null,
+    IReadOnlyList<FabricStockBookingResponse>? Bookings = null);
+
+/// <summary>The latest movement of a pair for «Остання операція».</summary>
+/// <param name="Kind">Opening, Receipt, Issue, Adjustment or Reversal; an issue with an order number went to a task.</param>
+public sealed record FabricStockLastMovementResponse(
+    int Id,
+    string Kind,
+    DateOnly OperationDate,
+    decimal Delta,
+    int? OrderNumber,
+    string? Document,
+    string? SupplierName,
+    string? Destination);
+
+/// <summary>A task that needs a pair: what is left of its plan and what of it the stock does not cover.</summary>
+public sealed record FabricStockBookingResponse(
+    int OrderId,
+    int OrderNumber,
+    string ClientName,
+    string ModelName,
+    DateOnly? DueDate,
+    decimal Need,
+    decimal ToOrder);
 
 /// <summary>A fabric of «Залишки» by its canonical code with the colours the stock holds.</summary>
 /// <param name="Codes">The codes of «Тканини» that are this fabric, the canonical first.</param>
+/// <param name="Supplier">The supplier of the canonical offer in «Тканини», for the supplier filter.</param>
 public sealed record FabricStockFabricResponse(
     string FabricCode,
     IReadOnlyList<string> Codes,
@@ -29,15 +62,20 @@ public sealed record FabricStockFabricResponse(
     string? Composition,
     string? Density,
     decimal Meters,
-    IReadOnlyList<FabricStockColorResponse> Colors);
+    IReadOnlyList<FabricStockColorResponse> Colors,
+    string? Supplier = null,
+    decimal Booked = 0,
+    decimal Free = 0);
 
 /// <summary>«Залишки»: only fabrics and colours that have stock lines, zero and negative included.</summary>
+/// <param name="Short">Pairs whose stock does not cover the open plans (<c>ToOrder</c> above zero).</param>
 public sealed record FabricStockListResponse(
     IReadOnlyList<FabricStockFabricResponse> Fabrics,
     decimal Meters,
     int Pairs,
     int Negative,
-    FabricStockPermissions Permissions);
+    FabricStockPermissions Permissions,
+    int Short = 0);
 
 /// <summary>A row of «Рух тканини».</summary>
 /// <param name="Kind">Opening, Receipt, Issue, Adjustment or Reversal.</param>

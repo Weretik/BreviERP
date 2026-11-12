@@ -5,6 +5,7 @@ using UnitTests.Production;
 using Warehouse.Application.Abstractions;
 using Warehouse.Application.Colors;
 using Warehouse.Application.Stock;
+using Warehouse.Application.Stock.Reports;
 using Warehouse.Application.Stock.Facts;
 using Warehouse.Application.Stock.Issues;
 using Warehouse.Infrastructure.Persistence;
@@ -127,6 +128,8 @@ internal sealed class WarehouseTestHarness : IDisposable
     public StockReservations Reservations() => new(Db, Production, Plans());
 
     public ItemPlans Plans() => new(Db);
+
+    public FabricBookingCalculator Booking() => new(Db, Production, Reference, Reservations(), Plans(), Workshop.Time);
 
     public StockChanges StockChanges() => new(Db, Staff, Reference, Workshop.Time);
 

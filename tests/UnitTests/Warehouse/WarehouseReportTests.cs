@@ -125,8 +125,7 @@ public sealed class WarehouseReportTests
         await IssueCut(workshop, Chief, first.OrderId, first.ItemId, first.Version, 1,
             [L("темно-сірий", "Темно-сірий", 2m)]);
 
-        var report = (await new GetFabricBookingQueryHandler(workshop.Db, workshop.Production, workshop.Reference,
-                workshop.Reservations(), workshop.Plans(), workshop.Workshop.Time)
+        var report = (await new GetFabricBookingQueryHandler(workshop.Booking())
             .Handle(new(Chief), CancellationToken.None)).Value;
 
         var dark = report.Pairs.Single(x => x.Color == "Темно-сірий");
@@ -142,6 +141,33 @@ public sealed class WarehouseReportTests
             Assert.That(report.Pairs[0].ToOrder, Is.EqualTo(5m), "sorted by what to order");
             Assert.That(report.ToOrder, Is.EqualTo(6.8m));
             Assert.That(report.Unknown, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Stock_shows_what_plans_book_of_each_pair_and_its_latest_movement()
+    {
+        using var workshop = Workshop();
+        await Receive(workshop, Chief, "Opening", 8m);
+        var first = await Order(workshop);
+        var second = await Order(workshop);
+        await IssueCut(workshop, Chief, first.OrderId, first.ItemId, first.Version, 1,
+            [L("темно-сірий", "Темно-сірий", 2m)]);
+
+        var list = await List(workshop, Chief);
+        var dark = Pair(list, "Темно-сірий");
+        var fabric = list.Fabrics.Single(x => x.FabricCode == "FAB-023");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That((dark.Meters, dark.Booked, dark.Free, dark.ToOrder), Is.EqualTo((6m, 11m, -5m, 5m)),
+                "WH-008: free may go below zero, to order as «Що замовити»");
+            Assert.That(dark.Bookings!.Select(x => (x.OrderId, x.Need, x.ToOrder)),
+                Is.EqualTo(new[] { (first.OrderId, 4.4m, 0m), (second.OrderId, 6.6m, 5m) }));
+            Assert.That(dark.LastMovement, Has.Property("Kind").EqualTo("Issue").And.Property("Delta").EqualTo(-2m));
+            Assert.That(dark.LastMovement!.OrderNumber, Is.Not.Null);
+            Assert.That((fabric.Booked, fabric.Free), Is.EqualTo((11m, -5m)));
+            Assert.That(list.Short, Is.EqualTo(1), "a pair without a stock line is not on «Залишки»");
         });
     }
 

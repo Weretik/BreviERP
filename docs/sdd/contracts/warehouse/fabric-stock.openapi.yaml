@@ -921,7 +921,110 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FabricStockSourceResponse'
+        booked:
+          type: number
+          format: double
+          description: «У броні», what open production plans still need of this pair (plan − covered by issues).
+        free:
+          type: number
+          format: double
+          description: «Вільно», metres − booked; below zero when the stock does not cover the plans.
+        toOrder:
+          type: number
+          format: double
+          description: What to buy for the plans, the shortage already there included (as «Що замовити»).
+        lastMovement:
+          oneOf:
+          - $ref: '#/components/schemas/FabricStockLastMovementResponse'
+          - type: 'null'
+          description: The latest movement that counts (not voided) by operation date.
+        bookings:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/FabricStockBookingResponse'
+          description: The tasks that need this pair, oldest order first.
       description: 'A fabric and colour on the shelf: every line of the alias group with that colour summed.'
+    FabricStockLastMovementResponse:
+      type: object
+      required:
+      - id
+      - kind
+      - operationDate
+      - delta
+      - orderNumber
+      - document
+      - supplierName
+      - destination
+      properties:
+        id:
+          type: integer
+        kind:
+          type: string
+          enum:
+          - Opening
+          - Receipt
+          - Issue
+          - Adjustment
+          - Reversal
+          description: An issue with an order number went to a task.
+        operationDate:
+          type: string
+          format: date
+        delta:
+          type: number
+          format: double
+        orderNumber:
+          type:
+          - integer
+          - 'null'
+        document:
+          type:
+          - string
+          - 'null'
+        supplierName:
+          type:
+          - string
+          - 'null'
+        destination:
+          type:
+          - string
+          - 'null'
+      description: The latest movement of a pair for «Остання операція».
+    FabricStockBookingResponse:
+      type: object
+      required:
+      - orderId
+      - orderNumber
+      - clientName
+      - modelName
+      - dueDate
+      - need
+      - toOrder
+      properties:
+        orderId:
+          type: integer
+        orderNumber:
+          type: integer
+        clientName:
+          type: string
+        modelName:
+          type: string
+        dueDate:
+          type:
+          - string
+          - 'null'
+          format: date
+        need:
+          type: number
+          format: double
+          description: What is left of the plan of this task for the pair.
+        toOrder:
+          type: number
+          format: double
+          description: What of it the stock does not cover.
+      description: 'A task that needs a pair: what is left of its plan and what of it the stock does not cover.'
     FabricStockFabricResponse:
       type: object
       required:
@@ -958,6 +1061,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FabricStockColorResponse'
+        supplier:
+          type:
+          - string
+          - 'null'
+          description: The supplier of the canonical offer in «Тканини», for the supplier filter.
+        booked:
+          type: number
+          format: double
+        free:
+          type: number
+          format: double
     FabricStockListResponse:
       type: object
       required:
@@ -981,6 +1095,9 @@ components:
           description: Pairs below zero.
         permissions:
           $ref: '#/components/schemas/FabricStockPermissions'
+        short:
+          type: integer
+          description: Pairs whose stock does not cover the open plans (toOrder above zero).
       description: '«Залишки»: only fabrics and colours that have stock lines, zero and negative included.'
     FabricMovementRowResponse:
       type: object
