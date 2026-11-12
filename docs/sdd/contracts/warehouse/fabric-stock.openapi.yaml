@@ -796,6 +796,24 @@ paths:
           - 'null'
           maxLength: 200
         description: A planned or issued fabric code, name or colour.
+      - in: query
+        name: from
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+          format: date
+        description: Keeps the items whose last issue is on or after this day.
+      - in: query
+        name: to
+        required: false
+        schema:
+          type:
+          - string
+          - 'null'
+          format: date
+        description: Keeps the items whose last issue is on or before this day; not before `from` (400).
       responses:
         '200':
           description: OK
@@ -1899,6 +1917,8 @@ components:
       - issued
       - corrected
       - issuedValue
+      - issuedToTasks
+      - oneOff
       properties:
         stockId:
           type: integer
@@ -1918,6 +1938,12 @@ components:
           type:
           - number
           - 'null'
+        issuedToTasks:
+          type: number
+          description: Issued to items of orders; part of `issued`.
+        oneOff:
+          type: number
+          description: «Разова витрата», issued without a task; part of `issued`.
     FabricConsumptionResponse:
       type: object
       required:
@@ -1927,6 +1953,9 @@ components:
       - received
       - issued
       - issuedValue
+      - issuedToTasks
+      - oneOff
+      - corrected
       properties:
         from:
           type: string
@@ -1946,6 +1975,12 @@ components:
           type:
           - number
           - 'null'
+        issuedToTasks:
+          type: number
+        oneOff:
+          type: number
+        corrected:
+          type: number
     EditFabricMovementInput:
       type: object
       required:
@@ -2338,6 +2373,7 @@ components:
       - result
       - reason
       - materials
+      - issuedOn
       properties:
         orderId:
           type: integer
@@ -2378,6 +2414,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FabricPlanFactMaterialResponse'
+        issuedOn:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: The day of the item's last issue; the period goes by it.
     FabricPlanFactModelResponse:
       type: object
       required:

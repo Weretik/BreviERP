@@ -38,6 +38,7 @@ public sealed record FabricPlanFactModelResponse(
 
 /// <summary>An item in the details: its main-fabric plan and fact, and every material by role.</summary>
 /// <param name="Reason">Why the item cannot be compared; null when it can.</param>
+/// <param name="IssuedOn">The day of its last issue: the period of the report goes by it.</param>
 public sealed record FabricPlanFactItemResponse(
     int OrderId,
     int OrderNumber,
@@ -49,7 +50,8 @@ public sealed record FabricPlanFactItemResponse(
     decimal? Difference,
     string Result,
     string? Reason,
-    IReadOnlyList<FabricPlanFactMaterialResponse> Materials);
+    IReadOnlyList<FabricPlanFactMaterialResponse> Materials,
+    DateOnly? IssuedOn = null);
 
 /// <summary>A planned part, or a material issued beyond the plan.</summary>
 /// <param name="Layer">Upper, Lining, Insulation, Fleece, or null when the role is unknown.</param>

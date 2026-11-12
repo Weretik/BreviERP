@@ -16,15 +16,18 @@ namespace Warehouse.Api.Stock;
 [Route("api/warehouse/reports")]
 public sealed class StockReportsController(ISender sender) : ControllerBase
 {
-    /// <summary>«План і факт»: main fabric by model; filters match a part of the model, client or fabric.</summary>
+    /// <summary>
+    /// «План і факт»: main fabric by model; filters match a part of the model, client or fabric; the period keeps the
+    /// items whose last issue is in it.
+    /// </summary>
     [HttpGet("plan-fact", Name = "getFabricPlanFact")]
     [Authorize(Policy = WarehouseAccess.FabricPlanFact)]
     public async Task<ActionResult<FabricPlanFactResponse>> PlanFact([FromQuery] string? model = null,
-        [FromQuery] string? client = null, [FromQuery] string? fabric = null,
-        CancellationToken cancellationToken = default) =>
+        [FromQuery] string? client = null, [FromQuery] string? fabric = null, [FromQuery] DateOnly? from = null,
+        [FromQuery] DateOnly? to = null, CancellationToken cancellationToken = default) =>
         this.Actor() is { } actor
-            ? this.ToActionResult(await sender.Send(new GetFabricPlanFactQuery(actor, model, client, fabric),
-                cancellationToken))
+            ? this.ToActionResult(await sender.Send(
+                new GetFabricPlanFactQuery(actor, model, client, fabric, from, to), cancellationToken))
             : Forbid();
 
     /// <summary>«Бронь і що замовити»: the stock handed to the plans of open orders in order; what to order.</summary>
