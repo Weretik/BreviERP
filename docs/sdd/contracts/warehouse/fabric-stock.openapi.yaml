@@ -79,7 +79,7 @@ paths:
       tags:
       - Production
       operationId: getFabricMovements
-      summary: '«Рух тканини»: 50 per page, newest operation date first (then record time and id)'
+      summary: '«Рух тканини»: 50 per page, newest operation date first (then record time and id), with kind counts'
       parameters:
       - in: query
         name: page
@@ -98,8 +98,13 @@ paths:
           - Receipt
           - Issue
           - Opening
+          - ItemIssue
+          - OneOffIssue
+          - Adjustment
+          - Cancelled
           default: All
-        description: Opening lists openings not taken back («Внесені початкові залишки»).
+        description: Opening lists openings not taken back; Issue is both ItemIssue (to an order item) and OneOffIssue;
+          Cancelled is voided or reversed movements and the reversals.
       - in: query
         name: fabricCode
         required: false
@@ -119,6 +124,28 @@ paths:
         required: false
         schema:
           type: integer
+      - in: query
+        name: search
+        required: false
+        schema:
+          type: string
+          maxLength: 200
+        description: Every word must be found in the fabric code or name, colour, supplier, document, order number
+          («Ц-14» or «14»), model, destination, note or who recorded it; case-insensitive.
+      - in: query
+        name: from
+        required: false
+        schema:
+          type: string
+          format: date
+        description: First operation date, inclusive.
+      - in: query
+        name: to
+        required: false
+        schema:
+          type: string
+          format: date
+        description: Last operation date, inclusive; not before from.
       responses:
         '200':
           description: OK
@@ -1078,6 +1105,12 @@ components:
           - number
           - 'null'
           description: '«На 1 виріб»: metres per product cut, to thousandths; null without a products count.'
+        pairMetersAfter:
+          type:
+          - number
+          - 'null'
+          description: '«Залишок пари»: the merged pair (every code of the fabric, one colour) after the movement in
+            ledger order; voided movements add nothing.'
       description: A row of «Рух тканини».
     FabricMovementPageResponse:
       type: object
@@ -1097,6 +1130,40 @@ components:
           type: boolean
         permissions:
           $ref: '#/components/schemas/FabricStockPermissions'
+        total:
+          type: integer
+          description: Movements of the chosen kind under every filter.
+        counts:
+          oneOf:
+          - $ref: '#/components/schemas/FabricMovementCountsResponse'
+          - type: 'null'
+          description: Movements of each kind chip under every filter but the kind.
+    FabricMovementCountsResponse:
+      type: object
+      required:
+      - all
+      - receipt
+      - itemIssue
+      - oneOffIssue
+      - adjustment
+      - opening
+      - cancelled
+      properties:
+        all:
+          type: integer
+        receipt:
+          type: integer
+        itemIssue:
+          type: integer
+        oneOffIssue:
+          type: integer
+        adjustment:
+          type: integer
+        opening:
+          type: integer
+        cancelled:
+          type: integer
+          description: Voided or reversed movements and the reversals themselves.
     FabricStockFabricChoice:
       type: object
       required:
