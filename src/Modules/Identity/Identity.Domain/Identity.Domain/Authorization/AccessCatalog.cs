@@ -25,7 +25,11 @@ public sealed record AccessArea(
     IReadOnlyDictionary<string, AccessAction> Defaults,
     bool DefaultsForSavedRoles = false);
 
-/// <summary>The pages of «Права доступу» in menu order (ACC-RIGHTS, client corrections item 11).</summary>
+/// <summary>
+/// The pages of «Права доступу» in the groups and order of the admin menu (ACC-RIGHTS, client corrections item 11).
+/// A page whose menu item moves moves here too; a page that gains «Створення» or «Видалення» needs a data migration
+/// that gives those actions to every saved role that had «Редагування», so nobody loses what they could do.
+/// </summary>
 public static class AccessCatalog
 {
     private const AccessAction V = AccessAction.View;
@@ -92,6 +96,7 @@ public static class AccessCatalog
     private const string References = "Загальні довідники";
     private const string Photos = "Фото";
     private const string SiteContent = "Контент";
+    private const string ReportsGroup = "Загальні звіти";
     private const string Administration = "Адміністрування";
 
     private static Dictionary<string, AccessAction> Grant(params (string Role, AccessAction Actions)[] grants) =>
@@ -108,46 +113,41 @@ public static class AccessCatalog
         new(DeskSeo, Desks, "Стіл SEO", V, Grant((RoleNames.Admin, V), (RoleNames.Seo, V)), DefaultsForSavedRoles: true),
         new(DeskAccounting, Desks, "Стіл бухгалтера", V, Grant((RoleNames.Accountant, V)), DefaultsForSavedRoles: true),
 
-        new(Quotes, Service, "Комерційні пропозиції", All,
-            Grant((RoleNames.Admin, VCE), (RoleNames.Manager, VCE))),
-        new(QuoteSettings, Service, "Налаштування КП", VE, Grant((RoleNames.Admin, VE))),
-        new(Embroidery, Service, "Ціна вишивки", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
-        new(Tasks, Service, "Мої завдання", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
+        // Groups and order follow the admin menu (legacy-menu.ts), so each page sits where people find it in the menu.
         new(Leads, Service, "Ліди", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
         new(SiteRequests, Service, "Заявки з сайту", VE, Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE))),
+        new(Quotes, Service, "Комерційні пропозиції", All,
+            Grant((RoleNames.Admin, VCE), (RoleNames.Manager, VCE))),
+        new(Embroidery, Service, "Ціна вишивки", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All))),
+        new(Tasks, Service, "Мої завдання", All, Grant((RoleNames.Admin, All), (RoleNames.Manager, All))),
 
         new(ProductionOrders, Workshop, "Виробничі завдання", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All))),
-        new(WorkLog, Workshop, "Журнал робіт", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
+        new(WorkLog, Workshop, "Журнал робіт", VCE, Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE))),
         new(Forecast, Workshop, "Прогноз пошиття", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
-        new(WorkshopStaff, Workshop, "Працівники цеху", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
-        new(FabricNorms, Workshop, "Норми витрати тканини", VE,
-            Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
-        new(WorkshopSettings, Workshop, "Налаштування цеху", VE,
-            Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
+        new(WorkshopStaff, Workshop, "Персонал цеху: працівники", VCE,
+            Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE))),
+        new(Timesheet, Workshop, "Персонал цеху: робочий час", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
+        new(Payroll, Workshop, "Персонал цеху: зарплата", VCE, Grant((RoleNames.Admin, VCE), (RoleNames.WorkshopChief, VCE))),
+        new(FabricNorms, Workshop, "Норми витрати тканини", All,
+            Grant((RoleNames.Admin, All), (RoleNames.WorkshopChief, All))),
         new(WorkshopArchive, Workshop, "Архів цеху", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
-        new(Payroll, Workshop, "Зарплата", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
-        new(Timesheet, Workshop, "Робочий час", VE, Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
-        new(WorkshopReports, Workshop, "Звіти цеху", V, Grant((RoleNames.Admin, V))),
 
-        new(FabricStock, WarehouseGroup, "Залишки, рух і витрата тканини", VE,
-            Grant((RoleNames.Admin, VE), (RoleNames.Manager, VE), (RoleNames.WorkshopChief, VE))),
-        new(FabricPlanFact, WarehouseGroup, "План і факт", V,
+        new(FabricStock, WarehouseGroup, "Залишки, рух тканини і витрата за період", All,
+            Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.WorkshopChief, All))),
+        new(FabricBooking, WarehouseGroup, "Що замовити: тканина (бронь)", V,
             Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.WorkshopChief, V))),
-        new(FabricBooking, WarehouseGroup, "Бронь і що замовити", V,
-            Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.WorkshopChief, V))),
-        new(FabricValuation, WarehouseGroup, "Вартість складу", V, Grant((RoleNames.Admin, V))),
-        new(HardwareOrder, WarehouseGroup, "Фурнітура до замовлення", V,
+        new(HardwareOrder, WarehouseGroup, "Що замовити: фурнітура", V,
             Grant((RoleNames.Admin, V), (RoleNames.WorkshopChief, V))),
 
-        new(Accounting, Finance, "Бухгалтерія: облік, перекази, рахунки і каси, звіти", VE,
-            Grant((RoleNames.Accountant, VE)), DefaultsForSavedRoles: true),
+        new(Accounting, Finance, "Бухгалтерія: облік, перекази, рахунки і каси, звіти", All,
+            Grant((RoleNames.Accountant, All)), DefaultsForSavedRoles: true),
         new(PurchaseInvoices, Finance, "Рахунки на закупку", VE, Grant((RoleNames.Accountant, VE)),
             DefaultsForSavedRoles: true),
 
-        new(Reminders, RemindersGroup, "Нагадування", VE, Grant((RoleNames.Admin, VE))),
+        new(Reminders, RemindersGroup, "Нагадування: задачі, періоди, чати, неробочі дні", All, Grant((RoleNames.Admin, All))),
 
         new(Products, References, "Товари", All,
             Grant((RoleNames.Admin, All), (RoleNames.Manager, All), (RoleNames.Accountant, V))),
@@ -188,7 +188,15 @@ public static class AccessCatalog
         new(ContentCertificates, SiteContent, "Сертифікати", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.Manager, V), (RoleNames.Seo, VE))),
 
-        new(LeadStats, Administration, "Ліди: зведення, довідники, синхронізація", VCE, Grant((RoleNames.Admin, VCE)))
+        new(WorkshopReports, ReportsGroup, "Звіти цеху", V, Grant((RoleNames.Admin, V))),
+        new(FabricPlanFact, ReportsGroup, "Звіти складу: план і факт", V,
+            Grant((RoleNames.Admin, V), (RoleNames.Manager, V), (RoleNames.WorkshopChief, V))),
+        new(FabricValuation, ReportsGroup, "Звіти складу: вартість", V, Grant((RoleNames.Admin, V))),
+
+        new(LeadStats, Administration, "Статистика лідів", VCE, Grant((RoleNames.Admin, VCE))),
+        new(QuoteSettings, Administration, "Налаштування КП", VE, Grant((RoleNames.Admin, VE))),
+        new(WorkshopSettings, Administration, "Налаштування цеху", VE,
+            Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE)))
     ];
 
     private static readonly Dictionary<string, AccessArea> ByKey = Areas.ToDictionary(x => x.Key, StringComparer.Ordinal);

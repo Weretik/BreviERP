@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -44,6 +45,7 @@ public sealed class ProductionOrderTrackingController(ISender sender) : Controll
 
     /// <summary>«Закрити»: everything is shipped.</summary>
     [HttpPost("{id:int}/close", Name = "closeProductionOrder")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ProductionOrderResponse>> Close(int id, ProductionOrderVersionInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
@@ -52,6 +54,7 @@ public sealed class ProductionOrderTrackingController(ISender sender) : Controll
 
     /// <summary>«Скасувати» with a reason.</summary>
     [HttpPost("{id:int}/cancel", Name = "cancelProductionOrder")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ProductionOrderResponse>> Cancel(int id, CancelProductionOrderInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
@@ -60,6 +63,7 @@ public sealed class ProductionOrderTrackingController(ISender sender) : Controll
 
     /// <summary>«Повернути в роботу» (Admin).</summary>
     [HttpPost("{id:int}/reopen", Name = "reopenProductionOrder")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ProductionOrderResponse>> Reopen(int id, ProductionOrderVersionInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
@@ -68,6 +72,7 @@ public sealed class ProductionOrderTrackingController(ISender sender) : Controll
 
     /// <summary>Uploads a file of the order or of one item to the CDN, in the order's folder.</summary>
     [HttpPost("{id:int}/files", Name = "uploadProductionOrderFile")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(MaxRequestBytes)]
     [RequestFormLimits(MultipartBodyLengthLimit = MaxRequestBytes)]
@@ -91,6 +96,7 @@ public sealed class ProductionOrderTrackingController(ISender sender) : Controll
 
     /// <summary>«Надіслати в цех»: the one message to the workshop group.</summary>
     [HttpPost("{id:int}/telegram", Name = "sendProductionOrderTelegram")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ProductionOrderResponse>> SendTelegram(int id, CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new SendProductionOrderTelegramCommand(actor, id), cancellationToken))

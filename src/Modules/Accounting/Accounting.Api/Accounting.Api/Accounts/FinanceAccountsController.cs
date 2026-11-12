@@ -4,6 +4,7 @@ using Accounting.Application.Accounts;
 using Accounting.Application.Contracts;
 using Accounting.Application.History;
 using Accounting.Domain.Audit;
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -42,12 +43,14 @@ public sealed class FinanceAccountsController(ISender sender) : ControllerBase
             input.Version, AccountingAccess.By(User)), cancellationToken));
 
     [HttpPost("{id:guid}/archive", Name = "archiveFinanceAccount")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceAccountResponse>> Archive(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(
             new SetFinanceAccountActiveCommand(id, false, input.Version, AccountingAccess.By(User)), cancellationToken));
 
     [HttpPost("{id:guid}/restore", Name = "restoreFinanceAccount")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceAccountResponse>> Restore(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(

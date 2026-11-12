@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Reminders.Api.Access;
@@ -24,6 +25,7 @@ public sealed class ReminderChatsController(ISender sender) : ControllerBase
         this.ToActionResult(await sender.Send(new UpdateReminderChatCommand(id, input), cancellationToken));
 
     [HttpPost("{id:long}/test-message", Name = "sendReminderChatTest")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult> SendTest(long id, CancellationToken cancellationToken)
     =>
         this.ToNoContentResult(await sender.Send(new SendReminderChatTestCommand(id), cancellationToken));

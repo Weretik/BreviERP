@@ -4,6 +4,7 @@ using Accounting.Application.Contracts;
 using Accounting.Application.Counterparties;
 using Accounting.Application.History;
 using Accounting.Domain.Audit;
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -50,18 +51,21 @@ public sealed class FinanceCounterpartiesController(ISender sender) : Controller
             cancellationToken));
 
     [HttpPost("{id:guid}/verify", Name = "verifyFinanceCounterparty")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceCounterpartyResponse>> Verify(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new VerifyFinanceCounterpartyCommand(id, input.Version,
             AccountingAccess.By(User)), cancellationToken));
 
     [HttpPost("{id:guid}/archive", Name = "archiveFinanceCounterparty")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceCounterpartyResponse>> Archive(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new SetFinanceCounterpartyActiveCommand(id, false, input.Version,
             AccountingAccess.By(User)), cancellationToken));
 
     [HttpPost("{id:guid}/restore", Name = "restoreFinanceCounterparty")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceCounterpartyResponse>> Restore(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new SetFinanceCounterpartyActiveCommand(id, true, input.Version,
@@ -69,6 +73,7 @@ public sealed class FinanceCounterpartiesController(ISender sender) : Controller
 
     /// <summary>Joins <paramref name="id"/> into the target; returns the target.</summary>
     [HttpPost("{id:guid}/merge", Name = "mergeFinanceCounterparty")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceCounterpartyResponse>> Merge(Guid id, [FromBody] FinanceCounterpartyMergeInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new MergeFinanceCounterpartyCommand(id, input.Version, input.TargetId,

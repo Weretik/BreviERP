@@ -1,4 +1,5 @@
 using Ardalis.Result;
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Crm.Api.Customers.Requests;
 using Crm.Api.Access;
@@ -65,6 +66,7 @@ public sealed class CustomersController(ISender sender) : ControllerBase
 
     /// <summary>«Оновити з KeepinCRM»: the same run as the daily job; removeUnlinked deletes, so it is admin-only.</summary>
     [HttpPost("keepin-sync", Name = "syncCrmCustomersFromKeepinCrm")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult> SyncKeepinCrm(SyncKeepinCrmClientsRequest? request, CancellationToken cancellationToken)
     {
         var actor = CrmActorClaims.Read(User);

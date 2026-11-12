@@ -100,8 +100,8 @@ public sealed class AccessRightsTests
         Assert.Multiple(() =>
         {
             Assert.That(AccessCatalog.DefaultsOf(RoleNames.Accountant)[AccessCatalog.Accounting],
-                Is.EqualTo(AccessAction.View | AccessAction.Edit));
-            Assert.That(savedBefore[AccessCatalog.Accounting], Is.EqualTo(AccessAction.View | AccessAction.Edit));
+                Is.EqualTo(AccessCatalog.Find(AccessCatalog.Accounting)!.Actions));
+            Assert.That(savedBefore[AccessCatalog.Accounting], Is.EqualTo(AccessCatalog.Find(AccessCatalog.Accounting)!.Actions));
             Assert.That(savedBefore[AccessCatalog.PurchaseInvoices], Is.EqualTo(AccessAction.View | AccessAction.Edit));
             Assert.That(unticked, Does.Not.ContainKey(AccessCatalog.Accounting));
             Assert.That(AccessCatalog.DefaultsOf(RoleNames.Manager), Does.Not.ContainKey(AccessCatalog.Accounting));
@@ -149,7 +149,7 @@ public sealed class AccessRightsTests
     [TestCase("DELETE", AccessAction.Edit)]
     [TestCase("GET", AccessAction.View)]
     public void A_page_without_create_or_delete_asks_for_edit(string method, AccessAction expected) =>
-        Assert.That(AccessCatalog.Required(AccessCatalog.Find(AccessCatalog.FabricStock)!, method, null), Is.EqualTo(expected));
+        Assert.That(AccessCatalog.Required(AccessCatalog.Find(AccessCatalog.Forecast)!, method, null), Is.EqualTo(expected));
 
     [Test]
     public void A_view_only_page_asks_for_view_whatever_the_method() =>
@@ -192,7 +192,7 @@ public sealed class AccessRightsTests
             Assert.That(validator.Validate(Save(AccessCatalog.Quotes, AccessAction.View, AccessAction.Delete)).IsValid, Is.True);
             Assert.That(validator.Validate(Save(AccessCatalog.Quotes)).IsValid, Is.True);
             Assert.That(validator.Validate(Save("nope", AccessAction.View)).IsValid, Is.False);
-            Assert.That(validator.Validate(Save(AccessCatalog.FabricStock, AccessAction.View, AccessAction.Delete)).IsValid, Is.False);
+            Assert.That(validator.Validate(Save(AccessCatalog.Forecast, AccessAction.View, AccessAction.Delete)).IsValid, Is.False);
             Assert.That(validator.Validate(Save(AccessCatalog.Quotes, AccessAction.Edit)).IsValid, Is.False);
         });
     }

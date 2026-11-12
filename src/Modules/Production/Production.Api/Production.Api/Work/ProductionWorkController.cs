@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -50,6 +51,7 @@ public sealed class ProductionWorkController(ISender sender) : ControllerBase
 
     /// <summary>«Сторно» of a record with a reason.</summary>
     [HttpPost("work/{workId:int}/void", Name = "voidProductionWork")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ProductionItemWorkResponse>> Void(int workId, VoidProductionWorkInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor

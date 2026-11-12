@@ -3,6 +3,7 @@ using Accounting.Api.Accounts;
 using Accounting.Application.Contracts;
 using Accounting.Application.Statements;
 using Accounting.Domain.Statements;
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -54,6 +55,7 @@ public sealed class BankStatementsController(ISender sender) : ControllerBase
             input.OneoffName, input.Description, input.Comment, input.Excluded), cancellationToken));
 
     [HttpPost("{id:guid}/book", Name = "bookBankStatement")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<BankStatementResponse>> Book(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new BookBankStatementCommand(id, input.Version, AccountingAccess.By(User)),
@@ -61,6 +63,7 @@ public sealed class BankStatementsController(ISender sender) : ControllerBase
 
     /// <summary>«Відкотити виписку»: cancels what the statement booked and turns it into a preview again.</summary>
     [HttpPost("{id:guid}/rollback", Name = "rollbackBankStatement")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<BankStatementResponse>> Rollback(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new RollbackBankStatementCommand(id, input.Version, AccountingAccess.By(User)),
