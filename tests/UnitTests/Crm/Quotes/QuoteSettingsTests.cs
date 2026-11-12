@@ -55,14 +55,14 @@ public sealed class QuoteSettingsTests
     {
         var settings = new QuoteSettings(DefaultInput().ToContent() with
         {
-            StaffContacts = [new QuoteStaffContact(5, "Юлія Согоконь", "+38 095 164 58 55", "pp.brevi@gmail.com")],
+            StaffContacts = [new QuoteStaffContact(5, "Олена Петренко", "+38 050 000 00 00", "office@brevi.test")],
         }, "Директор", DateTimeOffset.UnixEpoch);
 
         var response = settings.ToResponse([new QuoteStaffMember(5, "Юлія", "julia@brevi.test"), new QuoteStaffMember(6, "Вадим", "v@brevi.test", "+381")],
             new Dictionary<int, string> { [5] = "julia.brevi@gmail.com" });
 
         Assert.That(settings.Version, Is.EqualTo(1));
-        Assert.That(response.StaffContacts[0].Email, Is.EqualTo("pp.brevi@gmail.com"));
+        Assert.That(response.StaffContacts[0].Email, Is.EqualTo("office@brevi.test"));
         Assert.That(response.StaffContacts[0].AccountEmail, Is.EqualTo("julia@brevi.test"));
         Assert.That(response.StaffContacts[1].Phone, Is.EqualTo("+381"));
         Assert.That(response.StaffContacts.Select(x => x.MailboxEmail), Is.EqualTo(new[] { "julia.brevi@gmail.com", null }));

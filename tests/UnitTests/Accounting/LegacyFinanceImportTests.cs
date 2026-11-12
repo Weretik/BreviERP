@@ -226,12 +226,12 @@ public sealed class LegacyFinanceImportTests
             counterparty_id = party, description = "Опис " + n, comment = "", source,
             external_id = source == "HOME_ACCOUNTING" ? $"home-expense:r{n}" : null, fingerprint,
             verification_status = verification, bank_transaction_id = (string?)null, bank_purpose = purpose,
-            ledger_scope = scope, created_by = source == "HOME_ACCOUNTING" ? "system:home-accounting-import" : "pnevman@gmail.com",
+            ledger_scope = scope, created_by = source == "HOME_ACCOUNTING" ? "system:home-accounting-import" : "director@brevi.test",
             created_at = at, updated_at = at, status, version = 1, oneoff_name = "",
         };
         object Log(string transactionId, string action) => new
         {
-            id = Guid.NewGuid().ToString(), transaction_id = transactionId, actor = "pnevman@gmail.com", at, action,
+            id = Guid.NewGuid().ToString(), transaction_id = transactionId, actor = "director@brevi.test", at, action,
             before_json = (string?)null, after_json = "{\"id\":\"" + transactionId + "\"}",
         };
 
@@ -290,7 +290,7 @@ public sealed class LegacyFinanceImportTests
             {
                 new
                 {
-                    id = Guid.NewGuid().ToString(), account_id = Bank, actor = "pnevman@gmail.com", at,
+                    id = Guid.NewGuid().ToString(), account_id = Bank, actor = "director@brevi.test", at,
                     action = "CUTOVER_BALANCE_CONFIRM", snapshot_json = "{\"cutover_balance_minor\":50000}",
                 },
             },

@@ -1,158 +1,28 @@
 ﻿[
-    {
-        "Id":  1,
-        "Name":  "Не указан",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  2,
-        "Name":  "Временный поставщик",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  3,
-        "Name":  "СТАНДАРТ НПП",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  4,
-        "Name":  "ТОП ТАЙМ, ТОВ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  5,
-        "Name":  "Професійні рішення - ТЕКСТАЙМ ТМ, ТОВ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  6,
-        "Name":  "Скай Текс, ТОВ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  7,
-        "Name":  "ВИВА трейд",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  8,
-        "Name":  "ЛДС ГРУП ТОВ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  9,
-        "Name":  "Торговый дом \"ФЛОАРЕ\" ООО",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  10,
-        "Name":  "ТРЄЛЄ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  11,
-        "Name":  "ІНСАІТ, ТОВ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  12,
-        "Name":  "Аделия",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  13,
-        "Name":  "Разнобытпродукт",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  14,
-        "Name":  "Спецтекстиль",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  15,
-        "Name":  "СПЕШЛ ТЕКСТАЙЛ ГРУП",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  16,
-        "Name":  "Хіммельтек-Україна",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  17,
-        "Name":  "Приват Текс",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  18,
-        "Name":  "Мельникова ФОП",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  19,
-        "Name":  "ВЕЛТЕКС ХАРЬКОВ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  20,
-        "Name":  "ТЕКСІКА",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  21,
-        "Name":  "ТЕКСТИЛЬ-КОНТАКТ, ТОВ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  22,
-        "Name":  "ЗС Маркет",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  23,
-        "Name":  "АВ Центр",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  24,
-        "Name":  "КОДАР ВКФ",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  25,
-        "Name":  "ТК спецодежда",
-        "Link":  null,
-        "Notes":  null
-    },
-    {
-        "Id":  26,
-        "Name":  "Індзахист, ТОВ",
-        "Link":  null,
-        "Notes":  null
-    }
+  {"Id": 1, "Name": "Не указан", "Link": null, "Notes": null},
+  {"Id": 2, "Name": "Временный поставщик", "Link": null, "Notes": null},
+  {"Id": 3, "Name": "Демо-постачальник 03", "Link": null, "Notes": null},
+  {"Id": 4, "Name": "Демо-постачальник 04", "Link": null, "Notes": null},
+  {"Id": 5, "Name": "Демо-постачальник 05", "Link": null, "Notes": null},
+  {"Id": 6, "Name": "Демо-постачальник 06", "Link": null, "Notes": null},
+  {"Id": 7, "Name": "Демо-постачальник 07", "Link": null, "Notes": null},
+  {"Id": 8, "Name": "Демо-постачальник 08", "Link": null, "Notes": null},
+  {"Id": 9, "Name": "Демо-постачальник 09", "Link": null, "Notes": null},
+  {"Id": 10, "Name": "Демо-постачальник 10", "Link": null, "Notes": null},
+  {"Id": 11, "Name": "Демо-постачальник 11", "Link": null, "Notes": null},
+  {"Id": 12, "Name": "Демо-постачальник 12", "Link": null, "Notes": null},
+  {"Id": 13, "Name": "Демо-постачальник 13", "Link": null, "Notes": null},
+  {"Id": 14, "Name": "Демо-постачальник 14", "Link": null, "Notes": null},
+  {"Id": 15, "Name": "Демо-постачальник 15", "Link": null, "Notes": null},
+  {"Id": 16, "Name": "Демо-постачальник 16", "Link": null, "Notes": null},
+  {"Id": 17, "Name": "Демо-постачальник 17", "Link": null, "Notes": null},
+  {"Id": 18, "Name": "Демо-постачальник 18", "Link": null, "Notes": null},
+  {"Id": 19, "Name": "Демо-постачальник 19", "Link": null, "Notes": null},
+  {"Id": 20, "Name": "Демо-постачальник 20", "Link": null, "Notes": null},
+  {"Id": 21, "Name": "Демо-постачальник 21", "Link": null, "Notes": null},
+  {"Id": 22, "Name": "Демо-постачальник 22", "Link": null, "Notes": null},
+  {"Id": 23, "Name": "Демо-постачальник 23", "Link": null, "Notes": null},
+  {"Id": 24, "Name": "Демо-постачальник 24", "Link": null, "Notes": null},
+  {"Id": 25, "Name": "Демо-постачальник 25", "Link": null, "Notes": null},
+  {"Id": 26, "Name": "Демо-постачальник 26", "Link": null, "Notes": null}
 ]

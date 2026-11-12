@@ -12,7 +12,7 @@ namespace UnitTests.Crm.Quotes;
 [TestFixture]
 public sealed class QuoteIntroductionTests
 {
-    private static readonly QuoteStaffContact Manager = new(5, "Юлія Согоконь", "+38 095 164 58 55", "pp.brevi@gmail.com");
+    private static readonly QuoteStaffContact Manager = new(5, "Олена Петренко", "+38 050 000 00 00", "office@brevi.test");
 
     private static QuoteIntroPageInput Page(string season, params int[] products) =>
         new(season, products.Select(x => new QuoteIntroModelInput(null, x, x * 100L)).ToArray());

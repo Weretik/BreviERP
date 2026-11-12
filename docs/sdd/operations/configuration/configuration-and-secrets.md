@@ -41,6 +41,12 @@ Example local secret:
 dotnet user-secrets set "ADMIN_DEFAULT_PASSWORD" "<local-only-value>" --project src/Bootstrapper/Host.Api/Host.Api.csproj
 ```
 
+The committed `ConnectionStrings:Default` has an empty password. Set the local database password in user secrets for `Host.Api`, and in `src/Bootstrapper/Host.Seed/appsettings.Development.json` (ignored by git) or the `ConnectionStrings__Default` environment variable for `Host.Seed`:
+
+```powershell
+dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Port=5432;Database=brevidb;Username=brevi_user;Password=<local-only-value>" --project src/Bootstrapper/Host.Api/Host.Api.csproj
+```
+
 Never add real passwords, tokens, or production connection strings to `appsettings*.json`, Markdown, source code, or logs. Do not print configuration values while diagnosing startup problems.
 
 ## Cookie and CORS note

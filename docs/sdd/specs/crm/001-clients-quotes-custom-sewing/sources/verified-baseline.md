@@ -12,7 +12,7 @@ Catalog/Reference already own articles, materials, operations, settings and vers
 
 ## Live workbook
 
-Workbook: [Brevi — новые справочники и расчёты](https://docs.google.com/spreadsheets/d/1BMl9jZLprY-15TfErBi9pbv9e4TVq8DUdjlZ4HvCxRE/edit). Metadata reports 22 tabs, locale `uk_UA`, time zone `Europe/Kiev`. Relevant exact reads were `A1:T1000` for each tab below, covering its configured 1,000-row grid. Every response contained only one header row: **zero populated quote, item, option, calculation or issuer-setting records** in those five tabs at this date.
+Workbook: «Brevi — новые справочники и расчёты» (private Google Sheet). Metadata reports 22 tabs, locale `uk_UA`, time zone `Europe/Kiev`. Relevant exact reads were `A1:T1000` for each tab below, covering its configured 1,000-row grid. Every response contained only one header row: **zero populated quote, item, option, calculation or issuer-setting records** in those five tabs at this date.
 
 | Tab | sheetId | Header fields | Meaning |
 | --- | --- | --- | --- |
