@@ -90,6 +90,25 @@ public sealed class AccessRightsTests
     }
 
     [Test]
+    public void The_accountant_gets_the_books_and_purchase_invoices_also_on_a_role_saved_before()
+    {
+        var savedBefore = AccessGrantSource.Parse("{\"products\":1}", RoleNames.Accountant);
+        var unticked = AccessGrantSource.Parse(
+            AccessGrantSource.Serialize(new Dictionary<string, AccessAction> { [AccessCatalog.Products] = AccessAction.View }),
+            RoleNames.Accountant);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(AccessCatalog.DefaultsOf(RoleNames.Accountant)[AccessCatalog.Accounting],
+                Is.EqualTo(AccessAction.View | AccessAction.Edit));
+            Assert.That(savedBefore[AccessCatalog.Accounting], Is.EqualTo(AccessAction.View | AccessAction.Edit));
+            Assert.That(savedBefore[AccessCatalog.PurchaseInvoices], Is.EqualTo(AccessAction.View | AccessAction.Edit));
+            Assert.That(unticked, Does.Not.ContainKey(AccessCatalog.Accounting));
+            Assert.That(AccessCatalog.DefaultsOf(RoleNames.Manager), Does.Not.ContainKey(AccessCatalog.Accounting));
+        });
+    }
+
+    [Test]
     public void Every_page_has_view_and_its_defaults_stay_within_its_actions()
     {
         Assert.That(AccessCatalog.Areas.Select(x => x.Key), Is.Unique);

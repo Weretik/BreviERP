@@ -97,7 +97,6 @@ public static class AccessCatalog
     private static Dictionary<string, AccessAction> Grant(params (string Role, AccessAction Actions)[] grants) =>
         grants.ToDictionary(x => x.Role, x => x.Actions, StringComparer.Ordinal);
 
-    private static readonly Dictionary<string, AccessAction> Nobody = [];
 
     public static readonly IReadOnlyList<AccessArea> Areas =
     [
@@ -143,8 +142,10 @@ public static class AccessCatalog
         new(HardwareOrder, WarehouseGroup, "Фурнітура до замовлення", V,
             Grant((RoleNames.Admin, V), (RoleNames.WorkshopChief, V))),
 
-        new(Accounting, Finance, "Бухгалтерія: облік, перекази, рахунки і каси, звіти", VE, Nobody),
-        new(PurchaseInvoices, Finance, "Рахунки на закупку", VE, Nobody),
+        new(Accounting, Finance, "Бухгалтерія: облік, перекази, рахунки і каси, звіти", VE,
+            Grant((RoleNames.Accountant, VE)), DefaultsForSavedRoles: true),
+        new(PurchaseInvoices, Finance, "Рахунки на закупку", VE, Grant((RoleNames.Accountant, VE)),
+            DefaultsForSavedRoles: true),
 
         new(Reminders, RemindersGroup, "Нагадування", VE, Grant((RoleNames.Admin, VE))),
 

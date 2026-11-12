@@ -5,7 +5,7 @@ namespace Accounting.Api.Access;
 internal static class AccountingAccess
 {
     /// <summary>
-    /// «Бухгалтерія» on «Права доступу»: only the Director until someone hands it out (user decision 2026-11-05).
+    /// «Бухгалтерія» on «Права доступу»: the Director and, by default, the Accountant (owner 2026-11-12); other roles when someone hands it out.
     /// </summary>
     public const string Policy = "access:accounting";
 
