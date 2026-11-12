@@ -22,7 +22,7 @@ public sealed class GetFabricBookingQueryHandler(FabricBookingCalculator booking
 {
     public async ValueTask<Result<FabricBookingResponse>> Handle(GetFabricBookingQuery query,
         CancellationToken cancellationToken) =>
-        Result.Success(await booking.CalculateAsync(cancellationToken));
+        Result.Success(await booking.CalculateAsync(cancellationToken) with { CanReceive = query.Actor.CanMoveStock });
 }
 
 /// <summary>

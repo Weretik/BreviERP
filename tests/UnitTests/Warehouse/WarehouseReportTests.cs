@@ -142,7 +142,20 @@ public sealed class WarehouseReportTests
             Assert.That(report.ToOrder, Is.EqualTo(6.8m));
             Assert.That(report.Unknown, Is.Empty);
             Assert.That(dark.Supplier, Is.EqualTo("Тексика"), "WH-009: the supplier of the canonical offer");
+            Assert.That(report.CanReceive, Is.True, "the stock keeper may record «Прихід» from a row");
         });
+    }
+
+    [Test]
+    public async Task Booking_offers_a_receipt_only_to_the_stock_keepers()
+    {
+        using var workshop = Workshop();
+        var manager = new WarehouseActor(2, false, true, false);
+
+        var report = (await new GetFabricBookingQueryHandler(workshop.Booking())
+            .Handle(new(manager), CancellationToken.None)).Value;
+
+        Assert.That(report.CanReceive, Is.False);
     }
 
     [Test]

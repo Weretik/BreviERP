@@ -2547,6 +2547,7 @@ components:
       - pairs
       - unknown
       - calculatedAt
+      - canReceive
       properties:
         reserved:
           type: number
@@ -2565,6 +2566,9 @@ components:
         calculatedAt:
           type: string
           format: date-time
+        canReceive:
+          type: boolean
+          description: The person may record «Прихід»; the row offers it.
     FabricValuationColorResponse:
       type: object
       required:

@@ -15,6 +15,7 @@ Out: changes to how the booking or the accessory need is counted ([WH-005](../00
 | Fabric supplier | `supplier` of a booking pair is the supplier of the canonical offer in «Тканини» (another code of the group when the canonical one is missing); null when empty. |
 | «Потрібно до» | `needBy` of a booking pair is the nearest due date of the items still short of it; when none is short, of the items that still need it; null when none has a date. |
 | Accessory dates | Each share of an accessory need carries its item's `dueDate`; the need carries the nearest one. |
+| «Прихід» from a row | `canReceive` of the booking report is true for the stock keepers (Admin, head of the workshop); the admin offers «Прихід» from a row only then and only when the person also has the `fabric-stock` page. |
 
 ## Compatibility
 
@@ -22,5 +23,5 @@ Fields are added with defaults; an old client keeps working.
 
 ## Tests
 
-- `tests/UnitTests/Warehouse/WarehouseReportTests.cs` — supplier of the booking pair, `Need_by_is_the_nearest_date_of_the_items_still_short_or_else_of_those_that_need_it`, `Hardware_need_keeps_the_nearest_due_date_of_its_tasks`.
+- `tests/UnitTests/Warehouse/WarehouseReportTests.cs` — supplier of the booking pair, `Need_by_is_the_nearest_date_of_the_items_still_short_or_else_of_those_that_need_it`, `Hardware_need_keeps_the_nearest_due_date_of_its_tasks`, `Booking_offers_a_receipt_only_to_the_stock_keepers`.
 - `tests/UnitTests/Warehouse/FabricStockContractTests.cs` — the responses match the machine contract.
