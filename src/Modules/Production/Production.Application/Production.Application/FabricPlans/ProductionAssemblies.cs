@@ -15,7 +15,8 @@ public sealed record ProductionAssemblyItem(
     string ModelName,
     string? ModelCode,
     int Quantity,
-    IReadOnlyList<ProductionAssemblyLine>? Lines);
+    IReadOnlyList<ProductionAssemblyLine>? Lines,
+    DateOnly? DueDate = null);
 
 /// <param name="Kind">Accessory or OtherCost.</param>
 /// <param name="Code">Reference code (FUR-…), or the cost code; null when unknown.</param>
@@ -54,7 +55,7 @@ public sealed class ProductionAssemblies(IProductionDbContext db, IProductionMod
                     .Select(x => new ProductionAssemblyLine(x.Kind, x.Code, x.Name, x.Quantity, x.Unit, x.Comment))
                     .ToList();
                 return new ProductionAssemblyItem(order.Id, order.Number, order.ClientName, order.CreatedAt, item.Id,
-                    item.ModelName, item.ModelCode, item.Quantity, lines is { Count: > 0 } ? lines : null);
+                    item.ModelName, item.ModelCode, item.Quantity, lines is { Count: > 0 } ? lines : null, item.DueDate);
             }))
             .ToList();
     }

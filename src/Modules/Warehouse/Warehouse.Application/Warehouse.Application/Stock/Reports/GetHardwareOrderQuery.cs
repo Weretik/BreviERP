@@ -99,7 +99,8 @@ public static class HardwareNeeds
                     shares.Add((code, Clean(line.Name), Clean(line.Comment), line.Unit,
                         new HardwareNeedOrderResponse(item.OrderId, item.OrderNumber, item.ClientName, item.ItemId,
                             item.ModelName, line.Norm, item.Quantity,
-                            decimal.Round(line.Norm * item.Quantity, Decimals, MidpointRounding.AwayFromZero))));
+                            decimal.Round(line.Norm * item.Quantity, Decimals, MidpointRounding.AwayFromZero),
+                            item.DueDate)));
             }
         }
 
@@ -107,7 +108,7 @@ public static class HardwareNeeds
             .Select(g => new HardwareNeedResponse(g.Key.Code, g.Key.Name ?? g.Key.Code, g.Key.Name is not null,
                 g.Key.Note, g.Key.Unit,
                 decimal.Round(g.Sum(x => x.Share.Quantity), Decimals, MidpointRounding.AwayFromZero),
-                g.Select(x => x.Share).ToList()))
+                g.Select(x => x.Share).ToList(), g.Min(x => x.Share.DueDate)))
             .OrderBy(x => x.Code, StringComparer.Ordinal).ThenBy(x => x.Name, StringComparer.CurrentCulture)
             .ThenBy(x => x.Note, StringComparer.CurrentCulture).ThenBy(x => x.Unit, StringComparer.Ordinal)
             .ToList();

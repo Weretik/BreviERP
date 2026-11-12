@@ -62,7 +62,7 @@ internal sealed class HarnessWarehouseProductionReader(ProductionFabricPlans pla
         (await assemblies.OpenAsync(cancellationToken)).Select(x => new WarehouseAssemblyItem(x.OrderId, x.OrderNumber,
             x.ClientName, x.OrderCreatedAt, x.ItemId, x.ModelName, x.ModelCode, x.Quantity,
             x.Lines?.Select(l => new WarehouseAssemblyLine(l.Kind, l.Code, l.Name, l.Quantity, l.Unit, l.Comment))
-                .ToArray())).ToArray();
+                .ToArray(), x.DueDate)).ToArray();
 
     public async Task<IReadOnlyList<WarehouseLegacyOrder>> LegacyOrdersAsync(IReadOnlyCollection<string> legacyIds,
         CancellationToken cancellationToken) =>

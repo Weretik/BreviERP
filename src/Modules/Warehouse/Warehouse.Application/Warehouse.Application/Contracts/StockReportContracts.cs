@@ -71,17 +71,22 @@ public sealed record FabricPlanFactMaterialResponse(
 /// «Бронь і потреба в тканині»: what the plans of open orders still need of each fabric and colour, what the stock holds
 /// for them in order of the orders, and what to order. Reads only; nothing is booked.
 /// </summary>
+/// <param name="CanReceive">The person may record «Прихід» (the stock keepers), offered from a row.</param>
 public sealed record FabricBookingResponse(
     decimal Reserved,
     decimal Free,
     decimal ToOrder,
     IReadOnlyList<FabricBookingPairResponse> Pairs,
     IReadOnlyList<FabricBookingUnknownResponse> Unknown,
-    DateTimeOffset CalculatedAt);
+    DateTimeOffset CalculatedAt,
+    bool CanReceive = false);
 
 /// <param name="Stock">Physical balance of the pair; may be negative.</param>
 /// <param name="Need">What the plans still need.</param>
 /// <param name="Shortage">The negative balance already there, as a positive figure.</param>
+/// <param name="Supplier">The supplier of the fabric in «Тканини», for «Що замовити».</param>
+/// <param name="NeedBy">«Потрібно до»: the nearest due date of the tasks still short of this pair, or else of those
+/// that need it; null when none has a date.</param>
 public sealed record FabricBookingPairResponse(
     string FabricCode,
     string FabricName,
@@ -92,7 +97,9 @@ public sealed record FabricBookingPairResponse(
     decimal Free,
     decimal ToOrder,
     decimal Shortage,
-    IReadOnlyList<FabricBookingItemResponse> Items);
+    IReadOnlyList<FabricBookingItemResponse> Items,
+    string? Supplier = null,
+    DateOnly? NeedBy = null);
 
 /// <param name="Layer">Upper, Lining, Insulation or Fleece.</param>
 /// <param name="Covered">What issues covered of the plan.</param>
@@ -185,6 +192,7 @@ public sealed record HardwareOrderResponse(
 /// <param name="Note">The note of the composition line, shown as «Варіант / примітка».</param>
 /// <param name="Unit">Metre, Piece, Service or Kilogram.</param>
 /// <param name="Quantity">Sum of norm × products, to 6 decimals.</param>
+/// <param name="DueDate">The nearest due date of the tasks that need it; null when none has a date.</param>
 public sealed record HardwareNeedResponse(
     string Code,
     string Name,
@@ -192,7 +200,8 @@ public sealed record HardwareNeedResponse(
     string? Note,
     string Unit,
     decimal Quantity,
-    IReadOnlyList<HardwareNeedOrderResponse> Orders);
+    IReadOnlyList<HardwareNeedOrderResponse> Orders,
+    DateOnly? DueDate = null);
 
 /// <summary>One item's share: norm × products = quantity.</summary>
 public sealed record HardwareNeedOrderResponse(
@@ -203,7 +212,8 @@ public sealed record HardwareNeedOrderResponse(
     string ModelName,
     decimal Norm,
     int Products,
-    decimal Quantity);
+    decimal Quantity,
+    DateOnly? DueDate = null);
 
 public sealed record HardwareIncompleteResponse(
     int OrderId,

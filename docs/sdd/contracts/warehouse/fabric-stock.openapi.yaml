@@ -2503,6 +2503,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FabricBookingItemResponse'
+        supplier:
+          type:
+          - string
+          - 'null'
+          description: The supplier of the fabric in «Тканини».
+        needBy:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: «Потрібно до», the nearest due date of the tasks still short of the pair, or else of those that need it.
       description: A fabric and colour; items in order of order creation, then number and item.
     FabricBookingUnknownResponse:
       type: object
@@ -2536,6 +2547,7 @@ components:
       - pairs
       - unknown
       - calculatedAt
+      - canReceive
       properties:
         reserved:
           type: number
@@ -2554,6 +2566,9 @@ components:
         calculatedAt:
           type: string
           format: date-time
+        canReceive:
+          type: boolean
+          description: The person may record «Прихід»; the row offers it.
     FabricValuationColorResponse:
       type: object
       required:
@@ -2711,6 +2726,12 @@ components:
         quantity:
           type: number
           description: norm × products, to 6 decimals.
+        dueDate:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: The due date of the item.
     HardwareNeedResponse:
       type: object
       required:
@@ -2743,6 +2764,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HardwareNeedOrderResponse'
+        dueDate:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: The nearest due date of the tasks that need it.
     HardwareIncompleteResponse:
       type: object
       required:

@@ -22,7 +22,7 @@ public sealed class GetFabricBookingQueryHandler(FabricBookingCalculator booking
 {
     public async ValueTask<Result<FabricBookingResponse>> Handle(GetFabricBookingQuery query,
         CancellationToken cancellationToken) =>
-        Result.Success(await booking.CalculateAsync(cancellationToken));
+        Result.Success(await booking.CalculateAsync(cancellationToken) with { CanReceive = query.Actor.CanMoveStock });
 }
 
 /// <summary>
@@ -55,6 +55,15 @@ public static class FabricBooking
 
         return new Allocation(Meters(s), Meters(need), Meters(booked), Meters(Math.Max(0L, s - booked)),
             Meters(Math.Max(0L, -s) + missing), Meters(Math.Max(0L, -s)), shares);
+    }
+
+    /// <summary>The nearest due date of the items still short, or else of those that still need the pair.</summary>
+    public static DateOnly? NeedBy(IReadOnlyList<(DateOnly? Due, Share Share)> queue)
+    {
+        var missing = queue.Where(x => x.Share.Missing > 0 && x.Due is not null).Select(x => x.Due).ToList();
+        return missing.Count > 0
+            ? missing.Min()
+            : queue.Where(x => x.Share.Remaining > 0 && x.Due is not null).Select(x => x.Due).Min();
     }
 
     private static long Hundredths(decimal meters) => (long)decimal.Round(meters * 100m, MidpointRounding.AwayFromZero);
