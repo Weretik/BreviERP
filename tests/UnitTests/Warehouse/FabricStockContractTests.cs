@@ -60,6 +60,8 @@ public sealed class FabricStockContractTests
     [TestCase(typeof(StockTransferCurrent))]
     [TestCase(typeof(StockTransferProblem))]
     [TestCase(typeof(FabricMovementCountsResponse))]
+    [TestCase(typeof(FabricStockLastMovementResponse))]
+    [TestCase(typeof(FabricStockBookingResponse))]
     [TestCase(typeof(FabricPlanFactResponse))]
     [TestCase(typeof(FabricPlanFactRowResponse))]
     [TestCase(typeof(FabricPlanFactModelResponse))]
