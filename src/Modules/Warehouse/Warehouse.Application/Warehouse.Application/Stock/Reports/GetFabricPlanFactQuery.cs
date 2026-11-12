@@ -8,10 +8,11 @@ namespace Warehouse.Application.Stock.Reports;
 
 /// <summary>
 /// «План і факт» (TZ §11): main fabric by model for the items whose fabric was issued for all their products. Filters
-/// match a part of the model, the client, or a planned or issued fabric (code, name or colour).
+/// match a part of the model, the client, or a planned or issued fabric (code, name or colour); the period keeps the
+/// items whose last issue is in it (WH-010).
 /// </summary>
-public sealed record GetFabricPlanFactQuery(WarehouseActor Actor, string? Model, string? Client, string? Fabric)
-    : IQuery<Result<FabricPlanFactResponse>>;
+public sealed record GetFabricPlanFactQuery(WarehouseActor Actor, string? Model, string? Client, string? Fabric,
+    DateOnly? From = null, DateOnly? To = null) : IQuery<Result<FabricPlanFactResponse>>;
 
 public sealed class GetFabricPlanFactQueryValidator : AbstractValidator<GetFabricPlanFactQuery>
 {
@@ -23,6 +24,8 @@ public sealed class GetFabricPlanFactQueryValidator : AbstractValidator<GetFabri
         RuleFor(x => x.Model).MaximumLength(FilterMaxLength);
         RuleFor(x => x.Client).MaximumLength(FilterMaxLength);
         RuleFor(x => x.Fabric).MaximumLength(FilterMaxLength);
+        RuleFor(x => x).Must(x => x.From is null || x.To is null || x.From <= x.To)
+            .WithMessage("Кінець періоду раніше за початок.");
     }
 }
 
@@ -45,11 +48,15 @@ public sealed class GetFabricPlanFactQueryHandler(
 
         var evaluated = issues.GroupBy(x => x.ItemId)
             .Where(g => items.ContainsKey(g.Key))
-            .Select(g => FabricPlanFact.Evaluate(items[g.Key], saved.GetValueOrDefault(g.Key), g.ToList(),
-                code => names.GetValueOrDefault(FabricAliases.Normalize(code))))
+            .Select(g =>
+            {
+                var entry = FabricPlanFact.Evaluate(items[g.Key], saved.GetValueOrDefault(g.Key), g.ToList(),
+                    code => names.GetValueOrDefault(FabricAliases.Normalize(code)));
+                return entry with { Item = entry.Item with { IssuedOn = g.Max(x => x.IssuedOn) } };
+            })
             .Where(x => Matches(x, query))
             .ToList();
-        var counted = evaluated.Where(x => !x.InProgress).ToList();
+        var counted = evaluated.Where(x => !x.InProgress && InPeriod(x.Item.IssuedOn, query)).ToList();
 
         var models = counted.GroupBy(x => x.ModelCode ?? x.ModelName, StringComparer.Ordinal)
             .Select(g => new FabricPlanFactModelResponse(g.First().ModelName, g.First().ModelCode,
@@ -66,6 +73,9 @@ public sealed class GetFabricPlanFactQueryHandler(
         (string.IsNullOrWhiteSpace(query.Fabric) || entry.Item.Materials.Any(m =>
             Contains(query.Fabric, m.PlanFabricCode, m.PlanFabricName, m.PlanColor) ||
             m.Used.Any(u => Contains(query.Fabric, u))));
+
+    private static bool InPeriod(DateOnly? day, GetFabricPlanFactQuery query) =>
+        (query.From is null || day >= query.From) && (query.To is null || day <= query.To);
 
     private static bool Contains(string? search, params string?[] values) =>
         string.IsNullOrWhiteSpace(search) ||

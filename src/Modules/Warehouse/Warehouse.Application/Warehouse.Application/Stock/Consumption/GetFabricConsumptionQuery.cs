@@ -6,8 +6,8 @@ using Warehouse.Domain.Stock;
 namespace Warehouse.Application.Stock.Consumption;
 
 /// <summary>
-/// «Зведення витрати»: received, issued and corrected metres of each line over a period, by operation date. A reversal
-/// counts against the kind it takes back; taking back an opening counts as a correction.
+/// «Витрата за період»: received, issued (to tasks and one-off) and corrected metres of each line over a period, by
+/// operation date. A reversal counts against the kind it takes back; taking back an opening counts as a correction.
 /// </summary>
 public sealed record GetFabricConsumptionQuery(WarehouseActor Actor, DateOnly From, DateOnly To)
     : IQuery<Result<FabricConsumptionResponse>>;
@@ -33,8 +33,8 @@ public sealed class GetFabricConsumptionQueryHandler(IWarehouseDbContext db, IWa
             .ToListAsync(cancellationToken);
         var reversedIds = movements.Where(x => x.ReversesMovementId != null).Select(x => x.ReversesMovementId!.Value)
             .ToArray();
-        var reversedKinds = await db.FabricMovements.AsNoTracking().Where(x => reversedIds.Contains(x.Id))
-            .ToDictionaryAsync(x => x.Id, x => x.Kind, cancellationToken);
+        var reversed = await db.FabricMovements.AsNoTracking().Where(x => reversedIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => new { x.Kind, x.OrderId }, cancellationToken);
         var stockIds = movements.Select(x => x.StockId).Distinct().ToArray();
         var lines = await db.FabricStocks.AsNoTracking().Where(x => stockIds.Contains(x.Id))
             .ToDictionaryAsync(x => x.Id, cancellationToken);
@@ -45,14 +45,21 @@ public sealed class GetFabricConsumptionQueryHandler(IWarehouseDbContext db, IWa
 
         FabricMovementKind Effective(FabricMovement x) => x.Kind == FabricMovementKind.Reversal &&
                                                           x.ReversesMovementId is { } id &&
-                                                          reversedKinds.TryGetValue(id, out var kind)
-            ? kind
+                                                          reversed.TryGetValue(id, out var target)
+            ? target.Kind
             : x.Kind;
+
+        bool ToTask(FabricMovement x) => x.Kind == FabricMovementKind.Reversal &&
+                                         x.ReversesMovementId is { } id && reversed.TryGetValue(id, out var target)
+            ? target.OrderId is not null
+            : x.OrderId is not null;
 
         var rows = movements.GroupBy(x => x.StockId).Select(g =>
             {
                 var line = lines[g.Key];
-                var issued = -g.Where(x => Effective(x) == FabricMovementKind.Issue).Sum(x => x.Delta);
+                var issues = g.Where(x => Effective(x) == FabricMovementKind.Issue).ToList();
+                var issued = -issues.Sum(x => x.Delta);
+                var toTasks = -issues.Where(ToTask).Sum(x => x.Delta);
                 decimal? value = query.Actor.SeesStockValue && prices.TryGetValue(line.FabricCode, out var price)
                     ? decimal.Round(issued * price, 2)
                     : null;
@@ -60,10 +67,11 @@ public sealed class GetFabricConsumptionQueryHandler(IWarehouseDbContext db, IWa
                     g.Where(x => Effective(x) == FabricMovementKind.Receipt).Sum(x => x.Delta), issued,
                     g.Where(x => Effective(x) is FabricMovementKind.Adjustment or FabricMovementKind.Opening
                         or FabricMovementKind.Reversal).Sum(x => x.Delta),
-                    value);
+                    value, toTasks, issued - toTasks);
             })
             .OrderByDescending(x => x.Issued).ThenBy(x => x.FabricCode, StringComparer.Ordinal).ToList();
         return Result.Success(new FabricConsumptionResponse(query.From, query.To, rows, rows.Sum(x => x.Received),
-            rows.Sum(x => x.Issued), query.Actor.SeesStockValue ? rows.Sum(x => x.IssuedValue ?? 0m) : null));
+            rows.Sum(x => x.Issued), query.Actor.SeesStockValue ? rows.Sum(x => x.IssuedValue ?? 0m) : null,
+            rows.Sum(x => x.IssuedToTasks), rows.Sum(x => x.OneOff), rows.Sum(x => x.Corrected)));
     }
 }

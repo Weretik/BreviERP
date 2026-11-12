@@ -68,6 +68,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Warehouse | [007 «Рух тканини» search, period, kind chips, pair balance](warehouse/007-movement-journal/README.md) | implemented 2026-11-12 |
 | Warehouse | [008 «Залишки» booking, free metres, latest movement](warehouse/008-stock-booking-columns/README.md) | implemented 2026-11-12 |
 | Warehouse | [009 «Що замовити» due dates and supplier](warehouse/009-to-order-dates/README.md) | implemented 2026-11-12 |
+| Warehouse | [010 «Звіти» periods and the split of issues](warehouse/010-report-periods/README.md) | implemented 2026-11-12 |
 | Ai | [001 «Налаштування ШІ»](ai/001-ai-settings/README.md) | implemented 2026-11-05 |
 | Accounting | [001 «Бухгалтерія»](accounting/001-finance/README.md) | stages 1–3 implemented 2026-11-05 |
 | Purchasing | [001 «Рахунки на закупку»](purchasing/001-purchase-invoices/README.md) | stages 1–3 implemented 2026-11-05 |

@@ -4,6 +4,7 @@ using UnitTests.Production;
 using Warehouse.Application.Abstractions;
 using Warehouse.Application.Access;
 using Warehouse.Application.Contracts;
+using Warehouse.Application.Stock.Consumption;
 using Warehouse.Application.Stock.Movements;
 using Warehouse.Application.Stock.OneOff;
 using Warehouse.Application.Stock.Reports;
@@ -45,6 +46,57 @@ public sealed class WarehouseReportTests
                 Is.EqualTo(new[] { ("Upper", "Темно-сірий", (decimal?)6m), ("Upper", "Червоний", (decimal?)0.9m) }));
             Assert.That(movements.Rows.Single(x => x.Color == "Темно-сірий").PerProduct, Is.EqualTo(2m),
                 "6 m for 3 products");
+        });
+    }
+
+    [Test]
+    public async Task Plan_and_fact_keeps_the_items_whose_last_issue_is_in_the_period()
+    {
+        using var workshop = Workshop();
+        await Receive(workshop, Chief, "Opening", 20m);
+        await Receive(workshop, Chief, "Opening", 5m, "Червоний");
+        var first = await Order(workshop);
+        await IssueCut(workshop, Chief, first.OrderId, first.ItemId, first.Version, 3,
+            [L("темно-сірий", "Темно-сірий", 6m), L("червоний", "Червоний", 0.9m)]);
+
+        var issuedOn = (await PlanFact(workshop)).Models.Single().Items.Single().IssuedOn;
+        var inside = await PlanFact(workshop, from: new DateOnly(2026, 11, 1), to: new DateOnly(2026, 11, 30));
+        var after = await PlanFact(workshop, from: new DateOnly(2026, 11, 5));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(issuedOn, Is.EqualTo(new DateOnly(2026, 11, 4)), "WH-010: the day of the last issue");
+            Assert.That(inside.Models, Has.Count.EqualTo(1));
+            Assert.That(after.Models, Is.Empty);
+            Assert.That(after.Total.Orders, Is.Zero);
+        });
+    }
+
+    [Test]
+    public async Task Consumption_splits_what_went_to_tasks_from_one_off_issues()
+    {
+        using var workshop = Workshop();
+        await Receive(workshop, Chief, "Opening", 20m);
+        await Receive(workshop, Chief, "Receipt", 10m, supplier: "Тексика");
+        await Receive(workshop, Chief, "Opening", 5m, "Червоний");
+        var first = await Order(workshop);
+        await IssueCut(workshop, Chief, first.OrderId, first.ItemId, first.Version, 3,
+            [L("темно-сірий", "Темно-сірий", 6m), L("червоний", "Червоний", 0.9m)]);
+        await new IssueFabricCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
+            .Handle(new(Chief, new(Guid.NewGuid(), "FAB-023", "Темно-сірий", null, 1.5m, new DateOnly(2026, 11, 4),
+                "Зразок", null)), CancellationToken.None);
+        workshop.Db.ChangeTracker.Clear();
+
+        var report = (await new GetFabricConsumptionQueryHandler(workshop.Db, workshop.Reference)
+            .Handle(new(Chief, new DateOnly(2026, 11, 1), new DateOnly(2026, 11, 30)), CancellationToken.None)).Value;
+
+        var dark = report.Rows.Single(x => x.Color == "Темно-сірий");
+        Assert.Multiple(() =>
+        {
+            Assert.That((dark.Received, dark.Issued, dark.IssuedToTasks, dark.OneOff),
+                Is.EqualTo((10m, 7.5m, 6m, 1.5m)), "WH-010: «На завдання» and «Разова» apart");
+            Assert.That((report.Issued, report.IssuedToTasks, report.OneOff, report.Corrected),
+                Is.EqualTo((8.4m, 6.9m, 1.5m, 0m)));
         });
     }
 
@@ -300,12 +352,13 @@ public sealed class WarehouseReportTests
         });
     }
 
-    private static async Task<FabricPlanFactResponse> PlanFact(WarehouseTestHarness workshop, string? client = null)
+    private static async Task<FabricPlanFactResponse> PlanFact(WarehouseTestHarness workshop, string? client = null,
+        DateOnly? from = null, DateOnly? to = null)
     {
         workshop.Db.ChangeTracker.Clear();
         return (await new GetFabricPlanFactQueryHandler(workshop.Db, workshop.Production, workshop.Reference,
                 workshop.Plans())
-            .Handle(new(Chief, null, client, null), CancellationToken.None)).Value;
+            .Handle(new(Chief, null, client, null, from, to), CancellationToken.None)).Value;
     }
 
     private static async Task<(int OrderId, int ItemId, int Version)> Order(WarehouseTestHarness workshop)

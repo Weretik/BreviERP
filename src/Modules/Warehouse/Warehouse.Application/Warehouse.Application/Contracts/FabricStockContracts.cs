@@ -401,7 +401,10 @@ public sealed record FabricIssueItemsResponse(IReadOnlyList<FabricIssueItemRespo
 
 public sealed record ReverseFabricIssueInput(int OrderVersion, string Reason);
 
-/// <summary>Movements of a fabric and colour over a period, for «Зведення витрати».</summary>
+/// <summary>Movements of a fabric and colour over a period, for «Витрата за період».</summary>
+/// <param name="Issued">Everything issued: to tasks and one-off.</param>
+/// <param name="IssuedToTasks">Issued to items of orders.</param>
+/// <param name="OneOff">«Разова витрата»: issued without a task.</param>
 public sealed record FabricConsumptionRowResponse(
     int StockId,
     string FabricCode,
@@ -410,7 +413,9 @@ public sealed record FabricConsumptionRowResponse(
     decimal Received,
     decimal Issued,
     decimal Corrected,
-    decimal? IssuedValue);
+    decimal? IssuedValue,
+    decimal IssuedToTasks = 0,
+    decimal OneOff = 0);
 
 public sealed record FabricConsumptionResponse(
     DateOnly From,
@@ -418,4 +423,7 @@ public sealed record FabricConsumptionResponse(
     IReadOnlyList<FabricConsumptionRowResponse> Rows,
     decimal Received,
     decimal Issued,
-    decimal? IssuedValue);
+    decimal? IssuedValue,
+    decimal IssuedToTasks = 0,
+    decimal OneOff = 0,
+    decimal Corrected = 0);
