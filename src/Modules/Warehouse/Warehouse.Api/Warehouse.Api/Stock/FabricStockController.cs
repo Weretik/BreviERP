@@ -48,14 +48,20 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
             ? this.ToActionResult(await sender.Send(new GetFabricStockChoicesQuery(actor), cancellationToken))
             : Forbid();
 
-    /// <summary>«Рух тканини»: 50 per page, newest operation date first; <c>kind</c> All, Receipt, Issue or Opening.</summary>
+    /// <summary>
+    /// «Рух тканини»: 50 per page, newest operation date first; filters by kind, fabric, colour, item, text and
+    /// operation-date period, with the count of every kind.
+    /// </summary>
     [HttpGet("movements", Name = "getFabricMovements")]
     public async Task<ActionResult<FabricMovementPageResponse>> Movements([FromQuery] int page = 1,
         [FromQuery] FabricMovementFilter kind = FabricMovementFilter.All, [FromQuery] string? fabricCode = null,
-        [FromQuery] string? color = null, [FromQuery] int? itemId = null, CancellationToken cancellationToken = default) =>
+        [FromQuery] string? color = null, [FromQuery] int? itemId = null, [FromQuery] string? search = null,
+        [FromQuery] DateOnly? from = null, [FromQuery] DateOnly? to = null,
+        CancellationToken cancellationToken = default) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(
-                new GetFabricMovementsQuery(actor, page, kind, fabricCode, color, itemId), cancellationToken))
+                new GetFabricMovementsQuery(actor, page, kind, fabricCode, color, itemId, search, from, to),
+                cancellationToken))
             : Forbid();
 
     /// <summary>«Початковий залишок» of a new fabric and colour; once per pair.</summary>
