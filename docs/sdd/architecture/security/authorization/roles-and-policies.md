@@ -59,7 +59,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `hardware-order` | `/api/warehouse/reports/hardware` | Admin, WorkshopChief (view) |
 | `work-log`, `workshop-settings`, `workshop-staff`, `fabric-norms`, `payroll`, `timesheet` | `/api/production/work-log`, settings, staff, fabric norms and model compositions, payroll, timesheet | Admin, WorkshopChief |
 | `workshop-reports` | `/api/production/reports` | Admin (view only) |
-| `accounting`, `purchase-invoices` | `/api/accounting/**`, `/api/purchasing/invoices` | only the director ([PUR-001](../../../specs/purchasing/001-purchase-invoices/README.md)) |
+| `accounting`, `purchase-invoices` | `/api/accounting/**`, `/api/purchasing/invoices` | the director; Accountant view and edit (owner 2026-11-12; a role saved earlier gets them too unless the director unticks them, see [DESK-001](../../../specs/identity/003-role-desks/README.md) D6) ([PUR-001](../../../specs/purchasing/001-purchase-invoices/README.md)) |
 | `reminders` | `/api/reminders/**` except the Telegram webhook | Admin |
 | `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes (`materials` covers fabrics, accessories and colours «Кольори»); reads stay `CatalogRead` | Admin, Manager; Accountant view |
 | `counterparties` | suppliers, clients and their contacts | Admin, Manager |

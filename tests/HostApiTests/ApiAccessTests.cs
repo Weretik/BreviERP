@@ -101,10 +101,9 @@ public sealed class ApiAccessTests
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
     }
 
-    [TestCase("Accountant")]
     [TestCase("Admin")]
     [TestCase("Manager")]
-    public async Task Only_the_director_opens_purchase_invoices(string role)
+    public async Task Only_the_director_and_the_accountant_open_purchase_invoices(string role)
     {
         await using var host = await Fixture.CreateAsync();
         host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", role);
