@@ -22,7 +22,8 @@ public sealed class FabricBookingCalculator(
     {
         var stock = await db.FabricStocks.AsNoTracking().ToListAsync(cancellationToken);
         var fabrics = (await reference.FabricsAsync(cancellationToken)).Where(x => !string.IsNullOrWhiteSpace(x.Code))
-            .GroupBy(x => FabricAliases.Canonical(x.Code!)).ToDictionary(g => g.Key, g => g.First().Name);
+            .GroupBy(x => FabricAliases.Canonical(x.Code!))
+            .ToDictionary(g => g.Key, g => g.OrderBy(x => FabricAliases.Normalize(x.Code!) == g.Key ? 0 : 1).First());
         var items = await production.OpenItemsAsync(null, cancellationToken);
         var ids = items.Select(x => x.ItemId).ToArray();
         var saved = await plans.SavedAsync(ids, cancellationToken);
@@ -62,7 +63,7 @@ public sealed class FabricBookingCalculator(
                 var allocation = FabricBooking.Allocate(lines.Sum(x => x.Meters),
                     queue.Select(x => Math.Max(0m, x.Part.Meters - x.Covered)).ToList());
                 var anchor = lines.OrderBy(x => x.FabricCode == key.Code ? 0 : 1).ThenBy(x => x.Id).FirstOrDefault();
-                var name = FabricAliases.Group(key.Code)?.Name ?? fabrics.GetValueOrDefault(key.Code) ??
+                var name = FabricAliases.Group(key.Code)?.Name ?? fabrics.GetValueOrDefault(key.Code)?.Name ??
                     anchor?.FabricName ?? key.Code;
                 var color = anchor?.Color ?? queue[0].Part.Color;
                 return new FabricBookingPairResponse(key.Code, name, color, allocation.Stock, allocation.Need,
@@ -70,7 +71,11 @@ public sealed class FabricBookingCalculator(
                     queue.Select((x, i) => new FabricBookingItemResponse(x.Item.OrderId, x.Item.OrderNumber,
                         x.Item.ClientName, x.Item.ItemId, x.Item.ModelName, x.Item.DueDate, x.Part.Layer.ToString(),
                         x.Part.Meters, x.Covered, allocation.Items[i].Remaining, allocation.Items[i].Reserved,
-                        allocation.Items[i].Missing)).ToList());
+                        allocation.Items[i].Missing)).ToList(),
+                    string.IsNullOrWhiteSpace(fabrics.GetValueOrDefault(key.Code)?.Supplier)
+                        ? null
+                        : fabrics[key.Code].Supplier!.Trim(),
+                    FabricBooking.NeedBy(queue.Select((x, i) => (x.Item.DueDate, allocation.Items[i])).ToList()));
             })
             .Where(x => x.Stock != 0 || x.Need > 0)
             .OrderByDescending(x => x.ToOrder).ThenBy(x => x.FabricName, StringComparer.CurrentCulture)

@@ -67,6 +67,7 @@ This is an index of project decisions and delivery; the [implemented feature map
 | Warehouse | [006 «Перенесення з v133»](warehouse/006-v133-transfer/README.md) | stage 6 implemented 2026-11-11 |
 | Warehouse | [007 «Рух тканини» search, period, kind chips, pair balance](warehouse/007-movement-journal/README.md) | implemented 2026-11-12 |
 | Warehouse | [008 «Залишки» booking, free metres, latest movement](warehouse/008-stock-booking-columns/README.md) | implemented 2026-11-12 |
+| Warehouse | [009 «Що замовити» due dates and supplier](warehouse/009-to-order-dates/README.md) | implemented 2026-11-12 |
 | Ai | [001 «Налаштування ШІ»](ai/001-ai-settings/README.md) | implemented 2026-11-05 |
 | Accounting | [001 «Бухгалтерія»](accounting/001-finance/README.md) | stages 1–3 implemented 2026-11-05 |
 | Purchasing | [001 «Рахунки на закупку»](purchasing/001-purchase-invoices/README.md) | stages 1–3 implemented 2026-11-05 |

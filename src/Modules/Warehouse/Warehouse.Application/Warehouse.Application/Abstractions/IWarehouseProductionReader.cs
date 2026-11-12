@@ -78,7 +78,8 @@ public sealed record WarehouseAssemblyItem(
     string ModelName,
     string? ModelCode,
     int Quantity,
-    IReadOnlyList<WarehouseAssemblyLine>? Lines);
+    IReadOnlyList<WarehouseAssemblyLine>? Lines,
+    DateOnly? DueDate = null);
 
 /// <param name="Kind">Accessory or OtherCost.</param>
 /// <param name="Code">FUR-… or a cost code; null when unknown.</param>

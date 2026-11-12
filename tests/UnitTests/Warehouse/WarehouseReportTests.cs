@@ -141,6 +141,41 @@ public sealed class WarehouseReportTests
             Assert.That(report.Pairs[0].ToOrder, Is.EqualTo(5m), "sorted by what to order");
             Assert.That(report.ToOrder, Is.EqualTo(6.8m));
             Assert.That(report.Unknown, Is.Empty);
+            Assert.That(dark.Supplier, Is.EqualTo("Тексика"), "WH-009: the supplier of the canonical offer");
+        });
+    }
+
+    [Test]
+    public void Need_by_is_the_nearest_date_of_the_items_still_short_or_else_of_those_that_need_it()
+    {
+        static FabricBooking.Share S(decimal remaining, decimal missing) => new(remaining, remaining - missing, missing);
+        var nov20 = new DateOnly(2026, 11, 20);
+        var nov14 = new DateOnly(2026, 11, 14);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(FabricBooking.NeedBy([(nov14, S(4m, 0m)), (nov20, S(6m, 5m)), (null, S(1m, 1m))]),
+                Is.EqualTo(nov20), "the covered item does not set the date");
+            Assert.That(FabricBooking.NeedBy([(nov20, S(4m, 0m)), (nov14, S(2m, 0m))]), Is.EqualTo(nov14));
+            Assert.That(FabricBooking.NeedBy([(null, S(4m, 4m))]), Is.Null);
+        });
+    }
+
+    [Test]
+    public void Hardware_need_keeps_the_nearest_due_date_of_its_tasks()
+    {
+        static WarehouseAssemblyItem Item(int id, DateOnly? due) => new(id, id, "Клієнт", DateTimeOffset.UnixEpoch,
+            id * 10, "Куртка", "MOD-1", 2, [new("Accessory", "FUR-003", "Кнопка", 3m, "Piece", null)], due);
+
+        var (needs, _) = HardwareNeeds.Calculate([
+            Item(1, new DateOnly(2026, 11, 25)), Item(2, new DateOnly(2026, 11, 14)), Item(3, null)
+        ]);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(needs.Single().DueDate, Is.EqualTo(new DateOnly(2026, 11, 14)));
+            Assert.That(needs.Single().Orders.Select(x => x.DueDate),
+                Is.EqualTo(new DateOnly?[] { new(2026, 11, 25), new(2026, 11, 14), null }));
         });
     }
 
