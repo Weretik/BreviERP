@@ -4,7 +4,7 @@ The site page of each Catalog product: the «Показувати на сайт�
 
 `POST /api/content/products/old-site-import` is the one-time transfer of old-site texts and SEO: it matches pages to products by the old-site link of the Catalog card, counts first (`dryRun`), keeps pages that already have texts unless asked to overwrite.
 
-`GET /api/public/catalog/*` is the catalog of the public site, open without sign-in and read-only ([contract](../../contracts/content/content-public-catalog.openapi.yaml)): the tree (two types and their active sections that have products on the site), a page of cards with «від», a product by its address (texts in the asked language or Ukrainian when there are no Russian ones, photos, active fabrics with prices) and all addresses for the sitemap. It answers from a snapshot that is rebuilt at most once a minute, and every answer may be cached for five minutes.
+`GET /api/public/catalog/*` is the catalog of the public site, open without sign-in and read-only ([contract](../../contracts/content/content-public-catalog.openapi.yaml)): the tree (two types and their active sections that have products on the site), a page of cards with «від» and the names of the active fabrics, a product by its address (texts in the asked language or Ukrainian when there are no Russian ones, photos, active fabrics with prices) and all addresses for the sitemap. It answers from a snapshot that is rebuilt at most once a minute, and every answer may be cached for five minutes.
 
 ## Code structure
 

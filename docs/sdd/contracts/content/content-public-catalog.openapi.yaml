@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: 'Content: public catalog of the site'
-  version: 1.1.0
+  version: 1.2.0
   description: 'Read-only catalog for the public site (CNT-002 stage 4, site categories of CNT-003 stage 4). No sign-in. Only products marked «Показувати на
     сайті» whose Catalog product is active come back, and nothing internal (no cost, supplier, staff names or ids of
     articles). Every answer has Cache-Control: public, max-age=300. The server builds the catalog at most once a minute,
@@ -241,6 +241,7 @@ components:
       - slug
       - type
       - name
+      - fabrics
       properties:
         slug:
           type: string
@@ -272,6 +273,11 @@ components:
           - 'null'
           format: double
           description: The lowest large-wholesale price among active fabrics, or the PPE price; null means «ціну уточнюйте».
+        fabrics:
+          type: array
+          items:
+            type: string
+          description: Names of the active fabrics of a sewing model, each once, in the order of the model; empty for PPE.
     PublicCatalogCardPage:
       type: object
       required:
