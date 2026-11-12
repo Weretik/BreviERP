@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Sewing.Calculations;
 using Catalog.Application.Contracts.Pricing;
@@ -13,6 +14,7 @@ namespace Catalog.Api.Controllers.Pricing.Sewing;
 public sealed class SewingPricingController(ISender sender) : ControllerBase
 {
     [HttpPost("calculations", Name = "saveSewingCalculation")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [Authorize(Policy = "access:products")]
     public async Task<ActionResult<SavedSewingCalculation>> Save(
         int productId, long articleId, [FromBody] SaveSewingCalculationRequest request, CancellationToken cancellationToken)
@@ -31,6 +33,7 @@ public sealed class SewingPricingController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetSewingCalculationQuery(productId, articleId, calculationId), cancellationToken));
 
     [HttpPost("calculations/{calculationId:guid}/publication", Name = "publishSewingCalculation")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [Authorize(Policy = "access:products")]
     public async Task<ActionResult<PublishedSewingPrice>> Publish(
         int productId, long articleId, Guid calculationId, CancellationToken cancellationToken)

@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Sewing.Settings;
 using Catalog.Application.Contracts.Pricing;
@@ -16,6 +17,7 @@ public sealed class SewingPricingSettingsController(ISender sender) : Controller
         => this.ToActionResult(await sender.Send(new GetSewingSettingsQuery(), cancellationToken));
 
     [HttpPost("versions", Name = "createSewingSettingsVersion")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [Authorize(Policy = "access:pricing-parameters")]
     public async Task<ActionResult<SewingPricingSettingsSelection>> Create(
         [FromBody] CreateSewingSettingsVersionRequest request, CancellationToken cancellationToken)

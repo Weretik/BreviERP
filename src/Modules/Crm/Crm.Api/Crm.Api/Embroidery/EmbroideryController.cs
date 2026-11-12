@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Crm.Application.Embroidery.Access;
 using Crm.Application.Embroidery.Calculate;
@@ -40,6 +41,7 @@ public sealed class EmbroideryController(ISender sender) : ControllerBase
 
     /// <summary>Computes the price without saving anything; a Manager gets no cost.</summary>
     [HttpPost("calculate", Name = "calculateCrmEmbroidery")]
+    [AccessAction(AccessActionAttribute.View)]
     [ProducesResponseType<EmbroideryCalculationResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<EmbroideryCalculationResponse>> Calculate(CalculateEmbroideryInput input,

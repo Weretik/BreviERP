@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,7 @@ public sealed class OrderItemFabricController(ISender sender) : ControllerBase
             : Forbid();
 
     [HttpPost("{id:int}/fabric-issues/{issueId:int}/reverse", Name = "reverseFabricIssue")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ProductionItemFabricResponse>> Reverse(int id, int issueId,
         ReverseFabricIssueInput input, CancellationToken cancellationToken) =>
         this.Actor() is { } actor

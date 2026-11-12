@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Ardalis.Result;
+using BuildingBlocks.Api.Authorization;
 using Catalog.Api.Contracts.Pricing.Ppe.SupplierPrices;
 using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
@@ -82,6 +83,7 @@ public sealed class PpeSupplierPricesController(ISender sender) : ControllerBase
     /// the supplier with its old and new price. With <c>dryRun=false</c> it reads them again and saves the changed prices.
     /// </summary>
     [HttpPost("{key}/refresh", Name = "refreshPpeSupplierPrices")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [Authorize(Policy = "access:price-import")]
     public async Task<ActionResult<PpePriceImportResult>> Refresh(
         string key, [FromQuery] bool dryRun = true, CancellationToken cancellationToken = default)

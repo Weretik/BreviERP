@@ -1,4 +1,5 @@
-﻿using Reference.Api.Contracts.Suppliers;
+﻿using BuildingBlocks.Api.Authorization;
+using Reference.Api.Contracts.Suppliers;
 using Reference.Application.Features.Supplier.Create;
 using Reference.Application.Features.Supplier.Create.DTOs;
 using Reference.Application.Features.Supplier.Delete;
@@ -99,6 +100,7 @@ public sealed class SuppliersController(ISender sender) : ControllerBase
 
     /// <summary>Reads all suppliers from KeepinCRM and updates Brevi; the same run as the daily job.</summary>
     [HttpPost("keepin-sync")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [ProducesResponseType(typeof(KeepinCrmSupplierSyncResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status503ServiceUnavailable)]

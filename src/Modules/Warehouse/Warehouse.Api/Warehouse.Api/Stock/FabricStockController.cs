@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -98,6 +99,7 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
 
     /// <summary>«Сторно» of an opening, receipt, correction or issue without an order.</summary>
     [HttpPost("movements/{movementId:int}/reverse", Name = "reverseFabricMovement")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FabricStockOperationResponse>> Reverse(int movementId,
         ReverseFabricMovementInput input, CancellationToken cancellationToken) =>
         this.Actor() is { } actor
@@ -116,6 +118,7 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
 
     /// <summary>«Скасувати»: the movement stays in the history with no effect on the balance.</summary>
     [HttpPost("movements/{movementId:int}/void", Name = "voidFabricMovement")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FabricStockOperationResponse>> Void(int movementId, VoidFabricMovementInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
@@ -125,6 +128,7 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
 
     /// <summary>«Скасувати останню правку»: the state before the last edit or void comes back.</summary>
     [HttpPost("movements/{movementId:int}/restore", Name = "restoreFabricMovement")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FabricStockOperationResponse>> Restore(int movementId,
         RestoreFabricMovementInput input, CancellationToken cancellationToken) =>
         this.Actor() is { } actor
@@ -169,6 +173,7 @@ public sealed class FabricStockController(ISender sender) : ControllerBase
 
     /// <summary>«Оновити план»: the saved plan of the item takes today's norm.</summary>
     [HttpPost("issue-items/{orderId:int}/{itemId:int}/plan", Name = "refreshFabricItemPlan")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ProductionItemFabricResponse>> RefreshPlan(int orderId, int itemId,
         RefreshItemFabricPlanInput input, CancellationToken cancellationToken) =>
         this.Actor() is { } actor

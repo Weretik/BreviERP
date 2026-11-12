@@ -7,6 +7,7 @@ using Accounting.Application.Transfers;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -53,6 +54,7 @@ public sealed class FinanceTransfersController(ISender sender) : ControllerBase
             cancellationToken));
 
     [HttpPost("{id:guid}/void", Name = "voidFinanceTransfer")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceTransferResponse>> Void(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new VoidFinanceTransferCommand(id, input.Version, AccountingAccess.By(User)),

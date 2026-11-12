@@ -42,25 +42,25 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 
 ### «Права доступу» pages
 
-Every work page of the admin is guarded by `access:<page>`; the action comes from the HTTP method (GET view, POST create, PUT/PATCH edit, DELETE delete), a page without that action asks for edit, and `access:<page>:<action>` or `[AccessAction]` names it when the method says otherwise. Pages and defaults are in `Identity.Domain/Authorization/AccessCatalog.cs`; until a role is saved its defaults are the rules below.
+Every work page of the admin is guarded by `access:<page>`; the action comes from the HTTP method (GET view, POST create, PUT/PATCH edit, DELETE delete), a page without that action asks for edit, and `access:<page>:<action>` or `[AccessAction]` names it when the method says otherwise. Pages and defaults are in `Identity.Domain/Authorization/AccessCatalog.cs`, in the groups and order of the admin menu (`apps/admin-react/src/app/router/legacy-menu.ts` in brevi-web); until a role is saved its defaults are the rules below. Each page offers only the actions it really has: «Створення» and «Видалення» appear where the page creates or deletes something (2026-11-12 audit), and a POST that changes, voids, closes or reopens something is marked `[AccessAction(Edit)]`.
 
 | Page | Endpoints | Default rights |
 | --- | --- | --- |
 | `desk-main`, `desk-sales`, `desk-workshop`, `desk-seo`, `desk-accounting` | none: which «Робочий стіл» desks the admin home shows ([DESK-001](../../../specs/identity/003-role-desks/README.md)); each block also needs its own page | main: Admin; sales: Admin, Manager; workshop: Admin, WorkshopChief; SEO: Admin, Seo; accounting: Accountant |
 | `quotes` | `/api/crm/quotes`, quote introductions and templates; lookups and mailboxes need view; delete and the old-archive purge need `access:quotes:delete` | Admin, Manager: view, create, edit; delete only the director |
-| `quote-settings` | `/api/crm/quote-settings` | Admin |
-| `embroidery` | `/api/crm/embroidery` (settings stay Admin) | Admin, Manager |
-| `tasks` | `/api/crm/tasks` (task admin stays Admin) | Admin, Manager |
+| `quote-settings` (group «Адміністрування») | `/api/crm/quote-settings` | Admin |
+| `embroidery` | `/api/crm/embroidery` (settings stay Admin); «Розрахувати» needs view, a saved calculation create, its delete delete | Admin, Manager: all |
+| `tasks` | `/api/crm/tasks` (task admin stays Admin); create, edit, delete | Admin, Manager: all |
 | `leads` | `/api/crm/leads` ([LEAD-001](../../../specs/crm/006-leads/README.md)) | Admin, Manager |
-| `lead-stats` | `/api/crm/lead-stats`; edit = «Довідники», create = «Синхронізувати зараз» | Admin |
-| `production-orders`, `fabric-stock`, `forecast`, `workshop-archive` | `/api/production/orders`, dashboard, `/api/warehouse/fabric-stock` (group «Склад тканин», [WH-001](../../../specs/warehouse/001-warehouse-module/README.md)), the item tab `/api/warehouse/orders/…/fabric` (`production-orders`), forecast, archive | Admin, Manager, WorkshopChief (rules inside by role, [PRD-002](../../../specs/production/002-production-orders/README.md)–[PRD-008](../../../specs/production/008-workshop-archive/README.md)) |
-| `fabric-plan-fact`, `fabric-booking` | `/api/warehouse/reports/plan-fact`, `/booking` ([WH-005](../../../specs/warehouse/005-reports/README.md)) | Admin, Manager, WorkshopChief (view) |
-| `fabric-valuation` | `/api/warehouse/reports/valuation` | Admin (the owner; view) |
+| `lead-stats` (group «Адміністрування», «Статистика лідів») | `/api/crm/lead-stats`; edit = «Довідники», create = «Синхронізувати зараз» | Admin |
+| `production-orders`, `fabric-stock`, `forecast`, `workshop-archive` (`fabric-stock`: create = openings, receipts, issues, adjustments; delete = a stock line; reverse, void, restore are edit; `production-orders`: close, cancel, reopen, files and Telegram are edit) | `/api/production/orders`, dashboard, `/api/warehouse/fabric-stock` (group «Склад тканин», [WH-001](../../../specs/warehouse/001-warehouse-module/README.md)), the item tab `/api/warehouse/orders/…/fabric` (`production-orders`), forecast, archive | Admin, Manager, WorkshopChief (rules inside by role, [PRD-002](../../../specs/production/002-production-orders/README.md)–[PRD-008](../../../specs/production/008-workshop-archive/README.md)) |
+| `fabric-plan-fact` (group «Загальні звіти»), `fabric-booking` («Що замовити») | `/api/warehouse/reports/plan-fact`, `/booking` ([WH-005](../../../specs/warehouse/005-reports/README.md)) | Admin, Manager, WorkshopChief (view) |
+| `fabric-valuation` (group «Загальні звіти») | `/api/warehouse/reports/valuation` | Admin (the owner; view) |
 | `hardware-order` | `/api/warehouse/reports/hardware` | Admin, WorkshopChief (view) |
-| `work-log`, `workshop-settings`, `workshop-staff`, `fabric-norms`, `payroll`, `timesheet` | `/api/production/work-log`, settings, staff, fabric norms and model compositions, payroll, timesheet | Admin, WorkshopChief |
-| `workshop-reports` | `/api/production/reports` | Admin (view only) |
-| `accounting`, `purchase-invoices` | `/api/accounting/**`, `/api/purchasing/invoices` | the director; Accountant view and edit (owner 2026-11-12; a role saved earlier gets them too unless the director unticks them, see [DESK-001](../../../specs/identity/003-role-desks/README.md) D6) ([PUR-001](../../../specs/purchasing/001-purchase-invoices/README.md)) |
-| `reminders` | `/api/reminders/**` except the Telegram webhook | Admin |
+| `work-log`, `workshop-settings` (group «Адміністрування»), `workshop-staff`, `fabric-norms`, `payroll`, `timesheet` (the three «Персонал цеху» tabs) | `/api/production/work-log`, settings, staff, fabric norms and model compositions, payroll, timesheet; create = work entry, worker, payroll payment or adjustment; voids and month close are edit; `fabric-norms` delete = «Видалити норму» | Admin, WorkshopChief: every action the page has |
+| `workshop-reports` (group «Загальні звіти») | `/api/production/reports` | Admin (view only) |
+| `accounting`, `purchase-invoices` | `/api/accounting/**` (create = new operations, transfers, accounts, categories, counterparties, statement and file uploads; delete = accounts, categories, attachments; void, archive, restore, merge, book and rollback are edit), `/api/purchasing/invoices` | the director; Accountant every action of «Бухгалтерія», view and edit of «Рахунки на закупку» (owner 2026-11-12; a role saved earlier gets them too unless the director unticks them, see [DESK-001](../../../specs/identity/003-role-desks/README.md) D6) ([PUR-001](../../../specs/purchasing/001-purchase-invoices/README.md)) |
+| `reminders` | `/api/reminders/**` except the Telegram webhook; create = task, non-working day; delete = archive a task, remove a day; preview is view; close, reopen, chat test are edit | Admin: all |
 | `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes (`materials` covers fabrics, accessories and colours «Кольори»); reads stay `CatalogRead` | Admin, Manager; Accountant view |
 | `counterparties` | suppliers, clients and their contacts | Admin, Manager |
 | `media` | `/api/media/**` | Admin, Manager; Seo view and upload |
@@ -109,14 +109,14 @@ Every staff page of the admin and every API it calls must be configurable on «�
 
 1. **Choose the page.** If the feature is a new screen or menu item, add an `AccessArea` to `Identity.Domain/Authorization/AccessCatalog.cs` with:
    - a constant key (kebab-case, stable: it is stored in `identity.role_access`);
-   - its group (the admin menu group, in Ukrainian) and a Ukrainian title, in menu order;
-   - only the actions the page really has (`View`, `Create`, `Edit`, `Delete`);
+   - its group (the admin menu group, in Ukrainian) and a Ukrainian title, in menu order. When a menu item moves to another group, move its `AccessArea` in the same change;
+   - only the actions the page really has (`View`, `Create`, `Edit`, `Delete`). When an existing page gains `Create` or `Delete`, add an Identity data migration that gives them to every saved role with `Edit` on it (like `ExpandAccessActions`), because until then edit covered them;
    - defaults for the built-in roles. The defaults decide what people see right after deploy, before anyone saves the page, so give exactly the roles the SDD names.
 
    If the feature only adds a part of an existing page (a tab, a panel, a button), reuse that page's key and pick the action instead. Add a new key only when the director would want to grant it separately.
 2. **Guard every endpoint** with `[Authorize(Policy = "access:<page>")]`. Put the constant in the module's `Api/Access/*Access.cs`, like `CrmAccess` or `ProductionAccess`.
    - The HTTP method gives the action: GET view, POST create, PUT/PATCH edit, DELETE delete.
-   - When the method doesn't match the meaning, name the action: `access:<page>:delete` for a delete done by POST, or `[AccessAction(AccessActionNames.Edit)]` for a POST that only edits (send, reprice).
+   - When the method doesn't match the meaning, name the action: `access:<page>:delete` for a delete done by POST, or `[AccessAction(AccessActionAttribute.Edit)]` for a POST that only edits (send, reprice).
    - Never `[Authorize(Roles = …)]` on a work page. Users, «Права доступу» and system settings stay `CanManageUsers`, and shared catalogue reads stay `CatalogRead`.
 3. **Keep business rules inside Application.** Rules such as "a manager sees only their own КП" stay in the handler. The page right only decides whether the person may open the page or do the action. Write down in the SDD how a role made on «Права доступу» is treated by those rules: today it is treated like a manager.
 4. **Tests:**

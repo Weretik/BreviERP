@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Ppe;
 using Catalog.Application.Contracts.Pricing.Ppe;
@@ -16,6 +17,7 @@ public sealed class PpePricingRulesController(ISender sender) : ControllerBase
         => this.ToActionResult(await sender.Send(new GetPpeRuleQuery(code), cancellationToken));
 
     [HttpPost("versions", Name = "createPpeRuleVersion")]
+    [AccessAction(AccessActionAttribute.Edit)]
     [Authorize(Policy = "access:pricing-parameters")]
     public async Task<ActionResult<PpeRuleVersion>> Create([FromBody] CreatePpeRuleVersionRequest request, CancellationToken cancellationToken)
     {

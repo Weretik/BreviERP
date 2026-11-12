@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using System.Security.Cryptography;
 using System.Text;
 using BuildingBlocks.Api.Result;
@@ -31,6 +32,7 @@ public sealed class TelegramWebhookController(ISender sender, ITelegramWebhookSe
 
     [Authorize(Policy = RemindersAccess.Policy)]
     [HttpPost("connect", Name = "connectTelegramWebhook")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<string>> Connect(CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new ConnectTelegramWebhookCommand(), cancellationToken));
 

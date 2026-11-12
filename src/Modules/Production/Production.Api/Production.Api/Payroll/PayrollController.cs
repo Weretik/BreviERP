@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -64,6 +65,7 @@ public sealed class PayrollController(ISender sender) : ControllerBase
             : Forbid();
 
     [HttpPost("payments/{paymentId:int}/void", Name = "voidPayrollPayment")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<PayrollMonthResponse>> VoidPayment(int paymentId, VoidPayrollEntryInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
@@ -79,6 +81,7 @@ public sealed class PayrollController(ISender sender) : ControllerBase
             : Forbid();
 
     [HttpPost("adjustments/{adjustmentId:int}/void", Name = "voidPayrollAdjustment")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<PayrollMonthResponse>> VoidAdjustment(int adjustmentId, VoidPayrollEntryInput input,
         CancellationToken cancellationToken) =>
         this.Actor() is { } actor
@@ -96,12 +99,14 @@ public sealed class PayrollController(ISender sender) : ControllerBase
 
     /// <summary>Closes the month: keeps the calculation and locks work, hours and pay in it.</summary>
     [HttpPost("{month}/close", Name = "closePayrollMonth")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<PayrollMonthResponse>> Close(string month, CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new ClosePayrollMonthCommand(actor, month), cancellationToken))
             : Forbid();
 
     [HttpPost("{month}/reopen", Name = "reopenPayrollMonth")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<PayrollMonthResponse>> Reopen(string month, CancellationToken cancellationToken) =>
         this.Actor() is { } actor
             ? this.ToActionResult(await sender.Send(new ReopenPayrollMonthCommand(actor, month), cancellationToken))

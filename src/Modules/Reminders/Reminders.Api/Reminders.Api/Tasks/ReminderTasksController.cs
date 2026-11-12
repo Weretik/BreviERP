@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Reminders.Api.Access;
@@ -36,11 +37,13 @@ public sealed class ReminderTasksController(ISender sender) : ControllerBase
         this.ToNoContentResult(await sender.Send(new ArchiveReminderTaskCommand(id), cancellationToken));
 
     [HttpPost("preview", Name = "previewReminderDueDates")]
+    [AccessAction(AccessActionAttribute.View)]
     public async Task<ActionResult<IReadOnlyList<DueDatePreview>>> Preview(PreviewReminderDueDatesRequest request,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new PreviewReminderDueDatesQuery(request.Schedule, request.From), cancellationToken));
 
     [HttpPost("assign-chat", Name = "assignReminderChat")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<int>> AssignChat(AssignReminderChatRequest request, CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new AssignReminderChatCommand(request.ChatId, request.Organizations), cancellationToken));
 }

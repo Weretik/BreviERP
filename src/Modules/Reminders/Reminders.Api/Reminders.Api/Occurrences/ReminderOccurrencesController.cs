@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -21,10 +22,12 @@ public sealed class ReminderOccurrencesController(ISender sender) : ControllerBa
         this.ToActionResult(await sender.Send(new GetReminderOccurrencesQuery(status, taskId, page, pageSize), cancellationToken));
 
     [HttpPost("{id:long}/close", Name = "closeReminderOccurrence")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ReminderOccurrenceResponse>> Close(long id, CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new CloseReminderOccurrenceCommand(id, ReminderAdminClaims.Read(User)), cancellationToken));
 
     [HttpPost("{id:long}/reopen", Name = "reopenReminderOccurrence")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<ReminderOccurrenceResponse>> Reopen(long id, CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new ReopenReminderOccurrenceCommand(id, ReminderAdminClaims.Read(User)), cancellationToken));
 }

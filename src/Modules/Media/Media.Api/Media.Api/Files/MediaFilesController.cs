@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Media.Api.Access;
@@ -56,6 +57,7 @@ public sealed class MediaFilesController(ISender sender) : ControllerBase
 
     /// <summary>Moves several photos into one folder.</summary>
     [HttpPost("move", Name = "moveMediaFiles")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult> Move(MoveMediaFilesInput input, CancellationToken cancellationToken) =>
         this.ToNoContentResult(await sender.Send(new MoveMediaFilesCommand(input), cancellationToken));
 

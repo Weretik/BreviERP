@@ -9,6 +9,7 @@ using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
+using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -67,6 +68,7 @@ public sealed class FinanceTransactionsController(ISender sender) : ControllerBa
             cancellationToken));
 
     [HttpPost("{id:guid}/void", Name = "voidFinanceTransaction")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceTransactionResponse>> Void(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new VoidFinanceTransactionCommand(id, input.Version, AccountingAccess.By(User)),
@@ -79,6 +81,7 @@ public sealed class FinanceTransactionsController(ISender sender) : ControllerBa
             input.OneoffName, input.Version, AccountingAccess.By(User), input.RememberCategory), cancellationToken));
 
     [HttpPost("{id:guid}/promote-oneoff", Name = "promoteFinanceOneoff")]
+    [AccessAction(AccessActionAttribute.Edit)]
     public async Task<ActionResult<FinanceTransactionResponse>> PromoteOneoff(Guid id, [FromBody] FinanceVersionInput input,
         CancellationToken cancellationToken) =>
         this.ToActionResult(await sender.Send(new PromoteFinanceOneoffCommand(id, input.Version, AccountingAccess.By(User)),
