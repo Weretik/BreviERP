@@ -103,14 +103,41 @@ public sealed class PublicCatalogTests
         {
             Assert.That(all.Total, Is.EqualTo(3));
             Assert.That(all.Items.Select(x => x.Slug), Is.EqualTo(new[] { "kostyum-lider", "kurtka-zyma" }));
-            Assert.That(all.Items[0], Is.EqualTo(new PublicCatalogCard("kostyum-lider", "Sewing", "MOD-001",
-                "Костюм рабочий «Лидер»", 10, "https://cdn.test/1-small.jpg", 1300m)));
+            var card = all.Items[0];
+            Assert.That((card.Slug, card.Type, card.Code, card.Name, card.SectionId, card.PhotoUrl, card.PriceFrom),
+                Is.EqualTo(("kostyum-lider", "Sewing", "MOD-001", "Костюм рабочий «Лидер»", (int?)10,
+                    "https://cdn.test/1-small.jpg", (decimal?)1300m)));
+            Assert.That(all.Items[0].Fabrics, Is.EqualTo(new[] { "Грета", "Саржа" }));
+            Assert.That(ppe.Items.Single().Fabrics, Is.Empty);
             // No Russian texts: the Ukrainian name, and the full photo when there is no small copy.
             Assert.That(all.Items[1].Name, Is.EqualTo("Костюм робочий «Лідер»"));
             Assert.That(all.Items[1].PhotoUrl, Is.EqualTo("https://cdn.test/1.jpg"));
             Assert.That(ppe.Items.Single().PriceFrom, Is.Null);
             Assert.That(jackets.Items.Single().Slug, Is.EqualTo("kurtka-zyma"));
         });
+    }
+
+    [Test]
+    public async Task Card_lists_each_active_fabric_once()
+    {
+        using var h = Site();
+        var product = h.AddSewing();
+        var price = new ContentPriceTiers(1500m, 1400m, 1300m);
+        h.Catalog.Products[0] = product with
+        {
+            Variants =
+            [
+                .. product.Variants,
+                new ContentCatalogVariant(301, "MOD-001-C", true, " грета ", null, price),
+                new ContentCatalogVariant(302, "MOD-001-D", false, "Оксфорд", null, price),
+                new ContentCatalogVariant(303, "MOD-001-E", true, null, null, price),
+            ],
+        };
+        await ShowAsync(h, 1, "kostyum-lider");
+
+        var page = (await new GetPublicCatalogProductsQueryHandler(h.Site()).Handle(new(1, 24, "uk"), None)).Value;
+
+        Assert.That(page.Items.Single().Fabrics, Is.EqualTo(new[] { "Грета", "Саржа" }));
     }
 
     [Test]

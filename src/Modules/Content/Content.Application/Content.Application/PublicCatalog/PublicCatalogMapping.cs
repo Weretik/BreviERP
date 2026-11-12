@@ -38,7 +38,13 @@ internal static class PublicCatalogMapping
 
     public static PublicCatalogCard Card(PublicCatalogEntry entry, string language) =>
         new(entry.Page.Slug, entry.Product.Type, entry.Product.Code, Name(entry, language), entry.Product.SectionId,
-            entry.Product.MainPhotoPreviewUrl ?? entry.Product.MainPhotoUrl, PriceFrom(entry.Product));
+            entry.Product.MainPhotoPreviewUrl ?? entry.Product.MainPhotoUrl, PriceFrom(entry.Product),
+            Fabrics(entry.Product));
+
+    /// <summary>Names of the active fabrics, each once, in the order of the model (R-13).</summary>
+    public static IReadOnlyList<string> Fabrics(ContentCatalogProduct product) =>
+        product.Variants.Where(x => x.IsActive && !string.IsNullOrWhiteSpace(x.FabricName))
+            .Select(x => x.FabricName!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 
     /// <summary>The texts of a category for a language, with the same fallback as a product page.</summary>
     public static SiteCategoryText? TextFor(SiteCategory category, string language)

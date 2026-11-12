@@ -12,7 +12,11 @@ public sealed record PublicCatalogType(string Type, int ProductCount, IReadOnlyL
 /// <param name="Slug">Built from the Ukrainian name; the same for both languages.</param>
 public sealed record PublicCatalogSection(int Id, string Slug, string Name, int ProductCount);
 
-/// <summary>A product in a listing. <paramref name="PriceFrom"/> is the lowest large-wholesale price; null means «ціну уточнюйте».</summary>
+/// <summary>
+/// A product in a listing. <paramref name="PriceFrom"/> is the lowest large-wholesale price; null means «ціну
+/// уточнюйте». <paramref name="Fabrics"/> are the names of the active fabrics of a sewing model, each once, in the
+/// order of the model (R-13); empty for PPE.
+/// </summary>
 public sealed record PublicCatalogCard(
     string Slug,
     string Type,
@@ -20,7 +24,8 @@ public sealed record PublicCatalogCard(
     string Name,
     int? SectionId,
     string? PhotoUrl,
-    decimal? PriceFrom);
+    decimal? PriceFrom,
+    IReadOnlyList<string> Fabrics);
 
 public sealed record PublicCatalogCardPage(IReadOnlyList<PublicCatalogCard> Items, int Page, int PageSize, int Total);
 
