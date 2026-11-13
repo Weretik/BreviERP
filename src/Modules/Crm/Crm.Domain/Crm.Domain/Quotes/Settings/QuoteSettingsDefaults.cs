@@ -41,7 +41,7 @@ public static class QuoteSettingsDefaults
             "355216316015",
             "UA63 305299 00000 26004041206862",
             "36002, м. Полтава, вул. Кагамлика, буд. 3А",
-            "+38 095 164 58 55",
+            "+38 050 469 86 75",
             "pp.brevi@gmail.com",
             "https://brevi.com.ua/",
             null),

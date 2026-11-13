@@ -9,7 +9,7 @@ namespace UnitTests.Crm.Quotes;
 [TestFixture]
 public sealed class QuotePdfTests
 {
-    private static readonly QuoteStaffContact Manager = new(5, "Юлія Согоконь", "+38 095 164 58 55", "pp.brevi@gmail.com");
+    private static readonly QuoteStaffContact Manager = new(5, "Олена Петренко", "+38 050 000 00 00", "office@brevi.test");
 
     private static Quote SampleQuote()
     {
@@ -46,7 +46,7 @@ public sealed class QuotePdfTests
         Assert.That(model.Items[0].Options.Select(x => x.Title), Is.EqualTo(new[] { "Саржа" }));
         Assert.That(model.Items[0].Options[0].Wholesale, Is.Null);
         Assert.That(model.Items[1].Options[0].Retail, Is.EqualTo(95m));
-        Assert.That(model.CtaContact, Does.Contain("Юлія Согоконь").And.Contain("+38 095 164 58 55"));
+        Assert.That(model.CtaContact, Does.Contain("Олена Петренко").And.Contain("+38 050 000 00 00"));
 
         var everything = System.Text.Json.JsonSerializer.Serialize(model);
         Assert.That(everything, Does.Not.Contain("Саша").And.Not.Contain("Подзвонити").And.Not.Contain("Знижка")
@@ -61,7 +61,7 @@ public sealed class QuotePdfTests
         Assert.That(model.Intro, Is.EqualTo(
             "Підготували для ТОВ «Агро» комплексне рішення: Костюм «Імпульс» у запропонованій тканині та Рукавиці. " +
             "Нижче — характеристики кожної позиції та ціна, щоб було зручно оцінити пропозицію цілком."));
-        Assert.That(model.ContactLine, Is.EqualTo("Контакт для зв’язку: Юлія Согоконь +38 095 164 58 55 pp.brevi@gmail.com"));
+        Assert.That(model.ContactLine, Is.EqualTo("Контакт для зв’язку: Олена Петренко +38 050 000 00 00 office@brevi.test"));
         Assert.That(model.Items[0].OptionsTitle, Is.EqualTo("Варіанти тканини"));
         Assert.That(model.Items[1].OptionsTitle, Is.Null);
         Assert.That(model.Items[0].Options[0].Tiles.Select(x => x.Label), Is.EqualTo(new[] { "до 9 шт.", "від 41 шт." }));

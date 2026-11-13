@@ -20,8 +20,8 @@ namespace UnitTests.Accounting;
 /// <summary>The PrivatBank statement import (ACC-001 stage 6, v217 §14).</summary>
 public sealed class BankStatementImportTests
 {
-    private const string BankIban = "UA633052990000026004041206862";
-    private const string SalaryIban = "UA563052990000026209888559038";
+    private const string BankIban = "UA213052990000026007000000001";
+    private const string SalaryIban = "UA213052990000026207000000002";
     private static readonly Guid BankId = Guid.Parse("f0000000-0000-4000-8000-000000000001");
     private static readonly Guid SalaryId = Guid.Parse("f0000000-0000-4000-8000-000000000002");
     private const string ClientId = "7d1c4f4e-0d7e-4c55-9c39-6b3c56f4a001";
@@ -38,9 +38,9 @@ public sealed class BankStatementImportTests
     private static readonly string[] Rows =
     [
         FeeRow,
-        "4858;14.10.2026;14:58:00;28299,60;UAH;Оплата за спецодяг згідно рах. 340;05387914;ТДВ \"ПТАХОФАБРИКА\";UA133005280000026009455051511;300528;HS42Q1001K1HMZ.P",
-        "6712;15.10.2026;13:03:00;-3709.79;UAH;Оплата згідно рахунку 12879;32252472;ТОВ \"ТЕКСІКА\";UA923005280000026003001350156;300528;JBKLQAUOF2IQMC.1",
-        "7001;16.10.2026;09:00:00;-71133;UAH;За виготовлення одягу;35521636;Бреви;" + SalaryIban + ";305299;JBKLQAUOF2K2UR.1",
+        "4858;14.10.2026;14:58:00;12000,00;UAH;Оплата за спецодяг згідно рах. 101;11111118;ТОВ \"ДЕМО АГРО\";UA903005280000026000000000011;300528;HS42Q1001K1HMZ.P",
+        "6712;15.10.2026;13:03:00;-2500.50;UAH;Оплата згідно рахунку 202;22222226;ТОВ \"ДЕМО ТЕКСТИЛЬ\";UA903005280000026000000000022;300528;JBKLQAUOF2IQMC.1",
+        "7001;16.10.2026;09:00:00;-40000;UAH;За виготовлення одягу;10000003;Бреви;" + SalaryIban + ";305299;JBKLQAUOF2K2UR.1",
         "7002;17.10.2026;09:00:00;-10;USD;Валютний рядок;;;;;JBKLQA0000001.1",
         "7003;20.09.2026;09:00:00;-10;UAH;Вересневий рядок;;;;;JBKLQA0000002.1",
         ";;;;;Разом обороти;;;;;",
@@ -51,7 +51,7 @@ public sealed class BankStatementImportTests
     {
         using var harness = await Harness();
 
-        var uploaded = await Upload(harness, Csv(Rows), "stmts_35521636_" + BankIban + "_1.csv");
+        var uploaded = await Upload(harness, Csv(Rows), "stmts_10000003_" + BankIban + "_1.csv");
         var details = await Details(harness, uploaded.Value.Id);
         var lines = details.Lines.ToDictionary(x => x.RowNumber);
         var stored = harness.Fresh().BankStatementLines.Single(x => x.RowNumber == 2);
@@ -66,13 +66,13 @@ public sealed class BankStatementImportTests
             Assert.That(lines[2].AmountMinor, Is.EqualTo(5_00));
             Assert.That(lines[3].Counterparty?.Kind, Is.EqualTo(CounterpartyKind.Client), "client by ЄДРПОУ");
             Assert.That(lines[3].State, Is.EqualTo(BankLineState.NeedsCategory));
-            Assert.That(lines[3].AmountMinor, Is.EqualTo(28_299_60));
+            Assert.That(lines[3].AmountMinor, Is.EqualTo(12_000_00));
             Assert.That(lines[4].State, Is.EqualTo(BankLineState.NewCounterparty));
             Assert.That(lines[5].State, Is.EqualTo(BankLineState.Transfer));
             Assert.That(lines[5].TransferAccountId, Is.EqualTo(SalaryId));
             Assert.That(lines[6].Error, Does.Contain("USD"));
             Assert.That(lines[7].Error, Does.Contain("01.10.2026"));
-            Assert.That(details.Totals, Is.EqualTo(new BankStatementTotals(3, 28_299_60, 5_00 + 3_709_79, 1)));
+            Assert.That(details.Totals, Is.EqualTo(new BankStatementTotals(3, 12_000_00, 5_00 + 2_500_50, 1)));
             Assert.That(harness.Fresh().Transactions.Count(), Is.Zero);
         });
     }
@@ -103,7 +103,7 @@ public sealed class BankStatementImportTests
         var db = harness.Fresh();
         var operations = db.Transactions.ToList();
         var transfer = db.Transfers.Single();
-        var created = db.Counterparties.Single(x => x.Edrpou == "32252472");
+        var created = db.Counterparties.Single(x => x.Edrpou == "22222226");
         var again = await Book(harness, booked.Value);
 
         Assert.Multiple(() =>
@@ -119,11 +119,11 @@ public sealed class BankStatementImportTests
             Assert.That(operations.Single(x => x.Type == CategoryDirection.Income).Verification,
                 Is.EqualTo(VerificationStatus.NeedsCategory));
             Assert.That(created.Verified, Is.False);
-            Assert.That(created.Name, Is.EqualTo("ТОВ \"ТЕКСІКА\""));
+            Assert.That(created.Name, Is.EqualTo("ТОВ \"ДЕМО ТЕКСТИЛЬ\""));
             Assert.That(operations.Single(x => x.BankTransactionId == "JBKLQAUOF2IQMC.1").CounterpartyId,
                 Is.EqualTo(created.Id.Value.ToString("D")));
             Assert.That((transfer.FromAccountId.Value, transfer.ToAccountId.Value), Is.EqualTo((BankId, SalaryId)));
-            Assert.That(transfer.AmountMinor, Is.EqualTo(71_133_00));
+            Assert.That(transfer.AmountMinor, Is.EqualTo(40_000_00));
             Assert.That(db.BankStatementLines.Count(x => x.TransactionId != null || x.TransferId != null), Is.EqualTo(4));
             Assert.That(db.AuditEntries.Count(), Is.EqualTo(3 + 1 + 1), "operations, transfer and created counterparty");
             Assert.That(again.Status, Is.EqualTo(ResultStatus.Error).Or.EqualTo(ResultStatus.Conflict).Or.EqualTo(ResultStatus.Invalid));
@@ -140,7 +140,7 @@ public sealed class BankStatementImportTests
         var rolledBack = await Rollback(harness, booked);
         var db = harness.Fresh();
         var details = await Details(harness, booked.Id);
-        var created = db.Counterparties.Single(x => x.Edrpou == "32252472");
+        var created = db.Counterparties.Single(x => x.Edrpou == "22222226");
         var voided = (db.Transactions.Count(x => x.Status == MovementStatus.Void),
             db.Transfers.Count(x => x.Status == MovementStatus.Void));
         var linked = db.BankStatementLines.Count(x => x.TransactionId != null || x.TransferId != null);
@@ -172,7 +172,7 @@ public sealed class BankStatementImportTests
         var booked = (await Book(harness, (await Upload(harness, Csv(Rows))).Value)).Value;
         await using (var db = harness.Fresh())
         {
-            db.Counterparties.Single(x => x.Edrpou == "32252472").Verify(harness.Time.GetUtcNow());
+            db.Counterparties.Single(x => x.Edrpou == "22222226").Verify(harness.Time.GetUtcNow());
             db.Transactions.Single(x => x.BankTransactionId == "JBKLQACOEXFIG2.Y").Void(harness.Time.GetUtcNow());
             await db.SaveChangesAsync();
         }
@@ -188,7 +188,7 @@ public sealed class BankStatementImportTests
             Assert.That(details.Rollback, Is.EqualTo(new BankStatementRollback(2, 1, 0, 1)));
             Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
             Assert.That(rolledBack.IsSuccess, Is.True);
-            Assert.That(harness.Fresh().Counterparties.Single(x => x.Edrpou == "32252472").Active, Is.True);
+            Assert.That(harness.Fresh().Counterparties.Single(x => x.Edrpou == "22222226").Active, Is.True);
             Assert.That(line.Counterparty?.Verified, Is.True, "the line keeps the confirmed counterparty");
             Assert.That(line.State, Is.Not.EqualTo(BankLineState.NewCounterparty));
             Assert.That(notBooked.Status, Is.EqualTo(ResultStatus.Invalid));
@@ -203,7 +203,7 @@ public sealed class BankStatementImportTests
         var category = harness.Db.Categories.Single(x => x.Name == "Банк");
         harness.Db.Transactions.Add(FinanceTransaction.Create(FinanceTransactionId.New(), LedgerScope.Current,
             FinanceTransactionDetails.Of(new DateOnly(2026, 10, 15), CategoryDirection.Expense, FinanceAccountId.From(BankId),
-                3_709_79, category.Id, null, null, "Вручну", null),
+                2_500_50, category.Id, null, null, "Вручну", null),
             harness.Db.Accounts.Single(x => x.Id == FinanceAccountId.From(BankId)), category, null,
             AccountingTestHarness.Director, harness.Time.GetUtcNow()));
         await harness.Db.SaveChangesAsync();
@@ -249,7 +249,7 @@ public sealed class BankStatementImportTests
             Assert.That(operation.OneoffName, Is.EqualTo("Тексіка"));
             Assert.That(operation.Description, Is.EqualTo("Тканина"));
             Assert.That(operation.Verification, Is.EqualTo(VerificationStatus.Verified));
-            Assert.That(harness.Fresh().Counterparties.Any(x => x.Edrpou == "32252472"), Is.False);
+            Assert.That(harness.Fresh().Counterparties.Any(x => x.Edrpou == "22222226"), Is.False);
         });
     }
 
@@ -262,8 +262,8 @@ public sealed class BankStatementImportTests
             [],
             ["Дата", "Категорія", "Картка", "Опис операції", "Сума в валюті картки", "Валюта картки",
                 "Сума в валюті транзакції", "Валюта транзакції"],
-            ["09.10.2026 13:15:10", "Зарахування переказу", "4149 **** **** 8661", "Согоконь О.", "8000", "UAH", "8000", "UAH"],
-            ["08.10.2026 14:59:12", "Кіно", "4149 **** **** 8661", "Megogo", "-249", "UAH", "249", "UAH"]);
+            ["09.10.2026 13:15:10", "Зарахування переказу", "4149 **** **** 0000", "Петренко О.", "8000", "UAH", "8000", "UAH"],
+            ["08.10.2026 14:59:12", "Кіно", "4149 **** **** 0000", "Megogo", "-249", "UAH", "249", "UAH"]);
 
         var wrongAccount = await Upload(harness, xlsx, "картка.xlsx");
         var card = await Upload(harness, xlsx, "картка.xlsx", SalaryId);
@@ -276,7 +276,7 @@ public sealed class BankStatementImportTests
             Assert.That(card.IsSuccess, Is.True, string.Join("; ", card.ValidationErrors.Select(x => x.ErrorMessage)));
             Assert.That(lines.Select(x => (x.Type, x.AmountMinor, x.Purpose)), Is.EqualTo(new[]
             {
-                ((CategoryDirection?)CategoryDirection.Income, (long?)8_000_00, "Согоконь О."),
+                ((CategoryDirection?)CategoryDirection.Income, (long?)8_000_00, "Петренко О."),
                 (CategoryDirection.Expense, 249_00, "Megogo"),
             }));
             Assert.That(lines.Select(x => x.State), Is.All.EqualTo(BankLineState.NeedsCategory),
@@ -339,7 +339,7 @@ public sealed class BankStatementImportTests
             FinanceCounterpartyDetails.Of("ПриватБанк", "14360570", null, null, null, bankFees.Id, true, null), bankFees,
             verified: true, now));
         await db.SaveChangesAsync();
-        harness.Parties.Clients.Add(new AccountingParty(ClientId, "Птахофабрика", "05387914", true));
+        harness.Parties.Clients.Add(new AccountingParty(ClientId, "Демо Агро", "11111118", true));
         return harness;
     }
 

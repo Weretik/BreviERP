@@ -1,6 +1,6 @@
 # Local readiness result — 2026-10-26
 
-Report: `.local/pricing/ts008-readiness.json` (ignored, retained locally). Checked at `2026-10-26T09:10:19.1095706+00:00`; source captured `2026-10-25`. Workbook `1BMl9jZLprY-15TfErBi9pbv9e4TVq8DUdjlZ4HvCxRE`; source hash `9C8079C1259377BE1ECEE6F85FF50874BFB9B2819EA1B5FFF8ECF6CC48DCBD28`. Report SHA-256 `2444d3973575e9e606e2f9af91465c6a77ead20fe50de8af94481356f7c953d4`. No input approvals or publications were performed.
+Report: `.local/pricing/ts008-readiness.json` (ignored, retained locally). Checked at `2026-10-26T09:10:19.1095706+00:00`; source captured `2026-10-25`. Workbook `<calculator-spreadsheet-id>`; source hash `9C8079C1259377BE1ECEE6F85FF50874BFB9B2819EA1B5FFF8ECF6CC48DCBD28`. Report SHA-256 `2444d3973575e9e606e2f9af91465c6a77ead20fe50de8af94481356f7c953d4`. No input approvals or publications were performed.
 
 | Kind | Source rows | Resolved identities | Strict calculation-ready | Current Sewing publications |
 | --- | --- | --- | --- | --- |

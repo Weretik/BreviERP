@@ -83,12 +83,12 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         await using var db = Context();
         var mailbox = db.StaffMailboxes.Single();
         Assert.That(mailbox.UserId, Is.EqualTo(17));
-        Assert.That(mailbox.Email, Is.EqualTo("olena.brevi@gmail.com"));
+        Assert.That(mailbox.Email, Is.EqualTo("olena.manager@brevi.test"));
         Assert.That(mailbox.ConnectedByName, Is.EqualTo("Директор"));
         Assert.That(mailbox.ProtectedRefreshToken, Is.EqualTo("protected:refresh-1"));
 
         var settings = (await new GetQuoteSettingsQueryHandler(db, _staff).Handle(new GetQuoteSettingsQuery(), default)).Value;
-        Assert.That(settings.StaffContacts.Single(x => x.UserId == 17).MailboxEmail, Is.EqualTo("olena.brevi@gmail.com"));
+        Assert.That(settings.StaffContacts.Single(x => x.UserId == 17).MailboxEmail, Is.EqualTo("olena.manager@brevi.test"));
         Assert.That(settings.StaffContacts.Single(x => x.UserId == 1).MailboxEmail, Is.Null);
     }
 
@@ -126,7 +126,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         Assert.That(sent.Value.Version, Is.EqualTo(2));
         var letter = _gmail.Sent.Single();
         Assert.That(letter.Token, Is.EqualTo("refresh-1"));
-        Assert.That(letter.Letter.FromEmail, Is.EqualTo("olena.brevi@gmail.com"));
+        Assert.That(letter.Letter.FromEmail, Is.EqualTo("olena.manager@brevi.test"));
         Assert.That(letter.Letter.To, Is.EqualTo(new[] { "client@agro.test", "boss@agro.test" }));
         Assert.That(letter.Letter.Attachment.FileName, Is.EqualTo("КП 1-11-2026.pdf"));
 
@@ -176,7 +176,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         public Uri ConsentUrl(string state, string? loginHint) => new($"https://accounts.test/consent?hint={loginHint}");
 
         public Task<Result<GmailGrant>> ExchangeCodeAsync(string code, CancellationToken cancellationToken) =>
-            Task.FromResult(Result.Success(new GmailGrant("Olena.Brevi@gmail.com", code.Replace("code", "refresh"))));
+            Task.FromResult(Result.Success(new GmailGrant("Olena.Manager@brevi.test", code.Replace("code", "refresh"))));
 
         public Task<Result<string>> SendAsync(string refreshToken, GmailLetter letter, CancellationToken cancellationToken)
         {

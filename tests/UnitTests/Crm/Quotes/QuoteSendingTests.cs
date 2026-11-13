@@ -46,14 +46,14 @@ public sealed class QuoteSendingTests
     [Test]
     public void LetterHasEncodedHeadersTheTextAndThePdf()
     {
-        var letter = new GmailLetter("olena.brevi@gmail.com", "Олена Петренко", ["client@agro.test", "boss@agro.test"],
+        var letter = new GmailLetter("olena@brevi.test", "Олена Петренко", ["client@agro.test", "boss@agro.test"],
             "Комерційна пропозиція Brevi № 1-11-2026", "Добрий день!\nНадсилаю КП.",
             new GmailAttachment("КП 1-11-2026.pdf", "application/pdf", "%PDF-1.7"u8.ToArray()));
 
         var mime = Encoding.ASCII.GetString(GmailMimeMessage.Build(letter, "b1"));
 
         Assert.That(mime, Does.StartWith("From: =?UTF-8?B?"));
-        Assert.That(mime, Does.Contain(" <olena.brevi@gmail.com>\r\nTo: client@agro.test, boss@agro.test\r\n"));
+        Assert.That(mime, Does.Contain(" <olena@brevi.test>\r\nTo: client@agro.test, boss@agro.test\r\n"));
         Assert.That(mime, Does.Contain("Content-Type: multipart/mixed; boundary=\"b1\""));
         Assert.That(mime, Does.Contain("filename*=UTF-8''%D0%9A%D0%9F%201-11-2026.pdf"));
         Assert.That(mime, Does.Contain(Convert.ToBase64String("%PDF-1.7"u8.ToArray())));

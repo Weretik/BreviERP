@@ -16,7 +16,7 @@ Each execution writes its own <commit>-{execution}.json report. Host.Seed substi
 Export the approved Google workbook as native XLSX and keep it in ignored private storage. Convert it without evaluating formulas or contacting embedded links:
 
 ```powershell
-./deployment/prepare-catalog-source.ps1 -SourceFile <private-workbook.xlsx> -SpreadsheetId 1BMl9jZLprY-15TfErBi9pbv9e4TVq8DUdjlZ4HvCxRE -OutputFile <new-private-source.json>
+./deployment/prepare-catalog-source.ps1 -SourceFile <private-workbook.xlsx> -SpreadsheetId <calculator-spreadsheet-id> -OutputFile <new-private-source.json>
 ```
 
 The converter preserves all22 sheet values and formula evidence and derives model website URLs from the actual workbook. Source row positions, blank cells and native cached value types are retained. It rejects unsupported/malformed XML, macros/external workbook relationships, oversized input and output inside Git unless explicitly ignored. The resulting SHA256 identifies the exact source; no XLSX or source rows enter the code image/Git. Captured dates/cached formulas are source evidence, not a transactional Google backup or approved price publication.

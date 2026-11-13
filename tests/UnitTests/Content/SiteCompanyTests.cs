@@ -13,7 +13,7 @@ public sealed class SiteCompanyTests
     private static readonly CancellationToken None = CancellationToken.None;
 
     private static SaveSiteCompanyCommand Save(int revision, string phone = "+38 (050) 469-86-75",
-        string iban = "ua63305299000002600404120686 2", IReadOnlyList<CompanyManager>? managers = null,
+        string iban = "ua21305299000002600700000000 1", IReadOnlyList<CompanyManager>? managers = null,
         CompanySchedule? schedule = null, string? instagram = "https://instagram.com/brevi") =>
         new(revision, phone, " pp.brevi@gmail.com ", new CompanyText("Полтава", "Полтава"),
             new CompanyText("вул.  Кагамлика, 3А", "ул. Кагамлыка, 3А"), "Полтава, вулиця Кагамлика, 3А",
@@ -47,7 +47,7 @@ public sealed class SiteCompanyTests
             Assert.That(read.Street.Uk, Is.EqualTo("вул. Кагамлика, 3А"));
             Assert.That(read.Schedule.Days, Is.EqualTo(new[] { 1, 2, 3, 4, 5 }));
             Assert.That(read.Managers.Single().Phones, Is.EqualTo(new[] { "050 309 06 60", "067 446 75 46" }));
-            Assert.That(read.BankDetails.Iban, Is.EqualTo("UA63 305299 00000 26004041206862"));
+            Assert.That(read.BankDetails.Iban, Is.EqualTo("UA21 305299 00000 26007000000001"));
             Assert.That(read.Socials, Is.EqualTo(new CompanySocials("https://instagram.com/brevi", null, null)));
             Assert.That(site!.Phone, Is.EqualTo(new PublicPhone("+380504698675", "050 469 86 75")));
             Assert.That(site.Managers.Single().Phones[1].E164, Is.EqualTo("+380674467546"));
