@@ -115,7 +115,7 @@ export ConnectionStrings__Default="Host=localhost;Port=5432;Database=brevidb;Use
 export ADMIN_DEFAULT_PASSWORD="<first-admin-password>"
 ```
 
-Optional integrations stay off while their settings are empty: Gmail, Telegram, KeepinCRM, CDN storage and OpenAI. Example of the shape (all values are placeholders):
+Optional integrations stay off while their settings are empty: Gmail, Telegram, KeepinCRM and OpenAI. CDN storage (`AdmToolsStorage`) is the exception: `Login` and `Password` must have values, even placeholders, or sign-in fails with «AdmToolsStorage options must be configured». Example of the shape (all values are placeholders):
 
 ```json
 {
