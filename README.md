@@ -8,6 +8,15 @@ The admin panel and the public website live in [brevi-web](https://github.com/We
 
 > Status: in production and in active development.
 
+**In numbers:** 12 modules · ~430 endpoints · ~110 tables · ~1,000 tests.
+**Results for the business:** a commercial offer takes **5 minutes instead of half a day**, a workshop task **5–10 minutes instead of 2 hours**, and monthly profit grew by **+15%** after launch.
+
+| Commercial offer editor (admin) | Generated PDF offer |
+| --- | --- |
+| ![Commercial offer editor](docs/screenshots/admin-quote-editor.png) | ![Commercial offer PDF](docs/screenshots/quote-pdf.png) |
+
+*Screenshots use demo data.*
+
 ## Who uses it
 
 - **Owner / director**: full view, pricing, accounting, reports.
@@ -39,9 +48,11 @@ The admin panel and the public website live in [brevi-web](https://github.com/We
 | Integrations | KeepinCRM, Gmail API (OAuth), Telegram Bot API, Google Sheets, OpenAI, FTP-based CDN storage, Google Cloud Storage |
 | Hosting | Google Cloud Run (API + jobs), Cloudflare Worker as API proxy, PostgreSQL on managed hosting |
 | CI/CD | GitHub Actions, Workload Identity Federation (no stored GCP keys), Artifact Registry, Secret Manager |
-| Tests | NUnit: unit, integration (real PostgreSQL), host and architecture tests (~1,800) |
+| Tests | NUnit: unit, integration (real PostgreSQL), host and architecture tests (~1,000) |
 
 ## Architecture
+
+![Deployment architecture](docs/screenshots/architecture.png)
 
 ```mermaid
 flowchart TB
