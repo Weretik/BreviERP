@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Garment Parts” lookup.
 
 ## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/GarmentPart/GarmentPartsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentPart/Commands/CreateGarmentPart/CreateGarmentPartHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentPart](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentPartOperations/GarmentPart.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. A garment part groups sewing operations.
+[Endpoints](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Endpoints/GarmentParts/GarmentPartsEndpoints.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentPart/Commands/CreateGarmentPart/CreateGarmentPartHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentPart](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentPartOperations/GarmentPart.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. A garment part groups sewing operations.
 
 ## Code Structure
 
@@ -15,7 +15,7 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/GarmentPart/GarmentPartsController.cs  # HTTP entry point
+    ├── Reference.Api/Reference.Api/Endpoints/GarmentParts/  # HTTP entry points, one <UseCase>Endpoint.cs each
     ├── Reference.Application/Reference.Application/Features/GarmentPart/
     │   ├── Commands/CreateGarmentPart/CreateGarmentPartHandler.cs  # use case handler
     │   ├── Commands/DeleteGarmentPart/DeleteGarmentPartHandler.cs  # use case handler
@@ -31,7 +31,7 @@ src/
 
 ```mermaid
 flowchart LR
-    A["GarmentPartsController"] --> B["CRUD handlers"]
+    A["GarmentPartsEndpoints"] --> B["CRUD handlers"]
     B --> C["GarmentPart"]
     B --> D["Reference repository contracts"]
     D -.-> E["ReferenceEfRepository and ReferenceReadEfRepository"]

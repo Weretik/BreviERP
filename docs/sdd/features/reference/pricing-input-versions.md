@@ -27,8 +27,7 @@ src/Modules/Reference/
       ReferencePricingVersionReader.cs, *Configuration.cs # approved effective read and constraints
     Persistence/Pricing/OtherCostPricingVersionWriter.cs  # explicit service revision / retry storage
   Reference.Api/Reference.Api/
-    Pricing/OtherCostPricingController.cs
-    Pricing/ReviseOtherCostRequest.cs
+    Endpoints/OtherCostPricing/ReviseOtherCostEndpoint.cs  # with ReviseOtherCostRequest
 ```
 
 ## Structure diagram

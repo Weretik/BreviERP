@@ -11,16 +11,16 @@ src/Modules/Production/
     Features/Reports/Queries/GetWorkshopReport/
     Features/Dashboard/Queries/GetWorkshopDashboard/
     Features/Payroll/Commands/ClosePayrollMonth/     # closing also keeps the report (PayrollMonth.ReportSnapshot)
-  Production.Api/Production.Api/Reports/WorkshopReportsController.cs    # /api/production/reports
-  Production.Api/Production.Api/Dashboard/WorkshopDashboardController.cs # /api/production/dashboard
+  Production.Api/Production.Api/Endpoints/Reports/    # /api/production/reports
+  Production.Api/Production.Api/Endpoints/Dashboard/  # /api/production/dashboard
 ```
 
 ## Structure diagram
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin «Звіти цеху», home] --> Controllers[WorkshopReportsController, WorkshopDashboardController]
-  Controllers --> UseCases[Reports and Dashboard use cases]
+  Admin[Brevi Admin «Звіти цеху», home] --> Endpoints[Reports and Dashboard endpoints]
+  Endpoints --> UseCases[Reports and Dashboard use cases]
   UseCases --> Sheets[PayrollSheets]
   UseCases --> Db[(production.Work / Orders / FabricMovements / FabricStocks / PayrollMonths)]
   UseCases --> Fabrics[IProductionFabricReader] -.Reference.Contracts.-> Reference[«Тканини»]

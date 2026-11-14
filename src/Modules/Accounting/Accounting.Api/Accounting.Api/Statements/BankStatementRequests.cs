@@ -1,11 +1,6 @@
-using Microsoft.AspNetCore.Http;
 using Accounting.Application.Features.Transactions.Shared;
 
 namespace Accounting.Api.Statements;
-
-/// <param name="AccountId">The account the statement belongs to.</param>
-/// <param name="File">The statement as the bank gave it: XLSX, XLS or CSV.</param>
-public sealed record UploadBankStatementRequest(Guid AccountId, IFormFile File);
 
 /// <summary>
 /// The director's choice for a statement line: a category (or none), a counterparty or a one-off name (not both), a

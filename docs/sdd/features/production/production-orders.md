@@ -35,9 +35,8 @@ src/Modules/Production/
         OrderMapping.cs, OrderNorms.cs, OrderNumbers.cs, OrderActors.cs, OrderMessages.cs, inputs and responses
     Features/Settings/           # GetWorkshopSettings, UpdateWorkshopSettings, SendWorkshopTelegramTest; Shared/WorkshopSettingsReading
   Production.Infrastructure/.../Persistence/Orders/ProductionOrderConfiguration.cs, ProductionTrackingConfiguration.cs, JsonColumn.cs
-  Production.Api/Production.Api/Orders/ProductionOrdersController.cs   # /api/production/orders
-  Production.Api/Production.Api/Orders/ProductionOrderTrackingController.cs   # stages, shipments, status, files, telegram, progress-import, report-price-import
-  Production.Api/Production.Api/Settings/WorkshopSettingsController.cs        # /api/production/settings
+  Production.Api/Production.Api/Endpoints/Orders/     # /api/production/orders: ProductionOrdersEndpoints (list, card, create…) and ProductionOrderTrackingEndpoints (stages, shipments, status, files, telegram, imports); one <UseCase>Endpoint.cs each
+  Production.Api/Production.Api/Endpoints/Settings/   # /api/production/settings
 src/Modules/Production/Production.Contracts/Production.Contracts/{Orders,FabricPlans}/  # IQuoteOrderLinks, IOrderFabricPlans for other modules
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/
   Crm/ProductionQuoteReader.cs       # Crm.Contracts IQuoteReader, sewn items and «Вишивка» rows
@@ -54,8 +53,8 @@ src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapt
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin «Виробничі завдання»] --> Controller[ProductionOrdersController]
-  Controller --> UseCases[Order use cases]
+  Admin[Brevi Admin «Виробничі завдання»] --> Endpoints[Production order endpoints]
+  Endpoints --> UseCases[Order use cases]
   UseCases --> Db[(production.Orders / Items / OrderChanges)]
   UseCases --> Quotes[IProductionQuoteReader] -.host.-> Crm[Crm quotes]
   UseCases --> Models[IProductionModelReader] -.host.-> Catalog[Catalog sewing card]

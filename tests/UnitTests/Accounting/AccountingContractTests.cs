@@ -1,16 +1,15 @@
-using System.Text.Json;
 using Accounting.Api.Accounts;
 using Accounting.Api.Attachments;
 using Accounting.Api.Categories;
 using Accounting.Api.Counterparties;
-using Accounting.Api.Import;
 using Accounting.Api.Statements;
-using Accounting.Domain.Statements;
-using Accounting.Api.Overview;
 using Accounting.Api.Reports;
-using Accounting.Api.Settings;
 using Accounting.Api.Transactions;
 using Accounting.Api.Transfers;
+using Accounting.Api.DependencyInjection;
+using UnitTests.TestSupport;
+using System.Text.Json;
+using Accounting.Domain.Statements;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
@@ -18,8 +17,6 @@ using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Transactions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Accounting.Application.Features.Accounts.Shared;
 using Accounting.Application.Features.Attachments.Shared;
@@ -135,16 +132,9 @@ public sealed class AccountingContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_director_policy()
     {
-        var controllers = new[] { typeof(FinanceAccountsController), typeof(FinanceCategoriesController), typeof(AccountingSettingsController),
-            typeof(FinanceOverviewController), typeof(FinanceTransactionsController), typeof(FinanceTransfersController),
-            typeof(FinanceCounterpartiesController), typeof(FinanceAttachmentsController),
-            typeof(LegacyFinanceImportController), typeof(BankStatementsController), typeof(FinanceReportsController),
-            typeof(FinanceAuditController), typeof(FinanceExportController) };
-        var policies = controllers.Select(c => c.GetCustomAttributes(typeof(AuthorizeAttribute), false)
-            .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
-        var operations = controllers.SelectMany(c => c.GetMethods())
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
-            .Select(x => x.Name).ToArray();
+        var endpoints = MappedEndpoints.Of(app => app.MapAccountingEndpoints());
+        var policies = endpoints.SelectMany(x => x.Policies).Distinct().ToArray();
+        var operations = endpoints.Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>
         {

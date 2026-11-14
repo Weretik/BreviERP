@@ -1,4 +1,5 @@
 using BuildingBlocks.Application.DependencyInjection;
+using Production.Api.DependencyInjection;
 using Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 using Identity.Api.DependencyInjection;
 using Identity.Infrastructure.DependencyInjection;
@@ -66,8 +67,7 @@ internal sealed class IdentityApiHost : IAsyncDisposable
         builder.Services.AddModuleValidators(typeof(global::Identity.Application.IdentityApplicationAssemblyMarker).Assembly);
         builder.Services.AddAuthorizationPolicies();
         // Crm and Production too: the access tests check that a role without the right gets 403 there.
-        builder.Services.AddControllers().AddApplicationPart(typeof(global::Crm.Api.CrmApiAssemblyMarker).Assembly)
-            .AddApplicationPart(typeof(global::Production.Api.ProductionApiAssemblyMarker).Assembly);
+        builder.Services.AddControllers().AddApplicationPart(typeof(global::Crm.Api.CrmApiAssemblyMarker).Assembly);
 
         var app = builder.Build();
         app.UseCookieCsrfProtection();
@@ -75,6 +75,7 @@ internal sealed class IdentityApiHost : IAsyncDisposable
         app.UseAuthorization();
         app.MapControllers();
         app.MapIdentityEndpoints();
+        app.MapProductionEndpoints();
 
         await using (var scope = app.Services.CreateAsyncScope())
         {

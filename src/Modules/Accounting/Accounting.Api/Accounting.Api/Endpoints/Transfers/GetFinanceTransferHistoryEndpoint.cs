@@ -1,0 +1,14 @@
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
+using Accounting.Domain.Audit;
+
+namespace Accounting.Api.Endpoints.Transfers;
+
+internal static class GetFinanceTransferHistoryEndpoint
+{
+    public static void Map(RouteGroupBuilder group) =>
+        group.MapGet("{id:guid}/history", HandleAsync).WithName("getFinanceTransferHistory");
+
+    private static async Task<IResult> HandleAsync(Guid id, [FromServices] ISender sender,
+        CancellationToken cancellationToken) =>
+        (await sender.Send(new GetFinanceHistoryQuery(AuditEntity.Transfer, id), cancellationToken)).ToHttpResult();
+}

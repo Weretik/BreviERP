@@ -1,3 +1,4 @@
+using Reference.Api.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -111,13 +112,13 @@ public sealed class PpePricingApiTests
             });
             // «Права доступу»: `access:` policies with the catalogue defaults.
             builder.Services.AddAccessPolicies();
-            builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly)
-                .AddApplicationPart(typeof(global::Reference.Api.Fabric.FabricsController).Assembly);
+            builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly);
 
             var app = builder.Build();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            app.MapReferenceEndpoints();
             await app.StartAsync();
             return new(app, app.GetTestClient(), sender);
         }

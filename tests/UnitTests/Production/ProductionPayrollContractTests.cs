@@ -1,8 +1,6 @@
+using Production.Api.DependencyInjection;
+using UnitTests.TestSupport;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Production.Api.Payroll;
-using Production.Api.Timesheet;
 using YamlDotNet.RepresentationModel;
 using Production.Application.Features.Payroll.Commands.CreatePayrollAdjustment;
 using Production.Application.Features.Payroll.Commands.CreatePayrollPayment;
@@ -57,12 +55,9 @@ public sealed class ProductionPayrollContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_workshop_policy()
     {
-        Type[] controllers = [typeof(PayrollController), typeof(TimesheetController)];
-        var policies = controllers.Select(controller => controller.GetCustomAttributes(typeof(AuthorizeAttribute), false)
-            .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
-        var operations = controllers.SelectMany(controller => controller.GetMethods())
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
-            .Select(x => x.Name).ToArray();
+        var endpoints = MappedEndpoints.Of(app => app.MapProductionEndpoints(), "Payroll", "Timesheet");
+        var policies = endpoints.SelectMany(x => x.Policies).Distinct().ToArray();
+        var operations = endpoints.Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>
         {

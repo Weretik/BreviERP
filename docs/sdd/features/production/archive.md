@@ -12,7 +12,7 @@ src/Modules/Production/
     Features/Archive/Commands/ImportWorkshopArchive/
     Features/Archive/Shared/ArchiveMessages.cs
   Production.Infrastructure/.../Persistence/Archive/WorkshopArchiveConfiguration.cs
-  Production.Api/Production.Api/Archive/WorkshopArchiveController.cs   # /api/production/archive
+  Production.Api/Production.Api/Endpoints/Archive/   # /api/production/archive
 ```
 
 ## Tests

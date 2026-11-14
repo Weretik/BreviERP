@@ -1,8 +1,6 @@
+using Production.Api.DependencyInjection;
+using UnitTests.TestSupport;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Production.Api.FabricNorms;
-using Production.Api.Staff;
 using YamlDotNet.RepresentationModel;
 using Production.Application.Features.FabricNorms.Commands.ImportFabricNorms;
 using Production.Application.Features.FabricNorms.Queries.GetModelCompositions;
@@ -32,14 +30,12 @@ public sealed class WorkshopReferencesContractTests
             Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
     }
 
-    [TestCase(typeof(WorkshopStaffController), "access:workshop-staff")]
-    [TestCase(typeof(FabricNormsController), "access:fabric-norms")]
-    public void Every_operation_is_in_the_contract_and_needs_the_workshop_policy(Type controller, string expected)
+    [TestCase("WorkshopStaff", "access:workshop-staff")]
+    [TestCase("FabricNorms", "access:fabric-norms")]
+    public void Every_operation_is_in_the_contract_and_needs_the_workshop_policy(string group, string expected)
     {
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
-        var operations = controller.GetMethods()
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
-            .Select(x => x.Name).ToArray();
+        var policy = MappedEndpoints.Policy(app => app.MapProductionEndpoints(), group);
+        var operations = MappedEndpoints.Of(app => app.MapProductionEndpoints(), group).Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>
         {

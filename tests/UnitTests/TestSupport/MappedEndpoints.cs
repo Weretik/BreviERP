@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
 
 namespace UnitTests.TestSupport;
@@ -8,7 +9,16 @@ namespace UnitTests.TestSupport;
 /// <summary>A module's Minimal API endpoints as mapped: operation name and the policies it needs.</summary>
 internal static class MappedEndpoints
 {
-    public sealed record Operation(string Name, string[] Policies);
+    /// <param name="Tag">The endpoint group's tag: the name of the controller it replaced.</param>
+    public sealed record Operation(string Name, string[] Policies, string Tag);
+
+    /// <summary>The endpoints of the given groups (tags), in the order the tags are given.</summary>
+    public static Operation[] Of(Action<IEndpointRouteBuilder> map, params string[] tags) =>
+        Of(map).Where(x => tags.Contains(x.Tag)).OrderBy(x => Array.IndexOf(tags, x.Tag)).ToArray();
+
+    /// <summary>The single policy every endpoint of a group needs.</summary>
+    public static string Policy(Action<IEndpointRouteBuilder> map, string tag) =>
+        Of(map, tag).SelectMany(x => x.Policies).Distinct().Single();
 
     public static Operation[] Of(Action<IEndpointRouteBuilder> map)
     {
@@ -18,7 +28,8 @@ internal static class MappedEndpoints
             .Where(x => x.Metadata.GetMetadata<HttpMethodMetadata>() is not null)
             .Select(x => new Operation(x.Metadata.GetMetadata<IEndpointNameMetadata>()!.EndpointName,
                 x.Metadata.GetOrderedMetadata<IAuthorizeData>().Select(p => p.Policy).OfType<string>().Distinct()
-                    .ToArray()))
+                    .ToArray(),
+                x.Metadata.GetMetadata<ITagsMetadata>()?.Tags.FirstOrDefault() ?? string.Empty))
             .ToArray();
     }
 }
