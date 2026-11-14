@@ -9,9 +9,10 @@ public sealed class CreateSewingSettingsVersionHandler(ISewingPricingSettingsWri
     public async ValueTask<Result<SewingPricingSettingsSelection>> Handle(
         CreateSewingSettingsVersionCommand command, CancellationToken cancellationToken)
     {
-        var blockers = SewingSettingsValidation.Validate(command.Settings);
+        var settings = command.Settings.ToSettings();
+        var blockers = SewingSettingsValidation.Validate(settings);
         if (blockers.Count != 0)
             return Result.Invalid(blockers.Select(x => new ValidationError(x.InputKey ?? "settings", x.Message)));
-        return await writer.AppendAsync(command.ExpectedVersionId, command.RequestId, command.Settings, command.Actor, cancellationToken);
+        return await writer.AppendAsync(command.ExpectedVersionId, command.RequestId, settings, command.Actor, cancellationToken);
     }
 }

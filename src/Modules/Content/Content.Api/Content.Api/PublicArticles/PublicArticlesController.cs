@@ -1,5 +1,5 @@
 using BuildingBlocks.Api.Result;
-using Content.Domain.ProductPages;
+using Content.Application;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,11 +23,11 @@ public sealed class PublicArticlesController(ISender sender) : ControllerBase
 
     [HttpGet(Name = "getPublicArticles")]
     public async Task<ActionResult<PublicArticleList>> List(
-        [FromQuery] string language = ProductPageRules.Ukrainian, CancellationToken cancellationToken = default) =>
+        [FromQuery] string language = SiteLanguages.Ukrainian, CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(new GetPublicArticlesQuery(language), cancellationToken));
 
     [HttpGet("{slug}", Name = "getPublicArticle")]
     public async Task<ActionResult<PublicArticle>> One(string slug,
-        [FromQuery] string language = ProductPageRules.Ukrainian, CancellationToken cancellationToken = default) =>
+        [FromQuery] string language = SiteLanguages.Ukrainian, CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(new GetPublicArticleQuery(slug, language), cancellationToken));
 }

@@ -1,7 +1,6 @@
 using Identity.Api.Access;
 using Identity.Application.Security.Access;
 using Identity.Application.Security.Policies;
-using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -20,30 +19,30 @@ public static class IdentityAuthorizationExtensions
                 .Build();
 
             options.AddPolicy(PolicyNames.RequireAdminRole, policy =>
-                policy.RequireRole(RoleNames.Admin));
+                policy.RequireRole(AccessRoles.Admin));
 
             options.AddPolicy(PolicyNames.RequireManagerRole, policy =>
-                policy.RequireRole(RoleNames.Manager, RoleNames.Admin));
+                policy.RequireRole(AccessRoles.Manager, AccessRoles.Admin));
 
             options.AddPolicy(PolicyNames.CanManageUsers, policy =>
-                policy.RequireRole(RoleNames.Admin));
+                policy.RequireRole(AccessRoles.Admin));
 
             options.AddPolicy(PolicyNames.CanManageOrders, policy =>
-                policy.RequireRole(RoleNames.Manager, RoleNames.Admin));
+                policy.RequireRole(AccessRoles.Manager, AccessRoles.Admin));
 
             // Shared catalogue reads (pickers in КП, workshop and reference pages): the director also holds Admin; a role
             // made on «Права доступу» reads too, its pages decide what it changes.
             options.AddPolicy(PolicyNames.CatalogRead, policy =>
-                policy.RequireAssertion(context => HasAnyRole(context.User,
-                    RoleNames.User, RoleNames.Accountant, RoleNames.Manager, RoleNames.Seo, RoleNames.Admin)));
+                policy.RequireAssertion(context => AccessCheck.HasAnyRole(context.User,
+                    AccessRoles.User, AccessRoles.Accountant, AccessRoles.Manager, AccessRoles.Seo, AccessRoles.Admin)));
 
             // «Мій кабінет»: every staff account, including roles made on «Права доступу»; the director also holds Admin.
             options.AddPolicy(PolicyNames.OwnProfile, policy =>
-                policy.RequireAssertion(context => HasAnyRole(context.User,
-                    RoleNames.Accountant, RoleNames.Manager, RoleNames.WorkshopChief, RoleNames.Seo, RoleNames.Admin)));
+                policy.RequireAssertion(context => AccessCheck.HasAnyRole(context.User,
+                    AccessRoles.Accountant, AccessRoles.Manager, AccessRoles.WorkshopChief, AccessRoles.Seo, AccessRoles.Admin)));
 
             options.AddPolicy(PolicyNames.OrderCreate, policy =>
-                policy.RequireRole(RoleNames.User, RoleNames.Manager, RoleNames.Admin));
+                policy.RequireRole(AccessRoles.User, AccessRoles.Manager, AccessRoles.Admin));
         });
 
         return services;
@@ -61,9 +60,4 @@ public static class IdentityAuthorizationExtensions
         services.TryAddScoped<IAccessGrantSource, DefaultAccessGrantSource>();
         return services;
     }
-
-    /// <summary>One of the given built-in roles, or a role made on «Права доступу».</summary>
-    private static bool HasAnyRole(System.Security.Claims.ClaimsPrincipal user, params string[] builtIn) =>
-        AccessClaims.RolesOf(user).Any(role =>
-            builtIn.Contains(role, StringComparer.Ordinal) || (!AccessCatalog.IsBuiltIn(role) && !AccessCatalog.IsOutsider(role)));
 }

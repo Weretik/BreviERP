@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Catalog.Domain.Pricing.Sewing;
+using Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
 
 namespace Catalog.Api.Pricing.Sewing.Settings;
 
@@ -18,7 +18,7 @@ public sealed record SewingSettingsValuesRequest(
     [property: JsonRequired] decimal WholesaleMultiplier,
     [property: JsonRequired] decimal LargeWholesaleMultiplier)
 {
-    public SewingCalculationSettings ToSettings() => new(MonthlySalary, WorkDays, ShiftMinutes, SeamstressCount,
+    public SewingSettingsValues ToSettings() => new(MonthlySalary, WorkDays, ShiftMinutes, SeamstressCount,
         AssemblyRate, CuttingRate, MasterRate, ManagerRate, BonusRate, MonthlyOverhead,
         RetailMultiplier, WholesaleMultiplier, LargeWholesaleMultiplier);
 }

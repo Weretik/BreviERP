@@ -206,5 +206,5 @@ public sealed class FinanceReportTests
         Guid? accountId = null, CounterpartyLink? counterparty = null) =>
         (await new GetFinanceReportHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
             new GetFinanceReportQuery(new FinanceReportFilter(kind, From, To, LedgerScope.Current, accountId,
-                Counterparty: counterparty)), default)).Value;
+                Counterparty: counterparty is { } link ? new FinanceCounterpartyLinkInput(link.Kind, link.Id) : null)), default)).Value;
 }

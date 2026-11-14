@@ -8,6 +8,7 @@ using Accounting.Domain.Transactions;
 using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Reports.Shared;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace Accounting.Application.Features.Reports.Queries.GetFinanceReport;
 
@@ -18,8 +19,10 @@ public sealed class GetFinanceReportHandler(IAccountingDbContext db, IAccounting
         CancellationToken cancellationToken)
     {
         var f = query.Filter;
+        var counterparty = FinanceCounterpartyLinkInput.LinkOf(f.Counterparty);
+        if (counterparty.IsFailure) return counterparty.Error!.ToResult<FinanceReportResponse>();
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
-        var operations = Filter(db.Transactions.AsNoTracking(), f, names);
+        var operations = Filter(db.Transactions.AsNoTracking(), f, counterparty.Value, names);
 
         var sums = await operations.GroupBy(x => new { x.Currency, x.Type })
             .Select(g => new { g.Key.Currency, g.Key.Type, Sum = g.Sum(x => x.AmountMinor), Count = g.Count() })
@@ -50,7 +53,7 @@ public sealed class GetFinanceReportHandler(IAccountingDbContext db, IAccounting
         (rows, rows.Count);
 
     private static IQueryable<FinanceTransaction> Filter(IQueryable<FinanceTransaction> rows, FinanceReportFilter f,
-        FinanceNames names)
+        CounterpartyLink? counterparty, FinanceNames names)
     {
         rows = rows.Where(x => x.Status == MovementStatus.Active && x.Date >= f.From && x.Date <= f.To);
         if (f.Scope is { } scope) rows = rows.Where(x => x.Scope == scope);
@@ -68,7 +71,7 @@ public sealed class GetFinanceReportHandler(IAccountingDbContext db, IAccounting
             rows = rows.Where(x => ids.Contains(x.CategoryId));
         }
 
-        if (f.Counterparty is { } link)
+        if (counterparty is { } link)
             rows = rows.Where(x => x.CounterpartyKind == link.Kind && x.CounterpartyId == link.Id);
         return rows;
     }

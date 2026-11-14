@@ -103,7 +103,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         var beforeSettingsChange = await Save();
         var settingsHandler = new CreateSewingSettingsVersionHandler(new SewingPricingSettingsWriter(catalog));
         var settingsCommand = new CreateSewingSettingsVersionCommand(settings.Id, Guid.NewGuid(),
-            settings.Settings with { MonthlySalary = 19000 }, "manager");
+            SewingSettingsValues.From(settings.Settings with { MonthlySalary = 19000 }), "manager");
         var changed = await settingsHandler.Handle(settingsCommand, CancellationToken.None);
         Assert.That(changed.IsSuccess, Is.True);
         Assert.That((await publish.Handle(new(productId, articleId, beforeSettingsChange.Id, "manager"), CancellationToken.None)).Status,
@@ -111,7 +111,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         Assert.That((await settingsHandler.Handle(settingsCommand, CancellationToken.None)).Value.Id, Is.EqualTo(changed.Value.Id));
         Assert.That((await settingsHandler.Handle(settingsCommand with { RequestId = Guid.NewGuid() }, CancellationToken.None)).Status,
             Is.EqualTo(ResultStatus.Conflict));
-        Assert.That((await settingsHandler.Handle(settingsCommand with { Settings = settings.Settings }, CancellationToken.None)).Status,
+        Assert.That((await settingsHandler.Handle(settingsCommand with { Settings = SewingSettingsValues.From(settings.Settings) }, CancellationToken.None)).Status,
             Is.EqualTo(ResultStatus.Conflict));
         Assert.That((await publish.Handle(new(productId, articleId, afterCostChange.Id, "manager"), CancellationToken.None)).Value.Id,
             Is.EqualTo(second.Value.Id), "Published retries retain the original publication even after settings change.");

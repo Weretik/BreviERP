@@ -20,7 +20,7 @@ public sealed class AccessPolicyProvider(IOptions<AuthorizationOptions> options)
 
         return new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
-            .AddRequirements(new AccessRequirement(parsed.Value.Area, parsed.Value.Action))
+            .AddRequirements(new AccessRequirement(parsed.Value.Area.Key, parsed.Value.Action?.ToString()))
             .Build();
     }
 }

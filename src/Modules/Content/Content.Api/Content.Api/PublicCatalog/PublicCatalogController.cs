@@ -1,5 +1,5 @@
 using BuildingBlocks.Api.Result;
-using Content.Domain.ProductPages;
+using Content.Application;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +33,7 @@ public sealed class PublicCatalogController(ISender sender) : ControllerBase
 
     [HttpGet("products", Name = "getPublicCatalogProducts")]
     public async Task<ActionResult<PublicCatalogCardPage>> Products(
-        [FromQuery] string language = ProductPageRules.Ukrainian,
+        [FromQuery] string language = SiteLanguages.Ukrainian,
         [FromQuery] string? type = null,
         [FromQuery] int? sectionId = null,
         [FromQuery] string? category = null,
@@ -45,7 +45,7 @@ public sealed class PublicCatalogController(ISender sender) : ControllerBase
 
     [HttpGet("products/{slug}", Name = "getPublicCatalogProduct")]
     public async Task<ActionResult<PublicCatalogProduct>> Product(string slug,
-        [FromQuery] string language = ProductPageRules.Ukrainian, CancellationToken cancellationToken = default) =>
+        [FromQuery] string language = SiteLanguages.Ukrainian, CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(new GetPublicCatalogProductQuery(slug, language), cancellationToken));
 
     [HttpGet("categories", Name = "getPublicCatalogCategories")]
@@ -54,7 +54,7 @@ public sealed class PublicCatalogController(ISender sender) : ControllerBase
 
     [HttpGet("categories/{slug}", Name = "getPublicCatalogCategory")]
     public async Task<ActionResult<PublicCatalogCategoryPage>> Category(string slug,
-        [FromQuery] string language = ProductPageRules.Ukrainian, CancellationToken cancellationToken = default) =>
+        [FromQuery] string language = SiteLanguages.Ukrainian, CancellationToken cancellationToken = default) =>
         this.ToActionResult(await sender.Send(new GetPublicCatalogCategoryQuery(slug, language), cancellationToken));
 
     [HttpGet("category-slugs", Name = "getPublicCatalogCategorySlugs")]

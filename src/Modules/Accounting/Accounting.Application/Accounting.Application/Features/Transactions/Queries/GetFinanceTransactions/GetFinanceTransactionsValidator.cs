@@ -19,6 +19,8 @@ public sealed class GetFinanceTransactionsValidator : AbstractValidator<GetFinan
         RuleFor(x => x.Filter.Scope).IsInEnum();
         RuleFor(x => x.Filter.Type).IsInEnum().When(x => x.Filter.Type is not null);
         RuleFor(x => x.Filter.Source).IsInEnum().When(x => x.Filter.Source is not null);
+        RuleFor(x => x.Filter.Counterparty!).SetValidator(new FinanceCounterpartyLinkInputValidator())
+            .When(x => x.Filter.Counterparty is not null);
         RuleFor(x => x.Filter.Search).MaximumLength(FinanceJournal.SearchMaxLength);
         RuleFor(x => x.Filter.To).GreaterThanOrEqualTo(x => x.Filter.From)
             .When(x => x.Filter.From is not null && x.Filter.To is not null)

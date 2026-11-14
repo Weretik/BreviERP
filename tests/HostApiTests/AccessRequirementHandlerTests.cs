@@ -46,7 +46,7 @@ public sealed class AccessRequirementHandlerTests
         var http = new DefaultHttpContext();
         http.Request.Method = method;
         var user = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Role, role)], "Test"));
-        var requirement = new AccessRequirement(AccessCatalog.Find(area)!, null);
+        var requirement = new AccessRequirement(area, null);
         var context = new AuthorizationHandlerContext([requirement], user, http);
         await new AccessRequirementHandler(source, new HttpContextAccessor()).HandleAsync(context);
         return context.HasSucceeded;

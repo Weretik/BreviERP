@@ -8,6 +8,7 @@ using Accounting.Domain.Transactions;
 using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Reports.Shared;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace Accounting.Application.Features.Reports.Queries.GetFinanceReport;
 
@@ -24,4 +25,4 @@ public sealed record FinanceReportFilter(
     Guid? AccountId = null,
     CategoryDirection? Type = null,
     Guid? CategoryId = null,
-    CounterpartyLink? Counterparty = null);
+    FinanceCounterpartyLinkInput? Counterparty = null);

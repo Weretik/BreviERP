@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using BuildingBlocks.Api.Result;
 using Content.Api.Access;
-using Content.Domain.SiteGalleries;
+using Content.Application.Features.SiteGalleries.Shared;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,7 @@ namespace Content.Api.SiteGalleries;
 [Route("api/content/certificates")]
 public sealed class SiteCertificatesController(ISender sender) : ControllerBase
 {
-    private const string Key = SiteGallery.Certificates;
+    private const string Key = SiteGalleryKeys.Certificates;
 
     [HttpGet(Name = "getSiteCertificates")]
     public async Task<ActionResult<SiteGalleryResponse>> Get(CancellationToken cancellationToken) =>
