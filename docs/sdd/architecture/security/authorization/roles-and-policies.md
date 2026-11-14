@@ -92,7 +92,7 @@ Only these operations are public; `tests/HostApiTests/Access/ApiAccessTests.cs` 
 | `POST /api/auth/cookie/login` | Sign-in (rate-limited). |
 | `POST /api/reminders/telegram/webhook` | Telegram calls it; checked by the webhook secret header. |
 | `GET /api/crm/mailboxes/google-callback` | Google returns the browser here after Gmail consent; accepted only with the signed, 15-minute `state` issued by `POST /api/crm/mailboxes/{userId}/connect`, and it only redirects to the admin. |
-| `POST /internal/scheduler/tick` | Cloud Scheduler calls it every minute; the endpoint checks the Google OIDC token of the scheduler service account and answers 404 until `Scheduler:Audience` and `Scheduler:SchedulerServiceAccount` are set (SCH-001 R-10). |
+| `POST /internal/scheduler/tick` | Cloud Scheduler calls it every five minutes; the endpoint checks the Google OIDC token of the scheduler service account and answers 404 until `Scheduler:Audience` and `Scheduler:SchedulerServiceAccount` are set (SCH-001 R-10). |
 | `GET /api/reference/product-categories/store/{language}` | Public storefront categories, read-only. |
 | `GET /api/public/catalog/*` (tree, products, product by address, product addresses) | Catalog of the public site, read-only: only products marked «Показувати на сайті», nothing internal (CNT-002). |
 | `GET /api/public/articles`, `GET /api/public/articles/{slug}` | Articles of the public site, read-only: only articles marked «Показувати на сайті» (CNT-004). |

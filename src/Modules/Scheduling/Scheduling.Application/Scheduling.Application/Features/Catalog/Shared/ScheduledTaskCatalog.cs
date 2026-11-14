@@ -15,7 +15,7 @@ public static class ScheduledTaskCatalog
     [
         new(K.Outbox, "Досилання повідомлень",
             "Повторює повідомлення, які не пішли з першого разу: заявки з сайту, «Надіслати в цех», параметри цін.",
-            TaskSchedule.Interval(1).Value, MaxMinutes: 5, Editable: false, RunsInTick: true),
+            TaskSchedule.Interval(5).Value, MaxMinutes: 5, Editable: false, RunsInTick: true),
         new(K.Reminders, "Нагадування в Telegram", "Надсилає нагадування про строки в групи Telegram.",
             WeekdaysAtNine, 30, EnabledByDefault: false),
         new(K.KeepinSuppliers, "Постачальники з KeepinCRM", "Оновлює постачальників з KeepinCRM.",

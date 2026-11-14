@@ -5,7 +5,7 @@ Specification: [SCH-001](../../specs/scheduling/001-background-tasks/README.md).
 ## How it works
 
 ```text
-Cloud Scheduler brevierp-outbox (every minute, OIDC)
+Cloud Scheduler brevierp-tick (every five minutes, OIDC)
   → POST /internal/scheduler/tick (Host.Api)
       (a) outbox: IOutboxDispatcher.DispatchDueAsync, result stored on task «outbox»
       (b) runs past their limit failed («Задача не завершилася за N хв.»)
@@ -19,7 +19,7 @@ The task list is code: `ScheduledTaskCatalog` (keys, Ukrainian names and descrip
 
 | Key | Task | Default | Limit | Secrets on the job |
 | --- | --- | --- | --- | --- |
-| `outbox` | Досилання повідомлень (inside the tick, not editable) | every minute | 5 min | none |
+| `outbox` | Досилання повідомлень (inside the tick, not editable) | every 5 minutes | 5 min | none |
 | `reminders` | Нагадування в Telegram | Mon–Fri 09:00, **off** | 30 min | `telegram-reminders-bot-token` |
 | `keepin-suppliers` | Постачальники з KeepinCRM | Mon–Fri 09:00, **off** | 30 min | `keepincrm-api-key` |
 | `keepin-clients` | Клієнти з KeepinCRM | Mon–Fri 09:00, **off** | 30 min | `keepincrm-api-key` |
@@ -29,7 +29,7 @@ The task list is code: `ScheduledTaskCatalog` (keys, Ukrainian names and descrip
 | `leads` | Ліди | Mon–Fri 09:00, **off** | 30 min | none (sheet shared with the runtime account) |
 | `ppe-supplier-prices` | Ціни постачальників ЗІЗ («Імпорт цін» decides which supplier is due) | Mon–Fri 09:00, **off** | 60 min | `trele-login`, `trele-password` (optional) |
 
-The tasks start **off** so that they never run both from the old jobs and from the tick (R-12); step 3 below turns them on. Tasks claimed in the same minute run one after another in one execution; a run that has not started within 240 minutes is failed («Задача не почалася…»), and the job itself stops after 4 hours.
+The tasks start **off** so that they never run both from the old jobs and from the tick (R-12); step 3 below turns them on. Tasks claimed in the same tick run one after another in one execution; a run that has not started within 240 minutes is failed («Задача не почалася…»), and the job itself stops after 4 hours.
 
 ## Configuration
 
@@ -37,18 +37,18 @@ The tasks start **off** so that they never run both from the old jobs and from t
 | --- | --- | --- |
 | `Scheduler__Job__Project`, `Scheduler__Job__Region`, `Scheduler__Job__Name` | API environment | deploy workflow (`brevistoreapi`, `europe-central2`, `brevierp-tasks`) |
 | `Scheduler__Audience` | API environment: Cloud Run URL + `/internal/scheduler/tick` | once, by hand (step 2) |
-| `Scheduler__SchedulerServiceAccount` | API environment: e-mail of the `brevierp-outbox` service account | once, by hand (step 2) |
+| `Scheduler__SchedulerServiceAccount` | API environment: e-mail of the `brevierp-scheduler` service account | once, by hand (step 2) |
 
 Without both `Scheduler__Audience` and `Scheduler__SchedulerServiceAccount` the tick answers 404 and nothing is scheduled. Without `Scheduler__Job__*` due tasks fail with «запуск задач у Google Cloud не налаштований». The deploy workflow uses `--update-env-vars`, so values set by hand stay across deploys.
 
 ## Switch-over (cloud change: through the coordinator)
 
 1. **Permission (EN-01).** Give the API's runtime service account the role «Cloud Run Jobs Executor With Overrides» (`roles/run.jobsExecutorWithOverrides`) on the job `brevierp-tasks` only (Cloud Run → Jobs → `brevierp-tasks` → Permissions). The job exists after the first deploy of this change.
-2. **Settings (EN-02).** On `brevierp-api` set `Scheduler__Audience` and `Scheduler__SchedulerServiceAccount` (the same account as `Outbox__SchedulerServiceAccount`).
-3. **Scheduler (EN-03).** Edit the Cloud Scheduler job `brevierp-outbox`: URL `<Cloud Run URL>/internal/scheduler/tick`, OIDC audience the value of step 2. The outbox now runs inside the tick. The same day on «Фонові задачі» set each task's schedule and switch it on, then pause the Cloud Scheduler entries of `brevierp-reminders` and `brevierp-sync`. A week later delete those two entries and jobs; `--sync` and `--reminders-dispatch` can then be removed from the code.
-4. **Check.** The scheduler's last run is 200 with `{"inline":{"outbox":"…"},"started":[],"launchError":null}`; «Запустити зараз» on «Прев'ю фото» starts an execution of `brevierp-tasks` within a minute and the page shows «Остання успішна».
+2. **Settings (EN-02).** Create the service account `brevierp-scheduler`. On `brevierp-api` set `Scheduler__Audience` and `Scheduler__SchedulerServiceAccount` (that account).
+3. **Scheduler (EN-03).** Create the Cloud Scheduler job `brevierp-tick`: every five minutes (`*/5 * * * *`, time zone Europe/Kyiv; the owner chose five minutes on 2026-11-14), POST to `<Cloud Run URL>/internal/scheduler/tick`, OIDC token of `brevierp-scheduler` with the audience of step 2. Production never had a `brevierp-outbox` entry, so the outbox first runs here, inside the tick. The same day on «Фонові задачі» set each task's schedule and switch it on, then pause the Cloud Scheduler entries of `brevierp-reminders` and `brevierp-sync`. A week later delete those two entries and jobs; `--sync` and `--reminders-dispatch` can then be removed from the code.
+4. **Check.** The scheduler's last run is 200 with `{"inline":{"outbox":"…"},"started":[],"launchError":null}`; «Запустити зараз» on «Прев'ю фото» starts an execution of `brevierp-tasks` within five minutes and the page shows «Остання успішна».
 
-Rollback: point `brevierp-outbox` back to `/internal/outbox/dispatch`, resume the two old schedulers, switch the tasks off on the page.
+Rollback: pause `brevierp-tick`, resume the two old schedulers, switch the tasks off on the page.
 
 ## Diagnose
 
