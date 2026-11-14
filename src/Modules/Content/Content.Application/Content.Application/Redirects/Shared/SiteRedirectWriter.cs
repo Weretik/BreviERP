@@ -19,10 +19,10 @@ public static class SiteRedirectWriter
     /// <summary>Articles: <c>/uk/articles/&lt;slug&gt;</c>.</summary>
     public const string Articles = "/articles";
 
-    public static async Task SlugChangedAsync(IContentDbContext db, string section, string oldSlug, string newSlug,
+    public static async Task<DomainResult> SlugChangedAsync(IContentDbContext db, string section, string oldSlug, string newSlug,
         string updatedBy, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        if (oldSlug == newSlug) return;
+        if (oldSlug == newSlug) return DomainResult.Success();
         foreach (var locale in SiteRedirectRules.SiteLocales)
         {
             var from = $"{locale}{section}/{oldSlug}";
@@ -31,14 +31,27 @@ public static class SiteRedirectWriter
                 .Where(x => x.FromPath == from || x.FromPath == to || x.ToPath == from).ToListAsync(cancellationToken);
             db.SiteRedirects.RemoveRange(touched.Where(x => x.FromPath == to));
             foreach (var pointing in touched.Where(x => x.ToPath == from && x.FromPath != to))
-                pointing.Change(pointing.FromPath, to, pointing.Note, pointing.Source, updatedBy, now);
+            {
+                var repointed = pointing.Change(pointing.FromPath, to, pointing.Note, pointing.Source, updatedBy, now);
+                if (repointed.IsFailure) return repointed;
+            }
 
             var own = touched.FirstOrDefault(x => x.FromPath == from);
             if (own is null)
-                db.SiteRedirects.Add(new SiteRedirect(from, to, SiteRedirectSource.SlugChange, "Нова адреса сторінки",
-                    updatedBy, now));
+            {
+                var created = SiteRedirect.Create(from, to, SiteRedirectSource.SlugChange, NewAddressNote, updatedBy, now);
+                if (created.IsFailure) return created.WithoutValue();
+                db.SiteRedirects.Add(created.Value);
+            }
             else
-                own.Change(from, to, "Нова адреса сторінки", SiteRedirectSource.SlugChange, updatedBy, now);
+            {
+                var changed = own.Change(from, to, NewAddressNote, SiteRedirectSource.SlugChange, updatedBy, now);
+                if (changed.IsFailure) return changed;
+            }
         }
+
+        return DomainResult.Success();
     }
+
+    private const string NewAddressNote = "Нова адреса сторінки";
 }

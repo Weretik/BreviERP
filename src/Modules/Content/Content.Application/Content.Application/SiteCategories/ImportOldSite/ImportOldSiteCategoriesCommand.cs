@@ -134,15 +134,18 @@ public sealed class ImportOldSiteCategoriesCommandHandler(
                     : nextPlace[item.ParentSlug ?? string.Empty] = nextPlace.GetValueOrDefault(item.ParentSlug ?? string.Empty) + 1;
                 if (category is null)
                 {
-                    category = new SiteCategory(parentId, item.Slug, place, command.UpdatedBy, now);
+                    var made = SiteCategory.Create(parentId, item.Slug, place, command.UpdatedBy, now);
+                    if (made.IsFailure) return made.Error!.ToResult<OldSiteCategoryImportResponse>();
+                    category = made.Value;
                     db.SiteCategories.Add(category);
                     bySlug[item.Slug] = category;
                 }
 
                 var texts = new Dictionary<string, SiteCategoryTextInput> { [ProductPageRules.Ukrainian] = item.Uk! };
                 if (item.Ru is not null) texts[ProductPageRules.Russian] = item.Ru;
-                category.Replace(parentId, place, item.Slug, command.ShowOnSite || category.ShowOnSite, texts,
-                    command.UpdatedBy, now);
+                var replaced = category.Replace(parentId, place, item.Slug, command.ShowOnSite || category.ShowOnSite,
+                    texts, command.UpdatedBy, now);
+                if (replaced.IsFailure) return replaced.Error!.ToResult<OldSiteCategoryImportResponse>();
             }
 
             // Subcategories need the ids of their categories.

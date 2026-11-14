@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Content.Domain.ProductPages;
 
 /// <summary>
@@ -10,14 +12,19 @@ public sealed class ProductPage
 
     private ProductPage() { }
 
-    /// <summary>A new page, hidden from the site until someone switches it on.</summary>
-    public ProductPage(int productId, string slug, string updatedBy, DateTimeOffset now)
+    private ProductPage(int productId, string slug, string updatedBy, DateTimeOffset now)
     {
-        if (productId <= 0) throw new ArgumentOutOfRangeException(nameof(productId));
-        if (!ProductPageRules.IsValidSlug(slug)) throw new ArgumentException("Invalid slug.", nameof(slug));
         ProductId = productId;
         Slug = slug;
         Touch(updatedBy, now, bump: false);
+    }
+
+    /// <summary>A new page, hidden from the site until someone switches it on.</summary>
+    public static DomainResult<ProductPage> Create(int productId, string slug, string updatedBy, DateTimeOffset now)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(productId);
+        if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
+        return new ProductPage(productId, slug, updatedBy, now);
     }
 
     /// <summary>Catalog product id; no database link across modules.</summary>
@@ -48,10 +55,10 @@ public sealed class ProductPage
     }
 
     /// <summary>Replaces the address, the mark and all texts. A language without any text is not kept.</summary>
-    public void Replace(string slug, bool showOnSite, IReadOnlyDictionary<string, ProductPageTextInput> texts,
+    public DomainResult Replace(string slug, bool showOnSite, IReadOnlyDictionary<string, ProductPageTextInput> texts,
         string updatedBy, DateTimeOffset now)
     {
-        if (!ProductPageRules.IsValidSlug(slug)) throw new ArgumentException("Invalid slug.", nameof(slug));
+        if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
         Slug = slug;
         ShowOnSite = showOnSite;
         foreach (var language in ProductPageRules.Languages)
@@ -69,6 +76,7 @@ public sealed class ProductPage
         }
 
         Touch(updatedBy, now, bump: true);
+        return DomainResult.Success();
     }
 
     private void Touch(string updatedBy, DateTimeOffset now, bool bump)

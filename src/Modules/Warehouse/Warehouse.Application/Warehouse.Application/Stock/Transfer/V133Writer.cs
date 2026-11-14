@@ -109,17 +109,16 @@ internal sealed class V133Writer(
         var state = new FabricMovementState(line.Id, after.OperationDate, after.Delta / 100m,
             Cut(after.Supplier, FabricMovement.SupplierMaxLength), Cut(after.Reference, FabricMovement.DocumentMaxLength),
             saved.Destination, after.IsVoided);
-        try
-        {
-            var change = line.Revise(saved, state, action, null,
-                await nameOf(revision.ActorEmail, cancellationToken), revision.At, revision.OperationId, restores);
-            _revisions[revision.Id] = change;
-            db.FabricMovementRevisions.Add(change);
-        }
-        catch (Exception e) when (e is ArgumentException or InvalidOperationException)
+        var change = line.Revise(saved, state, action, null,
+            await nameOf(revision.ActorEmail, cancellationToken), revision.At, revision.OperationId, restores);
+        if (change.IsFailure)
         {
             source.Error("fabric_movement_revisions", revision.Id, "Правку не можна застосувати за правилами складу.");
+            return;
         }
+
+        _revisions[revision.Id] = change.Value;
+        db.FabricMovementRevisions.Add(change.Value);
     }
 
     /// <summary>TZ §19.1: every movement and line after the transfer is the same as in the export.</summary>

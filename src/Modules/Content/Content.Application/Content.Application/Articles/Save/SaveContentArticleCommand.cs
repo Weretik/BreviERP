@@ -100,19 +100,26 @@ public sealed class SaveContentArticleCommandHandler(IContentDbContext db, ICont
         var articleOldSlug = article?.Slug;
         if (article is null)
         {
-            article = new Article(slug, command.PublishedOn, command.UpdatedBy, now);
+            var created = Article.Create(slug, command.PublishedOn, command.UpdatedBy, now);
+            if (created.IsFailure) return created.Error!.ToResult<ArticleResponse>();
+            article = created.Value;
             db.Articles.Add(article);
         }
 
         var texts = new Dictionary<string, ArticleTextInput>();
         if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
         if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
-        article.Replace(slug, command.PublishedOn, command.ShowOnSite, command.CoverPhotoId, texts, command.UpdatedBy, now);
+        var replaced = article.Replace(slug, command.PublishedOn, command.ShowOnSite, command.CoverPhotoId, texts,
+            command.UpdatedBy, now);
+        if (replaced.IsFailure) return replaced.Error!.ToResult<ArticleResponse>();
 
         // The old address keeps working: a 301 to the new one (CNT-005 R-05).
         if (articleOldSlug is not null && articleOldSlug != slug)
-            await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Articles, articleOldSlug, slug, command.UpdatedBy,
-                now, cancellationToken);
+        {
+            var redirected = await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Articles, articleOldSlug, slug,
+                command.UpdatedBy, now, cancellationToken);
+            if (redirected.IsFailure) return redirected.Error!.ToResult<ArticleResponse>();
+        }
 
         // Every photo must be in the library: a mistyped id would leave a hole on the site.
         var photos = await ArticleReads.PhotosAsync(media, article.PhotoIds(), cancellationToken);

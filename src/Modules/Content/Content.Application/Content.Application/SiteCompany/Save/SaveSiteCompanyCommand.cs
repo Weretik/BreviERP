@@ -94,7 +94,7 @@ public sealed class SaveSiteCompanyCommandHandler(IContentDbContext db, TimeProv
             db.CompanyInfo.Add(info);
         }
 
-        info.Replace(command.Phone, command.Email, SiteCompanyReads.Text(command.City),
+        var replaced = info.Replace(command.Phone, command.Email, SiteCompanyReads.Text(command.City),
             SiteCompanyReads.Text(command.Street), command.MapQuery,
             new SiteSchedule(command.Schedule.Days, command.Schedule.Opens, command.Schedule.Closes),
             command.Managers.Select(m => new SiteManager(SiteCompanyReads.Text(m.Name), m.PhotoUrl, m.Phones, m.Email))
@@ -103,6 +103,7 @@ public sealed class SaveSiteCompanyCommandHandler(IContentDbContext db, TimeProv
                 command.BankDetails.Iban, SiteCompanyReads.Text(command.BankDetails.Bank)),
             new SiteSocials(command.Socials.Instagram, command.Socials.Youtube, command.Socials.Facebook),
             command.UpdatedBy, now);
+        if (replaced.IsFailure) return replaced.Error!.ToResult<SiteCompanyResponse>();
         try
         {
             await db.SaveChangesAsync(cancellationToken);

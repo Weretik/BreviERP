@@ -104,19 +104,25 @@ public sealed class SaveSiteCategoryCommandHandler(IContentDbContext db, TimePro
             : await SiteCategoryReads.NextSortOrderAsync(db, command.ParentId, cancellationToken);
         if (category is null)
         {
-            category = new SiteCategory(command.ParentId, slug, sortOrder, command.UpdatedBy, now);
+            var created = SiteCategory.Create(command.ParentId, slug, sortOrder, command.UpdatedBy, now);
+            if (created.IsFailure) return created.Error!.ToResult<SiteCategoryResponse>();
+            category = created.Value;
             db.SiteCategories.Add(category);
         }
 
         var texts = new Dictionary<string, SiteCategoryTextInput>();
         if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
         if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
-        category.Replace(command.ParentId, sortOrder, slug, command.ShowOnSite, texts, command.UpdatedBy, now);
+        var replaced = category.Replace(command.ParentId, sortOrder, slug, command.ShowOnSite, texts, command.UpdatedBy, now);
+        if (replaced.IsFailure) return replaced.Error!.ToResult<SiteCategoryResponse>();
 
         // The old address keeps working: a 301 to the new one (CNT-005 R-05).
         if (categoryOldSlug is not null && categoryOldSlug != slug)
-            await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Categories, categoryOldSlug, slug, command.UpdatedBy,
-                now, cancellationToken);
+        {
+            var redirected = await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Categories, categoryOldSlug, slug,
+                command.UpdatedBy, now, cancellationToken);
+            if (redirected.IsFailure) return redirected.Error!.ToResult<SiteCategoryResponse>();
+        }
 
         try
         {

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using Content.Domain.ProductPages;
 
 namespace Content.Domain.SitePages;
@@ -53,32 +54,34 @@ public sealed class SitePage
 
     public string UpdatedBy { get; private set; } = null!;
 
-    public void Replace(SitePageTextInput uk, SitePageTextInput ru, string updatedBy, DateTimeOffset now)
+    public DomainResult Replace(SitePageTextInput uk, SitePageTextInput ru, string updatedBy, DateTimeOffset now)
     {
         var (titleUk, descriptionUk, titleRu, descriptionRu) = (uk.Title, uk.Description, ru.Title, ru.Description);
         var (textUk, textRu) = (ProductTextBlocks.Clean(uk.Text), ProductTextBlocks.Clean(ru.Text));
         var (faqUk, faqRu) = (SiteFaqItem.Clean(uk.Faq), SiteFaqItem.Clean(ru.Faq));
         if (textUk.Count > MaxBlocks || textRu.Count > MaxBlocks || TextLength(textUk) > TextMaxLength
             || TextLength(textRu) > TextMaxLength)
-            throw new ArgumentException("Text is too long.");
+            return SitePageErrors.TextTooLong();
         if (faqUk.Count > MaxFaqItems || faqRu.Count > MaxFaqItems
             || faqUk.Concat(faqRu).Any(x => x.Question.Length > QuestionMaxLength || x.Answer.Length > AnswerMaxLength))
-            throw new ArgumentException("Questions are too long.");
+            return SitePageErrors.FaqTooLong();
+        (titleUk, descriptionUk, titleRu, descriptionRu) =
+            (Clean(titleUk), Clean(descriptionUk), Clean(titleRu), Clean(descriptionRu));
+        if (titleUk?.Length > TitleMaxLength || titleRu?.Length > TitleMaxLength) return SitePageErrors.TitleTooLong();
+        if (descriptionUk?.Length > DescriptionMaxLength || descriptionRu?.Length > DescriptionMaxLength)
+            return SitePageErrors.DescriptionTooLong();
         TextUk = textUk;
         TextRu = textRu;
         FaqUk = faqUk;
         FaqRu = faqRu;
-        TitleUk = Clean(titleUk);
-        DescriptionUk = Clean(descriptionUk);
-        TitleRu = Clean(titleRu);
-        DescriptionRu = Clean(descriptionRu);
-        if (TitleUk?.Length > TitleMaxLength || TitleRu?.Length > TitleMaxLength)
-            throw new ArgumentException("Title is too long.");
-        if (DescriptionUk?.Length > DescriptionMaxLength || DescriptionRu?.Length > DescriptionMaxLength)
-            throw new ArgumentException("Description is too long.");
+        TitleUk = titleUk;
+        DescriptionUk = descriptionUk;
+        TitleRu = titleRu;
+        DescriptionRu = descriptionRu;
         Revision++;
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
+        return DomainResult.Success();
     }
 
     /// <summary>Characters of a main text, the way staff count them in the editor.</summary>

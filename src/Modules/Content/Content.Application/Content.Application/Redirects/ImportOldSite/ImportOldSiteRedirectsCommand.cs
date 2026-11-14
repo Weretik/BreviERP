@@ -121,7 +121,10 @@ public sealed class ImportOldSiteRedirectsCommandHandler(
                     updated++;
                     rows.Add(new OldSiteRedirectRow(from, to, note, Updated));
                     if (!command.DryRun)
-                        current.Change(from, to, note, SiteRedirectSource.OldSite, command.UpdatedBy, now);
+                    {
+                        var changed = current.Change(from, to, note, SiteRedirectSource.OldSite, command.UpdatedBy, now);
+                        if (changed.IsFailure) return changed.Error!.ToResult<OldSiteRedirectImportResponse>();
+                    }
                 }
 
                 continue;
@@ -130,7 +133,11 @@ public sealed class ImportOldSiteRedirectsCommandHandler(
             created++;
             rows.Add(new OldSiteRedirectRow(from, to, note, Created));
             if (!command.DryRun)
-                db.SiteRedirects.Add(new SiteRedirect(from, to, SiteRedirectSource.OldSite, note, command.UpdatedBy, now));
+            {
+                var made = SiteRedirect.Create(from, to, SiteRedirectSource.OldSite, note, command.UpdatedBy, now);
+                if (made.IsFailure) return made.Error!.ToResult<OldSiteRedirectImportResponse>();
+                db.SiteRedirects.Add(made.Value);
+            }
         }
 
         if (existing.Count + created > SiteRedirectRules.MaxRedirects) return Result.Conflict(RedirectMessages.TooMany);

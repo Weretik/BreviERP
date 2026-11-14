@@ -22,7 +22,7 @@ public sealed class SiteGalleriesTests
     private static void Seed(ContentTestHarness h, string key, params string[] names)
     {
         using var db = h.Open();
-        var gallery = new SiteGallery(key, "Дані сайту", h.Time.GetUtcNow());
+        var gallery = SiteGallery.Create(key, "Дані сайту", h.Time.GetUtcNow()).Value;
         gallery.Replace(names.Select(name => new SiteGalleryItem(null, File(key, name),
             new SiteText($"Документ {name}", ""), null, ["ДСТУ EN ISO 13688"])).ToArray(), "Дані сайту", h.Time.GetUtcNow());
         db.SiteGalleries.Add(gallery);

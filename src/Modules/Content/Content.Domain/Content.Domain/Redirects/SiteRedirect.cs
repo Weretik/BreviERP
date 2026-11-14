@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using System.Text.Json.Serialization;
 
 namespace Content.Domain.Redirects;
@@ -25,13 +26,12 @@ public sealed class SiteRedirect
 {
     private SiteRedirect() { }
 
-    public SiteRedirect(string fromPath, string toPath, SiteRedirectSource source, string? note, string updatedBy,
-        DateTimeOffset now)
+    public static DomainResult<SiteRedirect> Create(string fromPath, string toPath, SiteRedirectSource source,
+        string? note, string updatedBy, DateTimeOffset now)
     {
-        Apply(fromPath, toPath, note);
-        Source = source;
-        UpdatedBy = updatedBy;
-        UpdatedAtUtc = now;
+        var redirect = new SiteRedirect();
+        var changed = redirect.Change(fromPath, toPath, note, source, updatedBy, now);
+        return changed.IsFailure ? changed.Error! : redirect;
     }
 
     public int Id { get; private set; }
@@ -50,23 +50,19 @@ public sealed class SiteRedirect
     public string UpdatedBy { get; private set; } = null!;
 
     /// <summary>Changes the addresses; an edit by staff makes the redirect theirs.</summary>
-    public void Change(string fromPath, string toPath, string? note, SiteRedirectSource source, string updatedBy,
-        DateTimeOffset now)
+    public DomainResult Change(string fromPath, string toPath, string? note, SiteRedirectSource source,
+        string updatedBy, DateTimeOffset now)
     {
-        Apply(fromPath, toPath, note);
-        Source = source;
-        UpdatedBy = updatedBy;
-        UpdatedAtUtc = now;
-    }
-
-    private void Apply(string fromPath, string toPath, string? note)
-    {
-        if (SiteRedirectRules.Normalize(fromPath) != fromPath) throw new ArgumentException("Invalid path.", nameof(fromPath));
+        if (SiteRedirectRules.Normalize(fromPath) != fromPath) return SiteRedirectErrors.InvalidFromPath();
         if (SiteRedirectRules.Normalize(toPath) != toPath || !SiteRedirectRules.IsSitePath(toPath))
-            throw new ArgumentException("Invalid target.", nameof(toPath));
-        if (fromPath == toPath) throw new ArgumentException("A redirect to itself.", nameof(toPath));
+            return SiteRedirectErrors.InvalidToPath();
+        if (fromPath == toPath) return SiteRedirectErrors.ToItself();
         FromPath = fromPath;
         ToPath = toPath;
         Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+        Source = source;
+        UpdatedBy = updatedBy;
+        UpdatedAtUtc = now;
+        return DomainResult.Success();
     }
 }

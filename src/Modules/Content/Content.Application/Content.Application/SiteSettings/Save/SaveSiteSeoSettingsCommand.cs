@@ -53,8 +53,9 @@ public sealed class SaveSiteSeoSettingsCommandHandler(IContentDbContext db, ICon
             db.SiteSeoSettings.Add(settings);
         }
 
-        settings.Replace(command.GoogleAnalyticsId, command.GoogleTagManagerId, command.GoogleSiteVerification,
+        var replaced = settings.Replace(command.GoogleAnalyticsId, command.GoogleTagManagerId, command.GoogleSiteVerification,
             command.BingSiteVerification, command.DefaultOgPhotoId, command.UpdatedBy, now);
+        if (replaced.IsFailure) return replaced.Error!.ToResult<SiteSeoSettingsResponse>();
         try
         {
             await db.SaveChangesAsync(cancellationToken);

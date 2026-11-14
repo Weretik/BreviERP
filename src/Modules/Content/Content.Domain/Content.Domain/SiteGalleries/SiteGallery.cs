@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using System.Text.RegularExpressions;
 using Content.Domain.SiteCompany;
 
@@ -23,13 +24,15 @@ public sealed partial class SiteGallery
 
     private SiteGallery() { }
 
-    public SiteGallery(string key, string updatedBy, DateTimeOffset now)
+    private SiteGallery(string key, string updatedBy, DateTimeOffset now)
     {
-        if (!IsKey(key)) throw new ArgumentException("Unknown gallery.", nameof(key));
         Key = key;
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
     }
+
+    public static DomainResult<SiteGallery> Create(string key, string updatedBy, DateTimeOffset now) =>
+        IsKey(key) ? new SiteGallery(key, updatedBy, now) : SiteGalleryErrors.UnknownGallery();
 
     public string Key { get; private set; } = null!;
 
@@ -46,15 +49,16 @@ public sealed partial class SiteGallery
     public static int MaxItems(string key) => key == Certificates ? MaxCertificates : MaxWorks;
 
     /// <summary>Replaces the list as a whole; texts are trimmed and empty ones dropped.</summary>
-    public void Replace(IReadOnlyList<SiteGalleryItem> items, string updatedBy, DateTimeOffset now)
+    public DomainResult Replace(IReadOnlyList<SiteGalleryItem> items, string updatedBy, DateTimeOffset now)
     {
         var cleaned = items.Select(Clean).ToArray();
-        if (cleaned.Length > MaxItems(Key)) throw new ArgumentException("Too many pictures.");
-        if (cleaned.Any(x => x.PhotoId is null && x.Legacy is null)) throw new ArgumentException("A picture is missing.");
+        if (cleaned.Length > MaxItems(Key)) return SiteGalleryErrors.TooManyPictures(MaxItems(Key));
+        if (cleaned.Any(x => x.PhotoId is null && x.Legacy is null)) return SiteGalleryErrors.PictureMissing();
         if (Key == Certificates && cleaned.Any(x => string.IsNullOrEmpty(x.Title?.Uk)))
-            throw new ArgumentException("A certificate needs a title.");
+            return SiteGalleryErrors.CertificateTitleRequired();
         Items = cleaned;
         Touch(updatedBy, now);
+        return DomainResult.Success();
     }
 
     /// <summary>Puts a library photo in place of a site file after the transfer, keeping the order and the texts.</summary>

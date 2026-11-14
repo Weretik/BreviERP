@@ -282,7 +282,7 @@ public sealed class SiteRedirectsTests
         await Add(h, "/uk/x", "/uk/y");
         using var db = h.Open();
         // A loop that can only come from data written before the checks.
-        db.SiteRedirects.Add(new SiteRedirect("/uk/y", "/uk/x", SiteRedirectSource.Manual, null, "x", h.Time.GetUtcNow()));
+        db.SiteRedirects.Add(SiteRedirect.Create("/uk/y", "/uk/x", SiteRedirectSource.Manual, null, "x", h.Time.GetUtcNow()).Value);
         await db.SaveChangesAsync(None);
         var cache = new MemoryCache(new MemoryCacheOptions());
 

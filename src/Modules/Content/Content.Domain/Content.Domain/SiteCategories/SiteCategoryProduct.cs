@@ -7,7 +7,7 @@ public sealed class SiteCategoryProduct
 
     public SiteCategoryProduct(int categoryId, int productId, int sortOrder)
     {
-        if (productId <= 0) throw new ArgumentOutOfRangeException(nameof(productId));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(productId);
         CategoryId = categoryId;
         ProductId = productId;
         SortOrder = sortOrder;

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using Content.Domain.ProductPages;
 
 namespace Content.Domain.Articles;
@@ -12,12 +13,17 @@ public sealed class Article
 
     private Article() { }
 
-    public Article(string slug, DateOnly publishedOn, string updatedBy, DateTimeOffset now)
+    private Article(string slug, DateOnly publishedOn, string updatedBy, DateTimeOffset now)
     {
-        if (!ProductPageRules.IsValidSlug(slug)) throw new ArgumentException("Invalid slug.", nameof(slug));
         Slug = slug;
         PublishedOn = publishedOn;
         Touch(updatedBy, now, bump: false);
+    }
+
+    public static DomainResult<Article> Create(string slug, DateOnly publishedOn, string updatedBy, DateTimeOffset now)
+    {
+        if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
+        return new Article(slug, publishedOn, updatedBy, now);
     }
 
     public int Id { get; private set; }
@@ -55,10 +61,10 @@ public sealed class Article
     }
 
     /// <summary>Replaces the article as a whole; a language without any text loses its row.</summary>
-    public void Replace(string slug, DateOnly publishedOn, bool showOnSite, int? coverPhotoId,
+    public DomainResult Replace(string slug, DateOnly publishedOn, bool showOnSite, int? coverPhotoId,
         IReadOnlyDictionary<string, ArticleTextInput> texts, string updatedBy, DateTimeOffset now)
     {
-        if (!ProductPageRules.IsValidSlug(slug)) throw new ArgumentException("Invalid slug.", nameof(slug));
+        if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
         Slug = slug;
         PublishedOn = publishedOn;
         ShowOnSite = showOnSite;
@@ -78,6 +84,7 @@ public sealed class Article
         }
 
         Touch(updatedBy, now, bump: true);
+        return DomainResult.Success();
     }
 
     private void Touch(string updatedBy, DateTimeOffset now, bool bump)

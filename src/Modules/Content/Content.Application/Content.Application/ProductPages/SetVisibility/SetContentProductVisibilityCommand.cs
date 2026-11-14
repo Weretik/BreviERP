@@ -36,7 +36,9 @@ public sealed class SetContentProductVisibilityCommandHandler(
         if (page is null)
         {
             var slug = await ProductPageSlugs.FreeAsync(db, product, cancellationToken);
-            page = new ProductPage(product.Id, slug, command.UpdatedBy, now);
+            var created = ProductPage.Create(product.Id, slug, command.UpdatedBy, now);
+            if (created.IsFailure) return created.Error!.ToResult<ContentProductVisibilityResponse>();
+            page = created.Value;
             db.ProductPages.Add(page);
         }
 
