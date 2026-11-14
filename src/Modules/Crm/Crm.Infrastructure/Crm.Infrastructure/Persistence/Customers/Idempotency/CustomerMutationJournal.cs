@@ -27,7 +27,7 @@ internal sealed class CustomerMutationJournal(CrmDbContext db)
         var previous = await db.MutationRequests.AsNoTracking().SingleOrDefaultAsync(x =>
             x.ActorId == actor.UserId && x.Operation == operation && x.RequestId == requestId, cancellationToken);
         if (previous is null) return null;
-        if (previous.PayloadHash != encoded.Hash) return Result.Conflict("idempotency_conflict");
+        if (previous.PayloadHash != encoded.Hash) return Result.Conflict("Цей запит уже виконано з іншими даними. Оновіть сторінку.");
         var accessible = await db.Customers.AsNoTracking().AnyAsync(x =>
             x.PublicId == previous.CustomerPublicId && x.MergedIntoId == null
             && (actor.IsAdmin || x.OwnerId == new CrmUserId(actor.UserId)), cancellationToken);

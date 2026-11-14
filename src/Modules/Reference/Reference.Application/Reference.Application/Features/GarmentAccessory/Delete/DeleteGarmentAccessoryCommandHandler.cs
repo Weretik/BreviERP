@@ -18,7 +18,7 @@ public sealed class DeleteGarmentAccessoryCommandHandler(IReferenceRepository<Ga
             return Result.NotFound();
 
         if (await productUsageReader.IsGarmentAccessoryUsedAsync(command.Id, cancellationToken))
-            return Result.Conflict("Garment accessory is used by one or more products.");
+            return Result.Conflict("Фурнітуру використовують товари, тому її не можна видалити.");
 
         await repository.DeleteAsync(entity, cancellationToken);
 

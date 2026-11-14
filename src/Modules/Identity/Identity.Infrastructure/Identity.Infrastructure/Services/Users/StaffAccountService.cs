@@ -51,7 +51,7 @@ public sealed class StaffAccountService(
     {
         if (await userManager.FindByEmailAsync(email) is not null)
         {
-            return Result.Conflict("A user with this email already exists.");
+            return Result.Conflict("Користувач із такою поштою вже є.");
         }
 
         if (!await IsKnownRoleAsync(role, cancellationToken))
@@ -180,7 +180,7 @@ public sealed class StaffAccountService(
         var owner = await userManager.FindByEmailAsync(normalizedEmail);
         if (owner is not null && owner.Id != user.Id)
         {
-            return Result.Conflict("A user with this email already exists.");
+            return Result.Conflict("Користувач із такою поштою вже є.");
         }
 
         var emailChanged = !string.Equals(user.Email, normalizedEmail, StringComparison.OrdinalIgnoreCase);
@@ -270,7 +270,7 @@ public sealed class StaffAccountService(
 
         if (roles.Contains(RoleNames.Director) && !ActorIsDirector())
         {
-            return Result.Forbidden("Only the director can change the director.");
+            return Result.Forbidden("Змінювати директора може лише директор.");
         }
 
         return Result.Success(user);

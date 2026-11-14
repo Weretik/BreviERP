@@ -15,7 +15,7 @@ public sealed class CustomerMutationStore(CrmDbContext db) : ICustomerMutationSt
     public async Task<Result<CustomerDetail>> ExecuteAsync(string operation, Guid requestId, CrmActor actor, object intent,
         Func<ICustomerWriteSession, CancellationToken, Task<Result<CustomerDetail>>> work, CancellationToken cancellationToken)
     {
-        if (actor.UserId <= 0 || requestId == Guid.Empty) return Result.Invalid(new ValidationError("requestId", "invalid_request"));
+        if (actor.UserId <= 0 || requestId == Guid.Empty) return Result.Invalid(new ValidationError("requestId", "Неправильний запит. Оновіть сторінку й спробуйте ще раз."));
         var encoded = CustomerMutationJournal.Encode(operation, requestId, actor, intent);
         var journal = new CustomerMutationJournal(db);
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
@@ -33,11 +33,11 @@ public sealed class CustomerMutationStore(CrmDbContext db) : ICustomerMutationSt
             committed = true;
             return result;
         }
-        catch (CustomerRevisionException) { return Result.Conflict("revision_conflict"); }
+        catch (CustomerRevisionException) { return Result.Conflict("Клієнта вже змінили. Оновіть сторінку й повторіть зміни."); }
         catch (CustomerValidationException exception) { return Result.Invalid(new ValidationError("customer", exception.Message)); }
-        catch (DbUpdateConcurrencyException) { return Result.Conflict("revision_conflict"); }
+        catch (DbUpdateConcurrencyException) { return Result.Conflict("Клієнта вже змінили. Оновіть сторінку й повторіть зміни."); }
         catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
-        { return Result.Conflict("external_identity_or_primary_conflict"); }
+        { return Result.Conflict("Такий клієнт або основний контакт уже є."); }
         finally
         {
             if (!committed) await transaction.RollbackAsync(CancellationToken.None);

@@ -16,10 +16,10 @@ public sealed class PpeRuleVersionWriter(CatalogDbContext db) : IPpeRuleVersionW
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { expectedVersionId, values, actor }))));
         var replay = await db.Set<PpeRuleVersionRecord>().AsNoTracking().SingleOrDefaultAsync(x => x.RequestId == requestId, cancellationToken);
         if (replay is not null)
-            return replay.RequestHash == hash ? Result.Success(replay.ToVersion()) : Result.Conflict("Request UUID was used with different input or actor.");
+            return replay.RequestHash == hash ? Result.Success(replay.ToVersion()) : Result.Conflict("Цей запит уже виконано з іншими даними. Оновіть сторінку.");
 
         var current = await db.Set<PpeRuleVersionRecord>().AsNoTracking().Where(x => x.Code == values.Code).OrderByDescending(x => x.Id).FirstOrDefaultAsync(cancellationToken);
-        if (current?.PublicId != expectedVersionId) return Result.Conflict("Pricing input changed. Reload before saving.");
+        if (current?.PublicId != expectedVersionId) return Result.Conflict("Дані для ціни вже змінили. Оновіть сторінку перед збереженням.");
         var now = DateTimeOffset.UtcNow;
         var record = new PpeRuleVersionRecord { PublicId = Guid.NewGuid(), RequestId = requestId, RequestHash = hash,
             ValuesJson = json, ApprovedBy = actor, ApprovedAt = now, CreatedAt = now, Code = values.Code, };

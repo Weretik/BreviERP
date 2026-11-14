@@ -1,95 +1,110 @@
-using Catalog.Domain.Errors;
+using BuildingBlocks.Domain.Errors;
 
 namespace Catalog.Domain.Products.Errors;
 
 public static class ProductErrors
 {
-    public static CatalogDomainError IdIsRequired() =>
-        new("Catalog.Product.Id.Required", "Product id must be provided");
+    public static Error IdIsRequired() =>
+        new("Catalog.Product.Id.Required", "Не вказано товар.");
 
-    public static CatalogDomainError NameIsRequired() =>
-        new("Catalog.Product.Name.Required", "Product name is required");
+    public static Error NameIsRequired() =>
+        new("Catalog.Product.Name.Required", "Вкажіть назву товару.");
 
-    public static CatalogDomainError NameLengthInvalid(int maxLength) =>
-        new("Catalog.Product.Name.LengthInvalid", $"Product name must be {maxLength} characters or less");
+    public static Error NameLengthInvalid(int maxLength) =>
+        new("Catalog.Product.Name.LengthInvalid", $"Назва товару — не більше {maxLength} символів.");
 
-    public static CatalogDomainError SlugIsRequired() =>
-        new("Catalog.Product.Slug.Required", "Product slug is required");
+    public static Error SlugIsRequired() =>
+        new("Catalog.Product.Slug.Required", "Вкажіть адресу (slug) товару.");
 
-    public static CatalogDomainError SlugFormatInvalid() =>
-        new("Catalog.Product.Slug.FormatInvalid", "Product slug must contain lowercase letters, numbers, and hyphens only");
+    public static Error SlugFormatInvalid() =>
+        new("Catalog.Product.Slug.FormatInvalid", "Адреса (slug) товару — лише малі латинські літери, цифри та дефіси.");
 
-    public static CatalogDomainError TypeIsRequired() =>
-        new("Catalog.Product.Type.Required", "Product type must be provided");
+    public static Error TypeIsRequired() =>
+        new("Catalog.Product.Type.Required", "Вкажіть тип товару.");
 
-    public static CatalogDomainError CategoryIdIsRequired() =>
-        new("Catalog.Product.Category.Id.Required", "Product category id must be provided");
+    public static Error CategoryIdIsRequired() =>
+        new("Catalog.Product.Category.Id.Required", "Не вказано категорію товару.");
 
-    public static CatalogDomainError CategoryAlreadyAttached(int categoryId) =>
-        new("Catalog.Product.Category.AlreadyAttached", $"Product category '{categoryId}' is already attached to the product");
+    public static Error CategoryAlreadyAttached(int categoryId) =>
+        new("Catalog.Product.Category.AlreadyAttached", $"Цю категорію вже додано до товару.", ErrorType.Conflict);
 
-    public static CatalogDomainError CategoryNotFound(int categoryId) =>
-        new("Catalog.Product.Category.NotFound", $"Product category '{categoryId}' was not found");
+    public static Error CategoryNotFound(int categoryId) =>
+        new("Catalog.Product.Category.NotFound", $"Категорію товару не знайдено.", ErrorType.NotFound);
 
-    public static CatalogDomainError PhotoIdIsRequired() =>
-        new("Catalog.Product.Photo.Id.Required", "Product photo id must be provided");
+    public static Error PhotoIdIsRequired() =>
+        new("Catalog.Product.Photo.Id.Required", "Не вказано фото товару.");
 
-    public static CatalogDomainError PhotoMediaFileIdIsRequired() =>
-        new("Catalog.Product.Photo.MediaFileId.Required", "Product photo media file id must be provided");
+    public static Error PhotoMediaFileIdIsRequired() =>
+        new("Catalog.Product.Photo.MediaFileId.Required", "Не вказано файл фото.");
 
-    public static CatalogDomainError PhotoAltLengthInvalid(int maxLength) =>
-        new("Catalog.Product.Photo.Alt.LengthInvalid", $"Product photo alt must be {maxLength} characters or less");
+    public static Error PhotoAltLengthInvalid(int maxLength) =>
+        new("Catalog.Product.Photo.Alt.LengthInvalid", $"Опис фото — не більше {maxLength} символів.");
 
-    public static CatalogDomainError PhotoSortOrderInvalid() =>
-        new("Catalog.Product.Photo.SortOrder.Invalid", "Product photo sort order must be zero or greater");
+    public static Error PhotoSortOrderInvalid() =>
+        new("Catalog.Product.Photo.SortOrder.Invalid", "Порядок фото не може бути від'ємним.");
 
-    public static CatalogDomainError PhotoMediaFileAlreadyAttached(int mediaFileId) =>
-        new("Catalog.Product.Photo.MediaFile.AlreadyAttached", $"Media file '{mediaFileId}' is already attached to the product");
+    public static Error PhotoMediaFileAlreadyAttached(int mediaFileId) =>
+        new("Catalog.Product.Photo.MediaFile.AlreadyAttached", $"Цей файл уже додано до товару.", ErrorType.Conflict);
 
-    public static CatalogDomainError PhotoAlreadyExists(int photoId) =>
-        new("Catalog.Product.Photo.AlreadyExists", $"Product photo '{photoId}' already exists");
+    public static Error PhotoAlreadyExists(int photoId) =>
+        new("Catalog.Product.Photo.AlreadyExists", $"Це фото вже є в товарі.", ErrorType.Conflict);
 
-    public static CatalogDomainError PhotoNotFound(int photoId) =>
-        new("Catalog.Product.Photo.NotFound", $"Product photo '{photoId}' was not found");
+    public static Error PhotoNotFound(int photoId) =>
+        new("Catalog.Product.Photo.NotFound", $"Фото товару не знайдено.", ErrorType.NotFound);
 
-    public static CatalogDomainError TypeSpecificDataInvalid() =>
-        new("Catalog.Product.TypeSpecificData.Invalid", "Type-specific product data does not match the product type");
+    public static Error TypeSpecificDataInvalid() =>
+        new("Catalog.Product.TypeSpecificData.Invalid", "Дані товару не відповідають його типу.");
 
-    public static CatalogDomainError DetailsBelongToAnotherProduct() =>
-        new("Catalog.Product.Details.ProductMismatch", "Product details belong to another product");
+    public static Error DetailsBelongToAnotherProduct() =>
+        new("Catalog.Product.Details.ProductMismatch", "Ці дані належать іншому товару.");
 
-    public static CatalogDomainError ContentBelongsToAnotherProduct() =>
-        new("Catalog.Product.Content.ProductMismatch", "Product content belongs to another product");
+    public static Error ContentBelongsToAnotherProduct() =>
+        new("Catalog.Product.Content.ProductMismatch", "Цей текст належить іншому товару.");
 
-    public static CatalogDomainError CharacteristicRowBelongsToAnotherTable() =>
-        new("Catalog.Product.CharacteristicRow.TableMismatch", "Characteristic row belongs to another table");
+    public static Error CharacteristicRowBelongsToAnotherTable() =>
+        new("Catalog.Product.CharacteristicRow.TableMismatch", "Рядок характеристик належить іншій таблиці.");
 
-    public static CatalogDomainError PositiveValueRequired(string field) =>
-        new($"Catalog.Product.{field}.PositiveRequired", $"{field} must be greater than zero");
+    public static Error PositiveValueRequired(string field) =>
+        new($"Catalog.Product.{field}.PositiveRequired", $"{FieldName(field)}: значення має бути більше нуля.");
 
-    public static CatalogDomainError DuplicateReference(string field, int id) =>
-        new($"Catalog.Product.{field}.Duplicate", $"{field} '{id}' is already attached to the product");
+    public static Error DuplicateReference(string field, int id) =>
+        new($"Catalog.Product.{field}.Duplicate", $"{FieldName(field)}: значення {id} уже додано до товару.", ErrorType.Conflict);
 
-    public static CatalogDomainError TooManyPrimaryFabrics() =>
-        new("Catalog.Product.Fabric.Primary.TooMany", "A product can have no more than two primary fabrics");
+    public static Error TooManyPrimaryFabrics() =>
+        new("Catalog.Product.Fabric.Primary.TooMany", "У товару може бути не більше двох основних тканин.");
 
-    public static CatalogDomainError PercentageConfigurationInvalid(string field) =>
-        new($"Catalog.Product.{field}.Invalid", $"{field} must contain either a reference or a custom percentage");
+    public static Error PercentageConfigurationInvalid(string field) =>
+        new($"Catalog.Product.{field}.Invalid", $"{FieldName(field)}: оберіть значення з довідника або вкажіть свій відсоток.");
 
-    public static CatalogDomainError DescriptionIsRequired() => new("Catalog.Product.Description.Required", "Product description is required");
-    public static CatalogDomainError DescriptionLengthInvalid() => new("Catalog.Product.Description.LengthInvalid", "Product description must be 20000 characters or less");
-    public static CatalogDomainError SaleSkuInvalid() => new("Catalog.Product.Article.Sku.Invalid", "Article sale SKU is required and must be 80 characters or less");
-    public static CatalogDomainError DuplicateSaleSku(string sku) => new("Catalog.Product.Article.Sku.Duplicate", $"Article sale SKU '{sku}' already exists for the product");
-    public static CatalogDomainError ArticleLimitReached() => new("Catalog.Product.Article.LimitReached", "A product cannot have more than 200 articles");
-    public static CatalogDomainError CompositionParentMismatch() => new("Catalog.Product.Composition.ParentMismatch", "Composition line belongs to another product or article");
-    public static CatalogDomainError CompositionScopeConflict() => new("Catalog.Product.Composition.ScopeConflict", "A common composition line conflicts with an article-specific line");
-    public static CatalogDomainError MaterialReferenceInvalid() => new("Catalog.Product.Material.ReferenceInvalid", "Material kind, reference and unit do not match");
-    public static CatalogDomainError DuplicateCompositionLine() => new("Catalog.Product.Composition.Line.Duplicate", "Composition contains a duplicate effective line");
-    public static CatalogDomainError ArticleLineMustBeFabric() => new("Catalog.Product.Composition.ArticleScope.FabricOnly", "An article can have only its one fabric line");
-    public static CatalogDomainError ArticleNotFound() => new("Catalog.Product.Article.NotFound", "Article does not belong to the product");
-    public static CatalogDomainError ArticleSpecificOperationsNotSupported() => new("Catalog.Product.Operation.ArticleScope.Unsupported", "Article-specific operations are not supported");
-    public static CatalogDomainError ModelCodeInvalid() => new("Catalog.Product.ModelCode.Invalid", "Model code must be 80 characters or less");
-    public static CatalogDomainError OverviewInvalid(string message) => new("Catalog.Product.Overview.Invalid", message);
-    public static CatalogDomainError CommentTooLong(int max) => new("Catalog.Product.Composition.CommentTooLong", $"Comment must be at most {max} characters.");
-    public static CatalogDomainError CompositionLineLimitReached() => new("Catalog.Product.Composition.Line.LimitReached", "A product cannot have more than 2000 lines of either composition type");
+    public static Error DescriptionIsRequired() => new("Catalog.Product.Description.Required", "Вкажіть опис товару.");
+    public static Error DescriptionLengthInvalid() => new("Catalog.Product.Description.LengthInvalid", "Опис товару — не більше 20000 символів.");
+    public static Error SaleSkuInvalid() => new("Catalog.Product.Article.Sku.Invalid", "Вкажіть артикул продажу до 80 символів.");
+    public static Error DuplicateSaleSku(string sku) => new("Catalog.Product.Article.Sku.Duplicate", $"Артикул продажу «{sku}» у цього товару вже є.", ErrorType.Conflict);
+    public static Error ArticleLimitReached() => new("Catalog.Product.Article.LimitReached", "У товару може бути не більше 200 варіантів.", ErrorType.Conflict);
+    public static Error CompositionParentMismatch() => new("Catalog.Product.Composition.ParentMismatch", "Рядок складу належить іншому товару або варіанту.");
+    public static Error CompositionScopeConflict() => new("Catalog.Product.Composition.ScopeConflict", "Спільний рядок складу суперечить рядку окремого варіанта.", ErrorType.Conflict);
+    public static Error MaterialReferenceInvalid() => new("Catalog.Product.Material.ReferenceInvalid", "Вид матеріалу, довідник і одиниця не відповідають одне одному.");
+    public static Error DuplicateCompositionLine() => new("Catalog.Product.Composition.Line.Duplicate", "У складі є рядок, що повторюється.", ErrorType.Conflict);
+    public static Error ArticleLineMustBeFabric() => new("Catalog.Product.Composition.ArticleScope.FabricOnly", "У варіанта може бути лише один рядок тканини.");
+    public static Error ArticleNotFound() => new("Catalog.Product.Article.NotFound", "Цей варіант не належить товару.", ErrorType.NotFound);
+    public static Error ArticleSpecificOperationsNotSupported() => new("Catalog.Product.Operation.ArticleScope.Unsupported", "Операції для окремого варіанта не підтримуються.");
+    public static Error ModelCodeInvalid() => new("Catalog.Product.ModelCode.Invalid", "Код моделі — не більше 80 символів.");
+    public static Error OverviewInvalid(string message) => new("Catalog.Product.Overview.Invalid", message);
+    public static Error CommentTooLong(int max) => new("Catalog.Product.Composition.CommentTooLong", $"Коментар — не більше {max} символів.");
+    public static Error CompositionLineLimitReached() => new("Catalog.Product.Composition.Line.LimitReached", "У складі товару може бути не більше 2000 рядків кожного виду.", ErrorType.Conflict);
+
+    private static string FieldName(string field) => field switch
+    {
+        "BasePrice" => "Базова ціна",
+        "FabricId" => "Тканина",
+        "GarmentAccessoryId" => "Фурнітура",
+        "GarmentPartOperationId" => "Операція",
+        "MetersPerProduct" => "Метрів на виріб",
+        "Quantity" => "Кількість",
+        "SortOrder" => "Порядок",
+        "SupplierId" => "Постачальник",
+        "additionalReferenceId" => "Додатковий довідник",
+        "customPercent" => "Відсоток",
+        _ => "Значення"
+    };
 }

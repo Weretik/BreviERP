@@ -23,11 +23,11 @@ public sealed class PublishSewingCalculationCommandHandler(
         var current = await new SewingArticlePricingEvaluator(inputs, settings, references)
             .EvaluateAsync(command.ProductId, command.ArticleId, at, cancellationToken);
         if (!saved.Snapshot.Calculation.IsCalculated || !current.IsSuccess || !current.Value.Calculation.IsCalculated)
-            return Result.Conflict("Calculation is blocked or its current inputs are unavailable.");
+            return Result.Conflict("Розрахунок заблоковано або його поточні дані недоступні.");
         if (saved.Snapshot.CompositionVersion != current.Value.CompositionVersion
             || saved.Snapshot.SettingsVersionId != current.Value.SettingsVersionId
             || !saved.Snapshot.ReferenceVersionIds.Order().SequenceEqual(current.Value.ReferenceVersionIds.Order()))
-            return Result.Conflict("Calculation is stale. Save a new calculation before publishing.");
+            return Result.Conflict("Розрахунок застарів. Збережіть новий розрахунок перед публікацією.");
         var published = new PublishedSewingPrice(Guid.NewGuid(), saved.Id, command.ProductId, command.ArticleId,
             at, command.Actor, saved.Snapshot.Calculation.Prices!);
         await publications.PublishAsync(published, cancellationToken);

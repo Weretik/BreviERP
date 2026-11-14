@@ -22,7 +22,7 @@ public sealed class ProfileService(
     ILogger<ProfileService> logger) : IProfileService
 {
     public const string WrongPasswordMessage = "The current password is incorrect.";
-    public const string EmailTakenMessage = "A user with this email already exists.";
+    public const string EmailTakenMessage = "Користувач із такою поштою вже є.";
 
     public async Task<Result<ProfileDto>> GetAsync(CancellationToken cancellationToken = default)
     {

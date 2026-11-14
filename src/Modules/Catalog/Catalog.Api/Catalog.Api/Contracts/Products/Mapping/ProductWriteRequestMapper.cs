@@ -17,7 +17,7 @@ public static class ProductWriteRequestMapper
         var validationErrors = new List<ValidationError>();
         var hasProductType = TryParseProductType(type, out var productType);
         if (!hasProductType)
-            validationErrors.Add(new ValidationError("type", "type must be either Sewing or Ppe."));
+            validationErrors.Add(new ValidationError("type", "Тип товару: Sewing або Ppe."));
 
         var sewing = SewingProductWriteMapper.HasValues(metersPerProduct, fabrics, accessories, operationIds)
             ? SewingProductWriteMapper.Map(metersPerProduct, fabrics, accessories, operationIds)

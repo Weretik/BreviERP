@@ -16,12 +16,12 @@ public static class GetProductListRequestMapper
             if (TryParseProductType(request.Type, out var parsedType))
                 productType = parsedType;
             else
-                validationErrors.Add(new ValidationError("type", "type must be either Sewing or Ppe."));
+                validationErrors.Add(new ValidationError("type", "Тип товару: Sewing або Ppe."));
         }
 
         var isSortDirectionValid = request.SortDirection is "asc" or "desc";
         if (!isSortDirectionValid)
-            validationErrors.Add(new ValidationError("sortDirection", "sortDirection must be either asc or desc."));
+            validationErrors.Add(new ValidationError("sortDirection", "Напрям сортування: asc або desc."));
 
         return validationErrors.Count > 0
             ? Result.Invalid(validationErrors)

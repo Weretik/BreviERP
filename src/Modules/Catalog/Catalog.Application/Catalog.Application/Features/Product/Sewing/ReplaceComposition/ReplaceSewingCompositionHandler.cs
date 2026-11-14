@@ -18,7 +18,7 @@ public sealed class ReplaceSewingCompositionHandler(
         if (product is null)
             return Result.NotFound();
         if (product.CompositionVersion != request.ExpectedVersion)
-            return Result.Conflict("Composition changed. Reload before saving.");
+            return Result.Conflict("Склад уже змінили. Оновіть сторінку перед збереженням.");
         var references = await referenceReader.GetSnapshotAsync(cancellationToken);
         var missing = CompositionReferenceValidation.MissingReference(request.Materials, request.Operations, references);
         if (missing is not null)
@@ -42,7 +42,7 @@ public sealed class ReplaceSewingCompositionHandler(
             return Result.Conflict(exception.Message);
         }
         if (!await store.SaveAsync(cancellationToken))
-            return Result.Conflict("Composition or model code changed. Reload before saving.");
+            return Result.Conflict("Склад або код моделі вже змінили. Оновіть сторінку перед збереженням.");
         var snapshot = await readStore.ReadCompositionAsync(command.ProductId, null, cancellationToken);
         return Result.Success(SewingCompositionReadAssembler.Assemble(snapshot!));
     }

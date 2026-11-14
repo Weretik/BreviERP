@@ -22,7 +22,7 @@ public sealed class UpdateGarmentPartCommandHandler(IReferenceRepository<Garment
             new GarmentPartByNameExceptIdSpec(command.Id, name), cancellationToken);
 
         if (duplicateExists)
-            return Result.Conflict("Garment part with the same name already exists.");
+            return Result.Conflict("Деталь виробу з такою назвою вже є.");
 
         entity.Update(name);
 

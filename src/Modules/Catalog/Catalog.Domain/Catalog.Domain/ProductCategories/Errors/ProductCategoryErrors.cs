@@ -1,39 +1,39 @@
-using Catalog.Domain.Errors;
+using BuildingBlocks.Domain.Errors;
 
 namespace Catalog.Domain.ProductCategories.Errors;
 
 public static class ProductCategoryErrors
 {
-    public static CatalogDomainError IdIsRequired() =>
-        new("Catalog.ProductCategory.Id.Required", "Product category id must be provided");
+    public static Error IdIsRequired() =>
+        new("Catalog.ProductCategory.Id.Required", "Не вказано категорію товару.");
 
-    public static CatalogDomainError NameIsRequired() =>
-        new("Catalog.ProductCategory.Name.Required", "Product category name is required");
+    public static Error NameIsRequired() =>
+        new("Catalog.ProductCategory.Name.Required", "Вкажіть назву категорії.");
 
-    public static CatalogDomainError NameLengthInvalid(int maxLength) =>
-        new("Catalog.ProductCategory.Name.LengthInvalid", $"Product category name must be {maxLength} characters or less");
+    public static Error NameLengthInvalid(int maxLength) =>
+        new("Catalog.ProductCategory.Name.LengthInvalid", $"Назва категорії — не більше {maxLength} символів.");
 
-    public static CatalogDomainError SlugIsRequired() =>
-        new("Catalog.ProductCategory.Slug.Required", "Product category slug is required");
+    public static Error SlugIsRequired() =>
+        new("Catalog.ProductCategory.Slug.Required", "Вкажіть адресу (slug) категорії.");
 
-    public static CatalogDomainError SlugFormatInvalid() =>
-        new("Catalog.ProductCategory.Slug.FormatInvalid", "Product category slug must contain lowercase letters, numbers, and hyphens only");
+    public static Error SlugFormatInvalid() =>
+        new("Catalog.ProductCategory.Slug.FormatInvalid", "Адреса (slug) категорії — лише малі латинські літери, цифри та дефіси.");
 
-    public static CatalogDomainError SortOrderOutOfRange() =>
-        new("Catalog.ProductCategory.SortOrder.OutOfRange", "Product category sort order must be zero or greater");
+    public static Error SortOrderOutOfRange() =>
+        new("Catalog.ProductCategory.SortOrder.OutOfRange", "Порядок категорії не може бути від'ємним.");
 
-    public static CatalogDomainError ParentCannotBeSelf() =>
-        new("Catalog.ProductCategory.Parent.SelfReference", "Product category cannot be its own parent");
+    public static Error ParentCannotBeSelf() =>
+        new("Catalog.ProductCategory.Parent.SelfReference", "Категорія не може бути батьківською для самої себе.", ErrorType.Conflict);
 
-    public static CatalogDomainError ParentCannotBeDescendant() =>
-        new("Catalog.ProductCategory.Parent.DescendantReference", "Product category cannot be moved under its own descendant");
+    public static Error ParentCannotBeDescendant() =>
+        new("Catalog.ProductCategory.Parent.DescendantReference", "Категорію не можна перенести всередину її власної підкатегорії.", ErrorType.Conflict);
 
-    public static CatalogDomainError PathIsRequired() =>
-        new("Catalog.ProductCategory.Path.Required", "Product category path is required");
+    public static Error PathIsRequired() =>
+        new("Catalog.ProductCategory.Path.Required", "Не вказано шлях категорії.");
 
-    public static CatalogDomainError PathLengthInvalid(int maxLength) =>
-        new("Catalog.ProductCategory.Path.LengthInvalid", $"Product category path must be {maxLength} characters or less");
+    public static Error PathLengthInvalid(int maxLength) =>
+        new("Catalog.ProductCategory.Path.LengthInvalid", $"Шлях категорії — не більше {maxLength} символів.");
 
-    public static CatalogDomainError PathAncestorMismatch() =>
-        new("Catalog.ProductCategory.Path.AncestorMismatch", "Product category path does not belong to the expected ancestor path");
+    public static Error PathAncestorMismatch() =>
+        new("Catalog.ProductCategory.Path.AncestorMismatch", "Шлях категорії не відповідає батьківській категорії.");
 }
