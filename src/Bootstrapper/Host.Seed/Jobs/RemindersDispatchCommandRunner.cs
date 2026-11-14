@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Reminders.Application.Features.Dispatch.Commands.DispatchReminders;
 using Reminders.Application.Features.Dispatch.Shared;
 
 namespace Host.Seed.Jobs;
@@ -20,7 +21,7 @@ internal static class RemindersDispatchCommandRunner
         ReminderDispatchSummary summary;
         try
         {
-            summary = await scope.ServiceProvider.GetRequiredService<ReminderDispatcher>().RunAsync(CancellationToken.None);
+            summary = await scope.ServiceProvider.SendAsync(new DispatchRemindersCommand(), CancellationToken.None);
         }
         catch (Exception error)
         {

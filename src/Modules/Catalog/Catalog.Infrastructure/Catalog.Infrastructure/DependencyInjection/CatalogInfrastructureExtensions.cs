@@ -70,7 +70,7 @@ public static class CatalogInfrastructureExtensions
         services.AddScoped<Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets.SupplierCabinetPriceReader>();
         services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeSupplierOnlinePriceReader, Catalog.Infrastructure.Integrations.PpeSupplierSites.PpeSupplierOnlinePriceReader>();
         services.AddScoped<Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running.PpePriceImportRunner>();
-        services.AddScoped<Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices.PpeScheduledPriceRefresh>();
+        services.AddScoped<Catalog.Application.Features.Pricing.Commands.RefreshDuePpeSupplierPrices.PpeScheduledPriceRefresh>();
 
         // Adapters from other modules' Contracts to this module's ports.
         services.AddScoped<IFabricNameReader, FabricNameReader>();

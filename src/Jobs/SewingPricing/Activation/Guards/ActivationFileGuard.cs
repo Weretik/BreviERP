@@ -1,9 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Host.Seed.Jobs;
+namespace SewingPricing.Jobs.Activation;
 
-internal static class ActivationFileGuard
+public static class ActivationFileGuard
 {
     public static async Task CheckHashAsync(string path, string expected)
     {

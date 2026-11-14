@@ -1,6 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
+using Catalog.Application.Features.Pricing.Commands.PublishChangedSewingPrices;
 
 namespace Host.Seed.Jobs.Sync;
 
@@ -17,8 +16,7 @@ internal sealed class SewingPricesSyncTask : ISyncTask
 
     public async Task RunAsync(IServiceProvider services, ILogger logger, CancellationToken cancellationToken)
     {
-        var report = await services.GetRequiredService<SewingPricePublisher>()
-            .PublishChangedAsync(null, Actor, cancellationToken);
+        var report = await services.SendAsync(new PublishChangedSewingPricesCommand(Actor), cancellationToken);
         logger.LogInformation(
             "Published {Published} articles, unchanged {Unchanged}, not calculable {Blocked}, skipped models: {Skipped}",
             report.Published.Count, report.Unchanged, report.Blocked.Count,

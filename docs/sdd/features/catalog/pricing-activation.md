@@ -29,10 +29,11 @@ Jobs/SewingPricing/Activation/
   CompositionRoot/ # job-only adapters/service wiring
   PricingActivationJob.cs # preflight then ordered, resumable operations
 Jobs/SewingPricing/Reading/JobProductReferenceReader.cs # real Reference validation data
-Host.Seed/Jobs/Pricing/Activation/
-  ActivationActorReader.cs              # existing manager/admin and lockout validation
-  ActivationFileGuard.cs                # immutable plan and backup checks
-  PricingActivationCommandRunner.cs     # explicit plan/apply configuration and atomic report
+Jobs/SewingPricing/Activation/
+  Guards/ActivationActorReader.cs       # existing manager/admin through Identity.Contracts IStaffDirectory
+  Guards/ActivationFileGuard.cs         # immutable plan and backup checks
+  PricingActivationCommand.cs           # explicit plan/apply configuration and atomic report
+Host.Seed/Jobs/Pricing/PricingActivationCommandRunner.cs # thin runner: calls PricingActivationCommand
 ```
 
 ## Rules and boundaries

@@ -3,7 +3,7 @@ using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 
-namespace Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices;
+namespace Catalog.Application.Features.Pricing.Commands.RefreshDuePpeSupplierPrices;
 
 /// <summary>The outcome of one source in a scheduled run: its result, or the reason it changed nothing.</summary>
 public sealed record PpeScheduledRefreshOutcome(string SourceKey, PpePriceImportResult? Result, string? Error);

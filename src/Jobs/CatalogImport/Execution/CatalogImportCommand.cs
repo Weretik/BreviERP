@@ -1,10 +1,10 @@
 using System.Text.Json;
-using CatalogImport.Execution;
 using Microsoft.Extensions.Configuration;
 
-namespace Host.Seed.Jobs;
+namespace CatalogImport.Execution;
 
-internal static class CatalogImportCommandRunner
+/// <summary>--catalog-import=<source>: validates or imports the catalogue source and writes the report (see the job README).</summary>
+public static class CatalogImportCommand
 {
     public static async Task RunAsync(IConfiguration configuration)
     {

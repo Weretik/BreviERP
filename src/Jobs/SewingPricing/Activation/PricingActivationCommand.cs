@@ -1,14 +1,16 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SewingPricing.Jobs.Activation;
 using SewingPricing.Jobs.Review;
-using Identity.Infrastructure.Persistence.Users;
+using Identity.Contracts.Staff;
 
-namespace Host.Seed.Jobs;
+namespace SewingPricing.Jobs.Activation;
 
-internal static class PricingActivationCommandRunner
+/// <summary>
+/// --pricing-activate=plan|verify|apply: local activation of the pricing baseline. <c>plan</c> writes an immutable plan,
+/// <c>verify</c> reopens and checks it, <c>apply</c> runs it after an explicit confirmation and a verified backup.
+/// </summary>
+public static class PricingActivationCommand
 {
     public static async Task RunAsync(IServiceProvider services, IConfiguration configuration)
     {
@@ -17,7 +19,7 @@ internal static class PricingActivationCommandRunner
         ActivationTargetGuard.Validate(connection);
         var path = Required("plan");
         await using var scope = services.CreateAsyncScope();
-        var actor = await ActivationActorReader.RequireManagerAsync(scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>(), Required("actor-id"));
+        var actor = await ActivationActorReader.RequireManagerAsync(scope.ServiceProvider.GetRequiredService<IStaffDirectory>(), Required("actor-id"));
         var options = new JsonSerializerOptions { WriteIndented = true };
         if (configuration["pricing-activate"] == "plan")
         {

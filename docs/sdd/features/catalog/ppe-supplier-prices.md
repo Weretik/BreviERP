@@ -11,7 +11,7 @@ flowchart LR
   API --> Settings[UpdatePpePriceSource: RequireAdminRole]
   API --> Import[ImportPpeSupplierFiles: dryRun]
   API --> Refresh[RefreshPpeSupplierPrices: dryRun]
-  Job[brevierp-sync: ppe-supplier-prices, Monday] --> Scheduled[PpeScheduledPriceRefresh]
+  Job[brevierp-sync: ppe-supplier-prices, Monday] --> Scheduled[RefreshDuePpeSupplierPricesCommand]
   Import --> Reader[PpeSupplierFileReader: Insight YML / СЕМТО PDF]
   Refresh --> Online[PpeSupplierOnlinePriceReader: pages / 3C CSV / cabinets]
   Scheduled --> Online
@@ -42,7 +42,8 @@ Catalog.Infrastructure/
   Integrations/PpeSupplierSites/          # АВ-Центр / Перчатка-центр page patterns, 3C CSV lists, HTTP client
     Cabinets/                             # Трєле sign-in, session pages, dealer price, options
 Catalog.Api/Pricing/Ppe/PpeSupplierPricesController.cs
-Host.Seed/Jobs/Sync/PpeSupplierPricesSyncTask.cs  # brevierp-sync step ppe-supplier-prices (Mon–Fri 09:00)
+Catalog.Application/Features/Pricing/Commands/RefreshDuePpeSupplierPrices/  # due sources of today, one command
+Host.Seed/Jobs/Sync/PpeSupplierPricesSyncTask.cs  # brevierp-sync step: sends RefreshDuePpeSupplierPricesCommand, logs outcomes
 ```
 
 ## Tests
