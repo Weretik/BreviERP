@@ -15,6 +15,6 @@ src/Modules/Content/
 ## Tests
 
 ```text
-tests/UnitTests/Content/SeoOverviewTests.cs     # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SeoOverview"
-tests/UnitTests/Content/SeoOverviewContractTests.cs
+tests/UnitTests/Content/Seo/SeoOverviewTests.cs     # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SeoOverview"
+tests/UnitTests/Content/Seo/SeoOverviewContractTests.cs
 ```

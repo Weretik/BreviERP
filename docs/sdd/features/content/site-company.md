@@ -24,8 +24,8 @@ src/Modules/Content/
 ## Tests
 
 ```text
-tests/UnitTests/Content/SiteCompanyTests.cs     # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteCompany"
-tests/UnitTests/Content/SiteCompanyContractTests.cs
+tests/UnitTests/Content/Site/SiteCompanyTests.cs     # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteCompany"
+tests/UnitTests/Content/Site/SiteCompanyContractTests.cs
 ```
 
 ## Data

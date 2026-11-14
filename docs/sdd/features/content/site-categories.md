@@ -33,9 +33,9 @@ src/Modules/Content/
 ## Tests
 
 ```text
-tests/UnitTests/Content/SiteCategoriesTests.cs           # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteCategories"
-tests/UnitTests/Content/SiteCategoriesContractTests.cs
-tests/UnitTests/Content/SiteCategoryProductsTests.cs     # product categories and the old-site transfer
+tests/UnitTests/Content/Categories/SiteCategoriesTests.cs           # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteCategories"
+tests/UnitTests/Content/Categories/SiteCategoriesContractTests.cs
+tests/UnitTests/Content/Categories/SiteCategoryProductsTests.cs     # product categories and the old-site transfer
 ```
 
 ## Data

@@ -1,7 +1,7 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using UnitTests.Production;
-using static UnitTests.Warehouse.WarehouseStockHandlerTests;
+using static UnitTests.Warehouse.Stock.WarehouseStockHandlerTests;
 using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
 using Warehouse.Application.Features.Stock.Commands.EditFabricMovement;
 using Warehouse.Application.Features.Stock.Commands.RefreshItemFabricPlan;
@@ -12,6 +12,7 @@ using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
 using Warehouse.Application.Features.Stock.Shared.Operations;
 using Warehouse.Application.Features.Stock.Shared.Plans;
+using UnitTests.Production.Orders;
 
 namespace UnitTests.Warehouse;
 

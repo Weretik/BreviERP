@@ -53,7 +53,7 @@ The [publication structure audit](../../specs/catalog/003-sheet-pricing-parity/s
 ## Tests
 
 - `tests/UnitTests/Reference/Pricing/PricingReferenceQueryHandlerTests.cs`
-- `tests/IntegrationTests/Reference/Pricing/ReferencePricingRevisionTests.cs`, `tests/IntegrationTests/Reference/Pricing/OtherCostPricingRevisionTests.cs`, `tests/IntegrationTests/Reference/Pricing/PricingReferenceQueryIntegrationTests.cs`
+- `tests/IntegrationTests/Reference/ReferencePricingRevisionTests.cs`, `tests/IntegrationTests/Reference/OtherCostPricingRevisionTests.cs`, `tests/IntegrationTests/Reference/PricingReferenceQueryIntegrationTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingReference`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingReference` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 

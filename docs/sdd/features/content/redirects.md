@@ -30,8 +30,8 @@ The save handlers of product pages, site categories and articles call `SiteRedir
 ## Tests
 
 ```text
-tests/UnitTests/Content/SiteRedirectsTests.cs           # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteRedirects"
-tests/UnitTests/Content/SiteRedirectsContractTests.cs
+tests/UnitTests/Content/Seo/SiteRedirectsTests.cs           # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteRedirects"
+tests/UnitTests/Content/Seo/SiteRedirectsContractTests.cs
 ```
 
 ## Data

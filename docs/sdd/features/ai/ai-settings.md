@@ -31,4 +31,4 @@ src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/Adapt
 
 ## Tests
 
-`tests/UnitTests/Ai/`: key encryption and hint, version, switching on without a key, limit and monthly use, extra rules and the read-only base instruction, «Перевірити», Responses request and answer. Command: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Ai"`. Module references and schema: `tests/ArchitectureTests/AiDependencyTests.cs`.
+`tests/UnitTests/Ai/`: key encryption and hint, version, switching on without a key, limit and monthly use, extra rules and the read-only base instruction, «Перевірити», Responses request and answer. Command: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Ai"`. Module references and schema: `tests/ArchitectureTests/Modules/Site/AiDependencyTests.cs`.

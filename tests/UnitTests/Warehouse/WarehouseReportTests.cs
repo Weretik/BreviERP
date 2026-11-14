@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Production.Application.Abstractions;
 using UnitTests.Production;
 using Warehouse.Application.Abstractions;
-using static UnitTests.Warehouse.WarehouseStockHandlerTests;
+using static UnitTests.Warehouse.Stock.WarehouseStockHandlerTests;
 using Warehouse.Application.Features.Stock.Commands.IssueFabric;
 using Warehouse.Application.Features.Stock.Queries.GetFabricBooking;
 using Warehouse.Application.Features.Stock.Queries.GetFabricConsumption;
@@ -16,6 +16,7 @@ using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
 using Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact.Responses;
 using Warehouse.Application.Features.Stock.Queries.GetFabricValuation.Results;
 using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder.Results;
+using UnitTests.Production.Orders;
 
 namespace UnitTests.Warehouse;
 

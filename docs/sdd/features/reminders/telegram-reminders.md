@@ -56,4 +56,4 @@ flowchart LR
 
 ## Tests
 
-`tests/UnitTests/Reminders/`: schedule and all 25 default deadlines, planner and snooze, dispatcher (SQLite in memory, fake clock, fake Telegram), button handler. Command: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Reminders"`. Module references and schema: `tests/ArchitectureTests/RemindersDependencyTests.cs`.
+`tests/UnitTests/Reminders/`: schedule and all 25 default deadlines, planner and snooze, dispatcher (SQLite in memory, fake clock, fake Telegram), button handler. Command: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Reminders"`. Module references and schema: `tests/ArchitectureTests/Modules/Office/RemindersDependencyTests.cs`.

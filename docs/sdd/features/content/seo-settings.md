@@ -23,8 +23,8 @@ src/Modules/Content/
 ## Tests
 
 ```text
-tests/UnitTests/Content/SiteSeoSettingsTests.cs     # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteSeoSettings"
-tests/UnitTests/Content/SiteSeoSettingsContractTests.cs
+tests/UnitTests/Content/Seo/SiteSeoSettingsTests.cs     # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~SiteSeoSettings"
+tests/UnitTests/Content/Seo/SiteSeoSettingsContractTests.cs
 ```
 
 ## Data

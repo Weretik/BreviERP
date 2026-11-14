@@ -84,7 +84,7 @@ For a public endpoint, use `[AllowAnonymous]` and record the reason in the featu
 
 ## Current anonymous exceptions
 
-Only these operations are public; `tests/HostApiTests/ApiAccessTests.cs` fails when the list changes:
+Only these operations are public; `tests/HostApiTests/Access/ApiAccessTests.cs` fails when the list changes:
 
 | Operation | Why |
 | --- | --- |
@@ -121,7 +121,7 @@ Every staff page of the admin and every API it calls must be configurable on «�
 3. **Keep business rules inside Application.** Rules such as "a manager sees only their own КП" stay in the handler. The page right only decides whether the person may open the page or do the action. Write down in the SDD how a role made on «Права доступу» is treated by those rules: today it is treated like a manager.
 4. **Tests:**
    - Update the module's policy assertions in its contract tests.
-   - `tests/HostApiTests/ApiAccessTests.cs` must still pass. It fails on an endpoint without a policy or with an unknown one.
+   - `tests/HostApiTests/Access/ApiAccessTests.cs` must still pass. It fails on an endpoint without a policy or with an unknown one.
    - `AccessRightsTests` covers the catalogue and its defaults.
 5. **Docs:**
    - Add the row to the pages table above.

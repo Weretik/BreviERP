@@ -67,10 +67,10 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Production/ProductionOrderHandlerTests.cs` — create, idempotency, access, hidden prices, history, copy, delete, list filters, import (SQLite in memory, fake ports).
-- `tests/UnitTests/Production/ProductionOrderFilterTests.cs` — filters, sort, stage conveyor and attention, model summary, filter options, category from the name.
-- `tests/UnitTests/Production/ProductionTrackingHandlerTests.cs` — stages, shipments, close/cancel/reopen, files, Telegram once, settings, progress import, КП prices of old orders.
-- `tests/UnitTests/Production/ProductionOrdersContractTests.cs` — DTOs and operations against the contract.
+- `tests/UnitTests/Production/Orders/ProductionOrderHandlerTests.cs` — create, idempotency, access, hidden prices, history, copy, delete, list filters, import (SQLite in memory, fake ports).
+- `tests/UnitTests/Production/Orders/ProductionOrderFilterTests.cs` — filters, sort, stage conveyor and attention, model summary, filter options, category from the name.
+- `tests/UnitTests/Production/Orders/ProductionTrackingHandlerTests.cs` — stages, shipments, close/cancel/reopen, files, Telegram once, settings, progress import, КП prices of old orders.
+- `tests/UnitTests/Production/Orders/ProductionOrdersContractTests.cs` — DTOs and operations against the contract.
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Production`.
 

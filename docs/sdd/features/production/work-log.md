@@ -37,8 +37,8 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Production/ProductionWorkHandlerTests.cs` — plan limit and over-plan, «Сторно», access, import, forecast calculation, forecast access and queue.
-- `tests/UnitTests/Production/ProductionWorkContractTests.cs` — DTOs and operations against the contract.
+- `tests/UnitTests/Production/Payroll/ProductionWorkHandlerTests.cs` — plan limit and over-plan, «Сторно», access, import, forecast calculation, forecast access and queue.
+- `tests/UnitTests/Production/Payroll/ProductionWorkContractTests.cs` — DTOs and operations against the contract.
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Production`.
 

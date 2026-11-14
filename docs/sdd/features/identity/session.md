@@ -33,7 +33,7 @@ src/
 ## Tests
 
 - `tests/IntegrationTests/Identity/CookieAuthApiTests.cs`: login sets both cookies, `me`, wrong password, `401` without session, CSRF check on logout, old token endpoints gone. Real Identity on PostgreSQL (`BREVIERP_CATALOG_TEST_CONNECTION`).
-- `tests/HostApiTests/TrustedProxyClientIpMiddlewareTests.cs`, `tests/HostApiTests/ApiAccessTests.cs`.
+- `tests/HostApiTests/Http/TrustedProxyClientIpMiddlewareTests.cs`, `tests/HostApiTests/Access/ApiAccessTests.cs`.
 - `tests/UnitTests/Identity/SessionOpenApiContractTests.cs`: contract shape.
 
 Focused runs: `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter FullyQualifiedName~IntegrationTests.Identity`, `dotnet test tests/HostApiTests/HostApiTests.csproj`.

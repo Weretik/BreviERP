@@ -40,8 +40,8 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Production/ProductionPayrollHandlerTests.cs` — calculation, warnings, access, payments, closing lock, reopen, timesheet history and versions.
-- `tests/UnitTests/Production/ProductionPayrollContractTests.cs` — DTOs and operations against the contract.
+- `tests/UnitTests/Production/Payroll/ProductionPayrollHandlerTests.cs` — calculation, warnings, access, payments, closing lock, reopen, timesheet history and versions.
+- `tests/UnitTests/Production/Payroll/ProductionPayrollContractTests.cs` — DTOs and operations against the contract.
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Production`.
 

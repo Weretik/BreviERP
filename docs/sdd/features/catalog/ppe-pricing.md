@@ -63,7 +63,7 @@ Legacy Product pricing fields are compatibility outputs; new enrolled consumers 
 
 ## Tests
 
-- `tests/UnitTests/Catalog/Pricing/Ppe/PpePricing*Tests.cs`, `tests/UnitTests/Catalog/Pricing/Ppe/PpeSupplierOfferTests.cs`, `tests/UnitTests/Catalog/Products/CatalogProductCreationInputTests.cs` (preview)
+- `tests/UnitTests/Catalog/Pricing/Ppe/PpePricing*Tests.cs`, `tests/UnitTests/Catalog/Pricing/Ppe/PpeSupplierOfferTests.cs`, `tests/UnitTests/Catalog/Products/Creation/CatalogProductCreationInputTests.cs` (preview)
 - `tests/IntegrationTests/Catalog/Pricing/Ppe/`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~PpePricing|FullyQualifiedName~PpeSupplierOffer"`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PpePricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
