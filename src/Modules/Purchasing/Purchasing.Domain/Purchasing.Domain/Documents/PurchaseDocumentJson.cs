@@ -56,13 +56,25 @@ public static class PurchaseDocumentJson
 
     public static string Hash(string payloadJson) => PurchaseIdentity.Sha256(payloadJson);
 
-    /// <summary>Reads a stored payload back; it was checked when saved.</summary>
-    public static PurchaseDocument Read(string payloadJson)
+    /// <summary>
+    /// Reads a stored payload back; it was checked when saved. Null when it no longer passes the rules or is not the
+    /// expected JSON (rules changed since, or the row was edited by hand); the caller reports it as a problem.
+    /// </summary>
+    public static PurchaseDocument? Read(string payloadJson)
     {
-        using var json = JsonDocument.Parse(payloadJson);
-        var root = json.RootElement;
-        var (document, problems) = PurchaseDocumentRules.Read(root, root.GetProperty("sourceUID").GetString()!,
-            root.GetProperty("originalFileLink").GetString()!, identityInJson: false);
-        return document ?? throw new InvalidOperationException("Stored purchase document is invalid: " + string.Join("; ", problems));
+        try
+        {
+            using var json = JsonDocument.Parse(payloadJson);
+            var root = json.RootElement;
+            if (root.ValueKind != JsonValueKind.Object
+                || !root.TryGetProperty("sourceUID", out var source) || source.ValueKind != JsonValueKind.String
+                || !root.TryGetProperty("originalFileLink", out var link) || link.ValueKind != JsonValueKind.String)
+                return null;
+            return PurchaseDocumentRules.Read(root, source.GetString()!, link.GetString()!, identityInJson: false).Document;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }

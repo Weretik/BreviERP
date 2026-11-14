@@ -41,7 +41,7 @@ internal sealed class ReferencePricingChangeAppender(ReferenceDbContext db)
                 continue;
             if (latest.EffectiveFrom >= at
                 || (change.OriginalValue.HasValue && change.OriginalValue != change.Value && current != change.OriginalValue))
-                throw new ReferencePricingConflictException("Pricing input changed or has a future revision. Reload before editing.");
+                throw new ReferencePricingConflictException("Ціну вже змінили в іншому вікні або на неї заплановано нову. Оновіть сторінку і внесіть зміну ще раз.");
             versions.Add(Version(change, latest.Revision + 1, latest.SourceCode, at));
         }
     }

@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using BuildingBlocks.Domain.Errors;
 
 namespace Accounting.Application.Import;
 
@@ -21,8 +22,11 @@ internal static class LegacyFinanceReader
         Converters = { new FlagConverter(), new TextConverter() },
     };
 
-    /// <summary>The file, or null when it is not JSON of the expected shape. It is read as a stream, never whole.</summary>
-    public static async Task<LegacyFinanceFile?> ReadAsync(Stream content, CancellationToken cancellationToken)
+    /// <summary>
+    /// The file, or the reason it cannot be read (not JSON of the expected shape, a broken archive, too large). It is
+    /// read as a stream, never whole.
+    /// </summary>
+    public static async Task<DomainResult<LegacyFinanceFile>> ReadAsync(Stream content, CancellationToken cancellationToken)
     {
         var seekable = content.CanSeek ? content : await BufferAsync(content, cancellationToken);
         var start = seekable.Position;
@@ -32,17 +36,26 @@ internal static class LegacyFinanceReader
             gzipped ? new GZipStream(seekable, CompressionMode.Decompress, leaveOpen: true) : seekable, MaxBytes);
         try
         {
-            return await JsonSerializer.DeserializeAsync<LegacyFinanceFile>(json, Json, cancellationToken);
+            var file = await JsonSerializer.DeserializeAsync<LegacyFinanceFile>(json, Json, cancellationToken);
+            return file is null || (file.Format is null && file.Transactions is null)
+                ? FileError(ImportMessages.NotJson)
+                : file;
         }
         catch (JsonException)
         {
-            return null;
+            return FileError(ImportMessages.NotJson);
         }
         catch (InvalidDataException)
         {
-            throw new LegacyFinanceFileException(ImportMessages.BrokenArchive);
+            return FileError(ImportMessages.BrokenArchive);
+        }
+        catch (TooLargeException)
+        {
+            return FileError(ImportMessages.TooLarge);
         }
     }
+
+    private static Error FileError(string message) => Error.Validation("Accounting.Import.File", message, "File");
 
     private static async Task<Stream> BufferAsync(Stream content, CancellationToken cancellationToken)
     {
@@ -74,7 +87,7 @@ internal static class LegacyFinanceReader
         private int Count(int bytes)
         {
             read += bytes;
-            return read > limit ? throw new LegacyFinanceFileException(ImportMessages.TooLarge) : bytes;
+            return read > limit ? throw new TooLargeException() : bytes;
         }
 
         public override void Flush() { }
@@ -88,6 +101,9 @@ internal static class LegacyFinanceReader
             base.Dispose(disposing);
         }
     }
+
+    /// <summary>Stops the JSON reader from inside the stream once the unpacked file passes the limit.</summary>
+    private sealed class TooLargeException : Exception;
 
     /// <summary>The old export writes flags as 0/1; true/false is read too.</summary>
     private sealed class FlagConverter : JsonConverter<bool>
@@ -124,6 +140,3 @@ internal static class LegacyFinanceReader
             writer.WriteStringValue(value);
     }
 }
-
-/// <summary>The upload cannot be read at all; the message is shown as is.</summary>
-internal sealed class LegacyFinanceFileException(string message) : Exception(message);

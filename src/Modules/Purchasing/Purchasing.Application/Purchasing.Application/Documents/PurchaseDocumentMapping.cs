@@ -16,15 +16,7 @@ internal static class PurchaseDocumentMapping
     /// <summary>Null when the stored payload no longer passes the rules (it is then reported as a problem).</summary>
     public static PurchaseDocumentResponse? ToResponse(PurchaseCheckedDocument stored)
     {
-        PurchaseDocument document;
-        try
-        {
-            document = PurchaseDocumentJson.Read(stored.PayloadJson);
-        }
-        catch (Exception error) when (error is InvalidOperationException or System.Text.Json.JsonException or KeyNotFoundException)
-        {
-            return null;
-        }
+        if (PurchaseDocumentJson.Read(stored.PayloadJson) is not { } document) return null;
 
         return new PurchaseDocumentResponse(document.DocumentType, document.DocumentNumber, document.DocumentDate,
             document.SupplierName, document.Vat == PurchaseVatMode.WithVat ? PurchaseDocumentVat.WithVat : PurchaseDocumentVat.WithoutVat,

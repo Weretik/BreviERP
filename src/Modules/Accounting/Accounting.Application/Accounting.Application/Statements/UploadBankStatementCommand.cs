@@ -55,17 +55,21 @@ public sealed class UploadBankStatementCommandHandler(IAccountingDbContext db, I
         var earlier = await FindAsync(accountId, hash, cancellationToken);
         if (earlier is not null) return Result.Success(BankStatementResponse.From(earlier, account.Name, existing: true));
 
-        IReadOnlyList<BankLineData> rows;
+        IReadOnlyList<BankSheet> sheets;
         try
         {
             buffer.Position = 0;
-            var sheets = await reader.ReadAsync(buffer, command.DisplayName, cancellationToken);
-            rows = BankStatementParser.Parse(sheets, account, command.DisplayName);
+            sheets = await reader.ReadAsync(buffer, command.DisplayName, cancellationToken);
         }
         catch (BankStatementFileException error)
         {
+            // The reader cannot open the file (format, password, size); its text is for the user.
             return Invalid(error.Message);
         }
+
+        var parsed = BankStatementParser.Parse(sheets, account, command.DisplayName);
+        if (parsed.IsFailure) return parsed.Error!.ToResult<BankStatementResponse>();
+        var rows = parsed.Value;
 
         var created = BankStatement.Create(BankStatementId.New(), account, command.DisplayName, hash, rows,
             command.By, clock.GetUtcNow());
