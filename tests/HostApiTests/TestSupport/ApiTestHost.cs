@@ -52,13 +52,15 @@ internal sealed class ApiTestHost(WebApplication app, HttpClient client) : IAsyn
         return $"{method} {route}";
     }
 
-    public static async Task<ApiTestHost> CreateAsync()
+    /// <param name="sender">Stands in for the mediator, so a request that passes authorization reaches its handler.</param>
+    public static async Task<ApiTestHost> CreateAsync(Mediator.ISender? sender = null)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
         builder.WebHost.UseTestServer();
         builder.Services.AddAuthentication("Fixture")
             .AddScheme<AuthenticationSchemeOptions, FixtureAuthenticationHandler>("Fixture", _ => { });
         builder.Services.AddAuthorizationPolicies();
+        if (sender is not null) builder.Services.AddSingleton(sender);
         // HTTP surface only: each module's Add<Module>Module() also needs a database.
         var mvc = builder.Services.AddControllers();
         foreach (var marker in ApiMarkers) mvc.AddApplicationPart(marker.Assembly);

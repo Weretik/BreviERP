@@ -43,6 +43,8 @@ public static class ModuleRegistrationsExtensions
         app.MapAiEndpoints();
         app.MapPurchasingEndpoints();
         app.MapWarehouseEndpoints();
+        app.MapRemindersEndpoints();
+        app.MapMediaEndpoints();
 
         return app;
     }
