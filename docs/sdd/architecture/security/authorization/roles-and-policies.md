@@ -101,7 +101,7 @@ Only these operations are public; `tests/HostApiTests/ApiAccessTests.cs` fails w
 
 Every other operation needs a signed-in user, and every admin operation names a role or policy: work pages `access:<page>`, shared reads `CatalogRead`, users and system settings `Admin`. The same test fails when an endpoint has neither, except `GET /api/auth/session/me`, `GET /api/auth/session/access` and `POST /api/auth/cookie/logout`, which only need a session; another test fails when a named policy does not exist.
 
-A class-level `[AllowAnonymous]` overrides any `[Authorize]` on its methods, so put it only on the single public action. The exceptions are `PublicCatalogController`, `PublicArticlesController`, `PublicRedirectsController` and `PublicSiteSettingsController`, where every action is public by design.
+A group-level `.AllowAnonymous()` overrides any `RequireAuthorization` on its endpoints, so put it only on the single public endpoint. The exceptions are the public site groups (`PublicCatalogEndpoints`, `PublicArticlesEndpoints`, `PublicRedirectsEndpoints`, `PublicSiteSettingsEndpoints` and the other `Public*` groups), where every endpoint is public by design.
 
 ## New feature or page: «Права доступу» checklist
 

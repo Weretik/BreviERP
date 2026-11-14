@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Routing;
+using UnitTests.TestSupport;
+using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.SeoOverview;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SeoOverview.Queries.GetSeoOverview;
 using Content.Application.Features.SeoOverview.Shared;
@@ -12,6 +13,8 @@ namespace UnitTests.Content;
 /// <summary>«SEO-огляд» matches docs/sdd/contracts/content/content-seo-overview.openapi.yaml (CNT-008).</summary>
 public sealed class SeoOverviewContractTests
 {
+    private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
+
     [TestCase(typeof(SeoOverviewResponse), "SeoOverviewResponse")]
     [TestCase(typeof(SeoAreaSummary), "SeoAreaSummary")]
     [TestCase(typeof(SeoIssue), "SeoIssue")]
@@ -35,10 +38,9 @@ public sealed class SeoOverviewContractTests
     [Test]
     public void Operation_is_in_the_contract_and_needs_the_seo_overview_policy()
     {
-        var controller = typeof(SeoOverviewController);
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
-        var operations = controller.GetMethods()
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
+        var controller = "SeoOverview";
+        var policy = MappedEndpoints.Policy(Map, controller);
+        var operations = MappedEndpoints.Of(Map, controller)
             .Select(x => x.Name!);
         var documented = ((YamlMappingNode)Root()["paths"]).Children.Values.Cast<YamlMappingNode>()
             .SelectMany(path => path.Children.Values.Cast<YamlMappingNode>())

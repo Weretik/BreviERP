@@ -18,7 +18,7 @@ src/Modules/Content/
   Content.Infrastructure/.../Migrations/*_AddSiteGalleries.cs           # table and the seed of the site lists
   Content.Api/Content.Api/
     SiteGalleries/                                                      # /api/content/works, /api/content/certificates
-    PublicSiteGalleries/PublicSiteGalleriesController.cs                # /api/public/galleries, anonymous
+    Endpoints/PublicSiteGalleries/PublicSiteGalleriesEndpoints.cs                # /api/public/galleries, anonymous
 ```
 
 ## Tests

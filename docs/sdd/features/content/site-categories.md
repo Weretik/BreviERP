@@ -27,7 +27,7 @@ src/Modules/Content/
   Content.Infrastructure/Content.Infrastructure/
     Persistence/SiteCategories/SiteCategoryConfiguration.cs
   Content.Api/Content.Api/
-    SiteCategories/SiteCategoriesController.cs   # /api/content/categories, policy access:content-categories
+    Endpoints/SiteCategories/SiteCategoriesEndpoints.cs   # /api/content/categories, policy access:content-categories
 ```
 
 ## Tests

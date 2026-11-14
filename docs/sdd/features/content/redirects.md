@@ -21,8 +21,8 @@ src/Modules/Content/
   Content.Infrastructure/Content.Infrastructure/
     Persistence/Redirects/SiteRedirectConfiguration.cs
   Content.Api/Content.Api/
-    Redirects/ContentRedirectsController.cs        # /api/content/redirects, policy access:content-redirects
-    PublicRedirects/PublicRedirectsController.cs   # /api/public/redirects, anonymous, read-only
+    Endpoints/Redirects/ContentRedirectsEndpoints.cs        # /api/content/redirects, policy access:content-redirects
+    Endpoints/PublicRedirects/PublicRedirectsEndpoints.cs   # /api/public/redirects, anonymous, read-only
 ```
 
 The save handlers of product pages, site categories and articles call `SiteRedirectWriter` when the address changed.

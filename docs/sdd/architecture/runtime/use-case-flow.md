@@ -4,14 +4,14 @@
 
 ```text
 HTTP request
-  → Controller binding
+  → Minimal API endpoint binding
   → ISender.Send(request, cancellationToken)
   → Mediator pipeline
   → Command/query handler
   → Domain + Application abstractions
   → Infrastructure adapter / database
   → Ardalis.Result
-  → ToActionResult HTTP response
+  → ToHttpResult HTTP response
 ```
 
 ## CQRS rules

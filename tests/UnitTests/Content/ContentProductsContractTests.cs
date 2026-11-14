@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Routing;
+using UnitTests.TestSupport;
+using Content.Api.DependencyInjection;
 using System.Text.Json;
 using Content.Api.ProductPages;
 using Content.Domain.ProductPages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.Articles.Shared;
 using Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPages;
@@ -16,6 +18,8 @@ namespace UnitTests.Content;
 /// <summary>«Контент → Товари» types and operations match docs/sdd/contracts/content/content-products.openapi.yaml (CNT-002).</summary>
 public sealed class ContentProductsContractTests
 {
+    private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
+
     [TestCase(typeof(ContentProductRow), "ContentProductRow")]
     [TestCase(typeof(ContentProductPage), "ContentProductPage")]
     [TestCase(typeof(ContentProductTextResponse), "ContentProductTextResponse")]
@@ -56,10 +60,9 @@ public sealed class ContentProductsContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_content_products_policy()
     {
-        var controller = typeof(ContentProductsController);
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
-        var operations = controller.GetMethods()
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
+        var controller = "ContentProducts";
+        var policy = MappedEndpoints.Policy(Map, controller);
+        var operations = MappedEndpoints.Of(Map, controller)
             .Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>

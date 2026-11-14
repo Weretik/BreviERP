@@ -5,8 +5,8 @@ using IResult = Microsoft.AspNetCore.Http.IResult;
 namespace BuildingBlocks.Api.Result;
 
 /// <summary>
-/// The shared Result-to-HTTP mapping of Minimal API endpoints; the same status codes and bodies as
-/// <see cref="ResultToActionResult"/> of the controllers they replace.
+/// The shared Result-to-HTTP mapping of Minimal API endpoints; the same status codes and bodies as the MVC
+/// controllers they replaced answered.
 /// </summary>
 public static class ResultToHttpResult
 {
