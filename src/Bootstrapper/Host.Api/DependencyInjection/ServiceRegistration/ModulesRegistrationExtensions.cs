@@ -36,4 +36,12 @@ public static class ModuleRegistrationsExtensions
 
         return services;
     }
+
+    /// <summary>One call per module that has moved from controllers to Minimal API endpoints.</summary>
+    public static IEndpointRouteBuilder MapModuleEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapAiEndpoints();
+
+        return app;
+    }
 }

@@ -60,6 +60,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapModuleEndpoints();
 app.MapHealthChecks("/health").AllowAnonymous();
 app.MapOutboxDispatch();
 

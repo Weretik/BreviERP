@@ -36,6 +36,26 @@ public sealed class ApiLayoutTests
         Assert.That(offending, Is.Empty);
     }
 
+    /// <summary>
+    /// Minimal API layout: <c>Endpoints/&lt;Feature&gt;/</c> holds <c>&lt;Feature&gt;Endpoints.cs</c> and one
+    /// <c>&lt;UseCase&gt;Endpoint.cs</c> per use case (its request type sits in the same file), never a flat <c>Endpoints/</c>.
+    /// </summary>
+    [Test]
+    public void Endpoint_files_sit_in_feature_folders_one_per_use_case()
+    {
+        var offending = ApiProjects()
+            .Select(project => Path.Combine(project, "Endpoints"))
+            .Where(Directory.Exists)
+            .SelectMany(endpoints => Directory.GetFiles(endpoints, "*.cs", SearchOption.AllDirectories)
+                .Where(file => Path.GetDirectoryName(file) == endpoints
+                               || !(file.EndsWith("Endpoint.cs", StringComparison.Ordinal)
+                                    || file.EndsWith("Endpoints.cs", StringComparison.Ordinal))))
+            .Select(Relative)
+            .ToArray();
+
+        Assert.That(offending, Is.Empty);
+    }
+
     private static IEnumerable<string> ApiProjects() =>
         Directory.GetFiles(Path.Combine(Root(), "src", "Modules"), "*.Api.csproj", SearchOption.AllDirectories)
             .Select(project => Path.GetDirectoryName(project)!);
