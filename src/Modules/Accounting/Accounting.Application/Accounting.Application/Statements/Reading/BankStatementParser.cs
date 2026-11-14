@@ -8,13 +8,14 @@ using Accounting.Domain.Accounts;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Statements;
+using BuildingBlocks.Domain.Errors;
 
 namespace Accounting.Application.Statements.Reading;
 
 /// <summary>
 /// Turns the cells of a statement file into lines: finds the header, reads every row under it and checks it against
-/// the chosen account. A problem of the whole file throws <see cref="BankStatementFileException"/>; a problem of one
-/// row stays in that line's error.
+/// the chosen account. A problem of the whole file is a returned error under «File»; a problem of one row stays in
+/// that line's error.
 /// </summary>
 internal static partial class BankStatementParser
 {
@@ -37,11 +38,14 @@ internal static partial class BankStatementParser
 
     private static readonly string[] TotalWords = ["разом", "итого", "всього", "всего", "залишок", "остаток", "обороти"];
 
-    public static IReadOnlyList<BankLineData> Parse(IReadOnlyList<BankSheet> sheets, FinanceAccount account,
-        string fileName)
+    public static DomainResult<IReadOnlyList<BankLineData>> Parse(IReadOnlyList<BankSheet> sheets,
+        FinanceAccount account, string fileName)
     {
-        var (sheet, headerRow, columns) = FindHeader(sheets);
-        CheckOwnIban(account, fileName, sheet.Rows.Take(headerRow).SelectMany(x => x).Select(x => x.Text));
+        var header = FindHeader(sheets);
+        if (header.IsFailure) return header.Error!;
+        var (sheet, headerRow, columns) = header.Value;
+        if (OtherIban(account, fileName, sheet.Rows.Take(headerRow).SelectMany(x => x).Select(x => x.Text))
+            is { } otherAccount) return otherAccount;
 
         var names = HeaderNames(sheet.Rows[headerRow]);
         var lines = new List<BankLineData>();
@@ -53,22 +57,26 @@ internal static partial class BankStatementParser
             if (line is null) continue;
             lines.Add(line);
             if (lines.Count > BankStatement.MaxLines)
-                throw new BankStatementFileException($"У виписці більше {BankStatement.MaxLines} рядків. Розділіть її на частини.");
+                return FileError($"У виписці більше {BankStatement.MaxLines} рядків. Розділіть її на частини.");
         }
 
         return lines.Count == 0
-            ? throw new BankStatementFileException("Під заголовком немає жодної операції.")
-            : lines;
+            ? FileError("Під заголовком немає жодної операції.")
+            : DomainResult<IReadOnlyList<BankLineData>>.Success(lines);
     }
 
-    private static (BankSheet Sheet, int Row, Dictionary<BankColumn, int> Columns) FindHeader(IReadOnlyList<BankSheet> sheets)
+    /// <summary>A problem of the whole file, shown under the file field.</summary>
+    private static Error FileError(string message) => Error.Validation("Accounting.Statement.File", message, "File");
+
+    private static DomainResult<(BankSheet Sheet, int Row, Dictionary<BankColumn, int> Columns)> FindHeader(
+        IReadOnlyList<BankSheet> sheets)
     {
         foreach (var sheet in sheets)
             for (var index = 0; index < Math.Min(sheet.Rows.Count, HeaderSearchRows); index++)
             {
                 var row = sheet.Rows[index];
                 if (row.Count > MaxColumns)
-                    throw new BankStatementFileException($"У файлі більше {MaxColumns} колонок.");
+                    return FileError($"У файлі більше {MaxColumns} колонок.");
                 var found = row.Select((cell, column) => (Kind: BankHeaders.Of(cell.Text), Column: column))
                     .Where(x => x.Kind is not null).Select(x => (Kind: x.Kind!.Value, x.Column)).ToList();
                 var kinds = found.Select(x => x.Kind).ToHashSet();
@@ -77,25 +85,26 @@ internal static partial class BankStatementParser
 
                 var twice = BankHeaders.Single.FirstOrDefault(kind => found.Count(x => x.Kind == kind) > 1, (BankColumn)(-1));
                 if (twice != (BankColumn)(-1))
-                    throw new BankStatementFileException(
+                    return FileError(
                         "У виписці кілька колонок суми або валюти; незрозуміло, яку брати. Залиште одну і завантажте знову.");
                 return (sheet, index, found.GroupBy(x => x.Kind).ToDictionary(x => x.Key, x => x.First().Column));
             }
 
-        throw new BankStatementFileException(
+        return FileError(
             "Не знайдено заголовок виписки: потрібні колонки дати і суми (або дебету чи кредиту) у перших 50 рядках.");
     }
 
     /// <summary>An IBAN above the header or in the file name that is not the account's means a statement of another account.</summary>
-    private static void CheckOwnIban(FinanceAccount account, string fileName, IEnumerable<string> above)
+    private static Error? OtherIban(FinanceAccount account, string fileName, IEnumerable<string> above)
     {
-        if (account.Iban.Length == 0) return;
+        if (account.Iban.Length == 0) return null;
         var found = above.Append(fileName).SelectMany(x => Iban().Matches(x.ToUpperInvariant()).Select(m => m.Value))
             .ToHashSet();
         var other = found.FirstOrDefault(x => x != account.Iban);
-        if (other is not null && !found.Contains(account.Iban))
-            throw new BankStatementFileException(
-                $"Це виписка іншого рахунку ({other}), а у «{account.Name}» IBAN {account.Iban}. Оберіть потрібний рахунок.");
+        return other is not null && !found.Contains(account.Iban)
+            ? FileError(
+                $"Це виписка іншого рахунку ({other}), а у «{account.Name}» IBAN {account.Iban}. Оберіть потрібний рахунок.")
+            : null;
     }
 
     private static string[] HeaderNames(IReadOnlyList<BankCell> header) =>

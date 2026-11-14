@@ -26,18 +26,9 @@ public sealed class ImportLegacyFinanceCommandHandler(
     public async ValueTask<Result<LegacyFinanceImportReport>> Handle(ImportLegacyFinanceCommand command,
         CancellationToken cancellationToken)
     {
-        LegacyFinanceFile? file;
-        try
-        {
-            file = await LegacyFinanceReader.ReadAsync(command.Content, cancellationToken);
-        }
-        catch (LegacyFinanceFileException error)
-        {
-            return Invalid(error.Message);
-        }
-
-        if (file is null) return Invalid(ImportMessages.NotJson);
-        if (file.Format is null && file.Transactions is null) return Invalid(ImportMessages.NotJson);
+        var read = await LegacyFinanceReader.ReadAsync(command.Content, cancellationToken);
+        if (read.IsFailure) return read.Error!.ToResult<LegacyFinanceImportReport>();
+        var file = read.Value;
 
         var existing = new LegacyFinanceExisting(
             await db.Accounts.AsNoTracking().ToListAsync(cancellationToken),
@@ -88,7 +79,4 @@ public sealed class ImportLegacyFinanceCommandHandler(
             db.ClearTracked();
         }
     }
-
-    private static Result<LegacyFinanceImportReport> Invalid(string message) =>
-        Result.Invalid(new ValidationError("File", message));
 }

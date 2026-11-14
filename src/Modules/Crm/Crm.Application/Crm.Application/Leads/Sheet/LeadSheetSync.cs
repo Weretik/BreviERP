@@ -26,10 +26,10 @@ public sealed class LeadSheetSync(
     public async Task<Result<LeadSyncResponse>> RunAsync(CancellationToken cancellationToken)
     {
         var now = clock.GetUtcNow();
-        LeadSheetParseResult sheet;
+        DomainResult<LeadSheetParseResult> parsed;
         try
         {
-            sheet = LeadSheetParser.Parse(await reader.ReadAsync(cancellationToken));
+            parsed = LeadSheetParser.Parse(await reader.ReadAsync(cancellationToken));
         }
         catch (LeadSheetUnavailableException error)
         {
@@ -38,9 +38,17 @@ public sealed class LeadSheetSync(
         }
         catch (LeadSheetFormatException error)
         {
-            await RecordFailureAsync(now, error.Message, cancellationToken);
-            return Result<LeadSyncResponse>.Error(error.Message);
+            // The reader refuses the tab before reading it (missing or too big).
+            parsed = LeadErrors.SheetFormat(error.Message);
         }
+
+        if (parsed.IsFailure)
+        {
+            await RecordFailureAsync(now, parsed.Error!.Message, cancellationToken);
+            return parsed.Error.ToResult<LeadSyncResponse>();
+        }
+
+        var sheet = parsed.Value;
 
         var managers = await staff.ListAssigneesAsync(cancellationToken);
         var unknownOwners = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);

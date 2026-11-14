@@ -28,7 +28,7 @@ public sealed class LeadRulesTests
     ];
 
     private static Lead NewLead() =>
-        new(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions")]).Rows[0], Now);
+        new(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions")]).Value.Rows[0], Now);
 
     private static LeadCallResult Result(LeadOutcome outcome, int? retryDays = null) =>
         new("Результат", outcome, retryDays, 10);
@@ -39,7 +39,7 @@ public sealed class LeadRulesTests
         var header = Header.Reverse().ToArray();
         var row = Row("7", " Suziria Group ", "Вадим", "Отправили на почту").Reverse().ToArray();
 
-        var parsed = LeadSheetParser.Parse([header, row]);
+        var parsed = LeadSheetParser.Parse([header, row]).Value;
 
         var lead = parsed.Rows.Single();
         Assert.Multiple(() =>
@@ -57,13 +57,13 @@ public sealed class LeadRulesTests
     [Test]
     public void Parser_skips_rows_without_an_id_and_matches_rows_by_company_not_by_id()
     {
-        var parsed = LeadSheetParser.Parse([Header, Row("", "Без ID"), new string?[25], Row("x", "Текст"), Row("3", "Три")]);
+        var parsed = LeadSheetParser.Parse([Header, Row("", "Без ID"), new string?[25], Row("x", "Текст"), Row("3", "Три")]).Value;
         Assert.That(parsed.Rows.Select(x => x.SourceId), Is.EqualTo(new[] { 3 }));
         Assert.That(parsed.Skipped, Is.EqualTo(2));
         Assert.That(parsed.DuplicatesWarning, Is.Null);
 
         var repeated = LeadSheetParser.Parse(
-            [Header, Row("120", "ТОВ \"Ромашка\""), Row("120", "Сокіл"), Row("121", " тов  «ромашка» ")]);
+            [Header, Row("120", "ТОВ \"Ромашка\""), Row("120", "Сокіл"), Row("121", " тов  «ромашка» ")]).Value;
         Assert.Multiple(() =>
         {
             Assert.That(repeated.Rows.Select(x => x.Company), Is.EqualTo(new[] { "ТОВ \"Ромашка\"", "Сокіл" }));
@@ -72,7 +72,8 @@ public sealed class LeadRulesTests
                 "Підприємство записано в таблиці кілька разів, взято перший рядок: «ТОВ \"Ромашка\"» — рядки 2, 4."));
         });
 
-        Assert.Throws<LeadSheetFormatException>(() => LeadSheetParser.Parse([["Назва", "Регион"], ["А", "Київ"]]));
+        Assert.That(LeadSheetParser.Parse([["Назва", "Регион"], ["А", "Київ"]]).Error?.Message,
+            Is.EqualTo("В аркуші лідів немає колонки «ID» або «Предприятие»."));
     }
 
     [Test]
@@ -160,8 +161,8 @@ public sealed class LeadRulesTests
         lead.Take(Anastasia, Now);
         lead.RecordCall(Anastasia, Result(LeadOutcome.Callback), "Після обіду", Now.AddDays(1), Now);
 
-        var changed = lead.ApplySheet(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions LLC")]).Rows[0], Now);
-        var same = lead.ApplySheet(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions LLC")]).Rows[0], Now);
+        var changed = lead.ApplySheet(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions LLC")]).Value.Rows[0], Now);
+        var same = lead.ApplySheet(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions LLC")]).Value.Rows[0], Now);
 
         Assert.Multiple(() =>
         {
@@ -175,7 +176,7 @@ public sealed class LeadRulesTests
 
         lead.MarkGoneFromSheet(Now);
         Assert.That(lead.InSheet, Is.False);
-        Assert.That(lead.ApplySheet(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions LLC")]).Rows[0], Now), Is.True);
+        Assert.That(lead.ApplySheet(LeadSheetParser.Parse([Header, Row("1", "L&S Distributions LLC")]).Value.Rows[0], Now), Is.True);
     }
 
     [Test]

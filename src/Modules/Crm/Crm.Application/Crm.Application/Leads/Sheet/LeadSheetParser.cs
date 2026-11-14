@@ -14,15 +14,15 @@ public static class LeadSheetParser
 
     private static readonly string[] DateFormats = ["yyyy-MM-dd", "dd.MM.yyyy", "d.M.yyyy", "dd.MM.yy", "d.M.yy", "dd/MM/yyyy"];
 
-    public static LeadSheetParseResult Parse(IReadOnlyList<IReadOnlyList<string?>> rows)
+    public static DomainResult<LeadSheetParseResult> Parse(IReadOnlyList<IReadOnlyList<string?>> rows)
     {
-        if (rows.Count == 0) throw new LeadSheetFormatException("Аркуш лідів порожній: немає рядка із заголовками.");
+        if (rows.Count == 0) return LeadErrors.SheetFormat("Аркуш лідів порожній: немає рядка із заголовками.");
         if (rows.Count > MaxRows + 1)
-            throw new LeadSheetFormatException($"В аркуші лідів понад {MaxRows} рядків.");
+            return LeadErrors.SheetFormat($"В аркуші лідів понад {MaxRows} рядків.");
 
         var columns = Columns(rows[0]);
         if (!columns.ContainsKey(Column.Id) || !columns.ContainsKey(Column.Company))
-            throw new LeadSheetFormatException("В аркуші лідів немає колонки «ID» або «Предприятие».");
+            return LeadErrors.SheetFormat("В аркуші лідів немає колонки «ID» або «Предприятие».");
 
         var result = new List<LeadSheetRow>();
         var lines = new Dictionary<string, List<int>>(StringComparer.Ordinal);
