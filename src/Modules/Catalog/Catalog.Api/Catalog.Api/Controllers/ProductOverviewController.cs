@@ -9,7 +9,7 @@ using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Application.Features.Product.Overview.Update;
 using Catalog.Application.Features.Product.SheetImport;
 using Catalog.Application.Features.Product.SheetImport.DTOs;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 
 namespace Catalog.Api.Controllers;
 

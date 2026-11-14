@@ -4,8 +4,8 @@ using Reference.Application.Features.GarmentAccessory.Shared;
 using Reference.Application.Features.GarmentAccessory.Shared.Specifications;
 using Reference.Application.Features.GarmentAccessory.Update.Specifications;
 using Reference.Application.Features.Shared.Dates;
-using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
-using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
+using SupplierEntity = Reference.Domain.Suppliers.Supplier;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.Update;
 

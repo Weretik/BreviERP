@@ -1,9 +1,7 @@
 using Catalog.Application.Features.Product.OldSitePhotoImport;
 using Catalog.Application.Features.Product.Photos.SetPhotos;
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Media;
+using Catalog.Domain.Products;
 
 namespace UnitTests;
 
@@ -89,7 +87,7 @@ public sealed class ProductPhotoListTests
 
     private static Product Product(params int[] mediaFileIds)
     {
-        var product = Catalog.Domain.Products.Entities.Product.Create(ProductId.Create(1), "Куртка", "Куртка",
+        var product = Catalog.Domain.Products.Product.Create(ProductId.Create(1), "Куртка", "Куртка",
             ProductSlug.Create("kurtka").Value, ProductType.Sewing, Now).Value;
         foreach (var (id, index) in mediaFileIds.Select((id, index) => (id, index)))
             product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(id), Now, sortOrder: index);

@@ -3,9 +3,8 @@ using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.Product.GetAdminList;
 using Catalog.Application.Features.Product.GetAdminList.DTOs;
 using Catalog.Application.Contracts.Media;
-using Catalog.Domain.ProductCategories.Entities;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.ProductCategories;
+using Catalog.Domain.Products;
 using Moq;
 
 namespace UnitTests;

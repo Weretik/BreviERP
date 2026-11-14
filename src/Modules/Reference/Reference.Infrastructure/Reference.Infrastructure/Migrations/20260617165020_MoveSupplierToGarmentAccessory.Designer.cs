@@ -63,7 +63,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("AdditionalReferences", (string)null);
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Entities.Fabric", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Fabric", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -90,7 +90,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("FabricsReference", (string)null);
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Entities.GarmentAccessory", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentAccessories.GarmentAccessory", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -119,7 +119,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("GarmentAccessoriesReference", (string)null);
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.Entities.GarmentPart", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.GarmentPart", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -137,7 +137,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("GarmentParts", (string)null);
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.GarmentPartOperation", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -162,7 +162,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("GarmentPartOperations", (string)null);
                 });
 
-            modelBuilder.Entity("Reference.Domain.Suppliers.Entities.Supplier", b =>
+            modelBuilder.Entity("Reference.Domain.Suppliers.Supplier", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -192,18 +192,18 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("Suppliers", (string)null);
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Entities.Fabric", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Fabric", b =>
                 {
-                    b.HasOne("Reference.Domain.Suppliers.Entities.Supplier", null)
+                    b.HasOne("Reference.Domain.Suppliers.Supplier", null)
                         .WithMany()
                         .HasForeignKey("ProviderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Entities.GarmentAccessory", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentAccessories.GarmentAccessory", b =>
                 {
-                    b.HasOne("Reference.Domain.Suppliers.Entities.Supplier", null)
+                    b.HasOne("Reference.Domain.Suppliers.Supplier", null)
                         .WithMany()
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)

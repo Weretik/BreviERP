@@ -1,4 +1,4 @@
-using Reference.Domain.PpeMarkupRules.Entities;
+using Reference.Domain.PpeMarkupRules;
 using Reference.Infrastructure.Converters;
 
 namespace Reference.Infrastructure.Congigurations;

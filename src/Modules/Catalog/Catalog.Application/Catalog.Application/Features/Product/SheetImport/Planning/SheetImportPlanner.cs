@@ -2,9 +2,8 @@ using BuildingBlocks.Domain.Errors;
 using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Application.Features.Product.SheetImport.DTOs;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.SheetImport.Planning;
 

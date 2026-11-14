@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Catalog.Application.Contracts.Pricing;
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DependencyInjection;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
 using CatalogImport.PpePricing.Bootstrap;

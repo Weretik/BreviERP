@@ -1,4 +1,4 @@
-using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
+using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
 
 namespace Reference.Application.Features.PpeMarkupRule.Shared.Specifications;
 

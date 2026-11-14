@@ -1,6 +1,5 @@
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Media;
+using Catalog.Domain.Products;
 
 namespace Catalog.Infrastructure.Congigurations;
 

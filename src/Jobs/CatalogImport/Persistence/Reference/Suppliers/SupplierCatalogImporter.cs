@@ -1,8 +1,7 @@
 using CatalogImport.Execution;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
-using Reference.Domain.Suppliers.Entities;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.Suppliers;
 using Reference.Infrastructure.DataBase;
 
 namespace CatalogImport.Persistence;

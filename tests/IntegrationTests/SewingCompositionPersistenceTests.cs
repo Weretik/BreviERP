@@ -1,6 +1,4 @@
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;

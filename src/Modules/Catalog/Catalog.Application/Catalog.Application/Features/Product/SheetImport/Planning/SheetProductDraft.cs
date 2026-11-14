@@ -1,5 +1,4 @@
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Features.Product.SheetImport.Planning;
 

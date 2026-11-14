@@ -2,8 +2,7 @@ using BuildingBlocks.Domain.ValueObjects;
 using CatalogImport.Execution;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentAccessories.ValueObjects;
+using Reference.Domain.GarmentAccessories;
 using Reference.Infrastructure.DataBase;
 
 namespace CatalogImport.Persistence;

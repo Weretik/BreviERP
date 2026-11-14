@@ -2,12 +2,9 @@
 using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Application.Features.Product.GetAdminList;
 using Catalog.Application.Features.Product.GetAdminList.Specifications;
-using Catalog.Domain.ProductCategories.Entities;
-using Catalog.Domain.ProductCategories.ValueObjects;
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.ProductCategories;
+using Catalog.Domain.Media;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

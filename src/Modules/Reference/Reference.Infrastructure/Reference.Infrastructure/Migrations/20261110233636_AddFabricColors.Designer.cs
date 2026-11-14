@@ -26,7 +26,7 @@ namespace Reference.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Reference.Domain.FabricColors.Entities.FabricColor", b =>
+            modelBuilder.Entity("Reference.Domain.FabricColors.FabricColor", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -50,7 +50,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("FabricColors", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Entities.Fabric", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Fabric", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -116,7 +116,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("FabricsReference", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Entities.GarmentAccessory", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentAccessories.GarmentAccessory", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -171,7 +171,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("GarmentAccessoriesReference", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.Entities.GarmentPart", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.GarmentPart", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -189,7 +189,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("GarmentParts", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.GarmentPartOperation", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -244,7 +244,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("GarmentPartOperations", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule", b =>
+            modelBuilder.Entity("Reference.Domain.PpeMarkupRules.PpeMarkupRule", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -363,7 +363,7 @@ namespace Reference.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Reference.Domain.PricingParameters.Entities.PricingParameter", b =>
+            modelBuilder.Entity("Reference.Domain.PricingParameters.PricingParameter", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -413,7 +413,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("PricingParameters", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.ProductSections.Entities.ProductSection", b =>
+            modelBuilder.Entity("Reference.Domain.ProductSections.ProductSection", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -446,7 +446,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("ProductSections", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.Suppliers.Entities.Supplier", b =>
+            modelBuilder.Entity("Reference.Domain.Suppliers.Supplier", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -508,18 +508,18 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("Suppliers", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Entities.Fabric", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Fabric", b =>
                 {
-                    b.HasOne("Reference.Domain.Suppliers.Entities.Supplier", null)
+                    b.HasOne("Reference.Domain.Suppliers.Supplier", null)
                         .WithMany()
                         .HasForeignKey("ProviderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Entities.GarmentAccessory", b =>
+            modelBuilder.Entity("Reference.Domain.GarmentAccessories.GarmentAccessory", b =>
                 {
-                    b.HasOne("Reference.Domain.Suppliers.Entities.Supplier", null)
+                    b.HasOne("Reference.Domain.Suppliers.Supplier", null)
                         .WithMany()
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -528,17 +528,17 @@ namespace Reference.Infrastructure.Migrations
 
             modelBuilder.Entity("Reference.Domain.Pricing.ReferencePricingInputVersion", b =>
                 {
-                    b.HasOne("Reference.Domain.GarmentAccessories.Entities.GarmentAccessory", null)
+                    b.HasOne("Reference.Domain.GarmentAccessories.GarmentAccessory", null)
                         .WithMany()
                         .HasForeignKey("AccessoryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Reference.Domain.GarmentAccessories.Entities.Fabric", null)
+                    b.HasOne("Reference.Domain.GarmentAccessories.Fabric", null)
                         .WithMany()
                         .HasForeignKey("FabricId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation", null)
+                    b.HasOne("Reference.Domain.GarmentPartOperations.GarmentPartOperation", null)
                         .WithMany()
                         .HasForeignKey("OperationId")
                         .OnDelete(DeleteBehavior.Restrict);

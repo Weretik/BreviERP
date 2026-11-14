@@ -2,8 +2,8 @@ using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Application.Features.Product.Overview.Update.Specifications;
-using Catalog.Domain.Products.ValueObjects;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Overview.Update;
 
@@ -19,7 +19,7 @@ public sealed class UpdateProductOverviewCommandHandler(
         if (product is null) return Result.NotFound();
 
         var code = string.IsNullOrWhiteSpace(command.Code) ? null : command.Code.Trim();
-        if (code is null && product.Type == Domain.Products.Enums.ProductType.Ppe)
+        if (code is null && product.Type == Domain.Products.ProductType.Ppe)
             return Result.Invalid(new ValidationError(nameof(command.Code), "Для ЗІЗ потрібен артикул сайту."));
         if (code is not null &&
             await repository.AnyAsync(new ProductByCodeExceptIdSpec(product.Type, code, command.Id), cancellationToken))

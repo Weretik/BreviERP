@@ -1,8 +1,6 @@
 using BuildingBlocks.Domain.Results;
 using Catalog.Application.Features.Product.Sewing;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.History;
 using Npgsql;

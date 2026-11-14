@@ -1,5 +1,5 @@
-using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
-using PricingParameterId = Reference.Domain.PricingParameters.ValueObjects.PricingParameterId;
+using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
+using PricingParameterId = Reference.Domain.PricingParameters.PricingParameterId;
 
 namespace Reference.Application.Features.PricingReference.GetByIds.Specifications;
 

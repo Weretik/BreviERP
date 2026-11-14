@@ -1,6 +1,6 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PpeMarkupRule.GetList.DTOs;
-using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
+using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
 
 namespace Reference.Application.Features.PpeMarkupRule.GetList;
 

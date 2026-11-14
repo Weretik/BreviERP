@@ -1,4 +1,4 @@
-﻿using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
+﻿using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
 
 namespace Catalog.Application.Features.ProductCategory.Shared.Specifications;
 

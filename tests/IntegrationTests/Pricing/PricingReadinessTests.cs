@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
 using CatalogImport.Source;
 using IntegrationTests.Pricing.Sewing;

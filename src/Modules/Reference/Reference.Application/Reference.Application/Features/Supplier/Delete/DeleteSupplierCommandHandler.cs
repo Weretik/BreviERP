@@ -1,6 +1,6 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Supplier.Delete.Specifications;
-using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
+using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 
 namespace Reference.Application.Features.Supplier.Delete;
 

@@ -6,9 +6,7 @@ using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Update;
 using Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Update.Validators;
 using Catalog.Domain.Pricing.Ppe;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 

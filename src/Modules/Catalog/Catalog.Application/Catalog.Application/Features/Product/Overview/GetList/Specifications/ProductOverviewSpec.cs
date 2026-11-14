@@ -1,7 +1,6 @@
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Overview.GetList.Specifications;
 

@@ -1,5 +1,5 @@
 using Reference.Application.Features.ProductSection.Shared.DTOs;
-using ProductSectionEntity = Reference.Domain.ProductSections.Entities.ProductSection;
+using ProductSectionEntity = Reference.Domain.ProductSections.ProductSection;
 
 namespace Reference.Application.Features.ProductSection.Shared.Validators;
 

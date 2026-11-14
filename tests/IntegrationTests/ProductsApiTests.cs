@@ -16,7 +16,7 @@ using Catalog.Application.Features.Product.GetAdminDetail;
 using Catalog.Application.Features.Product.GetAdminList;
 using Catalog.Application.Features.Product.GetAdminList.DTOs;
 using Catalog.Application.Features.Product.Update;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

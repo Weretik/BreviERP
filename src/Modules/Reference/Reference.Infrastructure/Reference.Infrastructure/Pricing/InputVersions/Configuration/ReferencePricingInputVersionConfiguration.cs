@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.Entities;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
 
 namespace Reference.Infrastructure.Pricing.Configuration;

@@ -1,8 +1,6 @@
 using Catalog.Application.Features.Product.Overview.Update;
 using Catalog.Application.Features.Product.Overview.Update.Validators;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 
 namespace UnitTests;
 

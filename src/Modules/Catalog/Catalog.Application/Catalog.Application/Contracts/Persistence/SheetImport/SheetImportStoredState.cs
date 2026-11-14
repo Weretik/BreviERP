@@ -1,4 +1,4 @@
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Contracts.Persistence.SheetImport;
 

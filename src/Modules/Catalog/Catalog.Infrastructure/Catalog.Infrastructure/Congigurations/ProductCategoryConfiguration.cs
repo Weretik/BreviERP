@@ -1,5 +1,4 @@
-using Catalog.Domain.ProductCategories.Entities;
-using Catalog.Domain.ProductCategories.ValueObjects;
+using Catalog.Domain.ProductCategories;
 
 namespace Catalog.Infrastructure.Congigurations;
 

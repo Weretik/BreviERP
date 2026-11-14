@@ -1,11 +1,9 @@
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Product.Create.DTOs;
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.ProductCategories.ValueObjects;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Media;
+using Catalog.Domain.ProductCategories;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Shared.Card;
 

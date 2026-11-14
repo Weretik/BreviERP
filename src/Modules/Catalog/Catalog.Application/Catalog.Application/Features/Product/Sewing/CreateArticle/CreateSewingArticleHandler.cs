@@ -1,6 +1,5 @@
 using Catalog.Application.Contracts.Reference;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Features.Product.Sewing;
 

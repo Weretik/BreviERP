@@ -1,5 +1,5 @@
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
 
 namespace Reference.Domain.Pricing;
 

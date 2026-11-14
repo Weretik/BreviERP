@@ -1,5 +1,5 @@
 using Catalog.Application.Contracts.Reference;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Overview.Shared;
 
 namespace Catalog.Application.Features.Product.SheetImport.Planning;

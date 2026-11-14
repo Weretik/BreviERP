@@ -3,7 +3,7 @@ using System.Net;
 using System.Text.Json;
 using Catalog.Application.Features.Pricing.Sewing.Preview;
 using Catalog.Domain.Pricing.Sewing;
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.Reading;
 using CatalogImport.Persistence;

@@ -1,4 +1,4 @@
-using Reference.Domain.FabricColors.Entities;
+using Reference.Domain.FabricColors;
 using Reference.Infrastructure.Converters;
 
 namespace Reference.Infrastructure.Congigurations;

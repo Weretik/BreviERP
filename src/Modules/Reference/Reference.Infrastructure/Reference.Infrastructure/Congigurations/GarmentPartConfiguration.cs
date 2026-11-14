@@ -1,6 +1,6 @@
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentPartOperations.Entities;
-using Reference.Domain.Suppliers.Entities;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Suppliers;
 using Reference.Infrastructure.Converters;
 
 namespace Reference.Infrastructure.Congigurations;

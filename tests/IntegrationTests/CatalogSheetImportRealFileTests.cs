@@ -4,12 +4,11 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 using Catalog.Application.Features.Product.SheetImport.DTOs;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using CatalogImport.Execution;
 using CatalogImport.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Reference.Domain.Suppliers.Entities;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.Suppliers;
 using Reference.Infrastructure.DataBase;
 
 namespace IntegrationTests;

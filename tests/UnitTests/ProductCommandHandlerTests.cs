@@ -9,11 +9,9 @@ using Catalog.Application.Features.Product.Create.DTOs;
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
 using Catalog.Application.Features.Product.Update;
 using Catalog.Application.Contracts.Media;
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.ProductCategories.Entities;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Media;
+using Catalog.Domain.ProductCategories;
+using Catalog.Domain.Products;
 using Moq;
 
 namespace UnitTests;
@@ -31,7 +29,7 @@ public sealed class ProductCommandHandlerTests
         var result = await fixture.CreateHandler.Handle(new CreateProductCommand(SewingRequest()), CancellationToken.None);
 
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Ok));
-        fixture.ProductRepository.Verify(x => x.AddAsync(It.Is<Catalog.Domain.Products.Entities.Product>(p => p.Id == ProductId.Create(101)), It.IsAny<CancellationToken>()), Times.Once);
+        fixture.ProductRepository.Verify(x => x.AddAsync(It.Is<Catalog.Domain.Products.Product>(p => p.Id == ProductId.Create(101)), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Test]

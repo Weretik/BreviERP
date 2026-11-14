@@ -1,7 +1,7 @@
 using BuildingBlocks.Application.Outbox;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Reference.Domain.PpeMarkupRules.Entities;
-using Reference.Domain.PricingParameters.Entities;
+using Reference.Domain.PpeMarkupRules;
+using Reference.Domain.PricingParameters;
 
 namespace Reference.Infrastructure.Adapters.Catalog;
 

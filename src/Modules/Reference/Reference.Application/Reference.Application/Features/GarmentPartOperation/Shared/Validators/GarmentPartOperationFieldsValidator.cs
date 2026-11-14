@@ -1,5 +1,5 @@
 using Reference.Application.Features.GarmentPartOperation.Shared.DTOs;
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 
 namespace Reference.Application.Features.GarmentPartOperation.Shared.Validators;
 

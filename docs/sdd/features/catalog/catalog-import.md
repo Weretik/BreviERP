@@ -24,7 +24,7 @@ src/Jobs/CatalogImport/
 deployment/{prepare-catalog-source,import-catalog}.ps1 # source preparation and operator execution
 tools/catalog-import/render-catalog-import-job.py    # job configuration rendered by the deploy workflow
 src/Modules/Catalog/
-  Catalog.Domain/.../Products/Entities/ProductCatalogProfile.cs
+  Catalog.Domain/.../Products/ProductCatalogProfile.cs
   Catalog.Infrastructure/.../Congigurations/ProductCatalogProfileConfiguration.cs
 ```
 

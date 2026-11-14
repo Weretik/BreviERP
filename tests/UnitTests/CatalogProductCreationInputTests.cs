@@ -10,7 +10,7 @@ using Catalog.Application.Features.Product.Overview.Create;
 using Catalog.Application.Features.Product.Overview.Create.Validators;
 using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Domain.Pricing.Ppe;
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;

@@ -29,7 +29,7 @@ public sealed record FinanceTransactionDetails(
         string? description, string? comment)
     {
         if (!Enum.IsDefined(type))
-            return Errors.AccountingErrors.Rule("Accounting.Transaction.Type", "Невідомий тип операції.");
+            return AccountingErrors.Rule("Accounting.Transaction.Type", "Невідомий тип операції.");
         var amount = MovementRules.CheckAmount(amountMinor);
         if (amount.IsFailure) return amount.Error!;
         var oneoff = OneoffOf(counterparty, oneoffName);
@@ -49,7 +49,7 @@ public sealed record FinanceTransactionDetails(
         if (checkedName.IsFailure) return checkedName;
         var oneoff = checkedName.Value;
         if (counterparty is not null && oneoff.Length > 0)
-            return Errors.AccountingErrors.Rule("Accounting.Transaction.Counterparty",
+            return AccountingErrors.Rule("Accounting.Transaction.Counterparty",
                 "Оберіть контрагента зі списку або введіть разового — не обидва.");
         return oneoff;
     }

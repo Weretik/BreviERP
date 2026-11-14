@@ -8,11 +8,9 @@ using Catalog.Application.Features.Product.Create.DTOs;
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
 using Catalog.Application.Features.Product.Sewing;
 using Catalog.Application.Features.Product.Update;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Moq;
-using ProductCategory = Catalog.Domain.ProductCategories.Entities.ProductCategory;
+using ProductCategory = Catalog.Domain.ProductCategories.ProductCategory;
 
 namespace UnitTests;
 

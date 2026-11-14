@@ -1,7 +1,7 @@
 ﻿using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.ProductCategory.GetStoreList.DTOs;
 using Catalog.Application.Features.ProductCategory.GetStoreList.Specifications;
-using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
 
 namespace Catalog.Application.Features.ProductCategory.GetStoreList;
 

@@ -1,5 +1,5 @@
 using Catalog.Application.Features.Pricing.Ppe.Evaluation;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.Ppe.Reading;
 using CatalogImport.Source;

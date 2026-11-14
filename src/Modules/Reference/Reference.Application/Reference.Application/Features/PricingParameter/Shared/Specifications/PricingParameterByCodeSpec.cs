@@ -1,4 +1,4 @@
-using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
+using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
 
 namespace Reference.Application.Features.PricingParameter.Shared.Specifications;
 

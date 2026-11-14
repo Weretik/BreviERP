@@ -1,5 +1,5 @@
 using Reference.Application.Features.PpeMarkupRule.Shared.DTOs;
-using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
+using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
 
 namespace Reference.Application.Features.PpeMarkupRule.Shared.Validators;
 

@@ -3,7 +3,7 @@ using Catalog.Application.Features.Product.Overview.GetList.DTOs;
 using Catalog.Application.Features.Product.Overview.GetOne;
 using Catalog.Application.Features.Product.Photos.GetPhotos;
 using Catalog.Contracts.Products;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Mediator;
 
 namespace Catalog.Infrastructure.Contracts.Products;

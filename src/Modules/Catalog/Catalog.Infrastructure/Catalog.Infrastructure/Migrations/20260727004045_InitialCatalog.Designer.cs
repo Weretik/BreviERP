@@ -78,7 +78,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("MediaFiles", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.ProductCategories.Entities.ProductCategory", b =>
+            modelBuilder.Entity("Catalog.Domain.ProductCategories.ProductCategory", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -135,7 +135,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("ProductCategories", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.Product", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.Product", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -163,17 +163,17 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("Products", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.ProductCategories.Entities.ProductCategory", b =>
+            modelBuilder.Entity("Catalog.Domain.ProductCategories.ProductCategory", b =>
                 {
-                    b.HasOne("Catalog.Domain.ProductCategories.Entities.ProductCategory", null)
+                    b.HasOne("Catalog.Domain.ProductCategories.ProductCategory", null)
                         .WithMany()
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.Product", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.Product", b =>
                 {
-                    b.OwnsMany("Catalog.Domain.Products.Entities.ProductCategoryReference", "Categories", b1 =>
+                    b.OwnsMany("Catalog.Domain.Products.ProductCategoryReference", "Categories", b1 =>
                         {
                             b1.Property<int>("ProductId")
                                 .HasColumnType("integer");
@@ -188,7 +188,7 @@ namespace Catalog.Infrastructure.Migrations
 
                             b1.ToTable("ProductCategoryLinks", "catalog");
 
-                            b1.HasOne("Catalog.Domain.ProductCategories.Entities.ProductCategory", null)
+                            b1.HasOne("Catalog.Domain.ProductCategories.ProductCategory", null)
                                 .WithMany()
                                 .HasForeignKey("Id")
                                 .OnDelete(DeleteBehavior.Restrict)
@@ -198,7 +198,7 @@ namespace Catalog.Infrastructure.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
-                    b.OwnsMany("Catalog.Domain.Products.Entities.ProductPhoto", "Photos", b1 =>
+                    b.OwnsMany("Catalog.Domain.Products.ProductPhoto", "Photos", b1 =>
                         {
                             b1.Property<int>("ProductId")
                                 .HasColumnType("integer");

@@ -1,8 +1,8 @@
-using Reference.Domain.PpeMarkupRules.Entities;
-using Reference.Domain.PricingParameters.Entities;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentPartOperations.Entities;
-using Reference.Domain.Suppliers.Entities;
+using Reference.Domain.PpeMarkupRules;
+using Reference.Domain.PricingParameters;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Suppliers;
 
 namespace Reference.Application.Contracts.Persistence;
 

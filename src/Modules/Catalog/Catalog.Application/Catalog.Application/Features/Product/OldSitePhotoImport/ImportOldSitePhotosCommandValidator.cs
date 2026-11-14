@@ -32,7 +32,7 @@ public sealed class ImportOldSitePhotosCommandValidator : AbstractValidator<Impo
                 product.RuleFor(x => x.NewModel!.Name).NotEmpty().MaximumLength(200);
                 product.RuleFor(x => x.NewModel!.Section).NotEmpty().MaximumLength(200);
                 product.RuleFor(x => x.NewModel!.Season)
-                    .Must(x => x is null || Domain.Products.Entities.Product.Seasons.Contains(x))
+                    .Must(x => x is null || Domain.Products.Product.Seasons.Contains(x))
                     .WithMessage("Сезон: «Літо», «Зима» або порожньо.");
             });
         });

@@ -3,9 +3,7 @@ using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Pricing.Sewing.ArticleSummary;
 using Catalog.Application.Features.Product.Sewing;
 using Catalog.Domain.Pricing.Sewing;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Moq;
 
 namespace UnitTests;

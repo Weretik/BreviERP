@@ -3,9 +3,9 @@ using Reference.Application.Features.GarmentAccessory.Create.Specifications;
 using Reference.Application.Features.GarmentAccessory.Shared;
 using Reference.Application.Features.GarmentAccessory.Shared.Specifications;
 using Reference.Application.Features.Shared.Dates;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
-using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
+using Reference.Domain.GarmentAccessories;
+using SupplierEntity = Reference.Domain.Suppliers.Supplier;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.Create;
 

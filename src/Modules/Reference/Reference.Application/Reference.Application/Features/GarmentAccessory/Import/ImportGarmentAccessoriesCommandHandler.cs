@@ -2,9 +2,9 @@ using Reference.Application.Contracts.Pricing;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentAccessory.Import.DTOs;
 using Reference.Application.Features.Shared.SheetImport;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
-using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
+using Reference.Domain.GarmentAccessories;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
+using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 
 namespace Reference.Application.Features.GarmentAccessory.Import;
 

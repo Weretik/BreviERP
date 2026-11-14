@@ -1,8 +1,7 @@
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Features.Product.GetAdminList.DTOs;
-using Catalog.Domain.ProductCategories.ValueObjects;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.ProductCategories;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Features.Product.GetAdminList.Specifications;
 

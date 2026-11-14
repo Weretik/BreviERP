@@ -1,4 +1,4 @@
-using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
+using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 
 namespace Reference.Application.Features.GarmentAccessory.Shared.Specifications;
 

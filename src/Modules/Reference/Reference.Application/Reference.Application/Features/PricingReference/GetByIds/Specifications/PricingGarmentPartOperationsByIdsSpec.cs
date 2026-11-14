@@ -1,5 +1,5 @@
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
-using GarmentPartOperationId = Reference.Domain.GarmentPartOperations.ValueObjects.GarmentPartOperationId;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
+using GarmentPartOperationId = Reference.Domain.GarmentPartOperations.GarmentPartOperationId;
 
 namespace Reference.Application.Features.PricingReference.GetByIds.Specifications;
 

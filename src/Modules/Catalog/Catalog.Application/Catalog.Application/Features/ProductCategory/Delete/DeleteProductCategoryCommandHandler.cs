@@ -1,12 +1,12 @@
 ﻿using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.ProductCategory.Shared.Specifications;
-using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
 
 namespace Catalog.Application.Features.ProductCategory.Delete;
 
 public sealed class DeleteProductCategoryCommandHandler(
     ICatalogRepository<ProductCategoryEntity> repository,
-    ICatalogReadRepository<Catalog.Domain.Products.Entities.Product> productRepository)
+    ICatalogReadRepository<Catalog.Domain.Products.Product> productRepository)
     : ICommandHandler<DeleteProductCategoryCommand, Result>
 {
     public async ValueTask<Result> Handle(

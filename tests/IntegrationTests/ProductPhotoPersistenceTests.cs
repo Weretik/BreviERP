@@ -1,10 +1,8 @@
 using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Application.Features.Product.Overview.GetList.Specifications;
 using Catalog.Application.Features.Product.Photos.Specifications;
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Media;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;

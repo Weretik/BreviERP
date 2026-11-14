@@ -1,8 +1,8 @@
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Application.Features.Product.Overview.Shared.Specifications;
-using Catalog.Domain.Products.Enums;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Overview.CodeCheck;
 

@@ -3,8 +3,8 @@ using Catalog.Application.Contracts.Pricing;
 using Catalog.Application.Features.Pricing.Sewing.Evaluation;
 using Catalog.Application.Features.Pricing.Sewing.AutoPublication.Specifications;
 using Catalog.Domain.Pricing.Sewing;
-using Catalog.Domain.Products.Enums;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Pricing.Sewing.AutoPublication;
 

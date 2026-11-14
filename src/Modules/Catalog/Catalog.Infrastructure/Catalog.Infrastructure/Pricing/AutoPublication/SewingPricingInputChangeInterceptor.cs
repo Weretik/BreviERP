@@ -1,6 +1,6 @@
 using Catalog.Contracts.Pricing;
 using Catalog.Domain.Pricing.Sewing;
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Catalog.Infrastructure.Pricing.AutoPublication;

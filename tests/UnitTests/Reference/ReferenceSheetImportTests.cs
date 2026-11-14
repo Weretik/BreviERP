@@ -6,10 +6,8 @@ using Reference.Application.Features.Fabric.Import.DTOs;
 using Reference.Application.Features.GarmentAccessory.Import;
 using Reference.Application.Features.GarmentAccessory.Import.DTOs;
 using Reference.Application.Features.Shared.SheetImport;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.Suppliers.Entities;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.Suppliers;
 
 namespace UnitTests.Reference;
 

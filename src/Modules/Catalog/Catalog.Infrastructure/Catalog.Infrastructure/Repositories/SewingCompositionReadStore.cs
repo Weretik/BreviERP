@@ -1,6 +1,5 @@
 using Catalog.Application.Features.Product.Sewing;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 
 namespace Catalog.Infrastructure.Repositories;

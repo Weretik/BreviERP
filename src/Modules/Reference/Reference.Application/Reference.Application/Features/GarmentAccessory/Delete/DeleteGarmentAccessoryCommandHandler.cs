@@ -1,7 +1,7 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Contracts.Catalog;
 using Reference.Application.Features.GarmentAccessory.Delete.Specifications;
-using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.Delete;
 

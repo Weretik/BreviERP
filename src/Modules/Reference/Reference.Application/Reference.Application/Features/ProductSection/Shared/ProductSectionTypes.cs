@@ -1,4 +1,4 @@
-using Reference.Domain.ProductSections.Enums;
+using Reference.Domain.ProductSections;
 
 namespace Reference.Application.Features.ProductSection.Shared;
 

@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.Ppe.Reading;
 using CatalogImport.Persistence;

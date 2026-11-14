@@ -122,7 +122,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("SewingPricingSettingsVersions", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.ProductCategories.Entities.ProductCategory", b =>
+            modelBuilder.Entity("Catalog.Domain.ProductCategories.ProductCategory", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -179,7 +179,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("ProductCategories", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.PpeProductDetails", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.PpeProductDetails", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -190,7 +190,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<int>("SupplierId")
                         .HasColumnType("integer");
 
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "RetailPercent", "Catalog.Domain.Products.Entities.PpeProductDetails.RetailPercent#RetailPricePercent", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "RetailPercent", "Catalog.Domain.Products.PpeProductDetails.RetailPercent#RetailPricePercent", b1 =>
                         {
                             b1.IsRequired();
 
@@ -208,7 +208,7 @@ namespace Catalog.Infrastructure.Migrations
                                 .HasColumnName("RetailPercentSource");
                         });
 
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "WholesalePercent", "Catalog.Domain.Products.Entities.PpeProductDetails.WholesalePercent#WholesalePricePercent", b1 =>
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "WholesalePercent", "Catalog.Domain.Products.PpeProductDetails.WholesalePercent#WholesalePricePercent", b1 =>
                         {
                             b1.IsRequired();
 
@@ -231,7 +231,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("PpeProductDetails", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.Product", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.Product", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -304,7 +304,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("Products", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductAccessory", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductAccessory", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -323,7 +323,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("SewingProductAccessories", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCatalogProfile", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCatalogProfile", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -396,7 +396,7 @@ namespace Catalog.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCategoryReference", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCategoryReference", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -412,7 +412,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("ProductCategoryLinks", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCharacteristicRow", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCharacteristicRow", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -451,7 +451,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("ProductCharacteristicRows", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCharacteristicTable", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCharacteristicTable", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -480,7 +480,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("ProductCharacteristicTables", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductFabric", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductFabric", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -499,7 +499,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("SewingProductFabrics", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductInformationBlock", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductInformationBlock", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -538,7 +538,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("ProductInformationBlocks", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductOperation", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductOperation", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -551,7 +551,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("SewingProductOperations", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductPhoto", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductPhoto", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -583,7 +583,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("ProductPhotos", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingArticle", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingArticle", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -616,7 +616,7 @@ namespace Catalog.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingMaterialLine", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingMaterialLine", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -686,7 +686,7 @@ namespace Catalog.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingOperationLine", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingOperationLine", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -751,7 +751,7 @@ namespace Catalog.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingProductDetails", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingProductDetails", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
@@ -942,161 +942,161 @@ namespace Catalog.Infrastructure.Migrations
                     b.ToTable("PpePricingRuleVersions", "catalog");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.ProductCategories.Entities.ProductCategory", b =>
+            modelBuilder.Entity("Catalog.Domain.ProductCategories.ProductCategory", b =>
                 {
-                    b.HasOne("Catalog.Domain.ProductCategories.Entities.ProductCategory", null)
+                    b.HasOne("Catalog.Domain.ProductCategories.ProductCategory", null)
                         .WithMany()
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.PpeProductDetails", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.PpeProductDetails", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithOne("PpeDetails")
-                        .HasForeignKey("Catalog.Domain.Products.Entities.PpeProductDetails", "ProductId")
+                        .HasForeignKey("Catalog.Domain.Products.PpeProductDetails", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductAccessory", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductAccessory", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.SewingProductDetails", null)
+                    b.HasOne("Catalog.Domain.Products.SewingProductDetails", null)
                         .WithMany("Accessories")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCatalogProfile", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCatalogProfile", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithOne("CatalogProfile")
-                        .HasForeignKey("Catalog.Domain.Products.Entities.ProductCatalogProfile", "ProductId")
+                        .HasForeignKey("Catalog.Domain.Products.ProductCatalogProfile", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCategoryReference", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCategoryReference", b =>
                 {
-                    b.HasOne("Catalog.Domain.ProductCategories.Entities.ProductCategory", null)
+                    b.HasOne("Catalog.Domain.ProductCategories.ProductCategory", null)
                         .WithMany()
                         .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany("Categories")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCharacteristicRow", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCharacteristicRow", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.ProductCharacteristicTable", null)
+                    b.HasOne("Catalog.Domain.Products.ProductCharacteristicTable", null)
                         .WithMany("Rows")
                         .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCharacteristicTable", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCharacteristicTable", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany("CharacteristicTables")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductFabric", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductFabric", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.SewingProductDetails", null)
+                    b.HasOne("Catalog.Domain.Products.SewingProductDetails", null)
                         .WithMany("Fabrics")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductInformationBlock", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductInformationBlock", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany("InformationBlocks")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductOperation", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductOperation", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.SewingProductDetails", null)
+                    b.HasOne("Catalog.Domain.Products.SewingProductDetails", null)
                         .WithMany("Operations")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductPhoto", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductPhoto", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany("Photos")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingArticle", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingArticle", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany("Articles")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingMaterialLine", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingMaterialLine", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany("MaterialLines")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Catalog.Domain.Products.Entities.SewingArticle", null)
+                    b.HasOne("Catalog.Domain.Products.SewingArticle", null)
                         .WithMany()
                         .HasForeignKey("ProductId", "ArticleId")
                         .HasPrincipalKey("ProductId", "Id")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingOperationLine", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingOperationLine", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany("OperationLines")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingProductDetails", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingProductDetails", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithOne("SewingDetails")
-                        .HasForeignKey("Catalog.Domain.Products.Entities.SewingProductDetails", "ProductId")
+                        .HasForeignKey("Catalog.Domain.Products.SewingProductDetails", "ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Catalog.Infrastructure.Pricing.History.SavedSewingCalculationRecord", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Catalog.Domain.Products.Entities.SewingArticle", null)
+                    b.HasOne("Catalog.Domain.Products.SewingArticle", null)
                         .WithMany()
                         .HasForeignKey("ProductId", "ArticleId")
                         .HasPrincipalKey("ProductId", "Id")
@@ -1117,14 +1117,14 @@ namespace Catalog.Infrastructure.Migrations
 
             modelBuilder.Entity("Catalog.Infrastructure.Pricing.Ppe.Records.PpeOfferVersionRecord", b =>
                 {
-                    b.HasOne("Catalog.Domain.Products.Entities.Product", null)
+                    b.HasOne("Catalog.Domain.Products.Product", null)
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.Product", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.Product", b =>
                 {
                     b.Navigation("Articles");
 
@@ -1147,12 +1147,12 @@ namespace Catalog.Infrastructure.Migrations
                     b.Navigation("SewingDetails");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.ProductCharacteristicTable", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.ProductCharacteristicTable", b =>
                 {
                     b.Navigation("Rows");
                 });
 
-            modelBuilder.Entity("Catalog.Domain.Products.Entities.SewingProductDetails", b =>
+            modelBuilder.Entity("Catalog.Domain.Products.SewingProductDetails", b =>
                 {
                     b.Navigation("Accessories");
 

@@ -1,5 +1,5 @@
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
+using Reference.Domain.GarmentPartOperations;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 
 namespace Reference.Application.Features.GarmentPartOperation.Shared.Specifications;
 

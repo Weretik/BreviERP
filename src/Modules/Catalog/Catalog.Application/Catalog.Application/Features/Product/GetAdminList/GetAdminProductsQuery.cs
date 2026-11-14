@@ -1,4 +1,4 @@
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.GetAdminList.DTOs;
 
 namespace Catalog.Application.Features.Product.GetAdminList;

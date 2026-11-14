@@ -1,5 +1,5 @@
-﻿using Reference.Domain.Suppliers.Entities;
-using Reference.Domain.Suppliers.ValueObjects;
+﻿using Reference.Domain.Suppliers;
+using Reference.Domain.Suppliers;
 
 namespace UnitTests.Reference;
 

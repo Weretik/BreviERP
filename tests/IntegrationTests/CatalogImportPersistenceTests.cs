@@ -1,12 +1,11 @@
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Repositories;
 using CatalogImport.Execution;
 using CatalogImport.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Reference.Domain.Suppliers.Entities;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.Suppliers;
 using Reference.Infrastructure.DataBase;
 
 namespace IntegrationTests;

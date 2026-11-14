@@ -6,7 +6,7 @@ Admin CRUD and list for Storefront.
 
 ## Structure and relationships
 
-[ProductCategoriesController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductCategoriesController.cs) routes requests to the [admin query](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/GetAdminList/GetAdminProductCategoriesQueryHandler.cs), store query, and command handlers. [ProductCategory](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/ProductCategories/Entities/ProductCategory.cs) is persisted through [CatalogEfRepository](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Repositories/CatalogEfRepository.cs). The category belongs to Catalog even though the API route starts with `/api/reference/`.
+[ProductCategoriesController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductCategoriesController.cs) routes requests to the [admin query](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/GetAdminList/GetAdminProductCategoriesQueryHandler.cs), store query, and command handlers. [ProductCategory](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/ProductCategories/ProductCategory.cs) is persisted through [CatalogEfRepository](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Repositories/CatalogEfRepository.cs). The category belongs to Catalog even though the API route starts with `/api/reference/`.
 
 ## Code structure
 
@@ -22,7 +22,7 @@ src/
     │   ├── GetAdminList/GetAdminProductCategoriesQueryHandler.cs  # use-case handler
     │   ├── GetStoreList/GetStoreProductCategoriesQueryHandler.cs  # use-case handler
     │   └── Update/UpdateProductCategoryCommandHandler.cs  # use-case handler
-    ├── Catalog.Domain/Catalog.Domain/ProductCategories/Entities/ProductCategory.cs  # domain model
+    ├── Catalog.Domain/Catalog.Domain/ProductCategories/ProductCategory.cs  # domain model
     └── Catalog.Infrastructure/Catalog.Infrastructure/Repositories/CatalogEfRepository.cs  # data access
 ```
 

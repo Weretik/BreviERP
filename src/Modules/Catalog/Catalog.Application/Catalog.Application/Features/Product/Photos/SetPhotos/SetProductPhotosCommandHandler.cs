@@ -2,8 +2,8 @@ using Catalog.Application.Contracts.Media;
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.Product.Photos.DTOs;
 using Catalog.Application.Features.Product.Photos.Specifications;
-using Catalog.Domain.Media.ValueObjects;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Media;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Photos.SetPhotos;
 

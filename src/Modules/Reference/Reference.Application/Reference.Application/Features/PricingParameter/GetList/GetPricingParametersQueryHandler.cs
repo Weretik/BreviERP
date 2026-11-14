@@ -1,7 +1,7 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingParameter.GetList.DTOs;
 using Reference.Domain.PricingParameters;
-using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
+using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
 
 namespace Reference.Application.Features.PricingParameter.GetList;
 

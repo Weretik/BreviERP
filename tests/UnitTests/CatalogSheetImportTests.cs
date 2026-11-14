@@ -1,6 +1,6 @@
 using Catalog.Application.Features.Product.SheetImport.DTOs;
 using Catalog.Application.Features.Product.SheetImport.Planning;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using static UnitTests.CatalogSheetImportFixtures;
 
 namespace UnitTests;
@@ -115,8 +115,8 @@ public sealed class CatalogSheetImportTests
         var old = Legacy(7, ProductType.Sewing, "Стара модель", "MOD-900");
         var first = Plan();
         var stored = Stored(first.Writes[0], 300);
-        stored.ReplaceArticles([Catalog.Domain.Products.Entities.SewingArticle.Create(
-            Catalog.Domain.Products.ValueObjects.ArticleId.Create(77), stored.Id, "999").Value], Now);
+        stored.ReplaceArticles([Catalog.Domain.Products.SewingArticle.Create(
+            Catalog.Domain.Products.ArticleId.Create(77), stored.Id, "999").Value], Now);
 
         var plan = Plan(context: Context([old, stored], calculatedProducts: new HashSet<int> { 7 },
             calculatedArticles: new HashSet<long> { 77 }));

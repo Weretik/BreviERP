@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Catalog.Application.Features.Product.SheetImport.DTOs;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Host.Api.DependencyInjection.ServiceRegistration;
 using Identity.Infrastructure.DataBase;
@@ -18,8 +18,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using Reference.Domain.Suppliers.Entities;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.Suppliers;
 using Reference.Infrastructure.DataBase;
 using BuildingBlocks.Domain.ValueObjects;
 

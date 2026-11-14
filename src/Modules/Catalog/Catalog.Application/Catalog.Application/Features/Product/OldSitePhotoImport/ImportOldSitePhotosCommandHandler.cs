@@ -7,8 +7,8 @@ using Catalog.Application.Features.Product.Photos.DTOs;
 using Catalog.Application.Features.Product.Photos.SetPhotos;
 using Catalog.Application.Features.Product.Photos.SkuIndex;
 using Catalog.Application.Features.Product.Photos.Specifications;
-using Catalog.Domain.Products.Enums;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.OldSitePhotoImport;
 

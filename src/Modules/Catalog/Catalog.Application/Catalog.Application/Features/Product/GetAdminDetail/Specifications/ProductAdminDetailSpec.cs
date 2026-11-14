@@ -1,5 +1,5 @@
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.GetAdminDetail.Specifications;
 
@@ -8,7 +8,7 @@ public sealed class ProductAdminDetailSpec : Specification<ProductEntity, Produc
     public ProductAdminDetailSpec(int id)
     {
         Query.AsNoTracking()
-            .Where(x => x.Id == Catalog.Domain.Products.ValueObjects.ProductId.Create(id))
+            .Where(x => x.Id == Catalog.Domain.Products.ProductId.Create(id))
             .Select(x => new ProductAdminDetailReadModel(
                 x.Id.Value,
                 x.Name,

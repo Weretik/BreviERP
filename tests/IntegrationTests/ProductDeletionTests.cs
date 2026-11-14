@@ -2,10 +2,8 @@
 using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.Product.Delete;
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Media;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;

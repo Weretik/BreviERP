@@ -6,9 +6,7 @@ using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Contracts.SlugGeneration;
 using Catalog.Application.Features.Product.Overview.Create;
 using Catalog.Domain.Pricing.Ppe;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 

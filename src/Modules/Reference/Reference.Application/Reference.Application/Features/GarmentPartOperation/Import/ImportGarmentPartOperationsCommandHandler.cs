@@ -3,9 +3,9 @@ using Reference.Application.Contracts.Persistence;
 using Reference.Application.Contracts.Pricing;
 using Reference.Application.Features.GarmentPartOperation.Import.DTOs;
 using Reference.Application.Features.Shared.SheetImport;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
+using Reference.Domain.GarmentPartOperations;
+using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 
 namespace Reference.Application.Features.GarmentPartOperation.Import;
 

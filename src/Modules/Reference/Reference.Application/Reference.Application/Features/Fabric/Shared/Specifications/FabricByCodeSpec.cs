@@ -1,5 +1,5 @@
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
+using Reference.Domain.GarmentAccessories;
+using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
 
 namespace Reference.Application.Features.Fabric.Shared.Specifications;
 

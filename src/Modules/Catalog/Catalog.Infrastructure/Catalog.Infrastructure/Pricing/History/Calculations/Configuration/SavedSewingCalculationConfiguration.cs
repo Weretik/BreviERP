@@ -1,5 +1,4 @@
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 
 namespace Catalog.Infrastructure.Pricing.History;
 

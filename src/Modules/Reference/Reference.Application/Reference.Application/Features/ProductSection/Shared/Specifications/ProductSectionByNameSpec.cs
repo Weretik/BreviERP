@@ -1,5 +1,5 @@
-using Reference.Domain.ProductSections.ValueObjects;
-using ProductSectionEntity = Reference.Domain.ProductSections.Entities.ProductSection;
+using Reference.Domain.ProductSections;
+using ProductSectionEntity = Reference.Domain.ProductSections.ProductSection;
 
 namespace Reference.Application.Features.ProductSection.Shared.Specifications;
 

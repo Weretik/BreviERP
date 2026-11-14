@@ -1,5 +1,5 @@
 using Reference.Application.Features.PricingParameter.Shared.Validators;
-using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
+using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
 
 namespace Reference.Application.Features.PricingParameter.Create.Validators;
 
