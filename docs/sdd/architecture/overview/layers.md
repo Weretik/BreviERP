@@ -20,6 +20,10 @@ Owns EF Core DbContexts, entity configurations, migrations, repository implement
 
 Controllers are thin transport adapters: they bind input, send one Mediator request with a cancellation token, and map Result using established API conventions. Controllers contain no business rules, EF queries, or transaction orchestration.
 
+## Contracts Layer
+
+`<Module>.Contracts` is what other modules may use: small read and command interfaces in the provider's words, the plain DTO records they return, integration events, and shared constants. It references no module project. The provider implements it in its Infrastructure; consumers inject it ([ADR-0006](../decisions/0006-module-contracts.md)).
+
 ## Host Composition (Bootstrapper)
 
-Hosts compose modules, configure middleware, and register cross-cutting services. They are not a place for use-case logic.
+Hosts call `Add<Module>Module()` for each module, configure middleware, and register cross-cutting services. They are not a place for use-case logic or cross-module adapters.

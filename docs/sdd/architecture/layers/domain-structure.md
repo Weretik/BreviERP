@@ -6,18 +6,17 @@ Domain owns the business model and its invariants. It must be understandable wit
 
 ## Target module structure
 
+Folders follow aggregates, not kinds of classes. There are no `Entities/`, `Enums/`, `Errors/`, `ValueObjects/`, or `Constants/` folders.
+
 ```text
 <Module>.Domain/
-├── Entities/                 aggregates and entities
-│   └── <Area>/
-├── ValueObjects/             validated conceptual values and typed IDs
-├── Errors/                   domain error factories/codes
-├── Events/                   domain events
-├── Services/                 pure domain services only
-├── Specifications/           domain-level specifications, where applicable
-├── Constants/
+├── <Aggregate>/              root, child entities, value objects, enums, errors, events of one aggregate
+│   └── <Part>/               only when the aggregate grows: a sub-concept such as Lines/, never a type
+├── <SharedConcept>/          a value object used by several aggregates, named after the concept (Money/, Slugs/)
 └── <Module>.Domain.csproj
 ```
+
+Example: `Production.Domain/Orders/` holds `ProductionOrder.cs`, `ProductionOrderItem.cs`, `ProductionOrderStatus.cs`, and their errors. The shared rule text is in the [module rules](../../standards/module-rules.md#folder-structure-inside-a-module).
 
 ## Placement diagram
 
