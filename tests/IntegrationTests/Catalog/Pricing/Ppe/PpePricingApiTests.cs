@@ -1,3 +1,4 @@
+using Catalog.Api.DependencyInjection;
 using Reference.Api.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
@@ -112,12 +113,11 @@ public sealed class PpePricingApiTests
             });
             // «Права доступу»: `access:` policies with the catalogue defaults.
             builder.Services.AddAccessPolicies();
-            builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly);
 
             var app = builder.Build();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapControllers();
+            app.MapCatalogEndpoints();
             app.MapReferenceEndpoints();
             await app.StartAsync();
             return new(app, app.GetTestClient(), sender);

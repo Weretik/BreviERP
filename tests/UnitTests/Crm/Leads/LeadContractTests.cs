@@ -1,8 +1,6 @@
 using System.Text.Json;
-using BuildingBlocks.Api.Authorization;
-using Crm.Api.Leads;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Crm.Api.DependencyInjection;
+using UnitTests.TestSupport;
 using YamlDotNet.RepresentationModel;
 using Crm.Application.Features.Leads.Shared;
 
@@ -35,34 +33,29 @@ public sealed class LeadContractTests
             Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
     }
 
-    [TestCase(typeof(LeadsController), "getCrmLeads", "access:leads", null, null)]
-    [TestCase(typeof(LeadsController), "getCrmLeadsMyDay", "access:leads", null, null)]
-    [TestCase(typeof(LeadsController), "getCrmLeadCallResults", "access:leads", null, null)]
-    [TestCase(typeof(LeadsController), "getCrmLead", "access:leads", null, null)]
-    [TestCase(typeof(LeadsController), "takeCrmLead", "access:leads", null, "edit")]
-    [TestCase(typeof(LeadsController), "releaseCrmLead", "access:leads", null, "edit")]
-    [TestCase(typeof(LeadsController), "recordCrmLeadCall", "access:leads", null, "edit")]
-    [TestCase(typeof(LeadStatsController), "getCrmLeadStats", "access:lead-stats", null, null)]
-    [TestCase(typeof(LeadStatsController), "getCrmLeadStatsCallResults", "access:lead-stats", null, null)]
-    [TestCase(typeof(LeadStatsController), "createCrmLeadCallResult", "access:lead-stats", null, "edit")]
-    [TestCase(typeof(LeadStatsController), "editCrmLeadCallResult", "access:lead-stats", null, null)]
-    [TestCase(typeof(LeadStatsController), "getCrmLeadCategories", "access:lead-stats", null, null)]
-    [TestCase(typeof(LeadStatsController), "editCrmLeadCategory", "access:lead-stats", null, null)]
-    [TestCase(typeof(LeadStatsController), "syncCrmLeads", "access:lead-stats", "access:lead-stats:create", null)]
-    public void Operation_exists_with_its_policy(Type controller, string operation, string classPolicy,
-        string? methodPolicy, string? action)
+    [TestCase("Leads", "getCrmLeads", "access:leads", null, null)]
+    [TestCase("Leads", "getCrmLeadsMyDay", "access:leads", null, null)]
+    [TestCase("Leads", "getCrmLeadCallResults", "access:leads", null, null)]
+    [TestCase("Leads", "getCrmLead", "access:leads", null, null)]
+    [TestCase("Leads", "takeCrmLead", "access:leads", null, "edit")]
+    [TestCase("Leads", "releaseCrmLead", "access:leads", null, "edit")]
+    [TestCase("Leads", "recordCrmLeadCall", "access:leads", null, "edit")]
+    [TestCase("LeadStats", "getCrmLeadStats", "access:lead-stats", null, null)]
+    [TestCase("LeadStats", "getCrmLeadStatsCallResults", "access:lead-stats", null, null)]
+    [TestCase("LeadStats", "createCrmLeadCallResult", "access:lead-stats", null, "edit")]
+    [TestCase("LeadStats", "editCrmLeadCallResult", "access:lead-stats", null, null)]
+    [TestCase("LeadStats", "getCrmLeadCategories", "access:lead-stats", null, null)]
+    [TestCase("LeadStats", "editCrmLeadCategory", "access:lead-stats", null, null)]
+    [TestCase("LeadStats", "syncCrmLeads", "access:lead-stats", "access:lead-stats:create", null)]
+    public void Operation_exists_with_its_policy(string tag, string operation, string groupPolicy,
+        string? endpointPolicy, string? action)
     {
-        var method = controller.GetMethods()
-            .Single(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>()
-                .Any(attribute => attribute.Name == operation));
+        var endpoint = MappedEndpoints.Named(app => app.MapCrmEndpoints(), operation);
         Assert.Multiple(() =>
         {
-            Assert.That(controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>()
-                .Single().Policy, Is.EqualTo(classPolicy));
-            Assert.That(method.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>()
-                .SingleOrDefault()?.Policy, Is.EqualTo(methodPolicy));
-            Assert.That(method.GetCustomAttributes(typeof(AccessActionAttribute), false).Cast<AccessActionAttribute>()
-                .SingleOrDefault()?.Action, Is.EqualTo(action));
+            Assert.That(endpoint.Tag, Is.EqualTo(tag));
+            Assert.That(endpoint.Policies, Is.EqualTo(new[] { groupPolicy, endpointPolicy }.OfType<string>()));
+            Assert.That(endpoint.Action, Is.EqualTo(action));
             Assert.That(Operations(), Does.Contain(operation));
         });
     }

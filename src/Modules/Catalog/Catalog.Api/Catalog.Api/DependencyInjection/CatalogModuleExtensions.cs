@@ -1,3 +1,11 @@
+using Catalog.Api.Endpoints.Overview;
+using Catalog.Api.Endpoints.Photos;
+using Catalog.Api.Endpoints.Ppe;
+using Catalog.Api.Endpoints.Product;
+using Catalog.Api.Endpoints.ProductCategory;
+using Catalog.Api.Endpoints.Sewing;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using BuildingBlocks.Application.DependencyInjection;
 using Catalog.Application;
 using Catalog.Contracts.Pricing;
@@ -14,7 +22,7 @@ namespace Catalog.Api.DependencyInjection;
 
 public static class CatalogModuleExtensions
 {
-    /// <summary>Registers the Catalog module: Application, Infrastructure, its Contracts implementations and controllers.</summary>
+    /// <summary>Registers the Catalog module: Application, Infrastructure, and its Contracts implementations.</summary>
     public static IServiceCollection AddCatalogModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCatalogInfrastructure(configuration);
@@ -22,7 +30,14 @@ public static class CatalogModuleExtensions
         services.TryAddScoped<PricingInputChanges>();
         services.AddTransient<IStartupFilter, SewingPriceAutoPublicationStartupFilter>();
         services.AddModuleValidators(typeof(CatalogApplicationAssemblyMarker).Assembly);
-        services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly);
         return services;
     }
+
+    /// <summary>Maps the Catalog module's HTTP endpoints.</summary>
+    public static IEndpointRouteBuilder MapCatalogEndpoints(this IEndpointRouteBuilder app) =>
+        app.MapProductOverviewEndpoints().MapOldSitePhotoImportEndpoints().MapProductPhotosEndpoints()
+            .MapPpePricingRulesEndpoints().MapPpeProductPricingEndpoints().MapPpeSupplierOfferEndpoints()
+            .MapPpeSupplierPricesEndpoints().MapProductsEndpoints().MapProductCategoriesEndpoints()
+            .MapSewingArticleSummaryEndpoints().MapSewingArticlesEndpoints().MapSewingCompositionEndpoints()
+            .MapSewingPricingEndpoints().MapSewingPricingSettingsEndpoints().MapSewingPublishedProductsEndpoints();
 }

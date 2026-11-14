@@ -1,3 +1,5 @@
+using UnitTests.TestSupport;
+using Catalog.Api.DependencyInjection;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -39,12 +41,8 @@ public sealed class PpeSupplierPricesContractTests
     [TestCase("refreshPpeSupplierPrices", "access:price-import")]
     public void Operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
-        var methods = typeof(global::Catalog.Api.Product.Sewing.SewingArticlesController).Assembly.GetTypes()
-            .SelectMany(type => type.GetMethods())
-            .Where(method => method.GetCustomAttributes(typeof(HttpMethodAttribute), false)
-                .Cast<HttpMethodAttribute>().Any(attribute => attribute.Name == operation)).ToArray();
-        Assert.That(methods, Has.Length.EqualTo(1));
-        Assert.That(methods[0].GetCustomAttributes(typeof(AuthorizeAttribute), true)
-            .Cast<AuthorizeAttribute>().Select(attribute => attribute.Policy), Does.Contain(policy));
+        var endpoint = MappedEndpoints.Named(app => app.MapCatalogEndpoints(), operation);
+        Assert.That(endpoint.Policies, Does.Contain(policy));
+        Assert.That(endpoint.Anonymous, Is.False);
     }
 }

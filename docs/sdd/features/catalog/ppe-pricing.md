@@ -2,9 +2,9 @@
 
 Versioned three-tier PPE calculation from Brevi-owned rule/offer snapshots. Domain arithmetic reproduces approved workbook precedence and rounding; no live workbook or XML access occurs at runtime. Imported source review remains evidence; only an explicit manager write creates a Brevi-approved version. Missing required data returns blockers and no prices.
 
-The PPE product card ([CAT-008](../../specs/catalog/008-ppe-product-card/README.md)) reads and saves the sheet «ЗІЗ» supplier fields through `GET`/`PUT /api/v1/products/{productId}/ppe-offer` (`Features/Pricing/Ppe/SupplierOffer/`, `PpeSupplierOfferController`). A changed supplier price or rule appends an approved offer version in the same transaction.
+The PPE product card ([CAT-008](../../specs/catalog/008-ppe-product-card/README.md)) reads and saves the sheet «ЗІЗ» supplier fields through `GET`/`PUT /api/v1/products/{productId}/ppe-offer` (`Features/Pricing/Ppe/SupplierOffer/`, `PpeSupplierOfferEndpoints`). A changed supplier price or rule appends an approved offer version in the same transaction.
 
-The page «Новий ЗІЗ» ([CAT-009](../../specs/catalog/009-product-create-pages/README.md)) shows the three prices before saving through `GET /api/v1/pricing/ppe/rules/preview` (`Features/Pricing/Ppe/Preview/`, `PpePricingRulesController`); nothing is saved.
+The page «Новий ЗІЗ» ([CAT-009](../../specs/catalog/009-product-create-pages/README.md)) shows the three prices before saving through `GET /api/v1/pricing/ppe/rules/preview` (`Features/Pricing/Ppe/Preview/`, `PpePricingRulesEndpoints`); nothing is saved.
 
 ## Structure diagram
 

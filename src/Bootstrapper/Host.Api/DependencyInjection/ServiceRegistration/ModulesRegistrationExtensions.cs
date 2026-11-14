@@ -49,6 +49,8 @@ public static class ModuleRegistrationsExtensions
         app.MapReferenceEndpoints();
         app.MapProductionEndpoints();
         app.MapAccountingEndpoints();
+        app.MapCrmEndpoints();
+        app.MapCatalogEndpoints();
 
         return app;
     }

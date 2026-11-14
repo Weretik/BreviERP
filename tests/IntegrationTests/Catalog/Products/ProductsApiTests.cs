@@ -1,3 +1,4 @@
+using Catalog.Api.DependencyInjection;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -260,12 +261,11 @@ public sealed class ProductsApiTests
             builder.Services.AddAuthentication("Test")
                 .AddScheme<AuthenticationSchemeOptions, ManagerAuthenticationHandler>("Test", _ => { });
             builder.Services.AddAuthorizationPolicies();
-            builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly);
 
             var app = builder.Build();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapControllers();
+            app.MapCatalogEndpoints();
             await app.StartAsync();
             return new(app, app.GetTestClient(), sender);
         }

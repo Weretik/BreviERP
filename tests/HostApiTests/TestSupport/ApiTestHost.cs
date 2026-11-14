@@ -46,7 +46,7 @@ internal sealed class ApiTestHost(WebApplication app, HttpClient client) : IAsyn
     /// <summary>"GET api/x/{id}": method and route without the leading slash and type constraints.</summary>
     public static string Describe(Endpoint endpoint)
     {
-        var route = ((RouteEndpoint)endpoint).RoutePattern.RawText!.TrimStart('/').Replace(":int", string.Empty)
+        var route = ((RouteEndpoint)endpoint).RoutePattern.RawText!.Trim('/').Replace(":int", string.Empty)
             .Replace(":long", string.Empty).Replace(":guid", string.Empty);
         var method = endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods.FirstOrDefault() ?? "ANY";
         return $"{method} {route}";

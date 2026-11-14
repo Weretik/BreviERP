@@ -1,3 +1,4 @@
+using Crm.Api.DependencyInjection;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Crm.Api;
@@ -33,13 +34,12 @@ internal sealed class CrmApiTestHost(WebApplication app, HttpClient client, Mock
         });
         // «Права доступу»: `access:` policies with the catalogue defaults.
         builder.Services.AddAccessPolicies();
-        builder.Services.AddControllers().AddApplicationPart(typeof(CrmApiAssemblyMarker).Assembly);
 
         configure?.Invoke(builder.Services);
         var app = builder.Build();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
+        app.MapCrmEndpoints();
         await app.StartAsync();
         return new(app, app.GetTestClient(), sender);
     }

@@ -26,9 +26,9 @@ src/Modules/Crm/
     Integrations/GoogleSheets/     GoogleLeadSheetReader (ADC, read-only), LeadSheetOptions (Crm:LeadSheet)
     Persistence/Leads/                  five tables, seeded call results
     Persistence/CrmDbContext.cs    implements ILeadStore
-  Crm.Api/Crm.Api/Leads/
-    LeadsController.cs             /api/crm/leads
-    LeadStatsController.cs         /api/crm/lead-stats
+  Crm.Api/Crm.Api/Endpoints/Leads/
+    LeadsEndpoints.cs              /api/crm/leads
+    LeadStatsEndpoints.cs          /api/crm/lead-stats
 src/Bootstrapper/Host.Seed/Jobs/Sync/LeadsSyncTask.cs   daily step `leads`
 ```
 

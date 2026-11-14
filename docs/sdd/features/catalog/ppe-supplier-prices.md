@@ -6,7 +6,7 @@ The tab «Довідники» → «Імпорт цін» lists PPE supplier pr
 
 ```mermaid
 flowchart LR
-  Admin[Admin «Імпорт цін»] --> API[PpeSupplierPricesController]
+  Admin[Admin «Імпорт цін»] --> API[PpeSupplierPricesEndpoints]
   API --> List[GetPpePriceSources]
   API --> Settings[UpdatePpePriceSource: RequireAdminRole]
   API --> Import[ImportPpeSupplierFiles: dryRun]
@@ -41,7 +41,7 @@ Catalog.Infrastructure/
   Integrations/PpeSupplierFiles/          # Insight XmlReader, СЕМТО PdfPig, gzip unpack
   Integrations/PpeSupplierSites/          # АВ-Центр / Перчатка-центр page patterns, 3C CSV lists, HTTP client
     Cabinets/                             # Трєле sign-in, session pages, dealer price, options
-Catalog.Api/Pricing/Ppe/PpeSupplierPricesController.cs
+Catalog.Api/Endpoints/Ppe/PpeSupplierPricesEndpoints.cs
 Catalog.Application/Features/Pricing/Commands/RefreshDuePpeSupplierPrices/  # due sources of today, one command
 Host.Seed/Jobs/Sync/PpeSupplierPricesSyncTask.cs  # brevierp-sync step: sends RefreshDuePpeSupplierPricesCommand, logs outcomes
 ```

@@ -22,8 +22,9 @@ src/Modules/Crm/
   Crm.Infrastructure/Crm.Infrastructure/Persistence/
     Tasks/                         three tables, cascade steps and events
     CrmDbContext.cs                implements ITaskStore
+  Crm.Api/Crm.Api/Endpoints/Tasks/
+    ManagerTasksEndpoints.cs       /api/crm/tasks
   Crm.Api/Crm.Api/Tasks/
-    ManagerTasksController.cs      /api/crm/tasks
     *Request.cs                    status, urgent and step requests
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Identity/TaskStaffReader.cs   Identity.Contracts adapter
 ```

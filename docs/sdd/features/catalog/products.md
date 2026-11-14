@@ -20,7 +20,7 @@ The [Sewing Article/composition extension](sewing-composition.md) adds fabric va
 
 ## Structure and Relationships
 
-[ProductsController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Product/ProductsController.cs) invokes the [create handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Commands/CreateProduct/CreateProductHandler.cs) and the replace/delete/read handlers. [Product](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Product.cs) owns categories, photos, description, and either [Sewing](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Sewing/SewingProductDetails.cs) or [PPE](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Ppe/PpeProductDetails.cs) details. The handler validates IDs in Reference through the read boundary, and [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogDbContext.cs) persists the aggregate.
+[ProductsEndpoints](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Endpoints/Product/ProductsEndpoints.cs) invokes the [create handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Commands/CreateProduct/CreateProductHandler.cs) and the replace/delete/read handlers. [Product](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Product.cs) owns categories, photos, description, and either [Sewing](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Sewing/SewingProductDetails.cs) or [PPE](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Ppe/PpeProductDetails.cs) details. The handler validates IDs in Reference through the read boundary, and [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogDbContext.cs) persists the aggregate.
 
 ## Code Structure
 
@@ -29,8 +29,8 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Catalog/
-    ├── Catalog.Api/Catalog.Api/Product/ProductsController.cs  # HTTP entry point
-    ├── Catalog.Api/Catalog.Api/Product/Overview/ProductOverviewController.cs  # «Товари» page API
+    ├── Catalog.Api/Catalog.Api/Endpoints/Product/ProductsEndpoints.cs  # HTTP entry point (Minimal API group, one *Endpoint.cs per use case)
+    ├── Catalog.Api/Catalog.Api/Endpoints/Overview/ProductOverviewEndpoints.cs  # «Товари» page API
     ├── Catalog.Application/Catalog.Application/Features/Product/
     │   ├── Commands/CreateProduct/CreateProductHandler.cs  # use case handler
     │   ├── Commands/DeleteProduct/DeleteProductHandler.cs  # use case handler
@@ -67,7 +67,7 @@ src/
 
 ```mermaid
 flowchart LR
-    A["ProductsController"] --> B["Create, replace, delete, and read handlers"]
+    A["ProductsEndpoints"] --> B["Create, replace, delete, and read handlers"]
     B --> C["Reference ID validation"]
     B --> D["Product"]
     D --> E["Categories, photos, and description"]
