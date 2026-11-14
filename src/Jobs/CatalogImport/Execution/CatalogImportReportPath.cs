@@ -1,6 +1,6 @@
-namespace Host.Seed.Jobs;
+namespace CatalogImport.Execution;
 
-internal static class CatalogImportReportPath
+public static class CatalogImportReportPath
 {
     public static string Resolve(string path, string? execution)
     {

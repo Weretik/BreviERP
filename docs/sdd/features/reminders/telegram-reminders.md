@@ -22,6 +22,7 @@ src/Modules/Reminders/
       Chats/           # GetReminderChats, UpdateReminderChat (approve, rename), SendReminderChatTest
       Calendar/        # GetNonWorkingDays, Add/RemoveNonWorkingDay; Shared/WorkingCalendarLoader
       Dispatch/Shared/ # ReminderOccurrenceGenerator, ReminderDispatcher (daily run)
+      Dispatch/Commands/DispatchReminders/ # the daily run as one command
       Messages/Shared/ # ReminderMessageFormatter (Ukrainian HTML card, keyboards), ReminderCallbackData
       Telegram/        # HandleTelegramUpdate (buttons, chat tracker), ConnectTelegramWebhook; Shared/ update DTOs
       Access/Shared/   # ReminderAdmin
@@ -32,7 +33,7 @@ src/Modules/Reminders/
   Reminders.Api/Reminders.Api/
     Tasks/ Occurrences/ Chats/ Calendar/   # Admin controllers under /api/reminders
     Telegram/TelegramWebhookController.cs  # anonymous webhook with secret header, Admin connect
-src/Bootstrapper/Host.Seed/Jobs/RemindersDispatchCommandRunner.cs
+src/Bootstrapper/Host.Seed/Jobs/RemindersDispatchCommandRunner.cs   # thin runner: sends DispatchRemindersCommand, logs the summary
 ```
 
 ## Structure diagram

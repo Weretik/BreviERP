@@ -32,9 +32,16 @@ Bootstrapper/Host.Api/
 
 Bootstrapper/Host.Seed/
 ├── Program.cs                    parses the command line and picks the job
-├── DependencyInjection/
-└── Jobs/<Job>/                   thin runners that call the owning module's use case or a src/Jobs project
+├── SeedHostServicesExtensions.cs registers the modules the jobs use
+└── Jobs/
+    ├── SeedJobDispatcher.cs      mutually exclusive command selection
+    ├── JobCommands.cs            SendAsync: runs a module command, a failed result fails the step
+    ├── Sync/                     brevierp-sync steps (ISyncTask), each sends one module command
+    ├── Pricing/                  runners that call src/Jobs/SewingPricing and CatalogImport.PpePricing
+    └── *CommandRunner.cs         other thin runners
 ```
+
+`tests/ArchitectureTests/JobDependencyTests.cs` checks that a job uses no module Infrastructure, no DbContext and resolves only `ISender` and `ILoggerFactory`.
 
 ## HTTP request pipeline
 

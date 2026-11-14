@@ -1,6 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Media.Application.Features.Files.Shared.Images;
+using Media.Application.Features.Files.Commands.BackfillMediaPreviews;
 
 namespace Host.Seed.Jobs.Sync;
 
@@ -17,7 +16,7 @@ internal sealed class MediaThumbnailsSyncTask : ISyncTask
 
     public async Task RunAsync(IServiceProvider services, ILogger logger, CancellationToken cancellationToken)
     {
-        var report = await services.GetRequiredService<MediaImageBackfill>().RunAsync(BatchSize, cancellationToken);
+        var report = await services.SendAsync(new BackfillMediaPreviewsCommand(BatchSize), cancellationToken);
         logger.LogInformation(
             "Processed {Processed} photos ({WithoutPreview} small or unreadable, no preview), failed {Failed}, left for next runs {Remaining}",
             report.Processed, report.WithoutPreview, report.Failed, report.Remaining);

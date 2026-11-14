@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
 
@@ -14,10 +13,7 @@ internal sealed class PurchaseInvoicesSyncTask : ISyncTask
 
     public async Task RunAsync(IServiceProvider services, ILogger logger, CancellationToken cancellationToken)
     {
-        var result = await services.GetRequiredService<PurchaseRegisterSync>().RunAsync(cancellationToken);
-        if (!result.IsSuccess)
-            throw new InvalidOperationException(string.Join(" ", result.Errors));
-        var value = result.Value;
+        var value = await services.SendAsync(new SyncPurchaseRegisterCommand(), cancellationToken);
         logger.LogInformation(
             "Rows {Rows}, files {Files}; messages added {MessagesAdded}, updated {MessagesUpdated}; rows added {RowsAdded}, " +
             "updated {RowsUpdated}, gone {RowsGone}; files added {FilesAdded}, gone {FilesGone}",

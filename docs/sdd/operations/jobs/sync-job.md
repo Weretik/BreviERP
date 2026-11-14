@@ -20,10 +20,11 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 
 ### Adding a step
 
-1. Implement `ISyncTask` in `Host.Seed/Jobs/Sync/` with a kebab-case `Name`. It must be safe to repeat and change nothing when it fails.
-2. Add it to `Tasks` in `SyncJobRunner`.
-3. Register its services in `SeedHostServicesExtensions`.
-4. Attach its secrets to the job in the `Create or update daily sync job` step of the [deploy workflow](../deployment/cloud-run-deploy.md), and add a row above.
+1. Put the work in the owning module as a command (`Features/<Feature>/Commands/<UseCase>/` with its handler and validator). It must be safe to repeat and change nothing when it fails.
+2. Implement `ISyncTask` in `Host.Seed/Jobs/Sync/` with a kebab-case `Name`. It only sends that command with `services.SendAsync(...)` and logs the outcome; `JobDependencyTests.Seed_host_jobs_are_thin_runners` rejects anything more.
+3. Add it to `Tasks` in `SyncJobRunner`.
+4. Register the module in `SeedHostServicesExtensions` if Host.Seed does not have it yet.
+5. Attach its secrets to the job in the `Create or update daily sync job` step of the [deploy workflow](../deployment/cloud-run-deploy.md), and add a row above.
 
 ## Schedule
 

@@ -1,6 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices;
+using Catalog.Application.Features.Pricing.Commands.RefreshDuePpeSupplierPrices;
 
 namespace Host.Seed.Jobs.Sync;
 
@@ -18,14 +17,13 @@ internal sealed class PpeSupplierPricesSyncTask : ISyncTask
 
     public async Task RunAsync(IServiceProvider services, ILogger logger, CancellationToken cancellationToken)
     {
-        var refresh = services.GetRequiredService<PpeScheduledPriceRefresh>();
-        if (refresh.DueToday().Count == 0)
+        var outcomes = await services.SendAsync(new RefreshDuePpeSupplierPricesCommand(Actor), cancellationToken);
+        if (outcomes.Count == 0)
         {
             logger.LogInformation("No supplier price source is due today");
             return;
         }
 
-        var outcomes = await refresh.RunDueAsync(Actor, cancellationToken);
         foreach (var outcome in outcomes)
         {
             if (outcome.Result is { } result)

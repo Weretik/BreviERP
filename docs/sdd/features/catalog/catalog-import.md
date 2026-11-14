@@ -8,12 +8,12 @@ The operational job imports a frozen workbook into the same PostgreSQL database 
 src/Bootstrapper/Host.Seed/
   Program.cs                              # host lifecycle
   Jobs/SeedJobDispatcher.cs                # mutually exclusive command selection
-  Jobs/CatalogImport/                      # import arguments, report and console result
+  Jobs/CatalogImportCommandRunner.cs       # thin runner: calls CatalogImport.Execution.CatalogImportCommand
   SeedHostServicesExtensions.cs           # registers import provenance migrator
 src/Jobs/CatalogImport/
   Source/{Identity,References}/            # frozen workbook conventions and row parsing
   Planning/{Identity,Validation}/          # source keys and dataset-specific validation
-  Execution/                              # local default / explicit target and source pins, transaction, reconciliation, report
+  Execution/                              # CatalogImportCommand (arguments, report, console result), target and source pins, report path, transaction, reconciliation
   Persistence/
     Catalog/{Categories,Products,Composition}/ # category resolution, identity/profile translation and composition writes
     Catalog/CatalogProductWriter.cs        # coordinates identity then composition

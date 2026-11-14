@@ -1,12 +1,11 @@
-using CatalogImport.Execution;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 
-namespace Host.Seed.Jobs;
+namespace CatalogImport.Execution;
 
-internal static class CatalogImportTargetConfiguration
+public static class CatalogImportTargetConfiguration
 {
-    internal static CatalogImportTarget? Read(IConfiguration configuration)
+    public static CatalogImportTarget? Read(IConfiguration configuration)
     {
         var host = configuration["CatalogImport:TargetHost"];
         var database = configuration["CatalogImport:TargetDatabase"];

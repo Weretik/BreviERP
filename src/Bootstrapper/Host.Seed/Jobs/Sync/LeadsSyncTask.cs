@@ -1,6 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Crm.Application.Features.Leads.Shared.Sheet;
+using Crm.Application.Features.Leads.Commands.SyncLeads;
 
 namespace Host.Seed.Jobs.Sync;
 
@@ -14,10 +13,7 @@ internal sealed class LeadsSyncTask : ISyncTask
 
     public async Task RunAsync(IServiceProvider services, ILogger logger, CancellationToken cancellationToken)
     {
-        var result = await services.GetRequiredService<LeadSheetSync>().RunAsync(cancellationToken);
-        if (!result.IsSuccess)
-            throw new InvalidOperationException(string.Join(" ", result.Errors));
-        var value = result.Value;
+        var value = await services.SendAsync(new SyncLeadsCommand(), cancellationToken);
         logger.LogInformation(
             "Lead rows {Rows}; added {Added}, updated {Updated}, gone {Gone}, skipped {Skipped}, taken for managers {Assigned}, calls from the sheet {Calls}",
             value.Rows, value.Added, value.Updated, value.Gone, value.Skipped, value.Assigned, value.Calls);

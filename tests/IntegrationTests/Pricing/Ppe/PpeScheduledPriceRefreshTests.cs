@@ -14,6 +14,7 @@ using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 using Catalog.Infrastructure.Persistence.Pricing.PpeSupplierPrices;
+using Catalog.Application.Features.Pricing.Commands.RefreshDuePpeSupplierPrices;
 
 namespace IntegrationTests.Pricing.Ppe;
 

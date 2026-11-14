@@ -53,9 +53,7 @@ public sealed class CatalogImportCommandTests
             ["CatalogImport:ApprovedConnection"] = "Host=cloud.test;Database=approved;Username=synthetic;Password=synthetic",
             ["CatalogImport:SourceSha256"] = new string('a', 64)
         });
-        var method = Assembly.Load("Host.Seed").GetType("Host.Seed.Jobs.CatalogImportTargetConfiguration")!
-            .GetMethod("Read", BindingFlags.Static | BindingFlags.NonPublic)!;
-        var target = (CatalogImport.Execution.CatalogImportTarget)method.Invoke(null, [config])!;
+        var target = CatalogImport.Execution.CatalogImportTargetConfiguration.Read(config)!;
         Assert.That(target.Host, Is.EqualTo("cloud.test"));
         Assert.That(target.Database, Is.EqualTo("approved"));
         Assert.That(target.SourceSha256, Is.EqualTo(new string('a', 64)));
@@ -95,17 +93,8 @@ public sealed class CatalogImportCommandTests
         Assert.Throws<InvalidOperationException>(() => ResolveReportPath("{execution}.json", ""));
     }
 
-    private static string ResolveReportPath(string path, string? execution)
-    {
-        var method = Assembly.Load("Host.Seed").GetType("Host.Seed.Jobs.CatalogImportReportPath")!
-            .GetMethod("Resolve", BindingFlags.Static | BindingFlags.Public)!;
-        try { return (string)method.Invoke(null, [path, execution])!; }
-        catch (TargetInvocationException exception) when (exception.InnerException is not null)
-        {
-            ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
-            throw;
-        }
-    }
+    private static string ResolveReportPath(string path, string? execution) =>
+        CatalogImport.Execution.CatalogImportReportPath.Resolve(path, execution);
 
     private static IConfiguration Configuration(Dictionary<string, string?> values) =>
         new ConfigurationBuilder().AddInMemoryCollection(values).Build();
