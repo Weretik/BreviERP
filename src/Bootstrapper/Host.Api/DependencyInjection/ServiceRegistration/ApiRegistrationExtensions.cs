@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
 
 
@@ -13,6 +14,7 @@ public static class ApiRegistrationsExtensions
 
         services.AddHealthChecks();
         services.AddProblemDetails();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddSingleton(TimeProvider.System);
 
         return services;

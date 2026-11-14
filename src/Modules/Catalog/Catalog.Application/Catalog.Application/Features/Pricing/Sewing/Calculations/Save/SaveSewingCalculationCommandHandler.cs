@@ -11,9 +11,6 @@ public sealed class SaveSewingCalculationCommandHandler(
     public async ValueTask<Result<SavedSewingCalculation>> Handle(
         SaveSewingCalculationCommand command, CancellationToken cancellationToken)
     {
-        if (command.ProductId <= 0 || command.ArticleId <= 0 || command.RequestId == Guid.Empty
-            || string.IsNullOrWhiteSpace(command.Actor) || command.Actor.Length > 200)
-            return Result.Invalid(new ValidationError("request", "Positive IDs, request UUID and authenticated actor are required."));
         await using var transaction = await transactions.BeginAsync(command.ProductId, cancellationToken);
         var previous = await calculations.FindRequestAsync(command.RequestId, cancellationToken);
         if (previous is not null)

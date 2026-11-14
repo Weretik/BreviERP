@@ -8,12 +8,10 @@ namespace UnitTests;
 public sealed class PublishedSewingProductsQueryTests
 {
     [Test]
-    public async Task Invalid_or_unbounded_product_sets_are_rejected_without_reading()
+    public void Invalid_or_unbounded_product_sets_are_rejected_by_the_validator()
     {
-        var reader = new Mock<ISewingPublishedPriceReader>();
-        var handler = new GetPublishedSewingProductsQueryHandler(reader.Object);
+        var validator = new GetPublishedSewingProductsQueryValidator();
         foreach (var ids in new int[][] { [], [0], [1, 1], Enumerable.Range(1, 101).ToArray() })
-            Assert.That((await handler.Handle(new(ids), CancellationToken.None)).Status, Is.EqualTo(ResultStatus.Invalid));
-        reader.VerifyNoOtherCalls();
+            Assert.That(validator.Validate(new GetPublishedSewingProductsQuery(ids)).IsValid, Is.False);
     }
 }

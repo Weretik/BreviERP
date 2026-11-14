@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="Ardalis.Result" />
+    <PackageReference Include="FluentValidation" />
   </ItemGroup>
 
 </Project>

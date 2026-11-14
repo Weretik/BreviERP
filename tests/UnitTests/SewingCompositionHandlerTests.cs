@@ -61,17 +61,24 @@ public sealed class SewingCompositionHandlerTests
     }
 
     [Test]
-    public async Task Invalid_quantity_or_unit_returns_indexed_validation_error_before_reference_read()
+    public void Invalid_quantity_or_unit_returns_indexed_ukrainian_validation_errors()
     {
-        var fixture = new Fixture();
-        var result = await fixture.CompositionHandler.Handle(new ReplaceSewingCompositionCommand(101,
-            new(null, [FabricInput(10) with { Quantity = 0, Unit = "Piece" }], [], 0), "manager-1"), CancellationToken.None);
+        var result = new ReplaceSewingCompositionCommandValidator().Validate(new ReplaceSewingCompositionCommand(101,
+            new(null, [FabricInput(10) with { Quantity = 0, Unit = "Piece" }], [], 0), "manager-1"));
 
-        Assert.That(result.Status, Is.EqualTo(ResultStatus.Invalid));
-        Assert.That(result.ValidationErrors.Select(x => x.Identifier), Does.Contain("materials[0].quantity"));
-        Assert.That(result.ValidationErrors.Select(x => x.Identifier), Does.Contain("materials[0].unit"));
-        fixture.ReferenceReader.Verify(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>()), Times.Never);
-        fixture.Store.Verify(x => x.SaveAsync(It.IsAny<CancellationToken>()), Times.Never);
+        var errors = result.Errors.ToDictionary(x => x.PropertyName, x => x.ErrorMessage);
+        Assert.That(errors.Keys, Is.EquivalentTo(new[] { "materials[0].quantity", "materials[0].unit" }));
+        Assert.That(errors["materials[0].unit"], Is.EqualTo("Одиниця не підходить для цього виду матеріалу."));
+    }
+
+    [Test]
+    public void Variant_fields_return_camel_case_keys()
+    {
+        var result = new CreateSewingArticleCommandValidator().Validate(new CreateSewingArticleCommand(0,
+            new(" ", true, -1, 0, 0, -1)));
+
+        Assert.That(result.Errors.Select(x => x.PropertyName), Is.EquivalentTo(new[]
+            { "productId", "saleSku", "fabricId", "fabricQuantity", "expectedVersion", "sortOrder" }));
     }
 
     [Test]

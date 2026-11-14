@@ -1,45 +1,24 @@
+using Catalog.Domain.Products.Entities;
+
 namespace Catalog.Application.Features.Product.Sewing;
 
-internal static class SewingOperationInputValidator
+/// <summary>One operation line of a sewing composition. Error keys stay camelCase: <c>operations[i].quantity</c>.</summary>
+public sealed class SewingOperationInputValidator : AbstractValidator<SewingOperationInput>
 {
-    internal static List<ValidationError> Validate(IReadOnlyList<SewingOperationInput>? operations)
+    public SewingOperationInputValidator()
     {
-        var errors = new List<ValidationError>();
-        if (operations is null)
-        {
-            return errors;
-        }
-        if (operations.Count > 2_000)
-        {
-            errors.Add(new("operations", "Provide at most 2000 operation lines."));
-            return errors;
-        }
-
-        for (var index = 0; index < operations.Count; index++)
-        {
-            var line = operations[index];
-            var field = $"operations[{index}]";
-            if (line is null)
-            {
-                errors.Add(new(field, "An operation line is required."));
-                continue;
-            }
-
-            if (line.OperationId <= 0)
-                errors.Add(new(field + ".operationId", "A positive operation reference is required."));
-            if (!ValidDecimal(line.Quantity))
-                errors.Add(new(field + ".quantity", "Use a positive value with at most six decimal places."));
-            if (line.ManualMinutes.HasValue && !ValidDecimal(line.ManualMinutes.Value))
-                errors.Add(new(field + ".manualMinutes", "Manual minutes must be positive with at most six decimal places."));
-            if (line.SortOrder < 0)
-                errors.Add(new(field + ".sortOrder", "Order must be nonnegative."));
-            if (line.Comment?.Trim().Length > Catalog.Domain.Products.Entities.SewingMaterialLine.CommentMaxLength)
-                errors.Add(new(field + ".comment", "Comment must be at most 500 characters."));
-        }
-
-        return errors;
+        RuleFor(x => x.OperationId).GreaterThan(0).OverridePropertyName("operationId")
+            .WithMessage("Оберіть операцію.");
+        RuleFor(x => x.Quantity).Must(SewingRules.PositiveDecimal).OverridePropertyName("quantity")
+            .WithMessage("Вкажіть число більше 0, не більше шести знаків після коми.");
+        RuleFor(x => x.ManualMinutes).Must(minutes => SewingRules.PositiveDecimal(minutes!.Value))
+            .When(x => x.ManualMinutes.HasValue)
+            .OverridePropertyName("manualMinutes")
+            .WithMessage("Хвилини вручну — число більше 0, не більше шести знаків після коми.");
+        RuleFor(x => x.SortOrder).GreaterThanOrEqualTo(0).OverridePropertyName("sortOrder")
+            .WithMessage("Порядок не може бути від'ємним.");
+        RuleFor(x => x.Comment).Must(comment => comment is null || comment.Trim().Length <= SewingMaterialLine.CommentMaxLength)
+            .OverridePropertyName("comment")
+            .WithMessage($"Коментар — не більше {SewingMaterialLine.CommentMaxLength} символів.");
     }
-
-    private static bool ValidDecimal(decimal value)
-        => value > 0 && value <= 999_999_999_999.999999m && decimal.Round(value, 6) == value;
 }

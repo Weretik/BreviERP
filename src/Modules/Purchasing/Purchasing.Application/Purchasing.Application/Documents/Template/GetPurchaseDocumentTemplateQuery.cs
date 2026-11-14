@@ -53,3 +53,8 @@ public sealed class GetPurchaseDocumentTemplateQueryHandler(IPurchasingDbContext
         }));
     }
 }
+
+public sealed class GetPurchaseDocumentTemplateQueryValidator : AbstractValidator<GetPurchaseDocumentTemplateQuery>
+{
+    public GetPurchaseDocumentTemplateQueryValidator() => RuleFor(x => x.FileId).NotEmpty().MaximumLength(64);
+}

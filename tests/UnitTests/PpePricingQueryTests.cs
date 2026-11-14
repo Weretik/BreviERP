@@ -10,12 +10,12 @@ namespace UnitTests;
 public sealed class PpePricingQueryTests
 {
     [Test]
-    public async Task Invalid_product_sets_never_read_the_database()
+    public void Invalid_product_sets_are_rejected_by_the_validator()
     {
-        var reader = new Mock<IPpePricingInputReader>(); var handler = new GetPpeProductPricesQueryHandler(reader.Object);
+        var validator = new GetPpeProductPricesQueryValidator();
         foreach (var ids in new int[][] { [], [0], [1, 1], Enumerable.Range(1, 101).ToArray() })
-            Assert.That((await handler.Handle(new(ids), CancellationToken.None)).Status, Is.EqualTo(ResultStatus.Invalid));
-        reader.VerifyNoOtherCalls();
+            Assert.That(validator.Validate(new GetPpeProductPricesQuery(ids)).IsValid, Is.False);
+        Assert.That(validator.Validate(new GetPpeProductPricesQuery([1, 2])).IsValid, Is.True);
     }
     [Test]
     public void Imported_source_review_is_separate_from_Brevi_approval()
@@ -27,15 +27,12 @@ public sealed class PpePricingQueryTests
         Assert.That(PpeProductPricingEvaluator.Evaluate(new(42, false, offer, null)).Calculation.Blockers.Single().Code, Is.EqualTo("InactiveProduct"));
     }
     [Test]
-    public async Task Invalid_amount_precision_or_actor_cannot_reach_version_writers()
+    public void Invalid_amount_precision_or_actor_are_rejected_by_the_validators()
     {
-        var writer = new Mock<IPpeOfferVersionWriter>();
-        var handler = new CreatePpeOfferVersionCommandHandler(writer.Object);
         var values = new PpeOfferValues("rule", 100.0000001m, null, null, "source", "2026-10-25");
-        Assert.That((await handler.Handle(new(42, null, Guid.NewGuid(), values, "manager"), CancellationToken.None)).Status, Is.EqualTo(ResultStatus.Invalid));
-        writer.VerifyNoOtherCalls();
-        var rules = new Mock<IPpeRuleVersionWriter>();
-        Assert.That((await new CreatePpeRuleVersionCommandHandler(rules.Object).Handle(new(null, Guid.NewGuid(), new("r", new(.5m, .3m, .2m), "source", "date"), ""), CancellationToken.None)).Status, Is.EqualTo(ResultStatus.Invalid));
-        rules.VerifyNoOtherCalls();
+        var offer = new CreatePpeOfferVersionCommandValidator().Validate(new CreatePpeOfferVersionCommand(42, null, Guid.NewGuid(), values, "manager"));
+        Assert.That(offer.Errors.Select(x => x.PropertyName), Is.EquivalentTo(new[] { "Values" }));
+        var rule = new CreatePpeRuleVersionCommandValidator().Validate(new CreatePpeRuleVersionCommand(null, Guid.NewGuid(), new("r", new(.5m, .3m, .2m), "source", "date"), ""));
+        Assert.That(rule.Errors.Select(x => x.PropertyName), Is.EquivalentTo(new[] { "Actor" }));
     }
 }

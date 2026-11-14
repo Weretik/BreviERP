@@ -82,14 +82,14 @@ public sealed class CatalogProductCreationInputTests
         var free = await handler.Handle(new GetProductCodeCheckQuery("Ppe", " 18 "), CancellationToken.None);
         var taken = await handler.Handle(new GetProductCodeCheckQuery("Sewing", "MOD-124"), CancellationToken.None);
         var suggestion = await handler.Handle(new GetProductCodeCheckQuery("Sewing", null), CancellationToken.None);
-        var unknown = await handler.Handle(new GetProductCodeCheckQuery("Fabric", null), CancellationToken.None);
+        var unknown = new GetProductCodeCheckQueryValidator().Validate(new GetProductCodeCheckQuery("Fabric", null));
 
         Assert.Multiple(() =>
         {
             Assert.That(free.Value, Is.EqualTo(new ProductCodeCheck("18", true, null, null, null)));
             Assert.That(taken.Value, Is.EqualTo(new ProductCodeCheck("MOD-124", false, 300, "Костюм «Верде»", "MOD-125")));
             Assert.That(suggestion.Value, Is.EqualTo(new ProductCodeCheck(null, null, null, null, "MOD-125")));
-            Assert.That(unknown.Status, Is.EqualTo(ResultStatus.Invalid));
+            Assert.That(unknown.IsValid, Is.False);
         });
     }
 
@@ -102,14 +102,14 @@ public sealed class CatalogProductCreationInputTests
 
         var prices = await handler.Handle(new PreviewPpePricesQuery($" {RuleCode} ", 100m), CancellationToken.None);
         var unknown = await handler.Handle(new PreviewPpePricesQuery("Невідоме правило", 100m), CancellationToken.None);
-        var noPrice = await handler.Handle(new PreviewPpePricesQuery(RuleCode, 0m), CancellationToken.None);
+        var noPrice = new PreviewPpePricesQueryValidator().Validate(new PreviewPpePricesQuery(RuleCode, 0m));
 
         Assert.Multiple(() =>
         {
             Assert.That(prices.Value.Prices, Is.EqualTo(new PpePriceTiers(150m, 130m, 120m)));
             Assert.That(prices.Value.Blockers, Is.Empty);
             Assert.That(unknown.Status, Is.EqualTo(ResultStatus.Invalid));
-            Assert.That(noPrice.Status, Is.EqualTo(ResultStatus.Invalid));
+            Assert.That(noPrice.IsValid, Is.False);
         });
     }
 

@@ -8,6 +8,6 @@ public sealed class DeleteRoleCommandValidator : AbstractValidator<DeleteRoleCom
     public DeleteRoleCommandValidator()
     {
         RuleFor(x => x.Role).NotEmpty().MaximumLength(256)
-            .Must(role => !AccessCatalog.IsBuiltIn(role)).WithMessage("A built-in role is never deleted.");
+            .Must(role => !AccessCatalog.IsBuiltIn(role)).WithMessage("Вбудовану роль видалити не можна.");
     }
 }

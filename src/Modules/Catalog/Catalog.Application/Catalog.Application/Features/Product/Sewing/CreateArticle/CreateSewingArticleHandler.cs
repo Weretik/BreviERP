@@ -12,9 +12,6 @@ public sealed class CreateSewingArticleHandler(ISewingCompositionStore store, IP
     public async ValueTask<Result<SewingArticleView>> Handle(CreateSewingArticleCommand command, CancellationToken cancellationToken)
     {
         var request = command.Request;
-        var errors = CreateSewingArticleCommandValidator.Validate(command);
-        if (errors.Count > 0)
-            return Result.Invalid(errors);
         var product = await store.LoadAsync(command.ProductId, cancellationToken);
         if (product is null)
             return Result.NotFound();

@@ -55,3 +55,13 @@ public sealed class GetFinanceAttachmentContentQueryHandler(IAccountingDbContext
             : Result.Success(new FinanceAttachmentContent(content, attachment.FileName, attachment.ContentType));
     }
 }
+
+public sealed class GetFinanceAttachmentsQueryValidator : AbstractValidator<GetFinanceAttachmentsQuery>
+{
+    public GetFinanceAttachmentsQueryValidator() => RuleFor(x => x.TransactionId).NotEmpty();
+}
+
+public sealed class GetFinanceAttachmentContentQueryValidator : AbstractValidator<GetFinanceAttachmentContentQuery>
+{
+    public GetFinanceAttachmentContentQueryValidator() => RuleFor(x => x.Id).NotEmpty();
+}

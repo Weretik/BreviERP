@@ -11,9 +11,6 @@ public sealed class UpdateSewingArticleHandler(ISewingCompositionStore store, IP
     public async ValueTask<Result<SewingArticleView>> Handle(UpdateSewingArticleCommand command, CancellationToken cancellationToken)
     {
         var request = command.Request;
-        var errors = UpdateSewingArticleCommandValidator.Validate(command);
-        if (errors.Count > 0)
-            return Result.Invalid(errors);
         var product = await store.LoadAsync(command.ProductId, cancellationToken);
         var articleId = ArticleId.Create(command.ArticleId);
         var article = product?.Articles.FirstOrDefault(x => x.Id == articleId);

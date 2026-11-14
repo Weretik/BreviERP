@@ -11,11 +11,8 @@ public sealed class GetProductCodeCheckQueryHandler(ICatalogReadRepository<Produ
 {
     public async ValueTask<Result<ProductCodeCheck>> Handle(GetProductCodeCheckQuery query, CancellationToken cancellationToken)
     {
-        if (!ProductOverviewTypes.TryParse(query.Type, out var type))
-            return Result.Invalid(new ValidationError(nameof(query.Type), "Тип товару: Sewing або Ppe."));
+        ProductOverviewTypes.TryParse(query.Type, out var type);
         var code = string.IsNullOrWhiteSpace(query.Code) ? null : query.Code.Trim();
-        if (code?.Length > ProductEntity.CodeMaxLength)
-            return Result.Invalid(new ValidationError(nameof(query.Code), "Код — до 80 символів."));
 
         var suggested = type == ProductType.Sewing
             ? SewingModelCodes.Next(await repository.ListAsync(new SewingModelCodesSpec(), cancellationToken))

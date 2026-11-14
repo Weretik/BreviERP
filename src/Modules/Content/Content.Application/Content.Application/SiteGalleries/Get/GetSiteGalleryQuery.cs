@@ -19,3 +19,8 @@ public sealed class GetSiteGalleryQueryHandler(IContentDbContext db, IContentMed
         return await SiteGalleryReads.ResponseAsync(query.Key, gallery, media, cancellationToken);
     }
 }
+
+public sealed class GetSiteGalleryQueryValidator : AbstractValidator<GetSiteGalleryQuery>
+{
+    public GetSiteGalleryQueryValidator() => RuleFor(x => x.Key).NotEmpty().MaximumLength(SiteGallery.KeyMaxLength);
+}

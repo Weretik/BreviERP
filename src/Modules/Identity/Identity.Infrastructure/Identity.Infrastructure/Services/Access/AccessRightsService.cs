@@ -47,7 +47,7 @@ public sealed class AccessRightsService(
     {
         if (AccessCatalog.IsLocked(role))
         {
-            return Result.Invalid(new ValidationError("The director always has every right."));
+            return Result.Invalid(new ValidationError("Директор завжди має всі права."));
         }
 
         var appRole = await FindEditableAsync(role);
@@ -123,7 +123,7 @@ public sealed class AccessRightsService(
     {
         if (AccessCatalog.IsBuiltIn(role))
         {
-            return Result.Invalid(new ValidationError("A built-in role is never deleted."));
+            return Result.Invalid(new ValidationError("Вбудовану роль видалити не можна."));
         }
 
         var appRole = await roleManager.FindByNameAsync(role);

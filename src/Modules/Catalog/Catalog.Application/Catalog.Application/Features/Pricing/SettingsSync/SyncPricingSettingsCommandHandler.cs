@@ -17,10 +17,6 @@ public sealed class SyncPricingSettingsCommandHandler(
     public async ValueTask<Result<PricingSettingsSyncResult>> Handle(
         SyncPricingSettingsCommand command, CancellationToken cancellationToken)
     {
-        if (command.Parameters is null || command.PpeRules is null
-            || string.IsNullOrWhiteSpace(command.Actor) || command.Actor.Length > 200)
-            return Result.Invalid(new ValidationError("request", "Parameters, rules and actor are required."));
-
         var skipped = new List<string>();
         var sewingUpdated = await SyncSewingAsync(command, skipped, cancellationToken);
         var ppeUpdated = new List<string>();

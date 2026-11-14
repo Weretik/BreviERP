@@ -5,10 +5,6 @@ public sealed class GetSewingCompositionHandler(ISewingCompositionReadStore read
 {
     public async ValueTask<Result<SewingComposition>> Handle(GetSewingCompositionQuery query, CancellationToken cancellationToken)
     {
-        var errors = GetSewingCompositionQueryValidator.Validate(query);
-        if (errors.Count > 0)
-            return Result.Invalid(errors);
-
         var snapshot = await readStore.ReadCompositionAsync(query.ProductId, query.ArticleId, cancellationToken);
         return snapshot is null
             ? Result.NotFound()

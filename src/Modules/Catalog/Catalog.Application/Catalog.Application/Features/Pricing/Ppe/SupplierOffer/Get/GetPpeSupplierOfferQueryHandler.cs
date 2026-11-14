@@ -13,8 +13,6 @@ public sealed class GetPpeSupplierOfferQueryHandler(
 {
     public async ValueTask<Result<PpeSupplierOffer>> Handle(GetPpeSupplierOfferQuery query, CancellationToken cancellationToken)
     {
-        if (query.ProductId <= 0)
-            return Result.Invalid(new ValidationError("productId", "A positive Product ID is required."));
         var product = await products.FirstOrDefaultAsync(new PpeProductWithProfileSpec(query.ProductId), cancellationToken);
         if (product is null) return Result.NotFound();
         return Result.Success(await PpeSupplierOfferReader.ReadAsync(product, references, inputs, cancellationToken));

@@ -71,33 +71,6 @@ public sealed class ExceptionBehavior<TMessage, TResponse>(
         {
             return CreateConflictResult();
         }
-        catch (Exception ex)
-        {
-            var messageType = typeof(TMessage).Name;
-            var exType = ex.GetType().Name;
-            UnhandledLog.Error(logger, messageType, exType, ex);
-
-            const string errorMessage = "Виникла невідома помилка.";
-
-            if (typeof(TResponse) == typeof(Result))
-            {
-                var result = Result.Error(errorMessage);
-                return (TResponse)(object)result;
-            }
-            if(typeof(TResponse).IsGenericType &&
-               typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
-            {
-                var method = typeof(Result<>)
-                    .MakeGenericType(typeof(TResponse).GetGenericArguments()[0])
-                    .GetMethod("Error", [typeof(string)]);
-
-                ArgumentNullException.ThrowIfNull(method);
-                var result = method.Invoke(null, [errorMessage]);
-                return (TResponse)result!;
-            }
-
-            throw;
-        }
     }
 
     private static bool IsCritical(Exception ex)

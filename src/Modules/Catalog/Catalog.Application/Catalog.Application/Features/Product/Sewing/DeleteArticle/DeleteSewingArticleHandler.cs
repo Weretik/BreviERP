@@ -14,8 +14,6 @@ public sealed class DeleteSewingArticleHandler(ISewingCompositionStore store)
 
     public async ValueTask<Result> Handle(DeleteSewingArticleCommand command, CancellationToken cancellationToken)
     {
-        if (command.ProductId is <= 0 or > 1_000_000_000 || command.ArticleId <= 0 || command.ExpectedVersion < 0)
-            return Result.Invalid(new ValidationError("id", "Invalid Product, Article ID or version."));
         var product = await store.LoadAsync(command.ProductId, cancellationToken);
         var articleId = ArticleId.Create(command.ArticleId);
         if (product is null || product.Articles.All(x => x.Id != articleId))

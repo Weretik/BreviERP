@@ -28,7 +28,7 @@ public sealed class OtherCostPricingRevisionTests : SewingPricingDatabaseFixture
         Assert.That((await handler.Handle(request, CancellationToken.None)).Value, Is.EqualTo(result.Value));
         Assert.That((await handler.Handle(request with { Value = 3 }, CancellationToken.None)).Status, Is.EqualTo(ResultStatus.Conflict));
         Assert.That((await handler.Handle(request with { RequestId = Guid.NewGuid() }, CancellationToken.None)).Status, Is.EqualTo(ResultStatus.Conflict));
-        Assert.That((await handler.Handle(request with { Value = -1 }, CancellationToken.None)).Status, Is.EqualTo(ResultStatus.Invalid));
+        Assert.That(new ReviseOtherCostCommandValidator().Validate(request with { Value = -1 }).IsValid, Is.False);
         Assert.That(await reference.Set<ReferencePricingInputVersion>().CountAsync(x => x.OtherCostCode == "SERVICE-TEST"), Is.EqualTo(2));
         Assert.That((await reference.Set<ReferencePricingInputVersion>().AsNoTracking().SingleAsync(x => x.Id == baseline.Id)).Value,
             Is.EqualTo(1));

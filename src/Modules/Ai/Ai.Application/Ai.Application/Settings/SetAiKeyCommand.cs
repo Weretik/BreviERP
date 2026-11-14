@@ -46,3 +46,8 @@ public sealed class RemoveAiKeyCommandHandler(IAiDbContext db, AiSettingsStore s
         return Result.Success(await store.ResponseAsync(settings, cancellationToken));
     }
 }
+
+public sealed class RemoveAiKeyCommandValidator : AbstractValidator<RemoveAiKeyCommand>
+{
+    public RemoveAiKeyCommandValidator() => RuleFor(x => x.By).NotEmpty().MaximumLength(AiSettings.UpdatedByMaxLength);
+}
