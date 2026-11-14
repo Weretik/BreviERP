@@ -11,11 +11,11 @@ internal static class AvatarUploadResults
 
     public static AvatarUpload ToUpload(IFormFile file) => new(file.OpenReadStream(), file.Length);
 
-    public static IActionResult ToActionResult(ControllerBase controller, Ardalis.Result.Result<AvatarResult> result) =>
+    public static IResult ToHttpResult(Ardalis.Result.Result<AvatarResult> result) =>
         result.Status switch
         {
-            Ardalis.Result.ResultStatus.Ok => controller.Ok(new AvatarResponse(result.Value.AvatarUrl)),
-            Ardalis.Result.ResultStatus.Unavailable => controller.StatusCode(StatusCodes.Status503ServiceUnavailable, result.Errors),
-            _ => controller.ToActionResult(result)
+            Ardalis.Result.ResultStatus.Ok => Results.Ok(new AvatarResponse(result.Value.AvatarUrl)),
+            Ardalis.Result.ResultStatus.Unavailable => Results.Json(result.Errors, statusCode: StatusCodes.Status503ServiceUnavailable),
+            _ => result.ToHttpResult()
         };
 }

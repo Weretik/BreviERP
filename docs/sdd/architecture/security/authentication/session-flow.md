@@ -10,7 +10,7 @@ Admin (office.brevi.com.ua)
   ▼
 Cloudflare Worker (tools/cloudflare/api-proxy) → Cloud Run Host.Api
   ▼
-CookieAuthController (AllowAnonymous, AuthLogin rate limit)
+LoginCookieSessionEndpoint (AllowAnonymous, AuthLogin rate limit)
   ▼
 CookieLoginCommand → Mediator behaviors (validation) → CookieSessionService
   ▼

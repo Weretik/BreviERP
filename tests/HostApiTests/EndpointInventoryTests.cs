@@ -3,13 +3,14 @@ using BuildingBlocks.Api.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Routing;
 
 namespace HostApiTests;
 
 /// <summary>
 /// The HTTP surface of every module stays the same while controllers move to Minimal API: method, route with its
-/// constraints, endpoint name (operationId), access rule, «Права доступу» action, body and form size limits of every endpoint are compared with
+/// constraints, endpoint name (operationId), access rule, «Права доступу» action, body and form size limits, rate limit policy of every endpoint are compared with
 /// <c>Endpoints.snapshot.txt</c>. Set BREVIERP_UPDATE_ENDPOINTS=1 to rewrite the file after an intended change.
 /// </summary>
 public sealed class EndpointInventoryTests
@@ -58,6 +59,7 @@ public sealed class EndpointInventoryTests
             access += ",body-limit:" + (limit.MaxRequestBodySize?.ToString() ?? "none");
         if (endpoint.Metadata.GetMetadata<IFormOptionsMetadata>()?.MultipartBodyLengthLimit is { } form)
             access += ",form-limit:" + form;
+        if (endpoint.Metadata.GetMetadata<EnableRateLimitingAttribute>() is { } rate) access += ",rate-limit:" + rate.PolicyName;
 
         return $"{method} {route} | {name} | {access}";
     }

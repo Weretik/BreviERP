@@ -4,6 +4,7 @@ using Microsoft.OpenApi;
 using Microsoft.OpenApi.Reader;
 using YamlDotNet.RepresentationModel;
 using Identity.Api.Auth;
+using Identity.Api.Endpoints.CookieAuth;
 
 namespace UnitTests.Identity;
 

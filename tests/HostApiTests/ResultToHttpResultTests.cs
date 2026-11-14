@@ -18,6 +18,26 @@ public sealed class ResultToHttpResultTests
     }
 
     [Test]
+    public async Task Mapped_success_is_200_or_201_with_the_response_and_failure_keeps_the_mapping()
+    {
+        var ok = await RunAsync(Result.Success(5).ToHttpResult(x => new { Id = x }));
+        var created = await RunAsync(Result.Success(5).ToCreatedHttpResult(x => new { Id = x }));
+        var conflict = await RunAsync(Result<int>.Conflict("Дані змінено.").ToCreatedHttpResult(x => new { Id = x }));
+        Assert.That(new[] { ok, created, conflict }, Is.EqualTo(new[]
+        {
+            (200, "{\"id\":5}"), (201, "{\"id\":5}"), (409, "[\"Дані змінено.\"]")
+        }));
+    }
+
+    [Test]
+    public async Task Success_without_a_value_is_204_as_MVC_answered_a_null_value()
+    {
+        var (status, body) = await RunAsync(Result.Success().ToHttpResult());
+        var (nullStatus, _) = await RunAsync(Result<string?>.Success(null).ToHttpResult());
+        Assert.That((status, body, nullStatus), Is.EqualTo((204, "", 204)));
+    }
+
+    [Test]
     public async Task Invalid_is_400_with_the_validation_errors_list()
     {
         var (status, body) = await RunAsync(Result<int>.Invalid(new ValidationError("Name", "Вкажіть назву.")).ToHttpResult());
