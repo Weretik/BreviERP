@@ -6,7 +6,7 @@ The public API address is `api.brevi.com.ua`. A Cloudflare Worker serves that ho
 Admin (office.brevi.com.ua)
   | https://api.brevi.com.ua/...
   v
-Cloudflare Worker (deploy/cloudflare/api-proxy)
+Cloudflare Worker (tools/cloudflare/api-proxy)
   | adds X-Brevi-Client-IP + X-Brevi-Proxy-Secret
   v
 Cloud Run Host.Api (brevierp-api-443622778364.europe-central2.run.app)
@@ -40,7 +40,7 @@ With an empty `TrustedProxy:SharedSecret` the middleware only strips the headers
 Both secrets must exist before the deploy that contains the cookie sign-in, because the deploy workflow attaches them and fails when one is missing.
 
 1. Create Secret Manager secrets `api-proxy-shared-secret` (random, for example `openssl rand -hex 32`) and `admin-default-password` (the first administrator's password, at least 8 characters), and grant the Cloud Run runtime service account `Secret Manager Secret Accessor` on both.
-2. Create the Worker from `deploy/cloudflare/api-proxy` (dashboard or `npx wrangler deploy`), set `ORIGIN_URL` and the secret `PROXY_SHARED_SECRET`, and add the custom domain `api.brevi.com.ua`. The `brevi.com.ua` zone must be in the same Cloudflare account.
+2. Create the Worker from `tools/cloudflare/api-proxy` (dashboard or `npx wrangler deploy`), set `ORIGIN_URL` and the secret `PROXY_SHARED_SECRET`, and add the custom domain `api.brevi.com.ua`. The `brevi.com.ua` zone must be in the same Cloudflare account.
 3. Check `https://api.brevi.com.ua/health` (`Healthy`).
 4. Merge BreviERP and brevi-web together and sync the deploy fork. The seed job creates `vitaliythupin@gmail.com` (`Identity:AdminUser:Email`) with the `admin-default-password` value.
 5. Sign in on `https://office.brevi.com.ua`, create the staff accounts on «Користувачі» and block old accounts that nobody uses.
