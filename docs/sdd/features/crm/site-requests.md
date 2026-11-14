@@ -15,7 +15,7 @@ src/Modules/Crm/
     Shared/                                  responses, SiteRequestMapper, SiteRequestMessages
     Shared/Notify/NotifySiteRequestOutboxHandler.cs  outbox message crm.site-request.notify
   Crm.Infrastructure/Crm.Infrastructure/Persistence/SiteRequests/
-  Crm.Api/Crm.Api/SiteRequests/              SiteRequestsController, PublicSiteRequestsController
+  Crm.Api/Crm.Api/Endpoints/SiteRequests/    SiteRequestsEndpoints, PublicSiteRequestsEndpoints (form: SiteRequests/PublicSiteRequestForm.cs)
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/
   Media/SiteRequestFileStorage.cs           Media.Contracts upload
   Reminders/SiteRequestNotifier.cs          Reminders.Contracts ITelegramBot

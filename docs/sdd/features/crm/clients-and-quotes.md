@@ -30,12 +30,13 @@ src/Modules/Crm/
     Persistence/Customers/            read repository, write session and root locks, mutation journal (idempotency), KeepinCRM sync store
     Integrations/KeepinCrm/           KeepinCRM clients HTTP source, parser, options
     DependencyInjection/              existing host/seed registration; CrmKeepinCrmExtensions
+  Crm.Api/Crm.Api/Endpoints/Customers/
+    CustomersEndpoints.cs             group /api/crm/customers: client reads/writes/merge, one *Endpoint.cs per use case
+    CustomerContactsEndpoints.cs      group /api/crm/customers/{customerId}/contacts: contact writes
   Crm.Api/Crm.Api/Customers/
-    CustomersController.cs            client reads/writes/merge
-    CustomerContactsController.cs     contact writes
-    *Request.cs                       one request type per file, next to the controller
+    *Request.cs                       one request type per file
   Crm.Api/Crm.Api/Access/
-    CrmActorClaims.cs                 actor binding shared by CRM controllers
+    CrmActorClaims.cs                 actor binding shared by CRM endpoints
 ```
 
 ```mermaid
@@ -113,8 +114,9 @@ src/Modules/Crm/
     Persistence/Quotes/                  unique-number, settings and mailbox race detection
     Integrations/Pdf/                    QuestPDF documents (КП, introduction catalogue), shared parts, renderer, photo loader, fonts
     Integrations/Gmail/                  GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options
-  Crm.Api/Crm.Api/Quotes/                QuotesController, QuoteIntroductionsController, QuoteIntroTemplatesController,
-                                         QuoteLookupsController, QuoteSettingsController, MailboxesController, QuoteImportController, request types
+  Crm.Api/Crm.Api/Endpoints/Quotes/      groups Quotes, QuoteIntroductions, QuoteIntroTemplates, QuoteLookups, QuoteSettings,
+                                         Mailboxes, QuoteImport; one *Endpoint.cs per use case
+  Crm.Api/Crm.Api/Quotes/                request types
 src/Modules/Crm/Crm.Contracts/Crm.Contracts/{Customers,Quotes,Embroidery}/  ICustomerDirectory, IQuoteReader, IEmbroideryCalculationReader for other modules
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Contracts/          their implementations (Mediator queries)
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Catalog/

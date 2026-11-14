@@ -1,3 +1,4 @@
+using Catalog.Api.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -204,12 +205,11 @@ public sealed class SewingCompositionApiTests
             });
             // «Права доступу»: `access:` policies with the catalogue defaults.
             builder.Services.AddAccessPolicies();
-            builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly);
 
             var app = builder.Build();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapControllers();
+            app.MapCatalogEndpoints();
             await app.StartAsync();
             return new(app, app.GetTestClient(), sender);
         }

@@ -1,7 +1,14 @@
+global using Ardalis.Result;
+global using BuildingBlocks.Api.Authorization;
+global using BuildingBlocks.Api.Binding;
 global using BuildingBlocks.Api.Result;
+global using IResult = Microsoft.AspNetCore.Http.IResult;
 global using Mediator;
 global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Http.Features;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
-global using Microsoft.AspNetCore.Http.Features;
+global using Microsoft.AspNetCore.Routing;
 global using Microsoft.Extensions.Options;
+global using System.Security.Claims;

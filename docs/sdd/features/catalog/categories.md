@@ -6,7 +6,7 @@ Admin CRUD and list for Storefront.
 
 ## Structure and relationships
 
-[ProductCategoriesController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/ProductCategory/ProductCategoriesController.cs) routes requests to the [admin query](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Queries/GetAdminProductCategories/GetAdminProductCategoriesHandler.cs), store query, and command handlers. [ProductCategory](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/ProductCategories/ProductCategory.cs) is persisted through [CatalogEfRepository](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogEfRepository.cs). The category belongs to Catalog even though the API route starts with `/api/reference/`.
+[ProductCategoriesEndpoints](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Endpoints/ProductCategory/ProductCategoriesEndpoints.cs) routes requests to the [admin query](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Queries/GetAdminProductCategories/GetAdminProductCategoriesHandler.cs), store query, and command handlers. [ProductCategory](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/ProductCategories/ProductCategory.cs) is persisted through [CatalogEfRepository](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogEfRepository.cs). The category belongs to Catalog even though the API route starts with `/api/reference/`.
 
 ## Code structure
 
@@ -15,7 +15,7 @@ The following are verified entry points and key feature components; the tree doe
 ```text
 src/
 └── Modules/Catalog/
-    ├── Catalog.Api/Catalog.Api/ProductCategory/ProductCategoriesController.cs  # HTTP entry point
+    ├── Catalog.Api/Catalog.Api/Endpoints/ProductCategory/ProductCategoriesEndpoints.cs  # HTTP entry point (Minimal API group, one *Endpoint.cs per use case)
     ├── Catalog.Application/Catalog.Application/Features/ProductCategory/
     │   ├── Commands/CreateProductCategory/CreateProductCategoryHandler.cs  # use-case handler
     │   ├── Commands/DeleteProductCategory/DeleteProductCategoryHandler.cs  # use-case handler
@@ -30,7 +30,7 @@ src/
 
 ```mermaid
 flowchart LR
-    A["ProductCategoriesController"] --> B["Admin and store query handlers"]
+    A["ProductCategoriesEndpoints"] --> B["Admin and store query handlers"]
     A --> C["Command handlers"]
     B --> D["ProductCategory"]
     C --> D

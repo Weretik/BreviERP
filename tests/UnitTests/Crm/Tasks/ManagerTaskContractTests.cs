@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Crm.Api.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Crm.Api.DependencyInjection;
+using UnitTests.TestSupport;
 using YamlDotNet.RepresentationModel;
 using Crm.Application.Features.Tasks.Shared;
 
@@ -45,11 +45,7 @@ public sealed class ManagerTaskContractTests
     [TestCase("deleteCrmTask", "Admin")]
     public void Operation_exists_and_requires_the_expected_roles(string operation, string roles)
     {
-        var method = typeof(ManagerTasksController).GetMethods()
-            .Single(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>()
-                .Any(attribute => attribute.Name == operation));
-        var required = method.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>()
-            .Select(x => x.Roles).SingleOrDefault() ?? "Admin,Manager";
+        var required = MappedEndpoints.Named(app => app.MapCrmEndpoints(), operation).Roles ?? "Admin,Manager";
         Assert.That(required, Is.EqualTo(roles));
         Assert.That(Operations(), Does.Contain(operation));
     }

@@ -4,6 +4,10 @@ using Ardalis.Result;
 using HostApiTests.TestSupport;
 using Media.Application.Features.Files.Commands.UploadMediaFile;
 using Media.Application.Features.Files.Shared;
+using Crm.Application.Features.Quotes.Queries.GetQuoteFabricFacts;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.SiteRequests.Commands.SubmitSiteRequest;
+using Crm.Application.Features.SiteRequests.Shared;
 
 namespace HostApiTests;
 
@@ -51,6 +55,49 @@ public sealed class FormUploadBindingTests
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(await response.Content.ReadAsStringAsync(), Does.Contain("File is required."));
             Assert.That(recorder.Messages, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task Public_site_request_binds_the_form_fields_and_the_attachment()
+    {
+        var (sender, recorder) = RecordingSender.Create(Result<SiteRequestReceivedResponse>.Success(new(7)));
+        await using var host = await ApiTestHost.CreateAsync(sender);
+        using var form = new MultipartFormDataContent();
+        var file = new ByteArrayContent([1, 2]);
+        file.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+        form.Add(file, "attachment", "brief.pdf");
+        form.Add(new StringContent("0504698675"), "phone");
+        form.Add(new StringContent("uk"), "locale");
+
+        var response = await host.Client.PostAsync("/api/public/site-requests", form);
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(await response.Content.ReadAsStringAsync(), Is.EqualTo("{\"id\":7}"));
+            var command = recorder.Messages.OfType<SubmitSiteRequestCommand>().Single();
+            Assert.That((command.Phone, command.Locale, command.Workwear, command.File?.FileName, command.File?.Length),
+                Is.EqualTo(("0504698675", "uk", (string?)null, "brief.pdf", (long?)2)));
+        });
+    }
+
+    [Test]
+    public async Task A_missing_array_query_binds_as_an_empty_list_as_on_MVC()
+    {
+        var (sender, recorder) = RecordingSender.Create(
+            Result<IReadOnlyList<QuoteFabricFactsResponse>>.Success([]));
+        await using var host = await ApiTestHost.CreateAsync(sender);
+        host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", "Admin");
+
+        var none = await host.Client.GetAsync("/api/crm/quote-lookups/fabrics");
+        var two = await host.Client.GetAsync("/api/crm/quote-lookups/fabrics?ids=3&ids=5");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That((none.StatusCode, two.StatusCode), Is.EqualTo((HttpStatusCode.OK, HttpStatusCode.OK)));
+            Assert.That(recorder.Messages.OfType<GetQuoteFabricFactsQuery>().Select(x => string.Join(",", x.FabricIds)),
+                Is.EqualTo(new[] { "", "3,5" }));
         });
     }
 }

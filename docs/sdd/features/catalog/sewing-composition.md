@@ -8,9 +8,9 @@ One Sewing Product owns its fabric variants (Articles) and shared material/opera
 
 ```text
 src/Modules/Catalog/
-├── Catalog.Api/Catalog.Api/Product/Sewing/
-│   ├── SewingArticlesController.cs                                # protected variant list/create/update/delete boundary
-│   └── SewingCompositionController.cs                             # protected composition read/replace boundary
+├── Catalog.Api/Catalog.Api/Endpoints/Sewing/
+│   ├── SewingArticlesEndpoints.cs                                # protected variant list/create/update/delete boundary
+│   └── SewingCompositionEndpoints.cs                             # protected composition read/replace boundary
 ├── Catalog.Application/Catalog.Application/
 │   ├── Features/Product/
 │   │   ├── Commands/CreateSewingArticle/                          # variant with its fabric in one transaction
@@ -44,7 +44,7 @@ src/Modules/Catalog/
 
 ```mermaid
 flowchart LR
-    API[SewingCompositionController] --> Policies[CatalogRead / access:products]
+    API[SewingCompositionEndpoints] --> Policies[CatalogRead / access:products]
     API --> Handlers[Article and composition handlers]
     Handlers --> Reference[Existing Reference read contract]
     Handlers --> Product[Product aggregate and scoped lines]

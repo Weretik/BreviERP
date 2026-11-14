@@ -1,3 +1,5 @@
+using UnitTests.TestSupport;
+using Catalog.Api.DependencyInjection;
 using System.Text.Json;
 using Ardalis.Result;
 using Ardalis.Specification;
@@ -148,12 +150,8 @@ public sealed class CatalogProductCreationInputTests
     [TestCase("getProductCodeCheck", "CatalogRead")]
     public void Creation_operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
-        var methods = typeof(global::Catalog.Api.Product.Overview.ProductOverviewController).GetMethods()
-            .Where(method => method.GetCustomAttributes(typeof(HttpMethodAttribute), false)
-                .Cast<HttpMethodAttribute>().Any(attribute => attribute.Name == operation)).ToArray();
-        Assert.That(methods, Has.Length.EqualTo(1), $"Missing operation {operation}.");
-        Assert.That(methods[0].GetCustomAttributes(typeof(AuthorizeAttribute), true)
-            .Cast<AuthorizeAttribute>().Select(attribute => attribute.Policy), Does.Contain(policy));
-        Assert.That(methods[0].IsDefined(typeof(AllowAnonymousAttribute), true), Is.False);
+        var endpoint = MappedEndpoints.Named(app => app.MapCatalogEndpoints(), operation);
+        Assert.That(endpoint.Policies, Does.Contain(policy));
+        Assert.That(endpoint.Anonymous, Is.False);
     }
 }

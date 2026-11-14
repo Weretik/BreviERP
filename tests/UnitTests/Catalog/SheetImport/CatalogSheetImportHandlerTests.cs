@@ -1,3 +1,5 @@
+using UnitTests.TestSupport;
+using Catalog.Api.DependencyInjection;
 using System.Text.Json;
 using Ardalis.Result;
 using Catalog.Domain.Products;
@@ -140,17 +142,12 @@ public sealed class CatalogSheetImportHandlerTests
     [Test]
     public void Sheet_import_operation_exists_and_requires_product_management()
     {
-        var methods = typeof(global::Catalog.Api.Product.Overview.ProductOverviewController).GetMethods()
-            .Where(method => method.GetCustomAttributes(typeof(HttpMethodAttribute), false)
-                .Cast<HttpMethodAttribute>().Any(attribute => attribute.Name == "importSheetProducts")).ToArray();
-        Assert.That(methods, Has.Length.EqualTo(1));
+        var endpoint = MappedEndpoints.Named(app => app.MapCatalogEndpoints(), "importSheetProducts");
         Assert.Multiple(() =>
         {
-            Assert.That(methods[0].GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>()
-                .Single().Template, Is.EqualTo("sheet-import"));
-            Assert.That(methods[0].GetCustomAttributes(typeof(AuthorizeAttribute), true)
-                .Cast<AuthorizeAttribute>().Select(attribute => attribute.Policy), Does.Contain("access:products"));
-            Assert.That(methods[0].IsDefined(typeof(AllowAnonymousAttribute), true), Is.False);
+            Assert.That(endpoint.Route, Does.EndWith("/sheet-import"));
+            Assert.That(endpoint.Policies, Does.Contain("access:products"));
+            Assert.That(endpoint.Anonymous, Is.False);
         });
     }
 

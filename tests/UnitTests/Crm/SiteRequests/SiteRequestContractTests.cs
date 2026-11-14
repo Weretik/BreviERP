@@ -2,8 +2,8 @@ using System.Text.Json;
 using BuildingBlocks.Api.Authorization;
 using Crm.Api.SiteRequests;
 using Identity.Domain.Authorization;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Crm.Api.DependencyInjection;
+using UnitTests.TestSupport;
 using YamlDotNet.RepresentationModel;
 using Crm.Application.Features.SiteRequests.Shared;
 
@@ -29,14 +29,11 @@ public sealed class SiteRequestContractTests
     [TestCase("changeCrmSiteRequest", "edit")]
     public void Staff_operations_need_the_page(string operation, string? action)
     {
-        var controller = typeof(SiteRequestsController);
-        var method = Method(controller, operation);
+        var endpoint = MappedEndpoints.Named(app => app.MapCrmEndpoints(), operation);
         Assert.Multiple(() =>
         {
-            Assert.That(controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>()
-                .Single().Policy, Is.EqualTo($"access:{AccessCatalog.SiteRequests}"));
-            Assert.That(method.GetCustomAttributes(typeof(AccessActionAttribute), false).Cast<AccessActionAttribute>()
-                .SingleOrDefault()?.Action, Is.EqualTo(action));
+            Assert.That(endpoint.Policies, Is.EqualTo(new[] { $"access:{AccessCatalog.SiteRequests}" }));
+            Assert.That(endpoint.Action, Is.EqualTo(action));
             Assert.That(Operations(), Does.Contain(operation));
         });
     }
@@ -44,22 +41,17 @@ public sealed class SiteRequestContractTests
     [Test]
     public void The_site_posts_anonymously_and_the_page_is_in_access_rights()
     {
-        var controller = typeof(PublicSiteRequestsController);
+        var endpoint = MappedEndpoints.Named(app => app.MapCrmEndpoints(), "submitPublicSiteRequest");
         Assert.Multiple(() =>
         {
-            Assert.That(controller.GetCustomAttributes(typeof(AllowAnonymousAttribute), false), Is.Not.Empty);
+            Assert.That(endpoint.Anonymous, Is.True);
             Assert.That(Operations(), Does.Contain("submitPublicSiteRequest"));
-            Method(controller, "submitPublicSiteRequest");
             Assert.That(AccessCatalog.Find(AccessCatalog.SiteRequests)!.Title, Is.EqualTo("Заявки з сайту"));
             Assert.That(AccessCatalog.DefaultsOf(RoleNames.Manager)[AccessCatalog.SiteRequests],
                 Is.EqualTo(AccessAction.View | AccessAction.Edit));
             Assert.That(AccessCatalog.DefaultsOf(RoleNames.Seo), Does.Not.ContainKey(AccessCatalog.SiteRequests));
         });
     }
-
-    private static System.Reflection.MethodInfo Method(Type controller, string operation) => controller.GetMethods()
-        .Single(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>()
-            .Any(attribute => attribute.Name == operation));
 
     private static YamlMappingNode Root()
     {

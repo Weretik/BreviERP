@@ -1,3 +1,4 @@
+using Crm.Api.DependencyInjection;
 using BuildingBlocks.Application.DependencyInjection;
 using Production.Api.DependencyInjection;
 using Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
@@ -66,15 +67,14 @@ internal sealed class IdentityApiHost : IAsyncDisposable
         builder.Services.AddMediatorPipeline();
         builder.Services.AddModuleValidators(typeof(global::Identity.Application.IdentityApplicationAssemblyMarker).Assembly);
         builder.Services.AddAuthorizationPolicies();
-        // Crm and Production too: the access tests check that a role without the right gets 403 there.
-        builder.Services.AddControllers().AddApplicationPart(typeof(global::Crm.Api.CrmApiAssemblyMarker).Assembly);
 
         var app = builder.Build();
         app.UseCookieCsrfProtection();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
         app.MapIdentityEndpoints();
+        // Crm and Production too: the access tests check that a role without the right gets 403 there.
+        app.MapCrmEndpoints();
         app.MapProductionEndpoints();
 
         await using (var scope = app.Services.CreateAsyncScope())
