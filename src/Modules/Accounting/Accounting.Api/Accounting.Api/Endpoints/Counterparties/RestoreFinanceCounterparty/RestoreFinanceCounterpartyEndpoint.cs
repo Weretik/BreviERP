@@ -1,6 +1,7 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Counterparties.Commands.SetFinanceCounterpartyActive;
 using Accounting.Api.Endpoints.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Counterparties.RestoreFinanceCounterparty;
 

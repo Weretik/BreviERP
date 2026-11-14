@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Purchasing.Application.Features.Documents.Commands.SaveCheckedPurchaseDocument;
 using Purchasing.Application.Features.Documents.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Purchasing.Api.Endpoints.Documents.SavePurchaseDocument;
 

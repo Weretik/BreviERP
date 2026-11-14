@@ -1,5 +1,6 @@
 using Accounting.Domain;
 using Accounting.Domain.Transactions;
+using BuildingBlocks.Domain.Entity;
 
 namespace Accounting.Domain.Attachments;
 

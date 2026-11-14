@@ -8,6 +8,7 @@ using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
 using Accounting.Domain.Statements.Enums;
 using Accounting.Domain.Statements.ValueObjects;
+using BuildingBlocks.Domain.Entity;
 
 namespace Accounting.Domain.Statements;
 

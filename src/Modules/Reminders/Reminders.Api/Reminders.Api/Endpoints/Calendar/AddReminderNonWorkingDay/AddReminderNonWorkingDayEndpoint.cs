@@ -1,5 +1,6 @@
 using Reminders.Application.Features.Calendar.Commands.AddNonWorkingDay;
 using Reminders.Application.Features.Calendar.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Calendar.AddReminderNonWorkingDay;
 

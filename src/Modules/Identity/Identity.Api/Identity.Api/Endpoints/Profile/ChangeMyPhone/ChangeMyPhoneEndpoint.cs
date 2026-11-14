@@ -1,5 +1,6 @@
 using Identity.Application.Features.Profile.Commands.ChangeOwnPhone;
 using Identity.Application.Security.Policies;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.Profile.ChangeMyPhone;
 

@@ -1,6 +1,7 @@
 using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Api.Endpoints.Product.Detail;
 using Catalog.Api.Endpoints.Product.Write;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Product.CreateProduct;
 

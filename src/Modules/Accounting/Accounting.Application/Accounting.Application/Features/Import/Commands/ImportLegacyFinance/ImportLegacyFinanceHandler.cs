@@ -2,6 +2,7 @@ using Accounting.Application.Abstractions;
 using Accounting.Application.Features.Import.Shared;
 using Accounting.Application.Features.Import.Shared.Reading;
 using Accounting.Application.Features.Import.Shared.Report;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Import.Commands.ImportLegacyFinance;
 

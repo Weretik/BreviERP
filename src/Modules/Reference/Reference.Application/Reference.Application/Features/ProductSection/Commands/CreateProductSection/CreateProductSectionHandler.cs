@@ -2,6 +2,7 @@ using Reference.Application.Features.ProductSection.Shared;
 using Reference.Domain.ProductSections;
 using ProductSectionEntity = Reference.Domain.ProductSections.ProductSection;
 using Reference.Application.Abstractions;
+using BuildingBlocks.Application;
 
 namespace Reference.Application.Features.ProductSection.Commands.CreateProductSection;
 

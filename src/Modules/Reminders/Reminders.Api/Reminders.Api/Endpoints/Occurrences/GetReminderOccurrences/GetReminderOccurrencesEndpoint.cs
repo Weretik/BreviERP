@@ -1,5 +1,6 @@
 using Reminders.Application.Features.Occurrences.Queries.GetReminderOccurrences;
 using Reminders.Application.Features.Occurrences.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Occurrences.GetReminderOccurrences;
 

@@ -1,5 +1,6 @@
 using Production.Application.Features.Orders.Commands.ImportProductionProgress;
 using Production.Application.Features.Orders.Commands.ImportProductionProgress.Rows;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Orders.ImportProductionProgress;
 

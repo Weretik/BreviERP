@@ -1,5 +1,6 @@
 using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
 using Content.Api.Endpoints.SiteCategories.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteCategories.CreateSiteCategory;
 

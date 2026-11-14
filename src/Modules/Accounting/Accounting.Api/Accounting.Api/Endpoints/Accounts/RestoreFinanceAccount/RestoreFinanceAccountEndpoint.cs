@@ -1,6 +1,7 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Accounts.Commands.SetFinanceAccountActive;
 using Accounting.Api.Endpoints.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Accounts.RestoreFinanceAccount;
 

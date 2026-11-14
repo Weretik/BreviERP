@@ -1,6 +1,7 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Statements.Commands.RollbackBankStatement;
 using Accounting.Api.Endpoints.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Statements.RollbackBankStatement;
 

@@ -1,4 +1,5 @@
 using Production.Application.Features.Staff.Queries.GetWorkshopStaff;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Staff.GetWorkshopStaff;
 

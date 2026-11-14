@@ -8,6 +8,7 @@ using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Application.Features.Journal.Shared;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Transactions.Shared;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Transactions.Commands.PromoteFinanceOneoff;
 

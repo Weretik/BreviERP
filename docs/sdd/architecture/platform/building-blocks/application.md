@@ -9,14 +9,13 @@ BuildingBlocks.Application/
 │   ├── ExceptionBehavior
 │   ├── PerformanceBehavior + options
 │   └── ValidationBehavior
-├── DependencyInjection/
-│   └── AddModuleValidators
-├── Errors/
-│   └── ErrorResults           Error → Ardalis.Result, the one mapping
+├── Outbox/                   IOutboxDispatcher, IOutboxHandler, OutboxMessage
 ├── Validation/
+│   ├── AddModuleValidators
 │   └── UkrainianValidationLanguage
 ├── Logging/                  stable structured log helpers
-├── Helpers/PhoneNumberHelper.cs
+├── ErrorResults.cs           Error → Ardalis.Result, the one mapping
+├── PhoneNumberHelper.cs
 └── ApplicationAssemblyMarker.cs
 ```
 

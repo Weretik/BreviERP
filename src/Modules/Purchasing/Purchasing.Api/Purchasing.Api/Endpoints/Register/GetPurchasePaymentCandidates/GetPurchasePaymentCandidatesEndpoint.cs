@@ -1,5 +1,6 @@
 using Purchasing.Application.Features.Register.Queries.GetPurchasePaymentCandidates;
 using Purchasing.Application.Features.Register.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Purchasing.Api.Endpoints.Register.GetPurchasePaymentCandidates;
 

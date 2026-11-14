@@ -1,4 +1,5 @@
 using Production.Application.Features.Reports.Queries.GetWorkshopReport;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Reports.GetWorkshopReport;
 

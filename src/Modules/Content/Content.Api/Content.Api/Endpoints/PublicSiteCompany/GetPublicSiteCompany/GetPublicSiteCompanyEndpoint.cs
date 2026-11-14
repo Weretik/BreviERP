@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteCompany.Queries.GetPublicSiteCompany;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.PublicSiteCompany.GetPublicSiteCompany;
 

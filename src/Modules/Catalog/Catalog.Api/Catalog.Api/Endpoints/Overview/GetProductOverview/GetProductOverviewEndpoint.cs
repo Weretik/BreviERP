@@ -1,5 +1,6 @@
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Shared.Overview;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Overview.GetProductOverview;
 

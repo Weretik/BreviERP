@@ -1,5 +1,6 @@
 using Production.Application.Features.Orders.Commands.CloseProductionOrder;
 using Production.Application.Features.Orders.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Orders.CloseProductionOrder;
 

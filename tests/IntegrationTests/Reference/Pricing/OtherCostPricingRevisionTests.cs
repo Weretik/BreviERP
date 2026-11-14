@@ -1,6 +1,5 @@
 using IntegrationTests.TestSupport;
 using Ardalis.Result;
-using BuildingBlocks.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Pricing;
 using SewingPricing.Jobs.Bootstrap;

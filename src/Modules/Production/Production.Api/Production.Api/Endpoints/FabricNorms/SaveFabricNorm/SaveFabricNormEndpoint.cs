@@ -1,5 +1,6 @@
 using Production.Application.Features.FabricNorms.Commands.SaveFabricNorm;
 using Production.Application.Features.FabricNorms.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.FabricNorms.SaveFabricNorm;
 

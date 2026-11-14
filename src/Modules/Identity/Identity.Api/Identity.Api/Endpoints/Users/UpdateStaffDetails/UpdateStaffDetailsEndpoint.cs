@@ -1,4 +1,5 @@
 using Identity.Application.Features.Users.Commands.UpdateStaffDetails;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.Users.UpdateStaffDetails;
 

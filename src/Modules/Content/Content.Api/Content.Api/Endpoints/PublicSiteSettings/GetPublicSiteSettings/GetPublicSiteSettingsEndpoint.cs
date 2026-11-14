@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteSettings.Queries.GetPublicSiteSettings;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.PublicSiteSettings.GetPublicSiteSettings;
 

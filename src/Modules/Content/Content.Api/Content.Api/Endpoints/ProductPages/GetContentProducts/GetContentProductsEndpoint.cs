@@ -1,4 +1,5 @@
 using Content.Application.Features.ProductPages.Queries.GetContentProducts;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.ProductPages.GetContentProducts;
 

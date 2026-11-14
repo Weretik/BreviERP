@@ -8,7 +8,6 @@ using Accounting.Domain.Accounts;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Statements;
-using BuildingBlocks.Domain.Errors;
 using Accounting.Domain.Statements.ValueObjects;
 
 namespace Accounting.Application.Features.Statements.Shared.Reading;

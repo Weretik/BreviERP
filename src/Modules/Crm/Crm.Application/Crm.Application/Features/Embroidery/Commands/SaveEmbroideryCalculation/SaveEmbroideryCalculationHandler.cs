@@ -5,6 +5,7 @@ using Crm.Application.Features.Embroidery.Shared.Access;
 using Crm.Application.Features.Embroidery.Shared.Mapping;
 using Crm.Application.Abstractions.Embroidery;
 using Crm.Application.Abstractions.Quotes;
+using BuildingBlocks.Application;
 
 namespace Crm.Application.Features.Embroidery.Commands.SaveEmbroideryCalculation;
 

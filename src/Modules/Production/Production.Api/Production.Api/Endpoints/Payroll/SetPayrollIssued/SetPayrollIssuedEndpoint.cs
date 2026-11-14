@@ -1,4 +1,5 @@
 using Production.Application.Features.Payroll.Commands.SetPayrollIssued;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Payroll.SetPayrollIssued;
 

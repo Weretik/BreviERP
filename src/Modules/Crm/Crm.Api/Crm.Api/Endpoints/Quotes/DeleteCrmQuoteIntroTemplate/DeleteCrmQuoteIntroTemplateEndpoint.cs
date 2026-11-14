@@ -1,5 +1,6 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Commands.DeleteQuoteIntroTemplate;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Quotes.DeleteCrmQuoteIntroTemplate;
 

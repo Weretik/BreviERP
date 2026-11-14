@@ -1,6 +1,7 @@
 using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Shared.Plans;
+using BuildingBlocks.Api.Errors;
 
 namespace Warehouse.Api.Endpoints.OrderItemFabric.CreateFabricIssue;
 

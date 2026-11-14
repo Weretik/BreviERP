@@ -1,5 +1,6 @@
 using Reminders.Application.Features.Chats.Commands.UpdateReminderChat;
 using Reminders.Application.Features.Chats.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Chats.UpdateReminderChat;
 

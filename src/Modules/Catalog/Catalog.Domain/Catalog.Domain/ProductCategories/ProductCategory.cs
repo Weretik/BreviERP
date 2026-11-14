@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 
 namespace Catalog.Domain.ProductCategories;

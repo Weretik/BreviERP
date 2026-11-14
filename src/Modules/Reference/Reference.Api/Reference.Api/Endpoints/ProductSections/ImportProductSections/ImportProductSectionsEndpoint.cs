@@ -1,4 +1,5 @@
 using Reference.Application.Features.ProductSection.Commands.ImportProductSections;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.ProductSections.ImportProductSections;
 

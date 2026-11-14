@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteSettings.Commands.SaveSiteSeoSettings;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteSettings.SaveSiteSeoSettings;
 

@@ -3,6 +3,7 @@ using Identity.Infrastructure.Integrations.AspNetIdentity;
 using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.Persistence.Seeding;
 using Identity.Infrastructure.Persistence.Configurations.Users;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Identity.Infrastructure.DependencyInjection;
 

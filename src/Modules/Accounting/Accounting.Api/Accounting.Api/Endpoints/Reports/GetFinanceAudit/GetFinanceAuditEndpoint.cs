@@ -1,5 +1,7 @@
 using Accounting.Application.Features.Audit.Queries.GetFinanceAudit;
 using Accounting.Domain.Audit;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Accounting.Api.Endpoints.Reports.GetFinanceAudit;
 

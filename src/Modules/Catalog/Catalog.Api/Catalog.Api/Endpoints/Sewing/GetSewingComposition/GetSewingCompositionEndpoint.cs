@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Queries.GetSewingComposition;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Sewing.GetSewingComposition;
 

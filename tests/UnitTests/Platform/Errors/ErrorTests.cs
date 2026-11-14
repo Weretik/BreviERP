@@ -1,8 +1,8 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Ardalis.Result;
-using BuildingBlocks.Application.Errors;
-using BuildingBlocks.Domain.Errors;
+using BuildingBlocks.Application;
+using BuildingBlocks.Domain.Results;
 
 namespace UnitTests.Platform.Errors;
 

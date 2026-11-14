@@ -1,4 +1,5 @@
 using Production.Application.Features.Work.Commands.CreateProductionWork;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Work.CreateProductionWork;
 

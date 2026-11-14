@@ -1,4 +1,5 @@
 using Reference.Application.Features.PricingParameter.Commands.DeletePricingParameter;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.PricingParameters.DeletePricingParameter;
 

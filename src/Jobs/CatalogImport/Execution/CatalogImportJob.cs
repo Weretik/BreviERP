@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Catalog.Infrastructure.Persistence;
 using Reference.Infrastructure.Persistence;
+using CatalogImport.Execution.Target;
 
 namespace CatalogImport.Execution;
 

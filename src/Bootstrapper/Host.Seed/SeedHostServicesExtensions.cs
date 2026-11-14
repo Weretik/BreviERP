@@ -13,9 +13,9 @@ using Content.Infrastructure.DependencyInjection;
 using Warehouse.Infrastructure.DependencyInjection;
 using Ai.Infrastructure.DependencyInjection;
 using CatalogImport.Persistence;
-using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using SewingPricing.Jobs.Activation;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Host.Seed;
 

@@ -1,4 +1,5 @@
 using Reference.Application.Features.GarmentPart.Queries.GetGarmentParts;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.GarmentParts.GetGarmentParts;
 

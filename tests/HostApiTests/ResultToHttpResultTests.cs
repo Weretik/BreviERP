@@ -1,8 +1,8 @@
 using Ardalis.Result;
-using BuildingBlocks.Api.Result;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using BuildingBlocks.Api.Errors;
 
 namespace HostApiTests;
 

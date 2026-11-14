@@ -1,5 +1,6 @@
 using Crm.Application.Features.Leads.Commands.SaveLeadCategory;
 using Crm.Application.Features.Leads.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Leads.EditCrmLeadCategory;
 

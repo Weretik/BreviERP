@@ -1,4 +1,5 @@
 using Production.Application.Features.Orders.Commands.CreateProductionShipment;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Orders.CreateProductionShipment;
 

@@ -1,6 +1,7 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Commands.CreateQuoteIntroduction;
 using Crm.Application.Features.Quotes.Shared.Introductions;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Quotes.CreateCrmQuoteIntroduction;
 

@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Errors;
 using BuildingBlocks.Domain.Results;
 
 namespace Production.Domain;

@@ -1,5 +1,6 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Tasks.Commands.DeleteTask;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Tasks.DeleteCrmTask;
 

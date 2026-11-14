@@ -1,6 +1,7 @@
 using Purchasing.Application.Features.Register.Commands.LinkPurchasePayment;
 using Purchasing.Application.Features.Register.Shared;
 using Purchasing.Api.Endpoints.Register.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Purchasing.Api.Endpoints.Register.LinkPurchasePayment;
 

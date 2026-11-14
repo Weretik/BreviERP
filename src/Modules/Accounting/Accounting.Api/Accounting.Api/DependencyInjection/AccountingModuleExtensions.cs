@@ -11,11 +11,11 @@ using Accounting.Api.Endpoints.Transactions;
 using Accounting.Api.Endpoints.Transfers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using BuildingBlocks.Application.DependencyInjection;
 using Accounting.Application;
 using Accounting.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using BuildingBlocks.Application.Validation;
 
 namespace Accounting.Api.DependencyInjection;
 

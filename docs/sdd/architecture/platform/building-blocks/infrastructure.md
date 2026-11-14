@@ -4,14 +4,13 @@
 
 ```text
 BuildingBlocks.Infrastructure/
-├── Migrations/
-│   ├── IDatabaseMigrator
-│   └── DbMigrator
+├── Database/
+│   ├── IDatabaseMigrator, DbMigrator
+│   └── UseAppMigrations
 ├── Seeding/
-│   └── ISeeder
-└── Extensions/
-    ├── UseAppMigrations
-    └── UseAppSeeders
+│   ├── ISeeder
+│   └── UseAppSeeders
+└── Outbox/                 shared outbox table, dispatcher and registration
 ```
 
 ## Startup and data approach

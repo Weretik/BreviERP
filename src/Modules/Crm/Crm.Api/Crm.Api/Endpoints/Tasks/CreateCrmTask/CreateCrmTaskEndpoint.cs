@@ -1,6 +1,7 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Tasks.Commands.CreateTask;
 using Crm.Application.Features.Tasks.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Tasks.CreateCrmTask;
 

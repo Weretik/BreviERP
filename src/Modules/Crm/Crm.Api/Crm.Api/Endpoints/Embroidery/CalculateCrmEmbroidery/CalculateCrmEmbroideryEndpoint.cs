@@ -1,6 +1,7 @@
 using Crm.Application.Features.Embroidery.Queries.CalculateEmbroidery;
 using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Shared.Access;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Embroidery.CalculateCrmEmbroidery;
 

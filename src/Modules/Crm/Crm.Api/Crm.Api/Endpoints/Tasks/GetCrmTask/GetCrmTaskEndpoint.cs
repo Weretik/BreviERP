@@ -1,5 +1,6 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Tasks.Queries.GetTask;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Tasks.GetCrmTask;
 

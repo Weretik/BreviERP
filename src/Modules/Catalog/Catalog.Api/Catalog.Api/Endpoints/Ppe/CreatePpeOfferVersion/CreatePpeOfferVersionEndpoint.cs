@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Pricing.Commands.CreatePpeOfferVersion;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Ppe.CreatePpeOfferVersion;
 

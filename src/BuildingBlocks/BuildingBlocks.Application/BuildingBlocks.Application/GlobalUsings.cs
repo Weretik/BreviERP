@@ -12,7 +12,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 
 // Domain namespaces
-global using BuildingBlocks.Domain.Abstractions;
+global using BuildingBlocks.Domain.Entity;
 
 // External libraries
 global using Mediator;

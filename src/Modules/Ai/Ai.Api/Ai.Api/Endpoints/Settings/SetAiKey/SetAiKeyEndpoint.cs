@@ -1,5 +1,6 @@
 using Ai.Application.Features.Settings.Commands.SetAiKey;
 using Ai.Application.Features.Settings.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Ai.Api.Endpoints.Settings.SetAiKey;
 

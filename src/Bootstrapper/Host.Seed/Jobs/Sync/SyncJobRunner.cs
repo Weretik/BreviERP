@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Host.Seed.Jobs.Sync.Keepin;
+using Host.Seed.Jobs.Sync.Pricing;
 
 namespace Host.Seed.Jobs.Sync;
 

@@ -20,8 +20,8 @@ global using Microsoft.AspNetCore.Http;
 global using Microsoft.Extensions.Options;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-global using BuildingBlocks.Infrastructure.Migrations;
+global using BuildingBlocks.Infrastructure.Database;
 global using BuildingBlocks.Infrastructure.Seeding;
-global using BuildingBlocks.Domain.Abstractions;
+global using BuildingBlocks.Domain.Entity;
 
 global using Ardalis.Specification.EntityFrameworkCore;

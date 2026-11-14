@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.ValueObjects;
 using CatalogImport.Execution;
 using CatalogImport.Planning;
 using CatalogImport.Source;
@@ -7,6 +6,7 @@ using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
 using Reference.Infrastructure.Persistence;
 using Reference.Domain.Fabrics;
+using BuildingBlocks.Domain;
 
 namespace CatalogImport.Persistence;
 

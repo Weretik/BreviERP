@@ -3,6 +3,7 @@ using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
 using Reference.Domain.Fabrics;
+using BuildingBlocks.Domain;
 
 
 namespace Reference.Infrastructure.Persistence.Repositories.Pricing;

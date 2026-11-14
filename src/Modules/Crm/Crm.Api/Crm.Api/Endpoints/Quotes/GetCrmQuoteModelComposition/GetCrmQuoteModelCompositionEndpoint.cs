@@ -1,4 +1,5 @@
 using Crm.Application.Features.Quotes.Queries.GetQuoteModelComposition;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Quotes.GetCrmQuoteModelComposition;
 

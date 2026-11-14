@@ -1,4 +1,5 @@
 using Reference.Application.Features.Fabric.Commands.UpdateFabric;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.Fabrics.UpdateFabric;
 

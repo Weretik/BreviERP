@@ -1,4 +1,5 @@
 using Production.Application.Features.Orders.Queries.GetProductionOrder;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Orders.GetProductionOrder;
 

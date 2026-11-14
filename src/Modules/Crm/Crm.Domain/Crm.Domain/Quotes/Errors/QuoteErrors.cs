@@ -1,5 +1,5 @@
-using BuildingBlocks.Domain.Errors;
 using Crm.Domain.Quotes.Settings;
+using BuildingBlocks.Domain.Results;
 
 namespace Crm.Domain.Quotes.Errors;
 

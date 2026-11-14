@@ -3,6 +3,7 @@ using Production.Domain.Work;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Payroll.Shared;
 using Production.Application.Features.Work.Shared;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.Work.Commands.VoidProductionWork;
 

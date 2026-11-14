@@ -1,4 +1,5 @@
 using Accounting.Application.Features.Statements.Queries.GetBankStatements;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Statements.GetBankStatements;
 

@@ -1,5 +1,6 @@
 using Identity.Application.Features.Users.Commands.CreateStaff;
 using Identity.Api.Endpoints.Users.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.Users.CreateStaffAccount;
 

@@ -1,5 +1,6 @@
 using Media.Application.Features.Folders.Commands.CreateMediaFolder;
 using Media.Application.Features.Folders.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Media.Api.Endpoints.Folders.CreateMediaFolder;
 

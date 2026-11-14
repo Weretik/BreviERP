@@ -10,12 +10,12 @@ using Reference.Api.Endpoints.ProductSections;
 using Reference.Api.Endpoints.Suppliers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using BuildingBlocks.Application.DependencyInjection;
 using Reference.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reference.Infrastructure.DependencyInjection;
 using Reference.Api;
+using BuildingBlocks.Application.Validation;
 
 namespace Reference.Api.DependencyInjection;
 

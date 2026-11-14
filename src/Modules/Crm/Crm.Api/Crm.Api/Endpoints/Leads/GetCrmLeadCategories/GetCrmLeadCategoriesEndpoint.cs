@@ -1,4 +1,5 @@
 using Crm.Application.Features.Leads.Queries.GetLeadCategories;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Leads.GetCrmLeadCategories;
 

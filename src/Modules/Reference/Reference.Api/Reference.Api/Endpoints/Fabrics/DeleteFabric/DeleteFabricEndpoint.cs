@@ -1,4 +1,5 @@
 using Reference.Application.Features.Fabric.Commands.DeleteFabric;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.Fabrics.DeleteFabric;
 

@@ -1,4 +1,5 @@
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogTree;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.PublicCatalog.GetPublicCatalogTree;
 

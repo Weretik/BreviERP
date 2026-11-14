@@ -16,11 +16,11 @@ using Content.Api.Endpoints.SitePages;
 using Content.Api.Endpoints.SiteSettings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using BuildingBlocks.Application.DependencyInjection;
 using Content.Application;
 using Content.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using BuildingBlocks.Application.Validation;
 
 namespace Content.Api.DependencyInjection;
 

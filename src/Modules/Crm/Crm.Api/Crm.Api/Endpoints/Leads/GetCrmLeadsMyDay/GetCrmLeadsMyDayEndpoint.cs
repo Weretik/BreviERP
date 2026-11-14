@@ -1,5 +1,6 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Leads.Queries.GetMyDay;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Leads.GetCrmLeadsMyDay;
 

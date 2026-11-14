@@ -1,5 +1,6 @@
 using Reference.Application.Features.Fabric.Commands.ImportFabrics;
 using Reference.Application.Features.SheetImport.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.Fabrics.ImportFabrics;
 

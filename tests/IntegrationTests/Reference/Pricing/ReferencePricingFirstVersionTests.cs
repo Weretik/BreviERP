@@ -1,10 +1,10 @@
 using IntegrationTests.TestSupport;
-using BuildingBlocks.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Pricing;
 using Reference.Domain.Suppliers;
 using Reference.Domain.Fabrics;
+using BuildingBlocks.Domain;
 
 namespace IntegrationTests.Reference.Pricing;
 

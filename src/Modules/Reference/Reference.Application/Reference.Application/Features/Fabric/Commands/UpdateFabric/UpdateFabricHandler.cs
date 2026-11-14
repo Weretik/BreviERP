@@ -3,6 +3,7 @@ using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using Reference.Application.Abstractions;
 using Reference.Application.Abstractions.Pricing;
+using BuildingBlocks.Domain;
 
 namespace Reference.Application.Features.Fabric.Commands.UpdateFabric;
 

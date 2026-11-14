@@ -1,4 +1,5 @@
 using Production.Application.Features.Colors.Queries.GetProductionColors;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Orders.GetProductionColors;
 

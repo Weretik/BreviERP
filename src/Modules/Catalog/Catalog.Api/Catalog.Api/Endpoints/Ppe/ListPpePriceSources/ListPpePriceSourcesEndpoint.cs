@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Ppe.ListPpePriceSources;
 

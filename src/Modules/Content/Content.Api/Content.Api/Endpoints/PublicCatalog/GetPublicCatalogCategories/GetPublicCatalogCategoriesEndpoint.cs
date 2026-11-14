@@ -1,4 +1,5 @@
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategories;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.PublicCatalog.GetPublicCatalogCategories;
 

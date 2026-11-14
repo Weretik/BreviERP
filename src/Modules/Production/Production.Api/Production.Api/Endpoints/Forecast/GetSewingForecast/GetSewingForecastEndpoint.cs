@@ -1,4 +1,5 @@
 using Production.Application.Features.Forecast.Queries.GetForecast;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Forecast.GetSewingForecast;
 

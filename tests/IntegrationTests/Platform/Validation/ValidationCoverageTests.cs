@@ -1,8 +1,8 @@
+using Host.Api.DependencyInjection;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using FluentValidation;
 using FluentValidation.Validators;
-using Host.Api.DependencyInjection.ServiceRegistration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

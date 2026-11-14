@@ -2,6 +2,7 @@ using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Application.Abstractions.Sewing;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.Product.Commands.DeleteSewingArticle;
 

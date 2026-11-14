@@ -1,5 +1,6 @@
 using Crm.Application.Features.Customers.Commands.SaveCustomerContact;
 using Crm.Api.Endpoints.Customers.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Customers.CreateCrmCustomerContact;
 

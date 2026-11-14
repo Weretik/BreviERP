@@ -1,5 +1,6 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Transactions.Commands.ReviewFinanceTransaction;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Transactions.ReviewFinanceTransaction;
 

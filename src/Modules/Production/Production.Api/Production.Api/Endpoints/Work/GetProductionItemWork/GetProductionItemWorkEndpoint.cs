@@ -1,4 +1,5 @@
 using Production.Application.Features.Work.Queries.GetProductionItemWork;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Work.GetProductionItemWork;
 

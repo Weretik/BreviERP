@@ -4,6 +4,7 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Shared.Overview;
 using Catalog.Domain.Products.ValueObjects;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.Product.Commands.UpdateProductOverview;
 

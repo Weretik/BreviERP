@@ -5,12 +5,12 @@ using Identity.Api.Endpoints.Session;
 using Identity.Api.Endpoints.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using BuildingBlocks.Application.DependencyInjection;
 using Identity.Application;
 using Identity.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Identity.Api;
+using BuildingBlocks.Application.Validation;
 
 namespace Identity.Api.DependencyInjection;
 

@@ -9,6 +9,7 @@ using Accounting.Application;
 using Accounting.Application.Features.Attachments.Shared;
 using Accounting.Application.Features.Audit.Shared;
 using Accounting.Application.Features.Journal.Shared;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Attachments.Commands.UploadFinanceAttachment;
 

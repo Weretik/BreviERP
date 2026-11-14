@@ -1,4 +1,5 @@
 using Content.Application.Features.Redirects.Queries.GetSiteRedirects;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.Redirects.GetSiteRedirects;
 

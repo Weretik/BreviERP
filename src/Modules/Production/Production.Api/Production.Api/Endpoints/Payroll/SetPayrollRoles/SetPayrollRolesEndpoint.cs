@@ -1,4 +1,5 @@
 using Production.Application.Features.Payroll.Commands.SetPayrollRoles;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Payroll.SetPayrollRoles;
 

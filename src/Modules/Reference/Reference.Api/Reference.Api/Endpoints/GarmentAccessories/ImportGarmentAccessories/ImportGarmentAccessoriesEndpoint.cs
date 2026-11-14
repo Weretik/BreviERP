@@ -1,5 +1,6 @@
 using Reference.Application.Features.GarmentAccessory.Commands.ImportGarmentAccessories;
 using Reference.Application.Features.SheetImport.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.GarmentAccessories.ImportGarmentAccessories;
 

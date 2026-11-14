@@ -1,5 +1,6 @@
 using Media.Application.Features.Files.Commands.MoveMediaFiles;
 using Media.Application.Features.Files.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Media.Api.Endpoints.Files.MoveMediaFiles;
 

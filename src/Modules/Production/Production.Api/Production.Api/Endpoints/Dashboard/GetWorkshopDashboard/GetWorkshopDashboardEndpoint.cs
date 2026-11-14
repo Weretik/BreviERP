@@ -1,4 +1,5 @@
 using Production.Application.Features.Dashboard.Queries.GetWorkshopDashboard;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Dashboard.GetWorkshopDashboard;
 

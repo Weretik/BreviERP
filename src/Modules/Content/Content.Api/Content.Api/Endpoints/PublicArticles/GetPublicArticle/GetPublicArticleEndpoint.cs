@@ -1,5 +1,6 @@
 using Content.Application;
 using Content.Application.Features.Articles.Queries.GetPublicArticle;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.PublicArticles.GetPublicArticle;
 

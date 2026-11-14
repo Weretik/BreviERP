@@ -1,4 +1,5 @@
 using Identity.Application.Features.Access.Commands.DeleteRole;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.AccessRights.DeleteRole;
 

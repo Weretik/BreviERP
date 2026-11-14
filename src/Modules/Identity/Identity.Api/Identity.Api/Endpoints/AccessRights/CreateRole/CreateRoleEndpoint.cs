@@ -1,5 +1,6 @@
 using Identity.Application.Features.Access.Commands.CreateRole;
 using Identity.Api.Access;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.AccessRights.CreateRole;
 

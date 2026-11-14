@@ -1,5 +1,6 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Counterparties.Commands.UpdateFinanceCounterparty;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Counterparties.UpdateFinanceCounterparty;
 

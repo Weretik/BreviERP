@@ -1,5 +1,6 @@
 using Identity.Application.Features.Auth.Queries.SessionMe;
 using Identity.Api.Endpoints.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.Session.GetSessionMe;
 

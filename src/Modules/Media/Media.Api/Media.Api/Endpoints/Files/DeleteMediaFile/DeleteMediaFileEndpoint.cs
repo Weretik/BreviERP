@@ -1,4 +1,5 @@
 using Media.Application.Features.Files.Commands.DeleteMediaFile;
+using BuildingBlocks.Api.Errors;
 
 namespace Media.Api.Endpoints.Files.DeleteMediaFile;
 

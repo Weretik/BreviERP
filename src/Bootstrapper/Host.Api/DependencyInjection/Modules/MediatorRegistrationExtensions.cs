@@ -1,0 +1,55 @@
+using Accounting.Application;
+using BuildingBlocks.Application;
+using Catalog.Application;
+using Crm.Application;
+using BuildingBlocks.Application.Behaviors;
+using Identity.Application;
+using Reference.Application;
+using Reminders.Application;
+using Media.Application;
+using Production.Application;
+using Purchasing.Application;
+using Content.Application;
+using Warehouse.Application;
+using Ai.Application;
+
+
+namespace Host.Api.DependencyInjection.Modules;
+
+public static class MediatorRegistrationExtensions
+{
+    public static IServiceCollection AddMediatorPipeline(this IServiceCollection services)
+    {
+        services.AddMediator(options =>
+        {
+            options.ServiceLifetime = ServiceLifetime.Scoped;
+
+            options.Assemblies =
+            [
+                typeof(IdentityApplicationAssemblyMarker).Assembly,
+                typeof(CatalogApplicationAssemblyMarker).Assembly,
+                typeof(CrmApplicationAssemblyMarker).Assembly,
+                typeof(ReferenceApplicationAssemblyMarker).Assembly,
+                typeof(RemindersApplicationAssemblyMarker).Assembly,
+                typeof(MediaApplicationAssemblyMarker).Assembly,
+                typeof(ProductionApplicationAssemblyMarker).Assembly,
+                typeof(PurchasingApplicationAssemblyMarker).Assembly,
+                typeof(ContentApplicationAssemblyMarker).Assembly,
+                typeof(WarehouseApplicationAssemblyMarker).Assembly,
+                typeof(AccountingApplicationAssemblyMarker).Assembly,
+                typeof(AiApplicationAssemblyMarker).Assembly,
+                typeof(ApplicationAssemblyMarker).Assembly
+            ];
+
+            options.PipelineBehaviors =
+            [
+                typeof(RequestLoggingBehavior<,>),
+                typeof(PerformanceBehavior<,>),
+                typeof(ValidationBehavior<,>),
+                typeof(ExceptionBehavior<,>)
+            ];
+        });
+
+        return services;
+    }
+}

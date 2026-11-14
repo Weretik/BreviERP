@@ -1,4 +1,5 @@
 using Production.Application.Features.Settings.Commands.SendWorkshopTelegramTest;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Settings.SendWorkshopTelegramTest;
 

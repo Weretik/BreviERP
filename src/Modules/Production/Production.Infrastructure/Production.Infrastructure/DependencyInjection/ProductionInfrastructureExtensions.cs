@@ -8,7 +8,6 @@ using Production.Infrastructure.Adapters.Media;
 using Production.Infrastructure.Adapters.Reference;
 using Production.Infrastructure.Adapters.Reminders;
 using Production.Infrastructure.Adapters.Warehouse;
-using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Production.Application.Abstractions;
 using Production.Infrastructure.Persistence;
@@ -23,6 +22,7 @@ using Production.Application.Abstractions.Materials;
 using Production.Application.Abstractions.Sales;
 using Production.Application.Features.Orders.Shared.Items;
 using Production.Application.Features.Orders.Shared.Rules;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Production.Infrastructure.DependencyInjection;
 

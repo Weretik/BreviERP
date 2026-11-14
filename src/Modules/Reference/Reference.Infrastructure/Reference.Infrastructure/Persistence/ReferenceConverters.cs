@@ -8,6 +8,7 @@ using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
 using Reference.Domain.Fabrics;
 using Reference.Domain.GarmentParts;
+using BuildingBlocks.Domain;
 
 namespace Reference.Infrastructure.Persistence;
 

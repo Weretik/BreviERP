@@ -4,6 +4,7 @@ using Reminders.Domain.Occurrences;
 using Reminders.Application.Features.Calendar.Shared;
 using Reminders.Application.Features.Tasks.Shared;
 using Reminders.Application.Features.Tasks.Shared.Mapping;
+using BuildingBlocks.Application;
 
 namespace Reminders.Application.Features.Tasks.Commands.UpdateReminderTask;
 

@@ -32,7 +32,7 @@ public sealed class PricingSettingsTests
             new PricingParameterDetails("Виробництво", $"Параметр {code}", value, "%", calculated, null, id), SheetDate);
 
     private static Mock<IReferenceRepository<T>> Repository<T>(List<T> stored, List<T> added, List<T> deleted)
-        where T : class, BuildingBlocks.Domain.Abstractions.IAggregateRoot
+        where T : class, BuildingBlocks.Domain.Entity.IAggregateRoot
     {
         var repository = new Mock<IReferenceRepository<T>>();
         repository.Setup(x => x.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync(stored);

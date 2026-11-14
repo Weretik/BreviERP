@@ -1,4 +1,5 @@
 using Reference.Application.Features.Fabric.Queries.GetAllFabric;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.Fabrics.GetFabrics;
 

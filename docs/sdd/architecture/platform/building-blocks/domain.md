@@ -4,19 +4,14 @@
 
 ```text
 BuildingBlocks.Domain/
-├── Abstractions/
-│   ├── IEntity, IEntityId
-│   └── IAggregateRoot
-├── Errors/
-│   ├── Error
-│   └── ErrorType
-├── Results/
-│   └── DomainResult, DomainResult<T>
 ├── Entity/
+│   ├── IEntity, IAggregateRoot
 │   ├── BaseEntity
 │   └── BaseAuditableEntity
-└── ValueObjects/
-    └── MoneyAmount
+├── Results/
+│   ├── Error, ErrorType
+│   └── DomainResult, DomainResult<T>
+└── MoneyAmount.cs
 ```
 
 ## Available patterns

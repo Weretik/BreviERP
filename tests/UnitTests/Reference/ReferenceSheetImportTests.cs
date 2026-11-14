@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Domain.ValueObjects;
-using Moq;
+﻿using Moq;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
 using Reference.Application.Abstractions;
@@ -7,6 +6,7 @@ using Reference.Application.Features.Fabric.Commands.ImportFabrics;
 using Reference.Application.Features.GarmentAccessory.Commands.ImportGarmentAccessories;
 using Reference.Application.Features.SheetImport.Shared;
 using Reference.Domain.Fabrics;
+using BuildingBlocks.Domain;
 
 namespace UnitTests.Reference;
 
@@ -21,7 +21,7 @@ public sealed class ReferenceSheetImportTests
     private static GarmentAccessoryImportRow AccessoryRow(string code, string name, string? unit, int row = 2) =>
         new(row, code, name, "Веллтекс-Киев", 48m, unit, SheetDate, true, null);
 
-    private static Mock<IReferenceRepository<T>> Repository<T>(List<T> stored, List<T> added) where T : class, BuildingBlocks.Domain.Abstractions.IAggregateRoot
+    private static Mock<IReferenceRepository<T>> Repository<T>(List<T> stored, List<T> added) where T : class, BuildingBlocks.Domain.Entity.IAggregateRoot
     {
         var repository = new Mock<IReferenceRepository<T>>();
         repository.Setup(x => x.ListAsync(It.IsAny<CancellationToken>())).ReturnsAsync(stored);

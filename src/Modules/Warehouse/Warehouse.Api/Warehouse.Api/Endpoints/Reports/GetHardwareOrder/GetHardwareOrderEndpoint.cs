@@ -1,6 +1,7 @@
 using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder.Results;
+using BuildingBlocks.Api.Errors;
 
 namespace Warehouse.Api.Endpoints.Reports.GetHardwareOrder;
 

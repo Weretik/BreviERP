@@ -1,6 +1,7 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Commands.SaveQuote;
 using Crm.Application.Features.Quotes.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Quotes.SaveCrmQuote;
 

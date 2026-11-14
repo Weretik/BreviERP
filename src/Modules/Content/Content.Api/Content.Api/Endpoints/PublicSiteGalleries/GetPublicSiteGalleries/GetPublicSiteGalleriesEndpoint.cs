@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteGalleries.Queries.GetPublicSiteGalleries;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.PublicSiteGalleries.GetPublicSiteGalleries;
 

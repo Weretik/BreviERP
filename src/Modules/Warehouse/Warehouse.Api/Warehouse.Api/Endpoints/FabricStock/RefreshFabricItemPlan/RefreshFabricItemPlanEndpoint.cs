@@ -1,6 +1,7 @@
 using Warehouse.Application.Features.Stock.Commands.RefreshItemFabricPlan;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Shared.Plans;
+using BuildingBlocks.Api.Errors;
 
 namespace Warehouse.Api.Endpoints.FabricStock.RefreshFabricItemPlan;
 

@@ -1,10 +1,10 @@
 using Media.Api.Endpoints.Files;
 using Media.Api.Endpoints.Folders;
-using BuildingBlocks.Application.DependencyInjection;
 using Media.Application;
 using Media.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using BuildingBlocks.Application.Validation;
 
 namespace Media.Api.DependencyInjection;
 

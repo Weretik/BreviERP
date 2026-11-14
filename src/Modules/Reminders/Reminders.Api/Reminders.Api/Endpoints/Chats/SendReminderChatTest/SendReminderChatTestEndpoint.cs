@@ -1,4 +1,5 @@
 using Reminders.Application.Features.Chats.Commands.SendReminderChatTest;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Chats.SendReminderChatTest;
 

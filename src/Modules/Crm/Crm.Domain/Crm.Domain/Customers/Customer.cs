@@ -1,5 +1,4 @@
 using BuildingBlocks.Domain.Results;
-using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.ExternalIdentities;

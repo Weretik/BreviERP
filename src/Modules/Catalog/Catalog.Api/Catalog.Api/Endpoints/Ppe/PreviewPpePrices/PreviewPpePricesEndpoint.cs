@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Pricing.Queries.PreviewPpePrices;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Ppe.PreviewPpePrices;
 

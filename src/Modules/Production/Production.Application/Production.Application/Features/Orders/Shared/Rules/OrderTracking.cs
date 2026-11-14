@@ -2,6 +2,7 @@ using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Orders.Shared.Responses;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.Orders.Shared.Rules;
 

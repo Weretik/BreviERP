@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteSettings.Queries.GetSiteSeoSettings;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteSettings.GetSiteSeoSettings;
 

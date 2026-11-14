@@ -6,6 +6,7 @@ using Accounting.Domain.Ledger;
 using Accounting.Api.Endpoints.Reports.Shared;
 using Accounting.Api.Endpoints.Shared;
 using Accounting.Application.Features.Reports.Queries.GetFinanceReport.Results;
+using BuildingBlocks.Api.Http;
 
 namespace Accounting.Api.Endpoints.Reports.GetFinanceReportCsv;
 

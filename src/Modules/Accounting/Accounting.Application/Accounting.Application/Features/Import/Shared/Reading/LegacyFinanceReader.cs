@@ -1,7 +1,6 @@
 using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BuildingBlocks.Domain.Errors;
 
 namespace Accounting.Application.Features.Import.Shared.Reading;
 

@@ -1,5 +1,4 @@
 using Ardalis.Result;
-using BuildingBlocks.Api.Result;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Media.Api.Access;

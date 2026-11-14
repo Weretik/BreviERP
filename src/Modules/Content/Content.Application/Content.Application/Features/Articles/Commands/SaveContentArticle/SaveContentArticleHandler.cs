@@ -4,6 +4,7 @@ using Content.Domain.ProductPages;
 using Content.Application.Features.Articles.Shared;
 using Content.Application.Features.Redirects.Shared;
 using Content.Application.Features.Articles.Shared.Admin;
+using BuildingBlocks.Application;
 
 namespace Content.Application.Features.Articles.Commands.SaveContentArticle;
 

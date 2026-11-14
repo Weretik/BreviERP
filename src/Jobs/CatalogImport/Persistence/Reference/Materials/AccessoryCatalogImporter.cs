@@ -1,9 +1,9 @@
-using BuildingBlocks.Domain.ValueObjects;
 using CatalogImport.Execution;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.GarmentAccessories;
 using Reference.Infrastructure.Persistence;
+using BuildingBlocks.Domain;
 
 namespace CatalogImport.Persistence;
 

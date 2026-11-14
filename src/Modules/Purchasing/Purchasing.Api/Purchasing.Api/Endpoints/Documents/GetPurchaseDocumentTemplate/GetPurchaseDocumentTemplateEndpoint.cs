@@ -1,4 +1,5 @@
 using Purchasing.Application.Features.Documents.Queries.GetPurchaseDocumentTemplate;
+using BuildingBlocks.Api.Errors;
 
 namespace Purchasing.Api.Endpoints.Documents.GetPurchaseDocumentTemplate;
 

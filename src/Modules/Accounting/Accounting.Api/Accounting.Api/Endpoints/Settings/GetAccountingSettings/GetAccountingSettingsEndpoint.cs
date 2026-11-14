@@ -1,4 +1,5 @@
 using Accounting.Application.Features.Settings.Queries.GetAccountingSettings;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Settings.GetAccountingSettings;
 

@@ -3,6 +3,7 @@ using Content.Domain.ProductPages;
 using Content.Application.Features.ProductPages.Shared;
 using Content.Application.Features.Redirects.Shared;
 using Content.Application.Features.ProductPages.Shared.Responses;
+using BuildingBlocks.Application;
 
 namespace Content.Application.Features.ProductPages.Commands.SaveContentProduct;
 

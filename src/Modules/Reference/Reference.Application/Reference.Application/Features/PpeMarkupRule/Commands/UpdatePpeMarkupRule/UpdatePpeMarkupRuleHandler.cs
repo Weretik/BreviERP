@@ -1,6 +1,7 @@
 using Reference.Application.Features.PpeMarkupRule.Shared;
 using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
 using Reference.Application.Abstractions;
+using BuildingBlocks.Application;
 
 namespace Reference.Application.Features.PpeMarkupRule.Commands.UpdatePpeMarkupRule;
 

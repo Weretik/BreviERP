@@ -1,5 +1,6 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Leads.Queries.GetLeads;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Leads.GetCrmLeads;
 

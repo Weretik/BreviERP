@@ -1,4 +1,5 @@
 using Production.Application.Features.Staff.Commands.ImportWorkshopStaff;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Staff.ImportWorkshopStaff;
 

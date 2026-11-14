@@ -1,4 +1,5 @@
 using Reference.Application.Features.FabricColor.Queries.GetFabricColors;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.FabricColors.GetFabricColors;
 

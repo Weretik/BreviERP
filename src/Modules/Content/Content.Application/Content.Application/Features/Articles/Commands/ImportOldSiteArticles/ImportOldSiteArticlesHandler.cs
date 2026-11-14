@@ -4,6 +4,7 @@ using Content.Domain.ProductPages;
 using Content.Application.Features.Articles.Commands.SaveContentArticle;
 using Content.Application.Features.Articles.Shared;
 using Content.Application.Features.Articles.Commands.ImportOldSiteArticles.Results;
+using BuildingBlocks.Application;
 
 namespace Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
 

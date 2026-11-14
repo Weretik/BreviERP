@@ -1,9 +1,9 @@
-using Host.Api.DependencyInjection.ServiceRegistration;
 using Host.Seed;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Host.Api.DependencyInjection;
 
 namespace IntegrationTests.Platform.DependencyInjection;
 

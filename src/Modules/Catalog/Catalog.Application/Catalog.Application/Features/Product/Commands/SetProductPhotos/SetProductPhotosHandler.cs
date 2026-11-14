@@ -3,6 +3,7 @@ using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Media;
 using Catalog.Application.Features.Product.Shared.Photos;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.Product.Commands.SetProductPhotos;
 

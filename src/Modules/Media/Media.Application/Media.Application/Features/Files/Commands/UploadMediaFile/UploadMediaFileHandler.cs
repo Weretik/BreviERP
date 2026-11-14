@@ -3,6 +3,7 @@ using Media.Domain;
 using Media.Domain.Files;
 using Media.Application.Features.Files.Shared;
 using Media.Application.Features.Files.Shared.Images;
+using BuildingBlocks.Application;
 
 namespace Media.Application.Features.Files.Commands.UploadMediaFile;
 

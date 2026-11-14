@@ -1,7 +1,7 @@
 global using Ardalis.Result;
 global using BuildingBlocks.Api.Authorization;
-global using BuildingBlocks.Api.Binding;
-global using BuildingBlocks.Api.Result;
+global using BuildingBlocks.Api.Http;
+global using BuildingBlocks.Api.Errors;
 global using Crm.Api.Access;
 global using IResult = Microsoft.AspNetCore.Http.IResult;
 global using Mediator;

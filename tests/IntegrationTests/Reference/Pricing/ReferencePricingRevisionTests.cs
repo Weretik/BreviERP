@@ -1,6 +1,5 @@
 using IntegrationTests.TestSupport;
 using Ardalis.Result;
-using BuildingBlocks.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -8,6 +7,7 @@ using Reference.Domain.Pricing;
 using SewingPricing.Jobs.Bootstrap;
 using Reference.Application.Abstractions;
 using Reference.Application.Abstractions.Pricing;
+using BuildingBlocks.Domain;
 
 namespace IntegrationTests.Reference.Pricing;
 

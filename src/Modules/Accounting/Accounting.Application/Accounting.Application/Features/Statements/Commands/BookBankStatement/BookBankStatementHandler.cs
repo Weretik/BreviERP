@@ -14,6 +14,7 @@ using Accounting.Application.Features.Statements.Shared;
 using Accounting.Domain.Statements.Enums;
 using Accounting.Domain.Statements.ValueObjects;
 using Accounting.Application.Features.Statements.Shared.Responses;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Statements.Commands.BookBankStatement;
 

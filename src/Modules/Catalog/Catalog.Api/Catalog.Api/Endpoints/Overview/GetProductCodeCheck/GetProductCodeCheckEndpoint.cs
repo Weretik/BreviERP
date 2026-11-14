@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Queries.GetProductCodeCheck;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Overview.GetProductCodeCheck;
 

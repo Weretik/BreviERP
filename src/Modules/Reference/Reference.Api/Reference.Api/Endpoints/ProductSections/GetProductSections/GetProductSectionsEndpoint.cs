@@ -1,4 +1,5 @@
 using Reference.Application.Features.ProductSection.Queries.GetProductSections;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.ProductSections.GetProductSections;
 

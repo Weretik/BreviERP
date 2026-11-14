@@ -1,5 +1,6 @@
 using Content.Application.Features.Articles.Commands.SaveContentArticle;
 using Content.Api.Endpoints.Articles.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.Articles.SaveContentArticle;
 

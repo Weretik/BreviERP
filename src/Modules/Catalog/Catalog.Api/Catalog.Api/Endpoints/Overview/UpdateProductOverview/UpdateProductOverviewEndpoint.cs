@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.UpdateProductOverview;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Overview.UpdateProductOverview;
 

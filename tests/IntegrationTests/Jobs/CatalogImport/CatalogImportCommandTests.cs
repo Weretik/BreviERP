@@ -53,7 +53,7 @@ public sealed class CatalogImportCommandTests
             ["CatalogImport:ApprovedConnection"] = "Host=cloud.test;Database=approved;Username=synthetic;Password=synthetic",
             ["CatalogImport:SourceSha256"] = new string('a', 64)
         });
-        var target = global::CatalogImport.Execution.CatalogImportTargetConfiguration.Read(config)!;
+        var target = global::CatalogImport.Execution.Target.CatalogImportTargetConfiguration.Read(config)!;
         Assert.That(target.Host, Is.EqualTo("cloud.test"));
         Assert.That(target.Database, Is.EqualTo("approved"));
         Assert.That(target.SourceSha256, Is.EqualTo(new string('a', 64)));

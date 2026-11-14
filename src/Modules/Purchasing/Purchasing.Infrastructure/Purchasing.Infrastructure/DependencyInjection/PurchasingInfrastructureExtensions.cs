@@ -2,7 +2,6 @@ using Ai.Contracts.Prompts;
 using Purchasing.Infrastructure.Adapters.Accounting;
 using Purchasing.Infrastructure.Adapters.Ai;
 using Purchasing.Infrastructure.Adapters.Reference;
-using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +14,7 @@ using Purchasing.Infrastructure.Integrations.Dropbox;
 using Purchasing.Infrastructure.Integrations.GoogleSheets;
 using Purchasing.Application.Abstractions.Sources;
 using Purchasing.Application.Features.Documents.Shared.Recognition;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Purchasing.Infrastructure.DependencyInjection;
 

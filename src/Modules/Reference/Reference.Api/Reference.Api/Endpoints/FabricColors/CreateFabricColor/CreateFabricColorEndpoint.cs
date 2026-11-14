@@ -1,6 +1,7 @@
 using Reference.Application.Features.FabricColor.Shared;
 using Reference.Application.Features.FabricColor.Commands.CreateFabricColor;
 using Reference.Api.Endpoints.FabricColors.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.FabricColors.CreateFabricColor;
 

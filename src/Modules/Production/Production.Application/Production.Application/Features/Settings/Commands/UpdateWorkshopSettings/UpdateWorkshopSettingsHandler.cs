@@ -1,6 +1,7 @@
 using Production.Application.Abstractions;
 using Production.Domain.Settings;
 using Production.Application.Features.Settings.Shared;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.Settings.Commands.UpdateWorkshopSettings;
 

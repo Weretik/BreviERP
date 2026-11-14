@@ -1,5 +1,6 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Statements.Commands.UploadBankStatement;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Statements.UploadBankStatement;
 

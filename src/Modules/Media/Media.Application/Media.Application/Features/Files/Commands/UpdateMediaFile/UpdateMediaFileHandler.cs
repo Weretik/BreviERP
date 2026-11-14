@@ -1,5 +1,6 @@
 using Media.Application.Abstractions;
 using Media.Application.Features.Files.Shared;
+using BuildingBlocks.Application;
 
 namespace Media.Application.Features.Files.Commands.UpdateMediaFile;
 

@@ -1,10 +1,9 @@
 using BuildingBlocks.Api.Outbox;
 using System.Globalization;
-using Host.Api.DependencyInjection.ServiceRegistration;
 using BuildingBlocks.Api.TrustedProxy;
-using Host.Api.DependencyInjection.ServiceRegistration.Web;
 using Identity.Api.DependencyInjection;
 using Microsoft.AspNetCore.Localization;
+using Host.Api.DependencyInjection.Modules;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseDefaultServiceProvider(ServiceProviderValidation.Apply);

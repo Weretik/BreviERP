@@ -1,4 +1,5 @@
 using Reference.Application.Features.Supplier.Commands.DeleteSupplier;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.Suppliers.DeleteSupplier;
 

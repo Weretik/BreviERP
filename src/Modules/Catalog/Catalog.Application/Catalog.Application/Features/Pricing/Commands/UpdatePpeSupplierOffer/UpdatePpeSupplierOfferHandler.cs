@@ -8,6 +8,7 @@ using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierOffer;
 using Catalog.Domain.Products.Ppe;
 using Catalog.Application.Abstractions.Pricing.Ppe;
 using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.Pricing.Commands.UpdatePpeSupplierOffer;
 

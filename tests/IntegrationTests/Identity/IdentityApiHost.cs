@@ -1,7 +1,5 @@
 using Crm.Api.DependencyInjection;
-using BuildingBlocks.Application.DependencyInjection;
 using Production.Api.DependencyInjection;
-using Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 using Identity.Api.DependencyInjection;
 using Identity.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.Persistence.Seeding;
+using BuildingBlocks.Application.Validation;
+using Host.Api.DependencyInjection.Modules;
 
 namespace IntegrationTests.Identity;
 

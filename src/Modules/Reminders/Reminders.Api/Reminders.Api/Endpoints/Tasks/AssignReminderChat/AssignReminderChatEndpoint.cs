@@ -1,4 +1,5 @@
 using Reminders.Application.Features.Tasks.Commands.AssignReminderChat;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Tasks.AssignReminderChat;
 

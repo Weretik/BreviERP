@@ -1,5 +1,6 @@
 using Content.Application.Features.Redirects.Commands.SaveSiteRedirect;
 using Content.Api.Endpoints.Redirects.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.Redirects.SaveSiteRedirect;
 

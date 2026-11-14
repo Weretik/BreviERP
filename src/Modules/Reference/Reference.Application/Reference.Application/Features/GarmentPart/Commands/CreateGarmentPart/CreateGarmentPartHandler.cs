@@ -5,6 +5,7 @@ using GarmentPartEntity = Reference.Domain.GarmentParts.GarmentPart;
 using Reference.Application.Abstractions;
 using Reference.Domain.GarmentParts;
 using Reference.Application.Features.GarmentPart.Commands.CreateGarmentPart.Specs;
+using BuildingBlocks.Application;
 
 namespace Reference.Application.Features.GarmentPart.Commands.CreateGarmentPart;
 

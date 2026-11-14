@@ -1,4 +1,5 @@
 using Content.Application.Features.ProductPages.Commands.SetContentProductVisibility;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.ProductPages.SetContentProductVisibility;
 

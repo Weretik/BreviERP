@@ -4,6 +4,7 @@ using Production.Application.Features.Forecast.Shared;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Orders.Shared.Validation;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.Forecast.Commands.SaveForecastQueue;
 

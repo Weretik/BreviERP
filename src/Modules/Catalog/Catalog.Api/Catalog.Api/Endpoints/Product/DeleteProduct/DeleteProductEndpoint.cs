@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.DeleteProduct;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Product.DeleteProduct;
 

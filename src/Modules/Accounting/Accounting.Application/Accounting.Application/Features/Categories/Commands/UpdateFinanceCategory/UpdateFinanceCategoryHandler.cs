@@ -4,6 +4,7 @@ using Accounting.Domain.Categories;
 using Accounting.Application;
 using Accounting.Application.Features.Audit.Shared;
 using Accounting.Application.Features.Categories.Shared;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Categories.Commands.UpdateFinanceCategory;
 

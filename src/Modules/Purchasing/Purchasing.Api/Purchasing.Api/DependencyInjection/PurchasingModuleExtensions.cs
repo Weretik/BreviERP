@@ -1,10 +1,10 @@
-using BuildingBlocks.Application.DependencyInjection;
 using Purchasing.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Purchasing.Api.Endpoints.Documents;
 using Purchasing.Api.Endpoints.Register;
 using Purchasing.Infrastructure.DependencyInjection;
+using BuildingBlocks.Application.Validation;
 
 namespace Purchasing.Api.DependencyInjection;
 

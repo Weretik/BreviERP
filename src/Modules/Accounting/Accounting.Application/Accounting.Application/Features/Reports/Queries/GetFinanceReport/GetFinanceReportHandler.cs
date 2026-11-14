@@ -10,6 +10,7 @@ using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Reports.Shared;
 using Accounting.Application.Features.Transactions.Shared;
 using Accounting.Application.Features.Reports.Queries.GetFinanceReport.Results;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Reports.Queries.GetFinanceReport;
 

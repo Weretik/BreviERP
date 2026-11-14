@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteCategories.Commands.SetSiteCategoryVisibility;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteCategories.SetSiteCategoryVisibility;
 

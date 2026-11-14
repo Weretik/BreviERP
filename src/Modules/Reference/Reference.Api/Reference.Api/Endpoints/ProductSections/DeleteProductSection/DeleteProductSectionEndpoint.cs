@@ -1,4 +1,5 @@
 using Reference.Application.Features.ProductSection.Commands.DeleteProductSection;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.ProductSections.DeleteProductSection;
 

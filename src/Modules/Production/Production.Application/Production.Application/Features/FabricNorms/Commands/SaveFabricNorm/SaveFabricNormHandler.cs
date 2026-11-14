@@ -2,6 +2,7 @@ using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Application.Features.FabricNorms.Shared;
 using Production.Application.Abstractions.Sales;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.FabricNorms.Commands.SaveFabricNorm;
 

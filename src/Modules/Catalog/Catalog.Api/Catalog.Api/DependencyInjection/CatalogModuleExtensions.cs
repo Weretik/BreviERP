@@ -6,7 +6,6 @@ using Catalog.Api.Endpoints.ProductCategory;
 using Catalog.Api.Endpoints.Sewing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using BuildingBlocks.Application.DependencyInjection;
 using Catalog.Application;
 using Catalog.Contracts.Pricing;
 using Catalog.Infrastructure.DependencyInjection;
@@ -17,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Catalog.Api;
 using Catalog.Api.Middleware;
+using BuildingBlocks.Application.Validation;
 
 namespace Catalog.Api.DependencyInjection;
 

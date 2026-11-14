@@ -18,4 +18,4 @@ other/unmapped            → 500
 
 ## Rule
 
-Minimal API endpoints call the shared `ToHttpResult` / `ToNoContentHttpResult` extension methods (`BuildingBlocks.Api/Result/ResultToHttpResult.cs`) after `ISender.Send`. Public site groups use `WithPublicResponseCache` (`BuildingBlocks.Api/Caching/`). They do not reinterpret Result statuses manually for each endpoint unless the documented API contract requires an existing extension defined by project rules.
+Minimal API endpoints call the shared `ToHttpResult` / `ToNoContentHttpResult` extension methods (`BuildingBlocks.Api/Errors/ResultToHttpResult.cs`) after `ISender.Send`. Public site groups use `WithPublicResponseCache` (`BuildingBlocks.Api/Http/`). They do not reinterpret Result statuses manually for each endpoint unless the documented API contract requires an existing extension defined by project rules.

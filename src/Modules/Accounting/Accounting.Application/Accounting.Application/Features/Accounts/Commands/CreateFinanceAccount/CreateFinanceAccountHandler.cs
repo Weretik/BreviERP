@@ -3,6 +3,7 @@ using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
 using Accounting.Application.Features.Accounts.Shared;
 using Accounting.Application.Features.Audit.Shared;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Accounts.Commands.CreateFinanceAccount;
 

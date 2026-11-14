@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Pricing.Commands.UpdatePpeSupplierOffer;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Ppe.UpdatePpeSupplierOffer;
 

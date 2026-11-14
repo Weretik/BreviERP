@@ -5,6 +5,7 @@ using Reference.Application.Abstractions;
 using Reference.Application.Features.SheetImport.Shared;
 using Reference.Domain.Fabrics;
 using Reference.Application.Abstractions.Pricing;
+using BuildingBlocks.Domain;
 
 namespace Reference.Application.Features.Fabric.Commands.ImportFabrics;
 

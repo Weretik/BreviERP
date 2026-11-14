@@ -6,6 +6,7 @@ using Accounting.Application.Features.Audit.Shared;
 using Accounting.Application.Features.Journal.Shared;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Transfers.Shared;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Transfers.Commands.VoidFinanceTransfer;
 
