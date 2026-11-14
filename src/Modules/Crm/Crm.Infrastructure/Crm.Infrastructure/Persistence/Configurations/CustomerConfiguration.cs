@@ -29,6 +29,5 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         b.HasIndex(x => x.TaxIdentity);
         b.HasMany(x => x.Contacts).WithOne().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
         b.HasMany(x => x.ExternalIdentities).WithOne().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
-        b.Ignore(x => x.DomainEvents);
     }
 }

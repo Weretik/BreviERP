@@ -2,7 +2,6 @@ using BuildingBlocks.Application.DependencyInjection;
 using Identity.Api.DependencyInjection;
 using Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
-using BuildingBlocks.Infrastructure.DependencyInjection;
 using Identity.Infrastructure.DataBase;
 using Identity.Infrastructure.DependencyInjection;
 using Identity.Infrastructure.Contracts;
@@ -64,7 +63,6 @@ internal sealed class IdentityApiHost : IAsyncDisposable
         var avatars = new InMemoryAvatarStorage();
         builder.Services.AddSingleton<global::Identity.Application.Services.IAvatarStorage>(avatars);
         builder.Services.AddIdentityInfrastructureServices(builder.Configuration);
-        builder.Services.AddInfrastructureServices(builder.Configuration);
         builder.Services.AddMediatorPipeline();
         builder.Services.AddModuleValidators(typeof(global::Identity.Application.IdentityApplicationAssemblyMarker).Assembly);
         builder.Services.AddAuthorizationPolicies();

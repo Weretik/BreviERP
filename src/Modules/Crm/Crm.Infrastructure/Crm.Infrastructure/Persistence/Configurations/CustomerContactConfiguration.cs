@@ -20,6 +20,5 @@ public sealed class CustomerContactConfiguration : IEntityTypeConfiguration<Cust
         b.HasIndex(x => x.PublicId).IsUnique();
         b.HasIndex(x => x.CustomerId).IsUnique().HasFilter("\"IsPrimary\" AND \"Active\"").HasDatabaseName("UX_CustomerContacts_ActivePrimary");
         b.HasMany(x => x.Channels).WithOne().HasForeignKey(x => x.ContactId).OnDelete(DeleteBehavior.Cascade);
-        b.Ignore(x => x.DomainEvents);
     }
 }

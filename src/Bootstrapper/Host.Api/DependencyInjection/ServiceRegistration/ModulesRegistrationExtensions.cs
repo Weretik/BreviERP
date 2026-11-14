@@ -21,7 +21,6 @@ public static class ModuleRegistrationsExtensions
         IConfiguration configuration)
     {
         services.AddIdentityModule(configuration);
-        services.AddInfrastructureServices(configuration);
         services.AddReferenceModule(configuration);
         services.AddAccountingModule(configuration);
         services.AddCatalogModule(configuration);

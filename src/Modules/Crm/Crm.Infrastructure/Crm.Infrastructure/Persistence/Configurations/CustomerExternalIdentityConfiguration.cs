@@ -19,6 +19,5 @@ public sealed class CustomerExternalIdentityConfiguration : IEntityTypeConfigura
         b.Property(x => x.Type).HasMaxLength(80);
         b.Property(x => x.ExternalId).HasMaxLength(200);
         b.HasIndex(x => new { x.Source, x.Type, x.ExternalId }).IsUnique();
-        b.Ignore(x => x.DomainEvents);
     }
 }

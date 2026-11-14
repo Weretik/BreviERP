@@ -8,14 +8,13 @@ BuildingBlocks.Application/
 │   ├── RequestLoggingBehavior
 │   ├── ExceptionBehavior
 │   ├── PerformanceBehavior + options
-│   ├── ValidationBehavior
-│   └── DomainEventDispatcherBehavior
-├── Contracts/
-│   ├── ICurrentUserService, IPermissionService
-│   └── module-facing technical abstractions
-├── Notifications/
-│   ├── IDomainEventContext, IDomainEventDispatcher
-│   └── DomainEventNotification + handler
+│   └── ValidationBehavior
+├── DependencyInjection/
+│   └── AddModuleValidators
+├── Errors/
+│   └── ErrorResults           Error → Ardalis.Result, the one mapping
+├── Validation/
+│   └── UkrainianValidationLanguage
 ├── Logging/                  stable structured log helpers
 ├── Helpers/PhoneNumberHelper.cs
 └── ApplicationAssemblyMarker.cs
@@ -23,18 +22,14 @@ BuildingBlocks.Application/
 
 ## Behaviors
 
-The host registers RequestLogging, Performance, Validation, Exception, and DomainEventDispatcher in exactly this order. Their precise semantics are described in [Mediator behaviors](../../runtime/mediator-behaviors.md).
-
-## Notifications
-
-`IDomainEventContext` exposes entities with accumulated events. `IDomainEventDispatcher` publishes events. `DomainEventNotification` is a Mediator notification wrapper. The default notification handler is intentionally empty; individual module handlers subscribe to the notification/event pattern where needed.
+The host registers RequestLogging, Performance, Validation, and Exception in exactly this order. Their precise semantics are described in [Mediator behaviors](../../runtime/mediator-behaviors.md).
 
 ## Logging and helper approach
 
-The Logging folder contains stable structured log templates for requests, validation, performance, domain events, cancellation, and unhandled failures. Use them through existing behaviors; do not log raw sensitive request data.
+The Logging folder contains stable structured log templates for requests, validation, performance, cancellation, and unhandled failures. Use them through existing behaviors; do not log raw sensitive request data.
 
 `PhoneNumberHelper` is a shared utility for phone number normalization and validation. Reuse it instead of duplicating number parsing.
 
-## Contract availability
+## What stays out
 
-`ICurrentUserService` and `IPermissionService` have shared implementations in Infrastructure. Do not introduce an Application abstraction into new functionality until the module owner provides and registers its implementation.
+Only code that every module needs lives here (stage 3c, 2026-11-14). Removed then because no module used them: domain event dispatch (no module raised an event), `ICurrentUserService`/`IPermissionService` with their always-allow fake implementations, `ICacheService`, `IEmailService`, `IEnvironmentService`, and a duplicate Mediator pipeline list. `PricingInputChanges` moved to `Catalog.Contracts`, because it is a Catalog concept that Reference reports to. The current user comes from the module's own port (for example the `By` of a command filled by the Api from the claims), and access checks are host policies.

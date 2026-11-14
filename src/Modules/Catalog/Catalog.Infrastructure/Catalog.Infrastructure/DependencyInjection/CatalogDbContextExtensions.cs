@@ -11,7 +11,6 @@ using Catalog.Infrastructure.Contracts.Products;
 using Catalog.Infrastructure.Contracts.Sewing;
 using Catalog.Infrastructure.Products.SlugGeneration;
 using Catalog.Infrastructure.Adapters.Reference;
-using BuildingBlocks.Application.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;

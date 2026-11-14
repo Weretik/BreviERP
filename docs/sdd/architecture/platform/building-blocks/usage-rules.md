@@ -7,8 +7,8 @@
 | Expected use case failure | Ardalis.Result and the existing Result mapping | do not throw ordinary validation or resource-not-found exceptions |
 | Input validation | FluentValidation plus ValidationBehavior | do not validate only in the controller |
 | Business invariant | aggregate behavior returning `DomainResult` with a module `*Errors` `Error` | do not throw for a business rule; do not move a domain rule into a pipeline behavior |
-| Current user/permissions | `ICurrentUserService` or `IPermissionService` | do not inject `IHttpContextAccessor` into Application |
-| Domain event | `BaseEntity` collection plus dispatch behavior | do not publish directly from a controller |
+| Current user/permissions | the user passed into the command by the Api (`By`) and host access policies | do not inject `IHttpContextAccessor` into Application |
+| Tell another module or the outside world about a change | the transactional outbox (module rules) | do not call it inside or around the transaction; there are no domain events |
 | Database migration/seeding | startup extensions `IDatabaseMigrator`/`ISeeder` | do not run them inside a handler |
 | Request diagnostics | existing behaviors and logging helpers | do not log raw sensitive data |
 

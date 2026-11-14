@@ -9,7 +9,6 @@ ISender.Send(...)
   ├── 2. PerformanceBehavior
   ├── 3. ValidationBehavior
   ├── 4. ExceptionBehavior
-  ├── 5. DomainEventDispatcherBehavior
   └── Handler
 ```
 
@@ -27,11 +26,7 @@ Runs all FluentValidation validators for a request before the handler. For `Resu
 
 ## 4. ExceptionBehavior
 
-Provides the established exception handling path around a request. Expected business outcomes are still represented through Ardalis.Result, not exceptions.
-
-## 5. DomainEventDispatcherBehavior
-
-Runs after a successful handler. It retrieves collected events from `IDomainEventContext`, clears them, and publishes each through `IDomainEventDispatcher`/Mediator. Entities collect events; controllers and handlers do not bypass this lifecycle.
+Logs critical failures and turns a unique-key violation into `Conflict`; every other exception goes on to `GlobalExceptionHandler` (500). Business outcomes are returned as `Error`/`Result`, not exceptions.
 
 ## Rules for new behaviors
 

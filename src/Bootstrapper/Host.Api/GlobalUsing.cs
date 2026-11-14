@@ -1,4 +1,3 @@
-﻿global using BuildingBlocks.Infrastructure.DependencyInjection;
 global using BuildingBlocks.Infrastructure.Extensions;
 
 global using Host.Api.DependencyInjection;

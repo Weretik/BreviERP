@@ -18,7 +18,7 @@ using Reference.Contracts.ProductSections;
 using Reference.Infrastructure.Contracts.ProductSections;
 using Reference.Contracts.Pricing;
 using Reference.Infrastructure.Contracts.Pricing;
-using BuildingBlocks.Application.Pricing;
+using Catalog.Contracts.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;

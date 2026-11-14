@@ -20,6 +20,5 @@ public sealed class CustomerChannelConfiguration : IEntityTypeConfiguration<Cust
         b.Property(x => x.NormalizedValue).HasMaxLength(254);
         b.HasIndex(x => new { x.ContactId, x.Kind, x.NormalizedValue }).IsUnique();
         b.HasIndex(x => x.NormalizedValue);
-        b.Ignore(x => x.DomainEvents);
     }
 }

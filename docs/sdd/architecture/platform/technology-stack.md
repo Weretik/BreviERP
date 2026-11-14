@@ -5,7 +5,7 @@
 | Runtime | .NET 10 / C# | Follow nullable annotation rules and configured analyzers. |
 | HTTP | ASP.NET Core controllers | Keep controllers thin and use Mediator. |
 | Mediator | Mediator 3.x | Use request/handler pairs and the existing pipeline. |
-| Mediator pipeline | RequestLogging, Performance, Validation, Exception, DomainEventDispatcher | Preserve registration order; do not put business rules in pipeline behaviors. |
+| Mediator pipeline | RequestLogging, Performance, Validation, Exception | Preserve registration order; do not put business rules in pipeline behaviors. |
 | Validation | FluentValidation | Place input validators alongside the use case. |
 | Result contract | Ardalis.Result | Return `Result` or `Result<T>`; use the established API mapping. |
 | Data access | EF Core 10 + Npgsql/PostgreSQL | Keep EF configuration and migrations in Infrastructure. |

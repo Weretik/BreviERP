@@ -1,6 +1,6 @@
 using BuildingBlocks.Application.DependencyInjection;
 using Catalog.Application;
-using BuildingBlocks.Application.Pricing;
+using Catalog.Contracts.Pricing;
 using Catalog.Api.Pricing;
 using Catalog.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;

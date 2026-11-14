@@ -45,8 +45,7 @@ public static class MediatorRegistrationExtensions
                 typeof(RequestLoggingBehavior<,>),
                 typeof(PerformanceBehavior<,>),
                 typeof(ValidationBehavior<,>),
-                typeof(ExceptionBehavior<,>),
-                typeof(DomainEventDispatcherBehavior<,>)
+                typeof(ExceptionBehavior<,>)
             ];
         });
 
