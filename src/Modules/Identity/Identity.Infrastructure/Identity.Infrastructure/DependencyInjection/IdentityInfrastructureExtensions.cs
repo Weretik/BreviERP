@@ -9,6 +9,7 @@ using Identity.Infrastructure.Services.Access;
 using Identity.Infrastructure.Services.Profile;
 using Identity.Infrastructure.Services.Sessions;
 using Identity.Infrastructure.Services.Users;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Identity.Infrastructure.DependencyInjection;
 
@@ -32,7 +33,8 @@ public static class IdentityInfrastructureExtensions
         services.AddSingleton<AvatarImageProcessor>();
         services.AddScoped<AvatarService>();
         // Avatars live on the Media CDN; without its sign-in they are switched off.
-        services.AddSingleton<IAvatarStorage, CdnAvatarStorage>();
+        // TryAdd: a host or test may register its own avatar storage first.
+        services.TryAddSingleton<IAvatarStorage, CdnAvatarStorage>();
 
         // Contracts other modules use (ADR-0006).
         services.AddScoped<IStaffDirectory, StaffDirectory>();
