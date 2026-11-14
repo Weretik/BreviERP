@@ -9,7 +9,7 @@ The Calculator sheet «Налаштування цін» in Brevi. Two tables:
 
 Editing a value sets «Дата оновлення» to today (Kyiv). The sheet is moved once through `POST /api/reference/pricing-parameters/import` (preview by default, `deleteMissing` removes rows not in the sheet). The rows are prepared by `brevi-calculator-references/transfer/price_settings_rows.py` in the project files.
 
-Old PPE products may still refer to a parameter `Id` for their retail/wholesale percent (`AdditionalReferenceItem` in Catalog); the Catalog reader maps parameters to that shape. Every saved change is handed to Catalog (`IPricingSettingsChangeNotifier` → Host.Api `CatalogPricingSettingsSync` → Catalog `SyncPricingSettingsCommand`): a changed value appends a new sewing settings version or PPE rule version, so prices and the «Операції» minute cost follow this page (REF-004 TS-04).
+Old PPE products may still refer to a parameter `Id` for their retail/wholesale percent (`AdditionalReferenceItem` in Catalog); the Catalog reader maps parameters to that shape. Every saved change is handed to Catalog (`IPricingSettingsChangeNotifier` → Catalog.Contracts `IPricingSettingsSync` → Catalog `SyncPricingSettingsCommand`): a changed value appends a new sewing settings version or PPE rule version, so prices and the «Операції» minute cost follow this page (REF-004 TS-04).
 
 ## Code Structure
 
@@ -31,7 +31,8 @@ src/Modules/Reference/
     └── Migrations/*_PricingSettingsFromSheet.cs     # renames AdditionalReferences, keeps old rows
 
 src/Modules/Reference/.../Contracts/Catalog/IPricingSettingsChangeNotifier.cs   # port called after each save
-src/Bootstrapper/Host.Api/.../CatalogPricingSettingsSync.cs                     # reads both lists, sends Catalog sync
+src/Modules/Reference/.../Adapters/Catalog/PricingSettingsChangeNotifier.cs  # port → Catalog.Contracts IPricingSettingsSync
+src/Modules/Catalog/.../Contracts/Pricing/PricingSettingsSync.cs               # reads both Reference.Contracts lists, sends Catalog sync
 src/Modules/Catalog/.../Features/Pricing/SettingsSync/                          # sheet codes → sewing settings, PPE rule versions
 ```
 

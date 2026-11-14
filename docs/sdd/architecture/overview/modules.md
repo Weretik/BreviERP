@@ -6,7 +6,7 @@ Owns users, roles, refresh sessions, authentication, and access policies. The `a
 
 ## Catalog module
 
-Owns products and product categories. Product photos keep a Media library photo id and read URLs through `IProductMediaReader` (host adapter); Catalog answers which products use a photo through `GetProductMediaUsagesQuery`.
+Owns products and product categories. Product photos keep a Media library photo id and read URLs through `IProductMediaReader` (adapter over `Media.Contracts`); Catalog answers which products use a photo through `Catalog.Contracts` `ICatalogUsage`.
 
 ## Reference module
 
@@ -26,15 +26,15 @@ Owns the photo library in schema `media`: folders and photos on the Brevi CDN (a
 
 ## Production module
 
-Owns the sewing workshop «Швейний цех» in schema `production`: workers (no sign-in), fabric norms per Catalog model code, orders, work log, payroll and reports. The fabric stock moved to the Warehouse module; Production gives it the plan of items by colour and reads issues and balances for «Звіти цеху» through its port `IProductionStockReader` over `Warehouse.Contracts`. Admin APIs live under `/api/production` for WorkshopChief and Admin. Catalog models and payroll coefficients from «Параметри ціноутворення» are read through host ports ([PRD-001](../../specs/production/001-workshop-references/README.md)).
+Owns the sewing workshop «Швейний цех» in schema `production`: workers (no sign-in), fabric norms per Catalog model code, orders, work log, payroll and reports. The fabric stock moved to the Warehouse module; Production gives it the plan of items by colour and reads issues and balances for «Звіти цеху» through its port `IProductionStockReader` over `Warehouse.Contracts`. Admin APIs live under `/api/production` for WorkshopChief and Admin. Catalog models and payroll coefficients from «Параметри ціноутворення» are read through ports adapted over `Catalog.Contracts` and `Reference.Contracts` ([PRD-001](../../specs/production/001-workshop-references/README.md)).
 
 ## Warehouse module
 
-Owns «Склад тканин» in schema `warehouse`: stock lines by fabric and colour, their movements and the «Видача» packages to order items. Admin APIs live under `/api/warehouse` (policies `access:fabric-stock`, and `access:production-orders` for the «Тканина» tab of an order item). Orders, items and their fabric plan stay in Production, fabrics, suppliers and colours in Reference; Warehouse keeps their ids as values and reads them through host ports ([WH-001](../../specs/warehouse/001-warehouse-module/README.md)).
+Owns «Склад тканин» in schema `warehouse`: stock lines by fabric and colour, their movements and the «Видача» packages to order items. Admin APIs live under `/api/warehouse` (policies `access:fabric-stock`, and `access:production-orders` for the «Тканина» tab of an order item). Orders, items and their fabric plan stay in Production, fabrics, suppliers and colours in Reference; Warehouse keeps their ids as values and reads them through ports adapted over `Production.Contracts` and `Reference.Contracts` ([WH-001](../../specs/warehouse/001-warehouse-module/README.md)).
 
 ## Ai module
 
-Owns «Налаштування ШІ» in schema `ai`: the OpenAI key (encrypted with ASP.NET Data Protection, never returned), fast and strong models with their prices, on/off, the monthly limit and use, and the admin's extra rules per request kind. Admin APIs live under `/api/ai` (Admin). Other modules call it only through ports implemented in the host, which send `ExtractStructuredDataCommand` ([AI-001](../../specs/ai/001-ai-settings/README.md)).
+Owns «Налаштування ШІ» in schema `ai`: the OpenAI key (encrypted with ASP.NET Data Protection, never returned), fast and strong models with their prices, on/off, the monthly limit and use, and the admin's extra rules per request kind. Admin APIs live under `/api/ai` (Admin). Other modules call it only through `Ai.Contracts` (`IStructuredDataExtractor`), implemented over `ExtractStructuredDataCommand` ([AI-001](../../specs/ai/001-ai-settings/README.md)).
 
 ## Purchasing module
 
@@ -42,7 +42,7 @@ Owns the purchase invoice register «Рахунки на закупку» in sch
 
 ## Content module
 
-Owns what the public site says about a product in schema `content`: the «Показувати на сайті» mark, the page address and texts in Ukrainian and Russian (name, SEO, short facts, description, characteristics). It also owns the category tree of the site (categories and subcategories with their mark, address, order, SEO and text, and which products each holds) ([CNT-003](../../specs/content/003-site-categories/README.md)). Admin APIs live under `/api/content` (policies `access:content-products`, `access:content-categories` and `access:content-articles`). It also owns the articles of the site with their SEO; their pictures are photos of the Media library named by id and read through its port `IContentMediaReader` over `Media.Contracts` ([CNT-004](../../specs/content/004-articles/README.md)). The product itself, its section, fabrics, prices and photos stay in Catalog, Reference and Media; Content keeps only the Catalog product id without a database link and reads the rest through the host port `IContentCatalogReader` ([CNT-002](../../specs/content/002-product-pages/README.md)).
+Owns what the public site says about a product in schema `content`: the «Показувати на сайті» mark, the page address and texts in Ukrainian and Russian (name, SEO, short facts, description, characteristics). It also owns the category tree of the site (categories and subcategories with their mark, address, order, SEO and text, and which products each holds) ([CNT-003](../../specs/content/003-site-categories/README.md)). Admin APIs live under `/api/content` (policies `access:content-products`, `access:content-categories` and `access:content-articles`). It also owns the articles of the site with their SEO; their pictures are photos of the Media library named by id and read through its port `IContentMediaReader` over `Media.Contracts` ([CNT-004](../../specs/content/004-articles/README.md)). The product itself, its section, fabrics, prices and photos stay in Catalog, Reference and Media; Content keeps only the Catalog product id without a database link and reads the rest through its port `IContentCatalogReader`, adapted over `Catalog.Contracts` and `Reference.Contracts` ([CNT-002](../../specs/content/002-product-pages/README.md)).
 
 ## Reminders module
 

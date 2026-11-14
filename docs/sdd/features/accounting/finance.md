@@ -61,7 +61,7 @@ src/Modules/Accounting/
     Reports/           # /api/accounting/reports[/csv], /api/accounting/audit, /api/accounting/export
 src/Modules/Accounting/Accounting.Contracts/Accounting.Contracts/Payments/IFinancePaymentReader.cs   # payments for other modules (impl. Accounting.Infrastructure/Contracts/Payments)
 src/Modules/Accounting/Accounting.Infrastructure/Accounting.Infrastructure/Adapters/Reference/AccountingSupplierReader.cs  # Reference.Contracts suppliers, with KeepinCRM id
-src/Bootstrapper/Host.Api/Accounting/   # AccountingCustomerReader (Crm GetCustomerLookupQuery, GetCustomersByKeepinIdsQuery, GetCustomersByTaxIdsQuery; moves to Crm.Contracts in stage 3)
+src/Modules/Accounting/Accounting.Infrastructure/Accounting.Infrastructure/Adapters/Crm/AccountingCustomerReader.cs  # Crm.Contracts ICustomerDirectory: lookup, by KeepinCRM id, by ЄДРПОУ
 src/Modules/Crm/Crm.Application/Crm.Application/Customers/Lookup/   # client names for modules with their own access rule; clients by KeepinCRM id and by ЄДРПОУ
 ```
 

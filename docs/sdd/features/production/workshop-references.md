@@ -22,8 +22,7 @@ src/Modules/Production/
   Production.Api/Production.Api/
     Staff/WorkshopStaffController.cs             # /api/production/staff
     FabricNorms/FabricNormsController.cs         # /api/production/fabric-norms, /compositions
-src/Bootstrapper/Host.Api/Production/
-  ProductionModelReader.cs     # IProductionModelReader → Catalog GetProductOverviewPageQuery (sewing, all pages), ListSewingCompositionsQuery
+src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Catalog/ProductionModelReader.cs  # IProductionModelReader → Catalog.Contracts ICatalogProductReader, ISewingModelReader
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Reference/ProductionReferenceReaders.cs  # PayrollParameterReader → Reference.Contracts IPricingParameterDirectory
 ```
 
@@ -36,8 +35,8 @@ flowchart LR
   UseCases --> Db[(production schema)]
   UseCases --> Models[IProductionModelReader]
   UseCases --> Payroll[IPayrollParameterReader]
-  Models -.host adapter.-> Catalog[Catalog product overview and compositions]
-  Payroll -.host adapter.-> Reference[Reference pricing parameters]
+  Models -.Catalog.Contracts.-> Catalog[Catalog product overview and compositions]
+  Payroll -.Reference.Contracts.-> Reference[Reference pricing parameters]
 ```
 
 ## Tests

@@ -1,13 +1,12 @@
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
 
+
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 
 public static class ApiRegistrationsExtensions
 {
     public static IServiceCollection AddApiRegistrations(this IServiceCollection services)
     {
-        services.AddModuleControllers();
-
         services.AddEndpointsApiExplorer();
         services.AddSwaggerDocumentation();
         services.AddOpenApi();

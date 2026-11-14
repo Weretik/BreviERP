@@ -28,8 +28,7 @@ src/Modules/Media/
   Media.Contracts/Media.Contracts/{Files,Imports,Storage}/   # IMediaFileReader, IMediaFileUploader, IMediaUrlImporter, ICdnStorage
   Media.Infrastructure/Media.Infrastructure/Contracts/       # their implementations
 src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Media/ProductMediaReader.cs  # Catalog IProductMediaReader → Media.Contracts
-src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/
-  MediaProductUsageReader.cs     # Media IMediaUsageReader → Catalog GetProductMediaUsagesQuery
+src/Modules/Media/Media.Infrastructure/Media.Infrastructure/Adapters/Catalog/MediaUsageReader.cs  # Media IMediaUsageReader → Catalog.Contracts ICatalogUsage + Crm.Contracts IEmbroideryCalculationReader
 src/Bootstrapper/Host.Seed/Jobs/Sync/MediaThumbnailsSyncTask.cs # sync step media-thumbnails
 ```
 
@@ -42,9 +41,9 @@ flowchart LR
   UseCases --> Db[(media schema)]
   UseCases --> Cdn[AdmToolsMediaStorage → CDN]
   UseCases --> Usage[IMediaUsageReader]
-  Usage -.host adapter.-> CatalogQuery[Catalog GetProductMediaUsagesQuery]
+  Usage -.adapter.-> CatalogQuery[Catalog.Contracts ICatalogUsage]
   CatalogHandlers[Catalog product handlers] --> Reader[IProductMediaReader]
-  Reader -.host adapter.-> MediaQuery[Media GetMediaFilesByIdsQuery]
+  Reader -.Media.Contracts.-> MediaQuery[Media GetMediaFilesByIdsQuery]
 ```
 
 ## Tests

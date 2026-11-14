@@ -4,7 +4,19 @@ using Crm.Application.Quotes.FabricFacts;
 using Crm.Application.Quotes.Photos;
 using Crm.Application.Quotes.Staff;
 using Crm.Application.Tasks.Staff;
+using Crm.Application.Quotes.Catalog;
+using Crm.Application.Quotes.CustomSewing;
+using Crm.Application.Quotes.Import;
+using Crm.Application.Quotes.ProductionLinks;
+using Crm.Contracts.Customers;
+using Crm.Contracts.Embroidery;
+using Crm.Contracts.Quotes;
+using Crm.Infrastructure.Adapters.Catalog;
 using Crm.Infrastructure.Adapters.Identity;
+using Crm.Infrastructure.Adapters.Production;
+using Crm.Infrastructure.Contracts.Customers;
+using Crm.Infrastructure.Contracts.Embroidery;
+using Crm.Infrastructure.Contracts.Quotes;
 using Crm.Infrastructure.Adapters.Media;
 using Crm.Infrastructure.Adapters.Reference;
 using Crm.Infrastructure.Adapters.Reminders;
@@ -72,6 +84,16 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<IQuotePhotoStorage, QuotePhotoStorage>();
         services.AddScoped<ISiteRequestFileStorage, SiteRequestFileStorage>();
         services.AddScoped<ISiteRequestNotifier, SiteRequestNotifier>();
+        services.AddScoped<IQuoteCatalogReader, QuoteCatalogReader>();
+        services.AddScoped<IQuoteProductionOrders, QuoteProductionOrders>();
+        services.AddScoped<IQuoteSewingCalculator, QuoteSewingCalculator>();
+        services.AddScoped<IQuoteModelCompositionReader, QuoteModelCompositionReader>();
+        services.AddScoped<IQuoteImportLookup, QuoteImportLookup>();
+
+        // Crm.Contracts for other modules.
+        services.AddScoped<ICustomerDirectory, CustomerDirectory>();
+        services.AddScoped<IQuoteReader, QuoteDirectory>();
+        services.AddScoped<IEmbroideryCalculationReader, EmbroideryCalculationReader>();
         return services;
     }
 

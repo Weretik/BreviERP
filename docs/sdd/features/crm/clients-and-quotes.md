@@ -100,7 +100,7 @@ src/Modules/Crm/
     Contracts/                           inputs and responses
     Validation/                          FluentValidation of the editor content
     Building/                            QuoteItemsBuilder (Catalog prices, manual price audit), QuoteNumbering, Kyiv clock
-    Catalog/, Staff/                     ports implemented in Host.Api
+    Catalog/, Staff/                     ports implemented by Crm.Infrastructure/Adapters/
     CustomSewing/                        «Виріб з нуля» and changed models: IQuoteSewingCalculator and IQuoteModelCompositionReader ports, item builder, price preview and model composition queries
     Persistence/                         IQuoteStore (CrmDbContext) and load query
     Mapping/                             responses
@@ -122,11 +122,14 @@ src/Modules/Crm/
     Quotes/Sending/                      GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options
   Crm.Api/Crm.Api/Quotes/                QuotesController, QuoteIntroductionsController, QuoteIntroTemplatesController,
                                          QuoteLookupsController, QuoteSettingsController, MailboxesController, QuoteImportController, Requests/
-src/Bootstrapper/Host.Api/Crm/
-  QuoteCatalogReader.cs                  Catalog overview, admin detail photo and Reference fabrics through Mediator
-  QuoteSewingCalculator.cs               «Виріб з нуля» through the Catalog composition query, names from Reference
-  QuoteModelCompositionReader.cs         model composition for «Змінити склад» through the Catalog sewing card query
+src/Modules/Crm/Crm.Contracts/Crm.Contracts/{Customers,Quotes,Embroidery}/  ICustomerDirectory, IQuoteReader, IEmbroideryCalculationReader for other modules
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Contracts/          their implementations (Mediator queries)
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Catalog/
+  QuoteCatalogReader.cs                  Catalog.Contracts ICatalogProductReader + Reference.Contracts fabrics
+  QuoteSewingCalculator.cs               «Виріб з нуля» through Catalog.Contracts ISewingPriceCalculator, names from Reference.Contracts
+  QuoteModelCompositionReader.cs         model composition for «Змінити склад» through Catalog.Contracts ISewingModelReader
   QuoteImportLookup.cs                   Catalog products and Reference rows by code for the old КП transfer
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Production/QuoteProductionOrders.cs  orders linked to КП (Production.Contracts IQuoteOrderLinks)
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Identity/QuoteStaffReader.cs  active Manager/Admin users (Identity.Contracts)
 ```
 

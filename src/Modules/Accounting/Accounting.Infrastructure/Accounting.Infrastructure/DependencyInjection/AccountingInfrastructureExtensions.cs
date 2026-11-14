@@ -1,3 +1,4 @@
+using Accounting.Infrastructure.Adapters.Crm;
 using Accounting.Infrastructure.Adapters.Reference;
 using Accounting.Contracts.Payments;
 using Accounting.Infrastructure.Contracts.Payments;
@@ -36,6 +37,7 @@ public static class AccountingInfrastructureExtensions
 
         // Adapters from other modules' Contracts to this module's ports.
         services.AddScoped<IAccountingSupplierReader, AccountingSupplierReader>();
+        services.AddScoped<IAccountingCustomerReader, AccountingCustomerReader>();
         return services;
     }
 }

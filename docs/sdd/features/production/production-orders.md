@@ -37,10 +37,11 @@ src/Modules/Production/
   Production.Api/Production.Api/Orders/ProductionOrdersController.cs   # /api/production/orders
   Production.Api/Production.Api/Orders/ProductionOrderTrackingController.cs   # stages, shipments, status, files, telegram, progress-import, report-price-import
   Production.Api/Production.Api/Settings/WorkshopSettingsController.cs        # /api/production/settings
-src/Bootstrapper/Host.Api/Production/
-  ProductionQuoteReader.cs       # Crm GetQuotesQuery / GetQuoteQuery, sewn items and «Вишивка» rows
-  ProductionEmbroideryReader.cs  # Crm saved embroidery calculations, without prices
-  ProductionModelReader.cs       # + Catalog GetSewingArticleSummaryQuery for the seamstress labour
+src/Modules/Production/Production.Contracts/Production.Contracts/{Orders,FabricPlans}/  # IQuoteOrderLinks, IOrderFabricPlans for other modules
+src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/
+  Crm/ProductionQuoteReader.cs       # Crm.Contracts IQuoteReader, sewn items and «Вишивка» rows
+  Crm/ProductionEmbroideryReader.cs  # Crm.Contracts IEmbroideryCalculationReader, without prices
+  Catalog/ProductionModelReader.cs   # Catalog.Contracts ISewingModelReader, with the seamstress labour
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/
   Reference/ProductionReferenceReaders.cs  # ProductionFabricReader over Reference.Contracts IFabricDirectory
   Identity/ProductionStaffReader.cs        # Identity.Contracts IStaffDirectory, by id and email

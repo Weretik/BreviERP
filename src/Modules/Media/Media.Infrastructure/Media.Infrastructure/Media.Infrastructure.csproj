@@ -5,6 +5,8 @@
     <ProjectReference Include="..\..\Media.Application\Media.Application\Media.Application.csproj" />
     <ProjectReference Include="..\..\Media.Domain\Media.Domain\Media.Domain.csproj" />
     <ProjectReference Include="..\..\Media.Contracts\Media.Contracts\Media.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Catalog\Catalog.Contracts\Catalog.Contracts\Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Crm\Crm.Contracts\Crm.Contracts\Crm.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

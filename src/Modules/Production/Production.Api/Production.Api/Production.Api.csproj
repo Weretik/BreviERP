@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Api\BuildingBlocks.Api.csproj" />
     <ProjectReference Include="..\..\Production.Application\Production.Application\Production.Application.csproj" />
+    <ProjectReference Include="..\..\Production.Infrastructure\Production.Infrastructure\Production.Infrastructure.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

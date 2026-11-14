@@ -6,6 +6,7 @@
     <ProjectReference Include="..\..\Accounting.Domain\Accounting.Domain\Accounting.Domain.csproj" />
     <ProjectReference Include="..\..\Accounting.Contracts\Accounting.Contracts\Accounting.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Reference\Reference.Contracts\Reference.Contracts\Reference.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Crm\Crm.Contracts\Crm.Contracts\Crm.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

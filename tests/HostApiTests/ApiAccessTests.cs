@@ -1,7 +1,7 @@
+using Host.Api.DependencyInjection.ServiceRegistration.Web;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using Host.Api.DependencyInjection.ServiceRegistration.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -160,6 +160,16 @@ public sealed class ApiAccessTests
         return $"{method} {route}";
     }
 
+    private static readonly Type[] ApiMarkers =
+    [
+        typeof(Accounting.Api.AccountingApiAssemblyMarker), typeof(Ai.Api.AiApiAssemblyMarker),
+        typeof(Catalog.Api.CatalogApiAssemblyMarker), typeof(Content.Api.ContentApiAssemblyMarker),
+        typeof(Crm.Api.CrmApiAssemblyMarker), typeof(Identity.Api.IdentityApiAssemblyMarker),
+        typeof(Media.Api.MediaApiAssemblyMarker), typeof(Production.Api.ProductionApiAssemblyMarker),
+        typeof(Purchasing.Api.PurchasingApiAssemblyMarker), typeof(Reference.Api.ReferenceApiAssemblyMarker),
+        typeof(Reminders.Api.RemindersApiAssemblyMarker), typeof(Warehouse.Api.WarehouseApiAssemblyMarker)
+    ];
+
     private sealed class Fixture(WebApplication app, HttpClient client) : IAsyncDisposable
     {
         public HttpClient Client { get; } = client;
@@ -178,7 +188,9 @@ public sealed class ApiAccessTests
             builder.Services.AddAuthentication("Fixture")
                 .AddScheme<AuthenticationSchemeOptions, FixtureAuthenticationHandler>("Fixture", _ => { });
             builder.Services.AddAuthorizationPolicies();
-            builder.Services.AddModuleControllers();
+            // Controllers only: each module adds its own in Add<Module>Module(), which also needs a database.
+            var mvc = builder.Services.AddControllers();
+            foreach (var marker in ApiMarkers) mvc.AddApplicationPart(marker.Assembly);
             var app = builder.Build();
             app.UseRouting();
             app.UseAuthentication();

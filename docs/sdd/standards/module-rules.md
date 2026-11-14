@@ -30,7 +30,21 @@ Every business module has the same five projects. The host only registers module
 - Scaffold projects with the .NET CLI (`dotnet new classlib`, `dotnet sln add`, `dotnet add reference`) and match the existing modules' folder layout and project settings instead of writing project files by hand.
 - Create `<Module>.Contracts` together with the module, even while it is empty: it is the only place another module may look at.
 - Register the module in the host with one call, `Add<Module>Module(configuration)`, defined in `<Module>.Api/DependencyInjection/`. It registers the module's Application, Infrastructure, Contracts implementations, and controllers. Controllers and request models never use Infrastructure types.
+- **Ports and DI, one chain.** Application declares what it needs as interfaces in `Application/Abstractions/` (`IOrderRepository`, `IUnitOfWork`, `IOneCClient`; for time use .NET `TimeProvider`). Infrastructure implements them (`Persistence/` for the `DbContext` and repositories, `Integrations/<System>/` for a client and its options) and binds them in one public entry point, `Add<Module>Infrastructure(configuration)`, in `Infrastructure/DependencyInjection/`. `Add<Module>Module(configuration)` in the Api calls it plus the Application registration (validators) and controllers. The host's `Program.cs` calls only `Add<Module>Module(...)` for each module. Smaller public `Add*` helpers exist only when a job host or a test needs a subset, and say so in their summary.
+- **Lifetimes.** A Singleton (and any `BackgroundService` or `IHostedService`, which are Singletons) never takes a Scoped service such as a `DbContext`, a repository, or the current user in its constructor; it takes `IServiceScopeFactory` and creates a scope per operation (`using var scope = scopeFactory.CreateScope();`). Every host turns on `ValidateScopes` and `ValidateOnBuild` in every environment (`builder.Host.UseDefaultServiceProvider(...)` or `ConfigureContainer(new DefaultServiceProviderFactory(...))`), and a test builds each host's container in Production mode, so a captive dependency or a missing registration fails at startup or in CI, not in production.
 - Add the module to the architecture tests so its project references, its isolation, and its folder rules are checked.
+
+## Transactional outbox
+
+A use case that writes data and also has an external side effect (1C or another ERP, Telegram or e-mail, site revalidation, payment or delivery API, CDN upload) or must tell another module about the change does not call the outside world inside or around its transaction. It writes an outbox row in the same `SaveChanges`; after the commit the request tries the row once, and a dispatcher retries what is left.
+
+- The outbox table and the dispatcher are shared code in `BuildingBlocks.Infrastructure`; each module owns its rows (in its own schema) and its handlers. Handlers are idempotent: the receiver gets a stable key and ignores a repeat.
+- On a scale-to-zero host such as Cloud Run there is no in-process loop, hosted timer, or Hangfire. One protected internal endpoint per backend (`POST /internal/outbox/dispatch`, OIDC token of the scheduler's service account) is called every minute by one Cloud Scheduler job; it returns at once when nothing is due. No message bus or MassTransit.
+- A failed row stays visible (admin page or log alert) with its last error after the retry limit; nothing is dropped silently.
+- Not for work inside one module's transaction, for read-only calls, or when the user must see the external result synchronously.
+- The SDD design names the message types, payload, handler, idempotency key, and retry limit. Details: the `backend-feature-spec` skill reference `references/transactional-outbox.md`.
+
+**BreviERP today:** no outbox yet. These use cases call the outside world directly inside or right after their save and move to the outbox in the Outbox stage: Telegram messages (`SendProductionOrderTelegram`, reminder dispatch, site request notifications), КП e-mail through Gmail (`SendQuote`), CDN uploads and site page revalidation after content changes, and the Google Sheets and KeepinCRM syncs that write back. The two-save handlers in «Known deviations» are the first to move.
 
 ## Communication between modules
 
@@ -167,6 +181,7 @@ Host.Api/
 - Hosts are `src/Bootstrapper/Host.Api` (HTTP) and `src/Bootstrapper/Host.Seed` (migrations, seed, Cloud Run jobs). Register a new module in both when it has jobs or seed data.
 - Operational jobs are in `src/Jobs` ([jobs overview](../../../src/Jobs/README.md)). `CatalogImport` and `SewingPricing` are data imports that may reference `Catalog.Infrastructure` and `Reference.Infrastructure` (the documented exception above).
 - Architecture tests list the modules in `tests/ArchitectureTests/`; add a new module there.
+- Container checks: `Host.Api` and `Host.Seed` turn on `ValidateScopes` and `ValidateOnBuild` in every environment; `tests/IntegrationTests/Platform/DependencyInjection/ServiceProviderValidationTests.cs` builds both containers in Production mode without a database. Each module registers its validators in `Add<Module>Module()` through `AddModuleValidators` (`BuildingBlocks.Application`), which skips child validators that a parent builds with `new`.
 - `Crm` is the reference implementation of a module schema: `HasDefaultSchema("crm")` and `MigrationsHistoryTable("__EFMigrationsHistory", "crm")`.
 
 ## Known deviations
@@ -175,8 +190,8 @@ Existing code that does not follow these rules yet. Do not copy it into new code
 
 | Where | Deviation | Plan |
 | --- | --- | --- |
-| All modules | No `<Module>.Contracts` project; 54 cross-module adapters in `Host.Api` (old ADR-0002) | Stages 2-3: Contracts projects, adapters move to the provider's or consumer's Infrastructure |
-| All modules | Modules are registered layer by layer in `Host.Api`, no `Add<Module>Module()` | Stage 3 |
+| Infrastructure entry points (ports and DI chain) | Not one `Add<Module>Infrastructure(configuration)` everywhere: `Catalog` (`AddCatalogDbContextServices` + `AddCatalogInfrastructureServices`), `Reference` (`AddReferenceDbContextServices`, `AddReferenceInfrastructureServices`, `AddReferenceServices`), `Identity` (`AddIdentityInfrastructure`, `AddIdentityInfrastructureServices`, `AddIdentityDbContextServices`, `AddIdentityAuthentication`), `Crm` (`AddCrmDbContextServices` + `AddCrmKeepinCrmSync`); `Host.Seed` calls these helpers directly; Mediator, access policies and the CSRF middleware (`Host.Api/Security`, which still reads `Identity.Infrastructure` options) stay in `Host.Api` | Stage 6 |
+| Side effects (transactional outbox) | External calls (Telegram, Gmail, CDN, site revalidation, sheet write-backs) run directly in handlers, some after a second `SaveChanges` | Outbox stage |
 | `Catalog`, `Reference`, `Identity`, `Accounting` Domain | Type folders `Entities/`, `Enums/`, `Errors/`, `ValueObjects/`, `Constants/` | Stage 4 |
 | All Application projects | No `Commands/` and `Queries/` folders; `DTOs/`, `Validators/`, `Specifications/` type folders; separate `Public…` feature folders; `Contracts/` folders with DTOs and ports | Stage 5 |
 | All Application projects, one use case = one folder | 216 handlers named `…QueryHandler`/`…CommandHandler` instead of `<UseCase>Handler`; 124 of 366 validators in `Validators/` subfolders, 50 `DTOs/` and 43 `Specifications/` subfolders inside use cases; 16 handlers share a folder with another handler and 15 files hold more than one request; ports in 19 `Contracts/` folders (and `Identity.Application/Contracrts`) instead of `Abstractions/` | Stage 5 |

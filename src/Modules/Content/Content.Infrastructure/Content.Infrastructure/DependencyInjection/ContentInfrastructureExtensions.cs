@@ -1,3 +1,4 @@
+using Content.Infrastructure.Adapters.Catalog;
 using Content.Infrastructure.Adapters.Media;
 using BuildingBlocks.Infrastructure.Migrations;
 using Content.Application.Abstractions;
@@ -39,6 +40,7 @@ public static class ContentInfrastructureExtensions
         // Adapters from other modules' Contracts to this module's ports.
         services.AddScoped<IContentMediaReader, ContentMediaReader>();
         services.AddScoped<IContentPhotoImporter, ContentPhotoImporter>();
+        services.AddScoped<IContentCatalogReader, ContentCatalogReader>();
         return services;
     }
 }
