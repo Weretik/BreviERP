@@ -42,7 +42,7 @@ src/Modules/Purchasing/
   Purchasing.Api/Purchasing.Api/
     Endpoints/Register/   # RegisterEndpoints (/api/purchasing/invoices, policy access:purchase-invoices) + one <UseCase>Endpoint per operation
     Endpoints/Documents/  # DocumentsEndpoints: recognize, save checked document, template
-src/Bootstrapper/Host.Seed/Jobs/Sync/PurchaseInvoicesSyncTask.cs   # daily step purchase-invoices
+src/Bootstrapper/Host.Seed/Jobs/Tasks/Office/PurchaseInvoicesTaskRunner.cs   # task purchase-invoices
 src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/Adapters/
   Reference/PurchasingSupplierReader.cs     # Reference.Contracts suppliers for the link
   Accounting/PurchasingPaymentReader.cs     # Accounting.Contracts expenses for the payment links

@@ -42,7 +42,8 @@ Bootstrapper/Host.Seed/
 └── Jobs/
     ├── SeedJobDispatcher.cs      mutually exclusive command selection
     ├── JobCommands.cs            SendAsync: runs a module command, a failed result fails the step
-    ├── Sync/                     brevierp-sync steps (ISyncTask), each sends one module command
+    ├── Tasks/                    «Фонові задачі» runners (IScheduledTaskRunner, key = catalogue key), each sends one module command;
+    │                             --tasks (brevierp-tasks) and the old --sync mode run them
     ├── Pricing/                  runners that call src/Jobs/SewingPricing and CatalogImport.PpePricing
     └── *CommandRunner.cs         other thin runners
 ```

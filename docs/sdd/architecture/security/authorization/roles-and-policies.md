@@ -60,6 +60,7 @@ Every work page of the admin is guarded by `access:<page>`; the action comes fro
 | `work-log`, `workshop-settings` (group «Адміністрування»), `workshop-staff`, `fabric-norms`, `payroll`, `timesheet` (the three «Персонал цеху» tabs) | `/api/production/work-log`, settings, staff, fabric norms and model compositions, payroll, timesheet; create = work entry, worker, payroll payment or adjustment; voids and month close are edit; `fabric-norms` delete = «Видалити норму» | Admin, WorkshopChief: every action the page has |
 | `workshop-reports` (group «Загальні звіти») | `/api/production/reports` | Admin (view only) |
 | `accounting`, `purchase-invoices` | `/api/accounting/**` (create = new operations, transfers, accounts, categories, counterparties, statement and file uploads; delete = accounts, categories, attachments; void, archive, restore, merge, book and rollback are edit), `/api/purchasing/invoices` | the director; Accountant every action of «Бухгалтерія», view and edit of «Рахунки на закупку» (owner 2026-11-12; a role saved earlier gets them too unless the director unticks them, see [DESK-001](../../../specs/identity/003-role-desks/README.md) D6) ([PUR-001](../../../specs/purchasing/001-purchase-invoices/README.md)) |
+| `background-tasks` (group «Адміністрування», «Фонові задачі») | `/api/scheduling/tasks/**`; create = «Запустити зараз», edit = schedule and on/off | Admin: all |
 | `reminders` | `/api/reminders/**` except the Telegram webhook; create = task, non-working day; delete = archive a task, remove a day; preview is view; close, reopen, chat test are edit | Admin: all |
 | `products`, `product-sections`, `materials`, `operations`, `pricing-parameters`, `price-import` | catalogue and reference writes (`materials` covers fabrics, accessories and colours «Кольори»); reads stay `CatalogRead` | Admin, Manager; Accountant view |
 | `counterparties` | suppliers, clients and their contacts | Admin, Manager |
@@ -91,6 +92,7 @@ Only these operations are public; `tests/HostApiTests/Access/ApiAccessTests.cs` 
 | `POST /api/auth/cookie/login` | Sign-in (rate-limited). |
 | `POST /api/reminders/telegram/webhook` | Telegram calls it; checked by the webhook secret header. |
 | `GET /api/crm/mailboxes/google-callback` | Google returns the browser here after Gmail consent; accepted only with the signed, 15-minute `state` issued by `POST /api/crm/mailboxes/{userId}/connect`, and it only redirects to the admin. |
+| `POST /internal/scheduler/tick` | Cloud Scheduler calls it every minute; the endpoint checks the Google OIDC token of the scheduler service account and answers 404 until `Scheduler:Audience` and `Scheduler:SchedulerServiceAccount` are set (SCH-001 R-10). |
 | `GET /api/reference/product-categories/store/{language}` | Public storefront categories, read-only. |
 | `GET /api/public/catalog/*` (tree, products, product by address, product addresses) | Catalog of the public site, read-only: only products marked «Показувати на сайті», nothing internal (CNT-002). |
 | `GET /api/public/articles`, `GET /api/public/articles/{slug}` | Articles of the public site, read-only: only articles marked «Показувати на сайті» (CNT-004). |

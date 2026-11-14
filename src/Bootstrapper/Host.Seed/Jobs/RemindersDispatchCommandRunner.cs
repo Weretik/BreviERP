@@ -1,15 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Reminders.Application.Features.Dispatch.Commands.DispatchReminders;
-using Reminders.Application.Features.Dispatch.Shared;
+using Host.Seed.Jobs.Tasks.Office;
 
 namespace Host.Seed.Jobs;
 
 /// <summary>
-/// --reminders-dispatch=true: the daily Telegram reminder run. Cloud Scheduler executes the
-/// brevierp-reminders Cloud Run Job (same image, this argument baked in) on weekdays at 09:00 Kyiv.
-/// Only this mode runs: no migrations or seeding. Safe to rerun the same day. Exit code 1 when the run
-/// failed or any card was not sent.
+/// --reminders-dispatch=true: the old daily Telegram reminder job brevierp-reminders, kept until the switch-over to
+/// «Фонові задачі» (SCH-001 R-12). Runs the same code as the «reminders» task. Only this mode runs: no migrations or
+/// seeding. Exit code 1 when the run failed or any card was not sent.
 /// </summary>
 internal static class RemindersDispatchCommandRunner
 {
@@ -18,25 +16,15 @@ internal static class RemindersDispatchCommandRunner
         await using var scope = services.CreateAsyncScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("RemindersDispatch");
         logger.LogInformation("Reminders run started");
-        ReminderDispatchSummary summary;
         try
         {
-            summary = await scope.ServiceProvider.SendAsync(new DispatchRemindersCommand(), CancellationToken.None);
+            var summary = await new RemindersTaskRunner().RunAsync(scope.ServiceProvider, logger, CancellationToken.None);
+            logger.LogInformation("Reminders run OK: {Summary}", summary);
         }
         catch (Exception error)
         {
             logger.LogError("Reminders run FAILED: {ErrorType}: {Reason}", error.GetType().Name, error.Message);
             throw;
         }
-
-        var result = summary.Failed > 0 ? "FAILED" : "OK";
-        logger.LogInformation(
-            "Reminders {Date}: {Result}. Working day {WorkingDay}; active tasks {Active}, without chat {WithoutChat}; " +
-            "new periods {Created}; sent {Sent}, not due yet {NotDue}, already sent today {AlreadySent}, " +
-            "chat unavailable {ChatUnavailable}, failed {Failed}",
-            summary.Date, result, summary.WorkingDay, summary.ActiveTasks, summary.TasksWithoutChat,
-            summary.CreatedOccurrences, summary.Sent, summary.NotDueYet, summary.AlreadySent,
-            summary.ChatUnavailable, summary.Failed);
-        if (summary.Failed > 0) throw new InvalidOperationException($"{summary.Failed} reminder(s) were not sent.");
     }
 }

@@ -50,6 +50,7 @@ Do not create a public OpenAPI document for internal-only changes. Before adding
 - Content: [public redirects of the site](content/content-public-redirects.openapi.yaml) — anonymous list of every redirect with the final page of its chain.
 - Content: [public articles of the site](content/content-public-articles.openapi.yaml) — anonymous read-only list and page of the articles marked «Показувати на сайті», with SEO, text and CDN pictures; Ukrainian when there is no Russian text.
 - Content: [public catalog of the site](content/content-public-catalog.openapi.yaml) — anonymous read-only tree, site categories with SEO and text, product cards with «від» (also by category), product by address, addresses for the sitemap.
+- Scheduling: [«Адміністрування → Фонові задачі»](scheduling/background-tasks.openapi.yaml) — background tasks with schedules, last success and failure, run history and «Запустити зараз».
 - Purchasing: [«Рахунки на закупку» register](purchasing/purchase-invoices.openapi.yaml) — purchase invoices read from the Google Sheet «финансы».
 
 - Reminders: [Telegram reminders admin API](reminders/telegram-reminders.openapi.yaml) — tasks, periods, chats, non-working days and bot connection. The Telegram webhook is intentionally not in the contract.

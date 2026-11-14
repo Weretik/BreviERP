@@ -54,6 +54,9 @@ BreviERP PostgreSQL
 │   ├── BankStatements                 # «Виписки банку»: uploaded statements
 │   ├── BankStatementLines             # their lines with what was recognised and chosen
 │   └── AuditEntries                   # change log with JSON snapshots
+├── scheduling / SchedulingDbContext — 2 tables + own history
+│   ├── ScheduledTasks                 # «Фонові задачі»: schedule, next run, last success and failure
+│   └── ScheduledTaskRuns              # run history, kept 90 days
 ├── media / MediaDbContext — 2 tables + own history
 │   ├── Folders                        # photo folder tree
 │   └── Files                          # photos on the CDN

@@ -1,8 +1,10 @@
 # Sync job runbook
 
+> Being replaced by [«Фонові задачі»](background-tasks.md): the same steps are tasks there, each with its own schedule. This job stays until the switch-over.
+
 **When it runs:** Monday to Friday at 09:00 Kyiv time (Cloud Scheduler `0 9 * * 1-5`, `Europe/Kyiv`). It is not a nightly job and does not run on Saturday or Sunday; older notes and the actor name `nightly-sync` are historical names only.
 
-One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an external system and every scheduled import. It runs `Host.Seed --sync=true`: the steps listed in `src/Bootstrapper/Host.Seed/Jobs/Sync/SyncJobRunner.cs`, one after another, each in its own DI scope. A failed step is logged and the next step still runs; the execution ends with exit code 1 if any step failed. No migrations or seeding. Never put API keys into documentation, logs or chat.
+One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an external system and every scheduled import. It runs `Host.Seed --sync=true`: the steps listed in `ScheduledTaskRunners.Sync` (`src/Bootstrapper/Host.Seed/Jobs/Tasks/`), one after another, each in its own DI scope. A failed step is logged and the next step still runs; the execution ends with exit code 1 if any step failed. No migrations or seeding. Never put API keys into documentation, logs or chat.
 
 ## Steps
 
@@ -20,11 +22,7 @@ One Cloud Run Job, `brevierp-sync`, holds every scheduled refresh from an extern
 
 ### Adding a step
 
-1. Put the work in the owning module as a command (`Features/<Feature>/Commands/<UseCase>/` with its handler and validator). It must be safe to repeat and change nothing when it fails.
-2. Implement `ISyncTask` in `Host.Seed/Jobs/Sync/` with a kebab-case `Name`. It only sends that command with `services.SendAsync(...)` and logs the outcome; `JobDependencyTests.Seed_host_jobs_are_thin_runners` rejects anything more.
-3. Add it to `Tasks` in `SyncJobRunner`.
-4. Register the module in `SeedHostServicesExtensions` if Host.Seed does not have it yet.
-5. Attach its secrets to the job in the `Create or update daily sync job` step of the [deploy workflow](../deployment/cloud-run-deploy.md), and add a row above.
+New scheduled work is added as a task of [«Фонові задачі»](background-tasks.md#adding-a-task), not as a step of this job.
 
 ## Schedule
 

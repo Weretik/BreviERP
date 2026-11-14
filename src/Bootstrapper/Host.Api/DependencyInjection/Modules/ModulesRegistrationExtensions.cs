@@ -9,6 +9,7 @@ using Production.Api.DependencyInjection;
 using Purchasing.Api.DependencyInjection;
 using Reference.Api.DependencyInjection;
 using Reminders.Api.DependencyInjection;
+using Scheduling.Api.DependencyInjection;
 using Warehouse.Api.DependencyInjection;
 
 
@@ -27,6 +28,7 @@ public static class ModuleRegistrationsExtensions
         services.AddCatalogModule(configuration);
         services.AddCrmModule(configuration);
         services.AddRemindersModule(configuration);
+        services.AddSchedulingModule(configuration);
         services.AddMediaModule(configuration);
         services.AddPurchasingModule(configuration);
         services.AddContentModule(configuration);
@@ -45,6 +47,7 @@ public static class ModuleRegistrationsExtensions
         app.MapPurchasingEndpoints();
         app.MapWarehouseEndpoints();
         app.MapRemindersEndpoints();
+        app.MapSchedulingEndpoints();
         app.MapMediaEndpoints();
         app.MapIdentityEndpoints();
         app.MapReferenceEndpoints();

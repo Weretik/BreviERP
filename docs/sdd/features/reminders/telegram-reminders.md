@@ -33,7 +33,7 @@ src/Modules/Reminders/
   Reminders.Api/Reminders.Api/
     Endpoints/{Tasks,Occurrences,Chats,Calendar}/   # Admin endpoints under /api/reminders, one <UseCase>/ folder each
     Endpoints/Telegram/   # ReceiveTelegramUpdateEndpoint (anonymous, secret header), ConnectTelegramWebhookEndpoint
-src/Bootstrapper/Host.Seed/Jobs/RemindersDispatchCommandRunner.cs   # thin runner: sends DispatchRemindersCommand, logs the summary
+src/Bootstrapper/Host.Seed/Jobs/Tasks/Office/RemindersTaskRunner.cs   # task reminders: sends DispatchRemindersCommand (also the old --reminders-dispatch mode)
 ```
 
 ## Structure diagram

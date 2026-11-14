@@ -172,6 +172,8 @@ GET api/reminders/chats | getReminderChats | policy:access:reminders
 GET api/reminders/non-working-days | getReminderNonWorkingDays | policy:access:reminders
 GET api/reminders/occurrences | getReminderOccurrences | policy:access:reminders
 GET api/reminders/tasks | getReminderTasks | policy:access:reminders
+GET api/scheduling/tasks | getScheduledTasks | policy:access:background-tasks
+GET api/scheduling/tasks/{key}/runs | getScheduledTaskRuns | policy:access:background-tasks
 GET api/v1/pricing/ppe/products | getPpeProductPrices | policy:CatalogRead
 GET api/v1/pricing/ppe/rules | getPpePricingRule | policy:CatalogRead
 GET api/v1/pricing/ppe/rules/preview | previewPpePrices | policy:CatalogRead
@@ -323,6 +325,7 @@ POST api/reminders/tasks/assign-chat | assignReminderChat | policy:access:remind
 POST api/reminders/tasks/preview | previewReminderDueDates | policy:access:reminders,action:view
 POST api/reminders/telegram/connect | connectTelegramWebhook | policy:access:reminders,action:edit
 POST api/reminders/telegram/webhook | receiveTelegramUpdate | anonymous
+POST api/scheduling/tasks/{key}/run | runScheduledTaskNow | policy:access:background-tasks
 POST api/v1/pricing/ppe/products/{productId:int}/offer/versions | createPpeOfferVersion | policy:access:products,action:edit
 POST api/v1/pricing/ppe/rules/versions | createPpeRuleVersion | policy:access:pricing-parameters,action:edit
 POST api/v1/pricing/ppe/supplier-prices/{key}/import | importPpeSupplierPrices | policy:access:price-import,body-limit:31457280,form-limit:31457280
@@ -347,6 +350,7 @@ POST api/warehouse/fabric-stock/receipts | receiveFabric | policy:access:fabric-
 POST api/warehouse/fabric-stock/transfer | transferFabricStock | policy:access:fabric-stock,body-limit:50000000
 POST api/warehouse/orders/{id:int}/fabric-issues/{issueId:int}/reverse | reverseFabricIssue | policy:access:production-orders,action:edit
 POST api/warehouse/orders/{id:int}/items/{itemId:int}/fabric-issues | createFabricIssue | policy:access:production-orders
+POST internal/scheduler/tick | - | anonymous
 PUT api/accounting/accounts/{id:guid} | updateFinanceAccount | policy:access:accounting
 PUT api/accounting/accounts/{id:guid}/cutover | setFinanceAccountCutover | policy:access:accounting
 PUT api/accounting/categories/{id:guid} | updateFinanceCategory | policy:access:accounting
@@ -420,6 +424,7 @@ PUT api/reference/suppliers/{id:int} | - | policy:access:counterparties
 PUT api/reference/suppliers/{id:int}/brevi-fields | - | policy:access:counterparties
 PUT api/reminders/chats/{id:long} | updateReminderChat | policy:access:reminders
 PUT api/reminders/tasks/{id:long} | updateReminderTask | policy:access:reminders
+PUT api/scheduling/tasks/{key}/schedule | updateScheduledTaskSchedule | policy:access:background-tasks
 PUT api/v1/pricing/ppe/supplier-prices/{key} | updatePpePriceSource | policy:RequireAdminRole
 PUT api/v1/products/{id:int} | - | policy:access:products
 PUT api/v1/products/{id:int}/overview | - | policy:access:products

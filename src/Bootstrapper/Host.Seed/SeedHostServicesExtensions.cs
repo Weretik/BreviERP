@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reference.Infrastructure.DependencyInjection;
 using Reminders.Infrastructure.DependencyInjection;
+using Scheduling.Infrastructure.DependencyInjection;
 using Media.Infrastructure.DependencyInjection;
 using Production.Infrastructure.DependencyInjection;
 using Purchasing.Infrastructure.DependencyInjection;
@@ -39,6 +40,7 @@ public static class SeedHostServicesExtensions
                 typeof(Crm.Application.CrmApplicationAssemblyMarker).Assembly,
                 typeof(Reference.Application.ReferenceApplicationAssemblyMarker).Assembly,
                 typeof(Reminders.Application.RemindersApplicationAssemblyMarker).Assembly,
+                typeof(Scheduling.Application.SchedulingApplicationAssemblyMarker).Assembly,
                 typeof(Media.Application.MediaApplicationAssemblyMarker).Assembly,
                 typeof(Production.Application.ProductionApplicationAssemblyMarker).Assembly,
                 typeof(Purchasing.Application.PurchasingApplicationAssemblyMarker).Assembly,
@@ -61,6 +63,7 @@ public static class SeedHostServicesExtensions
         services.AddCatalogInfrastructure(configuration);
         services.AddCrmInfrastructure(configuration);
         services.AddRemindersInfrastructure(configuration);
+        services.AddSchedulingInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
         // Warehouse before Production: its first migration takes over «Склад тканин» from the production schema.
         services.AddWarehouseInfrastructure(configuration);

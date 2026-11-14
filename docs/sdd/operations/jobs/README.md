@@ -1,5 +1,7 @@
 # Background jobs and runbooks
 
+Periodic work is moving to [«Фонові задачі»](background-tasks.md) (SCH-001): one Cloud Scheduler entry calls `POST /internal/scheduler/tick` every minute; the tick sends the outbox and starts the `brevierp-tasks` job for the tasks that are due; schedules live in the database and the admin changes them on «Адміністрування → Фонові задачі». Until the switch-over (its runbook, step 3) the old entries below keep running.
+
 BreviERP has no in-process scheduler, queue or distributed lock. Delayed retries of side effects go through the [transactional outbox](outbox.md): Cloud Scheduler calls `POST /internal/outbox/dispatch` every minute (`brevierp-outbox`). Other periodic executions are the [Telegram reminders](telegram-reminders.md) daily run (Cloud Scheduler executes the `brevierp-reminders` job, the seed image with `--reminders-dispatch=true`) and the [sync job](sync-job.md) (`brevierp-sync`, `--sync=true`, Mon–Fri 09:00 Kyiv, not nightly: external refreshes and imports one step after another, now the KeepinCRM suppliers and clients refresh). `Host.Api` calls `AddBackgroundJobRegistrations()`, but that method currently registers no services.
 
 One-off operational jobs exist as libraries in `src/Jobs` ([overview](../../../../src/Jobs/README.md)): `CatalogImport` (catalogue import and PPE pricing bootstrap) and `SewingPricing` (pricing baseline, verification, readiness, input review, and activation). Only `Host.Seed` references and runs them, through command-line flags. Runbooks with exact commands:
@@ -11,6 +13,7 @@ One-off operational jobs exist as libraries in `src/Jobs` ([overview](../../../.
 operator / cron / CI → agreed job implementation → scoped module service → PostgreSQL / external adapter
 ```
 
+- [Background tasks «Фонові задачі»](background-tasks.md)
 - [Outbox dispatch](outbox.md)
 - [Job CLI status](host-jobs-cli.md)
 - [Troubleshooting](troubleshooting.md)

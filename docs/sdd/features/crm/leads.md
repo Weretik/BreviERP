@@ -29,7 +29,7 @@ src/Modules/Crm/
   Crm.Api/Crm.Api/Endpoints/Leads/
     LeadsEndpoints.cs              /api/crm/leads
     LeadStatsEndpoints.cs          /api/crm/lead-stats
-src/Bootstrapper/Host.Seed/Jobs/Sync/LeadsSyncTask.cs   daily step `leads`
+src/Bootstrapper/Host.Seed/Jobs/Tasks/Office/LeadsTaskRunner.cs   task `leads`
 ```
 
 [API contract](../../contracts/crm/leads.openapi.yaml), [database ownership](../../architecture/data-model/crm.md), [sync job](../../operations/jobs/sync-job.md#leads).
