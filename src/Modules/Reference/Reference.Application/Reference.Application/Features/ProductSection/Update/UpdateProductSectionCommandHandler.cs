@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.ProductSection.Shared;
 using Reference.Application.Features.ProductSection.Shared.Specifications;
@@ -20,14 +19,8 @@ public sealed class UpdateProductSectionCommandHandler(IReferenceRepository<Prod
         if (await repository.AnyAsync(new ProductSectionByNameSpec(name, command.Id), cancellationToken))
             return Result.Invalid([new ValidationError("Request.Name", "Розділ з такою назвою вже існує.")]);
 
-        try
-        {
-            entity.ApplyDetails(ProductSectionDetailsFactory.From(command.Request));
-        }
-        catch (DomainException exception)
-        {
-            return Result.Invalid([new ValidationError("Request", exception.Message)]);
-        }
+        var changed = entity.ApplyDetails(ProductSectionDetailsFactory.From(command.Request));
+        if (changed.IsFailure) return changed.Error!.ToResult();
 
         await repository.UpdateAsync(entity, cancellationToken);
         return Result.Success();

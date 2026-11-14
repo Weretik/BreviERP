@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Exceptions;
+﻿using BuildingBlocks.Domain.Results;
 using Moq;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.ProductSection.GetList;
@@ -16,6 +16,10 @@ namespace UnitTests.Reference;
 public sealed class ProductSectionTests
 {
     private static ProductSection Stored(int id, ProductSectionType type, string name, bool active = true,
+        string? comment = null, int order = 0) =>
+        ProductSection.Create(ProductSectionId.From(id), new ProductSectionDetails(type, name, active, comment, order)).Value;
+
+    private static DomainResult<ProductSection> Attempt(int id, ProductSectionType type, string name, bool active = true,
         string? comment = null, int order = 0) =>
         ProductSection.Create(ProductSectionId.From(id), new ProductSectionDetails(type, name, active, comment, order));
 
@@ -48,9 +52,9 @@ public sealed class ProductSectionTests
     {
         Assert.Multiple(() =>
         {
-            Assert.Throws<DomainException>(() => Stored(1, (ProductSectionType)7, "Одяг ЛІТО"));
-            Assert.Throws<DomainException>(() => Stored(1, ProductSectionType.Sewing, "  "));
-            Assert.Throws<DomainException>(() => Stored(1, ProductSectionType.Sewing, new string('я', 201)));
+            Assert.That(Attempt(1, (ProductSectionType)7, "Одяг ЛІТО").IsFailure, Is.True);
+            Assert.That(Attempt(1, ProductSectionType.Sewing, "  ").IsFailure, Is.True);
+            Assert.That(Attempt(1, ProductSectionType.Sewing, new string('я', 201)).IsFailure, Is.True);
             var section = Stored(1, ProductSectionType.Ppe, "  Захист рук ", comment: " ");
             Assert.That(section.Name, Is.EqualTo("Захист рук"));
             Assert.That(section.Comment, Is.Null);

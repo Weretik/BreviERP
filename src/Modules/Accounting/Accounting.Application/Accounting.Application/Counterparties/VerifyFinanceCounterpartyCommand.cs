@@ -32,10 +32,12 @@ public sealed class VerifyFinanceCounterpartyCommandHandler(IAccountingDbContext
         return await FinanceCounterpartyChange.ApplyAsync(db, command.Id, command.Version, command.By, now,
             async counterparty =>
             {
-                if (!counterparty.Verify(now)) return null;
+                var verified = counterparty.Verify(now);
+                if (verified.IsFailure) return verified.Error!;
+                if (!verified.Value) return DomainResult<AuditAction?>.Success(null);
                 foreach (var operation in await FinanceCounterpartyChange.OperationsOfAsync(db, counterparty, cancellationToken))
                     operation.FollowCounterparty(counterparty.State);
-                return AuditAction.Verify;
+                return DomainResult<AuditAction?>.Success(AuditAction.Verify);
             },
             cancellationToken);
     }

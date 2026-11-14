@@ -203,9 +203,9 @@ public sealed class BankStatementImportTests
         var category = harness.Db.Categories.Single(x => x.Name == "Банк");
         harness.Db.Transactions.Add(FinanceTransaction.Create(FinanceTransactionId.New(), LedgerScope.Current,
             FinanceTransactionDetails.Of(new DateOnly(2026, 10, 15), CategoryDirection.Expense, FinanceAccountId.From(BankId),
-                2_500_50, category.Id, null, null, "Вручну", null),
+                2_500_50, category.Id, null, null, "Вручну", null).Value,
             harness.Db.Accounts.Single(x => x.Id == FinanceAccountId.From(BankId)), category, null,
-            AccountingTestHarness.Director, harness.Time.GetUtcNow()));
+            AccountingTestHarness.Director, harness.Time.GetUtcNow()).Value);
         await harness.Db.SaveChangesAsync();
 
         var second = (await Upload(harness, Csv(Rows[..3]))).Value;
@@ -325,19 +325,19 @@ public sealed class BankStatementImportTests
         var now = harness.Time.GetUtcNow();
         var db = harness.Db;
         db.Accounts.Add(FinanceAccount.Create(FinanceAccountId.From(BankId), FinanceAccountDetails.Of("Бреви Приватбанк",
-            FinanceAccountType.Bank, "UAH", BankIban, 0, new DateOnly(2024, 1, 1), null, 1), now));
+            FinanceAccountType.Bank, "UAH", BankIban, 0, new DateOnly(2024, 1, 1), null, 1).Value, now));
         db.Accounts.Add(FinanceAccount.Create(FinanceAccountId.From(SalaryId), FinanceAccountDetails.Of("Карта ЗП",
-            FinanceAccountType.Card, "UAH", SalaryIban, 0, new DateOnly(2024, 1, 1), null, 2), now));
+            FinanceAccountType.Card, "UAH", SalaryIban, 0, new DateOnly(2024, 1, 1), null, 2).Value, now));
         var bankFees = FinanceCategory.CreateRoot(FinanceCategoryId.New(), "Банк", CategoryDirection.Expense,
-            LedgerScope.Current, null, 1, now);
+            LedgerScope.Current, null, 1, now).Value;
         db.Categories.Add(bankFees);
         db.Categories.Add(FinanceCategory.CreateRoot(FinanceCategoryId.New(), "Тканини", CategoryDirection.Expense,
-            LedgerScope.Current, null, 2, now));
+            LedgerScope.Current, null, 2, now).Value);
         db.Categories.Add(FinanceCategory.CreateRoot(FinanceCategoryId.New(), "Продажі", CategoryDirection.Income,
-            LedgerScope.Current, null, 3, now));
+            LedgerScope.Current, null, 3, now).Value);
         db.Counterparties.Add(FinanceCounterparty.Create(FinanceCounterpartyId.New(),
-            FinanceCounterpartyDetails.Of("ПриватБанк", "14360570", null, null, null, bankFees.Id, true, null), bankFees,
-            verified: true, now));
+            FinanceCounterpartyDetails.Of("ПриватБанк", "14360570", null, null, null, bankFees.Id, true, null).Value, bankFees,
+            verified: true, now).Value);
         await db.SaveChangesAsync();
         harness.Parties.Clients.Add(new AccountingParty(ClientId, "Демо Агро", "11111118", true));
         return harness;
@@ -359,45 +359,24 @@ public sealed class BankStatementImportTests
     private static async Task<Result<BankStatementResponse>> Book(AccountingTestHarness harness, BankStatementResponse statement)
     {
         await using var db = harness.Fresh();
-        try
-        {
-            return await new BookBankStatementCommandHandler(db, harness.Parties, harness.Parties, harness.Time)
-                .Handle(new BookBankStatementCommand(statement.Id, statement.Version, AccountingTestHarness.Director), default);
-        }
-        catch (BuildingBlocks.Domain.Exceptions.DomainException error)
-        {
-            return Result.Invalid(new ValidationError("Statement", error.Message));
-        }
+        return await new BookBankStatementCommandHandler(db, harness.Parties, harness.Parties, harness.Time)
+            .Handle(new BookBankStatementCommand(statement.Id, statement.Version, AccountingTestHarness.Director), default);
     }
 
     private static async Task<Result<BankStatementResponse>> Rollback(AccountingTestHarness harness,
         BankStatementResponse statement)
     {
         await using var db = harness.Fresh();
-        try
-        {
-            return await new RollbackBankStatementCommandHandler(db, harness.Parties, harness.Parties, harness.Time)
-                .Handle(new RollbackBankStatementCommand(statement.Id, statement.Version, AccountingTestHarness.Director), default);
-        }
-        catch (BuildingBlocks.Domain.Exceptions.DomainException error)
-        {
-            return Result.Invalid(new ValidationError("Statement", error.Message));
-        }
+        return await new RollbackBankStatementCommandHandler(db, harness.Parties, harness.Parties, harness.Time)
+            .Handle(new RollbackBankStatementCommand(statement.Id, statement.Version, AccountingTestHarness.Director), default);
     }
 
     private static async Task<Result<BankStatementLineResponse>> Edit(AccountingTestHarness harness, Guid statementId,
         Guid lineId, Guid? categoryId = null, string? oneoff = null, string? description = null, bool excluded = false)
     {
         await using var db = harness.Fresh();
-        try
-        {
-            return await new UpdateBankLineCommandHandler(db, harness.Parties, harness.Parties).Handle(
-                new UpdateBankLineCommand(statementId, lineId, categoryId, null, oneoff, description, null, excluded), default);
-        }
-        catch (BuildingBlocks.Domain.Exceptions.DomainException error)
-        {
-            return Result.Invalid(new ValidationError("Line", error.Message));
-        }
+        return await new UpdateBankLineCommandHandler(db, harness.Parties, harness.Parties).Handle(
+            new UpdateBankLineCommand(statementId, lineId, categoryId, null, oneoff, description, null, excluded), default);
     }
 
     /// <summary>A minimal XLSX workbook with one sheet of text cells.</summary>

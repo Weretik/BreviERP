@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Exceptions;
+﻿using BuildingBlocks.Domain.Results;
 using Moq;
 using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
@@ -28,6 +28,10 @@ public sealed class PricingSettingsTests
 
     private static PricingParameter Stored(int id, string code, decimal? value, bool calculated = false) =>
         PricingParameter.Create(PricingParameterId.From(id), code,
+            new PricingParameterDetails("Виробництво", $"Параметр {code}", value, "%", calculated, null, id), SheetDate).Value;
+
+    private static DomainResult<PricingParameter> Attempt(int id, string code, decimal? value, bool calculated = false) =>
+        PricingParameter.Create(PricingParameterId.From(id), code,
             new PricingParameterDetails("Виробництво", $"Параметр {code}", value, "%", calculated, null, id), SheetDate);
 
     private static Mock<IReferenceRepository<T>> Repository<T>(List<T> stored, List<T> added, List<T> deleted)
@@ -49,11 +53,11 @@ public sealed class PricingSettingsTests
     {
         Assert.Multiple(() =>
         {
-            Assert.Throws<DomainException>(() => Stored(1, "MINUTE_COST_SEAMSTRESS", 1.78m, calculated: true));
-            Assert.Throws<DomainException>(() => Stored(1, "SOMETHING_ELSE", null, calculated: true));
-            Assert.Throws<DomainException>(() => Stored(1, "ASSEMBLY_RATE", null));
-            Assert.Throws<DomainException>(() => Stored(1, "ASSEMBLY_RATE", -1m));
-            Assert.Throws<DomainException>(() => Stored(1, "bad code", 1m));
+            Assert.That(Attempt(1, "MINUTE_COST_SEAMSTRESS", 1.78m, calculated: true).IsFailure, Is.True);
+            Assert.That(Attempt(1, "SOMETHING_ELSE", null, calculated: true).IsFailure, Is.True);
+            Assert.That(Attempt(1, "ASSEMBLY_RATE", null).IsFailure, Is.True);
+            Assert.That(Attempt(1, "ASSEMBLY_RATE", -1m).IsFailure, Is.True);
+            Assert.That(Attempt(1, "bad code", 1m).IsFailure, Is.True);
             Assert.That(Stored(1, "assembly_rate", 0.25m).Code, Is.EqualTo("ASSEMBLY_RATE"));
         });
     }
@@ -86,9 +90,9 @@ public sealed class PricingSettingsTests
     {
         var assembly = Stored(5, "ASSEMBLY_RATE", 0.2m);
         var legacy = PricingParameter.Create(PricingParameterId.From(9), "WORK_DAY",
-            new PricingParameterDetails("Старі довідники", "кол-во раб дней", 20.5m, "шт.", false, null, 9), null);
+            new PricingParameterDetails("Старі довідники", "кол-во раб дней", 20.5m, "шт.", false, null, 9), null).Value;
         var oldRule = PpeMarkupRule.Create(PpeMarkupRuleId.From(1), "Взуття",
-            new PpeMarkupRuleDetails(0.45m, 0.37m, 0.3m, null, "Усе робоче взуття", 2));
+            new PpeMarkupRuleDetails(0.45m, 0.37m, 0.3m, null, "Усе робоче взуття", 2)).Value;
         var (addedParameters, deletedParameters, addedRules, deletedRules) = (new List<PricingParameter>(),
             new List<PricingParameter>(), new List<PpeMarkupRule>(), new List<PpeMarkupRule>());
         var parameters = Repository([assembly, legacy], addedParameters, deletedParameters);

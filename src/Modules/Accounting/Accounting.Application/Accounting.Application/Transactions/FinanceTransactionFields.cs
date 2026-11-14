@@ -18,9 +18,13 @@ public sealed record FinanceTransactionFields(
     string? Description,
     string? Comment)
 {
-    public FinanceTransactionDetails ToDetails() => FinanceTransactionDetails.Of(Date, Type,
-        FinanceAccountId.From(AccountId), AmountMinor, FinanceCategoryId.From(CategoryId), Counterparty?.ToLink(), OneoffName,
-        Description, Comment);
+    public DomainResult<FinanceTransactionDetails> ToDetails()
+    {
+        var link = FinanceCounterpartyLinkInput.LinkOf(Counterparty);
+        if (link.IsFailure) return link.Error!;
+        return FinanceTransactionDetails.Of(Date, Type, FinanceAccountId.From(AccountId), AmountMinor,
+            FinanceCategoryId.From(CategoryId), link.Value, OneoffName, Description, Comment);
+    }
 
     /// <summary>The chosen account and category; <c>Missing</c> is the message when one of them is gone.</summary>
     internal async Task<(FinanceAccount Account, FinanceCategory Category, string? Missing)> LoadAsync(
@@ -52,7 +56,15 @@ public sealed class FinanceTransactionFieldsValidator : AbstractValidator<Financ
 /// <summary>The counterparty picked in a form: its kind and id as text.</summary>
 public sealed record FinanceCounterpartyLinkInput(CounterpartyKind Kind, string Id)
 {
-    public CounterpartyLink ToLink() => CounterpartyLink.Of(Kind, Id);
+    public DomainResult<CounterpartyLink> ToLink() => CounterpartyLink.Of(Kind, Id);
+
+    /// <summary>The link of a picked counterparty, or null when none was picked.</summary>
+    public static DomainResult<CounterpartyLink?> LinkOf(FinanceCounterpartyLinkInput? input)
+    {
+        if (input is null) return DomainResult<CounterpartyLink?>.Success(null);
+        var link = input.ToLink();
+        return link.IsFailure ? link.Error! : link.Value;
+    }
 }
 
 public sealed class FinanceCounterpartyLinkInputValidator : AbstractValidator<FinanceCounterpartyLinkInput>

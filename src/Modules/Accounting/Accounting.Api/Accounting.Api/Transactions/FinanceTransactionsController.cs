@@ -1,4 +1,6 @@
+using Accounting.Api.Counterparties;
 using Accounting.Api.Access;
+using BuildingBlocks.Application.Errors;
 using Accounting.Api.Accounts;
 using Accounting.Application.Contracts;
 using Accounting.Application.History;
@@ -46,13 +48,14 @@ public sealed class FinanceTransactionsController(ISender sender) : ControllerBa
         [FromQuery] FinanceJournalSort sort = FinanceJournalSort.Date,
         [FromQuery] FinanceSortDirection direction = FinanceSortDirection.Desc,
         [FromQuery] int page = 1,
-        CancellationToken cancellationToken = default) =>
-        this.ToActionResult(await sender.Send(new GetFinanceTransactionsQuery(
+        CancellationToken cancellationToken = default)
+    {
+        var link = AccountingQueryLink.Of(counterpartyKind, counterpartyId);
+        if (link.IsFailure) return this.ToActionResult(link.Error!.ToResult<FinanceTransactionPageResponse>());
+        return this.ToActionResult(await sender.Send(new GetFinanceTransactionsQuery(
             new FinanceTransactionFilter(scope, from, to, accountId, type, categoryId, subcategoryId, search, minMinor,
-                maxMinor, source, includeVoided, needsReview,
-                counterpartyKind is { } kind && !string.IsNullOrWhiteSpace(counterpartyId)
-                    ? CounterpartyLink.Of(kind, counterpartyId)
-                    : null), sort, direction, page), cancellationToken));
+                maxMinor, source, includeVoided, needsReview, link.Value), sort, direction, page), cancellationToken));
+    }
 
     [HttpPost(Name = "createFinanceTransaction")]
     public async Task<ActionResult<FinanceTransactionResponse>> Create([FromBody] FinanceTransactionInput input,

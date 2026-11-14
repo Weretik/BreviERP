@@ -127,50 +127,57 @@ public sealed class BankStatementLine : IEntity<BankStatementLineId>
     /// The director's choice for the line while the statement is a preview. <paramref name="category"/> must be of the
     /// current books and the direction of the line; a transfer line takes only the note and the include switch.
     /// </summary>
-    public void Edit(FinanceCategory? category, CounterpartyState? counterparty, string? oneoffName, string? description,
+    public DomainResult Edit(FinanceCategory? category, CounterpartyState? counterparty, string? oneoffName, string? description,
         string? comment, bool excluded)
     {
         if (!excluded && Error.Length > 0)
-            throw AccountingDomainError.Fail("Accounting.Statement.Line", "Рядок з помилкою не можна провести.");
+            return AccountingErrors.Rule("Accounting.Statement.Line", "Рядок з помилкою не можна провести.");
         if (!excluded && Duplicate == BankDuplicate.Exact)
-            throw AccountingDomainError.Fail("Accounting.Statement.Line", "Цей рядок уже є в обліку; його не проводять удруге.");
+            return AccountingErrors.Rule("Accounting.Statement.Line", "Цей рядок уже є в обліку; його не проводять удруге.");
 
-        var cleanComment = MovementRules.Text(comment, FinanceTransactionDetails.CommentMaxLength, "Примітка");
+        var checkedComment = MovementRules.Text(comment, FinanceTransactionDetails.CommentMaxLength, "Примітка");
+        if (checkedComment.IsFailure) return checkedComment.WithoutValue();
+        var cleanComment = checkedComment.Value;
         if (TransferAccountId is not null)
         {
             if (category is not null || counterparty is not null || !string.IsNullOrWhiteSpace(oneoffName))
-                throw AccountingDomainError.Fail("Accounting.Statement.Line",
+                return AccountingErrors.Rule("Accounting.Statement.Line",
                     "Переказ між своїми рахунками не має категорії і контрагента.");
             Comment = cleanComment;
             Excluded = excluded;
             Refresh();
-            return;
+            return DomainResult.Success();
         }
 
         if (category is not null)
         {
             if (category.Scope != LedgerScope.Current)
-                throw AccountingDomainError.Fail("Accounting.Statement.Category", "Оберіть категорію поточного обліку.");
+                return AccountingErrors.Rule("Accounting.Statement.Category", "Оберіть категорію поточного обліку.");
             if (category.Direction != Type)
-                throw AccountingDomainError.Fail("Accounting.Statement.Category", Type == CategoryDirection.Income
+                return AccountingErrors.Rule("Accounting.Statement.Category", Type == CategoryDirection.Income
                     ? "Для доходу оберіть категорію доходів."
                     : "Для витрати оберіть категорію витрат.");
             if (!category.Active && category.Id != CategoryId)
-                throw AccountingDomainError.Fail("Accounting.Statement.Category", $"Категорія «{category.Name}» вимкнена.");
+                return AccountingErrors.Rule("Accounting.Statement.Category", $"Категорія «{category.Name}» вимкнена.");
         }
 
         if (counterparty is { Active: false } && counterparty.Link != Counterparty)
-            throw AccountingDomainError.Fail("Accounting.Statement.Counterparty",
+            return AccountingErrors.Rule("Accounting.Statement.Counterparty",
                 $"Контрагент «{counterparty.Name}» в архіві. Оберіть іншого.");
         var oneoff = FinanceTransactionDetails.OneoffOf(counterparty?.Link, oneoffName);
+        if (oneoff.IsFailure) return oneoff.WithoutValue();
+        var cleanDescription = MovementRules.Text(description, FinanceTransactionDetails.DescriptionMaxLength, "Опис",
+            oneLine: true);
+        if (cleanDescription.IsFailure) return cleanDescription.WithoutValue();
 
         CategoryId = category?.Id;
         SetCounterparty(counterparty);
-        OneoffName = oneoff;
-        Description = MovementRules.Text(description, FinanceTransactionDetails.DescriptionMaxLength, "Опис", oneLine: true);
+        OneoffName = oneoff.Value;
+        Description = cleanDescription.Value;
         Comment = cleanComment;
         Excluded = excluded;
         Refresh();
+        return DomainResult.Success();
     }
 
     /// <summary>The books got the same line meanwhile (checked again at booking): it is skipped.</summary>

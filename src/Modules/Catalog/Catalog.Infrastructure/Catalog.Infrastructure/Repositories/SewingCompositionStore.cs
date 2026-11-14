@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using Catalog.Application.Features.Product.Sewing;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
@@ -29,14 +30,17 @@ internal sealed class SewingCompositionStore(CatalogDbContext db) : ISewingCompo
     public Task<bool> HasPriceHistoryAsync(long articleId, CancellationToken cancellationToken)
         => db.Set<SavedSewingCalculationRecord>().AnyAsync(x => x.ArticleId == ArticleId.Create(articleId), cancellationToken);
 
-    public async Task<bool> AddArticleAsync(Product product, SewingArticle article, FabricReferenceId fabricId,
-        decimal fabricQuantity, DateTimeOffset now, CancellationToken cancellationToken)
+    public async Task<DomainResult<bool>> AddArticleAsync(Product product, SewingArticle article,
+        FabricReferenceId fabricId, decimal fabricQuantity, DateTimeOffset now, CancellationToken cancellationToken)
     {
+        // A broken rule or a lost race leaves the transaction uncommitted, so the article saved first is rolled back.
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        product.AddArticle(article, now);
+        var added = product.AddArticle(article, now);
+        if (added.IsFailure) return added.Error!;
         if (!await SaveAsync(cancellationToken))
             return false;
-        product.SetArticleFabric(article.Id, fabricId, fabricQuantity, now);
+        var fabric = product.SetArticleFabric(article.Id, fabricId, fabricQuantity, now);
+        if (fabric.IsFailure) return fabric.Error!;
         if (!await SaveAsync(cancellationToken))
             return false;
         await transaction.CommitAsync(cancellationToken);

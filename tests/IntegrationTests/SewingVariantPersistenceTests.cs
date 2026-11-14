@@ -1,4 +1,4 @@
-using Catalog.Domain.Products.Entities;
+﻿using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
 using Catalog.Infrastructure.Repositories;
@@ -28,18 +28,17 @@ public sealed class SewingVariantPersistenceTests : SewingPricingDatabaseFixture
         {
             var store = new SewingCompositionStore(catalog);
             var product = (await store.LoadAsync(productId, CancellationToken.None))!;
-            var duplicate = SewingArticle.Create(default, product.Id, "246");
-            Assert.That(() => store.AddArticleAsync(product,
-                duplicate, fabricId, 2.5m, DateTimeOffset.UtcNow, CancellationToken.None),
-                Throws.InstanceOf<BuildingBlocks.Domain.Exceptions.DomainException>());
+            var duplicate = SewingArticle.Create(default, product.Id, "246").Value;
+            Assert.That((await store.AddArticleAsync(product,
+                duplicate, fabricId, 2.5m, DateTimeOffset.UtcNow, CancellationToken.None)).IsFailure, Is.True);
         }
 
         await using (var catalog = Catalog())
         {
             var store = new SewingCompositionStore(catalog);
             var product = (await store.LoadAsync(productId, CancellationToken.None))!;
-            Assert.That(await store.AddArticleAsync(product, SewingArticle.Create(default, product.Id, "999"), fabricId,
-                2.5m, DateTimeOffset.UtcNow, CancellationToken.None), Is.True);
+            Assert.That((await store.AddArticleAsync(product, SewingArticle.Create(default, product.Id, "999").Value,
+                fabricId, 2.5m, DateTimeOffset.UtcNow, CancellationToken.None)).Value, Is.True);
         }
 
         long articleId;

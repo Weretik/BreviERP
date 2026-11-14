@@ -61,8 +61,10 @@ public sealed class UploadFinanceAttachmentCommandHandler(IAccountingDbContext d
             return Result.Invalid(new ValidationError("File", AttachmentMessages.WrongType));
 
         var now = clock.GetUtcNow();
-        var attachment = FinanceAttachment.Create(FinanceAttachmentId.New(), transactionId, command.DisplayName, kind,
+        var created = FinanceAttachment.Create(FinanceAttachmentId.New(), transactionId, command.DisplayName, kind,
             bytes.Length, Convert.ToHexStringLower(SHA256.HashData(bytes.Span)), command.By, now);
+        if (created.IsFailure) return created.Error!.ToResult<FinanceAttachmentResponse>();
+        var attachment = created.Value;
         buffer.Position = 0;
         try
         {

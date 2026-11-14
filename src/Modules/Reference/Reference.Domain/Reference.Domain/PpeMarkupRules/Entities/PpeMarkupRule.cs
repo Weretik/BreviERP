@@ -1,6 +1,6 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Results;
 using Reference.Domain.PpeMarkupRules.Errors;
 using Reference.Domain.PpeMarkupRules.ValueObjects;
 
@@ -32,45 +32,56 @@ public class PpeMarkupRule : BaseEntity<PpeMarkupRuleId>, IAggregateRoot
     #endregion
 
     #region Factories
-    public static PpeMarkupRule Create(PpeMarkupRuleId id, string name, PpeMarkupRuleDetails details)
+    public static DomainResult<PpeMarkupRule> Create(PpeMarkupRuleId id, string name, PpeMarkupRuleDetails details)
     {
-        if (id.Value == default)
-            throw new DomainException(PpeMarkupRuleErrors.IdIsRequired());
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException(PpeMarkupRuleErrors.NameIsRequired());
+        if (id.Value == default) throw new ArgumentException("Markup rule id is required.", nameof(id));
+        var check = DomainResult.Combine(
+            string.IsNullOrWhiteSpace(name)
+                ? PpeMarkupRuleErrors.NameIsRequired()
+                : Text(name, NameMaxLength, "Назва правила"),
+            CheckDetails(details));
+        if (check.IsFailure) return check.Error!;
 
-        var rule = new PpeMarkupRule { Id = id, Name = Text(name, NameMaxLength, "Назва правила")! };
-        rule.ApplyDetails(details);
+        var rule = new PpeMarkupRule { Id = id, Name = name.Trim() };
+        rule.SetDetails(details);
         return rule;
     }
 
-    public void ApplyDetails(PpeMarkupRuleDetails details)
+    public DomainResult ApplyDetails(PpeMarkupRuleDetails details)
     {
-        RetailMarkup = Markup(details.RetailMarkup);
-        WholesaleMarkup = Markup(details.WholesaleMarkup);
-        LargeWholesaleMarkup = Markup(details.LargeWholesaleMarkup);
-        PriceNote = Text(details.PriceNote, PriceNoteMaxLength, "Примітка для прайсу");
-        AppliesTo = Text(details.AppliesTo, AppliesToMaxLength, "До яких товарів належить");
-        SortOrder = details.SortOrder;
+        var check = CheckDetails(details);
+        if (check.IsFailure) return check;
+        SetDetails(details);
+        return DomainResult.Success();
     }
     #endregion
 
-    #region Validation
-    private static decimal Markup(decimal value)
+    #region Rules
+    private static DomainResult CheckDetails(PpeMarkupRuleDetails details) => DomainResult.Combine(
+        Markup(details.RetailMarkup),
+        Markup(details.WholesaleMarkup),
+        Markup(details.LargeWholesaleMarkup),
+        Text(details.PriceNote, PriceNoteMaxLength, "Примітка для прайсу"),
+        Text(details.AppliesTo, AppliesToMaxLength, "До яких товарів належить"));
+
+    private void SetDetails(PpeMarkupRuleDetails details)
     {
-        if (value is < 0 or > MaxMarkup)
-            throw new DomainException(PpeMarkupRuleErrors.MarkupIsOutOfRange());
-        return value;
+        RetailMarkup = details.RetailMarkup;
+        WholesaleMarkup = details.WholesaleMarkup;
+        LargeWholesaleMarkup = details.LargeWholesaleMarkup;
+        PriceNote = Clean(details.PriceNote);
+        AppliesTo = Clean(details.AppliesTo);
+        SortOrder = details.SortOrder;
     }
 
-    private static string? Text(string? text, int maxLength, string field)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return null;
-        var trimmed = text.Trim();
-        if (trimmed.Length > maxLength)
-            throw new DomainException(PpeMarkupRuleErrors.TextIsTooLong(field, maxLength));
-        return trimmed;
-    }
+    private static DomainResult Markup(decimal value) =>
+        value is < 0 or > MaxMarkup ? PpeMarkupRuleErrors.MarkupIsOutOfRange() : DomainResult.Success();
+
+    private static DomainResult Text(string? text, int maxLength, string field) =>
+        Clean(text) is { Length: var length } && length > maxLength
+            ? PpeMarkupRuleErrors.TextIsTooLong(field, maxLength)
+            : DomainResult.Success();
+
+    private static string? Clean(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
     #endregion
 }

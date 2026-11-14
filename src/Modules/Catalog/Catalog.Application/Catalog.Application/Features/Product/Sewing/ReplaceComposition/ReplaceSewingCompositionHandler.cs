@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Application.Contracts.Reference;
 
 namespace Catalog.Application.Features.Product.Sewing;
@@ -24,23 +23,16 @@ public sealed class ReplaceSewingCompositionHandler(
         if (missing is not null)
             return Result.NotFound(missing);
         var now = TimeProvider.System.GetUtcNow();
-        try
-        {
-            var materials = request.Materials
-                .Select(line => CompositionLineFactory.Material(line, product.Id, null))
-                .ToArray();
-            var operations = request.Operations
-                .Select(line => CompositionLineFactory.Operation(line, product.Id))
-                .ToArray();
-            // Validate the combined effective set before changing the model code or any stored lines.
-            product.ReplaceComposition(product.MaterialLines.Where(line => line.ArticleId.HasValue)
-                .Concat(materials), operations, now);
-            product.SetModelCode(request.ModelCode, now);
-        }
-        catch (DomainException exception)
-        {
-            return Result.Conflict(exception.Message);
-        }
+        var materials = CompositionLineFactory.Materials(request.Materials, product.Id);
+        if (materials.IsFailure) return materials.Error!.ToResult<SewingComposition>();
+        var operations = CompositionLineFactory.Operations(request.Operations, product.Id);
+        if (operations.IsFailure) return operations.Error!.ToResult<SewingComposition>();
+        // Validate the combined effective set before changing the model code or any stored lines.
+        var replaced = product.ReplaceComposition(product.MaterialLines.Where(line => line.ArticleId.HasValue)
+            .Concat(materials.Value), operations.Value, now);
+        if (replaced.IsFailure) return replaced.Error!.ToResult<SewingComposition>();
+        var coded = product.SetModelCode(request.ModelCode, now);
+        if (coded.IsFailure) return coded.Error!.ToResult<SewingComposition>();
         if (!await store.SaveAsync(cancellationToken))
             return Result.Conflict("Склад або код моделі вже змінили. Оновіть сторінку перед збереженням.");
         var snapshot = await readStore.ReadCompositionAsync(command.ProductId, null, cancellationToken);

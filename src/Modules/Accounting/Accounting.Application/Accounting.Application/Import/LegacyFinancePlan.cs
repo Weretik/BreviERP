@@ -1,5 +1,6 @@
 using System.Text.Json;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Errors;
+using Accounting.Domain.Errors;
 using Accounting.Application.Abstractions;
 using Accounting.Application.Contracts;
 using Accounting.Domain.Accounts;
@@ -107,14 +108,15 @@ internal sealed class LegacyFinancePlan
                 continue;
             }
 
-            var account = Try(label, () =>
+            var account = Try<FinanceAccount>(label, () =>
             {
-                var type = AccountType(row.Type) ?? throw Rule("невідомий тип рахунку «" + row.Type + "».");
-                var opening = Date(row.OpeningDate) ?? throw Rule("немає дати початкового залишку.");
-                var created = Moment(row.CreatedAt) ?? throw Rule("немає дати створення.");
+                if (AccountType(row.Type) is not { } type) return Rule("невідомий тип рахунку «" + row.Type + "».");
+                if (Date(row.OpeningDate) is not { } opening) return Rule("немає дати початкового залишку.");
+                if (Moment(row.CreatedAt) is not { } created) return Rule("немає дати створення.");
                 var details = FinanceAccountDetails.Of(row.Name, type, row.Currency, row.Iban, row.OpeningMinor, opening,
                     row.Note, row.SortOrder);
-                return FinanceAccount.FromLegacy(FinanceAccountId.From(id), details, row.CutoverBalanceMinor,
+                if (details.IsFailure) return details.Error!;
+                return FinanceAccount.FromLegacy(FinanceAccountId.From(id), details.Value, row.CutoverBalanceMinor,
                     row.CutoverBalanceConfirmed, Moment(row.CutoverBalanceAt), row.CutoverBalanceBy, row.Active, created,
                     Moment(row.UpdatedAt) ?? created);
             });
@@ -138,18 +140,19 @@ internal sealed class LegacyFinancePlan
             var label = $"Категорія «{row.Name}»";
             if (Id(row.Id) is not { } id) { Error($"{label}: немає id."); continue; }
             if (categories.ContainsKey(id)) { moved++; continue; }
-            var category = Try(label, () =>
+            var category = Try<FinanceCategory>(label, () =>
             {
-                var direction = Direction(row.Direction) ?? throw Rule("невідомий напрям «" + row.Direction + "».");
-                var scope = Scope(row.LedgerScope) ?? throw Rule("невідома область «" + row.LedgerScope + "».");
+                if (Direction(row.Direction) is not { } direction)
+                    return Rule("невідомий напрям «" + row.Direction + "».");
+                if (Scope(row.LedgerScope) is not { } scope) return Rule("невідома область «" + row.LedgerScope + "».");
                 FinanceCategory? parent = null;
                 if (Id(row.ParentId) is { } parentId && !categories.TryGetValue(parentId, out parent))
-                    throw Rule("немає її кореневої категорії.");
+                    return Rule("немає її кореневої категорії.");
                 var twin = known.FirstOrDefault(x => x.Direction == direction && x.Scope == scope &&
                     x.ParentId == parent?.Id && SameName(x.Name, row.Name));
                 if (twin is not null)
-                    throw Rule("у Brevi вже є категорія з такою назвою на цьому рівні, але іншим id. Перейменуйте одну з них.");
-                var created = Moment(row.CreatedAt) ?? throw Rule("немає дати створення.");
+                    return Rule("у Brevi вже є категорія з такою назвою на цьому рівні, але іншим id. Перейменуйте одну з них.");
+                if (Moment(row.CreatedAt) is not { } created) return Rule("немає дати створення.");
                 return FinanceCategory.FromLegacy(FinanceCategoryId.From(id), row.Name, direction, scope, parent,
                     row.Note, row.Active, row.SortOrder, created, Moment(row.UpdatedAt) ?? created);
             });
@@ -197,7 +200,7 @@ internal sealed class LegacyFinancePlan
                     ?? supplierByName.GetValueOrDefault(FinanceText.Name(row.Name).ToLowerInvariant());
             if (match is not null)
             {
-                var link = Try(label, () => CounterpartyLink.Of(isClient ? CounterpartyKind.Client : CounterpartyKind.Supplier,
+                var link = Try<CounterpartyLink>(label, () => CounterpartyLink.Of(isClient ? CounterpartyKind.Client : CounterpartyKind.Supplier,
                     match.Id));
                 if (link is null) continue;
                 links[id] = link;
@@ -223,15 +226,16 @@ internal sealed class LegacyFinancePlan
             new LegacyImportPartiesResponse(clientsLinked, clientsKept, suppliersLinked, suppliersKept, unused));
     }
 
-    private static FinanceCounterparty NewCounterparty(Guid id, LegacyCounterpartyRow row, bool isClient, bool isSupplier)
+    private static DomainResult<FinanceCounterparty> NewCounterparty(Guid id, LegacyCounterpartyRow row, bool isClient, bool isSupplier)
     {
         var note = isClient ? $"Клієнт KeepinCRM {row.KeepinId}: у «Клієнтах» Brevi не знайдено."
             : isSupplier ? $"Постачальник Калькулятора {row.SupplierId}: у «Постачальниках» Brevi не знайдено."
             : null;
         var details = FinanceCounterpartyDetails.Of(row.Name, new string((row.Edrpou ?? "").Where(char.IsAsciiDigit).ToArray()),
             row.Iban, row.BankName, Aliases(row.AliasesJson), null, false, note);
-        var created = Moment(row.CreatedAt) ?? throw Rule("немає дати створення.");
-        return FinanceCounterparty.FromLegacy(FinanceCounterpartyId.From(id), details, row.Verified, row.Active, created,
+        if (details.IsFailure) return details.Error!;
+        if (Moment(row.CreatedAt) is not { } created) return Rule("немає дати створення.");
+        return FinanceCounterparty.FromLegacy(FinanceCounterpartyId.From(id), details.Value, row.Verified, row.Active, created,
             Moment(row.UpdatedAt) ?? created);
     }
 
@@ -246,19 +250,22 @@ internal sealed class LegacyFinancePlan
             if (!string.IsNullOrWhiteSpace(row.OneoffName)) oneoffs++;
             CounterpartyLink? link = null;
             if (Id(row.CounterpartyId) is { } counterpartyId && !links.TryGetValue(counterpartyId, out link)) lostLinks++;
-            var transaction = Try(label, () =>
+            var transaction = Try<FinanceTransaction>(label, () =>
             {
-                var scope = Scope(row.LedgerScope) ?? throw Rule("невідома область.");
-                var date = Date(row.TransactionDate) ?? throw Rule("немає дати.");
-                var type = Direction(row.Type) ?? throw Rule("невідомий тип «" + row.Type + "».");
-                var account = Account(row.AccountId);
+                if (Scope(row.LedgerScope) is not { } scope) return Rule("невідома область.");
+                if (Date(row.TransactionDate) is not { } date) return Rule("немає дати.");
+                if (Direction(row.Type) is not { } type) return Rule("невідомий тип «" + row.Type + "».");
+                if (Account(row.AccountId) is not { } account) return Rule("немає її рахунку.");
                 FinanceCategory? category = null;
                 if (Id(row.CategoryId) is { } categoryId && !categories.TryGetValue(categoryId, out category))
-                    throw Rule("немає її категорії.");
-                var verification = Verification(row.VerificationStatus) ?? throw Rule("невідомий стан перевірки.");
-                return FinanceTransaction.FromLegacy(FinanceTransactionId.From(id), scope, Movement(row.Source,
-                        row.Status, row.Version, row.CreatedBy, row.CreatedAt, row.UpdatedAt, row.ExternalId,
-                        row.Fingerprint), date, type, account, row.AmountMinor, category, link, row.Description,
+                    return Rule("немає її категорії.");
+                if (Verification(row.VerificationStatus) is not { } verification)
+                    return Rule("невідомий стан перевірки.");
+                var movement = Movement(row.Source, row.Status, row.Version, row.CreatedBy, row.CreatedAt, row.UpdatedAt,
+                    row.ExternalId, row.Fingerprint);
+                if (movement.IsFailure) return movement.Error!;
+                return FinanceTransaction.FromLegacy(FinanceTransactionId.From(id), scope, movement.Value, date, type,
+                    account, row.AmountMinor, category, link, row.Description,
                     row.Comment, verification, row.BankTransactionId, row.BankPurpose);
             });
             if (transaction is null) continue;
@@ -279,15 +286,19 @@ internal sealed class LegacyFinancePlan
             var label = $"Переказ {row.TransferDate} на {Amount(row.AmountMinor)}";
             if (Id(row.Id) is not { } id) { Error($"{label}: немає id."); continue; }
             if (known.Contains(id)) { moved++; continue; }
-            var transfer = Try(label, () =>
+            var transfer = Try<FinanceTransfer>(label, () =>
             {
-                var scope = Scope(row.LedgerScope) ?? throw Rule("невідома область.");
-                var date = Date(row.TransferDate) ?? throw Rule("немає дати.");
+                if (Scope(row.LedgerScope) is not { } scope) return Rule("невідома область.");
+                if (Date(row.TransferDate) is not { } date) return Rule("немає дати.");
+                if (Account(row.FromAccountId) is not { } from || Account(row.ToAccountId) is not { } to)
+                    return Rule("немає її рахунку.");
+                var movement = Movement(row.Source, row.Status, row.Version, row.CreatedBy, row.CreatedAt, row.UpdatedAt,
+                    row.ExternalId, row.Fingerprint);
+                if (movement.IsFailure) return movement.Error!;
                 var note = string.Join('\n', new[] { row.Note, row.PersonalNote }
                     .Select(FinanceText.Clean).Where(x => x.Length > 0));
-                return FinanceTransfer.FromLegacy(FinanceTransferId.From(id), scope, Movement(row.Source, row.Status,
-                        row.Version, row.CreatedBy, row.CreatedAt, row.UpdatedAt, row.ExternalId, row.Fingerprint), date,
-                    Account(row.FromAccountId), Account(row.ToAccountId), row.AmountMinor, note);
+                return FinanceTransfer.FromLegacy(FinanceTransferId.From(id), scope, movement.Value, date, from, to,
+                    row.AmountMinor, note);
             });
             if (transfer is null) continue;
             NewTransfers.Add(transfer);
@@ -390,16 +401,17 @@ internal sealed class LegacyFinancePlan
         return result;
     }
 
-    private FinanceAccount Account(string? value) =>
-        Id(value) is { } id && accounts.TryGetValue(id, out var account) ? account : throw Rule("немає її рахунку.");
+    private FinanceAccount? Account(string? value) =>
+        Id(value) is { } id && accounts.TryGetValue(id, out var account) ? account : null;
 
-    private static LegacyMovement Movement(string? source, string? status, int version, string? createdBy,
+    private static DomainResult<LegacyMovement> Movement(string? source, string? status, int version, string? createdBy,
         string? createdAt, string? updatedAt, string? externalId, string? fingerprint)
     {
-        var created = Moment(createdAt) ?? throw Rule("немає дати створення.");
-        return new LegacyMovement(Source(source) ?? throw Rule("невідоме джерело «" + source + "»."),
-            Status(status) ?? throw Rule("невідомий стан «" + status + "»."), Math.Max(version, 1), Author(createdBy),
-            created, Moment(updatedAt) ?? created, Blank(externalId), Blank(fingerprint));
+        if (Moment(createdAt) is not { } created) return Rule("немає дати створення.");
+        if (Source(source) is not { } knownSource) return Rule("невідоме джерело «" + source + "».");
+        if (Status(status) is not { } knownStatus) return Rule("невідомий стан «" + status + "».");
+        return new LegacyMovement(knownSource, knownStatus, Math.Max(version, 1), Author(createdBy), created,
+            Moment(updatedAt) ?? created, Blank(externalId), Blank(fingerprint));
     }
 
     private static HashSet<Guid> UsedIds(LegacyFinanceFile file) =>
@@ -431,28 +443,25 @@ internal sealed class LegacyFinancePlan
 
     private static string? Blank(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
-    private static LegacyRuleException Rule(string message) => new(message);
+    private static Error Rule(string message) => AccountingErrors.Rule("Accounting.Import.Row", message);
 
     /// <summary>Runs one record's mapping; a broken rule becomes an error line with the record's label.</summary>
-    private T? Try<T>(string label, Func<T> build) where T : class
+    private T? Try<T>(string label, Func<DomainResult<T>> build) where T : class
     {
+        DomainResult<T> result;
         try
         {
-            return build();
-        }
-        catch (LegacyRuleException error)
-        {
-            Error($"{label}: {error.Message}");
-        }
-        catch (DomainException error)
-        {
-            Error($"{label}: {error.Message}");
+            result = build();
         }
         catch (ArgumentException error)
         {
+            // A value of the file that a guard of a type refuses (an empty id, an unknown enum value).
             Error($"{label}: недопустиме значення ({error.Message}).");
+            return null;
         }
 
+        if (result.IsSuccess) return result.Value;
+        Error($"{label}: {result.Error!.Message}");
         return null;
     }
 
@@ -467,5 +476,4 @@ internal sealed class LegacyFinancePlan
         if (warnings.Count < MaxListed) warnings.Add(message);
     }
 
-    private sealed class LegacyRuleException(string message) : Exception(message);
 }

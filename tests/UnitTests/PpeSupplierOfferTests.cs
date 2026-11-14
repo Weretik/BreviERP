@@ -1,6 +1,5 @@
 using Ardalis.Result;
 using Ardalis.Specification;
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Application.Contracts.Reference;
@@ -46,8 +45,8 @@ public sealed class PpeSupplierOfferTests
     {
         Assert.Multiple(() =>
         {
-            Assert.Throws<DomainException>(() => Create(ProductType.Sewing).SetPpeSupplier(Details(), Now));
-            Assert.Throws<DomainException>(() => Create(ProductType.Ppe).SetPpeSupplier(Details(url: "avcentr.com.ua"), Now));
+            Assert.That(Create(ProductType.Sewing).SetPpeSupplier(Details(), Now).IsFailure, Is.True);
+            Assert.That(Create(ProductType.Ppe).SetPpeSupplier(Details(url: "avcentr.com.ua"), Now).IsFailure, Is.True);
         });
     }
 
@@ -155,5 +154,5 @@ public sealed class PpeSupplierOfferTests
 
     private static Product Create(ProductType type)
         => Product.Create(ProductId.Create(101), "Костюм ВОЛОГОЗАХИСНИЙ", "Костюм ВОЛОГОЗАХИСНИЙ RU",
-            ProductSlug.Create("kostyum-vologozahysnyj"), type, Now);
+            ProductSlug.Create("kostyum-vologozahysnyj").Value, type, Now).Value;
 }

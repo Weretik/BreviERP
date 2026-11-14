@@ -642,7 +642,7 @@ internal sealed class SheetImportHost(WebApplication app, HttpClient client, str
         var next = stored.Count == 0 ? 0 : stored.Max(x => x.Id.Value);
         var existing = stored.Select(x => x.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var name in names.Where(x => !existing.Contains(x)))
-            db.Suppliers.Add(Supplier.Create(SupplierId.From(++next), name));
+            db.Suppliers.Add(Supplier.Create(SupplierId.From(++next), name).Value);
         await db.SaveChangesAsync();
     }
 

@@ -53,16 +53,17 @@ internal sealed class SheetProductImportStore(CatalogDbContext db, IPpeOfferVers
             var products = new List<(Product Product, SheetPlannedProduct Planned)>();
             foreach (var planned in plan.Writes)
             {
+                // The planner checked every written row on a probe product, so these steps cannot break a rule.
                 var product = planned.Existing ?? Product.Create(planned.Id, planned.Draft.Name, planned.Draft.Name,
-                    ProductSlug.Create(planned.Slug), planned.Draft.Type, now);
-                SheetProductApplier.ApplyCard(product, planned.Draft, now);
+                    ProductSlug.Create(planned.Slug).Value, planned.Draft.Type, now).Value;
+                SheetProductApplier.ApplyCard(product, planned.Draft, now).ThrowIfFailure();
                 if (planned.Existing is null) db.Products.Add(product);
                 products.Add((product, planned));
             }
             await db.SaveChangesAsync(cancellationToken);
 
             foreach (var (product, planned) in products.Where(x => x.Planned.Draft.Sewing is not null))
-                SheetProductApplier.ApplyComposition(product, planned.Draft.Sewing!, now);
+                SheetProductApplier.ApplyComposition(product, planned.Draft.Sewing!, now).ThrowIfFailure();
             await db.SaveChangesAsync(cancellationToken);
 
             foreach (var planned in plan.Writes.Where(x => x.Offer is not null))

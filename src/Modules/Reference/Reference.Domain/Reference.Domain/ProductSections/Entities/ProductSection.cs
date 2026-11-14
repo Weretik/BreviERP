@@ -1,6 +1,6 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Results;
 using Reference.Domain.ProductSections.Enums;
 using Reference.Domain.ProductSections.Errors;
 using Reference.Domain.ProductSections.ValueObjects;
@@ -30,40 +30,37 @@ public class ProductSection : BaseEntity<ProductSectionId>, IAggregateRoot
     #endregion
 
     #region Factories
-    public static ProductSection Create(ProductSectionId id, ProductSectionDetails details)
+    public static DomainResult<ProductSection> Create(ProductSectionId id, ProductSectionDetails details)
     {
-        if (id.Value == default)
-            throw new DomainException(ProductSectionErrors.IdIsRequired());
-
+        if (id.Value == default) throw new ArgumentException("Product section id is required.", nameof(id));
         var section = new ProductSection { Id = id };
-        section.ApplyDetails(details);
-        return section;
+        var applied = section.ApplyDetails(details);
+        return applied.IsFailure ? applied.Error! : section;
     }
 
-    public void ApplyDetails(ProductSectionDetails details)
+    public DomainResult ApplyDetails(ProductSectionDetails details)
     {
-        if (!Enum.IsDefined(details.Type))
-            throw new DomainException(ProductSectionErrors.TypeIsInvalid());
-        if (string.IsNullOrWhiteSpace(details.Name))
-            throw new DomainException(ProductSectionErrors.NameIsRequired());
+        var check = DomainResult.Combine(
+            Enum.IsDefined(details.Type) ? DomainResult.Success() : ProductSectionErrors.TypeIsInvalid(),
+            string.IsNullOrWhiteSpace(details.Name)
+                ? ProductSectionErrors.NameIsRequired()
+                : Text(details.Name, NameMaxLength, "Назва розділу"),
+            Text(details.Comment, CommentMaxLength, "Коментар"));
+        if (check.IsFailure) return check;
 
         Type = details.Type;
-        Name = Text(details.Name, NameMaxLength, "Назва розділу")!;
+        Name = details.Name.Trim();
         IsActive = details.IsActive;
-        Comment = Text(details.Comment, CommentMaxLength, "Коментар");
+        Comment = string.IsNullOrWhiteSpace(details.Comment) ? null : details.Comment.Trim();
         SortOrder = details.SortOrder;
+        return DomainResult.Success();
     }
     #endregion
 
-    #region Validation
-    private static string? Text(string? text, int maxLength, string field)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return null;
-        var trimmed = text.Trim();
-        if (trimmed.Length > maxLength)
-            throw new DomainException(ProductSectionErrors.TextIsTooLong(field, maxLength));
-        return trimmed;
-    }
+    #region Rules
+    private static DomainResult Text(string? text, int maxLength, string field) =>
+        text?.Trim() is { Length: var length } && length > maxLength
+            ? ProductSectionErrors.TextIsTooLong(field, maxLength)
+            : DomainResult.Success();
     #endregion
 }

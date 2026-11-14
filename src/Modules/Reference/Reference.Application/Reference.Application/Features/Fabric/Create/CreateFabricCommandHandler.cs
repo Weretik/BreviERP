@@ -34,11 +34,13 @@ public sealed class CreateFabricCommandHandler(
         if (errors.Count > 0)
             return Result.Invalid(errors);
 
-        var entity = FabricEntity.Create(
+        var created = FabricEntity.Create(
             FabricId.From(request.Id),
             FabricDetailsFactory.From(request, supplier!.Id),
             MoneyAmount.From(request.Price),
             KyivDate.Today(timeProvider));
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
 
         await repository.AddAsync(entity, cancellationToken);
 

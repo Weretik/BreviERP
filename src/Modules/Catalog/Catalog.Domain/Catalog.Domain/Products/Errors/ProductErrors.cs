@@ -89,6 +89,8 @@ public static class ProductErrors
     public static Error ArticleNotFound() => new("Catalog.Product.Article.NotFound", "Цей варіант не належить товару.", ErrorType.NotFound);
     public static Error ArticleSpecificOperationsNotSupported() => new("Catalog.Product.Operation.ArticleScope.Unsupported", "Операції для окремого варіанта не підтримуються.");
     public static Error ModelCodeInvalid() => new("Catalog.Product.ModelCode.Invalid", "Код моделі — не більше 80 символів.");
+    public static Error ContentTextRequired() => new("Catalog.Product.Content.Text.Required", "Заповніть назви й тексти обома мовами.");
+    public static Error ContentTextTooLong(int max) => new("Catalog.Product.Content.Text.LengthInvalid", $"Текст блоку — не більше {max} символів.");
     public static Error OverviewInvalid(string message) => new("Catalog.Product.Overview.Invalid", message);
     public static Error CommentTooLong(int max) => new("Catalog.Product.Composition.CommentTooLong", $"Коментар — не більше {max} символів.");
     public static Error CompositionLineLimitReached() => new("Catalog.Product.Composition.Line.LimitReached", "У складі товару може бути не більше 2000 рядків кожного виду.", ErrorType.Conflict);

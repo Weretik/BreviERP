@@ -44,7 +44,8 @@ public sealed class MergeFinanceCounterpartyCommandHandler(IAccountingDbContext 
         var targetBefore = AuditTrail.Snapshot(target, names);
         var now = clock.GetUtcNow();
         var operations = await FinanceCounterpartyChange.OperationsOfAsync(db, source, cancellationToken);
-        source.MergeInto(target, now);
+        var merged = source.MergeInto(target, now);
+        if (merged.IsFailure) return merged.Error!.ToResult<FinanceCounterpartyResponse>();
         foreach (var operation in operations) operation.FollowCounterparty(target.State);
 
         AuditTrail.Add(db, AuditEntity.Counterparty, command.Id, AuditAction.Merge, command.By, now, sourceBefore,

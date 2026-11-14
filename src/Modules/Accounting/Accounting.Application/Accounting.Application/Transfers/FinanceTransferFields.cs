@@ -7,7 +7,7 @@ namespace Accounting.Application.Transfers;
 /// <summary>Transfer form as sent by the admin; cleaned and checked by the domain.</summary>
 public sealed record FinanceTransferFields(DateOnly Date, Guid FromAccountId, Guid ToAccountId, long AmountMinor, string? Note)
 {
-    public FinanceTransferDetails ToDetails() => FinanceTransferDetails.Of(Date, FinanceAccountId.From(FromAccountId),
+    public DomainResult<FinanceTransferDetails> ToDetails() => FinanceTransferDetails.Of(Date, FinanceAccountId.From(FromAccountId),
         FinanceAccountId.From(ToAccountId), AmountMinor, Note);
 
     /// <summary>Both accounts; <c>Missing</c> is the message when one of them is gone.</summary>

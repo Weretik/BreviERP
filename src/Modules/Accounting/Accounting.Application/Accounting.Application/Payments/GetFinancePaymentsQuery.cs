@@ -68,7 +68,8 @@ public sealed class FinancePaymentQueriesHandler(IAccountingDbContext db, IAccou
         }
         else if (query.SupplierId is { } supplierId)
         {
-            var link = CounterpartyLink.Of(CounterpartyKind.Supplier, supplierId.ToString());
+            // The validator lets only a positive supplier id through, which is always a valid link.
+            var link = CounterpartyLink.Of(CounterpartyKind.Supplier, supplierId.ToString()).Value;
             rows = rows.Where(x => x.CounterpartyKind == link.Kind && x.CounterpartyId == link.Id);
         }
         else if (query.AmountMinor is { } exact)

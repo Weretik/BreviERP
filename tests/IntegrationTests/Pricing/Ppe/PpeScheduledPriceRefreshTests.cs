@@ -103,7 +103,7 @@ public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
     private static Product Ppe(int id, string code, string sku, decimal price)
     {
         var product = Product.Create(ProductId.Create(id), "Костюм " + code, "Костюм " + code,
-            ProductSlug.Create("kostium-" + code), ProductType.Ppe, Monday);
+            ProductSlug.Create("kostium-" + code).Value, ProductType.Ppe, Monday).Value;
         product.SetCode(code, Monday);
         product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(1), sku, null, price, false, "Одяг ЗІЗ", "шт"), Monday);
         return product;

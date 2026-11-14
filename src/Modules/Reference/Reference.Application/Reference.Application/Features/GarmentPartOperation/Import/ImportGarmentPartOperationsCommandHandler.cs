@@ -111,7 +111,8 @@ public sealed class ImportGarmentPartOperationsCommandHandler(
             var key = ReferenceNameKey.From(name);
             if (groupsByKey.TryGetValue(key, out var existing))
                 return existing;
-            var created = GarmentPartEntity.Create(GarmentPartId.From(nextGroupId++), name.Trim());
+            // The caller skips a blank group name, the only rule of a group.
+            var created = GarmentPartEntity.Create(GarmentPartId.From(nextGroupId++), name.Trim()).Value;
             newGroups.Add(created);
             groupsByKey[key] = created;
             return created;
@@ -136,14 +137,15 @@ public sealed class ImportGarmentPartOperationsCommandHandler(
         var created = new List<GarmentPartOperationEntity>();
         foreach (var (target, details) in plans)
         {
+            // Every planned row passed Validate, so these changes cannot fail.
             if (target is null)
-                created.Add(GarmentPartOperationEntity.Create(GarmentPartOperationId.From(nextId++), details));
+                created.Add(GarmentPartOperationEntity.Create(GarmentPartOperationId.From(nextId++), details).Value);
             else
-                target.ApplyDetails(details);
+                target.ApplyDetails(details).ThrowIfFailure();
         }
 
         foreach (var operation in keptInUse)
-            operation.ApplyDetails(DetailsOf(operation) with { IsActive = false });
+            operation.ApplyDetails(DetailsOf(operation) with { IsActive = false }).ThrowIfFailure();
 
         if (created.Count > 0)
             await repository.AddRangeAsync(created, cancellationToken);
@@ -159,15 +161,7 @@ public sealed class ImportGarmentPartOperationsCommandHandler(
             return "Немає назви операції.";
         if (!details.MinutesPerProduct && details.Min <= 0)
             return "Немає норми часу.";
-        try
-        {
-            GarmentPartOperationEntity.Create(GarmentPartOperationId.From(1), details);
-            return null;
-        }
-        catch (Exception error) // domain rules (minutes range, text length)
-        {
-            return error.Message;
-        }
+        return GarmentPartOperationEntity.Create(GarmentPartOperationId.From(1), details).Error?.Message;
     }
 
     private static List<string> Diff(

@@ -14,8 +14,15 @@ public sealed class ProductByNameOrSlugSpec : Specification<ProductEntity>
         }
         else
         {
+            // A slug that breaks the format cannot be stored, so no product has it.
             var value = ProductSlug.Create(slug);
-            Query.Where(x => x.Slug == value);
+            if (value.IsFailure)
+                Query.Where(x => false);
+            else
+            {
+                var stored = value.Value;
+                Query.Where(x => x.Slug == stored);
+            }
         }
         Query.AsNoTracking();
     }

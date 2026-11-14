@@ -1,6 +1,6 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Results;
 using Reference.Domain.Suppliers.Errors;
 using Reference.Domain.Suppliers.ValueObjects;
 
@@ -41,42 +41,40 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
 
     #region Constructors
     private Supplier() { }
-
-    private Supplier(
-        SupplierId id,
-        string name,
-        string? link,
-        string? contactPerson,
-        string? phoneNumber,
-        string? notes)
-    {
-        SetId(id);
-        SetCard(name, PurchaseCategories, link, contactPerson, phoneNumber, Email);
-        SetNotes(notes);
-    }
     #endregion
 
     #region Factories
-    public static Supplier Create(
+    public static DomainResult<Supplier> Create(
         SupplierId id,
         string name,
         string? link = null,
         string? contactPerson = null,
         string? phoneNumber = null,
-        string? notes = null) => new(id, name, link, contactPerson, phoneNumber, notes);
-
-    public static Supplier CreateFromKeepinCrm(SupplierId id, KeepinCrmSupplierSnapshot snapshot, DateTimeOffset syncedAt)
+        string? notes = null)
     {
-        var supplier = new Supplier(id, snapshot.Name, null, null, null, null);
-        supplier.ApplyKeepinCrmSnapshot(snapshot, syncedAt);
+        RequireId(id);
+        var check = DomainResult.Combine(CheckName(name), CheckNotes(notes));
+        if (check.IsFailure) return check.Error!;
+        var supplier = new Supplier { Id = id };
+        supplier.SetCard(name, null, link, contactPerson, phoneNumber, null);
+        supplier.Notes = Normalize(notes, NotesMaxLength);
         return supplier;
+    }
+
+    public static DomainResult<Supplier> CreateFromKeepinCrm(SupplierId id, KeepinCrmSupplierSnapshot snapshot,
+        DateTimeOffset syncedAt)
+    {
+        RequireId(id);
+        var supplier = new Supplier { Id = id };
+        var applied = supplier.ApplyKeepinCrmSnapshot(snapshot, syncedAt);
+        return applied.IsFailure ? applied.Error! : supplier;
     }
 
     /// <summary>
     /// Updates the card from the admin. For a KeepinCRM supplier the card fields must stay as they are;
     /// only notes change here.
     /// </summary>
-    public void Update(
+    public DomainResult Update(
         string name,
         string? link = null,
         string? contactPerson = null,
@@ -86,20 +84,24 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         string? purchaseCategories = null)
     {
         if (IsManagedByKeepinCrm && CardDiffers(name, purchaseCategories, link, contactPerson, phoneNumber, email))
-            throw new DomainException(SupplierErrors.ContactsManagedByKeepinCrm());
+            return SupplierErrors.ContactsManagedByKeepinCrm();
+        var check = DomainResult.Combine(CheckName(name), CheckNotes(notes));
+        if (check.IsFailure) return check;
 
         SetCard(name, purchaseCategories, link, contactPerson, phoneNumber, email);
-        SetNotes(notes);
+        Notes = Normalize(notes, NotesMaxLength);
+        return DomainResult.Success();
     }
 
     /// <summary>«Використовувати в проєкті»: always owned by Brevi.</summary>
     public void SetActive(bool isActive) => IsActive = isActive;
 
     /// <summary>Overwrites KeepinCRM-owned fields with the current KeepinCRM state. Activity and notes stay.</summary>
-    public void ApplyKeepinCrmSnapshot(KeepinCrmSupplierSnapshot snapshot, DateTimeOffset syncedAt)
+    public DomainResult ApplyKeepinCrmSnapshot(KeepinCrmSupplierSnapshot snapshot, DateTimeOffset syncedAt)
     {
-        if (string.IsNullOrWhiteSpace(snapshot.KeepinCrmId))
-            throw new DomainException(SupplierErrors.KeepinCrmIdIsRequired());
+        if (string.IsNullOrWhiteSpace(snapshot.KeepinCrmId)) return SupplierErrors.KeepinCrmIdIsRequired();
+        var name = CheckName(snapshot.Name);
+        if (name.IsFailure) return name;
 
         KeepinCrmId = Normalize(snapshot.KeepinCrmId, KeepinCrmIdMaxLength);
         SetCard(
@@ -111,10 +113,33 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
             snapshot.Email);
         Tags = Normalize(snapshot.Tags, TagsMaxLength);
         KeepinSyncedAt = syncedAt;
+        return DomainResult.Success();
+    }
+
+    /// <summary>Notes are always owned by Brevi.</summary>
+    public DomainResult SetNotes(string? notes)
+    {
+        var check = CheckNotes(notes);
+        if (check.IsFailure) return check;
+        Notes = Normalize(notes, NotesMaxLength);
+        return DomainResult.Success();
     }
     #endregion
 
-    #region Setters/Validation
+    #region Rules
+    private static DomainResult CheckName(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? SupplierErrors.NameIsRequired() : DomainResult.Success();
+
+    private static DomainResult CheckNotes(string? notes) =>
+        notes?.Trim() is { Length: > NotesMaxLength } trimmed
+            ? SupplierErrors.NotesLengthInvalid(trimmed.Length)
+            : DomainResult.Success();
+
+    private static void RequireId(SupplierId id)
+    {
+        if (id.Value == default) throw new ArgumentException("Supplier id is required.", nameof(id));
+    }
+
     private bool CardDiffers(
         string name,
         string? purchaseCategories,
@@ -129,14 +154,6 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         || PhoneNumber != Normalize(phoneNumber, PhoneNumberMaxLength)
         || Email != Normalize(email, EmailMaxLength);
 
-    private void SetId(SupplierId id)
-    {
-        if (id.Value == default)
-            throw new DomainException(SupplierErrors.IdIsRequired());
-
-        Id = id;
-    }
-
     private void SetCard(
         string name,
         string? purchaseCategories,
@@ -145,31 +162,12 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         string? phoneNumber,
         string? email)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException(SupplierErrors.NameIsRequired());
-
         Name = Normalize(name, NameMaxLength)!;
         PurchaseCategories = Normalize(purchaseCategories, PurchaseCategoriesMaxLength);
         Link = Normalize(link, LinkMaxLength);
         ContactPerson = Normalize(contactPerson, ContactPersonMaxLength);
         PhoneNumber = Normalize(phoneNumber, PhoneNumberMaxLength);
         Email = Normalize(email, EmailMaxLength);
-    }
-
-    /// <summary>Notes are always owned by Brevi.</summary>
-    public void SetNotes(string? notes)
-    {
-        if (string.IsNullOrWhiteSpace(notes))
-        {
-            Notes = null;
-            return;
-        }
-
-        var normalizedNotes = notes.Trim();
-        if (normalizedNotes.Length > NotesMaxLength)
-            throw new DomainException(SupplierErrors.NotesLengthInvalid(normalizedNotes.Length));
-
-        Notes = normalizedNotes;
     }
 
     private static string? Normalize(string? value, int maxLength)

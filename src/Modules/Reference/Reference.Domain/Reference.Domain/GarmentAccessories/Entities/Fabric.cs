@@ -1,6 +1,6 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Results;
 using Reference.Domain.GarmentAccessories.Errors;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;
@@ -37,101 +37,122 @@ public class Fabric : BaseEntity<FabricId>, IAggregateRoot
 
     #region Constructors
     private Fabric() { }
-
-    private Fabric(FabricId id, string name, MoneyAmount price, SupplierId providerId)
-    {
-        SetId(id);
-        SetName(name);
-        SetPrice(price);
-        SetProviderId(providerId);
-    }
     #endregion
 
     #region Factories
-    public static Fabric Create(FabricId id, string name, MoneyAmount price, SupplierId providerId)
-        => new(id, name, price, providerId);
-
-    public static Fabric Create(FabricId id, FabricDetails details, MoneyAmount price, DateOnly? priceUpdatedAt)
+    public static DomainResult<Fabric> Create(FabricId id, string name, MoneyAmount price, SupplierId providerId)
     {
-        var fabric = new Fabric(id, details.Name, price, details.ProviderId);
-        fabric.ApplyDetails(details);
+        RequireId(id);
+        var check = DomainResult.Combine(CheckName(name), CheckPrice(price), CheckProvider(providerId));
+        if (check.IsFailure) return check.Error!;
+        var fabric = new Fabric { Id = id };
+        fabric.SetMain(name, price, providerId);
+        return fabric;
+    }
+
+    public static DomainResult<Fabric> Create(FabricId id, FabricDetails details, MoneyAmount price,
+        DateOnly? priceUpdatedAt)
+    {
+        RequireId(id);
+        var check = DomainResult.Combine(CheckDetails(details), CheckPrice(price));
+        if (check.IsFailure) return check.Error!;
+        var fabric = new Fabric { Id = id };
+        fabric.SetMain(details.Name, price, details.ProviderId);
+        fabric.SetDetails(details);
         fabric.PriceUpdatedAt = priceUpdatedAt;
         return fabric;
     }
 
-    public void Update(string name, MoneyAmount price, SupplierId providerId)
+    public DomainResult Update(string name, MoneyAmount price, SupplierId providerId)
     {
-        SetName(name);
-        SetPrice(price);
-        SetProviderId(providerId);
+        var check = DomainResult.Combine(CheckName(name), CheckPrice(price), CheckProvider(providerId));
+        if (check.IsFailure) return check;
+        SetMain(name, price, providerId);
+        return DomainResult.Success();
     }
 
     /// <summary>Replaces every card field except price.</summary>
-    public void ApplyDetails(FabricDetails details)
+    public DomainResult ApplyDetails(FabricDetails details)
     {
-        Code = NormalizeCode(details.Code);
-        SetName(details.Name);
-        NameRu = Text(details.NameRu, NameMaxLength);
-        SetProviderId(details.ProviderId);
-        Composition = Text(details.Composition, CompositionMaxLength);
-        CompositionRu = Text(details.CompositionRu, CompositionMaxLength);
-        Density = Text(details.Density, DensityMaxLength);
-        IsActive = details.IsActive;
-        Comment = Text(details.Comment, CommentMaxLength);
-        ProposalDescription = Text(details.ProposalDescription, ProposalDescriptionMaxLength);
+        var check = CheckDetails(details);
+        if (check.IsFailure) return check;
+        Name = ReferenceText.Optional(details.Name)!;
+        ProviderId = details.ProviderId;
+        SetDetails(details);
+        return DomainResult.Success();
     }
 
     /// <summary>Sets the price and the date it was confirmed (the sheet's «Дата оновлення ціни»).</summary>
-    public void SetPrice(MoneyAmount price, DateOnly? priceUpdatedAt)
+    public DomainResult SetPrice(MoneyAmount price, DateOnly? priceUpdatedAt)
     {
-        SetPrice(price);
+        var check = CheckPrice(price);
+        if (check.IsFailure) return check;
+        Price = price;
         PriceUpdatedAt = priceUpdatedAt;
+        return DomainResult.Success();
     }
 
-    public void SetPresentationMetadata(string? composition, string? density)
+    public DomainResult SetPresentationMetadata(string? composition, string? density)
     {
-        Composition = Text(composition, CompositionMaxLength);
-        Density = Text(density, DensityMaxLength);
+        var check = DomainResult.Combine(Text(composition, CompositionMaxLength), Text(density, DensityMaxLength));
+        if (check.IsFailure) return check;
+        Composition = ReferenceText.Optional(composition);
+        Density = ReferenceText.Optional(density);
+        return DomainResult.Success();
     }
 
-    public static string? NormalizeCode(string? code) =>
-        Text(code, CodeMaxLength)?.ToUpperInvariant();
+    /// <summary>The upper-case code, or null for none; check it first with <see cref="CheckCode"/>.</summary>
+    public static string? NormalizeCode(string? code) => ReferenceText.Optional(code)?.ToUpperInvariant();
+
+    public static DomainResult CheckCode(string? code) => Text(code, CodeMaxLength);
     #endregion
 
-    #region Setters/Validation
-    private static string? Text(string? value, int maxLength) =>
-        ReferenceText.Optional(value, maxLength, max => new DomainException(FabricErrors.TextTooLong(max)));
+    #region Rules
+    public static DomainResult CheckDetails(FabricDetails details) => DomainResult.Combine(
+        CheckCode(details.Code),
+        CheckName(details.Name),
+        Text(details.NameRu, NameMaxLength),
+        CheckProvider(details.ProviderId),
+        Text(details.Composition, CompositionMaxLength),
+        Text(details.CompositionRu, CompositionMaxLength),
+        Text(details.Density, DensityMaxLength),
+        Text(details.Comment, CommentMaxLength),
+        Text(details.ProposalDescription, ProposalDescriptionMaxLength));
 
-    private void SetId(FabricId id)
+    private static DomainResult CheckName(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? FabricErrors.NameIsRequired() : Text(name, NameMaxLength);
+
+    private static DomainResult CheckPrice(MoneyAmount price) =>
+        price.Value is < 0 or > 10_000 ? FabricErrors.PriceOutOfRange(0, 10_000) : DomainResult.Success();
+
+    private static DomainResult CheckProvider(SupplierId providerId) =>
+        providerId.Value == default ? FabricErrors.ProviderIdIsRequired() : DomainResult.Success();
+
+    private static DomainResult Text(string? value, int maxLength) =>
+        ReferenceText.Check(value, maxLength, FabricErrors.TextTooLong);
+
+    private static void RequireId(FabricId id)
     {
-        if (id.Value == default)
-            throw new DomainException(FabricErrors.IdIsRequired());
-
-        Id = id;
+        if (id.Value == default) throw new ArgumentException("Fabric id is required.", nameof(id));
     }
 
-    private void SetName(string name)
+    private void SetMain(string name, MoneyAmount price, SupplierId providerId)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException(FabricErrors.NameIsRequired());
-
-        Name = Text(name, NameMaxLength)!;
-    }
-
-    private void SetPrice(MoneyAmount price)
-    {
-        if (price.Value < 0 || price.Value > 10_000)
-            throw new DomainException(FabricErrors.PriceOutOfRange(0, 10_000));
-
+        Name = ReferenceText.Optional(name)!;
         Price = price;
+        ProviderId = providerId;
     }
 
-    private void SetProviderId(SupplierId providerId)
+    private void SetDetails(FabricDetails details)
     {
-        if (providerId.Value == default)
-            throw new DomainException(FabricErrors.ProviderIdIsRequired());
-
-        ProviderId = providerId;
+        Code = NormalizeCode(details.Code);
+        NameRu = ReferenceText.Optional(details.NameRu);
+        Composition = ReferenceText.Optional(details.Composition);
+        CompositionRu = ReferenceText.Optional(details.CompositionRu);
+        Density = ReferenceText.Optional(details.Density);
+        IsActive = details.IsActive;
+        Comment = ReferenceText.Optional(details.Comment);
+        ProposalDescription = ReferenceText.Optional(details.ProposalDescription);
     }
     #endregion
 }

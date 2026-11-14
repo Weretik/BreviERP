@@ -87,41 +87,40 @@ public sealed class PpePriceImportRunner(
         for (var index = 0; index < rows.Count; index++)
         {
             if (rows[index].Status != PpePriceImportStatus.Changed) continue;
-            var saved = await SaveAsync(entities.Single(x => x.Id.Value == rows[index].ProductId),
+            var problem = await SaveAsync(entities.Single(x => x.Id.Value == rows[index].ProductId),
                 current.GetValueOrDefault(rows[index].ProductId)?.Offer, rows[index], sourceLabel, today, actor,
                 cancellationToken);
-            if (!saved)
-                rows[index] = rows[index] with
-                {
-                    Status = PpePriceImportStatus.Invalid,
-                    Message = "Ціну товару щойно змінили в картці. Оновіть ще раз."
-                };
+            if (problem is not null)
+                rows[index] = rows[index] with { Status = PpePriceImportStatus.Invalid, Message = problem };
         }
     }
 
-    private async Task<bool> SaveAsync(ProductEntity product, PpeOfferVersion? offer, PpePriceImportRow row,
+    /// <returns>Null when saved; otherwise why the row was not saved.</returns>
+    private async Task<string?> SaveAsync(ProductEntity product, PpeOfferVersion? offer, PpePriceImportRow row,
         string sourceLabel, string today, string actor, CancellationToken cancellationToken)
     {
         var profile = product.CatalogProfile!;
         var ruleCode = offer?.Values.RuleCode ?? profile.PricingRuleCode;
         var previousPrice = profile.SupplierPrice;
-        SetPrice(product, row.NewPrice);
+        var priced = SetPrice(product, row.NewPrice);
+        if (priced.IsFailure) return priced.Error!.Message;
 
         // The writer saves the tracked card change in the same transaction as the new offer version.
         var appended = await offers.AppendAsync(product.Id.Value, offer?.Id, Guid.NewGuid(),
             new PpeOfferValues(ruleCode, row.NewPrice, row.NewRetail, row.NewWholesale, sourceLabel, today),
             actor, cancellationToken);
-        if (appended.IsSuccess) return true;
+        if (appended.IsSuccess) return null;
 
         // Put the card price back so a later save of this context does not write it without its offer version.
-        SetPrice(product, previousPrice);
-        return false;
+        // The card held this price before, so it passes the same rules again.
+        SetPrice(product, previousPrice).ThrowIfFailure();
+        return "Ціну товару щойно змінили в картці. Оновіть ще раз.";
     }
 
-    private void SetPrice(ProductEntity product, decimal? price)
+    private DomainResult SetPrice(ProductEntity product, decimal? price)
     {
         var profile = product.CatalogProfile!;
-        product.SetPpeSupplier(new PpeSupplierDetails(profile.SupplierId!.Value, profile.SupplierSku,
+        return product.SetPpeSupplier(new PpeSupplierDetails(profile.SupplierId!.Value, profile.SupplierSku,
             profile.SupplierProductUrl, price, profile.AllowManualPrice, profile.PricingRuleCode, profile.Unit),
             timeProvider.GetUtcNow());
     }

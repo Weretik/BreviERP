@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Sewing;
@@ -22,14 +21,8 @@ public sealed class DeleteSewingArticleHandler(ISewingCompositionStore store)
             return Result.Conflict("Склад уже змінили. Оновіть сторінку перед збереженням.");
         if (await store.HasPriceHistoryAsync(command.ArticleId, cancellationToken))
             return Result.Conflict(HasPriceHistory);
-        try
-        {
-            product.RemoveArticle(articleId, TimeProvider.System.GetUtcNow());
-        }
-        catch (DomainException exception)
-        {
-            return Result.Conflict(exception.Message);
-        }
+        var removed = product.RemoveArticle(articleId, TimeProvider.System.GetUtcNow());
+        if (removed.IsFailure) return removed.Error!.ToResult();
         return await store.SaveAsync(cancellationToken)
             ? Result.Success()
             : Result.Conflict("Склад уже змінили. Оновіть сторінку перед збереженням.");

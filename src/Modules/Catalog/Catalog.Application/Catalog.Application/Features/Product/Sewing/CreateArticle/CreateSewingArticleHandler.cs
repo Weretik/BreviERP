@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.ValueObjects;
@@ -21,17 +20,14 @@ public sealed class CreateSewingArticleHandler(ISewingCompositionStore store, IP
             return Result.NotFound("Тканину не знайдено.");
         if (await store.SaleSkuExistsAsync(request.SaleSku.Trim(), null, cancellationToken))
             return Result.Conflict("Такий артикул продажу вже є.");
-        var article = SewingArticle.Create(default, product.Id, request.SaleSku, request.Active, request.SortOrder);
-        try
-        {
-            if (!await store.AddArticleAsync(product, article, FabricReferenceId.Create(request.FabricId),
-                    request.FabricQuantity, TimeProvider.System.GetUtcNow(), cancellationToken))
-                return Result.Conflict("Склад або артикул уже змінили. Оновіть сторінку перед збереженням.");
-        }
-        catch (DomainException exception)
-        {
-            return Result.Conflict(exception.Message);
-        }
+        var created = SewingArticle.Create(default, product.Id, request.SaleSku, request.Active, request.SortOrder);
+        if (created.IsFailure) return created.Error!.ToResult<SewingArticleView>();
+        var article = created.Value;
+        var added = await store.AddArticleAsync(product, article, FabricReferenceId.Create(request.FabricId),
+            request.FabricQuantity, TimeProvider.System.GetUtcNow(), cancellationToken);
+        if (added.IsFailure) return added.Error!.ToResult<SewingArticleView>();
+        if (!added.Value)
+            return Result.Conflict("Склад або артикул уже змінили. Оновіть сторінку перед збереженням.");
         return Result.Success(new SewingArticleView(article.Id.Value, product.Id.Value, article.SaleSku,
             article.IsActive, article.SortOrder, request.FabricId, request.FabricQuantity));
     }

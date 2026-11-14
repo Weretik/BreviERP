@@ -37,7 +37,7 @@ public sealed class ProductCategorySeeder(
         {
             var parentPath = ResolveParentPath(row, rowsById, pathById);
 
-            var entity = ProductCategory.Create(
+            var created = ProductCategory.Create(
                 ProductCategoryId.Create(row.Id),
                 row.Name.Trim(),
                 row.RuName.Trim(),
@@ -46,7 +46,13 @@ public sealed class ProductCategorySeeder(
                 parentPath,
                 row.SortOrder,
                 row.IsActive);
+            if (created.IsFailure)
+            {
+                logger.LogWarning("Product category seed row {Id} skipped: {Reason}", row.Id, created.Error!.Message);
+                continue;
+            }
 
+            var entity = created.Value;
             pathById[row.Id] = entity.Path;
 
             await db.ProductCategories.AddAsync(entity, cancellationToken);
@@ -81,9 +87,12 @@ public sealed class ProductCategorySeeder(
             parentPath,
             parentRow.SortOrder,
             parentRow.IsActive);
+        if (parentEntity.IsFailure)
+            throw new InvalidOperationException(
+                $"Product category seed parent {parentRow.Id} is invalid: {parentEntity.Error!.Message}");
 
-        pathById[parentRow.Id] = parentEntity.Path;
-        return parentEntity.Path;
+        pathById[parentRow.Id] = parentEntity.Value.Path;
+        return parentEntity.Value.Path;
     }
 }
 

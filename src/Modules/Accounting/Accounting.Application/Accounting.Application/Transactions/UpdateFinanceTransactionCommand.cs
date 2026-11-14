@@ -31,7 +31,9 @@ public sealed class UpdateFinanceTransactionCommandHandler(IAccountingDbContext 
     public async ValueTask<Result<FinanceTransactionResponse>> Handle(UpdateFinanceTransactionCommand command,
         CancellationToken cancellationToken)
     {
-        var details = command.Fields.ToDetails();
+        var fields = command.Fields.ToDetails();
+        if (fields.IsFailure) return fields.Error!.ToResult<FinanceTransactionResponse>();
+        var details = fields.Value;
         var transaction = await db.Transactions.FirstOrDefaultAsync(x => x.Id == FinanceTransactionId.From(command.Id),
             cancellationToken);
         if (transaction is null) return Result.NotFound(AccountingMessages.TransactionNotFound);
@@ -48,7 +50,9 @@ public sealed class UpdateFinanceTransactionCommandHandler(IAccountingDbContext 
         var names = (await FinanceNames.LoadAsync(db, cancellationToken)).With(states);
         var before = AuditTrail.Snapshot(transaction, names);
         var now = clock.GetUtcNow();
-        if (!transaction.Update(details, account, category, counterparty, now))
+        var updated = transaction.Update(details, account, category, counterparty, now);
+        if (updated.IsFailure) return updated.Error!.ToResult<FinanceTransactionResponse>();
+        if (!updated.Value)
             return Result.Success(FinanceTransactionResponse.From(transaction, names));
 
         AuditTrail.Add(db, AuditEntity.Transaction, command.Id, AuditAction.Update, command.By, now, before,

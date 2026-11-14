@@ -42,7 +42,8 @@ public sealed class RollbackBankStatementCommandHandler(IAccountingDbContext db,
         var statement = await db.BankStatements.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (statement is null) return Result.NotFound(StatementMessages.NotFound);
         if (statement.Version != command.Version) return Result.Conflict(AccountingMessages.Stale);
-        statement.Rollback();
+        var rollback = statement.Rollback();
+        if (rollback.IsFailure) return rollback.Error!.ToResult<BankStatementResponse>();
 
         var lines = await db.BankStatementLines
             .Where(x => x.StatementId == id && (x.TransactionId != null || x.TransferId != null))
@@ -60,7 +61,8 @@ public sealed class RollbackBankStatementCommandHandler(IAccountingDbContext db,
         foreach (var transaction in transactions.Where(x => x.Status == MovementStatus.Active))
         {
             var before = AuditTrail.Snapshot(transaction, names);
-            transaction.Void(now);
+            // Only active records are taken, so cancelling cannot fail.
+            transaction.Void(now).ThrowIfFailure();
             AuditTrail.Add(db, AuditEntity.Transaction, transaction.Id.Value, AuditAction.Void, command.By, now, before,
                 AuditTrail.Snapshot(transaction, names));
             transaction.ReleaseBankIdentity();
@@ -69,7 +71,7 @@ public sealed class RollbackBankStatementCommandHandler(IAccountingDbContext db,
         foreach (var transfer in transfers.Where(x => x.Status == MovementStatus.Active))
         {
             var before = AuditTrail.Snapshot(transfer, names);
-            transfer.Void(now);
+            transfer.Void(now).ThrowIfFailure();
             AuditTrail.Add(db, AuditEntity.Transfer, transfer.Id.Value, AuditAction.Void, command.By, now, before,
                 AuditTrail.Snapshot(transfer, names));
             transfer.ReleaseBankIdentity();
@@ -121,7 +123,8 @@ public sealed class RollbackBankStatementCommandHandler(IAccountingDbContext db,
             }
 
             var before = AuditTrail.Snapshot(record, names);
-            record.SetActive(false, now);
+            // A merged record was kept above, so archiving cannot fail.
+            record.SetActive(false, now).WithoutValue().ThrowIfFailure();
             AuditTrail.Add(db, AuditEntity.Counterparty, record.Id.Value, AuditAction.Archive, by, now, before,
                 AuditTrail.Snapshot(record, names));
         }

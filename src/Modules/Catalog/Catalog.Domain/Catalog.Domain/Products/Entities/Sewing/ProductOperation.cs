@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -11,11 +10,10 @@ public sealed class ProductOperation
 
     private ProductOperation() { }
 
-    public ProductOperation(ProductId productId, int garmentPartOperationId)
+    public static DomainResult<ProductOperation> Create(ProductId productId, int garmentPartOperationId)
     {
-        if (productId.Value == default) throw new DomainException(ProductErrors.IdIsRequired());
-        if (garmentPartOperationId <= 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(GarmentPartOperationId)));
-        ProductId = productId;
-        GarmentPartOperationId = garmentPartOperationId;
+        if (productId.Value == default) throw new ArgumentException("An operation line needs its product id.", nameof(productId));
+        if (garmentPartOperationId <= 0) return ProductErrors.PositiveValueRequired(nameof(GarmentPartOperationId));
+        return new ProductOperation { ProductId = productId, GarmentPartOperationId = garmentPartOperationId };
     }
 }

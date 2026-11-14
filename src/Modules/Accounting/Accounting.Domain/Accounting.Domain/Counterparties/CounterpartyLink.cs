@@ -10,7 +10,7 @@ public sealed record CounterpartyLink(CounterpartyKind Kind, string Id)
 {
     public const int IdMaxLength = 64;
 
-    public static CounterpartyLink Of(CounterpartyKind kind, string? id)
+    public static DomainResult<CounterpartyLink> Of(CounterpartyKind kind, string? id)
     {
         var clean = (id ?? string.Empty).Trim();
         var valid = kind switch
@@ -21,7 +21,7 @@ public sealed record CounterpartyLink(CounterpartyKind Kind, string Id)
             _ => null,
         };
         return valid is null
-            ? throw AccountingDomainError.Fail("Accounting.Counterparty.Link", "Контрагента не знайдено. Оберіть його зі списку.")
+            ? AccountingErrors.Rule("Accounting.Counterparty.Link", "Контрагента не знайдено. Оберіть його зі списку.")
             : new CounterpartyLink(kind, valid);
     }
 

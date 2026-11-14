@@ -75,18 +75,19 @@ public sealed class ImportGarmentAccessoriesCommandHandler(
                 var price = MoneyAmount.From(row.Price);
                 if (target is null)
                 {
+                    // Every planned row passed Validate, so these changes cannot fail.
                     created.Add(GarmentAccessoryEntity.Create(
-                        GarmentAccessoryId.From(nextId++), details!, price, row.PriceUpdatedAt));
+                        GarmentAccessoryId.From(nextId++), details!, price, row.PriceUpdatedAt).Value);
                     continue;
                 }
 
-                target.ApplyDetails(details!);
+                target.ApplyDetails(details!).ThrowIfFailure();
                 if (target.Price != price || target.PriceUpdatedAt != row.PriceUpdatedAt)
-                    target.SetPrice(price, row.PriceUpdatedAt);
+                    target.SetPrice(price, row.PriceUpdatedAt).ThrowIfFailure();
             }
 
             foreach (var accessory in deactivated)
-                accessory.ApplyDetails(DetailsOf(accessory) with { IsActive = false });
+                accessory.ApplyDetails(DetailsOf(accessory) with { IsActive = false }).ThrowIfFailure();
 
             try
             {
@@ -122,16 +123,9 @@ public sealed class ImportGarmentAccessoriesCommandHandler(
             return "Ціна має бути від 0 до 10000 грн.";
         if (GarmentAccessoryEntity.NormalizeUnit(details.Unit) is null)
             return $"Невідома одиниця «{details.Unit}». Можна: {string.Join(", ", GarmentAccessoryEntity.Units)}.";
-        try
-        {
-            GarmentAccessoryEntity.Create(
-                GarmentAccessoryId.From(1), details, MoneyAmount.From(row.Price), row.PriceUpdatedAt);
-            return null;
-        }
-        catch (Exception error) // domain rules and value objects (price range, text length, unit)
-        {
-            return error.Message;
-        }
+        return GarmentAccessoryEntity.Create(
+                GarmentAccessoryId.From(1), details, MoneyAmount.From(row.Price), row.PriceUpdatedAt)
+            .Error?.Message;
     }
 
     private static List<string> Diff(GarmentAccessoryEntity accessory, GarmentAccessoryDetails details, GarmentAccessoryImportRow row) =>

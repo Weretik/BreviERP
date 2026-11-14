@@ -1,4 +1,7 @@
+using Accounting.Api.Counterparties;
 using Accounting.Api.Access;
+using BuildingBlocks.Application.Errors;
+using BuildingBlocks.Domain.Results;
 using Accounting.Api.Results;
 using Accounting.Application.Contracts;
 using Accounting.Application.Reports;
@@ -30,9 +33,12 @@ public sealed class FinanceReportsController(ISender sender) : ControllerBase
         [FromQuery] Guid? categoryId = null,
         [FromQuery] CounterpartyKind? counterpartyKind = null,
         [FromQuery] string? counterpartyId = null,
-        CancellationToken cancellationToken = default) =>
-        this.ToActionResult(await sender.Send(new GetFinanceReportQuery(
-            Filter(kind, from, to, scope, accountId, type, categoryId, counterpartyKind, counterpartyId)), cancellationToken));
+        CancellationToken cancellationToken = default)
+    {
+        var filter = Filter(kind, from, to, scope, accountId, type, categoryId, counterpartyKind, counterpartyId);
+        if (filter.IsFailure) return this.ToActionResult(filter.Error!.ToResult<FinanceReportResponse>());
+        return this.ToActionResult(await sender.Send(new GetFinanceReportQuery(filter.Value), cancellationToken));
+    }
 
     /// <summary>The report as CSV for Excel; the operations report holds up to 50 000 rows.</summary>
     [HttpGet("csv", Name = "getFinanceReportCsv")]
@@ -50,17 +56,17 @@ public sealed class FinanceReportsController(ISender sender) : ControllerBase
         [FromQuery] string? counterpartyId = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await sender.Send(new GetFinanceReportQuery(
-            Filter(kind, from, to, scope, accountId, type, categoryId, counterpartyKind, counterpartyId),
-            FinanceReports.CsvRows), cancellationToken);
+        var filter = Filter(kind, from, to, scope, accountId, type, categoryId, counterpartyKind, counterpartyId);
+        if (filter.IsFailure) return this.ToFileActionResult(filter.Error!.ToResult<FinanceReportResponse>());
+        var result = await sender.Send(new GetFinanceReportQuery(filter.Value, FinanceReports.CsvRows), cancellationToken);
         if (!result.IsSuccess) return this.ToFileActionResult(result);
         Response.Headers.CacheControl = "private, no-store";
         return File(FinanceReportCsv.Write(result.Value), "text/csv; charset=utf-8", FinanceReportCsv.FileName(result.Value));
     }
 
-    private static FinanceReportFilter Filter(FinanceReportKind kind, DateOnly from, DateOnly to, LedgerScope? scope,
+    private static DomainResult<FinanceReportFilter> Filter(FinanceReportKind kind, DateOnly from, DateOnly to, LedgerScope? scope,
         Guid? accountId, CategoryDirection? type, Guid? categoryId, CounterpartyKind? counterpartyKind,
         string? counterpartyId) =>
-        new(kind, from, to, scope, accountId, type, categoryId,
-            counterpartyKind is { } k && !string.IsNullOrWhiteSpace(counterpartyId) ? CounterpartyLink.Of(k, counterpartyId) : null);
+        AccountingQueryLink.Of(counterpartyKind, counterpartyId)
+            .Map(link => new FinanceReportFilter(kind, from, to, scope, accountId, type, categoryId, link));
 }

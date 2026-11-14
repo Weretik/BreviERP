@@ -41,10 +41,15 @@ public sealed class PromoteFinanceOneoffCommandHandler(IAccountingDbContext db, 
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         var before = AuditTrail.Snapshot(transaction, names);
         var now = clock.GetUtcNow();
-        var counterparty = FinanceCounterparty.Create(FinanceCounterpartyId.New(),
-            FinanceCounterpartyDetails.Of(transaction.OneoffToPromote(), null, null, null, null, null, false, null), null,
-            verified: true, now);
-        transaction.PromoteOneoff(counterparty.State, now);
+        var name = transaction.OneoffToPromote();
+        if (name.IsFailure) return name.Error!.ToResult<FinanceTransactionResponse>();
+        var details = FinanceCounterpartyDetails.Of(name.Value, null, null, null, null, null, false, null);
+        if (details.IsFailure) return details.Error!.ToResult<FinanceTransactionResponse>();
+        var created = FinanceCounterparty.Create(FinanceCounterpartyId.New(), details.Value, null, verified: true, now);
+        if (created.IsFailure) return created.Error!.ToResult<FinanceTransactionResponse>();
+        var counterparty = created.Value;
+        var promoted = transaction.PromoteOneoff(counterparty.State, now);
+        if (promoted.IsFailure) return promoted.Error!.ToResult<FinanceTransactionResponse>();
         db.Counterparties.Add(counterparty);
         names.With(new CounterpartyStates(new Dictionary<CounterpartyLink, CounterpartyState>
         {

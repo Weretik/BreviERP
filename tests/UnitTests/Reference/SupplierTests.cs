@@ -1,5 +1,4 @@
-using BuildingBlocks.Domain.Exceptions;
-using Reference.Domain.Suppliers.Entities;
+﻿using Reference.Domain.Suppliers.Entities;
 using Reference.Domain.Suppliers.ValueObjects;
 
 namespace UnitTests.Reference;
@@ -14,7 +13,7 @@ public sealed class SupplierTests
     [Test]
     public void New_manual_supplier_is_active_and_not_linked_to_keepin()
     {
-        var supplier = Supplier.Create(SupplierId.From(7), " Спецтекстиль ");
+        var supplier = Supplier.Create(SupplierId.From(7), " Спецтекстиль ").Value;
 
         Assert.Multiple(() =>
         {
@@ -27,7 +26,7 @@ public sealed class SupplierTests
     [Test]
     public void Manual_supplier_updates_contacts_and_purchasing()
     {
-        var supplier = Supplier.Create(SupplierId.From(7), "Спецтекстиль");
+        var supplier = Supplier.Create(SupplierId.From(7), "Спецтекстиль").Value;
 
         supplier.Update("Спецтекстиль", "spectex.ua", "Олег", "+380501112233", "нотатка", " info@spectex.ua ", " тканина ");
         supplier.SetActive(false);
@@ -43,7 +42,7 @@ public sealed class SupplierTests
     [Test]
     public void Keepin_snapshot_overwrites_card_and_keeps_brevi_fields()
     {
-        var supplier = Supplier.Create(SupplierId.From(7), "Тексика, ТОВ", notes: "домовились про знижку");
+        var supplier = Supplier.Create(SupplierId.From(7), "Тексика, ТОВ", notes: "домовились про знижку").Value;
         supplier.SetActive(false);
 
         supplier.ApplyKeepinCrmSnapshot(Snapshot(), SyncedAt);
@@ -65,13 +64,14 @@ public sealed class SupplierTests
     [Test]
     public void Keepin_supplier_rejects_card_changes_but_accepts_notes_and_activity()
     {
-        var supplier = Supplier.CreateFromKeepinCrm(SupplierId.From(7), Snapshot(), SyncedAt);
+        var supplier = Supplier.CreateFromKeepinCrm(SupplierId.From(7), Snapshot(), SyncedAt).Value;
 
-        Assert.Throws<DomainException>(() => supplier.Update(
+        Assert.That(supplier.Update(
             "Інша назва", supplier.Link, supplier.ContactPerson, supplier.PhoneNumber, null, supplier.Email,
-            supplier.PurchaseCategories));
-        Assert.Throws<DomainException>(() => supplier.Update(
-            supplier.Name, supplier.Link, supplier.ContactPerson, supplier.PhoneNumber, null, supplier.Email, "фурнітура"));
+            supplier.PurchaseCategories).IsFailure, Is.True);
+        Assert.That(supplier.Update(
+            supplier.Name, supplier.Link, supplier.ContactPerson, supplier.PhoneNumber, null, supplier.Email, "фурнітура")
+            .IsFailure, Is.True);
 
         supplier.SetNotes("нова нотатка");
         supplier.SetActive(false);
@@ -86,9 +86,9 @@ public sealed class SupplierTests
     [Test]
     public void Keepin_snapshot_requires_id_and_truncates_long_values()
     {
-        var supplier = Supplier.Create(SupplierId.From(7), "Тексика");
+        var supplier = Supplier.Create(SupplierId.From(7), "Тексика").Value;
 
-        Assert.Throws<DomainException>(() => supplier.ApplyKeepinCrmSnapshot(Snapshot() with { KeepinCrmId = " " }, SyncedAt));
+        Assert.That(supplier.ApplyKeepinCrmSnapshot(Snapshot() with { KeepinCrmId = " " }, SyncedAt).IsFailure, Is.True);
 
         supplier.ApplyKeepinCrmSnapshot(Snapshot(new string('я', 250)) with { Tags = new string('t', 600) }, SyncedAt);
         Assert.Multiple(() =>

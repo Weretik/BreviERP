@@ -14,13 +14,15 @@ public sealed record FinanceTransferDetails(
 {
     public const int NoteMaxLength = 1500;
 
-    public static FinanceTransferDetails Of(DateOnly date, FinanceAccountId fromAccountId, FinanceAccountId toAccountId,
+    public static DomainResult<FinanceTransferDetails> Of(DateOnly date, FinanceAccountId fromAccountId, FinanceAccountId toAccountId,
         long amountMinor, string? note)
     {
         if (fromAccountId == toAccountId)
-            throw AccountingDomainError.Fail("Accounting.Transfer.Accounts", "Рахунки списання і зарахування мають бути різними.");
-        MovementRules.CheckAmount(amountMinor);
-        return new FinanceTransferDetails(date, fromAccountId, toAccountId, amountMinor,
-            MovementRules.Text(note, NoteMaxLength, "Примітка"));
+            return AccountingErrors.Rule("Accounting.Transfer.Accounts", "Рахунки списання і зарахування мають бути різними.");
+        var amount = MovementRules.CheckAmount(amountMinor);
+        if (amount.IsFailure) return amount.Error!;
+        var cleanNote = MovementRules.Text(note, NoteMaxLength, "Примітка");
+        if (cleanNote.IsFailure) return cleanNote.Error!;
+        return new FinanceTransferDetails(date, fromAccountId, toAccountId, amountMinor, cleanNote.Value);
     }
 }

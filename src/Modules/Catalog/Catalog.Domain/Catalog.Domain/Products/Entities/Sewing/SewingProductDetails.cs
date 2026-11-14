@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -26,11 +25,11 @@ public sealed class SewingProductDetails
         _operations.AddRange(operations);
     }
 
-    public static SewingProductDetails Create(ProductId productId, decimal metersPerProduct, IEnumerable<ProductFabric> fabrics,
+    public static DomainResult<SewingProductDetails> Create(ProductId productId, decimal metersPerProduct, IEnumerable<ProductFabric> fabrics,
         IEnumerable<ProductAccessory> accessories, IEnumerable<ProductOperation> operations)
     {
-        if (productId.Value == default) throw new DomainException(ProductErrors.IdIsRequired());
-        if (metersPerProduct <= 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(MetersPerProduct)));
+        if (productId.Value == default) throw new ArgumentException("Sewing details need their product id.", nameof(productId));
+        if (metersPerProduct <= 0) return ProductErrors.PositiveValueRequired(nameof(MetersPerProduct));
         ArgumentNullException.ThrowIfNull(fabrics);
         ArgumentNullException.ThrowIfNull(accessories);
         ArgumentNullException.ThrowIfNull(operations);
@@ -40,20 +39,22 @@ public sealed class SewingProductDetails
         if (fabricList.Any(x => x.ProductId != productId) ||
             accessoryList.Any(x => x.ProductId != productId) ||
             operationList.Any(x => x.ProductId != productId))
-            throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
-        EnsureDistinct(fabricList.Select(x => x.FabricId), "Fabric");
-        EnsureDistinct(accessoryList.Select(x => x.GarmentAccessoryId), "Accessory");
-        EnsureDistinct(operationList.Select(x => x.GarmentPartOperationId), "Operation");
-        if (fabricList.Count(x => x.IsPrimary) > 2) throw new DomainException(ProductErrors.TooManyPrimaryFabrics());
+            return ProductErrors.DetailsBelongToAnotherProduct();
+        var distinct = DomainResult.Combine(
+            CheckDistinct(fabricList.Select(x => x.FabricId), "Fabric"),
+            CheckDistinct(accessoryList.Select(x => x.GarmentAccessoryId), "Accessory"),
+            CheckDistinct(operationList.Select(x => x.GarmentPartOperationId), "Operation"));
+        if (distinct.IsFailure) return distinct.Error!;
+        if (fabricList.Count(x => x.IsPrimary) > 2) return ProductErrors.TooManyPrimaryFabrics();
         var details = new SewingProductDetails(metersPerProduct, fabricList, accessoryList, operationList) { ProductId = productId };
         return details;
     }
 
-    private static void EnsureDistinct(IEnumerable<int> ids, string field)
+    private static DomainResult CheckDistinct(IEnumerable<int> ids, string field)
     {
-        foreach (var id in ids)
-            if (id <= 0) throw new DomainException(ProductErrors.PositiveValueRequired($"{field}Id"));
-        var duplicate = ids.GroupBy(x => x).FirstOrDefault(x => x.Count() > 1);
-        if (duplicate is not null) throw new DomainException(ProductErrors.DuplicateReference(field, duplicate.Key));
+        var list = ids.ToList();
+        if (list.Any(id => id <= 0)) return ProductErrors.PositiveValueRequired($"{field}Id");
+        var duplicate = list.GroupBy(x => x).FirstOrDefault(x => x.Count() > 1);
+        return duplicate is null ? DomainResult.Success() : ProductErrors.DuplicateReference(field, duplicate.Key);
     }
 }

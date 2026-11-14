@@ -1,6 +1,5 @@
 using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.ProductCategories.ValueObjects;
 using Catalog.Domain.Products.Enums;
@@ -40,40 +39,42 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
 
     private Product() { }
 
-    private Product(ProductId id, string name, string ruName, ProductSlug slug, ProductType type, DateTimeOffset createdAt)
+    public static DomainResult<Product> Create(ProductId id, string name, string ruName, ProductSlug slug, ProductType type,
+        DateTimeOffset createdAt)
     {
-        SetId(id);
-        SetName(name);
-        SetRuName(ruName);
-        SetSlug(slug);
-        SetType(type);
-        MarkAsCreated(createdAt);
+        if (id.Value == default) throw new ArgumentException("A product needs an id.", nameof(id));
+        var product = new Product { Id = id };
+        var applied = product.ApplyIdentity(name, ruName, slug, type);
+        if (applied.IsFailure) return applied.Error!;
+        product.MarkAsCreated(createdAt);
+        return product;
     }
 
-    public static Product Create(ProductId id, string name, string ruName, ProductSlug slug, ProductType type, DateTimeOffset createdAt)
-        => new(id, name, ruName, slug, type, createdAt);
-
-    public void Update(string name, string ruName, ProductSlug slug, ProductType type, DateTimeOffset updatedAt)
+    public DomainResult Update(string name, string ruName, ProductSlug slug, ProductType type, DateTimeOffset updatedAt)
     {
         if (type == ProductType.Ppe && Type == ProductType.Sewing &&
             (_articles.Count != 0 || _materialLines.Count != 0 || _operationLines.Count != 0))
-            throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
-        SetName(name);
-        SetRuName(ruName);
-        SetSlug(slug);
-        SetType(type);
+            return ProductErrors.TypeSpecificDataInvalid();
+        var applied = ApplyIdentity(name, ruName, slug, type);
+        if (applied.IsFailure) return applied;
         ClearDetailsForOtherType();
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void SetDescriptions(string descriptionUk, string descriptionRu, DateTimeOffset updatedAt)
+    public DomainResult SetDescriptions(string descriptionUk, string descriptionRu, DateTimeOffset updatedAt)
     {
-        DescriptionUk = NormalizeDescription(descriptionUk);
-        DescriptionRu = NormalizeDescription(descriptionRu);
+        var uk = NormalizeDescription(descriptionUk);
+        if (uk.IsFailure) return uk.Error!;
+        var ru = NormalizeDescription(descriptionRu);
+        if (ru.IsFailure) return ru.Error!;
+        DescriptionUk = uk.Value;
+        DescriptionRu = ru.Value;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void ReplaceContent(IEnumerable<ProductInformationBlock> informationBlocks,
+    public DomainResult ReplaceContent(IEnumerable<ProductInformationBlock> informationBlocks,
         IEnumerable<ProductCharacteristicTable> characteristicTables, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(informationBlocks);
@@ -81,46 +82,53 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         var blocks = informationBlocks.ToList();
         var tables = characteristicTables.ToList();
         if (blocks.Any(x => x.ProductId != Id) || tables.Any(x => x.ProductId != Id))
-            throw new DomainException(ProductErrors.ContentBelongsToAnotherProduct());
+            return ProductErrors.ContentBelongsToAnotherProduct();
         _informationBlocks.Clear();
         _informationBlocks.AddRange(blocks);
         _characteristicTables.Clear();
         _characteristicTables.AddRange(tables);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void ConfigureSewing(SewingProductDetails details, DateTimeOffset updatedAt)
+    public DomainResult ConfigureSewing(SewingProductDetails details, DateTimeOffset updatedAt)
     {
-        if (Type != ProductType.Sewing) throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
         ArgumentNullException.ThrowIfNull(details);
-        if (details.ProductId != Id) throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
+        if (Type != ProductType.Sewing) return ProductErrors.TypeSpecificDataInvalid();
+        if (details.ProductId != Id) return ProductErrors.DetailsBelongToAnotherProduct();
         SewingDetails = details;
         PpeDetails = null;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void ConfigurePpe(PpeProductDetails details, DateTimeOffset updatedAt)
+    public DomainResult ConfigurePpe(PpeProductDetails details, DateTimeOffset updatedAt)
     {
-        if (Type != ProductType.Ppe) throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
         ArgumentNullException.ThrowIfNull(details);
-        if (details.ProductId != Id) throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
+        if (Type != ProductType.Ppe) return ProductErrors.TypeSpecificDataInvalid();
+        if (details.ProductId != Id) return ProductErrors.DetailsBelongToAnotherProduct();
         PpeDetails = details;
         SewingDetails = null;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void AddCategory(ProductCategoryId categoryId, DateTimeOffset updatedAt)
+    public DomainResult AddCategory(ProductCategoryId categoryId, DateTimeOffset updatedAt)
     {
-        EnsureCategoryNotAttached(categoryId);
+        if (_categories.Any(x => x.CategoryId == categoryId))
+            return ProductErrors.CategoryAlreadyAttached(categoryId.Value);
         _categories.Add(ProductCategoryReference.Create(Id, categoryId));
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void RemoveCategory(ProductCategoryId categoryId, DateTimeOffset updatedAt)
+    public DomainResult RemoveCategory(ProductCategoryId categoryId, DateTimeOffset updatedAt)
     {
-        var category = GetCategory(categoryId);
+        var category = _categories.FirstOrDefault(x => x.CategoryId == categoryId);
+        if (category is null) return ProductErrors.CategoryNotFound(categoryId.Value);
         _categories.Remove(category);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
     public void ReplaceCategories(IEnumerable<ProductCategoryId> categoryIds, DateTimeOffset updatedAt)
@@ -135,7 +143,7 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         MarkAsUpdated(updatedAt);
     }
 
-    public void AddPhoto(
+    public DomainResult AddPhoto(
         ProductPhotoId photoId,
         MediaFileId mediaFileId,
         DateTimeOffset updatedAt,
@@ -145,110 +153,97 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         bool isMain = false)
     {
         if (_photos.Any(x => x.Id == photoId))
-            throw new DomainException(ProductErrors.PhotoAlreadyExists(photoId.Value));
-
-        EnsureMediaFileNotAttached(mediaFileId);
+            return ProductErrors.PhotoAlreadyExists(photoId.Value);
+        if (CheckMediaFileNotAttached(mediaFileId) is { IsFailure: true } attached) return attached;
 
         var shouldBeMain = isMain || !_photos.Any();
+        var photo = ProductPhoto.Create(Id, photoId, mediaFileId, alt, isVisible, sortOrder, shouldBeMain);
+        if (photo.IsFailure) return photo.Error!;
         if (shouldBeMain)
             ClearMainPhoto();
-
-        _photos.Add(ProductPhoto.Create(Id, photoId, mediaFileId, alt, isVisible, sortOrder, shouldBeMain));
+        _photos.Add(photo.Value);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void SetPhotoVisibility(ProductPhotoId photoId, bool isVisible, DateTimeOffset updatedAt)
+    public DomainResult SetPhotoVisibility(ProductPhotoId photoId, bool isVisible, DateTimeOffset updatedAt)
     {
-        var photo = GetPhoto(photoId);
+        if (FindPhoto(photoId) is not { } photo) return ProductErrors.PhotoNotFound(photoId.Value);
         photo.SetVisibility(isVisible);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void SetPhotoAltText(ProductPhotoId photoId, string? alt, DateTimeOffset updatedAt)
+    public DomainResult SetPhotoAltText(ProductPhotoId photoId, string? alt, DateTimeOffset updatedAt)
     {
-        var photo = GetPhoto(photoId);
-        photo.SetAltText(alt);
+        if (FindPhoto(photoId) is not { } photo) return ProductErrors.PhotoNotFound(photoId.Value);
+        var set = photo.SetAltText(alt);
+        if (set.IsFailure) return set;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void ReplacePhotoMediaFile(ProductPhotoId photoId, MediaFileId mediaFileId, DateTimeOffset updatedAt)
+    public DomainResult ReplacePhotoMediaFile(ProductPhotoId photoId, MediaFileId mediaFileId, DateTimeOffset updatedAt)
     {
-        var photo = GetPhoto(photoId);
-        EnsureMediaFileNotAttached(mediaFileId, photoId);
+        if (FindPhoto(photoId) is not { } photo) return ProductErrors.PhotoNotFound(photoId.Value);
+        if (CheckMediaFileNotAttached(mediaFileId, photoId) is { IsFailure: true } attached) return attached;
         photo.ReplaceMediaFile(mediaFileId);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void SetPhotoSortOrder(ProductPhotoId photoId, int sortOrder, DateTimeOffset updatedAt)
+    public DomainResult SetPhotoSortOrder(ProductPhotoId photoId, int sortOrder, DateTimeOffset updatedAt)
     {
-        var photo = GetPhoto(photoId);
-        photo.SetSortOrder(sortOrder);
+        if (FindPhoto(photoId) is not { } photo) return ProductErrors.PhotoNotFound(photoId.Value);
+        var set = photo.SetSortOrder(sortOrder);
+        if (set.IsFailure) return set;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void SetMainPhoto(ProductPhotoId photoId, DateTimeOffset updatedAt)
+    public DomainResult SetMainPhoto(ProductPhotoId photoId, DateTimeOffset updatedAt)
     {
-        var photo = GetPhoto(photoId);
-
+        if (FindPhoto(photoId) is not { } photo) return ProductErrors.PhotoNotFound(photoId.Value);
         ClearMainPhoto();
         photo.SetMain(true);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void RemovePhoto(ProductPhotoId photoId, DateTimeOffset updatedAt)
+    public DomainResult RemovePhoto(ProductPhotoId photoId, DateTimeOffset updatedAt)
     {
-        var photo = GetPhoto(photoId);
+        if (FindPhoto(photoId) is not { } photo) return ProductErrors.PhotoNotFound(photoId.Value);
         var removedMainPhoto = photo.IsMain;
         _photos.Remove(photo);
 
         if (removedMainPhoto)
             EnsureMainPhotoSelected();
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    private void SetId(ProductId id)
+    /// <summary>Checks every identity field first, so a refused change leaves the product as it was.</summary>
+    private DomainResult ApplyIdentity(string name, string ruName, ProductSlug slug, ProductType type)
     {
-        if (id.Value == default)
-            throw new DomainException(ProductErrors.IdIsRequired());
-
-        Id = id;
-    }
-
-    private void SetName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException(ProductErrors.NameIsRequired());
-
-        var normalizedName = name.Trim();
-        if (normalizedName.Length > NameMaxLength)
-            throw new DomainException(ProductErrors.NameLengthInvalid(NameMaxLength));
-
-        Name = normalizedName;
-    }
-
-    private void SetRuName(string ruName)
-    {
-        if (string.IsNullOrWhiteSpace(ruName))
-            throw new DomainException(ProductErrors.NameIsRequired());
-
-        var normalizedRuName = ruName.Trim();
-        if (normalizedRuName.Length > NameMaxLength)
-            throw new DomainException(ProductErrors.NameLengthInvalid(NameMaxLength));
-
-        RuName = normalizedRuName;
-    }
-
-    private void SetSlug(string slug)
-    {
-        Slug = ProductSlug.Create(slug);
-    }
-
-    private void SetType(ProductType type)
-    {
-        if (!Enum.IsDefined(type))
-            throw new DomainException(ProductErrors.TypeIsRequired());
-
+        if (slug.Value is null) throw new ArgumentException("A product needs a slug.", nameof(slug));
+        var cleanName = CleanName(name);
+        if (cleanName.IsFailure) return cleanName.Error!;
+        var cleanRuName = CleanName(ruName);
+        if (cleanRuName.IsFailure) return cleanRuName.Error!;
+        if (!Enum.IsDefined(type)) return ProductErrors.TypeIsRequired();
+        Name = cleanName.Value;
+        RuName = cleanRuName.Value;
+        Slug = slug;
         Type = type;
+        return DomainResult.Success();
+    }
+
+    private static DomainResult<string> CleanName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return ProductErrors.NameIsRequired();
+        var normalizedName = name.Trim();
+        if (normalizedName.Length > NameMaxLength) return ProductErrors.NameLengthInvalid(NameMaxLength);
+        return normalizedName;
     }
 
     private void ClearDetailsForOtherType()
@@ -257,32 +252,15 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         else SewingDetails = null;
     }
 
-    private static string NormalizeDescription(string value)
+    private static DomainResult<string> NormalizeDescription(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new DomainException(ProductErrors.DescriptionIsRequired());
+        if (string.IsNullOrWhiteSpace(value)) return ProductErrors.DescriptionIsRequired();
         var normalized = value.Trim();
-        if (normalized.Length > 20_000) throw new DomainException(ProductErrors.DescriptionLengthInvalid());
+        if (normalized.Length > 20_000) return ProductErrors.DescriptionLengthInvalid();
         return normalized;
     }
 
-
-    private ProductPhoto GetPhoto(ProductPhotoId photoId)
-    {
-        var photo = _photos.FirstOrDefault(x => x.Id == photoId);
-        if (photo is null)
-            throw new DomainException(ProductErrors.PhotoNotFound(photoId.Value));
-
-        return photo;
-    }
-
-    private ProductCategoryReference GetCategory(ProductCategoryId categoryId)
-    {
-        var category = _categories.FirstOrDefault(x => x.CategoryId == categoryId);
-        if (category is null)
-            throw new DomainException(ProductErrors.CategoryNotFound(categoryId.Value));
-
-        return category;
-    }
+    private ProductPhoto? FindPhoto(ProductPhotoId photoId) => _photos.FirstOrDefault(x => x.Id == photoId);
 
     private void ClearMainPhoto()
     {
@@ -301,23 +279,14 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
             nextMainPhoto.SetMain(true);
     }
 
-    private void EnsureMediaFileNotAttached(MediaFileId mediaFileId, ProductPhotoId? exceptPhotoId = null)
+    private DomainResult CheckMediaFileNotAttached(MediaFileId mediaFileId, ProductPhotoId? exceptPhotoId = null)
     {
         var alreadyAttached = _photos.Any(x =>
             x.MediaFileId == mediaFileId &&
             (!exceptPhotoId.HasValue || x.Id != exceptPhotoId.Value));
 
-        if (alreadyAttached)
-            throw new DomainException(ProductErrors.PhotoMediaFileAlreadyAttached(mediaFileId.Value));
-    }
-
-    private void EnsureCategoryNotAttached(ProductCategoryId categoryId)
-    {
-        if (categoryId.Value == default)
-            throw new DomainException(ProductErrors.CategoryIdIsRequired());
-
-        var alreadyAttached = _categories.Any(x => x.CategoryId == categoryId);
-        if (alreadyAttached)
-            throw new DomainException(ProductErrors.CategoryAlreadyAttached(categoryId.Value));
+        return alreadyAttached
+            ? ProductErrors.PhotoMediaFileAlreadyAttached(mediaFileId.Value)
+            : DomainResult.Success();
     }
 }

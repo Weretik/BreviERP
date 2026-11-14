@@ -56,9 +56,9 @@ public sealed class PricingReferenceQueryIntegrationTests
         await using var db = CreateContext();
         db.PricingParameters.AddRange(
             PricingParameter.Create(PricingParameterId.From(10), "SEWING_PRICE_COEF_1",
-                new PricingParameterDetails("Прибуток", "Коефіцієнт ціни", 30m, "%", false, null, 1), null),
+                new PricingParameterDetails("Прибуток", "Коефіцієнт ціни", 30m, "%", false, null, 1), null).Value,
             PricingParameter.Create(PricingParameterId.From(20), "UNUSED",
-                new PricingParameterDetails("Прибуток", "Інший", 99m, "%", false, null, 2), null));
+                new PricingParameterDetails("Прибуток", "Інший", 99m, "%", false, null, 2), null).Value);
         await db.SaveChangesAsync();
 
         var handler = new GetPricingReferencesByIdsQueryHandler(

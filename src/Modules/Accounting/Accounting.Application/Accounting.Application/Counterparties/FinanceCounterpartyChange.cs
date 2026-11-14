@@ -17,9 +17,11 @@ namespace Accounting.Application.Counterparties;
 /// </summary>
 internal static class FinanceCounterpartyChange
 {
-    /// <param name="change">Applies the change and returns its log action, or null when nothing changed.</param>
+    /// <param name="change">
+    /// Applies the change and returns its log action, null when nothing changed, or the rule it broke.
+    /// </param>
     public static async Task<Result<FinanceCounterpartyResponse>> ApplyAsync(IAccountingDbContext db, Guid id, int version,
-        string by, DateTimeOffset now, Func<FinanceCounterparty, Task<AuditAction?>> change,
+        string by, DateTimeOffset now, Func<FinanceCounterparty, Task<DomainResult<AuditAction?>>> change,
         CancellationToken cancellationToken)
     {
         var counterparty = await FindAsync(db, id, cancellationToken);
@@ -28,7 +30,9 @@ internal static class FinanceCounterpartyChange
 
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         var before = AuditTrail.Snapshot(counterparty, names);
-        var action = await change(counterparty);
+        var changed = await change(counterparty);
+        if (changed.IsFailure) return changed.Error!.ToResult<FinanceCounterpartyResponse>();
+        var action = changed.Value;
         if (action is not null)
         {
             AuditTrail.Add(db, AuditEntity.Counterparty, id, action.Value, by, now, before,

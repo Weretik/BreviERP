@@ -29,7 +29,9 @@ public sealed class UpdateFinanceTransferCommandHandler(IAccountingDbContext db,
     public async ValueTask<Result<FinanceTransferResponse>> Handle(UpdateFinanceTransferCommand command,
         CancellationToken cancellationToken)
     {
-        var details = command.Fields.ToDetails();
+        var fields = command.Fields.ToDetails();
+        if (fields.IsFailure) return fields.Error!.ToResult<FinanceTransferResponse>();
+        var details = fields.Value;
         var transfer = await db.Transfers.FirstOrDefaultAsync(x => x.Id == FinanceTransferId.From(command.Id),
             cancellationToken);
         if (transfer is null) return Result.NotFound(AccountingMessages.TransferNotFound);
@@ -40,7 +42,9 @@ public sealed class UpdateFinanceTransferCommandHandler(IAccountingDbContext db,
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         var before = AuditTrail.Snapshot(transfer, names);
         var now = clock.GetUtcNow();
-        if (!transfer.Update(details, from, to, now)) return Result.Success(FinanceTransferResponse.From(transfer, names));
+        var updated = transfer.Update(details, from, to, now);
+        if (updated.IsFailure) return updated.Error!.ToResult<FinanceTransferResponse>();
+        if (!updated.Value) return Result.Success(FinanceTransferResponse.From(transfer, names));
 
         AuditTrail.Add(db, AuditEntity.Transfer, command.Id, AuditAction.Update, command.By, now, before,
             AuditTrail.Snapshot(transfer, names));

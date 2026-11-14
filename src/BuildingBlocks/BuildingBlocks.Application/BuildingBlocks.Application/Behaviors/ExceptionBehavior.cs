@@ -1,6 +1,4 @@
-﻿using BuildingBlocks.Application.Errors;
-using BuildingBlocks.Application.Logging;
-using BuildingBlocks.Domain.Exceptions;
+﻿using BuildingBlocks.Application.Logging;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -34,13 +32,6 @@ public sealed class ExceptionBehavior<TMessage, TResponse>(
             var exType = ex.GetType().Name;
 
             UnhandledLog.Critical(logger, messageType, exType, ex);
-            throw;
-        }
-        catch (DomainException ex)
-        {
-            DomainLog.RuleViolated(logger, typeof(TMessage).Name, ex.Error.Code);
-            if (ex.Error.TryToResult<TResponse>(out var response))
-                return response;
             throw;
         }
         catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)

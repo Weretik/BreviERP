@@ -26,7 +26,9 @@ public sealed class CreateFinanceAccountCommandHandler(IAccountingDbContext db, 
         CancellationToken cancellationToken)
     {
         var now = clock.GetUtcNow();
-        var account = FinanceAccount.Create(FinanceAccountId.New(), command.Fields.ToDetails(), now);
+        var details = command.Fields.ToDetails();
+        if (details.IsFailure) return details.Error!.ToResult<FinanceAccountResponse>();
+        var account = FinanceAccount.Create(FinanceAccountId.New(), details.Value, now);
         db.Accounts.Add(account);
         AuditTrail.Add(db, AuditEntity.Account, account.Id.Value, AuditAction.Create, command.By, now, null,
             AuditTrail.Snapshot(account));

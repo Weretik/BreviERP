@@ -31,11 +31,14 @@ public sealed class CreateFinanceCounterpartyCommandHandler(IAccountingDbContext
         CancellationToken cancellationToken)
     {
         var details = command.Fields.ToDetails();
+        if (details.IsFailure) return details.Error!.ToResult<FinanceCounterpartyResponse>();
         var (category, missing) = await command.Fields.LoadCategoryAsync(db, cancellationToken);
         if (missing) return Result.NotFound(AccountingMessages.DefaultCategoryNotFound);
 
         var now = clock.GetUtcNow();
-        var counterparty = FinanceCounterparty.Create(FinanceCounterpartyId.New(), details, category, command.Verified, now);
+        var created = FinanceCounterparty.Create(FinanceCounterpartyId.New(), details.Value, category, command.Verified, now);
+        if (created.IsFailure) return created.Error!.ToResult<FinanceCounterpartyResponse>();
+        var counterparty = created.Value;
         db.Counterparties.Add(counterparty);
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         AuditTrail.Add(db, AuditEntity.Counterparty, counterparty.Id.Value, AuditAction.Create, command.By, now, null,

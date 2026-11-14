@@ -29,20 +29,22 @@ public sealed class CreateGarmentPartCommandHandler(IReferenceRepository<Garment
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Id",
-                    "Р§Р°СЃС‚РёРЅР° РІРёСЂРѕР±Сѓ Р· С‚Р°РєРёРј С–РґРµРЅС‚РёС„С–РєР°С‚РѕСЂРѕРј СѓР¶Рµ С–СЃРЅСѓС”."));
+                    "Частина виробу з таким ідентифікатором уже існує."));
             }
 
             if (nameExists)
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Name",
-                    "Р§Р°СЃС‚РёРЅР° РІРёСЂРѕР±Сѓ Р· С‚Р°РєРѕСЋ РЅР°Р·РІРѕСЋ СѓР¶Рµ С–СЃРЅСѓС”."));
+                    "Частина виробу з такою назвою уже існує."));
             }
 
             return Result.Invalid(validationErrors);
         }
 
-        var entity = GarmentPartEntity.Create(id, name);
+        var created = GarmentPartEntity.Create(id, name);
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
 
         await repository.AddAsync(entity, cancellationToken);
 

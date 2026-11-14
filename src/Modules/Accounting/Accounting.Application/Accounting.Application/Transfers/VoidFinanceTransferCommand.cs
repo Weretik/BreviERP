@@ -35,7 +35,8 @@ public sealed class VoidFinanceTransferCommandHandler(IAccountingDbContext db, T
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         var before = AuditTrail.Snapshot(transfer, names);
         var now = clock.GetUtcNow();
-        transfer.Void(now);
+        var voided = transfer.Void(now);
+        if (voided.IsFailure) return voided.Error!.ToResult<FinanceTransferResponse>();
         AuditTrail.Add(db, AuditEntity.Transfer, command.Id, AuditAction.Void, command.By, now, before,
             AuditTrail.Snapshot(transfer, names));
         return await FinanceTransferSave.SaveAsync(db, transfer, names, cancellationToken);

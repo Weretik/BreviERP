@@ -116,7 +116,7 @@ public sealed class CatalogSheetImportTests
         var first = Plan();
         var stored = Stored(first.Writes[0], 300);
         stored.ReplaceArticles([Catalog.Domain.Products.Entities.SewingArticle.Create(
-            Catalog.Domain.Products.ValueObjects.ArticleId.Create(77), stored.Id, "999")], Now);
+            Catalog.Domain.Products.ValueObjects.ArticleId.Create(77), stored.Id, "999").Value], Now);
 
         var plan = Plan(context: Context([old, stored], calculatedProducts: new HashSet<int> { 7 },
             calculatedArticles: new HashSet<long> { 77 }));

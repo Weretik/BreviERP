@@ -27,11 +27,13 @@ public sealed class UpdateFinanceCounterpartyCommandHandler(IAccountingDbContext
         CancellationToken cancellationToken)
     {
         var details = command.Fields.ToDetails();
+        if (details.IsFailure) return details.Error!.ToResult<FinanceCounterpartyResponse>();
         var (category, missing) = await command.Fields.LoadCategoryAsync(db, cancellationToken);
         if (missing) return Result.NotFound(AccountingMessages.DefaultCategoryNotFound);
         var now = clock.GetUtcNow();
         return await FinanceCounterpartyChange.ApplyAsync(db, command.Id, command.Version, command.By, now,
-            counterparty => Task.FromResult<AuditAction?>(counterparty.Update(details, category, now) ? AuditAction.Update : null),
+            counterparty => Task.FromResult(counterparty.Update(details.Value, category, now)
+                .Map<AuditAction?>(changed => changed ? AuditAction.Update : null)),
             cancellationToken);
     }
 }

@@ -1,3 +1,4 @@
+using Ardalis.Result;
 using Accounting.Application.Abstractions;
 using Accounting.Application.Categories;
 using Accounting.Application.Contracts;
@@ -11,7 +12,6 @@ using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Transactions;
-using BuildingBlocks.Domain.Exceptions;
 using static UnitTests.Accounting.FinanceMovementFixture;
 
 namespace UnitTests.Accounting;
@@ -76,13 +76,13 @@ public sealed class FinanceCounterpartyTests
         var create = new CreateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
         var archived = harness.Parties.Clients[1];
         var bySupplier = (await new GetFinanceTransactionsQueryHandler(harness.Fresh(), harness.Parties, harness.Parties)
-            .Handle(new GetFinanceTransactionsQuery(Filter() with { Counterparty = CounterpartyLink.Of(CounterpartyKind.Supplier, "7") },
+            .Handle(new GetFinanceTransactionsQuery(Filter() with { Counterparty = CounterpartyLink.Of(CounterpartyKind.Supplier, "7").Value },
                 FinanceJournalSort.Date, FinanceSortDirection.Desc, 1), default)).Value;
 
-        await AssertDomain(() => create.Handle(new CreateFinanceTransactionCommand(LedgerScope.Current,
+        AssertDomain(await create.Handle(new CreateFinanceTransactionCommand(LedgerScope.Current,
             Fields(bank.Id, fabric.Id, 1_00) with { Counterparty = new(CounterpartyKind.Client, archived.Id) },
             AccountingTestHarness.Director), default).AsTask(), "в архіві");
-        await AssertDomain(() => create.Handle(new CreateFinanceTransactionCommand(LedgerScope.Current,
+        AssertDomain(await create.Handle(new CreateFinanceTransactionCommand(LedgerScope.Current,
             Fields(bank.Id, fabric.Id, 1_00) with { Counterparty = new(CounterpartyKind.Supplier, "7"), OneoffName = "Іван" },
             AccountingTestHarness.Director), default).AsTask(), "не обидва");
         var gone = await create.Handle(new CreateFinanceTransactionCommand(LedgerScope.Current,
@@ -112,7 +112,7 @@ public sealed class FinanceCounterpartyTests
         var operation = await Spend(harness, Fields(bank.Id, rent.Id, 100_00) with { Counterparty = Link(unchecked_) });
         var handler = new ReviewFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
 
-        await AssertDomain(() => handler.Handle(new ReviewFinanceTransactionCommand(operation.Id, office.Id,
+        AssertDomain(await handler.Handle(new ReviewFinanceTransactionCommand(operation.Id, office.Id,
             Link(unchecked_), null, operation.Version, AccountingTestHarness.Director), default).AsTask(), "Спершу підтвердіть");
         var reviewed = await handler.Handle(new ReviewFinanceTransactionCommand(operation.Id, office.Id, Link(checked_), null,
             operation.Version, AccountingTestHarness.Director), default);
@@ -204,7 +204,7 @@ public sealed class FinanceCounterpartyTests
         var source = all.Financial.Single(x => x.Id == duplicate.Id);
 
         var byOldName = (await List(harness, FinanceCounterpartyTab.Financial, search: "пат")).Financial;
-        await AssertDomain(() => update.Handle(new UpdateFinanceCounterpartyCommand(source.Id,
+        AssertDomain(await update.Handle(new UpdateFinanceCounterpartyCommand(source.Id,
             Details("Інше"), source.Version, AccountingTestHarness.Director), default).AsTask(), "об'єднано");
 
         Assert.Multiple(() =>
@@ -230,15 +230,15 @@ public sealed class FinanceCounterpartyTests
             " ТОВ  Ромашка ", "1234 5678", "ua21 3052-9900", "ROMASHKA TOV",
             ["Ромашка", "ромашка", "ТОВ Ромашка", " "], rent.Id, true, null), true, AccountingTestHarness.Director), default);
 
-        await AssertDomain(() => create.Handle(new CreateFinanceCounterpartyCommand(Details("Б") with
+        AssertDomain(await create.Handle(new CreateFinanceCounterpartyCommand(Details("Б") with
         {
             DefaultCategoryId = rent.Id, AutoApplyCategory = true,
         }, false, AccountingTestHarness.Director), default).AsTask(), "підтвердженого");
-        await AssertDomain(() => create.Handle(new CreateFinanceCounterpartyCommand(Details("В") with
+        AssertDomain(await create.Handle(new CreateFinanceCounterpartyCommand(Details("В") with
         {
             DefaultCategoryId = archiveCategory.Id,
         }, false, AccountingTestHarness.Director), default).AsTask(), "поточного обліку");
-        await AssertDomain(() => create.Handle(new CreateFinanceCounterpartyCommand(Details("Г") with { Edrpou = "12-AB" },
+        AssertDomain(await create.Handle(new CreateFinanceCounterpartyCommand(Details("Г") with { Edrpou = "12-AB" },
             false, AccountingTestHarness.Director), default).AsTask(), "лише цифри");
 
         Assert.Multiple(() =>
@@ -328,9 +328,5 @@ public sealed class FinanceCounterpartyTests
         (await new GetFinanceCounterpartiesQueryHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
             new GetFinanceCounterpartiesQuery(tab, search, includeArchived, 1), default)).Value;
 
-    private static async Task AssertDomain(Func<Task> action, string message)
-    {
-        var error = await Assert.ThrowsAsync<DomainException>(async () => await action());
-        Assert.That(error!.Message, Does.Contain(message));
-    }
+    private static void AssertDomain(IResult result, string message) => AssertRuleBroken(result, message: message);
 }

@@ -2,7 +2,6 @@ using Accounting.Application.Accounts;
 using Accounting.Application.History;
 using Accounting.Domain.Audit;
 using Ardalis.Result;
-using BuildingBlocks.Domain.Exceptions;
 
 namespace UnitTests.Accounting;
 
@@ -39,8 +38,7 @@ public sealed class FinanceAccountTests
     [Test]
     public void Domain_rejects_a_bad_currency()
     {
-        Assert.Throws<DomainException>(() =>
-            (AccountingTestHarness.Fields() with { Currency = "гривня" }).ToDetails());
+        Assert.That((AccountingTestHarness.Fields() with { Currency = "гривня" }).ToDetails().IsFailure, Is.True);
     }
 
     [Test]

@@ -42,13 +42,20 @@ public sealed class SupplierSeeder(
             var phoneNumber = string.IsNullOrWhiteSpace(row.PhoneNumber) ? null : row.PhoneNumber.Trim();
             var notes = string.IsNullOrWhiteSpace(row.Notes) ? null : row.Notes.Trim();
 
-            var entity = Supplier.Create(
+            var created = Supplier.Create(
                 SupplierId.From(row.Id),
                 name,
                 link,
                 contactPerson,
                 phoneNumber,
                 notes);
+            if (created.IsFailure)
+            {
+                logger.LogWarning("Skipped Supplier seed row {Id}: {Error}", row.Id, created.Error!.Message);
+                continue;
+            }
+
+            var entity = created.Value;
 
             await db.Suppliers.AddAsync(entity, cancellationToken);
         }

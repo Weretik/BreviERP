@@ -1,12 +1,9 @@
-using BuildingBlocks.Domain.Errors;
+﻿using BuildingBlocks.Domain.Errors;
 
 namespace Reference.Domain.PpeMarkupRules.Errors;
 
 public static class PpeMarkupRuleErrors
 {
-    public static Error IdIsRequired() =>
-        new("Reference.PpeMarkupRule.Id.Required", "Не вказано ідентифікатор правила.");
-
     public static Error NameIsRequired() =>
         new("Reference.PpeMarkupRule.Name.Required", "Назва правила є обов'язковою.");
 

@@ -24,9 +24,6 @@ public sealed class ErrorTests
         {
             Assert.That(error.ToResult().Status, Is.EqualTo(status));
             Assert.That(error.ToResult<int>().Status, Is.EqualTo(status));
-            Assert.That(error.TryToResult<Result<string>>(out var typed), Is.True);
-            Assert.That(typed.Status, Is.EqualTo(status));
-            Assert.That(error.TryToResult<string>(out _), Is.False);
         });
     }
 

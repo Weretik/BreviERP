@@ -109,10 +109,10 @@ public sealed class GetFinanceCounterpartiesQueryHandler(IAccountingDbContext db
         IReadOnlyList<AccountingParty> rows, CancellationToken cancellationToken)
     {
         var stats = await FinanceCounterpartyChange.OperationStatsAsync(db, kind,
-            rows.Select(x => CounterpartyLink.Of(kind, x.Id).Id).ToList(), cancellationToken);
+            rows.Select(x => CounterpartyLink.Of(kind, x.Id).Value.Id).ToList(), cancellationToken);
         return rows.Select(x =>
         {
-            var id = CounterpartyLink.Of(kind, x.Id).Id;
+            var id = CounterpartyLink.Of(kind, x.Id).Value.Id;
             var own = stats.GetValueOrDefault(id);
             return new FinancePartyResponse(kind, id, x.Name, x.TaxId, x.Active, own.Count, own.CurrentTurnoverMinor);
         }).ToList();

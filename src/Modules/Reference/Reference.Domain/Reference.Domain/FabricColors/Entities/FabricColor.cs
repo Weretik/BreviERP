@@ -1,6 +1,6 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Results;
 using Reference.Domain.FabricColors.Errors;
 using Reference.Domain.FabricColors.ValueObjects;
 
@@ -27,28 +27,24 @@ public class FabricColor : BaseEntity<FabricColorId>, IAggregateRoot
     #endregion
 
     #region Factories
-    public static FabricColor Create(FabricColorId id, FabricColorDetails details)
+    public static DomainResult<FabricColor> Create(FabricColorId id, FabricColorDetails details)
     {
-        if (id.Value == default)
-            throw new DomainException(FabricColorErrors.IdIsRequired());
-
+        if (id.Value == default) throw new ArgumentException("Fabric colour id is required.", nameof(id));
         var color = new FabricColor { Id = id };
-        color.ApplyDetails(details);
-        return color;
+        var applied = color.ApplyDetails(details);
+        return applied.IsFailure ? applied.Error! : color;
     }
 
-    public void ApplyDetails(FabricColorDetails details)
+    public DomainResult ApplyDetails(FabricColorDetails details)
     {
-        if (string.IsNullOrWhiteSpace(details.Name))
-            throw new DomainException(FabricColorErrors.NameIsRequired());
-
+        if (string.IsNullOrWhiteSpace(details.Name)) return FabricColorErrors.NameIsRequired();
         var name = details.Name.Trim();
-        if (name.Length > NameMaxLength)
-            throw new DomainException(FabricColorErrors.NameIsTooLong(NameMaxLength));
+        if (name.Length > NameMaxLength) return FabricColorErrors.NameIsTooLong(NameMaxLength);
 
         Name = name;
         IsActive = details.IsActive;
         SortOrder = details.SortOrder;
+        return DomainResult.Success();
     }
     #endregion
 }

@@ -30,9 +30,10 @@ public sealed class SetFinanceCounterpartyActiveCommandHandler(IAccountingDbCont
     {
         var now = clock.GetUtcNow();
         return await FinanceCounterpartyChange.ApplyAsync(db, command.Id, command.Version, command.By, now,
-            counterparty => Task.FromResult<AuditAction?>(counterparty.SetActive(command.Active, now)
-                ? command.Active ? AuditAction.Restore : AuditAction.Archive
-                : null),
+            counterparty => Task.FromResult(counterparty.SetActive(command.Active, now)
+                .Map<AuditAction?>(changed => changed
+                    ? command.Active ? AuditAction.Restore : AuditAction.Archive
+                    : null)),
             cancellationToken);
     }
 }

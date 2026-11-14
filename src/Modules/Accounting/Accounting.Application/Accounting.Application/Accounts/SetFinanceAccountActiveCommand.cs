@@ -27,9 +27,9 @@ public sealed class SetFinanceAccountActiveCommandHandler(IAccountingDbContext d
     {
         var now = clock.GetUtcNow();
         return await FinanceAccountChange.ApplyAsync(db, command.Id, command.Version, command.By, now,
-            account => account.SetActive(command.Active, now)
+            account => DomainResult<AuditAction?>.Success(account.SetActive(command.Active, now)
                 ? command.Active ? AuditAction.Restore : AuditAction.Archive
-                : null,
+                : null),
             cancellationToken);
     }
 }

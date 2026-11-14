@@ -69,10 +69,11 @@ public sealed class FinanceTransaction : IAggregateRoot
     /// A hand-made operation; <paramref name="account"/>, <paramref name="category"/> and <paramref name="counterparty"/>
     /// are the chosen records. An unchecked finance counterparty puts it into «Потребують перевірки».
     /// </summary>
-    public static FinanceTransaction Create(FinanceTransactionId id, LedgerScope scope, FinanceTransactionDetails details,
-        FinanceAccount account, FinanceCategory category, CounterpartyState? counterparty, string by, DateTimeOffset now)
+    public static DomainResult<FinanceTransaction> Create(FinanceTransactionId id, LedgerScope scope,
+        FinanceTransactionDetails details, FinanceAccount account, FinanceCategory category,
+        CounterpartyState? counterparty, string by, DateTimeOffset now)
     {
-        MovementRules.CheckScope(scope);
+        if (MovementRules.CheckScope(scope) is { IsFailure: true } badScope) return badScope.Error!;
         var transaction = new FinanceTransaction
         {
             Id = id,
@@ -84,8 +85,9 @@ public sealed class FinanceTransaction : IAggregateRoot
             CreatedAt = now,
             UpdatedAt = now,
         };
-        transaction.Check(details, account, category, isNew: true);
-        transaction.CheckCounterparty(details.Counterparty, counterparty, isNew: true);
+        var check = DomainResult.Combine(transaction.Check(details, account, category, isNew: true),
+            transaction.CheckCounterparty(details.Counterparty, counterparty, isNew: true));
+        if (check.IsFailure) return check.Error!;
         transaction.Apply(details, account, counterparty);
         return transaction;
     }
@@ -94,23 +96,33 @@ public sealed class FinanceTransaction : IAggregateRoot
     /// An income or expense of the old Calculator «Фінанси» with its id, source, state, check status and bank
     /// identity (stage 5). The date must fit the area; the currency comes from the account.
     /// </summary>
-    public static FinanceTransaction FromLegacy(FinanceTransactionId id, LedgerScope scope, LegacyMovement legacy,
-        DateOnly date, CategoryDirection type, FinanceAccount account, long amountMinor, FinanceCategory? category,
-        CounterpartyLink? counterparty, string? description, string? comment, VerificationStatus verification,
-        string? bankTransactionId, string? bankPurpose)
+    public static DomainResult<FinanceTransaction> FromLegacy(FinanceTransactionId id, LedgerScope scope,
+        LegacyMovement legacy, DateOnly date, CategoryDirection type, FinanceAccount account, long amountMinor,
+        FinanceCategory? category, CounterpartyLink? counterparty, string? description, string? comment,
+        VerificationStatus verification, string? bankTransactionId, string? bankPurpose)
     {
-        MovementRules.CheckScope(scope);
         legacy.Check();
         // A cancelled record keeps the area it had in the old system (an early test may sit on the wrong side of 01.10).
-        MovementRules.CheckDate(date, scope, legacy.Status == MovementStatus.Void ? date : null);
-        MovementRules.CheckAmount(amountMinor);
+        var check = DomainResult.Combine(
+            MovementRules.CheckScope(scope),
+            MovementRules.CheckDate(date, scope, legacy.Status == MovementStatus.Void ? date : null),
+            MovementRules.CheckAmount(amountMinor));
+        if (check.IsFailure) return check.Error!;
         if (!Enum.IsDefined(type) || !Enum.IsDefined(verification))
             throw new ArgumentOutOfRangeException(nameof(type), "Unknown type or check status of a moved operation.");
         if (category is not null && (category.Direction != type || category.Scope != scope))
-            throw AccountingDomainError.Fail("Accounting.Transaction.Category",
+            return AccountingErrors.Rule("Accounting.Transaction.Category",
                 $"Категорія «{category.Name}» не підходить до цієї операції.");
         if (bankTransactionId?.Length > LegacyMovement.ExternalIdMaxLength)
             throw new ArgumentException("Bank id is too long.", nameof(bankTransactionId));
+        var cleanDescription = MovementRules.Text(description, FinanceTransactionDetails.DescriptionMaxLength, "Опис",
+            oneLine: true);
+        var cleanComment = MovementRules.Text(comment, FinanceTransactionDetails.CommentMaxLength, "Коментар");
+        var cleanPurpose = MovementRules.Text(bankPurpose, FinanceTransactionDetails.CommentMaxLength,
+            "Призначення платежу");
+        var texts = DomainResult.Combine(cleanDescription.WithoutValue(), cleanComment.WithoutValue(),
+            cleanPurpose.WithoutValue());
+        if (texts.IsFailure) return texts.Error!;
         return new FinanceTransaction
         {
             Id = id,
@@ -132,11 +144,11 @@ public sealed class FinanceTransaction : IAggregateRoot
             CounterpartyKind = counterparty?.Kind,
             CounterpartyId = counterparty?.Id,
             OneoffName = string.Empty,
-            Description = MovementRules.Text(description, FinanceTransactionDetails.DescriptionMaxLength, "Опис", oneLine: true),
-            Comment = MovementRules.Text(comment, FinanceTransactionDetails.CommentMaxLength, "Коментар"),
+            Description = cleanDescription.Value,
+            Comment = cleanComment.Value,
             Verification = category is null ? VerificationStatus.NeedsCategory : verification,
             BankTransactionId = string.IsNullOrWhiteSpace(bankTransactionId) ? null : bankTransactionId.Trim(),
-            BankPurpose = MovementRules.Text(bankPurpose, FinanceTransactionDetails.CommentMaxLength, "Призначення платежу"),
+            BankPurpose = cleanPurpose.Value,
         };
     }
 
@@ -145,7 +157,7 @@ public sealed class FinanceTransaction : IAggregateRoot
     /// currency from the account, the category and who it is with from the director's choice. The bank id, fingerprint
     /// and purpose are kept so the line is never added again. No category → «Потребують перевірки».
     /// </summary>
-    public static FinanceTransaction FromBank(FinanceTransactionId id, BankStatementLine line, FinanceAccount account,
+    public static DomainResult<FinanceTransaction> FromBank(FinanceTransactionId id, BankStatementLine line, FinanceAccount account,
         FinanceCategory? category, CounterpartyState? counterparty, string by, DateTimeOffset now)
     {
         if (line.Date is not { } date || line.Type is not { } type || line.AmountMinor is not { } amount
@@ -153,9 +165,11 @@ public sealed class FinanceTransaction : IAggregateRoot
             throw new InvalidOperationException("Only a read income or expense line becomes an operation.");
         if (category?.Id != line.CategoryId || counterparty?.Link != line.Counterparty)
             throw new InvalidOperationException("The category and counterparty must be the ones of the line.");
-        MovementRules.CheckDate(date, LedgerScope.Current, null);
-        MovementRules.CheckAccount(account, date, LedgerScope.Current, unchanged: false);
-        MovementRules.CheckAmount(amount);
+        var check = DomainResult.Combine(
+            MovementRules.CheckDate(date, LedgerScope.Current, null),
+            MovementRules.CheckAccount(account, date, LedgerScope.Current, unchanged: false),
+            MovementRules.CheckAmount(amount));
+        if (check.IsFailure) return check.Error!;
         var transaction = new FinanceTransaction
         {
             Id = id,
@@ -179,7 +193,8 @@ public sealed class FinanceTransaction : IAggregateRoot
             BankPurpose = line.Purpose,
         };
         // A category switched off after it was chosen for the line still books: the choice was made while it was on.
-        if (category is not null) transaction.CheckCategory(category, type, keeps: true);
+        if (category is not null && transaction.CheckCategory(category, type, keeps: true) is { IsFailure: true } bad)
+            return bad.Error!;
         transaction.CategoryId = category?.Id;
         transaction.SetCounterparty(counterparty?.Link, counterparty is null ? line.OneoffName : string.Empty);
         transaction.Verification = VerificationOf(transaction.CategoryId, counterparty);
@@ -187,16 +202,17 @@ public sealed class FinanceTransaction : IAggregateRoot
     }
 
     /// <summary>Changes the fields; returns false when nothing differs (the version stays).</summary>
-    public bool Update(FinanceTransactionDetails details, FinanceAccount account, FinanceCategory category,
-        CounterpartyState? counterparty, DateTimeOffset now)
+    public DomainResult<bool> Update(FinanceTransactionDetails details, FinanceAccount account,
+        FinanceCategory category, CounterpartyState? counterparty, DateTimeOffset now)
     {
-        MovementRules.EnsureActive(Status);
+        if (MovementRules.EnsureActive(Status) is { IsFailure: true } voided) return voided.Error!;
         if (Source != MovementSource.Manual)
-            throw AccountingDomainError.Fail("Accounting.Transaction.Source",
+            return AccountingErrors.Rule("Accounting.Transaction.Source",
                 "Банківську операцію змінюють окремою формою; дата, рахунок і сума в ній захищені.");
         if (details == Details) return false;
-        Check(details, account, category, isNew: false);
-        CheckCounterparty(details.Counterparty, counterparty, isNew: false);
+        var check = DomainResult.Combine(Check(details, account, category, isNew: false),
+            CheckCounterparty(details.Counterparty, counterparty, isNew: false));
+        if (check.IsFailure) return check.Error!;
         Apply(details, account, counterparty);
         Touch(now);
         return true;
@@ -207,15 +223,19 @@ public sealed class FinanceTransaction : IAggregateRoot
     /// date, account and amount of a bank line stay protected). The result must be checked: a finance counterparty
     /// has to be confirmed first. Returns false when nothing changes.
     /// </summary>
-    public bool Review(FinanceCategory category, CounterpartyState? counterparty, string? oneoffName, DateTimeOffset now)
+    public DomainResult<bool> Review(FinanceCategory category, CounterpartyState? counterparty, string? oneoffName,
+        DateTimeOffset now)
     {
-        MovementRules.EnsureActive(Status);
+        if (MovementRules.EnsureActive(Status) is { IsFailure: true } voided) return voided.Error!;
         var link = counterparty?.Link;
-        var oneoff = FinanceTransactionDetails.OneoffOf(link, oneoffName);
-        CheckCategory(category, Type, keeps: category.Id == CategoryId);
-        CheckCounterparty(link, counterparty, isNew: false);
+        var checkedOneoff = FinanceTransactionDetails.OneoffOf(link, oneoffName);
+        if (checkedOneoff.IsFailure) return checkedOneoff.Error!;
+        var oneoff = checkedOneoff.Value;
+        var check = DomainResult.Combine(CheckCategory(category, Type, keeps: category.Id == CategoryId),
+            CheckCounterparty(link, counterparty, isNew: false));
+        if (check.IsFailure) return check.Error!;
         if (counterparty is { Verified: false })
-            throw AccountingDomainError.Fail("Accounting.Transaction.Review",
+            return AccountingErrors.Rule("Accounting.Transaction.Review",
                 $"Спершу підтвердіть контрагента «{counterparty.Name}» у «Контрагенти».");
         if (category.Id == CategoryId && link == Counterparty && oneoff == OneoffName
             && Verification == VerificationStatus.Verified) return false;
@@ -240,11 +260,11 @@ public sealed class FinanceTransaction : IAggregateRoot
     }
 
     /// <summary>The one-off name that «Зробити постійним» turns into a counterparty; refuses when there is none.</summary>
-    public string OneoffToPromote()
+    public DomainResult<string> OneoffToPromote()
     {
-        MovementRules.EnsureActive(Status);
+        if (MovementRules.EnsureActive(Status) is { IsFailure: true } voided) return voided.Error!;
         if (OneoffName.Length == 0)
-            throw AccountingDomainError.Fail("Accounting.Transaction.Promote", "В операції немає разового контрагента.");
+            return AccountingErrors.Rule("Accounting.Transaction.Promote", "В операції немає разового контрагента.");
         return OneoffName;
     }
 
@@ -252,12 +272,13 @@ public sealed class FinanceTransaction : IAggregateRoot
     /// «Зробити постійним»: the one-off name becomes <paramref name="counterparty"/> (just created from it) and the
     /// one-off name is cleared.
     /// </summary>
-    public void PromoteOneoff(CounterpartyState counterparty, DateTimeOffset now)
+    public DomainResult PromoteOneoff(CounterpartyState counterparty, DateTimeOffset now)
     {
-        OneoffToPromote();
+        if (OneoffToPromote() is { IsFailure: true } cannot) return cannot.WithoutValue();
         SetCounterparty(counterparty.Link, string.Empty);
         Verification = VerificationOf(CategoryId, counterparty);
         Touch(now);
+        return DomainResult.Success();
     }
 
     /// <summary>
@@ -274,48 +295,53 @@ public sealed class FinanceTransaction : IAggregateRoot
     }
 
     /// <summary>«Анулювати»: the operation stays in the journal and the log but no longer counts.</summary>
-    public void Void(DateTimeOffset now)
+    public DomainResult Void(DateTimeOffset now)
     {
-        MovementRules.EnsureActive(Status);
+        if (MovementRules.EnsureActive(Status) is { IsFailure: true } voided) return voided;
         Status = MovementStatus.Void;
         Touch(now);
+        return DomainResult.Success();
     }
 
-    private void Check(FinanceTransactionDetails details, FinanceAccount account, FinanceCategory category, bool isNew)
+    private DomainResult Check(FinanceTransactionDetails details, FinanceAccount account, FinanceCategory category, bool isNew)
     {
         if (account.Id != details.AccountId || category.Id != details.CategoryId)
             throw new InvalidOperationException("The account and category must be the ones named in the details.");
-        MovementRules.CheckDate(details.Date, Scope, isNew ? null : Date);
-        MovementRules.CheckAccount(account, details.Date, Scope, unchanged: !isNew && account.Id == AccountId);
+        var check = DomainResult.Combine(
+            MovementRules.CheckDate(details.Date, Scope, isNew ? null : Date),
+            MovementRules.CheckAccount(account, details.Date, Scope, unchanged: !isNew && account.Id == AccountId));
+        if (check.IsFailure) return check;
         if (!isNew && account.Currency != Currency)
-            throw AccountingDomainError.Fail("Accounting.Transaction.Currency",
+            return AccountingErrors.Rule("Accounting.Transaction.Currency",
                 $"Валюта рахунку «{account.Name}» інша ({account.Currency}); оберіть рахунок у {Currency}.");
 
-        CheckCategory(category, details.Type, keeps: !isNew && category.Id == CategoryId);
+        return CheckCategory(category, details.Type, keeps: !isNew && category.Id == CategoryId);
     }
 
-    private void CheckCategory(FinanceCategory category, CategoryDirection type, bool keeps)
+    private DomainResult CheckCategory(FinanceCategory category, CategoryDirection type, bool keeps)
     {
         if (category.Scope != Scope)
-            throw AccountingDomainError.Fail("Accounting.Transaction.Category", Scope == LedgerScope.Current
+            return AccountingErrors.Rule("Accounting.Transaction.Category", Scope == LedgerScope.Current
                 ? "Категорія з «Домашньої бухгалтерії» не підходить для поточного обліку."
                 : "Категорія поточного обліку не підходить для «Домашньої бухгалтерії».");
         if (category.Direction != type)
-            throw AccountingDomainError.Fail("Accounting.Transaction.Category", type == CategoryDirection.Income
+            return AccountingErrors.Rule("Accounting.Transaction.Category", type == CategoryDirection.Income
                 ? "Для доходу оберіть категорію доходів."
                 : "Для витрати оберіть категорію витрат.");
         if (!category.Active && !keeps)
-            throw AccountingDomainError.Fail("Accounting.Transaction.Category", $"Категорія «{category.Name}» вимкнена.");
+            return AccountingErrors.Rule("Accounting.Transaction.Category", $"Категорія «{category.Name}» вимкнена.");
+        return DomainResult.Success();
     }
 
     /// <summary>A newly chosen counterparty must be active; the one the operation already had stays allowed.</summary>
-    private void CheckCounterparty(CounterpartyLink? link, CounterpartyState? counterparty, bool isNew)
+    private DomainResult CheckCounterparty(CounterpartyLink? link, CounterpartyState? counterparty, bool isNew)
     {
         if (counterparty?.Link != link)
             throw new InvalidOperationException("The counterparty must be the one named in the details.");
         if (counterparty is { Active: false } && (isNew || link != Counterparty))
-            throw AccountingDomainError.Fail("Accounting.Transaction.Counterparty",
+            return AccountingErrors.Rule("Accounting.Transaction.Counterparty",
                 $"Контрагент «{counterparty.Name}» в архіві. Оберіть іншого.");
+        return DomainResult.Success();
     }
 
     private static VerificationStatus VerificationOf(FinanceCategoryId? categoryId, CounterpartyState? counterparty) =>

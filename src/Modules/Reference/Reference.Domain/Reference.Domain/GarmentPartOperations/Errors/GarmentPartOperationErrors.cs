@@ -1,12 +1,9 @@
-using BuildingBlocks.Domain.Errors;
+﻿using BuildingBlocks.Domain.Errors;
 
 namespace Reference.Domain.GarmentPartOperations.Errors;
 
 public static class GarmentPartOperationErrors
 {
-    public static Error IdIsRequired() =>
-        new("Reference.GarmentPartOperation.Id.Required", "Не вказано операцію.");
-
     public static Error GarmentPartIdIsRequired() =>
         new("Reference.GarmentPartOperation.GarmentPartId.Required", "Не вказано деталь виробу.");
 

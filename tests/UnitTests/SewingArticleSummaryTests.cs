@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Application.Contracts.Pricing;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Pricing.Sewing.ArticleSummary;
@@ -121,16 +120,16 @@ public sealed class SewingArticleSummaryTests
     {
         var productId = ProductId.Create(7);
         var operation = SewingOperationLine.Create(CompositionLineId.Create(1), productId, null,
-            OperationReferenceId.Create(3), 1, null, 0, comment: "  Комір  ");
+            OperationReferenceId.Create(3), 1, null, 0, comment: "  Комір  ").Value;
         var empty = SewingMaterialLine.Create(CompositionLineId.Create(2), productId, null, SewingMaterialKind.Fabric,
-            FabricReferenceId.Create(4), null, null, 1.4m, SewingMaterialUnit.Metre, 0, comment: " ");
+            FabricReferenceId.Create(4), null, null, 1.4m, SewingMaterialUnit.Metre, 0, comment: " ").Value;
 
         Assert.Multiple(() =>
         {
             Assert.That(operation.Comment, Is.EqualTo("Комір"));
             Assert.That(empty.Comment, Is.Null);
-            Assert.Throws<DomainException>(() => SewingOperationLine.Create(CompositionLineId.Create(1), productId,
-                null, OperationReferenceId.Create(3), 1, null, 0, comment: new string('я', 501)));
+            Assert.That(SewingOperationLine.Create(CompositionLineId.Create(1), productId,
+                null, OperationReferenceId.Create(3), 1, null, 0, comment: new string('я', 501)).IsFailure, Is.True);
         });
     }
 }

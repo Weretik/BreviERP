@@ -22,7 +22,7 @@ public sealed class SewingCompositionHandlerTests
     public async Task Stale_article_or_composition_version_does_not_read_references_or_save()
     {
         var fixture = new Fixture();
-        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(1), fixture.Product.Id, "SKU-1"), DateTimeOffset.UtcNow);
+        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(1), fixture.Product.Id, "SKU-1").Value, DateTimeOffset.UtcNow);
 
         var result = await fixture.CompositionHandler.Handle(new ReplaceSewingCompositionCommand(101,
             new(null, [], [], 0), "manager-1"), CancellationToken.None);
@@ -36,7 +36,7 @@ public sealed class SewingCompositionHandlerTests
     public async Task Stale_article_create_does_not_check_sku_or_save()
     {
         var fixture = new Fixture();
-        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(1), fixture.Product.Id, "SKU-1"), DateTimeOffset.UtcNow);
+        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(1), fixture.Product.Id, "SKU-1").Value, DateTimeOffset.UtcNow);
 
         var result = await fixture.ArticleHandler.Handle(new CreateSewingArticleCommand(101,
             new("SKU-2", true, 0, 10, 3.6m, 0)), CancellationToken.None);
@@ -128,7 +128,7 @@ public sealed class SewingCompositionHandlerTests
     public async Task Variant_update_changes_sku_activity_and_fabric()
     {
         var fixture = new Fixture();
-        var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21");
+        var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21").Value;
         fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
         fixture.Product.SetArticleFabric(article.Id, FabricReferenceId.Create(10), 2m, DateTimeOffset.UtcNow);
         fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
@@ -149,7 +149,7 @@ public sealed class SewingCompositionHandlerTests
     public async Task Variant_with_price_history_cannot_be_deleted()
     {
         var fixture = new Fixture();
-        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21"), DateTimeOffset.UtcNow);
+        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21").Value, DateTimeOffset.UtcNow);
         fixture.Store.Setup(x => x.HasPriceHistoryAsync(21, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var result = await fixture.DeleteHandler.Handle(new DeleteSewingArticleCommand(101, 21,
@@ -165,7 +165,7 @@ public sealed class SewingCompositionHandlerTests
     public async Task Variant_without_prices_is_deleted_with_its_fabric()
     {
         var fixture = new Fixture();
-        var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21");
+        var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21").Value;
         fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
         fixture.Product.SetArticleFabric(article.Id, FabricReferenceId.Create(10), 2m, DateTimeOffset.UtcNow);
         fixture.Store.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true);
@@ -182,7 +182,7 @@ public sealed class SewingCompositionHandlerTests
     public async Task Variant_of_another_product_returns_not_found_without_save()
     {
         var fixture = new Fixture();
-        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21"), DateTimeOffset.UtcNow);
+        fixture.Product.AddArticle(SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21").Value, DateTimeOffset.UtcNow);
 
         var result = await fixture.UpdateHandler.Handle(new UpdateSewingArticleCommand(101, 22,
             new("SKU-22", true, 10, 1m, fixture.Product.CompositionVersion)), CancellationToken.None);
@@ -196,10 +196,10 @@ public sealed class SewingCompositionHandlerTests
     public async Task Common_and_article_fabric_conflict_leaves_existing_composition_unchanged()
     {
         var fixture = new Fixture();
-        var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21");
+        var article = SewingArticle.Create(ArticleId.Create(21), fixture.Product.Id, "SKU-21").Value;
         fixture.Product.AddArticle(article, DateTimeOffset.UtcNow);
         var existing = SewingMaterialLine.Create(CompositionLineId.Create(4), fixture.Product.Id, article.Id,
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 1m, SewingMaterialUnit.Metre, 0);
+            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 1m, SewingMaterialUnit.Metre, 0).Value;
         fixture.Product.ReplaceComposition([existing], [], DateTimeOffset.UtcNow);
         fixture.Store.Setup(x => x.LoadAsync(101, It.IsAny<CancellationToken>())).ReturnsAsync(fixture.Product);
         fixture.ReferenceReader.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(References());
@@ -236,12 +236,12 @@ public sealed class SewingCompositionHandlerTests
     {
         var fixture = new ReplaceFixture();
         var product = Fixture.NewSewingProduct();
-        var legacy = SewingProductDetails.Create(product.Id, 1m, [new ProductFabric(product.Id, 10, true, 0)], [], []);
+        var legacy = SewingProductDetails.Create(product.Id, 1m, [ProductFabric.Create(product.Id, 10, true, 0).Value], [], []).Value;
         product.ConfigureSewing(legacy, DateTimeOffset.UtcNow);
-        var article = SewingArticle.Create(ArticleId.Create(24), product.Id, "SKU-24");
+        var article = SewingArticle.Create(ArticleId.Create(24), product.Id, "SKU-24").Value;
         product.AddArticle(article, DateTimeOffset.UtcNow);
         product.ReplaceComposition([SewingMaterialLine.Create(CompositionLineId.Create(10), product.Id, null,
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 2m, SewingMaterialUnit.Metre, 0)], [], DateTimeOffset.UtcNow);
+            SewingMaterialKind.Fabric, FabricReferenceId.Create(10), null, null, 2m, SewingMaterialUnit.Metre, 0).Value], [], DateTimeOffset.UtcNow);
         fixture.LoadProduct(product);
 
         var changedNorm = await fixture.Handler.Handle(new ReplaceProductCommand(101,
@@ -261,7 +261,7 @@ public sealed class SewingCompositionHandlerTests
     {
         var fixture = new ReplaceFixture();
         var product = Fixture.NewSewingProduct();
-        product.AddArticle(SewingArticle.Create(ArticleId.Create(24), product.Id, "SKU-24"), DateTimeOffset.UtcNow);
+        product.AddArticle(SewingArticle.Create(ArticleId.Create(24), product.Id, "SKU-24").Value, DateTimeOffset.UtcNow);
         fixture.LoadProduct(product);
 
         var result = await fixture.Handler.Handle(new ReplaceProductCommand(101, PpeRequest()), CancellationToken.None);
@@ -301,7 +301,7 @@ public sealed class SewingCompositionHandlerTests
         }
 
         public static Product NewSewingProduct() => Product.Create(ProductId.Create(101), "Old", "Old RU",
-            ProductSlug.Create("old"), ProductType.Sewing, DateTimeOffset.UtcNow);
+            ProductSlug.Create("old").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
     }
 
     private sealed class ReplaceFixture

@@ -33,39 +33,39 @@ public sealed partial record FinanceCounterpartyDetails(
     /// Trims the texts, keeps only digits of ЄДРПОУ/ІПН, only letters and digits of the IBAN (upper-case), and makes
     /// the alternative names one per line without repeats.
     /// </summary>
-    public static FinanceCounterpartyDetails Of(string? name, string? edrpou, string? iban, string? bankName,
+    public static DomainResult<FinanceCounterpartyDetails> Of(string? name, string? edrpou, string? iban, string? bankName,
         IEnumerable<string>? aliases, FinanceCategoryId? defaultCategoryId, bool autoApplyCategory, string? note)
     {
         var cleanName = FinanceText.Name(name);
         if (cleanName.Length == 0)
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Name", "Вкажіть назву контрагента.");
+            return AccountingErrors.Rule("Accounting.Counterparty.Name", "Вкажіть назву контрагента.");
         if (cleanName.Length > NameMaxLength)
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Name", $"Назва — не більше {NameMaxLength} символів.");
+            return AccountingErrors.Rule("Accounting.Counterparty.Name", $"Назва — не більше {NameMaxLength} символів.");
 
         var cleanEdrpou = Whitespace().Replace(edrpou ?? string.Empty, string.Empty);
         if (cleanEdrpou.Length > EdrpouMaxLength || cleanEdrpou.Any(c => !char.IsAsciiDigit(c)))
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Edrpou",
+            return AccountingErrors.Rule("Accounting.Counterparty.Edrpou",
                 $"ЄДРПОУ або ІПН — лише цифри, не більше {EdrpouMaxLength}.");
 
         var cleanIban = NotLetterOrDigit().Replace(iban ?? string.Empty, string.Empty).ToUpperInvariant();
         if (cleanIban.Length > IbanMaxLength)
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Iban", $"IBAN — не більше {IbanMaxLength} символів.");
+            return AccountingErrors.Rule("Accounting.Counterparty.Iban", $"IBAN — не більше {IbanMaxLength} символів.");
 
         var cleanBankName = FinanceText.Name(bankName);
         if (cleanBankName.Length > NameMaxLength)
-            throw AccountingDomainError.Fail("Accounting.Counterparty.BankName",
+            return AccountingErrors.Rule("Accounting.Counterparty.BankName",
                 $"Назва в банку — не більше {NameMaxLength} символів.");
 
         var cleanAliases = (aliases ?? []).Select(FinanceText.Name).Where(x => x.Length > 0)
             .Where(x => !string.Equals(x, cleanName, StringComparison.OrdinalIgnoreCase))
             .DistinctBy(x => x.ToLowerInvariant()).ToList();
         if (cleanAliases.Count > MaxAliases || cleanAliases.Any(x => x.Length > AliasMaxLength))
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Aliases",
+            return AccountingErrors.Rule("Accounting.Counterparty.Aliases",
                 $"Інших назв — не більше {MaxAliases}, кожна до {AliasMaxLength} символів.");
 
         var cleanNote = FinanceText.Clean(note);
         if (cleanNote.Length > NoteMaxLength)
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Note", $"Примітка — не більше {NoteMaxLength} символів.");
+            return AccountingErrors.Rule("Accounting.Counterparty.Note", $"Примітка — не більше {NoteMaxLength} символів.");
 
         return new FinanceCounterpartyDetails(cleanName, cleanEdrpou, cleanIban, cleanBankName,
             string.Join('\n', cleanAliases), defaultCategoryId, autoApplyCategory, cleanNote);

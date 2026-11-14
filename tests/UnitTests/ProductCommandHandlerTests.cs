@@ -148,7 +148,7 @@ public sealed class ProductCommandHandlerTests
 
     private static CreateProductCommandRequest SewingRequest() => new(101, "Куртка", "Куртка", ProductType.Sewing, "Опис", "Описание", [], [], [], [], new SewingProductRequest(1m, [new FabricRequest(10, true, 0)], [], []), null);
 
-    private static Product NewProduct() => Product.Create(ProductId.Create(101), "Стара куртка", "Старая куртка", ProductSlug.Create("stara-kurtka"), ProductType.Sewing, DateTimeOffset.UtcNow);
+    private static Product NewProduct() => Product.Create(ProductId.Create(101), "Стара куртка", "Старая куртка", ProductSlug.Create("stara-kurtka").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
 
     private static ProductReferenceData References() => new(
         new Dictionary<int, ReferenceItem>(), new Dictionary<int, PricedReferenceItem> { [10] = new(10, "Тканина", 100m) },

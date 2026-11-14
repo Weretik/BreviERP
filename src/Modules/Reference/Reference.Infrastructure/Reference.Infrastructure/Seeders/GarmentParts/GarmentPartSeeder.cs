@@ -38,7 +38,14 @@ public sealed class GarmentPartSeeder(
         {
             var name = row.Name.Trim();
 
-            var entity = GarmentPart.Create(GarmentPartId.From(row.Id), name);
+            var created = GarmentPart.Create(GarmentPartId.From(row.Id), name);
+            if (created.IsFailure)
+            {
+                logger.LogWarning("Skipped GarmentPart seed row {Id}: {Error}", row.Id, created.Error!.Message);
+                continue;
+            }
+
+            var entity = created.Value;
 
             await db.GarmentParts.AddAsync(entity, cancellationToken);
         }

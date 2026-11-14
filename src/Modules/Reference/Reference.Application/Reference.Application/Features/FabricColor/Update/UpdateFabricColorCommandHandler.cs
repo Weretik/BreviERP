@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.FabricColor.Shared;
 using FabricColorEntity = Reference.Domain.FabricColors.Entities.FabricColor;
@@ -18,14 +17,8 @@ public sealed class UpdateFabricColorCommandHandler(IReferenceRepository<FabricC
         if (FabricColorNames.Taken(colors, command.Request.Name, command.Id))
             return Result.Invalid([new ValidationError("Request.Name", FabricColorNames.Duplicate)]);
 
-        try
-        {
-            entity.ApplyDetails(FabricColorNames.Details(command.Request));
-        }
-        catch (DomainException exception)
-        {
-            return Result.Invalid([new ValidationError("Request", exception.Message)]);
-        }
+        var changed = entity.ApplyDetails(FabricColorNames.Details(command.Request));
+        if (changed.IsFailure) return changed.Error!.ToResult();
 
         await repository.UpdateAsync(entity, cancellationToken);
         return Result.Success();

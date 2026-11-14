@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Application.Features.Product.Overview.Update;
 using Catalog.Application.Features.Product.Overview.Update.Validators;
 using Catalog.Domain.Products.Entities;
@@ -38,9 +37,9 @@ public sealed class ProductOverviewTests
 
         Assert.Multiple(() =>
         {
-            Assert.Throws<DomainException>(() => ppe.SetOverview(Details(), Now));
-            Assert.Throws<DomainException>(() => sewing.SetOverview(Details(season: "Осінь"), Now));
-            Assert.Throws<DomainException>(() => sewing.SetOverview(Details(url: "brevi.com.ua/x"), Now));
+            Assert.That(ppe.SetOverview(Details(), Now).IsFailure, Is.True);
+            Assert.That(sewing.SetOverview(Details(season: "Осінь"), Now).IsFailure, Is.True);
+            Assert.That(sewing.SetOverview(Details(url: "brevi.com.ua/x"), Now).IsFailure, Is.True);
         });
     }
 
@@ -51,7 +50,7 @@ public sealed class ProductOverviewTests
         ppe.SetCode(" 17 ", Now);
         Assert.That(ppe.CatalogProfile!.SaleSku, Is.EqualTo("17"));
         Assert.That(ppe.Code, Is.EqualTo("17"));
-        Assert.Throws<DomainException>(() => ppe.SetCode(" ", Now));
+        Assert.That(ppe.SetCode(" ", Now).IsFailure, Is.True);
 
         var sewing = Create(ProductType.Sewing);
         sewing.SetCode("MOD-025", Now);
@@ -81,7 +80,7 @@ public sealed class ProductOverviewTests
     }
 
     private static Product Create(ProductType type)
-        => Product.Create(ProductId.Create(101), "Костюм «Верде»", "Костюм «Верде» RU", ProductSlug.Create("kostyum-verde"), type, Now);
+        => Product.Create(ProductId.Create(101), "Костюм «Верде»", "Костюм «Верде» RU", ProductSlug.Create("kostyum-verde").Value, type, Now).Value;
 
     private static ProductOverviewDetails Details(
         string? season = "Літо", string? url = null, string? quote = null)

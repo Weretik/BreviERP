@@ -23,7 +23,7 @@ public sealed class OperationCatalogImporter(ReferenceDbContext db, SourceMappin
             var part = parts.SingleOrDefault(x => x.Name == name);
             if (part is not null)
                 return part;
-            part = GarmentPart.Create(GarmentPartId.From(++nextPart), name);
+            part = GarmentPart.Create(GarmentPartId.From(++nextPart), name).Require($"Part «{name}»");
             parts.Add(part);
             db.GarmentParts.Add(part);
             return part;
@@ -35,7 +35,8 @@ public sealed class OperationCatalogImporter(ReferenceDbContext db, SourceMappin
             var entity = operations.SingleOrDefault(x => x.Name == name && x.GarmentPartId == part.Id);
             if (entity is null)
             {
-                entity = GarmentPartOperation.Create(GarmentPartOperationId.From(++nextOperation), part.Id, name, minutes);
+                entity = GarmentPartOperation.Create(GarmentPartOperationId.From(++nextOperation), part.Id, name, minutes)
+                    .Require(sourceKey);
                 operations.Add(entity);
                 db.GarmentPartOperations.Add(entity);
                 report.ReferenceChanges.Add($"Operation created: {sourceKey} -> {entity.Id.Value}.");
@@ -43,7 +44,7 @@ public sealed class OperationCatalogImporter(ReferenceDbContext db, SourceMappin
             else if (entity.Min != minutes)
             {
                 report.ReferenceChanges.Add($"Operation {sourceKey} ID {entity.Id.Value}: minutes {entity.Min} -> {minutes}.");
-                entity.Update(part.Id, entity.Name, minutes);
+                entity.Update(part.Id, entity.Name, minutes).Require(sourceKey);
             }
             result.Add(sourceKey, entity.Id.Value);
             mappings.Add("Operation", sourceKey, "GarmentPartOperation", entity.Id.Value);

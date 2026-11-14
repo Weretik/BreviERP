@@ -19,7 +19,7 @@ public static class CatalogMaterialLineMapper
             !isFabric && !isService ? AccessoryReferenceId.Create(references.Accessories[row.Text(6)]) : null,
             isService ? row.Text(6) : null, row.Decimal(8)!.Value,
             row.Text(9) == "м" ? SewingMaterialUnit.Metre : isService ? SewingMaterialUnit.Service : SewingMaterialUnit.Piece,
-            index);
+            index).Require($"Material line {index + 1} of {product.Name}");
     }
 }
 

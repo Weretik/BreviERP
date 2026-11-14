@@ -16,36 +16,64 @@ public static class SheetProductApplier
     /// list. A sewing composition is cleared first; <see cref="ApplyComposition"/> fills it once articles have IDs.
     /// </summary>
     /// <param name="articleId">ID for a new article by its position; null lets the database pick it.</param>
-    public static void ApplyCard(ProductEntity product, SheetProductDraft draft, DateTimeOffset now,
+    public static DomainResult ApplyCard(ProductEntity product, SheetProductDraft draft, DateTimeOffset now,
         Func<int, ArticleId>? articleId = null)
     {
         if (product.Name != draft.Name || product.RuName != draft.Name)
-            product.Update(draft.Name, draft.Name, product.Slug, product.Type, now);
-        product.SetCode(draft.Code, now);
-        product.SetOverview(draft.Overview, now);
-        if (draft.Ppe is { } supplier)
-            product.SetPpeSupplier(supplier, now);
-        if (draft.Sewing is not { } sewing)
-            return;
+        {
+            var renamed = product.Update(draft.Name, draft.Name, product.Slug, product.Type, now);
+            if (renamed.IsFailure) return renamed;
+        }
+
+        var card = product.SetCode(draft.Code, now);
+        if (card.IsSuccess) card = product.SetOverview(draft.Overview, now);
+        if (card.IsSuccess && draft.Ppe is { } supplier) card = product.SetPpeSupplier(supplier, now);
+        if (card.IsFailure || draft.Sewing is not { } sewing)
+            return card;
 
         if (product.MaterialLines.Count > 0 || product.OperationLines.Count > 0)
-            product.ReplaceComposition([], [], now);
-        product.ReplaceArticles(sewing.Articles.Select((article, index) => SewingArticle.Create(
-            articleId?.Invoke(index) ?? default, product.Id, article.SaleSku, article.IsActive, index)), now);
+        {
+            var cleared = product.ReplaceComposition([], [], now);
+            if (cleared.IsFailure) return cleared;
+        }
+
+        var articles = new List<SewingArticle>();
+        foreach (var (article, index) in sewing.Articles.Select((article, index) => (article, index)))
+        {
+            var created = SewingArticle.Create(articleId?.Invoke(index) ?? default, product.Id, article.SaleSku,
+                article.IsActive, index);
+            if (created.IsFailure) return created.Error!;
+            articles.Add(created.Value);
+        }
+
+        return product.ReplaceArticles(articles, now);
     }
 
     /// <summary>Replaces all material and operation lines; per-article lines find their article by sale SKU.</summary>
-    public static void ApplyComposition(ProductEntity product, SewingCompositionDraft sewing, DateTimeOffset now)
+    public static DomainResult ApplyComposition(ProductEntity product, SewingCompositionDraft sewing, DateTimeOffset now)
     {
         var articles = product.Articles.ToDictionary(x => x.SaleSku, x => x.Id, StringComparer.Ordinal);
-        var materials = sewing.Materials.Select((line, index) => SewingMaterialLine.Create(default, product.Id,
-            line.ArticleSku is null ? null : articles[line.ArticleSku], line.Kind,
-            line.Kind == SewingMaterialKind.Fabric ? FabricReferenceId.Create(line.ReferenceId) : null,
-            line.Kind == SewingMaterialKind.Accessory ? AccessoryReferenceId.Create(line.ReferenceId) : null,
-            null, line.Quantity, line.Unit, index, line.Comment)).ToList();
-        var operations = sewing.Operations.Select((line, index) => SewingOperationLine.Create(default, product.Id,
-            null, OperationReferenceId.Create(line.OperationId), line.Quantity, line.ManualMinutes, index,
-            line.Comment)).ToList();
-        product.ReplaceComposition(materials, operations, now);
+        var materials = new List<SewingMaterialLine>();
+        foreach (var (line, index) in sewing.Materials.Select((line, index) => (line, index)))
+        {
+            var material = SewingMaterialLine.Create(default, product.Id,
+                line.ArticleSku is null ? null : articles[line.ArticleSku], line.Kind,
+                line.Kind == SewingMaterialKind.Fabric ? FabricReferenceId.Create(line.ReferenceId) : null,
+                line.Kind == SewingMaterialKind.Accessory ? AccessoryReferenceId.Create(line.ReferenceId) : null,
+                null, line.Quantity, line.Unit, index, line.Comment);
+            if (material.IsFailure) return material.Error!;
+            materials.Add(material.Value);
+        }
+
+        var operations = new List<SewingOperationLine>();
+        foreach (var (line, index) in sewing.Operations.Select((line, index) => (line, index)))
+        {
+            var operation = SewingOperationLine.Create(default, product.Id, null,
+                OperationReferenceId.Create(line.OperationId), line.Quantity, line.ManualMinutes, index, line.Comment);
+            if (operation.IsFailure) return operation.Error!;
+            operations.Add(operation.Value);
+        }
+
+        return product.ReplaceComposition(materials, operations, now);
     }
 }

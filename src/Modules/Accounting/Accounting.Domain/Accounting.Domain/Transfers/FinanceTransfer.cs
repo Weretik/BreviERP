@@ -37,10 +37,10 @@ public sealed class FinanceTransfer : IAggregateRoot
 
     public FinanceTransferDetails Details => new(Date, FromAccountId, ToAccountId, AmountMinor, Note);
 
-    public static FinanceTransfer Create(FinanceTransferId id, LedgerScope scope, FinanceTransferDetails details,
-        FinanceAccount from, FinanceAccount to, string by, DateTimeOffset now)
+    public static DomainResult<FinanceTransfer> Create(FinanceTransferId id, LedgerScope scope,
+        FinanceTransferDetails details, FinanceAccount from, FinanceAccount to, string by, DateTimeOffset now)
     {
-        MovementRules.CheckScope(scope);
+        if (MovementRules.CheckScope(scope) is { IsFailure: true } badScope) return badScope.Error!;
         var transfer = new FinanceTransfer
         {
             Id = id,
@@ -52,24 +52,29 @@ public sealed class FinanceTransfer : IAggregateRoot
             CreatedAt = now,
             UpdatedAt = now,
         };
-        transfer.Check(details, from, to, isNew: true);
+        var check = transfer.Check(details, from, to, isNew: true);
+        if (check.IsFailure) return check.Error!;
         transfer.Apply(details, from);
         return transfer;
     }
 
     /// <summary>A transfer of the old Calculator «Фінанси» with its id, source, state and identity (stage 5).</summary>
-    public static FinanceTransfer FromLegacy(FinanceTransferId id, LedgerScope scope, LegacyMovement legacy,
-        DateOnly date, FinanceAccount from, FinanceAccount to, long amountMinor, string? note)
+    public static DomainResult<FinanceTransfer> FromLegacy(FinanceTransferId id, LedgerScope scope,
+        LegacyMovement legacy, DateOnly date, FinanceAccount from, FinanceAccount to, long amountMinor, string? note)
     {
-        MovementRules.CheckScope(scope);
         legacy.Check();
         // A cancelled record keeps the area it had in the old system (an early test may sit on the wrong side of 01.10).
-        MovementRules.CheckDate(date, scope, legacy.Status == MovementStatus.Void ? date : null);
-        MovementRules.CheckAmount(amountMinor);
+        var check = DomainResult.Combine(
+            MovementRules.CheckScope(scope),
+            MovementRules.CheckDate(date, scope, legacy.Status == MovementStatus.Void ? date : null),
+            MovementRules.CheckAmount(amountMinor));
+        if (check.IsFailure) return check.Error!;
+        var cleanNote = MovementRules.Text(note, FinanceTransferDetails.NoteMaxLength, "Примітка");
+        if (cleanNote.IsFailure) return cleanNote.Error!;
         if (from.Id == to.Id)
-            throw AccountingDomainError.Fail("Accounting.Transfer.Accounts", "Переказ з рахунку на той самий рахунок.");
+            return AccountingErrors.Rule("Accounting.Transfer.Accounts", "Переказ з рахунку на той самий рахунок.");
         if (from.Currency != to.Currency)
-            throw AccountingDomainError.Fail("Accounting.Transfer.Currency",
+            return AccountingErrors.Rule("Accounting.Transfer.Currency",
                 $"Переказ можливий лише між рахунками однієї валюти ({from.Currency} і {to.Currency}).");
         return new FinanceTransfer
         {
@@ -88,7 +93,7 @@ public sealed class FinanceTransfer : IAggregateRoot
             ToAccountId = to.Id,
             AmountMinor = amountMinor,
             Currency = from.Currency,
-            Note = MovementRules.Text(note, FinanceTransferDetails.NoteMaxLength, "Примітка"),
+            Note = cleanNote.Value,
         };
     }
 
@@ -97,7 +102,7 @@ public sealed class FinanceTransfer : IAggregateRoot
     /// <paramref name="account"/> to <paramref name="other"/>, an income line comes the other way. The note is the bank
     /// purpose and the director's note.
     /// </summary>
-    public static FinanceTransfer FromBank(FinanceTransferId id, BankStatementLine line, FinanceAccount account,
+    public static DomainResult<FinanceTransfer> FromBank(FinanceTransferId id, BankStatementLine line, FinanceAccount account,
         FinanceAccount other, string by, DateTimeOffset now)
     {
         if (line.Date is not { } date || line.Type is not { } type || line.AmountMinor is not { } amount
@@ -119,21 +124,23 @@ public sealed class FinanceTransfer : IAggregateRoot
             ExternalId = line.BankId,
             Fingerprint = line.Fingerprint,
         };
-        MovementRules.CheckAmount(amount);
-        transfer.Check(new FinanceTransferDetails(date, from.Id, to.Id, amount, note), from, to, isNew: true);
+        var check = DomainResult.Combine(MovementRules.CheckAmount(amount),
+            transfer.Check(new FinanceTransferDetails(date, from.Id, to.Id, amount, note), from, to, isNew: true));
+        if (check.IsFailure) return check.Error!;
         transfer.Apply(new FinanceTransferDetails(date, from.Id, to.Id, amount, note.Trim()), from);
         return transfer;
     }
 
     /// <summary>Changes the fields; returns false when nothing differs (the version stays).</summary>
-    public bool Update(FinanceTransferDetails details, FinanceAccount from, FinanceAccount to, DateTimeOffset now)
+    public DomainResult<bool> Update(FinanceTransferDetails details, FinanceAccount from, FinanceAccount to,
+        DateTimeOffset now)
     {
-        MovementRules.EnsureActive(Status);
+        if (MovementRules.EnsureActive(Status) is { IsFailure: true } voided) return voided.Error!;
         if (Source != MovementSource.Manual)
-            throw AccountingDomainError.Fail("Accounting.Transfer.Source",
+            return AccountingErrors.Rule("Accounting.Transfer.Source",
                 "Банківський переказ змінюють окремою формою; дата, рахунки і сума в ньому захищені.");
         if (details == Details) return false;
-        Check(details, from, to, isNew: false);
+        if (Check(details, from, to, isNew: false) is { IsFailure: true } check) return check.Error!;
         Apply(details, from);
         Touch(now);
         return true;
@@ -152,25 +159,29 @@ public sealed class FinanceTransfer : IAggregateRoot
     }
 
     /// <summary>«Анулювати»: the transfer stays in the journal and the log but no longer moves money.</summary>
-    public void Void(DateTimeOffset now)
+    public DomainResult Void(DateTimeOffset now)
     {
-        MovementRules.EnsureActive(Status);
+        if (MovementRules.EnsureActive(Status) is { IsFailure: true } voided) return voided;
         Status = MovementStatus.Void;
         Touch(now);
+        return DomainResult.Success();
     }
 
-    private void Check(FinanceTransferDetails details, FinanceAccount from, FinanceAccount to, bool isNew)
+    private DomainResult Check(FinanceTransferDetails details, FinanceAccount from, FinanceAccount to, bool isNew)
     {
         if (from.Id != details.FromAccountId || to.Id != details.ToAccountId)
             throw new InvalidOperationException("The accounts must be the ones named in the details.");
-        MovementRules.CheckDate(details.Date, Scope, isNew ? null : Date);
-        MovementRules.CheckAccount(from, details.Date, Scope,
-            unchanged: !isNew && (from.Id == FromAccountId || from.Id == ToAccountId));
-        MovementRules.CheckAccount(to, details.Date, Scope,
-            unchanged: !isNew && (to.Id == FromAccountId || to.Id == ToAccountId));
+        var check = DomainResult.Combine(
+            MovementRules.CheckDate(details.Date, Scope, isNew ? null : Date),
+            MovementRules.CheckAccount(from, details.Date, Scope,
+                unchanged: !isNew && (from.Id == FromAccountId || from.Id == ToAccountId)),
+            MovementRules.CheckAccount(to, details.Date, Scope,
+                unchanged: !isNew && (to.Id == FromAccountId || to.Id == ToAccountId)));
+        if (check.IsFailure) return check;
         if (from.Currency != to.Currency)
-            throw AccountingDomainError.Fail("Accounting.Transfer.Currency",
+            return AccountingErrors.Rule("Accounting.Transfer.Currency",
                 $"Переказ можливий лише між рахунками однієї валюти ({from.Currency} і {to.Currency}).");
+        return DomainResult.Success();
     }
 
     private void Apply(FinanceTransferDetails details, FinanceAccount from)

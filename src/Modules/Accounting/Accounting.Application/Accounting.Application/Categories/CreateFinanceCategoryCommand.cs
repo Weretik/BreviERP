@@ -44,7 +44,7 @@ public sealed class CreateFinanceCategoryCommandHandler(IAccountingDbContext db,
         CancellationToken cancellationToken)
     {
         var now = clock.GetUtcNow();
-        FinanceCategory category;
+        DomainResult<FinanceCategory> created;
         if (command.ParentId is { } parentGuid)
         {
             var parent = await db.Categories.FirstOrDefaultAsync(x => x.Id == FinanceCategoryId.From(parentGuid),
@@ -52,14 +52,17 @@ public sealed class CreateFinanceCategoryCommandHandler(IAccountingDbContext db,
             if (parent is null) return Result.NotFound(AccountingMessages.ParentNotFound);
             if (parent.Direction != command.Direction || parent.Scope != command.Scope)
                 return Result.Invalid(new ValidationError(nameof(command.ParentId), WrongParent));
-            category = FinanceCategory.CreateChild(FinanceCategoryId.New(), command.Name, parent, command.Note,
+            created = FinanceCategory.CreateChild(FinanceCategoryId.New(), command.Name, parent, command.Note,
                 command.SortOrder, now);
         }
         else
         {
-            category = FinanceCategory.CreateRoot(FinanceCategoryId.New(), command.Name, command.Direction, command.Scope,
+            created = FinanceCategory.CreateRoot(FinanceCategoryId.New(), command.Name, command.Direction, command.Scope,
                 command.Note, command.SortOrder, now);
         }
+
+        if (created.IsFailure) return created.Error!.ToResult<FinanceCategoryResponse>();
+        var category = created.Value;
 
         if (await CategoryNames.TakenAsync(db, category.Name, category.Direction, category.Scope, category.ParentId, null,
                 cancellationToken))

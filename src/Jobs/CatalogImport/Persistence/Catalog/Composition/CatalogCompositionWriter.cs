@@ -22,7 +22,7 @@ public sealed class CatalogCompositionWriter(CatalogDbContext db, SourceMappingW
             var operations = plan.Operations.Where(line => line.Text(1) == row.Text(0))
                 .Select((line, index) => CatalogOperationLineMapper.Create(line, index, product.Id, references)).ToArray();
             // Source review is not a Brevi user review; imported lines remain unreviewed.
-            product.ReplaceComposition(materials, operations, now);
+            product.ReplaceComposition(materials, operations, now).Require($"Composition of {row.Text(0)}");
         }
         await db.SaveChangesAsync(cancellationToken);
         foreach (var row in models)

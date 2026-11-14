@@ -23,7 +23,7 @@ public sealed class SupplierCatalogImporter(
         var supplier = suppliers.SingleOrDefault(x => x.Name == name);
         if (supplier is null)
         {
-            supplier = Supplier.Create(SupplierId.From(++_nextId), name);
+            supplier = Supplier.Create(SupplierId.From(++_nextId), name).Require($"Supplier «{name}»");
             suppliers.Add(supplier);
             db.Suppliers.Add(supplier);
             report.ReferenceChanges.Add($"Supplier created: {name} -> {supplier.Id.Value}.");
@@ -42,7 +42,7 @@ public sealed class SupplierCatalogImporter(
             if (supplier.Link != Empty(row.Text(6)) || supplier.ContactPerson != Empty(row.Text(3))
                 || supplier.PhoneNumber != Empty(row.Text(4)))
                 report.ReferenceChanges.Add($"Supplier contact fields updated from {row.Key}: ID {id}.");
-            supplier.Update(row.Text(1), row.Text(6), row.Text(3), row.Text(4), supplier.Notes);
+            supplier.Update(row.Text(1), row.Text(6), row.Text(3), row.Text(4), supplier.Notes).Require(row.Key);
             mappings.Add("Supplier", row.Text(0), "Supplier", id);
         }
     }

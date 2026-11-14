@@ -69,27 +69,4 @@ public static class ErrorResults
         ArgumentNullException.ThrowIfNull(result);
         return result.IsFailure ? result.Error!.ToResult<TOut>() : throw new InvalidOperationException("The result succeeded.");
     }
-
-    /// <summary>The same mapping for a response type known only at run time (Mediator pipeline behaviours).</summary>
-    public static bool TryToResult<TResponse>(this Error error, out TResponse response)
-    {
-        ArgumentNullException.ThrowIfNull(error);
-        if (typeof(TResponse) == typeof(Result))
-        {
-            response = (TResponse)(object)error.ToResult();
-            return true;
-        }
-
-        if (typeof(TResponse).IsGenericType && typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
-        {
-            var method = typeof(ErrorResults).GetMethods()
-                .Single(m => m.Name == nameof(ToResult) && m.IsGenericMethodDefinition && m.GetParameters()[0].ParameterType == typeof(Error))
-                .MakeGenericMethod(typeof(TResponse).GetGenericArguments()[0]);
-            response = (TResponse)method.Invoke(null, [error])!;
-            return true;
-        }
-
-        response = default!;
-        return false;
-    }
 }

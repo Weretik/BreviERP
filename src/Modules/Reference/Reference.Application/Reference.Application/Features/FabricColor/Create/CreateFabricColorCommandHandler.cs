@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.FabricColor.Shared;
 using Reference.Domain.FabricColors.ValueObjects;
@@ -16,15 +15,9 @@ public sealed class CreateFabricColorCommandHandler(IReferenceRepository<FabricC
             return Result.Invalid([new ValidationError("Request.Name", FabricColorNames.Duplicate)]);
 
         var nextId = existing.Count == 0 ? 1 : existing.Max(x => x.Id.Value) + 1;
-        FabricColorEntity entity;
-        try
-        {
-            entity = FabricColorEntity.Create(FabricColorId.From(nextId), FabricColorNames.Details(command.Request));
-        }
-        catch (DomainException exception)
-        {
-            return Result.Invalid([new ValidationError("Request", exception.Message)]);
-        }
+        var created = FabricColorEntity.Create(FabricColorId.From(nextId), FabricColorNames.Details(command.Request));
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
 
         await repository.AddAsync(entity, cancellationToken);
         return Result.Success(entity.Id.Value);

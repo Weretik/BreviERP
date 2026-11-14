@@ -37,16 +37,17 @@ public sealed class BankStatement : IAggregateRoot
     public int Version { get; private set; }
 
     /// <summary>A new preview of <paramref name="account"/> with its lines; the account must be active.</summary>
-    public static (BankStatement Statement, IReadOnlyList<BankStatementLine> Lines) Create(BankStatementId id,
+    public static DomainResult<(BankStatement Statement, IReadOnlyList<BankStatementLine> Lines)> Create(
+        BankStatementId id,
         FinanceAccount account, string fileName, string fileHash, IReadOnlyList<BankLineData> lines, string by,
         DateTimeOffset now)
     {
         if (!account.Active)
-            throw AccountingDomainError.Fail("Accounting.Statement.Account", $"Рахунок «{account.Name}» в архіві.");
+            return AccountingErrors.Rule("Accounting.Statement.Account", $"Рахунок «{account.Name}» в архіві.");
         if (lines.Count == 0)
-            throw AccountingDomainError.Fail("Accounting.Statement.Empty", "У виписці немає жодного рядка з операцією.");
+            return AccountingErrors.Rule("Accounting.Statement.Empty", "У виписці немає жодного рядка з операцією.");
         if (lines.Count > MaxLines)
-            throw AccountingDomainError.Fail("Accounting.Statement.Size", $"У виписці більше {MaxLines} рядків.");
+            return AccountingErrors.Rule("Accounting.Statement.Size", $"У виписці більше {MaxLines} рядків.");
         if (fileHash.Length != 64 || string.IsNullOrWhiteSpace(by) || by.Length > MovementRules.ByMaxLength)
             throw new ArgumentException("File hash and author are required.");
 
@@ -66,40 +67,41 @@ public sealed class BankStatement : IAggregateRoot
             CreatedAt = now,
             Version = 1,
         };
-        return (statement, lines.Select(x => BankStatementLine.Create(id, x)).ToList());
+        IReadOnlyList<BankStatementLine> statementLines = lines.Select(x => BankStatementLine.Create(id, x)).ToList();
+        return (statement, statementLines);
     }
 
     /// <summary>Lines change only while the statement is not booked.</summary>
-    public void EnsurePreview()
-    {
-        if (Status != BankStatementStatus.Preview)
-            throw AccountingDomainError.Fail("Accounting.Statement.Booked", "Виписку вже проведено; рядки не змінюються.");
-    }
+    public DomainResult CheckPreview() => Status == BankStatementStatus.Preview
+        ? DomainResult.Success()
+        : AccountingErrors.Rule("Accounting.Statement.Booked", "Виписку вже проведено; рядки не змінюються.");
 
     /// <summary>«Провести виписку»: remembers how many operations and transfers it added.</summary>
-    public void Book(int transactions, int transfers, string by, DateTimeOffset now)
+    public DomainResult Book(int transactions, int transfers, string by, DateTimeOffset now)
     {
-        EnsurePreview();
+        if (CheckPreview() is { IsFailure: true } booked) return booked;
         if (transactions + transfers == 0)
-            throw AccountingDomainError.Fail("Accounting.Statement.Nothing", "Немає жодного рядка, який можна провести.");
+            return AccountingErrors.Rule("Accounting.Statement.Nothing", "Немає жодного рядка, який можна провести.");
         Status = BankStatementStatus.Booked;
         TransactionCount = transactions;
         TransferCount = transfers;
         BookedBy = by;
         BookedAt = now;
         Version++;
+        return DomainResult.Success();
     }
 
     /// <summary>«Відкотити виписку»: the statement is a preview again; its operations and transfers were cancelled.</summary>
-    public void Rollback()
+    public DomainResult Rollback()
     {
         if (Status != BankStatementStatus.Booked)
-            throw AccountingDomainError.Fail("Accounting.Statement.NotBooked", "Виписку ще не проведено; відкочувати нічого.");
+            return AccountingErrors.Rule("Accounting.Statement.NotBooked", "Виписку ще не проведено; відкочувати нічого.");
         Status = BankStatementStatus.Preview;
         TransactionCount = 0;
         TransferCount = 0;
         BookedBy = null;
         BookedAt = null;
         Version++;
+        return DomainResult.Success();
     }
 }

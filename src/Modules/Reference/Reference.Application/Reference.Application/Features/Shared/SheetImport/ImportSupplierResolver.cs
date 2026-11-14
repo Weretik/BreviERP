@@ -42,7 +42,8 @@ internal sealed class ImportSupplierResolver
 
     private SupplierEntity Create(string name)
     {
-        var supplier = SupplierEntity.Create(SupplierId.From(_nextId++), name);
+        // Resolve never passes a blank name, the only rule a new supplier can break here.
+        var supplier = SupplierEntity.Create(SupplierId.From(_nextId++), name).Value;
         _created.Add(supplier);
         _byKey[SupplierNameKey.From(name)] = supplier;
         return supplier;

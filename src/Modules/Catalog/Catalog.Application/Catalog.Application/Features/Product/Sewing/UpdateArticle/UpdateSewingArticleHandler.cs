@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -25,15 +24,11 @@ public sealed class UpdateSewingArticleHandler(ISewingCompositionStore store, IP
             && await store.SaleSkuExistsAsync(sku, command.ArticleId, cancellationToken))
             return Result.Conflict("Такий артикул продажу вже є.");
         var now = TimeProvider.System.GetUtcNow();
-        try
-        {
-            product.UpdateArticle(articleId, sku, request.Active, now);
-            product.SetArticleFabric(articleId, FabricReferenceId.Create(request.FabricId), request.FabricQuantity, now);
-        }
-        catch (DomainException exception)
-        {
-            return Result.Conflict(exception.Message);
-        }
+        var changed = product.UpdateArticle(articleId, sku, request.Active, now);
+        if (changed.IsSuccess)
+            changed = product.SetArticleFabric(articleId, FabricReferenceId.Create(request.FabricId),
+                request.FabricQuantity, now);
+        if (changed.IsFailure) return changed.Error!.ToResult<SewingArticleView>();
         if (!await store.SaveAsync(cancellationToken))
             return Result.Conflict("Склад або артикул уже змінили. Оновіть сторінку перед збереженням.");
         return Result.Success(new SewingArticleView(article.Id.Value, product.Id.Value, article.SaleSku,

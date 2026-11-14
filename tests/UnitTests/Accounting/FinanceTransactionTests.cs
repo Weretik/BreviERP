@@ -9,7 +9,6 @@ using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Ardalis.Result;
-using BuildingBlocks.Domain.Exceptions;
 using static UnitTests.Accounting.FinanceMovementFixture;
 
 namespace UnitTests.Accounting;
@@ -54,15 +53,16 @@ public sealed class FinanceTransactionTests
         var sales = await Category(harness, "Продажі", CategoryDirection.Income);
         var oldCosts = await Category(harness, "Побут", scope: LedgerScope.LegacyArchive);
         var handler = new CreateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
-        Task Create(FinanceTransactionFields fields, LedgerScope scope = LedgerScope.Current) =>
+        Task<Result<FinanceTransactionResponse>> Create(FinanceTransactionFields fields,
+            LedgerScope scope = LedgerScope.Current) =>
             handler.Handle(new CreateFinanceTransactionCommand(scope, fields, AccountingTestHarness.Director), default).AsTask();
 
-        await Assert.ThrowsAsync<DomainException>(() => Create(Fields(bank.Id, materials.Id, 1_00, Archive)), "archive date");
-        await Assert.ThrowsAsync<DomainException>(() => Create(Fields(bank.Id, oldCosts.Id, 1_00)), "archive category");
-        await Assert.ThrowsAsync<DomainException>(() => Create(Fields(bank.Id, sales.Id, 1_00)), "income category");
-        await Assert.ThrowsAsync<DomainException>(() => Create(Fields(bank.Id, oldCosts.Id, 1_00, new DateOnly(2023, 1, 1)),
+        AssertRuleBroken(await Create(Fields(bank.Id, materials.Id, 1_00, Archive)), "archive date");
+        AssertRuleBroken(await Create(Fields(bank.Id, oldCosts.Id, 1_00)), "archive category");
+        AssertRuleBroken(await Create(Fields(bank.Id, sales.Id, 1_00)), "income category");
+        AssertRuleBroken(await Create(Fields(bank.Id, oldCosts.Id, 1_00, new DateOnly(2023, 1, 1)),
             LedgerScope.LegacyArchive), "before the opening date");
-        await Assert.ThrowsAsync<DomainException>(() => Create(Fields(bank.Id, materials.Id, 0)), "zero amount");
+        AssertRuleBroken(await Create(Fields(bank.Id, materials.Id, 0)), "zero amount");
     }
 
     [Test]
@@ -78,7 +78,7 @@ public sealed class FinanceTransactionTests
         var archive = await Spend(harness, Fields(bank.Id, oldCosts.Id, 1_00, Archive), LedgerScope.LegacyArchive);
 
         Assert.That(archive.Scope, Is.EqualTo(LedgerScope.LegacyArchive));
-        await Assert.ThrowsAsync<DomainException>(() => Spend(harness, Fields(bank.Id, materials.Id, 1_00)));
+        AssertRuleBroken(await SpendResult(harness, Fields(bank.Id, materials.Id, 1_00)));
     }
 
     [Test]
@@ -115,7 +115,7 @@ public sealed class FinanceTransactionTests
         var balance = (await Accounts(harness)).Single().Balance!;
         Assert.That(balance.TotalMinor, Is.Zero, "a cancelled operation does not count");
         Assert.That(balance.HasHistory, Is.True, "but the account keeps its history");
-        await Assert.ThrowsAsync<DomainException>(async () => await update.Handle(new UpdateFinanceTransactionCommand(created.Id,
+        AssertRuleBroken(await update.Handle(new UpdateFinanceTransactionCommand(created.Id,
             Fields(bank.Id, materials.Id, 1_00), voided.Value.Version, AccountingTestHarness.Director), default));
     }
 
@@ -185,10 +185,10 @@ public sealed class FinanceTransactionTests
 
         Assert.That(delete.Status, Is.EqualTo(ResultStatus.Conflict));
         Assert.That(earlier.IsSuccess, Is.True, "an earlier opening date is fine");
-        await Assert.ThrowsAsync<DomainException>(async () => await update.Handle(new UpdateFinanceAccountCommand(bank.Id,
+        AssertRuleBroken(await update.Handle(new UpdateFinanceAccountCommand(bank.Id,
             AccountingTestHarness.Fields("Банк") with { Currency = "EUR" }, earlier.Value.Version,
             AccountingTestHarness.Director), default));
-        await Assert.ThrowsAsync<DomainException>(async () => await update.Handle(new UpdateFinanceAccountCommand(bank.Id,
+        AssertRuleBroken(await update.Handle(new UpdateFinanceAccountCommand(bank.Id,
             AccountingTestHarness.Fields("Банк") with { OpeningDate = new DateOnly(2024, 6, 1) }, earlier.Value.Version,
             AccountingTestHarness.Director), default));
     }
@@ -215,7 +215,7 @@ public sealed class FinanceTransactionTests
             Assert.That(categories.Select(x => x.Active), Is.EqualTo(new[] { false, false }));
             Assert.That(history.Value[0].Action, Is.EqualTo(AuditAction.Deactivate));
         });
-        await Assert.ThrowsAsync<DomainException>(() => Spend(harness, Fields(bank.Id, fabric.Id, 1_00)), "switched off");
+        AssertRuleBroken(await SpendResult(harness, Fields(bank.Id, fabric.Id, 1_00)), "switched off");
         var kept = await new UpdateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new UpdateFinanceTransactionCommand(created.Id, Fields(bank.Id, fabric.Id, 2_00), created.Version,
                 AccountingTestHarness.Director), default);

@@ -65,9 +65,9 @@ public sealed class GetAdminProductsSpecTests
     public async Task Specification_filters_descendant_categories_searches_all_name_tokens_sorts_and_pages_in_sql()
     {
         await using var db = CreateContext();
-        var root = ProductCategory.Create(ProductCategoryId.Create(1), "Одяг", "Одежда", "odiah");
-        var child = ProductCategory.Create(ProductCategoryId.Create(2), "Куртки", "Куртки", "kurtky", root.Id, root.Path);
-        var other = ProductCategory.Create(ProductCategoryId.Create(3), "ЗІЗ", "СИЗ", "ziz");
+        var root = ProductCategory.Create(ProductCategoryId.Create(1), "Одяг", "Одежда", "odiah").Value;
+        var child = ProductCategory.Create(ProductCategoryId.Create(2), "Куртки", "Куртки", "kurtky", root.Id, root.Path).Value;
+        var other = ProductCategory.Create(ProductCategoryId.Create(3), "ЗІЗ", "СИЗ", "ziz").Value;
         db.ProductCategories.AddRange(root, child, other);
 
         db.Products.AddRange(
@@ -96,7 +96,7 @@ public sealed class GetAdminProductsSpecTests
     public async Task Specification_uses_id_as_a_stable_secondary_sort_for_paged_results()
     {
         await using var db = CreateContext();
-        var category = ProductCategory.Create(ProductCategoryId.Create(4), "Взуття", "Обувь", "vzuttia");
+        var category = ProductCategory.Create(ProductCategoryId.Create(4), "Взуття", "Обувь", "vzuttia").Value;
         var createdAt = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
         db.ProductCategories.Add(category);
         db.Products.AddRange(
@@ -120,7 +120,7 @@ public sealed class GetAdminProductsSpecTests
     public async Task List_projection_uses_split_queries_for_multiple_collections()
     {
         await using var db = CreateContext(throwOnMultipleCollectionIncludeWarning: true);
-        var category = ProductCategory.Create(ProductCategoryId.Create(5), "Категорія", "Категория", "category");
+        var category = ProductCategory.Create(ProductCategoryId.Create(5), "Категорія", "Категория", "category").Value;
         var product = CreateProduct(140, "Product", "product", ProductType.Sewing, category.Id);
         db.ProductCategories.Add(category);
         db.Products.Add(product);
@@ -140,7 +140,7 @@ public sealed class GetAdminProductsSpecTests
     {
         var counter = new QueryCommandCounter();
         await using var db = CreateContext(commandInterceptor: counter);
-        var category = ProductCategory.Create(ProductCategoryId.Create(6), "Категорія", "Категория", "category-two");
+        var category = ProductCategory.Create(ProductCategoryId.Create(6), "Категорія", "Категория", "category-two").Value;
         db.ProductCategories.Add(category);
         db.Products.AddRange(
             CreateProduct(150, "Product 1", "product-1", ProductType.Sewing, category.Id),
@@ -202,7 +202,7 @@ public sealed class GetAdminProductsSpecTests
         DateTimeOffset? createdAt = null)
     {
         var productId = ProductId.Create(id);
-        var product = Product.Create(productId, name, name, ProductSlug.Create(slug), type, createdAt ?? DateTimeOffset.UtcNow);
+        var product = Product.Create(productId, name, name, ProductSlug.Create(slug).Value, type, createdAt ?? DateTimeOffset.UtcNow).Value;
         product.ReplaceCategories([categoryId], DateTimeOffset.UtcNow);
         return product;
     }

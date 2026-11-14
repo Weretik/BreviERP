@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Errors;
 using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Application.Features.Product.SheetImport.DTOs;
@@ -17,6 +17,7 @@ public static class SheetImportPlanner
 {
     public const string OfferSource = "Імпорт з таблиці";
     private static readonly ProductId ProbeId = ProductId.Create(1_000_000_000);
+    private static readonly ProductSlug ProbeSlug = ProductSlug.Create("probe").Value;
 
     public static SheetImportPlan Plan(ImportSheetProductsCommand command, SheetImportContext context)
     {
@@ -96,21 +97,31 @@ public static class SheetImportPlanner
     private static ProductEntity? Probe(SheetProductDraft draft, ProductEntity? existing, DateOnly today,
         DateTimeOffset now, SheetImportIssueLog log)
     {
+        DomainResult checkedDraft;
+        ProductEntity? probe = null;
         try
         {
-            var probe = ProductEntity.Create(existing?.Id ?? ProbeId, draft.Name, draft.Name,
-                existing?.Slug ?? ProductSlug.Create("probe"), draft.Type, now);
-            SheetProductApplier.ApplyCard(probe, draft, now, index => ArticleId.Create(index + 1));
-            if (draft.Sewing is { } sewing)
-                SheetProductApplier.ApplyComposition(probe, sewing, now);
-            return probe;
+            var created = ProductEntity.Create(existing?.Id ?? ProbeId, draft.Name, draft.Name,
+                existing?.Slug ?? ProbeSlug, draft.Type, now);
+            checkedDraft = created.IsFailure ? created.Error! : DomainResult.Success();
+            if (created.IsSuccess)
+            {
+                probe = created.Value;
+                checkedDraft = SheetProductApplier.ApplyCard(probe, draft, now, index => ArticleId.Create(index + 1));
+                if (checkedDraft.IsSuccess && draft.Sewing is { } sewing)
+                    checkedDraft = SheetProductApplier.ApplyComposition(probe, sewing, now);
+            }
         }
-        catch (Exception exception) when (exception is DomainException or ArgumentException)
+        catch (ArgumentException exception)
         {
-            log.Problem(SheetImportPlan.Scope(draft.Type), draft.RowNumber, draft.Code,
-                $"Дані не пройшли перевірку: {exception.Message}");
-            return null;
+            // A sheet value that a guard of a type refuses (a reference id of zero and the like).
+            checkedDraft = DomainResult.Failure(new Error("Catalog.SheetImport.Value", exception.Message));
         }
+
+        if (checkedDraft.IsSuccess) return probe;
+        log.Problem(SheetImportPlan.Scope(draft.Type), draft.RowNumber, draft.Code,
+            $"Дані не пройшли перевірку: {checkedDraft.Error!.Message}");
+        return null;
     }
 
     /// <summary>

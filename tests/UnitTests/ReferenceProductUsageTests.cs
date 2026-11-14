@@ -25,9 +25,9 @@ public sealed class ReferenceProductUsageTests
         usage.Setup(x => x.IsGarmentAccessoryUsedAsync(2, It.IsAny<CancellationToken>())).ReturnsAsync(true);
         usage.Setup(x => x.IsGarmentPartOperationUsedAsync(3, It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-        var fabrics = Repository(Fabric.Create(FabricId.From(1), "Тканина", MoneyAmount.From(1m), SupplierId.From(1)));
-        var accessories = Repository(GarmentAccessory.Create(GarmentAccessoryId.From(2), "Фурнітура", MoneyAmount.From(1m)));
-        var operations = Repository(GarmentPartOperation.Create(GarmentPartOperationId.From(3), GarmentPartId.From(1), "Операція", 1m));
+        var fabrics = Repository(Fabric.Create(FabricId.From(1), "Тканина", MoneyAmount.From(1m), SupplierId.From(1)).Value);
+        var accessories = Repository(GarmentAccessory.Create(GarmentAccessoryId.From(2), "Фурнітура", MoneyAmount.From(1m)).Value);
+        var operations = Repository(GarmentPartOperation.Create(GarmentPartOperationId.From(3), GarmentPartId.From(1), "Операція", 1m).Value);
 
         var fabricResult = await new DeleteFabricCommandHandler(fabrics.Object, usage.Object).Handle(new DeleteFabricCommand(1), CancellationToken.None);
         var accessoryResult = await new DeleteGarmentAccessoryCommandHandler(accessories.Object, usage.Object).Handle(new DeleteGarmentAccessoryCommand(2), CancellationToken.None);

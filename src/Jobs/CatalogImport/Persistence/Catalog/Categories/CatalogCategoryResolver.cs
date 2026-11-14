@@ -17,7 +17,8 @@ public sealed class CatalogCategoryResolver(
             throw new InvalidDataException($"Ambiguous category: {name}.");
         if (matches.Length == 1)
             return matches[0].Id;
-        var category = ProductCategory.Create(ProductCategoryId.Create(++_nextId), name, name, $"import-category-{_nextId}");
+        var category = ProductCategory.Create(ProductCategoryId.Create(++_nextId), name, name, $"import-category-{_nextId}")
+            .Require($"Category {name}");
         categories.Add(category);
         db.ProductCategories.Add(category);
         report.ReferenceChanges.Add($"Category created: {name} -> {_nextId}.");

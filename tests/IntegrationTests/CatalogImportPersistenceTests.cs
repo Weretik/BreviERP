@@ -36,7 +36,7 @@ public sealed class CatalogImportPersistenceTests
         _source = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "catalog-import.json");
         await using var reference = Reference();
         await reference.Database.MigrateAsync();
-        reference.Suppliers.Add(Supplier.Create(SupplierId.From(1), "Не указан"));
+        reference.Suppliers.Add(Supplier.Create(SupplierId.From(1), "Не указан").Value);
         await reference.SaveChangesAsync();
         await using var catalog = Catalog();
         await catalog.Database.MigrateAsync();

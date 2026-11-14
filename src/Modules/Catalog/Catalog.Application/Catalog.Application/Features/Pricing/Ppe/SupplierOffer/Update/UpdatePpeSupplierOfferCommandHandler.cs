@@ -36,9 +36,10 @@ public sealed class UpdatePpeSupplierOfferCommandHandler(
             return Result.Conflict("Ціни товару змінилися. Оновіть картку.");
 
         var now = timeProvider.GetUtcNow();
-        product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(command.SupplierId),
+        var changed = product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(command.SupplierId),
             command.SupplierSku, command.SupplierUrl, command.SupplierPrice, command.AllowManualPrice, ruleCode,
             command.Unit), now);
+        if (changed.IsFailure) return changed.Error!.ToResult<PpeSupplierOffer>();
 
         var offerUnchanged = current is null
             ? command.SupplierPrice is null && ruleCode is null

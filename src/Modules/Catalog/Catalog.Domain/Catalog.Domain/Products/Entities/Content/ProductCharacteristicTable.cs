@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -16,22 +15,32 @@ public sealed class ProductCharacteristicTable
 
     private ProductCharacteristicTable() { }
 
-    public ProductCharacteristicTable(ProductId productId, string titleUk, string titleRu, int sortOrder, IEnumerable<ProductCharacteristicRow> rows)
+    /// <summary>A new table without rows; <see cref="AddRow"/> adds them.</summary>
+    public static DomainResult<ProductCharacteristicTable> Create(ProductId productId, string titleUk, string titleRu,
+        int sortOrder)
     {
-        if (productId.Value == default) throw new DomainException(ProductErrors.IdIsRequired());
-        ArgumentNullException.ThrowIfNull(rows);
-        Id = Guid.NewGuid();
-        ProductId = productId;
-        TitleUk = ProductContentText.Required(titleUk, 200, nameof(TitleUk));
-        TitleRu = ProductContentText.Required(titleRu, 200, nameof(TitleRu));
-        if (sortOrder < 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(SortOrder)));
-        SortOrder = sortOrder;
-        var rowList = rows.ToList();
-        if (rowList.Any(x => x.TableId != Id)) throw new DomainException(ProductErrors.CharacteristicRowBelongsToAnotherTable());
-        _rows.AddRange(rowList);
+        if (productId.Value == default) throw new ArgumentException("A table needs its product id.", nameof(productId));
+        var title = ProductContentText.Required(titleUk, 200, nameof(TitleUk));
+        if (title.IsFailure) return title.Error!;
+        var titleRuText = ProductContentText.Required(titleRu, 200, nameof(TitleRu));
+        if (titleRuText.IsFailure) return titleRuText.Error!;
+        if (sortOrder < 0) return ProductErrors.PositiveValueRequired(nameof(SortOrder));
+        return new ProductCharacteristicTable
+        {
+            Id = Guid.NewGuid(),
+            ProductId = productId,
+            TitleUk = title.Value,
+            TitleRu = titleRuText.Value,
+            SortOrder = sortOrder,
+        };
     }
 
-    public void AddRow(string labelUk, string labelRu, string valueUk, string valueRu, int sortOrder)
-        => _rows.Add(new ProductCharacteristicRow(Id, labelUk, labelRu, valueUk, valueRu, sortOrder));
+    public DomainResult AddRow(string labelUk, string labelRu, string valueUk, string valueRu, int sortOrder)
+    {
+        var row = ProductCharacteristicRow.Create(Id, labelUk, labelRu, valueUk, valueRu, sortOrder);
+        if (row.IsFailure) return row.Error!;
+        _rows.Add(row.Value);
+        return DomainResult.Success();
+    }
 
 }

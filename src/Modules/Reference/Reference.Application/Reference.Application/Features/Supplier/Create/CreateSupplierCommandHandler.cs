@@ -51,14 +51,17 @@ public sealed class CreateSupplierCommandHandler(IReferenceRepository<SupplierEn
             return Result.Invalid(validationErrors);
         }
 
-        var entity = SupplierEntity.Create(
+        var created = SupplierEntity.Create(
             Reference.Domain.Suppliers.ValueObjects.SupplierId.From(request.Id),
             name,
             link,
             contactPerson,
             phoneNumber,
             notes);
-        entity.Update(name, link, contactPerson, phoneNumber, notes, email, request.PurchaseCategories);
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
+        var changed = entity.Update(name, link, contactPerson, phoneNumber, notes, email, request.PurchaseCategories);
+        if (changed.IsFailure) return changed.Error!.ToResult<int>();
         entity.SetActive(request.IsActive);
 
         await repository.AddAsync(entity, cancellationToken);

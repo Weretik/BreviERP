@@ -1,12 +1,9 @@
-using BuildingBlocks.Domain.Errors;
+﻿using BuildingBlocks.Domain.Errors;
 
 namespace Reference.Domain.ProductSections.Errors;
 
 public static class ProductSectionErrors
 {
-    public static Error IdIsRequired() =>
-        new("Reference.ProductSection.Id.Required", "Не вказано ідентифікатор розділу.");
-
     public static Error NameIsRequired() =>
         new("Reference.ProductSection.Name.Required", "Назва розділу є обов'язковою.");
 

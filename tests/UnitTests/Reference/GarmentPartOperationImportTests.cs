@@ -1,4 +1,4 @@
-using Moq;
+﻿using Moq;
 using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPartOperation.Import;
@@ -34,14 +34,14 @@ public sealed class GarmentPartOperationImportTests
     [Test]
     public async Task Import_updates_by_code_creates_groups_and_deletes_old_rows_unless_in_use()
     {
-        var sleeve = GarmentPart.Create(GarmentPartId.From(1), "Рукав");
-        var oldGroup = GarmentPart.Create(GarmentPartId.From(2), "Рукава (старе)");
-        var usedGroup = GarmentPart.Create(GarmentPartId.From(3), "Спинка (старе)");
+        var sleeve = GarmentPart.Create(GarmentPartId.From(1), "Рукав").Value;
+        var oldGroup = GarmentPart.Create(GarmentPartId.From(2), "Рукава (старе)").Value;
+        var usedGroup = GarmentPart.Create(GarmentPartId.From(3), "Спинка (старе)").Value;
         var coded = GarmentPartOperation.Create(GarmentPartOperationId.From(5),
             new GarmentPartOperationDetails("OP-001", sleeve.Id, "Рукав", "Прямий", "Рукав куртки: прямий", 5m, false,
-                true, null));
-        var stale = GarmentPartOperation.Create(GarmentPartOperationId.From(6), oldGroup.Id, "Втачать рукав", 4m);
-        var used = GarmentPartOperation.Create(GarmentPartOperationId.From(7), usedGroup.Id, "Стачать спинку", 3m);
+                true, null)).Value;
+        var stale = GarmentPartOperation.Create(GarmentPartOperationId.From(6), oldGroup.Id, "Втачать рукав", 4m).Value;
+        var used = GarmentPartOperation.Create(GarmentPartOperationId.From(7), usedGroup.Id, "Стачать спинку", 3m).Value;
 
         var addedOperations = new List<GarmentPartOperation>();
         var deletedOperations = new List<GarmentPartOperation>();
@@ -82,8 +82,8 @@ public sealed class GarmentPartOperationImportTests
     [Test]
     public async Task Preview_and_rows_with_errors_change_nothing()
     {
-        var sleeve = GarmentPart.Create(GarmentPartId.From(1), "Рукав");
-        var stale = GarmentPartOperation.Create(GarmentPartOperationId.From(6), sleeve.Id, "Втачать рукав", 4m);
+        var sleeve = GarmentPart.Create(GarmentPartId.From(1), "Рукав").Value;
+        var stale = GarmentPartOperation.Create(GarmentPartOperationId.From(6), sleeve.Id, "Втачать рукав", 4m).Value;
         var added = new List<GarmentPartOperation>();
         var deleted = new List<GarmentPartOperation>();
         var operations = Repository([stale], added, deleted);
@@ -116,7 +116,7 @@ public sealed class GarmentPartOperationImportTests
     {
         var operation = GarmentPartOperation.Create(GarmentPartOperationId.From(1),
             new GarmentPartOperationDetails(" op-155 ", GarmentPartId.From(1), null, null, "Нестандартна операція", 12m,
-                true, true, null));
+                true, true, null)).Value;
 
         Assert.Multiple(() =>
         {

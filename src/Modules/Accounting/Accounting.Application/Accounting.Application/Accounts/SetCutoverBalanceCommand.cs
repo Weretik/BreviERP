@@ -32,8 +32,9 @@ public sealed class SetCutoverBalanceCommandHandler(IAccountingDbContext db, Tim
         var now = clock.GetUtcNow();
         return await FinanceAccountChange.ApplyAsync(db, command.Id, command.Version, command.By, now,
             account => account.SetCutoverBalance(command.BalanceMinor, command.Confirmed, command.By, now)
-                ? command.Confirmed ? AuditAction.CutoverConfirm : AuditAction.CutoverReset
-                : null,
+                .Map<AuditAction?>(changed => changed
+                    ? command.Confirmed ? AuditAction.CutoverConfirm : AuditAction.CutoverReset
+                    : null),
             cancellationToken);
     }
 }

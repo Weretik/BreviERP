@@ -38,14 +38,14 @@ public sealed class FinanceAttachment : IAggregateRoot
     public DateTimeOffset? DeletedAt { get; private set; }
     public string? DeletedBy { get; private set; }
 
-    public static FinanceAttachment Create(FinanceAttachmentId id, FinanceTransactionId transactionId, string fileName,
+    public static DomainResult<FinanceAttachment> Create(FinanceAttachmentId id, FinanceTransactionId transactionId, string fileName,
         FinanceAttachmentKind kind, long sizeBytes, string sha256, string by, DateTimeOffset now)
     {
         if (sizeBytes is <= 0 or > MaxBytes)
-            throw AccountingDomainError.Fail("attachment.size", "Файл має бути від 1 байта до 10 МБ.");
+            return AccountingErrors.Rule("attachment.size", "Файл має бути від 1 байта до 10 МБ.");
         var name = fileName.Trim();
         if (name.Length is 0 or > FileNameMaxLength)
-            throw AccountingDomainError.Fail("attachment.name", "Назва файлу обовʼязкова, до 255 символів.");
+            return AccountingErrors.Rule("attachment.name", "Назва файлу обовʼязкова, до 255 символів.");
         return new FinanceAttachment
         {
             Id = id,

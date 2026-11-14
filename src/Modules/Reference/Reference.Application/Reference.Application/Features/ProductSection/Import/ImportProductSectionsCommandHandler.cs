@@ -37,16 +37,14 @@ public sealed class ImportProductSectionsCommandHandler(IReferenceRepository<Pro
                 row.RowNumber);
             var target = byName.GetValueOrDefault(ReferenceNameKey.From(name));
 
-            ProductSectionEntity candidate;
-            try
+            var checkedRow = ProductSectionEntity.Create(ProductSectionId.From(target?.Id.Value ?? nextId), details);
+            if (checkedRow.IsFailure)
             {
-                candidate = ProductSectionEntity.Create(ProductSectionId.From(target?.Id.Value ?? nextId), details);
-            }
-            catch (Exception exception) // domain rules: type, name, text length
-            {
-                rows.Add(new(row.RowNumber, row.Type, name, ReferenceImportActions.Error, [], exception.Message));
+                rows.Add(new(row.RowNumber, row.Type, name, ReferenceImportActions.Error, [], checkedRow.Error!.Message));
                 continue;
             }
+
+            var candidate = checkedRow.Value;
 
             if (target is null)
             {
@@ -65,7 +63,7 @@ public sealed class ImportProductSectionsCommandHandler(IReferenceRepository<Pro
                 .Compare("Порядок", target.SortOrder, candidate.SortOrder)
                 .Changes.ToList();
             if (changes.Count > 0)
-                updates.Add(() => target.ApplyDetails(details));
+                updates.Add(() => target.ApplyDetails(details).ThrowIfFailure());
             rows.Add(new(row.RowNumber, row.Type, name,
                 changes.Count == 0 ? ReferenceImportActions.Unchanged : ReferenceImportActions.Update, changes, null));
         }

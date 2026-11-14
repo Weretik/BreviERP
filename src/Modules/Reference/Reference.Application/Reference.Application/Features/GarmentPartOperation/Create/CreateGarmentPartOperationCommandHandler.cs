@@ -36,9 +36,11 @@ public sealed class CreateGarmentPartOperationCommandHandler(
         if (errors.Count > 0)
             return Result.Invalid(errors);
 
-        var entity = GarmentPartOperationEntity.Create(
+        var created = GarmentPartOperationEntity.Create(
             GarmentPartOperationId.From(request.Id),
             GarmentPartOperationDetailsFactory.From(request, garmentPart!.Id));
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
 
         await repository.AddAsync(entity, cancellationToken);
         return Result.Success(entity.Id.Value);
