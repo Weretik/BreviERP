@@ -4,7 +4,7 @@ namespace BuildingBlocks.Api.Authorization;
 /// Names the «Права доступу» action an endpoint needs when its HTTP method says otherwise, such as a POST that edits
 /// (<c>edit</c>) or reads (<c>view</c>). Values: <c>view</c>, <c>create</c>, <c>edit</c>, <c>delete</c>.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)] // Minimal API: RequireAccessAction()
 public sealed class AccessActionAttribute(string action) : Attribute
 {
     public const string View = "view";

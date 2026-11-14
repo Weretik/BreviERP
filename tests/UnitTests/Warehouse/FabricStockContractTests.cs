@@ -1,7 +1,6 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Warehouse.Api.Stock;
+using UnitTests.TestSupport;
+using Warehouse.Api.DependencyInjection;
 using YamlDotNet.RepresentationModel;
 using Warehouse.Application.Features.Stock.Commands.AdjustFabricStock;
 using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
@@ -110,12 +109,10 @@ public sealed class FabricStockContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_orders_policy()
     {
-        Type[] controllers = [typeof(FabricStockController), typeof(OrderItemFabricController)];
-        var policies = controllers.Select(controller => controller.GetCustomAttributes(typeof(AuthorizeAttribute), false)
-            .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
-        var operations = controllers.SelectMany(controller => controller.GetMethods())
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
-            .Select(x => x.Name).ToArray();
+        var endpoints = MappedEndpoints.Of(app => app.MapWarehouseEndpoints()).Where(x => !Reports.Contains(x.Name))
+            .ToArray();
+        var policies = endpoints.SelectMany(x => x.Policies).Distinct().Order().ToArray();
+        var operations = endpoints.Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>
         {
@@ -130,15 +127,12 @@ public sealed class FabricStockContractTests
     [Test]
     public void Every_report_is_in_the_contract_and_is_its_own_page_of_access_rights()
     {
-        var actions = typeof(StockReportsController).GetMethods()
-            .Select(x => (Route: x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>()
-                .SingleOrDefault(), Policy: x.GetCustomAttributes(typeof(AuthorizeAttribute), false)
-                .Cast<AuthorizeAttribute>().SingleOrDefault()?.Policy))
-            .Where(x => x.Route is not null).ToArray();
+        var actions = MappedEndpoints.Of(app => app.MapWarehouseEndpoints()).Where(x => Reports.Contains(x.Name))
+            .Select(x => (x.Name, Policy: x.Policies.SingleOrDefault())).ToArray();
 
         Assert.Multiple(() =>
         {
-            Assert.That(actions.Select(x => x.Route!.Name), Is.EquivalentTo(Reports));
+            Assert.That(actions.Select(x => x.Name), Is.EquivalentTo(Reports));
             Assert.That(Operations().Where(Reports.Contains), Is.EquivalentTo(Reports));
             Assert.That(actions.Select(x => x.Policy), Is.EquivalentTo(new[]
             {

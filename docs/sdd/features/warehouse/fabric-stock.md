@@ -37,10 +37,10 @@ src/Modules/Warehouse/
         StockRules.cs, StockList.cs, StockMessages.cs, MovementRevisions.cs, ItemPlans.cs, ItemFabricCards.cs, FabricBookingCalculator.cs
         Facts/StockFacts.cs      # issues of a period and balances at a date for «Звіти цеху»
   Warehouse.Infrastructure/Warehouse.Infrastructure/Persistence/  WarehouseDbContext (schema warehouse), FabricStockConfiguration, migrations
-  Warehouse.Api/Warehouse.Api/Stock/
-    FabricStockController.cs     # /api/warehouse/fabric-stock (policy access:fabric-stock)
-    OrderItemFabricController.cs # /api/warehouse/orders/{id}/items/{itemId}/fabric… (policy access:production-orders)
-    StockReportsController.cs    # /api/warehouse/reports/… (a policy per report: access:fabric-plan-fact, access:fabric-booking, access:fabric-valuation, access:hardware-order)
+  Warehouse.Api/Warehouse.Api/Endpoints/   # one <UseCase>Endpoint.cs per operation, mapped by its group
+    FabricStock/      # /api/warehouse/fabric-stock (policy access:fabric-stock)
+    OrderItemFabric/  # /api/warehouse/orders/{id}/items/{itemId}/fabric… (policy access:production-orders)
+    Reports/          # /api/warehouse/reports/… (a policy per report: access:fabric-plan-fact, access:fabric-booking, access:fabric-valuation, access:hardware-order)
 src/Modules/Production/Production.Domain/Production.Domain/FabricPlans/  # FabricPlanParts, PlanColor
 src/Modules/Production/Production.Application/Production.Application/Features/FabricPlans/Shared/  # ProductionFabricPlans and ProductionAssemblies for the stock
 src/Modules/Warehouse/Warehouse.Contracts/Warehouse.Contracts/Stock/IStockFacts.cs  # issues and balances for other modules
@@ -55,8 +55,8 @@ src/Modules/Warehouse/Warehouse.Infrastructure/Warehouse.Infrastructure/Adapters
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin «Склад тканин» and tab «Тканина»] --> Controllers[FabricStockController, OrderItemFabricController, StockReportsController]
-  Controllers --> UseCases[Stock use cases]
+  Admin[Brevi Admin «Склад тканин» and tab «Тканина»] --> Endpoints[Warehouse endpoints]
+  Endpoints --> UseCases[Stock use cases]
   UseCases --> Db[(warehouse.FabricStocks / FabricMovements / FabricIssues / FabricIssueLines / FabricItemPlans)]
   UseCases --> Plan[IWarehouseProductionReader] -.host.-> Production[Production plans, orders, history]
   UseCases --> Reference[IWarehouseReferenceReader] -.Reference.Contracts.-> Ref[Reference fabrics, suppliers, colours]

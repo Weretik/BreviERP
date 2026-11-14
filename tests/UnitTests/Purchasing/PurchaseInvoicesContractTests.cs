@@ -1,10 +1,8 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Purchasing.Api.DependencyInjection;
 using Purchasing.Api.Endpoints.Documents;
 using Purchasing.Api.Endpoints.Register;
+using UnitTests.TestSupport;
 using YamlDotNet.RepresentationModel;
 using Purchasing.Application.Features.Documents.Commands.RecognizeNewPurchaseFiles;
 using Purchasing.Application.Features.Documents.Commands.SaveCheckedPurchaseDocument;
@@ -62,12 +60,9 @@ public sealed class PurchaseInvoicesContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_purchase_policy()
     {
-        var builder = WebApplication.CreateSlimBuilder();
-        var app = builder.Build();
-        app.MapPurchasingEndpoints();
-        var endpoints = ((IEndpointRouteBuilder)app).DataSources.SelectMany(x => x.Endpoints).ToArray();
-        var policies = endpoints.SelectMany(x => x.Metadata.GetOrderedMetadata<IAuthorizeData>()).Select(x => x.Policy).Distinct().ToArray();
-        var operations = endpoints.Select(x => x.Metadata.GetMetadata<IEndpointNameMetadata>()?.EndpointName).ToArray();
+        var endpoints = MappedEndpoints.Of(app => app.MapPurchasingEndpoints());
+        var policies = endpoints.SelectMany(x => x.Policies).Distinct().ToArray();
+        var operations = endpoints.Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>
         {

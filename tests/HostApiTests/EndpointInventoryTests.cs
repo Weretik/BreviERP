@@ -1,13 +1,15 @@
 using HostApiTests.TestSupport;
+using BuildingBlocks.Api.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
 
 namespace HostApiTests;
 
 /// <summary>
 /// The HTTP surface of every module stays the same while controllers move to Minimal API: method, route with its
-/// constraints, endpoint name (operationId) and access rule of every endpoint are compared with
+/// constraints, endpoint name (operationId), access rule, «Права доступу» action, body and form size limits of every endpoint are compared with
 /// <c>Endpoints.snapshot.txt</c>. Set BREVIERP_UPDATE_ENDPOINTS=1 to rewrite the file after an intended change.
 /// </summary>
 public sealed class EndpointInventoryTests
@@ -49,6 +51,13 @@ public sealed class EndpointInventoryTests
                 .Distinct().Order(StringComparer.Ordinal).ToArray();
             access = rules.Length > 0 ? string.Join(",", rules) : data.Count > 0 ? "signed-in" : "open";
         }
+
+        // «Права доступу» action named on the endpoint (POST that edits) and raised body or form limits are part of access.
+        if (endpoint.Metadata.GetMetadata<AccessActionAttribute>() is { } action) access += ",action:" + action.Action;
+        if (endpoint.Metadata.GetMetadata<IRequestSizeLimitMetadata>() is { } limit)
+            access += ",body-limit:" + (limit.MaxRequestBodySize?.ToString() ?? "none");
+        if (endpoint.Metadata.GetMetadata<IFormOptionsMetadata>()?.MultipartBodyLengthLimit is { } form)
+            access += ",form-limit:" + form;
 
         return $"{method} {route} | {name} | {access}";
     }
