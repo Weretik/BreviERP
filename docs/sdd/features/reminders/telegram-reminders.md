@@ -31,8 +31,8 @@ src/Modules/Reminders/
     Integrations/Telegram/ # TelegramOptions, TelegramBotApiGateway (HttpClient)
     DependencyInjection/
   Reminders.Api/Reminders.Api/
-    Tasks/ Occurrences/ Chats/ Calendar/   # Admin controllers under /api/reminders
-    Telegram/TelegramWebhookController.cs  # anonymous webhook with secret header, Admin connect
+    Endpoints/{Tasks,Occurrences,Chats,Calendar}/   # Admin endpoints under /api/reminders, one <UseCase>Endpoint.cs each
+    Endpoints/Telegram/   # ReceiveTelegramUpdateEndpoint (anonymous, secret header), ConnectTelegramWebhookEndpoint
 src/Bootstrapper/Host.Seed/Jobs/RemindersDispatchCommandRunner.cs   # thin runner: sends DispatchRemindersCommand, logs the summary
 ```
 
@@ -44,11 +44,11 @@ flowchart LR
   Job --> Dispatcher[ReminderDispatcher]
   Dispatcher --> Generator[Occurrence generator]
   Dispatcher --> Gateway[Telegram gateway]
-  Telegram --> Webhook[Webhook controller]
+  Telegram --> Webhook[Webhook endpoint]
   Webhook --> Handler[Button handler / chat tracker]
   Handler --> Gateway
-  Admin[Brevi Admin] --> Controllers[Reminders controllers]
-  Controllers --> UseCases[Mediator use cases]
+  Admin[Brevi Admin] --> Endpoints[Reminders endpoints]
+  Endpoints --> UseCases[Mediator use cases]
   UseCases --> Db[(reminders schema)]
   Dispatcher --> Db
   Handler --> Db

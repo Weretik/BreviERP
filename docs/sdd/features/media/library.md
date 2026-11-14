@@ -21,8 +21,8 @@ src/Modules/Media/
     Integrations/Skia/ # SkiaMediaImageProcessor (SkiaSharp: size, EXIF turn, WebP preview)
     DependencyInjection/
   Media.Api/Media.Api/
-    Folders/MediaFoldersController.cs   # /api/media/folders
-    Files/MediaFilesController.cs       # /api/media/files
+    Endpoints/Folders/  # /api/media/folders, one <UseCase>Endpoint.cs each
+    Endpoints/Files/    # /api/media/files; UploadMediaFileEndpoint binds multipart file + folderId
   Media.Contracts/Media.Contracts/{Files,Imports,Storage}/   # IMediaFileReader, IMediaFileUploader, IMediaUrlImporter, ICdnStorage
   Media.Infrastructure/Media.Infrastructure/Contracts/       # their implementations
 src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Media/ProductMediaReader.cs  # Catalog IProductMediaReader → Media.Contracts
@@ -34,8 +34,8 @@ src/Bootstrapper/Host.Seed/Jobs/Sync/MediaThumbnailsSyncTask.cs # sync step medi
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin] --> Controllers[Media controllers]
-  Controllers --> UseCases[Mediator use cases]
+  Admin[Brevi Admin] --> Endpoints[Media endpoints]
+  Endpoints --> UseCases[Mediator use cases]
   UseCases --> Db[(media schema)]
   UseCases --> Cdn[AdmToolsMediaStorage → CDN]
   UseCases --> Usage[IMediaUsageReader]
