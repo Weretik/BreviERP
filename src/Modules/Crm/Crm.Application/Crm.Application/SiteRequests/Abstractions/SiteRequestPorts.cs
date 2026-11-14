@@ -1,3 +1,5 @@
+using BuildingBlocks.Application.Outbox;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Crm.Domain.SiteRequests;
 
 namespace Crm.Application.SiteRequests.Abstractions;
@@ -6,6 +8,11 @@ namespace Crm.Application.SiteRequests.Abstractions;
 public interface ISiteRequestStore
 {
     DbSet<SiteRequest> SiteRequests { get; }
+
+    /// <summary>The Crm outbox: the Telegram post of a new request is saved with it (PLT-003 R-07).</summary>
+    DbSet<OutboxMessage> OutboxMessages { get; }
+
+    DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

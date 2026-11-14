@@ -1,3 +1,5 @@
+using BuildingBlocks.Application.Outbox;
+using BuildingBlocks.Infrastructure.Outbox;
 using Crm.Application.Customers.KeepinCrmSync;
 using Crm.Application.Embroidery.Persistence;
 using Crm.Application.Leads.Persistence;
@@ -44,6 +46,7 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public DbSet<LeadCategory> LeadCategories => Set<LeadCategory>();
     public DbSet<LeadSyncState> LeadSyncStates => Set<LeadSyncState>();
     public DbSet<SiteRequest> SiteRequests => Set<SiteRequest>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     Task<int> IQuoteStore.SaveChangesAsync(CancellationToken cancellationToken) => SaveChangesAsync(cancellationToken);
 
@@ -109,5 +112,6 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     {
         builder.HasDefaultSchema("crm");
         builder.ApplyConfigurationsFromAssembly(typeof(CrmDbContext).Assembly);
+        builder.AddOutbox();
     }
 }

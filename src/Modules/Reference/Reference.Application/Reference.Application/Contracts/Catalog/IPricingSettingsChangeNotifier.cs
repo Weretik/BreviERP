@@ -1,8 +1,9 @@
 namespace Reference.Application.Contracts.Catalog;
 
 /// <summary>
-/// Catalog-owned boundary called after «Параметри ціноутворення» change, so Catalog prices use the new numbers.
-/// The Reference change is already saved; a failed sync is logged and does not undo it.
+/// Called after a save that changed «Параметри ціноутворення» or a PPE markup rule. That save already holds the
+/// outbox message for Catalog (PLT-003 R-09); this tries it at once. A failure stays in the outbox and never undoes the
+/// Reference change.
 /// </summary>
 public interface IPricingSettingsChangeNotifier
 {

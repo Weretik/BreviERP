@@ -1,3 +1,5 @@
+using BuildingBlocks.Application.Outbox;
+using BuildingBlocks.Infrastructure.Outbox;
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Domain.Forecast;
@@ -33,10 +35,12 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<PayrollAdjustment> PayrollAdjustments => Set<PayrollAdjustment>();
     public DbSet<PayrollIssued> PayrollIssued => Set<PayrollIssued>();
     public DbSet<WorkshopArchiveRecord> Archive => Set<WorkshopArchiveRecord>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);
         builder.ApplyConfigurationsFromAssembly(typeof(ProductionDbContext).Assembly);
+        builder.AddOutbox();
     }
 }

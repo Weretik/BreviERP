@@ -1,3 +1,5 @@
+using BuildingBlocks.Infrastructure.Outbox;
+using Crm.Application.SiteRequests.Notify;
 using Crm.Application.Embroidery.Mockup;
 using Crm.Application.Embroidery.StitchRate;
 using Crm.Application.Quotes.FabricFacts;
@@ -74,6 +76,8 @@ public static class CrmInfrastructureExtensions
         services.AddQuoteGmail(configuration);
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IDatabaseMigrator, DbMigrator<CrmDbContext>>();
+        services.AddOutbox<CrmDbContext>();
+        services.AddOutboxHandler<NotifySiteRequestOutboxHandler>();
 
         // Adapters from other modules' Contracts to this module's ports.
         services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();

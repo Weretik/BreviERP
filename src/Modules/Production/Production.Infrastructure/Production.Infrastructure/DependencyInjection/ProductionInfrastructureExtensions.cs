@@ -1,3 +1,5 @@
+using BuildingBlocks.Infrastructure.Outbox;
+using Production.Application.Orders.Telegram;
 using Production.Infrastructure.Adapters.Catalog;
 using Production.Infrastructure.Adapters.Crm;
 using Production.Infrastructure.Adapters.Identity;
@@ -32,6 +34,8 @@ public static class ProductionInfrastructureExtensions
             x => x.MigrationsHistoryTable("__EFMigrationsHistory", ProductionDbContext.Schema)));
         services.AddScoped<IProductionDbContext>(sp => sp.GetRequiredService<ProductionDbContext>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<ProductionDbContext>>();
+        services.AddOutbox<ProductionDbContext>();
+        services.AddOutboxHandler<SendProductionOrderTelegramOutboxHandler>();
         services.AddScoped<QuoteItemResolver>();
         services.AddScoped<OrderCards>();
         services.AddScoped<Production.Application.Orders.Embroidery.EmbroideryLinks>();

@@ -14,12 +14,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BuildingBlocks.Application\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Ardalis.Result" />
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Google.Apis.Auth" />
   </ItemGroup>
 
 </Project>

@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Outbox;
 using System.Globalization;
 using Host.Api.DependencyInjection.ServiceRegistration;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
@@ -58,5 +59,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health").AllowAnonymous();
+app.MapOutboxDispatch();
 
 app.Run();

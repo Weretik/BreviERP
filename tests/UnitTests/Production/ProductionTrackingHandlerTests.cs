@@ -303,8 +303,8 @@ public sealed class ProductionTrackingHandlerTests
             .Handle(new(actor, order.Id, itemId, new(order.Version, stages)), CancellationToken.None);
 
     private static SendProductionOrderTelegramCommandHandler SendTelegram(ProductionTestHarness workshop) =>
-        new(workshop.Db, workshop.Staff, workshop.Telegram, workshop.Links, workshop.Cards(), workshop.Time,
-            NullLogger<SendProductionOrderTelegramCommandHandler>.Instance);
+        new(workshop.Db, workshop.Staff, workshop.Telegram, workshop.Cards(), new InlineProductionOutbox(workshop),
+            workshop.Time);
 
     private static WorkshopSettingsHandler Settings(ProductionTestHarness workshop) =>
         new(workshop.Db, workshop.Staff, workshop.Telegram, workshop.Time);
