@@ -1,3 +1,7 @@
+using Reminders.Api.Endpoints.Occurrences.CloseReminderOccurrence;
+using Reminders.Api.Endpoints.Occurrences.GetReminderOccurrences;
+using Reminders.Api.Endpoints.Occurrences.ReopenReminderOccurrence;
+
 namespace Reminders.Api.Endpoints.Occurrences;
 
 /// <summary>Periods of reminder tasks: list, close, reopen.</summary>

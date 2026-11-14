@@ -1,4 +1,10 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.ProductPages.DeleteContentProduct;
+using Content.Api.Endpoints.ProductPages.GetContentProduct;
+using Content.Api.Endpoints.ProductPages.GetContentProducts;
+using Content.Api.Endpoints.ProductPages.ImportOldSiteProductPages;
+using Content.Api.Endpoints.ProductPages.SaveContentProduct;
+using Content.Api.Endpoints.ProductPages.SetContentProductVisibility;
 
 namespace Content.Api.Endpoints.ProductPages;
 

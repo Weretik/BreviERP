@@ -1,4 +1,5 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.SeoOverview.GetSeoOverview;
 
 namespace Content.Api.Endpoints.SeoOverview;
 

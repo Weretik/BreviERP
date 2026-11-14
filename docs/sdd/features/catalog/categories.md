@@ -15,7 +15,7 @@ The following are verified entry points and key feature components; the tree doe
 ```text
 src/
 └── Modules/Catalog/
-    ├── Catalog.Api/Catalog.Api/Endpoints/ProductCategory/ProductCategoriesEndpoints.cs  # HTTP entry point (Minimal API group, one *Endpoint.cs per use case)
+    ├── Catalog.Api/Catalog.Api/Endpoints/ProductCategory/ProductCategoriesEndpoints.cs  # HTTP entry point (Minimal API group, one <UseCase>/ folder per use case)
     ├── Catalog.Application/Catalog.Application/Features/ProductCategory/
     │   ├── Commands/CreateProductCategory/CreateProductCategoryHandler.cs  # use-case handler
     │   ├── Commands/DeleteProductCategory/DeleteProductCategoryHandler.cs  # use-case handler

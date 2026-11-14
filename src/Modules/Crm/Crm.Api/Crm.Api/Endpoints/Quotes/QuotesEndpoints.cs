@@ -1,4 +1,20 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Quotes.AddCrmQuoteEmbroidery;
+using Crm.Api.Endpoints.Quotes.CopyCrmQuote;
+using Crm.Api.Endpoints.Quotes.CreateCrmQuote;
+using Crm.Api.Endpoints.Quotes.DeleteCrmQuote;
+using Crm.Api.Endpoints.Quotes.GetCrmLegacyArchivedQuotes;
+using Crm.Api.Endpoints.Quotes.GetCrmQuote;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteHistory;
+using Crm.Api.Endpoints.Quotes.GetCrmQuotePdf;
+using Crm.Api.Endpoints.Quotes.GetCrmQuotePeriod;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteSendDraft;
+using Crm.Api.Endpoints.Quotes.GetCrmQuotes;
+using Crm.Api.Endpoints.Quotes.PurgeCrmLegacyArchivedQuotes;
+using Crm.Api.Endpoints.Quotes.RepriceCrmQuote;
+using Crm.Api.Endpoints.Quotes.SaveCrmQuote;
+using Crm.Api.Endpoints.Quotes.SendCrmQuote;
+using Crm.Api.Endpoints.Quotes.SetCrmQuoteResponsible;
 
 namespace Crm.Api.Endpoints.Quotes;
 

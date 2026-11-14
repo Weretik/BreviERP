@@ -1,8 +1,7 @@
 using Ardalis.Result;
 using Catalog.Domain.Products;
 using System.Text.Json;
-using Catalog.Api.Product.Write;
-using Catalog.Api.Product.Write.Ppe;
+using Catalog.Api.Endpoints.Product.Write;
 
 namespace UnitTests.Catalog.Products;
 

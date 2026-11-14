@@ -1,4 +1,6 @@
 using BuildingBlocks.Api.Caching;
+using Content.Api.Endpoints.PublicArticles.GetPublicArticle;
+using Content.Api.Endpoints.PublicArticles.GetPublicArticles;
 
 namespace Content.Api.Endpoints.PublicArticles;
 

@@ -7,7 +7,8 @@ using YamlDotNet.RepresentationModel;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
-using Catalog.Api.Pricing.Ppe.SupplierPrices;
+using Catalog.Api.Endpoints.Ppe.ListPpePriceSources;
+using Catalog.Api.Endpoints.Ppe.UpdatePpePriceSource;
 
 namespace UnitTests.Catalog.Pricing.Ppe;
 

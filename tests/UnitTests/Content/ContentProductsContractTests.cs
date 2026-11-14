@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Routing;
 using UnitTests.TestSupport;
 using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.ProductPages;
 using Content.Domain.ProductPages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +11,9 @@ using Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPag
 using Content.Application.Features.ProductPages.Commands.SetContentProductVisibility;
 using Content.Application.Features.ProductPages.Queries.GetContentProducts;
 using Content.Application.Features.ProductPages.Shared;
+using Content.Api.Endpoints.ProductPages.ImportOldSiteProductPages;
+using Content.Api.Endpoints.ProductPages.SaveContentProduct;
+using Content.Api.Endpoints.ProductPages.SetContentProductVisibility;
 
 namespace UnitTests.Content;
 

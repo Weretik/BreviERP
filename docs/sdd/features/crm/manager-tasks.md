@@ -24,8 +24,7 @@ src/Modules/Crm/
     CrmDbContext.cs                implements ITaskStore
   Crm.Api/Crm.Api/Endpoints/Tasks/
     ManagerTasksEndpoints.cs       /api/crm/tasks
-  Crm.Api/Crm.Api/Tasks/
-    *Request.cs                    status, urgent and step requests
+    <UseCase>/                     endpoint and its request (status, urgent, step)
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Identity/TaskStaffReader.cs   Identity.Contracts adapter
 ```
 

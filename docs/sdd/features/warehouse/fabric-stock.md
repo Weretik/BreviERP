@@ -37,7 +37,7 @@ src/Modules/Warehouse/
         StockRules.cs, StockList.cs, StockMessages.cs, MovementRevisions.cs, ItemPlans.cs, ItemFabricCards.cs, FabricBookingCalculator.cs
         Facts/StockFacts.cs      # issues of a period and balances at a date for «Звіти цеху»
   Warehouse.Infrastructure/Warehouse.Infrastructure/Persistence/  WarehouseDbContext (schema warehouse), FabricStockConfiguration, migrations
-  Warehouse.Api/Warehouse.Api/Endpoints/   # one <UseCase>Endpoint.cs per operation, mapped by its group
+  Warehouse.Api/Warehouse.Api/Endpoints/   # one <UseCase>/ folder per operation, mapped by its group
     FabricStock/      # /api/warehouse/fabric-stock (policy access:fabric-stock)
     OrderItemFabric/  # /api/warehouse/orders/{id}/items/{itemId}/fabric… (policy access:production-orders)
     Reports/          # /api/warehouse/reports/… (a policy per report: access:fabric-plan-fact, access:fabric-booking, access:fabric-valuation, access:hardware-order)

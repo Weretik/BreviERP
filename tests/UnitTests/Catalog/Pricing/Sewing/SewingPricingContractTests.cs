@@ -7,8 +7,8 @@ using Catalog.Domain.Pricing.Sewing;
 using YamlDotNet.RepresentationModel;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Queries.GetSewingArticleSummary;
-using Catalog.Api.Pricing.Sewing.Calculations;
-using Catalog.Api.Pricing.Sewing.Settings;
+using Catalog.Api.Endpoints.Sewing.CreateSewingSettingsVersion;
+using Catalog.Api.Endpoints.Sewing.SaveSewingCalculation;
 
 namespace UnitTests.Catalog.Pricing.Sewing;
 

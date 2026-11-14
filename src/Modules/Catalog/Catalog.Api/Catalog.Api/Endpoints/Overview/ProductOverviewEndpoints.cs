@@ -1,3 +1,10 @@
+using Catalog.Api.Endpoints.Overview.CreateCatalogProduct;
+using Catalog.Api.Endpoints.Overview.GetProductCodeCheck;
+using Catalog.Api.Endpoints.Overview.GetProductOverview;
+using Catalog.Api.Endpoints.Overview.GetProductOverviewItem;
+using Catalog.Api.Endpoints.Overview.ImportSheetProducts;
+using Catalog.Api.Endpoints.Overview.UpdateProductOverview;
+
 namespace Catalog.Api.Endpoints.Overview;
 
 /// <summary>The «Товари» page: one row per model (sewing) or site article (PPE) with its working fields.</summary>

@@ -1,3 +1,6 @@
+using Reminders.Api.Endpoints.Telegram.ConnectTelegramWebhook;
+using Reminders.Api.Endpoints.Telegram.ReceiveTelegramUpdate;
+
 namespace Reminders.Api.Endpoints.Telegram;
 
 /// <summary>Telegram webhook (anonymous, secret header) and its connection by an admin.</summary>

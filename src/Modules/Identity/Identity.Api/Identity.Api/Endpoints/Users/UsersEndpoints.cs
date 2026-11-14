@@ -1,4 +1,11 @@
 using Identity.Application.Security.Policies;
+using Identity.Api.Endpoints.Users.ChangeStaffRole;
+using Identity.Api.Endpoints.Users.CreateStaffAccount;
+using Identity.Api.Endpoints.Users.DeleteStaffAccount;
+using Identity.Api.Endpoints.Users.GetStaffAccounts;
+using Identity.Api.Endpoints.Users.SetStaffBlocked;
+using Identity.Api.Endpoints.Users.SetStaffPassword;
+using Identity.Api.Endpoints.Users.UpdateStaffDetails;
 
 namespace Identity.Api.Endpoints.Users;
 

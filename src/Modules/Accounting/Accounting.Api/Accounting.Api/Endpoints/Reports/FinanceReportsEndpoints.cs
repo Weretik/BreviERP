@@ -1,5 +1,7 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Reports.Queries.GetFinanceReport;
+using Accounting.Api.Endpoints.Reports.GetFinanceReport;
+using Accounting.Api.Endpoints.Reports.GetFinanceReportCsv;
 
 namespace Accounting.Api.Endpoints.Reports;
 

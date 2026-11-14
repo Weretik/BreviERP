@@ -1,4 +1,11 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Leads.CreateCrmLeadCallResult;
+using Crm.Api.Endpoints.Leads.EditCrmLeadCallResult;
+using Crm.Api.Endpoints.Leads.EditCrmLeadCategory;
+using Crm.Api.Endpoints.Leads.GetCrmLeadCategories;
+using Crm.Api.Endpoints.Leads.GetCrmLeadStats;
+using Crm.Api.Endpoints.Leads.GetCrmLeadStatsCallResults;
+using Crm.Api.Endpoints.Leads.SyncCrmLeads;
 
 namespace Crm.Api.Endpoints.Leads;
 

@@ -1,4 +1,8 @@
 using Purchasing.Api.Access;
+using Purchasing.Api.Endpoints.Documents.GetPurchaseDocumentTemplate;
+using Purchasing.Api.Endpoints.Documents.RecognizeNewPurchaseFiles;
+using Purchasing.Api.Endpoints.Documents.RecognizePurchaseFile;
+using Purchasing.Api.Endpoints.Documents.SavePurchaseDocument;
 
 namespace Purchasing.Api.Endpoints.Documents;
 

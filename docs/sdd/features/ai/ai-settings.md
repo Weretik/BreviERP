@@ -19,7 +19,7 @@ src/Modules/Ai/
     Persistence/       # AiDbContext (schema ai), configurations, migrations
     Integrations/OpenAi/ # AiKeyProtector (Data Protection)
     Integrations/OpenAi/ # OpenAiResponsesClient (Responses API, strict json_schema)
-  Ai.Api/Ai.Api/Settings/AiSettingsController.cs   # /api/ai/settings, policy RequireAdminRole
+  Ai.Api/Ai.Api/Endpoints/Settings/AiSettingsEndpoints.cs   # /api/ai/settings, policy RequireAdminRole; <UseCase>/ per endpoint
   Ai.Contracts/Ai.Contracts/
     Extraction/IStructuredDataExtractor.cs  # structured answer from text and files, for other modules
     Prompts/{IAiBasePrompt,AiPromptKeys}.cs # base instructions other modules register

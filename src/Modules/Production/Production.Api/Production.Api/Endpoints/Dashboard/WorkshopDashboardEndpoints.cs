@@ -1,4 +1,5 @@
 using Production.Api.Access;
+using Production.Api.Endpoints.Dashboard.GetWorkshopDashboard;
 
 namespace Production.Api.Endpoints.Dashboard;
 

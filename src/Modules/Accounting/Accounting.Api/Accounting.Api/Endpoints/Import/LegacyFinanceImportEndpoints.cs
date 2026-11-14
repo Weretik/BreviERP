@@ -1,4 +1,5 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Import.ImportLegacyFinance;
 
 namespace Accounting.Api.Endpoints.Import;
 

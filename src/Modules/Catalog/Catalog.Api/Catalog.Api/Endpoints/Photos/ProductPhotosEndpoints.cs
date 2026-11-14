@@ -1,3 +1,6 @@
+using Catalog.Api.Endpoints.Photos.GetProductPhotos;
+using Catalog.Api.Endpoints.Photos.SetProductPhotos;
+
 namespace Catalog.Api.Endpoints.Photos;
 
 /// <summary>

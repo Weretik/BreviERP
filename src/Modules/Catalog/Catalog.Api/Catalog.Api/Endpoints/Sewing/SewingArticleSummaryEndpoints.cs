@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Pricing.Queries.GetSewingArticleSummary;
+using Catalog.Api.Endpoints.Sewing.GetSewingArticleSummary;
 
 namespace Catalog.Api.Endpoints.Sewing;
 

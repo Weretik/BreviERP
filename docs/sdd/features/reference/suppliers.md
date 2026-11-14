@@ -15,7 +15,7 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Endpoints/Suppliers/  # HTTP entry points, one <UseCase>Endpoint.cs each
+    ├── Reference.Api/Reference.Api/Endpoints/Suppliers/  # HTTP entry points, one <UseCase>/ folder each
     ├── Reference.Application/Reference.Application/Features/Supplier/
     │   ├── Commands/CreateSupplier/CreateSupplierHandler.cs  # use case handler
     │   ├── Commands/DeleteSupplier/DeleteSupplierHandler.cs  # use case handler

@@ -1,4 +1,12 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.SiteCategories.CreateSiteCategory;
+using Content.Api.Endpoints.SiteCategories.DeleteSiteCategory;
+using Content.Api.Endpoints.SiteCategories.GetSiteCategories;
+using Content.Api.Endpoints.SiteCategories.GetSiteCategory;
+using Content.Api.Endpoints.SiteCategories.ImportOldSiteCategories;
+using Content.Api.Endpoints.SiteCategories.ReorderSiteCategories;
+using Content.Api.Endpoints.SiteCategories.SaveSiteCategory;
+using Content.Api.Endpoints.SiteCategories.SetSiteCategoryVisibility;
 
 namespace Content.Api.Endpoints.SiteCategories;
 

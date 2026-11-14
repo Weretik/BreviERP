@@ -1,4 +1,9 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Transfers.CreateFinanceTransfer;
+using Accounting.Api.Endpoints.Transfers.GetFinanceTransferHistory;
+using Accounting.Api.Endpoints.Transfers.GetFinanceTransfers;
+using Accounting.Api.Endpoints.Transfers.UpdateFinanceTransfer;
+using Accounting.Api.Endpoints.Transfers.VoidFinanceTransfer;
 
 namespace Accounting.Api.Endpoints.Transfers;
 

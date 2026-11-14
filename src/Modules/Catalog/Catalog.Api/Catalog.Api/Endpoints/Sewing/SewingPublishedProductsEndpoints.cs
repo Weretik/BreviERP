@@ -1,3 +1,5 @@
+using Catalog.Api.Endpoints.Sewing.GetPublishedSewingProducts;
+
 namespace Catalog.Api.Endpoints.Sewing;
 
 internal static class SewingPublishedProductsEndpoints

@@ -1,4 +1,11 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.Articles.CreateContentArticle;
+using Content.Api.Endpoints.Articles.DeleteContentArticle;
+using Content.Api.Endpoints.Articles.GetContentArticle;
+using Content.Api.Endpoints.Articles.GetContentArticles;
+using Content.Api.Endpoints.Articles.ImportOldSiteArticles;
+using Content.Api.Endpoints.Articles.SaveContentArticle;
+using Content.Api.Endpoints.Articles.SetContentArticleVisibility;
 
 namespace Content.Api.Endpoints.Articles;
 

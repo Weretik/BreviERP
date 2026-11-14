@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Routing;
 using UnitTests.TestSupport;
 using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.Articles;
 using Content.Domain.Articles;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +10,9 @@ using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
 using Content.Application.Features.Articles.Commands.SetContentArticleVisibility;
 using Content.Application.Features.Articles.Queries.GetContentArticles;
 using Content.Application.Features.Articles.Shared;
+using Content.Api.Endpoints.Articles.ImportOldSiteArticles;
+using Content.Api.Endpoints.Articles.SetContentArticleVisibility;
+using Content.Api.Endpoints.Articles.Shared;
 
 namespace UnitTests.Content;
 

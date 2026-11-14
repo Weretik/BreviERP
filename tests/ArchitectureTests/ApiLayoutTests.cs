@@ -1,9 +1,9 @@
 namespace ArchitectureTests;
 
 /// <summary>
-/// Api projects group HTTP code by feature, the same names as in Application (module rules «Folders»): a feature folder holds
-/// its requests and mappers, <c>Endpoints/&lt;Feature&gt;/</c> its Minimal API endpoints; <c>Access/</c> holds policy names
-/// and <c>DependencyInjection/</c> the registration. No folder is named after a kind of class, and there are no MVC controllers.
+/// Api projects keep HTTP code in <c>Endpoints/&lt;Feature&gt;/&lt;UseCase&gt;/</c> (module rules «Folders»), next to
+/// <c>Access/</c> with policy names, <c>DependencyInjection/</c> with the registration and an optional <c>Middleware/</c>.
+/// No folder is named after a kind of class, and there are no MVC controllers.
 /// </summary>
 public sealed class ApiLayoutTests
 {
@@ -54,23 +54,59 @@ public sealed class ApiLayoutTests
     }
 
     /// <summary>
-    /// Minimal API layout: <c>Endpoints/&lt;Feature&gt;/</c> holds <c>&lt;Feature&gt;Endpoints.cs</c> and one
-    /// <c>&lt;UseCase&gt;Endpoint.cs</c> per use case (its request type sits in the same file), never a flat <c>Endpoints/</c>.
+    /// An Api project holds only <c>Access/</c> (who may do what), <c>DependencyInjection/</c> (registration and
+    /// <c>Map&lt;Module&gt;Endpoints</c>), <c>Endpoints/</c> and, when the module has one, <c>Middleware/</c>.
     /// </summary>
     [Test]
-    public void Endpoint_files_sit_in_feature_folders_one_per_use_case()
+    public void Api_projects_have_only_access_registration_endpoints_and_middleware_folders()
     {
+        string[] allowed = ["Access", "DependencyInjection", "Endpoints", "Middleware"];
         var offending = ApiProjects()
-            .Select(project => Path.Combine(project, "Endpoints"))
-            .Where(Directory.Exists)
-            .SelectMany(endpoints => Directory.GetFiles(endpoints, "*.cs", SearchOption.AllDirectories)
-                .Where(file => Path.GetDirectoryName(file) == endpoints
-                               || !(file.EndsWith("Endpoint.cs", StringComparison.Ordinal)
-                                    || file.EndsWith("Endpoints.cs", StringComparison.Ordinal))))
+            .SelectMany(project => Directory.GetDirectories(project))
+            .Where(NotBuildOutput)
+            .Where(dir => !allowed.Contains(Path.GetFileName(dir)))
             .Select(Relative)
             .ToArray();
 
         Assert.That(offending, Is.Empty);
+    }
+
+    /// <summary>
+    /// One use case = one folder: <c>Endpoints/&lt;Feature&gt;/</c> holds only its route groups (<c>*Endpoints.cs</c>, usually
+    /// one) and folders. A use-case folder <c>&lt;UseCase&gt;/</c> holds <c>&lt;UseCase&gt;Endpoint.cs</c> with the request and
+    /// response types only it uses; types several use cases share sit in a folder with no endpoint (<c>Shared/</c> or a
+    /// named group such as <c>Detail/</c>), and types several features share in <c>Endpoints/Shared/</c>.
+    /// </summary>
+    [Test]
+    public void Endpoints_have_one_folder_per_use_case()
+    {
+        var offending = new List<string>();
+        foreach (var endpoints in ApiProjects().Select(project => Path.Combine(project, "Endpoints")).Where(Directory.Exists))
+        {
+            offending.AddRange(Directory.GetFiles(endpoints, "*.cs"));
+            foreach (var feature in Directory.GetDirectories(endpoints))
+            {
+                var name = Path.GetFileName(feature);
+                offending.AddRange(Directory.GetFiles(feature, "*.cs")
+                    .Where(file => name == "Shared" ? file.EndsWith("Endpoint.cs", StringComparison.Ordinal) : !file.EndsWith("Endpoints.cs", StringComparison.Ordinal)));
+                if (name == "Shared")
+                    continue;
+                foreach (var folder in Directory.GetDirectories(feature))
+                {
+                    var endpointFiles = Directory.GetFiles(folder, "*.cs", SearchOption.AllDirectories)
+                        .Where(file => file.EndsWith("Endpoint.cs", StringComparison.Ordinal) || file.EndsWith("Endpoints.cs", StringComparison.Ordinal))
+                        .ToArray();
+                    var useCase = Path.GetFileName(folder) + "Endpoint.cs";
+                    var isUseCase = endpointFiles.Length == 1 && Path.GetFileName(endpointFiles[0]) == useCase
+                                                              && Path.GetDirectoryName(endpointFiles[0]) == folder
+                                                              && Directory.GetDirectories(folder).Length == 0;
+                    if (endpointFiles.Length > 0 && !isUseCase)
+                        offending.Add(folder);
+                }
+            }
+        }
+
+        Assert.That(offending.Select(Relative), Is.Empty);
     }
 
     private static IEnumerable<string> ApiProjects() =>

@@ -1,4 +1,10 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Customers.CreateCrmCustomer;
+using Crm.Api.Endpoints.Customers.GetCrmCustomer;
+using Crm.Api.Endpoints.Customers.GetCrmCustomers;
+using Crm.Api.Endpoints.Customers.MergeCrmCustomers;
+using Crm.Api.Endpoints.Customers.ReviseCrmCustomer;
+using Crm.Api.Endpoints.Customers.SyncCrmCustomersFromKeepinCrm;
 
 namespace Crm.Api.Endpoints.Customers;
 

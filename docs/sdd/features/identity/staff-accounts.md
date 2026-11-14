@@ -19,7 +19,7 @@ The Admin «Користувачі» page: an administrator or the director list
 ```text
 src/Modules/Identity/
 ├── Identity.Api/Identity.Api/
-│   ├── Endpoints/Users/                             # /api/admin/users: one <UseCase>Endpoint.cs each with its request
+│   ├── Endpoints/Users/                             # /api/admin/users: one <UseCase>/ folder each with its request
 │   └── Users/StaffAccountResponse.cs
 ├── Identity.Application/Identity.Application/
 │   ├── Features/Users/{Commands,Queries}/           # GetStaffList, CreateStaff, ChangeStaffRole,

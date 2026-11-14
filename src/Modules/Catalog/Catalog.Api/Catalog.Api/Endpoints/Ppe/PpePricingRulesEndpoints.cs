@@ -1,3 +1,7 @@
+using Catalog.Api.Endpoints.Ppe.CreatePpeRuleVersion;
+using Catalog.Api.Endpoints.Ppe.GetPpePricingRule;
+using Catalog.Api.Endpoints.Ppe.PreviewPpePrices;
+
 namespace Catalog.Api.Endpoints.Ppe;
 
 internal static class PpePricingRulesEndpoints

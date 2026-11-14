@@ -1,4 +1,9 @@
 using Production.Api.Access;
+using Production.Api.Endpoints.Staff.CreateWorkshopEmployee;
+using Production.Api.Endpoints.Staff.GetWorkshopStaff;
+using Production.Api.Endpoints.Staff.ImportWorkshopStaff;
+using Production.Api.Endpoints.Staff.SetWorkshopEmployeeActive;
+using Production.Api.Endpoints.Staff.UpdateWorkshopEmployee;
 
 namespace Production.Api.Endpoints.Staff;
 

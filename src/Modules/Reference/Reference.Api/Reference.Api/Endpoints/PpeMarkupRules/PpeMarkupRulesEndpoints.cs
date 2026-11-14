@@ -1,3 +1,8 @@
+using Reference.Api.Endpoints.PpeMarkupRules.CreatePpeMarkupRule;
+using Reference.Api.Endpoints.PpeMarkupRules.DeletePpeMarkupRule;
+using Reference.Api.Endpoints.PpeMarkupRules.GetPpeMarkupRules;
+using Reference.Api.Endpoints.PpeMarkupRules.UpdatePpeMarkupRule;
+
 namespace Reference.Api.Endpoints.PpeMarkupRules;
 
 /// <summary>PPE markup rules of the Calculator sheet «Налаштування цін» (right table).</summary>

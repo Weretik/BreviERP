@@ -1,4 +1,9 @@
 using Production.Api.Access;
+using Production.Api.Endpoints.FabricNorms.DeleteFabricNorm;
+using Production.Api.Endpoints.FabricNorms.GetFabricNorms;
+using Production.Api.Endpoints.FabricNorms.GetModelCompositions;
+using Production.Api.Endpoints.FabricNorms.ImportFabricNorms;
+using Production.Api.Endpoints.FabricNorms.SaveFabricNorm;
 
 namespace Production.Api.Endpoints.FabricNorms;
 

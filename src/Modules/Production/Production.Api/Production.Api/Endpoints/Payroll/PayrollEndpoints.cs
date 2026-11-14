@@ -1,4 +1,16 @@
 using Production.Api.Access;
+using Production.Api.Endpoints.Payroll.ClosePayrollMonth;
+using Production.Api.Endpoints.Payroll.CreatePayrollAdjustment;
+using Production.Api.Endpoints.Payroll.CreatePayrollPayment;
+using Production.Api.Endpoints.Payroll.GetPayrollEmployee;
+using Production.Api.Endpoints.Payroll.GetPayrollMonth;
+using Production.Api.Endpoints.Payroll.GetPayrollYear;
+using Production.Api.Endpoints.Payroll.ReopenPayrollMonth;
+using Production.Api.Endpoints.Payroll.SetPayrollEmbroidery;
+using Production.Api.Endpoints.Payroll.SetPayrollIssued;
+using Production.Api.Endpoints.Payroll.SetPayrollRoles;
+using Production.Api.Endpoints.Payroll.VoidPayrollAdjustment;
+using Production.Api.Endpoints.Payroll.VoidPayrollPayment;
 
 namespace Production.Api.Endpoints.Payroll;
 

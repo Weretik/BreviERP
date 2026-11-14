@@ -1,4 +1,23 @@
 using Warehouse.Api.Access;
+using Warehouse.Api.Endpoints.FabricStock.AdjustFabricStock;
+using Warehouse.Api.Endpoints.FabricStock.DeleteFabricStock;
+using Warehouse.Api.Endpoints.FabricStock.EditFabricMovement;
+using Warehouse.Api.Endpoints.FabricStock.GetFabricConsumption;
+using Warehouse.Api.Endpoints.FabricStock.GetFabricIssueItem;
+using Warehouse.Api.Endpoints.FabricStock.GetFabricIssueItems;
+using Warehouse.Api.Endpoints.FabricStock.GetFabricMovementHistory;
+using Warehouse.Api.Endpoints.FabricStock.GetFabricMovements;
+using Warehouse.Api.Endpoints.FabricStock.GetFabricStock;
+using Warehouse.Api.Endpoints.FabricStock.GetFabricStockChoices;
+using Warehouse.Api.Endpoints.FabricStock.IssueFabric;
+using Warehouse.Api.Endpoints.FabricStock.IssueFabricToItem;
+using Warehouse.Api.Endpoints.FabricStock.OpenFabricStock;
+using Warehouse.Api.Endpoints.FabricStock.ReceiveFabric;
+using Warehouse.Api.Endpoints.FabricStock.RefreshFabricItemPlan;
+using Warehouse.Api.Endpoints.FabricStock.RestoreFabricMovement;
+using Warehouse.Api.Endpoints.FabricStock.ReverseFabricMovement;
+using Warehouse.Api.Endpoints.FabricStock.TransferFabricStock;
+using Warehouse.Api.Endpoints.FabricStock.VoidFabricMovement;
 
 namespace Warehouse.Api.Endpoints.FabricStock;
 

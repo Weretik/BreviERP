@@ -1,11 +1,3 @@
-using Accounting.Api.Accounts;
-using Accounting.Api.Attachments;
-using Accounting.Api.Categories;
-using Accounting.Api.Counterparties;
-using Accounting.Api.Statements;
-using Accounting.Api.Reports;
-using Accounting.Api.Transactions;
-using Accounting.Api.Transfers;
 using Accounting.Api.DependencyInjection;
 using UnitTests.TestSupport;
 using System.Text.Json;
@@ -38,6 +30,21 @@ using Accounting.Application.Features.Transactions.Queries.GetFinanceTransaction
 using Accounting.Application.Features.Transactions.Shared;
 using Accounting.Application.Features.Transfers.Queries.GetFinanceTransfers;
 using Accounting.Application.Features.Transfers.Shared;
+using Accounting.Api.Endpoints.Accounts.CreateFinanceAccount;
+using Accounting.Api.Endpoints.Accounts.SetFinanceAccountCutover;
+using Accounting.Api.Endpoints.Accounts.UpdateFinanceAccount;
+using Accounting.Api.Endpoints.Categories.CreateFinanceCategory;
+using Accounting.Api.Endpoints.Categories.UpdateFinanceCategory;
+using Accounting.Api.Endpoints.Counterparties.CreateFinanceCounterparty;
+using Accounting.Api.Endpoints.Counterparties.MergeFinanceCounterparty;
+using Accounting.Api.Endpoints.Counterparties.UpdateFinanceCounterparty;
+using Accounting.Api.Endpoints.Shared;
+using Accounting.Api.Endpoints.Statements.UpdateBankStatementLine;
+using Accounting.Api.Endpoints.Transactions.CreateFinanceTransaction;
+using Accounting.Api.Endpoints.Transactions.ReviewFinanceTransaction;
+using Accounting.Api.Endpoints.Transactions.UpdateFinanceTransaction;
+using Accounting.Api.Endpoints.Transfers.CreateFinanceTransfer;
+using Accounting.Api.Endpoints.Transfers.UpdateFinanceTransfer;
 
 namespace UnitTests.Accounting;
 

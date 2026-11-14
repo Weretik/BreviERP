@@ -1,9 +1,11 @@
 using System.Text.Json;
-using Crm.Api.Tasks;
 using Crm.Api.DependencyInjection;
 using UnitTests.TestSupport;
 using YamlDotNet.RepresentationModel;
 using Crm.Application.Features.Tasks.Shared;
+using Crm.Api.Endpoints.Tasks.ChangeCrmTaskStatus;
+using Crm.Api.Endpoints.Tasks.MarkCrmTaskStep;
+using Crm.Api.Endpoints.Tasks.SetCrmTaskUrgent;
 
 namespace UnitTests.Crm.Tasks;
 

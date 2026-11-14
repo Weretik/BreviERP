@@ -16,7 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Catalog.Api;
-using Catalog.Api.Pricing.Sewing;
+using Catalog.Api.Middleware;
 
 namespace Catalog.Api.DependencyInjection;
 

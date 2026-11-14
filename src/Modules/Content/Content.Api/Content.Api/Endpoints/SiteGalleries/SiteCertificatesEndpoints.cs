@@ -1,4 +1,7 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.SiteGalleries.GetSiteCertificates;
+using Content.Api.Endpoints.SiteGalleries.SaveSiteCertificates;
+using Content.Api.Endpoints.SiteGalleries.TransferSiteCertificates;
 
 namespace Content.Api.Endpoints.SiteGalleries;
 

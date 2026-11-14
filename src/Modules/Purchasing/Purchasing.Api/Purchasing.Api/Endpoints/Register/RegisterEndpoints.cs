@@ -1,4 +1,12 @@
 using Purchasing.Api.Access;
+using Purchasing.Api.Endpoints.Register.GetPurchaseInvoices;
+using Purchasing.Api.Endpoints.Register.GetPurchasePaymentCandidates;
+using Purchasing.Api.Endpoints.Register.GetPurchaseSuppliers;
+using Purchasing.Api.Endpoints.Register.GetPurchaseSyncState;
+using Purchasing.Api.Endpoints.Register.LinkPurchasePayment;
+using Purchasing.Api.Endpoints.Register.ReviewPurchaseInvoice;
+using Purchasing.Api.Endpoints.Register.SyncPurchaseInvoices;
+using Purchasing.Api.Endpoints.Register.UnlinkPurchasePayment;
 
 namespace Purchasing.Api.Endpoints.Register;
 

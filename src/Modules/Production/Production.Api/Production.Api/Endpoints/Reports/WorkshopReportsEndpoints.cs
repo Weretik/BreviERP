@@ -1,4 +1,5 @@
 using Production.Api.Access;
+using Production.Api.Endpoints.Reports.GetWorkshopReport;
 
 namespace Production.Api.Endpoints.Reports;
 

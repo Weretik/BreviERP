@@ -1,4 +1,6 @@
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierOffer;
+using Catalog.Api.Endpoints.Ppe.GetPpeSupplierOffer;
+using Catalog.Api.Endpoints.Ppe.UpdatePpeSupplierOffer;
 
 namespace Catalog.Api.Endpoints.Ppe;
 

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Identity.Infrastructure.Integrations.AspNetIdentity;
-using Identity.Api.Auth;
+using Identity.Api.Endpoints.CookieAuth.Shared;
 
 namespace Identity.Api.DependencyInjection;
 

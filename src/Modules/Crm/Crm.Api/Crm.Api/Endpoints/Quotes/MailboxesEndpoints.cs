@@ -1,4 +1,7 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Quotes.ConnectCrmMailbox;
+using Crm.Api.Endpoints.Quotes.CrmMailboxGoogleCallback;
+using Crm.Api.Endpoints.Quotes.DisconnectCrmMailbox;
 
 namespace Crm.Api.Endpoints.Quotes;
 

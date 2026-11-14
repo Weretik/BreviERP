@@ -1,4 +1,10 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Statements.BookBankStatement;
+using Accounting.Api.Endpoints.Statements.GetBankStatement;
+using Accounting.Api.Endpoints.Statements.GetBankStatements;
+using Accounting.Api.Endpoints.Statements.RollbackBankStatement;
+using Accounting.Api.Endpoints.Statements.UpdateBankStatementLine;
+using Accounting.Api.Endpoints.Statements.UploadBankStatement;
 
 namespace Accounting.Api.Endpoints.Statements;
 

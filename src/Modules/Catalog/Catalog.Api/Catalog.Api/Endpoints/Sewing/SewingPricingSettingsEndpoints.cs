@@ -1,3 +1,6 @@
+using Catalog.Api.Endpoints.Sewing.CreateSewingSettingsVersion;
+using Catalog.Api.Endpoints.Sewing.GetSewingSettings;
+
 namespace Catalog.Api.Endpoints.Sewing;
 
 internal static class SewingPricingSettingsEndpoints

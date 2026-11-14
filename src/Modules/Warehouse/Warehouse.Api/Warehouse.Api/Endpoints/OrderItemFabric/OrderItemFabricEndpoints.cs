@@ -1,4 +1,7 @@
 using Warehouse.Api.Access;
+using Warehouse.Api.Endpoints.OrderItemFabric.CreateFabricIssue;
+using Warehouse.Api.Endpoints.OrderItemFabric.GetProductionItemFabric;
+using Warehouse.Api.Endpoints.OrderItemFabric.ReverseFabricIssue;
 
 namespace Warehouse.Api.Endpoints.OrderItemFabric;
 

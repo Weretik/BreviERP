@@ -1,3 +1,10 @@
+using Reference.Api.Endpoints.Suppliers.CreateSupplier;
+using Reference.Api.Endpoints.Suppliers.DeleteSupplier;
+using Reference.Api.Endpoints.Suppliers.GetSuppliers;
+using Reference.Api.Endpoints.Suppliers.SyncKeepinCrmSuppliers;
+using Reference.Api.Endpoints.Suppliers.UpdateSupplier;
+using Reference.Api.Endpoints.Suppliers.UpdateSupplierBreviFields;
+
 namespace Reference.Api.Endpoints.Suppliers;
 
 /// <summary>Suppliers of «Контрагенти»; KeepinCRM suppliers are synced, Brevi fields stay editable.</summary>

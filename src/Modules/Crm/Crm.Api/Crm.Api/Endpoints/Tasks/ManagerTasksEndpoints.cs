@@ -1,4 +1,15 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Tasks.ChangeCrmTaskStatus;
+using Crm.Api.Endpoints.Tasks.CreateCrmTask;
+using Crm.Api.Endpoints.Tasks.DeleteCrmTask;
+using Crm.Api.Endpoints.Tasks.EditCrmTask;
+using Crm.Api.Endpoints.Tasks.GetCrmTask;
+using Crm.Api.Endpoints.Tasks.GetCrmTaskAssignees;
+using Crm.Api.Endpoints.Tasks.GetCrmTaskBoard;
+using Crm.Api.Endpoints.Tasks.GetCrmTaskOverview;
+using Crm.Api.Endpoints.Tasks.GetCrmTasks;
+using Crm.Api.Endpoints.Tasks.MarkCrmTaskStep;
+using Crm.Api.Endpoints.Tasks.SetCrmTaskUrgent;
 
 namespace Crm.Api.Endpoints.Tasks;
 

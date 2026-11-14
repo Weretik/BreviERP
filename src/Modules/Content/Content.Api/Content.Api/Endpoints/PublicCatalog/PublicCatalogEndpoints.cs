@@ -1,4 +1,11 @@
 using BuildingBlocks.Api.Caching;
+using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogCategories;
+using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogCategory;
+using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogCategorySlugs;
+using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogProduct;
+using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogProductSlugs;
+using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogProducts;
+using Content.Api.Endpoints.PublicCatalog.GetPublicCatalogTree;
 
 namespace Content.Api.Endpoints.PublicCatalog;
 

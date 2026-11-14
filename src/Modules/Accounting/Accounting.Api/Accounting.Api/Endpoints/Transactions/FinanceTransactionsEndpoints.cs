@@ -1,4 +1,11 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Transactions.CreateFinanceTransaction;
+using Accounting.Api.Endpoints.Transactions.GetFinanceTransactionHistory;
+using Accounting.Api.Endpoints.Transactions.GetFinanceTransactions;
+using Accounting.Api.Endpoints.Transactions.PromoteFinanceOneoff;
+using Accounting.Api.Endpoints.Transactions.ReviewFinanceTransaction;
+using Accounting.Api.Endpoints.Transactions.UpdateFinanceTransaction;
+using Accounting.Api.Endpoints.Transactions.VoidFinanceTransaction;
 
 namespace Accounting.Api.Endpoints.Transactions;
 

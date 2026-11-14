@@ -16,7 +16,7 @@ using Catalog.Application.Features.Pricing.Queries.PreviewPpePrices;
 using Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
 using Catalog.Application.Features.Product.Queries.GetProductCodeCheck;
 using Catalog.Application.Features.Product.Shared.Overview;
-using Catalog.Api.Product.Overview;
+using Catalog.Api.Endpoints.Overview.CreateCatalogProduct;
 
 namespace UnitTests.Catalog.Products;
 

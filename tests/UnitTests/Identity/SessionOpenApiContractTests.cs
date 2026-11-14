@@ -3,8 +3,9 @@ using System.Text.Json;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Reader;
 using YamlDotNet.RepresentationModel;
-using Identity.Api.Auth;
 using Identity.Api.Endpoints.CookieAuth;
+using Identity.Api.Endpoints.CookieAuth.LoginCookieSession;
+using Identity.Api.Endpoints.Shared;
 
 namespace UnitTests.Identity;
 

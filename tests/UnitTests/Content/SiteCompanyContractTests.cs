@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Routing;
 using UnitTests.TestSupport;
 using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.SiteCompany;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SiteCompany.Shared;
+using Content.Api.Endpoints.SiteCompany.SaveSiteCompany;
 
 namespace UnitTests.Content;
 

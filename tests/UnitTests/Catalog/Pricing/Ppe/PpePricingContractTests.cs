@@ -8,7 +8,9 @@ using Catalog.Domain.Pricing.Sewing;
 using YamlDotNet.RepresentationModel;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared;
-using Catalog.Api.Pricing.Ppe;
+using Catalog.Api.Endpoints.Ppe.CreatePpeOfferVersion;
+using Catalog.Api.Endpoints.Ppe.CreatePpeRuleVersion;
+using Catalog.Api.Endpoints.Ppe.UpdatePpeSupplierOffer;
 
 namespace UnitTests.Catalog.Pricing.Ppe;
 

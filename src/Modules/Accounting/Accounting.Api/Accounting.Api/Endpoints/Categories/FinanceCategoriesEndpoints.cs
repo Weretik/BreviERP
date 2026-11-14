@@ -1,4 +1,9 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Categories.CreateFinanceCategory;
+using Accounting.Api.Endpoints.Categories.DeleteFinanceCategory;
+using Accounting.Api.Endpoints.Categories.GetFinanceCategories;
+using Accounting.Api.Endpoints.Categories.GetFinanceCategoryHistory;
+using Accounting.Api.Endpoints.Categories.UpdateFinanceCategory;
 
 namespace Accounting.Api.Endpoints.Categories;
 

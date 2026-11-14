@@ -1,4 +1,6 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.SiteCompany.GetSiteCompany;
+using Content.Api.Endpoints.SiteCompany.SaveSiteCompany;
 
 namespace Content.Api.Endpoints.SiteCompany;
 

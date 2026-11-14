@@ -29,7 +29,7 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Catalog/
-    ├── Catalog.Api/Catalog.Api/Endpoints/Product/ProductsEndpoints.cs  # HTTP entry point (Minimal API group, one *Endpoint.cs per use case)
+    ├── Catalog.Api/Catalog.Api/Endpoints/Product/ProductsEndpoints.cs  # HTTP entry point (Minimal API group, one <UseCase>/ folder per use case)
     ├── Catalog.Api/Catalog.Api/Endpoints/Overview/ProductOverviewEndpoints.cs  # «Товари» page API
     ├── Catalog.Application/Catalog.Application/Features/Product/
     │   ├── Commands/CreateProduct/CreateProductHandler.cs  # use case handler
