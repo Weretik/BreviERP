@@ -1,5 +1,5 @@
-using Identity.Infrastructure.Entities;
 using Microsoft.AspNetCore.Identity;
+using Identity.Infrastructure.Persistence.Users;
 
 namespace Host.Seed.Jobs;
 

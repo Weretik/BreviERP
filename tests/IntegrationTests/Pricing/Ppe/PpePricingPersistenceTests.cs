@@ -1,13 +1,11 @@
 using System.Text.Json;
 using Ardalis.Result;
-using Catalog.Infrastructure.Pricing.Ppe.Reading;
-using Catalog.Infrastructure.Pricing.Ppe.Records;
-using Catalog.Infrastructure.Pricing.Ppe.Writing;
 using CatalogImport.PpePricing.Bootstrap;
 using Catalog.Domain.Products;
 using IntegrationTests.Pricing.Sewing;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Features.Pricing.Queries.GetPpeProductPrices;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 namespace IntegrationTests.Pricing.Ppe;
 [NonParallelizable]
 public sealed class PpePricingPersistenceTests : SewingPricingDatabaseFixture

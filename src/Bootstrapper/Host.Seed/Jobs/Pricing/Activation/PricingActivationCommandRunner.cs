@@ -1,10 +1,10 @@
 using System.Text.Json;
-using Identity.Infrastructure.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SewingPricing.Jobs.Activation;
 using SewingPricing.Jobs.Review;
+using Identity.Infrastructure.Persistence.Users;
 
 namespace Host.Seed.Jobs;
 

@@ -16,7 +16,7 @@
 | Есть                                                                                 | Где                                                      |
 | ------------------------------------------------------------------------------------ | -------------------------------------------------------- |
 | Товар с названиями uk и ru, описаниями uk и ru, фото, характеристиками и инфоблоками | `Catalog.Domain/Products/Product.cs`            |
-| Один слаг товара (латиница) и генератор слагов                                       | `ProductSlug`, `Infrastructure/Products/SlugGeneration`  |
+| Один слаг товара (латиница) и генератор слагов                                       | `ProductSlug`, `Infrastructure/Persistence/Products/ProductSlugGenerator`  |
 | Дерево категорий: названия uk и ru, один слаг, путь, уровень, порядок, активность    | `Catalog.Domain/ProductCategories/Entities/ProductCategory.cs` |
 | Модель (`ModelCode`), SKU продажи у PPE (`CatalogProfile.SaleSku`)                    | `Product.cs`, `Product.CatalogProfile.cs`                |
 | Опубликованные цены Sewing по артикулам и цены PPE по офферам поставщиков              | `Catalog` pricing, см. [карту фич](../sdd/features/README.md) |

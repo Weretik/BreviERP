@@ -1,7 +1,7 @@
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Planning;
 using CatalogImport.Source;
+using Catalog.Infrastructure.Persistence;
 
 namespace CatalogImport.Persistence;
 

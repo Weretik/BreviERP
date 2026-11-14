@@ -1,8 +1,8 @@
 ﻿using Catalog.Domain.Products;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.Repositories;
 using IntegrationTests.Pricing.Sewing;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Infrastructure.Persistence.Products;
 
 namespace IntegrationTests;
 

@@ -3,9 +3,7 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using Host.Api.DependencyInjection.ServiceRegistration;
-using Identity.Infrastructure.DataBase;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,9 +16,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Reference.Domain.Suppliers;
-using Reference.Infrastructure.DataBase;
 using BuildingBlocks.Domain.ValueObjects;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
+using Catalog.Infrastructure.Persistence;
+using Reference.Infrastructure.Persistence;
+using Identity.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

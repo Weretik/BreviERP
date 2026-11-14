@@ -1,6 +1,6 @@
 using System.Text;
 using Ai.Application.Abstractions;
-using Ai.Infrastructure.OpenAi;
+using Ai.Infrastructure.Integrations.OpenAi;
 
 namespace UnitTests.Ai;
 

@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DependencyInjection;
-using Catalog.Infrastructure.Pricing.Ppe.Records;
 using CatalogImport.PpePricing.Bootstrap;
 using CatalogImport.Source;
 using IntegrationTests.Pricing.Sewing;
@@ -12,6 +11,7 @@ using Reference.Infrastructure.DependencyInjection;
 using SewingPricing.Jobs.Activation;
 using SewingPricing.Jobs.Bootstrap;
 using SewingPricing.Jobs.Review;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 
 namespace IntegrationTests.Pricing;
 

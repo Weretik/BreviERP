@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Identity.Api.Cookies;
 using Identity.Api.Options;
-using Identity.Infrastructure.Options;
+using Identity.Infrastructure.Integrations.AspNetIdentity;
 
 namespace Identity.Api.DependencyInjection;
 

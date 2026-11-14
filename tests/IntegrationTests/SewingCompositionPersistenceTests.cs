@@ -1,8 +1,8 @@
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Catalog.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

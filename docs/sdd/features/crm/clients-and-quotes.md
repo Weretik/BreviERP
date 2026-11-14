@@ -112,7 +112,7 @@ src/Modules/Crm/
     Shared/Sending/                    Gmail options, recipients, marks
     Shared/                            inputs, responses, Mapping/, custom sewing item builder
   Crm.Infrastructure/Crm.Infrastructure/
-    Persistence/Configurations/Quotes/   EF mappings of КП, settings, mailboxes and sendings
+    Persistence/Quotes/                  EF mappings of КП, settings, mailboxes and sendings
     Persistence/Quotes/                  unique-number, settings and mailbox race detection
     Quotes/Pdf/                          QuestPDF documents (КП, introduction catalogue), shared parts, renderer, photo loader, fonts
     Quotes/Sending/                      GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options

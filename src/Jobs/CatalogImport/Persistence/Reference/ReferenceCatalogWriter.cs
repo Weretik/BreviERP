@@ -1,7 +1,7 @@
 using CatalogImport.Execution;
 using CatalogImport.Planning;
 using Microsoft.EntityFrameworkCore;
-using Reference.Infrastructure.DataBase;
+using Reference.Infrastructure.Persistence;
 
 namespace CatalogImport.Persistence;
 

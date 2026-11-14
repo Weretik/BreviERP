@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
-using Catalog.Infrastructure.Pricing.Ppe.Records;
 using CatalogImport.PpePricing.Planning;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 
 namespace CatalogImport.PpePricing.Persistence;
 

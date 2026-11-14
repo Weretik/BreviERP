@@ -2,8 +2,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
-using Catalog.Infrastructure.Pricing.Reading;
 using CatalogImport.Execution;
 using CatalogImport.Persistence;
 using SewingPricing.Jobs.Bootstrap;
@@ -13,8 +11,8 @@ using Npgsql;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Pricing;
 using Reference.Domain.Suppliers;
-using Reference.Infrastructure.DataBase;
-using Reference.Infrastructure.Pricing.Reading;
+using Catalog.Infrastructure.Persistence;
+using Reference.Infrastructure.Persistence;
 
 namespace IntegrationTests.Pricing.Sewing;
 

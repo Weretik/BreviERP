@@ -20,8 +20,8 @@
         <PackageReference Include="QuestPDF" />
     </ItemGroup>
     <ItemGroup>
-        <EmbeddedResource Include="Quotes\Pdf\Fonts\*.ttf" />
-        <EmbeddedResource Include="Quotes\Pdf\Banners\*.jpg" LogicalName="Brevi.Quotes.Pdf.Banners.%(Filename)%(Extension)" />
+        <EmbeddedResource Include="Integrations\Pdf\Fonts\*.ttf" />
+        <EmbeddedResource Include="Integrations\Pdf\Banners\*.jpg" LogicalName="Brevi.Quotes.Pdf.Banners.%(Filename)%(Extension)" />
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="UnitTests" />

@@ -1,12 +1,12 @@
 using Crm.Domain.Customers.Identifiers;
-using Crm.Infrastructure.KeepinCrm;
-using Crm.Infrastructure.Persistence.Customers.KeepinCrmSync;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 using Crm.Application.Abstractions.Customers;
+using Crm.Infrastructure.Integrations.KeepinCrm;
+using Crm.Infrastructure.Persistence.Customers;
 
 namespace Crm.Infrastructure.DependencyInjection;
 

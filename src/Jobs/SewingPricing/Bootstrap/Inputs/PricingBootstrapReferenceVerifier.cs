@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Pricing;
-using Reference.Infrastructure.DataBase;
+using Reference.Infrastructure.Persistence;
 
 namespace SewingPricing.Jobs.Bootstrap;
 

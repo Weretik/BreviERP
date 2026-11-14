@@ -20,7 +20,7 @@ The [Sewing Article/composition extension](sewing-composition.md) adds fabric va
 
 ## Structure and Relationships
 
-[ProductsController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductsController.cs) invokes the [create handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Commands/CreateProduct/CreateProductHandler.cs) and the replace/delete/read handlers. [Product](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Product.cs) owns categories, photos, description, and either [Sewing](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Sewing/SewingProductDetails.cs) or [PPE](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Ppe/PpeProductDetails.cs) details. The handler validates IDs in Reference through the read boundary, and [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs) persists the aggregate.
+[ProductsController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductsController.cs) invokes the [create handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Commands/CreateProduct/CreateProductHandler.cs) and the replace/delete/read handlers. [Product](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Product.cs) owns categories, photos, description, and either [Sewing](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Sewing/SewingProductDetails.cs) or [PPE](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Ppe/PpeProductDetails.cs) details. The handler validates IDs in Reference through the read boundary, and [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogDbContext.cs) persists the aggregate.
 
 ## Code Structure
 
@@ -58,9 +58,9 @@ src/
     │   ├── Product.PhotoList.cs  # photo order and main photo (CAT-018)
     │   ├── ProductCatalogProfile.cs  # sheet row fields, section ID
     │   └── Sewing/SewingProductDetails.cs  # domain model
-    ├── Catalog.Infrastructure/Catalog.Infrastructure/Products/SheetImport/SheetProductImportStore.cs  # one-transaction import write
-    ├── Catalog.Infrastructure/Catalog.Infrastructure/Products/Overview/ProductOverviewVariantReader.cs  # variants, fabrics, prices in one query
-    └── Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs  # data context
+    ├── Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Products/SheetProductImportStore.cs  # one-transaction import write
+    ├── Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Products/ProductOverviewVariantReader.cs  # variants, fabrics, prices in one query
+    └── Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogDbContext.cs  # data context
 ```
 
 ## Structure Diagram

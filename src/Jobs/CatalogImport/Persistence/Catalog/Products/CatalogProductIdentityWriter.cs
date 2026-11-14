@@ -1,9 +1,9 @@
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Execution;
 using CatalogImport.Planning;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Infrastructure.Persistence;
 
 namespace CatalogImport.Persistence;
 

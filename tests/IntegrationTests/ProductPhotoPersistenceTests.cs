@@ -1,11 +1,11 @@
 using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Shared.Photos;
+using Catalog.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

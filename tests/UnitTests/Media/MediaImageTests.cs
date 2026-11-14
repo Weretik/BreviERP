@@ -1,9 +1,9 @@
-using Media.Infrastructure.Images;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using SkiaSharp;
 using Media.Application.Features.Files.Commands.DeleteMediaFile;
 using Media.Application.Features.Files.Shared.Images;
+using Media.Infrastructure.Integrations.Skia;
 
 namespace UnitTests.Media;
 

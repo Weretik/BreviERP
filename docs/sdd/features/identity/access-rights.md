@@ -24,7 +24,7 @@ src/Modules/Identity/
 │   ├── Security/Access/                         # AccessPolicies (policy names), IAccessGrantSource, AccessClaims
 │   └── Abstractions/IAccessRightsService.cs
 ├── Identity.Infrastructure/Identity.Infrastructure/
-│   ├── Entities/RoleAccess.cs, Configuration/RoleAccessConfiguration.cs
+│   ├── Persistence/Access/RoleAccess.cs, Persistence/Access/RoleAccessConfiguration.cs
 │   └── Services/Access/                         # AccessRightsService, AccessGrantSource (cached)
 └── Identity.Api/Identity.Api/
     ├── Controllers/AccessRightsController.cs    # /api/admin/access

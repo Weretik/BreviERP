@@ -2,7 +2,7 @@ using CatalogImport.Execution;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Suppliers;
-using Reference.Infrastructure.DataBase;
+using Reference.Infrastructure.Persistence;
 
 namespace CatalogImport.Persistence;
 

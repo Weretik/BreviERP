@@ -2,11 +2,11 @@
 using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Features.Product.Commands.DeleteProduct;
+using Catalog.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

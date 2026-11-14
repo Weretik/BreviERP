@@ -34,10 +34,10 @@ src/Modules/Catalog/
 │   ├── Readiness/                                                 # one policy and separate typed material/operation facts
 │   └── ValueObjects/                                               # typed child and Reference IDs
 └── Catalog.Infrastructure/Catalog.Infrastructure/
-    ├── Repositories/SewingCompositionStore.cs                       # tracked writes and conflict mapping
-    ├── Repositories/SewingCompositionReadStore.cs                   # no-tracking read projections; ReadAllAsync for all models
-    ├── Congigurations/Sewing*Configuration.cs                       # integrity and typed ID mappings
-    └── Migrations/20261024215605_AddSewingComposition.cs              # additive rollout
+    ├── Persistence/Products/SewingCompositionStore.cs                       # tracked writes and conflict mapping
+    ├── Persistence/Products/SewingCompositionReadStore.cs                   # no-tracking read projections; ReadAllAsync for all models
+    ├── Persistence/Products/Sewing*Configuration.cs                 # integrity and typed ID mappings
+    └── Persistence/Migrations/20261024215605_AddSewingComposition.cs              # additive rollout
 ```
 
 ## Structure diagram

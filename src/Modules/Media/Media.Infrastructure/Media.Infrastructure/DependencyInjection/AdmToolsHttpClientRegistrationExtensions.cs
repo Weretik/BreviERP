@@ -1,4 +1,4 @@
-using Media.Infrastructure.Storage;
+using Media.Infrastructure.Integrations.AdmTools;
 
 namespace Media.Infrastructure.DependencyInjection;
 

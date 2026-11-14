@@ -1,7 +1,7 @@
-using Catalog.Infrastructure.Pricing.Ppe.Records;
 using CatalogImport.PpePricing.Verification;
 using IntegrationTests.Pricing.Sewing;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 
 namespace IntegrationTests.Pricing.Ppe;
 

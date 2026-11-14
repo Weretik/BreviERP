@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Crm.Infrastructure.Persistence.Customers;
 
 #nullable disable
 
@@ -558,7 +559,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Crm.Infrastructure.Persistence.CustomerMutationRecord", b =>
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Customers.CustomerMutationRecord", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()

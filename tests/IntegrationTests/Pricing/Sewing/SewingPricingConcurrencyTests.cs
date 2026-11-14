@@ -1,17 +1,17 @@
 using Ardalis.Result;
 using BuildingBlocks.Domain.ValueObjects;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.Pricing.History.Calculations;
-using Catalog.Infrastructure.Pricing.History.Publications;
-using Catalog.Infrastructure.Pricing.History.Transactions;
-using Catalog.Infrastructure.Pricing.Reading;
 using Catalog.Infrastructure.Adapters.Reference;
 using Reference.Infrastructure.Contracts.Pricing;
 using Microsoft.EntityFrameworkCore;
-using Reference.Infrastructure.Pricing.Reading;
 using SewingPricing.Jobs.Bootstrap;
 using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
 using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
+using Catalog.Infrastructure.Persistence.Pricing;
+using Catalog.Infrastructure.Persistence.Pricing.Calculations;
+using Catalog.Infrastructure.Persistence.Pricing.Publications;
+using Catalog.Infrastructure.Persistence.Pricing.Sewing;
+using Reference.Infrastructure.Persistence.Pricing.InputVersions;
 
 namespace IntegrationTests.Pricing.Sewing;
 

@@ -25,7 +25,7 @@ deployment/{prepare-catalog-source,import-catalog}.ps1 # source preparation and 
 tools/catalog-import/render-catalog-import-job.py    # job configuration rendered by the deploy workflow
 src/Modules/Catalog/
   Catalog.Domain/.../Products/ProductCatalogProfile.cs
-  Catalog.Infrastructure/.../Congigurations/ProductCatalogProfileConfiguration.cs
+  Catalog.Infrastructure/.../Persistence/Products/ProductCatalogProfileConfiguration.cs
 ```
 
 The [job directory guide](../../../../src/Jobs/README.md) and [structure audit](../../specs/catalog/005-import-pricing-structure/audit.md) describe the current ownership. Sewing pricing bootstrap/verification are in a separate job project.

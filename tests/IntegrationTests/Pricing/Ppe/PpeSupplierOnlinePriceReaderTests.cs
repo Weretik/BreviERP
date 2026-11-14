@@ -1,10 +1,10 @@
 using Ardalis.Result;
 using System.Net;
-using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online;
-using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets;
 using Microsoft.Extensions.Options;
 using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
+using Catalog.Infrastructure.Integrations.PpeSupplierSites;
+using Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets;
 
 namespace IntegrationTests.Pricing.Ppe;
 

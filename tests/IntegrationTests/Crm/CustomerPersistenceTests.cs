@@ -1,5 +1,3 @@
-using Crm.Infrastructure.Persistence.Customers.Writing;
-using Crm.Infrastructure.Persistence.Customers.Reading;
 using Ardalis.Result;
 using Crm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +9,7 @@ using Crm.Application.Features.Customers.Queries.GetCustomer;
 using Crm.Application.Features.Customers.Queries.GetCustomers;
 using Crm.Application.Features.Customers.Shared.Inputs;
 using Crm.Application.Abstractions.Customers;
+using Crm.Infrastructure.Persistence.Customers;
 namespace IntegrationTests.Crm;
 
 [NonParallelizable]

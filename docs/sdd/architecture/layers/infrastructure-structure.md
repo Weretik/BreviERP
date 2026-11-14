@@ -38,6 +38,8 @@ Infrastructure adapter
 
 - EF configurations and migrations never belong in Domain or Application.
 - Register adapters through the module's DI extension method; `Add<Module>Module()` in the Api project calls it.
-- Moving a migration file between folders keeps its class name, namespace, and `[Migration]` id, so EF history does not change.
+- Moving a migration file between folders keeps its class name, namespace, and `[Migration]` id, so EF history does not change. Migrations moved to `Persistence/Migrations/` in stage 6 keep their old namespace (`<Module>.Infrastructure.Migrations`), so a new one needs `dotnet ef migrations add <Name> --output-dir Persistence/Migrations`.
+- A row or record that exists only for storage (not a Domain type) sits beside its configuration in `Persistence/<Area>/`; moving such a type changes its CLR name, so the model snapshot strings change with it and `dotnet ef migrations has-pending-model-changes` must stay clean.
+- `tests/ArchitectureTests/InfrastructureLayoutTests.cs` checks the root folders, entity configurations under `Persistence/`, and no folders named after kinds of classes (`Configurations`, `Repositories`, `DataBase`, `Seeders`, `Entities`, `Services`, `Records`, `Reading`, `Writing`).
 - Infrastructure may reference Application and Domain; the reverse direction is forbidden.
 - Keep external-data mapping at the adapter boundary and do not let generated client types leak inward.

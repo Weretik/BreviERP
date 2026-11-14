@@ -5,19 +5,18 @@ using Catalog.Infrastructure.Adapters.Media;
 using Catalog.Infrastructure.Contracts.Pricing;
 using Catalog.Infrastructure.Contracts.Products;
 using Catalog.Infrastructure.Contracts.Sewing;
-using Catalog.Infrastructure.Products.SlugGeneration;
 using Catalog.Infrastructure.Adapters.Reference;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
-using Catalog.Infrastructure.DataBase;
-using Catalog.Infrastructure.Pricing.AutoPublication;
-using Catalog.Infrastructure.Repositories;
-using Catalog.Infrastructure.Seeders.ProductCategories;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Media;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Pricing;
+using Catalog.Infrastructure.Persistence.Products;
+using Catalog.Infrastructure.Persistence.Seeding.ProductCategories;
 
 namespace Catalog.Infrastructure.DependencyInjection;
 
@@ -43,33 +42,33 @@ public static class CatalogDbContextExtensions
         services.AddScoped<Catalog.Application.Abstractions.ISewingCompositionReadStore>(provider => provider.GetRequiredService<SewingCompositionReadStore>());
         services.AddScoped<Catalog.Application.Abstractions.ISewingCompositionListReader>(provider => provider.GetRequiredService<SewingCompositionReadStore>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogDbContext>>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPricingInputReader, Catalog.Infrastructure.Pricing.Reading.SewingPricingInputReader>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPricingSettingsReader, Catalog.Infrastructure.Pricing.Reading.SewingPricingSettingsReader>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPricingInputReader, Catalog.Infrastructure.Persistence.Pricing.Sewing.SewingPricingInputReader>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPricingSettingsReader, Catalog.Infrastructure.Persistence.Pricing.Sewing.SewingPricingSettingsReader>();
         services.AddScoped<ISeeder, ProductCategorySeeder>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPricingSettingsWriter, Catalog.Infrastructure.Pricing.SewingSettings.Writing.SewingPricingSettingsWriter>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPricingTransaction, Catalog.Infrastructure.Pricing.History.Transactions.SewingPricingTransaction>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingCalculationStore, Catalog.Infrastructure.Pricing.History.Calculations.SewingCalculationStore>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPublicationStore, Catalog.Infrastructure.Pricing.History.Publications.SewingPublicationStore>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPublishedPriceReader, Catalog.Infrastructure.Pricing.History.Publications.Reading.SewingPublishedPriceReader>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPricingSettingsWriter, Catalog.Infrastructure.Persistence.Pricing.Sewing.SewingPricingSettingsWriter>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPricingTransaction, Catalog.Infrastructure.Persistence.Pricing.SewingPricingTransaction>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingCalculationStore, Catalog.Infrastructure.Persistence.Pricing.Calculations.SewingCalculationStore>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPublicationStore, Catalog.Infrastructure.Persistence.Pricing.Publications.SewingPublicationStore>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.ISewingPublishedPriceReader, Catalog.Infrastructure.Persistence.Pricing.Publications.SewingPublishedPriceReader>();
 
         services.AddScoped<Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication.SewingPriceStatusReader>();
         services.AddScoped<Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication.SewingPricePublisher>();
-        services.AddScoped<Catalog.Application.Abstractions.IProductOverviewVariantReader, Catalog.Infrastructure.Products.Overview.ProductOverviewVariantReader>();
+        services.AddScoped<Catalog.Application.Abstractions.IProductOverviewVariantReader, Catalog.Infrastructure.Persistence.Products.ProductOverviewVariantReader>();
         services.AddScoped<Catalog.Application.Features.Product.Shared.Overview.Items.ProductOverviewItemReader>();
 
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpePricingInputReader, Catalog.Infrastructure.Pricing.Ppe.Reading.PpePricingInputReader>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeRuleVersionWriter, Catalog.Infrastructure.Pricing.Ppe.Writing.PpeRuleVersionWriter>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeOfferVersionWriter, Catalog.Infrastructure.Pricing.Ppe.Writing.PpeOfferVersionWriter>();
-        services.AddScoped<Catalog.Application.Abstractions.ISheetProductImportStore, Catalog.Infrastructure.Products.SheetImport.SheetProductImportStore>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpePriceSourceStore, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Store.PpePriceSourceStore>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeSupplierFileReader, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Files.PpeSupplierFileReader>();
-        services.AddHttpClient<Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.SupplierPageClient>(client => client.Timeout = TimeSpan.FromSeconds(30));
-        services.Configure<Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets.SupplierCabinetOptions>(
-            configuration.GetSection(Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets.SupplierCabinetOptions.Section));
-        services.AddHttpClient<Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets.SupplierCabinetClient>(client => client.Timeout = TimeSpan.FromSeconds(30))
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpePricingInputReader, Catalog.Infrastructure.Persistence.Pricing.Ppe.PpePricingInputReader>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeRuleVersionWriter, Catalog.Infrastructure.Persistence.Pricing.Ppe.PpeRuleVersionWriter>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeOfferVersionWriter, Catalog.Infrastructure.Persistence.Pricing.Ppe.PpeOfferVersionWriter>();
+        services.AddScoped<Catalog.Application.Abstractions.ISheetProductImportStore, Catalog.Infrastructure.Persistence.Products.SheetProductImportStore>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpePriceSourceStore, Catalog.Infrastructure.Persistence.Pricing.PpeSupplierPrices.PpePriceSourceStore>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeSupplierFileReader, Catalog.Infrastructure.Integrations.PpeSupplierFiles.PpeSupplierFileReader>();
+        services.AddHttpClient<Catalog.Infrastructure.Integrations.PpeSupplierSites.SupplierPageClient>(client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.Configure<Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets.SupplierCabinetOptions>(
+            configuration.GetSection(Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets.SupplierCabinetOptions.Section));
+        services.AddHttpClient<Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets.SupplierCabinetClient>(client => client.Timeout = TimeSpan.FromSeconds(30))
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
-        services.AddScoped<Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets.SupplierCabinetPriceReader>();
-        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeSupplierOnlinePriceReader, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.PpeSupplierOnlinePriceReader>();
+        services.AddScoped<Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets.SupplierCabinetPriceReader>();
+        services.AddScoped<Catalog.Application.Abstractions.Pricing.IPpeSupplierOnlinePriceReader, Catalog.Infrastructure.Integrations.PpeSupplierSites.PpeSupplierOnlinePriceReader>();
         services.AddScoped<Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running.PpePriceImportRunner>();
         services.AddScoped<Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices.PpeScheduledPriceRefresh>();
 

@@ -2,20 +2,19 @@ using Ardalis.Result;
 using BuildingBlocks.Domain.ValueObjects;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.Pricing.History.Calculations;
-using Catalog.Infrastructure.Pricing.History.Publications;
-using Catalog.Infrastructure.Pricing.History.Transactions;
-using Catalog.Infrastructure.Pricing.Reading;
-using Catalog.Infrastructure.Pricing.SewingSettings.Writing;
 using Catalog.Infrastructure.Adapters.Reference;
 using Reference.Infrastructure.Contracts.Pricing;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Pricing;
-using Reference.Infrastructure.Pricing.Reading;
 using SewingPricing.Jobs.Bootstrap;
 using Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
 using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
 using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
+using Catalog.Infrastructure.Persistence.Pricing;
+using Catalog.Infrastructure.Persistence.Pricing.Calculations;
+using Catalog.Infrastructure.Persistence.Pricing.Publications;
+using Catalog.Infrastructure.Persistence.Pricing.Sewing;
+using Reference.Infrastructure.Persistence.Pricing.InputVersions;
 
 namespace IntegrationTests.Pricing.Sewing;
 
@@ -35,7 +34,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         var articleId = article.Id.Value;
         var transactions = new SewingPricingTransaction(catalog);
         var calculations = new SewingCalculationStore(catalog);
-        var publishedReader = new Catalog.Infrastructure.Pricing.History.Publications.Reading.SewingPublishedPriceReader(catalog);
+        var publishedReader = new Catalog.Infrastructure.Persistence.Pricing.Publications.SewingPublishedPriceReader(catalog);
         var initialPrices = await publishedReader.ReadAsync([productId], CancellationToken.None);
         Assert.That(initialPrices.Single().ArticleCount, Is.EqualTo(2));
         Assert.That(initialPrices.Single().Articles, Is.Empty);

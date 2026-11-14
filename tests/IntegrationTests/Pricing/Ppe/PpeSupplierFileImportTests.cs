@@ -1,10 +1,4 @@
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.Pricing.Ppe.Reading;
-using Catalog.Infrastructure.Pricing.Ppe.Records;
-using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Files;
-using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Store;
-using Catalog.Infrastructure.Pricing.Ppe.Writing;
-using Catalog.Infrastructure.Repositories;
 using IntegrationTests.Pricing.Sewing;
 using Microsoft.EntityFrameworkCore;
 using Moq;
@@ -16,6 +10,10 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running;
+using Catalog.Infrastructure.Integrations.PpeSupplierFiles;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Infrastructure.Persistence.Pricing.PpeSupplierPrices;
 
 namespace IntegrationTests.Pricing.Ppe;
 

@@ -1,6 +1,6 @@
 # `identity` — Identity Module Data
 
-**Source:** [Identity snapshot](../../../../src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/Migrations/AppIdentityDbContextModelSnapshot.cs), verified 2026-10-21. [Back to database map](README.md) · [session feature](../../features/identity/session.md).
+**Source:** [Identity snapshot](../../../../src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/Persistence/Migrations/AppIdentityDbContextModelSnapshot.cs), verified 2026-10-21. [Back to database map](README.md) · [session feature](../../features/identity/session.md).
 
 | Table | PK | Purpose |
 | --- | --- | --- |

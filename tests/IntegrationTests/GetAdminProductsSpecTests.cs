@@ -3,11 +3,11 @@ using Ardalis.Specification.EntityFrameworkCore;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
+using Catalog.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

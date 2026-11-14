@@ -1,9 +1,9 @@
-using Catalog.Infrastructure.Pricing.History.Calculations;
-using Catalog.Infrastructure.Pricing.History.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
+using Catalog.Infrastructure.Persistence.Pricing;
+using Catalog.Infrastructure.Persistence.Pricing.Calculations;
 
 namespace IntegrationTests.Pricing.Sewing;
 

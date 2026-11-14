@@ -1,0 +1,36 @@
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using Ardalis.Result;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Infrastructure.Persistence;
+namespace Catalog.Infrastructure.Persistence.Pricing.Ppe;
+public sealed class PpeOfferVersionWriter(CatalogDbContext db) : IPpeOfferVersionWriter
+{
+    public async Task<Result<PpeOfferVersion>> AppendAsync(int productId, Guid? expectedVersionId, Guid requestId, PpeOfferValues values, string actor, CancellationToken cancellationToken)
+    {
+        // Joins the caller's transaction (sheet import) when there is one; otherwise owns its own.
+        await using var transaction = db.Database.CurrentTransaction is null
+            ? await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted, cancellationToken)
+            : null;
+        await db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_xact_lock(681025006)", cancellationToken);
+        var json = JsonSerializer.Serialize(values);
+        var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { productId, expectedVersionId, values, actor }))));
+        var replay = await db.Set<PpeOfferVersionRecord>().AsNoTracking().SingleOrDefaultAsync(x => x.RequestId == requestId, cancellationToken);
+        if (replay is not null)
+            return replay.RequestHash == hash ? Result.Success(replay.ToVersion()) : Result.Conflict("Цей запит уже виконано з іншими даними. Оновіть сторінку.");
+        var ids = new[] { productId };
+        if (!await db.Products.FromSqlInterpolated($"SELECT * FROM catalog.\"Products\" WHERE \"Id\" = ANY({ids})")
+            .AnyAsync(x => !x.IsDeleted && x.Type == Catalog.Domain.Products.ProductType.Ppe, cancellationToken))
+            return Result.NotFound();
+        var current = await db.Set<PpeOfferVersionRecord>().AsNoTracking().Where(x => x.ProductId == Catalog.Domain.Products.ProductId.Create(productId)).OrderByDescending(x => x.Id).FirstOrDefaultAsync(cancellationToken);
+        if (current?.PublicId != expectedVersionId) return Result.Conflict("Дані для ціни вже змінили. Оновіть сторінку перед збереженням.");
+        var now = DateTimeOffset.UtcNow;
+        var record = new PpeOfferVersionRecord { PublicId = Guid.NewGuid(), RequestId = requestId, RequestHash = hash,
+            ValuesJson = json, ApprovedBy = actor, ApprovedAt = now, CreatedAt = now, ProductId = Catalog.Domain.Products.ProductId.Create(productId), };
+        db.Add(record);
+        await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
+        return Result.Success(record.ToVersion());
+    }
+}

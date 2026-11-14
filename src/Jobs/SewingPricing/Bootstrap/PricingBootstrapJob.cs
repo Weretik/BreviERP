@@ -2,13 +2,13 @@
 using System.Net;
 using System.Text.Json;
 using Catalog.Domain.Pricing.Sewing;
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Persistence;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Reference.Domain.Pricing;
-using Reference.Infrastructure.DataBase;
+using Catalog.Infrastructure.Persistence;
+using Reference.Infrastructure.Persistence;
 
 namespace SewingPricing.Jobs.Bootstrap;
 

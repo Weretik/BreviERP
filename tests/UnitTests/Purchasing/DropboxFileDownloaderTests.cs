@@ -1,4 +1,4 @@
-using Purchasing.Infrastructure.Dropbox;
+using Purchasing.Infrastructure.Integrations.Dropbox;
 
 namespace UnitTests.Purchasing;
 
