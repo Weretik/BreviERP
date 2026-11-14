@@ -1,7 +1,7 @@
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
+using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Suppliers;
 
 namespace Reference.Application.Features.GarmentPart.Delete.Specifications;
 

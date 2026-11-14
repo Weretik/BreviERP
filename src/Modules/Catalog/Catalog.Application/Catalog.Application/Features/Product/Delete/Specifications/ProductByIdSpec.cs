@@ -1,5 +1,5 @@
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
-using Catalog.Domain.Products.ValueObjects;
+using ProductEntity = Catalog.Domain.Products.Product;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Features.Product.Delete.Specifications;
 

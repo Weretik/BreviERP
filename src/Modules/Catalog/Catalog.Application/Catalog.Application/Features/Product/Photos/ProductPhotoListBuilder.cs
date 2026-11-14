@@ -1,6 +1,6 @@
 using Catalog.Application.Contracts.Media;
 using Catalog.Application.Features.Product.Photos.DTOs;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Photos;
 

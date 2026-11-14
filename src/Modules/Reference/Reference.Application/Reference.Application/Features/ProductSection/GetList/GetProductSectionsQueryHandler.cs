@@ -1,7 +1,7 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.ProductSection.GetList.DTOs;
 using Reference.Application.Features.ProductSection.Shared;
-using ProductSectionEntity = Reference.Domain.ProductSections.Entities.ProductSection;
+using ProductSectionEntity = Reference.Domain.ProductSections.ProductSection;
 
 namespace Reference.Application.Features.ProductSection.GetList;
 

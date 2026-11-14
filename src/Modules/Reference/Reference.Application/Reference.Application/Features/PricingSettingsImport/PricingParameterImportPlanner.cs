@@ -1,7 +1,7 @@
 using Reference.Application.Features.PricingSettingsImport.DTOs;
 using Reference.Application.Features.Shared.SheetImport;
-using Reference.Domain.PricingParameters.ValueObjects;
-using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
+using Reference.Domain.PricingParameters;
+using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
 
 namespace Reference.Application.Features.PricingSettingsImport;
 

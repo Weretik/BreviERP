@@ -1,5 +1,5 @@
-using Catalog.Domain.Media.ValueObjects;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Media;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.GetMediaUsages;
 

@@ -3,8 +3,8 @@ using Reference.Application.Contracts.Pricing;
 using Reference.Application.Features.GarmentPartOperation.Shared;
 using Reference.Application.Features.GarmentPartOperation.Shared.Specifications;
 using Reference.Application.Features.GarmentPartOperation.Update.Specifications;
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
+using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 
 namespace Reference.Application.Features.GarmentPartOperation.Update;
 

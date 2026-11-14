@@ -1,5 +1,5 @@
 using Accounting.Domain.Accounts;
-using Accounting.Domain.Errors;
+using Accounting.Domain;
 using Accounting.Domain.Ledger;
 
 namespace Accounting.Domain.Movements;

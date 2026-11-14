@@ -6,9 +6,7 @@ using Reference.Application.Features.ProductSection.Import;
 using Reference.Application.Features.ProductSection.Import.DTOs;
 using Reference.Application.Features.ProductSection.Import.Validators;
 using Reference.Application.Features.Shared.SheetImport;
-using Reference.Domain.ProductSections.Entities;
-using Reference.Domain.ProductSections.Enums;
-using Reference.Domain.ProductSections.ValueObjects;
+using Reference.Domain.ProductSections;
 
 namespace UnitTests.Reference;
 

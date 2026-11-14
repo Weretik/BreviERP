@@ -1,7 +1,7 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.FabricColor.Shared;
-using Reference.Domain.FabricColors.ValueObjects;
-using FabricColorEntity = Reference.Domain.FabricColors.Entities.FabricColor;
+using Reference.Domain.FabricColors;
+using FabricColorEntity = Reference.Domain.FabricColors.FabricColor;
 
 namespace Reference.Application.Features.FabricColor.Create;
 

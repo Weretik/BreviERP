@@ -1,7 +1,7 @@
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Suppliers;
 
 namespace Reference.Application.Features.GarmentPartOperation.Create.Specifications;
 

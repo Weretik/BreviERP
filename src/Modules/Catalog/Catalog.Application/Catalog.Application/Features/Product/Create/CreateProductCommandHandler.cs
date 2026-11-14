@@ -8,13 +8,11 @@ using Catalog.Application.Features.Product.Create.Specifications;
 using Catalog.Application.Features.Product.Shared.Card;
 using ProductAdminDetailSpec = Catalog.Application.Features.Product.GetAdminDetail.Specifications.ProductAdminDetailSpec;
 using Catalog.Application.Contracts.Media;
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.ProductCategories.ValueObjects;
-using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Media;
+using Catalog.Domain.ProductCategories;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Create;
 

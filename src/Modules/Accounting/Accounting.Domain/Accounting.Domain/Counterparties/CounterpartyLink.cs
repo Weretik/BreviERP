@@ -1,4 +1,4 @@
-using Accounting.Domain.Errors;
+using Accounting.Domain;
 
 namespace Accounting.Domain.Counterparties;
 

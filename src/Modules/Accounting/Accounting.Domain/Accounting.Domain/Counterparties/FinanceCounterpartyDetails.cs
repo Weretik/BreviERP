@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 using Accounting.Domain.Categories;
-using Accounting.Domain.Errors;
+using Accounting.Domain;
 using Accounting.Domain.Ledger;
 
 namespace Accounting.Domain.Counterparties;

@@ -8,10 +8,8 @@ using Catalog.Application.Features.Product.Overview.Create;
 using Catalog.Application.Features.Product.Photos.DTOs;
 using Catalog.Application.Features.Product.Photos.SetPhotos;
 using Catalog.Application.Features.Product.Photos.SkuIndex;
-using Catalog.Domain.Media.ValueObjects;
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Media;
+using Catalog.Domain.Products;
 using Mediator;
 using Moq;
 

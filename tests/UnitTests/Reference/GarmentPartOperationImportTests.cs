@@ -4,8 +4,7 @@ using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPartOperation.Import;
 using Reference.Application.Features.GarmentPartOperation.Import.DTOs;
 using Reference.Application.Features.Shared.SheetImport;
-using Reference.Domain.GarmentPartOperations.Entities;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.GarmentPartOperations;
 
 namespace UnitTests.Reference;
 

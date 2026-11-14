@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentPartOperations.Entities;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
 
 namespace Reference.Infrastructure.Pricing.InputVersions.Changes;

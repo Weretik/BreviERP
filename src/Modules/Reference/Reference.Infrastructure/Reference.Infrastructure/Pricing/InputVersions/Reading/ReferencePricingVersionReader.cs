@@ -1,6 +1,6 @@
 using Reference.Application.Contracts.Pricing;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
 using Reference.Infrastructure.DataBase;
 

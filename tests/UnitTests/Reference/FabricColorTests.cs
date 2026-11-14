@@ -6,8 +6,7 @@ using Reference.Application.Features.FabricColor.Create;
 using Reference.Application.Features.FabricColor.GetList;
 using Reference.Application.Features.FabricColor.Shared;
 using Reference.Application.Features.FabricColor.Update;
-using Reference.Domain.FabricColors.Entities;
-using Reference.Domain.FabricColors.ValueObjects;
+using Reference.Domain.FabricColors;
 
 namespace UnitTests.Reference;
 

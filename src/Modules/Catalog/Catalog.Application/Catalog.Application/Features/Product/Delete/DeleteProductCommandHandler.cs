@@ -1,6 +1,6 @@
 using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.Product.Delete.Specifications;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Delete;
 

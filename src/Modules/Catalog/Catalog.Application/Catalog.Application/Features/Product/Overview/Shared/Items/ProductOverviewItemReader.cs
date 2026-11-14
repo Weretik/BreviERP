@@ -7,8 +7,8 @@ using Catalog.Application.Features.Pricing.Ppe.Evaluation;
 using Catalog.Application.Features.Pricing.Sewing.AutoPublication;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
 using Catalog.Application.Features.Product.Overview.GetList.Specifications;
-using Catalog.Domain.Products.Enums;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Overview.Shared.Items;
 

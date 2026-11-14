@@ -1,9 +1,9 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPart.Create.Specifications;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Suppliers;
+using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
 
 namespace Reference.Application.Features.GarmentPart.Create;
 

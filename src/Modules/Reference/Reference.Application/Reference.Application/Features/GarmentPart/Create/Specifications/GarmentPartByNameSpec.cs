@@ -1,4 +1,4 @@
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
+using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
 
 namespace Reference.Application.Features.GarmentPart.Create.Specifications;
 

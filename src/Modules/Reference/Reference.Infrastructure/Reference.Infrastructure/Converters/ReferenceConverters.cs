@@ -1,11 +1,11 @@
-using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.GarmentPartOperations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Reference.Domain.FabricColors.ValueObjects;
-using Reference.Domain.PpeMarkupRules.ValueObjects;
-using Reference.Domain.ProductSections.ValueObjects;
-using Reference.Domain.PricingParameters.ValueObjects;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.FabricColors;
+using Reference.Domain.PpeMarkupRules;
+using Reference.Domain.ProductSections;
+using Reference.Domain.PricingParameters;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.Suppliers;
 
 namespace Reference.Infrastructure.Converters;
 

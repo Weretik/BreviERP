@@ -2,7 +2,7 @@ using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Shared;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Get;
 

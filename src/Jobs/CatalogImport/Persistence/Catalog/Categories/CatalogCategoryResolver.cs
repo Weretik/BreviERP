@@ -1,5 +1,4 @@
-using Catalog.Domain.ProductCategories.Entities;
-using Catalog.Domain.ProductCategories.ValueObjects;
+using Catalog.Domain.ProductCategories;
 using Catalog.Infrastructure.DataBase;
 using CatalogImport.Execution;
 

@@ -7,11 +7,9 @@ using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Fabric.Delete;
 using Reference.Application.Features.GarmentAccessory.Delete;
 using Reference.Application.Features.GarmentPartOperation.Delete;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.Entities;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Suppliers;
 
 namespace UnitTests;
 

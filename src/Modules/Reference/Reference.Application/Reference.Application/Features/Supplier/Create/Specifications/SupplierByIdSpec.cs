@@ -1,7 +1,7 @@
-using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
-using Reference.Domain.GarmentAccessories.ValueObjects;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using Reference.Domain.Suppliers.ValueObjects;
+using SupplierEntity = Reference.Domain.Suppliers.Supplier;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Suppliers;
 
 namespace Reference.Application.Features.Supplier.Create.Specifications;
 

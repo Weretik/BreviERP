@@ -2,9 +2,9 @@ using Ardalis.Specification;
 using Moq;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingReference.GetByIds;
-using Reference.Domain.PricingParameters.Entities;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentPartOperations.Entities;
+using Reference.Domain.PricingParameters;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
 
 namespace UnitTests;
 

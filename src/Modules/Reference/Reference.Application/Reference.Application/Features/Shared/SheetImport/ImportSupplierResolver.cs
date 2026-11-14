@@ -1,6 +1,6 @@
 using Reference.Application.Features.Supplier.KeepinCrmSync;
-using Reference.Domain.Suppliers.ValueObjects;
-using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
+using Reference.Domain.Suppliers;
+using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 
 namespace Reference.Application.Features.Shared.SheetImport;
 

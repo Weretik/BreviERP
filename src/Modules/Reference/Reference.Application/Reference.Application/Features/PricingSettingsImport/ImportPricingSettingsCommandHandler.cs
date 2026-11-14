@@ -1,8 +1,8 @@
 using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingSettingsImport.DTOs;
-using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
-using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
+using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
+using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
 
 namespace Reference.Application.Features.PricingSettingsImport;
 

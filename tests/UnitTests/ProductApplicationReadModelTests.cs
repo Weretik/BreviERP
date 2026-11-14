@@ -5,8 +5,7 @@ using Catalog.Application.Contracts.Admin.Reference;
 using Catalog.Application.Contracts.Admin.Sewing;
 using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 
 namespace UnitTests;
 

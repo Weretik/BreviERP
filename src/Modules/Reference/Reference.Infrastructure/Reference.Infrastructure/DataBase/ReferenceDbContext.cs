@@ -1,12 +1,12 @@
 using BuildingBlocks.Infrastructure.Outbox;
 using Reference.Application.Contracts.Persistence;
-using Reference.Domain.FabricColors.Entities;
-using Reference.Domain.PpeMarkupRules.Entities;
-using Reference.Domain.PricingParameters.Entities;
-using Reference.Domain.ProductSections.Entities;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentPartOperations.Entities;
-using Reference.Domain.Suppliers.Entities;
+using Reference.Domain.FabricColors;
+using Reference.Domain.PpeMarkupRules;
+using Reference.Domain.PricingParameters;
+using Reference.Domain.ProductSections;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Suppliers;
 
 namespace Reference.Infrastructure.DataBase;
 

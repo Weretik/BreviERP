@@ -1,4 +1,4 @@
-using Reference.Domain.PricingParameters.Entities;
+using Reference.Domain.PricingParameters;
 using Reference.Infrastructure.Converters;
 
 namespace Reference.Infrastructure.Congigurations;

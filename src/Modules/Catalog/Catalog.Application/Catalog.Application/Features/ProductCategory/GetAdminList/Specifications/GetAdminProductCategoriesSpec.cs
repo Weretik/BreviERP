@@ -1,5 +1,5 @@
 ﻿using Catalog.Application.Features.ProductCategory.GetAdminList.DTOs;
-using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
 
 namespace Catalog.Application.Features.ProductCategory.GetAdminList.Specifications;
 

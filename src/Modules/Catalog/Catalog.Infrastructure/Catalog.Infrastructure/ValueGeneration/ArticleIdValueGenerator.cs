@@ -1,4 +1,4 @@
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 

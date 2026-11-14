@@ -1,4 +1,4 @@
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using CatalogImport.PpePricing.Planning;
 using Microsoft.EntityFrameworkCore;

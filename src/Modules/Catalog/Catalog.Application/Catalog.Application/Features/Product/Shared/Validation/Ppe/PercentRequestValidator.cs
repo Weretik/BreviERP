@@ -1,6 +1,6 @@
 using Catalog.Application.Features.Product.Create.DTOs;
 using Catalog.Application.Features.Product.Shared.Validation.Resources;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Features.Product.Shared.Validation.Ppe;
 

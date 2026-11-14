@@ -1,4 +1,4 @@
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using Catalog.Application.Contracts.Admin.Ppe;
 using Catalog.Application.Contracts.Admin.Sewing;
 

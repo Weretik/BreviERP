@@ -1,5 +1,5 @@
-﻿using Catalog.Domain.ProductCategories.ValueObjects;
-using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
+﻿using Catalog.Domain.ProductCategories;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
 
 namespace Catalog.Application.Features.ProductCategory.Shared.Specifications;
 

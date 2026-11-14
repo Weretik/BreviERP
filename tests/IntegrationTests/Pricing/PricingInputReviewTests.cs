@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
 using CatalogImport.PpePricing.Bootstrap;
 using IntegrationTests.Pricing.Sewing;

@@ -1,5 +1,4 @@
-using Catalog.Domain.Products.Entities;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.ValueGeneration;
 
 namespace Catalog.Infrastructure.Congigurations;

@@ -6,7 +6,7 @@ using Catalog.Infrastructure.Pricing.Ppe.Reading;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
 using Catalog.Infrastructure.Pricing.Ppe.Writing;
 using CatalogImport.PpePricing.Bootstrap;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 using IntegrationTests.Pricing.Sewing;
 using Microsoft.EntityFrameworkCore;
 namespace IntegrationTests.Pricing.Ppe;

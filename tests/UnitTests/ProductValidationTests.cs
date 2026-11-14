@@ -10,8 +10,7 @@ using Catalog.Application.Features.Product.GetAdminList;
 using Catalog.Application.Features.Product.GetAdminList.Validators;
 using Catalog.Application.Features.Product.Update;
 using Catalog.Application.Features.Product.Update.Validators;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 
 namespace UnitTests;
 

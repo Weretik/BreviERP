@@ -1,7 +1,7 @@
 using Catalog.Contracts.Pricing;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Reference.Domain.GarmentAccessories.Entities;
-using Reference.Domain.GarmentPartOperations.Entities;
+using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
 
 namespace Reference.Infrastructure.Pricing.InputVersions.Changes;

@@ -2,9 +2,9 @@ using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPartOperation.Create.Specifications;
 using Reference.Application.Features.GarmentPartOperation.Shared;
 using Reference.Application.Features.GarmentPartOperation.Shared.Specifications;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
+using Reference.Domain.GarmentPartOperations;
+using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 
 namespace Reference.Application.Features.GarmentPartOperation.Create;
 

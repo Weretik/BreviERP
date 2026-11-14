@@ -1,4 +1,4 @@
-using FabricColorEntity = Reference.Domain.FabricColors.Entities.FabricColor;
+using FabricColorEntity = Reference.Domain.FabricColors.FabricColor;
 
 namespace Reference.Application.Features.FabricColor.Shared;
 
@@ -19,6 +19,6 @@ public static class FabricColorNames
         return colors.Any(x => x.Id.Value != exceptId && Key(x.Name) == key);
     }
 
-    public static Domain.FabricColors.ValueObjects.FabricColorDetails Details(FabricColorFields fields) =>
+    public static Domain.FabricColors.FabricColorDetails Details(FabricColorFields fields) =>
         new(fields.Name, fields.IsActive, fields.SortOrder);
 }

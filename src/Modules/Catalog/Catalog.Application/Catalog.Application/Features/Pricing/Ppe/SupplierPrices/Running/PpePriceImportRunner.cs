@@ -6,8 +6,8 @@ using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Shared;
 using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
-using Catalog.Domain.Products.ValueObjects;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.Products;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Running;
 

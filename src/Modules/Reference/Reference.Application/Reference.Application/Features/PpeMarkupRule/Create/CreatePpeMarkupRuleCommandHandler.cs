@@ -2,8 +2,8 @@ using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PpeMarkupRule.Shared;
 using Reference.Application.Features.PpeMarkupRule.Shared.Specifications;
-using Reference.Domain.PpeMarkupRules.ValueObjects;
-using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
+using Reference.Domain.PpeMarkupRules;
+using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
 
 namespace Reference.Application.Features.PpeMarkupRule.Create;
 

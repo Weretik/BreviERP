@@ -2,8 +2,7 @@ using CatalogImport.Source;
 using CatalogImport.Execution;
 using CatalogImport.Planning;
 using Microsoft.EntityFrameworkCore;
-using Reference.Domain.GarmentPartOperations.Entities;
-using Reference.Domain.GarmentPartOperations.ValueObjects;
+using Reference.Domain.GarmentPartOperations;
 using Reference.Infrastructure.DataBase;
 
 namespace CatalogImport.Persistence;

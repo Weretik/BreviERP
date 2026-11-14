@@ -4,7 +4,7 @@ using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Contracts.SlugGeneration;
 using Catalog.Application.Features.Product.SheetImport.DTOs;
 using Catalog.Application.Features.Product.SheetImport.Planning;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Features.Product.SheetImport;
 

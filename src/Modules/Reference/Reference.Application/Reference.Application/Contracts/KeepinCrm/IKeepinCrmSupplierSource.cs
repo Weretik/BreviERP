@@ -1,4 +1,4 @@
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.Suppliers;
 
 namespace Reference.Application.Contracts.KeepinCrm;
 

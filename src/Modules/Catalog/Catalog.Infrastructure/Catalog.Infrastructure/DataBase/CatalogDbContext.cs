@@ -1,5 +1,5 @@
-using Catalog.Domain.ProductCategories.Entities;
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.ProductCategories;
+using Catalog.Domain.Products;
 
 namespace Catalog.Infrastructure.DataBase;
 

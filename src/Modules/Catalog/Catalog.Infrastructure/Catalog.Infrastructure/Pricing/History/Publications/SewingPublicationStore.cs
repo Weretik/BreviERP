@@ -1,5 +1,5 @@
 using Catalog.Application.Contracts.Pricing;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.History.Calculations;
 

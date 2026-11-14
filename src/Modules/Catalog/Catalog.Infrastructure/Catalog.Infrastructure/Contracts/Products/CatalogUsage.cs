@@ -1,7 +1,6 @@
 using Catalog.Application.Features.Product.GetMediaUsages;
 using Catalog.Contracts.Products;
-using Catalog.Domain.Products.Enums;
-using Catalog.Domain.Products.ValueObjects;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Mediator;
 using Microsoft.EntityFrameworkCore;

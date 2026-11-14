@@ -6,10 +6,8 @@ using Reference.Application.Features.PricingParameter.GetList;
 using Reference.Application.Features.PricingSettingsImport;
 using Reference.Application.Features.PricingSettingsImport.DTOs;
 using Reference.Application.Features.Shared.SheetImport;
-using Reference.Domain.PpeMarkupRules.Entities;
-using Reference.Domain.PpeMarkupRules.ValueObjects;
-using Reference.Domain.PricingParameters.Entities;
-using Reference.Domain.PricingParameters.ValueObjects;
+using Reference.Domain.PpeMarkupRules;
+using Reference.Domain.PricingParameters;
 
 namespace UnitTests.Reference;
 

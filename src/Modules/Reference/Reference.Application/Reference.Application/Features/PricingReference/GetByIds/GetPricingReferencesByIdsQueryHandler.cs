@@ -1,9 +1,9 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PricingReference.GetByIds.Specifications;
-using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
-using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
-using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
+using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
+using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 
 namespace Reference.Application.Features.PricingReference.GetByIds;
 

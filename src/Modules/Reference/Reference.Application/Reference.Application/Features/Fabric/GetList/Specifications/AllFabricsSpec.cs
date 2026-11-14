@@ -1,5 +1,5 @@
 using Reference.Application.Features.Fabric.GetList.DTOs;
-using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
+using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
 
 namespace Reference.Application.Features.Fabric.GetList.Specifications;
 

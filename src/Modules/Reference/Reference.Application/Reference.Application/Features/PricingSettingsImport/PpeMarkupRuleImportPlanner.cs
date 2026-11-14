@@ -1,7 +1,7 @@
 using Reference.Application.Features.PricingSettingsImport.DTOs;
 using Reference.Application.Features.Shared.SheetImport;
-using Reference.Domain.PpeMarkupRules.ValueObjects;
-using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
+using Reference.Domain.PpeMarkupRules;
+using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
 
 namespace Reference.Application.Features.PricingSettingsImport;
 

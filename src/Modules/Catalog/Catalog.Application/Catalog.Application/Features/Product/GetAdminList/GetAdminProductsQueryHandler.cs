@@ -3,9 +3,9 @@ using Catalog.Application.Features.ProductCategory.Shared.Specifications;
 using Catalog.Application.Features.Product.GetAdminList.Specifications;
 using Catalog.Application.Features.Product.GetAdminList.DTOs;
 using Catalog.Application.Contracts.Media;
-using Catalog.Domain.ProductCategories.ValueObjects;
-using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using Catalog.Domain.ProductCategories;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.GetAdminList;
 

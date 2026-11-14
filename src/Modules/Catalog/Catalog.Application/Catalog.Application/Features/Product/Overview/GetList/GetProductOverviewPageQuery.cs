@@ -1,5 +1,5 @@
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Features.Product.Overview.GetList;
 

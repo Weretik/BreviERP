@@ -1,4 +1,4 @@
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using CatalogImport.Planning;
 
 namespace CatalogImport.Persistence;

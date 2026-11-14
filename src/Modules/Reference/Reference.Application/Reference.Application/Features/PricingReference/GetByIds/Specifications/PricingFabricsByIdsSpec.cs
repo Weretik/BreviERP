@@ -1,5 +1,5 @@
-using FabricEntity = Reference.Domain.GarmentAccessories.Entities.Fabric;
-using FabricId = Reference.Domain.GarmentAccessories.ValueObjects.FabricId;
+using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
+using FabricId = Reference.Domain.GarmentAccessories.FabricId;
 
 namespace Reference.Application.Features.PricingReference.GetByIds.Specifications;
 

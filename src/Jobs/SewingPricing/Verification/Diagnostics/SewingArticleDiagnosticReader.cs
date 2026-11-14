@@ -2,7 +2,7 @@ using Catalog.Application.Contracts.Pricing;
 using Catalog.Application.Features.Pricing.Sewing.Preview;
 using Catalog.Application.Features.Pricing.Sewing.Evaluation;
 using Catalog.Domain.Pricing.Sewing;
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;

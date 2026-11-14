@@ -5,8 +5,8 @@ using Catalog.Application.Contracts.Reference;
 using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
 using Catalog.Application.Features.Product.GetAdminDetail.Specifications;
 using Catalog.Application.Contracts.Media;
-using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.GetAdminDetail;
 

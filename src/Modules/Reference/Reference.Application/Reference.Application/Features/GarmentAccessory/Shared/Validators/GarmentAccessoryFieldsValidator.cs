@@ -1,5 +1,5 @@
 using Reference.Application.Features.GarmentAccessory.Shared.DTOs;
-using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.Entities.GarmentAccessory;
+using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 
 namespace Reference.Application.Features.GarmentAccessory.Shared.Validators;
 

@@ -4,7 +4,7 @@ using Catalog.Application.Features.Product.Shared.Validation.Content;
 using Catalog.Application.Features.Product.Shared.Validation.Ppe;
 using Catalog.Application.Features.Product.Shared.Validation.Resources;
 using Catalog.Application.Features.Product.Shared.Validation.Sewing;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 
 namespace Catalog.Application.Features.Product.Shared.Validation;
 

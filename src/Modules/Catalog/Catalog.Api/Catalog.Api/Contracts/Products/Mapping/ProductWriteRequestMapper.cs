@@ -1,6 +1,6 @@
 using Ardalis.Result;
 using Catalog.Application.Features.Product.Create.DTOs;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 
 namespace Catalog.Api.Contracts.Products;
 

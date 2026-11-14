@@ -1,6 +1,6 @@
 using System.Text.Json;
 using BuildingBlocks.Domain.Errors;
-using Accounting.Domain.Errors;
+using Accounting.Domain;
 using Accounting.Application.Abstractions;
 using Accounting.Application.Contracts;
 using Accounting.Domain.Accounts;

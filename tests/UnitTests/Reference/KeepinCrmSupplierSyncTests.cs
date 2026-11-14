@@ -4,8 +4,7 @@ using Moq;
 using Reference.Application.Contracts.KeepinCrm;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Supplier.KeepinCrmSync;
-using Reference.Domain.Suppliers.Entities;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.Suppliers;
 
 namespace UnitTests.Reference;
 

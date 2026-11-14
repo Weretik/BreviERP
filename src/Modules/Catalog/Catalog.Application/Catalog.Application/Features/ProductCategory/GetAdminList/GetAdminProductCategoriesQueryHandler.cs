@@ -1,7 +1,7 @@
 ﻿using Catalog.Application.Contracts.Persistence;
 using Catalog.Application.Features.ProductCategory.GetAdminList.DTOs;
 using Catalog.Application.Features.ProductCategory.GetAdminList.Specifications;
-using ProductCategoryEntity = Catalog.Domain.ProductCategories.Entities.ProductCategory;
+using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
 
 namespace Catalog.Application.Features.ProductCategory.GetAdminList;
 

@@ -1,4 +1,4 @@
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using CatalogImport.Planning;
 using CatalogImport.Source;

@@ -1,4 +1,4 @@
-using Reference.Domain.ProductSections.Entities;
+using Reference.Domain.ProductSections;
 using Reference.Infrastructure.Converters;
 
 namespace Reference.Infrastructure.Congigurations;

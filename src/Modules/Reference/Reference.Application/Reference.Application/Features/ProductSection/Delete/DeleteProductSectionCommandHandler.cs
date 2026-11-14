@@ -1,6 +1,6 @@
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.ProductSection.Shared.Specifications;
-using ProductSectionEntity = Reference.Domain.ProductSections.Entities.ProductSection;
+using ProductSectionEntity = Reference.Domain.ProductSections.ProductSection;
 
 namespace Reference.Application.Features.ProductSection.Delete;
 

@@ -1,4 +1,4 @@
-using FabricColorEntity = Reference.Domain.FabricColors.Entities.FabricColor;
+using FabricColorEntity = Reference.Domain.FabricColors.FabricColor;
 
 namespace Reference.Application.Features.FabricColor.Shared;
 

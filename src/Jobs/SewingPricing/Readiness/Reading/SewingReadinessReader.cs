@@ -1,6 +1,6 @@
 using System.Data;
 using Catalog.Application.Features.Pricing.Sewing.Preview;
-using Catalog.Domain.Products.Entities;
+using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.History.Publications.Reading;
 using Catalog.Infrastructure.Pricing.Reading;

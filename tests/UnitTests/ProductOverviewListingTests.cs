@@ -1,7 +1,7 @@
 using Catalog.Application.Features.Product.Overview.GetList;
 using Catalog.Application.Features.Product.Overview.GetList.DTOs;
 using Catalog.Application.Features.Product.Overview.GetList.Validators;
-using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products;
 
 namespace UnitTests;
 

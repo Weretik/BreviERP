@@ -1,5 +1,5 @@
 using System.Text.Json.Nodes;
-using Reference.Domain.Suppliers.ValueObjects;
+using Reference.Domain.Suppliers;
 
 namespace Reference.Infrastructure.KeepinCrm;
 

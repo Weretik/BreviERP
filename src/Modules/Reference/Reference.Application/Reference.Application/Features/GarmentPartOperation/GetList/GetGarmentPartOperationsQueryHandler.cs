@@ -2,8 +2,8 @@ using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.GarmentPart.GetList.Specifications;
 using Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
 using Reference.Application.Features.GarmentPartOperation.GetList.Specifications;
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPart;
-using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Entities.GarmentPartOperation;
+using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
+using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 
 namespace Reference.Application.Features.GarmentPartOperation.GetList;
 

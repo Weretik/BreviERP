@@ -1,5 +1,5 @@
 using Catalog.Application.Features.Product.Overview.Shared;
-using ProductEntity = Catalog.Domain.Products.Entities.Product;
+using ProductEntity = Catalog.Domain.Products.Product;
 
 namespace Catalog.Application.Features.Product.Overview.CodeCheck;
 
