@@ -1,4 +1,5 @@
 using System.Globalization;
+using BuildingBlocks.Domain.Results;
 using Purchasing.Domain.Messages;
 
 namespace Purchasing.Domain.Ingestion;
@@ -10,22 +11,21 @@ public static class SourceRowNormalizer
 
     public const string PaidMark = "СПЛАЧЕНО";
 
-    /// <exception cref="PurchaseSourceException">The row is malformed.</exception>
-    public static NormalizedSourceRow? Normalize(IReadOnlyList<string?> row, int rowNumber, string spreadsheetId, long sheetId)
+    public static DomainResult<NormalizedSourceRow?> Normalize(IReadOnlyList<string?> row, int rowNumber, string spreadsheetId, long sheetId)
     {
-        if (rowNumber < 2) throw new PurchaseSourceException($"Неправильний номер рядка {rowNumber}.");
+        if (rowNumber < 2) return PurchaseSourceErrors.RowNumberInvalid(rowNumber);
         if (row.Count > PurchaseSheetColumns.MaxRowLength)
-            throw new PurchaseSourceException($"Рядок {rowNumber}: забагато стовпців ({row.Count}).");
+            return PurchaseSourceErrors.TooManyColumns(rowNumber, row.Count);
 
         var cells = new string[PurchaseSheetColumns.Header.Count];
         for (var i = 0; i < cells.Length; i++) cells[i] = i < row.Count ? row[i] ?? "" : "";
-        if (cells.All(x => x.Trim().Length == 0)) return null;
+        if (cells.All(x => x.Trim().Length == 0)) return DomainResult<NormalizedSourceRow?>.Success(null);
 
         var uid = cells[PurchaseSheetColumns.Uid].Trim();
         var chatId = cells[PurchaseSheetColumns.ChatId].Trim();
         var telegramMessageId = cells[PurchaseSheetColumns.MessageId].Trim();
         if (uid.Length == 0 || chatId.Length == 0 || telegramMessageId.Length == 0)
-            throw new PurchaseSourceException($"Рядок {rowNumber}: немає UID, ChatId або MessageId.");
+            return PurchaseSourceErrors.IdentityMissing(rowNumber);
 
         var telegramKey = PurchaseIdentity.TelegramKey(chatId, telegramMessageId);
         var messageId = PurchaseIdentity.MessageId(telegramKey);
@@ -43,7 +43,7 @@ public static class SourceRowNormalizer
             Optional(cells[PurchaseSheetColumns.FromUserStatus]),
             status.Trim().ToUpper(Ukrainian) == PaidMark ? PaymentState.MarkedPaid : PaymentState.Unconfirmed);
 
-        return new NormalizedSourceRow(PurchaseIdentity.SourceId(spreadsheetId, sheetId, uid), messageId, telegramKey, uid,
+        return (NormalizedSourceRow?)new NormalizedSourceRow(PurchaseIdentity.SourceId(spreadsheetId, sheetId, uid), messageId, telegramKey, uid,
             rowNumber, raw, links, issues, message);
     }
 

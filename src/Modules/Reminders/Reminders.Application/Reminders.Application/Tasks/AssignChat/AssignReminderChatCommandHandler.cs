@@ -14,7 +14,7 @@ public sealed class AssignReminderChatCommandHandler(IRemindersDbContext db, Rem
         var organizations = command.Organizations.Select(x => ReminderCodes.Organizations[x]).Distinct().ToArray();
         var tasks = await db.Tasks.Where(x => !x.IsDeleted && organizations.Contains(x.Organization)).ToListAsync(cancellationToken);
         foreach (var task in tasks)
-            task.Revise(task.Title, task.Organization, task.Schedule, chatId, task.ActiveFrom, task.IsEnabled, clock.Now);
+            task.AssignChat(chatId, clock.Now);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(tasks.Count);
     }

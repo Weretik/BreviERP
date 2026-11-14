@@ -86,7 +86,8 @@ public sealed class PurchasePaymentCommandsHandler(
             && x.TransactionId == command.TransactionId && x.UnlinkedAt == null, cancellationToken);
         if (link is null) return Result<PurchaseInvoicePaymentsResponse>.Conflict(NotLinked);
 
-        message.UnlinkPayment(link, command.By, clock.GetUtcNow());
+        var unlinked = message.UnlinkPayment(link, command.By, clock.GetUtcNow());
+        if (unlinked.IsFailure) return unlinked.ToResult<PurchaseInvoicePaymentsResponse>();
         await db.SaveChangesAsync(cancellationToken);
         await scope.CommitAsync(cancellationToken);
         return Result.Success(await RespondAsync(message, cancellationToken));

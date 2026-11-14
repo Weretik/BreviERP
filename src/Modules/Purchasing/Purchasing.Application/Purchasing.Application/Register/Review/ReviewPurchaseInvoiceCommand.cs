@@ -54,8 +54,9 @@ public sealed class ReviewPurchaseInvoiceCommandHandler(
         if (supplier is { Active: false } && supplier.Id != message.SupplierId)
             return Result<PurchaseInvoiceReviewResponse>.NotFound(SupplierNotFound);
 
-        var change = message.Review(command.SupplierId, command.Note, command.Reviewer, clock.GetUtcNow());
-        if (change is not null)
+        var reviewed = message.Review(command.SupplierId, command.Note, command.Reviewer, clock.GetUtcNow());
+        if (reviewed.IsFailure) return reviewed.ToResult<PurchaseReviewChange?, PurchaseInvoiceReviewResponse>();
+        if (reviewed.Value is { } change)
         {
             db.ReviewChanges.Add(change);
             await db.SaveChangesAsync(cancellationToken);

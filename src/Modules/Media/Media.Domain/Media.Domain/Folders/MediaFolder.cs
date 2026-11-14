@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Media.Domain.Folders;
 
 /// <summary>A folder of the photo library. Folders exist only in the database: moving a folder or a photo never moves files on the CDN.</summary>
@@ -7,12 +9,18 @@ public sealed class MediaFolder
 
     private MediaFolder() { }
 
-    public MediaFolder(string name, int? parentId, DateTimeOffset now)
+    private MediaFolder(string name, int? parentId, DateTimeOffset now)
     {
-        Name = MediaNames.Normalize(name, NameMaxLength);
+        Name = name;
         ParentId = parentId;
         CreatedAt = now;
         UpdatedAt = now;
+    }
+
+    public static DomainResult<MediaFolder> Create(string name, int? parentId, DateTimeOffset now)
+    {
+        var normalized = MediaNames.Normalize(name, NameMaxLength);
+        return normalized.IsFailure ? normalized.Error! : new MediaFolder(normalized.Value, parentId, now);
     }
 
     public int Id { get; private set; }
@@ -24,17 +32,21 @@ public sealed class MediaFolder
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
-    public void Rename(string name, DateTimeOffset now)
+    public DomainResult Rename(string name, DateTimeOffset now)
     {
-        Name = MediaNames.Normalize(name, NameMaxLength);
+        var normalized = MediaNames.Normalize(name, NameMaxLength);
+        if (normalized.IsFailure) return normalized.Error!;
+        Name = normalized.Value;
         UpdatedAt = now;
+        return DomainResult.Success();
     }
 
     /// <summary>The caller checks the target with <see cref="MediaFolderTree.CanMove"/> first.</summary>
-    public void MoveTo(int? parentId, DateTimeOffset now)
+    public DomainResult MoveTo(int? parentId, DateTimeOffset now)
     {
-        if (parentId == Id) throw new InvalidOperationException("A folder cannot be its own parent.");
+        if (parentId == Id) return MediaErrors.FolderOwnParent();
         ParentId = parentId;
         UpdatedAt = now;
+        return DomainResult.Success();
     }
 }

@@ -18,8 +18,9 @@ public sealed class UpdateReminderTaskCommandHandler(IRemindersDbContext db, Rem
         var chat = await ReminderTaskChats.FindAsync(db, input.ChatId, cancellationToken);
         if (input.ChatId is not null && chat is null) return ReminderTaskChats.UnknownChat<ReminderTaskResponse>();
 
-        task.Revise(input.Title, ReminderCodes.Organizations[input.Organization], ReminderTaskMapper.ToSchedule(input.Schedule),
-            chat?.Id, input.ActiveFrom ?? task.ActiveFrom, input.IsEnabled, clock.Now);
+        var revised = task.Revise(input.Title, ReminderCodes.Organizations[input.Organization],
+            ReminderTaskMapper.ToSchedule(input.Schedule), chat?.Id, input.ActiveFrom ?? task.ActiveFrom, input.IsEnabled, clock.Now);
+        if (revised.IsFailure) return revised.ToResult<ReminderTaskResponse>();
         var calendar = await db.LoadCalendarAsync(cancellationToken);
         var open = await db.Occurrences.Where(x => x.TaskId == task.Id && x.Status == ReminderOccurrenceStatus.Open).ToListAsync(cancellationToken);
         foreach (var occurrence in open) occurrence.Reschedule(task.Schedule.DueDate(occurrence.Period, calendar));

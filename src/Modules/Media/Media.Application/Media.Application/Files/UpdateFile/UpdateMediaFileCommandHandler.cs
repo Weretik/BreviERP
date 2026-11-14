@@ -14,7 +14,8 @@ public sealed class UpdateMediaFileCommandHandler(IMediaDbContext db, TimeProvid
         if (folderId is { } id && !await db.Folders.AnyAsync(x => x.Id == id, cancellationToken))
             return Result<MediaFileResponse>.NotFound(FileMessages.FolderNotFound);
 
-        file.Update(command.Input.FileName, command.Input.Alt, folderId, clock.GetUtcNow());
+        var updated = file.Update(command.Input.FileName, command.Input.Alt, folderId, clock.GetUtcNow());
+        if (updated.IsFailure) return updated.Error!.ToResult<MediaFileResponse>();
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(MediaFileResponse.From(file));
     }

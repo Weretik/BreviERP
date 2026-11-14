@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Media.Domain.Files;
 
 /// <summary>A photo stored on the CDN. It is created only after the CDN accepted the file, so every row has a working URL.</summary>
@@ -9,7 +11,27 @@ public sealed class MediaFile
 
     private MediaFile() { }
 
-    public MediaFile(
+    /// <summary>
+    /// A new photo. The file name is the staff's input and is checked as a rule; size, type and storage values come from
+    /// the server and are guarded.
+    /// </summary>
+    public static DomainResult<MediaFile> Create(
+        string fileName,
+        int? folderId,
+        string contentType,
+        long sizeInBytes,
+        string storageProvider,
+        string storageKey,
+        string publicUrl,
+        DateTimeOffset now,
+        string? sourceKey = null)
+    {
+        var name = MediaNames.Normalize(fileName, FileNameMaxLength, "fileName");
+        if (name.IsFailure) return name.Error!;
+        return new MediaFile(name.Value, folderId, contentType, sizeInBytes, storageProvider, storageKey, publicUrl, now, sourceKey);
+    }
+
+    private MediaFile(
         string fileName,
         int? folderId,
         string contentType,
@@ -21,7 +43,7 @@ public sealed class MediaFile
         string? sourceKey = null)
     {
         if (sizeInBytes <= 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        FileName = MediaNames.Normalize(fileName, FileNameMaxLength);
+        FileName = fileName;
         FolderId = folderId;
         ContentType = Required(contentType, nameof(contentType));
         SizeInBytes = sizeInBytes;
@@ -65,12 +87,17 @@ public sealed class MediaFile
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
-    public void Update(string fileName, string? alt, int? folderId, DateTimeOffset now)
+    public DomainResult Update(string fileName, string? alt, int? folderId, DateTimeOffset now)
     {
-        FileName = MediaNames.Normalize(fileName, FileNameMaxLength);
-        Alt = NormalizeAlt(alt);
+        var name = MediaNames.Normalize(fileName, FileNameMaxLength, "fileName");
+        if (name.IsFailure) return name.Error!;
+        var trimmedAlt = string.IsNullOrWhiteSpace(alt) ? null : alt.Trim();
+        if (trimmedAlt?.Length > AltMaxLength) return MediaErrors.AltTooLong(AltMaxLength);
+        FileName = name.Value;
+        Alt = trimmedAlt;
         FolderId = folderId;
         UpdatedAt = now;
+        return DomainResult.Success();
     }
 
     public void MoveTo(int? folderId, DateTimeOffset now)
@@ -90,14 +117,6 @@ public sealed class MediaFile
         ThumbnailStorageKey = thumbnailStorageKey?.Trim();
         ThumbnailUrl = thumbnailUrl?.Trim();
         ImageProcessedAt = now;
-    }
-
-    private static string? NormalizeAlt(string? alt)
-    {
-        if (string.IsNullOrWhiteSpace(alt)) return null;
-        var trimmed = alt.Trim();
-        if (trimmed.Length > AltMaxLength) throw new ArgumentException($"Alt must not exceed {AltMaxLength} characters.", nameof(alt));
-        return trimmed;
     }
 
     private static string? NormalizeSourceKey(string? sourceKey)
