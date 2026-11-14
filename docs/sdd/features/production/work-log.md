@@ -20,16 +20,16 @@ src/Modules/Production/
       Shared/ForecastQueueReader.cs  # «Нове» orders in queue order
       Queries/GetForecast, Commands/SaveForecastQueue
   Production.Infrastructure/.../Persistence/Work/ProductionWorkConfiguration.cs
-  Production.Api/Production.Api/Work/ProductionWorkController.cs          # /api/production/work…, items/{itemId}/work
-  Production.Api/Production.Api/Forecast/ProductionForecastController.cs  # /api/production/forecast
+  Production.Api/Production.Api/Endpoints/Work/      # /api/production/work…, items/{itemId}/work
+  Production.Api/Production.Api/Endpoints/Forecast/  # /api/production/forecast
 ```
 
 ## Structure diagram
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin «Журнал робіт», «Робота», «Прогноз пошиття»] --> Controllers[ProductionWorkController, ProductionForecastController]
-  Controllers --> UseCases[Work and Forecast use cases]
+  Admin[Brevi Admin «Журнал робіт», «Робота», «Прогноз пошиття»] --> Endpoints[Work and Forecast endpoints]
+  Endpoints --> UseCases[Work and Forecast use cases]
   UseCases --> Db[(production.Work / ForecastQueues)]
   UseCases --> Orders[(production.Orders / Items / Employees)]
   UseCases --> Params[IPayrollParameterReader] -.Reference.Contracts.-> Reference[«Параметри ціноутворення»]

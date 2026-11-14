@@ -2,6 +2,7 @@ using BuildingBlocks.Application.DependencyInjection;
 using Catalog.Application;
 using Catalog.Contracts.Pricing;
 using Catalog.Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -17,9 +18,9 @@ public static class CatalogModuleExtensions
     public static IServiceCollection AddCatalogModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCatalogInfrastructure(configuration);
-        // Publishes new Sewing prices after any action that saved a pricing input, in this or another module.
+        // Publishes new Sewing prices after any request that saved a pricing input, in this or another module.
         services.TryAddScoped<PricingInputChanges>();
-        services.Configure<MvcOptions>(options => options.Filters.Add<SewingPriceAutoPublicationFilter>());
+        services.AddTransient<IStartupFilter, SewingPriceAutoPublicationStartupFilter>();
         services.AddModuleValidators(typeof(CatalogApplicationAssemblyMarker).Assembly);
         services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly);
         return services;

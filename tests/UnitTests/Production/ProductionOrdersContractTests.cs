@@ -1,8 +1,6 @@
+using Production.Api.DependencyInjection;
+using UnitTests.TestSupport;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Production.Api.Orders;
-using Production.Api.Settings;
 using YamlDotNet.RepresentationModel;
 using Production.Application.Features.Orders.Commands.CancelProductionOrder;
 using Production.Application.Features.Orders.Commands.CopyProductionOrder;
@@ -91,13 +89,9 @@ public sealed class ProductionOrdersContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_orders_policy()
     {
-        Type[] controllers =
-            [typeof(ProductionOrdersController), typeof(ProductionOrderTrackingController), typeof(WorkshopSettingsController)];
-        var policies = controllers.Select(controller => controller.GetCustomAttributes(typeof(AuthorizeAttribute), false)
-            .Cast<AuthorizeAttribute>().Single().Policy).Distinct().ToArray();
-        var operations = controllers.SelectMany(controller => controller.GetMethods())
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
-            .Select(x => x.Name).ToArray();
+        var endpoints = MappedEndpoints.Of(app => app.MapProductionEndpoints(), "ProductionOrders", "ProductionOrderTracking", "WorkshopSettings");
+        var policies = endpoints.SelectMany(x => x.Policies).Distinct().ToArray();
+        var operations = endpoints.Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>
         {

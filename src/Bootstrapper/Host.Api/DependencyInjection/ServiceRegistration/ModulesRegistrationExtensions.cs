@@ -46,6 +46,9 @@ public static class ModuleRegistrationsExtensions
         app.MapRemindersEndpoints();
         app.MapMediaEndpoints();
         app.MapIdentityEndpoints();
+        app.MapReferenceEndpoints();
+        app.MapProductionEndpoints();
+        app.MapAccountingEndpoints();
 
         return app;
     }

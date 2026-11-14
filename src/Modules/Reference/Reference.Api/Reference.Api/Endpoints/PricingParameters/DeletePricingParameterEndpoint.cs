@@ -1,0 +1,14 @@
+using Reference.Application.Features.PricingParameter.Commands.DeletePricingParameter;
+
+namespace Reference.Api.Endpoints.PricingParameters;
+
+internal static class DeletePricingParameterEndpoint
+{
+    public static void Map(RouteGroupBuilder group) =>
+        group.MapDelete("{id:int}", HandleAsync)
+            .RequireAuthorization("access:pricing-parameters");
+
+    private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,
+        CancellationToken cancellationToken) =>
+        (await sender.Send(new DeletePricingParameterCommand(id), cancellationToken)).ToHttpResult();
+}

@@ -1,7 +1,6 @@
+using Production.Api.DependencyInjection;
+using UnitTests.TestSupport;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Production.Api.Archive;
 using YamlDotNet.RepresentationModel;
 using Production.Application.Features.Archive.Commands.ImportWorkshopArchive;
 using Production.Application.Features.Archive.Queries.GetWorkshopArchive;
@@ -30,17 +29,15 @@ public sealed class WorkshopArchiveContractTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(Policy(typeof(WorkshopArchiveController)), Is.EqualTo("access:workshop-archive"));
-            Assert.That(Operations(typeof(WorkshopArchiveController)), Is.EquivalentTo(ContractOperations()));
+            Assert.That(Policy("WorkshopArchive"), Is.EqualTo("access:workshop-archive"));
+            Assert.That(Operations("WorkshopArchive"), Is.EquivalentTo(ContractOperations()));
         });
     }
 
-    private static string? Policy(Type controller) => controller.GetCustomAttributes(typeof(AuthorizeAttribute), false)
-        .Cast<AuthorizeAttribute>().Single().Policy;
+    private static string Policy(string group) => MappedEndpoints.Policy(app => app.MapProductionEndpoints(), group);
 
-    private static IEnumerable<string?> Operations(Type controller) => controller.GetMethods()
-        .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
-        .Select(x => x.Name);
+    private static IEnumerable<string> Operations(string group) =>
+        MappedEndpoints.Of(app => app.MapProductionEndpoints(), group).Select(x => x.Name);
 
     private static IEnumerable<string> ContractOperations() =>
         ((YamlMappingNode)Document()["paths"]).Children.Values.Cast<YamlMappingNode>()

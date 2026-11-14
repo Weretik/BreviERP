@@ -23,16 +23,16 @@ src/Modules/Production/
       Shared/PayrollMonths.cs        # «РРРР-ММ», closed-month lock (also used by Work/CreateProductionWork)
       Shared/                        # responses, PayrollInputRules, messages
   Production.Infrastructure/.../Persistence/Payroll/PayrollConfiguration.cs
-  Production.Api/Production.Api/Timesheet/TimesheetController.cs  # /api/production/timesheet
-  Production.Api/Production.Api/Payroll/PayrollController.cs      # /api/production/payroll…
+  Production.Api/Production.Api/Endpoints/Timesheet/  # /api/production/timesheet
+  Production.Api/Production.Api/Endpoints/Payroll/    # /api/production/payroll…
 ```
 
 ## Structure diagram
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin «Робочий час», «Зарплата»] --> Controllers[TimesheetController, PayrollController]
-  Controllers --> UseCases[Timesheet and Payroll use cases]
+  Admin[Brevi Admin «Робочий час», «Зарплата»] --> Endpoints[Timesheet and Payroll endpoints]
+  Endpoints --> UseCases[Timesheet and Payroll use cases]
   UseCases --> Db[(production.TimeEntries / Payroll*)]
   UseCases --> Work[(production.Work / Items / Employees)]
   UseCases --> Params[IPayrollParameterReader] -.Reference.Contracts.-> Reference[«Параметри ціноутворення»]

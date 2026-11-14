@@ -19,8 +19,8 @@ src/Modules/Production/
     Persistence/                       # ProductionDbContext (schema production), configurations, migrations
     DependencyInjection/
   Production.Api/Production.Api/
-    Staff/WorkshopStaffController.cs             # /api/production/staff
-    FabricNorms/FabricNormsController.cs         # /api/production/fabric-norms, /compositions
+    Endpoints/Staff/                             # /api/production/staff
+    Endpoints/FabricNorms/                       # /api/production/fabric-norms, /compositions
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Catalog/ProductionModelReader.cs  # IProductionModelReader → Catalog.Contracts ICatalogProductReader, ISewingModelReader
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Reference/ProductionReferenceReaders.cs  # PayrollParameterReader → Reference.Contracts IPricingParameterDirectory
 ```
@@ -29,8 +29,8 @@ src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapt
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin «Швейний цех»] --> Controllers[Production controllers]
-  Controllers --> UseCases[Mediator use cases]
+  Admin[Brevi Admin «Швейний цех»] --> Endpoints[Production endpoints]
+  Endpoints --> UseCases[Mediator use cases]
   UseCases --> Db[(production schema)]
   UseCases --> Models[IProductionModelReader]
   UseCases --> Payroll[IPayrollParameterReader]

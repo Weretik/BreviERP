@@ -47,17 +47,21 @@ src/Modules/Accounting/
     DependencyInjection/
   Accounting.Api/Accounting.Api/
     Access/            # policy access:accounting (Director by default), who made the change
-    Accounts/          # /api/accounting/accounts
-    Categories/        # /api/accounting/categories
-    Settings/          # /api/accounting/settings
-    Transactions/      # /api/accounting/transactions
-    Transfers/         # /api/accounting/transfers
-    Overview/          # /api/accounting/overview
-    Counterparties/    # /api/accounting/counterparties
-    Attachments/       # /api/accounting/transactions/{id}/attachments, /api/accounting/attachments/{id}[/content]; FileResults (file body, 503 while the file storage is off)
-    Import/            # POST /api/accounting/legacy-import?dryRun=
-    Statements/        # /api/accounting/statements[/{id}[/lines/{lineId}|/book|/rollback]]
-    Reports/           # /api/accounting/reports[/csv], /api/accounting/audit, /api/accounting/export
+    Endpoints/         # Minimal API, one <UseCase>Endpoint.cs per operation; groups under /api/accounting:
+      Accounts/        #   accounts
+      Categories/      #   categories
+      Settings/        #   settings
+      Transactions/    #   transactions
+      Transfers/       #   transfers
+      Overview/        #   overview
+      Counterparties/  #   counterparties
+      Attachments/     #   transactions/{id}/attachments, attachments/{id}[/content]
+      Import/          #   POST legacy-import?dryRun=
+      Statements/      #   statements[/{id}[/lines/{lineId}|/book|/rollback]]
+      Reports/         #   reports[/csv], audit, export
+    Accounts/ Categories/ Counterparties/ Statements/ Transactions/ Transfers/  # request bodies (*Requests.cs), AccountingQueryLink
+    Attachments/FileResults.cs  # file body, 503 while the file storage is off
+    Reports/FinanceReportFilters.cs  # the shared filter of a report and its CSV
 src/Modules/Accounting/Accounting.Contracts/Accounting.Contracts/Payments/IFinancePaymentReader.cs   # payments for other modules (impl. Accounting.Infrastructure/Contracts/Payments)
 src/Modules/Accounting/Accounting.Infrastructure/Accounting.Infrastructure/Adapters/Reference/AccountingSupplierReader.cs  # Reference.Contracts suppliers, with KeepinCRM id
 src/Modules/Accounting/Accounting.Infrastructure/Accounting.Infrastructure/Adapters/Crm/AccountingCustomerReader.cs  # Crm.Contracts ICustomerDirectory: lookup, by KeepinCRM id, by ЄДРПОУ
@@ -68,8 +72,8 @@ src/Modules/Crm/Crm.Application/Crm.Application/Features/Customers/Queries/{GetC
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin «Бухгалтерія»] --> Controllers[Accounts / Categories / Transactions / Transfers / Counterparties / Overview / Statements / Reports / Settings]
-  Controllers --> Handlers[Application handlers]
+  Admin[Brevi Admin «Бухгалтерія»] --> Endpoints[Accounts / Categories / Transactions / Transfers / Counterparties / Overview / Statements / Reports / Settings]
+  Endpoints --> Handlers[Application handlers]
   Handlers --> Balances[FinanceBalances]
   Handlers --> Domain[FinanceAccount / FinanceCategory / FinanceTransaction / FinanceTransfer]
   Handlers --> Audit[AuditTrail]

@@ -16,8 +16,8 @@ Old PPE products may still refer to a parameter `Id` for their retail/wholesale 
 ```text
 src/Modules/Reference/
 ├── Reference.Api/Reference.Api/
-│   ├── PricingParameter/                            # PricingParametersController (CRUD + sheet import) and its requests
-│   └── PpeMarkupRule/                               # PpeMarkupRulesController (CRUD) and its requests
+│   ├── Endpoints/PricingParameters/                 # CRUD + sheet import, one <UseCase>Endpoint.cs each with its request
+│   └── Endpoints/PpeMarkupRules/                    # CRUD, one <UseCase>Endpoint.cs each with its request
 ├── Reference.Application/Reference.Application/Features/
 │   ├── PricingParameter/{Commands,Queries,Shared}/   # Create/Update/DeletePricingParameter, GetPricingParameters
 │   ├── PpeMarkupRule/{Commands,Queries,Shared}/      # Create/Update/DeletePpeMarkupRule, GetPpeMarkupRules

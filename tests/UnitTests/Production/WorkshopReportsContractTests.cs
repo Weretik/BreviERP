@@ -1,8 +1,6 @@
+using Production.Api.DependencyInjection;
+using UnitTests.TestSupport;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Production.Api.Dashboard;
-using Production.Api.Reports;
 using YamlDotNet.RepresentationModel;
 using Production.Application.Features.Dashboard.Queries.GetWorkshopDashboard;
 using Production.Application.Features.Reports.Queries.GetWorkshopReport;
@@ -36,19 +34,17 @@ public sealed class WorkshopReportsContractTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(Policy(typeof(WorkshopReportsController)), Is.EqualTo("access:workshop-reports"));
-            Assert.That(Policy(typeof(WorkshopDashboardController)), Is.EqualTo("access:production-orders"));
-            Assert.That(Operations(typeof(WorkshopReportsController)).Concat(Operations(typeof(WorkshopDashboardController))),
+            Assert.That(Policy("WorkshopReports"), Is.EqualTo("access:workshop-reports"));
+            Assert.That(Policy("WorkshopDashboard"), Is.EqualTo("access:production-orders"));
+            Assert.That(Operations("WorkshopReports").Concat(Operations("WorkshopDashboard")),
                 Is.EquivalentTo(ContractOperations()));
         });
     }
 
-    private static string? Policy(Type controller) => controller.GetCustomAttributes(typeof(AuthorizeAttribute), false)
-        .Cast<AuthorizeAttribute>().Single().Policy;
+    private static string Policy(string group) => MappedEndpoints.Policy(app => app.MapProductionEndpoints(), group);
 
-    private static IEnumerable<string?> Operations(Type controller) => controller.GetMethods()
-        .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
-        .Select(x => x.Name);
+    private static IEnumerable<string> Operations(string group) =>
+        MappedEndpoints.Of(app => app.MapProductionEndpoints(), group).Select(x => x.Name);
 
     private static IEnumerable<string> ContractOperations() =>
         ((YamlMappingNode)Document()["paths"]).Children.Values.Cast<YamlMappingNode>()
