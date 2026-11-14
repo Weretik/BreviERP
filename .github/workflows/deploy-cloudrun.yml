@@ -64,12 +64,44 @@ jobs:
       BREVIERP_CRM_TEST_CONNECTION: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
       - run: dotnet restore BreviERP.sln
       - run: dotnet build BreviERP.sln --no-restore --configuration Release
-      - run: dotnet test BreviERP.sln --no-build --configuration Release
+      # Always run (seconds): the test selection's own tests, architecture, host and Platform integration tests.
+      - run: python3 -m unittest discover -s tools/ci
+      - run: dotnet test tests/ArchitectureTests/ArchitectureTests.csproj --no-build --configuration Release
+      - run: dotnet test tests/HostApiTests/HostApiTests.csproj --no-build --configuration Release
+      - run: dotnet test tests/IntegrationTests/IntegrationTests.csproj --no-build --configuration Release --filter "FullyQualifiedName~IntegrationTests.Platform."
+      # A pull request runs the unit and integration tests of the modules it changed (tools/ci/affected_tests.py);
+      # shared code (BuildingBlocks, hosts, jobs, build files) and every master push run all of them.
+      - name: Pick unit and integration tests
+        id: pick
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            tests=$(git diff --name-only "origin/$BASE_REF...HEAD" | python3 tools/ci/affected_tests.py)
+          else
+            tests=all
+          fi
+          echo "Selected tests: $tests"
+          echo "tests=$tests" >> "$GITHUB_OUTPUT"
+      - name: Unit and integration tests
+        if: steps.pick.outputs.tests != 'none'
+        env:
+          TESTS: ${{ steps.pick.outputs.tests }}
+        run: |
+          for project in tests/UnitTests/UnitTests.csproj tests/IntegrationTests/IntegrationTests.csproj; do
+            if [ "$TESTS" = "all" ]; then
+              dotnet test "$project" --no-build --configuration Release
+            else
+              dotnet test "$project" --no-build --configuration Release --filter "$TESTS"
+            fi
+          done
 
   deploy:
     # Only the deploy fork deploys; the same workflow in Weretik/BreviERP stops after verify.

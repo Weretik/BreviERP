@@ -1,10 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-</PropertyGroup>
 
     <ItemGroup>
       <Content Include="Seeders\ProductCategories\Data\product_category.json">
@@ -22,9 +17,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="PdfPig" Version="0.1.16" />
-      <PackageReference Include="Slugify.Core" Version="5.2.0" />
-      <PackageReference Include="TranslitKit" Version="1.0.3" />
+      <PackageReference Include="PdfPig" />
+      <PackageReference Include="Slugify.Core" />
+      <PackageReference Include="TranslitKit" />
     </ItemGroup>
 
     <ItemGroup>

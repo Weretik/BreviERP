@@ -1,40 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Ardalis.Result" Version="10.1.0" />
-      <PackageReference Include="Ardalis.Result.FluentValidation" Version="10.1.0" />
-      <PackageReference Include="Ardalis.Specification" Version="9.3.1" />
-      <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" Version="9.3.1" />
-      <PackageReference Include="DotNetEnv" Version="3.2.0" />
-      <PackageReference Include="FluentValidation" Version="12.2.0" />
-      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
-      <PackageReference Include="libphonenumber-csharp" Version="9.0.42" />
-      <PackageReference Include="Mediator.Abstractions" Version="3.0.2" />
-      <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.14" />
-      <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.13" />
-      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.14" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
+      <PackageReference Include="Ardalis.Result" />
+      <PackageReference Include="Ardalis.Result.FluentValidation" />
+      <PackageReference Include="Ardalis.Specification" />
+      <PackageReference Include="Ardalis.Specification.EntityFrameworkCore" />
+      <PackageReference Include="DotNetEnv" />
+      <PackageReference Include="FluentValidation" />
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+      <PackageReference Include="libphonenumber-csharp" />
+      <PackageReference Include="Mediator.Abstractions" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" />
+      <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.14" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.14" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
-      <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-      <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
-      <PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
-      <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
-      <PackageReference Include="Serilog.Settings.Configuration" Version="10.0.1" />
-      <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-      <PackageReference Include="Serilog.Sinks.Seq" Version="9.1.0" />
-      <PackageReference Include="Unidecode.NET" Version="2.2.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+      <PackageReference Include="Serilog.AspNetCore" />
+      <PackageReference Include="Serilog.Enrichers.Environment" />
+      <PackageReference Include="Serilog.Enrichers.Process" />
+      <PackageReference Include="Serilog.Enrichers.Thread" />
+      <PackageReference Include="Serilog.Settings.Configuration" />
+      <PackageReference Include="Serilog.Sinks.Console" />
+      <PackageReference Include="Serilog.Sinks.Seq" />
+      <PackageReference Include="Unidecode.NET" />
     </ItemGroup>
 
     <ItemGroup>

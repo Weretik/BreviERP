@@ -6,10 +6,5 @@
     <ProjectReference Include="..\..\Warehouse.Infrastructure\Warehouse.Infrastructure\Warehouse.Infrastructure.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
 
 </Project>

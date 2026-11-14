@@ -37,7 +37,7 @@ A test written before implementation can be omitted for documentation-only chang
 | --- | --- |
 | Local change | Run `dotnet test tests/<Project>/<Project>.csproj --filter <name>` for the affected behavior; for documentation, check links and run `git diff --check`. |
 | Boundary or database change | Add the relevant `ArchitectureTests` or `IntegrationTests` project/filter; integration tests need a separate PostgreSQL instance through `BREVIERP_CATALOG_TEST_CONNECTION`. |
-| Full CI | The [workflow](../../../.github/workflows/deploy-cloudrun.yml) runs builds and tests for PRs/pushes; rerun the full suite locally only on explicit request. |
+| CI | The [workflow](../../../.github/workflows/deploy-cloudrun.yml) builds everything and always runs the architecture tests, the host tests, the `Platform` integration tests and the tests of the selection script. A pull request runs the unit and integration tests picked by [`tools/ci/affected_tests.py`](../../../tools/ci/affected_tests.py) ([module rules](module-rules.md#test-structure)): a change in `src/Modules/<Module>/` or `tests/<Project>/<Module>/` runs `UnitTests.<Module>` and `IntegrationTests.<Module>` and those of every module whose projects reference it (read from the `.csproj` files); documentation alone runs nothing more; anything else (BuildingBlocks, hosts, jobs, build files, test support, CI files, and Catalog and Reference until stage 9 gives their tests their own folders) runs everything. Every push to `master` runs everything before deploy. Rerun the full suite locally only on explicit request. |
 
 Check project names and available filters under `tests/` before running them.
 

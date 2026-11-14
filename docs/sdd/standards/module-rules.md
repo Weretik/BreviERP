@@ -14,6 +14,25 @@ Every feature belongs to one business module. Before an SDD design, name the own
 - A new module is an architecture decision: record it in the SDD design with the owned data, the public contract other modules may use, and the alternatives considered (extend an existing module or create a new one). The user accepts it before implementation.
 - Do not split a capability into a separate module only because it has many files; size is a reason to split folders inside the module.
 
+## Solution root
+
+```text
+<Solution>.sln
+├── Directory.Build.props      settings shared by every project: TargetFramework, Nullable, ImplicitUsings, analyzers
+├── Directory.Packages.props   central package management: every NuGet version, ManagePackageVersionsCentrally=true
+├── global.json                SDK version
+├── src/                       Bootstrapper/, BuildingBlocks/, <Module>/
+├── tests/                     UnitTests/, IntegrationTests/, ArchitectureTests/
+├── tools/                     scripts the team runs by hand
+└── docs/
+```
+
+- A `.csproj` holds only what is specific to that project: its SDK, references, and `<PackageReference Include="..." />` without `Version`. Settings that every project shares go into `Directory.Build.props`; package versions go only into `Directory.Packages.props`, so one package has one version in the whole solution.
+- Dockerfiles that restore before copying the sources copy `Directory.Build.props`, `Directory.Packages.props`, and `global.json` together with the project files.
+- No other files at the root besides the solution, these props files, repository configuration (`.editorconfig`, `.gitignore`, `.gitattributes`, `.config/`), `README.md`, `AGENTS.md`, `CLAUDE.md`, and the license.
+
+**BreviERP:** `Directory.Build.props` sets `net10.0`, `Nullable` and `ImplicitUsings` for all 72 projects; `Directory.Packages.props` holds the 54 package versions (`SkiaSharp` was on two versions, now one, 4.154.0, the one the API already ran); `global.json` pins SDK 10.0.1xx. `tests/ArchitectureTests/SolutionRootTests.cs` keeps it so.
+
 ## Module shape
 
 Every business module has the same five projects. The host only registers modules; it holds no business code.
@@ -23,14 +42,14 @@ Every business module has the same five projects. The host only registers module
 | `<Module>.Domain` | Aggregates, entities, value objects, domain errors and events, invariants | `BuildingBlocks.Domain` only |
 | `<Module>.Application` | Commands, queries, handlers, FluentValidation validators, ports for persistence and integrations | `<Module>.Domain`, `<Module>.Contracts`, `BuildingBlocks.Application`, other modules' `Contracts` only |
 | `<Module>.Infrastructure` | `DbContext`, entity configurations, migrations, repositories, external clients, implementations of the module's own `Contracts` | `<Module>.Application`, `<Module>.Domain`, `BuildingBlocks.Infrastructure`, other modules' `Contracts` only |
-| `<Module>.Api` | Thin controllers that send one Mediator request and map the `Result`; the `Add<Module>Module()` registration | `<Module>.Application`, `<Module>.Infrastructure` (registration only), `BuildingBlocks.Api`, other modules' `Contracts` only (for example access policy names) |
+| `<Module>.Api` | Thin Minimal API endpoints that map the HTTP request to one Mediator command or query and the result to HTTP; the `Add<Module>Module()` registration and `Map<Module>Endpoints()` | `<Module>.Application`, `<Module>.Infrastructure` (registration only), `BuildingBlocks.Api`, other modules' `Contracts` only (for example access policy names) |
 | `<Module>.Contracts` | What other modules may use: read and command interfaces, their DTOs, integration events, shared constants | no project of this or another module; only base packages such as `Ardalis.Result` |
 | Host | `Program.cs`, configuration, middleware, the list of modules | each module's `Api` (and `Infrastructure` for job or seed hosts) |
 
 - Scaffold projects with the .NET CLI (`dotnet new classlib`, `dotnet sln add`, `dotnet add reference`) and match the existing modules' folder layout and project settings instead of writing project files by hand.
 - Create `<Module>.Contracts` together with the module, even while it is empty: it is the only place another module may look at.
-- Register the module in the host with one call, `Add<Module>Module(configuration)`, defined in `<Module>.Api/DependencyInjection/`. It registers the module's Application, Infrastructure, Contracts implementations, and controllers. Controllers and request models never use Infrastructure types.
-- **Ports and DI, one chain.** Application declares what it needs as interfaces in `Application/Abstractions/` (`IOrderRepository`, `IUnitOfWork`, `IOneCClient`; for time use .NET `TimeProvider`). Infrastructure implements them (`Persistence/` for the `DbContext` and repositories, `Integrations/<System>/` for a client and its options) and binds them in one public entry point, `Add<Module>Infrastructure(configuration)`, in `Infrastructure/DependencyInjection/`. `Add<Module>Module(configuration)` in the Api calls it plus the Application registration (validators) and controllers. The host's `Program.cs` calls only `Add<Module>Module(...)` for each module. Smaller public `Add*` helpers exist only when a job host or a test needs a subset, and say so in their summary.
+- Register the module in the host with one call, `Add<Module>Module(configuration)`, defined in `<Module>.Api/DependencyInjection/`. It registers the module's Application, Infrastructure, and Contracts implementations; `Map<Module>Endpoints()` maps its endpoint groups. Endpoints and request models never use Infrastructure types.
+- **Ports and DI, one chain.** Application declares what it needs as interfaces in `Application/Abstractions/` (`IOrderRepository`, `IUnitOfWork`, `IOneCClient`; for time use .NET `TimeProvider`). Infrastructure implements them (`Persistence/` for the `DbContext` and repositories, `Integrations/<System>/` for a client and its options) and binds them in one public entry point, `Add<Module>Infrastructure(configuration)`, in `Infrastructure/DependencyInjection/`. `Add<Module>Module(configuration)` in the Api calls it plus the Application registration (validators). The host's `Program.cs` calls only `Add<Module>Module(...)` for each module. Smaller public `Add*` helpers exist only when a job host or a test needs a subset, and say so in their summary.
 - **Lifetimes.** A Singleton (and any `BackgroundService` or `IHostedService`, which are Singletons) never takes a Scoped service such as a `DbContext`, a repository, or the current user in its constructor; it takes `IServiceScopeFactory` and creates a scope per operation (`using var scope = scopeFactory.CreateScope();`). Every host turns on `ValidateScopes` and `ValidateOnBuild` in every environment (`builder.Host.UseDefaultServiceProvider(...)` or `ConfigureContainer(new DefaultServiceProviderFactory(...))`), and a test builds each host's container in Production mode, so a captive dependency or a missing registration fails at startup or in CI, not in production.
 - Add the module to the architecture tests so its project references, its isolation, and its folder rules are checked.
 
@@ -80,7 +99,7 @@ Folders follow the business, not the kind of class. The same applies to the whol
   Contracts/<Feature>/             implementations of the module's own Contracts interfaces
   DependencyInjection/             registration of the layer
 <Module>.Api/
-  Features/<Feature>/              controllers of the feature (admin, public, mobile) and their request models
+  Endpoints/<Feature>/             <Feature>Endpoints.cs (one MapGroup per audience), one <UseCase>Endpoint.cs per use case, its <UseCase>Request
   DependencyInjection/             Add<Module>Module()
 <Module>.Contracts/
   <Feature>/                       interfaces, DTOs, integration events, constants other modules use
@@ -89,7 +108,7 @@ Folders follow the business, not the kind of class. The same applies to the whol
 - **Domain.** One folder per aggregate holds its root, child entities, value objects, enums, errors, and events. A value object used by several aggregates gets a folder named after the concept (`Money/`, `Slugs/`).
 - **Application, one use case = one folder.** Every use case is one folder under `Commands/` (changes state) or `Queries/` (reads only), named after the action (`PlaceOrder`, `GetOrderDetails`). The folder holds, flat and together, everything of that use case: the request (`<UseCase>Command` or `<UseCase>Query`), its handler (`<UseCase>Handler`), its validator (`<UseCase>Validator`), and its result (`<UseCase>Response` for a command, `<Name>Dto` for a query). One request per folder: a second query or command is a second folder. No subfolders inside a use case (`DTOs/`, `Validators/`, `Models/`); a type that two use cases share goes to the feature's `Shared/`. Ports that Application needs from the outside world (repositories, unit of work, clock, read `DbContext` interfaces, external services) live in `Abstractions/` and are implemented in Infrastructure. A command handler never returns a read model bigger than the new identifier or status; a query handler never changes state. Admin, public, and mobile variants of the same feature live in the same feature folder as separate use cases (`GetRedirects`, `GetPublicRedirects`), not in separate `Public…` feature folders. A use case's request and response types live in its folder; the name `Contracts` is reserved for the module's Contracts project.
 - **Infrastructure.** Persistence is grouped by aggregate, the same names as in Domain; integrations by external system.
-- **Api.** Controllers are grouped by the same features as Application. One controller serves one audience (admin, public, mobile) of one feature.
+- **Api (Minimal API).** Endpoints are grouped by the same features as Application, never in one flat `Endpoints/` folder. `Endpoints/<Feature>/<Feature>Endpoints.cs` maps the feature's groups (admin, public, mobile) with their route prefix, authorization policy, and tags; each use case has its own `<UseCase>Endpoint.cs` with its HTTP `Request` type next to it. The endpoint maps the `Request` to the Application command or query; the HTTP request is never bound straight to a command or query, so the API contract and the use case can change separately. Moving from controllers keeps the OpenAPI contract identical (compare the snapshot before and after).
 - A folder with eight or more production files is a signal to look for a sub-concept to split out, not a reason to create type folders.
 
 ## Layer responsibilities and the handler
@@ -111,7 +130,7 @@ A command handler follows five steps:
 
 - **Rich domain.** Entities have private setters and change state only through methods that check their invariants; a rule that involves only one aggregate's own data lives in that aggregate, not in the handler. A rule that needs several aggregates of the same module goes to a domain service in `Domain/<Aggregate>/`, called by the handler.
 - **Queries** read through projections straight to DTOs (`Select`), never load aggregates to map them, and never call `SaveChanges`.
-- **Api** controllers send one Mediator request and map the `Result` to HTTP; they hold no rule, no query, and no domain type.
+- **Api** endpoints map the HTTP request to one Mediator command or query and the result to HTTP through the one error mapper; they hold no rule, no query, no `try`/`catch`, and no domain type.
 - The architecture tests check that request result types and Api code use no Domain types and that Domain entities have no public setters.
 
 ## Test structure
@@ -131,6 +150,7 @@ tests/<Kind>/TestSupport/                                   factories, fakes, bu
 ```
 
 - A test file sits in exactly one module and one layer folder; a namespace follows its path. No loose files at a test project root and no folders such as `Misc/`, `Helpers/`, `Common/`, or `Temp/`.
+- CI runs only the affected tests on a pull request. A change in `src/<Module>/` or `tests/*/<Module>/` runs the unit and integration tests of that module and of every module whose projects reference it (read from the `.csproj` references, not a hand-kept list). Shared building blocks, hosts, build files (`Directory.*.props`, the solution), test support, and CI files run everything; documentation runs no module tests. Architecture tests and `Platform` integration tests always run, and a push to the main branch runs everything as the safety net before deploy. The selection script and its own tests live in `tools/ci/`, and the selection relies on the `tests/<Project>/<Module>/` folder and namespace rule above.
 - Every module has at least: unit tests of its Domain aggregates, unit tests of its command and query handlers and validators, integration tests of its endpoints and persistence, and its place in the architecture tests.
 
 ## Architecture tests
@@ -139,7 +159,7 @@ The rules above are only real when a test fails on a violation. The architecture
 
 - project references: Domain only `BuildingBlocks.Domain`; Application, Infrastructure, and Api reference another module only through its `Contracts`; `Contracts` references no module project;
 - code dependencies (namespaces), the same rules, so a transitive reference cannot bypass them;
-- Api controllers do not use Infrastructure types;
+- Api endpoints do not use Infrastructure types;
 - folders: no type folders (`Entities`, `Enums`, `Errors`, `ValueObjects`, `Configurations`, `Interfaces`, `DTOs`, `Models`, `Common`, `Helpers`, `Utils`), command and query handlers sit under `Features.<Feature>.Commands.<UseCase>` / `.Queries.<UseCase>` with no deeper folder, each use-case namespace holds one request and one handler, ports sit in `Abstractions`;
 - hosts contain no class that implements a module port;
 - test sources sit in a responsibility folder and their namespace follows the path.
@@ -169,11 +189,23 @@ Host.Api/
 - One module's `DbContext` maps only its own tables. Do not add foreign keys, joins, or EF navigation to another module's tables; store the other module's identifier as a value and read its data through that module's `Contracts`.
 - The first migration of a new module creates its schema; check it against an empty database as the [database rules](database-rules.md) require.
 
+## Errors
+
+Business outcomes travel as results; exceptions are only for the unexpected.
+
+- **One error type.** The shared kernel defines `Error(Code, Message, Type)` with `ErrorType` = `Validation`, `NotFound`, `Conflict`, `Forbidden` (and `Unexpected`). Each module's Domain keeps its errors in static `<Aggregate>Errors` classes with stable codes such as `Orders.AlreadyShipped`. Domain and Application never mention HTTP: no status codes, `IResult`/`IActionResult`, `HttpContext`, or `BadHttpRequestException`.
+- **Results, not exceptions, for business rules.** Every business rule in Domain, from "name is required" and "too long" to "only a draft can be published", reports a typed error through a result (`order.Cancel()` returns `Result`, a factory returns `Result<Order>`); the handler returns that error. Throw only for programming errors (`ArgumentNullException` guards, an impossible state) and real failures (database down, missing configuration). Do not throw a business exception and catch it in a controller or pipeline behavior to turn it into a status code.
+- **One mapper.** Exactly one place in the shared Api layer maps `ErrorType` to HTTP: `Validation` 400, `NotFound` 404, `Conflict` 409, `Forbidden` 403, anything else 500. Endpoints call it; they never pick status codes from a result themselves and never wrap handlers in `try`/`catch`. The error body is `ProblemDetails` (validation errors under `errors` by field).
+- **One global exception handler.** The host registers `AddProblemDetails()`, `AddExceptionHandler<GlobalExceptionHandler>()`, and `UseExceptionHandler()`. The handler logs the exception and answers 500 as `ProblemDetails` with the `traceId`; the client never gets the exception text or a stack trace (the developer page is for local development only). A job host logs a failed run and exits non-zero.
+- **Language.** Messages a user can see (validation and business errors) are written in the users' language; codes and logs stay in English.
+
 ## Validation
 
-- Every command and every query that accepts client input has a FluentValidation validator (`<UseCase>Validator`) in the use-case folder. `ValidationBehavior` runs it before the handler and turns failures into `Result.Invalid`.
+- Server validation is mandatory. Frontend validation is only for user experience and is never a reason to skip a server check.
+- Every command and every query that accepts client input has a FluentValidation validator (`<UseCase>Validator`) in the use-case folder. `ValidationBehavior` runs it before the handler and turns failures into a `Validation` error with the field name.
 - Validators check the shape of the input: required fields, lengths, ranges, formats, and paging limits. Business invariants and state checks stay in Domain or the handler; do not query the database from a validator unless the project documents an exception.
-- Do not repeat validator rules in controllers or request models.
+- Validation messages are in the users' language: set FluentValidation's `LanguageManager` culture for the built-in messages, and write custom `WithMessage` texts in that language.
+- Do not repeat validator rules in endpoints or request models.
 
 ## BreviERP specifics
 
@@ -190,8 +222,13 @@ Existing code that does not follow these rules yet. Do not copy it into new code
 
 | Where | Deviation | Plan |
 | --- | --- | --- |
+| Repository root | `deploy/` (Cloudflare Worker) and `deployment/` (catalogue import scripts) are folders the root layout does not list | Jobs audit stage: move under `tools/` or `src/Jobs` with the runbooks |
 | Infrastructure entry points (ports and DI chain) | Not one `Add<Module>Infrastructure(configuration)` everywhere: `Catalog` (`AddCatalogDbContextServices` + `AddCatalogInfrastructureServices`), `Reference` (`AddReferenceDbContextServices`, `AddReferenceInfrastructureServices`, `AddReferenceServices`), `Identity` (`AddIdentityInfrastructure`, `AddIdentityInfrastructureServices`, `AddIdentityDbContextServices`, `AddIdentityAuthentication`), `Crm` (`AddCrmDbContextServices` + `AddCrmKeepinCrmSync`); `Host.Seed` calls these helpers directly; Mediator, access policies and the CSRF middleware (`Host.Api/Security`, which still reads `Identity.Infrastructure` options) stay in `Host.Api` | Stage 6 |
 | Side effects (transactional outbox) | External calls (Telegram, Gmail, CDN, site revalidation, sheet write-backs) run directly in handlers, some after a second `SaveChanges` | Outbox stage |
+| Errors (audit 2026-11-14) | No shared `Error`/`ErrorType`: Catalog and Reference throw `DomainException` (11 error classes, always 400), the other modules return Ukrainian strings through `Result.Conflict/Invalid/NotFound`; about 270 business-rule `throw`s of `InvalidOperationException`/`ArgumentException` in Domain become 500 «Виникла невідома помилка»; handlers catch 14 `DomainException`, 6 own business exceptions and 19 `Exception`; 4 Catalog sewing-article handlers return the exception text (English) to the client; `ExceptionBehavior` in the Mediator pipeline catches every exception (no `traceId`); no `GlobalExceptionHandler`; `ToActionResult` answers with lists, not `ProblemDetails`, and 20 Api files pick status codes themselves | Errors PR (priority): `Error`/`ErrorType`, `GlobalExceptionHandler`, pipeline catch-all removed, exception texts replaced; Domain results per module with stage 4; `ProblemDetails` bodies and the one mapper with the Minimal API stage |
+| Validation (audit 2026-11-14) | 39 of 369 commands and queries with input have no validator (Catalog 22: sewing and PPE pricing, articles, compositions); 1056 of 1919 rule calls have no own message, so FluentValidation uses its built-in text in the request culture (Russian for a Russian browser) with English field names | Validation PR (priority): Ukrainian `LanguageManager` culture, Ukrainian field names and messages, the missing validators, a test that guards both |
+| All Api projects | MVC controllers instead of Minimal API `Endpoints/<Feature>/` | Last stage, after the full audit and its fixes (OpenAPI snapshot unchanged) |
+| CI test selection | Catalog and Reference tests are not all under `tests/<Project>/<Module>/`, so a change there (or in a module they reference) runs every test | Stage 9 |
 | `Catalog`, `Reference`, `Identity`, `Accounting` Domain | Type folders `Entities/`, `Enums/`, `Errors/`, `ValueObjects/`, `Constants/` | Stage 4 |
 | All Application projects | No `Commands/` and `Queries/` folders; `DTOs/`, `Validators/`, `Specifications/` type folders; separate `Public…` feature folders; `Contracts/` folders with DTOs and ports | Stage 5 |
 | All Application projects, one use case = one folder | 216 handlers named `…QueryHandler`/`…CommandHandler` instead of `<UseCase>Handler`; 124 of 366 validators in `Validators/` subfolders, 50 `DTOs/` and 43 `Specifications/` subfolders inside use cases; 16 handlers share a folder with another handler and 15 files hold more than one request; ports in 19 `Contracts/` folders (and `Identity.Application/Contracrts`) instead of `Abstractions/` | Stage 5 |
