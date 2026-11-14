@@ -4,6 +4,7 @@
     <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Ai.Application\Ai.Application\Ai.Application.csproj" />
     <ProjectReference Include="..\..\Ai.Domain\Ai.Domain\Ai.Domain.csproj" />
+    <ProjectReference Include="..\..\Ai.Contracts\Ai.Contracts\Ai.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

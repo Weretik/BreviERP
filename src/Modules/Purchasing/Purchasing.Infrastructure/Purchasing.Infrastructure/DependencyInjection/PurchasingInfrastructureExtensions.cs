@@ -1,3 +1,8 @@
+using Ai.Contracts.Prompts;
+using Purchasing.Application.Documents.Recognize;
+using Purchasing.Infrastructure.Adapters.Accounting;
+using Purchasing.Infrastructure.Adapters.Ai;
+using Purchasing.Infrastructure.Adapters.Reference;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +33,13 @@ public static class PurchasingInfrastructureExtensions
         services.AddHttpClient<IPurchaseFileDownloader, DropboxFileDownloader>(client => client.Timeout = TimeSpan.FromSeconds(60));
         services.TryAddSingleton(TimeProvider.System);
         services.AddPurchasingApplication();
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IPurchasingSupplierReader, PurchasingSupplierReader>();
+        services.AddScoped<IPurchasingPaymentReader, PurchasingPaymentReader>();
+        services.AddScoped<IPurchaseDocumentRecognizer, PurchaseDocumentRecognizer>();
+        services.AddSingleton<IAiBasePrompt, PurchaseInvoiceBasePrompt>();
+        services.AddScoped<PurchaseFileRecognition>();
         return services;
     }
 }

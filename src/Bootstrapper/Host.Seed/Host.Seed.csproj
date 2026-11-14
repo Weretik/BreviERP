@@ -51,10 +51,6 @@
       </Content>
     </ItemGroup>
 
-    <ItemGroup>
-        <!-- The daily «leads» step needs the managers of Host.Api to take leads named in the sheet (LEAD-001). -->
-        <Compile Include="..\Host.Api\Crm\TaskStaffReader.cs" Link="Crm\TaskStaffReader.cs" />
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />

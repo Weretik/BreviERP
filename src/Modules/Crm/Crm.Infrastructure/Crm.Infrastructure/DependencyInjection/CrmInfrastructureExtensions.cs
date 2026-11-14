@@ -1,3 +1,13 @@
+using Crm.Application.Embroidery.Mockup;
+using Crm.Application.Embroidery.StitchRate;
+using Crm.Application.Quotes.FabricFacts;
+using Crm.Application.Quotes.Photos;
+using Crm.Application.Quotes.Staff;
+using Crm.Application.Tasks.Staff;
+using Crm.Infrastructure.Adapters.Identity;
+using Crm.Infrastructure.Adapters.Media;
+using Crm.Infrastructure.Adapters.Reference;
+using Crm.Infrastructure.Adapters.Reminders;
 using Crm.Application.SiteRequests.Abstractions;
 using BuildingBlocks.Infrastructure.Migrations;
 using Crm.Application.Customers.Persistence;
@@ -52,6 +62,16 @@ public static class CrmInfrastructureExtensions
         services.AddQuoteGmail(configuration);
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IDatabaseMigrator, DbMigrator<CrmDbContext>>();
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();
+        services.AddScoped<ITaskStaffReader, TaskStaffReader>();
+        services.AddScoped<IEmbroideryStitchRateReader, EmbroideryStitchRateReader>();
+        services.AddScoped<IQuoteFabricFactsReader, QuoteFabricFactsReader>();
+        services.AddScoped<IEmbroideryMediaReader, EmbroideryMediaReader>();
+        services.AddScoped<IQuotePhotoStorage, QuotePhotoStorage>();
+        services.AddScoped<ISiteRequestFileStorage, SiteRequestFileStorage>();
+        services.AddScoped<ISiteRequestNotifier, SiteRequestNotifier>();
         return services;
     }
 

@@ -24,7 +24,7 @@ flowchart LR
   Controllers --> UseCases[Reports and Dashboard use cases]
   UseCases --> Sheets[PayrollSheets]
   UseCases --> Db[(production.Work / Orders / FabricMovements / FabricStocks / PayrollMonths)]
-  UseCases --> Fabrics[IProductionFabricReader] -.host.-> Reference[«Тканини»]
+  UseCases --> Fabrics[IProductionFabricReader] -.Reference.Contracts.-> Reference[«Тканини»]
 ```
 
 ## Tests

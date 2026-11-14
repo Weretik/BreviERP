@@ -1,3 +1,21 @@
+using Reference.Contracts.Fabrics;
+using Reference.Infrastructure.Contracts.Fabrics;
+using Reference.Contracts.GarmentAccessories;
+using Reference.Infrastructure.Contracts.GarmentAccessories;
+using Reference.Contracts.GarmentPartOperations;
+using Reference.Infrastructure.Contracts.GarmentPartOperations;
+using Reference.Contracts.Suppliers;
+using Reference.Infrastructure.Contracts.Suppliers;
+using Reference.Contracts.FabricColors;
+using Reference.Infrastructure.Contracts.FabricColors;
+using Reference.Contracts.PricingParameters;
+using Reference.Infrastructure.Contracts.PricingParameters;
+using Reference.Contracts.PpeMarkupRules;
+using Reference.Infrastructure.Contracts.PpeMarkupRules;
+using Reference.Contracts.ProductSections;
+using Reference.Infrastructure.Contracts.ProductSections;
+using Reference.Contracts.Pricing;
+using Reference.Infrastructure.Contracts.Pricing;
 using BuildingBlocks.Application.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Migrations;
@@ -35,6 +53,16 @@ public static class ReferenceDbContextExtensions
         services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingVersionReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingVersionReader>();
         services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingUsageReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingUsageReader>();
         services.AddScoped<Reference.Application.Contracts.Pricing.IOtherCostPricingVersionWriter, Reference.Infrastructure.Pricing.OtherCosts.Writing.OtherCostPricingVersionWriter>();
+        // Contracts other modules use (ADR-0006).
+        services.AddScoped<IFabricDirectory, FabricDirectory>();
+        services.AddScoped<IGarmentAccessoryDirectory, GarmentAccessoryDirectory>();
+        services.AddScoped<IGarmentPartOperationDirectory, GarmentPartOperationDirectory>();
+        services.AddScoped<ISupplierDirectory, SupplierDirectory>();
+        services.AddScoped<IFabricColorDirectory, FabricColorDirectory>();
+        services.AddScoped<IPricingParameterDirectory, PricingParameterDirectory>();
+        services.AddScoped<IPpeMarkupRuleDirectory, PpeMarkupRuleDirectory>();
+        services.AddScoped<IProductSectionDirectory, ProductSectionDirectory>();
+        services.AddScoped<IPricingInputVersionReader, PricingInputVersionReader>();
         services.AddScoped<ISeeder, SupplierSeeder>();
         services.AddScoped<ISeeder, FabricSeeder>();
         services.AddScoped<ISeeder, GarmentAccessorySeeder>();

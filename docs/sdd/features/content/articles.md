@@ -30,8 +30,9 @@ src/Modules/Content/
   Content.Api/Content.Api/
     Articles/ContentArticlesController.cs   # /api/content/articles, policy access:content-articles
     PublicArticles/PublicArticlesController.cs # /api/public/articles, anonymous, read-only
-src/Bootstrapper/Host.Api/Content/ContentMediaReader.cs   # IContentMediaReader over the Media module
-src/Bootstrapper/Host.Api/Content/ContentPhotoImporter.cs # IContentPhotoImporter over the Catalog photo downloader
+src/Modules/Content/Content.Infrastructure/Content.Infrastructure/Adapters/Media/
+  ContentMediaReader.cs   # IContentMediaReader over Media.Contracts IMediaFileReader
+  ContentPhotoImporter.cs # IContentPhotoImporter over Media.Contracts IMediaUrlImporter
 ```
 
 ## Tests

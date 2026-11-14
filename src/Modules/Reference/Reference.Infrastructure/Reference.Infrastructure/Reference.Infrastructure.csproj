@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <InternalsVisibleTo Include="UnitTests" />
+      <InternalsVisibleTo Include="IntegrationTests" />
     </ItemGroup>
 
     <ItemGroup>
@@ -36,6 +37,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Reference.Application\Reference.Application\Reference.Application.csproj" />
+      <ProjectReference Include="..\..\Reference.Contracts\Reference.Contracts\Reference.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

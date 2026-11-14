@@ -13,7 +13,7 @@ public sealed class CrmDependencyTests
         {
             var project = Path.Combine(root!.FullName, "src", "Modules", "Crm", $"Crm.{layer}", $"Crm.{layer}", $"Crm.{layer}.csproj");
             var references = XDocument.Load(project).Descendants("ProjectReference").Select(x => x.Attribute("Include")!.Value).ToArray();
-            Assert.That(references.Any(x => x.Contains("Catalog") || x.Contains("Reference") || x.Contains("Identity")), Is.False, layer);
+            Assert.That(references.Where(x => !x.EndsWith(".Contracts.csproj")).Any(x => x.Contains("Catalog") || x.Contains("Reference") || x.Contains("Identity")), Is.False, layer);
             if (layer == "Domain") Assert.That(references.All(x => x.Contains("BuildingBlocks.Domain")), Is.True);
             if (layer == "Application") Assert.That(references.Any(x => x.Contains("Infrastructure") || x.Contains("Crm.Api")), Is.False);
         }

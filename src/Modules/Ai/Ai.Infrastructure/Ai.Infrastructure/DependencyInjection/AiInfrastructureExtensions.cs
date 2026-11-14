@@ -1,3 +1,5 @@
+using Ai.Contracts.Extraction;
+using Ai.Infrastructure.Contracts.Extraction;
 using Ai.Application.Abstractions;
 using Ai.Application.DependencyInjection;
 using Ai.Infrastructure.OpenAi;
@@ -33,6 +35,9 @@ public static class AiInfrastructureExtensions
             })
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         services.TryAddSingleton(TimeProvider.System);
+
+        // Contracts other modules use (ADR-0006).
+        services.AddScoped<IStructuredDataExtractor, StructuredDataExtractor>();
         services.AddAiApplication();
         return services;
     }

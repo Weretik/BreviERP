@@ -21,7 +21,7 @@ src/Modules/Reference/
 src/Modules/Production/Production.Application/Production.Application/
 ├── Abstractions/IProductionColorReader.cs
 └── Colors/                                          # ProductionColors check, GetProductionColorsQuery
-src/Bootstrapper/Host.Api/Production/ProductionColorReader.cs   # Reference GetFabricColorsQuery, active only
+src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Reference/ProductionReferenceReaders.cs   # ProductionColorReader: Reference.Contracts IFabricColorDirectory, active only
 ```
 
 ## Tests

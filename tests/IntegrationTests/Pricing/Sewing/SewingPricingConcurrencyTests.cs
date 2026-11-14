@@ -8,7 +8,8 @@ using Catalog.Infrastructure.Pricing.History.Calculations;
 using Catalog.Infrastructure.Pricing.History.Publications;
 using Catalog.Infrastructure.Pricing.History.Transactions;
 using Catalog.Infrastructure.Pricing.Reading;
-using Host.Api.DependencyInjection.ServiceRegistration;
+using Catalog.Infrastructure.Adapters.Reference;
+using Reference.Infrastructure.Contracts.Pricing;
 using Microsoft.EntityFrameworkCore;
 using Reference.Infrastructure.Pricing.Reading;
 using SewingPricing.Jobs.Bootstrap;
@@ -39,7 +40,7 @@ public sealed class SewingPricingConcurrencyTests : SewingPricingDatabaseFixture
         var publications = new SewingPublicationStore(catalog);
         var inputs = new SewingPricingInputReader(catalog);
         var settings = new SewingPricingSettingsReader(catalog);
-        var bridge = new CatalogPricingReferenceReader(new ReferencePricingVersionReader(reference), catalog, reference);
+        var bridge = new PricingReferenceVersionReader(new PricingInputVersionReader(new ReferencePricingVersionReader(reference), reference), catalog);
         var saved = await new SaveSewingCalculationCommandHandler(transactions, calculations, inputs, settings, bridge)
             .Handle(new(product.Id.Value, article.Id.Value, Guid.NewGuid(), "manager"), CancellationToken.None);
         Assert.That(saved.Value.Snapshot.Calculation.IsCalculated, Is.True);

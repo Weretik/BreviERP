@@ -13,7 +13,7 @@ src/Modules/Crm/
     ManagerTaskLimits.cs
   Crm.Application/Crm.Application/Tasks/
     Access/                        TaskActor (Admin sees all), Ukrainian messages
-    Staff/ITaskStaffReader.cs      assignees (Manager role) and names, implemented in Host.Api
+    Staff/ITaskStaffReader.cs      assignees (Manager role) and names, implemented in Crm.Infrastructure/Adapters/Identity
     Persistence/                   ITaskStore port, load/visible/save helpers
     Building/TaskDraftResolver.cs  side panel → domain draft (assignee, client)
     Contracts/, Mapping/, Validation/
@@ -25,7 +25,7 @@ src/Modules/Crm/
   Crm.Api/Crm.Api/Tasks/
     ManagerTasksController.cs      /api/crm/tasks
     Requests/                      status, urgent and step requests
-src/Bootstrapper/Host.Api/Crm/TaskStaffReader.cs   Identity adapter
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Identity/TaskStaffReader.cs   Identity.Contracts adapter
 ```
 
 [API contract](../../contracts/crm/tasks.openapi.yaml), [database ownership](../../architecture/data-model/crm.md).

@@ -1,3 +1,4 @@
+using Ai.Contracts.Prompts;
 using Ai.Application.Abstractions;
 using Ai.Application.Contracts;
 using Ai.Domain.Settings;

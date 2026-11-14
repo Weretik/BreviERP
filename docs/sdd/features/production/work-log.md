@@ -33,7 +33,7 @@ flowchart LR
   Controllers --> UseCases[Work and Forecast use cases]
   UseCases --> Db[(production.Work / ForecastQueues)]
   UseCases --> Orders[(production.Orders / Items / Employees)]
-  UseCases --> Params[IPayrollParameterReader] -.host.-> Reference[«Параметри ціноутворення»]
+  UseCases --> Params[IPayrollParameterReader] -.Reference.Contracts.-> Reference[«Параметри ціноутворення»]
 ```
 
 ## Tests

@@ -1,3 +1,8 @@
+using Catalog.Application.Contracts.Media;
+using Catalog.Application.Contracts.Pricing;
+using Catalog.Application.Contracts.Reference;
+using Catalog.Infrastructure.Adapters.Media;
+using Catalog.Infrastructure.Adapters.Reference;
 using BuildingBlocks.Application.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Migrations;
@@ -61,6 +66,15 @@ public static class CatalogDbContextExtensions
         services.AddScoped<Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices.IPpeSupplierOnlinePriceReader, Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.PpeSupplierOnlinePriceReader>();
         services.AddScoped<Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Running.PpePriceImportRunner>();
         services.AddScoped<Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh.PpeScheduledPriceRefresh>();
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IFabricNameReader, FabricNameReader>();
+        services.AddScoped<IProductSectionReader, ProductSectionReader>();
+        services.AddScoped<IProductReferenceCodeReader, ProductReferenceCodeReader>();
+        services.AddScoped<IProductReferenceReader, ProductReferenceReader>();
+        services.AddScoped<IPricingReferenceVersionReader, PricingReferenceVersionReader>();
+        services.AddScoped<IProductMediaReader, ProductMediaReader>();
+        services.AddScoped<IProductPhotoSource, ProductPhotoSource>();
         return services;
     }
 }

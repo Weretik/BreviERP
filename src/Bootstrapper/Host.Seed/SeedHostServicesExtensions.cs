@@ -18,7 +18,6 @@ using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using SewingPricing.Jobs.Activation;
 using Crm.Application.Tasks.Staff;
-using Host.Api.Crm;
 
 namespace Host.Seed;
 
@@ -38,7 +37,6 @@ public static class SeedHostServicesExtensions
         services.AddCatalogDbContextServices(configuration);
         services.AddCrmDbContextServices(configuration);
         services.AddCrmKeepinCrmSync(configuration);
-        services.AddScoped<ITaskStaffReader, TaskStaffReader>();
         services.AddRemindersInfrastructure(configuration);
         services.AddRemindersSeeders();
         services.AddMediaInfrastructure(configuration);

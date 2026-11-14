@@ -31,8 +31,8 @@ src/Modules/Crm/
     Embroidery/QuoteEmbroideryItems.cs    saved calculation → КП item, kept on save
   Crm.Infrastructure/.../Configurations/Embroidery/  settings row, saved calculations
   Crm.Api/Crm.Api/Embroidery/EmbroideryController.cs  /api/crm/embroidery
-src/Bootstrapper/Host.Api/Crm/EmbroideryStitchRateReader.cs  Reference adapter
-src/Bootstrapper/Host.Api/Crm/EmbroideryMediaReader.cs        Media adapter for «Макет»
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Reference/EmbroideryStitchRateReader.cs  Reference.Contracts adapter
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Media/EmbroideryMediaReader.cs        Media.Contracts adapter for «Макет»
 src/Bootstrapper/Host.Api/Production/ProductionEmbroideryReader.cs  saved calculations for the workshop
 ```
 

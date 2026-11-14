@@ -13,7 +13,7 @@ public sealed class ContentDependencyTests
         {
             var project = Path.Combine(root.FullName, "src", "Modules", "Content", $"Content.{layer}", $"Content.{layer}", $"Content.{layer}.csproj");
             var references = XDocument.Load(project).Descendants("ProjectReference").Select(x => x.Attribute("Include")!.Value).ToArray();
-            Assert.That(references.Any(x => OtherModules.Any(x.Contains)), Is.False, layer);
+            Assert.That(references.Where(x => !x.EndsWith(".Contracts.csproj")).Any(x => OtherModules.Any(x.Contains)), Is.False, layer);
             if (layer == "Domain") Assert.That(references.All(x => x.Contains("BuildingBlocks.Domain")), Is.True);
             if (layer == "Application") Assert.That(references.Any(x => x.Contains("Infrastructure") || x.Contains("Content.Api")), Is.False);
             if (layer == "Api") Assert.That(references.Any(x => x.Contains("Content.Infrastructure")), Is.False);

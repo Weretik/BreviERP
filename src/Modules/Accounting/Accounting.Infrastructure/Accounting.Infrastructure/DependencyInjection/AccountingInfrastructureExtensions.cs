@@ -1,3 +1,6 @@
+using Accounting.Infrastructure.Adapters.Reference;
+using Accounting.Contracts.Payments;
+using Accounting.Infrastructure.Contracts.Payments;
 using Accounting.Application.Abstractions;
 using Accounting.Infrastructure.Files;
 using Accounting.Infrastructure.Persistence;
@@ -20,6 +23,9 @@ public static class AccountingInfrastructureExtensions
         services.AddScoped<IAccountingDbContext>(sp => sp.GetRequiredService<AccountingDbContext>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<AccountingDbContext>>();
         services.TryAddSingleton(TimeProvider.System);
+
+        // Contracts other modules use (ADR-0006).
+        services.AddScoped<IFinancePaymentReader, FinancePaymentReader>();
         services.AddSingleton<IBankStatementFileReader, BankStatementFileReader>();
 
         var files = configuration.GetSection(AccountingFilesOptions.Section).Get<AccountingFilesOptions>() ?? new();
@@ -27,6 +33,9 @@ public static class AccountingInfrastructureExtensions
             !string.IsNullOrWhiteSpace(files.Bucket) ? new GoogleCloudAccountingFileStorage(files.Bucket.Trim())
             : !string.IsNullOrWhiteSpace(files.LocalPath) ? new LocalAccountingFileStorage(files.LocalPath.Trim())
             : new UnconfiguredAccountingFileStorage());
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IAccountingSupplierReader, AccountingSupplierReader>();
         return services;
     }
 }

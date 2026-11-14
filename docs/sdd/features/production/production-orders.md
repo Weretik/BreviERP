@@ -40,11 +40,12 @@ src/Modules/Production/
 src/Bootstrapper/Host.Api/Production/
   ProductionQuoteReader.cs       # Crm GetQuotesQuery / GetQuoteQuery, sewn items and «Вишивка» rows
   ProductionEmbroideryReader.cs  # Crm saved embroidery calculations, without prices
-  ProductionFabricReader.cs      # Reference GetAllFabricQuery
-  ProductionStaffReader.cs       # Identity users by id and email
   ProductionModelReader.cs       # + Catalog GetSewingArticleSummaryQuery for the seamstress labour
-  ProductionFileStorage.cs       # Media IMediaStorage (CDN)
-  ProductionTelegram.cs          # Reminders ITelegramGateway.SendTopicMessageAsync + the bot's groups
+src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/
+  Reference/ProductionReferenceReaders.cs  # ProductionFabricReader over Reference.Contracts IFabricDirectory
+  Identity/ProductionStaffReader.cs        # Identity.Contracts IStaffDirectory, by id and email
+  Media/ProductionFileStorage.cs           # Media.Contracts ICdnStorage
+  Reminders/ProductionTelegram.cs          # Reminders.Contracts ITelegramBot + the bot's groups
 ```
 
 ## Structure diagram
@@ -56,10 +57,10 @@ flowchart LR
   UseCases --> Db[(production.Orders / Items / OrderChanges)]
   UseCases --> Quotes[IProductionQuoteReader] -.host.-> Crm[Crm quotes]
   UseCases --> Models[IProductionModelReader] -.host.-> Catalog[Catalog sewing card]
-  UseCases --> Fabrics[IProductionFabricReader] -.host.-> Reference[Reference fabrics]
-  UseCases --> Staff[IProductionStaffReader] -.host.-> Identity[Identity users]
-  UseCases --> Files[IProductionFileStorage] -.host.-> Media[Media CDN storage]
-  UseCases --> Bot[IProductionTelegram] -.host.-> Reminders[Reminders bot and groups]
+  UseCases --> Fabrics[IProductionFabricReader] -.Reference.Contracts.-> Reference[Reference fabrics]
+  UseCases --> Staff[IProductionStaffReader] -.Identity.Contracts.-> Identity[Identity users]
+  UseCases --> Files[IProductionFileStorage] -.Media.Contracts.-> Media[Media CDN storage]
+  UseCases --> Bot[IProductionTelegram] -.Reminders.Contracts.-> Reminders[Reminders bot and groups]
   UseCases --> Embroidery[IProductionEmbroideryReader] -.host.-> CrmEmb[Crm «Ціна вишивки»]
 ```
 

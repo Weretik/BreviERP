@@ -15,7 +15,9 @@ src/Modules/Crm/
     Submit/ GetList/ Change/
   Crm.Infrastructure/Crm.Infrastructure/Persistence/Configurations/SiteRequests/
   Crm.Api/Crm.Api/SiteRequests/              SiteRequestsController, PublicSiteRequestsController
-src/Bootstrapper/Host.Api/Crm/               SiteRequestFileStorage (Media CDN), SiteRequestNotifier (Reminders bot)
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/
+  Media/SiteRequestFileStorage.cs           Media.Contracts upload
+  Reminders/SiteRequestNotifier.cs          Reminders.Contracts ITelegramBot
 src/Modules/Reminders/.../Chats/ReminderChat.cs   ReceivesSiteRequests
 ```
 
