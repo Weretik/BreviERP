@@ -1,5 +1,6 @@
 using System.Globalization;
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
 
 namespace Catalog.Infrastructure.Integrations.PpeSupplierSites.Pages;
 

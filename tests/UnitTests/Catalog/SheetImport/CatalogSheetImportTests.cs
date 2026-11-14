@@ -2,6 +2,9 @@ using Catalog.Domain.Products;
 using static UnitTests.Catalog.SheetImport.CatalogSheetImportFixtures;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Drafts;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Plan;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Report;
 
 namespace UnitTests.Catalog.SheetImport;
 
@@ -58,7 +61,7 @@ public sealed class CatalogSheetImportTests
         var sewing = Stored(first.Writes[0], 300);
         var ppe = Stored(first.Writes[1], 120);
 
-        var plan = Plan(context: Context([sewing, ppe], new Dictionary<int, global::Catalog.Application.Abstractions.Pricing.PpeOfferVersion>
+        var plan = Plan(context: Context([sewing, ppe], new Dictionary<int, global::Catalog.Application.Abstractions.Pricing.Ppe.Versions.PpeOfferVersion>
         {
             [120] = Offer(120, 518.64m),
         }));
@@ -79,7 +82,7 @@ public sealed class CatalogSheetImportTests
         var ppe = Stored(first.Writes[1], 120);
         var current = Offer(120, 500m);
         var context = Context([Stored(first.Writes[0], 300), ppe],
-            new Dictionary<int, global::Catalog.Application.Abstractions.Pricing.PpeOfferVersion> { [120] = current });
+            new Dictionary<int, global::Catalog.Application.Abstractions.Pricing.Ppe.Versions.PpeOfferVersion> { [120] = current });
 
         var changedPrice = Plan(context: context);
         var noPrice = Plan(Command(ppe: [Ppe(price: null)]), context);

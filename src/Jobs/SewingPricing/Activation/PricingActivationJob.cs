@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Application.Abstractions.Pricing.Ppe;
 
 namespace SewingPricing.Jobs.Activation;
 

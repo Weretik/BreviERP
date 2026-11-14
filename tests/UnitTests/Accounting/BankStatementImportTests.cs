@@ -19,6 +19,8 @@ using Accounting.Application.Features.Statements.Queries.GetBankStatement;
 using Accounting.Application.Features.Statements.Shared;
 using Accounting.Infrastructure.Integrations.BankStatementFiles;
 using Accounting.Domain.Statements.Enums;
+using Accounting.Application.Features.Statements.Queries.GetBankStatement.Results;
+using Accounting.Application.Features.Statements.Shared.Responses;
 
 namespace UnitTests.Accounting;
 

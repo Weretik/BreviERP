@@ -5,6 +5,7 @@ using Catalog.Application.Features.Product.Queries.GetProductOverviewItem;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Queries.GetProductPhotos;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewPage.Results;
 
 namespace Catalog.Infrastructure.Contracts.Products;
 

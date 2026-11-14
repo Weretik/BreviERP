@@ -1,5 +1,6 @@
 using Content.Domain.Articles;
 using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
+using Content.Application.Features.Articles.Commands.ImportOldSiteArticles.Results;
 
 namespace Content.Api.Endpoints.Articles.ImportOldSiteArticles;
 

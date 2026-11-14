@@ -3,6 +3,7 @@ using Crm.Domain.Customers.Identifiers;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 using Crm.Application.Features.Customers.Queries.GetCustomersByKeepinIds;
 using Crm.Infrastructure.Persistence.Repositories.Customers;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 
 namespace IntegrationTests.Crm;
 

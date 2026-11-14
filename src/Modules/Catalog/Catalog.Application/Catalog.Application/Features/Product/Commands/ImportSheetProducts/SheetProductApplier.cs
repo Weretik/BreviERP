@@ -3,6 +3,7 @@ using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.Sewing.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Drafts;
 
 namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 

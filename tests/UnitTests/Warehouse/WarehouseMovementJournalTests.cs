@@ -3,6 +3,7 @@ using static UnitTests.Warehouse.WarehouseStockHandlerTests;
 using Warehouse.Application.Features.Stock.Commands.IssueFabric;
 using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
 
 namespace UnitTests.Warehouse;
 

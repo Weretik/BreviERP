@@ -1,4 +1,5 @@
 using Reminders.Application.Abstractions;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Infrastructure.Integrations.Telegram;
 

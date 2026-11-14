@@ -1,5 +1,8 @@
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 namespace Catalog.Application.Features.Pricing.Commands.SyncPricingSettings;
 

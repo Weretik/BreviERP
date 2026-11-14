@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Reminders.Application.Abstractions;
 using Reminders.Contracts.Telegram;
 using Reminders.Domain.Chats;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Infrastructure.Contracts.Telegram;
 

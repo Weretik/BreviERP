@@ -3,6 +3,9 @@ using Production.Application.Abstractions;
 using Production.Domain.Work;
 using Production.Application.Features.Orders.Shared.Validation;
 using Production.Application.Features.Payroll.Shared;
+using Production.Application.Abstractions.Materials;
+using Production.Application.Features.Payroll.Shared.Employee;
+using Production.Application.Features.Reports.Shared.Rows;
 
 namespace Production.Application.Features.Reports.Shared;
 

@@ -1,6 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
+using Catalog.Application.Abstractions.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Publications;
 
 namespace SewingPricing.Jobs.Activation;
 

@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using Reference.Domain.Suppliers;
 using Reference.Application.Abstractions;
+using Reference.Application.Abstractions.KeepinCrm;
 
 namespace Reference.Infrastructure.Integrations.KeepinCrm;
 

@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Shared.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Inputs;
 namespace Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
 
 public sealed class ReplaceSewingCompositionValidator : AbstractValidator<ReplaceSewingCompositionCommand>

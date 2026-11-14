@@ -14,6 +14,8 @@ using Ardalis.Result;
 using static UnitTests.Accounting.FinanceMovementFixture;
 using Accounting.Application.Features.Import.Commands.ImportLegacyFinance;
 using Accounting.Application.Features.Import.Shared;
+using Accounting.Application.Features.Import.Shared.Reading;
+using Accounting.Application.Features.Import.Shared.Report;
 
 namespace UnitTests.Accounting;
 

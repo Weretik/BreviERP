@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Products;
 
 namespace Catalog.Application.Features.Product.Shared.Overview;
 

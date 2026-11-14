@@ -1,5 +1,6 @@
 using Google.Apis.Auth.OAuth2;
 using Purchasing.Application.Abstractions;
+using Purchasing.Application.Abstractions.Sources;
 
 namespace Purchasing.Infrastructure.Integrations.GoogleSheets;
 

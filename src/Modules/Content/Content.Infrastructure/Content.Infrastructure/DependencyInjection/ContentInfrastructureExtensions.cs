@@ -14,6 +14,9 @@ using Content.Application.Features.SiteCompany.Shared;
 using Content.Application.Features.SiteGalleries.Shared;
 using Content.Application.Features.SitePages.Shared;
 using Content.Application.Features.SiteSettings.Shared;
+using Content.Application.Features.Articles.Shared.Public;
+using Content.Application.Features.SiteCompany.Shared.Public;
+using Content.Application.Features.SiteGalleries.Shared.Public;
 
 namespace Content.Infrastructure.DependencyInjection;
 

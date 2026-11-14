@@ -1,6 +1,7 @@
 using Catalog.Contracts.Products;
 using Catalog.Contracts.Sewing;
 using Production.Application.Abstractions;
+using Production.Application.Abstractions.Sales;
 
 namespace Production.Infrastructure.Adapters.Catalog;
 

@@ -2,6 +2,7 @@ using Ardalis.Result;
 using BuildingBlocks.Application.Helpers;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using Reference.Application.Abstractions;
+using Reference.Application.Features.Supplier.Commands.CreateSupplier.Specs;
 
 namespace Reference.Application.Features.Supplier.Commands.CreateSupplier;
 

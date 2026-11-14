@@ -1,3 +1,5 @@
+using Catalog.Application.Abstractions.Reference.Items;
+
 namespace Catalog.Application.Abstractions.Reference;
 
 /// <summary>Reads Reference «Типи і розділи» sections for Catalog without a database relation.</summary>

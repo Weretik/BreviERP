@@ -1,6 +1,7 @@
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;

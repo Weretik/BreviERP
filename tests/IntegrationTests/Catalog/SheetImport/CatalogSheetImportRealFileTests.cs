@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Suppliers;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 using Reference.Infrastructure.Persistence;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Report;
 
 namespace IntegrationTests.Catalog.SheetImport;
 

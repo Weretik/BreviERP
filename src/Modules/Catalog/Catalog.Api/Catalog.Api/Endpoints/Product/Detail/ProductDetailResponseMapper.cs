@@ -1,5 +1,9 @@
 using Catalog.Application.Features.Product.Shared;
 using Catalog.Api.Endpoints.Product.Shared;
+using Catalog.Application.Features.Product.Shared.Detail;
+using Catalog.Application.Features.Product.Shared.Detail.Ppe;
+using Catalog.Application.Features.Product.Shared.Detail.Sewing;
+using Catalog.Application.Features.Product.Shared.Detail.Sewing.Prices;
 
 namespace Catalog.Api.Endpoints.Product.Detail;
 

@@ -46,6 +46,13 @@ using Accounting.Api.Endpoints.Transactions.UpdateFinanceTransaction;
 using Accounting.Api.Endpoints.Transfers.CreateFinanceTransfer;
 using Accounting.Api.Endpoints.Transfers.UpdateFinanceTransfer;
 using Accounting.Domain.Statements.Enums;
+using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties.Results;
+using Accounting.Application.Features.Import.Shared.Reading;
+using Accounting.Application.Features.Import.Shared.Report;
+using Accounting.Application.Features.Overview.Queries.GetFinanceOverview.Results;
+using Accounting.Application.Features.Reports.Queries.GetFinanceReport.Results;
+using Accounting.Application.Features.Statements.Queries.GetBankStatement.Results;
+using Accounting.Application.Features.Statements.Shared.Responses;
 
 namespace UnitTests.Accounting;
 

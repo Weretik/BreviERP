@@ -1,3 +1,5 @@
+using Catalog.Application.Abstractions.Reference.Items;
+
 namespace Catalog.Application.Abstractions.Reference;
 
 public sealed record ProductReferenceData(

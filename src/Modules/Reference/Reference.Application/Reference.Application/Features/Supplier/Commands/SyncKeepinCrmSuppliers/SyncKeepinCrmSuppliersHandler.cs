@@ -1,4 +1,5 @@
 using Reference.Application.Abstractions;
+using Reference.Application.Abstractions.KeepinCrm;
 
 namespace Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSuppliers;
 

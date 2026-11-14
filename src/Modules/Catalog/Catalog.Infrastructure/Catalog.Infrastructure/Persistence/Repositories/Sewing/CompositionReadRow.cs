@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Shared.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Views;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Sewing;

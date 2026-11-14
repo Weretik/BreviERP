@@ -9,6 +9,9 @@ using Warehouse.Application.Features.Stock.Commands.VoidFabricMovement;
 using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
 using Warehouse.Application.Features.Stock.Queries.GetProductionItemFabric;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
+using Warehouse.Application.Features.Stock.Shared.Operations;
+using Warehouse.Application.Features.Stock.Shared.Plans;
 
 namespace UnitTests.Warehouse;
 

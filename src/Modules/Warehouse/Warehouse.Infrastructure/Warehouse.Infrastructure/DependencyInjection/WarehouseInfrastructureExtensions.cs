@@ -11,6 +11,9 @@ using Warehouse.Application.Abstractions;
 using Warehouse.Infrastructure.Persistence;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Shared.Facts;
+using Warehouse.Application.Features.Stock.Shared.Booking;
+using Warehouse.Application.Features.Stock.Shared.Operations;
+using Warehouse.Application.Features.Stock.Shared.Plans;
 
 namespace Warehouse.Infrastructure.DependencyInjection;
 

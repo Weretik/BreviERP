@@ -12,6 +12,7 @@ using Content.Application.Features.Redirects.Commands.SaveSiteRedirect;
 using Content.Application.Features.Redirects.Queries.GetSiteRedirects;
 using Content.Application.Features.Redirects.Shared;
 using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
+using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects.Results;
 
 namespace UnitTests.Content;
 

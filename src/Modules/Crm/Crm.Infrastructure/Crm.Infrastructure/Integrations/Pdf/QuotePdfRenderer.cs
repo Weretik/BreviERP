@@ -4,6 +4,7 @@ using Crm.Application.Features.Quotes.Shared.Pdf;
 using Crm.Application.Features.Quotes.Shared.Pdf.Introduction;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Infrastructure.Integrations.Pdf.Intro;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace Crm.Infrastructure.Integrations.Pdf;
 

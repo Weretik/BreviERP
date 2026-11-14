@@ -2,6 +2,9 @@ using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
 using Production.Domain.Orders.Enums;
+using Production.Application.Abstractions.Sales;
+using Production.Application.Features.Orders.Shared.Items;
+using Production.Application.Features.Orders.Shared.Validation;
 
 namespace Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
 

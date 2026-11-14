@@ -11,6 +11,9 @@ using Catalog.Application.Features.Pricing.Commands.UpdatePpeSupplierOffer;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Ppe;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using Catalog.Application.Abstractions.Reference.Items;
 
 namespace UnitTests.Catalog.Pricing.Ppe;
 

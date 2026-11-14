@@ -1,4 +1,6 @@
 using Content.Domain.SiteCompany;
+using Content.Application.Features.SiteCompany.Shared.Company;
+using Content.Application.Features.SiteCompany.Shared.Public;
 
 namespace Content.Application.Features.SiteCompany.Shared;
 

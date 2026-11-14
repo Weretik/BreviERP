@@ -2,6 +2,7 @@ using System.Text.Json;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Configurations.Pricing.PpeSupplierPrices;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Pricing.Ppe;

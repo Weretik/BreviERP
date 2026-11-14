@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Infrastructure.Integrations.PpeSupplierSites;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
 
 namespace Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets;
 

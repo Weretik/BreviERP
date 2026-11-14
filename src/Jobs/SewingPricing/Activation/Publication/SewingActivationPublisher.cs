@@ -2,6 +2,10 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
 using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
 using Catalog.Application.Features.Pricing.Queries.CalculateSewingArticle;
+using Catalog.Application.Abstractions.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Inputs;
+using Catalog.Application.Abstractions.Pricing.Publications;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 namespace SewingPricing.Jobs.Activation;
 

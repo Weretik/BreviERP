@@ -19,7 +19,7 @@ src/Modules/Reference/
     ├── Persistence/Configurations/Materials/FabricColorConfiguration.cs
     └── Persistence/Migrations/*_AddFabricColors.cs              # table + the 61 sheet colours
 src/Modules/Production/Production.Application/Production.Application/
-├── Abstractions/IProductionColorReader.cs
+├── Abstractions/Materials/IProductionColorReader.cs
 └── Features/Colors/                                 # Shared/ProductionColors check, Queries/GetProductionColors
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Reference/ProductionReferenceReaders.cs   # ProductionColorReader: Reference.Contracts IFabricColorDirectory, active only
 ```

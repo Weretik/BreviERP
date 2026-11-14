@@ -15,6 +15,7 @@ using Content.Api.Endpoints.ProductPages.ImportOldSiteProductPages;
 using Content.Api.Endpoints.ProductPages.SaveContentProduct;
 using Content.Api.Endpoints.ProductPages.SetContentProductVisibility;
 using Identity.Domain.Authorization.Roles;
+using Content.Application.Features.ProductPages.Shared.Responses;
 
 namespace UnitTests.Content;
 

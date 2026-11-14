@@ -17,6 +17,8 @@ using Purchasing.Application.Features.Register.Shared;
 using Purchasing.Api.Endpoints.Documents.SavePurchaseDocument;
 using Purchasing.Api.Endpoints.Register.ReviewPurchaseInvoice;
 using Purchasing.Api.Endpoints.Register.Shared;
+using Purchasing.Application.Features.Documents.Shared.Recognition;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices.Results;
 
 namespace UnitTests.Purchasing;
 

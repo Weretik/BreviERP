@@ -2,6 +2,9 @@ using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
 using Content.Application.Features.ProductPages.Shared;
+using Content.Application.Features.Catalog.Shared.Links;
+using Content.Application.Features.Catalog.Shared.Products;
+using Content.Application.Features.ProductPages.Shared.Responses;
 
 namespace Content.Application.Features.Catalog.Shared;
 

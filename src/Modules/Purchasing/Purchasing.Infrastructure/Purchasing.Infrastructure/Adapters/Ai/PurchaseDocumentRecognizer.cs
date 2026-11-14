@@ -4,6 +4,7 @@ using Ai.Contracts.Prompts;
 using Ardalis.Result;
 
 using Purchasing.Application.Abstractions;
+using Purchasing.Application.Abstractions.Sources;
 
 namespace Purchasing.Infrastructure.Adapters.Ai;
 

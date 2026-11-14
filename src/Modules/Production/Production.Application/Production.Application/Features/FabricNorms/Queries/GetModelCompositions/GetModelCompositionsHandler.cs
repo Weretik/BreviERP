@@ -1,5 +1,6 @@
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
+using Production.Application.Abstractions.Sales;
 
 namespace Production.Application.Features.FabricNorms.Queries.GetModelCompositions;
 

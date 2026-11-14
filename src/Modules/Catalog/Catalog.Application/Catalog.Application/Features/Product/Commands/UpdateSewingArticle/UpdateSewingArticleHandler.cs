@@ -3,6 +3,8 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Application.Abstractions.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Views;
 
 namespace Catalog.Application.Features.Product.Commands.UpdateSewingArticle;
 

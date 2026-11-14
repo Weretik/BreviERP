@@ -3,6 +3,7 @@ using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
 using Reference.Application.Abstractions;
 using Reference.Infrastructure.Persistence;
+using Reference.Application.Abstractions.Pricing;
 
 
 namespace Reference.Infrastructure.Persistence.Repositories.Pricing;

@@ -9,6 +9,7 @@ using Crm.Application.Features.Quotes.Shared.Sending;
 using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Domain.Quotes.ValueObjects;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace Crm.Application.Features.Quotes.Commands.SendQuote;
 

@@ -4,6 +4,7 @@ using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Media;
 using Catalog.Application.Features.ProductCategory.Shared;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts.Results;
 
 namespace Catalog.Application.Features.Product.Queries.GetAdminProducts;
 

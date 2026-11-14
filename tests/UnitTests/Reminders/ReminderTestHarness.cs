@@ -10,6 +10,8 @@ using Reminders.Infrastructure.Persistence;
 using Reminders.Application.Features.Dispatch.Shared;
 using Reminders.Application.Features.Telegram.Commands.HandleTelegramUpdate;
 using Reminders.Application.Features.Telegram.Shared;
+using Reminders.Application.Abstractions.Telegram;
+using Reminders.Application.Features.Telegram.Shared.Chats;
 
 namespace UnitTests.Reminders;
 

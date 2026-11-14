@@ -44,6 +44,8 @@ using Crm.Infrastructure.Integrations.Gmail;
 using Crm.Infrastructure.Integrations.GoogleSheets;
 using Crm.Infrastructure.Integrations.Pdf;
 using Crm.Infrastructure.Persistence.Repositories.Customers;
+using Crm.Application.Abstractions.Quotes.Products;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace Crm.Infrastructure.DependencyInjection;
 

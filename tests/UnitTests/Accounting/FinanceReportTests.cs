@@ -14,6 +14,7 @@ using Accounting.Application.Features.Reports.Queries.GetFinanceReport;
 using Accounting.Application.Features.Reports.Shared;
 using Accounting.Application.Features.Transactions.Commands.VoidFinanceTransaction;
 using Accounting.Application.Features.Transactions.Shared;
+using Accounting.Application.Features.Reports.Queries.GetFinanceReport.Results;
 
 namespace UnitTests.Accounting;
 

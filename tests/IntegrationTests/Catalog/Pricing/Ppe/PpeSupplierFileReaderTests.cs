@@ -7,6 +7,7 @@ using UglyToad.PdfPig.Writer;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 using Catalog.Infrastructure.Integrations.PpeSupplierFiles;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
 
 namespace IntegrationTests.Catalog.Pricing.Ppe;
 

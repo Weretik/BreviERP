@@ -1,4 +1,5 @@
 using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Sewing;
 namespace Catalog.Application.Features.Product.Queries.ListSewingArticles;
 
 public sealed class ListSewingArticlesHandler(ISewingCompositionReadStore store)

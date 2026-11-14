@@ -3,6 +3,7 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierOffer;
+using Catalog.Application.Abstractions.Pricing.Ppe;
 
 namespace Catalog.Application.Features.Pricing.Queries.GetPpeSupplierOffer;
 

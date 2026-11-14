@@ -1,5 +1,6 @@
 using Warehouse.Application.Features.Stock.Queries.GetProductionItemFabric;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Shared.Plans;
 
 namespace Warehouse.Api.Endpoints.OrderItemFabric.GetProductionItemFabric;
 

@@ -4,6 +4,7 @@ using Ardalis.Result;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
 
 namespace Catalog.Infrastructure.Integrations.PpeSupplierFiles;
 

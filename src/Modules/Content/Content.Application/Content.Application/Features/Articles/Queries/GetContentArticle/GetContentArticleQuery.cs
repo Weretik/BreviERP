@@ -1,5 +1,6 @@
 using Content.Application.Abstractions;
 using Content.Application.Features.Articles.Shared;
+using Content.Application.Features.Articles.Shared.Admin;
 
 namespace Content.Application.Features.Articles.Queries.GetContentArticle;
 

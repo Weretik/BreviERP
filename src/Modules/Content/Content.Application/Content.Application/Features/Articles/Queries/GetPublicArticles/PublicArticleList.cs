@@ -1,5 +1,6 @@
 using Content.Domain.Articles;
 using Content.Application.Features.Articles.Shared;
+using Content.Application.Features.Articles.Shared.Public;
 
 namespace Content.Application.Features.Articles.Queries.GetPublicArticles;
 

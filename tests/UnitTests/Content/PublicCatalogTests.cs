@@ -16,6 +16,8 @@ using Content.Application.Features.Catalog.Queries.GetPublicCatalogProducts;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogTree;
 using Content.Application.Features.Catalog.Shared;
 using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using Content.Application.Features.Catalog.Shared.Links;
+using Content.Application.Features.Catalog.Shared.Products;
 
 namespace UnitTests.Content;
 

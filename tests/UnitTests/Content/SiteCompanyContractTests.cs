@@ -8,6 +8,8 @@ using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SiteCompany.Shared;
 using Content.Api.Endpoints.SiteCompany.SaveSiteCompany;
 using Identity.Domain.Authorization.Roles;
+using Content.Application.Features.SiteCompany.Shared.Company;
+using Content.Application.Features.SiteCompany.Shared.Public;
 
 namespace UnitTests.Content;
 

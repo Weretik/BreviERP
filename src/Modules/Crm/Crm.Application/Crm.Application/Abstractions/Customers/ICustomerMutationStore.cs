@@ -1,4 +1,5 @@
 using Ardalis.Result;
+using Crm.Application.Abstractions.Customers.Views;
 
 namespace Crm.Application.Abstractions.Customers;
 

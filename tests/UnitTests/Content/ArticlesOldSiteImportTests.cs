@@ -3,6 +3,7 @@ using FluentValidation.TestHelper;
 using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
 using Content.Application.Features.Articles.Queries.GetContentArticle;
 using Content.Application.Features.Articles.Queries.GetContentArticles;
+using Content.Application.Features.Articles.Commands.ImportOldSiteArticles.Results;
 
 namespace UnitTests.Content;
 

@@ -3,6 +3,8 @@ using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Commands.UpdatePpePriceSource;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
 
 namespace UnitTests.Catalog.Pricing.Ppe;
 
@@ -31,7 +33,7 @@ public sealed class PpeSupplierPriceImportTests
     [Test]
     public void Supplier_is_found_by_alias_or_by_the_saved_choice()
     {
-        var suppliers = new Dictionary<int, global::Catalog.Application.Abstractions.Reference.ReferenceItem>
+        var suppliers = new Dictionary<int, global::Catalog.Application.Abstractions.Reference.Items.ReferenceItem>
         {
             [7] = new(7, "3C-Макркет"),
             [8] = new(8, "Інший")

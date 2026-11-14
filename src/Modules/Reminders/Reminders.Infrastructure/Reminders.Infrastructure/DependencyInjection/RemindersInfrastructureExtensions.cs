@@ -12,6 +12,7 @@ using Reminders.Application.DependencyInjection;
 using Reminders.Infrastructure.Persistence;
 using Reminders.Infrastructure.Persistence.Seeding;
 using Reminders.Infrastructure.Integrations.Telegram;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Infrastructure.DependencyInjection;
 

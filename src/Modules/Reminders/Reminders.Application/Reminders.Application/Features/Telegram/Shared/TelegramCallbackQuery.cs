@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Reminders.Application.Features.Telegram.Shared.Chats;
 
 namespace Reminders.Application.Features.Telegram.Shared;
 

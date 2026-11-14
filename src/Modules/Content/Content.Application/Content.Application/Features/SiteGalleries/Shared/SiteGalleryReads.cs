@@ -1,6 +1,8 @@
 using Content.Application.Abstractions;
 using Content.Domain.SiteCompany;
 using Content.Domain.SiteGalleries;
+using Content.Application.Features.SiteGalleries.Shared.Admin;
+using Content.Application.Features.SiteGalleries.Shared.Public;
 
 namespace Content.Application.Features.SiteGalleries.Shared;
 

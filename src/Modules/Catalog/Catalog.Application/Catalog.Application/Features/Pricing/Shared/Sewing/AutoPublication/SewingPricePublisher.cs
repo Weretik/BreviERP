@@ -7,6 +7,10 @@ using Catalog.Application.Features.Pricing.Shared.Sewing.Evaluation;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Inputs;
+using Catalog.Application.Abstractions.Pricing.Publications;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 namespace Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 

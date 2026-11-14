@@ -19,6 +19,10 @@ using Production.Application.Features.Payroll.Shared;
 using Production.Application.Features.Reports.Shared;
 using Production.Application.Features.Timesheet.Shared;
 using Production.Application.Features.Work.Shared;
+using Production.Application.Abstractions.Materials;
+using Production.Application.Abstractions.Sales;
+using Production.Application.Features.Orders.Shared.Items;
+using Production.Application.Features.Orders.Shared.Rules;
 
 namespace Production.Infrastructure.DependencyInjection;
 

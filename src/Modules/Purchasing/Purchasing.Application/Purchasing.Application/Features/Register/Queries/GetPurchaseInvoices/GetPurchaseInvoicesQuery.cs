@@ -1,4 +1,5 @@
 using Purchasing.Application.Features.Register.Shared;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices.Results;
 
 namespace Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
 

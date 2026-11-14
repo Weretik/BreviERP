@@ -1,5 +1,6 @@
 using Catalog.Application.Abstractions;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Application.Abstractions.Products;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Products;

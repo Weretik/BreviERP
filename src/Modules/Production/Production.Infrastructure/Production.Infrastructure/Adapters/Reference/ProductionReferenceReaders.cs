@@ -3,6 +3,7 @@ using Production.Application.Abstractions;
 using Reference.Contracts.FabricColors;
 using Reference.Contracts.Fabrics;
 using Reference.Contracts.PricingParameters;
+using Production.Application.Abstractions.Materials;
 
 namespace Production.Infrastructure.Adapters.Reference;
 

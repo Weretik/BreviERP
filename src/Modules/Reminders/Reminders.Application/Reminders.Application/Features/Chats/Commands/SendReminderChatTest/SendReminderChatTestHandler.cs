@@ -1,5 +1,6 @@
 using Reminders.Application.Abstractions;
 using Reminders.Domain.Identifiers;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Application.Features.Chats.Commands.SendReminderChatTest;
 

@@ -1,5 +1,6 @@
 using Production.Application.Abstractions;
 using Production.Application.Features.FabricNorms.Shared;
+using Production.Application.Abstractions.Sales;
 
 namespace Production.Application.Features.FabricNorms.Queries.GetFabricNorms;
 

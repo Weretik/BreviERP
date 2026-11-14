@@ -126,7 +126,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         Assert.That(await calculations.FindAsync(productId, product.Articles.Single(x => x.SaleSku == "247").Id.Value,
             current.Id, CancellationToken.None), Is.Null);
 
-        async Task<global::Catalog.Application.Abstractions.Pricing.SavedSewingCalculation> Save()
+        async Task<global::Catalog.Application.Abstractions.Pricing.Calculations.SavedSewingCalculation> Save()
         {
             var result = await save.Handle(new(productId, articleId, Guid.NewGuid(), "manager"), CancellationToken.None);
             Assert.That(result.IsSuccess, Is.True);

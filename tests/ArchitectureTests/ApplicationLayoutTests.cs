@@ -4,7 +4,7 @@ namespace ArchitectureTests;
 
 /// <summary>
 /// Application projects hold one use case per folder: <c>Features/&lt;Feature&gt;/{Commands,Queries}/&lt;UseCase&gt;/</c>
-/// with <c>&lt;UseCase&gt;Handler</c>; types shared by use cases sit in the feature's <c>Shared/</c>, ports in
+/// with <c>&lt;UseCase&gt;Handler</c> on top (named subfolders only past six files); types shared by use cases sit in the feature's <c>Shared/</c>, ports in
 /// <c>Abstractions/</c> (module rules «Folders»).
 /// </summary>
 public sealed partial class ApplicationLayoutTests
@@ -64,8 +64,13 @@ public sealed partial class ApplicationLayoutTests
         Assert.That(offending, Is.Empty);
     }
 
+    /// <summary>
+    /// A use case stays flat while it fits six files; past that its request, handler and validator stay on top and the
+    /// rest goes into named subfolders (<c>Specs/</c>, <c>Rows/</c>, <c>Results/</c> or a sub-concept). A small use case with
+    /// subfolders is a needless split.
+    /// </summary>
     [Test]
-    public void Use_case_folders_have_no_subfolders()
+    public void Use_case_folders_split_only_past_six_files()
     {
         var offending = ApplicationProjects()
             .Select(app => Path.Combine(app, "Features"))
@@ -73,7 +78,8 @@ public sealed partial class ApplicationLayoutTests
             .SelectMany(Folders)
             .SelectMany(feature => Folders(feature).Where(dir => Path.GetFileName(dir) is "Commands" or "Queries"))
             .SelectMany(Folders)
-            .SelectMany(Folders)
+            .Where(useCase => Folders(useCase).Any()
+                              && Directory.EnumerateFiles(useCase, "*.cs", SearchOption.AllDirectories).Count(NotBuildOutput) <= 6)
             .Select(Relative)
             .ToArray();
 

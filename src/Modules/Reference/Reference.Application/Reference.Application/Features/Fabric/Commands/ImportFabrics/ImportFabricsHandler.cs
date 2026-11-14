@@ -4,6 +4,7 @@ using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.SheetImport.Shared;
 using Reference.Domain.Fabrics;
+using Reference.Application.Abstractions.Pricing;
 
 namespace Reference.Application.Features.Fabric.Commands.ImportFabrics;
 

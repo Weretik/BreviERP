@@ -4,6 +4,7 @@ using Reminders.Domain;
 using Reminders.Domain.Dispatching;
 using Reminders.Domain.Occurrences;
 using Reminders.Domain.Tasks;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Application.Features.Messages.Shared;
 

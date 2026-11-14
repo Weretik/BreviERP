@@ -5,6 +5,7 @@ using Crm.Domain.Customers;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Abstractions.Customers.Views;
 
 namespace Crm.Infrastructure.Persistence.Repositories.Customers;
 

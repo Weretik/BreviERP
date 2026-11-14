@@ -1,5 +1,6 @@
 using Reference.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
+using Reference.Application.Abstractions.Pricing;
 
 namespace SewingPricing.Jobs.Reading;
 

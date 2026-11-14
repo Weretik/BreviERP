@@ -9,6 +9,7 @@ using Moq;
 using Crm.Application.Features.Customers.Commands.CreateCustomer;
 using Crm.Application.Features.Customers.Queries.GetCustomers;
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Abstractions.Customers.Views;
 
 namespace IntegrationTests.Crm;
 

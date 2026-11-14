@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Reference.Domain.Pricing;
 using SewingPricing.Jobs.Bootstrap;
 using Reference.Application.Abstractions;
+using Reference.Application.Abstractions.Pricing;
 
 namespace IntegrationTests.Reference.Pricing;
 

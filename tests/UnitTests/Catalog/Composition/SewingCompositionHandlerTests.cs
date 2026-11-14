@@ -20,6 +20,14 @@ using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.Sewing.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Products;
+using Catalog.Application.Abstractions.Reference.Items;
+using Catalog.Application.Abstractions.Sewing;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Ppe;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Sewing;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Inputs;
+using Catalog.Application.Features.Product.Shared.Sewing.Views;
 
 namespace UnitTests.Catalog.Composition;
 

@@ -7,6 +7,7 @@ using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Application.Features.Journal.Shared;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Transactions.Shared;
+using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties.Results;
 
 namespace Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties;
 

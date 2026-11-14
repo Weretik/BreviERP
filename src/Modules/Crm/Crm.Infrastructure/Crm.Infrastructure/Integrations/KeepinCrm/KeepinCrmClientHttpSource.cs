@@ -4,6 +4,8 @@ using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Abstractions.Customers.KeepinCrm;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 
 namespace Crm.Infrastructure.Integrations.KeepinCrm;
 

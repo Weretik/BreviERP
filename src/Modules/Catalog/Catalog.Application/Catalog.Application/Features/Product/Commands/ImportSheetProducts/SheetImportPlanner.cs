@@ -6,6 +6,12 @@ using Catalog.Application.Features.Product.Shared.Overview;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Drafts;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Matching;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Plan;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Report;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Rows;
 
 namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 

@@ -1,6 +1,7 @@
 using Production.Application.Abstractions;
 
 using Warehouse.Contracts.Stock;
+using Production.Application.Abstractions.Materials;
 
 namespace Production.Infrastructure.Adapters.Warehouse;
 

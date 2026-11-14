@@ -1,5 +1,6 @@
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 namespace Catalog.Application.Features.Pricing.Shared.Sewing.Evaluation;
 

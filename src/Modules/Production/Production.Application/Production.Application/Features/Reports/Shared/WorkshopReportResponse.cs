@@ -1,3 +1,5 @@
+using Production.Application.Features.Reports.Shared.Rows;
+
 namespace Production.Application.Features.Reports.Shared;
 
 /// <summary>

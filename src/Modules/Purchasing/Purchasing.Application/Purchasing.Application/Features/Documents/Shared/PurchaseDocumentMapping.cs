@@ -1,5 +1,6 @@
 using Purchasing.Domain.Documents;
 using Purchasing.Application.Features.Register.Shared;
+using Purchasing.Application.Features.Documents.Shared.Recognition;
 
 namespace Purchasing.Application.Features.Documents.Shared;
 

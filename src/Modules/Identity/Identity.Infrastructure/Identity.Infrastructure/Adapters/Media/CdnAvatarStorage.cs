@@ -1,5 +1,6 @@
 using Media.Contracts.Storage;
 using Identity.Application.Abstractions;
+using Identity.Application.Abstractions.Profile;
 
 namespace Identity.Infrastructure.Adapters.Media;
 

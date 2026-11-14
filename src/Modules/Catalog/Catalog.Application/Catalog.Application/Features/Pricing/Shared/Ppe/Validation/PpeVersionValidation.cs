@@ -1,4 +1,5 @@
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 namespace Catalog.Application.Features.Pricing.Shared.Ppe.Validation;
 public static class PpeVersionValidation
 {

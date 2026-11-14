@@ -2,6 +2,7 @@ using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Commands.ReverseFabricMovement;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
 
 namespace Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
 

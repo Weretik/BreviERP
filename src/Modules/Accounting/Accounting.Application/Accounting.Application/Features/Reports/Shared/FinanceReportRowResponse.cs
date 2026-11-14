@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Movements;
 using Accounting.Application.Features.Reports.Queries.GetFinanceReport;
+using Accounting.Application.Features.Reports.Queries.GetFinanceReport.Results;
 
 namespace Accounting.Application.Features.Reports.Shared;
 

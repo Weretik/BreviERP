@@ -5,7 +5,7 @@ using Production.Application.Features.Orders.Shared.Validation;
 namespace Production.Application.Features.Orders.Queries.GetProductionQuoteSources;
 
 public sealed class GetProductionQuoteSourcesHandler(
-    Abstractions.IProductionDbContext db, Abstractions.IProductionQuoteReader quotes)
+    Abstractions.IProductionDbContext db, Abstractions.Sales.IProductionQuoteReader quotes)
     : IQueryHandler<GetProductionQuoteSourcesQuery, Result<IReadOnlyList<ProductionQuoteSourceResponse>>>
 {
     public async ValueTask<Result<IReadOnlyList<ProductionQuoteSourceResponse>>> Handle(

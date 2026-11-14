@@ -5,6 +5,7 @@ using Accounting.Domain.Statements;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Statements.Shared;
 using Accounting.Domain.Statements.Enums;
+using Accounting.Application.Features.Statements.Queries.GetBankStatement.Results;
 
 namespace Accounting.Application.Features.Statements.Queries.GetBankStatement;
 

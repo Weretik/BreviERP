@@ -4,6 +4,10 @@ using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Shared;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Ppe.Pricing;
+using Catalog.Application.Abstractions.Reference.Items;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Sewing;
+using Catalog.Application.Features.Product.Shared.Detail;
+using Catalog.Application.Features.Product.Shared.Detail.Sewing;
 
 namespace UnitTests.Catalog.Products;
 

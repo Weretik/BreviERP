@@ -5,6 +5,7 @@ using Ardalis.Result;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Pricing.Ppe;
 public sealed class PpeOfferVersionWriter(CatalogDbContext db) : IPpeOfferVersionWriter

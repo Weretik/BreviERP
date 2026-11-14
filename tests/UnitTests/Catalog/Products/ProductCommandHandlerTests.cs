@@ -13,6 +13,11 @@ using Catalog.Application.Features.Product.Commands.ReplaceProduct;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Products;
+using Catalog.Application.Abstractions.Reference.Items;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Content;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Sewing;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Sewing;
 
 namespace UnitTests.Catalog.Products;
 

@@ -4,6 +4,7 @@ using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Messages;
 using Purchasing.Domain.Sync;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
+using Purchasing.Application.Abstractions.Sources;
 
 namespace UnitTests.Purchasing;
 

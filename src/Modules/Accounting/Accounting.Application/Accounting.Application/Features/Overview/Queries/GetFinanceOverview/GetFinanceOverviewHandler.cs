@@ -4,6 +4,7 @@ using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Transactions;
 using Accounting.Application.Features.Balances.Shared;
+using Accounting.Application.Features.Overview.Queries.GetFinanceOverview.Results;
 
 namespace Accounting.Application.Features.Overview.Queries.GetFinanceOverview;
 

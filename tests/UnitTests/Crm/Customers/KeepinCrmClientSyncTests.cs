@@ -7,6 +7,8 @@ using Moq;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 using Crm.Application.Abstractions.Customers;
 using Crm.Infrastructure.Integrations.KeepinCrm;
+using Crm.Application.Abstractions.Customers.KeepinCrm;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 
 namespace UnitTests.Crm.Customers;
 

@@ -4,6 +4,7 @@ using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.Sewing.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Features.Product.Shared.Sewing.Inputs;
 
 namespace Catalog.Application.Features.Product.Shared.Sewing.Mapping;
 

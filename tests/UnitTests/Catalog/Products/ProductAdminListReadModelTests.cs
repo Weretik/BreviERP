@@ -6,6 +6,7 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Media;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts.Results;
 
 namespace UnitTests.Catalog.Products;
 

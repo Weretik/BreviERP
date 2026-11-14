@@ -1,4 +1,6 @@
 using Catalog.Application.Features.Product.Shared.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Inputs;
+using Catalog.Application.Features.Product.Shared.Sewing.Views;
 
 namespace SewingPricing.Jobs.Activation;
 

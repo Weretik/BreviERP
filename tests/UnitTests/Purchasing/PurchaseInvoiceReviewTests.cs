@@ -2,6 +2,7 @@ using Ardalis.Result;
 using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
 using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
 using Purchasing.Application.Features.Register.Queries.GetPurchaseSuppliers;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices.Results;
 
 namespace UnitTests.Purchasing;
 

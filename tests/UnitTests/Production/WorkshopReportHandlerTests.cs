@@ -11,6 +11,8 @@ using Production.Application.Features.Reports.Queries.GetWorkshopReport;
 using Production.Application.Features.Reports.Shared;
 using Production.Application.Features.Work.Commands.CreateProductionWork;
 using Production.Application.Features.Work.Shared;
+using Production.Application.Features.Dashboard.Queries.GetWorkshopDashboard.Results;
+using Production.Application.Features.Reports.Shared.Rows;
 
 namespace UnitTests.Production;
 

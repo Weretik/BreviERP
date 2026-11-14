@@ -6,6 +6,8 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Queries.CalculateSewingArticle;
 using Catalog.Application.Features.Pricing.Shared.Sewing.Evaluation;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Application.Abstractions.Pricing.Inputs;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 namespace SewingPricing.Jobs.Verification;
 

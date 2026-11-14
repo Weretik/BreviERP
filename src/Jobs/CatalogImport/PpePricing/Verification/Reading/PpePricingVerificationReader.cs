@@ -9,6 +9,7 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Domain.Products.Enums;
 using Catalog.Infrastructure.Persistence.Repositories.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe;
 
 namespace CatalogImport.PpePricing.Verification;
 

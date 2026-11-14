@@ -7,6 +7,7 @@ using Content.Application.Features.Articles.Commands.SetContentArticleVisibility
 using Content.Application.Features.Articles.Queries.GetContentArticle;
 using Content.Application.Features.Articles.Queries.GetContentArticles;
 using Content.Application.Features.Articles.Shared;
+using Content.Application.Features.Articles.Shared.Admin;
 
 namespace UnitTests.Content;
 

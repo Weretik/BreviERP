@@ -10,6 +10,10 @@ using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using Catalog.Application.Abstractions.Products;
+using Catalog.Application.Abstractions.Reference.Items;
 
 namespace UnitTests.Catalog.Products;
 

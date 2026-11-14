@@ -8,6 +8,7 @@ using Accounting.Domain.Transactions;
 using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Reports.Shared;
+using Accounting.Application.Features.Reports.Queries.GetFinanceReport.Results;
 
 namespace Accounting.Application.Features.Reports.Queries.GetFinanceReport;
 

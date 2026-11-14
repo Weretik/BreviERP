@@ -2,6 +2,7 @@ using Ardalis.Result;
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Domain.Products.Ppe.Pricing;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Ppe;
 
 namespace Catalog.Api.Endpoints.Product.Write;
 

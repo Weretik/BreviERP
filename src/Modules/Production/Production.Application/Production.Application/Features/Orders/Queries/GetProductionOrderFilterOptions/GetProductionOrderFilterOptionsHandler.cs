@@ -1,6 +1,7 @@
 using Production.Application.Abstractions;
 using Production.Domain.FabricPlans;
 using Production.Application.Features.Orders.Shared.Validation;
+using Production.Application.Abstractions.Sales;
 
 namespace Production.Application.Features.Orders.Queries.GetProductionOrderFilterOptions;
 

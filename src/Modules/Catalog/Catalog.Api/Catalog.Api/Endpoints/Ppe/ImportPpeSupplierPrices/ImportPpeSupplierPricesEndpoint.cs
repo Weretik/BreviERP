@@ -1,5 +1,6 @@
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
 
 namespace Catalog.Api.Endpoints.Ppe.ImportPpeSupplierPrices;
 

@@ -14,6 +14,8 @@ using Content.Api.Endpoints.Articles.ImportOldSiteArticles;
 using Content.Api.Endpoints.Articles.SetContentArticleVisibility;
 using Content.Api.Endpoints.Articles.Shared;
 using Identity.Domain.Authorization.Roles;
+using Content.Application.Features.Articles.Commands.ImportOldSiteArticles.Results;
+using Content.Application.Features.Articles.Shared.Admin;
 
 namespace UnitTests.Content;
 

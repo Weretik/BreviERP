@@ -1,0 +1,2311 @@
+{
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Statements/Shared/BankDuplicates.cs": {
+  "types": [
+   "BankDuplicates"
+  ],
+  "users": [
+   "APP:Features/Statements/Shared",
+   "Statements/Commands/BookBankStatement"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Statements/Shared/BankLineRecognition.cs": {
+  "types": [
+   "BankLineRecognition"
+  ],
+  "users": [
+   "Statements/Commands/UploadBankStatement"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Statements/Shared/BankParties.cs": {
+  "types": [
+   "BankParty",
+   "BankParties"
+  ],
+  "users": [
+   "APP:Features/Statements/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Statements/Shared/BankStatementLineResponse.cs": {
+  "types": [
+   "BankStatementLineResponse"
+  ],
+  "users": [
+   "Statements/Commands/UpdateBankLine",
+   "Statements/Queries/GetBankStatement",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Statements/Shared/BankStatementResponse.cs": {
+  "types": [
+   "BankStatementResponse"
+  ],
+  "users": [
+   "Statements/Commands/BookBankStatement",
+   "Statements/Commands/RollbackBankStatement",
+   "Statements/Commands/UploadBankStatement",
+   "Statements/Queries/GetBankStatement",
+   "Statements/Queries/GetBankStatements",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Statements/Shared/FinanceCounterpartyRefResponse.cs": {
+  "types": [
+   "FinanceCounterpartyRefResponse"
+  ],
+  "users": [
+   "APP:Features/Statements/Shared",
+   "APP:Features/Transactions/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Statements/Shared/StatementMessages.cs": {
+  "types": [
+   "StatementMessages"
+  ],
+  "users": [
+   "Statements/Commands/BookBankStatement",
+   "Statements/Commands/RollbackBankStatement",
+   "Statements/Commands/UpdateBankLine",
+   "Statements/Commands/UploadBankStatement",
+   "Statements/Queries/GetBankStatement"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/ImportMessages.cs": {
+  "types": [
+   "ImportMessages"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "Import/Commands/ImportLegacyFinance"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyFinanceFile.cs": {
+  "types": [
+   "LegacyFinanceFile",
+   "LegacyAccountRow",
+   "LegacyCategoryRow",
+   "LegacyCounterpartyRow",
+   "LegacyTransactionRow",
+   "LegacyTransferRow",
+   "LegacyAuditRow",
+   "LegacySettingRow"
+  ],
+  "users": [
+   "APP:Features/Import/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyFinanceImportReport.cs": {
+  "types": [
+   "LegacyFinanceImportReport"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "Import/Commands/ImportLegacyFinance",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyFinancePlan.cs": {
+  "types": [
+   "LegacyFinanceExisting",
+   "LegacyFinancePlan"
+  ],
+  "users": [
+   "Import/Commands/ImportLegacyFinance"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyFinanceReader.cs": {
+  "types": [
+   "LegacyFinanceReader"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "Import/Commands/ImportLegacyFinance"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyFinanceValues.cs": {
+  "types": [
+   "LegacyFinanceValues"
+  ],
+  "users": [
+   "APP:Features/Import/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyImportBalanceResponse.cs": {
+  "types": [
+   "LegacyImportBalanceResponse"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyImportCountResponse.cs": {
+  "types": [
+   "LegacyImportCountResponse"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyImportKind.cs": {
+  "types": [
+   "LegacyImportKind"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyImportMovement.cs": {
+  "types": [
+   "LegacyImportMovement"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyImportPartiesResponse.cs": {
+  "types": [
+   "LegacyImportPartiesResponse"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Accounting/Accounting.Application/Accounting.Application/Features/Import/Shared/LegacyImportTotalResponse.cs": {
+  "types": [
+   "LegacyImportTotalResponse"
+  ],
+  "users": [
+   "APP:Features/Import/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/AccessoryAdminDetail.cs": {
+  "types": [
+   "AccessoryAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/AdditionalReferenceAdminDetail.cs": {
+  "types": [
+   "AdditionalReferenceAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/CategoryAdminDetail.cs": {
+  "types": [
+   "CategoryAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "Product/Commands/CreateProduct",
+   "Product/Commands/ReplaceProduct",
+   "Product/Queries/GetAdminProductDetail",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/CharacteristicRowAdminDetail.cs": {
+  "types": [
+   "CharacteristicRowAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/CharacteristicTableAdminDetail.cs": {
+  "types": [
+   "CharacteristicTableAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/FabricAdminDetail.cs": {
+  "types": [
+   "FabricAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/InformationBlockAdminDetail.cs": {
+  "types": [
+   "InformationBlockAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/NamedReferenceAdminDetail.cs": {
+  "types": [
+   "NamedReferenceAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/OperationAdminDetail.cs": {
+  "types": [
+   "OperationAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/PpeAdminDetail.cs": {
+  "types": [
+   "PpeAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "Catalog:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/PpeAdminDetailMapper.cs": {
+  "types": [
+   "PpeAdminDetailMapper"
+  ],
+  "users": [
+   "APP:Features/Product/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/PpePercentAdminDetail.cs": {
+  "types": [
+   "PpePercentAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "Catalog:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/PpePercentSource.cs": {
+  "types": [
+   "PpePercentSource"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/ProductAdminDetail.cs": {
+  "types": [
+   "ProductAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "Catalog:Endpoints",
+   "Product/Commands/CreateProduct",
+   "Product/Commands/ReplaceProduct",
+   "Product/Queries/GetAdminProductDetail",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/ProductAdminDetailMapper.cs": {
+  "types": [
+   "ProductAdminDetailMapper"
+  ],
+  "users": [
+   "Product/Commands/CreateProduct",
+   "Product/Commands/ReplaceProduct",
+   "Product/Queries/GetAdminProductDetail",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/ProductPhotoDetail.cs": {
+  "types": [
+   "ProductPhotoDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/SewingAdminDetail.cs": {
+  "types": [
+   "SewingAdminDetail"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "Catalog:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/SewingAdminDetailMapper.cs": {
+  "types": [
+   "SewingAdminDetailMapper"
+  ],
+  "users": [
+   "APP:Features/Product/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/SewingFabricPrices.cs": {
+  "types": [
+   "SewingFabricPrices"
+  ],
+  "users": [
+   "APP:Features/Product/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/SewingPriceRange.cs": {
+  "types": [
+   "SewingPriceRange"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "Catalog:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/SewingPriceRanges.cs": {
+  "types": [
+   "SewingPriceRanges"
+  ],
+  "users": [
+   "APP:Features/Product/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Shared/SewingPrices.cs": {
+  "types": [
+   "SewingPrices"
+  ],
+  "users": [
+   "APP:Features/Product/Shared",
+   "Catalog:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Shared/ProductCategoryByIdSpec.cs": {
+  "types": [
+   "ProductCategoryByIdSpec"
+  ],
+  "users": [
+   "Product/Queries/GetAdminProducts",
+   "ProductCategory/Commands/CreateProductCategory",
+   "ProductCategory/Commands/DeleteProductCategory",
+   "ProductCategory/Commands/UpdateProductCategory"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Shared/ProductCategoryByNameSpec.cs": {
+  "types": [
+   "ProductCategoryByNameSpec"
+  ],
+  "users": [
+   "ProductCategory/Commands/CreateProductCategory"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Shared/ProductCategoryByParentAndSlugExceptIdSpec.cs": {
+  "types": [
+   "ProductCategoryByParentAndSlugExceptIdSpec"
+  ],
+  "users": [
+   "ProductCategory/Commands/UpdateProductCategory"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Shared/ProductCategoryByParentAndSlugSpec.cs": {
+  "types": [
+   "ProductCategoryByParentAndSlugSpec"
+  ],
+  "users": [
+   "ProductCategory/Commands/CreateProductCategory"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Shared/ProductCategoryDescendantsByPathSpec.cs": {
+  "types": [
+   "ProductCategoryDescendantsByPathSpec"
+  ],
+  "users": [
+   "Product/Queries/GetAdminProducts",
+   "ProductCategory/Commands/UpdateProductCategory"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Shared/ProductCategoryHasChildrenSpec.cs": {
+  "types": [
+   "ProductCategoryHasChildrenSpec"
+  ],
+  "users": [
+   "ProductCategory/Commands/DeleteProductCategory"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Shared/ProductCategoryIsUsedByProductSpec.cs": {
+  "types": [
+   "ProductCategoryIsUsedByProductSpec"
+  ],
+  "users": [
+   "ProductCategory/Commands/DeleteProductCategory"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/CompanyBankDetails.cs": {
+  "types": [
+   "CompanyBankDetails"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "Content:Endpoints",
+   "SiteCompany/Commands/SaveSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/CompanyManager.cs": {
+  "types": [
+   "CompanyManager"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "Content:Endpoints",
+   "SiteCompany/Commands/SaveSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/CompanySchedule.cs": {
+  "types": [
+   "CompanySchedule"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "Content:Endpoints",
+   "SiteCompany/Commands/SaveSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/CompanySocials.cs": {
+  "types": [
+   "CompanySocials"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "Content:Endpoints",
+   "SiteCompany/Commands/SaveSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/CompanyText.cs": {
+  "types": [
+   "CompanyText"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "Content:Endpoints",
+   "SiteCompany/Commands/SaveSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/PublicCompanyManager.cs": {
+  "types": [
+   "PublicCompanyManager"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/PublicPhone.cs": {
+  "types": [
+   "PublicPhone"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/PublicSiteCompanyResponse.cs": {
+  "types": [
+   "PublicSiteCompanyResponse"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "SiteCompany/Queries/GetPublicSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/PublicSiteCompanySource.cs": {
+  "types": [
+   "IPublicSiteCompanySource",
+   "PublicSiteCompanySource"
+  ],
+  "users": [
+   "Content:Content.Infrastructure",
+   "SiteCompany/Queries/GetPublicSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/SiteCompanyMessages.cs": {
+  "types": [
+   "SiteCompanyMessages"
+  ],
+  "users": [
+   "SiteCompany/Commands/SaveSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/SiteCompanyReads.cs": {
+  "types": [
+   "SiteCompanyReads"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "SiteCompany/Commands/SaveSiteCompany",
+   "SiteCompany/Queries/GetSiteCompany"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteCompany/Shared/SiteCompanyResponse.cs": {
+  "types": [
+   "SiteCompanyResponse"
+  ],
+  "users": [
+   "APP:Features/SiteCompany/Shared",
+   "SiteCompany/Commands/SaveSiteCompany",
+   "SiteCompany/Queries/GetSiteCompany",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogCard.cs": {
+  "types": [
+   "PublicCatalogCard"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "Catalog/Queries/GetPublicCatalogProducts",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogCategoryLink.cs": {
+  "types": [
+   "PublicCatalogCategoryLink"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "Catalog/Queries/GetPublicCatalogCategory",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogMapping.cs": {
+  "types": [
+   "PublicCatalogMapping"
+  ],
+  "users": [
+   "Catalog/Queries/GetPublicCatalogCategories",
+   "Catalog/Queries/GetPublicCatalogCategory",
+   "Catalog/Queries/GetPublicCatalogCategorySlugs",
+   "Catalog/Queries/GetPublicCatalogProduct",
+   "Catalog/Queries/GetPublicCatalogProductSlugs",
+   "Catalog/Queries/GetPublicCatalogProducts"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogPhoto.cs": {
+  "types": [
+   "PublicCatalogPhoto"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogProduct.cs": {
+  "types": [
+   "PublicCatalogProduct"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "Catalog/Queries/GetPublicCatalogProduct",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogProductCategory.cs": {
+  "types": [
+   "PublicCatalogProductCategory"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogSectionLink.cs": {
+  "types": [
+   "PublicCatalogSectionLink"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogSlug.cs": {
+  "types": [
+   "PublicCatalogSlug"
+  ],
+  "users": [
+   "Catalog/Queries/GetPublicCatalogCategorySlugs",
+   "Catalog/Queries/GetPublicCatalogProductSlugs",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogSource.cs": {
+  "types": [
+   "PublicCatalogEntry",
+   "PublicCatalogSnapshot",
+   "PublicCatalogSnapshotCategory",
+   "PublicCatalogSnapshotSection",
+   "IPublicCatalogSource",
+   "PublicCatalogSource"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "Catalog/Queries/GetPublicCatalogCategories",
+   "Catalog/Queries/GetPublicCatalogCategory",
+   "Catalog/Queries/GetPublicCatalogCategorySlugs",
+   "Catalog/Queries/GetPublicCatalogProduct",
+   "Catalog/Queries/GetPublicCatalogProductSlugs",
+   "Catalog/Queries/GetPublicCatalogProducts",
+   "Catalog/Queries/GetPublicCatalogTree",
+   "Content:Content.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Catalog/Shared/PublicCatalogVariant.cs": {
+  "types": [
+   "PublicCatalogVariant"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteSettings/Shared/PublicSitePicture.cs": {
+  "types": [
+   "PublicSitePicture"
+  ],
+  "users": [
+   "APP:Features/SiteSettings/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteSettings/Shared/PublicSiteSettingsResponse.cs": {
+  "types": [
+   "PublicSiteSettingsResponse"
+  ],
+  "users": [
+   "APP:Features/SiteSettings/Shared",
+   "SiteSettings/Queries/GetPublicSiteSettings",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteSettings/Shared/PublicSiteSettingsSource.cs": {
+  "types": [
+   "IPublicSiteSettingsSource",
+   "PublicSiteSettingsSource"
+  ],
+  "users": [
+   "Content:Content.Infrastructure",
+   "SiteSettings/Queries/GetPublicSiteSettings",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteSettings/Shared/SitePicture.cs": {
+  "types": [
+   "SitePicture"
+  ],
+  "users": [
+   "APP:Features/SiteSettings/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteSettings/Shared/SiteSeoSettingsResponse.cs": {
+  "types": [
+   "SiteSeoSettingsResponse"
+  ],
+  "users": [
+   "APP:Features/SiteSettings/Shared",
+   "SiteSettings/Commands/SaveSiteSeoSettings",
+   "SiteSettings/Queries/GetSiteSeoSettings",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteSettings/Shared/SiteSettingsMessages.cs": {
+  "types": [
+   "SiteSettingsMessages"
+  ],
+  "users": [
+   "SiteSettings/Commands/SaveSiteSeoSettings",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteSettings/Shared/SiteSettingsReads.cs": {
+  "types": [
+   "SiteSettingsReads"
+  ],
+  "users": [
+   "APP:Features/SiteSettings/Shared",
+   "SiteSettings/Commands/SaveSiteSeoSettings",
+   "SiteSettings/Queries/GetSiteSeoSettings"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ContentPriceTiersResponse.cs": {
+  "types": [
+   "ContentPriceTiersResponse"
+  ],
+  "users": [
+   "APP:Features/Catalog/Shared",
+   "APP:Features/ProductPages/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ContentProductMapping.cs": {
+  "types": [
+   "ContentProductMapping"
+  ],
+  "users": [
+   "ProductPages/Commands/SaveContentProduct",
+   "ProductPages/Queries/GetContentProduct",
+   "ProductPages/Queries/GetContentProducts"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ContentProductMessages.cs": {
+  "types": [
+   "ContentProductMessages"
+  ],
+  "users": [
+   "ProductPages/Commands/DeleteContentProduct",
+   "ProductPages/Commands/SaveContentProduct",
+   "ProductPages/Commands/SetContentProductVisibility",
+   "ProductPages/Queries/GetContentProduct",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ContentProductResponse.cs": {
+  "types": [
+   "ContentProductResponse"
+  ],
+  "users": [
+   "APP:Features/ProductPages/Shared",
+   "ProductPages/Commands/SaveContentProduct",
+   "ProductPages/Queries/GetContentProduct",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ContentProductRow.cs": {
+  "types": [
+   "ContentProductRow"
+  ],
+  "users": [
+   "APP:Features/ProductPages/Shared",
+   "ProductPages/Queries/GetContentProducts",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ContentProductTextResponse.cs": {
+  "types": [
+   "ContentProductTextResponse"
+  ],
+  "users": [
+   "APP:Features/ProductPages/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ContentProductVariantResponse.cs": {
+  "types": [
+   "ContentProductVariantResponse"
+  ],
+  "users": [
+   "APP:Features/ProductPages/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ProductCategoryLinks.cs": {
+  "types": [
+   "ProductCategoryLinks"
+  ],
+  "users": [
+   "ProductPages/Commands/SaveContentProduct",
+   "ProductPages/Queries/GetContentProduct"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/ProductPages/Shared/ProductPageSlugs.cs": {
+  "types": [
+   "ProductPageSlugs"
+  ],
+  "users": [
+   "ProductPages/Commands/SaveContentProduct",
+   "ProductPages/Commands/SetContentProductVisibility",
+   "ProductPages/Queries/GetContentProduct"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SitePages/Shared/PublicSitePage.cs": {
+  "types": [
+   "PublicSitePage"
+  ],
+  "users": [
+   "APP:Features/SitePages/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SitePages/Shared/PublicSitePagesResponse.cs": {
+  "types": [
+   "PublicSitePagesResponse"
+  ],
+  "users": [
+   "APP:Features/SitePages/Shared",
+   "SitePages/Queries/GetPublicSitePages",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SitePages/Shared/PublicSitePagesSource.cs": {
+  "types": [
+   "IPublicSitePagesSource",
+   "PublicSitePagesSource"
+  ],
+  "users": [
+   "Content:Content.Infrastructure",
+   "SitePages/Queries/GetPublicSitePages",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SitePages/Shared/SitePageMapping.cs": {
+  "types": [
+   "SitePageMapping"
+  ],
+  "users": [
+   "APP:Features/SitePages/Shared",
+   "SitePages/Commands/SaveSitePage",
+   "SitePages/Queries/GetSitePages"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SitePages/Shared/SitePageMessages.cs": {
+  "types": [
+   "SitePageMessages"
+  ],
+  "users": [
+   "SitePages/Commands/SaveSitePage",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SitePages/Shared/SitePageResponse.cs": {
+  "types": [
+   "SitePageResponse"
+  ],
+  "users": [
+   "APP:Features/SitePages/Shared",
+   "SitePages/Commands/SaveSitePage",
+   "SitePages/Queries/GetSitePages",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SitePages/Shared/SitePageText.cs": {
+  "types": [
+   "SitePageText"
+  ],
+  "users": [
+   "APP:Features/SitePages/Shared",
+   "Content:Endpoints",
+   "SitePages/Commands/SaveSitePage",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/GalleryText.cs": {
+  "types": [
+   "GalleryText"
+  ],
+  "users": [
+   "APP:Features/SiteGalleries/Shared",
+   "SiteGalleries/Commands/SaveSiteGallery",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/PublicGalleryItem.cs": {
+  "types": [
+   "PublicGalleryItem"
+  ],
+  "users": [
+   "APP:Features/SiteGalleries/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/PublicSiteGalleriesResponse.cs": {
+  "types": [
+   "PublicSiteGalleriesResponse"
+  ],
+  "users": [
+   "APP:Features/SiteGalleries/Shared",
+   "SiteGalleries/Queries/GetPublicSiteGalleries",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/PublicSiteGalleriesSource.cs": {
+  "types": [
+   "IPublicSiteGalleriesSource",
+   "PublicSiteGalleriesSource"
+  ],
+  "users": [
+   "Content:Content.Infrastructure",
+   "SiteGalleries/Queries/GetPublicSiteGalleries",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/SiteGalleryFiles.cs": {
+  "types": [
+   "SiteGalleryFiles"
+  ],
+  "users": [
+   "APP:Features/SiteGalleries/Shared",
+   "SiteGalleries/Commands/TransferSiteGallery",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/SiteGalleryItemResponse.cs": {
+  "types": [
+   "SiteGalleryItemResponse"
+  ],
+  "users": [
+   "APP:Features/SiteGalleries/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/SiteGalleryKeys.cs": {
+  "types": [
+   "SiteGalleryKeys"
+  ],
+  "users": [
+   "Content:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/SiteGalleryMessages.cs": {
+  "types": [
+   "SiteGalleryMessages"
+  ],
+  "users": [
+   "SiteGalleries/Commands/SaveSiteGallery",
+   "SiteGalleries/Commands/TransferSiteGallery",
+   "SiteGalleries/Queries/GetSiteGallery",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/SiteGalleryReads.cs": {
+  "types": [
+   "SiteGalleryReads"
+  ],
+  "users": [
+   "APP:Features/SiteGalleries/Shared",
+   "SiteGalleries/Commands/SaveSiteGallery",
+   "SiteGalleries/Commands/TransferSiteGallery",
+   "SiteGalleries/Queries/GetSiteGallery"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/SiteGalleries/Shared/SiteGalleryResponse.cs": {
+  "types": [
+   "SiteGalleryResponse"
+  ],
+  "users": [
+   "APP:Features/SiteGalleries/Shared",
+   "SiteGalleries/Commands/SaveSiteGallery",
+   "SiteGalleries/Commands/TransferSiteGallery",
+   "SiteGalleries/Queries/GetSiteGallery",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/ArticleMapping.cs": {
+  "types": [
+   "ArticleMapping"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "Articles/Commands/SaveContentArticle",
+   "Articles/Queries/GetContentArticles"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/ArticleMessages.cs": {
+  "types": [
+   "ArticleMessages"
+  ],
+  "users": [
+   "Articles/Commands/DeleteContentArticle",
+   "Articles/Commands/SaveContentArticle",
+   "Articles/Commands/SetContentArticleVisibility",
+   "Articles/Queries/GetContentArticle",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/ArticlePhoto.cs": {
+  "types": [
+   "ArticlePhoto"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/ArticleReads.cs": {
+  "types": [
+   "ArticleReads"
+  ],
+  "users": [
+   "Articles/Commands/SaveContentArticle",
+   "Articles/Queries/GetContentArticle",
+   "Articles/Queries/GetContentArticles"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/ArticleResponse.cs": {
+  "types": [
+   "ArticleResponse"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "Articles/Commands/SaveContentArticle",
+   "Articles/Queries/GetContentArticle",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/ArticleRow.cs": {
+  "types": [
+   "ArticleRow"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "Articles/Queries/GetContentArticles",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/ArticleTextResponse.cs": {
+  "types": [
+   "ArticleTextResponse"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/OldSiteImportNote.cs": {
+  "types": [
+   "OldSiteImportNote"
+  ],
+  "users": [
+   "Articles/Commands/ImportOldSiteArticles",
+   "ProductPages/Commands/ImportOldSiteProductPages",
+   "SiteCategories/Commands/ImportOldSiteCategories",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/PublicArticle.cs": {
+  "types": [
+   "PublicArticle"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "Articles/Queries/GetPublicArticle",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/PublicArticleBlock.cs": {
+  "types": [
+   "PublicArticleBlock"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/PublicArticleCard.cs": {
+  "types": [
+   "PublicArticleCard"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "Articles/Queries/GetPublicArticles",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/PublicArticleMapping.cs": {
+  "types": [
+   "PublicArticleMapping"
+  ],
+  "users": [
+   "Articles/Queries/GetPublicArticle",
+   "Articles/Queries/GetPublicArticles"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/PublicArticlePhoto.cs": {
+  "types": [
+   "PublicArticlePhoto"
+  ],
+  "users": [
+   "APP:Features/Articles/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Content/Content.Application/Content.Application/Features/Articles/Shared/PublicArticlesSource.cs": {
+  "types": [
+   "PublicArticlesSnapshot",
+   "IPublicArticlesSource",
+   "PublicArticlesSource"
+  ],
+  "users": [
+   "Articles/Queries/GetPublicArticle",
+   "Articles/Queries/GetPublicArticles",
+   "Content:Content.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Reports/Shared/ReportIssueRowResponse.cs": {
+  "types": [
+   "ReportIssueRowResponse"
+  ],
+  "users": [
+   "APP:Features/Reports/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Reports/Shared/ReportMessages.cs": {
+  "types": [
+   "ReportMessages"
+  ],
+  "users": [
+   "Reports/Queries/GetWorkshopReport"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Reports/Shared/ReportOutputRowResponse.cs": {
+  "types": [
+   "ReportOutputRowResponse"
+  ],
+  "users": [
+   "APP:Features/Reports/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Reports/Shared/ReportStaffRowResponse.cs": {
+  "types": [
+   "ReportStaffRowResponse"
+  ],
+  "users": [
+   "APP:Features/Reports/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Reports/Shared/ReportStockRowResponse.cs": {
+  "types": [
+   "ReportStockRowResponse"
+  ],
+  "users": [
+   "APP:Features/Reports/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Reports/Shared/WorkshopReportResponse.cs": {
+  "types": [
+   "WorkshopReportResponse"
+  ],
+  "users": [
+   "APP:Features/Reports/Shared",
+   "Reports/Queries/GetWorkshopReport",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Reports/Shared/WorkshopReportTotalsResponse.cs": {
+  "types": [
+   "WorkshopReportTotalsResponse"
+  ],
+  "users": [
+   "APP:Features/Reports/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Reports/Shared/WorkshopReports.cs": {
+  "types": [
+   "WorkshopReports"
+  ],
+  "users": [
+   "Identity:Identity.Domain",
+   "Payroll/Commands/ClosePayrollMonth",
+   "Production:Production.Infrastructure",
+   "Reports/Queries/GetWorkshopReport",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ItemApplicationResponse.cs": {
+  "types": [
+   "ItemApplicationResponse"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/OrderActors.cs": {
+  "types": [
+   "OrderActors"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "APP:Features/Payroll/Shared",
+   "Forecast/Commands/SaveForecastQueue",
+   "Orders/Commands/CreateProductionOrder",
+   "Orders/Commands/DeleteProductionOrder",
+   "Orders/Commands/DeleteProductionOrderFile",
+   "Orders/Commands/ImportProductionOrders",
+   "Orders/Commands/SendProductionOrderTelegram",
+   "Orders/Commands/UpdateProductionOrder",
+   "Orders/Commands/UploadProductionOrderFile",
+   "Payroll/Commands/ReopenPayrollMonth",
+   "Timesheet/Commands/SaveTimesheetDay",
+   "Work/Commands/CreateProductionWork",
+   "Work/Commands/VoidProductionWork"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/OrderCards.cs": {
+  "types": [
+   "OrderCards"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "Orders/Commands/CopyProductionOrder",
+   "Orders/Commands/CreateProductionOrder",
+   "Orders/Commands/DeleteProductionOrderFile",
+   "Orders/Commands/SendProductionOrderTelegram",
+   "Orders/Commands/UpdateProductionOrder",
+   "Orders/Commands/UploadProductionOrderFile",
+   "Orders/Queries/GetProductionOrder",
+   "Production:Production.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/OrderMapping.cs": {
+  "types": [
+   "OrderMapping"
+  ],
+  "users": []
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/OrderMessages.cs": {
+  "types": [
+   "OrderMessages"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "Orders/Commands/CancelProductionOrder",
+   "Orders/Commands/CancelProductionShipment",
+   "Orders/Commands/CloseProductionOrder",
+   "Orders/Commands/CopyProductionOrder",
+   "Orders/Commands/CreateProductionOrder",
+   "Orders/Commands/CreateProductionShipment",
+   "Orders/Commands/DeleteProductionOrder",
+   "Orders/Commands/DeleteProductionOrderFile",
+   "Orders/Commands/ImportProductionOrders",
+   "Orders/Commands/ImportProductionProgress",
+   "Orders/Commands/ImportProductionReportPrices",
+   "Orders/Commands/ReopenProductionOrder",
+   "Orders/Commands/SendProductionOrderTelegram",
+   "Orders/Commands/SetProductionItemStages",
+   "Orders/Commands/UpdateProductionOrder",
+   "Orders/Commands/UploadProductionOrderFile",
+   "Orders/Queries/GetProductionEmbroideries",
+   "Orders/Queries/GetProductionOrder",
+   "Orders/Queries/GetProductionOrderHistory",
+   "Orders/Queries/GetProductionQuoteDraft",
+   "Orders/Queries/GetProductionQuoteSources",
+   "Work/Commands/CreateProductionWork",
+   "Work/Commands/VoidProductionWork",
+   "Work/Queries/GetProductionItemWork"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/OrderNorms.cs": {
+  "types": [
+   "OrderNorms"
+  ],
+  "users": [
+   "APP:Features/FabricPlans/Shared",
+   "Orders/Commands/ImportProductionOrders",
+   "Orders/Commands/UpdateProductionOrder"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/OrderNumbers.cs": {
+  "types": [
+   "OrderNumbers"
+  ],
+  "users": [
+   "Orders/Commands/CopyProductionOrder",
+   "Orders/Commands/CreateProductionOrder"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/OrderTracking.cs": {
+  "types": [
+   "OrderTracking"
+  ],
+  "users": [
+   "Orders/Commands/CancelProductionOrder",
+   "Orders/Commands/CancelProductionShipment",
+   "Orders/Commands/CloseProductionOrder",
+   "Orders/Commands/CreateProductionShipment",
+   "Orders/Commands/ReopenProductionOrder",
+   "Orders/Commands/SetProductionItemStages",
+   "Production:Production.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionEmbroideryResponse.cs": {
+  "types": [
+   "ProductionEmbroideryResponse"
+  ],
+  "users": [
+   "APP:Abstractions",
+   "APP:Features/Orders/Shared",
+   "Orders/Queries/GetProductionEmbroideries",
+   "Orders/Queries/GetProductionQuoteDraft",
+   "Production:Production.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionFileResponse.cs": {
+  "types": [
+   "ProductionFileResponse"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionItemDetailsInput.cs": {
+  "types": [
+   "ProductionItemDetailsInput"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "APP:Features/Orders/Shared/Validation",
+   "Orders/Commands/CreateProductionOrder",
+   "Orders/Commands/ImportProductionOrders",
+   "Orders/Commands/UpdateProductionOrder",
+   "Orders/Queries/GetProductionEmbroideries",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionItemResponse.cs": {
+  "types": [
+   "ProductionItemResponse"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionOrderChangeResponse.cs": {
+  "types": [
+   "ProductionOrderChangeResponse"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "Orders/Queries/GetProductionOrderHistory",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionOrderFiltering.cs": {
+  "types": [
+   "ProductionOrderFiltering"
+  ],
+  "users": [
+   "Orders/Queries/GetProductionModelSummary",
+   "Orders/Queries/GetProductionOrders"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionOrderFilters.cs": {
+  "types": [
+   "ProductionOrderFilters"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "Orders/Queries/GetProductionOrders",
+   "Production:Endpoints",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionOrderPermissions.cs": {
+  "types": [
+   "ProductionOrderPermissions"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionOrderResponse.cs": {
+  "types": [
+   "ProductionOrderResponse"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "Orders/Commands/CancelProductionOrder",
+   "Orders/Commands/CancelProductionShipment",
+   "Orders/Commands/CloseProductionOrder",
+   "Orders/Commands/CopyProductionOrder",
+   "Orders/Commands/CreateProductionOrder",
+   "Orders/Commands/CreateProductionShipment",
+   "Orders/Commands/DeleteProductionOrderFile",
+   "Orders/Commands/ReopenProductionOrder",
+   "Orders/Commands/SendProductionOrderTelegram",
+   "Orders/Commands/SetProductionItemStages",
+   "Orders/Commands/UpdateProductionOrder",
+   "Orders/Commands/UploadProductionOrderFile",
+   "Orders/Queries/GetProductionOrder",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionOrderVersionInput.cs": {
+  "types": [
+   "ProductionOrderVersionInput"
+  ],
+  "users": [
+   "Production:Endpoints",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionShipmentResponse.cs": {
+  "types": [
+   "ProductionShipmentResponse"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/ProductionTelegramResponse.cs": {
+  "types": [
+   "ProductionTelegramResponse"
+  ],
+  "users": [
+   "APP:Features/Orders/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Orders/Shared/QuoteItemResolver.cs": {
+  "types": [
+   "QuoteItemResolver",
+   "ResolvedQuoteItem",
+   "ResolvedQuoteOption"
+  ],
+  "users": [
+   "Orders/Commands/CreateProductionOrder",
+   "Orders/Queries/GetProductionQuoteDraft",
+   "Production:Production.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollAdjustmentResponse.cs": {
+  "types": [
+   "PayrollAdjustmentResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "Payroll/Queries/GetPayrollEmployee",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollChanges.cs": {
+  "types": [
+   "PayrollChange",
+   "PayrollChanges"
+  ],
+  "users": [
+   "Payroll/Commands/ClosePayrollMonth",
+   "Payroll/Commands/CreatePayrollAdjustment",
+   "Payroll/Commands/CreatePayrollPayment",
+   "Payroll/Commands/ReopenPayrollMonth",
+   "Payroll/Commands/SetPayrollEmbroidery",
+   "Payroll/Commands/SetPayrollIssued",
+   "Payroll/Commands/SetPayrollRoles",
+   "Payroll/Commands/VoidPayrollAdjustment",
+   "Payroll/Commands/VoidPayrollPayment",
+   "Payroll/Queries/GetPayrollMonth",
+   "Production:Production.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollInputRules.cs": {
+  "types": [
+   "PayrollInputRules"
+  ],
+  "users": [
+   "Payroll/Commands/CreatePayrollAdjustment",
+   "Payroll/Commands/CreatePayrollPayment",
+   "Payroll/Commands/SetPayrollIssued",
+   "Payroll/Commands/VoidPayrollAdjustment",
+   "Payroll/Commands/VoidPayrollPayment"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollLineResponse.cs": {
+  "types": [
+   "PayrollLineResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "APP:Features/Reports/Shared",
+   "Payroll/Queries/GetPayrollEmployee",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollMessages.cs": {
+  "types": [
+   "PayrollMessages"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "Payroll/Commands/ClosePayrollMonth",
+   "Payroll/Commands/CreatePayrollAdjustment",
+   "Payroll/Commands/CreatePayrollPayment",
+   "Payroll/Commands/ReopenPayrollMonth",
+   "Payroll/Commands/SetPayrollEmbroidery",
+   "Payroll/Commands/SetPayrollIssued",
+   "Payroll/Commands/SetPayrollRoles",
+   "Payroll/Commands/VoidPayrollAdjustment",
+   "Payroll/Commands/VoidPayrollPayment",
+   "Payroll/Queries/GetPayrollEmployee",
+   "Payroll/Queries/GetPayrollMonth",
+   "Payroll/Queries/GetPayrollYear",
+   "Timesheet/Commands/SaveTimesheetDay",
+   "Work/Commands/CreateProductionWork",
+   "Work/Commands/VoidProductionWork"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollMonthResponse.cs": {
+  "types": [
+   "PayrollMonthResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "Payroll/Commands/ClosePayrollMonth",
+   "Payroll/Commands/CreatePayrollAdjustment",
+   "Payroll/Commands/CreatePayrollPayment",
+   "Payroll/Commands/ReopenPayrollMonth",
+   "Payroll/Commands/SetPayrollEmbroidery",
+   "Payroll/Commands/SetPayrollIssued",
+   "Payroll/Commands/SetPayrollRoles",
+   "Payroll/Commands/VoidPayrollAdjustment",
+   "Payroll/Commands/VoidPayrollPayment",
+   "Payroll/Queries/GetPayrollMonth",
+   "Payroll/Queries/GetPayrollYear",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollMonths.cs": {
+  "types": [
+   "PayrollMonths"
+  ],
+  "users": [
+   "APP:Abstractions",
+   "APP:Features/Payroll/Shared",
+   "APP:Features/Reports/Shared",
+   "APP:Features/Timesheet/Shared",
+   "Payroll/Commands/ClosePayrollMonth",
+   "Payroll/Commands/CreatePayrollAdjustment",
+   "Payroll/Commands/CreatePayrollPayment",
+   "Payroll/Commands/ReopenPayrollMonth",
+   "Payroll/Commands/SetPayrollEmbroidery",
+   "Payroll/Commands/SetPayrollIssued",
+   "Payroll/Commands/SetPayrollRoles",
+   "Payroll/Commands/VoidPayrollAdjustment",
+   "Payroll/Commands/VoidPayrollPayment",
+   "Payroll/Queries/GetPayrollEmployee",
+   "Payroll/Queries/GetPayrollMonth",
+   "Payroll/Queries/GetPayrollYear",
+   "Production:Production.Infrastructure",
+   "Reports/Queries/GetWorkshopReport",
+   "Timesheet/Commands/SaveTimesheetDay",
+   "Work/Commands/CreateProductionWork",
+   "Work/Commands/VoidProductionWork"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollPaymentResponse.cs": {
+  "types": [
+   "PayrollPaymentResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "Payroll/Queries/GetPayrollEmployee",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollPermissionsResponse.cs": {
+  "types": [
+   "PayrollPermissionsResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollPersonResponse.cs": {
+  "types": [
+   "PayrollPersonResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollRatesResponse.cs": {
+  "types": [
+   "PayrollRatesResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollSheets.cs": {
+  "types": [
+   "PayrollSnapshot",
+   "PayrollSheets"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "APP:Features/Reports/Shared",
+   "Payroll/Commands/ClosePayrollMonth",
+   "Payroll/Queries/GetPayrollEmployee",
+   "Payroll/Queries/GetPayrollYear",
+   "Production:Production.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollTotalsResponse.cs": {
+  "types": [
+   "PayrollTotalsResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/PayrollWorkRowResponse.cs": {
+  "types": [
+   "PayrollWorkRowResponse"
+  ],
+  "users": [
+   "APP:Features/Payroll/Shared",
+   "Payroll/Queries/GetPayrollEmployee",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Payroll/Shared/VoidPayrollEntryInput.cs": {
+  "types": [
+   "VoidPayrollEntryInput"
+  ],
+  "users": [
+   "Payroll/Commands/VoidPayrollAdjustment",
+   "Payroll/Commands/VoidPayrollPayment",
+   "Production:Endpoints",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Timesheet/Shared/TimesheetChangeResponse.cs": {
+  "types": [
+   "TimesheetChangeResponse"
+  ],
+  "users": [
+   "APP:Features/Timesheet/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Timesheet/Shared/TimesheetDayResponse.cs": {
+  "types": [
+   "TimesheetDayResponse"
+  ],
+  "users": [
+   "APP:Features/Timesheet/Shared",
+   "TEST",
+   "Timesheet/Commands/SaveTimesheetDay",
+   "Timesheet/Queries/GetTimesheetDay"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Timesheet/Shared/TimesheetDays.cs": {
+  "types": [
+   "TimesheetDays"
+  ],
+  "users": [
+   "Production:Production.Infrastructure",
+   "TEST",
+   "Timesheet/Commands/SaveTimesheetDay",
+   "Timesheet/Queries/GetTimesheetDay"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Timesheet/Shared/TimesheetMessages.cs": {
+  "types": [
+   "TimesheetMessages"
+  ],
+  "users": [
+   "Timesheet/Commands/SaveTimesheetDay",
+   "Timesheet/Queries/GetTimesheetDay"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Timesheet/Shared/TimesheetMonthDayResponse.cs": {
+  "types": [
+   "TimesheetMonthDayResponse"
+  ],
+  "users": [
+   "APP:Features/Timesheet/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Timesheet/Shared/TimesheetMonthEmployeeResponse.cs": {
+  "types": [
+   "TimesheetMonthEmployeeResponse"
+  ],
+  "users": [
+   "APP:Features/Timesheet/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Timesheet/Shared/TimesheetMonthResponse.cs": {
+  "types": [
+   "TimesheetMonthResponse"
+  ],
+  "users": [
+   "APP:Features/Timesheet/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Production/Production.Application/Production.Application/Features/Timesheet/Shared/TimesheetRowResponse.cs": {
+  "types": [
+   "TimesheetRowResponse"
+  ],
+  "users": [
+   "APP:Features/Timesheet/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Features/Documents/Shared/PurchaseDocumentItemResponse.cs": {
+  "types": [
+   "PurchaseDocumentItemResponse"
+  ],
+  "users": [
+   "APP:Features/Documents/Shared",
+   "APP:Features/Register/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Features/Documents/Shared/PurchaseDocumentMapping.cs": {
+  "types": [
+   "PurchaseDocumentMapping"
+  ],
+  "users": [
+   "APP:Features/Documents/Shared",
+   "APP:Features/Register/Shared",
+   "Register/Queries/GetPurchaseInvoices"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Features/Documents/Shared/PurchaseDocumentSource.cs": {
+  "types": [
+   "PurchaseDocumentSource"
+  ],
+  "users": [
+   "APP:Features/Documents/Shared",
+   "APP:Features/Register/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Features/Documents/Shared/PurchaseFileRecognition.cs": {
+  "types": [
+   "PurchaseFileRecognition"
+  ],
+  "users": [
+   "Documents/Commands/RecognizeNewPurchaseFiles",
+   "Documents/Commands/RecognizePurchaseFile",
+   "Documents/Commands/SaveCheckedPurchaseDocument",
+   "Documents/Queries/GetPurchaseDocumentTemplate",
+   "Purchasing:Purchasing.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Features/Documents/Shared/PurchaseRecognitionAttemptResponse.cs": {
+  "types": [
+   "PurchaseRecognitionAttemptResponse"
+  ],
+  "users": [
+   "APP:Features/Documents/Shared",
+   "Register/Queries/GetPurchaseInvoices",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Features/Documents/Shared/PurchaseRecognitionPrompt.cs": {
+  "types": [
+   "PurchaseRecognitionPrompt"
+  ],
+  "users": [
+   "APP:Features/Documents/Shared",
+   "Purchasing:Purchasing.Infrastructure",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Features/Documents/Shared/PurchaseRecognitionResponse.cs": {
+  "types": [
+   "PurchaseRecognitionResponse"
+  ],
+  "users": [
+   "APP:Features/Documents/Shared",
+   "Documents/Commands/RecognizePurchaseFile",
+   "Purchasing:Endpoints",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Purchasing/Purchasing.Application/Purchasing.Application/Features/Documents/Shared/PurchaseRecognitionResult.cs": {
+  "types": [
+   "PurchaseRecognitionResult"
+  ],
+  "users": [
+   "APP:Features/Documents/Shared",
+   "Documents/Commands/RecognizeNewPurchaseFiles",
+   "Register/Queries/GetPurchaseInvoices",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reference/Reference.Application/Reference.Application/Features/PricingSettingsImport/Shared/ImportPlan.cs": {
+  "types": [
+   "ImportPlan"
+  ],
+  "users": [
+   "APP:Features/PricingSettingsImport/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reference/Reference.Application/Reference.Application/Features/PricingSettingsImport/Shared/ImportPricingSettingsValidator.cs": {
+  "types": [
+   "ImportPricingSettingsValidator"
+  ],
+  "users": []
+ },
+ "/home/user/BreviERP/src/Modules/Reference/Reference.Application/Reference.Application/Features/PricingSettingsImport/Shared/PpeMarkupRuleImportPlanner.cs": {
+  "types": [
+   "PpeMarkupRuleImportPlanner"
+  ],
+  "users": [
+   "PricingSettingsImport/Commands/ImportPricingSettings"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reference/Reference.Application/Reference.Application/Features/PricingSettingsImport/Shared/PpeMarkupRuleImportRow.cs": {
+  "types": [
+   "PpeMarkupRuleImportRow"
+  ],
+  "users": [
+   "APP:Features/PricingSettingsImport/Shared",
+   "PricingSettingsImport/Commands/ImportPricingSettings",
+   "Reference:Endpoints",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reference/Reference.Application/Reference.Application/Features/PricingSettingsImport/Shared/PricingParameterImportPlanner.cs": {
+  "types": [
+   "PricingParameterImportPlanner"
+  ],
+  "users": [
+   "PricingSettingsImport/Commands/ImportPricingSettings"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reference/Reference.Application/Reference.Application/Features/PricingSettingsImport/Shared/PricingParameterImportRow.cs": {
+  "types": [
+   "PricingParameterImportRow"
+  ],
+  "users": [
+   "APP:Features/PricingSettingsImport/Shared",
+   "PricingSettingsImport/Commands/ImportPricingSettings",
+   "Reference:Endpoints",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reference/Reference.Application/Reference.Application/Features/PricingSettingsImport/Shared/PricingSettingsImportResult.cs": {
+  "types": [
+   "PricingSettingsImportSection",
+   "PricingSettingsImportResult"
+  ],
+  "users": [
+   "APP:Features/PricingSettingsImport/Shared",
+   "PricingSettingsImport/Commands/ImportPricingSettings",
+   "Reference:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reminders/Reminders.Application/Reminders.Application/Features/Telegram/Shared/TelegramCallbackQuery.cs": {
+  "types": [
+   "TelegramCallbackQuery"
+  ],
+  "users": [
+   "APP:Features/Telegram/Shared",
+   "TEST",
+   "Telegram/Commands/HandleTelegramUpdate"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reminders/Reminders.Application/Reminders.Application/Features/Telegram/Shared/TelegramChat.cs": {
+  "types": [
+   "TelegramChat"
+  ],
+  "users": [
+   "APP:Features/Telegram/Shared",
+   "TEST",
+   "Telegram/Commands/HandleTelegramUpdate"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reminders/Reminders.Application/Reminders.Application/Features/Telegram/Shared/TelegramChatMember.cs": {
+  "types": [
+   "TelegramChatMember"
+  ],
+  "users": [
+   "APP:Features/Telegram/Shared"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reminders/Reminders.Application/Reminders.Application/Features/Telegram/Shared/TelegramChatMemberUpdated.cs": {
+  "types": [
+   "TelegramChatMemberUpdated"
+  ],
+  "users": [
+   "APP:Features/Telegram/Shared",
+   "Telegram/Commands/HandleTelegramUpdate"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reminders/Reminders.Application/Reminders.Application/Features/Telegram/Shared/TelegramMessage.cs": {
+  "types": [
+   "TelegramMessage"
+  ],
+  "users": [
+   "APP:Features/Telegram/Shared",
+   "TEST",
+   "Telegram/Commands/HandleTelegramUpdate"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reminders/Reminders.Application/Reminders.Application/Features/Telegram/Shared/TelegramUpdate.cs": {
+  "types": [
+   "TelegramUpdate"
+  ],
+  "users": [
+   "Reminders:Endpoints",
+   "Telegram/Commands/HandleTelegramUpdate"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Reminders/Reminders.Application/Reminders.Application/Features/Telegram/Shared/TelegramUser.cs": {
+  "types": [
+   "TelegramUser"
+  ],
+  "users": [
+   "APP:Features/Telegram/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricBookingCalculator.cs": {
+  "types": [
+   "FabricBookingCalculator"
+  ],
+  "users": [
+   "Stock/Queries/GetFabricBooking",
+   "Stock/Queries/GetFabricStock",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricBookingItemResponse.cs": {
+  "types": [
+   "FabricBookingItemResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricBookingPairResponse.cs": {
+  "types": [
+   "FabricBookingPairResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Queries/GetFabricStock",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricBookingResponse.cs": {
+  "types": [
+   "FabricBookingResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Queries/GetFabricBooking",
+   "TEST",
+   "Warehouse:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricBookingUnknownResponse.cs": {
+  "types": [
+   "FabricBookingUnknownResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricIssueComparisonResponse.cs": {
+  "types": [
+   "FabricIssueComparisonResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricIssueLineResponse.cs": {
+  "types": [
+   "FabricIssueLineResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricIssueResponse.cs": {
+  "types": [
+   "FabricIssueResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricPlanPartResponse.cs": {
+  "types": [
+   "FabricPlanPartResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricStockOperationResponse.cs": {
+  "types": [
+   "FabricStockOperationResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Commands/AdjustFabricStock",
+   "Stock/Commands/EditFabricMovement",
+   "Stock/Commands/IssueFabric",
+   "Stock/Commands/OpenFabricStock",
+   "Stock/Commands/ReceiveFabric",
+   "Stock/Commands/RestoreFabricMovement",
+   "Stock/Commands/ReverseFabricMovement",
+   "Stock/Commands/VoidFabricMovement",
+   "TEST",
+   "Warehouse:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/FabricStockPermissions.cs": {
+  "types": [
+   "FabricStockPermissions"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Queries/GetFabricMovements",
+   "Stock/Queries/GetFabricStock",
+   "TEST"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/ItemFabricCards.cs": {
+  "types": [
+   "ItemFabricCards"
+  ],
+  "users": [
+   "Stock/Commands/CreateFabricIssue",
+   "Stock/Commands/RefreshItemFabricPlan",
+   "Stock/Commands/ReverseFabricIssue",
+   "Stock/Queries/GetProductionItemFabric",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/ItemPlans.cs": {
+  "types": [
+   "ItemPlans"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Commands/CreateFabricIssue",
+   "Stock/Commands/RefreshItemFabricPlan",
+   "Stock/Queries/GetFabricPlanFact",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/MovementRevisions.cs": {
+  "types": [
+   "MovementRevisions"
+  ],
+  "users": [
+   "Stock/Commands/EditFabricMovement",
+   "Stock/Commands/RestoreFabricMovement",
+   "Stock/Commands/VoidFabricMovement",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/ProductionItemFabricResponse.cs": {
+  "types": [
+   "ProductionItemFabricResponse"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Commands/CreateFabricIssue",
+   "Stock/Commands/RefreshItemFabricPlan",
+   "Stock/Commands/ReverseFabricIssue",
+   "Stock/Queries/GetProductionItemFabric",
+   "TEST",
+   "Warehouse:Endpoints"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/StockChanges.cs": {
+  "types": [
+   "StockChanges"
+  ],
+  "users": [
+   "Stock/Commands/AdjustFabricStock",
+   "Stock/Commands/CreateFabricIssue",
+   "Stock/Commands/EditFabricMovement",
+   "Stock/Commands/IssueFabric",
+   "Stock/Commands/OpenFabricStock",
+   "Stock/Commands/ReceiveFabric",
+   "Stock/Commands/RefreshItemFabricPlan",
+   "Stock/Commands/RestoreFabricMovement",
+   "Stock/Commands/ReverseFabricIssue",
+   "Stock/Commands/ReverseFabricMovement",
+   "Stock/Commands/VoidFabricMovement",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/StockList.cs": {
+  "types": [
+   "StockList"
+  ],
+  "users": [
+   "Stock/Queries/GetFabricMovements",
+   "Stock/Queries/GetFabricStock"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/StockMessages.cs": {
+  "types": [
+   "StockMessages"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Commands/AdjustFabricStock",
+   "Stock/Commands/CreateFabricIssue",
+   "Stock/Commands/EditFabricMovement",
+   "Stock/Commands/IssueFabric",
+   "Stock/Commands/OpenFabricStock",
+   "Stock/Commands/ReceiveFabric",
+   "Stock/Commands/RefreshItemFabricPlan",
+   "Stock/Commands/RestoreFabricMovement",
+   "Stock/Commands/ReverseFabricIssue",
+   "Stock/Commands/ReverseFabricMovement",
+   "Stock/Commands/TransferStock",
+   "Stock/Commands/VoidFabricMovement",
+   "Stock/Queries/GetFabricMovementHistory",
+   "Stock/Queries/GetProductionItemFabric"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/StockOperations.cs": {
+  "types": [
+   "StockOperations"
+  ],
+  "users": [
+   "APP:Abstractions",
+   "APP:Features/Stock/Shared",
+   "Stock/Commands/AdjustFabricStock",
+   "Stock/Commands/CreateFabricIssue",
+   "Stock/Commands/EditFabricMovement",
+   "Stock/Commands/IssueFabric",
+   "Stock/Commands/OpenFabricStock",
+   "Stock/Commands/ReceiveFabric",
+   "Stock/Commands/RestoreFabricMovement",
+   "Stock/Commands/TransferStock",
+   "Stock/Commands/VoidFabricMovement",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/StockPairs.cs": {
+  "types": [
+   "StockPairs"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Commands/AdjustFabricStock",
+   "Stock/Commands/CreateFabricIssue",
+   "Stock/Commands/EditFabricMovement",
+   "Stock/Commands/IssueFabric",
+   "Stock/Commands/OpenFabricStock",
+   "Stock/Commands/ReceiveFabric",
+   "Stock/Commands/RestoreFabricMovement",
+   "Stock/Commands/ReverseFabricMovement",
+   "Stock/Commands/VoidFabricMovement",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/StockReservations.cs": {
+  "types": [
+   "ItemReservation",
+   "StockReservations"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/StockRules.cs": {
+  "types": [
+   "StockRules"
+  ],
+  "users": []
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/WarehouseActor.cs": {
+  "types": [
+   "WarehouseActor",
+   "WarehouseActorRules"
+  ],
+  "users": [
+   "APP:Features/Stock/Shared",
+   "Stock/Commands/AdjustFabricStock",
+   "Stock/Commands/CreateFabricIssue",
+   "Stock/Commands/EditFabricMovement",
+   "Stock/Commands/IssueFabric",
+   "Stock/Commands/OpenFabricStock",
+   "Stock/Commands/ReceiveFabric",
+   "Stock/Commands/RefreshItemFabricPlan",
+   "Stock/Commands/RestoreFabricMovement",
+   "Stock/Commands/ReverseFabricIssue",
+   "Stock/Commands/ReverseFabricMovement",
+   "Stock/Commands/TransferStock",
+   "Stock/Commands/VoidFabricMovement",
+   "Stock/Queries/GetFabricBooking",
+   "Stock/Queries/GetFabricConsumption",
+   "Stock/Queries/GetFabricIssueItems",
+   "Stock/Queries/GetFabricMovementHistory",
+   "Stock/Queries/GetFabricMovements",
+   "Stock/Queries/GetFabricPlanFact",
+   "Stock/Queries/GetFabricStock",
+   "Stock/Queries/GetFabricStockChoices",
+   "Stock/Queries/GetFabricValuation",
+   "Stock/Queries/GetHardwareOrder",
+   "Stock/Queries/GetProductionItemFabric",
+   "TEST",
+   "Warehouse:Endpoints",
+   "Warehouse:Warehouse.Api"
+  ]
+ },
+ "/home/user/BreviERP/src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/WarehouseColors.cs": {
+  "types": [
+   "WarehouseColors"
+  ],
+  "users": [
+   "Stock/Commands/EditFabricMovement",
+   "Stock/Commands/OpenFabricStock",
+   "Stock/Commands/ReceiveFabric",
+   "Stock/Queries/GetFabricStockChoices",
+   "TEST",
+   "Warehouse:Warehouse.Infrastructure"
+  ]
+ }
+}

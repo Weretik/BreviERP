@@ -25,6 +25,8 @@ using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 using Catalog.Application.Features.Product.Shared;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts.Results;
+using Catalog.Application.Features.Product.Shared.Detail;
 
 namespace IntegrationTests.Catalog.Products;
 
@@ -218,7 +220,7 @@ public sealed class ProductsApiTests
     private static ProductAdminDetail Detail(int id = 1)
         => new(id, "Product", "Товар", "product", ProductType.Ppe, "Description", "Описание", [],
             [new(10, "https://cdn.test/main.jpg", null, true, true, 0), new(11, "https://cdn.test/second.jpg", "Second", true, false, 1)], [], [], null,
-            new(new(7, "Supplier"), 100m, new(global::Catalog.Application.Features.Product.Shared.PpePercentSource.Custom, null, 25.5m), new(global::Catalog.Application.Features.Product.Shared.PpePercentSource.Custom, null, 15.25m), 0m, 0m), DateTimeOffset.UtcNow, null);
+            new(new(7, "Supplier"), 100m, new(global::Catalog.Application.Features.Product.Shared.Detail.Ppe.PpePercentSource.Custom, null, 25.5m), new(global::Catalog.Application.Features.Product.Shared.Detail.Ppe.PpePercentSource.Custom, null, 15.25m), 0m, 0m), DateTimeOffset.UtcNow, null);
 
     [Test]
     public async Task List_requires_a_signed_in_staff_user()

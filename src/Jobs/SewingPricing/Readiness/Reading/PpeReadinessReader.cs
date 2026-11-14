@@ -18,7 +18,7 @@ internal static class PpeReadinessReader
             .Select(x => new { Id = x.Id.Value, Sku = x.CatalogProfile!.SaleSku }).ToListAsync(cancellationToken);
         var identities = products.Where(x => x.Sku != null).ToDictionary(x => x.Sku!, x => x.Id, StringComparer.Ordinal);
         var reader = new PpePricingInputReader(db);
-        var inputs = new Dictionary<int, Catalog.Application.Abstractions.Pricing.PpePricingProductInput>();
+        var inputs = new Dictionary<int, Catalog.Application.Abstractions.Pricing.Ppe.PpePricingProductInput>();
         foreach (var chunk in rows.Select(x => identities.GetValueOrDefault(x.Text(0))).Where(x => x > 0).Distinct().Chunk(100))
             foreach (var input in await reader.ReadAsync(chunk, cancellationToken))
                 inputs.Add(input.ProductId, input);

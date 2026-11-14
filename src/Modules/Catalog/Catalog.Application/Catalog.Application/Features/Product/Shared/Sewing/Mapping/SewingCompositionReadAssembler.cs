@@ -4,6 +4,7 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Domain.Products.Sewing.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Application.Abstractions.Sewing;
 
 namespace Catalog.Application.Features.Product.Shared.Sewing.Mapping;
 

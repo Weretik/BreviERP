@@ -3,6 +3,10 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using Catalog.Application.Abstractions.Products;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Report;
 
 namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
