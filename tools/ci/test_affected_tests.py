@@ -4,7 +4,7 @@ import unittest
 from affected_tests import affected, referenced_by
 
 USERS = {"Crm": {"Production"}, "Production": {"Crm", "Warehouse"}, "Warehouse": {"Production"},
-         "Catalog": set(), "Reference": {"Catalog"}, "Media": {"Catalog"}}
+         "Catalog": {"Jobs"}, "Reference": {"Catalog", "Jobs"}, "Media": {"Catalog"}, "Jobs": {"Catalog", "Reference"}}
 
 
 class AffectedTests(unittest.TestCase):
@@ -25,8 +25,22 @@ class AffectedTests(unittest.TestCase):
                      "tests/UnitTests/RootTests.cs", "tools/ci/affected_tests.py"]:
             self.assertEqual(affected([path], USERS), "all", path)
 
-    def test_modules_with_ungrouped_tests_run_everything(self):
-        self.assertEqual(affected(["src/Modules/Media/Media.Domain/X.cs"], USERS), "all")
+    def test_catalog_runs_its_tests_and_the_job_tests_that_seed_through_it(self):
+        self.assertEqual(affected(["src/Modules/Catalog/Catalog.Domain/X.cs"], USERS),
+                         "FullyQualifiedName~UnitTests.Catalog.|FullyQualifiedName~IntegrationTests.Catalog."
+                         "|FullyQualifiedName~UnitTests.Jobs.|FullyQualifiedName~IntegrationTests.Jobs.")
+
+    def test_a_module_used_by_catalog_also_runs_the_job_tests(self):
+        self.assertIn("UnitTests.Jobs.", affected(["src/Modules/Media/Media.Domain/X.cs"], USERS))
+
+    def test_a_job_change_runs_job_catalog_and_reference_tests(self):
+        selected = affected(["src/Jobs/SewingPricing/Activation/X.cs"], USERS)
+        for name in ("UnitTests.Jobs.", "IntegrationTests.Catalog.", "IntegrationTests.Reference."):
+            self.assertIn(name, selected)
+        self.assertNotIn("Crm", selected)
+
+    def test_a_job_test_file_counts_as_jobs(self):
+        self.assertIn("IntegrationTests.Jobs.", affected(["tests/IntegrationTests/Jobs/SewingPricing/X.cs"], USERS))
 
     def test_architecture_tests_alone_need_no_module_tests(self):
         self.assertEqual(affected(["tests/ArchitectureTests/X.cs"], USERS), "none")
@@ -35,6 +49,8 @@ class AffectedTests(unittest.TestCase):
         users = referenced_by()
         self.assertIn("Warehouse", users["Production"])
         self.assertIn("Crm", users["Catalog"])
+        self.assertIn("Jobs", users["Catalog"])
+        self.assertIn("Jobs", users["Identity"])
 
 
 if __name__ == "__main__":

@@ -96,8 +96,8 @@ The existing composition-only readiness view remains conservative for OtherCost 
 
 ## Tests
 
-- `tests/UnitTests/SewingArticlePricingTests.cs`, `tests/UnitTests/SewingPricingContractTests.cs`, `tests/UnitTests/PublishedSewingProductsQueryTests.cs`, `tests/UnitTests/SewingArticleSummaryTests.cs`
-- `tests/IntegrationTests/Pricing/Sewing/`, `tests/IntegrationTests/SewingArticlePricingPersistenceTests.cs`
+- `tests/UnitTests/Catalog/Pricing/Sewing/SewingArticlePricingTests.cs`, `tests/UnitTests/Catalog/Pricing/Sewing/SewingPricingContractTests.cs`, `tests/UnitTests/Catalog/Pricing/Sewing/PublishedSewingProductsQueryTests.cs`, `tests/UnitTests/Catalog/Pricing/Sewing/SewingArticleSummaryTests.cs`
+- `tests/IntegrationTests/Catalog/Pricing/Sewing/`, `tests/IntegrationTests/Catalog/Pricing/Sewing/SewingArticlePricingPersistenceTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter SewingPricing`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter SewingPricing` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 

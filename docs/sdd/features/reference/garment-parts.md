@@ -42,7 +42,7 @@ flowchart LR
 
 ## Tests
 
-No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/Reference/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

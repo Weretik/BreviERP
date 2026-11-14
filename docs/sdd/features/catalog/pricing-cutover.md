@@ -38,7 +38,7 @@ Jobs/CatalogImport/PpePricing/Verification/
 
 ## Tests
 
-- `tests/UnitTests/ProductPricingCutoverTests.cs`
+- `tests/UnitTests/Catalog/Products/ProductPricingCutoverTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter ProductPricingCutover`.
 

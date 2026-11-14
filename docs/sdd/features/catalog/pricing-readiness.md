@@ -40,8 +40,8 @@ No migration, HTTP API, frontend change or runtime-to-job dependency is introduc
 
 ## Tests
 
-- `tests/UnitTests/PricingReadinessTests.cs`
-- `tests/IntegrationTests/Pricing/PricingReadinessTests.cs`
+- `tests/UnitTests/Jobs/SewingPricing/PricingReadinessTests.cs`
+- `tests/IntegrationTests/Jobs/SewingPricing/PricingReadinessTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingReadiness`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingReadiness` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 

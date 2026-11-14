@@ -73,8 +73,8 @@ Legacy Product editing preserves these records and rejects changes to legacy nor
 
 ## Tests
 
-- `tests/UnitTests/SewingArticleTests.cs`, `tests/UnitTests/SewingComposition*Tests.cs`
-- `tests/IntegrationTests/SewingComposition*Tests.cs`, `tests/IntegrationTests/SewingVariantPersistenceTests.cs`
+- `tests/UnitTests/Catalog/Composition/SewingArticleTests.cs`, `tests/UnitTests/Catalog/Composition/SewingComposition*Tests.cs`
+- `tests/IntegrationTests/Catalog/Composition/SewingComposition*Tests.cs`, `tests/IntegrationTests/Catalog/Composition/SewingVariantPersistenceTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter SewingComposition`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter SewingComposition` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 
