@@ -21,9 +21,9 @@ src/
     │   ├── Controllers/AuthSessionController.cs     # me
     │   └── Cookies/SessionCookieWriter.cs           # CSRF cookie
     ├── Identity.Application/Identity.Application/Features/Auth/
-    │   ├── CookieLogin/                             # command, handler, validator
-    │   ├── CookieLogout/
-    │   └── SessionMe/
+    │   ├── Commands/CookieLogin/                    # command, handler, validator
+    │   ├── Commands/CookieLogout/
+    │   └── Queries/SessionMe/
     └── Identity.Infrastructure/Identity.Infrastructure/
         ├── DependencyInjection/IdentityAuthenticationExtensions.cs # cookie scheme, 401/403
         ├── DependencyInjection/IdentityDbContextExtensions.cs      # lockout, password, Data Protection

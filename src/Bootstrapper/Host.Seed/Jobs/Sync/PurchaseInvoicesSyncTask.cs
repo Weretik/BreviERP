@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Purchasing.Application.Register.Sync;
+using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
 
 namespace Host.Seed.Jobs.Sync;
 

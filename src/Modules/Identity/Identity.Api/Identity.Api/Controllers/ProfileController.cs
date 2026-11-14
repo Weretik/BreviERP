@@ -1,13 +1,13 @@
 using Identity.Api.Avatars;
 using Identity.Api.Contracts.Profile;
-using Identity.Application.Features.Profile.ChangeOwnEmail;
-using Identity.Application.Features.Profile.ChangeOwnName;
-using Identity.Application.Features.Profile.ChangeOwnPassword;
-using Identity.Application.Features.Profile.ChangeOwnPhone;
-using Identity.Application.Features.Profile.GetProfile;
-using Identity.Application.Features.Profile.RemoveOwnAvatar;
-using Identity.Application.Features.Profile.UploadOwnAvatar;
 using Identity.Application.Security.Policies;
+using Identity.Application.Features.Profile.Commands.ChangeOwnEmail;
+using Identity.Application.Features.Profile.Commands.ChangeOwnName;
+using Identity.Application.Features.Profile.Commands.ChangeOwnPassword;
+using Identity.Application.Features.Profile.Commands.ChangeOwnPhone;
+using Identity.Application.Features.Profile.Commands.RemoveOwnAvatar;
+using Identity.Application.Features.Profile.Commands.UploadOwnAvatar;
+using Identity.Application.Features.Profile.Queries.GetProfile;
 
 namespace Identity.Api.Controllers;
 

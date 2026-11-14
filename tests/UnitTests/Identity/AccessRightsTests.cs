@@ -1,11 +1,11 @@
 using FluentValidation.TestHelper;
 using Identity.Api.Contracts.Access;
-using Identity.Application.Features.Access.CreateRole;
-using Identity.Application.Features.Access.DeleteRole;
-using Identity.Application.Features.Access.SaveRoleAccess;
 using Identity.Application.Security.Access;
 using Identity.Domain.Authorization;
 using Identity.Infrastructure.Services.Access;
+using Identity.Application.Features.Access.Commands.CreateRole;
+using Identity.Application.Features.Access.Commands.DeleteRole;
+using Identity.Application.Features.Access.Commands.SaveRoleAccess;
 
 namespace UnitTests.Identity;
 
@@ -174,7 +174,7 @@ public sealed class AccessRightsTests
     [Test]
     public void The_director_cannot_be_edited()
     {
-        var result = new SaveRoleAccessCommandValidator().TestValidate(
+        var result = new SaveRoleAccessValidator().TestValidate(
             new SaveRoleAccessCommand(RoleNames.Director, 0, new Dictionary<string, IReadOnlyList<AccessAction>>()));
 
         result.ShouldHaveValidationErrorFor(x => x.Role);
@@ -183,7 +183,7 @@ public sealed class AccessRightsTests
     [Test]
     public void A_save_needs_known_pages_their_own_actions_and_view_first()
     {
-        var validator = new SaveRoleAccessCommandValidator();
+        var validator = new SaveRoleAccessValidator();
         SaveRoleAccessCommand Save(string area, params AccessAction[] actions) =>
             new(RoleNames.Manager, 1, new Dictionary<string, IReadOnlyList<AccessAction>> { [area] = actions });
 
@@ -202,11 +202,11 @@ public sealed class AccessRightsTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(new DeleteRoleCommandValidator().Validate(new DeleteRoleCommand(RoleNames.Manager)).IsValid, Is.False);
-            Assert.That(new DeleteRoleCommandValidator().Validate(new DeleteRoleCommand("custom-1a2b")).IsValid, Is.True);
-            Assert.That(new CreateRoleCommandValidator().Validate(new CreateRoleCommand("  ")).IsValid, Is.False);
-            Assert.That(new CreateRoleCommandValidator().Validate(new CreateRoleCommand(new string('а', 101))).IsValid, Is.False);
-            Assert.That(new CreateRoleCommandValidator().Validate(new CreateRoleCommand("Технолог")).IsValid, Is.True);
+            Assert.That(new DeleteRoleValidator().Validate(new DeleteRoleCommand(RoleNames.Manager)).IsValid, Is.False);
+            Assert.That(new DeleteRoleValidator().Validate(new DeleteRoleCommand("custom-1a2b")).IsValid, Is.True);
+            Assert.That(new CreateRoleValidator().Validate(new CreateRoleCommand("  ")).IsValid, Is.False);
+            Assert.That(new CreateRoleValidator().Validate(new CreateRoleCommand(new string('а', 101))).IsValid, Is.False);
+            Assert.That(new CreateRoleValidator().Validate(new CreateRoleCommand("Технолог")).IsValid, Is.True);
         });
     }
 

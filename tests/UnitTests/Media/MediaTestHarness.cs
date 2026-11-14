@@ -1,14 +1,15 @@
 using Media.Application.Abstractions;
-using Media.Application.Contracts;
-using Media.Application.Files.Images;
-using Media.Application.Files.UploadFile;
-using Media.Application.Folders.CreateFolder;
 using Media.Infrastructure.Images;
 using Media.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
+using Media.Application.Features.Files.Commands.UploadMediaFile;
+using Media.Application.Features.Files.Shared;
+using Media.Application.Features.Files.Shared.Images;
+using Media.Application.Features.Folders.Commands.CreateMediaFolder;
+using Media.Application.Features.Folders.Shared;
 
 namespace UnitTests.Media;
 
@@ -79,14 +80,14 @@ internal sealed class MediaTestHarness : IDisposable
 
     public MediaImagePreparer Images => new(new SkiaMediaImageProcessor(), Storage, Settings);
 
-    public UploadMediaFileCommandHandler UploadHandler() =>
-        new(Db, Storage, Images, Settings, Time, NullLogger<UploadMediaFileCommandHandler>.Instance);
+    public UploadMediaFileHandler UploadHandler() =>
+        new(Db, Storage, Images, Settings, Time, NullLogger<UploadMediaFileHandler>.Instance);
 
     public static byte[] Jpeg { get; } = [0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1];
 
     public async Task<int> FolderAsync(string name, int? parentId = null)
     {
-        var result = await new CreateMediaFolderCommandHandler(Db, Time)
+        var result = await new CreateMediaFolderHandler(Db, Time)
             .Handle(new CreateMediaFolderCommand(new MediaFolderInput(name, parentId)), CancellationToken.None);
         return result.Value.Id;
     }

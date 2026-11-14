@@ -1,4 +1,4 @@
-using Purchasing.Application.Register.Sync;
+using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
 
 namespace Purchasing.Application.DependencyInjection;
 

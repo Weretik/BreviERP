@@ -1,5 +1,5 @@
-using Ai.Application.Calls;
-using Ai.Application.Settings;
+using Ai.Application.Features.Calls.Shared;
+using Ai.Application.Features.Settings.Shared;
 
 namespace Ai.Application.DependencyInjection;
 

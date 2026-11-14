@@ -1,11 +1,13 @@
 using System.Text.Json;
 using Ardalis.Result;
 using Purchasing.Application.Abstractions;
-using Purchasing.Application.Contracts;
-using Purchasing.Application.Documents.Save;
-using Purchasing.Application.Register.GetInvoices;
-using Purchasing.Application.Register.Payments;
-using Purchasing.Application.Register.Review;
+using Purchasing.Application.Features.Documents.Commands.SaveCheckedPurchaseDocument;
+using Purchasing.Application.Features.Register.Commands.LinkPurchasePayment;
+using Purchasing.Application.Features.Register.Commands.UnlinkPurchasePayment;
+using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
+using Purchasing.Application.Features.Register.Queries.GetPurchasePaymentCandidates;
+using Purchasing.Application.Features.Register.Shared;
 
 namespace UnitTests.Purchasing;
 
@@ -42,21 +44,19 @@ public sealed class PurchasePaymentTests
     private static PurchasingPayment Operation(Guid id, long amount, DateOnly date, string description) =>
         new(id, date, amount, "UAH", "Банк", description, "Текстиль-Контакт", true, true);
 
-    private PurchasePaymentCommandsHandler Commands() => new(harness.Db, harness.Payments, harness.Time);
-
     private Task<Result<PurchaseInvoicePaymentsResponse>> LinkAsync(Guid id, int version) =>
-        Commands().Handle(new LinkPurchasePaymentCommand(messageId, id, version, By), CancellationToken.None).AsTask();
+        new LinkPurchasePaymentHandler(harness.Db, harness.Payments, harness.Time).Handle(new LinkPurchasePaymentCommand(messageId, id, version, By), CancellationToken.None).AsTask();
 
     private Task<Result<PurchaseInvoicePaymentsResponse>> UnlinkAsync(Guid id, int version) =>
-        Commands().Handle(new UnlinkPurchasePaymentCommand(messageId, id, version, By), CancellationToken.None).AsTask();
+        new UnlinkPurchasePaymentHandler(harness.Db, harness.Payments, harness.Time).Handle(new UnlinkPurchasePaymentCommand(messageId, id, version, By), CancellationToken.None).AsTask();
 
     private async Task<PurchaseInvoiceResponse> CardAsync() =>
-        (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
+        (await new GetPurchaseInvoicesHandler(harness.Db, harness.Suppliers, harness.Payments)
             .Handle(new GetPurchaseInvoicesQuery(1, 50, null, PurchaseInvoiceFilter.All), CancellationToken.None))
         .Value.Items.Single();
 
     private async Task<IReadOnlyList<PurchasePaymentCandidateResponse>> CandidatesAsync(string? search = null) =>
-        (await new GetPurchasePaymentCandidatesQueryHandler(harness.Db, harness.Payments)
+        (await new GetPurchasePaymentCandidatesHandler(harness.Db, harness.Payments)
             .Handle(new GetPurchasePaymentCandidatesQuery(messageId, search), CancellationToken.None)).Value;
 
     private async Task SaveFactsAsync()
@@ -66,7 +66,7 @@ public sealed class PurchasePaymentTests
             "sourceUID":"100","originalFileLink":"{{SheetRow.Dropbox}}",
             """);
         using var parsed = JsonDocument.Parse(json);
-        var saved = await new SaveCheckedPurchaseDocumentCommandHandler(harness.Db, harness.Time)
+        var saved = await new SaveCheckedPurchaseDocumentHandler(harness.Db, harness.Time)
             .Handle(new SaveCheckedPurchaseDocumentCommand(fileId, parsed.RootElement.Clone(), false, By),
                 CancellationToken.None);
         Assert.That(saved.IsSuccess, Is.True, string.Join("; ", saved.ValidationErrors.Select(x => x.ErrorMessage)));
@@ -110,14 +110,14 @@ public sealed class PurchasePaymentTests
     {
         var income = await LinkAsync(Income, 0);
         Assert.That(income.Status, Is.EqualTo(ResultStatus.Invalid));
-        Assert.That(income.ValidationErrors.Single().ErrorMessage, Is.EqualTo(PurchasePaymentCommandsHandler.NotExpense));
+        Assert.That(income.ValidationErrors.Single().ErrorMessage, Is.EqualTo(LinkPurchasePaymentHandler.NotExpense));
 
         Assert.That((await LinkAsync(Paid, 0)).IsSuccess, Is.True);
         var stale = await LinkAsync(Other, 0);
         Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
-        Assert.That(stale.Errors.Single(), Is.EqualTo(ReviewPurchaseInvoiceCommandHandler.Stale));
+        Assert.That(stale.Errors.Single(), Is.EqualTo(ReviewPurchaseInvoiceHandler.Stale));
         var twice = await LinkAsync(Paid, 1);
-        Assert.That(twice.Errors.Single(), Is.EqualTo(PurchasePaymentCommandsHandler.AlreadyLinked));
+        Assert.That(twice.Errors.Single(), Is.EqualTo(LinkPurchasePaymentHandler.AlreadyLinked));
     }
 
     [Test]
@@ -129,7 +129,7 @@ public sealed class PurchasePaymentTests
 
         Assert.That(removed.IsSuccess, Is.True);
         Assert.That(removed.Value.Payments, Is.Empty);
-        Assert.That((await UnlinkAsync(Paid, 2)).Errors.Single(), Is.EqualTo(PurchasePaymentCommandsHandler.NotLinked));
+        Assert.That((await UnlinkAsync(Paid, 2)).Errors.Single(), Is.EqualTo(UnlinkPurchasePaymentHandler.NotLinked));
         using (var db = harness.Fresh())
         {
             var history = db.Payments.Single();

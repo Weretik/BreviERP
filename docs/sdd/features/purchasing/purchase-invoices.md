@@ -21,16 +21,19 @@ src/Modules/Purchasing/
     Abstractions/      # IPurchasingDbContext (+ write lock scope), IPurchaseSheetReader, IPurchasingSupplierReader,
                        # IPurchasingPaymentReader (Accounting expenses),
                        # IPurchaseFileDownloader, IPurchaseDocumentRecognizer
-    Documents/Recognize/   # PurchaseRecognitionPrompt (fixed instruction + schema), PurchaseFileRecognition, one file, new batch
-    Documents/Save/        # SaveCheckedPurchaseDocumentCommand (manual JSON, replace)
-    Documents/Template/    # GetPurchaseDocumentTemplateQuery
-    Register/Sync/     # PurchaseRegisterSync (read → check → one transaction), SyncPurchaseRegisterCommand
-    Register/GetInvoices/   # page of cards: representative row, links, search, filter, one supplier (supplier card tab),
-                            # invoice date range and VAT of the checked facts
-    Register/GetSyncState/
-    Register/Review/   # ReviewPurchaseInvoiceCommand (version check under the write lock), GetPurchaseSuppliersQuery
-    Register/Payments/ # Link/UnlinkPurchasePaymentCommand, GetPurchasePaymentCandidatesQuery, PurchasePayments (total, issues)
-    Contracts/         # responses and enums
+    Features/Documents/
+      Commands/RecognizePurchaseFile, RecognizeNewPurchaseFiles   # one file, new batch
+      Commands/SaveCheckedPurchaseDocument   # manual JSON, replace
+      Queries/GetPurchaseDocumentTemplate
+      Shared/          # PurchaseRecognitionPrompt (fixed instruction + schema), PurchaseFileRecognition, document responses
+    Features/Register/
+      Commands/SyncPurchaseRegister   # PurchaseRegisterSync (read → check → one transaction)
+      Commands/ReviewPurchaseInvoice  # version check under the write lock
+      Commands/LinkPurchasePayment, UnlinkPurchasePayment
+      Queries/GetPurchaseInvoices     # page of cards: representative row, links, search, filter, one supplier (supplier card tab),
+                                      # invoice date range and VAT of the checked facts
+      Queries/GetPurchaseSyncState, GetPurchaseSuppliers, GetPurchasePaymentCandidates
+      Shared/          # PurchasePayments (total, issues, payments block), shared responses
   Purchasing.Infrastructure/Purchasing.Infrastructure/
     Persistence/       # PurchasingDbContext (schema purchasing, advisory lock), configurations, migrations
     GoogleSheets/      # options, Application Default Credentials token, Sheets API v4 reader

@@ -128,7 +128,7 @@ public sealed class WorkshopReportHandlerTests
         var stock = new WarehouseTestHarness(workshop, ownsWorkshop: false);
         workshop.Attached.Add(stock);
         workshop.Stock = new HarnessProductionStockReader(stock.Facts());
-        var keeper = new global::Warehouse.Application.Access.WarehouseActor(4, false, false, true);
+        var keeper = new global::Warehouse.Application.Features.Stock.Shared.WarehouseActor(4, false, false, true);
         await WarehouseStockHandlerTests.Receive(stock, keeper, "Opening", 10m);
         var order = (await ProductionOrderHandlerTests.Create(workshop, Manager, ProductionOrderHandlerTests.Input())).Value;
         var itemId = order.Items[0].Id;

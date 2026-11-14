@@ -1,11 +1,12 @@
 using System.Text.Json;
 using Ardalis.Result;
 using Purchasing.Application.Abstractions;
-using Purchasing.Application.Contracts;
-using Purchasing.Application.Documents.Recognize;
-using Purchasing.Application.Documents.Save;
-using Purchasing.Application.Documents.Template;
-using Purchasing.Application.Register.GetInvoices;
+using Purchasing.Application.Features.Documents.Commands.RecognizeNewPurchaseFiles;
+using Purchasing.Application.Features.Documents.Commands.SaveCheckedPurchaseDocument;
+using Purchasing.Application.Features.Documents.Queries.GetPurchaseDocumentTemplate;
+using Purchasing.Application.Features.Documents.Shared;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
+using Purchasing.Application.Features.Register.Shared;
 
 namespace UnitTests.Purchasing;
 
@@ -38,13 +39,13 @@ public sealed class PurchaseRecognitionTests
         harness.Recognition().RecognizeAsync(id ?? fileId, By, CancellationToken.None);
 
     private async Task<PurchaseInvoicePage> ListAsync(PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All) =>
-        (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
+        (await new GetPurchaseInvoicesHandler(harness.Db, harness.Suppliers, harness.Payments)
             .Handle(new GetPurchaseInvoicesQuery(1, 50, null, filter), CancellationToken.None)).Value;
 
     private Task<Result<PurchaseDocumentSaveResponse>> SaveAsync(string json, bool replace = false)
     {
         using var parsed = JsonDocument.Parse(json);
-        return new SaveCheckedPurchaseDocumentCommandHandler(harness.Db, harness.Time)
+        return new SaveCheckedPurchaseDocumentHandler(harness.Db, harness.Time)
             .Handle(new SaveCheckedPurchaseDocumentCommand(fileId, parsed.RootElement.Clone(), replace, By), CancellationToken.None)
             .AsTask();
     }
@@ -81,7 +82,7 @@ public sealed class PurchaseRecognitionTests
         await RecognizeAsync();
 
         async Task<IEnumerable<string>> Uids(DateOnly? from = null, DateOnly? to = null, PurchaseDocumentVat? vat = null) =>
-            (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
+            (await new GetPurchaseInvoicesHandler(harness.Db, harness.Suppliers, harness.Payments)
                 .Handle(new GetPurchaseInvoicesQuery(1, 50, null, PurchaseInvoiceFilter.All, null, from, to, vat),
                     CancellationToken.None)).Value.Items.Select(x => x.SourceUid);
 
@@ -176,7 +177,7 @@ public sealed class PurchaseRecognitionTests
     public async Task Recognize_new_takes_untried_safe_files_newest_first_and_stops_when_the_ai_is_off()
     {
         harness.Recognizer.Answers.Enqueue(FakeRecognizer.Json(PurchaseDocumentRulesTests.VatOnTop));
-        var handler = new RecognizeNewPurchaseFilesCommandHandler(harness.Db, harness.Recognition());
+        var handler = new RecognizeNewPurchaseFilesHandler(harness.Db, harness.Recognition());
 
         var first = (await handler.Handle(new RecognizeNewPurchaseFilesCommand(By, 1), CancellationToken.None)).Value;
         Assert.That((first.Recognized, first.Remaining, first.StopReason), Is.EqualTo((1, 1, (string?)null)));
@@ -233,7 +234,7 @@ public sealed class PurchaseRecognitionTests
         harness.Recognizer.Answers.Enqueue(FakeRecognizer.Json(wrong));
         await RecognizeAsync();
 
-        var template = (await new GetPurchaseDocumentTemplateQueryHandler(harness.Db)
+        var template = (await new GetPurchaseDocumentTemplateHandler(harness.Db)
             .Handle(new GetPurchaseDocumentTemplateQuery(fileId), CancellationToken.None)).Value;
 
         using var json = JsonDocument.Parse(template);

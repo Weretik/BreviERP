@@ -3,13 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Production.Application.FabricPlans;
 using UnitTests.Production;
 using Warehouse.Application.Abstractions;
-using Warehouse.Application.Colors;
-using Warehouse.Application.Stock;
-using Warehouse.Application.Stock.Reports;
-using Warehouse.Application.Stock.Facts;
-using Warehouse.Application.Stock.Issues;
 using Warehouse.Infrastructure.Adapters.Production;
 using Warehouse.Infrastructure.Persistence;
+using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Shared.Facts;
 
 namespace UnitTests.Warehouse;
 

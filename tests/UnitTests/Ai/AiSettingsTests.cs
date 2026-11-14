@@ -1,11 +1,16 @@
 using Ai.Contracts.Prompts;
 using Ai.Application.Abstractions;
-using Ai.Application.Calls;
-using Ai.Application.Contracts;
-using Ai.Application.Extraction;
-using Ai.Application.Settings;
 using Ai.Domain.Settings;
 using Ardalis.Result;
+using Ai.Application.Features.Calls.Shared;
+using Ai.Application.Features.Extraction.Commands.ExtractStructuredData;
+using Ai.Application.Features.Settings.Commands.RemoveAiKey;
+using Ai.Application.Features.Settings.Commands.SetAiKey;
+using Ai.Application.Features.Settings.Commands.TestAiConnection;
+using Ai.Application.Features.Settings.Commands.UpdateAiPrompt;
+using Ai.Application.Features.Settings.Commands.UpdateAiSettings;
+using Ai.Application.Features.Settings.Queries.GetAiSettings;
+using Ai.Application.Features.Settings.Shared;
 
 namespace UnitTests.Ai;
 
@@ -23,22 +28,22 @@ public sealed class AiSettingsTests
     public void TearDown() => harness.Dispose();
 
     private Task<Result<AiSettingsResponse>> SetKeyAsync() =>
-        new SetAiKeyCommandHandler(harness.Db, harness.Store(), harness.Protector, harness.Time)
+        new SetAiKeyHandler(harness.Db, harness.Store(), harness.Protector, harness.Time)
             .Handle(new SetAiKeyCommand(Key, Admin), CancellationToken.None).AsTask();
 
     private Task<Result<AiSettingsResponse>> UpdateAsync(bool enabled, int version, decimal limit = 5m, string fast = "gpt-6-luna") =>
-        new UpdateAiSettingsCommandHandler(harness.Db, harness.Store(), harness.Time)
+        new UpdateAiSettingsHandler(harness.Db, harness.Store(), harness.Time)
             .Handle(new UpdateAiSettingsCommand(enabled, fast, 0.10m, 0.50m, "gpt-6.1-terra", 1m, 5m, limit, version, Admin),
                 CancellationToken.None).AsTask();
 
     private Task<Result<AiExtraction>> ExtractAsync() =>
-        new ExtractStructuredDataCommandHandler(harness.Caller()).Handle(new ExtractStructuredDataCommand(AiModelTier.Fast,
+        new ExtractStructuredDataHandler(harness.Caller()).Handle(new ExtractStructuredDataCommand(AiModelTier.Fast,
             "Read the invoice.", "file", [], "purchase_invoice", "{}", AiPromptKeys.PurchaseInvoices), CancellationToken.None).AsTask();
 
     [Test]
     public async Task Defaults_are_shown_before_the_first_save()
     {
-        var settings = (await new GetAiSettingsQueryHandler(harness.Db, harness.Store())
+        var settings = (await new GetAiSettingsHandler(harness.Db, harness.Store())
             .Handle(new GetAiSettingsQuery(), CancellationToken.None)).Value;
 
         Assert.That((settings.HasKey, settings.Enabled, settings.FastModel, settings.StrongModel),
@@ -50,7 +55,7 @@ public sealed class AiSettingsTests
     [Test]
     public async Task The_fixed_instruction_is_shown_next_to_the_extra_rules()
     {
-        var prompt = (await new GetAiSettingsQueryHandler(harness.Db, harness.Store())
+        var prompt = (await new GetAiSettingsHandler(harness.Db, harness.Store())
             .Handle(new GetAiSettingsQuery(), CancellationToken.None)).Value.Prompts.Single();
 
         Assert.That((prompt.BaseText, prompt.Text), Is.EqualTo((FakeBasePrompt.Instruction, string.Empty)));
@@ -87,7 +92,7 @@ public sealed class AiSettingsTests
         await SetKeyAsync();
         await UpdateAsync(true, 1);
 
-        var removed = (await new RemoveAiKeyCommandHandler(harness.Db, harness.Store(), harness.Time)
+        var removed = (await new RemoveAiKeyHandler(harness.Db, harness.Store(), harness.Time)
             .Handle(new RemoveAiKeyCommand(Admin), CancellationToken.None)).Value;
 
         Assert.That((removed.HasKey, removed.KeyHint, removed.Enabled), Is.EqualTo((false, (string?)null, false)));
@@ -98,7 +103,7 @@ public sealed class AiSettingsTests
     {
         await SetKeyAsync();
         await UpdateAsync(true, 1);
-        await new UpdateAiPromptCommandHandler(harness.Db, harness.Store(), harness.Time).Handle(
+        await new UpdateAiPromptHandler(harness.Db, harness.Store(), harness.Time).Handle(
             new UpdateAiPromptCommand(AiPromptKeys.PurchaseInvoices, "  Номер замовлення — після «№».  ", Admin), CancellationToken.None);
 
         var first = (await ExtractAsync()).Value;
@@ -133,7 +138,7 @@ public sealed class AiSettingsTests
     public async Task The_test_works_while_off_and_explains_a_refused_key()
     {
         await SetKeyAsync();
-        var handler = new TestAiConnectionCommandHandler(harness.Caller());
+        var handler = new TestAiConnectionHandler(harness.Caller());
 
         var ok = await handler.Handle(new TestAiConnectionCommand(AiModelTier.Strong), CancellationToken.None);
         harness.OpenAi.Failure = new OpenAiException(OpenAiFailure.InvalidKey, "unauthorized");
@@ -146,10 +151,10 @@ public sealed class AiSettingsTests
     [Test]
     public void Model_names_and_keys_are_checked()
     {
-        var settings = new UpdateAiSettingsCommandValidator();
+        var settings = new UpdateAiSettingsValidator();
         Assert.That(settings.Validate(new UpdateAiSettingsCommand(true, "gpt 6", 0, 0, "gpt-6.1-terra", 0, 0, 5, 0, Admin)).IsValid, Is.False);
         Assert.That(settings.Validate(new UpdateAiSettingsCommand(true, "gpt-6-luna", 0.1m, 0.5m, "gpt-6.1-terra", 1, 5, 5, 0, Admin)).IsValid, Is.True);
-        var key = new SetAiKeyCommandValidator();
+        var key = new SetAiKeyValidator();
         Assert.That(key.Validate(new SetAiKeyCommand("sk short", Admin)).IsValid, Is.False);
     }
 }

@@ -2,16 +2,16 @@ using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Media.Api.Access;
-using Media.Application.Contracts;
-using Media.Application.Files.DeleteFile;
-using Media.Application.Files.GetFile;
-using Media.Application.Files.MoveFiles;
-using Media.Application.Files.SearchFiles;
-using Media.Application.Files.UpdateFile;
-using Media.Application.Files.UploadFile;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Media.Application.Features.Files.Commands.DeleteMediaFile;
+using Media.Application.Features.Files.Commands.MoveMediaFiles;
+using Media.Application.Features.Files.Commands.UpdateMediaFile;
+using Media.Application.Features.Files.Commands.UploadMediaFile;
+using Media.Application.Features.Files.Queries.GetMediaFile;
+using Media.Application.Features.Files.Queries.SearchMediaFiles;
+using Media.Application.Features.Files.Shared;
 
 namespace Media.Api.Files;
 

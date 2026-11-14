@@ -1,4 +1,4 @@
-using Identity.Application.Features.Auth.SessionMe.DTOs;
+using Identity.Application.Features.Auth.Queries.SessionMe;
 
 namespace Identity.Api.Contracts.Auth;
 

@@ -19,10 +19,10 @@
 src/Modules/Identity/
 ├── Identity.Domain/Identity.Domain/Authorization/AccessCatalog.cs   # pages, actions, defaults, role helpers
 ├── Identity.Application/Identity.Application/
-│   ├── Features/Access/                         # GetAccessRights, SaveRoleAccess, CreateRole, DeleteRole,
+│   ├── Features/Access/{Commands,Queries}/      # GetAccessRights, SaveRoleAccess, CreateRole, DeleteRole,
 │   │                                            # GetMyAccess + validators, Shared DTOs
 │   ├── Security/Access/                         # AccessPolicies (policy names), IAccessGrantSource, AccessClaims
-│   └── Services/IAccessRightsService.cs
+│   └── Abstractions/IAccessRightsService.cs
 ├── Identity.Infrastructure/Identity.Infrastructure/
 │   ├── Entities/RoleAccess.cs, Configuration/RoleAccessConfiguration.cs
 │   └── Services/Access/                         # AccessRightsService, AccessGrantSource (cached)

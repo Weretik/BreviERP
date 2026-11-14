@@ -1,9 +1,9 @@
 using Identity.Api.Contracts.Access;
-using Identity.Application.Features.Access.CreateRole;
-using Identity.Application.Features.Access.DeleteRole;
-using Identity.Application.Features.Access.GetAccessRights;
-using Identity.Application.Features.Access.SaveRoleAccess;
 using Identity.Application.Security.Policies;
+using Identity.Application.Features.Access.Commands.CreateRole;
+using Identity.Application.Features.Access.Commands.DeleteRole;
+using Identity.Application.Features.Access.Commands.SaveRoleAccess;
+using Identity.Application.Features.Access.Queries.GetAccessRights;
 
 namespace Identity.Api.Controllers;
 

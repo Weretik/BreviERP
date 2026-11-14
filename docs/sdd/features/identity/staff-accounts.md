@@ -22,11 +22,11 @@ src/Modules/Identity/
 │   ├── Controllers/AdminUsersController.cs          # /api/admin/users
 │   └── Contracts/Users/                             # request and response records
 ├── Identity.Application/Identity.Application/
-│   ├── Features/Users/                              # GetStaffList, CreateStaff, ChangeStaffRole,
+│   ├── Features/Users/{Commands,Queries}/           # GetStaffList, CreateStaff, ChangeStaffRole,
 │   │                                                # SetStaffBlocked, SetStaffPassword, DeleteStaff,
 │   │                                                # UpdateStaffDetails
 │   │                                                # + validators
-│   └── Services/IStaffAccountService.cs
+│   └── Abstractions/IStaffAccountService.cs
 └── Identity.Infrastructure/Identity.Infrastructure/Services/Users/StaffAccountService.cs
 ```
 

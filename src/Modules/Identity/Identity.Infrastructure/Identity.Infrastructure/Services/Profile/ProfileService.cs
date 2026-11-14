@@ -1,11 +1,11 @@
 using Ardalis.Result;
-using Identity.Application.Features.Avatars;
 using Identity.Application.Features.Profile.Shared;
 using Identity.Application.Features.Users.Shared;
-using Identity.Application.Services;
 using Identity.Domain.Authorization;
 using Identity.Infrastructure.Avatars;
 using Identity.Infrastructure.Entities;
+using Identity.Application.Abstractions;
+using Identity.Application.Features.Avatars.Shared;
 
 namespace Identity.Infrastructure.Services.Profile;
 

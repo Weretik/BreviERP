@@ -2,14 +2,16 @@ using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Production.Application.Orders.Access;
 using UnitTests.Production;
-using Warehouse.Application.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.GetChoices;
-using Warehouse.Application.Stock.GetStock;
-using Warehouse.Application.Stock.Issues;
-using Warehouse.Application.Stock.Movements;
-using Warehouse.Application.Stock.Opening;
-using Warehouse.Application.Stock.Receipts;
+using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
+using Warehouse.Application.Features.Stock.Commands.OpenFabricStock;
+using Warehouse.Application.Features.Stock.Commands.ReceiveFabric;
+using Warehouse.Application.Features.Stock.Commands.ReverseFabricIssue;
+using Warehouse.Application.Features.Stock.Commands.ReverseFabricMovement;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
+using Warehouse.Application.Features.Stock.Queries.GetFabricStock;
+using Warehouse.Application.Features.Stock.Queries.GetFabricStockChoices;
+using Warehouse.Application.Features.Stock.Queries.GetProductionItemFabric;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace UnitTests.Warehouse;
 
@@ -130,7 +132,7 @@ public sealed class WarehouseStockHandlerTests
         var itemId = order.Items[0].Id;
         var issued = await Issue(workshop, Chief, order.Id, itemId, order.Version,
             L("темно-сірий", "Темно-сірий", 6.6m));
-        var reversed = await new ReverseFabricIssueCommandHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
+        var reversed = await new ReverseFabricIssueHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
                 workshop.ItemFabric())
             .Handle(new(Chief, order.Id, issued.Value.Issues[0].Id, new(order.Version, "Видали не ту тканину")),
                 CancellationToken.None);
@@ -205,17 +207,17 @@ public sealed class WarehouseStockHandlerTests
     {
         var id = operationId ?? Guid.NewGuid();
         return kind == "Opening"
-            ? new OpenFabricStockCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations(),
+            ? new OpenFabricStockHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations(),
                     workshop.Colors())
                 .Handle(new(actor, new(id, fabricId, color, meters, date ?? Day)), CancellationToken.None).AsTask()
-            : new ReceiveFabricCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations(),
+            : new ReceiveFabricHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations(),
                     workshop.Colors())
                 .Handle(new(actor, new(id, fabricId, color, meters, date ?? Day, supplier, "рах 12137", null)),
                     CancellationToken.None).AsTask();
     }
 
     internal static async Task<FabricStockListResponse> List(WarehouseTestHarness workshop, WarehouseActor actor) =>
-        (await new GetFabricStockQueryHandler(workshop.Db, workshop.Reference, workshop.Booking())
+        (await new GetFabricStockHandler(workshop.Db, workshop.Reference, workshop.Booking())
             .Handle(new(actor), CancellationToken.None)).Value;
 
     internal static FabricStockColorResponse Pair(FabricStockListResponse list, string color, string code = "FAB-023") =>
@@ -223,21 +225,21 @@ public sealed class WarehouseStockHandlerTests
 
     internal static async Task<FabricMovementPageResponse> Movements(WarehouseTestHarness workshop,
         WarehouseActor actor, FabricMovementFilter kind, int page = 1, string? code = null, string? color = null) =>
-        (await new GetFabricMovementsQueryHandler(workshop.Db)
+        (await new GetFabricMovementsHandler(workshop.Db)
             .Handle(new(actor, page, kind, code, color, null), CancellationToken.None)).Value;
 
     internal static Task<Result<FabricStockOperationResponse>> Reverse(WarehouseTestHarness workshop,
         WarehouseActor actor, int movementId, string reason) =>
-        new ReverseFabricMovementCommandHandler(workshop.Db, workshop.StockChanges(), workshop.Pairs())
+        new ReverseFabricMovementHandler(workshop.Db, workshop.StockChanges(), workshop.Pairs())
             .Handle(new(actor, movementId, new(reason)), CancellationToken.None).AsTask();
 
     private static async Task<FabricStockChoicesResponse> Choices(WarehouseTestHarness workshop, WarehouseActor actor) =>
-        (await new GetFabricStockChoicesQueryHandler(workshop.Reference, workshop.Colors())
+        (await new GetFabricStockChoicesHandler(workshop.Reference, workshop.Colors())
             .Handle(new(actor), CancellationToken.None)).Value;
 
     private static async Task<ProductionItemFabricResponse> Fabric(WarehouseTestHarness workshop, WarehouseActor actor,
         int orderId, int itemId) =>
-        (await new GetProductionItemFabricQueryHandler(workshop.Production, workshop.ItemFabric())
+        (await new GetProductionItemFabricHandler(workshop.Production, workshop.ItemFabric())
             .Handle(new(actor, orderId, itemId), CancellationToken.None)).Value;
 
     /// <summary>«Видача» of all three products of the item, against its saved plan version.</summary>
@@ -251,7 +253,7 @@ public sealed class WarehouseStockHandlerTests
     {
         var saved = planVersion ?? await workshop.Db.FabricItemPlans.AsNoTracking().Where(x => x.ItemId == itemId)
             .Select(x => x.Version).SingleOrDefaultAsync();
-        return await new CreateFabricIssueCommandHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
+        return await new CreateFabricIssueHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
                 workshop.Pairs(), workshop.Operations(), workshop.Plans(), workshop.ItemFabric())
             .Handle(new(actor, orderId, itemId, new(operationId ?? Guid.NewGuid(), version, saved, Day, cut, null, lines)),
                 CancellationToken.None);

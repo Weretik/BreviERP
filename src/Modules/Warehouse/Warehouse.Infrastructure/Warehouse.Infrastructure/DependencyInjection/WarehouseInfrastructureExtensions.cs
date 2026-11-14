@@ -8,13 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Warehouse.Application.Abstractions;
-using Warehouse.Application.Colors;
-using Warehouse.Application.Stock;
-using Warehouse.Application.Stock.Facts;
-using Warehouse.Application.Stock.Issues;
-using Warehouse.Application.Stock.Reports;
-using Warehouse.Application.Stock.Revisions;
 using Warehouse.Infrastructure.Persistence;
+using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Shared.Facts;
 
 namespace Warehouse.Infrastructure.DependencyInjection;
 

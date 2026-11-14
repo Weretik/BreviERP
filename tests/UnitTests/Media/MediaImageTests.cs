@@ -1,9 +1,9 @@
-using Media.Application.Files.BackfillImages;
-using Media.Application.Files.DeleteFile;
 using Media.Infrastructure.Images;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using SkiaSharp;
+using Media.Application.Features.Files.Commands.DeleteMediaFile;
+using Media.Application.Features.Files.Shared.Images;
 
 namespace UnitTests.Media;
 
@@ -69,7 +69,7 @@ public sealed class MediaImageTests
             Assert.That(media.Storage.Files, Has.Count.EqualTo(2));
         });
 
-        var deleted = await new DeleteMediaFileCommandHandler(media.Db, media.Storage, media.Usages)
+        var deleted = await new DeleteMediaFileHandler(media.Db, media.Storage, media.Usages)
             .Handle(new DeleteMediaFileCommand(file.Id), CancellationToken.None);
         Assert.That(deleted.IsSuccess, Is.True);
         Assert.That(media.Storage.Files, Is.Empty);

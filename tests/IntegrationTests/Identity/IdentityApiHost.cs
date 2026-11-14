@@ -61,7 +61,7 @@ internal sealed class IdentityApiHost : IAsyncDisposable
         });
         builder.Services.AddIdentityConfiguration(builder.Configuration);
         var avatars = new InMemoryAvatarStorage();
-        builder.Services.AddSingleton<global::Identity.Application.Services.IAvatarStorage>(avatars);
+        builder.Services.AddSingleton<global::Identity.Application.Abstractions.IAvatarStorage>(avatars);
         builder.Services.AddIdentityInfrastructureServices(builder.Configuration);
         builder.Services.AddMediatorPipeline();
         builder.Services.AddModuleValidators(typeof(global::Identity.Application.IdentityApplicationAssemblyMarker).Assembly);
@@ -108,7 +108,7 @@ internal sealed class IdentityApiHost : IAsyncDisposable
     }
 }
 
-internal sealed class InMemoryAvatarStorage : global::Identity.Application.Services.IAvatarStorage
+internal sealed class InMemoryAvatarStorage : global::Identity.Application.Abstractions.IAvatarStorage
 {
     public System.Collections.Concurrent.ConcurrentDictionary<string, byte[]> Files { get; } = new();
 

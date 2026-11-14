@@ -1,12 +1,12 @@
 using Ai.Contracts.Prompts;
 using Ai.Application.Abstractions;
-using Ai.Application.Calls;
-using Ai.Application.Settings;
 using Ai.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
+using Ai.Application.Features.Calls.Shared;
+using Ai.Application.Features.Settings.Shared;
 
 namespace UnitTests.Ai;
 

@@ -1,5 +1,4 @@
 using Identity.Application.Security.Access;
-using Identity.Application.Services;
 using Identity.Contracts.Staff;
 using Identity.Infrastructure.Adapters.Media;
 using Identity.Infrastructure.Avatars;
@@ -10,6 +9,7 @@ using Identity.Infrastructure.Services.Profile;
 using Identity.Infrastructure.Services.Sessions;
 using Identity.Infrastructure.Services.Users;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Identity.Application.Abstractions;
 
 namespace Identity.Infrastructure.DependencyInjection;
 

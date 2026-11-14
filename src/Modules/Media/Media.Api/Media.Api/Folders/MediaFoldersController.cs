@@ -1,13 +1,13 @@
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Media.Api.Access;
-using Media.Application.Contracts;
-using Media.Application.Folders.CreateFolder;
-using Media.Application.Folders.DeleteFolder;
-using Media.Application.Folders.GetFolders;
-using Media.Application.Folders.UpdateFolder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Media.Application.Features.Folders.Commands.CreateMediaFolder;
+using Media.Application.Features.Folders.Commands.DeleteMediaFolder;
+using Media.Application.Features.Folders.Commands.UpdateMediaFolder;
+using Media.Application.Features.Folders.Queries.GetMediaFolders;
+using Media.Application.Features.Folders.Shared;
 
 namespace Media.Api.Folders;
 

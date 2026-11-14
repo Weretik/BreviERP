@@ -12,11 +12,9 @@ src/Modules/Media/
     MediaNames.cs      # name normalization shared by folders and photos
   Media.Application/Media.Application/
     Abstractions/      # IMediaDbContext, IMediaStorage (CDN), IMediaImageProcessor, IMediaUsageReader, MediaUploadSettings
-    Contracts/         # request/response DTOs
-    Folders/           # GetFolders, CreateFolder, UpdateFolder (rename/move), DeleteFolder; shared messages and validator
-    Files/             # SearchFiles, GetFile (+usages), UploadFile (signature check), UpdateFile, MoveFiles, DeleteFile, GetFilesByIds
-    Files/Images/      # MediaImagePreparer: size + preview upload, shared by upload and backfill
-    Files/BackfillImages/ # MediaImageBackfill: brevierp-sync previews for unprocessed photos
+    Features/Folders/  # Queries/GetMediaFolders; Commands/CreateMediaFolder, UpdateMediaFolder (rename/move), DeleteMediaFolder, EnsureMediaFolderPath; Shared/ messages, validator, MediaFolderResponse
+    Features/Files/    # Queries/SearchMediaFiles, GetMediaFile (+usages), GetMediaFilesByIds, GetMediaFilesBySourceKeys; Commands/UploadMediaFile (signature check), UpdateMediaFile, MoveMediaFiles, DeleteMediaFile
+    Features/Files/Shared/Images/ # MediaImagePreparer (size + preview upload, shared by upload and backfill), MediaImageBackfill (brevierp-sync previews)
   Media.Infrastructure/Media.Infrastructure/
     Persistence/       # MediaDbContext (schema media), configurations, migrations
     Storage/           # AdmToolsMediaStorage (CDN adapter, download by public URL), options

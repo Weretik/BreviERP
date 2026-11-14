@@ -3,10 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Production.Application.Contracts;
 using Production.Application.Orders.Access;
 using Production.Application.Orders.ImportOrders;
-using Warehouse.Application.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.Transfer;
 using Warehouse.Domain.Stock;
+using Warehouse.Application.Features.Stock.Commands.TransferStock;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace UnitTests.Warehouse;
 
@@ -202,7 +201,7 @@ public sealed class WarehouseTransferTests
     private static async Task<Result<StockTransferResult>> Transfer(WarehouseTestHarness workshop,
         StockTransferInput input, bool dryRun = false, bool confirm = false, WarehouseActor? actor = null)
     {
-        var result = await new TransferStockCommandHandler(workshop.Db, workshop.Reference, workshop.Production,
+        var result = await new TransferStockHandler(workshop.Db, workshop.Reference, workshop.Production,
                 workshop.Staff, workshop.Workshop.Time)
             .Handle(new(actor ?? Admin, input, dryRun, confirm), CancellationToken.None);
         workshop.Db.ChangeTracker.Clear();

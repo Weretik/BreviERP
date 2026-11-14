@@ -1,4 +1,4 @@
-﻿using Identity.Application.Contracrts;
+﻿using Identity.Application.Abstractions;
 
 namespace Identity.Infrastructure.Persistence;
 

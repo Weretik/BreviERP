@@ -1,5 +1,4 @@
 using Ai.Contracts.Prompts;
-using Purchasing.Application.Documents.Recognize;
 using Purchasing.Infrastructure.Adapters.Accounting;
 using Purchasing.Infrastructure.Adapters.Ai;
 using Purchasing.Infrastructure.Adapters.Reference;
@@ -13,6 +12,7 @@ using Purchasing.Application.DependencyInjection;
 using Purchasing.Infrastructure.Dropbox;
 using Purchasing.Infrastructure.GoogleSheets;
 using Purchasing.Infrastructure.Persistence;
+using Purchasing.Application.Features.Documents.Shared;
 
 namespace Purchasing.Infrastructure.DependencyInjection;
 

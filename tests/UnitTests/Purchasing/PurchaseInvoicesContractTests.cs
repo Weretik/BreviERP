@@ -2,8 +2,17 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Purchasing.Api.Register;
-using Purchasing.Application.Contracts;
 using YamlDotNet.RepresentationModel;
+using Purchasing.Application.Features.Documents.Commands.RecognizeNewPurchaseFiles;
+using Purchasing.Application.Features.Documents.Commands.SaveCheckedPurchaseDocument;
+using Purchasing.Application.Features.Documents.Shared;
+using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
+using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
+using Purchasing.Application.Features.Register.Queries.GetPurchasePaymentCandidates;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseSuppliers;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseSyncState;
+using Purchasing.Application.Features.Register.Shared;
 
 namespace UnitTests.Purchasing;
 

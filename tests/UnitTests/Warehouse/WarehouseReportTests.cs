@@ -2,13 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using Production.Application.Abstractions;
 using UnitTests.Production;
 using Warehouse.Application.Abstractions;
-using Warehouse.Application.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.Consumption;
-using Warehouse.Application.Stock.Movements;
-using Warehouse.Application.Stock.OneOff;
-using Warehouse.Application.Stock.Reports;
 using static UnitTests.Warehouse.WarehouseStockHandlerTests;
+using Warehouse.Application.Features.Stock.Commands.IssueFabric;
+using Warehouse.Application.Features.Stock.Queries.GetFabricBooking;
+using Warehouse.Application.Features.Stock.Queries.GetFabricConsumption;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
+using Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact;
+using Warehouse.Application.Features.Stock.Queries.GetFabricValuation;
+using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace UnitTests.Warehouse;
 
@@ -82,12 +84,12 @@ public sealed class WarehouseReportTests
         var first = await Order(workshop);
         await IssueCut(workshop, Chief, first.OrderId, first.ItemId, first.Version, 3,
             [L("темно-сірий", "Темно-сірий", 6m), L("червоний", "Червоний", 0.9m)]);
-        await new IssueFabricCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
+        await new IssueFabricHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
             .Handle(new(Chief, new(Guid.NewGuid(), "FAB-023", "Темно-сірий", null, 1.5m, new DateOnly(2026, 11, 4),
                 "Зразок", null)), CancellationToken.None);
         workshop.Db.ChangeTracker.Clear();
 
-        var report = (await new GetFabricConsumptionQueryHandler(workshop.Db, workshop.Reference)
+        var report = (await new GetFabricConsumptionHandler(workshop.Db, workshop.Reference)
             .Handle(new(Chief, new DateOnly(2026, 11, 1), new DateOnly(2026, 11, 30)), CancellationToken.None)).Value;
 
         var dark = report.Rows.Single(x => x.Color == "Темно-сірий");
@@ -177,7 +179,7 @@ public sealed class WarehouseReportTests
         await IssueCut(workshop, Chief, first.OrderId, first.ItemId, first.Version, 1,
             [L("темно-сірий", "Темно-сірий", 2m)]);
 
-        var report = (await new GetFabricBookingQueryHandler(workshop.Booking())
+        var report = (await new GetFabricBookingHandler(workshop.Booking())
             .Handle(new(Chief), CancellationToken.None)).Value;
 
         var dark = report.Pairs.Single(x => x.Color == "Темно-сірий");
@@ -204,7 +206,7 @@ public sealed class WarehouseReportTests
         using var workshop = Workshop();
         var manager = new WarehouseActor(2, false, true, false);
 
-        var report = (await new GetFabricBookingQueryHandler(workshop.Booking())
+        var report = (await new GetFabricBookingHandler(workshop.Booking())
             .Handle(new(manager), CancellationToken.None)).Value;
 
         Assert.That(report.CanReceive, Is.False);
@@ -280,11 +282,11 @@ public sealed class WarehouseReportTests
         await Receive(workshop, Chief, "Opening", 3.33m, "Жовтий", fabricId: 5);
         await Receive(workshop, Chief, "Opening", 4m, "Жовтий", fabricId: 9);
         await Receive(workshop, Chief, "Opening", 1m, "Червоний");
-        await new IssueFabricCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
+        await new IssueFabricHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
             .Handle(new(Chief, new(Guid.NewGuid(), "FAB-023", "Червоний", null, 3m, new DateOnly(2026, 11, 4), "Цех", null)),
                 CancellationToken.None);
 
-        var report = (await new GetFabricValuationQueryHandler(workshop.Db, workshop.Reference, workshop.Workshop.Time)
+        var report = (await new GetFabricValuationHandler(workshop.Db, workshop.Reference, workshop.Workshop.Time)
             .Handle(new(Owner), CancellationToken.None)).Value;
 
         var greta = report.Fabrics.Single(x => x.FabricCode == "FAB-023");
@@ -329,7 +331,7 @@ public sealed class WarehouseReportTests
         await Order(workshop);
         await Order(workshop);
 
-        var report = (await new GetHardwareOrderQueryHandler(workshop.Production, workshop.Workshop.Time)
+        var report = (await new GetHardwareOrderHandler(workshop.Production, workshop.Workshop.Time)
             .Handle(new(Chief), CancellationToken.None)).Value;
 
         Assert.Multiple(() =>
@@ -356,7 +358,7 @@ public sealed class WarehouseReportTests
         DateOnly? from = null, DateOnly? to = null)
     {
         workshop.Db.ChangeTracker.Clear();
-        return (await new GetFabricPlanFactQueryHandler(workshop.Db, workshop.Production, workshop.Reference,
+        return (await new GetFabricPlanFactHandler(workshop.Db, workshop.Production, workshop.Reference,
                 workshop.Plans())
             .Handle(new(Chief, null, client, null, from, to), CancellationToken.None)).Value;
     }

@@ -1,6 +1,6 @@
 using Mediator;
-using Media.Application.Files.GetFilesByIds;
 using Media.Contracts.Files;
+using Media.Application.Features.Files.Queries.GetMediaFilesByIds;
 
 namespace Media.Infrastructure.Contracts.Files;
 

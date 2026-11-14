@@ -1,6 +1,6 @@
-using Identity.Application.Features.Auth.SessionMe.DTOs;
-using Identity.Application.Services;
 using Identity.Infrastructure.Entities;
+using Identity.Application.Abstractions;
+using Identity.Application.Features.Auth.Queries.SessionMe;
 
 namespace Identity.Infrastructure.Services.Sessions;
 
