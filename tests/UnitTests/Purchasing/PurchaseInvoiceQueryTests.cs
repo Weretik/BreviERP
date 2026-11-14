@@ -1,5 +1,4 @@
-using Purchasing.Application.Contracts;
-using Purchasing.Application.Register.GetInvoices;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
 
 namespace UnitTests.Purchasing;
 
@@ -15,7 +14,7 @@ public sealed class PurchaseInvoiceQueryTests
 
     private async Task<PurchaseInvoicePage> ListAsync(string? search = null, PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All)
     {
-        var result = await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
+        var result = await new GetPurchaseInvoicesHandler(harness.Db, harness.Suppliers, harness.Payments)
             .Handle(new GetPurchaseInvoicesQuery(1, 50, search, filter), CancellationToken.None);
         Assert.That(result.IsSuccess, Is.True);
         return result.Value;

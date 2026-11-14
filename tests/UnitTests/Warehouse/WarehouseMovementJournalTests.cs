@@ -1,9 +1,8 @@
 using Ardalis.Result;
-using Warehouse.Application.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.Movements;
-using Warehouse.Application.Stock.OneOff;
 using static UnitTests.Warehouse.WarehouseStockHandlerTests;
+using Warehouse.Application.Features.Stock.Commands.IssueFabric;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace UnitTests.Warehouse;
 
@@ -55,7 +54,7 @@ public sealed class WarehouseMovementJournalTests
     [Test]
     public void A_period_must_not_end_before_it_starts()
     {
-        var result = new GetFabricMovementsQueryValidator().Validate(new GetFabricMovementsQuery(Chief, 1,
+        var result = new GetFabricMovementsValidator().Validate(new GetFabricMovementsQuery(Chief, 1,
             FabricMovementFilter.All, null, null, null, null, new DateOnly(2026, 11, 6), new DateOnly(2026, 11, 5)));
         Assert.That(result.IsValid, Is.False);
     }
@@ -66,7 +65,7 @@ public sealed class WarehouseMovementJournalTests
         await Receive(workshop, Chief, "Receipt", 5.5m, fabricId: 67, supplier: "Черкаси ВВ",
             date: new DateOnly(2026, 11, 5));
         var version = Pair(await List(workshop, Chief), "Темно-сірий").Version;
-        var issued = await new IssueFabricCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
+        var issued = await new IssueFabricHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
             .Handle(new(Chief, new(Guid.NewGuid(), "FAB-023", "Темно-сірий", version, 3m, new DateOnly(2026, 11, 6),
                 "Зразки", null)), CancellationToken.None);
         Assert.That(issued.Status, Is.EqualTo(ResultStatus.Ok));
@@ -74,5 +73,5 @@ public sealed class WarehouseMovementJournalTests
 
     private static async Task<FabricMovementPageResponse> Page(WarehouseTestHarness workshop,
         GetFabricMovementsQuery query) =>
-        (await new GetFabricMovementsQueryHandler(workshop.Db).Handle(query, CancellationToken.None)).Value;
+        (await new GetFabricMovementsHandler(workshop.Db).Handle(query, CancellationToken.None)).Value;
 }

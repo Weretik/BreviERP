@@ -3,9 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Purchasing.Application.Abstractions;
-using Purchasing.Application.Register.Review;
-using Purchasing.Application.Register.Sync;
-using Purchasing.Application.Documents.Recognize;
 using Purchasing.Domain.Documents;
 using Purchasing.Domain.Files;
 using Purchasing.Domain.Ingestion;
@@ -13,6 +10,9 @@ using Purchasing.Domain.Messages;
 using Purchasing.Domain.Sources;
 using Purchasing.Domain.Sync;
 using Purchasing.Infrastructure.Persistence;
+using Purchasing.Application.Features.Documents.Shared;
+using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
+using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
 
 namespace UnitTests.Purchasing;
 
@@ -171,7 +171,7 @@ internal sealed class PurchasingTestHarness : IDisposable
 
     public PurchaseRegisterSync Sync() => new(Db, Sheet, Time, NullLogger<PurchaseRegisterSync>.Instance);
 
-    public ReviewPurchaseInvoiceCommandHandler Review() => new(Db, Suppliers, Time);
+    public ReviewPurchaseInvoiceHandler Review() => new(Db, Suppliers, Time);
 
     public FakeFileDownloader Downloader { get; } = new();
     public FakeRecognizer Recognizer { get; } = new();

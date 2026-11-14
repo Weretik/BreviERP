@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using Ai.Application.Contracts;
-using Ai.Application.Settings;
 using Ai.Domain.Settings;
 using Ardalis.Result;
 using BuildingBlocks.Api.Result;
@@ -8,6 +6,13 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Ai.Application.Features.Settings.Commands.RemoveAiKey;
+using Ai.Application.Features.Settings.Commands.SetAiKey;
+using Ai.Application.Features.Settings.Commands.TestAiConnection;
+using Ai.Application.Features.Settings.Commands.UpdateAiPrompt;
+using Ai.Application.Features.Settings.Commands.UpdateAiSettings;
+using Ai.Application.Features.Settings.Queries.GetAiSettings;
+using Ai.Application.Features.Settings.Shared;
 
 namespace Ai.Api.Settings;
 

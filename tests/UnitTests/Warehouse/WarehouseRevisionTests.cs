@@ -1,11 +1,13 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
-using Warehouse.Application.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.Movements;
-using Warehouse.Application.Stock.OneOff;
-using Warehouse.Application.Stock.Revisions;
 using static UnitTests.Warehouse.WarehouseStockHandlerTests;
+using Warehouse.Application.Features.Stock.Commands.EditFabricMovement;
+using Warehouse.Application.Features.Stock.Commands.IssueFabric;
+using Warehouse.Application.Features.Stock.Commands.RestoreFabricMovement;
+using Warehouse.Application.Features.Stock.Commands.VoidFabricMovement;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovementHistory;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace UnitTests.Warehouse;
 
@@ -203,7 +205,7 @@ public sealed class WarehouseRevisionTests
 
     private static Task<Result<FabricStockOperationResponse>> IssueOneOff(WarehouseTestHarness workshop,
         decimal meters) =>
-        new IssueFabricCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
+        new IssueFabricHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
             .Handle(new(Chief, new(Guid.NewGuid(), "FAB-023", "Темно-сірий", null, meters, Day, "Цех", null)),
                 CancellationToken.None).AsTask();
 
@@ -216,7 +218,7 @@ public sealed class WarehouseRevisionTests
         Guid? operationId = null, string? fabricCode = null, DateOnly? date = null)
     {
         workshop.Db.ChangeTracker.Clear();
-        return await new EditFabricMovementCommandHandler(workshop.StockChanges(), workshop.Pairs(),
+        return await new EditFabricMovementHandler(workshop.StockChanges(), workshop.Pairs(),
                 workshop.Operations(), Revisions(workshop), workshop.Colors())
             .Handle(new(actor, row.Id, new(operationId ?? Guid.NewGuid(), row.Revision, date ?? row.OperationDate, meters,
                 fabricId, fabricCode, color, supplier ?? row.SupplierName, row.Document, destination ?? row.Destination,
@@ -228,9 +230,9 @@ public sealed class WarehouseRevisionTests
     {
         workshop.Db.ChangeTracker.Clear();
         var command = new VoidFabricMovementCommand(Chief, id, new(Guid.NewGuid(), revision, reason));
-        var errors = new VoidFabricMovementCommandValidator().Validate(command);
+        var errors = new VoidFabricMovementValidator().Validate(command);
         if (!errors.IsValid) return Result<FabricStockOperationResponse>.Invalid(new ValidationError("Reason", "short"));
-        return await new VoidFabricMovementCommandHandler(workshop.StockChanges(), workshop.Pairs(),
+        return await new VoidFabricMovementHandler(workshop.StockChanges(), workshop.Pairs(),
             workshop.Operations(), Revisions(workshop)).Handle(command, CancellationToken.None);
     }
 
@@ -238,7 +240,7 @@ public sealed class WarehouseRevisionTests
         int revision)
     {
         workshop.Db.ChangeTracker.Clear();
-        return await new RestoreFabricMovementCommandHandler(workshop.Db, workshop.StockChanges(), workshop.Pairs(),
+        return await new RestoreFabricMovementHandler(workshop.Db, workshop.StockChanges(), workshop.Pairs(),
                 workshop.Operations(), Revisions(workshop))
             .Handle(new(Chief, id, new(Guid.NewGuid(), revision)), CancellationToken.None);
     }
@@ -246,7 +248,7 @@ public sealed class WarehouseRevisionTests
     private static async Task<FabricMovementHistoryResponse> History(WarehouseTestHarness workshop, int id)
     {
         workshop.Db.ChangeTracker.Clear();
-        return (await new GetFabricMovementHistoryQueryHandler(workshop.Db)
+        return (await new GetFabricMovementHistoryHandler(workshop.Db)
             .Handle(new(Chief, id), CancellationToken.None)).Value;
     }
 }

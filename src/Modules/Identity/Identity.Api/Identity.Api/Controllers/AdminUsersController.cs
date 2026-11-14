@@ -1,12 +1,12 @@
 using Identity.Api.Contracts.Users;
-using Identity.Application.Features.Users.ChangeStaffRole;
-using Identity.Application.Features.Users.CreateStaff;
-using Identity.Application.Features.Users.DeleteStaff;
-using Identity.Application.Features.Users.GetStaffList;
-using Identity.Application.Features.Users.SetStaffBlocked;
-using Identity.Application.Features.Users.SetStaffPassword;
-using Identity.Application.Features.Users.UpdateStaffDetails;
 using Identity.Application.Security.Policies;
+using Identity.Application.Features.Users.Commands.ChangeStaffRole;
+using Identity.Application.Features.Users.Commands.CreateStaff;
+using Identity.Application.Features.Users.Commands.DeleteStaff;
+using Identity.Application.Features.Users.Commands.SetStaffBlocked;
+using Identity.Application.Features.Users.Commands.SetStaffPassword;
+using Identity.Application.Features.Users.Commands.UpdateStaffDetails;
+using Identity.Application.Features.Users.Queries.GetStaffList;
 
 namespace Identity.Api.Controllers;
 

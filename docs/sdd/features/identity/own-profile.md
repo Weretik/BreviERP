@@ -21,10 +21,10 @@ src/Modules/Identity/
 │   ├── Contracts/Profile/                          # request and response records
 │   └── Avatars/AvatarUploadResults.cs              # multipart limit, 503 mapping
 ├── Identity.Application/Identity.Application/
-│   ├── Features/Profile/                           # GetProfile, ChangeOwnName, ChangeOwnPhone, ChangeOwnEmail,
+│   ├── Features/Profile/{Commands,Queries}/        # GetProfile, ChangeOwnName, ChangeOwnPhone, ChangeOwnEmail,
 │   │                                               # ChangeOwnPassword, UploadOwnAvatar, RemoveOwnAvatar
-│   ├── Features/Avatars/AvatarRules.cs             # size limits
-│   └── Services/IProfileService.cs, IAvatarStorage.cs
+│   ├── Features/Avatars/Shared/AvatarRules.cs      # size limits
+│   └── Abstractions/IProfileService.cs, IAvatarStorage.cs
 └── Identity.Infrastructure/Identity.Infrastructure/
     ├── Services/Profile/ProfileService.cs
     └── Avatars/                                    # SkiaSharp processing, replace/remove

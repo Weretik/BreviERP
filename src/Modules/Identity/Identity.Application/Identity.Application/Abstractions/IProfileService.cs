@@ -1,0 +1,19 @@
+using Identity.Application.Features.Profile.Shared;
+using Identity.Application.Features.Avatars.Shared;
+
+namespace Identity.Application.Abstractions;
+
+/// <summary>
+/// The signed-in staff account's own profile. Name, phone and photo for every staff member; email and password changes are for administrators
+/// (the director also holds Admin) and need the current password.
+/// </summary>
+public interface IProfileService
+{
+    Task<Result<ProfileDto>> GetAsync(CancellationToken cancellationToken = default);
+    Task<Result> ChangeNameAsync(string fullName, CancellationToken cancellationToken = default);
+    Task<Result> ChangePhoneAsync(string? phoneNumber, CancellationToken cancellationToken = default);
+    Task<Result<AvatarResult>> UploadAvatarAsync(AvatarUpload upload, CancellationToken cancellationToken = default);
+    Task<Result> RemoveAvatarAsync(CancellationToken cancellationToken = default);
+    Task<Result> ChangeEmailAsync(string email, string currentPassword, CancellationToken cancellationToken = default);
+    Task<Result> ChangePasswordAsync(string currentPassword, string newPassword, CancellationToken cancellationToken = default);
+}

@@ -1,5 +1,5 @@
 using Identity.Api.Contracts.Profile;
-using Identity.Application.Features.Avatars;
+using Identity.Application.Features.Avatars.Shared;
 
 namespace Identity.Api.Avatars;
 

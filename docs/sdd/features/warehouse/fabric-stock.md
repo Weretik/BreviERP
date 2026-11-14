@@ -19,22 +19,23 @@ src/Modules/Warehouse/
     StockColor.cs                # colour text and NFC key
   Warehouse.Application/Warehouse.Application/
     Abstractions/                # IWarehouseDbContext; ports IWarehouseProductionReader, IWarehouseReferenceReader, IWarehouseStaffReader
-    Access/WarehouseActor.cs     # CanMoveStock, SeesStockValue, CanImport, CanIssueFabric(item)
-    Colors/WarehouseColors.cs    # a new line takes a colour of «Кольори» (REF-006)
-    Contracts/FabricStockContracts.cs, StockReportContracts.cs
-    Stock/
-      StockReservations.cs       # plans of «Нове» items (from Production) minus what issues covered
-      StockChanges.cs            # actor, offer check, line lookup or creation, save with 409
-      StockPairs.cs              # load a pair, restate touched ledgers, save with the operation
-      StockOperations.cs         # request hash and replay
-      StockRules.cs, StockList.cs
-      Opening, Receipts, OneOff, Adjustments  # the pair commands
-      Revisions                  # MovementRevisions, edit, void, restore, «Історія правок»
-      GetStock («Залишки»), GetChoices, Movements («Рух тканини» page, «Сторно»),
-      Issues (ItemPlans, ItemFabricCards, items search, card, issue by cutting, «Оновити план», reversal), Consumption (period summary), Transfer (TransferStockCommand, V133Source reads and checks the export, V133Writer writes and replays it)
-      Facts/StockFacts.cs        # issues of a period and balances at a date for «Звіти цеху»
-      Reports/                   # «План і факт», «Бронь і що замовити», «Вартість складу», «Фурнітура до замовлення»
-      StockMessages.cs
+    Features/Stock/
+      Commands/                  # OpenFabricStock, ReceiveFabric, IssueFabric, AdjustFabricStock (the pair commands);
+                                 # EditFabricMovement, VoidFabricMovement, RestoreFabricMovement; ReverseFabricMovement («Сторно»);
+                                 # CreateFabricIssue (issue by cutting), RefreshItemFabricPlan («Оновити план»), ReverseFabricIssue;
+                                 # TransferStock (V133Source reads and checks the export, V133Writer writes and replays it)
+      Queries/                   # GetFabricStock («Залишки»), GetFabricStockChoices, GetFabricMovements («Рух тканини»),
+                                 # GetFabricMovementHistory («Історія правок»), GetFabricIssueItems, GetProductionItemFabric,
+                                 # GetFabricConsumption (period summary), GetFabricPlanFact, GetFabricBooking, GetFabricValuation, GetHardwareOrder
+      Shared/
+        WarehouseActor.cs        # CanMoveStock, SeesStockValue, CanImport, CanIssueFabric(item)
+        WarehouseColors.cs       # a new line takes a colour of «Кольори» (REF-006)
+        StockReservations.cs     # plans of «Нове» items (from Production) minus what issues covered
+        StockChanges.cs          # actor, offer check, line lookup or creation, save with 409
+        StockPairs.cs            # load a pair, restate touched ledgers, save with the operation
+        StockOperations.cs       # request hash and replay
+        StockRules.cs, StockList.cs, StockMessages.cs, MovementRevisions.cs, ItemPlans.cs, ItemFabricCards.cs, FabricBookingCalculator.cs
+        Facts/StockFacts.cs      # issues of a period and balances at a date for «Звіти цеху»
   Warehouse.Infrastructure/…/Persistence/  WarehouseDbContext (schema warehouse), FabricStockConfiguration, migrations
   Warehouse.Api/Warehouse.Api/Stock/
     FabricStockController.cs     # /api/warehouse/fabric-stock (policy access:fabric-stock)

@@ -1,6 +1,6 @@
 using Ai.Contracts.Prompts;
+using Purchasing.Application.Features.Documents.Shared;
 
-using Purchasing.Application.Documents.Recognize;
 
 namespace Purchasing.Infrastructure.Adapters.Ai;
 

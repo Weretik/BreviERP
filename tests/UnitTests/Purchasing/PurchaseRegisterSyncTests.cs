@@ -1,9 +1,9 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Purchasing.Application.Abstractions;
-using Purchasing.Application.Register.Sync;
 using Purchasing.Domain.Messages;
 using Purchasing.Domain.Sync;
+using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
 
 namespace UnitTests.Purchasing;
 

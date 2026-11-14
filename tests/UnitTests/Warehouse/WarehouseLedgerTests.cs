@@ -1,12 +1,12 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
-using Warehouse.Application.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.Adjustments;
-using Warehouse.Application.Stock.Movements;
-using Warehouse.Application.Stock.OneOff;
 using Warehouse.Domain.Stock;
 using static UnitTests.Warehouse.WarehouseStockHandlerTests;
+using Warehouse.Application.Features.Stock.Commands.AdjustFabricStock;
+using Warehouse.Application.Features.Stock.Commands.IssueFabric;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
+using Warehouse.Application.Features.Stock.Queries.GetFabricStockChoices;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace UnitTests.Warehouse;
 
@@ -98,7 +98,7 @@ public sealed class WarehouseLedgerTests
         var deeper = await Adjust(workshop, -12m, "Перерахунок");
         var lighter = await Adjust(workshop, -5m, "Перерахунок");
         var same = await Adjust(workshop, -5m, "Перерахунок");
-        var shortReason = new AdjustFabricStockCommandValidator().Validate(new AdjustFabricStockCommand(Chief,
+        var shortReason = new AdjustFabricStockValidator().Validate(new AdjustFabricStockCommand(Chief,
             new(Guid.NewGuid(), "FAB-023", "Темно-сірий", "v", 1m, Day, "ok")));
 
         Assert.Multiple(() =>
@@ -176,7 +176,7 @@ public sealed class WarehouseLedgerTests
         using var workshop = Workshop();
         workshop.Reference.Fabrics[1] = workshop.Reference.Fabrics[1] with { Density = "240" };
         var refused = await Receive(workshop, Chief, "Receipt", 1m, fabricId: 67);
-        var choices = await new global::Warehouse.Application.Stock.GetChoices.GetFabricStockChoicesQueryHandler(
+        var choices = await new global::Warehouse.Application.Features.Stock.Queries.GetFabricStockChoices.GetFabricStockChoicesHandler(
             workshop.Reference, workshop.Colors()).Handle(new(Chief), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -206,7 +206,7 @@ public sealed class WarehouseLedgerTests
 
     private static Task<Result<FabricStockOperationResponse>> Issue(WarehouseTestHarness workshop, decimal meters,
         string? version, string? destination = null) =>
-        new IssueFabricCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
+        new IssueFabricHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
             .Handle(new(Chief, new(Guid.NewGuid(), "FAB-023", "Темно-сірий", version, meters, Day, destination, null)),
                 CancellationToken.None).AsTask();
 
@@ -214,7 +214,7 @@ public sealed class WarehouseLedgerTests
         decimal target, string reason)
     {
         var version = Pair(await List(workshop, Chief), "Темно-сірий").Version;
-        return await new AdjustFabricStockCommandHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
+        return await new AdjustFabricStockHandler(workshop.StockChanges(), workshop.Pairs(), workshop.Operations())
             .Handle(new(Chief, new(Guid.NewGuid(), "FAB-023", "Темно-сірий", version, target, Day, reason)),
                 CancellationToken.None);
     }

@@ -3,8 +3,11 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Warehouse.Api.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.Reports;
+using Warehouse.Application.Features.Stock.Queries.GetFabricBooking;
+using Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact;
+using Warehouse.Application.Features.Stock.Queries.GetFabricValuation;
+using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace Warehouse.Api.Stock;
 

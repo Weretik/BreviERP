@@ -1,11 +1,11 @@
 using Ai.Application.Abstractions;
-using Ai.Application.Extraction;
 using Ai.Contracts.Extraction;
 using Ai.Domain.Settings;
 
 using Ardalis.Result;
 
 using Mediator;
+using Ai.Application.Features.Extraction.Commands.ExtractStructuredData;
 
 namespace Ai.Infrastructure.Contracts.Extraction;
 

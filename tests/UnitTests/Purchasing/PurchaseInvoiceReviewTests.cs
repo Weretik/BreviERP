@@ -1,7 +1,7 @@
 using Ardalis.Result;
-using Purchasing.Application.Contracts;
-using Purchasing.Application.Register.GetInvoices;
-using Purchasing.Application.Register.Review;
+using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseSuppliers;
 
 namespace UnitTests.Purchasing;
 
@@ -30,7 +30,7 @@ public sealed class PurchaseInvoiceReviewTests
 
     private async Task<PurchaseInvoicePage> ListAsync(PurchaseInvoiceFilter filter = PurchaseInvoiceFilter.All,
         int? supplierId = null) =>
-        (await new GetPurchaseInvoicesQueryHandler(harness.Db, harness.Suppliers, harness.Payments)
+        (await new GetPurchaseInvoicesHandler(harness.Db, harness.Suppliers, harness.Payments)
             .Handle(new GetPurchaseInvoicesQuery(1, 50, null, filter, supplierId), CancellationToken.None)).Value;
 
     [Test]
@@ -70,7 +70,7 @@ public sealed class PurchaseInvoiceReviewTests
         var stale = await ReviewAsync(8, "друга", 0);
 
         Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
-        Assert.That(stale.Errors, Is.EqualTo(new[] { ReviewPurchaseInvoiceCommandHandler.Stale }));
+        Assert.That(stale.Errors, Is.EqualTo(new[] { ReviewPurchaseInvoiceHandler.Stale }));
         using var db = harness.Fresh();
         Assert.That(db.Messages.Single(x => x.Id == messageId).ReviewNote, Is.EqualTo("перша"));
         Assert.That(db.ReviewChanges.Count(), Is.EqualTo(1));
@@ -141,7 +141,7 @@ public sealed class PurchaseInvoiceReviewTests
     [Test]
     public async Task Supplier_options_are_active_suppliers_by_name()
     {
-        var result = await new GetPurchaseSuppliersQueryHandler(harness.Suppliers)
+        var result = await new GetPurchaseSuppliersHandler(harness.Suppliers)
             .Handle(new GetPurchaseSuppliersQuery(), CancellationToken.None);
 
         Assert.That(result.Value.Select(x => x.Name), Is.EqualTo(new[] { "Текстиль-Контакт", "ФОП Бистров" }));
@@ -150,7 +150,7 @@ public sealed class PurchaseInvoiceReviewTests
     [Test]
     public void Note_longer_than_the_limit_is_invalid()
     {
-        var validator = new ReviewPurchaseInvoiceCommandValidator();
+        var validator = new ReviewPurchaseInvoiceValidator();
         var command = new ReviewPurchaseInvoiceCommand(messageId, 7, new string('я', 1001), 0, "buh@brevi.com.ua");
 
         Assert.That(validator.Validate(command).IsValid, Is.False);

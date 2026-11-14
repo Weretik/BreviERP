@@ -1,6 +1,6 @@
 using Ardalis.Result;
-using Identity.Application.Features.Avatars;
 using SkiaSharp;
+using Identity.Application.Features.Avatars.Shared;
 
 namespace Identity.Infrastructure.Avatars;
 

@@ -1,12 +1,14 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using UnitTests.Production;
-using Warehouse.Application.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.Issues;
-using Warehouse.Application.Stock.Movements;
-using Warehouse.Application.Stock.Revisions;
 using static UnitTests.Warehouse.WarehouseStockHandlerTests;
+using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
+using Warehouse.Application.Features.Stock.Commands.EditFabricMovement;
+using Warehouse.Application.Features.Stock.Commands.RefreshItemFabricPlan;
+using Warehouse.Application.Features.Stock.Commands.VoidFabricMovement;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
+using Warehouse.Application.Features.Stock.Queries.GetProductionItemFabric;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace UnitTests.Warehouse;
 
@@ -112,7 +114,7 @@ public sealed class WarehouseIssueByCuttingTests
 
         var edited = await Edit(workshop, row, 6.5m);
         var afterEdit = await Card(workshop, orderId, itemId);
-        var voided = await new VoidFabricMovementCommandHandler(workshop.StockChanges(), workshop.Pairs(),
+        var voided = await new VoidFabricMovementHandler(workshop.StockChanges(), workshop.Pairs(),
                 workshop.Operations(), Revisions(workshop))
             .Handle(new(Chief, row.Id, new(Guid.NewGuid(), 1, "Видали не на те завдання")), CancellationToken.None);
         var afterVoid = await Card(workshop, orderId, itemId);
@@ -184,7 +186,7 @@ public sealed class WarehouseIssueByCuttingTests
     private static async Task<ProductionItemFabricResponse> Card(WarehouseTestHarness workshop, int orderId, int itemId)
     {
         workshop.Db.ChangeTracker.Clear();
-        return (await new GetProductionItemFabricQueryHandler(workshop.Production, workshop.ItemFabric())
+        return (await new GetProductionItemFabricHandler(workshop.Production, workshop.ItemFabric())
             .Handle(new(Chief, orderId, itemId), CancellationToken.None)).Value;
     }
 
@@ -192,7 +194,7 @@ public sealed class WarehouseIssueByCuttingTests
         int itemId, int version, int planVersion)
     {
         workshop.Db.ChangeTracker.Clear();
-        return await new RefreshItemFabricPlanCommandHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
+        return await new RefreshItemFabricPlanHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
                 workshop.Plans(), workshop.ItemFabric())
             .Handle(new(Chief, orderId, itemId, new(version, planVersion)), CancellationToken.None);
     }
@@ -200,7 +202,7 @@ public sealed class WarehouseIssueByCuttingTests
     private static async Task<FabricMovementRowResponse> IssueRow(WarehouseTestHarness workshop, int itemId)
     {
         workshop.Db.ChangeTracker.Clear();
-        return (await new GetFabricMovementsQueryHandler(workshop.Db)
+        return (await new GetFabricMovementsHandler(workshop.Db)
                 .Handle(new(Chief, 1, FabricMovementFilter.Issue, null, null, itemId), CancellationToken.None)).Value
             .Rows.OrderBy(x => x.Id).First();
     }
@@ -213,7 +215,7 @@ public sealed class WarehouseIssueByCuttingTests
         DateOnly? date = null)
     {
         workshop.Db.ChangeTracker.Clear();
-        return await new EditFabricMovementCommandHandler(workshop.StockChanges(), workshop.Pairs(),
+        return await new EditFabricMovementHandler(workshop.StockChanges(), workshop.Pairs(),
                 workshop.Operations(), Revisions(workshop), workshop.Colors())
             .Handle(new(Chief, row.Id, new(Guid.NewGuid(), row.Revision, date ?? row.OperationDate, meters, null,
                 fabricCode, color, null, null, null, "Перевірили розкрій")), CancellationToken.None);

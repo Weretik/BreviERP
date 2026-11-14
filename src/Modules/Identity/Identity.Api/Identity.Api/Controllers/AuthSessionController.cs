@@ -1,7 +1,7 @@
 using Identity.Api.Contracts.Access;
 using Identity.Api.Contracts.Auth;
-using Identity.Application.Features.Access.GetMyAccess;
-using Identity.Application.Features.Auth.SessionMe;
+using Identity.Application.Features.Access.Queries.GetMyAccess;
+using Identity.Application.Features.Auth.Queries.SessionMe;
 
 namespace Identity.Api.Controllers;
 

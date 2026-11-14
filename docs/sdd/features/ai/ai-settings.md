@@ -12,9 +12,9 @@ src/Modules/Ai/
     Prompts/           # AiPrompt (extra rules per request kind)
   Ai.Application/Ai.Application/
     Abstractions/      # IAiDbContext, IAiKeyProtector, IOpenAiClient, IAiBasePrompt (fixed instruction a module shows)
-    Calls/             # AiCaller: key, limit, extra rules, call, usage — the only sender to OpenAI
-    Settings/          # get, update (version), set/remove key, prompts, «Перевірити»
-    Extraction/        # ExtractStructuredDataCommand for other modules (through `Ai.Contracts`)
+    Features/Calls/Shared/   # AiCaller: key, limit, extra rules, call, usage — the only sender to OpenAI
+    Features/Settings/       # Queries/GetAiSettings; Commands/UpdateAiSettings (version), SetAiKey, RemoveAiKey, UpdateAiPrompt, TestAiConnection («Перевірити»)
+    Features/Extraction/Commands/ExtractStructuredData/  # for other modules (through `Ai.Contracts`)
   Ai.Infrastructure/Ai.Infrastructure/
     Persistence/       # AiDbContext (schema ai), configurations, migrations
     Security/          # AiKeyProtector (Data Protection)

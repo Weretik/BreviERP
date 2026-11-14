@@ -1,7 +1,7 @@
 using Identity.Api.Contracts.Auth;
 using Identity.Api.Cookies;
-using Identity.Application.Features.Auth.CookieLogin;
-using Identity.Application.Features.Auth.CookieLogout;
+using Identity.Application.Features.Auth.Commands.CookieLogin;
+using Identity.Application.Features.Auth.Commands.CookieLogout;
 
 namespace Identity.Api.Controllers;
 

@@ -1,5 +1,5 @@
-using Identity.Application.Services;
 using Media.Contracts.Storage;
+using Identity.Application.Abstractions;
 
 namespace Identity.Infrastructure.Adapters.Media;
 

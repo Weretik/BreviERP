@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using Warehouse.Application.Access;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace Warehouse.Api.Access;
 

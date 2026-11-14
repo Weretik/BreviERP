@@ -1,11 +1,11 @@
 using Ardalis.Result;
 using Identity.Application.Features.Access.Shared;
 using Identity.Application.Security.Access;
-using Identity.Application.Services;
 using Identity.Domain.Authorization;
 using Identity.Infrastructure.DataBase;
 using Identity.Infrastructure.Entities;
 using Microsoft.Extensions.Caching.Memory;
+using Identity.Application.Abstractions;
 
 namespace Identity.Infrastructure.Services.Access;
 

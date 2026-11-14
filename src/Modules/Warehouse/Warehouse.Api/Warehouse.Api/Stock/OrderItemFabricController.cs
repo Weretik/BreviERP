@@ -4,8 +4,10 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Warehouse.Api.Access;
-using Warehouse.Application.Contracts;
-using Warehouse.Application.Stock.Issues;
+using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
+using Warehouse.Application.Features.Stock.Commands.ReverseFabricIssue;
+using Warehouse.Application.Features.Stock.Queries.GetProductionItemFabric;
+using Warehouse.Application.Features.Stock.Shared;
 
 namespace Warehouse.Api.Stock;
 
