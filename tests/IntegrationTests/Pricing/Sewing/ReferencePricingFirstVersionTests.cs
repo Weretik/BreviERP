@@ -17,8 +17,8 @@ public sealed class ReferencePricingFirstVersionTests : SewingPricingDatabaseFix
         await using var reference = Reference();
         var fabricId = FabricId.From(9001);
         var accessoryId = GarmentAccessoryId.From(9001);
-        reference.Fabrics.Add(Fabric.Create(fabricId, "Тест тканина", MoneyAmount.From(120), SupplierId.From(1)));
-        reference.GarmentAccessories.Add(GarmentAccessory.Create(accessoryId, "Тест фурнітура", MoneyAmount.From(3)));
+        reference.Fabrics.Add(Fabric.Create(fabricId, "Тест тканина", MoneyAmount.From(120), SupplierId.From(1)).Value);
+        reference.GarmentAccessories.Add(GarmentAccessory.Create(accessoryId, "Тест фурнітура", MoneyAmount.From(3)).Value);
         await reference.SaveChangesAsync();
 
         var fabricVersion = await reference.Set<ReferencePricingInputVersion>().AsNoTracking().SingleAsync(x => x.FabricId == fabricId);

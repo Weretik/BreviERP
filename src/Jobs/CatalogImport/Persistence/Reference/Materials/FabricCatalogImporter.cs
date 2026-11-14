@@ -31,7 +31,8 @@ public sealed class FabricCatalogImporter(
             var cost = row.Decimal(5)!.Value;
             if (entity is null)
             {
-                entity = Fabric.Create(FabricId.From(++nextId), name, MoneyAmount.From(cost), SupplierId.From(supplierId));
+                entity = Fabric.Create(FabricId.From(++nextId), name, MoneyAmount.From(cost), SupplierId.From(supplierId))
+                    .Require(row.Key);
                 fabrics.Add(entity);
                 db.Fabrics.Add(entity);
                 report.ReferenceChanges.Add($"Fabric created: {row.Text(0)} -> {entity.Id.Value}.");
@@ -39,9 +40,9 @@ public sealed class FabricCatalogImporter(
             else if (entity.Price.Value != cost || entity.ProviderId.Value != supplierId)
             {
                 report.ReferenceChanges.Add($"Fabric {row.Text(0)} ID {entity.Id.Value}: cost {entity.Price.Value} -> {cost}; supplier {entity.ProviderId.Value} -> {supplierId}.");
-                entity.Update(entity.Name, MoneyAmount.From(cost), SupplierId.From(supplierId));
+                entity.Update(entity.Name, MoneyAmount.From(cost), SupplierId.From(supplierId)).Require(row.Key);
             }
-            entity.SetPresentationMetadata(row.Text(3), row.Text(4));
+            entity.SetPresentationMetadata(row.Text(3), row.Text(4)).Require(row.Key);
             result.Add(row.Text(0), entity.Id.Value);
             mappings.Add("Fabric", row.Text(0), "Fabric", entity.Id.Value);
         }

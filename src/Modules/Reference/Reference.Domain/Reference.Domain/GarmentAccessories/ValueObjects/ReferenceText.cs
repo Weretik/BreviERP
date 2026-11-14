@@ -1,14 +1,18 @@
+using BuildingBlocks.Domain.Errors;
+using BuildingBlocks.Domain.Results;
+
 namespace Reference.Domain.GarmentAccessories.ValueObjects;
 
-/// <summary>Trims optional text, turns blank into null and rejects values longer than the column.</summary>
+/// <summary>
+/// Optional text of a reference card: <see cref="Check"/> reports a value longer than the column as a rule;
+/// <see cref="Optional"/> then trims it and turns blank into null.
+/// </summary>
 internal static class ReferenceText
 {
-    public static string? Optional(string? value, int maxLength, Func<int, Exception> tooLong)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return null;
+    public static DomainResult Check(string? value, int maxLength, Func<int, Error> tooLong) =>
+        Optional(value) is { Length: var length } && length > maxLength
+            ? tooLong(maxLength)
+            : DomainResult.Success();
 
-        var trimmed = value.Trim();
-        return trimmed.Length <= maxLength ? trimmed : throw tooLong(maxLength);
-    }
+    public static string? Optional(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

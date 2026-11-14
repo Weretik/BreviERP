@@ -40,7 +40,14 @@ public sealed class FabricSeeder(
             var price = MoneyAmount.From(row.Price);
             var providerId = SupplierId.From(row.ProviderId);
 
-            var entity = Fabric.Create(FabricId.From(row.Id), name, price, providerId);
+            var created = Fabric.Create(FabricId.From(row.Id), name, price, providerId);
+            if (created.IsFailure)
+            {
+                logger.LogWarning("Skipped Fabric seed row {Id}: {Error}", row.Id, created.Error!.Message);
+                continue;
+            }
+
+            var entity = created.Value;
 
             await db.Fabrics.AddAsync(entity, cancellationToken);
         }

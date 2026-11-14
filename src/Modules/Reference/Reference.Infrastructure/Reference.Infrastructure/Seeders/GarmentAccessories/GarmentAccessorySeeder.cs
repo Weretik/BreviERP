@@ -51,7 +51,14 @@ public sealed class GarmentAccessorySeeder(
 
             var price = MoneyAmount.From(row.Price);
 
-            var entity = GarmentAccessory.Create(GarmentAccessoryId.From(row.Id), name, price);
+            var created = GarmentAccessory.Create(GarmentAccessoryId.From(row.Id), name, price);
+            if (created.IsFailure)
+            {
+                logger.LogWarning("Skipped GarmentAccessory seed row {Id}: {Error}", row.Id, created.Error!.Message);
+                continue;
+            }
+
+            var entity = created.Value;
 
             await db.GarmentAccessories.AddAsync(entity, cancellationToken);
         }

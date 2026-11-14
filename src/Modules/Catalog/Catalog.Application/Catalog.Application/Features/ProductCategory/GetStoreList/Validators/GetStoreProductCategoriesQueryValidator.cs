@@ -9,10 +9,10 @@ public sealed class GetStoreProductCategoriesQueryValidator : AbstractValidator<
         RuleFor(x => x.Language)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithMessage("РњРѕРІР° РєР°С‚РµРіРѕСЂС–Р№ С‚РѕРІР°СЂС–РІ С” РѕР±РѕРІ'СЏР·РєРѕРІРѕСЋ.")
+            .WithMessage("Мова категорій товарів є обов'язковою.")
             .Must(language => !string.IsNullOrWhiteSpace(language)
                               && SupportedLanguages.Contains(language.Trim().ToLowerInvariant()))
-            .WithMessage("РњРѕРІР° РєР°С‚РµРіРѕСЂС–Р№ С‚РѕРІР°СЂС–РІ РјР°С” Р±СѓС‚Рё 'uk' Р°Р±Рѕ 'ru'.");
+            .WithMessage("Мова категорій товарів має бути 'uk' або 'ru'.");
     }
 }
 

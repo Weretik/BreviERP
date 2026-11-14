@@ -2,7 +2,6 @@ using BuildingBlocks.Application.Helpers;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Supplier.Update.Specifications;
 using Ardalis.Result;
-using BuildingBlocks.Domain.Exceptions;
 using SupplierEntity = Reference.Domain.Suppliers.Entities.Supplier;
 
 namespace Reference.Application.Features.Supplier.Update;
@@ -50,14 +49,8 @@ public sealed class UpdateSupplierCommandHandler(IReferenceRepository<SupplierEn
                 "Постачальник з такою назвою уже існує.")]);
         }
 
-        try
-        {
-            entity.Update(name, link, contactPerson, phoneNumber, notes, email, request.PurchaseCategories);
-        }
-        catch (DomainException exception)
-        {
-            return Result.Invalid([new ValidationError("Request", exception.Message)]);
-        }
+        var changed = entity.Update(name, link, contactPerson, phoneNumber, notes, email, request.PurchaseCategories);
+        if (changed.IsFailure) return changed.Error!.ToResult();
 
         entity.SetActive(request.IsActive);
 

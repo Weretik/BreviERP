@@ -37,20 +37,29 @@ public sealed class KeepinCrmSupplierSync(
 
         foreach (var snapshot in snapshots.Where(x => seen.Add(x.KeepinCrmId)))
         {
+            if (string.IsNullOrWhiteSpace(snapshot.KeepinCrmId) || string.IsNullOrWhiteSpace(snapshot.Name))
+            {
+                // A supplier without an ID or a name cannot be kept in Brevi: it is skipped until fixed in KeepinCRM.
+                logger.LogWarning("KeepinCRM supplier {KeepinCrmId} has no ID or name and was skipped", snapshot.KeepinCrmId);
+                continue;
+            }
+
             if (byKeepinId.TryGetValue(snapshot.KeepinCrmId, out var existing))
             {
-                existing.ApplyKeepinCrmSnapshot(WithFreeName(snapshot, existing, suppliers, created), syncedAt);
+                existing.ApplyKeepinCrmSnapshot(WithFreeName(snapshot, existing, suppliers, created), syncedAt)
+                    .ThrowIfFailure();
                 updated++;
             }
             else if (unlinkedByName.Remove(SupplierNameKey.From(snapshot.Name), out var manual))
             {
-                manual.ApplyKeepinCrmSnapshot(WithFreeName(snapshot, manual, suppliers, created), syncedAt);
+                manual.ApplyKeepinCrmSnapshot(WithFreeName(snapshot, manual, suppliers, created), syncedAt)
+                    .ThrowIfFailure();
                 linked++;
             }
             else
             {
                 var supplier = SupplierEntity.CreateFromKeepinCrm(
-                    SupplierId.From(nextId++), WithFreeName(snapshot, null, suppliers, created), syncedAt);
+                    SupplierId.From(nextId++), WithFreeName(snapshot, null, suppliers, created), syncedAt).Value;
                 created.Add(supplier);
             }
         }

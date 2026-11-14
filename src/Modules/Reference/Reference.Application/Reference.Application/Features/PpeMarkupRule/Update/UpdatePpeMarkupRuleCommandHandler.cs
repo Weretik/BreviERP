@@ -2,7 +2,6 @@ using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PpeMarkupRule.Shared;
 using Reference.Application.Features.PpeMarkupRule.Shared.Specifications;
-using BuildingBlocks.Domain.Exceptions;
 using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
 
 namespace Reference.Application.Features.PpeMarkupRule.Update;
@@ -22,14 +21,8 @@ public sealed class UpdatePpeMarkupRuleCommandHandler(
         if (entity is null)
             return Result.NotFound();
 
-        try
-        {
-            entity.ApplyDetails(PpeMarkupRuleDetailsFactory.From(command.Request));
-        }
-        catch (DomainException exception)
-        {
-            return Result.Invalid([new ValidationError("Request", exception.Message)]);
-        }
+        var changed = entity.ApplyDetails(PpeMarkupRuleDetailsFactory.From(command.Request));
+        if (changed.IsFailure) return changed.Error!.ToResult();
 
         await repository.UpdateAsync(entity, cancellationToken);
         await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);

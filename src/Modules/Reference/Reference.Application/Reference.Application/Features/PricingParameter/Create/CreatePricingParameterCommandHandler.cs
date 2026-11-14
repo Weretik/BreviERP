@@ -3,7 +3,6 @@ using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Shared.Dates;
 using Reference.Application.Features.PricingParameter.Shared;
 using Reference.Application.Features.PricingParameter.Shared.Specifications;
-using BuildingBlocks.Domain.Exceptions;
 using Reference.Domain.PricingParameters.ValueObjects;
 using PricingParameterEntity = Reference.Domain.PricingParameters.Entities.PricingParameter;
 
@@ -29,16 +28,10 @@ public sealed class CreatePricingParameterCommandHandler(
         var existing = await repository.ListAsync(cancellationToken);
         var nextId = existing.Count == 0 ? 1 : existing.Max(x => x.Id.Value) + 1;
 
-        PricingParameterEntity entity;
-        try
-        {
-            entity = PricingParameterEntity.Create(PricingParameterId.From(nextId), code,
-                PricingParameterDetailsFactory.From(request), KyivDate.Today(timeProvider));
-        }
-        catch (DomainException exception)
-        {
-            return Result.Invalid([new ValidationError("Request", exception.Message)]);
-        }
+        var created = PricingParameterEntity.Create(PricingParameterId.From(nextId), code,
+            PricingParameterDetailsFactory.From(request), KyivDate.Today(timeProvider));
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
 
         await repository.AddAsync(entity, cancellationToken);
         await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);

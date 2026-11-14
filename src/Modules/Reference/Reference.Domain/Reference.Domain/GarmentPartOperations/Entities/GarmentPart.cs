@@ -1,6 +1,6 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Results;
 using Reference.Domain.GarmentPartOperations.Errors;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
 
@@ -14,35 +14,27 @@ public class GarmentPart : BaseEntity<GarmentPartId>, IAggregateRoot
 
     #region Constructors
     private GarmentPart() { }
-
-    private GarmentPart(GarmentPartId id, string name)
-    {
-        SetId(id);
-        SetName(name);
-    }
     #endregion
 
     #region Factories
-    public static GarmentPart Create(GarmentPartId id, string name) => new(id, name);
+    public static DomainResult<GarmentPart> Create(GarmentPartId id, string name)
+    {
+        if (id.Value == default) throw new ArgumentException("Garment part id is required.", nameof(id));
+        var check = CheckName(name);
+        return check.IsFailure ? check.Error! : new GarmentPart { Id = id, Name = name.Trim() };
+    }
 
-    public void Update(string name) => SetName(name);
+    public DomainResult Update(string name)
+    {
+        var check = CheckName(name);
+        if (check.IsFailure) return check;
+        Name = name.Trim();
+        return DomainResult.Success();
+    }
     #endregion
 
-    #region Setters/Validation
-    private void SetId(GarmentPartId id)
-    {
-        if (id.Value == default)
-            throw new DomainException(GarmentPartErrors.IdIsRequired());
-
-        Id = id;
-    }
-
-    private void SetName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException(GarmentPartErrors.NameIsRequired());
-
-        Name = name.Trim();
-    }
+    #region Rules
+    private static DomainResult CheckName(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? GarmentPartErrors.NameIsRequired() : DomainResult.Success();
     #endregion
 }

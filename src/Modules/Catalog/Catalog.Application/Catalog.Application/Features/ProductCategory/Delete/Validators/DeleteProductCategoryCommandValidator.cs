@@ -6,7 +6,7 @@ public sealed class DeleteProductCategoryCommandValidator : AbstractValidator<De
     {
         RuleFor(x => x.Id)
             .GreaterThan(0)
-            .WithMessage("Р†РґРµРЅС‚РёС„С–РєР°С‚РѕСЂ РєР°С‚РµРіРѕСЂС–С— С‚РѕРІР°СЂС–РІ РјР°С” Р±СѓС‚Рё Р±С–Р»СЊС€РёРј Р·Р° 0.");
+            .WithMessage("Ідентифікатор категорії товарів має бути більшим за 0.");
     }
 }
 

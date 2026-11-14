@@ -29,14 +29,14 @@ public sealed class CreateProductCategoryCommandHandler(ICatalogRepository<Produ
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Id",
-                    "РљР°С‚РµРіРѕСЂС–СЏ С‚РѕРІР°СЂС–РІ Р· С‚Р°РєРёРј С–РґРµРЅС‚РёС„С–РєР°С‚РѕСЂРѕРј СѓР¶Рµ С–СЃРЅСѓС”."));
+                    "Категорія товарів з таким ідентифікатором уже існує."));
             }
 
             if (nameExists)
             {
                 validationErrors.Add(new ValidationError(
                     "Request.Name",
-                    "РљР°С‚РµРіРѕСЂС–СЏ С‚РѕРІР°СЂС–РІ Р· С‚Р°РєРѕСЋ РЅР°Р·РІРѕСЋ СѓР¶Рµ С–СЃРЅСѓС”."));
+                    "Категорія товарів з такою назвою уже існує."));
             }
 
             return Result.Invalid(validationErrors);
@@ -49,7 +49,7 @@ public sealed class CreateProductCategoryCommandHandler(ICatalogRepository<Produ
             {
                 return Result.Invalid([new ValidationError(
                     "Request.ParentId",
-                    "РљР°С‚РµРіРѕСЂС–СЏ С‚РѕРІР°СЂС–РІ РЅРµ РјРѕР¶Рµ Р±СѓС‚Рё РІР»Р°СЃРЅРѕСЋ Р±Р°С‚СЊРєС–РІСЃСЊРєРѕСЋ РєР°С‚РµРіРѕСЂС–С”СЋ.")]);
+                    "Категорія товарів не може бути власною батьківською категорією.")]);
             }
 
             parent = await repository.FirstOrDefaultAsync(
@@ -59,7 +59,7 @@ public sealed class CreateProductCategoryCommandHandler(ICatalogRepository<Produ
             {
                 return Result.Invalid([new ValidationError(
                     "Request.ParentId",
-                    "Р‘Р°С‚СЊРєС–РІСЃСЊРєСѓ РєР°С‚РµРіРѕСЂС–СЋ С‚РѕРІР°СЂС–РІ РЅРµ Р·РЅР°Р№РґРµРЅРѕ.")]);
+                    "Батьківську категорію товарів не знайдено.")]);
             }
         }
 
@@ -70,7 +70,7 @@ public sealed class CreateProductCategoryCommandHandler(ICatalogRepository<Produ
         {
             return Result.Invalid([new ValidationError(
                 "Request.Slug",
-                "РљР°С‚РµРіРѕСЂС–СЏ С‚РѕРІР°СЂС–РІ Р· С‚Р°РєРёРј slug СѓР¶Рµ С–СЃРЅСѓС” РІ С†С–Р№ Р±Р°С‚СЊРєС–РІСЃСЊРєС–Р№ РєР°С‚РµРіРѕСЂС–С—.")]);
+                "Категорія товарів з таким slug уже існує в цій батьківській категорії.")]);
         }
 
         var entity = ProductCategoryEntity.Create(

@@ -1,5 +1,5 @@
+﻿using BuildingBlocks.Domain.Results;
 using Ardalis.Result;
-using BuildingBlocks.Domain.Exceptions;
 using Moq;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.FabricColor.Create;
@@ -15,6 +15,9 @@ namespace UnitTests.Reference;
 public sealed class FabricColorTests
 {
     private static FabricColor Stored(int id, string name, bool active = true, int order = 0) =>
+        FabricColor.Create(FabricColorId.From(id), new FabricColorDetails(name, active, order)).Value;
+
+    private static DomainResult<FabricColor> Attempt(int id, string name, bool active = true, int order = 0) =>
         FabricColor.Create(FabricColorId.From(id), new FabricColorDetails(name, active, order));
 
     private static (Mock<IReferenceRepository<FabricColor>> Repository, List<FabricColor> Added) Repository(
@@ -34,8 +37,8 @@ public sealed class FabricColorTests
     {
         Assert.Multiple(() =>
         {
-            Assert.Throws<DomainException>(() => Stored(1, "  "));
-            Assert.Throws<DomainException>(() => Stored(1, new string('я', 81)));
+            Assert.That(Attempt(1, "  ").IsFailure, Is.True);
+            Assert.That(Attempt(1, new string('я', 81)).IsFailure, Is.True);
             Assert.That(Stored(1, "  Темно-синій кол.1076 ").Name, Is.EqualTo("Темно-синій кол.1076"));
         });
     }

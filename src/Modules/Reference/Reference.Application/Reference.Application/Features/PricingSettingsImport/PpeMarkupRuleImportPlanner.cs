@@ -22,16 +22,14 @@ internal static class PpeMarkupRuleImportPlanner
                 row.PriceNote, row.AppliesTo, row.RowNumber);
             var target = byName.GetValueOrDefault(name);
 
-            PpeMarkupRuleEntity candidate;
-            try
+            var checkedRow = PpeMarkupRuleEntity.Create(PpeMarkupRuleId.From(target?.Id.Value ?? nextId), name, details);
+            if (checkedRow.IsFailure)
             {
-                candidate = PpeMarkupRuleEntity.Create(PpeMarkupRuleId.From(target?.Id.Value ?? nextId), name, details);
-            }
-            catch (Exception exception) // domain rules: markup range, text length
-            {
-                plan.Error(row.RowNumber, name, name, exception.Message);
+                plan.Error(row.RowNumber, name, name, checkedRow.Error!.Message);
                 continue;
             }
+
+            var candidate = checkedRow.Value;
 
             if (target is null)
             {
@@ -48,7 +46,7 @@ internal static class PpeMarkupRuleImportPlanner
                 .Text("До яких товарів належить", target.AppliesTo, candidate.AppliesTo)
                 .Compare("Порядок", target.SortOrder, candidate.SortOrder)
                 .Changes.ToList();
-            plan.Match(row.RowNumber, name, name, target, changes, () => target.ApplyDetails(details));
+            plan.Match(row.RowNumber, name, name, target, changes, () => target.ApplyDetails(details).ThrowIfFailure());
         }
 
         plan.Finish(existing, deleteMissing, x => x.Name);

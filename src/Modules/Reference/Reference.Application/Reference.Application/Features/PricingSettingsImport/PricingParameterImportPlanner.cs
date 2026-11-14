@@ -23,17 +23,15 @@ internal static class PricingParameterImportPlanner
             var target = byCode.GetValueOrDefault(code);
             var label = row.Name?.Trim() ?? string.Empty;
 
-            PricingParameterEntity candidate;
-            try
+            var checkedRow = PricingParameterEntity.Create(PricingParameterId.From(target?.Id.Value ?? nextId), code,
+                details, row.UpdatedOn);
+            if (checkedRow.IsFailure)
             {
-                candidate = PricingParameterEntity.Create(PricingParameterId.From(target?.Id.Value ?? nextId), code,
-                    details, row.UpdatedOn);
-            }
-            catch (Exception exception) // domain rules: code format, required text, value
-            {
-                plan.Error(row.RowNumber, code, label, exception.Message);
+                plan.Error(row.RowNumber, code, label, checkedRow.Error!.Message);
                 continue;
             }
+
+            var candidate = checkedRow.Value;
 
             if (target is null)
             {
@@ -53,7 +51,7 @@ internal static class PricingParameterImportPlanner
                 .Compare("Порядок", target.SortOrder, candidate.SortOrder)
                 .Changes.ToList();
             plan.Match(row.RowNumber, code, label, target, changes,
-                () => target.ApplyDetails(details, row.UpdatedOn));
+                () => target.ApplyDetails(details, row.UpdatedOn).ThrowIfFailure());
         }
 
         plan.Finish(existing, deleteMissing, x => $"{x.Code} {x.Name}");

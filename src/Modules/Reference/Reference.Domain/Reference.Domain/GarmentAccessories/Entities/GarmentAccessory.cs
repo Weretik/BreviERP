@@ -1,6 +1,6 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Results;
 using Reference.Domain.GarmentAccessories.Errors;
 using Reference.Domain.GarmentAccessories.ValueObjects;
 using Reference.Domain.Suppliers.ValueObjects;
@@ -32,64 +32,72 @@ public class GarmentAccessory : BaseEntity<GarmentAccessoryId>, IAggregateRoot
 
     #region Constructors
     private GarmentAccessory() { }
-
-    private GarmentAccessory(GarmentAccessoryId id, string name, MoneyAmount price, int supplierId = 1)
-    {
-        SetId(id);
-        SetName(name);
-        SetPrice(price);
-        SetSupplierId(supplierId);
-    }
     #endregion
 
     #region Factories
-    public static GarmentAccessory Create(
+    public static DomainResult<GarmentAccessory> Create(
         GarmentAccessoryId id,
         string name,
         MoneyAmount price,
         int supplierId = 1)
-        => new(id, name, price, supplierId);
+    {
+        RequireId(id);
+        var check = DomainResult.Combine(CheckName(name), CheckPrice(price), CheckSupplier(supplierId));
+        if (check.IsFailure) return check.Error!;
+        var accessory = new GarmentAccessory { Id = id };
+        accessory.SetMain(name, price, supplierId);
+        return accessory;
+    }
 
-    public static GarmentAccessory Create(
+    public static DomainResult<GarmentAccessory> Create(
         GarmentAccessoryId id,
         GarmentAccessoryDetails details,
         MoneyAmount price,
         DateOnly? priceUpdatedAt)
     {
-        var accessory = new GarmentAccessory(id, details.Name, price, details.SupplierId.Value);
-        accessory.ApplyDetails(details);
+        RequireId(id);
+        var check = DomainResult.Combine(CheckDetails(details), CheckPrice(price));
+        if (check.IsFailure) return check.Error!;
+        var accessory = new GarmentAccessory { Id = id };
+        accessory.SetMain(details.Name, price, details.SupplierId.Value);
+        accessory.SetDetails(details);
         accessory.PriceUpdatedAt = priceUpdatedAt;
         return accessory;
     }
 
-    public void Update(string name, MoneyAmount price, int supplierId = 1)
+    public DomainResult Update(string name, MoneyAmount price, int supplierId = 1)
     {
-        SetName(name);
-        SetPrice(price);
-        SetSupplierId(supplierId);
+        var check = DomainResult.Combine(CheckName(name), CheckPrice(price), CheckSupplier(supplierId));
+        if (check.IsFailure) return check;
+        SetMain(name, price, supplierId);
+        return DomainResult.Success();
     }
 
     /// <summary>Replaces every card field except price.</summary>
-    public void ApplyDetails(GarmentAccessoryDetails details)
+    public DomainResult ApplyDetails(GarmentAccessoryDetails details)
     {
-        Code = NormalizeCode(details.Code);
-        SetName(details.Name);
-        SetSupplierId(details.SupplierId.Value);
-        Unit = NormalizeUnit(details.Unit)
-            ?? throw new DomainException(GarmentAccessoryErrors.UnitInvalid(string.Join(", ", Units)));
-        IsActive = details.IsActive;
-        Comment = Text(details.Comment, CommentMaxLength);
+        var check = CheckDetails(details);
+        if (check.IsFailure) return check;
+        Name = ReferenceText.Optional(details.Name)!;
+        SupplierId = details.SupplierId;
+        SetDetails(details);
+        return DomainResult.Success();
     }
 
     /// <summary>Sets the price and the date it was confirmed (the sheet's «Дата оновлення ціни»).</summary>
-    public void SetPrice(MoneyAmount price, DateOnly? priceUpdatedAt)
+    public DomainResult SetPrice(MoneyAmount price, DateOnly? priceUpdatedAt)
     {
-        SetPrice(price);
+        var check = CheckPrice(price);
+        if (check.IsFailure) return check;
+        Price = price;
         PriceUpdatedAt = priceUpdatedAt;
+        return DomainResult.Success();
     }
 
-    public static string? NormalizeCode(string? code) =>
-        Text(code, CodeMaxLength)?.ToUpperInvariant();
+    /// <summary>The upper-case code, or null for none; check it first with <see cref="CheckCode"/>.</summary>
+    public static string? NormalizeCode(string? code) => ReferenceText.Optional(code)?.ToUpperInvariant();
+
+    public static DomainResult CheckCode(string? code) => Text(code, CodeMaxLength);
 
     /// <summary>Maps sheet spellings («шт», «м.», «Послуга») to a known unit, or null when unknown.</summary>
     public static string? NormalizeUnit(string? unit)
@@ -99,40 +107,46 @@ public class GarmentAccessory : BaseEntity<GarmentAccessoryId>, IAggregateRoot
     }
     #endregion
 
-    #region Setters/Validation
-    private static string? Text(string? value, int maxLength) =>
-        ReferenceText.Optional(value, maxLength, max => new DomainException(GarmentAccessoryErrors.TextTooLong(max)));
+    #region Rules
+    public static DomainResult CheckDetails(GarmentAccessoryDetails details) => DomainResult.Combine(
+        CheckCode(details.Code),
+        CheckName(details.Name),
+        CheckSupplier(details.SupplierId.Value),
+        NormalizeUnit(details.Unit) is null
+            ? GarmentAccessoryErrors.UnitInvalid(string.Join(", ", Units))
+            : DomainResult.Success(),
+        Text(details.Comment, CommentMaxLength));
 
-    private void SetId(GarmentAccessoryId id)
+    private static DomainResult CheckName(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? GarmentAccessoryErrors.NameIsRequired() : Text(name, NameMaxLength);
+
+    private static DomainResult CheckPrice(MoneyAmount price) =>
+        price.Value is < 0 or > 10_000 ? GarmentAccessoryErrors.PriceOutOfRange(0, 10_000) : DomainResult.Success();
+
+    private static DomainResult CheckSupplier(int supplierId) =>
+        supplierId <= 0 ? GarmentAccessoryErrors.SupplierIdIsRequired() : DomainResult.Success();
+
+    private static DomainResult Text(string? value, int maxLength) =>
+        ReferenceText.Check(value, maxLength, GarmentAccessoryErrors.TextTooLong);
+
+    private static void RequireId(GarmentAccessoryId id)
     {
-        if (id.Value == default)
-            throw new DomainException(GarmentAccessoryErrors.IdIsRequired());
-
-        Id = id;
+        if (id.Value == default) throw new ArgumentException("Accessory id is required.", nameof(id));
     }
 
-    private void SetName(string name)
+    private void SetMain(string name, MoneyAmount price, int supplierId)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException(GarmentAccessoryErrors.NameIsRequired());
-
-        Name = Text(name, NameMaxLength)!;
-    }
-
-    private void SetPrice(MoneyAmount price)
-    {
-        if (price.Value < 0 || price.Value > 10_000)
-            throw new DomainException(GarmentAccessoryErrors.PriceOutOfRange(0, 10_000));
-
+        Name = ReferenceText.Optional(name)!;
         Price = price;
+        SupplierId = Reference.Domain.Suppliers.ValueObjects.SupplierId.From(supplierId);
     }
 
-    private void SetSupplierId(int supplierId)
+    private void SetDetails(GarmentAccessoryDetails details)
     {
-        if (supplierId <= 0)
-            throw new DomainException(GarmentAccessoryErrors.SupplierIdIsRequired());
-
-        SupplierId = Reference.Domain.Suppliers.ValueObjects.SupplierId.From(supplierId);
+        Code = NormalizeCode(details.Code);
+        Unit = NormalizeUnit(details.Unit)!;
+        IsActive = details.IsActive;
+        Comment = ReferenceText.Optional(details.Comment);
     }
     #endregion
 }

@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.ValueObjects;
+﻿using BuildingBlocks.Domain.ValueObjects;
 using Moq;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.Fabric.Import;
@@ -36,18 +36,18 @@ public sealed class ReferenceSheetImportTests
 
     private static List<Supplier> Suppliers() =>
     [
-        Supplier.Create(SupplierId.From(1), "Не указан"),
-        Supplier.Create(SupplierId.From(5), "Спецтекстиль, ТОВ"),
+        Supplier.Create(SupplierId.From(1), "Не указан").Value,
+        Supplier.Create(SupplierId.From(5), "Спецтекстиль, ТОВ").Value,
     ];
 
     [Test]
     public async Task Fabric_import_updates_by_code_links_by_name_creates_the_rest_and_new_suppliers()
     {
-        var coded = Fabric.Create(FabricId.From(3), "Сантана", MoneyAmount.From(50), SupplierId.From(5));
+        var coded = Fabric.Create(FabricId.From(3), "Сантана", MoneyAmount.From(50), SupplierId.From(5)).Value;
         coded.ApplyDetails(new FabricDetails("FAB-003", "Сантана", null, SupplierId.From(5), "100%поліестер", null, "90",
             true, null, null));
-        var legacy = Fabric.Create(FabricId.From(7), "Тканина \"Грета\" Черкаси, ВВ", MoneyAmount.From(100), SupplierId.From(5));
-        var stale = Fabric.Create(FabricId.From(9), "Стара тканина", MoneyAmount.From(10), SupplierId.From(5));
+        var legacy = Fabric.Create(FabricId.From(7), "Тканина \"Грета\" Черкаси, ВВ", MoneyAmount.From(100), SupplierId.From(5)).Value;
+        var stale = Fabric.Create(FabricId.From(9), "Стара тканина", MoneyAmount.From(10), SupplierId.From(5)).Value;
         var added = new List<Fabric>();
         var addedSuppliers = new List<Supplier>();
         var fabrics = Repository([coded, legacy, stale], added);
@@ -84,7 +84,7 @@ public sealed class ReferenceSheetImportTests
     public async Task Fabric_preview_changes_nothing_and_repeating_the_sheet_is_unchanged()
     {
         var fabric = Fabric.Create(FabricId.From(1), new FabricDetails("FAB-001", "МВО", null, SupplierId.From(5),
-            "100% бавовна", null, "260", true, null, null), MoneyAmount.From(147), SheetDate);
+            "100% бавовна", null, "260", true, null, null), MoneyAmount.From(147), SheetDate).Value;
         var added = new List<Fabric>();
         var fabrics = Repository([fabric], added);
         var handler = new ImportFabricsCommandHandler(fabrics.Object, Repository(Suppliers(), []).Object);

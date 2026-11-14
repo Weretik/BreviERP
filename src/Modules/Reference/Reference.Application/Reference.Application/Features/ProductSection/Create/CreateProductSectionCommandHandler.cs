@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.ProductSection.Shared;
 using Reference.Application.Features.ProductSection.Shared.Specifications;
@@ -19,16 +18,10 @@ public sealed class CreateProductSectionCommandHandler(IReferenceRepository<Prod
         var existing = await repository.ListAsync(cancellationToken);
         var nextId = existing.Count == 0 ? 1 : existing.Max(x => x.Id.Value) + 1;
 
-        ProductSectionEntity entity;
-        try
-        {
-            entity = ProductSectionEntity.Create(ProductSectionId.From(nextId),
-                ProductSectionDetailsFactory.From(command.Request));
-        }
-        catch (DomainException exception)
-        {
-            return Result.Invalid([new ValidationError("Request", exception.Message)]);
-        }
+        var created = ProductSectionEntity.Create(ProductSectionId.From(nextId),
+            ProductSectionDetailsFactory.From(command.Request));
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
 
         await repository.AddAsync(entity, cancellationToken);
         return Result.Success(entity.Id.Value);

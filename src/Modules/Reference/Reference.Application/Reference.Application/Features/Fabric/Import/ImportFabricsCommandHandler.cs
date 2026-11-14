@@ -72,17 +72,18 @@ public sealed class ImportFabricsCommandHandler(
                 var price = MoneyAmount.From(row.Price);
                 if (target is null)
                 {
-                    created.Add(FabricEntity.Create(FabricId.From(nextId++), details!, price, row.PriceUpdatedAt));
+                    // Every planned row passed Validate, so these changes cannot fail.
+                    created.Add(FabricEntity.Create(FabricId.From(nextId++), details!, price, row.PriceUpdatedAt).Value);
                     continue;
                 }
 
-                target.ApplyDetails(details!);
+                target.ApplyDetails(details!).ThrowIfFailure();
                 if (target.Price != price || target.PriceUpdatedAt != row.PriceUpdatedAt)
-                    target.SetPrice(price, row.PriceUpdatedAt);
+                    target.SetPrice(price, row.PriceUpdatedAt).ThrowIfFailure();
             }
 
             foreach (var fabric in deactivated)
-                fabric.ApplyDetails(DetailsOf(fabric) with { IsActive = false });
+                fabric.ApplyDetails(DetailsOf(fabric) with { IsActive = false }).ThrowIfFailure();
 
             try
             {
@@ -116,15 +117,8 @@ public sealed class ImportFabricsCommandHandler(
             return "Немає назви тканини.";
         if (row.Price is < 0 or > 10_000)
             return "Ціна має бути від 0 до 10000 грн.";
-        try
-        {
-            FabricEntity.Create(FabricId.From(1), details, MoneyAmount.From(row.Price), row.PriceUpdatedAt);
-            return null;
-        }
-        catch (Exception error) // domain rules and value objects (price range, text length, unit)
-        {
-            return error.Message;
-        }
+        return FabricEntity.Create(FabricId.From(1), details, MoneyAmount.From(row.Price), row.PriceUpdatedAt)
+            .Error?.Message;
     }
 
     private static List<string> Diff(FabricEntity fabric, FabricDetails details, FabricImportRow row) =>

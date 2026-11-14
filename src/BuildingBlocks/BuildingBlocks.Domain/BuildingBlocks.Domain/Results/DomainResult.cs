@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Errors;
+﻿using BuildingBlocks.Domain.Errors;
 
 namespace BuildingBlocks.Domain.Results;
 
@@ -34,6 +34,16 @@ public sealed class DomainResult
     /// <summary>The first failure of the checks, in order, or success.</summary>
     public static DomainResult Combine(params DomainResult[] results)
         => results.FirstOrDefault(result => result.IsFailure) ?? Ok;
+
+    /// <summary>
+    /// For a change the caller already checked (an import applies rows it validated in its plan): a failure here is a
+    /// programming error, like reading <see cref="DomainResult{T}.Value"/> of a failure.
+    /// </summary>
+    public void ThrowIfFailure()
+    {
+        if (Error is not null)
+            throw new InvalidOperationException($"A checked change failed: {Error.Code}.");
+    }
 }
 
 /// <summary>The outcome of a domain operation that produces a value.</summary>

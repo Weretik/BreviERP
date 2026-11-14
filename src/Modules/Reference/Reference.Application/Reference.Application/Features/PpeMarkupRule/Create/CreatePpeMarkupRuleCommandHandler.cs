@@ -2,7 +2,6 @@ using Reference.Application.Contracts.Catalog;
 using Reference.Application.Contracts.Persistence;
 using Reference.Application.Features.PpeMarkupRule.Shared;
 using Reference.Application.Features.PpeMarkupRule.Shared.Specifications;
-using BuildingBlocks.Domain.Exceptions;
 using Reference.Domain.PpeMarkupRules.ValueObjects;
 using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.Entities.PpeMarkupRule;
 
@@ -26,16 +25,10 @@ public sealed class CreatePpeMarkupRuleCommandHandler(
         var existing = await repository.ListAsync(cancellationToken);
         var nextId = existing.Count == 0 ? 1 : existing.Max(x => x.Id.Value) + 1;
 
-        PpeMarkupRuleEntity entity;
-        try
-        {
-            entity = PpeMarkupRuleEntity.Create(PpeMarkupRuleId.From(nextId), name,
-                PpeMarkupRuleDetailsFactory.From(request));
-        }
-        catch (DomainException exception)
-        {
-            return Result.Invalid([new ValidationError("Request", exception.Message)]);
-        }
+        var created = PpeMarkupRuleEntity.Create(PpeMarkupRuleId.From(nextId), name,
+            PpeMarkupRuleDetailsFactory.From(request));
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
 
         await repository.AddAsync(entity, cancellationToken);
         await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);

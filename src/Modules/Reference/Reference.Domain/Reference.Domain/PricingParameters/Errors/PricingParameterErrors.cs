@@ -1,12 +1,9 @@
-using BuildingBlocks.Domain.Errors;
+﻿using BuildingBlocks.Domain.Errors;
 
 namespace Reference.Domain.PricingParameters.Errors;
 
 public static class PricingParameterErrors
 {
-    public static Error IdIsRequired() =>
-        new("Reference.PricingParameter.Id.Required", "Не вказано ідентифікатор параметра.");
-
     public static Error CodeIsInvalid() =>
         new("Reference.PricingParameter.Code.Invalid",
             "Код параметра: великі латинські літери, цифри та _, до 64 символів (наприклад, SALARY_SEAMSTRESS).");

@@ -1,6 +1,6 @@
-using BuildingBlocks.Domain.Abstractions;
+﻿using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
+using BuildingBlocks.Domain.Results;
 using Reference.Domain.GarmentPartOperations.Errors;
 using Reference.Domain.GarmentPartOperations.ValueObjects;
 using Reference.Domain.GarmentAccessories.ValueObjects;
@@ -35,92 +35,106 @@ public class GarmentPartOperation : BaseEntity<GarmentPartOperationId>, IAggrega
 
     #region Constructors
     private GarmentPartOperation() { }
-
-    private GarmentPartOperation(GarmentPartOperationId id, GarmentPartId garmentPartId, string name, decimal min)
-    {
-        SetId(id);
-        SetGarmentPartId(garmentPartId);
-        SetName(name);
-        SetMin(min);
-    }
     #endregion
 
     #region Factories
-    public static GarmentPartOperation Create(
+    public static DomainResult<GarmentPartOperation> Create(
         GarmentPartOperationId id,
         GarmentPartId garmentPartId,
         string name,
-        decimal min) => new(id, garmentPartId, name, min);
-
-    public static GarmentPartOperation Create(GarmentPartOperationId id, GarmentPartOperationDetails details)
+        decimal min)
     {
-        var operation = new GarmentPartOperation(id, details.GarmentPartId, details.Name, 0m);
-        operation.ApplyDetails(details);
+        RequireId(id);
+        var check = DomainResult.Combine(CheckPart(garmentPartId), CheckName(name), CheckMin(min));
+        if (check.IsFailure) return check.Error!;
+        var operation = new GarmentPartOperation { Id = id };
+        operation.SetMain(garmentPartId, name, min);
         return operation;
     }
 
-    public void Update(GarmentPartId garmentPartId, string name, decimal min)
+    public static DomainResult<GarmentPartOperation> Create(GarmentPartOperationId id,
+        GarmentPartOperationDetails details)
     {
-        SetGarmentPartId(garmentPartId);
-        SetName(name);
-        SetMin(min);
+        RequireId(id);
+        var check = CheckDetails(details);
+        if (check.IsFailure) return check.Error!;
+        var operation = new GarmentPartOperation { Id = id };
+        operation.SetDetails(details);
+        return operation;
+    }
+
+    public DomainResult Update(GarmentPartId garmentPartId, string name, decimal min)
+    {
+        var check = DomainResult.Combine(CheckPart(garmentPartId), CheckName(name), CheckMin(min));
+        if (check.IsFailure) return check;
+        SetMain(garmentPartId, name, min);
+        return DomainResult.Success();
     }
 
     /// <summary>Replaces every card field. «Time per product» operations keep a zero norm.</summary>
-    public void ApplyDetails(GarmentPartOperationDetails details)
+    public DomainResult ApplyDetails(GarmentPartOperationDetails details)
     {
-        Code = NormalizeCode(details.Code);
-        SetGarmentPartId(details.GarmentPartId);
-        Element = Text(details.Element, ElementMaxLength);
-        Variant = Text(details.Variant, VariantMaxLength);
-        SetName(details.Name);
-        MinutesPerProduct = details.MinutesPerProduct;
-        SetMin(details.MinutesPerProduct ? 0m : details.Min);
-        IsActive = details.IsActive;
-        Notes = Text(details.Notes, NotesMaxLength);
+        var check = CheckDetails(details);
+        if (check.IsFailure) return check;
+        SetDetails(details);
+        return DomainResult.Success();
     }
 
-    public static string? NormalizeCode(string? code) =>
-        Text(code, CodeMaxLength)?.ToUpperInvariant();
+    /// <summary>The upper-case code, or null for none; check it first with <see cref="CheckCode"/>.</summary>
+    public static string? NormalizeCode(string? code) => ReferenceText.Optional(code)?.ToUpperInvariant();
+
+    public static DomainResult CheckCode(string? code) => Text(code, CodeMaxLength);
     #endregion
 
-    #region Setters/Validation
-    private static string? Text(string? value, int maxLength) =>
-        ReferenceText.Optional(value, maxLength,
-            max => new DomainException(GarmentPartOperationErrors.TextTooLong(max)));
+    #region Rules
+    public static DomainResult CheckDetails(GarmentPartOperationDetails details) => DomainResult.Combine(
+        CheckCode(details.Code),
+        CheckPart(details.GarmentPartId),
+        Text(details.Element, ElementMaxLength),
+        Text(details.Variant, VariantMaxLength),
+        CheckName(details.Name),
+        CheckMin(details.MinutesPerProduct ? 0m : details.Min),
+        Text(details.Notes, NotesMaxLength));
 
-    private void SetId(GarmentPartOperationId id)
+    private static DomainResult CheckPart(GarmentPartId garmentPartId) =>
+        garmentPartId.Value == default
+            ? GarmentPartOperationErrors.GarmentPartIdIsRequired()
+            : DomainResult.Success();
+
+    private static DomainResult CheckName(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? GarmentPartOperationErrors.NameIsRequired() : Text(name, NameMaxLength);
+
+    private static DomainResult CheckMin(decimal min) => min switch
     {
-        if (id.Value == default)
-            throw new DomainException(GarmentPartOperationErrors.IdIsRequired());
+        < 0 => GarmentPartOperationErrors.MinMustBeNonNegative(),
+        > MaxMinutes => GarmentPartOperationErrors.MinOutOfRange(MaxMinutes),
+        _ => DomainResult.Success()
+    };
 
-        Id = id;
+    private static DomainResult Text(string? value, int maxLength) =>
+        ReferenceText.Check(value, maxLength, GarmentPartOperationErrors.TextTooLong);
+
+    private static void RequireId(GarmentPartOperationId id)
+    {
+        if (id.Value == default) throw new ArgumentException("Operation id is required.", nameof(id));
     }
 
-    private void SetGarmentPartId(GarmentPartId garmentPartId)
+    private void SetMain(GarmentPartId garmentPartId, string name, decimal min)
     {
-        if (garmentPartId.Value == default)
-            throw new DomainException(GarmentPartOperationErrors.GarmentPartIdIsRequired());
-
         GarmentPartId = garmentPartId;
-    }
-
-    private void SetName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException(GarmentPartOperationErrors.NameIsRequired());
-
-        Name = Text(name, NameMaxLength)!;
-    }
-
-    private void SetMin(decimal min)
-    {
-        if (min < 0)
-            throw new DomainException(GarmentPartOperationErrors.MinMustBeNonNegative());
-        if (min > MaxMinutes)
-            throw new DomainException(GarmentPartOperationErrors.MinOutOfRange(MaxMinutes));
-
+        Name = ReferenceText.Optional(name)!;
         Min = min;
+    }
+
+    private void SetDetails(GarmentPartOperationDetails details)
+    {
+        Code = NormalizeCode(details.Code);
+        Element = ReferenceText.Optional(details.Element);
+        Variant = ReferenceText.Optional(details.Variant);
+        MinutesPerProduct = details.MinutesPerProduct;
+        SetMain(details.GarmentPartId, details.Name, details.MinutesPerProduct ? 0m : details.Min);
+        IsActive = details.IsActive;
+        Notes = ReferenceText.Optional(details.Notes);
     }
     #endregion
 }
