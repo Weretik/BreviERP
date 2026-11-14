@@ -4,31 +4,15 @@
 
 ```text
 BuildingBlocks.Infrastructure/
-├── DependencyInjection/
-│   └── AddInfrastructureServices
-├── DomainEvents/
-│   ├── EfDomainEventContext
-│   └── MediatorDomainEventDispatcher
 ├── Migrations/
 │   ├── IDatabaseMigrator
 │   └── DbMigrator
 ├── Seeding/
 │   └── ISeeder
-├── Extensions/
-│   ├── UseAppMigrations
-│   └── UseAppSeeders
-└── Services/
-    ├── FakeCurrentUserService
-    └── FakePermissionService
+└── Extensions/
+    ├── UseAppMigrations
+    └── UseAppSeeders
 ```
-
-## Registered shared services
-
-`AddInfrastructureServices` registers:
-
-- `IDomainEventContext` as `EfDomainEventContext`;
-- `IDomainEventDispatcher` as `MediatorDomainEventDispatcher`;
-- shared technical services provided by the current host composition.
 
 ## Startup and data approach
 
@@ -38,4 +22,4 @@ These startup extensions run at the host level. A feature handler must not apply
 
 ## Security behavior
 
-The current user and permissions must be consumed through Application abstractions. Do not bypass them by reading `HttpContext` inside Application.
+Application never reads `HttpContext`. The Api passes the signed-in user into the command (for example `By`), and access is checked by host policies before the handler runs.

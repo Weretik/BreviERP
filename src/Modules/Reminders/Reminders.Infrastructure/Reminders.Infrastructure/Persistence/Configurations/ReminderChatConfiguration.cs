@@ -19,6 +19,5 @@ public sealed class ReminderChatConfiguration : IEntityTypeConfiguration<Reminde
         b.Ignore(x => x.CanReceive);
         b.Ignore(x => x.GetsSiteRequests);
         b.Ignore(x => x.Name);
-        b.Ignore(x => x.DomainEvents);
     }
 }

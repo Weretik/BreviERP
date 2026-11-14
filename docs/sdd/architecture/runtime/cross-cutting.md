@@ -22,7 +22,7 @@ Domain code checks business invariants and state transitions. Do not duplicate a
 
 ## Domain events
 
-Entities collect events through `IHasDomainEvents`. Dispatcher behavior collects, clears, and publishes them through Mediator after a successful handler. Follow the `collect → dispatch → clear` lifecycle; do not publish events directly from controllers.
+There are none: no module raised one, so the dispatch behavior was removed in stage 3c. A change that another module or the outside world must learn about goes through the [transactional outbox](../../standards/module-rules.md#transactional-outbox).
 
 ## Observability and security
 

@@ -1,4 +1,4 @@
-namespace BuildingBlocks.Application.Pricing;
+namespace Catalog.Contracts.Pricing;
 
 /// <summary>
 /// Scoped (one per request or job step) record of saved changes to Sewing pricing inputs: Reference fabrics,

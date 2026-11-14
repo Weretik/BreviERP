@@ -1,6 +1,5 @@
 using Crm.Infrastructure.DependencyInjection;
 using Accounting.Infrastructure.DependencyInjection;
-using BuildingBlocks.Infrastructure.DependencyInjection;
 using Catalog.Infrastructure.DependencyInjection;
 using Identity.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -57,8 +56,6 @@ public static class SeedHostServicesExtensions
         IConfiguration configuration)
     {
         services.AddIdentityInfrastructure(configuration);
-
-        services.AddInfrastructureServices(configuration);
 
         services.AddReferenceDbContextServices(configuration);
         services.AddReferenceKeepinCrmSync(configuration);

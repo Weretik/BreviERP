@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using BuildingBlocks.Application.Pricing;
+using Catalog.Contracts.Pricing;
 using Catalog.Application.Features.Pricing.Sewing.AutoPublication;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;

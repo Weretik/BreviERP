@@ -1,4 +1,4 @@
-using BuildingBlocks.Application.Pricing;
+using Catalog.Contracts.Pricing;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Reference.Domain.GarmentAccessories.Entities;
 using Reference.Domain.GarmentPartOperations.Entities;

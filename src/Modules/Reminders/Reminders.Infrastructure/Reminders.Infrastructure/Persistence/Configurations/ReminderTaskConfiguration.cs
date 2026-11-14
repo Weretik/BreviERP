@@ -28,7 +28,6 @@ public sealed class ReminderTaskConfiguration : IEntityTypeConfiguration<Reminde
             });
         });
         b.HasOne<ReminderChat>().WithMany().HasForeignKey(x => x.ChatId).OnDelete(DeleteBehavior.Restrict);
-        b.Ignore(x => x.DomainEvents);
         b.Ignore(x => x.CanSend);
     }
 }
