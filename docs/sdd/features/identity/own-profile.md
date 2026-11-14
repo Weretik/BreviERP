@@ -26,7 +26,7 @@ src/Modules/Identity/
 │   └── Abstractions/IProfileService.cs, IAvatarStorage.cs
 └── Identity.Infrastructure/Identity.Infrastructure/
     ├── Integrations/AspNetIdentity/Profile/ProfileService.cs
-    └── Avatars/                                    # SkiaSharp processing, replace/remove
+    └── Integrations/Avatars/                       # SkiaSharp processing, replace/remove
 src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/Adapters/Media/CdnAvatarStorage.cs  # Media.Contracts ICdnStorage
 ```
 

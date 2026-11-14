@@ -23,9 +23,9 @@ src/Modules/Crm/
     Shared/Calling/LeadDetailLoader.cs  card with category text and open task
     Shared/                        responses, Mapping/, LeadClock.cs (Kyiv day)
   Crm.Infrastructure/Crm.Infrastructure/
-    Leads/                         GoogleLeadSheetReader (ADC, read-only), LeadSheetOptions (Crm:LeadSheet)
+    Integrations/GoogleSheets/     GoogleLeadSheetReader (ADC, read-only), LeadSheetOptions (Crm:LeadSheet)
     Persistence/Leads/                  five tables, seeded call results
-    CrmDbContext.cs                implements ILeadStore
+    Persistence/CrmDbContext.cs    implements ILeadStore
   Crm.Api/Crm.Api/Leads/
     LeadsController.cs             /api/crm/leads
     LeadStatsController.cs         /api/crm/lead-stats

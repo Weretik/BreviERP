@@ -17,8 +17,8 @@ src/Modules/Ai/
     Features/Extraction/Commands/ExtractStructuredData/  # for other modules (through `Ai.Contracts`)
   Ai.Infrastructure/Ai.Infrastructure/
     Persistence/       # AiDbContext (schema ai), configurations, migrations
-    Security/          # AiKeyProtector (Data Protection)
-    OpenAi/            # OpenAiResponsesClient (Responses API, strict json_schema)
+    Integrations/OpenAi/ # AiKeyProtector (Data Protection)
+    Integrations/OpenAi/ # OpenAiResponsesClient (Responses API, strict json_schema)
   Ai.Api/Ai.Api/Settings/AiSettingsController.cs   # /api/ai/settings, policy RequireAdminRole
   Ai.Contracts/Ai.Contracts/
     Extraction/IStructuredDataExtractor.cs  # structured answer from text and files, for other modules

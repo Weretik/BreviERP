@@ -27,16 +27,13 @@ src/Modules/Crm/
     Shared/                           customer/source inputs, responses, Mapping/ (domain to detail)
   Crm.Infrastructure/Crm.Infrastructure/
     Persistence/                      EF context, entity configurations/migrations
-    Persistence/Customers/Reading/     scoped read repository
-    Persistence/Customers/Writing/     transaction coordinator and root locks
-    Persistence/Customers/Idempotency/ payload encoding, replay/access and journal
-    KeepinCrm/                        KeepinCRM clients HTTP source, parser, options
-    Persistence/Customers/KeepinCrmSync/ bulk load/delete/save for the sync
+    Persistence/Customers/            read repository, write session and root locks, mutation journal (idempotency), KeepinCRM sync store
+    Integrations/KeepinCrm/           KeepinCRM clients HTTP source, parser, options
     DependencyInjection/              existing host/seed registration; CrmKeepinCrmExtensions
   Crm.Api/Crm.Api/Customers/
     CustomersController.cs            client reads/writes/merge
     CustomerContactsController.cs     contact writes
-    Requests/                         one request type per file
+    *Request.cs                       one request type per file, next to the controller
   Crm.Api/Crm.Api/Access/
     CrmActorClaims.cs                 actor binding shared by CRM controllers
 ```
@@ -70,7 +67,7 @@ The transaction coordinator retains commit/rollback ownership; the journal uses 
 - «Перерахувати за актуальними цінами» (`POST …/reprice`) first lists changes, then applies them; manual prices stay; rows the Catalog cannot price are listed and keep their prices.
 - `Version` is checked on every write; a stale save gets 409 «КП змінили в іншому вікні».
 - «Налаштування КП» (`GET`/`PUT /api/crm/quote-settings`, Admin role): requisites and logo, each staff member's КП contact, letter template, PDF texts (7 opening texts by the КП composition and the small PDF labels, R-35), introduction catalogue texts with five «Переваги», letter variants. Before the first save the old Calculator values are returned with version 0.
-- «Сформувати КП» (`GET /api/crm/quotes/{id}/pdf`): PDF of the saved КП, drawn on request by QuestPDF with embedded Noto Sans; only shown items and prices (as tiles in whole hryvnias rounded up, hidden quantities leave no gap; a position is never split between pages), the opening text that fits the composition, client comment, the responsible manager's contact (saved one, else the account's) and requisites; every fixed text comes from the settings (R-35). Code: `Quotes/Pdf/QuotePdfIntro.cs`, `QuotePdfPrices.cs`.
+- «Сформувати КП» (`GET /api/crm/quotes/{id}/pdf`): PDF of the saved КП, drawn on request by QuestPDF with embedded Noto Sans; only shown items and prices (as tiles in whole hryvnias rounded up, hidden quantities leave no gap; a position is never split between pages), the opening text that fits the composition, client comment, the responsible manager's contact (saved one, else the account's) and requisites; every fixed text comes from the settings (R-35). Code: `Crm.Infrastructure/Integrations/Pdf/`.
 - Gmail (R-15): `POST /api/crm/mailboxes/{userId}/connect` gives the Google consent address (send permission only), the anonymous `google-callback` stores the address and the encrypted refresh token in `crm.StaffMailboxes`; `GET /api/crm/quotes/{id}/send-draft` gives the letters with marks filled, `POST /api/crm/quotes/{id}/send` sends the PDF from the sender's own Gmail, logs `crm.QuoteSendings` and marks the КП Sent. Setup: [Gmail for КП](../../operations/configuration/crm-gmail.md).
 - Manager fabric line (R-31): `GET /api/crm/quote-lookups/fabrics?ids=` gives composition, density, price per metre and supplier (id, name) of Reference fabrics for the line under each КП fabric; not in the PDF. Code: `Quotes/FabricFacts/`, adapter `Crm.Infrastructure/Adapters/Reference/QuoteFabricFactsReader.cs`; test `QuoteFabricFactsTests`.
 - «КП для знайомства» (R-16–R-18): `POST`/`PUT /api/crm/quote-introductions` save a КП of kind Introduction with a layout (summer and winter pages, or one) of 4 models each: the main model of the season first (codes in «Налаштування КП», defaults MOD-166 «Імпульс» and MOD-169 «Прайм»), then 3 models of that season, one fabric each. The server turns them into ordinary sewing items with only the від 41 шт. price shown, so saved prices stay. `GET /api/crm/quote-lookups/introduction` gives the main models and letter names, `searchCrmQuoteCatalog` takes `season`, `GET /api/crm/quote-lookups/products?ids=` reloads chosen models. The PDF of an introduction (`QuoteIntroPdfDocument`) follows the client's sample: one page per season with the banner and main model, «Переваги», three model cards, the prices note, next step and contacts; built-in banners and Roboto are embedded resources. The setup gives each letter's subject and text; a subject or text changed in the editor is kept on the КП (`letterSubject`, `letterBody`) and the send draft puts the chosen letter first with it and fills «Кому».
@@ -114,10 +111,10 @@ src/Modules/Crm/
   Crm.Infrastructure/Crm.Infrastructure/
     Persistence/Quotes/                  EF mappings of КП, settings, mailboxes and sendings
     Persistence/Quotes/                  unique-number, settings and mailbox race detection
-    Quotes/Pdf/                          QuestPDF documents (КП, introduction catalogue), shared parts, renderer, photo loader, fonts
-    Quotes/Sending/                      GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options
+    Integrations/Pdf/                    QuestPDF documents (КП, introduction catalogue), shared parts, renderer, photo loader, fonts
+    Integrations/Gmail/                  GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options
   Crm.Api/Crm.Api/Quotes/                QuotesController, QuoteIntroductionsController, QuoteIntroTemplatesController,
-                                         QuoteLookupsController, QuoteSettingsController, MailboxesController, QuoteImportController, Requests/
+                                         QuoteLookupsController, QuoteSettingsController, MailboxesController, QuoteImportController, request types
 src/Modules/Crm/Crm.Contracts/Crm.Contracts/{Customers,Quotes,Embroidery}/  ICustomerDirectory, IQuoteReader, IEmbroideryCalculationReader for other modules
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Contracts/          their implementations (Mediator queries)
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Catalog/

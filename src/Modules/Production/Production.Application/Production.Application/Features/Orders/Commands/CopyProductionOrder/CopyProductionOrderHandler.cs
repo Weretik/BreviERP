@@ -43,8 +43,7 @@ public sealed class CopyProductionOrderHandler(IProductionDbContext db, IProduct
         var copy = created.Value;
         copy.Record("Створено", $"Копія завдання № {source.Number}", person.Name, now);
         db.Orders.Add(copy);
-        await db.SaveChangesAsync(cancellationToken);
-        db.TelegramDeliveries.Add(new ProductionTelegramDelivery(copy.Id));
+        // No delivery row yet: a missing row reads as «Не надіслано», and «Надіслати в цех» creates it.
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(await cards.BuildAsync(copy, actor, cancellationToken));
     }

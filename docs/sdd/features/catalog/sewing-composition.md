@@ -23,16 +23,16 @@ src/Modules/Catalog/
 │   │   └── Shared/Sewing/, Shared/Validation/Sewing/              # shared line contracts, validation and assembly
 │   └── Abstractions/                                              # ISewingCompositionStore, ISewingCompositionReadStore, ISewingCompositionListReader and snapshots
 ├── Catalog.Domain/Catalog.Domain/Products/
-│   ├── Entities/Product.cs                                          # aggregate root
-│   ├── Entities/Product.SewingIdentity.cs                           # model code and Article identity
-│   ├── Entities/Product.SewingComposition.cs                        # aggregate-owned composition writes
-│   ├── Entities/Product.SewingReadiness.cs                          # effective materials and readiness delegation
-│   ├── Entities/Product.CatalogProfile.cs                           # source profile attachment
-│   ├── Entities/Sewing/SewingArticle.cs                              # fabric variant: sale SKU, activity, order
-│   ├── Entities/Sewing/SewingMaterialLine.cs                         # shared material or the variant's fabric
-│   ├── Entities/Sewing/SewingOperationLine.cs                        # shared operation quantity/manual time
+│   ├── Product.cs                                          # aggregate root
+│   ├── Product.SewingIdentity.cs                           # model code and Article identity
+│   ├── Product.SewingComposition.cs                        # aggregate-owned composition writes
+│   ├── Product.SewingReadiness.cs                          # effective materials and readiness delegation
+│   ├── Product.CatalogProfile.cs                           # source profile attachment
+│   ├── Sewing/SewingArticle.cs                              # fabric variant: sale SKU, activity, order
+│   ├── Sewing/SewingMaterialLine.cs                         # shared material or the variant's fabric
+│   ├── Sewing/SewingOperationLine.cs                        # shared operation quantity/manual time
 │   ├── Readiness/                                                 # one policy and separate typed material/operation facts
-│   └── ValueObjects/                                               # typed child and Reference IDs
+│   └── ArticleId.cs, CompositionLineId.cs, *ReferenceId.cs              # typed child and Reference IDs
 └── Catalog.Infrastructure/Catalog.Infrastructure/
     ├── Persistence/Products/SewingCompositionStore.cs                       # tracked writes and conflict mapping
     ├── Persistence/Products/SewingCompositionReadStore.cs                   # no-tracking read projections; ReadAllAsync for all models

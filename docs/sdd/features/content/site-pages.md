@@ -14,7 +14,7 @@ src/Modules/Content/
       Queries/GetSitePages/, Commands/SaveSitePage/                 # admin list and save
       Queries/GetPublicSitePages/                                   # public read kept a minute
       Shared/                                                       # responses, mapping, messages
-  Content.Infrastructure/.../Configurations/SitePageConfiguration.cs
+  Content.Infrastructure/.../Persistence/SitePages/SitePageConfiguration.cs
   Content.Infrastructure/.../Migrations/*_AddSitePages.cs           # table and the seed of the current texts
   Content.Infrastructure/.../Migrations/*_AddSitePageTextAndFaq.cs  # main text and questions, seed of home and industries
   Content.Api/Content.Api/

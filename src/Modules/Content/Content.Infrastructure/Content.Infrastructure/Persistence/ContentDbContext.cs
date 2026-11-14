@@ -8,6 +8,7 @@ using Content.Domain.SiteGalleries;
 using Content.Domain.SitePages;
 using Content.Domain.SiteSettings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Content.Infrastructure.Persistence;
 
@@ -25,9 +26,19 @@ public sealed class ContentDbContext(DbContextOptions<ContentDbContext> options)
     public DbSet<SiteCompanyInfo> CompanyInfo => Set<SiteCompanyInfo>();
     public DbSet<SiteGallery> SiteGalleries => Set<SiteGallery>();
 
+    public async Task<IContentTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
+        new Transaction(await Database.BeginTransactionAsync(cancellationToken));
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);
         builder.ApplyConfigurationsFromAssembly(typeof(ContentDbContext).Assembly);
+    }
+
+    private sealed class Transaction(IDbContextTransaction transaction) : IContentTransaction
+    {
+        public Task CommitAsync(CancellationToken cancellationToken) => transaction.CommitAsync(cancellationToken);
+
+        public ValueTask DisposeAsync() => transaction.DisposeAsync();
     }
 }

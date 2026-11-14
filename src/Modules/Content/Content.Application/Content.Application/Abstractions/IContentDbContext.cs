@@ -23,4 +23,12 @@ public interface IContentDbContext
     DbSet<SiteGallery> SiteGalleries { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    /// <summary>One transaction for a use case that must save more than once (new ids before their links).</summary>
+    Task<IContentTransaction> BeginTransactionAsync(CancellationToken cancellationToken);
+}
+
+public interface IContentTransaction : IAsyncDisposable
+{
+    Task CommitAsync(CancellationToken cancellationToken);
 }
