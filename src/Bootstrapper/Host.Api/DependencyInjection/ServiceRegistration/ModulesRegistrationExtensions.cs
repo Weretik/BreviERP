@@ -41,6 +41,7 @@ public static class ModuleRegistrationsExtensions
     public static IEndpointRouteBuilder MapModuleEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapAiEndpoints();
+        app.MapPurchasingEndpoints();
 
         return app;
     }

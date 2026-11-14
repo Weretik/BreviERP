@@ -1,7 +1,10 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Purchasing.Api.Register;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+using Purchasing.Api.DependencyInjection;
+using Purchasing.Api.Endpoints.Documents;
+using Purchasing.Api.Endpoints.Register;
 using YamlDotNet.RepresentationModel;
 using Purchasing.Application.Features.Documents.Commands.RecognizeNewPurchaseFiles;
 using Purchasing.Application.Features.Documents.Commands.SaveCheckedPurchaseDocument;
@@ -59,15 +62,16 @@ public sealed class PurchaseInvoicesContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_purchase_policy()
     {
-        var controller = typeof(PurchaseInvoicesController);
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
-        var operations = controller.GetMethods()
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
-            .Select(x => x.Name).ToArray();
+        var builder = WebApplication.CreateSlimBuilder();
+        var app = builder.Build();
+        app.MapPurchasingEndpoints();
+        var endpoints = ((IEndpointRouteBuilder)app).DataSources.SelectMany(x => x.Endpoints).ToArray();
+        var policies = endpoints.SelectMany(x => x.Metadata.GetOrderedMetadata<IAuthorizeData>()).Select(x => x.Policy).Distinct().ToArray();
+        var operations = endpoints.Select(x => x.Metadata.GetMetadata<IEndpointNameMetadata>()?.EndpointName).ToArray();
 
         Assert.Multiple(() =>
         {
-            Assert.That(policy, Is.EqualTo("access:purchase-invoices"));
+            Assert.That(policies, Is.EqualTo(new[] { "access:purchase-invoices" }));
             Assert.That(operations, Has.Length.EqualTo(12));
             Assert.That(Operations(), Is.EquivalentTo(operations));
         });
