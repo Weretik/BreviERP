@@ -39,7 +39,7 @@ src/Modules/Content/Content.Infrastructure/Content.Infrastructure/Adapters/Catal
 
 ```text
 tests/UnitTests/Content/                          # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Content"
-tests/ArchitectureTests/ContentDependencyTests.cs
+tests/ArchitectureTests/Modules/Site/ContentDependencyTests.cs
 ```
 
 ## Data

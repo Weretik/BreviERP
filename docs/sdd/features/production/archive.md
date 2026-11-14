@@ -17,8 +17,8 @@ src/Modules/Production/
 
 ## Tests
 
-- `tests/UnitTests/Production/WorkshopArchiveHandlerTests.cs` — access, preview, repeat, search, dates, validation.
-- `tests/UnitTests/Production/WorkshopArchiveContractTests.cs` — DTOs, operations and policy against the contract.
+- `tests/UnitTests/Production/Workshop/WorkshopArchiveHandlerTests.cs` — access, preview, repeat, search, dates, validation.
+- `tests/UnitTests/Production/Workshop/WorkshopArchiveContractTests.cs` — DTOs, operations and policy against the contract.
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Production`.
 

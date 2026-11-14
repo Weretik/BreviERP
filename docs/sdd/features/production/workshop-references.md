@@ -41,7 +41,7 @@ flowchart LR
 ## Tests
 
 - `tests/UnitTests/Production/` — staff, norm and composition handlers on SQLite in memory with fake Catalog models and pricing parameters.
-- `tests/ArchitectureTests/ProductionDependencyTests.cs` — layer references, own schema and history, no module references Production.
+- `tests/ArchitectureTests/Modules/Workshop/ProductionDependencyTests.cs` — layer references, own schema and history, no module references Production.
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Production`.
 

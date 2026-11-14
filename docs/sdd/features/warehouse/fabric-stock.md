@@ -65,15 +65,15 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Warehouse/WarehouseLedgerTests.cs` — WH-002: opening once per pair, receipt by offer, issue order and shortage, «Уточнити» limits, operation id repeat, chain by date, paging and filters, alias identity, colour key.
-- `tests/UnitTests/Warehouse/WarehouseMovementJournalTests.cs` — WH-007: pair balance across alias codes, kind counts under search and period, period order.
-- `tests/UnitTests/Warehouse/WarehouseRevisionTests.cs` — WH-003: edit and restatement, date and pair change, void, restore one change at a time, revision guard, signs, access.
+- `tests/UnitTests/Warehouse/Stock/WarehouseLedgerTests.cs` — WH-002: opening once per pair, receipt by offer, issue order and shortage, «Уточнити» limits, operation id repeat, chain by date, paging and filters, alias identity, colour key.
+- `tests/UnitTests/Warehouse/Stock/WarehouseMovementJournalTests.cs` — WH-007: pair balance across alias codes, kind counts under search and period, period order.
+- `tests/UnitTests/Warehouse/Stock/WarehouseRevisionTests.cs` — WH-003: edit and restatement, date and pair change, void, restore one change at a time, revision guard, signs, access.
 - `tests/UnitTests/Warehouse/WarehouseIssueByCuttingTests.cs` — WH-004: plan of a cut once per part, coverage over lines, saved plan and refresh, operation repeat, products limit, edit and void of order-issue movements, split lines keep their pair.
 - `tests/UnitTests/Warehouse/WarehouseReportTests.cs` — WH-005: plan and fact (full issue, comparability, weighted totals), booking allocation and queue, valuation by group price with shortages, accessory need by code class, «На 1 виріб».
-- `tests/UnitTests/Warehouse/WarehouseStockHandlerTests.cs` — receipt and reversal, access and prices, plan by colour, issue purposes, reversal of an issue, colours of a new line, stock facts.
-- `tests/UnitTests/Warehouse/WarehouseTransferTests.cs` — WH-006: dry run, apply and repeat, refused export (broken, truncated, order missing in Brevi), confirmation of own records, Admin only.
+- `tests/UnitTests/Warehouse/Stock/WarehouseStockHandlerTests.cs` — receipt and reversal, access and prices, plan by colour, issue purposes, reversal of an issue, colours of a new line, stock facts.
+- `tests/UnitTests/Warehouse/Stock/WarehouseTransferTests.cs` — WH-006: dry run, apply and repeat, refused export (broken, truncated, order missing in Brevi), confirmation of own records, Admin only.
 - `tests/UnitTests/Warehouse/FabricStockContractTests.cs` — DTOs and operations against the contract.
-- `tests/ArchitectureTests/WarehouseDependencyTests.cs` — layers and schema.
+- `tests/ArchitectureTests/Modules/Workshop/WarehouseDependencyTests.cs` — layers and schema.
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Warehouse`.
 

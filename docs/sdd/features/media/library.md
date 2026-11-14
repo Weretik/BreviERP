@@ -47,7 +47,7 @@ flowchart LR
 ## Tests
 
 - `tests/UnitTests/Media/` — folder tree and handler scenarios on SQLite in memory with a fake CDN; `MediaImageTests` for size, previews, EXIF turn and backfill.
-- `tests/ArchitectureTests/MediaDependencyTests.cs` — layer references, own schema and history.
+- `tests/ArchitectureTests/Modules/Site/MediaDependencyTests.cs` — layer references, own schema and history.
 - `tests/IntegrationTests/Media/MediaLibraryMigrationTests.cs` — copy of old Catalog photos (needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Media`.

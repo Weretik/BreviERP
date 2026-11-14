@@ -28,8 +28,8 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Production/WorkshopReportHandlerTests.cs` — values, access, future and long periods, kept month, sum of months, overview.
-- `tests/UnitTests/Production/WorkshopReportsContractTests.cs` — DTOs, operations and policies against the contract.
+- `tests/UnitTests/Production/Workshop/WorkshopReportHandlerTests.cs` — values, access, future and long periods, kept month, sum of months, overview.
+- `tests/UnitTests/Production/Workshop/WorkshopReportsContractTests.cs` — DTOs, operations and policies against the contract.
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Production`.
 

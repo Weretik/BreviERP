@@ -46,7 +46,7 @@ flowchart LR
 
 ## Tests
 
-`tests/UnitTests/Reference/GarmentPartOperationImportTests.cs` covers the sheet import (`--filter FullyQualifiedName~GarmentPartOperationImport`). `tests/UnitTests/Reference/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+`tests/UnitTests/Reference/Imports/GarmentPartOperationImportTests.cs` covers the sheet import (`--filter FullyQualifiedName~GarmentPartOperationImport`). `tests/UnitTests/Reference/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

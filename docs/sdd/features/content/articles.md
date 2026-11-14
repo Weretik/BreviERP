@@ -38,10 +38,10 @@ src/Modules/Content/Content.Infrastructure/Content.Infrastructure/Adapters/Media
 ## Tests
 
 ```text
-tests/UnitTests/Content/ArticlesTests.cs           # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~Articles"
-tests/UnitTests/Content/ArticlesContractTests.cs
-tests/UnitTests/Content/ArticlesOldSiteImportTests.cs
-tests/UnitTests/Content/PublicArticlesTests.cs
+tests/UnitTests/Content/Articles/ArticlesTests.cs           # dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~Articles"
+tests/UnitTests/Content/Articles/ArticlesContractTests.cs
+tests/UnitTests/Content/Articles/ArticlesOldSiteImportTests.cs
+tests/UnitTests/Content/Articles/PublicArticlesTests.cs
 ```
 
 ## Data
