@@ -609,7 +609,6 @@ internal sealed class SheetImportHost(WebApplication app, HttpClient client, str
         app.UseDeveloperExceptionPage(); // a server error shows its exception in the failed assertion
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
         app.MapModuleEndpoints();
         await app.StartAsync();
         var client = app.GetTestClient();

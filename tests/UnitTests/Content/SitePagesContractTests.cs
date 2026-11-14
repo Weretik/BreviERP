@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Routing;
+using UnitTests.TestSupport;
+using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.PublicSitePages;
 using Content.Api.SitePages;
 using Content.Domain.SitePages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SitePages.Queries.GetSitePages;
 using Content.Application.Features.SitePages.Shared;
@@ -17,6 +18,8 @@ namespace UnitTests.Content;
 /// </summary>
 public sealed class SitePagesContractTests
 {
+    private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
+
     private const string Admin = "content-site-pages.openapi.yaml";
     private const string Public = "content-public-site-pages.openapi.yaml";
 
@@ -38,14 +41,14 @@ public sealed class SitePagesContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_site_pages_policy()
     {
-        var controller = typeof(SitePagesController);
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
+        var controller = "SitePages";
+        var policy = MappedEndpoints.Policy(Map, controller);
 
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.EqualTo($"access:{AccessCatalog.ContentSitePages}"));
             Assert.That(Operations(Admin), Is.EquivalentTo(OperationsOf(controller)));
-            Assert.That(Operations(Public), Is.EquivalentTo(OperationsOf(typeof(PublicSitePagesController))));
+            Assert.That(Operations(Public), Is.EquivalentTo(OperationsOf("PublicSitePages")));
         });
     }
 
@@ -62,8 +65,7 @@ public sealed class SitePagesContractTests
         });
     }
 
-    private static string[] OperationsOf(Type controller) => controller.GetMethods()
-        .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
+    private static string[] OperationsOf(string controller) => MappedEndpoints.Of(Map, controller)
         .Select(x => x.Name!).ToArray();
 
     private static YamlMappingNode Root(string file)

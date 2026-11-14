@@ -30,8 +30,8 @@ src/Modules/Content/
     Persistence/       # ContentDbContext (schema content), configurations (jsonb lists), migrations
     DependencyInjection/
   Content.Api/Content.Api/
-    ProductPages/ContentProductsController.cs   # /api/content/products, policy access:content-products
-    PublicCatalog/PublicCatalogController.cs    # /api/public/catalog, anonymous, read-only
+    Endpoints/ProductPages/ContentProductsEndpoints.cs   # /api/content/products, policy access:content-products
+    Endpoints/PublicCatalog/PublicCatalogEndpoints.cs    # /api/public/catalog, anonymous, read-only
 src/Modules/Content/Content.Infrastructure/Content.Infrastructure/Adapters/Catalog/ContentCatalogReader.cs  # Catalog.Contracts products and photos + Reference.Contracts sections and fabrics
 ```
 

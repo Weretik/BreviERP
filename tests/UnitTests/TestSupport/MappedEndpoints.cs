@@ -14,7 +14,7 @@ internal static class MappedEndpoints
     /// <param name="Action">The «Права доступу» action the endpoint needs beyond viewing, if any.</param>
     /// <param name="Roles">The roles the endpoint itself requires, if any.</param>
     public sealed record Operation(string Name, string[] Policies, string Tag, string? Action = null,
-        string? Roles = null, bool Anonymous = false, string Route = "");
+        string? Roles = null, bool Anonymous = false, string Route = "", string Method = "");
 
     /// <summary>One endpoint by its operation name.</summary>
     public static Operation Named(Action<IEndpointRouteBuilder> map, string name) => Of(map).Single(x => x.Name == name);
@@ -40,7 +40,8 @@ internal static class MappedEndpoints
                 x.Metadata.GetMetadata<AccessActionAttribute>()?.Action,
                 x.Metadata.GetOrderedMetadata<IAuthorizeData>().Select(p => p.Roles).OfType<string>().SingleOrDefault(),
                 x.Metadata.GetMetadata<IAllowAnonymous>() is not null,
-                ((RouteEndpoint)x).RoutePattern.RawText ?? string.Empty))
+                ((RouteEndpoint)x).RoutePattern.RawText ?? string.Empty,
+                x.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.First()))
             .ToArray();
     }
 }

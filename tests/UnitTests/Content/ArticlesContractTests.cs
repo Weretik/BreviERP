@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Routing;
+using UnitTests.TestSupport;
+using Content.Api.DependencyInjection;
 using System.Text.Json;
 using Content.Api.Articles;
 using Content.Domain.Articles;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
 using Content.Application.Features.Articles.Commands.SetContentArticleVisibility;
@@ -15,6 +17,8 @@ namespace UnitTests.Content;
 /// <summary>«Контент → Статті» types and operations match docs/sdd/contracts/content/content-articles.openapi.yaml (CNT-004).</summary>
 public sealed class ArticlesContractTests
 {
+    private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
+
     [TestCase(typeof(ArticleRow), "ArticleRow")]
     [TestCase(typeof(ArticleList), "ArticleList")]
     [TestCase(typeof(ArticleTextResponse), "ArticleTextResponse")]
@@ -40,10 +44,9 @@ public sealed class ArticlesContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_content_articles_policy()
     {
-        var controller = typeof(ContentArticlesController);
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
-        var operations = controller.GetMethods()
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
+        var controller = "ContentArticles";
+        var policy = MappedEndpoints.Policy(Map, controller);
+        var operations = MappedEndpoints.Of(Map, controller)
             .Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,26 +20,15 @@ namespace HostApiTests.TestSupport;
 /// </summary>
 internal sealed class ApiTestHost(WebApplication app, HttpClient client) : IAsyncDisposable
 {
-    private static readonly Type[] ApiMarkers =
-    [
-        typeof(Accounting.Api.AccountingApiAssemblyMarker), typeof(Ai.Api.AiApiAssemblyMarker),
-        typeof(Catalog.Api.CatalogApiAssemblyMarker), typeof(Content.Api.ContentApiAssemblyMarker),
-        typeof(Crm.Api.CrmApiAssemblyMarker), typeof(Identity.Api.IdentityApiAssemblyMarker),
-        typeof(Media.Api.MediaApiAssemblyMarker), typeof(Production.Api.ProductionApiAssemblyMarker),
-        typeof(Purchasing.Api.PurchasingApiAssemblyMarker), typeof(Reference.Api.ReferenceApiAssemblyMarker),
-        typeof(Reminders.Api.RemindersApiAssemblyMarker), typeof(Warehouse.Api.WarehouseApiAssemblyMarker)
-    ];
-
     public HttpClient Client { get; } = client;
 
     public IServiceProvider Services => app.Services;
 
-    /// <summary>The module HTTP endpoints: controller actions and mapped module endpoints.</summary>
+    /// <summary>The module HTTP endpoints, as the host maps them.</summary>
     public RouteEndpoint[] ApiEndpoints() => ((IEndpointRouteBuilder)app).DataSources
         .SelectMany(source => source.Endpoints)
         .OfType<RouteEndpoint>()
-        .Where(endpoint => endpoint.Metadata.GetMetadata<ControllerActionDescriptor>() is not null
-                           || endpoint.Metadata.GetMetadata<HttpMethodMetadata>() is not null)
+        .Where(endpoint => endpoint.Metadata.GetMetadata<HttpMethodMetadata>() is not null)
         .ToArray();
 
     /// <summary>"GET api/x/{id}": method and route without the leading slash and type constraints.</summary>
@@ -62,13 +50,10 @@ internal sealed class ApiTestHost(WebApplication app, HttpClient client) : IAsyn
         builder.Services.AddAuthorizationPolicies();
         if (sender is not null) builder.Services.AddSingleton(sender);
         // HTTP surface only: each module's Add<Module>Module() also needs a database.
-        var mvc = builder.Services.AddControllers();
-        foreach (var marker in ApiMarkers) mvc.AddApplicationPart(marker.Assembly);
         var app = builder.Build();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapControllers();
         app.MapModuleEndpoints();
         await app.StartAsync();
         return new ApiTestHost(app, app.GetTestClient());

@@ -18,7 +18,7 @@ Owns EF Core DbContexts, entity configurations, migrations, repository implement
 
 ## API Layer
 
-Controllers are thin transport adapters: they bind input, send one Mediator request with a cancellation token, and map Result using established API conventions. Controllers contain no business rules, EF queries, or transaction orchestration.
+Minimal API endpoints are thin transport adapters: they bind input, send one Mediator request with a cancellation token, and map Result using established API conventions. Controllers contain no business rules, EF queries, or transaction orchestration.
 
 ## Contracts Layer
 

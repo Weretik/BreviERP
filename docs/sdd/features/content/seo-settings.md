@@ -16,8 +16,8 @@ src/Modules/Content/
       Shared/                                                       # responses, picture, messages
   Content.Infrastructure/.../Persistence/SiteSettings/SiteSeoSettingsConfiguration.cs
   Content.Api/Content.Api/
-    SiteSettings/SiteSeoSettingsController.cs                       # /api/content/seo-settings, policy access:content-seo-settings
-    PublicSiteSettings/PublicSiteSettingsController.cs              # /api/public/site-settings, anonymous
+    Endpoints/SiteSettings/SiteSeoSettingsEndpoints.cs                       # /api/content/seo-settings, policy access:content-seo-settings
+    Endpoints/PublicSiteSettings/PublicSiteSettingsEndpoints.cs              # /api/public/site-settings, anonymous
 ```
 
 ## Tests

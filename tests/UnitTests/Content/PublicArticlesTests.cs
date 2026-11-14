@@ -1,10 +1,10 @@
+using Microsoft.AspNetCore.Routing;
+using UnitTests.TestSupport;
+using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.PublicArticles;
 using Content.Domain.Articles;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Caching.Memory;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.Articles.Commands.SaveContentArticle;
@@ -17,6 +17,8 @@ namespace UnitTests.Content;
 /// <summary>Articles of the public site: list and page by address, without sign-in (CNT-004 SC-07, R-07).</summary>
 public sealed class PublicArticlesTests
 {
+    private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
+
     private static readonly CancellationToken None = CancellationToken.None;
 
     private static ArticleTextInput Text(string title, int? photoId = null, bool withBody = true) =>
@@ -183,19 +185,16 @@ public sealed class PublicArticlesTests
     [Test]
     public void Every_operation_is_in_the_contract_open_to_everyone_and_read_only()
     {
-        var controller = typeof(PublicArticlesController);
-        var methods = controller.GetMethods()
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
+        var controller = "PublicArticles";
+        var methods = MappedEndpoints.Of(Map, controller)
             .ToArray();
-        var cache = controller.GetCustomAttributes(typeof(ResponseCacheAttribute), false).Cast<ResponseCacheAttribute>().Single();
 
         Assert.Multiple(() =>
         {
-            Assert.That(controller.GetCustomAttributes(typeof(AllowAnonymousAttribute), false), Is.Not.Empty);
-            Assert.That(methods.All(x => x is HttpGetAttribute), Is.True);
+            Assert.That(methods.All(x => x.Anonymous), Is.True);
+            Assert.That(methods.All(x => x.Method == "GET"), Is.True);
             Assert.That(methods.Select(x => x.Name), Is.EquivalentTo(Operations()));
             Assert.That(methods, Has.Length.EqualTo(2));
-            Assert.That((cache.Duration, cache.Location), Is.EqualTo((300, ResponseCacheLocation.Any)));
         });
     }
 

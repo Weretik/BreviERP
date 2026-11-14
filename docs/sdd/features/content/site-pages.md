@@ -18,8 +18,8 @@ src/Modules/Content/
   Content.Infrastructure/.../Migrations/*_AddSitePages.cs           # table and the seed of the current texts
   Content.Infrastructure/.../Migrations/*_AddSitePageTextAndFaq.cs  # main text and questions, seed of home and industries
   Content.Api/Content.Api/
-    SitePages/SitePagesController.cs                                # /api/content/site-pages, policy access:content-site-pages
-    PublicSitePages/PublicSitePagesController.cs                    # /api/public/site-pages, anonymous
+    Endpoints/SitePages/SitePagesEndpoints.cs                                # /api/content/site-pages, policy access:content-site-pages
+    Endpoints/PublicSitePages/PublicSitePagesEndpoints.cs                    # /api/public/site-pages, anonymous
 ```
 
 ## Tests

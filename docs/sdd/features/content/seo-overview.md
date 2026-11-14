@@ -9,7 +9,7 @@ src/Modules/Content/
   Content.Application/Content.Application/
     Features/SeoOverview/Shared/                # responses, SeoChecks (per-page checks, repeated titles)
     Features/SeoOverview/Queries/GetSeoOverview/  # pages of the four areas, site problems
-  Content.Api/Content.Api/SeoOverview/SeoOverviewController.cs   # /api/content/seo-overview, policy access:content-seo-overview
+  Content.Api/Content.Api/SeoOverview/SeoOverviewEndpoints.cs   # /api/content/seo-overview, policy access:content-seo-overview
 ```
 
 ## Tests

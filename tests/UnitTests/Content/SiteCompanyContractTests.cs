@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Routing;
+using UnitTests.TestSupport;
+using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.PublicSiteCompany;
 using Content.Api.SiteCompany;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SiteCompany.Shared;
 
@@ -15,6 +16,8 @@ namespace UnitTests.Content;
 /// </summary>
 public sealed class SiteCompanyContractTests
 {
+    private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
+
     private const string Admin = "content-company.openapi.yaml";
     private const string Public = "content-public-company.openapi.yaml";
 
@@ -42,14 +45,14 @@ public sealed class SiteCompanyContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_company_policy()
     {
-        var controller = typeof(SiteCompanyController);
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
+        var controller = "SiteCompany";
+        var policy = MappedEndpoints.Policy(Map, controller);
 
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.EqualTo($"access:{AccessCatalog.ContentCompany}"));
             Assert.That(Operations(Admin), Is.EquivalentTo(OperationsOf(controller)));
-            Assert.That(Operations(Public), Is.EquivalentTo(OperationsOf(typeof(PublicSiteCompanyController))));
+            Assert.That(Operations(Public), Is.EquivalentTo(OperationsOf("PublicSiteCompany")));
         });
     }
 
@@ -66,8 +69,7 @@ public sealed class SiteCompanyContractTests
         });
     }
 
-    private static string[] OperationsOf(Type controller) => controller.GetMethods()
-        .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
+    private static string[] OperationsOf(string controller) => MappedEndpoints.Of(Map, controller)
         .Select(x => x.Name!).ToArray();
 
     private static YamlMappingNode Root(string file)

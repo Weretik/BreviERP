@@ -17,8 +17,8 @@ src/Modules/Content/
   Content.Infrastructure/.../Persistence/SiteCompany/SiteCompanyInfoConfiguration.cs   # JSON text columns
   Content.Infrastructure/.../Migrations/*_AddSiteCompany.cs             # table and the seed of the current facts
   Content.Api/Content.Api/
-    SiteCompany/SiteCompanyController.cs                                # /api/content/company, policy access:content-company
-    PublicSiteCompany/PublicSiteCompanyController.cs                    # /api/public/company, anonymous
+    Endpoints/SiteCompany/SiteCompanyEndpoints.cs                                # /api/content/company, policy access:content-company
+    Endpoints/PublicSiteCompany/PublicSiteCompanyEndpoints.cs                    # /api/public/company, anonymous
 ```
 
 ## Tests

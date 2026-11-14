@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Routing;
+using UnitTests.TestSupport;
+using Content.Api.DependencyInjection;
 using System.Text.Json;
 using Content.Api.SiteCategories;
 using Content.Domain.SiteCategories;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SiteCategories.Commands.ImportOldSiteCategories;
 using Content.Application.Features.SiteCategories.Commands.SetSiteCategoryVisibility;
@@ -15,6 +17,8 @@ namespace UnitTests.Content;
 /// <summary>«Контент → Розділи» types and operations match docs/sdd/contracts/content/content-categories.openapi.yaml (CNT-003).</summary>
 public sealed class SiteCategoriesContractTests
 {
+    private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
+
     [TestCase(typeof(SiteCategoryRow), "SiteCategoryRow")]
     [TestCase(typeof(SiteCategoryList), "SiteCategoryList")]
     [TestCase(typeof(SiteCategoryTextResponse), "SiteCategoryTextResponse")]
@@ -37,10 +41,9 @@ public sealed class SiteCategoriesContractTests
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_content_categories_policy()
     {
-        var controller = typeof(SiteCategoriesController);
-        var policy = controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
-        var operations = controller.GetMethods()
-            .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
+        var controller = "SiteCategories";
+        var policy = MappedEndpoints.Policy(Map, controller);
+        var operations = MappedEndpoints.Of(Map, controller)
             .Select(x => x.Name).ToArray();
 
         Assert.Multiple(() =>

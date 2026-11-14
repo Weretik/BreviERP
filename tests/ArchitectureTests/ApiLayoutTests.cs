@@ -2,13 +2,30 @@ namespace ArchitectureTests;
 
 /// <summary>
 /// Api projects group HTTP code by feature, the same names as in Application (module rules «Folders»): a feature folder holds
-/// its controller (later its endpoints) with the requests, responses and mappers next to it; <c>Access/</c> holds policy names
-/// and <c>DependencyInjection/</c> the registration. No folder is named after a kind of class.
+/// its requests and mappers, <c>Endpoints/&lt;Feature&gt;/</c> its Minimal API endpoints; <c>Access/</c> holds policy names
+/// and <c>DependencyInjection/</c> the registration. No folder is named after a kind of class, and there are no MVC controllers.
 /// </summary>
 public sealed class ApiLayoutTests
 {
     private static readonly string[] KindFolders =
         ["Controllers", "Contracts", "Requests", "Responses", "Mapping", "Mappers", "Models", "Dtos", "DTOs", "Options", "Results", "Filters", "Services", "Helpers", "Extensions"];
+
+    [Test]
+    public void Http_endpoints_are_minimal_api_never_mvc_controllers()
+    {
+        var offending = Directory.GetFiles(Path.Combine(Root(), "src"), "*.cs", SearchOption.AllDirectories)
+            .Where(NotBuildOutput)
+            .Where(file =>
+            {
+                var text = File.ReadAllText(file);
+                return text.Contains("ControllerBase") || text.Contains("[ApiController]")
+                       || text.Contains("AddControllers(") || text.Contains("MapControllers(");
+            })
+            .Select(Relative)
+            .ToArray();
+
+        Assert.That(offending, Is.Empty);
+    }
 
     [Test]
     public void Api_projects_have_no_folders_named_after_kinds_of_classes()

@@ -28,8 +28,8 @@ src/Modules/Content/
   Content.Infrastructure/Content.Infrastructure/
     Persistence/Articles/ArticleConfiguration.cs
   Content.Api/Content.Api/
-    Articles/ContentArticlesController.cs   # /api/content/articles, policy access:content-articles
-    PublicArticles/PublicArticlesController.cs # /api/public/articles, anonymous, read-only
+    Endpoints/Articles/ContentArticlesEndpoints.cs   # /api/content/articles, policy access:content-articles
+    Endpoints/PublicArticles/PublicArticlesEndpoints.cs # /api/public/articles, anonymous, read-only
 src/Modules/Content/Content.Infrastructure/Content.Infrastructure/Adapters/Media/
   ContentMediaReader.cs   # IContentMediaReader over Media.Contracts IMediaFileReader
   ContentPhotoImporter.cs # IContentPhotoImporter over Media.Contracts IMediaUrlImporter

@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Routing;
+using UnitTests.TestSupport;
+using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.PublicSiteGalleries;
 using Content.Api.SiteGalleries;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
 using Content.Application.Features.SiteGalleries.Commands.TransferSiteGallery;
@@ -17,6 +18,8 @@ namespace UnitTests.Content;
 /// </summary>
 public sealed class SiteGalleriesContractTests
 {
+    private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
+
     private const string Admin = "content-galleries.openapi.yaml";
     private const string Public = "content-public-galleries.openapi.yaml";
 
@@ -41,11 +44,11 @@ public sealed class SiteGalleriesContractTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(Policy(typeof(SiteWorksController)), Is.EqualTo($"access:{AccessCatalog.ContentWorks}"));
-            Assert.That(Policy(typeof(SiteCertificatesController)), Is.EqualTo($"access:{AccessCatalog.ContentCertificates}"));
+            Assert.That(Policy("SiteWorks"), Is.EqualTo($"access:{AccessCatalog.ContentWorks}"));
+            Assert.That(Policy("SiteCertificates"), Is.EqualTo($"access:{AccessCatalog.ContentCertificates}"));
             Assert.That(Operations(Admin), Is.EquivalentTo(
-                OperationsOf(typeof(SiteWorksController)).Concat(OperationsOf(typeof(SiteCertificatesController)))));
-            Assert.That(Operations(Public), Is.EquivalentTo(OperationsOf(typeof(PublicSiteGalleriesController))));
+                OperationsOf("SiteWorks").Concat(OperationsOf("SiteCertificates"))));
+            Assert.That(Operations(Public), Is.EquivalentTo(OperationsOf("PublicSiteGalleries")));
         });
     }
 
@@ -63,11 +66,10 @@ public sealed class SiteGalleriesContractTests
         });
     }
 
-    private static string? Policy(Type controller) =>
-        controller.GetCustomAttributes(typeof(AuthorizeAttribute), false).Cast<AuthorizeAttribute>().Single().Policy;
+    private static string? Policy(string controller) =>
+        MappedEndpoints.Policy(Map, controller);
 
-    private static string[] OperationsOf(Type controller) => controller.GetMethods()
-        .SelectMany(x => x.GetCustomAttributes(typeof(HttpMethodAttribute), false).Cast<HttpMethodAttribute>())
+    private static string[] OperationsOf(string controller) => MappedEndpoints.Of(Map, controller)
         .Select(x => x.Name!).ToArray();
 
     private static YamlMappingNode Root(string file)
