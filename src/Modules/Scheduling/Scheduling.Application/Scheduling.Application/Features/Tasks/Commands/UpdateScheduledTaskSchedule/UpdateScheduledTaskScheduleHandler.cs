@@ -7,7 +7,7 @@ public sealed class UpdateScheduledTaskScheduleHandler(ISchedulingDbContext db, 
     : ICommandHandler<UpdateScheduledTaskScheduleCommand, Result<ScheduledTaskResponse>>
 {
     public static Error NotEditable { get; } =
-        Error.Conflict("Scheduling.Task.NotEditable", "Розклад цієї задачі не змінюється: вона працює щохвилини.");
+        Error.Conflict("Scheduling.Task.NotEditable", "Розклад цієї задачі не змінюється: вона працює з кожним викликом планувальника.");
 
     public async ValueTask<Result<ScheduledTaskResponse>> Handle(UpdateScheduledTaskScheduleCommand command,
         CancellationToken cancellationToken)
