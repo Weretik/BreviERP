@@ -50,15 +50,23 @@ public sealed class TaskScheduleTests
     }
 
     [Test]
+    public void Kyiv_instants_are_UTC_because_PostgreSQL_timestamptz_accepts_only_UTC()
+    {
+        Assert.That(Kyiv("2026-11-16 09:00").Offset, Is.EqualTo(TimeSpan.Zero));
+        Assert.That(Kyiv("2026-07-16 09:00").Offset, Is.EqualTo(TimeSpan.Zero));
+        Assert.That(Kyiv("2026-11-16 09:00").UtcDateTime, Is.EqualTo(new DateTime(2026, 11, 16, 7, 0, 0)));
+    }
+
+    [Test]
     public void Daily_time_keeps_the_Kyiv_clock_across_the_autumn_change()
     {
         var schedule = TaskSchedule.DailyAt(TaskSchedule.EveryDay, new TimeOnly(3, 0));
         var beforeChange = schedule.NextAfter(Kyiv("2026-10-24 01:00"))!.Value;
         var changeDay = schedule.NextAfter(beforeChange)!.Value;
         var afterChange = schedule.NextAfter(changeDay)!.Value;
-        Assert.That(beforeChange.Offset, Is.EqualTo(TimeSpan.FromHours(3)));
+        Assert.That(beforeChange.UtcDateTime, Is.EqualTo(new DateTime(2026, 10, 24, 0, 0, 0)));
         Assert.That(KyivTime.ToLocal(changeDay), Is.EqualTo(new DateTime(2026, 10, 25, 3, 0, 0)), "03:00 happens twice: once");
-        Assert.That(afterChange.Offset, Is.EqualTo(TimeSpan.FromHours(2)));
+        Assert.That(afterChange.UtcDateTime, Is.EqualTo(new DateTime(2026, 10, 26, 1, 0, 0)));
         Assert.That(KyivTime.ToLocal(afterChange), Is.EqualTo(new DateTime(2026, 10, 26, 3, 0, 0)));
     }
 
