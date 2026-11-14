@@ -10,7 +10,7 @@ namespace Catalog.Application.Features.Product.Sewing;
 public sealed class DeleteSewingArticleHandler(ISewingCompositionStore store)
     : ICommandHandler<DeleteSewingArticleCommand, Result>
 {
-    public const string HasPriceHistory = "The variant already has saved prices. Switch it off instead of deleting.";
+    public const string HasPriceHistory = "У варіанта вже є збережені ціни. Вимкніть його замість видалення.";
 
     public async ValueTask<Result> Handle(DeleteSewingArticleCommand command, CancellationToken cancellationToken)
     {
@@ -19,7 +19,7 @@ public sealed class DeleteSewingArticleHandler(ISewingCompositionStore store)
         if (product is null || product.Articles.All(x => x.Id != articleId))
             return Result.NotFound();
         if (product.CompositionVersion != command.ExpectedVersion)
-            return Result.Conflict("Composition changed. Reload before saving.");
+            return Result.Conflict("Склад уже змінили. Оновіть сторінку перед збереженням.");
         if (await store.HasPriceHistoryAsync(command.ArticleId, cancellationToken))
             return Result.Conflict(HasPriceHistory);
         try
@@ -32,6 +32,6 @@ public sealed class DeleteSewingArticleHandler(ISewingCompositionStore store)
         }
         return await store.SaveAsync(cancellationToken)
             ? Result.Success()
-            : Result.Conflict("Composition changed. Reload before saving.");
+            : Result.Conflict("Склад уже змінили. Оновіть сторінку перед збереженням.");
     }
 }

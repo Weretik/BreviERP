@@ -19,13 +19,13 @@ public sealed class PpeOfferVersionWriter(CatalogDbContext db) : IPpeOfferVersio
         var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { productId, expectedVersionId, values, actor }))));
         var replay = await db.Set<PpeOfferVersionRecord>().AsNoTracking().SingleOrDefaultAsync(x => x.RequestId == requestId, cancellationToken);
         if (replay is not null)
-            return replay.RequestHash == hash ? Result.Success(replay.ToVersion()) : Result.Conflict("Request UUID was used with different input or actor.");
+            return replay.RequestHash == hash ? Result.Success(replay.ToVersion()) : Result.Conflict("Цей запит уже виконано з іншими даними. Оновіть сторінку.");
         var ids = new[] { productId };
         if (!await db.Products.FromSqlInterpolated($"SELECT * FROM catalog.\"Products\" WHERE \"Id\" = ANY({ids})")
             .AnyAsync(x => !x.IsDeleted && x.Type == Catalog.Domain.Products.Enums.ProductType.Ppe, cancellationToken))
             return Result.NotFound();
         var current = await db.Set<PpeOfferVersionRecord>().AsNoTracking().Where(x => x.ProductId == Catalog.Domain.Products.ValueObjects.ProductId.Create(productId)).OrderByDescending(x => x.Id).FirstOrDefaultAsync(cancellationToken);
-        if (current?.PublicId != expectedVersionId) return Result.Conflict("Pricing input changed. Reload before saving.");
+        if (current?.PublicId != expectedVersionId) return Result.Conflict("Дані для ціни вже змінили. Оновіть сторінку перед збереженням.");
         var now = DateTimeOffset.UtcNow;
         var record = new PpeOfferVersionRecord { PublicId = Guid.NewGuid(), RequestId = requestId, RequestHash = hash,
             ValuesJson = json, ApprovedBy = actor, ApprovedAt = now, CreatedAt = now, ProductId = Catalog.Domain.Products.ValueObjects.ProductId.Create(productId), };

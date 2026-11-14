@@ -17,13 +17,13 @@ public sealed class UpdateSewingArticleHandler(ISewingCompositionStore store, IP
         if (product is null || article is null)
             return Result.NotFound();
         if (product.CompositionVersion != request.ExpectedVersion)
-            return Result.Conflict("Composition changed. Reload before saving.");
+            return Result.Conflict("Склад уже змінили. Оновіть сторінку перед збереженням.");
         if (!(await references.GetSnapshotAsync(cancellationToken)).Fabrics.ContainsKey(request.FabricId))
-            return Result.NotFound("fabricId: fabric not found.");
+            return Result.NotFound("Тканину не знайдено.");
         var sku = request.SaleSku.Trim();
         if (!string.Equals(sku, article.SaleSku, StringComparison.Ordinal)
             && await store.SaleSkuExistsAsync(sku, command.ArticleId, cancellationToken))
-            return Result.Conflict("Sale SKU already exists.");
+            return Result.Conflict("Такий артикул продажу вже є.");
         var now = TimeProvider.System.GetUtcNow();
         try
         {
@@ -35,7 +35,7 @@ public sealed class UpdateSewingArticleHandler(ISewingCompositionStore store, IP
             return Result.Conflict(exception.Message);
         }
         if (!await store.SaveAsync(cancellationToken))
-            return Result.Conflict("Composition or SKU changed. Reload before saving.");
+            return Result.Conflict("Склад або артикул уже змінили. Оновіть сторінку перед збереженням.");
         return Result.Success(new SewingArticleView(article.Id.Value, product.Id.Value, article.SaleSku,
             article.IsActive, article.SortOrder, request.FabricId, request.FabricQuantity));
     }

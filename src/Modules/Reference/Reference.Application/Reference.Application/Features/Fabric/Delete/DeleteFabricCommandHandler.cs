@@ -18,7 +18,7 @@ public sealed class DeleteFabricCommandHandler(IReferenceRepository<FabricEntity
             return Result.NotFound();
 
         if (await productUsageReader.IsFabricUsedAsync(command.Id, cancellationToken))
-            return Result.Conflict("Fabric is used by one or more products.");
+            return Result.Conflict("Тканину використовують товари, тому її не можна видалити.");
 
         await repository.DeleteAsync(entity, cancellationToken);
 

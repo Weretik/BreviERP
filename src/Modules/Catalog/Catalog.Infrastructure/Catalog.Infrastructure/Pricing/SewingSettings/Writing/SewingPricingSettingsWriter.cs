@@ -20,14 +20,14 @@ public sealed class SewingPricingSettingsWriter(CatalogDbContext db) : ISewingPr
             .SingleOrDefaultAsync(x => x.SourceHash == hash, cancellationToken);
         if (repeated is not null)
             return repeated.ToSettings() == settings
-                ? Result.Success(Selection(repeated)) : Result.Conflict("Request UUID was used with different settings.");
+                ? Result.Success(Selection(repeated)) : Result.Conflict("Цей запит уже виконано з іншими налаштуваннями. Оновіть сторінку.");
         var latest = await db.Set<SewingPricingSettingsVersion>().AsNoTracking()
             .OrderByDescending(x => x.Revision).FirstOrDefaultAsync(cancellationToken);
         var at = DateTimeOffset.UtcNow;
         // expectedVersionId 0 means "no version yet": the first version comes from «Параметри ціноутворення».
         var firstVersion = latest is null && expectedVersionId == 0;
         if (!firstVersion && (latest is null || latest.Id.Value != expectedVersionId || latest.EffectiveFrom >= at))
-            return Result.Conflict("Settings changed or a future settings version already exists.");
+            return Result.Conflict("Налаштування вже змінили або є новіша версія. Оновіть сторінку.");
         var version = SewingPricingSettingsVersion.Create((latest?.Revision ?? 0) + 1, at, settings, hash, source, true);
         db.Add(version);
         await db.SaveChangesAsync(cancellationToken);

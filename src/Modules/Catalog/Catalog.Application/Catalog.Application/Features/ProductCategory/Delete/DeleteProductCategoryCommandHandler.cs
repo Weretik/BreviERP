@@ -23,13 +23,13 @@ public sealed class DeleteProductCategoryCommandHandler(
             new ProductCategoryHasChildrenSpec(command.Id), cancellationToken);
 
         if (hasChildren)
-            return Result.Conflict("Product category with children cannot be deleted.");
+            return Result.Conflict("Категорію з підкатегоріями видалити не можна.");
 
         var isUsedByProduct = await productRepository.AnyAsync(
             new ProductCategoryIsUsedByProductSpec(command.Id), cancellationToken);
 
         if (isUsedByProduct)
-            return Result.Conflict("Product category assigned to products cannot be deleted.");
+            return Result.Conflict("Категорію, до якої прив'язані товари, видалити не можна.");
 
         await repository.DeleteAsync(entity, cancellationToken);
 

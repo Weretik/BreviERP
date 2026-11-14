@@ -31,20 +31,20 @@ public sealed class ReplaceProductCommandHandler(
         var request = command.Request;
         if (product.Type == ProductType.Sewing && request.Type == ProductType.Ppe &&
             (product.Articles.Count != 0 || product.MaterialLines.Count != 0 || product.OperationLines.Count != 0))
-            return Result.Conflict("Product has Articles or sewing composition and cannot change to PPE.");
+            return Result.Conflict("У товару є варіанти або склад пошиття, тому його не можна змінити на ЗІЗ.");
         if (product.MaterialLines.Count != 0 || product.OperationLines.Count != 0)
         {
             if (request.Type != ProductType.Sewing || request.Sewing is null || !LegacySewingNormsMatch(product.SewingDetails, request.Sewing))
-                return Result.Conflict("Legacy sewing norms cannot be changed while composition is configured; use the composition API.");
+                return Result.Conflict("Старі норми пошиття не можна змінити, поки заповнено склад. Змініть склад моделі.");
         }
         var name = request.Name.Trim(); var ruName = request.RuName.Trim();
         var slug = slugGenerator.GenerateFromUkrainianName(name);
         if (await repository.AnyAsync(new ProductByIdOrNameExceptIdSpec(command.Id, name, ruName, slug), cancellationToken))
-            return Result.Conflict("Product Ukrainian name, Russian name, or slug already exists.");
+            return Result.Conflict("Товар із такою українською чи російською назвою або адресою (slug) вже є.");
         var categories = await categoryRepository.ListAsync(
             new ProductCategoriesByIdsSpec(request.CategoryIds), cancellationToken);
         if (categories.Count != request.CategoryIds.Distinct().Count())
-            return Result.Conflict("One or more ProductCategory IDs do not exist.");
+            return Result.Conflict("Деяких категорій товару не знайдено.");
         var references = await referenceReader.GetSnapshotAsync(cancellationToken);
         var referenceError = ValidateReferences(request, references);
         if (referenceError is not null) return Result.Conflict(referenceError);
@@ -79,7 +79,7 @@ public sealed class ReplaceProductCommandHandler(
             x => new CategoryAdminDetail(x.Id.Value, x.Name, x.RuName, x.Slug));
         var detail = await repository.FirstOrDefaultAsync(new ProductAdminDetailSpec(product.Id.Value), cancellationToken);
         return detail is null
-            ? Result.Error("Updated Product could not be read.")
+            ? Result.Error("Не вдалося прочитати збережений товар.")
             : Result.Success(ProductAdminDetailMapper.Map(detail, references, categoryDetails, mediaUrls));
     }
 

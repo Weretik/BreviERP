@@ -25,16 +25,16 @@ public sealed class UpdateProductCategoryCommandHandler(ICatalogRepository<Produ
         if (request.ParentId.HasValue)
         {
             if (request.ParentId.Value == command.Id)
-                return Result.Conflict("Product category cannot be its own parent.");
+                return Result.Conflict("Категорія не може бути батьківською для самої себе.");
 
             parent = await repository.FirstOrDefaultAsync(
                 new ProductCategoryByIdSpec(request.ParentId.Value), cancellationToken);
 
             if (parent is null)
-                return Result.NotFound("Parent product category was not found.");
+                return Result.NotFound("Батьківську категорію не знайдено.");
 
             if (parent.Path.StartsWith(entity.Path, StringComparison.Ordinal))
-                return Result.Conflict("Product category cannot be moved under its own descendant.");
+                return Result.Conflict("Категорію не можна перенести всередину її власної підкатегорії.");
         }
 
         var parentChanged = entity.ParentId?.Value != request.ParentId;
@@ -42,7 +42,7 @@ public sealed class UpdateProductCategoryCommandHandler(ICatalogRepository<Produ
             new ProductCategoryByParentAndSlugExceptIdSpec(command.Id, request.ParentId, slug), cancellationToken);
 
         if (duplicateSlugExists)
-            return Result.Conflict("Product category with the same parent and slug already exists.");
+            return Result.Conflict("Категорія з такою адресою (slug) у цьому розділі вже є.");
 
         var oldPath = entity.Path;
         List<ProductCategoryEntity> descendants = parentChanged

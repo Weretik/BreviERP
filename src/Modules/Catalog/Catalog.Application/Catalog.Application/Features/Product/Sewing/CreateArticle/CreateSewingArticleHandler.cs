@@ -16,17 +16,17 @@ public sealed class CreateSewingArticleHandler(ISewingCompositionStore store, IP
         if (product is null)
             return Result.NotFound();
         if (product.CompositionVersion != request.ExpectedVersion)
-            return Result.Conflict("Composition changed. Reload before saving.");
+            return Result.Conflict("Склад уже змінили. Оновіть сторінку перед збереженням.");
         if (!(await references.GetSnapshotAsync(cancellationToken)).Fabrics.ContainsKey(request.FabricId))
-            return Result.NotFound("fabricId: fabric not found.");
+            return Result.NotFound("Тканину не знайдено.");
         if (await store.SaleSkuExistsAsync(request.SaleSku.Trim(), null, cancellationToken))
-            return Result.Conflict("Sale SKU already exists.");
+            return Result.Conflict("Такий артикул продажу вже є.");
         var article = SewingArticle.Create(default, product.Id, request.SaleSku, request.Active, request.SortOrder);
         try
         {
             if (!await store.AddArticleAsync(product, article, FabricReferenceId.Create(request.FabricId),
                     request.FabricQuantity, TimeProvider.System.GetUtcNow(), cancellationToken))
-                return Result.Conflict("Composition or SKU changed. Reload before saving.");
+                return Result.Conflict("Склад або артикул уже змінили. Оновіть сторінку перед збереженням.");
         }
         catch (DomainException exception)
         {

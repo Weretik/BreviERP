@@ -10,7 +10,7 @@ public sealed class SewingArticlePricingEvaluator(
         int productId, long articleId, DateTimeOffset at, CancellationToken cancellationToken)
     {
         if (productId <= 0 || articleId <= 0)
-            return Result.Invalid(new ValidationError("articleId", "Positive Product and Article IDs are required."));
+            return Result.Invalid(new ValidationError("articleId", "Неправильний товар або варіант."));
         at = at.ToUniversalTime();
         var snapshot = await inputs.ReadAsync(productId, articleId, cancellationToken);
         if (snapshot is null)

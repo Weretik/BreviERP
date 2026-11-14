@@ -15,7 +15,7 @@ public sealed class SaveSewingCalculationCommandHandler(
         var previous = await calculations.FindRequestAsync(command.RequestId, cancellationToken);
         if (previous is not null)
             return previous.Snapshot.ProductId == command.ProductId && previous.Snapshot.ArticleId == command.ArticleId
-                ? Result.Success(previous) : Result.Conflict("Request UUID was used for another Article.");
+                ? Result.Success(previous) : Result.Conflict("Цей запит уже виконано для іншого варіанта. Оновіть сторінку.");
         var at = DateTimeOffset.UtcNow;
         var result = await new SewingArticlePricingEvaluator(inputs, settings, references)
             .EvaluateAsync(command.ProductId, command.ArticleId, at, cancellationToken);

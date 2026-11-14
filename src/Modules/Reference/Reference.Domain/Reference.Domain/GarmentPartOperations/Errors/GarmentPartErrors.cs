@@ -1,12 +1,12 @@
-using Reference.Domain.Errors;
+using BuildingBlocks.Domain.Errors;
 
 namespace Reference.Domain.GarmentPartOperations.Errors;
 
 public static class GarmentPartErrors
 {
-    public static ReferenceDomainError IdIsRequired() =>
-        new("Reference.GarmentPart.Id.Required", "Garment part id must be provided");
+    public static Error IdIsRequired() =>
+        new("Reference.GarmentPart.Id.Required", "Не вказано деталь виробу.");
 
-    public static ReferenceDomainError NameIsRequired() =>
-        new("Reference.GarmentPart.Name.Required", "Garment part name is required");
+    public static Error NameIsRequired() =>
+        new("Reference.GarmentPart.Name.Required", "Вкажіть назву деталі виробу.");
 }

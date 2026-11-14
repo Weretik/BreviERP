@@ -1,18 +1,18 @@
-using Reference.Domain.Errors;
+using BuildingBlocks.Domain.Errors;
 
 namespace Reference.Domain.ProductSections.Errors;
 
 public static class ProductSectionErrors
 {
-    public static ReferenceDomainError IdIsRequired() =>
+    public static Error IdIsRequired() =>
         new("Reference.ProductSection.Id.Required", "Не вказано ідентифікатор розділу.");
 
-    public static ReferenceDomainError NameIsRequired() =>
+    public static Error NameIsRequired() =>
         new("Reference.ProductSection.Name.Required", "Назва розділу є обов'язковою.");
 
-    public static ReferenceDomainError TypeIsInvalid() =>
+    public static Error TypeIsInvalid() =>
         new("Reference.ProductSection.Type.Invalid", "Тип товару має бути «Швейна продукція» або «ЗІЗ».");
 
-    public static ReferenceDomainError TextIsTooLong(string field, int maxLength) =>
+    public static Error TextIsTooLong(string field, int maxLength) =>
         new("Reference.ProductSection.Text.TooLong", $"{field}: не більше {maxLength} символів.");
 }

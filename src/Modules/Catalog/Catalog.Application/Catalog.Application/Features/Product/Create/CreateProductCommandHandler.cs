@@ -33,12 +33,12 @@ public sealed class CreateProductCommandHandler(
         var slug = slugGenerator.GenerateFromUkrainianName(name);
         var exists = await repository.AnyAsync(new ProductByIdOrNameSpec(request.Id, name, ruName, slug), cancellationToken);
         if (exists)
-            return Result.Conflict("Product ID, Ukrainian name, Russian name, or slug already exists.");
+            return Result.Conflict("Товар із таким номером, українською чи російською назвою або адресою (slug) вже є.");
 
         var categories = await categoryRepository.ListAsync(
             new ProductCategoriesByIdsSpec(request.CategoryIds), cancellationToken);
         if (categories.Count != request.CategoryIds.Distinct().Count())
-            return Result.Conflict("One or more ProductCategory IDs do not exist.");
+            return Result.Conflict("Деяких категорій товару не знайдено.");
 
         var references = await referenceReader.GetSnapshotAsync(cancellationToken);
         var missingReference = FindMissingReference(request, references);
@@ -87,7 +87,7 @@ public sealed class CreateProductCommandHandler(
             x => new CategoryAdminDetail(x.Id.Value, x.Name, x.RuName, x.Slug));
         var detail = await repository.FirstOrDefaultAsync(new ProductAdminDetailSpec(product.Id.Value), cancellationToken);
         return detail is null
-            ? Result.Error("Created Product could not be read.")
+            ? Result.Error("Не вдалося прочитати створений товар.")
             : Result.Success(ProductAdminDetailMapper.Map(detail, references, categoryDetails, mediaUrls));
     }
 

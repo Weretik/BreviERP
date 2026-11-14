@@ -19,7 +19,7 @@ public sealed class DeleteGarmentPartOperationCommandHandler(IReferenceRepositor
             return Result.NotFound();
 
         if (await productUsageReader.IsGarmentPartOperationUsedAsync(command.Id, cancellationToken))
-            return Result.Conflict("Garment part operation is used by one or more products.");
+            return Result.Conflict("Операцію використовують товари, тому її не можна видалити.");
 
         await repository.DeleteAsync(entity, cancellationToken);
 

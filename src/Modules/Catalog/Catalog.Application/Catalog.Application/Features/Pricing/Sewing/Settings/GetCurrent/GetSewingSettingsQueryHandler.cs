@@ -12,7 +12,7 @@ public sealed class GetSewingSettingsQueryHandler(ISewingPricingSettingsReader r
         if (candidates.Count == 0)
             return Result.NotFound();
         if (candidates.Count > 1 && candidates[0].EffectiveFrom == candidates[1].EffectiveFrom)
-            return Result.Conflict("Current settings are ambiguous.");
+            return Result.Conflict("Поточні налаштування неоднозначні: є кілька чинних версій.");
         return Result.Success(candidates[0]);
     }
 }

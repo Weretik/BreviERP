@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Errors;
 using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Exceptions;
@@ -99,7 +100,7 @@ public class PricingParameter : BaseEntity<PricingParameterId>, IAggregateRoot
         Value = value;
     }
 
-    private static string Required(string? text, int maxLength, string field, Reference.Domain.Errors.ReferenceDomainError missing)
+    private static string Required(string? text, int maxLength, string field, Error missing)
     {
         if (string.IsNullOrWhiteSpace(text))
             throw new DomainException(missing);

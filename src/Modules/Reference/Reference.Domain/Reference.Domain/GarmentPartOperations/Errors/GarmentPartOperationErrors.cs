@@ -1,24 +1,24 @@
-using Reference.Domain.Errors;
+using BuildingBlocks.Domain.Errors;
 
 namespace Reference.Domain.GarmentPartOperations.Errors;
 
 public static class GarmentPartOperationErrors
 {
-    public static ReferenceDomainError IdIsRequired() =>
-        new("Reference.GarmentPartOperation.Id.Required", "Garment part operation id must be provided");
+    public static Error IdIsRequired() =>
+        new("Reference.GarmentPartOperation.Id.Required", "Не вказано операцію.");
 
-    public static ReferenceDomainError GarmentPartIdIsRequired() =>
-        new("Reference.GarmentPartOperation.GarmentPartId.Required", "Garment part id must be provided");
+    public static Error GarmentPartIdIsRequired() =>
+        new("Reference.GarmentPartOperation.GarmentPartId.Required", "Не вказано деталь виробу.");
 
-    public static ReferenceDomainError NameIsRequired() =>
-        new("Reference.GarmentPartOperation.Name.Required", "Garment part operation name is required");
+    public static Error NameIsRequired() =>
+        new("Reference.GarmentPartOperation.Name.Required", "Вкажіть назву операції.");
 
-    public static ReferenceDomainError MinMustBeNonNegative() =>
-        new("Reference.GarmentPartOperation.Min.Invalid", "Garment part operation minutes must be non-negative");
+    public static Error MinMustBeNonNegative() =>
+        new("Reference.GarmentPartOperation.Min.Invalid", "Хвилини операції не можуть бути від'ємними.");
 
-    public static ReferenceDomainError MinOutOfRange(decimal max) =>
-        new("Reference.GarmentPartOperation.Min.OutOfRange", $"Garment part operation minutes must be from 0 to {max}");
+    public static Error MinOutOfRange(decimal max) =>
+        new("Reference.GarmentPartOperation.Min.OutOfRange", $"Хвилини операції — від 0 до {max}.");
 
-    public static ReferenceDomainError TextTooLong(int maxLength) =>
-        new("Reference.GarmentPartOperation.Text.TooLong", $"Garment part operation text field must not exceed {maxLength} characters");
+    public static Error TextTooLong(int maxLength) =>
+        new("Reference.GarmentPartOperation.Text.TooLong", $"Текст операції — не більше {maxLength} символів.");
 }

@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application.Logging;
+﻿using BuildingBlocks.Application.Errors;
+using BuildingBlocks.Application.Logging;
 using BuildingBlocks.Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -37,29 +38,9 @@ public sealed class ExceptionBehavior<TMessage, TResponse>(
         }
         catch (DomainException ex)
         {
-            var messageType = typeof(TMessage).Name;
-
-            DomainLog.RuleViolated(logger, messageType, ex.Error.Code);
-
-            var validationError = new ValidationError(
-                ex.Error.Code,
-                ex.Error.Message
-            );
-
-            if (typeof(TResponse) == typeof(Result))
-                return (TResponse)(object)Result.Invalid([validationError]);
-
-            if (typeof(TResponse).IsGenericType &&
-                typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
-            {
-                var typeResponse = typeof(TResponse).GetGenericArguments()[0];
-                var method = typeof(Result<>)
-                    .MakeGenericType(typeResponse)
-                    .GetMethod(nameof(Result<object>.Invalid), [typeof(IEnumerable<ValidationError>)]);
-
-                var result = method!.Invoke(null, [new[] { validationError }]);
-                return (TResponse)result!;
-            }
+            DomainLog.RuleViolated(logger, typeof(TMessage).Name, ex.Error.Code);
+            if (ex.Error.TryToResult<TResponse>(out var response))
+                return response;
             throw;
         }
         catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)

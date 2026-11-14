@@ -19,14 +19,14 @@ public sealed class OtherCostPricingVersionWriter(ReferenceDbContext db) : IOthe
             .SingleOrDefaultAsync(x => x.SourceHash == hash, cancellationToken);
         if (repeated is not null)
             return repeated.OtherCostCode == code && repeated.Value == value
-                ? Result.Success(repeated.Id.Value) : Result.Conflict("Request UUID was used for a different cost revision.");
+                ? Result.Success(repeated.Id.Value) : Result.Conflict("Цей запит уже виконано з іншим значенням. Оновіть сторінку.");
         var latest = await db.Set<ReferencePricingInputVersion>().AsNoTracking()
             .Where(x => x.OtherCostCode == code).OrderByDescending(x => x.Revision).FirstOrDefaultAsync(cancellationToken);
         if (latest is null)
             return Result.NotFound();
         var at = DateTimeOffset.UtcNow;
         if (latest.Id.Value != expectedVersionId || latest.EffectiveFrom >= at)
-            return Result.Conflict("Cost version changed or a future revision exists.");
+            return Result.Conflict("Витрату вже змінили або є новіша версія. Оновіть сторінку.");
         var next = ReferencePricingInputVersion.Create(null, null, null, code, value, latest.Unit,
             latest.IsActive, true, latest.Revision + 1, at, latest.SourceCode, hash, at.ToString("O"));
         db.Add(next);
