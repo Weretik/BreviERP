@@ -1,0 +1,53 @@
+using BuildingBlocks.Api.Authorization;
+using System.Security.Claims;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
+using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
+using Catalog.Application.Features.Pricing.Queries.GetPublishedSewingPrice;
+using Catalog.Application.Features.Pricing.Queries.GetSewingCalculation;
+using Catalog.Api.Pricing.Sewing.Calculations;
+
+namespace Catalog.Api.Pricing.Sewing;
+
+[ApiController]
+[Route("api/v1/products/{productId:int}/articles/{articleId:long}/pricing")]
+public sealed class SewingPricingController(ISender sender) : ControllerBase
+{
+    [HttpPost("calculations", Name = "saveSewingCalculation")]
+    [AccessAction(AccessActionAttribute.Edit)]
+    [Authorize(Policy = "access:products")]
+    public async Task<ActionResult<SavedSewingCalculation>> Save(
+        int productId, long articleId, [FromBody] SaveSewingCalculationRequest request, CancellationToken cancellationToken)
+    {
+        var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(actor))
+            return Forbid();
+        var result = await sender.Send(new SaveSewingCalculationCommand(productId, articleId, request.RequestId, actor), cancellationToken);
+        return this.ToActionResult(result);
+    }
+
+    [HttpGet("calculations/{calculationId:guid}", Name = "getSewingCalculation")]
+    [Authorize(Policy = "CatalogRead")]
+    public async Task<ActionResult<SavedSewingCalculation>> Get(
+        int productId, long articleId, Guid calculationId, CancellationToken cancellationToken)
+        => this.ToActionResult(await sender.Send(new GetSewingCalculationQuery(productId, articleId, calculationId), cancellationToken));
+
+    [HttpPost("calculations/{calculationId:guid}/publication", Name = "publishSewingCalculation")]
+    [AccessAction(AccessActionAttribute.Edit)]
+    [Authorize(Policy = "access:products")]
+    public async Task<ActionResult<PublishedSewingPrice>> Publish(
+        int productId, long articleId, Guid calculationId, CancellationToken cancellationToken)
+    {
+        var actor = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(actor))
+            return Forbid();
+        var result = await sender.Send(new PublishSewingCalculationCommand(productId, articleId, calculationId, actor), cancellationToken);
+        return this.ToActionResult(result);
+    }
+
+    [HttpGet("published", Name = "getPublishedSewingPrice")]
+    [Authorize(Policy = "CatalogRead")]
+    public async Task<ActionResult<PublishedSewingPrice>> GetPublished(
+        int productId, long articleId, CancellationToken cancellationToken)
+        => this.ToActionResult(await sender.Send(new GetPublishedSewingPriceQuery(productId, articleId), cancellationToken));
+}

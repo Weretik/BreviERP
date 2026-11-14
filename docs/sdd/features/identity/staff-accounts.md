@@ -19,8 +19,7 @@ The Admin «Користувачі» page: an administrator or the director list
 ```text
 src/Modules/Identity/
 ├── Identity.Api/Identity.Api/
-│   ├── Controllers/AdminUsersController.cs          # /api/admin/users
-│   └── Contracts/Users/                             # request and response records
+│   └── Users/                                       # AdminUsersController (/api/admin/users), request and response records
 ├── Identity.Application/Identity.Application/
 │   ├── Features/Users/{Commands,Queries}/           # GetStaffList, CreateStaff, ChangeStaffRole,
 │   │                                                # SetStaffBlocked, SetStaffPassword, DeleteStaff,

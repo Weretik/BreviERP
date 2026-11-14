@@ -9,8 +9,7 @@ The Calculator sheet «Типи і розділи» in Brevi: product sections (
 ```text
 src/Modules/Reference/
 ├── Reference.Api/Reference.Api/
-│   ├── Controllers/ProductSectionsController.cs     # CRUD + sheet import
-│   └── Contracts/ProductSections/
+│   └── ProductSection/                              # ProductSectionsController (CRUD + sheet import) and its requests
 ├── Reference.Application/Reference.Application/Features/ProductSection/
 │   ├── Commands/{Create,Update,Delete}ProductSection/  # CRUD, FluentValidation
 │   ├── Commands/ImportProductSections/              # sheet import, preview and apply

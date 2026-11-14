@@ -9,8 +9,7 @@ The colours of the client sheet «Тканини», column «Загальний 
 ```text
 src/Modules/Reference/
 ├── Reference.Api/Reference.Api/
-│   ├── Controllers/FabricColorsController.cs        # /api/reference/fabric-colors
-│   └── Contracts/FabricColors/FabricColorRequest.cs
+│   └── FabricColor/                                 # FabricColorsController (/api/reference/fabric-colors), FabricColorRequest
 ├── Reference.Application/Reference.Application/Features/FabricColor/
 │   ├── Commands/{Create,Update,Delete}FabricColor/  # CRUD, FluentValidation
 │   ├── Queries/GetFabricColors/                     # list

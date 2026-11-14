@@ -1,9 +1,9 @@
 using System.Reflection;
 using System.Text.Json;
-using Identity.Api.Contracts.Auth;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Reader;
 using YamlDotNet.RepresentationModel;
+using Identity.Api.Auth;
 
 namespace UnitTests;
 

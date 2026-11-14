@@ -8,7 +8,7 @@ One Sewing Product owns its fabric variants (Articles) and shared material/opera
 
 ```text
 src/Modules/Catalog/
-├── Catalog.Api/Catalog.Api/Controllers/
+├── Catalog.Api/Catalog.Api/Product/Sewing/
 │   ├── SewingArticlesController.cs                                # protected variant list/create/update/delete boundary
 │   └── SewingCompositionController.cs                             # protected composition read/replace boundary
 ├── Catalog.Application/Catalog.Application/

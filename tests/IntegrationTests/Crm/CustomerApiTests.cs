@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Ardalis.Result;
 using Crm.Api;
-using Crm.Api.Customers.Requests;
 using IntegrationTests.Crm.Support;
 using Mediator;
 using Moq;

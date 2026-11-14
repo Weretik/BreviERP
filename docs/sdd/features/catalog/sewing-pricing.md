@@ -41,8 +41,8 @@ src/Modules/Catalog/
     SewingPricingTransaction.cs                    # advisory/Product locks and commit; shared scoped DbContext
     SewingPricingInputChangeInterceptor.cs         # marks changed inputs for automatic publication
   Catalog.Api/Catalog.Api/
-    Controllers/Pricing/Sewing/                     # Article pricing and settings HTTP controllers
-    Contracts/Pricing/Sewing/{Calculations,Settings}/ # complete settings and calculation request UUID
+    Pricing/Sewing/                                 # Article pricing and settings HTTP controllers
+    Pricing/Sewing/{Calculations,Settings}/          # complete settings and calculation request UUID
 src/Modules/Reference/
   Reference.Domain/Reference.Domain/Pricing/InputVersions/ # immutable typed versions and units
   Reference.Application/Reference.Application/Abstractions/  # IReferencePricingVersionReader, IReferencePricingUsageReader

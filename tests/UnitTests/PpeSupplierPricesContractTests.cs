@@ -1,11 +1,11 @@
 using System.Text.Json;
-using Catalog.Api.Contracts.Pricing.Ppe.SupplierPrices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
+using Catalog.Api.Pricing.Ppe.SupplierPrices;
 
 namespace UnitTests;
 
@@ -39,7 +39,7 @@ public sealed class PpeSupplierPricesContractTests
     [TestCase("refreshPpeSupplierPrices", "access:price-import")]
     public void Operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
-        var methods = typeof(Catalog.Api.Controllers.SewingArticlesController).Assembly.GetTypes()
+        var methods = typeof(Catalog.Api.Product.Sewing.SewingArticlesController).Assembly.GetTypes()
             .SelectMany(type => type.GetMethods())
             .Where(method => method.GetCustomAttributes(typeof(HttpMethodAttribute), false)
                 .Cast<HttpMethodAttribute>().Any(attribute => attribute.Name == operation)).ToArray();

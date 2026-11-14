@@ -28,8 +28,8 @@ src/Modules/Reference/
       OtherCostPricingVersionWriter.cs               # explicit service revision / retry storage
     Pricing/InputVersions/{Reading,Configuration}/    # approved effective read and constraints
   Reference.Api/Reference.Api/
-    Controllers/OtherCostPricingController.cs
-    Contracts/Pricing/ReviseOtherCostRequest.cs
+    Pricing/OtherCostPricingController.cs
+    Pricing/ReviseOtherCostRequest.cs
 ```
 
 ## Structure diagram

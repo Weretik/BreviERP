@@ -112,7 +112,7 @@ public sealed class PpePricingApiTests
             // «Права доступу»: `access:` policies with the catalogue defaults.
             builder.Services.AddAccessPolicies();
             builder.Services.AddControllers().AddApplicationPart(typeof(CatalogApiAssemblyMarker).Assembly)
-                .AddApplicationPart(typeof(Reference.Api.Controllers.FabricsController).Assembly);
+                .AddApplicationPart(typeof(Reference.Api.Fabric.FabricsController).Assembly);
 
             var app = builder.Build();
             app.UseAuthentication();

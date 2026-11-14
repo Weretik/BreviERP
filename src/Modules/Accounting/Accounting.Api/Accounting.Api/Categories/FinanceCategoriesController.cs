@@ -1,5 +1,5 @@
 using Accounting.Api.Access;
-using Accounting.Api.Results;
+using Accounting.Api.Attachments;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Ledger;
 using BuildingBlocks.Api.Result;

@@ -1,14 +1,12 @@
-using Catalog.Api.Contracts.Pricing.Ppe;
 using Catalog.Domain.Pricing.Ppe;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using System.Text.Json;
-using Catalog.Api.Contracts.Pricing.Sewing.Calculations;
-using Catalog.Api.Contracts.Pricing.Sewing.Settings;
 using Catalog.Domain.Pricing.Sewing;
 using YamlDotNet.RepresentationModel;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared;
+using Catalog.Api.Pricing.Ppe;
 
 namespace UnitTests;
 
@@ -56,7 +54,7 @@ public sealed class PpePricingContractTests
     [TestCase("previewPpePrices", "CatalogRead")]
     public void Pricing_operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
-        var methods = typeof(Catalog.Api.Controllers.SewingArticlesController).Assembly.GetTypes()
+        var methods = typeof(Catalog.Api.Product.Sewing.SewingArticlesController).Assembly.GetTypes()
             .SelectMany(type => type.GetMethods())
             .Where(method => method.GetCustomAttributes(typeof(HttpMethodAttribute), false)
                 .Cast<HttpMethodAttribute>().Any(attribute => attribute.Name == operation)).ToArray();

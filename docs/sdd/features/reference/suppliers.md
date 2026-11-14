@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Suppliers” lookup. Suppliers com
 
 ## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/SuppliersController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Supplier/Commands/CreateSupplier/CreateSupplierHandler.cs) and adjacent query/update/delete handlers validate the data; [Supplier](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/Suppliers/Supplier.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. Suppliers are external reference data for PPE products and garment accessories.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Supplier/SuppliersController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Supplier/Commands/CreateSupplier/CreateSupplierHandler.cs) and adjacent query/update/delete handlers validate the data; [Supplier](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/Suppliers/Supplier.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. Suppliers are external reference data for PPE products and garment accessories.
 
 ## Code Structure
 
@@ -15,7 +15,7 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Controllers/SuppliersController.cs  # HTTP entry point
+    ├── Reference.Api/Reference.Api/Supplier/SuppliersController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/Supplier/
     │   ├── Commands/CreateSupplier/CreateSupplierHandler.cs  # use case handler
     │   ├── Commands/DeleteSupplier/DeleteSupplierHandler.cs  # use case handler

@@ -1,5 +1,5 @@
 using Accounting.Api.Access;
-using Accounting.Api.Results;
+using Accounting.Api.Attachments;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;

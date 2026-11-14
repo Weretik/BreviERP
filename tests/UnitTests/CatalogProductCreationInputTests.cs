@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Ardalis.Result;
 using Ardalis.Specification;
-using Catalog.Api.Contracts.Products.Overview;
 using Catalog.Domain.Pricing.Ppe;
 using Catalog.Domain.Products;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +14,7 @@ using Catalog.Application.Features.Pricing.Queries.PreviewPpePrices;
 using Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
 using Catalog.Application.Features.Product.Queries.GetProductCodeCheck;
 using Catalog.Application.Features.Product.Shared.Overview;
+using Catalog.Api.Product.Overview;
 
 namespace UnitTests;
 
@@ -148,7 +148,7 @@ public sealed class CatalogProductCreationInputTests
     [TestCase("getProductCodeCheck", "CatalogRead")]
     public void Creation_operation_exists_and_requires_the_expected_policy(string operation, string policy)
     {
-        var methods = typeof(Catalog.Api.Controllers.ProductOverviewController).GetMethods()
+        var methods = typeof(Catalog.Api.Product.Overview.ProductOverviewController).GetMethods()
             .Where(method => method.GetCustomAttributes(typeof(HttpMethodAttribute), false)
                 .Cast<HttpMethodAttribute>().Any(attribute => attribute.Name == operation)).ToArray();
         Assert.That(methods, Has.Length.EqualTo(1), $"Missing operation {operation}.");

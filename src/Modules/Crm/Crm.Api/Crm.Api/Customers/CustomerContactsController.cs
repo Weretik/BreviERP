@@ -1,5 +1,4 @@
 using BuildingBlocks.Api.Result;
-using Crm.Api.Customers.Requests;
 using Crm.Api.Access;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;

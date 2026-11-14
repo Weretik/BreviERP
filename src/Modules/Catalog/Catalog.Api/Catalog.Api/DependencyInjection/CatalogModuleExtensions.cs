@@ -1,12 +1,13 @@
 using BuildingBlocks.Application.DependencyInjection;
 using Catalog.Application;
 using Catalog.Contracts.Pricing;
-using Catalog.Api.Pricing;
 using Catalog.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Catalog.Api;
+using Catalog.Api.Pricing.Sewing;
 
 namespace Catalog.Api.DependencyInjection;
 
