@@ -25,12 +25,13 @@ src/Modules/Identity/
 │   └── Abstractions/IAccessRightsService.cs
 ├── Identity.Infrastructure/Identity.Infrastructure/
 │   ├── Persistence/Access/RoleAccess.cs, Persistence/Access/RoleAccessConfiguration.cs
-│   └── Services/Access/                         # AccessRightsService, AccessGrantSource (cached)
+│   └── Integrations/AspNetIdentity/Access/      # AccessRightsService, AccessGrantSource (cached)
 └── Identity.Api/Identity.Api/
     ├── Controllers/AccessRightsController.cs    # /api/admin/access
     ├── Controllers/AuthSessionController.cs     # GET /api/auth/session/access
-    └── Contracts/Access/AccessContracts.cs
-src/Bootstrapper/Host.Api/Security/Access/       # AccessPolicyProvider, AccessRequirementHandler, DefaultAccessGrantSource
+    ├── Contracts/Access/AccessContracts.cs
+    ├── Access/                                  # AccessPolicyProvider, AccessRequirementHandler, DefaultAccessGrantSource
+    └── DependencyInjection/IdentityAuthorizationExtensions.cs # named policies, AddAccessPolicies
 src/BuildingBlocks/BuildingBlocks.Api/Authorization/AccessActionAttribute.cs
 ```
 

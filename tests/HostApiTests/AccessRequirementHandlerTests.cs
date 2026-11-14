@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Host.Api.Security.Access;
+using Identity.Api.Access;
 using Identity.Application.Security.Access;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;

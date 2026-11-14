@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 
-using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Identity.Api.DependencyInjection;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
 using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;

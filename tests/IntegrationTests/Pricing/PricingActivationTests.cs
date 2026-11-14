@@ -63,8 +63,8 @@ public sealed class PricingActivationTests : SewingPricingDatabaseFixture
             await PpePricingBootstrapJob.RunAsync(_connection, path);
             var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
             { ["ConnectionStrings:Default"] = _connection }).Build();
-            await using var services = new ServiceCollection().AddLogging().AddCatalogDbContextServices(configuration)
-                .AddReferenceDbContextServices(configuration).AddPricingActivationServices().BuildServiceProvider();
+            await using var services = new ServiceCollection().AddLogging().AddCatalogInfrastructure(configuration)
+                .AddReferenceInfrastructure(configuration).AddPricingActivationServices().BuildServiceProvider();
             // Complete isolated source has zero cached outputs; activation must still calculate from actual inputs.
             var plan = await PricingActivationPlanner.BuildAsync(services, _connection, "1", []);
             await using var db = Catalog();

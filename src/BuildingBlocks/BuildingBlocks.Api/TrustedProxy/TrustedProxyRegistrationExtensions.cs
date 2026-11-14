@@ -1,6 +1,8 @@
-using Host.Api.Security.TrustedProxy;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Host.Api.DependencyInjection.ServiceRegistration.Web;
+namespace BuildingBlocks.Api.TrustedProxy;
 
 public static class TrustedProxyRegistrationExtensions
 {

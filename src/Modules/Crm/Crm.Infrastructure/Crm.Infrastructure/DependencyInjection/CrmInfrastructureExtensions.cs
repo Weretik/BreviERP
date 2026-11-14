@@ -49,7 +49,7 @@ namespace Crm.Infrastructure.DependencyInjection;
 
 public static class CrmInfrastructureExtensions
 {
-    public static IServiceCollection AddCrmDbContextServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCrmInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
         services.AddDbContext<CrmDbContext>(options => options.UseNpgsql(connection, x => x.MigrationsHistoryTable("__EFMigrationsHistory", "crm")));
@@ -72,6 +72,7 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<IQuotePdfRenderer, QuotePdfRenderer>();
         services.AddScoped<QuotePdfComposer>();
         services.AddQuoteGmail(configuration);
+        services.AddCrmKeepinCrmSync(configuration);
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IDatabaseMigrator, DbMigrator<CrmDbContext>>();
         services.AddOutbox<CrmDbContext>();

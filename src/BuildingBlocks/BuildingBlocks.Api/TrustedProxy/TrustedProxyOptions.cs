@@ -1,4 +1,4 @@
-namespace Host.Api.Security.TrustedProxy;
+namespace BuildingBlocks.Api.TrustedProxy;
 
 public sealed class TrustedProxyOptions
 {

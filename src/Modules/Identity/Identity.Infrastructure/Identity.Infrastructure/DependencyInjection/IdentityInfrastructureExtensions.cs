@@ -16,7 +16,7 @@ namespace Identity.Infrastructure.DependencyInjection;
 
 public static class IdentityInfrastructureExtensions
 {
-    public static IServiceCollection AddIdentityInfrastructureServices(
+    public static IServiceCollection AddIdentityInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -41,10 +41,4 @@ public static class IdentityInfrastructureExtensions
         services.AddScoped<IStaffDirectory, StaffDirectory>();
         return services;
     }
-
-    // Backward-compatible alias for existing callers in this repository.
-    public static IServiceCollection AddIdentityInfrastructure(
-        this IServiceCollection services,
-        IConfiguration configuration)
-        => services.AddIdentityInfrastructureServices(configuration);
 }

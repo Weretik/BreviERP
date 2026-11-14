@@ -6,7 +6,7 @@
 BreviERP.sln
 ├── src/
 │   ├── Bootstrapper/
-│   │   ├── Host.Api/                 composition root and HTTP host: Program.cs, DependencyInjection/, Security/
+│   │   ├── Host.Api/                 composition root and HTTP host: Program.cs and DependencyInjection/ only
 │   │   └── Host.Seed/                migrations, seed and Cloud Run jobs: picks a job and runs it
 │   ├── BuildingBlocks/
 │   │   ├── BuildingBlocks.Domain/

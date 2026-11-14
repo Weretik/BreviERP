@@ -28,7 +28,7 @@ Staff account rules (`StaffAccountService`): there is at most one director (409)
 
 ## Policies
 
-Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; their role requirements are composed in `Host.Api/AuthorizationPoliciesRegistrationExtensions`.
+Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; their role requirements are composed in `Identity.Api/DependencyInjection/IdentityAuthorizationExtensions.cs`.
 
 | Policy | Allowed roles |
 | --- | --- |

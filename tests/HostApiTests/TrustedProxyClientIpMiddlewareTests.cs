@@ -1,5 +1,5 @@
 using System.Net;
-using Host.Api.Security.TrustedProxy;
+using BuildingBlocks.Api.TrustedProxy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 

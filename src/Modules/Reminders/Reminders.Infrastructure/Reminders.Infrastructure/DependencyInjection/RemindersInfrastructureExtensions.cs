@@ -17,7 +17,7 @@ namespace Reminders.Infrastructure.DependencyInjection;
 
 public static class RemindersInfrastructureExtensions
 {
-    /// <summary>DbContext, migrator, Telegram client and shared application services.</summary>
+    /// <summary>DbContext, migrator, Telegram client, seeder and shared application services.</summary>
     public static IServiceCollection AddRemindersInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
@@ -34,12 +34,8 @@ public static class RemindersInfrastructureExtensions
 
         // Contracts other modules use (ADR-0006).
         services.AddScoped<ITelegramBot, TelegramBot>();
-        return services;
-    }
 
-    /// <summary>Only Host.Seed runs seeders.</summary>
-    public static IServiceCollection AddRemindersSeeders(this IServiceCollection services)
-    {
+        // Seeders run only in Host.Seed.
         services.AddScoped<ISeeder, DefaultReminderTaskSeeder>();
         return services;
     }

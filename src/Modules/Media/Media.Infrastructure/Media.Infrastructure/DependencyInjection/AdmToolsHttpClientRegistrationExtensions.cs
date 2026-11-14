@@ -2,11 +2,11 @@ using Media.Infrastructure.Integrations.AdmTools;
 
 namespace Media.Infrastructure.DependencyInjection;
 
-public static class AdmToolsHttpClientRegistrationExtensions
+internal static class AdmToolsHttpClientRegistrationExtensions
 {
     public const string HttpClientName = "AdmToolsStorage";
 
-    public static IServiceCollection AddAdmToolsHttpClient(
+    internal static IServiceCollection AddAdmToolsHttpClient(
         this IServiceCollection services,
         IConfiguration configuration)
     {

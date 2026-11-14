@@ -56,14 +56,11 @@ public static class SeedHostServicesExtensions
     {
         services.AddIdentityInfrastructure(configuration);
 
-        services.AddReferenceDbContextServices(configuration);
-        services.AddReferenceKeepinCrmSync(configuration);
+        services.AddReferenceInfrastructure(configuration);
         services.AddAccountingInfrastructure(configuration);
-        services.AddCatalogDbContextServices(configuration);
-        services.AddCrmDbContextServices(configuration);
-        services.AddCrmKeepinCrmSync(configuration);
+        services.AddCatalogInfrastructure(configuration);
+        services.AddCrmInfrastructure(configuration);
         services.AddRemindersInfrastructure(configuration);
-        services.AddRemindersSeeders();
         services.AddMediaInfrastructure(configuration);
         // Warehouse before Production: its first migration takes over «Склад тканин» from the production schema.
         services.AddWarehouseInfrastructure(configuration);

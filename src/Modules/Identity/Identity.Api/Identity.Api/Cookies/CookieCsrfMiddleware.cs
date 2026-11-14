@@ -1,8 +1,5 @@
-using Identity.Api.Cookies;
-using Microsoft.Extensions.Options;
-using Identity.Infrastructure.Integrations.AspNetIdentity;
 
-namespace Host.Api.Security.Csrf;
+namespace Identity.Api.Cookies;
 
 /// <summary>
 /// Protects browser cookie sessions from cross-site requests: a request that carries the session cookie
@@ -11,17 +8,15 @@ namespace Host.Api.Security.Csrf;
 public sealed class CookieCsrfMiddleware(
     RequestDelegate next,
     SessionCookieWriter cookies,
-    IOptions<IdentityCookieSessionOptions> cookieSessionOptions)
+    string sessionCookieName)
 {
     // Login must work even when a stale session cookie is still in the browser; SameSite=Lax covers it.
     private static readonly PathString CookieLoginPath = "/api/auth/cookie/login";
 
-    private readonly string _sessionCookieName = cookieSessionOptions.Value.CookieName;
-
     public Task InvokeAsync(HttpContext context)
     {
         var request = context.Request;
-        if (!request.Cookies.ContainsKey(_sessionCookieName))
+        if (!request.Cookies.ContainsKey(sessionCookieName))
         {
             return next(context);
         }

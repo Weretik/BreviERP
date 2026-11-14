@@ -3,7 +3,7 @@ using Identity.Application.Security.Access;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Host.Api.Security.Access;
+namespace Identity.Api.Access;
 
 /// <summary>
 /// Checks a request against the user's rights on «Права доступу»: the director always passes; anyone else needs

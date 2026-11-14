@@ -10,10 +10,10 @@ using Crm.Infrastructure.Persistence.Customers;
 
 namespace Crm.Infrastructure.DependencyInjection;
 
-public static class CrmKeepinCrmExtensions
+internal static class CrmKeepinCrmExtensions
 {
-    /// <summary>KeepinCRM client source, store and sync service; used by Host.Api and the Host.Seed sync job.</summary>
-    public static IServiceCollection AddCrmKeepinCrmSync(this IServiceCollection services, IConfiguration configuration)
+    /// <summary>KeepinCRM client source, store and sync service; part of AddCrmInfrastructure.</summary>
+    internal static IServiceCollection AddCrmKeepinCrmSync(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<KeepinCrmClientOptions>(configuration.GetSection(KeepinCrmClientOptions.Section));
         services.AddHttpClient<IKeepinCrmClientSource, KeepinCrmClientHttpSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
