@@ -1,8 +1,6 @@
 using System.IO.Compression;
 using System.Text;
 using Accounting.Application.Abstractions;
-using Accounting.Application.Contracts;
-using Accounting.Application.Statements;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
@@ -14,6 +12,12 @@ using Accounting.Domain.Transactions;
 using Accounting.Infrastructure.Statements;
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
+using Accounting.Application.Features.Statements.Commands.BookBankStatement;
+using Accounting.Application.Features.Statements.Commands.RollbackBankStatement;
+using Accounting.Application.Features.Statements.Commands.UpdateBankLine;
+using Accounting.Application.Features.Statements.Commands.UploadBankStatement;
+using Accounting.Application.Features.Statements.Queries.GetBankStatement;
+using Accounting.Application.Features.Statements.Shared;
 
 namespace UnitTests.Accounting;
 
@@ -348,18 +352,18 @@ public sealed class BankStatementImportTests
 
     private static Task<Result<BankStatementResponse>> Upload(AccountingTestHarness harness, byte[] content,
         string fileName = "виписка.csv", Guid? accountId = null) =>
-        new UploadBankStatementCommandHandler(harness.Db, new BankStatementFileReader(), harness.Parties, harness.Parties,
+        new UploadBankStatementHandler(harness.Db, new BankStatementFileReader(), harness.Parties, harness.Parties,
                 harness.Time)
             .Handle(new UploadBankStatementCommand(accountId ?? BankId, new MemoryStream(content), fileName,
                 AccountingTestHarness.Director), default).AsTask();
 
     private static async Task<BankStatementDetailsResponse> Details(AccountingTestHarness harness, Guid id) =>
-        (await new GetBankStatementQueryHandler(harness.Fresh()).Handle(new GetBankStatementQuery(id, null, 1), default)).Value;
+        (await new GetBankStatementHandler(harness.Fresh()).Handle(new GetBankStatementQuery(id, null, 1), default)).Value;
 
     private static async Task<Result<BankStatementResponse>> Book(AccountingTestHarness harness, BankStatementResponse statement)
     {
         await using var db = harness.Fresh();
-        return await new BookBankStatementCommandHandler(db, harness.Parties, harness.Parties, harness.Time)
+        return await new BookBankStatementHandler(db, harness.Parties, harness.Parties, harness.Time)
             .Handle(new BookBankStatementCommand(statement.Id, statement.Version, AccountingTestHarness.Director), default);
     }
 
@@ -367,7 +371,7 @@ public sealed class BankStatementImportTests
         BankStatementResponse statement)
     {
         await using var db = harness.Fresh();
-        return await new RollbackBankStatementCommandHandler(db, harness.Parties, harness.Parties, harness.Time)
+        return await new RollbackBankStatementHandler(db, harness.Parties, harness.Parties, harness.Time)
             .Handle(new RollbackBankStatementCommand(statement.Id, statement.Version, AccountingTestHarness.Director), default);
     }
 
@@ -375,7 +379,7 @@ public sealed class BankStatementImportTests
         Guid lineId, Guid? categoryId = null, string? oneoff = null, string? description = null, bool excluded = false)
     {
         await using var db = harness.Fresh();
-        return await new UpdateBankLineCommandHandler(db, harness.Parties, harness.Parties).Handle(
+        return await new UpdateBankLineHandler(db, harness.Parties, harness.Parties).Handle(
             new UpdateBankLineCommand(statementId, lineId, categoryId, null, oneoff, description, null, excluded), default);
     }
 

@@ -3,12 +3,12 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Staff.CreateEmployee;
-using Production.Application.Staff.GetStaff;
-using Production.Application.Staff.ImportStaff;
-using Production.Application.Staff.SetEmployeeActive;
-using Production.Application.Staff.UpdateEmployee;
+using Production.Application.Features.Staff.Commands.CreateWorkshopEmployee;
+using Production.Application.Features.Staff.Commands.ImportWorkshopStaff;
+using Production.Application.Features.Staff.Commands.SetWorkshopEmployeeActive;
+using Production.Application.Features.Staff.Commands.UpdateWorkshopEmployee;
+using Production.Application.Features.Staff.Queries.GetWorkshopStaff;
+using Production.Application.Features.Staff.Shared;
 
 namespace Production.Api.Staff;
 

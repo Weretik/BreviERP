@@ -4,7 +4,7 @@ The category tree of the public site, owned by the site and not tied to «Тип
 
 A product is put into categories from its page in «Контент → Товари» (`categoryIds` of the product editor); the list of products shows how many categories each is in. `POST /api/content/categories/old-site-import` is the one-time transfer of the old-site tree with SEO, texts and products: it counts first (`dryRun`), keeps existing categories unless asked to overwrite, and only adds products.
 
-The public catalog serves this tree (`/api/public/catalog/categories`, `categories/{slug}`, `category-slugs`, `products?category=`, `categories` of a product; code in `Content.Application/PublicCatalog/`, tests `PublicCatalogCategoriesTests.cs`). The site reads it since stage 5 (brevi-web).
+The public catalog serves this tree (`/api/public/catalog/categories`, `categories/{slug}`, `category-slugs`, `products?category=`, `categories` of a product; code in `Content.Application/Features/Catalog/`, tests `PublicCatalogCategoriesTests.cs`). The site reads it since stage 5 (brevi-web).
 
 ## Code structure
 
@@ -14,16 +14,16 @@ src/Modules/Content/
     SiteCategories/    # SiteCategory (tree place, mark, slug, order, revision, Replace), SiteCategoryText,
                        # SiteCategoryProduct (product link), SiteCategoryRules (limits)
   Content.Application/Content.Application/
-    Contracts/SiteCategoryResponses.cs
-    SiteCategories/GetList/        # the tree as a flat ordered list with product counts
-    SiteCategories/GetOne/         # editor
-    SiteCategories/Save/           # create or replace; parent, slug and revision checks
-    SiteCategories/SetVisibility/  # «Показувати на сайті» from the tree
-    SiteCategories/Reorder/        # order of one parent as a whole list
-    SiteCategories/Delete/
-    SiteCategories/ImportOldSite/  # one-time transfer: tree, texts, products by old-site link, dry run
-    ProductPages/Shared/ProductCategoryLinks.cs   # categories of one product
-    SiteCategories/Shared/         # mapping, free slug, next place, messages
+    Features/SiteCategories/
+      Queries/GetSiteCategories/              # the tree as a flat ordered list with product counts
+      Queries/GetSiteCategory/                # editor
+      Commands/SaveSiteCategory/              # create or replace; parent, slug and revision checks
+      Commands/SetSiteCategoryVisibility/     # «Показувати на сайті» from the tree
+      Commands/ReorderSiteCategories/         # order of one parent as a whole list
+      Commands/DeleteSiteCategory/
+      Commands/ImportOldSiteCategories/       # one-time transfer: tree, texts, products by old-site link, dry run
+      Shared/                                 # responses, mapping, free slug, next place, messages
+    Features/ProductPages/Shared/ProductCategoryLinks.cs   # categories of one product
   Content.Infrastructure/Content.Infrastructure/
     Persistence/Configurations/SiteCategoryConfiguration.cs
   Content.Api/Content.Api/

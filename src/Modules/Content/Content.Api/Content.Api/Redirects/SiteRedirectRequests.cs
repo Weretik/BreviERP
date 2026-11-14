@@ -1,4 +1,4 @@
-using Content.Application.Redirects.ImportOldSite;
+using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects;
 
 namespace Content.Api.Redirects;
 

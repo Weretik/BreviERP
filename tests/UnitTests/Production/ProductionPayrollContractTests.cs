@@ -3,8 +3,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Production.Api.Payroll;
 using Production.Api.Timesheet;
-using Production.Application.Contracts;
 using YamlDotNet.RepresentationModel;
+using Production.Application.Features.Payroll.Commands.CreatePayrollAdjustment;
+using Production.Application.Features.Payroll.Commands.CreatePayrollPayment;
+using Production.Application.Features.Payroll.Commands.SetPayrollEmbroidery;
+using Production.Application.Features.Payroll.Commands.SetPayrollIssued;
+using Production.Application.Features.Payroll.Commands.SetPayrollRoles;
+using Production.Application.Features.Payroll.Queries.GetPayrollEmployee;
+using Production.Application.Features.Payroll.Queries.GetPayrollYear;
+using Production.Application.Features.Payroll.Shared;
+using Production.Application.Features.Timesheet.Commands.SaveTimesheetDay;
+using Production.Application.Features.Timesheet.Shared;
 
 namespace UnitTests.Production;
 

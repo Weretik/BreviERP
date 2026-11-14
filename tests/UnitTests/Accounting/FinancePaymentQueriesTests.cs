@@ -1,11 +1,13 @@
 using Accounting.Application.Abstractions;
-using Accounting.Application.Payments;
-using Accounting.Application.Transactions;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using static UnitTests.Accounting.FinanceMovementFixture;
+using Accounting.Application.Features.Payments.Queries.GetFinancePaymentCandidates;
+using Accounting.Application.Features.Payments.Queries.GetFinanceTransactionsByIds;
+using Accounting.Application.Features.Transactions.Commands.VoidFinanceTransaction;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace UnitTests.Accounting;
 
@@ -32,9 +34,9 @@ public sealed class FinancePaymentQueriesTests
         var income = await Spend(harness, Fields(bank.Id, sales.Id, 1_560_00, type: CategoryDirection.Income));
         var voided = await Spend(harness, Fields(bank.Id, materials.Id, 70_00, description: "нитки помилково")
             with { Counterparty = supplier });
-        await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
+        await new VoidFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new VoidFinanceTransactionCommand(voided.Id, voided.Version, AccountingTestHarness.Director), default);
-        var handler = new FinancePaymentQueriesHandler(harness.Fresh(), harness.Parties, harness.Parties);
+        var handler = new GetFinancePaymentCandidatesHandler(harness.Fresh(), harness.Parties, harness.Parties);
 
         var bySupplier = (await handler.Handle(new GetFinancePaymentCandidatesQuery(7, 1_560_00, null), default)).Value;
         var byAmount = (await handler.Handle(new GetFinancePaymentCandidatesQuery(null, 1_560_00, null), default)).Value;
@@ -64,10 +66,10 @@ public sealed class FinancePaymentQueriesTests
         var bank = await Account(harness);
         var materials = await Category(harness, "Матеріали");
         var paid = await Spend(harness, Fields(bank.Id, materials.Id, 100_00));
-        await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
+        await new VoidFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new VoidFinanceTransactionCommand(paid.Id, paid.Version, AccountingTestHarness.Director), default);
 
-        var found = (await new FinancePaymentQueriesHandler(harness.Fresh(), harness.Parties, harness.Parties)
+        var found = (await new GetFinanceTransactionsByIdsHandler(harness.Fresh(), harness.Parties, harness.Parties)
             .Handle(new GetFinanceTransactionsByIdsQuery([paid.Id, Guid.NewGuid()]), default)).Value;
 
         Assert.That(found.Single().Status, Is.EqualTo(MovementStatus.Void));
@@ -78,5 +80,5 @@ public sealed class FinancePaymentQueriesTests
     [TestCase("нитки", null)]
     [TestCase("12,345", null)]
     public void Amount_of_a_search_is_hryvnias_with_kopecks(string text, long? minor) =>
-        Assert.That(FinancePaymentQueriesHandler.AmountOf(text), Is.EqualTo(minor));
+        Assert.That(GetFinancePaymentCandidatesHandler.AmountOf(text), Is.EqualTo(minor));
 }

@@ -12,10 +12,9 @@ src/Modules/Production/
     ProductionText.cs                  # trims spaces, name key
   Production.Application/Production.Application/
     Abstractions/                      # IProductionDbContext, IProductionModelReader (Catalog), IPayrollParameterReader (Reference)
-    Contracts/                         # request/response DTOs
-    Staff/                             # GetStaff, CreateEmployee, UpdateEmployee, SetEmployeeActive, ImportStaff
-    FabricNorms/                       # GetNorms, SaveNorm, DeleteNorm, ImportNorms, GetCompositions; shared validator and messages
-    PayrollParameters/                 # PayrollParameterCodes (read by payroll and forecast)
+    Features/Staff/                    # GetWorkshopStaff, Create/UpdateWorkshopEmployee, SetWorkshopEmployeeActive, ImportWorkshopStaff
+    Features/FabricNorms/              # GetFabricNorms, SaveFabricNorm, DeleteFabricNorm, ImportFabricNorms, GetModelCompositions; Shared/ validator, messages
+    Features/PayrollParameters/Shared/ # PayrollParameterCodes (read by payroll and forecast)
   Production.Infrastructure/Production.Infrastructure/
     Persistence/                       # ProductionDbContext (schema production), configurations, migrations
     DependencyInjection/

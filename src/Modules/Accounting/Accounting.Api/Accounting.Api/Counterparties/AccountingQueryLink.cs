@@ -1,6 +1,6 @@
-using Accounting.Application.Transactions;
 using Accounting.Domain.Counterparties;
 using BuildingBlocks.Domain.Results;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace Accounting.Api.Counterparties;
 

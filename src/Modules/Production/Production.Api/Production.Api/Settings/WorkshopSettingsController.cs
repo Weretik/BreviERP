@@ -3,8 +3,10 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Settings;
+using Production.Application.Features.Settings.Commands.SendWorkshopTelegramTest;
+using Production.Application.Features.Settings.Commands.UpdateWorkshopSettings;
+using Production.Application.Features.Settings.Queries.GetWorkshopSettings;
+using Production.Application.Features.Settings.Shared;
 
 namespace Production.Api.Settings;
 

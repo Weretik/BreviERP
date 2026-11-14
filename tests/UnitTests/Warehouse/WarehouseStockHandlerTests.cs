@@ -1,6 +1,5 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
-using Production.Application.Orders.Access;
 using UnitTests.Production;
 using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
 using Warehouse.Application.Features.Stock.Commands.OpenFabricStock;
@@ -12,6 +11,7 @@ using Warehouse.Application.Features.Stock.Queries.GetFabricStock;
 using Warehouse.Application.Features.Stock.Queries.GetFabricStockChoices;
 using Warehouse.Application.Features.Stock.Queries.GetProductionItemFabric;
 using Warehouse.Application.Features.Stock.Shared;
+using Production.Application.Features.Orders.Shared.Access;
 
 namespace UnitTests.Warehouse;
 

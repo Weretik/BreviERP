@@ -1,11 +1,11 @@
 using System.Text.Json;
 using Content.Api.PublicSiteSettings;
 using Content.Api.SiteSettings;
-using Content.Application.Contracts;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.SiteSettings.Shared;
 
 namespace UnitTests.Content;
 

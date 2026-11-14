@@ -1,10 +1,10 @@
 using Accounting.Api.Access;
 using Accounting.Api.Results;
-using Accounting.Application.Export;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Export.Queries.GetFinanceExport;
 
 namespace Accounting.Api.Reports;
 

@@ -1,5 +1,5 @@
-using Accounting.Application.Transfers;
 using Accounting.Domain.Ledger;
+using Accounting.Application.Features.Transfers.Shared;
 
 namespace Accounting.Api.Transfers;
 

@@ -2,18 +2,18 @@ using System.Security.Claims;
 using Ardalis.Result;
 using BuildingBlocks.Api.Result;
 using Content.Api.Access;
-using Content.Application.Contracts;
-using Content.Application.SiteCategories.Delete;
-using Content.Application.SiteCategories.GetList;
-using Content.Application.SiteCategories.GetOne;
-using Content.Application.SiteCategories.ImportOldSite;
-using Content.Application.SiteCategories.Reorder;
-using Content.Application.SiteCategories.Save;
-using Content.Application.SiteCategories.SetVisibility;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SiteCategories.Commands.DeleteSiteCategory;
+using Content.Application.Features.SiteCategories.Commands.ImportOldSiteCategories;
+using Content.Application.Features.SiteCategories.Commands.ReorderSiteCategories;
+using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
+using Content.Application.Features.SiteCategories.Commands.SetSiteCategoryVisibility;
+using Content.Application.Features.SiteCategories.Queries.GetSiteCategories;
+using Content.Application.Features.SiteCategories.Queries.GetSiteCategory;
+using Content.Application.Features.SiteCategories.Shared;
 
 namespace Content.Api.SiteCategories;
 

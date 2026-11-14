@@ -1,14 +1,14 @@
 using System.Security.Claims;
 using BuildingBlocks.Api.Result;
 using Content.Api.Access;
-using Content.Application.Contracts;
-using Content.Application.SiteGalleries.Get;
-using Content.Application.SiteGalleries.Save;
-using Content.Application.SiteGalleries.Transfer;
 using Content.Domain.SiteGalleries;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
+using Content.Application.Features.SiteGalleries.Commands.TransferSiteGallery;
+using Content.Application.Features.SiteGalleries.Queries.GetSiteGallery;
+using Content.Application.Features.SiteGalleries.Shared;
 
 namespace Content.Api.SiteGalleries;
 

@@ -1,15 +1,15 @@
 using Ardalis.Result;
-using Content.Application.ProductPages.GetList;
-using Content.Application.ProductPages.GetOne;
-using Content.Application.ProductPages.Save;
-using Content.Application.ProductPages.Shared;
-using Content.Application.SiteCategories.GetList;
-using Content.Application.SiteCategories.ImportOldSite;
-using Content.Application.SiteCategories.Save;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using Content.Application.Features.ProductPages.Queries.GetContentProduct;
+using Content.Application.Features.ProductPages.Queries.GetContentProducts;
+using Content.Application.Features.ProductPages.Shared;
+using Content.Application.Features.SiteCategories.Commands.ImportOldSiteCategories;
+using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
+using Content.Application.Features.SiteCategories.Queries.GetSiteCategories;
 
 namespace UnitTests.Content;
 
@@ -72,7 +72,7 @@ public sealed class SiteCategoryProductsTests
             .Select(x => x.ProductId).ToArray();
 
         var all = (await h.List().Handle(new GetContentProductsQuery(1, 50), None)).Value.Items;
-        var invalid = new GetContentProductsQueryValidator().TestValidate(new GetContentProductsQuery(1, 50, CategoryId: -1));
+        var invalid = new GetContentProductsValidator().TestValidate(new GetContentProductsQuery(1, 50, CategoryId: -1));
         var inClothes = await Ids(clothes);
         var inSummer = await Ids(summer);
         var inGloves = await Ids(gloves);
@@ -98,7 +98,7 @@ public sealed class SiteCategoryProductsTests
         var suits = await Add(h, "Костюми");
 
         var refused = await h.Save().Handle(Save(0, [suits, 999]), None);
-        var invalid = new SaveContentProductCommandValidator().TestValidate(Save(0, [suits, suits]));
+        var invalid = new SaveContentProductValidator().TestValidate(Save(0, [suits, suits]));
 
         await using var db = h.Open();
         Assert.Multiple(() =>
@@ -149,8 +149,8 @@ public sealed class SiteCategoryProductsTests
             Assert.That(report.NotMatched.Select(x => x.Url), Is.EqualTo(new[] { "nema-takoho" }));
             Assert.That(report.Problems.Select(x => x.Reason), Is.EquivalentTo(new[]
             {
-                ImportOldSiteCategoriesCommandHandler.NoParent, ImportOldSiteCategoriesCommandHandler.NoName,
-                ImportOldSiteCategoriesCommandHandler.Duplicate,
+                ImportOldSiteCategoriesHandler.NoParent, ImportOldSiteCategoriesHandler.NoName,
+                ImportOldSiteCategoriesHandler.Duplicate,
             }));
             Assert.That(db.SiteCategories.Count(), Is.Zero);
         });
@@ -218,7 +218,7 @@ public sealed class SiteCategoryProductsTests
     [Test]
     public void Transfer_file_needs_categories_with_valid_addresses()
     {
-        var validator = new ImportOldSiteCategoriesCommandValidator();
+        var validator = new ImportOldSiteCategoriesValidator();
         Assert.Multiple(() =>
         {
             Assert.That(validator.TestValidate(new ImportOldSiteCategoriesCommand(true, false, false, [], "a@b")).IsValid, Is.False);

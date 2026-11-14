@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Reminders.Application.Dispatch;
+using Reminders.Application.Features.Dispatch.Shared;
 
 namespace Host.Seed.Jobs;
 

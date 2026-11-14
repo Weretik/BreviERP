@@ -1,11 +1,11 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
-using Production.Application.Contracts;
-using Production.Application.Orders.Access;
-using Production.Application.Orders.ImportOrders;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Commands.TransferStock;
 using Warehouse.Application.Features.Stock.Shared;
+using Production.Application.Features.Orders.Commands.ImportProductionOrders;
+using Production.Application.Features.Orders.Shared;
+using Production.Application.Features.Orders.Shared.Access;
 
 namespace UnitTests.Warehouse;
 
@@ -187,7 +187,7 @@ public sealed class WarehouseTransferTests
     private static async Task<WarehouseTestHarness> Workshop()
     {
         var workshop = WarehouseStockHandlerTests.Workshop();
-        await new ImportProductionOrdersCommandHandler(workshop.Workshop.Db, workshop.Workshop.Staff, workshop.Workshop.Time)
+        await new ImportProductionOrdersHandler(workshop.Workshop.Db, workshop.Workshop.Staff, workshop.Workshop.Time)
             .Handle(new(new ProductionActor(1, true, false, false),
             [
                 new ProductionOrderImportRow(Order, 7, null, "Клієнт", null, "Менеджер", "New", new DateOnly(2026, 10, 6),

@@ -1,12 +1,15 @@
 using Accounting.Api.Access;
 using Accounting.Api.Results;
-using Accounting.Application.Attachments;
-using Accounting.Application.Contracts;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Attachments.Commands.DeleteFinanceAttachment;
+using Accounting.Application.Features.Attachments.Commands.UploadFinanceAttachment;
+using Accounting.Application.Features.Attachments.Queries.GetFinanceAttachmentContent;
+using Accounting.Application.Features.Attachments.Queries.GetFinanceAttachments;
+using Accounting.Application.Features.Attachments.Shared;
 
 namespace Accounting.Api.Attachments;
 

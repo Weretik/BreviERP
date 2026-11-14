@@ -3,8 +3,6 @@ using Accounting.Api.Access;
 using BuildingBlocks.Application.Errors;
 using BuildingBlocks.Domain.Results;
 using Accounting.Api.Results;
-using Accounting.Application.Contracts;
-using Accounting.Application.Reports;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
@@ -13,6 +11,8 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Reports.Queries.GetFinanceReport;
+using Accounting.Application.Features.Reports.Shared;
 
 namespace Accounting.Api.Reports;
 

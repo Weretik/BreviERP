@@ -1,9 +1,5 @@
 using Accounting.Api.Access;
 using Accounting.Api.Accounts;
-using Accounting.Application.Contracts;
-using Accounting.Application.History;
-using Accounting.Application.Journal;
-using Accounting.Application.Transfers;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
@@ -12,6 +8,13 @@ using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
+using Accounting.Application.Features.Journal.Shared;
+using Accounting.Application.Features.Transfers.Commands.CreateFinanceTransfer;
+using Accounting.Application.Features.Transfers.Commands.UpdateFinanceTransfer;
+using Accounting.Application.Features.Transfers.Commands.VoidFinanceTransfer;
+using Accounting.Application.Features.Transfers.Queries.GetFinanceTransfers;
+using Accounting.Application.Features.Transfers.Shared;
 
 namespace Accounting.Api.Transfers;
 

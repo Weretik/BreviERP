@@ -1,4 +1,4 @@
-using Content.Application.Contracts;
+using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
 
 namespace Content.Api.SiteGalleries;
 

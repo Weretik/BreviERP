@@ -1,12 +1,12 @@
 using System.Security.Claims;
 using BuildingBlocks.Api.Result;
 using Content.Api.Access;
-using Content.Application.Contracts;
-using Content.Application.SitePages.GetList;
-using Content.Application.SitePages.Save;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SitePages.Commands.SaveSitePage;
+using Content.Application.Features.SitePages.Queries.GetSitePages;
+using Content.Application.Features.SitePages.Shared;
 
 namespace Content.Api.SitePages;
 

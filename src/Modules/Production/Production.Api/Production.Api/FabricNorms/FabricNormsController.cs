@@ -3,12 +3,12 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.FabricNorms.DeleteNorm;
-using Production.Application.FabricNorms.GetCompositions;
-using Production.Application.FabricNorms.GetNorms;
-using Production.Application.FabricNorms.ImportNorms;
-using Production.Application.FabricNorms.SaveNorm;
+using Production.Application.Features.FabricNorms.Commands.DeleteFabricNorm;
+using Production.Application.Features.FabricNorms.Commands.ImportFabricNorms;
+using Production.Application.Features.FabricNorms.Commands.SaveFabricNorm;
+using Production.Application.Features.FabricNorms.Queries.GetFabricNorms;
+using Production.Application.Features.FabricNorms.Queries.GetModelCompositions;
+using Production.Application.Features.FabricNorms.Shared;
 
 namespace Production.Api.FabricNorms;
 

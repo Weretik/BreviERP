@@ -4,10 +4,10 @@ using Mediator;
 using Reminders.Api.Access;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Reminders.Application.Chats.GetChats;
-using Reminders.Application.Chats.SendTestMessage;
-using Reminders.Application.Chats.UpdateChat;
-using Reminders.Application.Contracts;
+using Reminders.Application.Features.Chats.Commands.SendReminderChatTest;
+using Reminders.Application.Features.Chats.Commands.UpdateReminderChat;
+using Reminders.Application.Features.Chats.Queries.GetReminderChats;
+using Reminders.Application.Features.Chats.Shared;
 
 namespace Reminders.Api.Chats;
 

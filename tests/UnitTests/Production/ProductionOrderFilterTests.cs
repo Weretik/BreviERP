@@ -1,11 +1,13 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Production.Application.Abstractions;
-using Production.Application.Contracts;
-using Production.Application.Orders.Access;
-using Production.Application.Orders.GetOrders;
-using Production.Application.Orders.ImportOrders;
 using Production.Domain.Orders;
+using Production.Application.Features.Orders.Commands.ImportProductionOrders;
+using Production.Application.Features.Orders.Queries.GetProductionModelSummary;
+using Production.Application.Features.Orders.Queries.GetProductionOrderFilterOptions;
+using Production.Application.Features.Orders.Queries.GetProductionOrders;
+using Production.Application.Features.Orders.Shared;
+using Production.Application.Features.Orders.Shared.Access;
 
 namespace UnitTests.Production;
 
@@ -18,7 +20,7 @@ public sealed class ProductionOrderFilterTests
     public async Task List_filters_by_client_period_model_fabric_colour_and_season()
     {
         using var workshop = await Seeded();
-        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
 
         async Task<int[]> Numbers(ProductionOrderFilters filters) =>
             (await handler.Handle(new(null, null, null, null, Filters: filters), CancellationToken.None)).Value
@@ -50,7 +52,7 @@ public sealed class ProductionOrderFilterTests
     public async Task List_keeps_only_the_orders_of_one_manager_for_the_manager_desk()
     {
         using var workshop = await Seeded();
-        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
 
         async Task<int> Count(int managerUserId) =>
             (await handler.Handle(new(null, "New", null, null, ManagerUserId: managerUserId), CancellationToken.None))
@@ -61,7 +63,7 @@ public sealed class ProductionOrderFilterTests
 
         Assert.That(own, Is.EqualTo(2), "Анастасія's open orders");
         Assert.That(other, Is.Zero, "another manager");
-        Assert.That(new GetProductionOrdersQueryValidator().Validate(new GetProductionOrdersQuery(null, null, null, null, ManagerUserId: 0)).IsValid,
+        Assert.That(new GetProductionOrdersValidator().Validate(new GetProductionOrdersQuery(null, null, null, null, ManagerUserId: 0)).IsValid,
             Is.False);
     }
 
@@ -69,7 +71,7 @@ public sealed class ProductionOrderFilterTests
     public async Task Summary_groups_every_filtered_item_by_model_regardless_of_page()
     {
         using var workshop = await Seeded();
-        var handler = new GetProductionModelSummaryQueryHandler(workshop.Db, workshop.Models);
+        var handler = new GetProductionModelSummaryHandler(workshop.Db, workshop.Models);
 
         var all = (await handler.Handle(new(new(null, null, null, null, PageSize: 1)), CancellationToken.None)).Value;
         var cancelled = (await handler.Handle(new(new(null, "Cancelled", null, null)), CancellationToken.None)).Value;
@@ -98,7 +100,7 @@ public sealed class ProductionOrderFilterTests
             workshop.Time.GetUtcNow());
         order.Ship(item.Id, 1, new DateOnly(2026, 11, 3), null, "Начальник", workshop.Time.GetUtcNow());
         await workshop.Db.SaveChangesAsync();
-        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
 
         var byDue = (await handler.Handle(new(null, null, null, null, Sort: "due"), CancellationToken.None)).Value;
         var cutting = (await handler.Handle(new(null, null, null, null, Stage: "Cutting"), CancellationToken.None))
@@ -127,7 +129,7 @@ public sealed class ProductionOrderFilterTests
     [Test]
     public async Task Unknown_sort_is_rejected()
     {
-        var result = await new GetProductionOrdersQueryValidator().ValidateAsync(
+        var result = await new GetProductionOrdersValidator().ValidateAsync(
             new GetProductionOrdersQuery(null, null, null, null, Sort: "client"));
 
         Assert.That(result.Errors.Single().ErrorMessage, Is.EqualTo("Невідоме сортування."));
@@ -138,7 +140,7 @@ public sealed class ProductionOrderFilterTests
     {
         using var workshop = await Seeded();
 
-        var options = (await new GetProductionOrderFilterOptionsQueryHandler(workshop.Db, workshop.Models)
+        var options = (await new GetProductionOrderFilterOptionsHandler(workshop.Db, workshop.Models)
             .Handle(new(), CancellationToken.None)).Value;
 
         Assert.Multiple(() =>
@@ -154,7 +156,7 @@ public sealed class ProductionOrderFilterTests
     [Test]
     public async Task Period_end_before_start_is_rejected()
     {
-        var result = await new GetProductionOrdersQueryValidator().ValidateAsync(new GetProductionOrdersQuery(null,
+        var result = await new GetProductionOrdersValidator().ValidateAsync(new GetProductionOrdersQuery(null,
             null, null, null, Filters: new(From: new DateOnly(2026, 11, 2), To: new DateOnly(2026, 11, 1))));
 
         Assert.That(result.Errors.Single().ErrorMessage, Does.Contain("«Період до»"));
@@ -179,7 +181,7 @@ public sealed class ProductionOrderFilterTests
             new("MOD-060", "Костюм «Літо» куртка + брюки", true, 6, "Літо"),
         ]);
         var details = ProductionOrderHandlerTests.Details(3);
-        var result = await new ImportProductionOrdersCommandHandler(workshop.Db, workshop.Staff, workshop.Time)
+        var result = await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time)
             .Handle(new(Admin,
             [
                 Row("a", 1, "New", "Геофізика", new DateOnly(2026, 10, 1),

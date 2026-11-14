@@ -1,15 +1,26 @@
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Production.Application.Contracts;
-using Production.Application.Orders.Access;
-using Production.Application.Orders.Files;
-using Production.Application.Orders.ImportOrders;
-using Production.Application.Orders.ImportProgress;
-using Production.Application.Orders.ImportReportPrices;
-using Production.Application.Orders.Telegram;
-using Production.Application.Orders.Tracking;
-using Production.Application.Settings;
+using Production.Application.Features.Orders.Commands.CancelProductionOrder;
+using Production.Application.Features.Orders.Commands.CancelProductionShipment;
+using Production.Application.Features.Orders.Commands.CloseProductionOrder;
+using Production.Application.Features.Orders.Commands.CreateProductionShipment;
+using Production.Application.Features.Orders.Commands.DeleteProductionOrderFile;
+using Production.Application.Features.Orders.Commands.ImportProductionOrders;
+using Production.Application.Features.Orders.Commands.ImportProductionProgress;
+using Production.Application.Features.Orders.Commands.ImportProductionReportPrices;
+using Production.Application.Features.Orders.Commands.ReopenProductionOrder;
+using Production.Application.Features.Orders.Commands.SendProductionOrderTelegram;
+using Production.Application.Features.Orders.Commands.SetProductionItemStages;
+using Production.Application.Features.Orders.Commands.UpdateProductionOrder;
+using Production.Application.Features.Orders.Commands.UploadProductionOrderFile;
+using Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
+using Production.Application.Features.Orders.Shared;
+using Production.Application.Features.Orders.Shared.Access;
+using Production.Application.Features.Orders.Shared.Validation;
+using Production.Application.Features.Settings.Commands.SendWorkshopTelegramTest;
+using Production.Application.Features.Settings.Commands.UpdateWorkshopSettings;
+using Production.Application.Features.Settings.Queries.GetWorkshopSettings;
 
 namespace UnitTests.Production;
 
@@ -46,7 +57,7 @@ public sealed class ProductionTrackingHandlerTests
         using var workshop = ProductionOrderHandlerTests.Workshop();
         var order = await Order(workshop);
         var itemId = order.Items[0].Id;
-        var ship = new CreateProductionShipmentCommandHandler(workshop.Tracking());
+        var ship = new CreateProductionShipmentHandler(workshop.Tracking());
 
         var part = await ship.Handle(new(Chief, order.Id, itemId, new(order.Version, 2, new DateOnly(2026, 11, 5), "Перша партія")),
             CancellationToken.None);
@@ -71,11 +82,11 @@ public sealed class ProductionTrackingHandlerTests
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
         var order = await Order(workshop);
-        var shipped = await new CreateProductionShipmentCommandHandler(workshop.Tracking()).Handle(
+        var shipped = await new CreateProductionShipmentHandler(workshop.Tracking()).Handle(
             new(Chief, order.Id, order.Items[0].Id, new(order.Version, 1, new DateOnly(2026, 11, 5), null)),
             CancellationToken.None);
 
-        var cancelled = await new CancelProductionShipmentCommandHandler(workshop.Tracking()).Handle(
+        var cancelled = await new CancelProductionShipmentHandler(workshop.Tracking()).Handle(
             new(Chief, order.Id, shipped.Value.Items[0].Shipments[0].Id, shipped.Value.Version), CancellationToken.None);
 
         Assert.That(cancelled.Value.Items[0].ShippedQuantity, Is.Zero);
@@ -86,11 +97,11 @@ public sealed class ProductionTrackingHandlerTests
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
         var order = await Order(workshop);
-        var shipped = await new CreateProductionShipmentCommandHandler(workshop.Tracking()).Handle(
+        var shipped = await new CreateProductionShipmentHandler(workshop.Tracking()).Handle(
             new(Chief, order.Id, order.Items[0].Id, new(order.Version, 2, new DateOnly(2026, 11, 5), null)),
             CancellationToken.None);
 
-        var updated = await new global::Production.Application.Orders.UpdateOrder.UpdateProductionOrderCommandHandler(
+        var updated = await new global::Production.Application.Features.Orders.Commands.UpdateProductionOrder.UpdateProductionOrderHandler(
                 workshop.Db, workshop.Staff, workshop.Cards(), workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time)
             .Handle(new(Admin, order.Id, new(shipped.Value.Version, order.ClientName, order.OrderDate, null,
                 [new UpdateProductionItemInput(order.Items[0].Id, ProductionOrderHandlerTests.Details(1), null)])),
@@ -104,15 +115,13 @@ public sealed class ProductionTrackingHandlerTests
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
         var order = await Order(workshop);
-        var status = new ProductionOrderStatusCommandHandler(workshop.Tracking());
-
-        var earlyClose = await status.Handle(new CloseProductionOrderCommand(Chief, order.Id, order.Version),
+        var earlyClose = await new CloseProductionOrderHandler(workshop.Tracking()).Handle(new CloseProductionOrderCommand(Chief, order.Id, order.Version),
             CancellationToken.None);
-        var cancelled = await status.Handle(new CancelProductionOrderCommand(Manager, order.Id,
+        var cancelled = await new CancelProductionOrderHandler(workshop.Tracking()).Handle(new CancelProductionOrderCommand(Manager, order.Id,
             new(order.Version, "Клієнт відмовився")), CancellationToken.None);
-        var reopenByManager = await status.Handle(new ReopenProductionOrderCommand(Manager, order.Id,
+        var reopenByManager = await new ReopenProductionOrderHandler(workshop.Tracking()).Handle(new ReopenProductionOrderCommand(Manager, order.Id,
             cancelled.Value.Version), CancellationToken.None);
-        var reopened = await status.Handle(new ReopenProductionOrderCommand(Admin, order.Id, cancelled.Value.Version),
+        var reopened = await new ReopenProductionOrderHandler(workshop.Tracking()).Handle(new ReopenProductionOrderCommand(Admin, order.Id, cancelled.Value.Version),
             CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -133,13 +142,13 @@ public sealed class ProductionTrackingHandlerTests
         var order = await Order(workshop);
         await using var content = new MemoryStream([1, 2, 3]);
 
-        var uploaded = await new UploadProductionOrderFileCommandHandler(workshop.Db, workshop.Staff, workshop.Files,
+        var uploaded = await new UploadProductionOrderFileHandler(workshop.Db, workshop.Staff, workshop.Files,
                 workshop.Cards(), workshop.Time)
             .Handle(new(Manager, order.Id, order.Items[0].Id, "sizes", content, "C:\\docs\\Розміри.xlsx",
                 "application/vnd.ms-excel", 3), CancellationToken.None);
         var file = uploaded.Value.Files.Single();
-        var deleted = await new DeleteProductionOrderFileCommandHandler(workshop.Db, workshop.Staff, workshop.Files,
-                workshop.Cards(), workshop.Time, NullLogger<DeleteProductionOrderFileCommandHandler>.Instance)
+        var deleted = await new DeleteProductionOrderFileHandler(workshop.Db, workshop.Staff, workshop.Files,
+                workshop.Cards(), workshop.Time, NullLogger<DeleteProductionOrderFileHandler>.Instance)
             .Handle(new(Manager, order.Id, file.Id), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -161,7 +170,7 @@ public sealed class ProductionTrackingHandlerTests
         var send = SendTelegram(workshop);
 
         var notReady = await send.Handle(new(Manager, order.Id), CancellationToken.None);
-        await Settings(workshop).Handle(new UpdateWorkshopSettingsCommand(Chief, new(true, -100500, 434)),
+        await Settings(workshop).Update.Handle(new UpdateWorkshopSettingsCommand(Chief, new(true, -100500, 434)),
             CancellationToken.None);
         workshop.Telegram.FailWith = "Bad Request: chat not found";
         var failed = await send.Handle(new(Manager, order.Id), CancellationToken.None);
@@ -192,10 +201,10 @@ public sealed class ProductionTrackingHandlerTests
         workshop.Telegram.Chats.Add(new(-100500, "Цех Brevi"));
         var settings = Settings(workshop);
 
-        var byManager = await settings.Handle(new GetWorkshopSettingsQuery(Manager), CancellationToken.None);
-        var saved = await settings.Handle(new UpdateWorkshopSettingsCommand(Admin, new(false, -100500, null)),
+        var byManager = await settings.Get.Handle(new GetWorkshopSettingsQuery(Manager), CancellationToken.None);
+        var saved = await settings.Update.Handle(new UpdateWorkshopSettingsCommand(Admin, new(false, -100500, null)),
             CancellationToken.None);
-        var test = await settings.Handle(new SendWorkshopTelegramTestCommand(Chief), CancellationToken.None);
+        var test = await settings.Test.Handle(new SendWorkshopTelegramTestCommand(Chief), CancellationToken.None);
 
         Assert.Multiple(() =>
         {
@@ -212,7 +221,7 @@ public sealed class ProductionTrackingHandlerTests
     public async Task Progress_of_old_orders_moves_stages_file_links_and_the_telegram_mark_once()
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
-        await new ImportProductionOrdersCommandHandler(workshop.Db, workshop.Staff, workshop.Time).Handle(new(Admin,
+        await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time).Handle(new(Admin,
         [
             new ProductionOrderImportRow("old-1", 7, "27-10-2026", "Геофізика", "anastasia@brevi.ua", "Анастасія", "New",
                 new DateOnly(2026, 10, 9), null,
@@ -227,7 +236,7 @@ public sealed class ProductionTrackingHandlerTests
                 true, new DateTimeOffset(2026, 10, 10, 9, 5, 0, TimeSpan.Zero)),
             new("missing", [], [], false, null)
         ];
-        var import = new ImportProductionProgressCommandHandler(workshop.Db, workshop.Time);
+        var import = new ImportProductionProgressHandler(workshop.Db, workshop.Time);
 
         var withError = await import.Handle(new(Admin, rows, false), CancellationToken.None);
         var preview = await import.Handle(new(Admin, rows[..1], true), CancellationToken.None);
@@ -254,7 +263,7 @@ public sealed class ProductionTrackingHandlerTests
     public async Task Old_orders_take_the_kp_price_once_and_an_item_with_a_price_keeps_it()
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
-        await new ImportProductionOrdersCommandHandler(workshop.Db, workshop.Staff, workshop.Time).Handle(new(Admin,
+        await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time).Handle(new(Admin,
         [
             new ProductionOrderImportRow("old-1", 7, "27-10-2026", "Геофізика", "anastasia@brevi.ua", "Анастасія", "New",
                 new DateOnly(2026, 10, 9), null,
@@ -266,7 +275,7 @@ public sealed class ProductionTrackingHandlerTests
                 ])
         ], false), CancellationToken.None);
         ProductionReportPriceImportRow[] rows = [new("old-1", [new(1, 1713.17m), new(2, 1282.54m)])];
-        var import = new ImportProductionReportPricesCommandHandler(workshop.Db);
+        var import = new ImportProductionReportPricesHandler(workshop.Db);
 
         var byManager = await import.Handle(new(Manager, rows, true), CancellationToken.None);
         var noPosition = await import.Handle(new(Admin, [new("old-1", [new(3, 10m)])], false), CancellationToken.None);
@@ -275,7 +284,7 @@ public sealed class ProductionTrackingHandlerTests
             .Count(x => x.ReportUnitPrice is null);
         var applied = await import.Handle(new(Admin, rows, false), CancellationToken.None);
         var changed = await import.Handle(new(Admin, [new("old-1", [new(1, 1m)])], false), CancellationToken.None);
-        var invalid = new ImportProductionReportPricesCommandValidator()
+        var invalid = new ImportProductionReportPricesValidator()
             .Validate(new ImportProductionReportPricesCommand(Admin, [new("old-1", [new(1, 0m)])], false));
         var items = (await workshop.Db.Orders.Include(x => x.Items).AsNoTracking().SingleAsync()).Items
             .OrderBy(x => x.Position).ToList();
@@ -299,13 +308,15 @@ public sealed class ProductionTrackingHandlerTests
 
     private static async Task<Result<ProductionOrderResponse>> Stages(ProductionTestHarness workshop,
         ProductionActor actor, ProductionOrderResponse order, int itemId, params string[] stages) =>
-        await new SetProductionItemStagesCommandHandler(workshop.Tracking())
+        await new SetProductionItemStagesHandler(workshop.Tracking())
             .Handle(new(actor, order.Id, itemId, new(order.Version, stages)), CancellationToken.None);
 
-    private static SendProductionOrderTelegramCommandHandler SendTelegram(ProductionTestHarness workshop) =>
+    private static SendProductionOrderTelegramHandler SendTelegram(ProductionTestHarness workshop) =>
         new(workshop.Db, workshop.Staff, workshop.Telegram, workshop.Cards(), new InlineProductionOutbox(workshop),
             workshop.Time);
 
-    private static WorkshopSettingsHandler Settings(ProductionTestHarness workshop) =>
-        new(workshop.Db, workshop.Staff, workshop.Telegram, workshop.Time);
+    private static (GetWorkshopSettingsHandler Get, UpdateWorkshopSettingsHandler Update,
+        SendWorkshopTelegramTestHandler Test) Settings(ProductionTestHarness workshop) =>
+        (new(workshop.Db, workshop.Telegram), new(workshop.Db, workshop.Staff, workshop.Telegram, workshop.Time),
+            new(workshop.Db, workshop.Telegram));
 }

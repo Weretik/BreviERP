@@ -13,14 +13,15 @@ src/Modules/Production/
     Payroll/PayrollMoney.cs          # payment, adjustment, «Видано»
     Payroll/PayrollCalculation.cs    # the pay of a month and its warnings
   Production.Application/Production.Application/
-    Contracts/TimesheetContracts.cs, PayrollContracts.cs
-    Timesheet/TimesheetQueries.cs    # day, save, TimesheetDays
-    Payroll/
-      PayrollSheets.cs               # builds a month or reads the kept one
-      PayrollChanges.cs              # access, open month, change, fresh month
-      PayrollMonths.cs               # «РРРР-ММ», closed-month lock (also used by Work/RecordWork)
-      GetMonth (month, worker, year), Setup (roles, embroidery), Payments (payments, adjustments, «Видано»),
-      Close (close, reopen)
+    Features/Timesheet/              # Queries/GetTimesheetDay, Commands/SaveTimesheetDay; Shared/ responses, TimesheetDays
+    Features/Payroll/
+      Queries/                       # GetPayrollMonth, GetPayrollEmployee, GetPayrollYear
+      Commands/                      # SetPayrollRoles, SetPayrollEmbroidery; Create/VoidPayrollPayment, Create/VoidPayrollAdjustment,
+                                     # SetPayrollIssued («Видано»); ClosePayrollMonth, ReopenPayrollMonth
+      Shared/PayrollSheets.cs        # builds a month or reads the kept one
+      Shared/PayrollChanges.cs       # access, open month, change, fresh month
+      Shared/PayrollMonths.cs        # «РРРР-ММ», closed-month lock (also used by Work/CreateProductionWork)
+      Shared/                        # responses, PayrollInputRules, messages
   Production.Infrastructure/.../Persistence/Configurations/PayrollConfiguration.cs
   Production.Api/Production.Api/Timesheet/TimesheetController.cs  # /api/production/timesheet
   Production.Api/Production.Api/Payroll/PayrollController.cs      # /api/production/payroll…

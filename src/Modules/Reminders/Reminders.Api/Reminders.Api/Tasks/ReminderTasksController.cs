@@ -4,13 +4,13 @@ using Mediator;
 using Reminders.Api.Access;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Reminders.Application.Contracts;
-using Reminders.Application.Tasks.ArchiveTask;
-using Reminders.Application.Tasks.AssignChat;
-using Reminders.Application.Tasks.CreateTask;
-using Reminders.Application.Tasks.GetTasks;
-using Reminders.Application.Tasks.PreviewDueDates;
-using Reminders.Application.Tasks.UpdateTask;
+using Reminders.Application.Features.Tasks.Commands.ArchiveReminderTask;
+using Reminders.Application.Features.Tasks.Commands.AssignReminderChat;
+using Reminders.Application.Features.Tasks.Commands.CreateReminderTask;
+using Reminders.Application.Features.Tasks.Commands.UpdateReminderTask;
+using Reminders.Application.Features.Tasks.Queries.GetReminderTasks;
+using Reminders.Application.Features.Tasks.Queries.PreviewReminderDueDates;
+using Reminders.Application.Features.Tasks.Shared;
 
 namespace Reminders.Api.Tasks;
 

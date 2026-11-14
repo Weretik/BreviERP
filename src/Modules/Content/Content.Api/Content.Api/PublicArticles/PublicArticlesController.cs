@@ -1,10 +1,11 @@
 using BuildingBlocks.Api.Result;
-using Content.Application.Contracts;
-using Content.Application.PublicArticles;
 using Content.Domain.ProductPages;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.Articles.Queries.GetPublicArticle;
+using Content.Application.Features.Articles.Queries.GetPublicArticles;
+using Content.Application.Features.Articles.Shared;
 
 namespace Content.Api.PublicArticles;
 

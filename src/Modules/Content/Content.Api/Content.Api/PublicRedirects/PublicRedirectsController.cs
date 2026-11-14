@@ -1,9 +1,8 @@
 using BuildingBlocks.Api.Result;
-using Content.Application.Contracts;
-using Content.Application.PublicRedirects;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.Redirects.Queries.GetPublicRedirects;
 
 namespace Content.Api.PublicRedirects;
 

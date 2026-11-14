@@ -2,8 +2,6 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using Accounting.Application.Abstractions;
-using Accounting.Application.Contracts;
-using Accounting.Application.Import;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
@@ -14,6 +12,8 @@ using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
 using Ardalis.Result;
 using static UnitTests.Accounting.FinanceMovementFixture;
+using Accounting.Application.Features.Import.Commands.ImportLegacyFinance;
+using Accounting.Application.Features.Import.Shared;
 
 namespace UnitTests.Accounting;
 
@@ -154,7 +154,7 @@ public sealed class LegacyFinanceImportTests
     {
         using var harness = Harness();
 
-        var text = await new ImportLegacyFinanceCommandHandler(harness.Db, harness.Parties, harness.Parties).Handle(
+        var text = await new ImportLegacyFinanceHandler(harness.Db, harness.Parties, harness.Parties).Handle(
             new ImportLegacyFinanceCommand(new MemoryStream("не json"u8.ToArray()), true), default);
         var other = await Import(harness, new System.Text.Json.Nodes.JsonObject { ["format"] = "brevi-finance-v4" }, true);
 
@@ -189,7 +189,7 @@ public sealed class LegacyFinanceImportTests
             bytes = packed.ToArray();
         }
 
-        return await new ImportLegacyFinanceCommandHandler(harness.Db, harness.Parties, harness.Parties).Handle(
+        return await new ImportLegacyFinanceHandler(harness.Db, harness.Parties, harness.Parties).Handle(
             new ImportLegacyFinanceCommand(new MemoryStream(bytes), dryRun), default);
     }
 

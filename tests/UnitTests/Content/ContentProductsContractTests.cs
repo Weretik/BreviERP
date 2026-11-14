@@ -1,12 +1,15 @@
 using System.Text.Json;
 using Content.Api.ProductPages;
-using Content.Application.Contracts;
-using Content.Application.ProductPages.ImportOldSite;
 using Content.Domain.ProductPages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.Articles.Shared;
+using Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPages;
+using Content.Application.Features.ProductPages.Commands.SetContentProductVisibility;
+using Content.Application.Features.ProductPages.Queries.GetContentProducts;
+using Content.Application.Features.ProductPages.Shared;
 
 namespace UnitTests.Content;
 

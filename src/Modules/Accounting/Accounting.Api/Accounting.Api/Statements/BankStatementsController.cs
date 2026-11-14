@@ -1,7 +1,5 @@
 using Accounting.Api.Access;
 using Accounting.Api.Accounts;
-using Accounting.Application.Contracts;
-using Accounting.Application.Statements;
 using Accounting.Domain.Statements;
 using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
@@ -9,6 +7,13 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Statements.Commands.BookBankStatement;
+using Accounting.Application.Features.Statements.Commands.RollbackBankStatement;
+using Accounting.Application.Features.Statements.Commands.UpdateBankLine;
+using Accounting.Application.Features.Statements.Commands.UploadBankStatement;
+using Accounting.Application.Features.Statements.Queries.GetBankStatement;
+using Accounting.Application.Features.Statements.Queries.GetBankStatements;
+using Accounting.Application.Features.Statements.Shared;
 
 namespace Accounting.Api.Statements;
 

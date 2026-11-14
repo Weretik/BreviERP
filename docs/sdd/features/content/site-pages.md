@@ -10,9 +10,10 @@ The public site reads them without sign-in from `/api/public/site-pages` ([contr
 src/Modules/Content/
   Content.Domain/Content.Domain/SitePages/                          # SitePage (texts, limits), SiteFaqItem, SitePageCatalog (fixed pages)
   Content.Application/Content.Application/
-    Contracts/SitePageResponses.cs
-    SitePages/GetList/, SitePages/Save/, SitePages/Shared/          # admin list and save, mapping, messages
-    PublicSitePages/                                                # public read kept a minute
+    Features/SitePages/
+      Queries/GetSitePages/, Commands/SaveSitePage/                 # admin list and save
+      Queries/GetPublicSitePages/                                   # public read kept a minute
+      Shared/                                                       # responses, mapping, messages
   Content.Infrastructure/.../Configurations/SitePageConfiguration.cs
   Content.Infrastructure/.../Migrations/*_AddSitePages.cs           # table and the seed of the current texts
   Content.Infrastructure/.../Migrations/*_AddSitePageTextAndFaq.cs  # main text and questions, seed of home and industries

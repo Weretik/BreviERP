@@ -1,18 +1,30 @@
 using Ardalis.Result;
 using Accounting.Application.Abstractions;
-using Accounting.Application.Categories;
-using Accounting.Application.Contracts;
-using Accounting.Application.Counterparties;
-using Accounting.Application.History;
-using Accounting.Application.Journal;
-using Accounting.Application.Overview;
-using Accounting.Application.Transactions;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Transactions;
 using static UnitTests.Accounting.FinanceMovementFixture;
+using Accounting.Application.Features.Categories.Commands.DeleteFinanceCategory;
+using Accounting.Application.Features.Categories.Queries.GetFinanceCategories;
+using Accounting.Application.Features.Counterparties.Commands.CreateFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Commands.MergeFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Commands.SetFinanceCounterpartyActive;
+using Accounting.Application.Features.Counterparties.Commands.UpdateFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Commands.VerifyFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties;
+using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterpartyChoices;
+using Accounting.Application.Features.Counterparties.Shared;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
+using Accounting.Application.Features.Journal.Shared;
+using Accounting.Application.Features.Overview.Queries.GetFinanceOverview;
+using Accounting.Application.Features.Statements.Shared;
+using Accounting.Application.Features.Transactions.Commands.CreateFinanceTransaction;
+using Accounting.Application.Features.Transactions.Commands.PromoteFinanceOneoff;
+using Accounting.Application.Features.Transactions.Commands.ReviewFinanceTransaction;
+using Accounting.Application.Features.Transactions.Queries.GetFinanceTransactions;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace UnitTests.Accounting;
 
@@ -32,7 +44,7 @@ public sealed class FinanceCounterpartyTests
         var waiting = await Review(harness);
         var overview = await Overview(harness);
 
-        var verified = await new VerifyFinanceCounterpartyCommandHandler(harness.Db, harness.Time).Handle(
+        var verified = await new VerifyFinanceCounterpartyHandler(harness.Db, harness.Time).Handle(
             new VerifyFinanceCounterpartyCommand(landlord.Id, landlord.Version, AccountingTestHarness.Director), default);
         var after = (await Review(harness, onlyReview: false)).Items.Single();
 
@@ -73,9 +85,9 @@ public sealed class FinanceCounterpartyTests
         {
             Counterparty = new FinanceCounterpartyLinkInput(CounterpartyKind.Supplier, "007"),
         });
-        var create = new CreateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
+        var create = new CreateFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
         var archived = harness.Parties.Clients[1];
-        var bySupplier = (await new GetFinanceTransactionsQueryHandler(harness.Fresh(), harness.Parties, harness.Parties)
+        var bySupplier = (await new GetFinanceTransactionsHandler(harness.Fresh(), harness.Parties, harness.Parties)
             .Handle(new GetFinanceTransactionsQuery(Filter() with { Counterparty = CounterpartyLink.Of(CounterpartyKind.Supplier, "7").Value },
                 FinanceJournalSort.Date, FinanceSortDirection.Desc, 1), default)).Value;
 
@@ -110,13 +122,13 @@ public sealed class FinanceCounterpartyTests
         var unchecked_ = await Counterparty(harness, "Новий");
         var checked_ = await Counterparty(harness, "Перевірений", verified: true);
         var operation = await Spend(harness, Fields(bank.Id, rent.Id, 100_00) with { Counterparty = Link(unchecked_) });
-        var handler = new ReviewFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
+        var handler = new ReviewFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
 
         AssertDomain(await handler.Handle(new ReviewFinanceTransactionCommand(operation.Id, office.Id,
             Link(unchecked_), null, operation.Version, AccountingTestHarness.Director), default).AsTask(), "Спершу підтвердіть");
         var reviewed = await handler.Handle(new ReviewFinanceTransactionCommand(operation.Id, office.Id, Link(checked_), null,
             operation.Version, AccountingTestHarness.Director), default);
-        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh()).Handle(
+        var history = await new GetFinanceHistoryHandler(harness.Fresh()).Handle(
             new GetFinanceHistoryQuery(AuditEntity.Transaction, operation.Id), default);
 
         Assert.Multiple(() =>
@@ -138,12 +150,12 @@ public sealed class FinanceCounterpartyTests
         var delivery = await Category(harness, "Доставка");
         var courier = await Counterparty(harness, "Делівері", verified: true);
         var operation = await Spend(harness, Fields(bank.Id, delivery.Id, 192_00) with { Counterparty = Link(courier) });
-        var handler = new ReviewFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
+        var handler = new ReviewFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
 
         var reviewed = await handler.Handle(new ReviewFinanceTransactionCommand(operation.Id, delivery.Id, Link(courier),
             null, operation.Version, AccountingTestHarness.Director, RememberCategory: true), default);
         var remembered = (await List(harness, FinanceCounterpartyTab.Financial)).Financial.Single();
-        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh()).Handle(
+        var history = await new GetFinanceHistoryHandler(harness.Fresh()).Handle(
             new GetFinanceHistoryQuery(AuditEntity.Counterparty, courier.Id), default);
 
         Assert.Multiple(() =>
@@ -168,7 +180,7 @@ public sealed class FinanceCounterpartyTests
         var second = await Spend(harness, Fields(bank.Id, taxes.Id, 60_00) with { OneoffName = "ДПС Київ" });
         var oneoffs = await List(harness, FinanceCounterpartyTab.Oneoffs);
 
-        var promoted = await new PromoteFinanceOneoffCommandHandler(harness.Db, harness.Time).Handle(
+        var promoted = await new PromoteFinanceOneoffHandler(harness.Db, harness.Time).Handle(
             new PromoteFinanceOneoffCommand(first.Id, first.Version, AccountingTestHarness.Director), default);
         var financial = await List(harness, FinanceCounterpartyTab.Financial);
 
@@ -195,12 +207,12 @@ public sealed class FinanceCounterpartyTests
         var main = await Counterparty(harness, "Укртелеком", verified: true);
         var operation = await Spend(harness, Fields(bank.Id, rent.Id, 10_00) with { Counterparty = Link(duplicate) });
 
-        var merged = await new MergeFinanceCounterpartyCommandHandler(harness.Db, harness.Time).Handle(
+        var merged = await new MergeFinanceCounterpartyHandler(harness.Db, harness.Time).Handle(
             new MergeFinanceCounterpartyCommand(duplicate.Id, duplicate.Version, main.Id, main.Version,
                 AccountingTestHarness.Director), default);
         var moved = (await Review(harness, onlyReview: false)).Items.Single();
         var all = await List(harness, FinanceCounterpartyTab.Financial, includeArchived: true);
-        var update = new UpdateFinanceCounterpartyCommandHandler(harness.Db, harness.Time);
+        var update = new UpdateFinanceCounterpartyHandler(harness.Db, harness.Time);
         var source = all.Financial.Single(x => x.Id == duplicate.Id);
 
         var byOldName = (await List(harness, FinanceCounterpartyTab.Financial, search: "пат")).Financial;
@@ -225,7 +237,7 @@ public sealed class FinanceCounterpartyTests
         using var harness = new AccountingTestHarness();
         var rent = await Category(harness, "Оренда");
         var archiveCategory = await Category(harness, "Побут", scope: LedgerScope.LegacyArchive);
-        var create = new CreateFinanceCounterpartyCommandHandler(harness.Db, harness.Time);
+        var create = new CreateFinanceCounterpartyHandler(harness.Db, harness.Time);
         var created = await create.Handle(new CreateFinanceCounterpartyCommand(new FinanceCounterpartyFields(
             " ТОВ  Ромашка ", "1234 5678", "ua21 3052-9900", "ROMASHKA TOV",
             ["Ромашка", "ромашка", "ТОВ Ромашка", " "], rent.Id, true, null), true, AccountingTestHarness.Director), default);
@@ -259,12 +271,12 @@ public sealed class FinanceCounterpartyTests
         harness.Parties.Suppliers.Add(new AccountingParty("3", "Ромашка постачальник", "", true));
         harness.Parties.Suppliers.Add(new AccountingParty("4", "Інший", "", true));
         var archived = await Counterparty(harness, "Ромашка стара", verified: true);
-        await new SetFinanceCounterpartyActiveCommandHandler(harness.Db, harness.Time).Handle(
+        await new SetFinanceCounterpartyActiveHandler(harness.Db, harness.Time).Handle(
             new SetFinanceCounterpartyActiveCommand(archived.Id, false, archived.Version, AccountingTestHarness.Director), default);
         await Counterparty(harness, "Ромашка фін");
 
         var page = await List(harness, FinanceCounterpartyTab.Suppliers, search: "ромашка");
-        var choices = (await new GetFinanceCounterpartyChoicesQueryHandler(harness.Fresh(), harness.Parties, harness.Parties)
+        var choices = (await new GetFinanceCounterpartyChoicesHandler(harness.Fresh(), harness.Parties, harness.Parties)
             .Handle(new GetFinanceCounterpartyChoicesQuery("Ромашка"), default)).Value;
 
         Assert.Multiple(() =>
@@ -286,12 +298,12 @@ public sealed class FinanceCounterpartyTests
     {
         using var harness = new AccountingTestHarness();
         var rent = await Category(harness, "Оренда");
-        await new CreateFinanceCounterpartyCommandHandler(harness.Db, harness.Time).Handle(new CreateFinanceCounterpartyCommand(
+        await new CreateFinanceCounterpartyHandler(harness.Db, harness.Time).Handle(new CreateFinanceCounterpartyCommand(
             Details("Орендодавець") with { DefaultCategoryId = rent.Id }, false, AccountingTestHarness.Director), default);
 
-        var deleted = await new DeleteFinanceCategoryCommandHandler(harness.Db, harness.Time).Handle(
+        var deleted = await new DeleteFinanceCategoryHandler(harness.Db, harness.Time).Handle(
             new DeleteFinanceCategoryCommand(rent.Id, rent.Version, AccountingTestHarness.Director), default);
-        var categories = (await new GetFinanceCategoriesQueryHandler(harness.Fresh()).Handle(
+        var categories = (await new GetFinanceCategoriesHandler(harness.Fresh()).Handle(
             new GetFinanceCategoriesQuery(null), default)).Value;
 
         Assert.Multiple(() =>
@@ -308,24 +320,24 @@ public sealed class FinanceCounterpartyTests
 
     private static async Task<FinanceCounterpartyResponse> Counterparty(AccountingTestHarness harness, string name,
         bool verified = false) =>
-        (await new CreateFinanceCounterpartyCommandHandler(harness.Db, harness.Time).Handle(
+        (await new CreateFinanceCounterpartyHandler(harness.Db, harness.Time).Handle(
             new CreateFinanceCounterpartyCommand(Details(name), verified, AccountingTestHarness.Director), default)).Value;
 
     private static FinanceTransactionFilter Filter() =>
         new(LedgerScope.Current, null, null, null, null, null, null, null, null, null, null, false);
 
     private static async Task<FinanceTransactionPageResponse> Review(AccountingTestHarness harness, bool onlyReview = true) =>
-        (await new GetFinanceTransactionsQueryHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
+        (await new GetFinanceTransactionsHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
             new GetFinanceTransactionsQuery(Filter() with { NeedsReview = onlyReview }, FinanceJournalSort.Date,
                 FinanceSortDirection.Desc, 1), default)).Value;
 
     private static async Task<FinanceOverviewResponse> Overview(AccountingTestHarness harness) =>
-        (await new GetFinanceOverviewQueryHandler(harness.Fresh()).Handle(
+        (await new GetFinanceOverviewHandler(harness.Fresh()).Handle(
             new GetFinanceOverviewQuery(LedgerScope.Current, Current, Current), default)).Value;
 
     private static async Task<FinanceCounterpartyPageResponse> List(AccountingTestHarness harness, FinanceCounterpartyTab tab,
         string? search = null, bool includeArchived = false) =>
-        (await new GetFinanceCounterpartiesQueryHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
+        (await new GetFinanceCounterpartiesHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
             new GetFinanceCounterpartiesQuery(tab, search, includeArchived, 1), default)).Value;
 
     private static void AssertDomain(IResult result, string message) => AssertRuleBroken(result, message: message);

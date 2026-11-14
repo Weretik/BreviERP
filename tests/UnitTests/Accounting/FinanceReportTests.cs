@@ -1,17 +1,19 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Accounting.Application.Audit;
-using Accounting.Application.Contracts;
-using Accounting.Application.Counterparties;
-using Accounting.Application.Export;
-using Accounting.Application.Reports;
-using Accounting.Application.Transactions;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using static UnitTests.Accounting.FinanceMovementFixture;
+using Accounting.Application.Features.Audit.Queries.GetFinanceAudit;
+using Accounting.Application.Features.Counterparties.Commands.CreateFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Shared;
+using Accounting.Application.Features.Export.Queries.GetFinanceExport;
+using Accounting.Application.Features.Reports.Queries.GetFinanceReport;
+using Accounting.Application.Features.Reports.Shared;
+using Accounting.Application.Features.Transactions.Commands.VoidFinanceTransaction;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace UnitTests.Accounting;
 
@@ -71,7 +73,7 @@ public sealed class FinanceReportTests
     {
         using var harness = new AccountingTestHarness();
         var (bank, _) = await Books(harness);
-        var counterparty = (await new CreateFinanceCounterpartyCommandHandler(harness.Db, harness.Time).Handle(
+        var counterparty = (await new CreateFinanceCounterpartyHandler(harness.Db, harness.Time).Handle(
             new CreateFinanceCounterpartyCommand(new FinanceCounterpartyFields("ТОВ Ромашка", null, null, null, null, null,
                 false, null), true, AccountingTestHarness.Director), default)).Value;
         var rentCategory = (await harness.Fresh().Categories.SingleAsync(x => x.Name == "Оренда")).Id.Value;
@@ -82,7 +84,7 @@ public sealed class FinanceReportTests
         await Spend(harness, Fields(bank, rentCategory, 5_00, new DateOnly(2026, 10, 30)) with { OneoffName = "Сусід" });
 
         var operations = await Report(harness, FinanceReportKind.Operations);
-        var limited = (await new GetFinanceReportQueryHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
+        var limited = (await new GetFinanceReportHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
             new GetFinanceReportQuery(new FinanceReportFilter(FinanceReportKind.Operations, From, To), 2), default)).Value;
         var parties = await Report(harness, FinanceReportKind.Counterparties);
         var onlyRomashka = await Report(harness, FinanceReportKind.Operations,
@@ -133,7 +135,7 @@ public sealed class FinanceReportTests
     {
         using var harness = new AccountingTestHarness();
         await Books(harness);
-        var handler = new GetFinanceAuditQueryHandler(harness.Fresh());
+        var handler = new GetFinanceAuditHandler(harness.Fresh());
 
         var all = (await handler.Handle(new GetFinanceAuditQuery(null, null, 1), default)).Value;
         var voids = (await handler.Handle(new GetFinanceAuditQuery(AuditEntity.Transaction, AuditAction.Void, 1), default)).Value;
@@ -156,7 +158,7 @@ public sealed class FinanceReportTests
         using var harness = new AccountingTestHarness();
         await Books(harness);
 
-        var file = (await new GetFinanceExportQueryHandler(harness.Fresh(), harness.Time).Handle(new GetFinanceExportQuery(),
+        var file = (await new GetFinanceExportHandler(harness.Fresh(), harness.Time).Handle(new GetFinanceExportQuery(),
             default)).Value;
         using var json = JsonDocument.Parse(file.Content);
         var root = json.RootElement;
@@ -165,7 +167,7 @@ public sealed class FinanceReportTests
         Assert.Multiple(() =>
         {
             Assert.That(file.FileName, Is.EqualTo("brevi-finance-2026-11-05.json"));
-            Assert.That(root.GetProperty("format").GetString(), Is.EqualTo(GetFinanceExportQueryHandler.Format));
+            Assert.That(root.GetProperty("format").GetString(), Is.EqualTo(GetFinanceExportHandler.Format));
             Assert.That(root.GetProperty("accounts").GetArrayLength(), Is.EqualTo(2));
             Assert.That(root.GetProperty("transactions").GetArrayLength(), Is.EqualTo(6), "the voided one is kept");
             Assert.That(root.GetProperty("transfers").GetArrayLength(), Is.EqualTo(1));
@@ -193,7 +195,7 @@ public sealed class FinanceReportTests
         await Spend(harness, Fields(bank.Id, fabric.Id, 120_00, new DateOnly(2026, 10, 4)));
         await Spend(harness, Fields(bank.Id, rent.Id, 80_00, new DateOnly(2026, 10, 5), description: "Оренда офісу"));
         var wrong = await Spend(harness, Fields(bank.Id, rent.Id, 40_00, new DateOnly(2026, 10, 20), description: "Помилка"));
-        await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
+        await new VoidFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new VoidFinanceTransactionCommand(wrong.Id, wrong.Version, AccountingTestHarness.Director), default);
         await Spend(harness, Fields(bank.Id, sales.Id, 500_00, new DateOnly(2026, 11, 2), CategoryDirection.Income));
         await Move(harness, bank.Id, cash.Id, 50_00);
@@ -202,7 +204,7 @@ public sealed class FinanceReportTests
 
     private static async Task<FinanceReportResponse> Report(AccountingTestHarness harness, FinanceReportKind kind,
         Guid? accountId = null, CounterpartyLink? counterparty = null) =>
-        (await new GetFinanceReportQueryHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
+        (await new GetFinanceReportHandler(harness.Fresh(), harness.Parties, harness.Parties).Handle(
             new GetFinanceReportQuery(new FinanceReportFilter(kind, From, To, LedgerScope.Current, accountId,
                 Counterparty: counterparty)), default)).Value;
 }

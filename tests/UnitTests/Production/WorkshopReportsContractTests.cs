@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Production.Api.Dashboard;
 using Production.Api.Reports;
-using Production.Application.Contracts;
 using YamlDotNet.RepresentationModel;
+using Production.Application.Features.Dashboard.Queries.GetWorkshopDashboard;
+using Production.Application.Features.Reports.Queries.GetWorkshopReport;
+using Production.Application.Features.Reports.Shared;
 
 namespace UnitTests.Production;
 

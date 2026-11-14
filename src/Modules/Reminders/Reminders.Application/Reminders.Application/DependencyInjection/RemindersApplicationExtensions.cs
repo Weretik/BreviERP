@@ -1,7 +1,7 @@
 using Reminders.Application.Abstractions;
-using Reminders.Application.Dispatch;
-using Reminders.Application.Occurrences;
-using Reminders.Application.Telegram.HandleUpdate;
+using Reminders.Application.Features.Dispatch.Shared;
+using Reminders.Application.Features.Occurrences.Shared;
+using Reminders.Application.Features.Telegram.Commands.HandleTelegramUpdate;
 
 namespace Reminders.Application.DependencyInjection;
 

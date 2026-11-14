@@ -1,8 +1,5 @@
 using Accounting.Api.Access;
 using Accounting.Api.Results;
-using Accounting.Application.Categories;
-using Accounting.Application.Contracts;
-using Accounting.Application.History;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Ledger;
 using BuildingBlocks.Api.Result;
@@ -10,6 +7,12 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Categories.Commands.CreateFinanceCategory;
+using Accounting.Application.Features.Categories.Commands.DeleteFinanceCategory;
+using Accounting.Application.Features.Categories.Commands.UpdateFinanceCategory;
+using Accounting.Application.Features.Categories.Queries.GetFinanceCategories;
+using Accounting.Application.Features.Categories.Shared;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
 
 namespace Accounting.Api.Categories;
 

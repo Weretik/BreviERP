@@ -1,16 +1,15 @@
 using Ardalis.Result;
-using Content.Application.Contracts;
-using Content.Application.SiteCategories.Delete;
-using Content.Application.SiteCategories.GetList;
-using Content.Application.SiteCategories.GetOne;
-using Content.Application.SiteCategories.Reorder;
-using Content.Application.SiteCategories.Save;
-using Content.Application.SiteCategories.SetVisibility;
-using Content.Application.SiteCategories.Shared;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
+using Content.Application.Features.SiteCategories.Commands.DeleteSiteCategory;
+using Content.Application.Features.SiteCategories.Commands.ReorderSiteCategories;
+using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
+using Content.Application.Features.SiteCategories.Commands.SetSiteCategoryVisibility;
+using Content.Application.Features.SiteCategories.Queries.GetSiteCategories;
+using Content.Application.Features.SiteCategories.Queries.GetSiteCategory;
+using Content.Application.Features.SiteCategories.Shared;
 
 namespace UnitTests.Content;
 
@@ -158,7 +157,7 @@ public sealed class SiteCategoriesTests
             clothes.Revision, ppe.Category.Id, null, false, Text("Спецодяг"), null, ContentTestHarness.Editor), None);
         var missing = await h.SaveCategory().Handle(new SaveSiteCategoryCommand(null, 0, 999, null, false,
             Text("Взуття"), null, ContentTestHarness.Editor), None);
-        var self = new SaveSiteCategoryCommandValidator().TestValidate(new SaveSiteCategoryCommand(5, 1, 5, null, false,
+        var self = new SaveSiteCategoryValidator().TestValidate(new SaveSiteCategoryCommand(5, 1, 5, null, false,
             Text("Взуття"), null, ContentTestHarness.Editor));
 
         Assert.Multiple(() =>
@@ -276,7 +275,7 @@ public sealed class SiteCategoriesTests
     [Test]
     public void Validator_needs_a_ukrainian_name_a_valid_address_and_texts_within_limits()
     {
-        var validator = new SaveSiteCategoryCommandValidator();
+        var validator = new SaveSiteCategoryValidator();
         var longText = new SiteCategoryTextInput("Спецодяг", new string('a', ProductPageRules.SeoTitleMaxLength + 1), null,
             [new ProductTextBlock(ProductTextBlockKind.Paragraph, new string('б', SiteCategoryRules.TextMaxLength + 1), null, null)]);
 

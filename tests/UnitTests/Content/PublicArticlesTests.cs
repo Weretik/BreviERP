@@ -1,8 +1,5 @@
 using System.Text.Json;
 using Content.Api.PublicArticles;
-using Content.Application.Contracts;
-using Content.Application.Articles.Save;
-using Content.Application.PublicArticles;
 using Content.Domain.Articles;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Caching.Memory;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.Articles.Commands.SaveContentArticle;
+using Content.Application.Features.Articles.Queries.GetPublicArticle;
+using Content.Application.Features.Articles.Queries.GetPublicArticles;
+using Content.Application.Features.Articles.Shared;
 
 namespace UnitTests.Content;
 
@@ -53,7 +54,7 @@ public sealed class PublicArticlesTests
         await Add(h, "nova", new DateOnly(2025, 3, 1), ru: Text("Новая статья"));
         await Add(h, "prykhovana", new DateOnly(2026, 1, 1), show: false);
 
-        var list = (await new GetPublicArticlesQueryHandler(h.PublicArticles())
+        var list = (await new GetPublicArticlesHandler(h.PublicArticles())
             .Handle(new GetPublicArticlesQuery("ru"), None)).Value;
 
         Assert.Multiple(() =>
@@ -76,7 +77,7 @@ public sealed class PublicArticlesTests
         using var h = Site();
         await Add(h, "tkanyny", new DateOnly(2024, 5, 1), cover: 5, ru: Text("Ткани", withBody: false));
 
-        var handler = new GetPublicArticleQueryHandler(h.PublicArticles());
+        var handler = new GetPublicArticleHandler(h.PublicArticles());
         var uk = (await handler.Handle(new GetPublicArticleQuery("tkanyny", "uk"), None)).Value;
         var ru = (await handler.Handle(new GetPublicArticleQuery("tkanyny", "ru"), None)).Value;
 
@@ -105,7 +106,7 @@ public sealed class PublicArticlesTests
         await Add(h, "bez-foto", new DateOnly(2024, 5, 1), cover: 5);
         h.Media.Photos.Clear();
 
-        var page = (await new GetPublicArticleQueryHandler(h.PublicArticles())
+        var page = (await new GetPublicArticleHandler(h.PublicArticles())
             .Handle(new GetPublicArticleQuery("bez-foto", "uk"), None)).Value;
 
         Assert.Multiple(() =>
@@ -121,7 +122,7 @@ public sealed class PublicArticlesTests
     {
         using var h = Site();
         await Add(h, "prykhovana", new DateOnly(2024, 5, 1), show: false);
-        var handler = new GetPublicArticleQueryHandler(h.PublicArticles());
+        var handler = new GetPublicArticleHandler(h.PublicArticles());
 
         Assert.Multiple(async () =>
         {
@@ -156,8 +157,8 @@ public sealed class PublicArticlesTests
     [Test]
     public void Queries_refuse_a_wrong_language_and_an_empty_address()
     {
-        var list = new GetPublicArticlesQueryValidator();
-        var one = new GetPublicArticleQueryValidator();
+        var list = new GetPublicArticlesValidator();
+        var one = new GetPublicArticleValidator();
         Assert.Multiple(() =>
         {
             list.TestValidate(new GetPublicArticlesQuery("uk")).ShouldNotHaveAnyValidationErrors();

@@ -3,8 +3,9 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Timesheet;
+using Production.Application.Features.Timesheet.Commands.SaveTimesheetDay;
+using Production.Application.Features.Timesheet.Queries.GetTimesheetDay;
+using Production.Application.Features.Timesheet.Shared;
 
 namespace Production.Api.Timesheet;
 

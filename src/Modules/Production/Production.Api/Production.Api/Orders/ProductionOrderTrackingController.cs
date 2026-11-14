@@ -5,12 +5,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Orders.Files;
-using Production.Application.Orders.ImportProgress;
-using Production.Application.Orders.ImportReportPrices;
-using Production.Application.Orders.Telegram;
-using Production.Application.Orders.Tracking;
+using Production.Application.Features.Orders.Commands.CancelProductionOrder;
+using Production.Application.Features.Orders.Commands.CancelProductionShipment;
+using Production.Application.Features.Orders.Commands.CloseProductionOrder;
+using Production.Application.Features.Orders.Commands.CreateProductionShipment;
+using Production.Application.Features.Orders.Commands.DeleteProductionOrderFile;
+using Production.Application.Features.Orders.Commands.ImportProductionProgress;
+using Production.Application.Features.Orders.Commands.ImportProductionReportPrices;
+using Production.Application.Features.Orders.Commands.ReopenProductionOrder;
+using Production.Application.Features.Orders.Commands.SendProductionOrderTelegram;
+using Production.Application.Features.Orders.Commands.SetProductionItemStages;
+using Production.Application.Features.Orders.Commands.UploadProductionOrderFile;
+using Production.Application.Features.Orders.Shared;
 
 namespace Production.Api.Orders;
 

@@ -1,9 +1,9 @@
 using BuildingBlocks.Api.Result;
-using Content.Application.Contracts;
-using Content.Application.PublicSiteSettings;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SiteSettings.Queries.GetPublicSiteSettings;
+using Content.Application.Features.SiteSettings.Shared;
 
 namespace Content.Api.PublicSiteSettings;
 

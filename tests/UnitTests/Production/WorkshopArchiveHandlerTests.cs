@@ -1,8 +1,7 @@
 using Ardalis.Result;
-using Production.Application.Archive.GetArchive;
-using Production.Application.Archive.ImportArchive;
-using Production.Application.Contracts;
-using Production.Application.Orders.Access;
+using Production.Application.Features.Archive.Commands.ImportWorkshopArchive;
+using Production.Application.Features.Archive.Queries.GetWorkshopArchive;
+using Production.Application.Features.Orders.Shared.Access;
 
 namespace UnitTests.Production;
 
@@ -23,7 +22,7 @@ public sealed class WorkshopArchiveHandlerTests
             Row("Schedule", "schedule:4", new DateOnly(2023, 3, 27), "Инверт 2023", "габардин", null),
             Row("Request", "request:a1", new DateOnly(2026, 2, 16), "Диканське, Околиця", "Адванта", null)
         ];
-        var import = new ImportWorkshopArchiveCommandHandler(workshop.Db);
+        var import = new ImportWorkshopArchiveHandler(workshop.Db);
 
         var byManager = await import.Handle(new(Manager, rows, true), CancellationToken.None);
         var badLink = await import.Handle(new(Admin,
@@ -31,12 +30,12 @@ public sealed class WorkshopArchiveHandlerTests
         var preview = await import.Handle(new(Admin, rows, true), CancellationToken.None);
         var applied = await import.Handle(new(Admin, rows, false), CancellationToken.None);
         var repeat = await import.Handle(new(Admin, rows, false), CancellationToken.None);
-        var read = new GetWorkshopArchiveQueryHandler(workshop.Db);
+        var read = new GetWorkshopArchiveHandler(workshop.Db);
         var schedule = await read.Handle(new(Manager, "Schedule", null, null, null, 1, 50), CancellationToken.None);
         var found = await read.Handle(new(Manager, "schedule", "ДИКАНСЬКЕ грета", null, null, 1, 50), CancellationToken.None);
         var dated = await read.Handle(new(Manager, "Schedule", null, new DateOnly(2020, 1, 1), null, 1, 50),
             CancellationToken.None);
-        var invalid = new GetWorkshopArchiveQueryValidator()
+        var invalid = new GetWorkshopArchiveValidator()
             .Validate(new GetWorkshopArchiveQuery(Admin, "Other", null, new DateOnly(2020, 2, 1), new DateOnly(2020, 1, 1), 1, 500));
 
         Assert.Multiple(() =>

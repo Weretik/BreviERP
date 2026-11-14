@@ -1,9 +1,9 @@
 using BuildingBlocks.Api.Result;
-using Content.Application.Contracts;
-using Content.Application.PublicSiteCompany;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SiteCompany.Queries.GetPublicSiteCompany;
+using Content.Application.Features.SiteCompany.Shared;
 
 namespace Content.Api.PublicSiteCompany;
 

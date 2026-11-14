@@ -6,10 +6,10 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Reminders.Application.Abstractions;
-using Reminders.Application.Telegram;
-using Reminders.Application.Telegram.ConnectWebhook;
-using Reminders.Application.Telegram.HandleUpdate;
 using Reminders.Api.Access;
+using Reminders.Application.Features.Telegram.Commands.ConnectTelegramWebhook;
+using Reminders.Application.Features.Telegram.Commands.HandleTelegramUpdate;
+using Reminders.Application.Features.Telegram.Shared;
 
 namespace Reminders.Api.Telegram;
 

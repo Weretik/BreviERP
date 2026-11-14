@@ -1,5 +1,5 @@
-using Accounting.Application.Accounts;
 using Accounting.Domain.Accounts;
+using Accounting.Application.Features.Accounts.Shared;
 
 namespace Accounting.Api.Accounts;
 

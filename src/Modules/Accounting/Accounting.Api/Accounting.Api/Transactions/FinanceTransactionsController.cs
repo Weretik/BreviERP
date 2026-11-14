@@ -2,10 +2,6 @@ using Accounting.Api.Counterparties;
 using Accounting.Api.Access;
 using BuildingBlocks.Application.Errors;
 using Accounting.Api.Accounts;
-using Accounting.Application.Contracts;
-using Accounting.Application.History;
-using Accounting.Application.Journal;
-using Accounting.Application.Transactions;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
@@ -16,6 +12,15 @@ using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
+using Accounting.Application.Features.Journal.Shared;
+using Accounting.Application.Features.Transactions.Commands.CreateFinanceTransaction;
+using Accounting.Application.Features.Transactions.Commands.PromoteFinanceOneoff;
+using Accounting.Application.Features.Transactions.Commands.ReviewFinanceTransaction;
+using Accounting.Application.Features.Transactions.Commands.UpdateFinanceTransaction;
+using Accounting.Application.Features.Transactions.Commands.VoidFinanceTransaction;
+using Accounting.Application.Features.Transactions.Queries.GetFinanceTransactions;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace Accounting.Api.Transactions;
 

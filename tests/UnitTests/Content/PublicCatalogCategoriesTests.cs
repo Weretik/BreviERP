@@ -1,11 +1,15 @@
 using Ardalis.Result;
-using Content.Application.Contracts;
-using Content.Application.ProductPages.Save;
-using Content.Application.PublicCatalog;
-using Content.Application.SiteCategories.Save;
 using Content.Domain.ProductPages;
 using Content.Domain.SiteCategories;
 using FluentValidation.TestHelper;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategories;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategory;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategorySlugs;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogProduct;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogProducts;
+using Content.Application.Features.Catalog.Shared;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
 
 namespace UnitTests.Content;
 
@@ -55,7 +59,7 @@ public sealed class PublicCatalogCategoriesTests
     {
         using var h = await Site();
 
-        var tree = (await new GetPublicCatalogCategoriesQueryHandler(h.Site()).Handle(new(), None)).Value;
+        var tree = (await new GetPublicCatalogCategoriesHandler(h.Site()).Handle(new(), None)).Value;
 
         Assert.Multiple(() =>
         {
@@ -76,7 +80,7 @@ public sealed class PublicCatalogCategoriesTests
     public async Task Category_page_has_seo_text_parent_and_subcategories_in_the_asked_language()
     {
         using var h = await Site();
-        var handler = new GetPublicCatalogCategoryQueryHandler(h.Site());
+        var handler = new GetPublicCatalogCategoryHandler(h.Site());
 
         var top = (await handler.Handle(new("spetsodyah", "ru"), None)).Value;
         var child = (await handler.Handle(new("kostyumy", "ru"), None)).Value;
@@ -104,8 +108,8 @@ public sealed class PublicCatalogCategoriesTests
     {
         using var h = await Site();
         var site = h.Site();
-        var page = new GetPublicCatalogCategoryQueryHandler(site);
-        var cards = new GetPublicCatalogProductsQueryHandler(site);
+        var page = new GetPublicCatalogCategoryHandler(site);
+        var cards = new GetPublicCatalogProductsHandler(site);
 
         Assert.Multiple(async () =>
         {
@@ -122,7 +126,7 @@ public sealed class PublicCatalogCategoriesTests
     public async Task Listing_of_a_category_has_its_products_then_those_of_subcategories_each_once()
     {
         using var h = await Site();
-        var cards = new GetPublicCatalogProductsQueryHandler(h.Site());
+        var cards = new GetPublicCatalogProductsHandler(h.Site());
 
         var top = (await cards.Handle(new(1, 24, "uk", Category: "spetsodyah"), None)).Value;
         var suits = (await cards.Handle(new(1, 24, "uk", Category: "kostyumy"), None)).Value;
@@ -142,7 +146,7 @@ public sealed class PublicCatalogCategoriesTests
     {
         using var h = await Site();
 
-        var product = (await new GetPublicCatalogProductQueryHandler(h.Site(), h.Catalog)
+        var product = (await new GetPublicCatalogProductHandler(h.Site(), h.Catalog)
             .Handle(new("kurtka-zyma", "ru"), None)).Value;
 
         Assert.That(product.Categories.Select(x => (x.Slug, x.Name, x.Parent?.Slug, x.Parent?.Name)), Is.EqualTo(new[]
@@ -157,7 +161,7 @@ public sealed class PublicCatalogCategoriesTests
     {
         using var h = await Site();
 
-        var slugs = (await new GetPublicCatalogCategorySlugsQueryHandler(h.Site()).Handle(new(), None)).Value;
+        var slugs = (await new GetPublicCatalogCategorySlugsHandler(h.Site()).Handle(new(), None)).Value;
 
         Assert.That(slugs.Select(x => (x.Slug, x.HasRussian)), Is.EqualTo(new[]
         {
@@ -171,8 +175,8 @@ public sealed class PublicCatalogCategoriesTests
     [Test]
     public void Queries_refuse_a_wrong_language_and_an_empty_address()
     {
-        var page = new GetPublicCatalogCategoryQueryValidator();
-        var list = new GetPublicCatalogProductsQueryValidator();
+        var page = new GetPublicCatalogCategoryValidator();
+        var list = new GetPublicCatalogProductsValidator();
         Assert.Multiple(() =>
         {
             page.TestValidate(new GetPublicCatalogCategoryQuery("kostyumy", "uk")).ShouldNotHaveAnyValidationErrors();

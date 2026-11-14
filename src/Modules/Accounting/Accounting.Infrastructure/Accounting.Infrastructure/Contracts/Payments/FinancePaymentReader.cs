@@ -1,10 +1,11 @@
-using Accounting.Application.Contracts;
-using Accounting.Application.Payments;
 using Accounting.Contracts.Payments;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Movements;
 
 using Mediator;
+using Accounting.Application.Features.Payments.Queries.GetFinancePaymentCandidates;
+using Accounting.Application.Features.Payments.Queries.GetFinanceTransactionsByIds;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace Accounting.Infrastructure.Contracts.Payments;
 

@@ -1,6 +1,7 @@
 using Crm.Contracts.Embroidery;
 using Production.Application.Abstractions;
-using Production.Application.Contracts;
+using Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
+using Production.Application.Features.Orders.Shared;
 
 namespace Production.Infrastructure.Adapters.Crm;
 

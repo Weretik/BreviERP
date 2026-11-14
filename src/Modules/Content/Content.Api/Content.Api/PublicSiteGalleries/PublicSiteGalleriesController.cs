@@ -1,9 +1,9 @@
 using BuildingBlocks.Api.Result;
-using Content.Application.Contracts;
-using Content.Application.PublicSiteGalleries;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SiteGalleries.Queries.GetPublicSiteGalleries;
+using Content.Application.Features.SiteGalleries.Shared;
 
 namespace Content.Api.PublicSiteGalleries;
 

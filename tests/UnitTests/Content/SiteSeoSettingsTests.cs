@@ -1,9 +1,9 @@
 using Ardalis.Result;
-using Content.Application.SiteSettings.Get;
-using Content.Application.SiteSettings.Save;
-using Content.Application.SiteSettings.Shared;
 using FluentValidation.TestHelper;
 using Microsoft.Extensions.Caching.Memory;
+using Content.Application.Features.SiteSettings.Commands.SaveSiteSeoSettings;
+using Content.Application.Features.SiteSettings.Queries.GetSiteSeoSettings;
+using Content.Application.Features.SiteSettings.Shared;
 
 namespace UnitTests.Content;
 
@@ -54,7 +54,7 @@ public sealed class SiteSeoSettingsTests
     [Test]
     public void Validator_names_the_wrong_code()
     {
-        var validator = new SaveSiteSeoSettingsCommandValidator();
+        var validator = new SaveSiteSeoSettingsValidator();
 
         validator.TestValidate(Save(0, ga: "UA-12345-1")).ShouldHaveValidationErrorFor(x => x.GoogleAnalyticsId)
             .WithErrorMessage(SiteSettingsMessages.AnalyticsId);

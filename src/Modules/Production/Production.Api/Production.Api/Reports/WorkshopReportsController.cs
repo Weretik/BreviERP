@@ -3,8 +3,7 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Reports.GetReport;
+using Production.Application.Features.Reports.Queries.GetWorkshopReport;
 
 namespace Production.Api.Reports;
 

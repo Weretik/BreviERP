@@ -1,9 +1,9 @@
-using Accounting.Application.Accounts;
 using Accounting.Domain.Accounts;
 using Accounting.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
+using Accounting.Application.Features.Accounts.Shared;
 
 namespace UnitTests.Accounting;
 

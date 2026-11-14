@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Reminders.Application.Messages;
 using Reminders.Domain.Occurrences;
 using Reminders.Domain.Schedules;
+using Reminders.Application.Features.Messages.Shared;
 
 namespace UnitTests.Reminders;
 

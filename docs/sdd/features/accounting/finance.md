@@ -20,26 +20,26 @@ src/Modules/Accounting/
     Errors/            # AccountingDomainError
   Accounting.Application/Accounting.Application/
     Abstractions/      # IAccountingDbContext, IAccountingCustomerReader, IAccountingSupplierReader, IAccountingFileStorage, IBankStatementFileReader
-    Accounts/          # list with balances, create, update, cutover, archive/restore, delete (409 with history); FinanceAccountChange
-    Categories/        # list by scope, create (root/child), update, delete or switch off a used branch; CategoryNames
-    Transactions/      # journal with filters (needs review, counterparty) and totals, create, update, void, review, promote one-off; fields, save
-    Counterparties/    # tabs with counts, choices, create, update, verify, archive/restore, merge; CounterpartyStates (names of linked ones), FinanceCounterpartyChange
-    Transfers/         # journal with filters and totals, create, update, void; fields, save
-    Attachments/       # upload (storage first, removed if the row fails), list, content, delete; messages
-    Import/            # ImportLegacyFinanceCommand (check or move in parts inside one transaction), LegacyFinanceReader (gzip, 200 MiB limit), LegacyFinanceFile (export rows), LegacyFinancePlan (ids, conflicts, links, totals, balances), LegacyFinanceValues, messages
-    Statements/        # upload (hash, parse, recognise), list, details with totals and rollback numbers, edit a line, book, rollback; BankLineRecognition, BankDuplicates, BankParties; messages
-      Reading/         # BankHeaders (column names), BankStatementParser (header, rows, own IBAN, errors), BankFingerprint (old Calculator formula)
-    Balances/          # FinanceBalances: legacy, current, total, history, earliest date
-    Overview/          # GetFinanceOverviewQuery (per currency: counts, top expense roots, review reasons)
-    Reports/           # GetFinanceReportQuery (six kinds, totals per currency, operations limit), FinanceReportCsv (Excel-ready CSV)
-    Payments/          # operations by id and expense candidates for the payment links of «Рахунки на закупку» (host only)
-    Export/            # GetFinanceExportQuery: every stored field of every record as one JSON file
-    Journal/           # sort keys, page size, ValidBy
-    Lookup/            # FinanceNames: account and category names for rows and snapshots
-    History/           # GetFinanceHistoryQuery
-    Settings/          # GetAccountingSettingsQuery (cutover date, today in Kyiv)
-    Audit/             # AuditTrail (JSON snapshots), GetFinanceAuditQuery («Журнал змін» of all records, titles from snapshots)
-    Contracts/         # responses
+    Features/          # Commands/<UseCase>, Queries/<UseCase>, Shared/ per feature; responses sit with their use case or in Shared/
+      Accounts/          # list with balances, create, update, cutover, archive/restore, delete (409 with history); FinanceAccountChange
+      Categories/        # list by scope, create (root/child), update, delete or switch off a used branch; CategoryNames
+      Transactions/      # journal with filters (needs review, counterparty) and totals, create, update, void, review, promote one-off; fields, save
+      Counterparties/    # tabs with counts, choices, create, update, verify, archive/restore, merge; CounterpartyStates (names of linked ones), FinanceCounterpartyChange
+      Transfers/         # journal with filters and totals, create, update, void; fields, save
+      Attachments/       # upload (storage first, removed if the row fails), list, content, delete; messages
+      Import/            # ImportLegacyFinanceCommand (check or move in parts inside one transaction), LegacyFinanceReader (gzip, 200 MiB limit), LegacyFinanceFile (export rows), LegacyFinancePlan (ids, conflicts, links, totals, balances), LegacyFinanceValues, messages
+      Statements/      # upload (hash, parse, recognise), list, details with totals and rollback numbers, edit a line, book, rollback; BankLineRecognition, BankDuplicates, BankParties; messages
+        Shared/Reading/  # BankHeaders (column names), BankStatementParser (header, rows, own IBAN, errors), BankFingerprint (old Calculator formula)
+      Balances/          # FinanceBalances: legacy, current, total, history, earliest date
+      Overview/          # GetFinanceOverviewQuery (per currency: counts, top expense roots, review reasons)
+      Reports/           # GetFinanceReportQuery (six kinds, totals per currency, operations limit), FinanceReportCsv (Excel-ready CSV)
+      Payments/          # operations by id and expense candidates for the payment links of «Рахунки на закупку» (host only)
+      Export/            # GetFinanceExportQuery: every stored field of every record as one JSON file
+      Journal/           # sort keys, page size, ValidBy
+      Lookup/            # FinanceNames: account and category names for rows and snapshots
+      History/           # GetFinanceHistoryQuery
+      Settings/          # GetAccountingSettingsQuery (cutover date, today in Kyiv)
+      Audit/             # AuditTrail (JSON snapshots), GetFinanceAuditQuery («Журнал змін» of all records, titles from snapshots)
   Accounting.Infrastructure/Accounting.Infrastructure/
     Statements/        # BankStatementFileReader: XLSX/XLS (ExcelDataReader, 64 MiB unpacked limit) and CSV (encoding and separator detection)
     Files/             # AccountingFilesOptions (Accounting:Files), Google Cloud Storage bucket, local folder, not configured

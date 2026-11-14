@@ -1,4 +1,4 @@
-using Reminders.Application.Contracts;
+using Reminders.Application.Features.Tasks.Shared;
 
 namespace Reminders.Api.Tasks;
 

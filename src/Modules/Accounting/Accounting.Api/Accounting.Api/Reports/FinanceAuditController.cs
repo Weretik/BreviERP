@@ -1,11 +1,10 @@
 using Accounting.Api.Access;
-using Accounting.Application.Audit;
-using Accounting.Application.Contracts;
 using Accounting.Domain.Audit;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Audit.Queries.GetFinanceAudit;
 
 namespace Accounting.Api.Reports;
 

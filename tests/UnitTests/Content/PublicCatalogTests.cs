@@ -2,15 +2,20 @@ using System.Text.Json;
 using Ardalis.Result;
 using Content.Api.PublicCatalog;
 using Content.Application.Abstractions;
-using Content.Application.Contracts;
-using Content.Application.ProductPages.Save;
-using Content.Application.PublicCatalog;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Caching.Memory;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategories;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategory;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogProduct;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogProductSlugs;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogProducts;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogTree;
+using Content.Application.Features.Catalog.Shared;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
 
 namespace UnitTests.Content;
 
@@ -51,7 +56,7 @@ public sealed class PublicCatalogTests
         await ShowAsync(h, 3, "kostyum-prykhovanyy", showOnSite: false);
         await ShowAsync(h, 4, "kostyum-vymknenyy");
 
-        var tree = (await new GetPublicCatalogTreeQueryHandler(h.Site()).Handle(new(), None)).Value;
+        var tree = (await new GetPublicCatalogTreeHandler(h.Site()).Handle(new(), None)).Value;
 
         Assert.Multiple(() =>
         {
@@ -76,7 +81,7 @@ public sealed class PublicCatalogTests
         await ShowAsync(h, 1, "kostyum-lider");
         await ShowAsync(h, 50, "kaska");
 
-        var tree = (await new GetPublicCatalogTreeQueryHandler(h.Site()).Handle(new(), None)).Value;
+        var tree = (await new GetPublicCatalogTreeHandler(h.Site()).Handle(new(), None)).Value;
 
         Assert.That(tree.Types.SelectMany(x => x.Sections).Select(x => x.Slug),
             Is.EqualTo(new[] { "kostyumy", "kostyumy-21" }));
@@ -93,7 +98,7 @@ public sealed class PublicCatalogTests
         await ShowAsync(h, 1, "kostyum-lider", russian: true);
         await ShowAsync(h, 2, "kurtka-zyma");
         await ShowAsync(h, 50, "kaska");
-        var handler = new GetPublicCatalogProductsQueryHandler(h.Site());
+        var handler = new GetPublicCatalogProductsHandler(h.Site());
 
         var all = (await handler.Handle(new(1, 2, "ru"), None)).Value;
         var ppe = (await handler.Handle(new(1, 24, "uk", "Ppe"), None)).Value;
@@ -135,7 +140,7 @@ public sealed class PublicCatalogTests
         };
         await ShowAsync(h, 1, "kostyum-lider");
 
-        var page = (await new GetPublicCatalogProductsQueryHandler(h.Site()).Handle(new(1, 24, "uk"), None)).Value;
+        var page = (await new GetPublicCatalogProductsHandler(h.Site()).Handle(new(1, 24, "uk"), None)).Value;
 
         Assert.That(page.Items.Single().Fabrics, Is.EqualTo(new[] { "Грета", "Саржа" }));
     }
@@ -151,7 +156,7 @@ public sealed class PublicCatalogTests
         };
         h.Catalog.Photos[1] = [new("https://cdn.test/1.jpg", "https://cdn.test/1-small.jpg", true), new("https://cdn.test/2.jpg", null, false)];
         await ShowAsync(h, 1, "kostyum-lider");
-        var handler = new GetPublicCatalogProductQueryHandler(h.Site(), h.Catalog);
+        var handler = new GetPublicCatalogProductHandler(h.Site(), h.Catalog);
 
         var uk = (await handler.Handle(new("kostyum-lider", "uk"), None)).Value;
         var ru = (await handler.Handle(new("kostyum-lider", "ru"), None)).Value;
@@ -186,7 +191,7 @@ public sealed class PublicCatalogTests
         h.AddSewing(2, "Куртка Зима", "MOD-002", active: false);
         await ShowAsync(h, 1, "kostyum-lider", showOnSite: false);
         await ShowAsync(h, 2, "kurtka-zyma");
-        var handler = new GetPublicCatalogProductQueryHandler(h.Site(), h.Catalog);
+        var handler = new GetPublicCatalogProductHandler(h.Site(), h.Catalog);
 
         Assert.Multiple(async () =>
         {
@@ -205,7 +210,7 @@ public sealed class PublicCatalogTests
         await ShowAsync(h, 1, "kostyum-lider", russian: true);
         await ShowAsync(h, 2, "kurtka-zyma");
 
-        var slugs = (await new GetPublicCatalogProductSlugsQueryHandler(h.Site()).Handle(new(), None)).Value;
+        var slugs = (await new GetPublicCatalogProductSlugsHandler(h.Site()).Handle(new(), None)).Value;
 
         Assert.That(slugs.Select(x => (x.Slug, x.HasRussian)),
             Is.EqualTo(new[] { ("kostyum-lider", true), ("kurtka-zyma", false) }));
@@ -238,8 +243,8 @@ public sealed class PublicCatalogTests
     [Test]
     public void Queries_refuse_a_wrong_language_type_and_page_size()
     {
-        var list = new GetPublicCatalogProductsQueryValidator();
-        var one = new GetPublicCatalogProductQueryValidator();
+        var list = new GetPublicCatalogProductsValidator();
+        var one = new GetPublicCatalogProductValidator();
         Assert.Multiple(() =>
         {
             list.TestValidate(new GetPublicCatalogProductsQuery(1, 24, "uk", "Sewing", 3)).ShouldNotHaveAnyValidationErrors();

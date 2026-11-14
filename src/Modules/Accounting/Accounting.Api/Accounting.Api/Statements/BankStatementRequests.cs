@@ -1,5 +1,5 @@
-using Accounting.Application.Transactions;
 using Microsoft.AspNetCore.Http;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace Accounting.Api.Statements;
 

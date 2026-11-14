@@ -16,7 +16,7 @@ namespace UnitTests.Warehouse;
 public sealed class WarehouseIssueByCuttingTests
 {
     private static readonly WarehouseActor Chief = new(4, false, false, true);
-    private static readonly global::Production.Application.Orders.Access.ProductionActor OrderManager = new(2, false, true, false);
+    private static readonly global::Production.Application.Features.Orders.Shared.Access.ProductionActor OrderManager = new(2, false, true, false);
 
     [Test]
     public async Task Two_lines_of_one_part_are_compared_with_its_plan_once()

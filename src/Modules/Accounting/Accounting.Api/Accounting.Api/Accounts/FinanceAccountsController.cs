@@ -1,8 +1,5 @@
 using Accounting.Api.Access;
 using Accounting.Api.Results;
-using Accounting.Application.Accounts;
-using Accounting.Application.Contracts;
-using Accounting.Application.History;
 using Accounting.Domain.Audit;
 using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
@@ -10,6 +7,14 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Accounts.Commands.CreateFinanceAccount;
+using Accounting.Application.Features.Accounts.Commands.DeleteFinanceAccount;
+using Accounting.Application.Features.Accounts.Commands.SetCutoverBalance;
+using Accounting.Application.Features.Accounts.Commands.SetFinanceAccountActive;
+using Accounting.Application.Features.Accounts.Commands.UpdateFinanceAccount;
+using Accounting.Application.Features.Accounts.Queries.GetFinanceAccounts;
+using Accounting.Application.Features.Accounts.Shared;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
 
 namespace Accounting.Api.Accounts;
 

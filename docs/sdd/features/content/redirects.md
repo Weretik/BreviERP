@@ -11,13 +11,13 @@ src/Modules/Content/
   Content.Domain/Content.Domain/
     Redirects/         # SiteRedirect (+ source), SiteRedirectRules (normalizing, limits)
   Content.Application/Content.Application/
-    Contracts/RedirectResponses.cs
-    Redirects/GetList/       # every redirect by the old address
-    Redirects/Save/          # add or change; taken address and loop checks
-    Redirects/Delete/
-    Redirects/ImportOldSite/ # file shape, OldSiteRedirectResolver, transfer handler
-    Redirects/Shared/        # mapping, messages, SiteRedirectWriter (address changes)
-    PublicRedirects/         # public list, chains followed, source kept for a minute
+    Features/Redirects/
+      Queries/GetSiteRedirects/          # every redirect by the old address
+      Commands/SaveSiteRedirect/         # add or change; taken address and loop checks
+      Commands/DeleteSiteRedirect/
+      Commands/ImportOldSiteRedirects/   # file shape, OldSiteRedirectResolver, transfer handler
+      Queries/GetPublicRedirects/        # public list, chains followed
+      Shared/                            # responses, mapping, messages, SiteRedirectWriter (address changes), public source kept for a minute
   Content.Infrastructure/Content.Infrastructure/
     Persistence/Configurations/SiteRedirectConfiguration.cs
   Content.Api/Content.Api/

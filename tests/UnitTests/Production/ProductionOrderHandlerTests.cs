@@ -1,18 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using Ardalis.Result;
 using Production.Application.Abstractions;
-using Production.Application.Contracts;
-using Production.Application.Orders.Access;
-using Production.Application.Orders.CopyOrder;
-using Production.Application.Orders.CreateOrder;
-using Production.Application.Orders.DeleteOrder;
-using Production.Application.Orders.GetHistory;
-using Production.Application.Orders.GetOrder;
-using Production.Application.Orders.GetOrders;
-using Production.Application.Orders.ImportOrders;
-using Production.Application.Orders.QuoteSources;
-using Production.Application.Orders.UpdateOrder;
 using Production.Domain.FabricNorms;
+using Production.Application.Features.Orders.Commands.CopyProductionOrder;
+using Production.Application.Features.Orders.Commands.CreateProductionOrder;
+using Production.Application.Features.Orders.Commands.DeleteProductionOrder;
+using Production.Application.Features.Orders.Commands.ImportProductionOrders;
+using Production.Application.Features.Orders.Commands.UpdateProductionOrder;
+using Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
+using Production.Application.Features.Orders.Queries.GetProductionOrder;
+using Production.Application.Features.Orders.Queries.GetProductionOrderHistory;
+using Production.Application.Features.Orders.Queries.GetProductionOrders;
+using Production.Application.Features.Orders.Queries.GetProductionQuoteDraft;
+using Production.Application.Features.Orders.Queries.GetQuotesWithOrders;
+using Production.Application.Features.Orders.Shared;
+using Production.Application.Features.Orders.Shared.Access;
+using Production.Application.Features.Orders.Shared.Validation;
 
 namespace UnitTests.Production;
 
@@ -95,7 +98,7 @@ public sealed class ProductionOrderHandlerTests
     public async Task Draft_shows_rates_to_admin_but_not_to_a_manager()
     {
         using var workshop = Workshop();
-        var handler = new GetProductionQuoteDraftQueryHandler(workshop.Quotes, workshop.Resolver(),
+        var handler = new GetProductionQuoteDraftHandler(workshop.Quotes, workshop.Resolver(),
             workshop.Embroideries);
 
         var admin = await handler.Handle(new(Admin, 10), CancellationToken.None);
@@ -117,11 +120,11 @@ public sealed class ProductionOrderHandlerTests
         var item = created.Items.Single();
         var details = Details(5) with { AdditionalColors = [], SizesText = "M-3, L-2" };
 
-        var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+        var updated = await new UpdateProductionOrderHandler(workshop.Db, workshop.Staff, workshop.Cards(),
             workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time)
             .Handle(new(Chief, created.Id, new UpdateProductionOrderInput(created.Version, created.ClientName,
                 created.OrderDate, null, [new(item.Id, details, 300m)])), CancellationToken.None);
-        var history = (await new GetProductionOrderHistoryQueryHandler(workshop.Db)
+        var history = (await new GetProductionOrderHistoryHandler(workshop.Db)
             .Handle(new(created.Id), CancellationToken.None)).Value;
 
         Assert.Multiple(() =>
@@ -142,7 +145,7 @@ public sealed class ProductionOrderHandlerTests
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
         var lines = created.Items.Select(x => new UpdateProductionItemInput(x.Id, Details(4), null)).ToArray();
-        var handler = new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+        var handler = new UpdateProductionOrderHandler(workshop.Db, workshop.Staff, workshop.Cards(),
             workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time);
 
         var other = await handler.Handle(new(OtherManager, created.Id,
@@ -164,7 +167,7 @@ public sealed class ProductionOrderHandlerTests
         var created = (await Create(workshop, Manager, Input())).Value;
         var item = created.Items.Single();
 
-        await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+        await new UpdateProductionOrderHandler(workshop.Db, workshop.Staff, workshop.Cards(),
             workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time)
             .Handle(new(Manager, created.Id, new(created.Version, created.ClientName, created.OrderDate, null,
                 [new(item.Id, Details(3), 1m)])), CancellationToken.None);
@@ -179,7 +182,7 @@ public sealed class ProductionOrderHandlerTests
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
 
-        var copy = await new CopyProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time)
+        var copy = await new CopyProductionOrderHandler(workshop.Db, workshop.Staff, workshop.Cards(), workshop.Time)
             .Handle(new(Admin, created.Id, new(Guid.NewGuid())), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -196,10 +199,10 @@ public sealed class ProductionOrderHandlerTests
     {
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
-        var query = new GetQuotesWithOrdersQueryHandler(workshop.Db);
+        var query = new GetQuotesWithOrdersHandler(workshop.Db);
 
         var before = (await query.Handle(new([10, 11]), CancellationToken.None)).Value;
-        await new DeleteProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Time)
+        await new DeleteProductionOrderHandler(workshop.Db, workshop.Staff, workshop.Time)
             .Handle(new(Admin, created.Id, created.Version), CancellationToken.None);
         var after = (await query.Handle(new([10]), CancellationToken.None)).Value;
 
@@ -215,13 +218,13 @@ public sealed class ProductionOrderHandlerTests
     {
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
-        var handler = new DeleteProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Time);
+        var handler = new DeleteProductionOrderHandler(workshop.Db, workshop.Staff, workshop.Time);
 
         var manager = await handler.Handle(new(Manager, created.Id, created.Version), CancellationToken.None);
         var admin = await handler.Handle(new(Admin, created.Id, created.Version), CancellationToken.None);
-        var list = (await new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time)
+        var list = (await new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time)
             .Handle(new(null, null, null, null), CancellationToken.None)).Value;
-        var detail = await new GetProductionOrderQueryHandler(workshop.Cards())
+        var detail = await new GetProductionOrderHandler(workshop.Cards())
             .Handle(new(Admin, created.Id), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -239,7 +242,7 @@ public sealed class ProductionOrderHandlerTests
         using var workshop = Workshop();
         var created = (await Create(workshop, Manager, Input())).Value;
         await Import(workshop, false, Row("a", 1, "New", "Геофізика"));
-        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
 
         var client = (await handler.Handle(new(null, null, null, null, CustomerId: 9), CancellationToken.None)).Value;
         var other = (await handler.Handle(new(null, null, null, null, CustomerId: 8), CancellationToken.None)).Value;
@@ -256,7 +259,7 @@ public sealed class ProductionOrderHandlerTests
     {
         using var workshop = Workshop();
         await Import(workshop, false, Row("a", 1, "Closed", "Геофізика"), Row("b", 2, "New", "School 5"));
-        var handler = new GetProductionOrdersQueryHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
 
         var newOnly = (await handler.Handle(new(null, "New", null, null), CancellationToken.None)).Value;
         var search = (await handler.Handle(new("school", null, null, null), CancellationToken.None)).Value;
@@ -323,7 +326,7 @@ public sealed class ProductionOrderHandlerTests
 
         var created = await Create(workshop, Manager, input);
         workshop.Embroideries.Calculations.Remove(42);
-        var after = await new GetProductionOrderQueryHandler(workshop.Cards())
+        var after = await new GetProductionOrderHandler(workshop.Cards())
             .Handle(new(Manager, created.Value.Id), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -358,7 +361,7 @@ public sealed class ProductionOrderHandlerTests
         })).Value;
         workshop.Embroideries.Calculations.Clear();
 
-        var updated = await new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+        var updated = await new UpdateProductionOrderHandler(workshop.Db, workshop.Staff, workshop.Cards(),
                 workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time)
             .Handle(new(Manager, created.Id, new UpdateProductionOrderInput(created.Version, created.ClientName,
                 created.OrderDate, "ок", [new(created.Items[0].Id, linked, null)])), CancellationToken.None);
@@ -381,7 +384,7 @@ public sealed class ProductionOrderHandlerTests
             Embroideries = [new ProductionQuoteEmbroidery(101, 42, "Вишивка логотипу"), new(102, 9, "Видалена")]
         };
 
-        var draft = await new GetProductionQuoteDraftQueryHandler(workshop.Quotes, workshop.Resolver(),
+        var draft = await new GetProductionQuoteDraftHandler(workshop.Quotes, workshop.Resolver(),
             workshop.Embroideries).Handle(new(Manager, 10), CancellationToken.None);
 
         Assert.That(draft.Value.Embroideries.Select(x => (x.QuoteItemId, x.Calculation.Number)),
@@ -420,7 +423,7 @@ public sealed class ProductionOrderHandlerTests
 
     internal static Task<Result<ProductionOrderResponse>> Create(ProductionTestHarness workshop, ProductionActor actor,
         CreateProductionOrderInput input) =>
-        new CreateProductionOrderCommandHandler(workshop.Db, workshop.Quotes, workshop.Staff, workshop.Resolver(),
+        new CreateProductionOrderHandler(workshop.Db, workshop.Quotes, workshop.Staff, workshop.Resolver(),
             workshop.Cards(), workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time).Handle(new(actor, input), CancellationToken.None).AsTask();
 
     private static ProductionOrderImportRow Row(string id, int number, string status, string client) => new(id, number,
@@ -429,6 +432,6 @@ public sealed class ProductionOrderHandlerTests
 
     private static Task<Result<ProductionOrderImportResult>> Import(ProductionTestHarness workshop, bool dryRun,
         params ProductionOrderImportRow[] rows) =>
-        new ImportProductionOrdersCommandHandler(workshop.Db, workshop.Staff, workshop.Time)
+        new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time)
             .Handle(new(Admin, rows, dryRun), CancellationToken.None).AsTask();
 }

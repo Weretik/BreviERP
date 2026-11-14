@@ -1,11 +1,13 @@
 using System.Text.Json;
 using Content.Api.PublicSiteGalleries;
 using Content.Api.SiteGalleries;
-using Content.Application.Contracts;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
+using Content.Application.Features.SiteGalleries.Commands.TransferSiteGallery;
+using Content.Application.Features.SiteGalleries.Shared;
 
 namespace UnitTests.Content;
 

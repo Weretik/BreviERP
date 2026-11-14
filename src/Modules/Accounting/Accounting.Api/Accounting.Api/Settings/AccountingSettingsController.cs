@@ -1,10 +1,9 @@
 using Accounting.Api.Access;
-using Accounting.Application.Contracts;
-using Accounting.Application.Settings;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Settings.Queries.GetAccountingSettings;
 
 namespace Accounting.Api.Settings;
 

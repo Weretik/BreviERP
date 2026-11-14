@@ -4,10 +4,10 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Reminders.Api.Access;
-using Reminders.Application.Contracts;
-using Reminders.Application.Occurrences.CloseOccurrence;
-using Reminders.Application.Occurrences.GetOccurrences;
-using Reminders.Application.Occurrences.ReopenOccurrence;
+using Reminders.Application.Features.Occurrences.Commands.CloseReminderOccurrence;
+using Reminders.Application.Features.Occurrences.Commands.ReopenReminderOccurrence;
+using Reminders.Application.Features.Occurrences.Queries.GetReminderOccurrences;
+using Reminders.Application.Features.Occurrences.Shared;
 
 namespace Reminders.Api.Occurrences;
 

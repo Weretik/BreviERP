@@ -1,15 +1,22 @@
-using Accounting.Application.Accounts;
-using Accounting.Application.Categories;
-using Accounting.Application.Contracts;
-using Accounting.Application.History;
-using Accounting.Application.Journal;
-using Accounting.Application.Transactions;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Ardalis.Result;
 using static UnitTests.Accounting.FinanceMovementFixture;
+using Accounting.Application.Features.Accounts.Commands.DeleteFinanceAccount;
+using Accounting.Application.Features.Accounts.Commands.SetCutoverBalance;
+using Accounting.Application.Features.Accounts.Commands.SetFinanceAccountActive;
+using Accounting.Application.Features.Accounts.Commands.UpdateFinanceAccount;
+using Accounting.Application.Features.Categories.Commands.DeleteFinanceCategory;
+using Accounting.Application.Features.Categories.Queries.GetFinanceCategories;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
+using Accounting.Application.Features.Journal.Shared;
+using Accounting.Application.Features.Transactions.Commands.CreateFinanceTransaction;
+using Accounting.Application.Features.Transactions.Commands.UpdateFinanceTransaction;
+using Accounting.Application.Features.Transactions.Commands.VoidFinanceTransaction;
+using Accounting.Application.Features.Transactions.Queries.GetFinanceTransactions;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace UnitTests.Accounting;
 
@@ -30,7 +37,7 @@ public sealed class FinanceTransactionTests
         await Spend(harness, Fields(bank.Id, oldCosts.Id, 100_00, Archive), LedgerScope.LegacyArchive);
         var unconfirmed = (await Accounts(harness)).Single().Balance!;
 
-        await new SetCutoverBalanceCommandHandler(harness.Db, harness.Time).Handle(new SetCutoverBalanceCommand(bank.Id,
+        await new SetCutoverBalanceHandler(harness.Db, harness.Time).Handle(new SetCutoverBalanceCommand(bank.Id,
             2_000_00, true, bank.Version, AccountingTestHarness.Director), default);
         var confirmed = (await Accounts(harness)).Single().Balance!;
 
@@ -52,7 +59,7 @@ public sealed class FinanceTransactionTests
         var materials = await Category(harness, "Матеріали");
         var sales = await Category(harness, "Продажі", CategoryDirection.Income);
         var oldCosts = await Category(harness, "Побут", scope: LedgerScope.LegacyArchive);
-        var handler = new CreateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
+        var handler = new CreateFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
         Task<Result<FinanceTransactionResponse>> Create(FinanceTransactionFields fields,
             LedgerScope scope = LedgerScope.Current) =>
             handler.Handle(new CreateFinanceTransactionCommand(scope, fields, AccountingTestHarness.Director), default).AsTask();
@@ -72,7 +79,7 @@ public sealed class FinanceTransactionTests
         var bank = await Account(harness);
         var materials = await Category(harness, "Матеріали");
         var oldCosts = await Category(harness, "Побут", scope: LedgerScope.LegacyArchive);
-        await new SetFinanceAccountActiveCommandHandler(harness.Db, harness.Time).Handle(
+        await new SetFinanceAccountActiveHandler(harness.Db, harness.Time).Handle(
             new SetFinanceAccountActiveCommand(bank.Id, false, bank.Version, AccountingTestHarness.Director), default);
 
         var archive = await Spend(harness, Fields(bank.Id, oldCosts.Id, 1_00, Archive), LedgerScope.LegacyArchive);
@@ -88,16 +95,16 @@ public sealed class FinanceTransactionTests
         var bank = await Account(harness, openingMinor: 0);
         var materials = await Category(harness, "Матеріали");
         var created = await Spend(harness, Fields(bank.Id, materials.Id, 300_00));
-        var update = new UpdateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
+        var update = new UpdateFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
 
         var updated = await update.Handle(new UpdateFinanceTransactionCommand(created.Id,
             Fields(bank.Id, materials.Id, 250_00, description: "Нитки"), created.Version, AccountingTestHarness.Director),
             default);
         var stale = await update.Handle(new UpdateFinanceTransactionCommand(created.Id,
             Fields(bank.Id, materials.Id, 1_00), created.Version, AccountingTestHarness.Director), default);
-        var voided = await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
+        var voided = await new VoidFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new VoidFinanceTransactionCommand(created.Id, updated.Value.Version, AccountingTestHarness.Director), default);
-        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh())
+        var history = await new GetFinanceHistoryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Transaction, created.Id), default);
 
         Assert.Multiple(() =>
@@ -132,9 +139,9 @@ public sealed class FinanceTransactionTests
         await Spend(harness, Fields(bank.Id, rent.Id, 5_000_00, new DateOnly(2026, 10, 2)));
         await Spend(harness, Fields(bank.Id, sales.Id, 10_000_00, type: CategoryDirection.Income));
         var voided = await Spend(harness, Fields(bank.Id, rent.Id, 7_00));
-        await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
+        await new VoidFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new VoidFinanceTransactionCommand(voided.Id, voided.Version, AccountingTestHarness.Director), default);
-        var handler = new GetFinanceTransactionsQueryHandler(harness.Fresh(), harness.Parties, harness.Parties);
+        var handler = new GetFinanceTransactionsHandler(harness.Fresh(), harness.Parties, harness.Parties);
         Task<Result<FinanceTransactionPageResponse>> List(FinanceTransactionFilter f,
             int page = 1, FinanceJournalSort sort = FinanceJournalSort.Date) =>
             handler.Handle(new GetFinanceTransactionsQuery(f, sort, FinanceSortDirection.Desc, page), default).AsTask();
@@ -175,9 +182,9 @@ public sealed class FinanceTransactionTests
         var bank = await Account(harness);
         var oldCosts = await Category(harness, "Побут", scope: LedgerScope.LegacyArchive);
         await Spend(harness, Fields(bank.Id, oldCosts.Id, 1_00, new DateOnly(2024, 3, 1)), LedgerScope.LegacyArchive);
-        var update = new UpdateFinanceAccountCommandHandler(harness.Db, harness.Time);
+        var update = new UpdateFinanceAccountHandler(harness.Db, harness.Time);
 
-        var delete = await new DeleteFinanceAccountCommandHandler(harness.Db, harness.Time).Handle(
+        var delete = await new DeleteFinanceAccountHandler(harness.Db, harness.Time).Handle(
             new DeleteFinanceAccountCommand(bank.Id, bank.Version, AccountingTestHarness.Director), default);
         var earlier = await update.Handle(new UpdateFinanceAccountCommand(bank.Id,
             AccountingTestHarness.Fields("Банк") with { OpeningDate = new DateOnly(2023, 1, 1) }, bank.Version,
@@ -202,11 +209,11 @@ public sealed class FinanceTransactionTests
         var fabric = await Category(harness, "Тканини", parentId: materials.Id);
         var created = await Spend(harness, Fields(bank.Id, fabric.Id, 1_00));
 
-        var result = await new DeleteFinanceCategoryCommandHandler(harness.Db, harness.Time).Handle(
+        var result = await new DeleteFinanceCategoryHandler(harness.Db, harness.Time).Handle(
             new DeleteFinanceCategoryCommand(materials.Id, materials.Version, AccountingTestHarness.Director), default);
-        var categories = (await new GetFinanceCategoriesQueryHandler(harness.Fresh())
+        var categories = (await new GetFinanceCategoriesHandler(harness.Fresh())
             .Handle(new GetFinanceCategoriesQuery(LedgerScope.Current), default)).Value;
-        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh())
+        var history = await new GetFinanceHistoryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Category, fabric.Id), default);
 
         Assert.Multiple(() =>
@@ -216,7 +223,7 @@ public sealed class FinanceTransactionTests
             Assert.That(history.Value[0].Action, Is.EqualTo(AuditAction.Deactivate));
         });
         AssertRuleBroken(await SpendResult(harness, Fields(bank.Id, fabric.Id, 1_00)), "switched off");
-        var kept = await new UpdateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
+        var kept = await new UpdateFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new UpdateFinanceTransactionCommand(created.Id, Fields(bank.Id, fabric.Id, 2_00), created.Version,
                 AccountingTestHarness.Director), default);
         Assert.That(kept.IsSuccess, Is.True, "an operation keeps its switched-off category");

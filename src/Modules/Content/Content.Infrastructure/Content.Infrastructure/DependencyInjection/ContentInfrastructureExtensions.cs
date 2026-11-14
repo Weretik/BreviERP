@@ -2,18 +2,18 @@ using Content.Infrastructure.Adapters.Catalog;
 using Content.Infrastructure.Adapters.Media;
 using BuildingBlocks.Infrastructure.Migrations;
 using Content.Application.Abstractions;
-using Content.Application.PublicArticles;
-using Content.Application.PublicCatalog;
-using Content.Application.PublicRedirects;
-using Content.Application.PublicSiteCompany;
-using Content.Application.PublicSiteGalleries;
-using Content.Application.PublicSitePages;
-using Content.Application.PublicSiteSettings;
 using Content.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Content.Application.Features.Articles.Shared;
+using Content.Application.Features.Catalog.Shared;
+using Content.Application.Features.Redirects.Shared;
+using Content.Application.Features.SiteCompany.Shared;
+using Content.Application.Features.SiteGalleries.Shared;
+using Content.Application.Features.SitePages.Shared;
+using Content.Application.Features.SiteSettings.Shared;
 
 namespace Content.Infrastructure.DependencyInjection;
 

@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Reminders.Application.Access;
+using Reminders.Application.Features.Access.Shared;
 
 namespace Reminders.Api.Access;
 

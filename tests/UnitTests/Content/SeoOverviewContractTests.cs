@@ -1,10 +1,11 @@
 using System.Text.Json;
 using Content.Api.SeoOverview;
-using Content.Application.Contracts;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.SeoOverview.Queries.GetSeoOverview;
+using Content.Application.Features.SeoOverview.Shared;
 
 namespace UnitTests.Content;
 

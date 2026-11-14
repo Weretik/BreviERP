@@ -1,19 +1,17 @@
 using Ardalis.Result;
-using Content.Application.Articles.Save;
-using Content.Application.Contracts;
-using Content.Application.ProductPages.Save;
-using Content.Application.PublicRedirects;
-using Content.Application.Redirects.Delete;
-using Content.Application.Redirects.GetList;
-using Content.Application.Redirects.ImportOldSite;
-using Content.Application.Redirects.Save;
-using Content.Application.Redirects.Shared;
-using Content.Application.SiteCategories.Save;
 using Content.Domain.Articles;
 using Content.Domain.Redirects;
 using Content.Domain.SiteCategories;
 using FluentValidation.TestHelper;
 using Microsoft.Extensions.Caching.Memory;
+using Content.Application.Features.Articles.Commands.SaveContentArticle;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using Content.Application.Features.Redirects.Commands.DeleteSiteRedirect;
+using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects;
+using Content.Application.Features.Redirects.Commands.SaveSiteRedirect;
+using Content.Application.Features.Redirects.Queries.GetSiteRedirects;
+using Content.Application.Features.Redirects.Shared;
+using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
 
 namespace UnitTests.Content;
 
@@ -97,7 +95,7 @@ public sealed class SiteRedirectsTests
     [Test]
     public void Validator_refuses_a_target_outside_the_new_site_and_the_same_address()
     {
-        var validator = new SaveSiteRedirectCommandValidator();
+        var validator = new SaveSiteRedirectValidator();
 
         validator.TestValidate(new SaveSiteRedirectCommand(null, "/a", "/catalog/x", null, "x"))
             .ShouldHaveValidationErrorFor(x => x.ToPath).WithErrorMessage(RedirectMessages.ToInvalid);
@@ -226,7 +224,7 @@ public sealed class SiteRedirectsTests
                 "/bad>:Unresolved",
             }));
             Assert.That(dry.Rows.Single(x => x.FromPath == "/kostyum-lider").Note, Is.EqualTo("Товар «Костюм Лідер»"));
-            Assert.That(dry.Rows.Single(x => x.FromPath == "/bad").Note, Is.EqualTo(ImportOldSiteRedirectsCommandHandler.BadTarget));
+            Assert.That(dry.Rows.Single(x => x.FromPath == "/bad").Note, Is.EqualTo(ImportOldSiteRedirectsHandler.BadTarget));
             Assert.That((dry.Total, dry.Created, dry.Unresolved), Is.EqualTo((10, 7, 2)));
             Assert.That(afterDry.Items, Is.Empty);
             Assert.That(real.Created, Is.EqualTo(7));
@@ -254,7 +252,7 @@ public sealed class SiteRedirectsTests
         {
             Assert.That((kept.Kept, kept.Updated), Is.EqualTo((2, 0)));
             Assert.That((overwritten.Kept, overwritten.Updated), Is.EqualTo((1, 1)));
-            Assert.That(overwritten.Rows.Single(x => x.FromPath == "/b").Note, Is.EqualTo(ImportOldSiteRedirectsCommandHandler.ManualKept));
+            Assert.That(overwritten.Rows.Single(x => x.FromPath == "/b").Note, Is.EqualTo(ImportOldSiteRedirectsHandler.ManualKept));
             Assert.That(rows["/a"], Is.EqualTo("/uk/two"));
             Assert.That(rows["/b"], Is.EqualTo("/uk/mine"));
         });
@@ -263,7 +261,7 @@ public sealed class SiteRedirectsTests
     [Test]
     public void Import_validator_limits_the_file()
     {
-        var validator = new ImportOldSiteRedirectsCommandValidator();
+        var validator = new ImportOldSiteRedirectsValidator();
 
         validator.TestValidate(new ImportOldSiteRedirectsCommand(true, false, [], "x")).ShouldHaveValidationErrorFor(x => x.Items);
         validator.TestValidate(new ImportOldSiteRedirectsCommand(true, false,

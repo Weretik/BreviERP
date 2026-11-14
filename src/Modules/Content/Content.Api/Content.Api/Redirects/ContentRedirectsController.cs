@@ -2,15 +2,15 @@ using System.Security.Claims;
 using Ardalis.Result;
 using BuildingBlocks.Api.Result;
 using Content.Api.Access;
-using Content.Application.Contracts;
-using Content.Application.Redirects.Delete;
-using Content.Application.Redirects.GetList;
-using Content.Application.Redirects.ImportOldSite;
-using Content.Application.Redirects.Save;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.Redirects.Commands.DeleteSiteRedirect;
+using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects;
+using Content.Application.Features.Redirects.Commands.SaveSiteRedirect;
+using Content.Application.Features.Redirects.Queries.GetSiteRedirects;
+using Content.Application.Features.Redirects.Shared;
 
 namespace Content.Api.Redirects;
 

@@ -1,17 +1,18 @@
 using Ardalis.Result;
 using Production.Application.Abstractions;
-using Production.Application.Contracts;
-using Production.Application.Forecast;
-using Production.Application.Forecast.GetForecast;
-using Production.Application.Forecast.SaveQueue;
-using Production.Application.Orders.Access;
-using Production.Application.PayrollParameters;
-using Production.Application.Work;
-using Production.Application.Work.GetWorkLog;
-using Production.Application.Work.ImportWork;
-using Production.Application.Work.RecordWork;
 using Production.Domain.Forecast;
 using Production.Domain.Staff;
+using Production.Application.Features.Forecast.Commands.SaveForecastQueue;
+using Production.Application.Features.Forecast.Queries.GetForecast;
+using Production.Application.Features.Forecast.Shared;
+using Production.Application.Features.Orders.Shared;
+using Production.Application.Features.Orders.Shared.Access;
+using Production.Application.Features.PayrollParameters.Shared;
+using Production.Application.Features.Work.Commands.CreateProductionWork;
+using Production.Application.Features.Work.Commands.ImportProductionWork;
+using Production.Application.Features.Work.Commands.VoidProductionWork;
+using Production.Application.Features.Work.Queries.GetWorkLog;
+using Production.Application.Features.Work.Shared;
 
 namespace UnitTests.Production;
 
@@ -62,9 +63,9 @@ public sealed class ProductionWorkHandlerTests
         var voided = await Void(workshop, Chief, workId, "Помилка");
         var twice = await Void(workshop, Chief, workId, "Ще раз");
         var again = await Record(workshop, Chief, order.Id, itemId, new(employeeId, "Sewing", 3, Day, false, null, null));
-        var log = await new GetWorkLogQueryHandler(workshop.Db)
+        var log = await new GetWorkLogHandler(workshop.Db)
             .Handle(new(Admin, "2026-11", employeeId, null), CancellationToken.None);
-        var managerLog = await new GetWorkLogQueryHandler(workshop.Db)
+        var managerLog = await new GetWorkLogHandler(workshop.Db)
             .Handle(new(Manager, "2026-11", null, null), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -91,7 +92,7 @@ public sealed class ProductionWorkHandlerTests
         ProductionWorkImportRow Row(string id, string name, DateTimeOffset? voidedAt = null) => new(id, "old-1", 1, name,
             "Sewing", 1, false, null, null, 196.62m, Day, workshop.Time.GetUtcNow(), "a@b.c", voidedAt,
             voidedAt is null ? null : "видалити");
-        var handler = new ImportProductionWorkCommandHandler(workshop.Db);
+        var handler = new ImportProductionWorkHandler(workshop.Db);
 
         var withError = await handler.Handle(new(Admin, [Row("w1", "андреева"), Row("w2", "Невідома")], false),
             CancellationToken.None);
@@ -204,20 +205,20 @@ public sealed class ProductionWorkHandlerTests
 
     private static async Task<Result<ProductionItemWorkResponse>> Record(ProductionTestHarness workshop,
         ProductionActor actor, int orderId, int itemId, CreateProductionWorkInput input) =>
-        await new CreateProductionWorkCommandHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db), workshop.Time)
+        await new CreateProductionWorkHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db), workshop.Time)
             .Handle(new(actor, orderId, itemId, input), CancellationToken.None);
 
     private static async Task<Result<ProductionItemWorkResponse>> Void(ProductionTestHarness workshop,
         ProductionActor actor, int workId, string reason) =>
-        await new VoidProductionWorkCommandHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db), workshop.Time)
+        await new VoidProductionWorkHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db), workshop.Time)
             .Handle(new(actor, workId, new(reason)), CancellationToken.None);
 
     private static async Task<Result<ForecastResponse>> Forecast(ProductionTestHarness workshop, ProductionActor actor) =>
-        await new GetForecastQueryHandler(new ForecastQueueReader(workshop.Db), new WorkCards(workshop.Db),
+        await new GetForecastHandler(new ForecastQueueReader(workshop.Db), new WorkCards(workshop.Db),
             workshop.Parameters, workshop.Time).Handle(new(actor), CancellationToken.None);
 
     private static async Task<Result> SaveQueue(ProductionTestHarness workshop, ProductionActor actor,
         SaveForecastQueueInput input) =>
-        await new SaveForecastQueueCommandHandler(workshop.Db, new ForecastQueueReader(workshop.Db), workshop.Staff,
+        await new SaveForecastQueueHandler(workshop.Db, new ForecastQueueReader(workshop.Db), workshop.Staff,
             workshop.Time).Handle(new(actor, input), CancellationToken.None);
 }

@@ -2,8 +2,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Production.Api.Archive;
-using Production.Application.Contracts;
 using YamlDotNet.RepresentationModel;
+using Production.Application.Features.Archive.Commands.ImportWorkshopArchive;
+using Production.Application.Features.Archive.Queries.GetWorkshopArchive;
 
 namespace UnitTests.Production;
 

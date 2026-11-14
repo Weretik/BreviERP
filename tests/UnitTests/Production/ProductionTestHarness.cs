@@ -2,13 +2,11 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
 using Production.Application.Abstractions;
-using Production.Application.Colors;
-using Production.Application.Contracts;
-using Production.Application.Orders;
-using Production.Application.Orders.Embroidery;
-using Production.Application.Orders.QuoteSources;
-using Production.Application.Orders.Tracking;
 using Production.Infrastructure.Persistence;
+using Production.Application.Features.Colors.Shared;
+using Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
+using Production.Application.Features.Orders.Shared;
+using Production.Application.Features.Orders.Shared.Validation;
 
 namespace UnitTests.Production;
 
