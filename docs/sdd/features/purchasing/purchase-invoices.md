@@ -40,7 +40,8 @@ src/Modules/Purchasing/
     Integrations/Dropbox/ # DropboxFileDownloader (dl=1, 20 MB, PDF and pictures)
     DependencyInjection/
   Purchasing.Api/Purchasing.Api/
-    Register/PurchaseInvoicesController.cs   # /api/purchasing/invoices, policy access:purchase-invoices
+    Endpoints/Register/   # RegisterEndpoints (/api/purchasing/invoices, policy access:purchase-invoices) + one <UseCase>Endpoint per operation
+    Endpoints/Documents/  # DocumentsEndpoints: recognize, save checked document, template
 src/Bootstrapper/Host.Seed/Jobs/Sync/PurchaseInvoicesSyncTask.cs   # daily step purchase-invoices
 src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/Adapters/
   Reference/PurchasingSupplierReader.cs     # Reference.Contracts suppliers for the link
@@ -52,19 +53,19 @@ src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/Adapt
 
 ```mermaid
 flowchart LR
-  Admin[Brevi Admin «Оновити зараз»] --> Controller[PurchaseInvoicesController]
+  Admin[Brevi Admin «Оновити зараз»] --> Endpoints[Purchasing endpoints]
   Job[brevierp-sync step purchase-invoices] --> Sync
-  Controller --> Sync[PurchaseRegisterSync]
-  Controller --> Query[GetPurchaseInvoices]
+  Endpoints --> Sync[PurchaseRegisterSync]
+  Endpoints --> Query[GetPurchaseInvoices]
   Sync --> Reader[Google Sheets reader]
   Reader --> Sheet[(Sheet «финансы», read-only)]
   Sync --> Rules[Ingestion rules]
   Sync --> Db[(purchasing schema)]
   Query --> Db
-  Controller --> Review[ReviewPurchaseInvoice]
+  Endpoints --> Review[ReviewPurchaseInvoice]
   Review --> Suppliers[Reference suppliers via host]
   Review --> Db
-  Controller --> Recognize[PurchaseFileRecognition]
+  Endpoints --> Recognize[PurchaseFileRecognition]
   Recognize --> Dropbox[(Dropbox original)]
   Recognize --> Ai[Ai module via host: OpenAI]
   Recognize --> Db
