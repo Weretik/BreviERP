@@ -86,7 +86,7 @@ public sealed class FinanceReportTests
             new GetFinanceReportQuery(new FinanceReportFilter(FinanceReportKind.Operations, From, To), 2), default)).Value;
         var parties = await Report(harness, FinanceReportKind.Counterparties);
         var onlyRomashka = await Report(harness, FinanceReportKind.Operations,
-            counterparty: CounterpartyLink.Of(CounterpartyKind.Financial, counterparty.Id.ToString()));
+            counterparty: CounterpartyLink.Of(CounterpartyKind.Financial, counterparty.Id.ToString()).Value);
 
         Assert.Multiple(() =>
         {

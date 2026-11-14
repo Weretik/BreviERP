@@ -31,7 +31,9 @@ public sealed class CreateFinanceTransactionCommandHandler(IAccountingDbContext 
     public async ValueTask<Result<FinanceTransactionResponse>> Handle(CreateFinanceTransactionCommand command,
         CancellationToken cancellationToken)
     {
-        var details = command.Fields.ToDetails();
+        var fields = command.Fields.ToDetails();
+        if (fields.IsFailure) return fields.Error!.ToResult<FinanceTransactionResponse>();
+        var details = fields.Value;
         var (account, category, missing) = await command.Fields.LoadAsync(db, cancellationToken);
         if (missing is not null) return Result.NotFound(missing);
         var readers = new CounterpartyReaders(db, customers, suppliers);
@@ -39,8 +41,10 @@ public sealed class CreateFinanceTransactionCommandHandler(IAccountingDbContext 
         if (gone is not null) return Result.NotFound(gone);
 
         var now = clock.GetUtcNow();
-        var transaction = FinanceTransaction.Create(FinanceTransactionId.New(), command.Scope, details,
+        var created = FinanceTransaction.Create(FinanceTransactionId.New(), command.Scope, details,
             account, category, counterparty, command.By, now);
+        if (created.IsFailure) return created.Error!.ToResult<FinanceTransactionResponse>();
+        var transaction = created.Value;
         db.Transactions.Add(transaction);
         var names = (await FinanceNames.LoadAsync(db, cancellationToken))
             .With(await CounterpartyStates.LoadAsync(readers, [details.Counterparty], cancellationToken));

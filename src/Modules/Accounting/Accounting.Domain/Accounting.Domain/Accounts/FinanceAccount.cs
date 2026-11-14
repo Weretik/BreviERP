@@ -66,14 +66,14 @@ public sealed class FinanceAccount : IAggregateRoot
         new(id, details, now);
 
     /// <summary>An account of the old Calculator «Фінанси» with its id, balance on 01.10 and archive state (stage 5).</summary>
-    public static FinanceAccount FromLegacy(FinanceAccountId id, FinanceAccountDetails details, long? cutoverMinor,
+    public static DomainResult<FinanceAccount> FromLegacy(FinanceAccountId id, FinanceAccountDetails details, long? cutoverMinor,
         bool cutoverConfirmed, DateTimeOffset? cutoverConfirmedAt, string? cutoverConfirmedBy, bool active,
         DateTimeOffset createdAt, DateTimeOffset updatedAt)
     {
         if (cutoverConfirmed && cutoverMinor is null)
-            throw AccountingDomainError.Fail("Accounting.Account.Cutover", "Підтверджений залишок на 01.10 без суми.");
+            return AccountingErrors.Rule("Accounting.Account.Cutover", "Підтверджений залишок на 01.10 без суми.");
         if (cutoverMinor is { } amount && !MoneyMinor.InRange(amount))
-            throw AccountingDomainError.Fail("Accounting.Account.Cutover", "Залишок завеликий.");
+            return AccountingErrors.Rule("Accounting.Account.Cutover", "Залишок завеликий.");
         return new FinanceAccount(id, details, createdAt)
         {
             CutoverBalanceMinor = cutoverMinor,
@@ -95,14 +95,14 @@ public sealed class FinanceAccount : IAggregateRoot
     /// Changes the editable fields; returns false when nothing differs (the version stays). Once the account has
     /// movements its currency is fixed and its opening date cannot move past the earliest one.
     /// </summary>
-    public bool Update(FinanceAccountDetails details, FinanceAccountUsage usage, DateTimeOffset now)
+    public DomainResult<bool> Update(FinanceAccountDetails details, FinanceAccountUsage usage, DateTimeOffset now)
     {
         if (details == Details) return false;
         if (usage.HasHistory && details.Currency != Currency)
-            throw AccountingDomainError.Fail("Accounting.Account.Currency",
+            return AccountingErrors.Rule("Accounting.Account.Currency",
                 "По рахунку вже є рух коштів, його валюту змінити не можна.");
         if (usage.EarliestDate is { } earliest && details.OpeningDate > earliest)
-            throw AccountingDomainError.Fail("Accounting.Account.OpeningDate",
+            return AccountingErrors.Rule("Accounting.Account.OpeningDate",
                 $"Найраніший запис рахунку — {earliest:dd.MM.yyyy}; дата початкового залишку не може бути пізнішою.");
         Apply(details);
         Touch(now);
@@ -113,14 +113,14 @@ public sealed class FinanceAccount : IAggregateRoot
     /// «Залишок на 01.10»: <paramref name="confirmed"/> stores the amount with who and when; otherwise the amount and
     /// the confirmation are cleared. Returns false when nothing changes.
     /// </summary>
-    public bool SetCutoverBalance(long? balanceMinor, bool confirmed, string by, DateTimeOffset now)
+    public DomainResult<bool> SetCutoverBalance(long? balanceMinor, bool confirmed, string by, DateTimeOffset now)
     {
         if (confirmed)
         {
             if (balanceMinor is not { } amount)
-                throw AccountingDomainError.Fail("Accounting.Account.Cutover", "Вкажіть залишок на 01.10.2026.");
+                return AccountingErrors.Rule("Accounting.Account.Cutover", "Вкажіть залишок на 01.10.2026.");
             if (!MoneyMinor.InRange(amount))
-                throw AccountingDomainError.Fail("Accounting.Account.Cutover", "Залишок завеликий.");
+                return AccountingErrors.Rule("Accounting.Account.Cutover", "Залишок завеликий.");
             if (CutoverConfirmed && CutoverBalanceMinor == amount) return false;
             CutoverBalanceMinor = amount;
             CutoverConfirmed = true;

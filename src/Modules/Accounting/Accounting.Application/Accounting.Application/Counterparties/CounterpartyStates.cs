@@ -52,10 +52,11 @@ internal sealed class CounterpartyStates(IReadOnlyDictionary<CounterpartyLink, C
         return state is null ? (null, AccountingMessages.CounterpartyNotFound) : (state, null);
     }
 
-    // Clients and suppliers are checked records of their own modules, so they never need a review here.
+    // Clients and suppliers are checked records of their own modules, so they never need a review here. Their ids come
+    // from those modules and are always valid links.
     private static void Add(Dictionary<CounterpartyLink, CounterpartyState> states, CounterpartyKind kind, AccountingParty party)
     {
-        var link = CounterpartyLink.Of(kind, party.Id);
+        var link = CounterpartyLink.Of(kind, party.Id).Value;
         states[link] = new CounterpartyState(link, party.Name, party.Active, Verified: true);
     }
 }

@@ -51,5 +51,5 @@ public sealed class GetFinanceCounterpartyChoicesQueryHandler(IAccountingDbConte
     }
 
     private static FinanceCounterpartyChoiceResponse Party(CounterpartyKind kind, AccountingParty party) =>
-        new(kind, CounterpartyLink.Of(kind, party.Id).Id, party.Name, party.TaxId, true, null);
+        new(kind, CounterpartyLink.Of(kind, party.Id).Value.Id, party.Name, party.TaxId, true, null);
 }

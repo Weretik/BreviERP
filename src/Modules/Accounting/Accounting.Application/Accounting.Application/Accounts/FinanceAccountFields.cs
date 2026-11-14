@@ -13,7 +13,7 @@ public sealed record FinanceAccountFields(
     string? Note,
     int SortOrder)
 {
-    public FinanceAccountDetails ToDetails() =>
+    public DomainResult<FinanceAccountDetails> ToDetails() =>
         FinanceAccountDetails.Of(Name, Type, Currency, Iban, OpeningMinor, OpeningDate, Note, SortOrder);
 }
 

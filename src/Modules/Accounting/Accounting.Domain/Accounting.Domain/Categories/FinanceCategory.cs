@@ -14,6 +14,7 @@ public sealed class FinanceCategory : IAggregateRoot
 
     private FinanceCategory() { }
 
+    /// <summary>Takes a name and note already checked by <see cref="CheckTexts"/>.</summary>
     private FinanceCategory(FinanceCategoryId id, string name, CategoryDirection direction, LedgerScope scope,
         FinanceCategoryId? parentId, string note, int sortOrder, DateTimeOffset now)
     {
@@ -21,8 +22,8 @@ public sealed class FinanceCategory : IAggregateRoot
         Direction = direction;
         Scope = scope;
         ParentId = parentId;
-        Name = CleanName(name);
-        Note = CleanNote(note);
+        Name = FinanceText.Name(name);
+        Note = FinanceText.Clean(note);
         SortOrder = sortOrder;
         Active = true;
         Version = 1;
@@ -47,21 +48,24 @@ public sealed class FinanceCategory : IAggregateRoot
 
     public bool IsRoot => ParentId is null;
 
-    public static FinanceCategory CreateRoot(FinanceCategoryId id, string? name, CategoryDirection direction,
-        LedgerScope scope, string? note, int sortOrder, DateTimeOffset now)
+    public static DomainResult<FinanceCategory> CreateRoot(FinanceCategoryId id, string? name,
+        CategoryDirection direction, LedgerScope scope, string? note, int sortOrder, DateTimeOffset now)
     {
-        Guard(direction, scope);
+        var check = DomainResult.Combine(Guard(direction, scope), CheckTexts(name, note));
+        if (check.IsFailure) return check.Error!;
         return new FinanceCategory(id, name ?? string.Empty, direction, scope, null, note ?? string.Empty, sortOrder, now);
     }
 
     /// <summary>A subcategory takes the direction and area of its root; the root must be an active root.</summary>
-    public static FinanceCategory CreateChild(FinanceCategoryId id, string? name, FinanceCategory parent, string? note,
+    public static DomainResult<FinanceCategory> CreateChild(FinanceCategoryId id, string? name, FinanceCategory parent, string? note,
         int sortOrder, DateTimeOffset now)
     {
         if (!parent.IsRoot)
-            throw AccountingDomainError.Fail("Accounting.Category.Level", "Підкатегорія може бути лише в кореневій категорії.");
+            return AccountingErrors.Rule("Accounting.Category.Level", "Підкатегорія може бути лише в кореневій категорії.");
         if (!parent.Active)
-            throw AccountingDomainError.Fail("Accounting.Category.Parent", "Коренева категорія вже не використовується.");
+            return AccountingErrors.Rule("Accounting.Category.Parent", "Коренева категорія вже не використовується.");
+        var texts = CheckTexts(name, note);
+        if (texts.IsFailure) return texts.Error!;
         return new FinanceCategory(id, name ?? string.Empty, parent.Direction, parent.Scope, parent.Id, note ?? string.Empty,
             sortOrder, now);
     }
@@ -70,23 +74,26 @@ public sealed class FinanceCategory : IAggregateRoot
     /// A category of the old Calculator «Фінанси» with its id and state (stage 5); a subcategory sits in a root of the
     /// same direction and area.
     /// </summary>
-    public static FinanceCategory FromLegacy(FinanceCategoryId id, string? name, CategoryDirection direction,
-        LedgerScope scope, FinanceCategory? parent, string? note, bool active, int sortOrder, DateTimeOffset createdAt,
-        DateTimeOffset updatedAt)
+    public static DomainResult<FinanceCategory> FromLegacy(FinanceCategoryId id, string? name,
+        CategoryDirection direction, LedgerScope scope, FinanceCategory? parent, string? note, bool active,
+        int sortOrder, DateTimeOffset createdAt, DateTimeOffset updatedAt)
     {
-        Guard(direction, scope);
+        var check = DomainResult.Combine(Guard(direction, scope), CheckTexts(name, note));
+        if (check.IsFailure) return check.Error!;
         if (parent is not null && (!parent.IsRoot || parent.Direction != direction || parent.Scope != scope))
-            throw AccountingDomainError.Fail("Accounting.Category.Level",
+            return AccountingErrors.Rule("Accounting.Category.Level",
                 $"Підкатегорія «{name}» не підходить до кореневої «{parent.Name}».");
         return new FinanceCategory(id, name ?? string.Empty, direction, scope, parent?.Id, note ?? string.Empty,
             sortOrder, createdAt) { Active = active, UpdatedAt = updatedAt };
     }
 
     /// <summary>Changes the name, note and order; returns false when nothing differs.</summary>
-    public bool Update(string? name, string? note, int sortOrder, DateTimeOffset now)
+    public DomainResult<bool> Update(string? name, string? note, int sortOrder, DateTimeOffset now)
     {
-        var cleanName = CleanName(name ?? string.Empty);
-        var cleanNote = CleanNote(note ?? string.Empty);
+        var check = CheckTexts(name, note);
+        if (check.IsFailure) return check.Error!;
+        var cleanName = FinanceText.Name(name);
+        var cleanNote = FinanceText.Clean(note);
         if (cleanName == Name && cleanNote == Note && sortOrder == SortOrder) return false;
         Name = cleanName;
         Note = cleanNote;
@@ -109,28 +116,23 @@ public sealed class FinanceCategory : IAggregateRoot
         return true;
     }
 
-    private static void Guard(CategoryDirection direction, LedgerScope scope)
+    private static DomainResult Guard(CategoryDirection direction, LedgerScope scope)
     {
         if (!Enum.IsDefined(direction))
-            throw AccountingDomainError.Fail("Accounting.Category.Direction", "Невідомий тип категорії.");
+            return AccountingErrors.Rule("Accounting.Category.Direction", "Невідомий тип категорії.");
         if (!Enum.IsDefined(scope))
-            throw AccountingDomainError.Fail("Accounting.Category.Scope", "Невідома область обліку.");
+            return AccountingErrors.Rule("Accounting.Category.Scope", "Невідома область обліку.");
+        return DomainResult.Success();
     }
 
-    private static string CleanName(string name)
+    private static DomainResult CheckTexts(string? name, string? note)
     {
-        var clean = FinanceText.Name(name);
-        if (clean.Length == 0) throw AccountingDomainError.Fail("Accounting.Category.Name", "Вкажіть назву категорії.");
-        if (clean.Length > NameMaxLength)
-            throw AccountingDomainError.Fail("Accounting.Category.Name", $"Назва категорії — не більше {NameMaxLength} символів.");
-        return clean;
-    }
-
-    private static string CleanNote(string note)
-    {
-        var clean = FinanceText.Clean(note);
-        if (clean.Length > NoteMaxLength)
-            throw AccountingDomainError.Fail("Accounting.Category.Note", $"Примітка — не більше {NoteMaxLength} символів.");
-        return clean;
+        var cleanName = FinanceText.Name(name);
+        if (cleanName.Length == 0) return AccountingErrors.Rule("Accounting.Category.Name", "Вкажіть назву категорії.");
+        if (cleanName.Length > NameMaxLength)
+            return AccountingErrors.Rule("Accounting.Category.Name", $"Назва категорії — не більше {NameMaxLength} символів.");
+        if (FinanceText.Clean(note).Length > NoteMaxLength)
+            return AccountingErrors.Rule("Accounting.Category.Note", $"Примітка — не більше {NoteMaxLength} символів.");
+        return DomainResult.Success();
     }
 }

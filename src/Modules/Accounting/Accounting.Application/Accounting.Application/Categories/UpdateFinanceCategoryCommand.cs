@@ -40,7 +40,9 @@ public sealed class UpdateFinanceCategoryCommandHandler(IAccountingDbContext db,
 
         var now = clock.GetUtcNow();
         var before = AuditTrail.Snapshot(category);
-        if (!category.Update(command.Name, command.Note, command.SortOrder, now))
+        var updated = category.Update(command.Name, command.Note, command.SortOrder, now);
+        if (updated.IsFailure) return updated.Error!.ToResult<FinanceCategoryResponse>();
+        if (!updated.Value)
             return Result.Success(FinanceCategoryResponse.From(category));
 
         AuditTrail.Add(db, AuditEntity.Category, command.Id, AuditAction.Update, command.By, now, before,

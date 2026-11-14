@@ -29,12 +29,16 @@ public sealed class CreateFinanceTransferCommandHandler(IAccountingDbContext db,
     public async ValueTask<Result<FinanceTransferResponse>> Handle(CreateFinanceTransferCommand command,
         CancellationToken cancellationToken)
     {
-        var details = command.Fields.ToDetails();
+        var fields = command.Fields.ToDetails();
+        if (fields.IsFailure) return fields.Error!.ToResult<FinanceTransferResponse>();
+        var details = fields.Value;
         var (from, to, missing) = await command.Fields.LoadAsync(db, cancellationToken);
         if (missing is not null) return Result.NotFound(missing);
 
         var now = clock.GetUtcNow();
-        var transfer = FinanceTransfer.Create(FinanceTransferId.New(), command.Scope, details, from, to, command.By, now);
+        var created = FinanceTransfer.Create(FinanceTransferId.New(), command.Scope, details, from, to, command.By, now);
+        if (created.IsFailure) return created.Error!.ToResult<FinanceTransferResponse>();
+        var transfer = created.Value;
         db.Transfers.Add(transfer);
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         AuditTrail.Add(db, AuditEntity.Transfer, transfer.Id.Value, AuditAction.Create, command.By, now, null,

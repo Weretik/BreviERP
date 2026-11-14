@@ -15,7 +15,7 @@ public sealed record FinanceCounterpartyFields(
     bool AutoApplyCategory,
     string? Note)
 {
-    public FinanceCounterpartyDetails ToDetails() => FinanceCounterpartyDetails.Of(Name, Edrpou, Iban, BankName, Aliases,
+    public DomainResult<FinanceCounterpartyDetails> ToDetails() => FinanceCounterpartyDetails.Of(Name, Edrpou, Iban, BankName, Aliases,
         DefaultCategoryId is { } id ? FinanceCategoryId.From(id) : null, AutoApplyCategory, Note);
 
     /// <summary>The chosen default category; <c>Missing</c> is true when it is gone.</summary>

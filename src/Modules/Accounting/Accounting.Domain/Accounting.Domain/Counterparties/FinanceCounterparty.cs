@@ -56,7 +56,7 @@ public sealed class FinanceCounterparty : IAggregateRoot
     /// A new counterparty; <paramref name="verified"/> is true when the director creates it from an operation
     /// («Зберегти як фінансового контрагента»), false from the «Контрагенти» form until «Підтвердити».
     /// </summary>
-    public static FinanceCounterparty Create(FinanceCounterpartyId id, FinanceCounterpartyDetails details,
+    public static DomainResult<FinanceCounterparty> Create(FinanceCounterpartyId id, FinanceCounterpartyDetails details,
         FinanceCategory? defaultCategory, bool verified, DateTimeOffset now)
     {
         var counterparty = new FinanceCounterparty
@@ -68,7 +68,8 @@ public sealed class FinanceCounterparty : IAggregateRoot
             CreatedAt = now,
             UpdatedAt = now,
         };
-        counterparty.Check(details, defaultCategory);
+        var check = counterparty.Check(details, defaultCategory);
+        if (check.IsFailure) return check.Error!;
         counterparty.Apply(details);
         return counterparty;
     }
@@ -77,31 +78,36 @@ public sealed class FinanceCounterparty : IAggregateRoot
     /// A finance counterparty of the old Calculator «Фінанси» (or a client or supplier that Brevi does not know) with
     /// its id and state (stage 5).
     /// </summary>
-    public static FinanceCounterparty FromLegacy(FinanceCounterpartyId id, FinanceCounterpartyDetails details,
-        bool verified, bool active, DateTimeOffset createdAt, DateTimeOffset updatedAt)
+    public static DomainResult<FinanceCounterparty> FromLegacy(FinanceCounterpartyId id,
+        FinanceCounterpartyDetails details, bool verified, bool active, DateTimeOffset createdAt,
+        DateTimeOffset updatedAt)
     {
-        var counterparty = Create(id, details with { DefaultCategoryId = null, AutoApplyCategory = false }, null,
+        var created = Create(id, details with { DefaultCategoryId = null, AutoApplyCategory = false }, null,
             verified, createdAt);
+        if (created.IsFailure) return created;
+        var counterparty = created.Value;
         counterparty.Active = active;
         counterparty.UpdatedAt = updatedAt;
         return counterparty;
     }
 
     /// <summary>Changes the fields; returns false when nothing differs (the version stays).</summary>
-    public bool Update(FinanceCounterpartyDetails details, FinanceCategory? defaultCategory, DateTimeOffset now)
+    public DomainResult<bool> Update(FinanceCounterpartyDetails details, FinanceCategory? defaultCategory,
+        DateTimeOffset now)
     {
-        EnsureNotMerged();
+        if (CheckNotMerged() is { IsFailure: true } merged) return merged.Error!;
         if (details == Details) return false;
-        Check(details, defaultCategory);
+        var check = Check(details, defaultCategory);
+        if (check.IsFailure) return check.Error!;
         Apply(details);
         Touch(now);
         return true;
     }
 
     /// <summary>«Підтвердити»; returns false when it is already checked.</summary>
-    public bool Verify(DateTimeOffset now)
+    public DomainResult<bool> Verify(DateTimeOffset now)
     {
-        EnsureNotMerged();
+        if (CheckNotMerged() is { IsFailure: true } merged) return merged.Error!;
         if (Verified) return false;
         Verified = true;
         Touch(now);
@@ -109,9 +115,9 @@ public sealed class FinanceCounterparty : IAggregateRoot
     }
 
     /// <summary>«Архівувати» (false) or «Відновити» (true); returns false when it is already in that state.</summary>
-    public bool SetActive(bool active, DateTimeOffset now)
+    public DomainResult<bool> SetActive(bool active, DateTimeOffset now)
     {
-        EnsureNotMerged();
+        if (CheckNotMerged() is { IsFailure: true } merged) return merged.Error!;
         if (Active == active) return false;
         Active = active;
         Touch(now);
@@ -122,29 +128,31 @@ public sealed class FinanceCounterparty : IAggregateRoot
     /// «Об'єднати»: this counterparty is a duplicate of <paramref name="target"/>. Its name and other spellings become
     /// other spellings of the target, and it stays archived with a pointer to the target.
     /// </summary>
-    public void MergeInto(FinanceCounterparty target, DateTimeOffset now)
+    public DomainResult MergeInto(FinanceCounterparty target, DateTimeOffset now)
     {
-        EnsureNotMerged();
-        target.EnsureNotMerged();
+        var notMerged = DomainResult.Combine(CheckNotMerged(), target.CheckNotMerged());
+        if (notMerged.IsFailure) return notMerged;
         if (target.Id == Id)
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Merge", "Оберіть іншого контрагента.");
+            return AccountingErrors.Rule("Accounting.Counterparty.Merge", "Оберіть іншого контрагента.");
         if (!target.Active)
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Merge", $"Контрагент «{target.Name}» в архіві.");
+            return AccountingErrors.Rule("Accounting.Counterparty.Merge", $"Контрагент «{target.Name}» в архіві.");
 
         var aliases = target.Details.AliasList.Concat([Name]).Concat(Details.AliasList).ToList();
         var merged = FinanceCounterpartyDetails.Of(target.Name, target.Edrpou.Length > 0 ? target.Edrpou : Edrpou,
             target.Iban.Length > 0 ? target.Iban : Iban, target.BankName.Length > 0 ? target.BankName : BankName,
             aliases.Take(FinanceCounterpartyDetails.MaxAliases + 1), target.DefaultCategoryId, target.AutoApplyCategory,
             target.Note);
-        target.Apply(merged);
+        if (merged.IsFailure) return merged.WithoutValue();
+        target.Apply(merged.Value);
         target.Touch(now);
 
         Active = false;
         MergedIntoId = target.Id;
         Touch(now);
+        return DomainResult.Success();
     }
 
-    private void Check(FinanceCounterpartyDetails details, FinanceCategory? category)
+    private DomainResult Check(FinanceCounterpartyDetails details, FinanceCategory? category)
     {
         if (category?.Id != details.DefaultCategoryId)
             throw new InvalidOperationException("The default category must be the one named in the details.");
@@ -152,15 +160,16 @@ public sealed class FinanceCounterparty : IAggregateRoot
         if (category is not null)
         {
             if (category.Scope != LedgerScope.Current)
-                throw AccountingDomainError.Fail("Accounting.Counterparty.Category",
+                return AccountingErrors.Rule("Accounting.Counterparty.Category",
                     "Категорія за замовчуванням — лише з поточного обліку.");
             if (!category.Active && !keeps)
-                throw AccountingDomainError.Fail("Accounting.Counterparty.Category", $"Категорія «{category.Name}» вимкнена.");
+                return AccountingErrors.Rule("Accounting.Counterparty.Category", $"Категорія «{category.Name}» вимкнена.");
         }
 
         if (details.AutoApplyCategory && (category is null || !Verified))
-            throw AccountingDomainError.Fail("Accounting.Counterparty.AutoApply",
+            return AccountingErrors.Rule("Accounting.Counterparty.AutoApply",
                 "Автоматична категорія — лише для підтвердженого контрагента з категорією за замовчуванням.");
+        return DomainResult.Success();
     }
 
     private void Apply(FinanceCounterpartyDetails details)
@@ -177,12 +186,10 @@ public sealed class FinanceCounterparty : IAggregateRoot
         if (SearchText.Length > SearchMaxLength) SearchText = SearchText[..SearchMaxLength];
     }
 
-    private void EnsureNotMerged()
-    {
-        if (MergedIntoId is not null)
-            throw AccountingDomainError.Fail("Accounting.Counterparty.Merged",
-                "Цього контрагента об'єднано з іншим; змінюйте основний запис.");
-    }
+    private DomainResult CheckNotMerged() => MergedIntoId is null
+        ? DomainResult.Success()
+        : AccountingErrors.Rule("Accounting.Counterparty.Merged",
+            "Цього контрагента об'єднано з іншим; змінюйте основний запис.");
 
     private void Touch(DateTimeOffset now)
     {

@@ -77,4 +77,11 @@ public sealed class DomainResult<T>
 
     /// <summary>The plain outcome without the value.</summary>
     public DomainResult WithoutValue() => Error is null ? DomainResult.Success() : DomainResult.Failure(Error);
+
+    /// <summary>The value turned by <paramref name="map"/> on success; the same error on failure.</summary>
+    public DomainResult<TOut> Map<TOut>(Func<T, TOut> map)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        return Error is null ? DomainResult<TOut>.Success(map(_value!)) : DomainResult<TOut>.Failure(Error);
+    }
 }

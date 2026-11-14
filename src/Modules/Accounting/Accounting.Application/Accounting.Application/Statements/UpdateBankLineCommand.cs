@@ -47,7 +47,7 @@ public sealed class UpdateBankLineCommandHandler(IAccountingDbContext db, IAccou
         var line = await db.BankStatementLines
             .FirstOrDefaultAsync(x => x.Id == lineId && x.StatementId == statementId, cancellationToken);
         if (line is null) return Result.NotFound(StatementMessages.LineNotFound);
-        statement.EnsurePreview();
+        if (statement.CheckPreview() is { IsFailure: true } booked) return booked.Error!.ToResult<BankStatementLineResponse>();
 
         FinanceCategory? category = null;
         if (command.CategoryId is { } categoryId)
@@ -58,10 +58,14 @@ public sealed class UpdateBankLineCommandHandler(IAccountingDbContext db, IAccou
         }
 
         var readers = new CounterpartyReaders(db, customers, suppliers);
-        var (counterparty, gone) = await CounterpartyStates.ResolveAsync(readers, command.Counterparty?.ToLink(), cancellationToken);
+        var link = FinanceCounterpartyLinkInput.LinkOf(command.Counterparty);
+        if (link.IsFailure) return link.Error!.ToResult<BankStatementLineResponse>();
+        var (counterparty, gone) = await CounterpartyStates.ResolveAsync(readers, link.Value, cancellationToken);
         if (gone is not null) return Result.NotFound(gone);
 
-        line.Edit(category, counterparty, command.OneoffName, command.Description, command.Comment, command.Excluded);
+        var edited = line.Edit(category, counterparty, command.OneoffName, command.Description, command.Comment,
+            command.Excluded);
+        if (edited.IsFailure) return edited.Error!.ToResult<BankStatementLineResponse>();
         await db.SaveChangesAsync(cancellationToken);
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         return Result.Success(BankStatementLineResponse.From(line, names));

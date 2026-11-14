@@ -42,7 +42,8 @@ public sealed class VoidFinanceTransactionCommandHandler(IAccountingDbContext db
             new CounterpartyReaders(db, customers, suppliers), [transaction.Counterparty], cancellationToken));
         var before = AuditTrail.Snapshot(transaction, names);
         var now = clock.GetUtcNow();
-        transaction.Void(now);
+        var voided = transaction.Void(now);
+        if (voided.IsFailure) return voided.Error!.ToResult<FinanceTransactionResponse>();
         AuditTrail.Add(db, AuditEntity.Transaction, command.Id, AuditAction.Void, command.By, now, before,
             AuditTrail.Snapshot(transaction, names));
         return await FinanceTransactionSave.SaveAsync(db, transaction, names, cancellationToken);

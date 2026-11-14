@@ -5,7 +5,8 @@ using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Ardalis.Result;
-using BuildingBlocks.Domain.Exceptions;
+
+using static UnitTests.Accounting.FinanceMovementFixture;
 
 namespace UnitTests.Accounting;
 
@@ -21,7 +22,7 @@ public sealed class FinanceCategoryTests
         var child = await Create(harness, "Тканини", parentId: root.Id);
         var wrong = await Handler(harness).Handle(Command("Зарплата", CategoryDirection.Income, LedgerScope.Current, root.Id),
             default);
-        await Assert.ThrowsAsync<DomainException>(async () => await Handler(harness).Handle(
+        AssertRuleBroken(await Handler(harness).Handle(
             Command("Бавовна", CategoryDirection.Expense, LedgerScope.Current, child.Id), default), "only two levels");
 
         Assert.Multiple(() =>

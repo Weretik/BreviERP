@@ -41,7 +41,7 @@ public sealed class BookBankStatementCommandHandler(IAccountingDbContext db, IAc
         var statement = await db.BankStatements.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         if (statement is null) return Result.NotFound(StatementMessages.NotFound);
         if (statement.Version != command.Version) return Result.Conflict(AccountingMessages.Stale);
-        statement.EnsurePreview();
+        if (statement.CheckPreview() is { IsFailure: true } notPreview) return notPreview.Error!.ToResult<BankStatementResponse>();
 
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         var account = await db.Accounts.AsNoTracking().FirstAsync(x => x.Id == statement.AccountId, cancellationToken);
@@ -65,7 +65,9 @@ public sealed class BookBankStatementCommandHandler(IAccountingDbContext db, IAc
         var now = clock.GetUtcNow();
         var readers = new CounterpartyReaders(db, customers, suppliers);
         var states = await CounterpartyStates.LoadAsync(readers, lines.Select(x => x.Counterparty), cancellationToken);
-        var created = CreateCounterparties(lines, statement, now);
+        var counterparties = CreateCounterparties(lines, statement, now);
+        if (counterparties.IsFailure) return counterparties.Error!.ToResult<BankStatementResponse>();
+        var created = counterparties.Value;
         names.With(new CounterpartyStates(lines.Select(x => x.Counterparty).OfType<CounterpartyLink>().Distinct()
             .Select(x => states.Of(x) ?? created.GetValueOrDefault(x)).OfType<CounterpartyState>()
             .ToDictionary(x => x.Link)));
@@ -86,7 +88,9 @@ public sealed class BookBankStatementCommandHandler(IAccountingDbContext db, IAc
             if (line.TransferAccountId is { } otherId)
             {
                 if (!accounts.TryGetValue(otherId, out var other)) return Result.NotFound(StatementMessages.TransferAccountNotFound);
-                var transfer = FinanceTransfer.FromBank(FinanceTransferId.New(), line, account, other, command.By, now);
+                var booked = FinanceTransfer.FromBank(FinanceTransferId.New(), line, account, other, command.By, now);
+                if (booked.IsFailure) return booked.Error!.ToResult<BankStatementResponse>();
+                var transfer = booked.Value;
                 db.Transfers.Add(transfer);
                 line.Booked(transfer.Id);
                 AuditTrail.Add(db, AuditEntity.Transfer, transfer.Id.Value, AuditAction.Create, command.By, now, null,
@@ -99,8 +103,10 @@ public sealed class BookBankStatementCommandHandler(IAccountingDbContext db, IAc
             if (line.CategoryId is not null && category is null) return Result.NotFound(AccountingMessages.CategoryNotFound);
             var state = line.Counterparty is { } link ? names.Counterparties.Of(link) : null;
             if (line.Counterparty is not null && state is null) return Result.NotFound(AccountingMessages.CounterpartyNotFound);
-            var transaction = FinanceTransaction.FromBank(FinanceTransactionId.New(), line, account, category, state,
+            var made = FinanceTransaction.FromBank(FinanceTransactionId.New(), line, account, category, state,
                 command.By, now);
+            if (made.IsFailure) return made.Error!.ToResult<BankStatementResponse>();
+            var transaction = made.Value;
             db.Transactions.Add(transaction);
             line.Booked(transaction.Id);
             AuditTrail.Add(db, AuditEntity.Transaction, transaction.Id.Value, AuditAction.Create, command.By, now, null,
@@ -108,7 +114,8 @@ public sealed class BookBankStatementCommandHandler(IAccountingDbContext db, IAc
             transactions++;
         }
 
-        statement.Book(transactions, transfers, command.By, now);
+        var book = statement.Book(transactions, transfers, command.By, now);
+        if (book.IsFailure) return book.Error!.ToResult<BankStatementResponse>();
         try
         {
             await db.SaveChangesAsync(cancellationToken);
@@ -125,7 +132,7 @@ public sealed class BookBankStatementCommandHandler(IAccountingDbContext db, IAc
     /// One unconfirmed finance counterparty per ЄДРПОУ, else IBAN, else bank name for the lines nobody was recognised
     /// for; the lines are linked to it.
     /// </summary>
-    private Dictionary<CounterpartyLink, CounterpartyState> CreateCounterparties(IEnumerable<BankStatementLine> lines,
+    private DomainResult<Dictionary<CounterpartyLink, CounterpartyState>> CreateCounterparties(IEnumerable<BankStatementLine> lines,
         BankStatement statement, DateTimeOffset now)
     {
         var created = new Dictionary<string, FinanceCounterparty>();
@@ -144,7 +151,10 @@ public sealed class BookBankStatementCommandHandler(IAccountingDbContext db, IAc
                     line.Edrpou.Length <= FinanceCounterpartyDetails.EdrpouMaxLength ? line.Edrpou : null,
                     line.Iban.Length <= FinanceCounterpartyDetails.IbanMaxLength ? line.Iban : null, line.BankName, null,
                     null, false, $"Створено з виписки «{statement.FileName}».");
-                counterparty = FinanceCounterparty.Create(FinanceCounterpartyId.New(), details, null, verified: false, now);
+                if (details.IsFailure) return details.Error!;
+                var made = FinanceCounterparty.Create(FinanceCounterpartyId.New(), details.Value, null, verified: false, now);
+                if (made.IsFailure) return made.Error!;
+                counterparty = made.Value;
                 db.Counterparties.Add(counterparty);
                 created[key] = counterparty;
             }

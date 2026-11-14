@@ -1,3 +1,4 @@
+using Ardalis.Result;
 using Accounting.Application.Accounts;
 using Accounting.Application.Categories;
 using Accounting.Application.Contracts;
@@ -41,6 +42,25 @@ internal static class FinanceMovementFixture
         LedgerScope scope = LedgerScope.Current) =>
         (await new CreateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new CreateFinanceTransactionCommand(scope, fields, AccountingTestHarness.Director), default)).Value;
+
+    public static async Task<Result<FinanceTransactionResponse>> SpendResult(AccountingTestHarness harness,
+        FinanceTransactionFields fields, LedgerScope scope = LedgerScope.Current) =>
+        await new CreateFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
+            new CreateFinanceTransactionCommand(scope, fields, AccountingTestHarness.Director), default);
+
+    public static async Task<Result<FinanceTransferResponse>> MoveResult(AccountingTestHarness harness, Guid from, Guid to,
+        long amountMinor, DateOnly? date = null, LedgerScope scope = LedgerScope.Current) =>
+        await new CreateFinanceTransferCommandHandler(harness.Db, harness.Time).Handle(new CreateFinanceTransferCommand(
+            scope, new FinanceTransferFields(date ?? Current, from, to, amountMinor, null), AccountingTestHarness.Director),
+            default);
+
+    /// <summary>A business rule refused the change: the result is invalid, with <paramref name="message"/> if given.</summary>
+    public static void AssertRuleBroken(IResult result, string? because = null, string? message = null)
+    {
+        Assert.That(result.Status, Is.EqualTo(ResultStatus.Invalid), because);
+        if (message is not null)
+            Assert.That(result.ValidationErrors.Select(x => x.ErrorMessage), Has.Some.Contain(message), because);
+    }
 
     public static async Task<FinanceTransferResponse> Move(AccountingTestHarness harness, Guid from, Guid to, long amountMinor,
         DateOnly? date = null, LedgerScope scope = LedgerScope.Current) =>

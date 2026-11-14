@@ -58,7 +58,7 @@ internal sealed class BankParties
         ?? byName.GetValueOrDefault(Key(line.BankName.Length > 0 ? line.BankName : line.Purpose));
 
     private static BankParty External(CounterpartyKind kind, AccountingParty party) =>
-        new(new CounterpartyState(CounterpartyLink.Of(kind, party.Id), party.Name, party.Active, Verified: true), null);
+        new(new CounterpartyState(CounterpartyLink.Of(kind, party.Id).Value, party.Name, party.Active, Verified: true), null);
 
     private static string Key(string text) => FinanceText.Name(text).ToLowerInvariant();
 }

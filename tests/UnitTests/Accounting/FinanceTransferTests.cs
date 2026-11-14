@@ -6,7 +6,6 @@ using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Ardalis.Result;
-using BuildingBlocks.Domain.Exceptions;
 using static UnitTests.Accounting.FinanceMovementFixture;
 
 namespace UnitTests.Accounting;
@@ -39,9 +38,9 @@ public sealed class FinanceTransferTests
         var bank = await Account(harness, "Банк");
         var euro = await Account(harness, "Євро", currency: "EUR");
 
-        await Assert.ThrowsAsync<DomainException>(() => Move(harness, bank.Id, bank.Id, 1_00));
-        await Assert.ThrowsAsync<DomainException>(() => Move(harness, bank.Id, euro.Id, 1_00));
-        await Assert.ThrowsAsync<DomainException>(() => Move(harness, bank.Id, euro.Id, 1_00, Archive), "archive date in current");
+        AssertRuleBroken(await MoveResult(harness, bank.Id, bank.Id, 1_00));
+        AssertRuleBroken(await MoveResult(harness, bank.Id, euro.Id, 1_00));
+        AssertRuleBroken(await MoveResult(harness, bank.Id, euro.Id, 1_00, Archive), "archive date in current");
     }
 
     [Test]

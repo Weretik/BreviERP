@@ -24,25 +24,32 @@ public sealed record FinanceTransactionDetails(
     public const int DescriptionMaxLength = 250;
     public const int CommentMaxLength = 1500;
 
-    public static FinanceTransactionDetails Of(DateOnly date, CategoryDirection type, FinanceAccountId accountId,
+    public static DomainResult<FinanceTransactionDetails> Of(DateOnly date, CategoryDirection type, FinanceAccountId accountId,
         long amountMinor, FinanceCategoryId categoryId, CounterpartyLink? counterparty, string? oneoffName,
         string? description, string? comment)
     {
         if (!Enum.IsDefined(type))
-            throw Errors.AccountingDomainError.Fail("Accounting.Transaction.Type", "Невідомий тип операції.");
-        MovementRules.CheckAmount(amountMinor);
+            return Errors.AccountingErrors.Rule("Accounting.Transaction.Type", "Невідомий тип операції.");
+        var amount = MovementRules.CheckAmount(amountMinor);
+        if (amount.IsFailure) return amount.Error!;
         var oneoff = OneoffOf(counterparty, oneoffName);
-        return new FinanceTransactionDetails(date, type, accountId, amountMinor, categoryId, counterparty, oneoff,
-            MovementRules.Text(description, DescriptionMaxLength, "Опис"),
-            MovementRules.Text(comment, CommentMaxLength, "Примітка"));
+        if (oneoff.IsFailure) return oneoff.Error!;
+        var cleanDescription = MovementRules.Text(description, DescriptionMaxLength, "Опис");
+        if (cleanDescription.IsFailure) return cleanDescription.Error!;
+        var cleanComment = MovementRules.Text(comment, CommentMaxLength, "Примітка");
+        if (cleanComment.IsFailure) return cleanComment.Error!;
+        return new FinanceTransactionDetails(date, type, accountId, amountMinor, categoryId, counterparty, oneoff.Value,
+            cleanDescription.Value, cleanComment.Value);
     }
 
     /// <summary>The cleaned one-off name; refuses a chosen counterparty together with a typed one.</summary>
-    public static string OneoffOf(CounterpartyLink? counterparty, string? oneoffName)
+    public static DomainResult<string> OneoffOf(CounterpartyLink? counterparty, string? oneoffName)
     {
-        var oneoff = MovementRules.Text(oneoffName, OneoffNameMaxLength, "Разовий контрагент", oneLine: true);
+        var checkedName = MovementRules.Text(oneoffName, OneoffNameMaxLength, "Разовий контрагент", oneLine: true);
+        if (checkedName.IsFailure) return checkedName;
+        var oneoff = checkedName.Value;
         if (counterparty is not null && oneoff.Length > 0)
-            throw Errors.AccountingDomainError.Fail("Accounting.Transaction.Counterparty",
+            return Errors.AccountingErrors.Rule("Accounting.Transaction.Counterparty",
                 "Оберіть контрагента зі списку або введіть разового — не обидва.");
         return oneoff;
     }
