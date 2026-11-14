@@ -42,6 +42,9 @@
       <ProjectReference Include="..\..\Modules\Reminders\Reminders.Api\Reminders.Api\Reminders.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Reminders\Reminders.Application\Reminders.Application\Reminders.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Reminders\Reminders.Infrastructure\Reminders.Infrastructure\Reminders.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\Scheduling\Scheduling.Api\Scheduling.Api\Scheduling.Api.csproj" />
+      <ProjectReference Include="..\..\Modules\Scheduling\Scheduling.Application\Scheduling.Application\Scheduling.Application.csproj" />
+      <ProjectReference Include="..\..\Modules\Scheduling\Scheduling.Infrastructure\Scheduling.Infrastructure\Scheduling.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Api\Media.Api\Media.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Application\Media.Application\Media.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Infrastructure\Media.Infrastructure\Media.Infrastructure.csproj" />

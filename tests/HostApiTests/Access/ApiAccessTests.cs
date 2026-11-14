@@ -18,6 +18,8 @@ public sealed class ApiAccessTests
     [
         "POST api/auth/cookie/login",
         "POST api/reminders/telegram/webhook",
+        // Cloud Scheduler: the endpoint checks the Google OIDC token itself (SCH-001 R-10).
+        "POST internal/scheduler/tick",
         "GET api/crm/mailboxes/google-callback",
         "GET api/reference/product-categories/store/{language}",
         "GET api/public/catalog/tree",

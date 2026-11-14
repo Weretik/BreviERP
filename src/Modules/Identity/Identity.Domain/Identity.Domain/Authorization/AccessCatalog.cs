@@ -69,6 +69,7 @@ public static class AccessCatalog
     public const string Accounting = "accounting";
     public const string PurchaseInvoices = "purchase-invoices";
     public const string Reminders = "reminders";
+    public const string BackgroundTasks = "background-tasks";
     public const string Products = "products";
     public const string ProductSections = "product-sections";
     public const string Materials = "materials";
@@ -198,7 +199,9 @@ public static class AccessCatalog
         new(LeadStats, Administration, "Статистика лідів", VCE, Grant((RoleNames.Admin, VCE))),
         new(QuoteSettings, Administration, "Налаштування КП", VE, Grant((RoleNames.Admin, VE))),
         new(WorkshopSettings, Administration, "Налаштування цеху", VE,
-            Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE)))
+            Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
+        // SCH-001 R-11: Create = «Запустити зараз», Edit = schedule and on/off.
+        new(BackgroundTasks, Administration, "Фонові задачі", VCE, Grant((RoleNames.Admin, VCE)))
     ];
 
     private static readonly Dictionary<string, AccessArea> ByKey = Areas.ToDictionary(x => x.Key, StringComparer.Ordinal);

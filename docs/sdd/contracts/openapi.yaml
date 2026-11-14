@@ -607,6 +607,14 @@ paths:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1tasks~1assign-chat
   /api/reminders/telegram/connect:
     $ref: ./reminders/telegram-reminders.openapi.yaml#/paths/~1api~1reminders~1telegram~1connect
+  /api/scheduling/tasks:
+    $ref: ./scheduling/background-tasks.openapi.yaml#/paths/~1api~1scheduling~1tasks
+  /api/scheduling/tasks/{key}/runs:
+    $ref: ./scheduling/background-tasks.openapi.yaml#/paths/~1api~1scheduling~1tasks~1{key}~1runs
+  /api/scheduling/tasks/{key}/schedule:
+    $ref: ./scheduling/background-tasks.openapi.yaml#/paths/~1api~1scheduling~1tasks~1{key}~1schedule
+  /api/scheduling/tasks/{key}/run:
+    $ref: ./scheduling/background-tasks.openapi.yaml#/paths/~1api~1scheduling~1tasks~1{key}~1run
   /api/content/products:
     $ref: ./content/content-products.openapi.yaml#/paths/~1api~1content~1products
   /api/content/products/{productId}:

@@ -103,6 +103,10 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 - [Telegram reminders](reminders/telegram-reminders.md) — deadline tasks, working-day Telegram cards at 09:00 Kyiv with «Виконано» / «Нагадати пізніше», period history, chats and extra days off.
 
+## Scheduling
+
+- [Background tasks «Фонові задачі»](scheduling/background-tasks.md) — own module and schema `scheduling` (SCH-001): one Cloud Scheduler tick a minute sends the outbox and starts the `brevierp-tasks` job for due tasks; schedules in the database, last success and failure, history and «Запустити зараз» on «Адміністрування».
+
 ## Platform access
 
 - Side effects: the [transactional outbox](../operations/jobs/outbox.md) retries Telegram posts and the pricing settings hand-off through `POST /internal/outbox/dispatch` (Cloud Scheduler, every minute).

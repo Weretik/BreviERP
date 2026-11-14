@@ -26,6 +26,8 @@ env:
   SEED_JOB: brevierp-seed
   REMINDERS_JOB: brevierp-reminders
   SYNC_JOB: brevierp-sync
+  # «Фонові задачі» (SCH-001): the scheduler tick starts this job with --tasks=key:runId,... for the due tasks.
+  TASKS_JOB: brevierp-tasks
   CATALOG_IMPORT_BUCKET: brevistoreapi-catalog-import
   CATALOG_IMPORT_SOURCE_SHA256: 24ea80bd240f95d468396a1c1c87c7cfba31058b422d0b4012cbb4825f5ff687
   CATALOG_IMPORT_DB_SECRET_VERSION: '1'
@@ -221,6 +223,31 @@ jobs:
             --update-secrets "KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest,AdmToolsStorage__Login=storage-login:latest,AdmToolsStorage__Password=storage-password:latest${SUPPLIER_CABINET_SECRETS}" \
             --quiet
 
+      - name: Create or update background tasks job
+        run: |
+          set -euo pipefail
+          # «Фонові задачі» (SCH-001): the API's scheduler tick starts one execution with
+          # --tasks=key:runId,... for the tasks that are due (Host.Seed/Jobs/Tasks). Same image as the seed job, no
+          # migrations or seed. Created from the seed job like the sync job; every task's secrets are attached here.
+          # The default --tasks= (no tasks) fails at once, so a manual execute without the tick's override does nothing.
+          # Tasks of one execution run one after another: the job may run up to 4 hours (ScheduledTask.QueueLimitMinutes).
+          if ! gcloud run jobs describe "$TASKS_JOB" --region "$GCP_REGION" >/dev/null 2>&1; then
+            gcloud run jobs describe "$SEED_JOB" --region "$GCP_REGION" --format export > "$RUNNER_TEMP/tasks-job.yaml"
+            sed -i "0,/^  name: ${SEED_JOB}$/s//  name: ${TASKS_JOB}/" "$RUNNER_TEMP/tasks-job.yaml"
+            sed -i -E '/run\.googleapis\.com\/(creator|lastModifier|operation-id):/d' "$RUNNER_TEMP/tasks-job.yaml"
+            gcloud run jobs replace "$RUNNER_TEMP/tasks-job.yaml" --region "$GCP_REGION" --quiet
+          fi
+          gcloud run jobs update "$TASKS_JOB" \
+            --image "$SEED_IMAGE" \
+            --region "$GCP_REGION" \
+            --args=--tasks= \
+            --max-retries 0 \
+            --tasks 1 \
+            --parallelism 1 \
+            --task-timeout 4h \
+            --update-secrets "Reminders__Telegram__BotToken=${TELEGRAM_TOKEN_SECRET}:latest,KeepinCrm__ApiKey=${KEEPIN_API_KEY_SECRET}:latest,AdmToolsStorage__Login=storage-login:latest,AdmToolsStorage__Password=storage-password:latest${SUPPLIER_CABINET_SECRETS}" \
+            --quiet
+
       - name: Run database migrations and seed data
         run: gcloud run jobs execute "$SEED_JOB" --region "$GCP_REGION" --wait --quiet
 
@@ -245,7 +272,7 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --update-secrets "$SECRETS" \
-            --update-env-vars "Accounting__Files__Bucket=${ACCOUNTING_FILES_BUCKET}" \
+            --update-env-vars "Accounting__Files__Bucket=${ACCOUNTING_FILES_BUCKET},Scheduler__Job__Project=${GCP_PROJECT_ID},Scheduler__Job__Region=${GCP_REGION},Scheduler__Job__Name=${TASKS_JOB}" \
             --quiet
 
       - name: Create or update catalogue import job

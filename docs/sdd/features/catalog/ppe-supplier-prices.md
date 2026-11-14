@@ -44,7 +44,7 @@ Catalog.Infrastructure/
     Cabinets/                             # Трєле sign-in, session pages, dealer price, options
 Catalog.Api/Endpoints/Ppe/PpeSupplierPricesEndpoints.cs
 Catalog.Application/Features/Pricing/Commands/RefreshDuePpeSupplierPrices/  # due sources of today, one command
-Host.Seed/Jobs/Sync/Pricing/PpeSupplierPricesSyncTask.cs  # brevierp-sync step: sends RefreshDuePpeSupplierPricesCommand, logs outcomes
+Host.Seed/Jobs/Tasks/Pricing/PpeSupplierPricesTaskRunner.cs  # task ppe-supplier-prices: sends RefreshDuePpeSupplierPricesCommand, logs outcomes
 ```
 
 ## Tests

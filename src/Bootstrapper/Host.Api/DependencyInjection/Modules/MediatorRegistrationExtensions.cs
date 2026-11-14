@@ -6,6 +6,7 @@ using BuildingBlocks.Application.Behaviors;
 using Identity.Application;
 using Reference.Application;
 using Reminders.Application;
+using Scheduling.Application;
 using Media.Application;
 using Production.Application;
 using Purchasing.Application;
@@ -31,6 +32,7 @@ public static class MediatorRegistrationExtensions
                 typeof(CrmApplicationAssemblyMarker).Assembly,
                 typeof(ReferenceApplicationAssemblyMarker).Assembly,
                 typeof(RemindersApplicationAssemblyMarker).Assembly,
+                typeof(SchedulingApplicationAssemblyMarker).Assembly,
                 typeof(MediaApplicationAssemblyMarker).Assembly,
                 typeof(ProductionApplicationAssemblyMarker).Assembly,
                 typeof(PurchasingApplicationAssemblyMarker).Assembly,

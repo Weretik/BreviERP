@@ -1,4 +1,4 @@
-using Host.Seed.Jobs.Sync;
+using Host.Seed.Jobs.Tasks;
 using Microsoft.Extensions.Configuration;
 using BuildingBlocks.Infrastructure.Database;
 using BuildingBlocks.Infrastructure.Seeding;
@@ -16,10 +16,12 @@ internal static class SeedJobDispatcher
             throw new InvalidOperationException("Catalogue target approval requires the explicit import mode.");
         if (configuration["sync"] is null && configuration["sync-tasks"] is not null)
             throw new InvalidOperationException("Sync task selection requires the explicit sync mode.");
-        if (new[] { "catalog-import", "pricing-bootstrap", "pricing-verify", "ppe-pricing-bootstrap", "ppe-pricing-verify", "pricing-readiness", "pricing-input-review", "pricing-activate", "reminders-dispatch", "sync" }
+        if (new[] { "catalog-import", "pricing-bootstrap", "pricing-verify", "ppe-pricing-bootstrap", "ppe-pricing-verify", "pricing-readiness", "pricing-input-review", "pricing-activate", "reminders-dispatch", "sync", "tasks" }
             .Count(key => configuration[key] is not null) > 1)
             throw new InvalidOperationException("Select exactly one explicit seed job mode.");
-        if (configuration["reminders-dispatch"] is not null)
+        if (configuration["tasks"] is not null)
+            await ScheduledTasksJobRunner.RunAsync(services, configuration);
+        else if (configuration["reminders-dispatch"] is not null)
             await RemindersDispatchCommandRunner.RunAsync(services);
         else if (configuration["sync"] is not null)
             await SyncJobRunner.RunAsync(services, configuration);
