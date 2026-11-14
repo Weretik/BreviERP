@@ -1,4 +1,8 @@
 using Identity.Application.Security.Policies;
+using Identity.Api.Endpoints.AccessRights.CreateRole;
+using Identity.Api.Endpoints.AccessRights.DeleteRole;
+using Identity.Api.Endpoints.AccessRights.GetAccessRights;
+using Identity.Api.Endpoints.AccessRights.SaveRoleAccess;
 
 namespace Identity.Api.Endpoints.AccessRights;
 

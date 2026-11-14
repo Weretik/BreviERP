@@ -1,3 +1,7 @@
+using Reminders.Api.Endpoints.Calendar.AddReminderNonWorkingDay;
+using Reminders.Api.Endpoints.Calendar.GetReminderNonWorkingDays;
+using Reminders.Api.Endpoints.Calendar.RemoveReminderNonWorkingDay;
+
 namespace Reminders.Api.Endpoints.Calendar;
 
 /// <summary>Non-working days of the reminder calendar.</summary>

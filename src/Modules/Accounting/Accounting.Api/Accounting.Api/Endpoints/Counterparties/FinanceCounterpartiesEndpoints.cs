@@ -1,4 +1,13 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Counterparties.ArchiveFinanceCounterparty;
+using Accounting.Api.Endpoints.Counterparties.CreateFinanceCounterparty;
+using Accounting.Api.Endpoints.Counterparties.GetFinanceCounterparties;
+using Accounting.Api.Endpoints.Counterparties.GetFinanceCounterpartyChoices;
+using Accounting.Api.Endpoints.Counterparties.GetFinanceCounterpartyHistory;
+using Accounting.Api.Endpoints.Counterparties.MergeFinanceCounterparty;
+using Accounting.Api.Endpoints.Counterparties.RestoreFinanceCounterparty;
+using Accounting.Api.Endpoints.Counterparties.UpdateFinanceCounterparty;
+using Accounting.Api.Endpoints.Counterparties.VerifyFinanceCounterparty;
 
 namespace Accounting.Api.Endpoints.Counterparties;
 

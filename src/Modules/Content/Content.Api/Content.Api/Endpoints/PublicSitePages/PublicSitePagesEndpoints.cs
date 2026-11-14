@@ -1,4 +1,5 @@
 using BuildingBlocks.Api.Caching;
+using Content.Api.Endpoints.PublicSitePages.GetPublicSitePages;
 
 namespace Content.Api.Endpoints.PublicSitePages;
 

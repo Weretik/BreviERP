@@ -1,3 +1,8 @@
+using Reference.Api.Endpoints.FabricColors.CreateFabricColor;
+using Reference.Api.Endpoints.FabricColors.DeleteFabricColor;
+using Reference.Api.Endpoints.FabricColors.GetFabricColors;
+using Reference.Api.Endpoints.FabricColors.UpdateFabricColor;
+
 namespace Reference.Api.Endpoints.FabricColors;
 
 /// <summary>«Кольори» of «Матеріали»: the sheet column «Загальний перелік кольорів».</summary>

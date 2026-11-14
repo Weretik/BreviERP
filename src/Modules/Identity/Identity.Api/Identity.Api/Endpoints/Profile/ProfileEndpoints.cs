@@ -1,4 +1,11 @@
 using Identity.Application.Security.Policies;
+using Identity.Api.Endpoints.Profile.ChangeMyEmail;
+using Identity.Api.Endpoints.Profile.ChangeMyName;
+using Identity.Api.Endpoints.Profile.ChangeMyPassword;
+using Identity.Api.Endpoints.Profile.ChangeMyPhone;
+using Identity.Api.Endpoints.Profile.GetMyProfile;
+using Identity.Api.Endpoints.Profile.RemoveMyAvatar;
+using Identity.Api.Endpoints.Profile.UploadMyAvatar;
 
 namespace Identity.Api.Endpoints.Profile;
 

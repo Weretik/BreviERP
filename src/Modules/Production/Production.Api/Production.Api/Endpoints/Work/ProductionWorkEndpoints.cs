@@ -1,4 +1,10 @@
 using Production.Api.Access;
+using Production.Api.Endpoints.Work.CreateProductionWork;
+using Production.Api.Endpoints.Work.GetProductionItemWork;
+using Production.Api.Endpoints.Work.GetWorkChoices;
+using Production.Api.Endpoints.Work.GetWorkLog;
+using Production.Api.Endpoints.Work.ImportProductionWork;
+using Production.Api.Endpoints.Work.VoidProductionWork;
 
 namespace Production.Api.Endpoints.Work;
 

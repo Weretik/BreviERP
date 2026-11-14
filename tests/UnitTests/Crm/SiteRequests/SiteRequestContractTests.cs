@@ -1,11 +1,11 @@
 using System.Text.Json;
 using BuildingBlocks.Api.Authorization;
-using Crm.Api.SiteRequests;
 using Identity.Domain.Authorization;
 using Crm.Api.DependencyInjection;
 using UnitTests.TestSupport;
 using YamlDotNet.RepresentationModel;
 using Crm.Application.Features.SiteRequests.Shared;
+using Crm.Api.Endpoints.SiteRequests.SubmitPublicSiteRequest;
 
 namespace UnitTests.Crm.SiteRequests;
 

@@ -1,4 +1,6 @@
 using Catalog.Application.Features.Pricing.Shared;
+using Catalog.Api.Endpoints.Ppe.CreatePpeOfferVersion;
+using Catalog.Api.Endpoints.Ppe.GetPpeProductPrices;
 
 namespace Catalog.Api.Endpoints.Ppe;
 

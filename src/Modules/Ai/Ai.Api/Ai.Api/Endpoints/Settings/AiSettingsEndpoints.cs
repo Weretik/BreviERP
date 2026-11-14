@@ -1,3 +1,10 @@
+using Ai.Api.Endpoints.Settings.GetAiSettings;
+using Ai.Api.Endpoints.Settings.RemoveAiKey;
+using Ai.Api.Endpoints.Settings.SetAiKey;
+using Ai.Api.Endpoints.Settings.TestAiConnection;
+using Ai.Api.Endpoints.Settings.UpdateAiPrompt;
+using Ai.Api.Endpoints.Settings.UpdateAiSettings;
+
 namespace Ai.Api.Endpoints.Settings;
 
 /// <summary>«Адміністрування → Налаштування ШІ»: the OpenAI key (write-only), models, prices, on/off and the monthly limit.</summary>

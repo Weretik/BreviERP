@@ -1,4 +1,12 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Quotes.CalculateCrmQuoteCustomSewing;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteCatalogProducts;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteFabricFacts;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteIntroductionSetup;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteModelComposition;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteStaff;
+using Crm.Api.Endpoints.Quotes.SearchCrmQuoteCatalog;
+using Crm.Api.Endpoints.Quotes.UploadCrmQuotePhoto;
 
 namespace Crm.Api.Endpoints.Quotes;
 

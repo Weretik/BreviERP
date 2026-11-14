@@ -1,3 +1,8 @@
+using Catalog.Api.Endpoints.Sewing.GetPublishedSewingPrice;
+using Catalog.Api.Endpoints.Sewing.GetSewingCalculation;
+using Catalog.Api.Endpoints.Sewing.PublishSewingCalculation;
+using Catalog.Api.Endpoints.Sewing.SaveSewingCalculation;
+
 namespace Catalog.Api.Endpoints.Sewing;
 
 internal static class SewingPricingEndpoints

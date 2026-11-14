@@ -1,4 +1,6 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.SiteSettings.GetSiteSeoSettings;
+using Content.Api.Endpoints.SiteSettings.SaveSiteSeoSettings;
 
 namespace Content.Api.Endpoints.SiteSettings;
 

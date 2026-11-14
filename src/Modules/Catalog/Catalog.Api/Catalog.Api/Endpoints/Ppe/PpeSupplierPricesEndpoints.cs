@@ -1,3 +1,8 @@
+using Catalog.Api.Endpoints.Ppe.ImportPpeSupplierPrices;
+using Catalog.Api.Endpoints.Ppe.ListPpePriceSources;
+using Catalog.Api.Endpoints.Ppe.RefreshPpeSupplierPrices;
+using Catalog.Api.Endpoints.Ppe.UpdatePpePriceSource;
+
 namespace Catalog.Api.Endpoints.Ppe;
 
 /// <summary>«Довідники» → «Імпорт цін»: PPE supplier price sources, their discounts, file imports and «Оновити зараз» (CAT-017).</summary>

@@ -1,3 +1,8 @@
+using Reference.Api.Endpoints.GarmentParts.CreateGarmentPart;
+using Reference.Api.Endpoints.GarmentParts.DeleteGarmentPart;
+using Reference.Api.Endpoints.GarmentParts.GetGarmentParts;
+using Reference.Api.Endpoints.GarmentParts.UpdateGarmentPart;
+
 namespace Reference.Api.Endpoints.GarmentParts;
 
 /// <summary>Garment parts, the groups of «Операції».</summary>

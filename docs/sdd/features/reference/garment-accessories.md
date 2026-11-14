@@ -15,7 +15,7 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Endpoints/GarmentAccessories/  # HTTP entry points, one <UseCase>Endpoint.cs each
+    ├── Reference.Api/Reference.Api/Endpoints/GarmentAccessories/  # HTTP entry points, one <UseCase>/ folder each
     ├── Reference.Application/Reference.Application/Features/GarmentAccessory/
     │   ├── Commands/CreateGarmentAccessory/CreateGarmentAccessoryHandler.cs  # use case handler
     │   ├── Commands/DeleteGarmentAccessory/DeleteGarmentAccessoryHandler.cs  # use case handler

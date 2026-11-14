@@ -1,4 +1,9 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.Redirects.CreateSiteRedirect;
+using Content.Api.Endpoints.Redirects.DeleteSiteRedirect;
+using Content.Api.Endpoints.Redirects.GetSiteRedirects;
+using Content.Api.Endpoints.Redirects.ImportOldSiteRedirects;
+using Content.Api.Endpoints.Redirects.SaveSiteRedirect;
 
 namespace Content.Api.Endpoints.Redirects;
 

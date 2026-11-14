@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Routing;
 using UnitTests.TestSupport;
 using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.SitePages;
 using Content.Domain.SitePages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SitePages.Queries.GetSitePages;
 using Content.Application.Features.SitePages.Shared;
+using Content.Api.Endpoints.SitePages.SaveSitePage;
 
 namespace UnitTests.Content;
 

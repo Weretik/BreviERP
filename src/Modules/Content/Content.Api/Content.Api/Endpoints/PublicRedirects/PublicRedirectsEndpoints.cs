@@ -1,4 +1,5 @@
 using BuildingBlocks.Api.Caching;
+using Content.Api.Endpoints.PublicRedirects.GetPublicRedirects;
 
 namespace Content.Api.Endpoints.PublicRedirects;
 

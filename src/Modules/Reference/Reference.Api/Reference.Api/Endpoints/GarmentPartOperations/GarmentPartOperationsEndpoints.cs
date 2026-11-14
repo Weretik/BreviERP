@@ -1,3 +1,9 @@
+using Reference.Api.Endpoints.GarmentPartOperations.CreateGarmentPartOperation;
+using Reference.Api.Endpoints.GarmentPartOperations.DeleteGarmentPartOperation;
+using Reference.Api.Endpoints.GarmentPartOperations.GetGarmentPartOperations;
+using Reference.Api.Endpoints.GarmentPartOperations.ImportGarmentPartOperations;
+using Reference.Api.Endpoints.GarmentPartOperations.UpdateGarmentPartOperation;
+
 namespace Reference.Api.Endpoints.GarmentPartOperations;
 
 /// <summary>Sewing operations of «Операції».</summary>

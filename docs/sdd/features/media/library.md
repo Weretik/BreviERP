@@ -21,7 +21,7 @@ src/Modules/Media/
     Integrations/Skia/ # SkiaMediaImageProcessor (SkiaSharp: size, EXIF turn, WebP preview)
     DependencyInjection/
   Media.Api/Media.Api/
-    Endpoints/Folders/  # /api/media/folders, one <UseCase>Endpoint.cs each
+    Endpoints/Folders/  # /api/media/folders, one <UseCase>/ folder each
     Endpoints/Files/    # /api/media/files; UploadMediaFileEndpoint binds multipart file + folderId
   Media.Contracts/Media.Contracts/{Files,Imports,Storage}/   # IMediaFileReader, IMediaFileUploader, IMediaUrlImporter, ICdnStorage
   Media.Infrastructure/Media.Infrastructure/Contracts/       # their implementations

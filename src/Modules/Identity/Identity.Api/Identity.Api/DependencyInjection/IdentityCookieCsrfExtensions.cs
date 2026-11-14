@@ -1,7 +1,7 @@
 using Identity.Infrastructure.Integrations.AspNetIdentity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Identity.Api.Auth;
+using Identity.Api.Middleware;
 
 namespace Identity.Api.DependencyInjection;
 

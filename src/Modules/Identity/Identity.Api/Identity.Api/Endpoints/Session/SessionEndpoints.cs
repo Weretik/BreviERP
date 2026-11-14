@@ -1,3 +1,6 @@
+using Identity.Api.Endpoints.Session.GetSessionAccess;
+using Identity.Api.Endpoints.Session.GetSessionMe;
+
 namespace Identity.Api.Endpoints.Session;
 
 /// <summary>The signed-in user of the current browser session.</summary>

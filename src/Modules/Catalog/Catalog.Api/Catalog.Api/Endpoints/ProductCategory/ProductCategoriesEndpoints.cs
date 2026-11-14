@@ -1,3 +1,9 @@
+using Catalog.Api.Endpoints.ProductCategory.CreateProductCategory;
+using Catalog.Api.Endpoints.ProductCategory.DeleteProductCategory;
+using Catalog.Api.Endpoints.ProductCategory.GetAdminProductCategories;
+using Catalog.Api.Endpoints.ProductCategory.GetStoreProductCategories;
+using Catalog.Api.Endpoints.ProductCategory.UpdateProductCategory;
+
 namespace Catalog.Api.Endpoints.ProductCategory;
 
 internal static class ProductCategoriesEndpoints

@@ -15,7 +15,7 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Endpoints/Fabrics/  # HTTP entry points, one <UseCase>Endpoint.cs each
+    ├── Reference.Api/Reference.Api/Endpoints/Fabrics/  # HTTP entry points, one <UseCase>/ folder each
     ├── Reference.Application/Reference.Application/Features/Fabric/
     │   ├── Commands/CreateFabric/CreateFabricHandler.cs  # use case handler
     │   ├── Commands/DeleteFabric/DeleteFabricHandler.cs  # use case handler

@@ -1,3 +1,9 @@
+using Reference.Api.Endpoints.Fabrics.CreateFabric;
+using Reference.Api.Endpoints.Fabrics.DeleteFabric;
+using Reference.Api.Endpoints.Fabrics.GetFabrics;
+using Reference.Api.Endpoints.Fabrics.ImportFabrics;
+using Reference.Api.Endpoints.Fabrics.UpdateFabric;
+
 namespace Reference.Api.Endpoints.Fabrics;
 
 /// <summary>«Тканини» of «Матеріали».</summary>

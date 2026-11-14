@@ -1,3 +1,10 @@
+using Media.Api.Endpoints.Files.DeleteMediaFile;
+using Media.Api.Endpoints.Files.GetMediaFile;
+using Media.Api.Endpoints.Files.MoveMediaFiles;
+using Media.Api.Endpoints.Files.SearchMediaFiles;
+using Media.Api.Endpoints.Files.UpdateMediaFile;
+using Media.Api.Endpoints.Files.UploadMediaFile;
+
 namespace Media.Api.Endpoints.Files;
 
 /// <summary>Photos of «Фото»: search, card with usages, upload, rename, move, delete.</summary>

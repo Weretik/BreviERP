@@ -1,4 +1,5 @@
 using BuildingBlocks.Api.Caching;
+using Content.Api.Endpoints.PublicSiteGalleries.GetPublicSiteGalleries;
 
 namespace Content.Api.Endpoints.PublicSiteGalleries;
 

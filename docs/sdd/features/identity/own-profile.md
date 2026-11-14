@@ -17,7 +17,7 @@
 ```text
 src/Modules/Identity/
 ├── Identity.Api/Identity.Api/
-│   ├── Endpoints/Profile/                          # /api/profile: one <UseCase>Endpoint.cs each with its request
+│   ├── Endpoints/Profile/                          # /api/profile: one <UseCase>/ folder each with its request
 │   ├── Profile/ProfileResponse.cs                  # ProfileResponse, AvatarResponse
 │   └── Avatars/AvatarUploadResults.cs              # multipart limit, 503 mapping
 ├── Identity.Application/Identity.Application/

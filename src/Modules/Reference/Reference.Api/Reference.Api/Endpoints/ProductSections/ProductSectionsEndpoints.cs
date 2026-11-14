@@ -1,3 +1,9 @@
+using Reference.Api.Endpoints.ProductSections.CreateProductSection;
+using Reference.Api.Endpoints.ProductSections.DeleteProductSection;
+using Reference.Api.Endpoints.ProductSections.GetProductSections;
+using Reference.Api.Endpoints.ProductSections.ImportProductSections;
+using Reference.Api.Endpoints.ProductSections.UpdateProductSection;
+
 namespace Reference.Api.Endpoints.ProductSections;
 
 /// <summary>Product sections of the Calculator sheet «Типи і розділи».</summary>

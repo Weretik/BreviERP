@@ -1,3 +1,9 @@
+using Reference.Api.Endpoints.GarmentAccessories.CreateGarmentAccessory;
+using Reference.Api.Endpoints.GarmentAccessories.DeleteGarmentAccessory;
+using Reference.Api.Endpoints.GarmentAccessories.GetGarmentAccessories;
+using Reference.Api.Endpoints.GarmentAccessories.ImportGarmentAccessories;
+using Reference.Api.Endpoints.GarmentAccessories.UpdateGarmentAccessory;
+
 namespace Reference.Api.Endpoints.GarmentAccessories;
 
 /// <summary>«Фурнітура» of «Матеріали».</summary>

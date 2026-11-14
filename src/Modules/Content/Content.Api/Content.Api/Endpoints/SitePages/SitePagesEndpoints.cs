@@ -1,4 +1,6 @@
 using Content.Api.Access;
+using Content.Api.Endpoints.SitePages.GetSitePages;
+using Content.Api.Endpoints.SitePages.SaveSitePage;
 
 namespace Content.Api.Endpoints.SitePages;
 

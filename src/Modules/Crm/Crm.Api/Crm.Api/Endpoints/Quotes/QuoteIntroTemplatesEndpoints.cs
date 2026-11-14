@@ -1,4 +1,7 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Quotes.CreateCrmQuoteIntroTemplate;
+using Crm.Api.Endpoints.Quotes.DeleteCrmQuoteIntroTemplate;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteIntroTemplates;
 
 namespace Crm.Api.Endpoints.Quotes;
 

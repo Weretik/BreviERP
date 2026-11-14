@@ -1,3 +1,5 @@
+using Crm.Api.Endpoints.SiteRequests.SubmitPublicSiteRequest;
+
 namespace Crm.Api.Endpoints.SiteRequests;
 
 /// <summary>

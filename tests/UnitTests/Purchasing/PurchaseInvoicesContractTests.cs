@@ -14,6 +14,9 @@ using Purchasing.Application.Features.Register.Queries.GetPurchasePaymentCandida
 using Purchasing.Application.Features.Register.Queries.GetPurchaseSuppliers;
 using Purchasing.Application.Features.Register.Queries.GetPurchaseSyncState;
 using Purchasing.Application.Features.Register.Shared;
+using Purchasing.Api.Endpoints.Documents.SavePurchaseDocument;
+using Purchasing.Api.Endpoints.Register.ReviewPurchaseInvoice;
+using Purchasing.Api.Endpoints.Register.Shared;
 
 namespace UnitTests.Purchasing;
 

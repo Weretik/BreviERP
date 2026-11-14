@@ -1,4 +1,14 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Embroidery.CalculateCrmEmbroidery;
+using Crm.Api.Endpoints.Embroidery.DeleteCrmEmbroideryCalculation;
+using Crm.Api.Endpoints.Embroidery.GetCrmEmbroideryCalculation;
+using Crm.Api.Endpoints.Embroidery.GetCrmEmbroideryCalculations;
+using Crm.Api.Endpoints.Embroidery.GetCrmEmbroideryForm;
+using Crm.Api.Endpoints.Embroidery.GetCrmEmbroiderySettings;
+using Crm.Api.Endpoints.Embroidery.ImportCrmEmbroideryArchive;
+using Crm.Api.Endpoints.Embroidery.SaveCrmEmbroideryCalculation;
+using Crm.Api.Endpoints.Embroidery.SaveCrmEmbroiderySettings;
+using Crm.Api.Endpoints.Embroidery.SetCrmEmbroideryMockup;
 
 namespace Crm.Api.Endpoints.Embroidery;
 

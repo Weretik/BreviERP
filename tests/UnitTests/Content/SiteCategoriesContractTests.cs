@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Routing;
 using UnitTests.TestSupport;
 using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.SiteCategories;
 using Content.Domain.SiteCategories;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +10,10 @@ using Content.Application.Features.SiteCategories.Commands.ImportOldSiteCategori
 using Content.Application.Features.SiteCategories.Commands.SetSiteCategoryVisibility;
 using Content.Application.Features.SiteCategories.Queries.GetSiteCategories;
 using Content.Application.Features.SiteCategories.Shared;
+using Content.Api.Endpoints.SiteCategories.ImportOldSiteCategories;
+using Content.Api.Endpoints.SiteCategories.ReorderSiteCategories;
+using Content.Api.Endpoints.SiteCategories.SetSiteCategoryVisibility;
+using Content.Api.Endpoints.SiteCategories.Shared;
 
 namespace UnitTests.Content;
 

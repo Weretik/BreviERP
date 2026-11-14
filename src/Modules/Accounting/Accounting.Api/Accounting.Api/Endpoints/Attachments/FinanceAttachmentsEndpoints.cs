@@ -1,4 +1,8 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Attachments.DeleteFinanceAttachment;
+using Accounting.Api.Endpoints.Attachments.GetFinanceAttachmentContent;
+using Accounting.Api.Endpoints.Attachments.GetFinanceAttachments;
+using Accounting.Api.Endpoints.Attachments.UploadFinanceAttachment;
 
 namespace Accounting.Api.Endpoints.Attachments;
 

@@ -1,3 +1,5 @@
+using Catalog.Api.Endpoints.Photos.ImportOldSitePhotos;
+
 namespace Catalog.Api.Endpoints.Photos;
 
 /// <summary>Photos and missing sewing models from the old site (CAT-016); Admin only, dry run first.</summary>

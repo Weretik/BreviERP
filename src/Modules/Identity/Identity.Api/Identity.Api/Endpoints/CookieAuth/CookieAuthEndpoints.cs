@@ -1,3 +1,6 @@
+using Identity.Api.Endpoints.CookieAuth.LoginCookieSession;
+using Identity.Api.Endpoints.CookieAuth.LogoutCookieSession;
+
 namespace Identity.Api.Endpoints.CookieAuth;
 
 /// <summary>Browser sign-in for Admin: an HttpOnly session cookie plus a readable CSRF cookie.</summary>

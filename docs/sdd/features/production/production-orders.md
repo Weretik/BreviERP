@@ -35,7 +35,7 @@ src/Modules/Production/
         OrderMapping.cs, OrderNorms.cs, OrderNumbers.cs, OrderActors.cs, OrderMessages.cs, inputs and responses
     Features/Settings/           # GetWorkshopSettings, UpdateWorkshopSettings, SendWorkshopTelegramTest; Shared/WorkshopSettingsReading
   Production.Infrastructure/.../Persistence/Orders/ProductionOrderConfiguration.cs, ProductionTrackingConfiguration.cs, JsonColumn.cs
-  Production.Api/Production.Api/Endpoints/Orders/     # /api/production/orders: ProductionOrdersEndpoints (list, card, create…) and ProductionOrderTrackingEndpoints (stages, shipments, status, files, telegram, imports); one <UseCase>Endpoint.cs each
+  Production.Api/Production.Api/Endpoints/Orders/     # /api/production/orders: ProductionOrdersEndpoints (list, card, create…) and ProductionOrderTrackingEndpoints (stages, shipments, status, files, telegram, imports); one <UseCase>/ folder each
   Production.Api/Production.Api/Endpoints/Settings/   # /api/production/settings
 src/Modules/Production/Production.Contracts/Production.Contracts/{Orders,FabricPlans}/  # IQuoteOrderLinks, IOrderFabricPlans for other modules
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/

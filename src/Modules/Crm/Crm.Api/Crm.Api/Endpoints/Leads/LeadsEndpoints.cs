@@ -1,4 +1,11 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Leads.GetCrmLead;
+using Crm.Api.Endpoints.Leads.GetCrmLeadCallResults;
+using Crm.Api.Endpoints.Leads.GetCrmLeads;
+using Crm.Api.Endpoints.Leads.GetCrmLeadsMyDay;
+using Crm.Api.Endpoints.Leads.RecordCrmLeadCall;
+using Crm.Api.Endpoints.Leads.ReleaseCrmLead;
+using Crm.Api.Endpoints.Leads.TakeCrmLead;
 
 namespace Crm.Api.Endpoints.Leads;
 

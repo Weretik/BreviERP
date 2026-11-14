@@ -31,7 +31,7 @@ src/Modules/Reminders/
     Integrations/Telegram/ # TelegramOptions, TelegramBotApiGateway (HttpClient)
     DependencyInjection/
   Reminders.Api/Reminders.Api/
-    Endpoints/{Tasks,Occurrences,Chats,Calendar}/   # Admin endpoints under /api/reminders, one <UseCase>Endpoint.cs each
+    Endpoints/{Tasks,Occurrences,Chats,Calendar}/   # Admin endpoints under /api/reminders, one <UseCase>/ folder each
     Endpoints/Telegram/   # ReceiveTelegramUpdateEndpoint (anonymous, secret header), ConnectTelegramWebhookEndpoint
 src/Bootstrapper/Host.Seed/Jobs/RemindersDispatchCommandRunner.cs   # thin runner: sends DispatchRemindersCommand, logs the summary
 ```

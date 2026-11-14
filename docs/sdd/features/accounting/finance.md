@@ -47,7 +47,7 @@ src/Modules/Accounting/
     DependencyInjection/
   Accounting.Api/Accounting.Api/
     Access/            # policy access:accounting (Director by default), who made the change
-    Endpoints/         # Minimal API, one <UseCase>Endpoint.cs per operation; groups under /api/accounting:
+    Endpoints/         # Minimal API, one <UseCase>/ folder per operation; groups under /api/accounting:
       Accounts/        #   accounts
       Categories/      #   categories
       Settings/        #   settings

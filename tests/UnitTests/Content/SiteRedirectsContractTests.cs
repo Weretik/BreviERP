@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Routing;
 using UnitTests.TestSupport;
 using Content.Api.DependencyInjection;
 using System.Text.Json;
-using Content.Api.Redirects;
 using Content.Domain.Redirects;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +10,8 @@ using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects;
 using Content.Application.Features.Redirects.Queries.GetPublicRedirects;
 using Content.Application.Features.Redirects.Queries.GetSiteRedirects;
 using Content.Application.Features.Redirects.Shared;
+using Content.Api.Endpoints.Redirects.ImportOldSiteRedirects;
+using Content.Api.Endpoints.Redirects.Shared;
 
 namespace UnitTests.Content;
 

@@ -1,4 +1,7 @@
 using Production.Api.Access;
+using Production.Api.Endpoints.Settings.GetWorkshopSettings;
+using Production.Api.Endpoints.Settings.SendWorkshopTelegramTest;
+using Production.Api.Endpoints.Settings.UpdateWorkshopSettings;
 
 namespace Production.Api.Endpoints.Settings;
 

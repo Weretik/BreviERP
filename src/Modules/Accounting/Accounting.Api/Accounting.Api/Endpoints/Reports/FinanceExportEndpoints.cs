@@ -1,4 +1,5 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Reports.GetFinanceExport;
 
 namespace Accounting.Api.Endpoints.Reports;
 

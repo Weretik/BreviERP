@@ -1,4 +1,6 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Customers.CreateCrmCustomerContact;
+using Crm.Api.Endpoints.Customers.ReviseCrmCustomerContact;
 
 namespace Crm.Api.Endpoints.Customers;
 

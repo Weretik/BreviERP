@@ -1,4 +1,6 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.SiteRequests.ChangeCrmSiteRequest;
+using Crm.Api.Endpoints.SiteRequests.GetCrmSiteRequests;
 
 namespace Crm.Api.Endpoints.SiteRequests;
 

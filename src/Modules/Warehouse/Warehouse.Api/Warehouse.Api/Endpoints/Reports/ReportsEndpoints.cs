@@ -1,3 +1,8 @@
+using Warehouse.Api.Endpoints.Reports.GetFabricBooking;
+using Warehouse.Api.Endpoints.Reports.GetFabricPlanFact;
+using Warehouse.Api.Endpoints.Reports.GetFabricValuation;
+using Warehouse.Api.Endpoints.Reports.GetHardwareOrder;
+
 namespace Warehouse.Api.Endpoints.Reports;
 
 /// <summary>

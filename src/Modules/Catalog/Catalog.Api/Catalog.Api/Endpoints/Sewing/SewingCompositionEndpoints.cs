@@ -1,4 +1,6 @@
 using Catalog.Application.Features.Product.Shared.Sewing;
+using Catalog.Api.Endpoints.Sewing.GetSewingComposition;
+using Catalog.Api.Endpoints.Sewing.ReplaceSewingComposition;
 
 namespace Catalog.Api.Endpoints.Sewing;
 

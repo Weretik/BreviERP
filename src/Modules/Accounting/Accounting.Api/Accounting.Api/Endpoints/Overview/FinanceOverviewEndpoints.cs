@@ -1,4 +1,5 @@
 using Accounting.Api.Access;
+using Accounting.Api.Endpoints.Overview.GetFinanceOverview;
 
 namespace Accounting.Api.Endpoints.Overview;
 

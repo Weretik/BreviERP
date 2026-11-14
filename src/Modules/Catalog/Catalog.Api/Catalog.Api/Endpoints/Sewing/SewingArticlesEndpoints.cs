@@ -1,3 +1,8 @@
+using Catalog.Api.Endpoints.Sewing.CreateSewingArticle;
+using Catalog.Api.Endpoints.Sewing.DeleteSewingArticle;
+using Catalog.Api.Endpoints.Sewing.ListSewingArticles;
+using Catalog.Api.Endpoints.Sewing.UpdateSewingArticle;
+
 namespace Catalog.Api.Endpoints.Sewing;
 
 internal static class SewingArticlesEndpoints

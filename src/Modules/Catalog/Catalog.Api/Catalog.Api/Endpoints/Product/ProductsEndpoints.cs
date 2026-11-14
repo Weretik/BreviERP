@@ -1,3 +1,9 @@
+using Catalog.Api.Endpoints.Product.CreateProduct;
+using Catalog.Api.Endpoints.Product.DeleteProduct;
+using Catalog.Api.Endpoints.Product.GetProduct;
+using Catalog.Api.Endpoints.Product.GetProducts;
+using Catalog.Api.Endpoints.Product.ReplaceProduct;
+
 namespace Catalog.Api.Endpoints.Product;
 
 internal static class ProductsEndpoints

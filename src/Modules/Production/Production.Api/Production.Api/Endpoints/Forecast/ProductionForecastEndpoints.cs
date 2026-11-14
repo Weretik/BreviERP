@@ -1,4 +1,6 @@
 using Production.Api.Access;
+using Production.Api.Endpoints.Forecast.GetSewingForecast;
+using Production.Api.Endpoints.Forecast.SaveSewingForecastQueue;
 
 namespace Production.Api.Endpoints.Forecast;
 

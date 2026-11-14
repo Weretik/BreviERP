@@ -1,4 +1,6 @@
 using Crm.Api.Access;
+using Crm.Api.Endpoints.Quotes.GetCrmQuoteSettings;
+using Crm.Api.Endpoints.Quotes.SaveCrmQuoteSettings;
 
 namespace Crm.Api.Endpoints.Quotes;
 

@@ -6,8 +6,13 @@
 <Module>.Api/
 ├── Endpoints/<Feature>/                 same feature names as Application (Settings, Pricing/Ppe, Users)
 │   ├── <Feature>Endpoints.cs            Map<Feature>Endpoints(): one MapGroup per audience with route prefix, policy, tags
-│   └── <UseCase>Endpoint.cs             Map() and the handler of one use case, with its <UseCase>Request next to it
+│   ├── <UseCase>/                       one folder per use case
+│   │   ├── <UseCase>Endpoint.cs         Map() and the handler of the use case
+│   │   └── <UseCase>Request.cs          request/response types only this use case uses (or inside the endpoint file)
+│   └── Shared/                          types several use cases of the feature share (or a named group such as Detail/)
+├── Endpoints/Shared/                    types several features of the module share
 ├── Access/                              policy names of the module's pages
+├── Middleware/                          module middleware, when there is one
 ├── DependencyInjection/
 │   └── <Module>ModuleExtensions.cs      Add<Module>Module() (Application, Infrastructure, Contracts implementations)
 │                                        and Map<Module>Endpoints()
@@ -15,7 +20,7 @@
 └── <Module>.Api.csproj
 ```
 
-Endpoints bind HTTP input (`ISender` with `[FromServices]`), call `ISender.Send` with a `CancellationToken`, and return the shared Result mapping (`ToHttpResult`, `ToNoContentHttpResult` in `BuildingBlocks.Api/Result`); modules not yet moved still use controllers with `ToActionResult`. The host maps every moved module in `MapModuleEndpoints()`. They do not run EF queries, create repositories, or contain domain rules. Only `DependencyInjection/` may use Infrastructure types. No folder is named after a kind of class (`Controllers/`, `Contracts/`, `Requests/`, `Mapping/`, `Options/`, `Results/`); `tests/ArchitectureTests/ApiLayoutTests.cs` checks it. The shared result mapping (`ToActionResult`, `ToNoContentResult`) lives in `BuildingBlocks.Api/Result`.
+Endpoints bind HTTP input (`ISender` with `[FromServices]`), call `ISender.Send` with a `CancellationToken`, and return the shared Result mapping (`ToHttpResult`, `ToNoContentHttpResult` in `BuildingBlocks.Api/Result`). The host maps every module in `MapModuleEndpoints()`. They do not run EF queries, create repositories, or contain domain rules. Only `DependencyInjection/` may use Infrastructure types. No folder is named after a kind of class (`Controllers/`, `Contracts/`, `Requests/`, `Mapping/`, `Options/`, `Results/`); The project root holds only `Access/`, `DependencyInjection/`, `Endpoints/` and `Middleware/`; `tests/ArchitectureTests/ApiLayoutTests.cs` checks these rules and one folder per use case.
 
 ## Host structure
 
