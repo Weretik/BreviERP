@@ -1,8 +1,8 @@
 using Ardalis.Result;
-using Media.Application.Files.GetFilesBySourceKeys;
-using Media.Application.Files.UploadFile;
-using Media.Application.Folders.EnsureFolderPath;
 using Microsoft.EntityFrameworkCore;
+using Media.Application.Features.Files.Commands.UploadMediaFile;
+using Media.Application.Features.Files.Queries.GetMediaFilesBySourceKeys;
+using Media.Application.Features.Folders.Commands.EnsureMediaFolderPath;
 
 namespace UnitTests.Media;
 
@@ -16,7 +16,7 @@ public sealed class MediaImportTests
 
         var first = await Upload(media, "old-site:catalog/a.jpg");
         var second = await Upload(media, "old-site:catalog/a.jpg");
-        var found = await new GetMediaFilesBySourceKeysQueryHandler(media.Db)
+        var found = await new GetMediaFilesBySourceKeysHandler(media.Db)
             .Handle(new GetMediaFilesBySourceKeysQuery(["old-site:catalog/a.jpg", "old-site:catalog/b.jpg"]), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -33,7 +33,7 @@ public sealed class MediaImportTests
     {
         using var media = new MediaTestHarness();
         var root = await media.FolderAsync("Старий сайт");
-        var handler = new EnsureMediaFolderPathCommandHandler(media.Db, media.Time);
+        var handler = new EnsureMediaFolderPathHandler(media.Db, media.Time);
 
         var first = await handler.Handle(new EnsureMediaFolderPathCommand(["старий сайт", "costum_leto", "agier"]), CancellationToken.None);
         var again = await handler.Handle(new EnsureMediaFolderPathCommand(["Старий сайт", "costum_leto", "agier"]), CancellationToken.None);
@@ -51,7 +51,7 @@ public sealed class MediaImportTests
     [Test]
     public void Folder_path_rejects_slashes_and_too_deep_paths()
     {
-        var validator = new EnsureMediaFolderPathCommandValidator();
+        var validator = new EnsureMediaFolderPathValidator();
 
         Assert.Multiple(() =>
         {
@@ -61,7 +61,7 @@ public sealed class MediaImportTests
         });
     }
 
-    private static async Task<Result<global::Media.Application.Contracts.MediaFileResponse>> Upload(MediaTestHarness media, string sourceKey)
+    private static async Task<Result<global::Media.Application.Features.Files.Shared.MediaFileResponse>> Upload(MediaTestHarness media, string sourceKey)
     {
         await using var content = new MemoryStream(MediaTestHarness.Jpeg);
         return await media.UploadHandler().Handle(

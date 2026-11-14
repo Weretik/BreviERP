@@ -1,9 +1,9 @@
 using Mediator;
 using Media.Application.Abstractions;
-using Media.Application.Files.GetFilesBySourceKeys;
-using Media.Application.Files.UploadFile;
-using Media.Application.Folders.EnsureFolderPath;
 using Media.Contracts.Imports;
+using Media.Application.Features.Files.Commands.UploadMediaFile;
+using Media.Application.Features.Files.Queries.GetMediaFilesBySourceKeys;
+using Media.Application.Features.Folders.Commands.EnsureMediaFolderPath;
 
 namespace Media.Infrastructure.Contracts.Imports;
 

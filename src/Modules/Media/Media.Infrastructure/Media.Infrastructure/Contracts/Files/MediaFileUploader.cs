@@ -1,8 +1,8 @@
 using Ardalis.Result;
 using Mediator;
-using Media.Application.Files.UploadFile;
-using Media.Application.Folders.EnsureFolderPath;
 using Media.Contracts.Files;
+using Media.Application.Features.Files.Commands.UploadMediaFile;
+using Media.Application.Features.Folders.Commands.EnsureMediaFolderPath;
 
 namespace Media.Infrastructure.Contracts.Files;
 

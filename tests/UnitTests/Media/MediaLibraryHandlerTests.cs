@@ -1,15 +1,16 @@
 using Ardalis.Result;
 using Media.Application.Abstractions;
-using Media.Application.Contracts;
-using Media.Application.Files.DeleteFile;
-using Media.Application.Files.MoveFiles;
-using Media.Application.Files.SearchFiles;
-using Media.Application.Files.UploadFile;
-using Media.Application.Folders.CreateFolder;
-using Media.Application.Folders.DeleteFolder;
-using Media.Application.Folders.GetFolders;
-using Media.Application.Folders.UpdateFolder;
 using Microsoft.EntityFrameworkCore;
+using Media.Application.Features.Files.Commands.DeleteMediaFile;
+using Media.Application.Features.Files.Commands.MoveMediaFiles;
+using Media.Application.Features.Files.Commands.UploadMediaFile;
+using Media.Application.Features.Files.Queries.SearchMediaFiles;
+using Media.Application.Features.Files.Shared;
+using Media.Application.Features.Folders.Commands.CreateMediaFolder;
+using Media.Application.Features.Folders.Commands.DeleteMediaFolder;
+using Media.Application.Features.Folders.Commands.UpdateMediaFolder;
+using Media.Application.Features.Folders.Queries.GetMediaFolders;
+using Media.Application.Features.Folders.Shared;
 
 namespace UnitTests.Media;
 
@@ -22,9 +23,9 @@ public sealed class MediaLibraryHandlerTests
         var products = await media.FolderAsync("Products");
         await media.FolderAsync("Jackets", products);
 
-        var duplicate = await new CreateMediaFolderCommandHandler(media.Db, media.Time)
+        var duplicate = await new CreateMediaFolderHandler(media.Db, media.Time)
             .Handle(new CreateMediaFolderCommand(new MediaFolderInput("  jackets ", products)), CancellationToken.None);
-        var otherParent = await new CreateMediaFolderCommandHandler(media.Db, media.Time)
+        var otherParent = await new CreateMediaFolderHandler(media.Db, media.Time)
             .Handle(new CreateMediaFolderCommand(new MediaFolderInput("Jackets", null)), CancellationToken.None);
 
         Assert.Multiple(() =>
@@ -41,7 +42,7 @@ public sealed class MediaLibraryHandlerTests
         var products = await media.FolderAsync("Products");
         var jackets = await media.FolderAsync("Jackets", products);
 
-        var result = await new UpdateMediaFolderCommandHandler(media.Db, media.Time)
+        var result = await new UpdateMediaFolderHandler(media.Db, media.Time)
             .Handle(new UpdateMediaFolderCommand(products, new MediaFolderInput("Products", jackets)), CancellationToken.None);
 
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Conflict));
@@ -54,7 +55,7 @@ public sealed class MediaLibraryHandlerTests
         var products = await media.FolderAsync("Products");
         await media.UploadAsync("coat.jpg", products);
         var empty = await media.FolderAsync("Empty");
-        var handler = new DeleteMediaFolderCommandHandler(media.Db);
+        var handler = new DeleteMediaFolderHandler(media.Db);
 
         var blocked = await handler.Handle(new DeleteMediaFolderCommand(products), CancellationToken.None);
         var deleted = await handler.Handle(new DeleteMediaFolderCommand(empty), CancellationToken.None);
@@ -73,7 +74,7 @@ public sealed class MediaLibraryHandlerTests
         var products = await media.FolderAsync("Products");
 
         var file = await media.UploadAsync("C:\\photos\\coat red.jpg", products);
-        var folders = await new GetMediaFoldersQueryHandler(media.Db).Handle(new GetMediaFoldersQuery(), CancellationToken.None);
+        var folders = await new GetMediaFoldersHandler(media.Db).Handle(new GetMediaFoldersQuery(), CancellationToken.None);
 
         Assert.Multiple(() =>
         {
@@ -112,7 +113,7 @@ public sealed class MediaLibraryHandlerTests
         await media.UploadAsync("coat-red.jpg", products);
         await media.UploadAsync("coat-site.jpg", site);
         await media.UploadAsync("gloves.jpg", products);
-        var handler = new SearchMediaFilesQueryHandler(media.Db);
+        var handler = new SearchMediaFilesHandler(media.Db);
 
         var inBranch = await handler.Handle(new SearchMediaFilesQuery(products, true, "COAT", 1, 48), CancellationToken.None);
         var onlyFolder = await handler.Handle(new SearchMediaFilesQuery(products, false, "coat", 1, 48), CancellationToken.None);
@@ -136,7 +137,7 @@ public sealed class MediaLibraryHandlerTests
         var site = await media.FolderAsync("Site");
         var file = await media.UploadAsync("coat.jpg", products);
 
-        var result = await new MoveMediaFilesCommandHandler(media.Db, media.Time)
+        var result = await new MoveMediaFilesHandler(media.Db, media.Time)
             .Handle(new MoveMediaFilesCommand(new MoveMediaFilesInput([file.Id], site)), CancellationToken.None);
         var moved = await media.Db.Files.AsNoTracking().SingleAsync();
 
@@ -155,7 +156,7 @@ public sealed class MediaLibraryHandlerTests
         var used = await media.UploadAsync("used.jpg", null);
         var free = await media.UploadAsync("free.jpg", null);
         media.Usages.Usages.Add(new MediaUsage(used.Id, "Товари", 7, "Куртка"));
-        var handler = new DeleteMediaFileCommandHandler(media.Db, media.Storage, media.Usages);
+        var handler = new DeleteMediaFileHandler(media.Db, media.Storage, media.Usages);
 
         var blocked = await handler.Handle(new DeleteMediaFileCommand(used.Id), CancellationToken.None);
         var deleted = await handler.Handle(new DeleteMediaFileCommand(free.Id), CancellationToken.None);
@@ -173,7 +174,7 @@ public sealed class MediaLibraryHandlerTests
     [Test]
     public async Task Upload_validator_rejects_a_fake_image_and_a_too_big_file()
     {
-        var validator = new UploadMediaFileCommandValidator(new MediaUploadSettings { MaxFileSizeBytes = 100, BaseFolder = "/x" });
+        var validator = new UploadMediaFileValidator(new MediaUploadSettings { MaxFileSizeBytes = 100, BaseFolder = "/x" });
         await using var notJpeg = new MemoryStream("not an image"u8.ToArray());
         await using var jpeg = new MemoryStream(MediaTestHarness.Jpeg);
 

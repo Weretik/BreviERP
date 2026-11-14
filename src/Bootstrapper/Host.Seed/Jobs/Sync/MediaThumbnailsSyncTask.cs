@@ -1,6 +1,6 @@
-using Media.Application.Files.BackfillImages;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Media.Application.Features.Files.Shared.Images;
 
 namespace Host.Seed.Jobs.Sync;
 
