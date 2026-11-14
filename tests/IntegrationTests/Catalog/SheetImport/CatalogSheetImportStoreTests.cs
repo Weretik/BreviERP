@@ -610,6 +610,7 @@ internal sealed class SheetImportHost(WebApplication app, HttpClient client, str
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+        app.MapModuleEndpoints();
         await app.StartAsync();
         var client = app.GetTestClient();
         client.Timeout = TimeSpan.FromMinutes(10);
