@@ -1,6 +1,7 @@
 using Content.Application.Abstractions;
 using Content.Domain.SiteCompany;
 using Content.Application.Features.SiteCompany.Shared;
+using Content.Application.Features.SiteCompany.Shared.Company;
 
 namespace Content.Application.Features.SiteCompany.Commands.SaveSiteCompany;
 

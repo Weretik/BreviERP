@@ -1,3 +1,5 @@
+using Catalog.Application.Features.Product.Shared.Sewing.Views;
+
 namespace Catalog.Application.Features.Product.Shared.Sewing;
 
 public sealed record SewingComposition(

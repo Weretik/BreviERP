@@ -1,5 +1,4 @@
-using Catalog.Application.Features.Product.Shared.Card;
-using ProductAdminDetailSpec = Catalog.Application.Features.Product.Queries.GetAdminProductDetail.ProductAdminDetailSpec;
+using ProductAdminDetailSpec = Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Specs.ProductAdminDetailSpec;
 using Catalog.Domain.Media;
 using Catalog.Domain.ProductCategories;
 using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
@@ -10,6 +9,8 @@ using Catalog.Application.Abstractions.Media;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Shared;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Products;
+using Catalog.Application.Features.Product.Shared.Detail;
 
 namespace Catalog.Application.Features.Product.Commands.CreateProduct;
 

@@ -2,6 +2,7 @@ using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
+using Catalog.Application.Abstractions.Pricing.Ppe;
 
 namespace Catalog.Application.Features.Pricing.Shared.Ppe.SupplierOffer;
 

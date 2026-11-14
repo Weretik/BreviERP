@@ -6,6 +6,7 @@ using Crm.Application.Features.Quotes.Shared.Sending;
 using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Infrastructure.Integrations.Gmail;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace UnitTests.Crm.Quotes;
 

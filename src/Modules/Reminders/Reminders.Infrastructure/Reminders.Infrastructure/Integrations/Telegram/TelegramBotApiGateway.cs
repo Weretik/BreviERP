@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using Reminders.Application.Abstractions;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Infrastructure.Integrations.Telegram;
 

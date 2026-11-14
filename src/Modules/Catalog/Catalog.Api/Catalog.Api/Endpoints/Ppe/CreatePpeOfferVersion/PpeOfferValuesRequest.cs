@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 namespace Catalog.Api.Endpoints.Ppe.CreatePpeOfferVersion;
 
 public sealed record PpeOfferValuesRequest(

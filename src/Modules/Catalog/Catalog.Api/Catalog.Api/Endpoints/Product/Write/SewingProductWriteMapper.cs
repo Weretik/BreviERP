@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Sewing;
 
 namespace Catalog.Api.Endpoints.Product.Write;
 

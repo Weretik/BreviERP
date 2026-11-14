@@ -1,6 +1,7 @@
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared;
 using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
+using Catalog.Application.Abstractions.Pricing.Ppe;
 namespace Catalog.Application.Features.Pricing.Queries.GetPpeProductPrices;
 public sealed class GetPpeProductPricesHandler(IPpePricingInputReader reader)
     : IQueryHandler<GetPpeProductPricesQuery, Result<IReadOnlyList<PpeProductPricing>>>

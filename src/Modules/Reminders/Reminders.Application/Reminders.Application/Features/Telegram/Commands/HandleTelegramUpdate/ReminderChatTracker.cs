@@ -1,6 +1,8 @@
 using Reminders.Application.Abstractions;
 using Reminders.Domain.Chats;
 using Reminders.Application.Features.Telegram.Shared;
+using Reminders.Application.Abstractions.Telegram;
+using Reminders.Application.Features.Telegram.Shared.Chats;
 
 namespace Reminders.Application.Features.Telegram.Commands.HandleTelegramUpdate;
 

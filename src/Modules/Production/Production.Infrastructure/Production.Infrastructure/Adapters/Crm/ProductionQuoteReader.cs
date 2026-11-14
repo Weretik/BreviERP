@@ -1,5 +1,6 @@
 using Crm.Contracts.Quotes;
 using Production.Application.Abstractions;
+using Production.Application.Abstractions.Sales;
 
 namespace Production.Infrastructure.Adapters.Crm;
 

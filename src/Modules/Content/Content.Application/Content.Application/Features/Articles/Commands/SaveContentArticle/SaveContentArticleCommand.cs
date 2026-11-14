@@ -3,6 +3,7 @@ using Content.Domain.Articles;
 using Content.Domain.ProductPages;
 using Content.Application.Features.Articles.Shared;
 using Content.Application.Features.Redirects.Shared;
+using Content.Application.Features.Articles.Shared.Admin;
 
 namespace Content.Application.Features.Articles.Commands.SaveContentArticle;
 

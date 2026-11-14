@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Crm.Application.Abstractions.Customers;
 using Crm.Infrastructure.Persistence;
 using Crm.Infrastructure.Persistence.Configurations.Customers;
+using Crm.Application.Abstractions.Customers.Views;
 
 
 namespace Crm.Infrastructure.Persistence.Repositories.Customers;

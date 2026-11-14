@@ -3,6 +3,7 @@ using System.Text;
 using Reminders.Application.Abstractions;
 using Reminders.Application.Features.Telegram.Commands.HandleTelegramUpdate;
 using Reminders.Application.Features.Telegram.Shared;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Api.Endpoints.Telegram.ReceiveTelegramUpdate;
 

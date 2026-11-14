@@ -5,6 +5,7 @@ using Reminders.Domain.Occurrences;
 using Reminders.Application.Features.Calendar.Shared;
 using Reminders.Application.Features.Messages.Shared;
 using Reminders.Application.Features.Telegram.Shared;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Application.Features.Telegram.Commands.HandleTelegramUpdate;
 

@@ -4,6 +4,8 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Media;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Shared;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Specs;
+using Catalog.Application.Features.Product.Shared.Detail;
 
 namespace Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 

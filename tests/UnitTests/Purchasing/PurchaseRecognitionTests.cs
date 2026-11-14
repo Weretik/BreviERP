@@ -7,6 +7,9 @@ using Purchasing.Application.Features.Documents.Queries.GetPurchaseDocumentTempl
 using Purchasing.Application.Features.Documents.Shared;
 using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
 using Purchasing.Application.Features.Register.Shared;
+using Purchasing.Application.Abstractions.Sources;
+using Purchasing.Application.Features.Documents.Shared.Recognition;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices.Results;
 
 namespace UnitTests.Purchasing;
 

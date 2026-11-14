@@ -2,6 +2,7 @@
 using Reference.Contracts.Fabrics;
 using Crm.Application.Features.Quotes.Queries.GetQuoteFabricFacts;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Products;
 
 namespace Crm.Infrastructure.Adapters.Reference;
 

@@ -1,5 +1,6 @@
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence.Configurations.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Calculations;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Pricing.Calculations;

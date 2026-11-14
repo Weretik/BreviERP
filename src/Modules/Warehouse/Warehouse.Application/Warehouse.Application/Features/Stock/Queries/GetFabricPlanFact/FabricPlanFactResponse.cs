@@ -1,3 +1,5 @@
+using Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact.Responses;
+
 namespace Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact;
 
 // ── «План і факт» (TZ §11) ─────────────────────────────────────────────────────────────────────────────────────────

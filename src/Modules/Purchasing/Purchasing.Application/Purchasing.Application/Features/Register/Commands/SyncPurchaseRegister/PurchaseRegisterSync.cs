@@ -6,6 +6,7 @@ using Purchasing.Domain.Sources;
 using Purchasing.Domain.Sync;
 using Purchasing.Domain.Ingestion.Errors;
 using Purchasing.Domain.Ingestion.Normalization;
+using Purchasing.Application.Abstractions.Sources;
 
 namespace Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
 

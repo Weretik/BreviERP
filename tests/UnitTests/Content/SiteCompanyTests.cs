@@ -3,6 +3,8 @@ using FluentValidation.TestHelper;
 using Content.Application.Features.SiteCompany.Commands.SaveSiteCompany;
 using Content.Application.Features.SiteCompany.Queries.GetSiteCompany;
 using Content.Application.Features.SiteCompany.Shared;
+using Content.Application.Features.SiteCompany.Shared.Company;
+using Content.Application.Features.SiteCompany.Shared.Public;
 
 namespace UnitTests.Content;
 

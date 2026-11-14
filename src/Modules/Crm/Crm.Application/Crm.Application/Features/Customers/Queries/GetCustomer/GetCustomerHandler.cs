@@ -1,4 +1,5 @@
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Abstractions.Customers.Views;
 namespace Crm.Application.Features.Customers.Queries.GetCustomer;
 
 public sealed class GetCustomerHandler(ICustomerReadRepository repository) : IQueryHandler<GetCustomerQuery, Result<CustomerDetail>>

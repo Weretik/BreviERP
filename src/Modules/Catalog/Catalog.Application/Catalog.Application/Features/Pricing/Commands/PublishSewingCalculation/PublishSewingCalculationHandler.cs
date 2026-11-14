@@ -1,5 +1,9 @@
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared.Sewing.Evaluation;
+using Catalog.Application.Abstractions.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Inputs;
+using Catalog.Application.Abstractions.Pricing.Publications;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 namespace Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
 

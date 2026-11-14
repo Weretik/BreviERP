@@ -14,6 +14,8 @@ using Purchasing.Application.Features.Documents.Shared;
 using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
 using Purchasing.Domain.Ingestion.Normalization;
+using Purchasing.Application.Abstractions.Sources;
+using Purchasing.Application.Features.Documents.Shared.Recognition;
 
 namespace UnitTests.Purchasing;
 

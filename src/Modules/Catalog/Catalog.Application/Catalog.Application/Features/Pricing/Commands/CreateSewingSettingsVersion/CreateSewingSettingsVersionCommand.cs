@@ -1,4 +1,5 @@
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 namespace Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
 

@@ -24,7 +24,7 @@ src/Modules/Identity/
 │   ├── Features/Profile/{Commands,Queries}/        # GetProfile, ChangeOwnName, ChangeOwnPhone, ChangeOwnEmail,
 │   │                                               # ChangeOwnPassword, UploadOwnAvatar, RemoveOwnAvatar
 │   ├── Features/Avatars/Shared/AvatarRules.cs      # size limits
-│   └── Abstractions/IProfileService.cs, IAvatarStorage.cs
+│   └── Abstractions/Profile/IProfileService.cs, IAvatarStorage.cs
 └── Identity.Infrastructure/Identity.Infrastructure/
     ├── Integrations/AspNetIdentity/Profile/ProfileService.cs
     └── Integrations/Avatars/                       # SkiaSharp processing, replace/remove

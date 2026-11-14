@@ -2,6 +2,7 @@ using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Sending;
 using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace Crm.Application.Features.Quotes.Commands.StartMailboxConnect;
 

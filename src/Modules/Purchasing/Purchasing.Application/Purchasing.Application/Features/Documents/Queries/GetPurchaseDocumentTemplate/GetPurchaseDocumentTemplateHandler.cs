@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Purchasing.Application.Abstractions;
 using Purchasing.Application.Features.Documents.Shared;
+using Purchasing.Application.Features.Documents.Shared.Recognition;
 
 namespace Purchasing.Application.Features.Documents.Queries.GetPurchaseDocumentTemplate;
 

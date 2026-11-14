@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Ingestion;
 using Purchasing.Domain.Ingestion.Errors;
+using Purchasing.Application.Abstractions.Sources;
 
 namespace Purchasing.Infrastructure.Integrations.GoogleSheets;
 

@@ -24,6 +24,18 @@ using Warehouse.Application.Features.Stock.Queries.GetFabricStockChoices;
 using Warehouse.Application.Features.Stock.Queries.GetFabricValuation;
 using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Commands.TransferStock.Transfer;
+using Warehouse.Application.Features.Stock.Commands.TransferStock.V133.Orders;
+using Warehouse.Application.Features.Stock.Commands.TransferStock.V133.Stock;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
+using Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact.Responses;
+using Warehouse.Application.Features.Stock.Queries.GetFabricStock.Results;
+using Warehouse.Application.Features.Stock.Queries.GetFabricValuation.Results;
+using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder.Results;
+using Warehouse.Application.Features.Stock.Shared.Booking;
+using Warehouse.Application.Features.Stock.Shared.Issues;
+using Warehouse.Application.Features.Stock.Shared.Operations;
+using Warehouse.Application.Features.Stock.Shared.Plans;
 
 namespace UnitTests.Warehouse;
 

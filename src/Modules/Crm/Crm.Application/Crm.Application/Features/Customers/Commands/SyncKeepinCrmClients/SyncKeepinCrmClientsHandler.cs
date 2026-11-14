@@ -1,4 +1,6 @@
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Abstractions.Customers.KeepinCrm;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 
 namespace Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 

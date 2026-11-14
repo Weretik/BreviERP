@@ -7,6 +7,7 @@ using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Statements.Shared;
 using Accounting.Application.Features.Transactions.Shared;
 using Accounting.Domain.Statements.ValueObjects;
+using Accounting.Application.Features.Statements.Shared.Responses;
 
 namespace Accounting.Application.Features.Statements.Commands.UpdateBankLine;
 

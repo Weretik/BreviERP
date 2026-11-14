@@ -1,5 +1,6 @@
 using Warehouse.Application.Features.Stock.Commands.ReceiveFabric;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Shared.Operations;
 
 namespace Warehouse.Api.Endpoints.FabricStock.ReceiveFabric;
 

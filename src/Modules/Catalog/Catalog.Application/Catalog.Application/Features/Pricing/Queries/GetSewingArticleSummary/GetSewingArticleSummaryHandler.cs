@@ -2,6 +2,10 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Pricing.Shared.Sewing.Evaluation;
+using Catalog.Application.Abstractions.Pricing.Inputs;
+using Catalog.Application.Abstractions.Pricing.Publications;
+using Catalog.Application.Abstractions.Pricing.Settings;
+using Catalog.Application.Abstractions.Sewing;
 
 namespace Catalog.Application.Features.Pricing.Queries.GetSewingArticleSummary;
 

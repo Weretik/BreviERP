@@ -6,6 +6,8 @@ using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.Sewing.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Inputs;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;

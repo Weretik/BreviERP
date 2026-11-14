@@ -1,3 +1,5 @@
+using Content.Application.Features.SiteCompany.Shared.Company;
+
 namespace Content.Application.Features.SiteCompany.Shared;
 
 /// <summary>«Контент → Контакти та компанія» (CNT-009). <paramref name="Revision"/> is 0 before the first save.</summary>

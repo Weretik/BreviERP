@@ -24,6 +24,8 @@ using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
 using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
 using Catalog.Application.Features.Pricing.Queries.GetPublishedSewingPrice;
 using Catalog.Application.Features.Pricing.Queries.GetPublishedSewingProducts;
+using Catalog.Application.Abstractions.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Publications;
 namespace IntegrationTests.Catalog.Pricing.Sewing;
 
 [NonParallelizable]

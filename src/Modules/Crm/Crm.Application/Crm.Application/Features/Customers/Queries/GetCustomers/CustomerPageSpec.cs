@@ -2,6 +2,7 @@ using Ardalis.Specification;
 using Crm.Domain.Customers;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 namespace Crm.Application.Features.Customers.Queries.GetCustomers;
 
 public sealed class CustomerPageSpec : Specification<Customer, CustomerSummary>

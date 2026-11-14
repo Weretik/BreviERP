@@ -1,4 +1,5 @@
 using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Sewing;
 
 namespace SewingPricing.Jobs.Activation;
 

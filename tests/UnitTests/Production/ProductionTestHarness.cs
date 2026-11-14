@@ -7,6 +7,10 @@ using Production.Application.Features.Colors.Shared;
 using Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Validation;
+using Production.Application.Abstractions.Materials;
+using Production.Application.Abstractions.Sales;
+using Production.Application.Features.Orders.Shared.Items;
+using Production.Application.Features.Orders.Shared.Rules;
 
 namespace UnitTests.Production;
 

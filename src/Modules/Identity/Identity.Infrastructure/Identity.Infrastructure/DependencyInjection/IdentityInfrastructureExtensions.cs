@@ -11,6 +11,7 @@ using Identity.Infrastructure.Integrations.AspNetIdentity.Sessions;
 using Identity.Infrastructure.Integrations.AspNetIdentity.Users;
 using Identity.Infrastructure.Integrations.Avatars;
 using Identity.Infrastructure.Persistence.Seeding;
+using Identity.Application.Abstractions.Profile;
 
 namespace Identity.Infrastructure.DependencyInjection;
 

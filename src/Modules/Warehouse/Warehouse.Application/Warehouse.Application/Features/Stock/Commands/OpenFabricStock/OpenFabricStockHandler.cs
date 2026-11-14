@@ -1,6 +1,7 @@
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Domain.Stock.Movements;
+using Warehouse.Application.Features.Stock.Shared.Operations;
 
 namespace Warehouse.Application.Features.Stock.Commands.OpenFabricStock;
 

@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Shared;
+using Catalog.Application.Features.Product.Shared.Detail;
 
 namespace Catalog.Application.Features.Product.Commands.CreateProduct;
 

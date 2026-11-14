@@ -23,6 +23,7 @@ using Crm.Application.Abstractions.SiteRequests;
 using Crm.Application.Abstractions.Tasks;
 using Crm.Infrastructure.Persistence.Configurations.Customers;
 using Crm.Infrastructure.Persistence.Repositories;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 
 namespace Crm.Infrastructure.Persistence;
 

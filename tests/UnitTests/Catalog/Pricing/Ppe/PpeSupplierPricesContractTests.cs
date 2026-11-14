@@ -9,6 +9,7 @@ using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
 using Catalog.Api.Endpoints.Ppe.ListPpePriceSources;
 using Catalog.Api.Endpoints.Ppe.UpdatePpePriceSource;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices;
 
 namespace UnitTests.Catalog.Pricing.Ppe;
 

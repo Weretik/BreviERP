@@ -4,6 +4,7 @@ using Catalog.Infrastructure.Persistence;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
 using Catalog.Infrastructure.Persistence.Configurations.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Calculations;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Pricing.Calculations;

@@ -6,6 +6,10 @@ using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using Catalog.Application.Abstractions.Products;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Plan;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Rows;
 
 namespace UnitTests.Catalog.SheetImport;
 

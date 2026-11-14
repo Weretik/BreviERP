@@ -1,5 +1,6 @@
 using Identity.Application.Features.Profile.Shared;
 using Identity.Application.Abstractions;
+using Identity.Application.Abstractions.Profile;
 
 namespace Identity.Application.Features.Profile.Queries.GetProfile;
 

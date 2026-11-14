@@ -1,6 +1,8 @@
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Queries.GetFabricStock.Results;
+using Warehouse.Application.Features.Stock.Shared.Booking;
 
 namespace Warehouse.Application.Features.Stock.Queries.GetFabricStock;
 

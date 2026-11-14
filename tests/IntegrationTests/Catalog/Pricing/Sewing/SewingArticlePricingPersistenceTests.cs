@@ -17,6 +17,7 @@ using Reference.Application.Abstractions;
 using Catalog.Application.Features.Pricing.Queries.CalculateSewingArticle;
 using Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;
 using Reference.Infrastructure.Persistence.Repositories.Pricing;
+using Reference.Application.Abstractions.Pricing;
 
 namespace IntegrationTests.Catalog.Pricing.Sewing;
 

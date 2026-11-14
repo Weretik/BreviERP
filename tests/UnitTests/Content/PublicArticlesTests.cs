@@ -11,6 +11,7 @@ using Content.Application.Features.Articles.Commands.SaveContentArticle;
 using Content.Application.Features.Articles.Queries.GetPublicArticle;
 using Content.Application.Features.Articles.Queries.GetPublicArticles;
 using Content.Application.Features.Articles.Shared;
+using Content.Application.Features.Articles.Shared.Public;
 
 namespace UnitTests.Content;
 

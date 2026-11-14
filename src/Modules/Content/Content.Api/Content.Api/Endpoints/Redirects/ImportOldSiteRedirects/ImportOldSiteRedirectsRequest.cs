@@ -1,4 +1,5 @@
 using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects;
+using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects.Results;
 
 namespace Content.Api.Endpoints.Redirects.ImportOldSiteRedirects;
 

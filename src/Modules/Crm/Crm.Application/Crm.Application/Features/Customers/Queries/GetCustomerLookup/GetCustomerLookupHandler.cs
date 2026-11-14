@@ -1,5 +1,6 @@
 using Crm.Domain.Customers;
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Features.Customers.Queries.GetCustomerLookup.Specs;
 
 namespace Crm.Application.Features.Customers.Queries.GetCustomerLookup;
 

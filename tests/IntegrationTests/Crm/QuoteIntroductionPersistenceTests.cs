@@ -14,6 +14,7 @@ using Crm.Application.Features.Quotes.Shared.Introductions;
 using Crm.Application.Features.Quotes.Shared.Introductions.Building;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Domain.Quotes.Enums;
+using Crm.Application.Abstractions.Quotes.Products;
 
 namespace IntegrationTests.Crm;
 

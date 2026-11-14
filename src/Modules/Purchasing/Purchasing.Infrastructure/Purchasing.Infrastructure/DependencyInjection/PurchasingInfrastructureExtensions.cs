@@ -13,6 +13,8 @@ using Purchasing.Infrastructure.Persistence;
 using Purchasing.Application.Features.Documents.Shared;
 using Purchasing.Infrastructure.Integrations.Dropbox;
 using Purchasing.Infrastructure.Integrations.GoogleSheets;
+using Purchasing.Application.Abstractions.Sources;
+using Purchasing.Application.Features.Documents.Shared.Recognition;
 
 namespace Purchasing.Infrastructure.DependencyInjection;
 

@@ -1,5 +1,6 @@
 using Content.Domain.ProductPages;
 using Content.Application.Features.Catalog.Shared;
+using Content.Application.Features.Catalog.Shared.Links;
 
 namespace Content.Application.Features.Catalog.Queries.GetPublicCatalogCategory;
 

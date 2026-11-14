@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Rows;
 
 namespace Catalog.Api.Endpoints.Overview.ImportSheetProducts;
 

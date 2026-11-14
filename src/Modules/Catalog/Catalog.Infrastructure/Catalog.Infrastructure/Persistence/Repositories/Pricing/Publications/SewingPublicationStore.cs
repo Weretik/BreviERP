@@ -6,6 +6,7 @@ using Catalog.Domain.Products.ValueObjects;
 using Catalog.Infrastructure.Persistence.Configurations.Pricing.Calculations;
 using Catalog.Infrastructure.Persistence.Configurations.Pricing.Publications;
 using Catalog.Infrastructure.Persistence.Repositories.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Publications;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Pricing.Publications;

@@ -1,4 +1,5 @@
 using Identity.Application.Abstractions;
+using Identity.Application.Abstractions.Profile;
 
 namespace Identity.Application.Features.Profile.Commands.ChangeOwnPassword;
 

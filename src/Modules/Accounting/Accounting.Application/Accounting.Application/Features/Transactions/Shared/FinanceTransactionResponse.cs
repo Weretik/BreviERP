@@ -4,6 +4,7 @@ using Accounting.Domain.Movements;
 using Accounting.Domain.Transactions;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Statements.Shared;
+using Accounting.Application.Features.Statements.Shared.Responses;
 
 namespace Accounting.Application.Features.Transactions.Shared;
 

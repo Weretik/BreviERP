@@ -5,6 +5,7 @@ using Catalog.Application.Features.Pricing.Commands.CreatePpeOfferVersion;
 using Catalog.Application.Features.Pricing.Commands.CreatePpeRuleVersion;
 using Catalog.Application.Features.Pricing.Queries.GetPpeProductPrices;
 using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 namespace UnitTests.Catalog.Pricing.Ppe;
 
 public sealed class PpePricingQueryTests

@@ -1,4 +1,5 @@
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 
 namespace SewingPricing.Jobs.Activation;
 

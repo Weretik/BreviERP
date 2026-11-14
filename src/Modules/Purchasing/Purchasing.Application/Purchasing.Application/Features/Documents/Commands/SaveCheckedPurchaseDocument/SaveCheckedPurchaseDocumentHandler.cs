@@ -3,6 +3,7 @@ using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Documents;
 using Purchasing.Application.Features.Documents.Shared;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
+using Purchasing.Application.Features.Documents.Shared.Recognition;
 
 namespace Purchasing.Application.Features.Documents.Commands.SaveCheckedPurchaseDocument;
 

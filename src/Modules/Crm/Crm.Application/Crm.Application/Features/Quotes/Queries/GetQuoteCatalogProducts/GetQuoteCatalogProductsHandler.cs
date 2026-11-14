@@ -2,6 +2,7 @@ using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Catalog;
 using Crm.Application.Features.Quotes.Shared.Mapping;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Products;
 
 namespace Crm.Application.Features.Quotes.Queries.GetQuoteCatalogProducts;
 

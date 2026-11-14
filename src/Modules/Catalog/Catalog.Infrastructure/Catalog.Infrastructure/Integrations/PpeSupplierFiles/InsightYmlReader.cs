@@ -3,6 +3,7 @@ using System.Xml;
 using Ardalis.Result;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
 
 namespace Catalog.Infrastructure.Integrations.PpeSupplierFiles;
 

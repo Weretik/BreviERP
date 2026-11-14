@@ -1,3 +1,5 @@
+using Warehouse.Application.Features.Stock.Commands.TransferStock.Transfer;
+
 namespace Warehouse.Application.Features.Stock.Commands.TransferStock;
 
 /// <summary>What the transfer did, or would do on a dry run.</summary>

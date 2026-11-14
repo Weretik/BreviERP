@@ -15,6 +15,8 @@ using Catalog.Infrastructure.Persistence;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Specs;
+using Catalog.Application.Features.Product.Shared.Detail;
 
 namespace IntegrationTests.Catalog.Products;
 

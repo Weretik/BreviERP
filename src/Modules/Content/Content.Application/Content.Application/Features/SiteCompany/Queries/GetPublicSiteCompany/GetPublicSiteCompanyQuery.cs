@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteCompany.Shared;
+using Content.Application.Features.SiteCompany.Shared.Public;
 
 namespace Content.Application.Features.SiteCompany.Queries.GetPublicSiteCompany;
 

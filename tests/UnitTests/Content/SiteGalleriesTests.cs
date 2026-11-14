@@ -6,6 +6,7 @@ using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
 using Content.Application.Features.SiteGalleries.Commands.TransferSiteGallery;
 using Content.Application.Features.SiteGalleries.Queries.GetSiteGallery;
 using Content.Application.Features.SiteGalleries.Shared;
+using Content.Application.Features.SiteGalleries.Shared.Admin;
 
 namespace UnitTests.Content;
 

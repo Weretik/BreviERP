@@ -2,6 +2,7 @@ using System.Text;
 using Warehouse.Application.Abstractions;
 using Warehouse.Application.Features.Stock.Queries.GetFabricBooking;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder.Results;
 
 namespace Warehouse.Application.Features.Stock.Queries.GetHardwareOrder;
 

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace Crm.Infrastructure.Integrations.Gmail;
 

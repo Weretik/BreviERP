@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteGalleries.Shared;
+using Content.Application.Features.SiteGalleries.Shared.Public;
 
 namespace Content.Application.Features.SiteGalleries.Queries.GetPublicSiteGalleries;
 

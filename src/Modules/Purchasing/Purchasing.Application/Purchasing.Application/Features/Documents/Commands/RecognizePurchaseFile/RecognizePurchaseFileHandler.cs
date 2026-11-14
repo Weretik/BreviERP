@@ -1,4 +1,5 @@
 using Purchasing.Application.Features.Documents.Shared;
+using Purchasing.Application.Features.Documents.Shared.Recognition;
 
 namespace Purchasing.Application.Features.Documents.Commands.RecognizePurchaseFile;
 

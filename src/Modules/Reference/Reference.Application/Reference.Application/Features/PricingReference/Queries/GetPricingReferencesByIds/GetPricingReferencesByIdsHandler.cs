@@ -3,6 +3,7 @@ using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 using Reference.Application.Abstractions;
+using Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds.Specs;
 
 namespace Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds;
 

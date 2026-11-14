@@ -1,6 +1,7 @@
 using Slugify;
 using TranslitKit;
 using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Products;
 
 
 namespace Catalog.Infrastructure.Persistence.Configurations.Products;

@@ -6,6 +6,8 @@ using Catalog.Infrastructure.Persistence;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Views;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Sewing;

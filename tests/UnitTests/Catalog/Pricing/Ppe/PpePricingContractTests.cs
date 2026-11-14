@@ -11,6 +11,7 @@ using Catalog.Application.Features.Pricing.Shared;
 using Catalog.Api.Endpoints.Ppe.CreatePpeOfferVersion;
 using Catalog.Api.Endpoints.Ppe.CreatePpeRuleVersion;
 using Catalog.Api.Endpoints.Ppe.UpdatePpeSupplierOffer;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 
 namespace UnitTests.Catalog.Pricing.Ppe;
 

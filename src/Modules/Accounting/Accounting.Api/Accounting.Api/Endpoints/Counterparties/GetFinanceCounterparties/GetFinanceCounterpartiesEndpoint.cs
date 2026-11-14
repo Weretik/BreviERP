@@ -1,4 +1,5 @@
 using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties;
+using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties.Results;
 
 namespace Accounting.Api.Endpoints.Counterparties.GetFinanceCounterparties;
 

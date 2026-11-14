@@ -1,6 +1,7 @@
 using IntegrationTests.TestSupport;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence.Repositories.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices;
 
 namespace IntegrationTests.Catalog.Pricing.Ppe;
 

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Content.Domain.Articles;
 using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
+using Content.Application.Features.Articles.Commands.ImportOldSiteArticles.Results;
 
 namespace UnitTests.Content;
 

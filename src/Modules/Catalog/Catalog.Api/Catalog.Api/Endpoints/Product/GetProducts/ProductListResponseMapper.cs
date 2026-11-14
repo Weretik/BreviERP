@@ -1,6 +1,7 @@
 using Ardalis.Result;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 using Catalog.Api.Endpoints.Product.Shared;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts.Results;
 
 namespace Catalog.Api.Endpoints.Product.GetProducts;
 

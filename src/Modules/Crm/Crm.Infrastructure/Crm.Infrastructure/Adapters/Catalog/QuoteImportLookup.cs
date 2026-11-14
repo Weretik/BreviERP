@@ -4,6 +4,7 @@ using Reference.Contracts.GarmentAccessories;
 using Reference.Contracts.GarmentPartOperations;
 using Crm.Application.Features.Quotes.Commands.ImportQuotes;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Products;
 
 namespace Crm.Infrastructure.Adapters.Catalog;
 

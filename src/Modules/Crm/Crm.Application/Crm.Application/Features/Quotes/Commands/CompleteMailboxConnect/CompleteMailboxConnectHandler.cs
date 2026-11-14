@@ -4,6 +4,7 @@ using Crm.Application.Features.Quotes.Commands.StartMailboxConnect;
 using Crm.Application.Features.Quotes.Shared.Persistence;
 using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace Crm.Application.Features.Quotes.Commands.CompleteMailboxConnect;
 

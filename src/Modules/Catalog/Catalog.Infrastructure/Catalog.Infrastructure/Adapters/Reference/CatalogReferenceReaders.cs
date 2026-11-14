@@ -6,6 +6,7 @@ using Reference.Contracts.PricingParameters;
 using Reference.Contracts.ProductSections;
 using Reference.Contracts.Suppliers;
 using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Abstractions.Reference.Items;
 
 namespace Catalog.Infrastructure.Adapters.Reference;
 

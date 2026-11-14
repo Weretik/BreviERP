@@ -1,5 +1,6 @@
 using Identity.Application.Abstractions;
 using Identity.Application.Features.Avatars.Shared;
+using Identity.Application.Abstractions.Profile;
 
 namespace Identity.Application.Features.Profile.Commands.UploadOwnAvatar;
 

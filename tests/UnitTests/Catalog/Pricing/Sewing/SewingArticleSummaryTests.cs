@@ -11,6 +11,13 @@ using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.Sewing.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Inputs;
+using Catalog.Application.Abstractions.Pricing.Publications;
+using Catalog.Application.Abstractions.Pricing.Settings;
+using Catalog.Application.Abstractions.Reference.Items;
+using Catalog.Application.Abstractions.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Views;
 
 namespace UnitTests.Catalog.Pricing.Sewing;
 

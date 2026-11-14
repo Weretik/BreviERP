@@ -1,5 +1,6 @@
 using SewingPricing.Jobs.Activation;
 using Catalog.Application.Features.Product.Shared.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Inputs;
 
 namespace UnitTests.Jobs.SewingPricing;
 

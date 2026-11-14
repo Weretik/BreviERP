@@ -10,6 +10,7 @@ using Crm.Application.Features.Customers.Queries.GetCustomers;
 using Crm.Application.Features.Customers.Shared.Inputs;
 using Crm.Application.Abstractions.Customers;
 using Crm.Infrastructure.Persistence.Repositories.Customers;
+using Crm.Application.Abstractions.Customers.Views;
 namespace IntegrationTests.Crm;
 
 [NonParallelizable]

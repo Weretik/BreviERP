@@ -2,12 +2,14 @@ using Production.Application.Features.FabricNorms.Shared;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Orders.Shared.Validation;
+using Production.Application.Features.Orders.Queries.GetProductionQuoteDraft.Results;
+using Production.Application.Features.Orders.Shared.Items;
 
 namespace Production.Application.Features.Orders.Queries.GetProductionQuoteDraft;
 
 public sealed class GetProductionQuoteDraftHandler(
-    Abstractions.IProductionQuoteReader quotes, QuoteItemResolver resolver,
-    Abstractions.IProductionEmbroideryReader embroideries)
+    Abstractions.Sales.IProductionQuoteReader quotes, QuoteItemResolver resolver,
+    Abstractions.Sales.IProductionEmbroideryReader embroideries)
     : IQueryHandler<GetProductionQuoteDraftQuery, Result<ProductionQuoteDraftResponse>>
 {
     public async ValueTask<Result<ProductionQuoteDraftResponse>> Handle(GetProductionQuoteDraftQuery query,

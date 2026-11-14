@@ -6,6 +6,8 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierOffer;
 using Catalog.Domain.Products.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 
 namespace Catalog.Application.Features.Pricing.Commands.UpdatePpeSupplierOffer;
 

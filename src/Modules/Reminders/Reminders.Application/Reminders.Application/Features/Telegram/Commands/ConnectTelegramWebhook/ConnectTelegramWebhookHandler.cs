@@ -1,4 +1,5 @@
 using Reminders.Application.Abstractions;
+using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Application.Features.Telegram.Commands.ConnectTelegramWebhook;
 

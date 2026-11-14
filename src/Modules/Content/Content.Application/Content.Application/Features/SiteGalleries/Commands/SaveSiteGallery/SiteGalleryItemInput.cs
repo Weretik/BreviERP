@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteGalleries.Shared;
+using Content.Application.Features.SiteGalleries.Shared.Admin;
 namespace Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
 
 /// <summary>

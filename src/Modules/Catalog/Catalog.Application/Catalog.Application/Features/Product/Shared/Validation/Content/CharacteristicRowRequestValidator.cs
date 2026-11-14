@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Content;
 
 namespace Catalog.Application.Features.Product.Shared.Validation.Content;
 

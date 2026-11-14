@@ -1,5 +1,6 @@
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace Crm.Application.Features.Quotes.Commands.UploadQuotePhoto;
 

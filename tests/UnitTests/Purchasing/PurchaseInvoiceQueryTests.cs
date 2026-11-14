@@ -1,4 +1,5 @@
 using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
+using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices.Results;
 
 namespace UnitTests.Purchasing;
 

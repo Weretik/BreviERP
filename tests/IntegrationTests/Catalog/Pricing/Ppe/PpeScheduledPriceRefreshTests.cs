@@ -19,6 +19,8 @@ using Catalog.Domain.Products.ValueObjects;
 using Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
 using Catalog.Infrastructure.Persistence.Repositories;
 using Catalog.Infrastructure.Persistence.Repositories.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
+using Catalog.Application.Abstractions.Reference.Items;
 
 namespace IntegrationTests.Catalog.Pricing.Ppe;
 

@@ -1,5 +1,4 @@
-using ProductAdminDetailSpec = Catalog.Application.Features.Product.Queries.GetAdminProductDetail.ProductAdminDetailSpec;
-using Catalog.Application.Features.Product.Shared.Card;
+using ProductAdminDetailSpec = Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Specs.ProductAdminDetailSpec;
 using Catalog.Domain.Media;
 using Catalog.Domain.ProductCategories;
 using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
@@ -12,6 +11,9 @@ using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Application.Features.Product.Shared;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Products;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Sewing;
+using Catalog.Application.Features.Product.Shared.Detail;
 
 namespace Catalog.Application.Features.Product.Commands.ReplaceProduct;
 

@@ -1,5 +1,6 @@
 using Crm.Domain.Quotes;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Products;
 
 namespace Crm.Application.Features.Quotes.Shared.Catalog;
 

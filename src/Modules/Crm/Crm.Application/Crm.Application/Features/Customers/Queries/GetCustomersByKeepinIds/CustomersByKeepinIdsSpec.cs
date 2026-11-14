@@ -1,5 +1,6 @@
 using Crm.Domain.Customers;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 
 namespace Crm.Application.Features.Customers.Queries.GetCustomersByKeepinIds;
 

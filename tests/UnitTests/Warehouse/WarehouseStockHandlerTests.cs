@@ -12,6 +12,10 @@ using Warehouse.Application.Features.Stock.Queries.GetFabricStockChoices;
 using Warehouse.Application.Features.Stock.Queries.GetProductionItemFabric;
 using Warehouse.Application.Features.Stock.Shared;
 using Production.Application.Features.Orders.Shared.Access;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
+using Warehouse.Application.Features.Stock.Queries.GetFabricStock.Results;
+using Warehouse.Application.Features.Stock.Shared.Operations;
+using Warehouse.Application.Features.Stock.Shared.Plans;
 
 namespace UnitTests.Warehouse;
 

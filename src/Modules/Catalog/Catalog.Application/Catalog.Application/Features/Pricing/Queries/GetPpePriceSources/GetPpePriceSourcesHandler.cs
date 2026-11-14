@@ -4,6 +4,7 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices;
 
 namespace Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
 

@@ -7,6 +7,9 @@ using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Ppe.Pricing;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Content;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Ppe;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Sewing;
 
 namespace UnitTests.Catalog.Products;
 

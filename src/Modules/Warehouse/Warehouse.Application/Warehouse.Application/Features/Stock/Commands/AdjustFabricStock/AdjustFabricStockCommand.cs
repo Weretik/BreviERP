@@ -1,5 +1,6 @@
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Shared.Operations;
 
 namespace Warehouse.Application.Features.Stock.Commands.AdjustFabricStock;
 

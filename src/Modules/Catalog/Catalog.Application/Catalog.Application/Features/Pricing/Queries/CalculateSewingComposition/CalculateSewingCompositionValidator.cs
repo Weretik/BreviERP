@@ -1,4 +1,6 @@
 
+using Catalog.Application.Features.Pricing.Queries.CalculateSewingComposition.Results;
+
 namespace Catalog.Application.Features.Pricing.Queries.CalculateSewingComposition;
 
 public sealed class CalculateSewingCompositionValidator : AbstractValidator<CalculateSewingCompositionQuery>

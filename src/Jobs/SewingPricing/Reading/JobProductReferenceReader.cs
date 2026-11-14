@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Abstractions.Reference;
 using Reference.Infrastructure.Persistence;
+using Catalog.Application.Abstractions.Reference.Items;
 
 namespace SewingPricing.Jobs.Reading;
 

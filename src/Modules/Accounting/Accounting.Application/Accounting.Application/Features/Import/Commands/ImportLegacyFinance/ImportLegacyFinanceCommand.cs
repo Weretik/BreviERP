@@ -1,5 +1,6 @@
 using Accounting.Application.Abstractions;
 using Accounting.Application.Features.Import.Shared;
+using Accounting.Application.Features.Import.Shared.Report;
 
 namespace Accounting.Application.Features.Import.Commands.ImportLegacyFinance;
 

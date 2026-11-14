@@ -2,6 +2,7 @@ using Reference.Application.Features.GarmentAccessory.Shared;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 using Reference.Application.Abstractions;
+using Reference.Application.Abstractions.Pricing;
 
 namespace Reference.Application.Features.GarmentAccessory.Commands.UpdateGarmentAccessory;
 

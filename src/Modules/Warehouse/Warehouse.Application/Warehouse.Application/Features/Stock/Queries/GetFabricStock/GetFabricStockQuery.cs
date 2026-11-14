@@ -1,6 +1,7 @@
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Queries.GetFabricStock.Results;
 
 namespace Warehouse.Application.Features.Stock.Queries.GetFabricStock;
 

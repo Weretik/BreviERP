@@ -12,6 +12,7 @@ using Accounting.Application.Features.Journal.Shared;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Statements.Shared;
 using Accounting.Domain.Statements.ValueObjects;
+using Accounting.Application.Features.Statements.Shared.Responses;
 
 namespace Accounting.Application.Features.Statements.Commands.RollbackBankStatement;
 

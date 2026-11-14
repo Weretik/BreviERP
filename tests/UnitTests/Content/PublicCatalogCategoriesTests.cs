@@ -10,6 +10,7 @@ using Content.Application.Features.Catalog.Queries.GetPublicCatalogProducts;
 using Content.Application.Features.Catalog.Shared;
 using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
 using Content.Application.Features.SiteCategories.Commands.SaveSiteCategory;
+using Content.Application.Features.Catalog.Shared.Links;
 
 namespace UnitTests.Content;
 

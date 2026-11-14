@@ -2,6 +2,7 @@ using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.ProductPages.Shared;
 using Content.Application.Features.Redirects.Shared;
+using Content.Application.Features.ProductPages.Shared.Responses;
 
 namespace Content.Application.Features.ProductPages.Commands.SaveContentProduct;
 

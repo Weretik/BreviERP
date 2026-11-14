@@ -1,6 +1,7 @@
 using Ardalis.Specification;
 using Crm.Domain.Customers;
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Abstractions.Customers.Views;
 namespace Crm.Application.Features.Customers.Queries.GetCustomer;
 
 public sealed class CustomerDetailSpec : Specification<Customer, CustomerDetail>

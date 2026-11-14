@@ -4,6 +4,7 @@ using Crm.Domain.Customers.ExternalIdentities;
 using Crm.Domain.Customers.Identifiers;
 using Crm.Application.Features.Customers.Shared.Mapping;
 using Crm.Application.Abstractions.Customers;
+using Crm.Application.Abstractions.Customers.Views;
 namespace Crm.Application.Features.Customers.Commands.SaveCustomerContact;
 
 public sealed class SaveCustomerContactHandler(ICustomerMutationStore store) : ICommandHandler<SaveCustomerContactCommand, Result<CustomerDetail>>

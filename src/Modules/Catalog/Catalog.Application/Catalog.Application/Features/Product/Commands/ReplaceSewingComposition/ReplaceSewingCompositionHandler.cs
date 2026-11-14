@@ -2,6 +2,8 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Application.Features.Product.Shared.Sewing.Mapping;
+using Catalog.Application.Abstractions.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing.Inputs;
 
 namespace Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
 

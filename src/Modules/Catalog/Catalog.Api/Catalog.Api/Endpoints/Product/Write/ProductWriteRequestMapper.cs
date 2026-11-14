@@ -2,6 +2,7 @@ using Ardalis.Result;
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Content;
 
 namespace Catalog.Api.Endpoints.Product.Write;
 

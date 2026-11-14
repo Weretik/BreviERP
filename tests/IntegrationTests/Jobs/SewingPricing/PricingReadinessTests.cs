@@ -8,6 +8,7 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
 using Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 
 namespace IntegrationTests.Jobs.SewingPricing;
 

@@ -1,6 +1,7 @@
 using Content.Application.Abstractions;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
+using Content.Application.Features.Articles.Shared.Admin;
 
 namespace Content.Application.Features.Articles.Shared;
 

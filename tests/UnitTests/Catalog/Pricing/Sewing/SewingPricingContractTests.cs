@@ -9,6 +9,10 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Queries.GetSewingArticleSummary;
 using Catalog.Api.Endpoints.Sewing.CreateSewingSettingsVersion;
 using Catalog.Api.Endpoints.Sewing.SaveSewingCalculation;
+using Catalog.Application.Abstractions.Pricing.Calculations;
+using Catalog.Application.Abstractions.Pricing.Inputs;
+using Catalog.Application.Abstractions.Pricing.Publications;
+using Catalog.Application.Abstractions.Pricing.Settings;
 
 namespace UnitTests.Catalog.Pricing.Sewing;
 

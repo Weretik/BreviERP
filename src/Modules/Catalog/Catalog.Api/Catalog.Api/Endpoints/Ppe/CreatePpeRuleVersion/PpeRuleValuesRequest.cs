@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 namespace Catalog.Api.Endpoints.Ppe.CreatePpeRuleVersion;
 
 public sealed record PpeRuleValuesRequest(

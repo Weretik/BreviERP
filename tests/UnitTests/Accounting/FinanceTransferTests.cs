@@ -9,6 +9,7 @@ using Accounting.Application.Features.Transfers.Commands.UpdateFinanceTransfer;
 using Accounting.Application.Features.Transfers.Commands.VoidFinanceTransfer;
 using Accounting.Application.Features.Transfers.Queries.GetFinanceTransfers;
 using Accounting.Application.Features.Transfers.Shared;
+using Accounting.Application.Features.Overview.Queries.GetFinanceOverview.Results;
 
 namespace UnitTests.Accounting;
 

@@ -4,6 +4,7 @@ using Reference.Domain.Pricing;
 using Reference.Application.Abstractions;
 using Reference.Infrastructure.Persistence;
 using Reference.Domain.Fabrics;
+using Reference.Application.Abstractions.Pricing;
 
 
 namespace Reference.Infrastructure.Persistence.Repositories.Pricing;

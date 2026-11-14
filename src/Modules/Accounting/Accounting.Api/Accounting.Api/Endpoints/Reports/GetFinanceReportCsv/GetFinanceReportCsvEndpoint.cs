@@ -5,6 +5,7 @@ using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Api.Endpoints.Reports.Shared;
 using Accounting.Api.Endpoints.Shared;
+using Accounting.Application.Features.Reports.Queries.GetFinanceReport.Results;
 
 namespace Accounting.Api.Endpoints.Reports.GetFinanceReportCsv;
 

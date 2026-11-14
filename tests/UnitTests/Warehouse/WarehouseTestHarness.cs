@@ -7,6 +7,9 @@ using Warehouse.Infrastructure.Persistence;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Shared.Facts;
 using Production.Application.Features.FabricPlans.Shared;
+using Warehouse.Application.Features.Stock.Shared.Booking;
+using Warehouse.Application.Features.Stock.Shared.Operations;
+using Warehouse.Application.Features.Stock.Shared.Plans;
 
 namespace UnitTests.Warehouse;
 
@@ -42,18 +45,18 @@ internal sealed class HarnessWarehouseStaffReader(ProductionTestHarness workshop
 }
 
 /// <summary>The stock facts for «Звіти цеху», mapped the way the host maps them.</summary>
-internal sealed class HarnessProductionStockReader(StockFacts facts) : global::Production.Application.Abstractions.IProductionStockReader
+internal sealed class HarnessProductionStockReader(StockFacts facts) : global::Production.Application.Abstractions.Materials.IProductionStockReader
 {
-    public async Task<IReadOnlyList<global::Production.Application.Abstractions.ProductionStockIssue>> IssuesAsync(
+    public async Task<IReadOnlyList<global::Production.Application.Abstractions.Materials.ProductionStockIssue>> IssuesAsync(
         DateOnly from, DateOnly to, CancellationToken cancellationToken) =>
         (await facts.IssuesAsync(from, to, cancellationToken)).Select(x =>
-            new global::Production.Application.Abstractions.ProductionStockIssue(x.MovementId, x.OperationDate,
+            new global::Production.Application.Abstractions.Materials.ProductionStockIssue(x.MovementId, x.OperationDate,
                 x.FabricCode, x.FabricName, x.Color, x.OrderId, x.OrderNumber, x.ModelName, x.Meters)).ToArray();
 
-    public async Task<IReadOnlyList<global::Production.Application.Abstractions.ProductionStockBalance>> BalancesAsync(
+    public async Task<IReadOnlyList<global::Production.Application.Abstractions.Materials.ProductionStockBalance>> BalancesAsync(
         DateOnly before, CancellationToken cancellationToken) =>
         (await facts.BalancesAsync(before, cancellationToken)).Select(x =>
-            new global::Production.Application.Abstractions.ProductionStockBalance(x.StockId, x.FabricCode,
+            new global::Production.Application.Abstractions.Materials.ProductionStockBalance(x.StockId, x.FabricCode,
                 x.FabricName, x.Color, x.Meters)).ToArray();
 }
 

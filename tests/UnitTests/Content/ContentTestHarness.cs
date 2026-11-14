@@ -52,6 +52,9 @@ using Content.Application.Features.SitePages.Shared;
 using Content.Application.Features.SiteSettings.Commands.SaveSiteSeoSettings;
 using Content.Application.Features.SiteSettings.Queries.GetSiteSeoSettings;
 using Content.Application.Features.SiteSettings.Shared;
+using Content.Application.Features.Articles.Shared.Public;
+using Content.Application.Features.SiteCompany.Shared.Public;
+using Content.Application.Features.SiteGalleries.Shared.Public;
 
 namespace UnitTests.Content;
 

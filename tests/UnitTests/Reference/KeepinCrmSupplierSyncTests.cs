@@ -4,6 +4,7 @@ using Moq;
 using Reference.Domain.Suppliers;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSuppliers;
+using Reference.Application.Abstractions.KeepinCrm;
 
 namespace UnitTests.Reference;
 

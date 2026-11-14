@@ -1,5 +1,6 @@
 using Crm.Application.Features.Quotes.Queries.GetQuoteFabricFacts;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Products;
 
 namespace UnitTests.Crm.Quotes;
 

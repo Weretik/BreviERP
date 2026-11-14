@@ -25,6 +25,9 @@ using Accounting.Application.Features.Transactions.Commands.PromoteFinanceOneoff
 using Accounting.Application.Features.Transactions.Commands.ReviewFinanceTransaction;
 using Accounting.Application.Features.Transactions.Queries.GetFinanceTransactions;
 using Accounting.Application.Features.Transactions.Shared;
+using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties.Results;
+using Accounting.Application.Features.Overview.Queries.GetFinanceOverview.Results;
+using Accounting.Application.Features.Statements.Shared.Responses;
 
 namespace UnitTests.Accounting;
 

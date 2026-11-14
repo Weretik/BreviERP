@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 using Crm.Application.Abstractions.Customers;
 using Crm.Infrastructure.Persistence;
+using Crm.Application.Abstractions.Customers.KeepinCrm;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients.Results;
 
 
 namespace Crm.Infrastructure.Persistence.Repositories.Customers;

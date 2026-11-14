@@ -1,4 +1,5 @@
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 namespace Catalog.Application.Features.Pricing.Commands.CreatePpeOfferVersion;
 public sealed class CreatePpeOfferVersionHandler(IPpeOfferVersionWriter writer) : ICommandHandler<CreatePpeOfferVersionCommand, Result<PpeOfferVersion>>
 {

@@ -11,6 +11,11 @@ using Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact;
 using Warehouse.Application.Features.Stock.Queries.GetFabricValuation;
 using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder;
 using Warehouse.Application.Features.Stock.Shared;
+using Production.Application.Abstractions.Sales;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
+using Warehouse.Application.Features.Stock.Queries.GetFabricPlanFact.Responses;
+using Warehouse.Application.Features.Stock.Queries.GetFabricValuation.Results;
+using Warehouse.Application.Features.Stock.Queries.GetHardwareOrder.Results;
 
 namespace UnitTests.Warehouse;
 

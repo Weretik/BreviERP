@@ -2,6 +2,8 @@ using Catalog.Domain.Pricing.Sewing;
 using Moq;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Queries.CalculateSewingComposition;
+using Catalog.Application.Abstractions.Pricing.Settings;
+using Catalog.Application.Features.Pricing.Queries.CalculateSewingComposition.Results;
 
 namespace UnitTests.Catalog.Composition;
 

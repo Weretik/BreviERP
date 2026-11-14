@@ -8,6 +8,10 @@ using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 using Catalog.Domain.Products.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices.Sources;
 
 namespace Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running;
 

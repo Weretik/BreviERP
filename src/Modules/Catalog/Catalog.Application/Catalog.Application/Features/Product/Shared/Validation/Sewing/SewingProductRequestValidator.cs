@@ -1,5 +1,6 @@
 using Catalog.Application.Features.Product.Shared.Validation.Resources;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Sewing;
 
 namespace Catalog.Application.Features.Product.Shared.Validation.Sewing;
 

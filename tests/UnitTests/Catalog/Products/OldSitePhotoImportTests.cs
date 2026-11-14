@@ -15,6 +15,7 @@ using Catalog.Application.Features.Product.Shared.Photos;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Photos;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Reference.Items;
 
 namespace UnitTests.Catalog.Products;
 

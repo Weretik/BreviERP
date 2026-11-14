@@ -1,5 +1,6 @@
 using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Application.Features.Stock.Queries.GetFabricMovements.Results;
 
 namespace Warehouse.Api.Endpoints.FabricStock.GetFabricMovements;
 

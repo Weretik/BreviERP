@@ -1,5 +1,8 @@
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Content;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Ppe;
+using Catalog.Application.Features.Product.Commands.CreateProduct.Sewing;
 
 namespace Catalog.Application.Features.Product.Commands.CreateProduct;
 

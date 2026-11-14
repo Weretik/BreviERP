@@ -8,6 +8,9 @@ using Catalog.Application.Features.Product.Shared.Overview;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Ppe;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
+using Catalog.Application.Abstractions.Products;
 
 namespace Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
 

@@ -56,9 +56,9 @@ public static class ReferenceInfrastructureExtensions
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
         services.AddOutbox<ReferenceDbContext>();
         services.AddOutboxHandler<PricingSettingsChangedOutboxHandler>();
-        services.AddScoped<Reference.Application.Abstractions.IReferencePricingVersionReader, Reference.Infrastructure.Persistence.Repositories.Pricing.ReferencePricingVersionReader>();
-        services.AddScoped<Reference.Application.Abstractions.IReferencePricingUsageReader, Reference.Infrastructure.Persistence.Repositories.Pricing.ReferencePricingUsageReader>();
-        services.AddScoped<Reference.Application.Abstractions.IOtherCostPricingVersionWriter, Reference.Infrastructure.Persistence.Repositories.Pricing.OtherCostPricingVersionWriter>();
+        services.AddScoped<Reference.Application.Abstractions.Pricing.IReferencePricingVersionReader, Reference.Infrastructure.Persistence.Repositories.Pricing.ReferencePricingVersionReader>();
+        services.AddScoped<Reference.Application.Abstractions.Pricing.IReferencePricingUsageReader, Reference.Infrastructure.Persistence.Repositories.Pricing.ReferencePricingUsageReader>();
+        services.AddScoped<Reference.Application.Abstractions.Pricing.IOtherCostPricingVersionWriter, Reference.Infrastructure.Persistence.Repositories.Pricing.OtherCostPricingVersionWriter>();
         // Contracts other modules use (ADR-0006).
         services.AddScoped<IFabricDirectory, FabricDirectory>();
         services.AddScoped<IGarmentAccessoryDirectory, GarmentAccessoryDirectory>();

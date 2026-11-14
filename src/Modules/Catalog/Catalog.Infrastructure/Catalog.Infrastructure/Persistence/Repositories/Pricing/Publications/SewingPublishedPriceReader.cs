@@ -3,6 +3,7 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Application.Abstractions.Pricing.Publications;
 
 
 namespace Catalog.Infrastructure.Persistence.Repositories.Pricing.Publications;

@@ -4,6 +4,7 @@ using System.Text.Json;
 using YamlDotNet.RepresentationModel;
 using Production.Application.Features.Archive.Commands.ImportWorkshopArchive;
 using Production.Application.Features.Archive.Queries.GetWorkshopArchive;
+using Production.Application.Features.Archive.Queries.GetWorkshopArchive.Results;
 
 namespace UnitTests.Production;
 

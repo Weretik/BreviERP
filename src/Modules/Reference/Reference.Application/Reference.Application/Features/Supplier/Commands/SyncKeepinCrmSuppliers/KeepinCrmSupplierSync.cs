@@ -1,6 +1,7 @@
 using Reference.Domain.Suppliers;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using Reference.Application.Abstractions;
+using Reference.Application.Abstractions.KeepinCrm;
 
 namespace Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSuppliers;
 

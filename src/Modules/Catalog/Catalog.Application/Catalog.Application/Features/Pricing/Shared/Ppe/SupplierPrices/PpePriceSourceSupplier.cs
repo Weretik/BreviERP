@@ -1,6 +1,8 @@
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
+using Catalog.Application.Abstractions.Pricing.PpeSupplierPrices;
+using Catalog.Application.Abstractions.Reference.Items;
 
 namespace Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices;
 

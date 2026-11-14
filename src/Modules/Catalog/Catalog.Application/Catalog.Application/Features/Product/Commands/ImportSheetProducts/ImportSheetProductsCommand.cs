@@ -1,4 +1,7 @@
 
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Report;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Rows;
+
 namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
 /// <summary>

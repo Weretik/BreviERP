@@ -1,5 +1,7 @@
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Content;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Sewing;
 
 namespace Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 

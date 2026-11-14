@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
 using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.Quotes.Sending;
 
 namespace Crm.Infrastructure.Integrations.Gmail;
 

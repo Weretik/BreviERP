@@ -9,6 +9,9 @@ using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Shared.Overview;
 using Catalog.Domain.Products.Enums;
+using Catalog.Application.Abstractions.Pricing.Ppe;
+using Catalog.Application.Abstractions.Products;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewPage.Results;
 
 namespace Catalog.Application.Features.Product.Shared.Overview.Items;
 
