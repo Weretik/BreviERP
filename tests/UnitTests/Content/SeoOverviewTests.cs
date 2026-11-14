@@ -1,8 +1,9 @@
-using Content.Application.Contracts;
-using Content.Application.ProductPages.Save;
-using Content.Application.SeoOverview;
-using Content.Application.SitePages.Save;
 using Content.Domain.SitePages;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using Content.Application.Features.SeoOverview.Queries.GetSeoOverview;
+using Content.Application.Features.SeoOverview.Shared;
+using Content.Application.Features.SitePages.Commands.SaveSitePage;
+using Content.Application.Features.SitePages.Shared;
 
 namespace UnitTests.Content;
 

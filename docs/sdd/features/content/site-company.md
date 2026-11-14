@@ -10,9 +10,10 @@ The public site reads them without sign-in from `/api/public/company` ([contract
 src/Modules/Content/
   Content.Domain/Content.Domain/SiteCompany/SiteCompanyInfo.cs         # entity, nested records, phone and IBAN formats
   Content.Application/Content.Application/
-    Contracts/SiteCompanyResponses.cs
-    SiteCompany/Get/, SiteCompany/Save/, SiteCompany/Shared/            # admin read and save, messages, mapping
-    PublicSiteCompany/                                                  # public read kept a minute
+    Features/SiteCompany/
+      Queries/GetSiteCompany/, Commands/SaveSiteCompany/                # admin read and save
+      Queries/GetPublicSiteCompany/                                     # public read kept a minute
+      Shared/                                                           # responses, messages, mapping
   Content.Infrastructure/.../Configurations/SiteCompanyInfoConfiguration.cs   # JSON text columns
   Content.Infrastructure/.../Migrations/*_AddSiteCompany.cs             # table and the seed of the current facts
   Content.Api/Content.Api/

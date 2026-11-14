@@ -1,6 +1,6 @@
 using Mediator;
-using Production.Application.Orders.QuoteSources;
 using Production.Contracts.Orders;
+using Production.Application.Features.Orders.Queries.GetQuotesWithOrders;
 
 namespace Production.Infrastructure.Contracts.Orders;
 

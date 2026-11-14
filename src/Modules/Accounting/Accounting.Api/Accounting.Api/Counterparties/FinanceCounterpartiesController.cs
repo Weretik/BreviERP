@@ -1,14 +1,20 @@
 using Accounting.Api.Access;
 using Accounting.Api.Accounts;
-using Accounting.Application.Contracts;
-using Accounting.Application.Counterparties;
-using Accounting.Application.History;
 using Accounting.Domain.Audit;
 using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Counterparties.Commands.CreateFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Commands.MergeFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Commands.SetFinanceCounterpartyActive;
+using Accounting.Application.Features.Counterparties.Commands.UpdateFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Commands.VerifyFinanceCounterparty;
+using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties;
+using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterpartyChoices;
+using Accounting.Application.Features.Counterparties.Shared;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
 
 namespace Accounting.Api.Counterparties;
 

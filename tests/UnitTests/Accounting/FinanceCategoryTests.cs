@@ -1,12 +1,16 @@
-using Accounting.Application.Categories;
-using Accounting.Application.History;
-using Accounting.Application.Settings;
 using Accounting.Domain.Audit;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Ardalis.Result;
 
 using static UnitTests.Accounting.FinanceMovementFixture;
+using Accounting.Application.Features.Categories.Commands.CreateFinanceCategory;
+using Accounting.Application.Features.Categories.Commands.DeleteFinanceCategory;
+using Accounting.Application.Features.Categories.Commands.UpdateFinanceCategory;
+using Accounting.Application.Features.Categories.Queries.GetFinanceCategories;
+using Accounting.Application.Features.Categories.Shared;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
+using Accounting.Application.Features.Settings.Queries.GetAccountingSettings;
 
 namespace UnitTests.Accounting;
 
@@ -62,7 +66,7 @@ public sealed class FinanceCategoryTests
         using var harness = new AccountingTestHarness();
         var root = await Create(harness, "Матеріали");
         await Create(harness, "Оренда");
-        var handler = new UpdateFinanceCategoryCommandHandler(harness.Db, harness.Time);
+        var handler = new UpdateFinanceCategoryHandler(harness.Db, harness.Time);
 
         var duplicate = await handler.Handle(new UpdateFinanceCategoryCommand(root.Id, "оренда", null, 0, root.Version,
             AccountingTestHarness.Director), default);
@@ -88,12 +92,12 @@ public sealed class FinanceCategoryTests
         var child = await Create(harness, "Тканини", parentId: root.Id);
         await Create(harness, "Оренда");
 
-        var deleted = await new DeleteFinanceCategoryCommandHandler(harness.Db, harness.Time)
+        var deleted = await new DeleteFinanceCategoryHandler(harness.Db, harness.Time)
             .Handle(new DeleteFinanceCategoryCommand(root.Id, root.Version, AccountingTestHarness.Director), default);
 
-        var left = await new GetFinanceCategoriesQueryHandler(harness.Fresh())
+        var left = await new GetFinanceCategoriesHandler(harness.Fresh())
             .Handle(new GetFinanceCategoriesQuery(LedgerScope.Current), default);
-        var childHistory = await new GetFinanceHistoryQueryHandler(harness.Fresh())
+        var childHistory = await new GetFinanceHistoryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Category, child.Id), default);
         Assert.Multiple(() =>
         {
@@ -111,9 +115,9 @@ public sealed class FinanceCategoryTests
         await Handler(harness).Handle(Command("Старі витрати", CategoryDirection.Expense, LedgerScope.LegacyArchive, null),
             default);
 
-        var current = await new GetFinanceCategoriesQueryHandler(harness.Fresh())
+        var current = await new GetFinanceCategoriesHandler(harness.Fresh())
             .Handle(new GetFinanceCategoriesQuery(LedgerScope.Current), default);
-        var all = await new GetFinanceCategoriesQueryHandler(harness.Fresh())
+        var all = await new GetFinanceCategoriesHandler(harness.Fresh())
             .Handle(new GetFinanceCategoriesQuery(null), default);
 
         Assert.Multiple(() =>
@@ -129,7 +133,7 @@ public sealed class FinanceCategoryTests
         using var harness = new AccountingTestHarness();
         harness.Time.SetUtcNow(new DateTimeOffset(2026, 11, 5, 22, 30, 0, TimeSpan.Zero));
 
-        var settings = await new GetAccountingSettingsQueryHandler(harness.Time).Handle(new GetAccountingSettingsQuery(), default);
+        var settings = await new GetAccountingSettingsHandler(harness.Time).Handle(new GetAccountingSettingsQuery(), default);
 
         Assert.Multiple(() =>
         {
@@ -140,12 +144,12 @@ public sealed class FinanceCategoryTests
         });
     }
 
-    private static CreateFinanceCategoryCommandHandler Handler(AccountingTestHarness harness) => new(harness.Db, harness.Time);
+    private static CreateFinanceCategoryHandler Handler(AccountingTestHarness harness) => new(harness.Db, harness.Time);
 
     private static CreateFinanceCategoryCommand Command(string name, CategoryDirection direction, LedgerScope scope,
         Guid? parentId) => new(name, direction, scope, parentId, null, 0, AccountingTestHarness.Director);
 
-    private static async Task<global::Accounting.Application.Contracts.FinanceCategoryResponse> Create(
+    private static async Task<global::Accounting.Application.Features.Categories.Shared.FinanceCategoryResponse> Create(
         AccountingTestHarness harness, string name, Guid? parentId = null)
     {
         var result = await Handler(harness).Handle(

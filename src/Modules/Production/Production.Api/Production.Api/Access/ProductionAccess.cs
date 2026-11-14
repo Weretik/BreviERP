@@ -3,7 +3,7 @@ using System.Security.Claims;
 using Ardalis.Result;
 using BuildingBlocks.Api.Result;
 using Microsoft.AspNetCore.Mvc;
-using Production.Application.Orders.Access;
+using Production.Application.Features.Orders.Shared.Access;
 
 namespace Production.Api.Access;
 

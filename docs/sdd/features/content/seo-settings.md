@@ -10,9 +10,10 @@ The public site reads them without sign-in from `/api/public/site-settings` ([co
 src/Modules/Content/
   Content.Domain/Content.Domain/SiteSettings/SiteSeoSettings.cs      # entity, formats of the codes
   Content.Application/Content.Application/
-    Contracts/SiteSettingsResponses.cs
-    SiteSettings/Get/, SiteSettings/Save/, SiteSettings/Shared/     # admin read and save, picture, messages
-    PublicSiteSettings/                                             # public read kept a minute
+    Features/SiteSettings/
+      Queries/GetSiteSeoSettings/, Commands/SaveSiteSeoSettings/    # admin read and save
+      Queries/GetPublicSiteSettings/                                # public read kept a minute
+      Shared/                                                       # responses, picture, messages
   Content.Infrastructure/.../Configurations/SiteSeoSettingsConfiguration.cs
   Content.Api/Content.Api/
     SiteSettings/SiteSeoSettingsController.cs                       # /api/content/seo-settings, policy access:content-seo-settings

@@ -1,6 +1,6 @@
-using Accounting.Application.Transactions;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace Accounting.Api.Transactions;
 

@@ -1,12 +1,11 @@
 using Ardalis.Result;
-using Content.Application.Contracts;
-using Content.Application.SiteGalleries.Get;
-using Content.Application.SiteGalleries.Save;
-using Content.Application.SiteGalleries.Shared;
-using Content.Application.SiteGalleries.Transfer;
 using Content.Domain.SiteCompany;
 using Content.Domain.SiteGalleries;
 using FluentValidation.TestHelper;
+using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
+using Content.Application.Features.SiteGalleries.Commands.TransferSiteGallery;
+using Content.Application.Features.SiteGalleries.Queries.GetSiteGallery;
+using Content.Application.Features.SiteGalleries.Shared;
 
 namespace UnitTests.Content;
 
@@ -95,7 +94,7 @@ public sealed class SiteGalleriesTests
     [Test]
     public void Validator_names_each_wrong_list()
     {
-        var validator = new SaveSiteGalleryCommandValidator();
+        var validator = new SaveSiteGalleryValidator();
         SaveSiteGalleryCommand Command(string key, params SiteGalleryItemInput[] items) =>
             new(key, 0, items, ContentTestHarness.Editor);
 
@@ -142,7 +141,7 @@ public sealed class SiteGalleriesTests
         {
             Assert.That(first.Moved, Is.EqualTo(9));
             Assert.That(first.Left, Is.EqualTo(3));
-            Assert.That(first.Problems.Single(), Does.StartWith($"{TransferSiteGalleryCommandHandler.Failed} /assets/works/work-2.webp"));
+            Assert.That(first.Problems.Single(), Does.StartWith($"{TransferSiteGalleryHandler.Failed} /assets/works/work-2.webp"));
             Assert.That(h.OldSitePhotos.Downloads.Select(x => x.Folder).Distinct(), Is.EqualTo(new[] { "Сайт/Наші роботи" }));
             Assert.That(h.OldSitePhotos.Downloads.Any(x => x.Key.EndsWith("work-1.webp")), Is.False);
             Assert.That(second.Moved, Is.EqualTo(2));

@@ -16,14 +16,15 @@ src/Modules/Reminders/
     ReminderTime.cs    # Kyiv time zone
   Reminders.Application/Reminders.Application/
     Abstractions/      # IRemindersDbContext, ITelegramGateway, ReminderClock, webhook settings
-    Tasks/             # Get/Create/Update/Archive, PreviewDueDates, AssignChat; Mapping/ (mapper, validators, chat lookup)
-    Occurrences/       # GetOccurrences, Close/Reopen (+ ReminderOccurrenceStatusChanger updates live cards)
-    Chats/             # GetChats, UpdateChat (approve, rename), SendTestMessage
-    Calendar/          # Get/Add/Remove non-working days, WorkingCalendarLoader
-    Dispatch/          # ReminderOccurrenceGenerator, ReminderDispatcher (daily run)
-    Messages/          # ReminderMessageFormatter (Ukrainian HTML card, keyboards), ReminderCallbackData
-    Telegram/          # update DTOs; HandleUpdate/ (buttons, chat tracker); ConnectWebhook/
-    Contracts/         # request/response DTOs and string codes
+    Features/          # Commands/<UseCase>, Queries/<UseCase>, Shared/ per feature
+      Tasks/           # GetReminderTasks, Create/Update/ArchiveReminderTask, PreviewReminderDueDates, AssignReminderChat; Shared/ (mapper, validators, chat lookup, ReminderCodes)
+      Occurrences/     # GetReminderOccurrences, Close/ReopenReminderOccurrence (+ ReminderOccurrenceStatusChanger updates live cards)
+      Chats/           # GetReminderChats, UpdateReminderChat (approve, rename), SendReminderChatTest
+      Calendar/        # GetNonWorkingDays, Add/RemoveNonWorkingDay; Shared/WorkingCalendarLoader
+      Dispatch/Shared/ # ReminderOccurrenceGenerator, ReminderDispatcher (daily run)
+      Messages/Shared/ # ReminderMessageFormatter (Ukrainian HTML card, keyboards), ReminderCallbackData
+      Telegram/        # HandleTelegramUpdate (buttons, chat tracker), ConnectTelegramWebhook; Shared/ update DTOs
+      Access/Shared/   # ReminderAdmin
   Reminders.Infrastructure/Reminders.Infrastructure/
     Persistence/       # RemindersDbContext (schema reminders), configurations, migrations, Seeding/ (25 default tasks)
     Telegram/          # TelegramOptions, TelegramBotApiGateway (HttpClient)

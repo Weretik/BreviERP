@@ -19,7 +19,7 @@ public sealed class WarehouseReportTests
 {
     private static readonly WarehouseActor Chief = new(4, false, false, true);
     private static readonly WarehouseActor Owner = new(1, true, false, false);
-    private static readonly global::Production.Application.Orders.Access.ProductionActor OrderManager = new(2, false, true, false);
+    private static readonly global::Production.Application.Features.Orders.Shared.Access.ProductionActor OrderManager = new(2, false, true, false);
 
     [Test]
     public async Task Plan_and_fact_compares_main_fabric_of_items_issued_for_all_products()

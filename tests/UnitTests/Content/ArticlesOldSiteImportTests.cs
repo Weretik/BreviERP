@@ -1,9 +1,8 @@
-using Content.Application.Articles.GetList;
-using Content.Application.Articles.GetOne;
-using Content.Application.Articles.ImportOldSite;
-using Content.Application.Contracts;
 using Content.Domain.Articles;
 using FluentValidation.TestHelper;
+using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
+using Content.Application.Features.Articles.Queries.GetContentArticle;
+using Content.Application.Features.Articles.Queries.GetContentArticles;
 
 namespace UnitTests.Content;
 
@@ -49,7 +48,7 @@ public sealed class ArticlesOldSiteImportTests
             Assert.That(report.PhotosDownloaded, Is.Zero);
             Assert.That(report.Problems.Select(x => x.Reason), Is.EquivalentTo(new[]
             {
-                ImportOldSiteArticlesCommandHandler.NoTitle, ImportOldSiteArticlesCommandHandler.Duplicate,
+                ImportOldSiteArticlesHandler.NoTitle, ImportOldSiteArticlesHandler.Duplicate,
             }));
             Assert.That(list.Items, Is.Empty);
             Assert.That(h.OldSitePhotos.Downloads, Is.Empty);
@@ -128,7 +127,7 @@ public sealed class ArticlesOldSiteImportTests
         {
             Assert.That((report.Created, report.PhotosToDownload, report.PhotosDownloaded), Is.EqualTo((1, 1, 0)));
             Assert.That(report.Problems, Has.Count.EqualTo(1));
-            Assert.That(report.Problems[0].Reason, Does.StartWith(ImportOldSiteArticlesCommandHandler.PhotoFailed)
+            Assert.That(report.Problems[0].Reason, Does.StartWith(ImportOldSiteArticlesHandler.PhotoFailed)
                 .And.Contain("lost.png").And.Contain("404"));
             Assert.That(h.OldSitePhotos.Downloads, Has.Count.EqualTo(1));
             Assert.That(article.CoverPhotoId, Is.Null);
@@ -152,7 +151,7 @@ public sealed class ArticlesOldSiteImportTests
     [Test]
     public void Validator_checks_the_file()
     {
-        var validator = new ImportOldSiteArticlesCommandValidator();
+        var validator = new ImportOldSiteArticlesValidator();
         OldSiteArticle Article(string slug = "stattya", string? cover = null, string? image = null, int year = 2022) =>
             new(slug, new DateOnly(year, 1, 1), cover, Text("Стаття", image), null);
 

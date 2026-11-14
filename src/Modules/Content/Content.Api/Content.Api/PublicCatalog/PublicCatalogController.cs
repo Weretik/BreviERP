@@ -1,10 +1,16 @@
 using BuildingBlocks.Api.Result;
-using Content.Application.Contracts;
-using Content.Application.PublicCatalog;
 using Content.Domain.ProductPages;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategories;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategory;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategorySlugs;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogProduct;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogProductSlugs;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogProducts;
+using Content.Application.Features.Catalog.Queries.GetPublicCatalogTree;
+using Content.Application.Features.Catalog.Shared;
 
 namespace Content.Api.PublicCatalog;
 

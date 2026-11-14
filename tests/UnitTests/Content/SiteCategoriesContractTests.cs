@@ -1,12 +1,14 @@
 using System.Text.Json;
 using Content.Api.SiteCategories;
-using Content.Application.Contracts;
-using Content.Application.SiteCategories.ImportOldSite;
 using Content.Domain.SiteCategories;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.SiteCategories.Commands.ImportOldSiteCategories;
+using Content.Application.Features.SiteCategories.Commands.SetSiteCategoryVisibility;
+using Content.Application.Features.SiteCategories.Queries.GetSiteCategories;
+using Content.Application.Features.SiteCategories.Shared;
 
 namespace UnitTests.Content;
 

@@ -1,5 +1,5 @@
-using Content.Application.SiteCategories.ImportOldSite;
 using Content.Domain.SiteCategories;
+using Content.Application.Features.SiteCategories.Commands.ImportOldSiteCategories;
 
 namespace Content.Api.SiteCategories;
 

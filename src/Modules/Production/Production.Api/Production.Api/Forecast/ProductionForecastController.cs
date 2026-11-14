@@ -3,9 +3,8 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Forecast.GetForecast;
-using Production.Application.Forecast.SaveQueue;
+using Production.Application.Features.Forecast.Commands.SaveForecastQueue;
+using Production.Application.Features.Forecast.Queries.GetForecast;
 
 namespace Production.Api.Forecast;
 

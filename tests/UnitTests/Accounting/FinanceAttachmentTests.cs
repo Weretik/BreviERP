@@ -1,12 +1,16 @@
-using Accounting.Application.Attachments;
-using Accounting.Application.Contracts;
-using Accounting.Application.History;
-using Accounting.Application.Transactions;
 using Accounting.Domain.Attachments;
 using Accounting.Domain.Audit;
 using Ardalis.Result;
 using Microsoft.Extensions.Logging.Abstractions;
 using static UnitTests.Accounting.FinanceMovementFixture;
+using Accounting.Application.Features.Attachments.Commands.DeleteFinanceAttachment;
+using Accounting.Application.Features.Attachments.Commands.UploadFinanceAttachment;
+using Accounting.Application.Features.Attachments.Queries.GetFinanceAttachmentContent;
+using Accounting.Application.Features.Attachments.Queries.GetFinanceAttachments;
+using Accounting.Application.Features.Attachments.Shared;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
+using Accounting.Application.Features.Transactions.Commands.VoidFinanceTransaction;
+using Accounting.Application.Features.Transactions.Shared;
 
 namespace UnitTests.Accounting;
 
@@ -28,12 +32,12 @@ public sealed class FinanceAttachmentTests
         // time-ordered ids, made within one millisecond, could come in either order.
         harness.Time.Advance(TimeSpan.FromSeconds(1));
         var png = await Upload(harness, storage, operation.Id, Png, "чек.png");
-        var list = await new GetFinanceAttachmentsQueryHandler(harness.Fresh())
+        var list = await new GetFinanceAttachmentsHandler(harness.Fresh())
             .Handle(new GetFinanceAttachmentsQuery(operation.Id), default);
-        var content = await new GetFinanceAttachmentContentQueryHandler(harness.Fresh(), storage,
-                NullLogger<GetFinanceAttachmentContentQueryHandler>.Instance)
+        var content = await new GetFinanceAttachmentContentHandler(harness.Fresh(), storage,
+                NullLogger<GetFinanceAttachmentContentHandler>.Instance)
             .Handle(new GetFinanceAttachmentContentQuery(uploaded.Value.Id), default);
-        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh())
+        var history = await new GetFinanceHistoryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Transaction, operation.Id), default);
         var row = harness.Fresh().Attachments.Single(x => x.Id == FinanceAttachmentId.From(uploaded.Value.Id));
         using var read = new MemoryStream();
@@ -89,7 +93,7 @@ public sealed class FinanceAttachmentTests
         var missing = await Upload(harness, new FakeAccountingFileStorage(), Guid.CreateVersion7(), Pdf, "a.pdf");
         var storage = new FakeAccountingFileStorage();
         var down = await Upload(harness, new FakeAccountingFileStorage { Down = true }, operation.Id, Pdf, "a.pdf");
-        await new VoidFinanceTransactionCommandHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
+        await new VoidFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time).Handle(
             new VoidFinanceTransactionCommand(operation.Id, operation.Version, AccountingTestHarness.Director), default);
         var voided = await Upload(harness, storage, operation.Id, Pdf, "a.pdf");
 
@@ -114,18 +118,18 @@ public sealed class FinanceAttachmentTests
         var operation = await Operation(harness);
         var uploaded = await Upload(harness, storage, operation.Id, Pdf, "акт.pdf");
 
-        var deleted = await new DeleteFinanceAttachmentCommandHandler(harness.Db, storage, harness.Time,
-            NullLogger<DeleteFinanceAttachmentCommandHandler>.Instance).Handle(
+        var deleted = await new DeleteFinanceAttachmentHandler(harness.Db, storage, harness.Time,
+            NullLogger<DeleteFinanceAttachmentHandler>.Instance).Handle(
             new DeleteFinanceAttachmentCommand(uploaded.Value.Id, AccountingTestHarness.Director), default);
-        var again = await new DeleteFinanceAttachmentCommandHandler(harness.Db, storage, harness.Time,
-            NullLogger<DeleteFinanceAttachmentCommandHandler>.Instance).Handle(
+        var again = await new DeleteFinanceAttachmentHandler(harness.Db, storage, harness.Time,
+            NullLogger<DeleteFinanceAttachmentHandler>.Instance).Handle(
             new DeleteFinanceAttachmentCommand(uploaded.Value.Id, AccountingTestHarness.Director), default);
-        var list = await new GetFinanceAttachmentsQueryHandler(harness.Fresh())
+        var list = await new GetFinanceAttachmentsHandler(harness.Fresh())
             .Handle(new GetFinanceAttachmentsQuery(operation.Id), default);
-        var content = await new GetFinanceAttachmentContentQueryHandler(harness.Fresh(), storage,
-                NullLogger<GetFinanceAttachmentContentQueryHandler>.Instance)
+        var content = await new GetFinanceAttachmentContentHandler(harness.Fresh(), storage,
+                NullLogger<GetFinanceAttachmentContentHandler>.Instance)
             .Handle(new GetFinanceAttachmentContentQuery(uploaded.Value.Id), default);
-        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh())
+        var history = await new GetFinanceHistoryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Transaction, operation.Id), default);
 
         Assert.Multiple(() =>
@@ -152,8 +156,8 @@ public sealed class FinanceAttachmentTests
         FakeAccountingFileStorage storage, Guid transactionId, byte[] bytes, string fileName)
     {
         using var content = new MemoryStream(bytes);
-        return await new UploadFinanceAttachmentCommandHandler(harness.Db, storage, harness.Time,
-                NullLogger<UploadFinanceAttachmentCommandHandler>.Instance)
+        return await new UploadFinanceAttachmentHandler(harness.Db, storage, harness.Time,
+                NullLogger<UploadFinanceAttachmentHandler>.Instance)
             .Handle(new UploadFinanceAttachmentCommand(transactionId, content, fileName, AccountingTestHarness.Director),
                 default);
     }

@@ -4,11 +4,19 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Payroll.Close;
-using Production.Application.Payroll.GetMonth;
-using Production.Application.Payroll.Payments;
-using Production.Application.Payroll.Setup;
+using Production.Application.Features.Payroll.Commands.ClosePayrollMonth;
+using Production.Application.Features.Payroll.Commands.CreatePayrollAdjustment;
+using Production.Application.Features.Payroll.Commands.CreatePayrollPayment;
+using Production.Application.Features.Payroll.Commands.ReopenPayrollMonth;
+using Production.Application.Features.Payroll.Commands.SetPayrollEmbroidery;
+using Production.Application.Features.Payroll.Commands.SetPayrollIssued;
+using Production.Application.Features.Payroll.Commands.SetPayrollRoles;
+using Production.Application.Features.Payroll.Commands.VoidPayrollAdjustment;
+using Production.Application.Features.Payroll.Commands.VoidPayrollPayment;
+using Production.Application.Features.Payroll.Queries.GetPayrollEmployee;
+using Production.Application.Features.Payroll.Queries.GetPayrollMonth;
+using Production.Application.Features.Payroll.Queries.GetPayrollYear;
+using Production.Application.Features.Payroll.Shared;
 
 namespace Production.Api.Payroll;
 

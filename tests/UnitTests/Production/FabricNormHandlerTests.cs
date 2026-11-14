@@ -1,10 +1,10 @@
 using Ardalis.Result;
 using Production.Application.Abstractions;
-using Production.Application.Contracts;
-using Production.Application.FabricNorms.DeleteNorm;
-using Production.Application.FabricNorms.GetNorms;
-using Production.Application.FabricNorms.ImportNorms;
-using Production.Application.FabricNorms.SaveNorm;
+using Production.Application.Features.FabricNorms.Commands.DeleteFabricNorm;
+using Production.Application.Features.FabricNorms.Commands.ImportFabricNorms;
+using Production.Application.Features.FabricNorms.Commands.SaveFabricNorm;
+using Production.Application.Features.FabricNorms.Queries.GetFabricNorms;
+using Production.Application.Features.FabricNorms.Shared;
 
 namespace UnitTests.Production;
 
@@ -18,9 +18,9 @@ public sealed class FabricNormHandlerTests
         using var workshop = new ProductionTestHarness();
         workshop.Models.Models.AddRange([new("MOD-025", "Куртка", true, 12, "Зима"), new("MOD-030", "Жилет", true)]);
 
-        var saved = await new SaveFabricNormCommandHandler(workshop.Db, workshop.Models, workshop.Time)
+        var saved = await new SaveFabricNormHandler(workshop.Db, workshop.Models, workshop.Time)
             .Handle(new("mod-025", TwoColors, 7), CancellationToken.None);
-        var rows = (await new GetFabricNormsQueryHandler(workshop.Db, workshop.Models)
+        var rows = (await new GetFabricNormsHandler(workshop.Db, workshop.Models)
             .Handle(new GetFabricNormsQuery(), CancellationToken.None)).Value;
 
         Assert.Multiple(() =>
@@ -40,7 +40,7 @@ public sealed class FabricNormHandlerTests
     {
         using var workshop = new ProductionTestHarness();
 
-        var result = await new SaveFabricNormCommandHandler(workshop.Db, workshop.Models, workshop.Time)
+        var result = await new SaveFabricNormHandler(workshop.Db, workshop.Models, workshop.Time)
             .Handle(new("MOD-999", TwoColors, 7), CancellationToken.None);
 
         Assert.That(result.Status, Is.EqualTo(ResultStatus.NotFound));
@@ -51,11 +51,11 @@ public sealed class FabricNormHandlerTests
     {
         using var workshop = new ProductionTestHarness();
         workshop.Models.Models.Add(new("MOD-025", "Куртка", true));
-        await new SaveFabricNormCommandHandler(workshop.Db, workshop.Models, workshop.Time)
+        await new SaveFabricNormHandler(workshop.Db, workshop.Models, workshop.Time)
             .Handle(new("MOD-025", TwoColors, 7), CancellationToken.None);
         workshop.Models.Models.Clear();
 
-        var rows = (await new GetFabricNormsQueryHandler(workshop.Db, workshop.Models)
+        var rows = (await new GetFabricNormsHandler(workshop.Db, workshop.Models)
             .Handle(new GetFabricNormsQuery(), CancellationToken.None)).Value;
 
         Assert.That(rows.Single().Problem, Is.Not.Null);
@@ -66,7 +66,7 @@ public sealed class FabricNormHandlerTests
     {
         using var workshop = new ProductionTestHarness();
         workshop.Models.Models.Add(new("MOD-025", "Куртка", true));
-        var handler = new ImportFabricNormsCommandHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new ImportFabricNormsHandler(workshop.Db, workshop.Models, workshop.Time);
 
         var result = await handler.Handle(new([new("MOD-025", TwoColors), new("MOD-404", TwoColors)], false, 7), CancellationToken.None);
 
@@ -83,7 +83,7 @@ public sealed class FabricNormHandlerTests
     {
         using var workshop = new ProductionTestHarness();
         workshop.Models.Models.Add(new("MOD-025", "Куртка", true));
-        var handler = new ImportFabricNormsCommandHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new ImportFabricNormsHandler(workshop.Db, workshop.Models, workshop.Time);
 
         var first = await handler.Handle(new([new("MOD-025", TwoColors)], false, 7), CancellationToken.None);
         var second = await handler.Handle(new([new("MOD-025", TwoColors)], false, 7), CancellationToken.None);
@@ -100,11 +100,11 @@ public sealed class FabricNormHandlerTests
     {
         using var workshop = new ProductionTestHarness();
         workshop.Models.Models.Add(new("MOD-025", "Куртка", true));
-        await new SaveFabricNormCommandHandler(workshop.Db, workshop.Models, workshop.Time)
+        await new SaveFabricNormHandler(workshop.Db, workshop.Models, workshop.Time)
             .Handle(new("MOD-025", TwoColors, 7), CancellationToken.None);
 
-        var deleted = await new DeleteFabricNormCommandHandler(workshop.Db).Handle(new("MOD-025"), CancellationToken.None);
-        var missing = await new DeleteFabricNormCommandHandler(workshop.Db).Handle(new("MOD-025"), CancellationToken.None);
+        var deleted = await new DeleteFabricNormHandler(workshop.Db).Handle(new("MOD-025"), CancellationToken.None);
+        var missing = await new DeleteFabricNormHandler(workshop.Db).Handle(new("MOD-025"), CancellationToken.None);
 
         Assert.Multiple(() =>
         {
@@ -116,7 +116,7 @@ public sealed class FabricNormHandlerTests
     [Test]
     public async Task Validator_rejects_an_additional_fabric_without_the_main_one_and_an_empty_norm()
     {
-        var validator = new SaveFabricNormCommandValidator();
+        var validator = new SaveFabricNormValidator();
 
         var noMain = await validator.ValidateAsync(new SaveFabricNormCommand("MOD-025", new(null, null, 0.4m, null, null, null), 7));
         var empty = await validator.ValidateAsync(new SaveFabricNormCommand("MOD-025", new(null, null, null, null, null, null), 7));

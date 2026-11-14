@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Reminders.Application.Abstractions;
-using Reminders.Application.Dispatch;
-using Reminders.Application.Telegram;
-using Reminders.Application.Telegram.HandleUpdate;
 using Reminders.Domain.Chats;
 using Reminders.Domain.Schedules;
 using Reminders.Domain.Tasks;
 using Reminders.Infrastructure.Persistence;
+using Reminders.Application.Features.Dispatch.Shared;
+using Reminders.Application.Features.Telegram.Commands.HandleTelegramUpdate;
+using Reminders.Application.Features.Telegram.Shared;
 
 namespace UnitTests.Reminders;
 

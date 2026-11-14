@@ -1,6 +1,6 @@
 using Production.Application.Abstractions;
-using Production.Application.FabricNorms.GetCompositions;
 using Production.Domain.FabricNorms;
+using Production.Application.Features.FabricNorms.Queries.GetModelCompositions;
 
 namespace UnitTests.Production;
 
@@ -19,7 +19,7 @@ public sealed class ModelCompositionHandlerTests
             new("Accessory", null, "FUR-023", "Синтепон 150", 3.5m, "Metre", null),
         ]));
 
-        var rows = (await new GetModelCompositionsQueryHandler(workshop.Models)
+        var rows = (await new GetModelCompositionsHandler(workshop.Models)
             .Handle(new GetModelCompositionsQuery(), CancellationToken.None)).Value;
 
         Assert.Multiple(() =>

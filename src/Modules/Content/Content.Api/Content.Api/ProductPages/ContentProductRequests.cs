@@ -1,5 +1,5 @@
-using Content.Application.ProductPages.ImportOldSite;
 using Content.Domain.ProductPages;
+using Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPages;
 
 namespace Content.Api.ProductPages;
 

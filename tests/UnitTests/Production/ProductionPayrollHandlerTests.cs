@@ -1,19 +1,24 @@
 using Ardalis.Result;
-using Production.Application.Contracts;
-using Production.Application.Orders.Access;
-using Production.Application.Payroll;
-using Production.Application.Payroll.Close;
-using Production.Application.Payroll.GetMonth;
-using Production.Application.Payroll.Payments;
-using Production.Application.Payroll.Setup;
-using Production.Application.Reports;
-using Production.Application.PayrollParameters;
-using Production.Application.Timesheet;
-using Production.Application.Work;
-using Production.Application.Work.RecordWork;
 using Production.Domain.Payroll;
 using Production.Domain.Staff;
 using Production.Domain.Work;
+using Production.Application.Features.Orders.Shared.Access;
+using Production.Application.Features.Payroll.Commands.ClosePayrollMonth;
+using Production.Application.Features.Payroll.Commands.CreatePayrollAdjustment;
+using Production.Application.Features.Payroll.Commands.CreatePayrollPayment;
+using Production.Application.Features.Payroll.Commands.ReopenPayrollMonth;
+using Production.Application.Features.Payroll.Commands.SetPayrollRoles;
+using Production.Application.Features.Payroll.Queries.GetPayrollEmployee;
+using Production.Application.Features.Payroll.Queries.GetPayrollMonth;
+using Production.Application.Features.Payroll.Shared;
+using Production.Application.Features.PayrollParameters.Shared;
+using Production.Application.Features.Reports.Shared;
+using Production.Application.Features.Timesheet.Commands.SaveTimesheetDay;
+using Production.Application.Features.Timesheet.Queries.GetTimesheetDay;
+using Production.Application.Features.Timesheet.Shared;
+using Production.Application.Features.Work.Commands.CreateProductionWork;
+using Production.Application.Features.Work.Commands.VoidProductionWork;
+using Production.Application.Features.Work.Shared;
 
 namespace UnitTests.Production;
 
@@ -88,24 +93,24 @@ public sealed class ProductionPayrollHandlerTests
 
         var incomplete = await Close(workshop, Admin);
         Rates(workshop);
-        var chiefRoles = await new SetPayrollRolesCommandHandler(workshop.Db, Changes(workshop))
+        var chiefRoles = await new SetPayrollRolesHandler(workshop.Db, Changes(workshop))
             .Handle(new(Chief, Month, new(null, master)), CancellationToken.None);
         var paidByChief = await Pay(workshop, Chief, seamstress, 500m);
         var paid = await Pay(workshop, Admin, seamstress, 500m);
-        var deducted = await new CreatePayrollAdjustmentCommandHandler(workshop.Db, Changes(workshop))
+        var deducted = await new CreatePayrollAdjustmentHandler(workshop.Db, Changes(workshop))
             .Handle(new(Admin, Month, new(seamstress, -29.75m, "Брак тканини")), CancellationToken.None);
-        var view = await new GetPayrollMonthQueryHandler(Changes(workshop)).Handle(new(Chief, Month), CancellationToken.None);
-        var managerView = await new GetPayrollMonthQueryHandler(Changes(workshop))
+        var view = await new GetPayrollMonthHandler(Changes(workshop)).Handle(new(Chief, Month), CancellationToken.None);
+        var managerView = await new GetPayrollMonthHandler(Changes(workshop))
             .Handle(new(Manager, Month), CancellationToken.None);
         var closed = await Close(workshop, Admin);
         var afterClose = await Record(workshop, order.Id, item.Id, new(seamstress, "Cutting", 1, Day, false, null, null));
-        var voidAfterClose = await new VoidProductionWorkCommandHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db),
+        var voidAfterClose = await new VoidProductionWorkHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db),
             workshop.Time).Handle(new(Chief, recorded.Value.Rows[0].Id, new("Помилка")), CancellationToken.None);
         var hoursAfterClose = await SaveDay(workshop, Chief, new(Day, [new(seamstress, 0, 1)]));
         var payAfterClose = await Pay(workshop, Admin, seamstress, 1m);
-        var detail = await new GetPayrollEmployeeQueryHandler(Sheets(workshop))
+        var detail = await new GetPayrollEmployeeHandler(Sheets(workshop))
             .Handle(new(Admin, Month, seamstress), CancellationToken.None);
-        var reopened = await new ReopenPayrollMonthCommandHandler(workshop.Db, workshop.Staff, Changes(workshop),
+        var reopened = await new ReopenPayrollMonthHandler(workshop.Db, workshop.Staff, Changes(workshop),
             workshop.Time).Handle(new(Admin, Month), CancellationToken.None);
         var future = await Pay(workshop, Admin, seamstress, 1m, "2026-12");
 
@@ -146,9 +151,9 @@ public sealed class ProductionPayrollHandlerTests
         var changed = await SaveDay(workshop, Admin, new(Day, [new(seamstress, 240, 1), new(master, 0, null)]));
         var stale = await SaveDay(workshop, Chief, new(Day, [new(seamstress, 120, 1)]));
         var future = await SaveDay(workshop, Chief, new(Day.AddDays(1), [new(seamstress, 60, null)]));
-        var byManager = await new GetTimesheetDayQueryHandler(Days(workshop))
+        var byManager = await new GetTimesheetDayHandler(Days(workshop))
             .Handle(new(Manager, Day), CancellationToken.None);
-        var validator = new SaveTimesheetDayCommandValidator();
+        var validator = new SaveTimesheetDayValidator();
 
         Assert.Multiple(() =>
         {
@@ -196,21 +201,21 @@ public sealed class ProductionPayrollHandlerTests
 
     private static async Task<Result<ProductionItemWorkResponse>> Record(ProductionTestHarness workshop, int orderId,
         int itemId, CreateProductionWorkInput input) =>
-        await new CreateProductionWorkCommandHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db), workshop.Time)
+        await new CreateProductionWorkHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db), workshop.Time)
             .Handle(new(Chief, orderId, itemId, input), CancellationToken.None);
 
     private static async Task<Result<TimesheetDayResponse>> SaveDay(ProductionTestHarness workshop,
         ProductionActor actor, SaveTimesheetDayInput input) =>
-        await new SaveTimesheetDayCommandHandler(workshop.Db, workshop.Staff, Days(workshop), workshop.Time)
+        await new SaveTimesheetDayHandler(workshop.Db, workshop.Staff, Days(workshop), workshop.Time)
             .Handle(new(actor, input), CancellationToken.None);
 
     private static async Task<Result<PayrollMonthResponse>> Pay(ProductionTestHarness workshop, ProductionActor actor,
         int employeeId, decimal amount, string month = Month) =>
-        await new CreatePayrollPaymentCommandHandler(workshop.Db, Changes(workshop), workshop.Time)
+        await new CreatePayrollPaymentHandler(workshop.Db, Changes(workshop), workshop.Time)
             .Handle(new(actor, month, new(employeeId, Day, "Advance", amount, null)), CancellationToken.None);
 
     private static async Task<Result<PayrollMonthResponse>> Close(ProductionTestHarness workshop, ProductionActor actor) =>
-        await new ClosePayrollMonthCommandHandler(Changes(workshop), Sheets(workshop),
+        await new ClosePayrollMonthHandler(Changes(workshop), Sheets(workshop),
                 new WorkshopReports(workshop.Db, Sheets(workshop), workshop.Fabrics, workshop.Stock))
             .Handle(new(actor, Month), CancellationToken.None);
 }

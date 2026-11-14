@@ -3,10 +3,10 @@ using Mediator;
 using Reminders.Api.Access;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Reminders.Application.Calendar.AddNonWorkingDay;
-using Reminders.Application.Calendar.GetNonWorkingDays;
-using Reminders.Application.Calendar.RemoveNonWorkingDay;
-using Reminders.Application.Contracts;
+using Reminders.Application.Features.Calendar.Commands.AddNonWorkingDay;
+using Reminders.Application.Features.Calendar.Commands.RemoveNonWorkingDay;
+using Reminders.Application.Features.Calendar.Queries.GetNonWorkingDays;
+using Reminders.Application.Features.Calendar.Shared;
 
 namespace Reminders.Api.Calendar;
 

@@ -1,7 +1,7 @@
 using BuildingBlocks.Application.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
-using Production.Application.Orders.Telegram;
+using Production.Application.Features.Orders.Commands.SendProductionOrderTelegram;
 
 namespace UnitTests.Production;
 

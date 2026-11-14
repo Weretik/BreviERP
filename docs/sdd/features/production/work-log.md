@@ -11,15 +11,14 @@ src/Modules/Production/
     Forecast/ForecastQueue.cs    # saved order of the queue, version
     Forecast/SewingForecast.cs   # work left → working days
   Production.Application/Production.Application/
-    Contracts/WorkContracts.cs, ForecastContracts.cs
-    Work/
-      WorkCards.cs               # done counts per item, «Робота» of an item, row mapping
-      GetWorkLog (month, worker, order), GetChoices (workers, items, reasons), GetItemWork,
-      RecordWork (create with plan limit, «Сторно»), ImportWork (old «Цех»)
-      WorkMessages.cs            # also WorkshopDay (today in Kyiv)
-    Forecast/
-      ForecastQueueReader.cs     # «Нове» orders in queue order
-      GetForecast, SaveQueue
+    Features/Work/
+      Queries/                   # GetWorkLog (month, worker, order), GetWorkChoices (workers, items, reasons), GetProductionItemWork
+      Commands/                  # CreateProductionWork (plan limit), VoidProductionWork («Сторно»), ImportProductionWork (old «Цех»)
+      Shared/WorkCards.cs        # done counts per item, «Робота» of an item, row mapping
+      Shared/WorkMessages.cs     # also WorkshopDay (today in Kyiv)
+    Features/Forecast/
+      Shared/ForecastQueueReader.cs  # «Нове» orders in queue order
+      Queries/GetForecast, Commands/SaveForecastQueue
   Production.Infrastructure/.../Persistence/Configurations/ProductionWorkConfiguration.cs
   Production.Api/Production.Api/Work/ProductionWorkController.cs          # /api/production/work…, items/{itemId}/work
   Production.Api/Production.Api/Forecast/ProductionForecastController.cs  # /api/production/forecast

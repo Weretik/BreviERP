@@ -1,12 +1,11 @@
 using Ardalis.Result;
-using Content.Application.Contracts;
-using Content.Application.SitePages.GetList;
-using Content.Application.SitePages.Save;
-using Content.Application.SitePages.Shared;
 using Content.Domain.ProductPages;
 using Content.Domain.SitePages;
 using FluentValidation.TestHelper;
 using Microsoft.Extensions.Caching.Memory;
+using Content.Application.Features.SitePages.Commands.SaveSitePage;
+using Content.Application.Features.SitePages.Queries.GetSitePages;
+using Content.Application.Features.SitePages.Shared;
 
 namespace UnitTests.Content;
 
@@ -61,7 +60,7 @@ public sealed class SitePagesTests
     [Test]
     public void Validator_names_the_too_long_text()
     {
-        var validator = new SaveSitePageCommandValidator();
+        var validator = new SaveSitePageValidator();
 
         validator.TestValidate(Save("home", 0, titleRu: new string('a', SitePage.TitleMaxLength + 1)))
             .ShouldHaveValidationErrorFor("Ru.Title").WithErrorMessage(SitePageMessages.TitleTooLong);
@@ -135,7 +134,7 @@ public sealed class SitePagesTests
     [Test]
     public void Validator_names_the_too_long_main_text_and_questions()
     {
-        var validator = new SaveSitePageCommandValidator();
+        var validator = new SaveSitePageValidator();
         SaveSitePageCommand With(IReadOnlyList<ProductTextBlock>? text = null, IReadOnlyList<SiteFaqItem>? faq = null) =>
             new("home", 0, new SitePageText(null, null), new SitePageText(null, null, text, faq), ContentTestHarness.Editor);
         string[] Errors(SaveSitePageCommand command) =>

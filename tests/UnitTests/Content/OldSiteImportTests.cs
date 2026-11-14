@@ -1,9 +1,9 @@
-using Content.Application.ProductPages.ImportOldSite;
-using Content.Application.ProductPages.Save;
-using Content.Application.ProductPages.SetVisibility;
 using Content.Domain.ProductPages;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
+using Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPages;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using Content.Application.Features.ProductPages.Commands.SetContentProductVisibility;
 
 namespace UnitTests.Content;
 
@@ -50,7 +50,7 @@ public sealed class OldSiteImportTests
             Assert.That(result.Value.Total, Is.EqualTo(2));
             Assert.That(result.Value.Created, Is.EqualTo(1));
             Assert.That(result.Value.NotMatched.Single().Url, Is.EqualTo("https://brevi.com.ua/nevidomyy-tovar"));
-            Assert.That(result.Value.NotMatched.Single().Reason, Is.EqualTo(ImportOldSiteProductPagesCommandHandler.NoProduct));
+            Assert.That(result.Value.NotMatched.Single().Reason, Is.EqualTo(ImportOldSiteProductPagesHandler.NoProduct));
             Assert.That(db.ProductPages.Count(), Is.Zero);
         });
     }
@@ -165,7 +165,7 @@ public sealed class OldSiteImportTests
             Assert.That(result.Value.Created, Is.EqualTo(1));
             Assert.That(result.Value.Problems.Select(x => x.Reason), Is.EqualTo(new[]
             {
-                ImportOldSiteProductPagesCommandHandler.Duplicate, ImportOldSiteProductPagesCommandHandler.Empty,
+                ImportOldSiteProductPagesHandler.Duplicate, ImportOldSiteProductPagesHandler.Empty,
             }));
         });
     }
@@ -173,7 +173,7 @@ public sealed class OldSiteImportTests
     [Test]
     public void Validator_checks_the_file_size_links_and_text_limits()
     {
-        var validator = new ImportOldSiteProductPagesCommandValidator();
+        var validator = new ImportOldSiteProductPagesValidator();
         var longTitle = ContentTestHarness.Text(seoTitle: new string('а', ProductPageRules.SeoTitleMaxLength + 1));
 
         Assert.Multiple(() =>

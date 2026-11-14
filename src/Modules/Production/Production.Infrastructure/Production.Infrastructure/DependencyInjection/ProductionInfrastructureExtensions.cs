@@ -1,5 +1,4 @@
 using BuildingBlocks.Infrastructure.Outbox;
-using Production.Application.Orders.Telegram;
 using Production.Infrastructure.Adapters.Catalog;
 using Production.Infrastructure.Adapters.Crm;
 using Production.Infrastructure.Adapters.Identity;
@@ -12,15 +11,14 @@ using Production.Infrastructure.Adapters.Warehouse;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Production.Application.Abstractions;
-using Production.Application.Orders;
-using Production.Application.Orders.QuoteSources;
-using Production.Application.Orders.Tracking;
-using Production.Application.Work;
-using Production.Application.Forecast;
-using Production.Application.Payroll;
-using Production.Application.Reports;
-using Production.Application.Timesheet;
 using Production.Infrastructure.Persistence;
+using Production.Application.Features.Forecast.Shared;
+using Production.Application.Features.Orders.Commands.SendProductionOrderTelegram;
+using Production.Application.Features.Orders.Shared;
+using Production.Application.Features.Payroll.Shared;
+using Production.Application.Features.Reports.Shared;
+using Production.Application.Features.Timesheet.Shared;
+using Production.Application.Features.Work.Shared;
 
 namespace Production.Infrastructure.DependencyInjection;
 
@@ -38,14 +36,14 @@ public static class ProductionInfrastructureExtensions
         services.AddOutboxHandler<SendProductionOrderTelegramOutboxHandler>();
         services.AddScoped<QuoteItemResolver>();
         services.AddScoped<OrderCards>();
-        services.AddScoped<Production.Application.Orders.Embroidery.EmbroideryLinks>();
+        services.AddScoped<Production.Application.Features.Orders.Queries.GetProductionEmbroideries.EmbroideryLinks>();
         services.AddScoped<OrderTracking>();
-        services.AddScoped<Production.Application.Colors.ProductionColors>();
+        services.AddScoped<Production.Application.Features.Colors.Shared.ProductionColors>();
         services.AddScoped<WorkCards>();
-        services.AddScoped<Production.Application.FabricPlans.ProductionFabricPlans>();
-        services.AddScoped<Production.Application.FabricPlans.ProductionAssemblies>();
+        services.AddScoped<Production.Application.Features.FabricPlans.Shared.ProductionFabricPlans>();
+        services.AddScoped<Production.Application.Features.FabricPlans.Shared.ProductionAssemblies>();
         services.AddScoped<Production.Contracts.FabricPlans.IOrderFabricPlans>(sp =>
-            sp.GetRequiredService<Production.Application.FabricPlans.ProductionFabricPlans>());
+            sp.GetRequiredService<Production.Application.Features.FabricPlans.Shared.ProductionFabricPlans>());
         services.AddScoped<ForecastQueueReader>();
         services.AddScoped<PayrollSheets>();
         services.AddScoped<WorkshopReports>();

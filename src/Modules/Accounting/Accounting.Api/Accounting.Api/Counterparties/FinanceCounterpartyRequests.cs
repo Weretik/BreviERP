@@ -1,4 +1,4 @@
-using Accounting.Application.Counterparties;
+using Accounting.Application.Features.Counterparties.Shared;
 
 namespace Accounting.Api.Counterparties;
 

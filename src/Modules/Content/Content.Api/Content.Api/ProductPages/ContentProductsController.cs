@@ -2,17 +2,17 @@ using System.Security.Claims;
 using Ardalis.Result;
 using BuildingBlocks.Api.Result;
 using Content.Api.Access;
-using Content.Application.Contracts;
-using Content.Application.ProductPages.Delete;
-using Content.Application.ProductPages.GetList;
-using Content.Application.ProductPages.GetOne;
-using Content.Application.ProductPages.ImportOldSite;
-using Content.Application.ProductPages.Save;
-using Content.Application.ProductPages.SetVisibility;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.ProductPages.Commands.DeleteContentProduct;
+using Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPages;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using Content.Application.Features.ProductPages.Commands.SetContentProductVisibility;
+using Content.Application.Features.ProductPages.Queries.GetContentProduct;
+using Content.Application.Features.ProductPages.Queries.GetContentProducts;
+using Content.Application.Features.ProductPages.Shared;
 
 namespace Content.Api.ProductPages;
 

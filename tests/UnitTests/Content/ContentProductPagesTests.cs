@@ -1,14 +1,13 @@
 using Ardalis.Result;
-using Content.Application.Contracts;
-using Content.Application.ProductPages.Delete;
-using Content.Application.ProductPages.GetList;
-using Content.Application.ProductPages.GetOne;
-using Content.Application.ProductPages.Save;
-using Content.Application.ProductPages.SetVisibility;
-using Content.Application.ProductPages.Shared;
 using Content.Domain.ProductPages;
 using FluentValidation.TestHelper;
 using Microsoft.EntityFrameworkCore;
+using Content.Application.Features.ProductPages.Commands.DeleteContentProduct;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using Content.Application.Features.ProductPages.Commands.SetContentProductVisibility;
+using Content.Application.Features.ProductPages.Queries.GetContentProduct;
+using Content.Application.Features.ProductPages.Queries.GetContentProducts;
+using Content.Application.Features.ProductPages.Shared;
 
 namespace UnitTests.Content;
 
@@ -202,7 +201,7 @@ public sealed class ContentProductPagesTests
     [Test]
     public void Save_validator_checks_slug_and_text_limits()
     {
-        var validator = new SaveContentProductCommandValidator();
+        var validator = new SaveContentProductValidator();
         var longText = ContentTestHarness.Text(new string('а', ProductPageRules.NameMaxLength + 1),
             new string('а', ProductPageRules.SeoTitleMaxLength + 1), new string('а', ProductPageRules.SeoDescriptionMaxLength + 1));
 
@@ -221,7 +220,7 @@ public sealed class ContentProductPagesTests
     [Test]
     public void List_validator_checks_paging_and_type()
     {
-        var validator = new GetContentProductsQueryValidator();
+        var validator = new GetContentProductsValidator();
         Assert.Multiple(() =>
         {
             Assert.That(validator.TestValidate(new GetContentProductsQuery(1, 50, Type: "Sewing")).IsValid, Is.True);

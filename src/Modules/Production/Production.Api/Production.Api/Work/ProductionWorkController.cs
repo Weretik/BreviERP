@@ -4,12 +4,13 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Work.GetChoices;
-using Production.Application.Work.GetItemWork;
-using Production.Application.Work.GetWorkLog;
-using Production.Application.Work.ImportWork;
-using Production.Application.Work.RecordWork;
+using Production.Application.Features.Work.Commands.CreateProductionWork;
+using Production.Application.Features.Work.Commands.ImportProductionWork;
+using Production.Application.Features.Work.Commands.VoidProductionWork;
+using Production.Application.Features.Work.Queries.GetProductionItemWork;
+using Production.Application.Features.Work.Queries.GetWorkChoices;
+using Production.Application.Features.Work.Queries.GetWorkLog;
+using Production.Application.Features.Work.Shared;
 
 namespace Production.Api.Work;
 

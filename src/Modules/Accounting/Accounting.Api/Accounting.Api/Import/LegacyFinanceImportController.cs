@@ -1,11 +1,11 @@
 using Accounting.Api.Access;
-using Accounting.Application.Contracts;
-using Accounting.Application.Import;
 using BuildingBlocks.Api.Result;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Accounting.Application.Features.Import.Commands.ImportLegacyFinance;
+using Accounting.Application.Features.Import.Shared;
 
 namespace Accounting.Api.Import;
 

@@ -1,17 +1,16 @@
 using Ardalis.Result;
-using Production.Application.Contracts;
-using Production.Application.Dashboard;
-using Production.Application.Orders.Access;
-using Production.Application.Payroll;
-using Production.Application.Payroll.Close;
-using Production.Application.Payroll.GetMonth;
-using Production.Application.PayrollParameters;
-using Production.Application.Reports;
-using Production.Application.Reports.GetReport;
-using Production.Application.Work;
-using Production.Application.Work.RecordWork;
 using Production.Domain.Staff;
 using UnitTests.Warehouse;
+using Production.Application.Features.Dashboard.Queries.GetWorkshopDashboard;
+using Production.Application.Features.Orders.Shared.Access;
+using Production.Application.Features.Payroll.Commands.ClosePayrollMonth;
+using Production.Application.Features.Payroll.Queries.GetPayrollMonth;
+using Production.Application.Features.Payroll.Shared;
+using Production.Application.Features.PayrollParameters.Shared;
+using Production.Application.Features.Reports.Queries.GetWorkshopReport;
+using Production.Application.Features.Reports.Shared;
+using Production.Application.Features.Work.Commands.CreateProductionWork;
+using Production.Application.Features.Work.Shared;
 
 namespace UnitTests.Production;
 
@@ -33,11 +32,11 @@ public sealed class WorkshopReportHandlerTests
         var report = await Report(workshop, Admin, Month, Month, "2026-10", "2026-10");
         var byChief = await Report(workshop, Chief, Month, Month);
         var future = await Report(workshop, Admin, Month, "2026-12");
-        var tooLong = new GetWorkshopReportQueryValidator()
+        var tooLong = new GetWorkshopReportValidator()
             .Validate(new GetWorkshopReportQuery(Admin, "2025-01", Month, null, null));
         Rates(workshop);
-        var month = await new GetPayrollMonthQueryHandler(Changes(workshop)).Handle(new(Admin, Month), CancellationToken.None);
-        var closed = await new ClosePayrollMonthCommandHandler(Changes(workshop), Sheets(workshop), Reports(workshop))
+        var month = await new GetPayrollMonthHandler(Changes(workshop)).Handle(new(Admin, Month), CancellationToken.None);
+        var closed = await new ClosePayrollMonthHandler(Changes(workshop), Sheets(workshop), Reports(workshop))
             .Handle(new(Admin, Month), CancellationToken.None);
         workshop.Fabrics.Fabrics[0] = workshop.Fabrics.Fabrics[0] with { Price = 1m };
         var kept = await Report(workshop, Admin, Month, Month);
@@ -134,7 +133,7 @@ public sealed class WorkshopReportHandlerTests
         var itemId = order.Items[0].Id;
         await WarehouseStockHandlerTests.Issue(stock, keeper, order.Id, itemId, order.Version,
             WarehouseStockHandlerTests.L("темно-сірий", "Темно-сірий", 4m));
-        var record = new CreateProductionWorkCommandHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db),
+        var record = new CreateProductionWorkHandler(workshop.Db, workshop.Staff, new WorkCards(workshop.Db),
             workshop.Time);
         await record.Handle(new(Chief, order.Id, itemId, new(seamstress, "Sewing", 3, Day, false, null, null)),
             CancellationToken.None);
@@ -175,11 +174,11 @@ public sealed class WorkshopReportHandlerTests
 
     private static async Task<Result<WorkshopReportPairResponse>> Report(ProductionTestHarness workshop,
         ProductionActor actor, string from, string to, string? compareFrom = null, string? compareTo = null) =>
-        await new GetWorkshopReportQueryHandler(Reports(workshop), workshop.Time)
+        await new GetWorkshopReportHandler(Reports(workshop), workshop.Time)
             .Handle(new(actor, from, to, compareFrom, compareTo), CancellationToken.None);
 
     private static async Task<WorkshopDashboardResponse> Dashboard(ProductionTestHarness workshop,
         ProductionActor actor) =>
-        (await new GetWorkshopDashboardQueryHandler(workshop.Db, new WorkCards(workshop.Db), workshop.Time)
+        (await new GetWorkshopDashboardHandler(workshop.Db, new WorkCards(workshop.Db), workshop.Time)
             .Handle(new(actor), CancellationToken.None)).Value;
 }

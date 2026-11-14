@@ -1,9 +1,9 @@
 using BuildingBlocks.Api.Result;
-using Content.Application.Contracts;
-using Content.Application.PublicSitePages;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SitePages.Queries.GetPublicSitePages;
+using Content.Application.Features.SitePages.Shared;
 
 namespace Content.Api.PublicSitePages;
 

@@ -7,11 +7,10 @@
 ```text
 src/Modules/Production/
   Production.Application/Production.Application/
-    Contracts/ReportContracts.cs
-    Reports/WorkshopReports.cs              # a month from the data, a kept month, the sum of months
-    Reports/GetReport/GetWorkshopReportQuery.cs
-    Dashboard/GetWorkshopDashboardQuery.cs
-    Payroll/Close/PayrollCloseCommands.cs   # closing also keeps the report (PayrollMonth.ReportSnapshot)
+    Features/Reports/Shared/WorkshopReports.cs       # a month from the data, a kept month, the sum of months; responses
+    Features/Reports/Queries/GetWorkshopReport/
+    Features/Dashboard/Queries/GetWorkshopDashboard/
+    Features/Payroll/Commands/ClosePayrollMonth/     # closing also keeps the report (PayrollMonth.ReportSnapshot)
   Production.Api/Production.Api/Reports/WorkshopReportsController.cs    # /api/production/reports
   Production.Api/Production.Api/Dashboard/WorkshopDashboardController.cs # /api/production/dashboard
 ```

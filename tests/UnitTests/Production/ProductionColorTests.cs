@@ -1,8 +1,10 @@
 using Ardalis.Result;
-using Production.Application.Colors;
-using Production.Application.Contracts;
-using Production.Application.Orders.Access;
-using Production.Application.Orders.UpdateOrder;
+using Production.Application.Features.Colors.Queries.GetProductionColors;
+using Production.Application.Features.Orders.Commands.UpdateProductionOrder;
+using Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
+using Production.Application.Features.Orders.Shared;
+using Production.Application.Features.Orders.Shared.Access;
+using Production.Application.Features.Orders.Shared.Validation;
 
 namespace UnitTests.Production;
 
@@ -56,7 +58,7 @@ public sealed class ProductionColorTests
             .Value;
         workshop.ColorList.Colors.Remove("Червоний");
         var item = created.Items.Single();
-        var handler = new UpdateProductionOrderCommandHandler(workshop.Db, workshop.Staff, workshop.Cards(),
+        var handler = new UpdateProductionOrderHandler(workshop.Db, workshop.Staff, workshop.Cards(),
             workshop.EmbroideryLinks(), workshop.Colors(), workshop.Time);
 
         var kept = await handler.Handle(new(Chief, created.Id, new UpdateProductionOrderInput(created.Version,
@@ -79,7 +81,7 @@ public sealed class ProductionColorTests
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
 
-        var colors = await new GetProductionColorsQueryHandler(workshop.Colors())
+        var colors = await new GetProductionColorsHandler(workshop.Colors())
             .Handle(new GetProductionColorsQuery(), CancellationToken.None);
 
         Assert.That(colors.Value, Is.EqualTo(workshop.ColorList.Colors));

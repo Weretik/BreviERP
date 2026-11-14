@@ -1,13 +1,12 @@
 using Ardalis.Result;
-using Content.Application.Articles.Delete;
-using Content.Application.Articles.GetList;
-using Content.Application.Articles.GetOne;
-using Content.Application.Articles.Save;
-using Content.Application.Articles.SetVisibility;
-using Content.Application.Articles.Shared;
-using Content.Application.Contracts;
 using Content.Domain.Articles;
 using FluentValidation.TestHelper;
+using Content.Application.Features.Articles.Commands.DeleteContentArticle;
+using Content.Application.Features.Articles.Commands.SaveContentArticle;
+using Content.Application.Features.Articles.Commands.SetContentArticleVisibility;
+using Content.Application.Features.Articles.Queries.GetContentArticle;
+using Content.Application.Features.Articles.Queries.GetContentArticles;
+using Content.Application.Features.Articles.Shared;
 
 namespace UnitTests.Content;
 
@@ -241,7 +240,7 @@ public sealed class ArticlesTests
     [Test]
     public void Validator_needs_a_ukrainian_title_a_valid_address_and_a_photo_in_picture_blocks()
     {
-        var validator = new SaveContentArticleCommandValidator();
+        var validator = new SaveContentArticleValidator();
         var picture = new ArticleTextInput("Стаття", null, null, null,
             [new ArticleBlock(ArticleBlockKind.Image, null, null, null, null, new string('а', ArticleRules.AltMaxLength + 1))]);
 

@@ -1,7 +1,0 @@
-namespace Production.Application.Staff;
-
-internal static class StaffMessages
-{
-    public const string NotFound = "Працівника не знайдено.";
-    public const string DuplicateName = "Працівник з таким ПІБ уже є серед активних.";
-}

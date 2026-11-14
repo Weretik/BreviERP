@@ -1,12 +1,14 @@
 using System.Text.Json;
 using Content.Api.Articles;
-using Content.Application.Articles.ImportOldSite;
-using Content.Application.Contracts;
 using Content.Domain.Articles;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
+using Content.Application.Features.Articles.Commands.SetContentArticleVisibility;
+using Content.Application.Features.Articles.Queries.GetContentArticles;
+using Content.Application.Features.Articles.Shared;
 
 namespace UnitTests.Content;
 

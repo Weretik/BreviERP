@@ -3,8 +3,7 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Contracts;
-using Production.Application.Dashboard;
+using Production.Application.Features.Dashboard.Queries.GetWorkshopDashboard;
 
 namespace Production.Api.Dashboard;
 

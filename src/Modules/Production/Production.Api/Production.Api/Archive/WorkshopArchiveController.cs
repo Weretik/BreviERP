@@ -3,9 +3,8 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Production.Api.Access;
-using Production.Application.Archive.GetArchive;
-using Production.Application.Archive.ImportArchive;
-using Production.Application.Contracts;
+using Production.Application.Features.Archive.Commands.ImportWorkshopArchive;
+using Production.Application.Features.Archive.Queries.GetWorkshopArchive;
 
 namespace Production.Api.Archive;
 

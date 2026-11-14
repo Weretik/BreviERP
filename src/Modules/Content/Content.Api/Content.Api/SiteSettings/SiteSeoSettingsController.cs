@@ -1,12 +1,12 @@
 using System.Security.Claims;
 using BuildingBlocks.Api.Result;
 using Content.Api.Access;
-using Content.Application.Contracts;
-using Content.Application.SiteSettings.Get;
-using Content.Application.SiteSettings.Save;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SiteSettings.Commands.SaveSiteSeoSettings;
+using Content.Application.Features.SiteSettings.Queries.GetSiteSeoSettings;
+using Content.Application.Features.SiteSettings.Shared;
 
 namespace Content.Api.SiteSettings;
 

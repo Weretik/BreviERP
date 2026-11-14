@@ -1,13 +1,15 @@
 using System.Text.Json;
 using Content.Api.PublicRedirects;
 using Content.Api.Redirects;
-using Content.Application.Contracts;
-using Content.Application.Redirects.ImportOldSite;
 using Content.Domain.Redirects;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects;
+using Content.Application.Features.Redirects.Queries.GetPublicRedirects;
+using Content.Application.Features.Redirects.Queries.GetSiteRedirects;
+using Content.Application.Features.Redirects.Shared;
 
 namespace UnitTests.Content;
 

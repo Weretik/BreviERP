@@ -7,9 +7,8 @@ A read-only list of what the public site misses for search: pages shown on the s
 ```text
 src/Modules/Content/
   Content.Application/Content.Application/
-    Contracts/SeoOverviewResponses.cs
-    SeoOverview/SeoChecks.cs                    # per-page checks, repeated titles
-    SeoOverview/GetSeoOverviewQuery.cs          # pages of the four areas, site problems
+    Features/SeoOverview/Shared/                # responses, SeoChecks (per-page checks, repeated titles)
+    Features/SeoOverview/Queries/GetSeoOverview/  # pages of the four areas, site problems
   Content.Api/Content.Api/SeoOverview/SeoOverviewController.cs   # /api/content/seo-overview, policy access:content-seo-overview
 ```
 

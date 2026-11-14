@@ -1,7 +1,13 @@
-using Accounting.Application.Accounts;
-using Accounting.Application.History;
 using Accounting.Domain.Audit;
 using Ardalis.Result;
+using Accounting.Application.Features.Accounts.Commands.CreateFinanceAccount;
+using Accounting.Application.Features.Accounts.Commands.DeleteFinanceAccount;
+using Accounting.Application.Features.Accounts.Commands.SetCutoverBalance;
+using Accounting.Application.Features.Accounts.Commands.SetFinanceAccountActive;
+using Accounting.Application.Features.Accounts.Commands.UpdateFinanceAccount;
+using Accounting.Application.Features.Accounts.Queries.GetFinanceAccounts;
+using Accounting.Application.Features.Accounts.Shared;
+using Accounting.Application.Features.History.Queries.GetFinanceHistory;
 
 namespace UnitTests.Accounting;
 
@@ -13,11 +19,11 @@ public sealed class FinanceAccountTests
     {
         using var harness = new AccountingTestHarness();
 
-        var result = await new CreateFinanceAccountCommandHandler(harness.Db, harness.Time)
+        var result = await new CreateFinanceAccountHandler(harness.Db, harness.Time)
             .Handle(new CreateFinanceAccountCommand(AccountingTestHarness.Fields(name: "  ПриватБанк   ФОП "),
                 AccountingTestHarness.Director), default);
 
-        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh())
+        var history = await new GetFinanceHistoryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Account, result.Value.Id), default);
         Assert.Multiple(() =>
         {
@@ -46,7 +52,7 @@ public sealed class FinanceAccountTests
     {
         using var harness = new AccountingTestHarness();
         var created = await Create(harness);
-        var handler = new UpdateFinanceAccountCommandHandler(harness.Db, harness.Time);
+        var handler = new UpdateFinanceAccountHandler(harness.Db, harness.Time);
 
         var updated = await handler.Handle(new UpdateFinanceAccountCommand(created.Id,
             AccountingTestHarness.Fields(name: "Каса"), created.Version, AccountingTestHarness.Director), default);
@@ -70,7 +76,7 @@ public sealed class FinanceAccountTests
     {
         using var harness = new AccountingTestHarness();
         var created = await Create(harness);
-        var handler = new SetCutoverBalanceCommandHandler(harness.Db, harness.Time);
+        var handler = new SetCutoverBalanceHandler(harness.Db, harness.Time);
 
         var confirmed = await handler.Handle(new SetCutoverBalanceCommand(created.Id, 6_254_640, true, created.Version,
             AccountingTestHarness.Director), default);
@@ -93,7 +99,7 @@ public sealed class FinanceAccountTests
     [Test]
     public void Confirmed_cutover_needs_a_balance()
     {
-        var errors = new SetCutoverBalanceCommandValidator()
+        var errors = new SetCutoverBalanceValidator()
             .Validate(new SetCutoverBalanceCommand(Guid.NewGuid(), null, true, 1, AccountingTestHarness.Director));
         Assert.That(errors.Errors.Select(x => x.PropertyName), Does.Contain("BalanceMinor"));
     }
@@ -104,12 +110,12 @@ public sealed class FinanceAccountTests
         using var harness = new AccountingTestHarness();
         var bank = await Create(harness, "ПриватБанк");
         await Create(harness, "Каса", sortOrder: 20);
-        var active = new SetFinanceAccountActiveCommandHandler(harness.Db, harness.Time);
+        var active = new SetFinanceAccountActiveHandler(harness.Db, harness.Time);
 
         var archived = await active.Handle(new SetFinanceAccountActiveCommand(bank.Id, false, bank.Version,
             AccountingTestHarness.Director), default);
-        var visible = await new GetFinanceAccountsQueryHandler(harness.Fresh()).Handle(new GetFinanceAccountsQuery(false), default);
-        var all = await new GetFinanceAccountsQueryHandler(harness.Fresh()).Handle(new GetFinanceAccountsQuery(true), default);
+        var visible = await new GetFinanceAccountsHandler(harness.Fresh()).Handle(new GetFinanceAccountsQuery(false), default);
+        var all = await new GetFinanceAccountsHandler(harness.Fresh()).Handle(new GetFinanceAccountsQuery(true), default);
         var restored = await active.Handle(new SetFinanceAccountActiveCommand(bank.Id, true, archived.Value.Version,
             AccountingTestHarness.Director), default);
 
@@ -128,7 +134,7 @@ public sealed class FinanceAccountTests
     {
         using var harness = new AccountingTestHarness();
         var created = await Create(harness);
-        var handler = new DeleteFinanceAccountCommandHandler(harness.Db, harness.Time);
+        var handler = new DeleteFinanceAccountHandler(harness.Db, harness.Time);
 
         var stale = await handler.Handle(new DeleteFinanceAccountCommand(created.Id, 7, AccountingTestHarness.Director), default);
         var deleted = await handler.Handle(new DeleteFinanceAccountCommand(created.Id, created.Version,
@@ -136,7 +142,7 @@ public sealed class FinanceAccountTests
         var missing = await handler.Handle(new DeleteFinanceAccountCommand(created.Id, created.Version,
             AccountingTestHarness.Director), default);
 
-        var history = await new GetFinanceHistoryQueryHandler(harness.Fresh())
+        var history = await new GetFinanceHistoryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Account, created.Id), default);
         Assert.Multiple(() =>
         {
@@ -150,16 +156,16 @@ public sealed class FinanceAccountTests
         });
     }
 
-    private static async Task<global::Accounting.Application.Contracts.FinanceAccountResponse> Create(
+    private static async Task<global::Accounting.Application.Features.Accounts.Shared.FinanceAccountResponse> Create(
         AccountingTestHarness harness, string name = "ПриватБанк ФОП", int sortOrder = 10)
     {
-        var result = await new CreateFinanceAccountCommandHandler(harness.Db, harness.Time)
+        var result = await new CreateFinanceAccountHandler(harness.Db, harness.Time)
             .Handle(new CreateFinanceAccountCommand(AccountingTestHarness.Fields(name: name, sortOrder: sortOrder),
                 AccountingTestHarness.Director), default);
         return result.Value;
     }
 
     private static async Task<AuditAction[]> Actions(AccountingTestHarness harness, Guid id) =>
-        (await new GetFinanceHistoryQueryHandler(harness.Fresh())
+        (await new GetFinanceHistoryHandler(harness.Fresh())
             .Handle(new GetFinanceHistoryQuery(AuditEntity.Account, id), default)).Value.Select(x => x.Action).ToArray();
 }

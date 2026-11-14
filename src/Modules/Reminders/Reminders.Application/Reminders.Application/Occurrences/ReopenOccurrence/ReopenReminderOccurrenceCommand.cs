@@ -1,7 +1,0 @@
-using Reminders.Application.Access;
-using Reminders.Application.Contracts;
-
-namespace Reminders.Application.Occurrences.ReopenOccurrence;
-
-/// <summary>Reopens a period closed by mistake; reminders resume on the next working day run.</summary>
-public sealed record ReopenReminderOccurrenceCommand(long Id, ReminderAdmin Admin) : ICommand<Result<ReminderOccurrenceResponse>>;

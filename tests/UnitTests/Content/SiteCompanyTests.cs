@@ -1,9 +1,8 @@
 using Ardalis.Result;
-using Content.Application.Contracts;
-using Content.Application.SiteCompany.Get;
-using Content.Application.SiteCompany.Save;
-using Content.Application.SiteCompany.Shared;
 using FluentValidation.TestHelper;
+using Content.Application.Features.SiteCompany.Commands.SaveSiteCompany;
+using Content.Application.Features.SiteCompany.Queries.GetSiteCompany;
+using Content.Application.Features.SiteCompany.Shared;
 
 namespace UnitTests.Content;
 
@@ -57,7 +56,7 @@ public sealed class SiteCompanyTests
     [Test]
     public void Validator_names_each_wrong_field()
     {
-        var validator = new SaveSiteCompanyCommandValidator();
+        var validator = new SaveSiteCompanyValidator();
 
         Assert.Multiple(() =>
         {

@@ -18,21 +18,22 @@ src/Modules/Production/
   Production.Application/Production.Application/
     Abstractions/                # IProductionQuoteReader, IProductionFabricReader, IProductionStaffReader, IProductionModelReader,
                                  # IProductionFileStorage, IProductionTelegram, IProductionEmbroideryReader
-    Contracts/ProductionOrderInputs.cs, ProductionTrackingInputs.cs, ProductionOrderResponses.cs
-    Orders/
-      Access/ProductionActor.cs  # who may create, edit, delete; which prices they see
-      GetOrders/                 # list (sort, stage conveyor, attention), filters (ProductionOrderFiltering), filter options, «Зведення за моделями»
-      GetOrder, GetHistory, QuoteSources, CreateOrder, UpdateOrder, CopyOrder, DeleteOrder, ImportOrders
-      Tracking/                  # OrderTracking + stages, shipments, close/cancel/reopen
-      Files/                     # upload and delete order files
-      Telegram/                  # the message text and «Надіслати в цех»
-      ImportProgress/            # stages, file links and Telegram marks of old orders
-      ImportReportPrices/        # «Ціни КП» of old orders for «Звіти цеху»
-      Validation/                # item details and application validators, shared rules
-      Embroidery/                # «Вишивка» → saved «ВШ-…» calculation: checks, card details, picker (PRD-D41)
-      OrderCards.cs              # the card: order + files + Telegram mark
-      OrderMapping.cs, OrderNorms.cs, OrderNumbers.cs, OrderActors.cs, OrderMessages.cs
-    Settings/WorkshopSettingsCommands.cs   # get, save, test line
+    Features/Orders/
+      Queries/                   # GetProductionOrders (sort, stage conveyor, attention), GetProductionOrderFilterOptions,
+                                 # GetProductionModelSummary («Зведення за моделями»), GetProductionOrder, GetProductionOrderHistory,
+                                 # GetProductionQuoteSources, GetProductionQuoteDraft, GetQuotesWithOrders, GetProductionEmbroideries (picker, PRD-D41)
+      Commands/                  # Create/Update/Copy/DeleteProductionOrder, ImportProductionOrders;
+                                 # SetProductionItemStages, Create/CancelProductionShipment, Close/Cancel/ReopenProductionOrder;
+                                 # Upload/DeleteProductionOrderFile; SendProductionOrderTelegram («Надіслати в цех»);
+                                 # ImportProductionProgress (stages, file links and Telegram marks of old orders),
+                                 # ImportProductionReportPrices («Ціни КП» of old orders for «Звіти цеху»)
+      Shared/
+        Access/ProductionActor.cs  # who may create, edit, delete; which prices they see
+        Validation/              # item details and application validators, shared rules
+        OrderTracking.cs         # stages, shipments, status changes
+        ProductionOrderFiltering.cs, OrderCards.cs (order + files + Telegram mark), QuoteItemResolver.cs
+        OrderMapping.cs, OrderNorms.cs, OrderNumbers.cs, OrderActors.cs, OrderMessages.cs, inputs and responses
+    Features/Settings/           # GetWorkshopSettings, UpdateWorkshopSettings, SendWorkshopTelegramTest; Shared/WorkshopSettingsReading
   Production.Infrastructure/.../Persistence/Configurations/ProductionOrderConfiguration.cs, ProductionTrackingConfiguration.cs, JsonColumn.cs
   Production.Api/Production.Api/Orders/ProductionOrdersController.cs   # /api/production/orders
   Production.Api/Production.Api/Orders/ProductionOrderTrackingController.cs   # stages, shipments, status, files, telegram, progress-import, report-price-import

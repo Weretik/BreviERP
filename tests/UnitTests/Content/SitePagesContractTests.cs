@@ -1,12 +1,13 @@
 using System.Text.Json;
 using Content.Api.PublicSitePages;
 using Content.Api.SitePages;
-using Content.Application.Contracts;
 using Content.Domain.SitePages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Content.Application.Features.SitePages.Queries.GetSitePages;
+using Content.Application.Features.SitePages.Shared;
 
 namespace UnitTests.Content;
 

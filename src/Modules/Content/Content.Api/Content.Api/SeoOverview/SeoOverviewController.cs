@@ -1,10 +1,9 @@
 using BuildingBlocks.Api.Result;
 using Content.Api.Access;
-using Content.Application.Contracts;
-using Content.Application.SeoOverview;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Content.Application.Features.SeoOverview.Queries.GetSeoOverview;
 
 namespace Content.Api.SeoOverview;
 

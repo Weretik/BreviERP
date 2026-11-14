@@ -8,9 +8,9 @@ Read-only lines of the old «Цех»: the Google sheet «ГРАФИК рабо�
 src/Modules/Production/
   Production.Domain/Production.Domain/Archive/WorkshopArchiveRecord.cs
   Production.Application/Production.Application/
-    Contracts/ArchiveContracts.cs
-    Archive/GetArchive/GetWorkshopArchiveQuery.cs
-    Archive/ImportArchive/ImportWorkshopArchiveCommand.cs
+    Features/Archive/Queries/GetWorkshopArchive/
+    Features/Archive/Commands/ImportWorkshopArchive/
+    Features/Archive/Shared/ArchiveMessages.cs
   Production.Infrastructure/.../Configurations/WorkshopArchiveConfiguration.cs
   Production.Api/Production.Api/Archive/WorkshopArchiveController.cs   # /api/production/archive
 ```

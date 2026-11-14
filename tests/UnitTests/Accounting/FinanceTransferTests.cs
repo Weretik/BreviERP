@@ -1,12 +1,14 @@
-using Accounting.Application.Contracts;
-using Accounting.Application.Journal;
-using Accounting.Application.Overview;
-using Accounting.Application.Transfers;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Ardalis.Result;
 using static UnitTests.Accounting.FinanceMovementFixture;
+using Accounting.Application.Features.Journal.Shared;
+using Accounting.Application.Features.Overview.Queries.GetFinanceOverview;
+using Accounting.Application.Features.Transfers.Commands.UpdateFinanceTransfer;
+using Accounting.Application.Features.Transfers.Commands.VoidFinanceTransfer;
+using Accounting.Application.Features.Transfers.Queries.GetFinanceTransfers;
+using Accounting.Application.Features.Transfers.Shared;
 
 namespace UnitTests.Accounting;
 
@@ -53,12 +55,12 @@ public sealed class FinanceTransferTests
         await Move(harness, bank.Id, cash.Id, 100_00);
         await Move(harness, cash.Id, card.Id, 30_00);
         var voided = await Move(harness, bank.Id, card.Id, 5_00);
-        var voidResult = await new VoidFinanceTransferCommandHandler(harness.Db, harness.Time).Handle(
+        var voidResult = await new VoidFinanceTransferHandler(harness.Db, harness.Time).Handle(
             new VoidFinanceTransferCommand(voided.Id, voided.Version, AccountingTestHarness.Director), default);
-        var stale = await new UpdateFinanceTransferCommandHandler(harness.Db, harness.Time).Handle(
+        var stale = await new UpdateFinanceTransferHandler(harness.Db, harness.Time).Handle(
             new UpdateFinanceTransferCommand(voided.Id, new FinanceTransferFields(Current, bank.Id, card.Id, 6_00, null),
                 voided.Version, AccountingTestHarness.Director), default);
-        var handler = new GetFinanceTransfersQueryHandler(harness.Fresh());
+        var handler = new GetFinanceTransfersHandler(harness.Fresh());
         var all = new FinanceTransferFilter(LedgerScope.Current, null, null, null, null, null, null, null, false);
 
         var byCash = (await handler.Handle(new GetFinanceTransfersQuery(all with { AccountId = cash.Id },
@@ -94,7 +96,7 @@ public sealed class FinanceTransferTests
         await Spend(harness, Fields(bank.Id, fabric.Id, 120_00));
         await Spend(harness, Fields(bank.Id, rent.Id, 80_00));
         await Spend(harness, Fields(bank.Id, sales.Id, 800_00, new DateOnly(2026, 11, 2), CategoryDirection.Income));
-        var handler = new GetFinanceOverviewQueryHandler(harness.Fresh());
+        var handler = new GetFinanceOverviewHandler(harness.Fresh());
         Task<Result<FinanceOverviewResponse>> Get(LedgerScope? scope, DateOnly from) =>
             handler.Handle(new GetFinanceOverviewQuery(scope, from, new DateOnly(2026, 11, 5)), default).AsTask();
 
