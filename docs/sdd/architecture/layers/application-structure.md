@@ -43,22 +43,9 @@ Handler ──→ Domain aggregate / Application abstraction
        └──→ Result.Success | Result.NotFound | Result.Conflict | Result.Invalid
 ```
 
-## Who does what
+## Handler responsibilities
 
-| Where | Does | Example |
-| --- | --- | --- |
-| Handler (Application) | the order of steps | load, call the domain, save |
-| Aggregate (Domain) | business rules | no zero quantity, minimum order sum, a shipped order cannot be cancelled |
-| Infrastructure | how exactly data is stored and fetched | EF Core, an HTTP client of an external system |
-| Api | HTTP | route, status codes |
-
-## Command handler steps
-
-1. Load the data it needs.
-2. Check what needs outside data (for example, that the product exists).
-3. Call the domain method: the business rules are checked there, not in the handler.
-4. Save everything with one `SaveChanges`, that is one transaction. When a second save is unavoidable (an identity value is needed, or an external call sits between the saves), wrap both in one explicit transaction and say why in a comment.
-5. Return a simple result: an id, a status, or a DTO, never a Domain entity or value object.
+A handler only orders the steps: load data, check what needs outside data, call the domain method (the rules are checked there), save with one `SaveChanges`, return an id or a DTO, never an entity. The table, the five steps, and the batch exception are in the [module rules](../../standards/module-rules.md#layer-responsibilities-and-the-handler).
 
 ## Rules
 

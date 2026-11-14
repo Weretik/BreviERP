@@ -17,7 +17,7 @@ Before creating or changing an entity identifier, follow the [identifier strateg
 
 ## CQRS, Mediator, and code
 
-Organize Application by feature. Keep a command/query, handler, validator, and private DTOs together by scenario, one use case per folder (see the [module rules](module-rules.md#folder-structure-inside-a-module)). A handler only orders the steps (load, call the domain, save once, return an id or DTO); business rules live in Domain (see [Application structure](../architecture/layers/application-structure.md#command-handler-steps)). One Mediator handler owns one scenario; commands change state, while queries do not.
+Organize Application by feature. Keep a command/query, handler, validator, and private DTOs together by scenario, one use case per folder (see the [module rules](module-rules.md#folder-structure-inside-a-module)). A handler only orders the steps (load, call the domain, save once, return an id or DTO); business rules live in Domain (see the [module rules](module-rules.md#layer-responsibilities-and-the-handler)). One Mediator handler owns one scenario; commands change state, while queries do not.
 
 Pass `CancellationToken` through the entire execution flow. Keep cross-cutting concerns in pipeline behaviors; do not move business rules into those behaviors.
 

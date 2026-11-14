@@ -78,6 +78,28 @@ Folders follow the business, not the kind of class. The same applies to the whol
 - **Api.** Controllers are grouped by the same features as Application. One controller serves one audience (admin, public, mobile) of one feature.
 - A folder with eight or more production files is a signal to look for a sub-concept to split out, not a reason to create type folders.
 
+## Layer responsibilities and the handler
+
+| Where | Does | Example |
+| --- | --- | --- |
+| Handler (Application) | the order of steps | load, call the domain, save |
+| Aggregate (Domain) | the rules | no zero quantity, minimum order sum 500, a shipped order cannot be cancelled |
+| Infrastructure | how exactly data is stored and fetched | EF Core, the 1C HTTP client |
+| Api | HTTP | route, request model, status codes |
+
+A command handler follows five steps:
+
+1. Load the data it needs (aggregates through the module's ports, read models through `Contracts` of other modules).
+2. Check what needs outside data: the referenced product exists, a slug is free, a configured root category is excluded. Return `NotFound` / `Invalid` / `Conflict` here.
+3. Call the aggregate's method; the business rules are checked there and raise a domain error. The handler does not repeat or replace them (no `if (order.Status == Shipped) return Conflict` next to `order.Cancel()`); the pipeline maps a domain error to the response.
+4. Save everything with one `SaveChanges`, that is one transaction. A batch command that processes items independently (an import, a migration of old files) may save once per item and says so in its summary.
+5. Return a simple result: the new id, a status, or a DTO from the use-case folder, never a domain entity or value object.
+
+- **Rich domain.** Entities have private setters and change state only through methods that check their invariants; a rule that involves only one aggregate's own data lives in that aggregate, not in the handler. A rule that needs several aggregates of the same module goes to a domain service in `Domain/<Aggregate>/`, called by the handler.
+- **Queries** read through projections straight to DTOs (`Select`), never load aggregates to map them, and never call `SaveChanges`.
+- **Api** controllers send one Mediator request and map the `Result` to HTTP; they hold no rule, no query, and no domain type.
+- The architecture tests check that request result types and Api code use no Domain types and that Domain entities have no public setters.
+
 ## Test structure
 
 Tests mirror the code they check, so a test is found the same way as its code.
@@ -158,7 +180,8 @@ Existing code that does not follow these rules yet. Do not copy it into new code
 | `Catalog`, `Reference`, `Identity`, `Accounting` Domain | Type folders `Entities/`, `Enums/`, `Errors/`, `ValueObjects/`, `Constants/` | Stage 4 |
 | All Application projects | No `Commands/` and `Queries/` folders; `DTOs/`, `Validators/`, `Specifications/` type folders; separate `Public…` feature folders; `Contracts/` folders with DTOs and ports | Stage 5 |
 | All Application projects, one use case = one folder | 216 handlers named `…QueryHandler`/`…CommandHandler` instead of `<UseCase>Handler`; 124 of 366 validators in `Validators/` subfolders, 50 `DTOs/` and 43 `Specifications/` subfolders inside use cases; 16 handlers share a folder with another handler and 15 files hold more than one request; ports in 19 `Contracts/` folders (and `Identity.Application/Contracrts`) instead of `Abstractions/` | Stage 5 |
-| Handlers against the five steps (audit 2026-11-14, 423 handlers) | Two saves without one transaction: `CreateProductionOrder`, `CopyProductionOrder`, `SubmitSiteRequest`, `SendProductionOrderTelegram`, `ImportOldSiteCategories`, `LinkPurchasePayment`; `PreviewPpePrices` returns the Domain record `PpePriceCalculation`; 14 handlers over 150 lines (imports, `RepriceQuote`, `GetFinanceReport`, `BookBankStatement`, `TransferStock`) to check for business rules that belong in Domain. No handler sets entity properties directly; Domain types have no public setters | Stage 5, per module |
+| Handlers against the five steps (audit 2026-11-14, 423 handlers) | Two saves without one transaction: `CreateProductionOrder`, `CopyProductionOrder`, `SubmitSiteRequest`, `SendProductionOrderTelegram`, `ImportOldSiteCategories`, `LinkPurchasePayment`; `PreviewPpePrices` returns the Domain record `PpePriceCalculation`; 14 handlers over 150 lines (imports, `RepriceQuote`, `GetFinanceReport`, `BookBankStatement`, `TransferStock`) to check for business rules that belong in Domain. No handler sets entity properties directly; Domain types have no public setters; no query handler saves (two classes, `WorkshopSettingsHandler` and the timesheet handlers, serve a query and a command together and split in stage 5); `UploadFinanceAttachment` checks the record state before the aggregate call, to compare with the domain rule | Stage 5, per module |
+| Api using Domain types (handler rule: Api holds no domain type) | 29 Api files import a `*.Domain` namespace: Accounting 13, Catalog 7, Content 7, Ai 1, Identity 1 (request mappers and controllers using enums and value objects) | Stage 7 |
 | All Infrastructure projects | Flat `Configurations/` (`Congigurations/` in Catalog and Reference), `DataBase/`, `Repositories/`, `Seeders/`; external systems outside `Integrations/` | Stage 6 |
 | `Catalog.Api`, `Reference.Api`, `Identity.Api` | `Controllers/` and `Contracts/` instead of `Features/<Feature>/` | Stage 7 |
 | `Host.Seed/Jobs` | Job steps live in the host | Stage 8 |
