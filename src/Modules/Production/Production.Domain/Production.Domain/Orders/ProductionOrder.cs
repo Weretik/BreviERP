@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using System.Globalization;
 
 namespace Production.Domain.Orders;
@@ -23,7 +24,17 @@ public sealed class ProductionOrder
 
     private ProductionOrder() { }
 
-    public ProductionOrder(int number, OrderOrigin origin, OrderHeader header, ReportPriceTier? priceTier,
+    /// <summary>A new order «Нове»; the header and the number of items are checked as rules.</summary>
+    public static DomainResult<ProductionOrder> Create(int number, OrderOrigin origin, OrderHeader header,
+        ReportPriceTier? priceTier, IEnumerable<ProductionItem> items, string actorName, DateTimeOffset now)
+    {
+        var list = items.ToList();
+        var valid = DomainResult.Combine(CheckHeader(header),
+            DomainResult.Ensure(list.Count is > 0 and <= MaxItems, ProductionOrderErrors.ItemsCount));
+        return valid.IsFailure ? valid.Error! : new ProductionOrder(number, origin, header, priceTier, list, actorName, now);
+    }
+
+    private ProductionOrder(int number, OrderOrigin origin, OrderHeader header, ReportPriceTier? priceTier,
         IEnumerable<ProductionItem> items, string actorName, DateTimeOffset now)
     {
         Number = number;
@@ -39,7 +50,6 @@ public sealed class ProductionOrder
         Status = ProductionOrderStatus.New;
         ApplyHeader(header);
         _items.AddRange(items);
-        if (_items.Count is 0 or > MaxItems) throw new ArgumentException("An order needs from 1 to 100 items.", nameof(items));
         CreatedAt = now;
         CreatedByName = OrderText.Required(actorName, PersonMaxLength);
         UpdatedAt = now;
@@ -106,9 +116,12 @@ public sealed class ProductionOrder
     /// keep their source from the КП.
     /// </summary>
     /// <returns>False when nothing changed.</returns>
-    public bool Update(OrderHeader header, IReadOnlyDictionary<int, ItemUpdate> items, string actorName,
+    public DomainResult<bool> Update(OrderHeader header, IReadOnlyDictionary<int, ItemUpdate> items, string actorName,
         DateTimeOffset now)
     {
+        var valid = DomainResult.Combine([CheckHeader(header),
+            .. _items.Where(x => items.ContainsKey(x.Id)).Select(x => ProductionItem.Check(items[x.Id].Details))]);
+        if (valid.IsFailure) return valid.Error!;
         var before = _changes.Count;
         Track(null, null, "Клієнт", ClientName, OrderText.Required(header.ClientName, ClientMaxLength), actorName, now);
         Track(null, null, "Дата створення", Format(OrderDate), Format(header.OrderDate), actorName, now);
@@ -157,9 +170,10 @@ public sealed class ProductionOrder
     }
 
     /// <returns>False when the stages did not change.</returns>
-    public bool SetItemStages(int itemId, IEnumerable<ProductionStage> stages, string actorName, DateTimeOffset now)
+    public DomainResult<bool> SetItemStages(int itemId, IEnumerable<ProductionStage> stages, string actorName,
+        DateTimeOffset now)
     {
-        var item = Item(itemId);
+        if (FindItem(itemId) is not { } item) return ProductionOrderErrors.ItemNotInOrder();
         var before = ProductionStages.Describe(item.Stages);
         if (!item.SetStages(stages)) return false;
         _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Етапи", before,
@@ -175,12 +189,14 @@ public sealed class ProductionOrder
     /// «Відвантажити»: part of an item goes to the client. When the item is shipped in full, «Фактично відвантажено»
     /// is ticked for it.
     /// </summary>
-    public ProductionShipment Ship(int itemId, int quantity, DateOnly shippedOn, string? comment, string actorName,
-        DateTimeOffset now)
+    public DomainResult<ProductionShipment> Ship(int itemId, int quantity, DateOnly shippedOn, string? comment,
+        string actorName, DateTimeOffset now)
     {
-        var item = Item(itemId);
-        if (quantity > RemainingToShip(itemId))
-            throw new InvalidOperationException("The quantity is more than is left to ship.");
+        if (FindItem(itemId) is not { } item) return ProductionOrderErrors.ItemNotInOrder();
+        if (quantity is <= 0 or > ProductionItem.MaxQuantity) return ProductionOrderErrors.QuantityOutOfRange();
+        if (quantity > RemainingToShip(itemId)) return ProductionOrderErrors.TooMuchShipped();
+        var text = OrderText.Check(comment, ProductionShipment.CommentMaxLength, "comment");
+        if (text.IsFailure) return text.Error!;
         var shipment = new ProductionShipment(item.Id, quantity, shippedOn, comment, actorName, now);
         _shipments.Add(shipment);
         _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження", null,
@@ -192,39 +208,43 @@ public sealed class ProductionOrder
         return shipment;
     }
 
-    /// <returns>False when there is no such shipment.</returns>
-    public bool CancelShipment(int shipmentId, string actorName, DateTimeOffset now)
+    public DomainResult CancelShipment(int shipmentId, string actorName, DateTimeOffset now)
     {
         var shipment = _shipments.FirstOrDefault(x => x.Id == shipmentId);
-        if (shipment is null) return false;
+        if (shipment is null) return ProductionOrderErrors.ShipmentNotFound();
         _shipments.Remove(shipment);
         var item = Item(shipment.ItemId);
         _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження скасовано",
             $"{shipment.Quantity} шт., {Format(shipment.ShippedOn)}", null, actorName, now));
         Touch(now);
-        return true;
+        return DomainResult.Success();
     }
 
     /// <summary>«Закрити»: everything is shipped.</summary>
-    public void Close(string actorName, DateTimeOffset now)
+    public DomainResult Close(string actorName, DateTimeOffset now)
     {
-        if (Status != ProductionOrderStatus.New || !IsFullyShipped)
-            throw new InvalidOperationException("Only a new order shipped in full can be closed.");
+        if (Status != ProductionOrderStatus.New) return ProductionOrderErrors.NotNew();
+        if (!IsFullyShipped) return ProductionOrderErrors.NotFullyShipped();
         ChangeStatus(ProductionOrderStatus.Closed, null, actorName, now);
+        return DomainResult.Success();
     }
 
     /// <summary>«Скасувати» with a reason.</summary>
-    public void Cancel(string reason, string actorName, DateTimeOffset now)
+    public DomainResult Cancel(string reason, string actorName, DateTimeOffset now)
     {
-        if (Status != ProductionOrderStatus.New) throw new InvalidOperationException("Only a new order can be cancelled.");
+        if (Status != ProductionOrderStatus.New) return ProductionOrderErrors.NotNew();
+        var text = OrderText.Check(reason, CancelReasonMaxLength, "reason", required: true);
+        if (text.IsFailure) return text;
         ChangeStatus(ProductionOrderStatus.Cancelled, OrderText.Required(reason, CancelReasonMaxLength), actorName, now);
+        return DomainResult.Success();
     }
 
     /// <summary>«Повернути в роботу» (Admin): a closed or cancelled order becomes «Нове» again.</summary>
-    public void Reopen(string actorName, DateTimeOffset now)
+    public DomainResult Reopen(string actorName, DateTimeOffset now)
     {
-        if (Status == ProductionOrderStatus.New) throw new InvalidOperationException("The order is already open.");
+        if (Status == ProductionOrderStatus.New) return ProductionOrderErrors.AlreadyOpen();
         ChangeStatus(ProductionOrderStatus.New, null, actorName, now);
+        return DomainResult.Success();
     }
 
     /// <summary>A history line about an item (or the whole order when <paramref name="itemId"/> is null), such as a file.</summary>
@@ -237,8 +257,14 @@ public sealed class ProductionOrder
     public void Record(string field, string? after, string actorName, DateTimeOffset now) =>
         _changes.Add(new ProductionOrderChange(null, null, field, null, after, actorName, now));
 
+    private ProductionItem? FindItem(int itemId) => _items.FirstOrDefault(x => x.Id == itemId);
+
     private ProductionItem Item(int itemId) =>
-        _items.FirstOrDefault(x => x.Id == itemId) ?? throw new ArgumentException("No such item.", nameof(itemId));
+        FindItem(itemId) ?? throw new ArgumentException("No such item.", nameof(itemId));
+
+    private static DomainResult CheckHeader(OrderHeader header) => DomainResult.Combine(
+        OrderText.Check(header.ClientName, ClientMaxLength, "clientName", required: true),
+        OrderText.Check(header.Comment, CommentMaxLength, "comment"));
 
     private void ChangeStatus(ProductionOrderStatus status, string? reason, string actorName, DateTimeOffset now)
     {

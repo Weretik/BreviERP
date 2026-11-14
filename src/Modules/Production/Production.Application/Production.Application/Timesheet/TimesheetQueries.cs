@@ -136,8 +136,14 @@ public sealed class SaveTimesheetDayCommandHandler(IProductionDbContext db, IPro
             var name = employees[entry.EmployeeId].FullName;
             db.TimeChanges.Add(new WorkshopTimeChange(entry.EmployeeId, name, input.Date, row?.Minutes, entry.Minutes,
                 actorName, now));
-            if (row is null) db.TimeEntries.Add(new WorkshopTimeEntry(entry.EmployeeId, input.Date, entry.Minutes, actorName, now));
-            else row.Change(entry.Minutes, actorName, now);
+            if (row is null)
+            {
+                var created = WorkshopTimeEntry.Create(entry.EmployeeId, input.Date, entry.Minutes, actorName, now);
+                if (created.IsFailure) return created.Error!.ToResult<TimesheetDayResponse>();
+                db.TimeEntries.Add(created.Value);
+            }
+            else if (row.Change(entry.Minutes, actorName, now) is { IsFailure: true } changed)
+                return changed.Error!.ToResult<TimesheetDayResponse>();
         }
 
         await db.SaveChangesAsync(cancellationToken);

@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Errors;
+using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 
 namespace Production.Domain.Work;
@@ -38,12 +40,21 @@ public sealed class ProductionWork
 
     private ProductionWork() { }
 
-    public ProductionWork(WorkTarget target, WorkFacts facts, string actorName, DateTimeOffset now, string? legacyId = null)
+    public static DomainResult<ProductionWork> Create(WorkTarget target, WorkFacts facts, string actorName,
+        DateTimeOffset now, string? legacyId = null)
     {
-        if (facts.Quantity is <= 0 or > MaxQuantity) throw new ArgumentOutOfRangeException(nameof(facts));
-        if (facts.Rate <= 0) throw new ArgumentOutOfRangeException(nameof(facts), "A rate is needed.");
+        if (facts.Quantity is <= 0 or > MaxQuantity)
+            return Error.Validation("production.work_quantity", $"Кількість — від 1 до {MaxQuantity}.", "quantity");
+        if (facts.Rate <= 0)
+            return Error.Conflict("production.work_no_rate", "У позиції немає розцінки пошиття. Вкажіть її в картці позиції перед обліком роботи.");
         if (facts.OverPlan && !OverPlanReasons.IsKnown(facts.Reason))
-            throw new ArgumentException("Over-plan work needs a reason.", nameof(facts));
+            return Error.Validation("production.work_over_plan_reason", "Для роботи понад план оберіть причину.", "reason");
+        var comment = OrderText.Check(facts.Comment, CommentMaxLength, "comment");
+        return comment.IsFailure ? comment.Error! : new ProductionWork(target, facts, actorName, now, legacyId);
+    }
+
+    private ProductionWork(WorkTarget target, WorkFacts facts, string actorName, DateTimeOffset now, string? legacyId)
+    {
         OrderId = target.OrderId;
         ItemId = target.ItemId;
         EmployeeId = target.EmployeeId;
@@ -90,11 +101,14 @@ public sealed class ProductionWork
     /// <summary>Counts toward «пошито» or «покроєно» of the item.</summary>
     public bool CountsToPlan => !IsVoided && !OverPlan;
 
-    public void Void(string reason, string actorName, DateTimeOffset now)
+    public DomainResult Void(string reason, string actorName, DateTimeOffset now)
     {
-        if (IsVoided) throw new InvalidOperationException("The work is already cancelled.");
+        if (IsVoided) return Error.Conflict("production.work_already_voided", "Цей запис уже сторновано.");
+        var text = OrderText.Check(reason, ReasonMaxLength, "reason", required: true);
+        if (text.IsFailure) return text;
         VoidReason = OrderText.Required(reason, ReasonMaxLength);
         VoidedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         VoidedAt = now;
+        return DomainResult.Success();
     }
 }

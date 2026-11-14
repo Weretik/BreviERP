@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Errors;
+using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 
 namespace Production.Domain.Forecast;
@@ -25,13 +27,15 @@ public sealed class ForecastQueue
     public string? UpdatedByName { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
 
-    public void Set(IReadOnlyList<int> orderIds, string actorName, DateTimeOffset now)
+    public DomainResult Set(IReadOnlyList<int> orderIds, string actorName, DateTimeOffset now)
     {
         if (orderIds.Count > MaxOrders || orderIds.Distinct().Count() != orderIds.Count)
-            throw new ArgumentException("Order ids must be distinct.", nameof(orderIds));
+            return Error.Validation("production.forecast_queue",
+                $"У черзі до {MaxOrders} завдань, кожне — один раз.", "orderIds");
         OrderIds = [.. orderIds];
         UpdatedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         UpdatedAt = now;
         Version++;
+        return DomainResult.Success();
     }
 }

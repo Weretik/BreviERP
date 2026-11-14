@@ -192,7 +192,7 @@ public sealed class ProductionWorkHandlerTests
     private static ProductionTestHarness Workshop(out int employeeId)
     {
         var workshop = ProductionOrderHandlerTests.Workshop();
-        var employee = new WorkshopEmployee("Андреева", "Швачка", 1, workshop.Time.GetUtcNow());
+        var employee = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.Add(employee);
         workshop.Db.SaveChanges();
         employeeId = employee.Id;

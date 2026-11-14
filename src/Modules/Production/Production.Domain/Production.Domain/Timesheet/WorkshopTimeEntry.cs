@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Errors;
+using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 
 namespace Production.Domain.Timesheet;
@@ -14,12 +16,13 @@ public sealed class WorkshopTimeEntry
 
     private WorkshopTimeEntry() { }
 
-    public WorkshopTimeEntry(int employeeId, DateOnly workDate, int minutes, string actorName, DateTimeOffset now)
+    public static DomainResult<WorkshopTimeEntry> Create(int employeeId, DateOnly workDate, int minutes,
+        string actorName, DateTimeOffset now)
     {
-        EmployeeId = employeeId;
-        WorkDate = workDate;
-        Set(minutes, actorName, now);
-        Version = 1;
+        if (!IsValid(minutes)) return MinutesInvalid();
+        var entry = new WorkshopTimeEntry { EmployeeId = employeeId, WorkDate = workDate, Version = 1 };
+        entry.Set(minutes, actorName, now);
+        return entry;
     }
 
     public int Id { get; private set; }
@@ -35,11 +38,16 @@ public sealed class WorkshopTimeEntry
 
     public static bool IsValid(int minutes) => minutes is >= 0 and <= MaxMinutes && minutes % Step == 0;
 
-    public void Change(int minutes, string actorName, DateTimeOffset now)
+    public DomainResult Change(int minutes, string actorName, DateTimeOffset now)
     {
+        if (!IsValid(minutes)) return MinutesInvalid();
         Set(minutes, actorName, now);
         Version++;
+        return DomainResult.Success();
     }
+
+    private static Error MinutesInvalid() =>
+        Error.Validation("production.time_minutes", "Час — від 0 до 24 годин, кроком 15 хвилин.", "minutes");
 
     private void Set(int minutes, string actorName, DateTimeOffset now)
     {

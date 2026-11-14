@@ -169,8 +169,8 @@ public sealed class ProductionPayrollHandlerTests
     private static ProductionTestHarness Workshop(out int seamstress, out int master)
     {
         var workshop = ProductionOrderHandlerTests.Workshop();
-        var a = new WorkshopEmployee("Андреева", "Швачка", 1, workshop.Time.GetUtcNow());
-        var b = new WorkshopEmployee("Витковська", "Майстер цеху", 1, workshop.Time.GetUtcNow());
+        var a = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
+        var b = WorkshopEmployee.Create("Витковська", "Майстер цеху", 1, workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.AddRange(a, b);
         workshop.Db.SaveChanges();
         seamstress = a.Id;

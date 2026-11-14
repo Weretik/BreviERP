@@ -81,7 +81,7 @@ public sealed class SetPayrollEmbroideryCommandHandler(IProductionDbContext db, 
             if (command.Input.EmployeeId is { } id &&
                 !await db.Employees.AnyAsync(x => x.Id == id && x.IsActive, cancellationToken))
                 return Result.Invalid(new ValidationError("Input.EmployeeId", PayrollMessages.ActiveEmployeeNotFound));
-            change.Period.SetEmbroidery(command.Input.Stitches, command.Input.EmployeeId, change.ActorName, change.Now);
-            return null;
+            return change.Period.SetEmbroidery(command.Input.Stitches, command.Input.EmployeeId, change.ActorName,
+                change.Now).FailureOrNull();
         }, cancellationToken);
 }

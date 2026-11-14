@@ -1,6 +1,5 @@
 using Production.Application.Abstractions;
 using Production.Application.Contracts;
-using Production.Domain;
 using Production.Domain.Staff;
 
 namespace Production.Application.Staff.ImportStaff;
@@ -17,19 +16,22 @@ public sealed class ImportWorkshopStaffCommandHandler(IProductionDbContext db, T
         var lines = new List<WorkshopStaffImportLine>(command.Rows.Count);
         foreach (var row in command.Rows)
         {
-            var name = ProductionText.Clean(row.FullName, WorkshopEmployee.FullNameMaxLength);
-            var position = ProductionText.Clean(row.Position, WorkshopEmployee.PositionMaxLength);
-            if (!active.TryGetValue(ProductionText.Key(name), out var employee))
+            var checkedRow = WorkshopEmployee.Create(row.FullName, row.Position, command.UserId, now);
+            if (checkedRow.IsFailure) return checkedRow.Error!.ToResult<WorkshopStaffImportResult>();
+            var created = checkedRow.Value;
+            if (!active.TryGetValue(created.NameKey, out var employee))
             {
-                if (!command.DryRun) db.Employees.Add(new WorkshopEmployee(name, position, command.UserId, now));
-                lines.Add(new(name, position, "created"));
+                if (!command.DryRun) db.Employees.Add(created);
+                lines.Add(new(created.FullName, created.Position, "created"));
             }
-            else if (employee.Position != position)
+            else if (employee.Position != created.Position)
             {
-                if (!command.DryRun) employee.Update(employee.FullName, position, command.UserId, now);
-                lines.Add(new(employee.FullName, position, "updated"));
+                if (!command.DryRun
+                    && employee.Update(employee.FullName, created.Position, command.UserId, now) is { IsFailure: true } bad)
+                    return bad.Error!.ToResult<WorkshopStaffImportResult>();
+                lines.Add(new(employee.FullName, created.Position, "updated"));
             }
-            else lines.Add(new(employee.FullName, position, "unchanged"));
+            else lines.Add(new(employee.FullName, created.Position, "unchanged"));
         }
 
         if (!command.DryRun) await db.SaveChangesAsync(cancellationToken);

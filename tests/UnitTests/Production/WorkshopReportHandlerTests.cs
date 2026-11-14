@@ -148,8 +148,8 @@ public sealed class WorkshopReportHandlerTests
         var workshop = ProductionOrderHandlerTests.Workshop();
         workshop.Fabrics.Fabrics.Clear();
         workshop.Fabrics.Fabrics.Add(new(23, "FAB-023", "Тканина «Грета»", 120m));
-        var a = new WorkshopEmployee("Андреева", "Швачка", 1, workshop.Time.GetUtcNow());
-        var b = new WorkshopEmployee("Витковська", "Майстер цеху", 1, workshop.Time.GetUtcNow());
+        var a = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
+        var b = WorkshopEmployee.Create("Витковська", "Майстер цеху", 1, workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.AddRange(a, b);
         workshop.Db.SaveChanges();
         seamstress = a.Id;

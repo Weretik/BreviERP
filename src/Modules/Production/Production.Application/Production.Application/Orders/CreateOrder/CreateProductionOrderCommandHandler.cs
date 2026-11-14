@@ -55,15 +55,19 @@ public sealed class CreateProductionOrderCommandHandler(
                 resolved.ModelCode, quoteItem.Name, option.FabricId, variant.FabricCode, variant.FabricName,
                 variant.SewingRate, variant.Price(tier));
             var colors = 1 + details.AdditionalColors.Count(x => !string.IsNullOrWhiteSpace(x));
-            items.Add(new ProductionItem(items.Count + 1, source, details,
-                FabricPlan.Meters(resolved.Norm, colors, details.Quantity)));
+            var item = ProductionItem.Create(items.Count + 1, source, details,
+                FabricPlan.Meters(resolved.Norm, colors, details.Quantity));
+            if (item.IsFailure) return item.Error!.ToResult<ProductionOrderResponse>();
+            items.Add(item.Value);
         }
 
         var now = clock.GetUtcNow();
-        var order = new ProductionOrder(await OrderNumbers.NextAsync(db, cancellationToken),
+        var created = ProductionOrder.Create(await OrderNumbers.NextAsync(db, cancellationToken),
             new OrderOrigin(quote.Id, quote.Number, quote.CustomerId, quote.ResponsibleUserId, quote.ResponsibleName,
                 input.RequestId),
             new OrderHeader(input.ClientName, input.OrderDate, input.Comment), tier, items, actorName, now);
+        if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();
+        var order = created.Value;
         order.Record("Створено", $"З КП {quote.Number}", actorName, now);
         db.Orders.Add(order);
         await db.SaveChangesAsync(cancellationToken);

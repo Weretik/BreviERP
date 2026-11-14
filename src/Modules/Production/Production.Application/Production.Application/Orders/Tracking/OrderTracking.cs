@@ -13,7 +13,7 @@ public sealed class OrderTracking(IProductionDbContext db, IProductionStaffReade
     TimeProvider clock)
 {
     public async Task<Result<ProductionOrderResponse>> ChangeAsync(ProductionActor actor, int orderId, int version,
-        Func<ProductionOrder, string?> check, Func<ProductionOrder, string, DateTimeOffset, Result?> apply,
+        Func<ProductionOrder, string?> check, Func<ProductionOrder, string, DateTimeOffset, DomainResult> apply,
         CancellationToken cancellationToken)
     {
         var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == orderId, cancellationToken);
@@ -23,11 +23,8 @@ public sealed class OrderTracking(IProductionDbContext db, IProductionStaffReade
         var actorName = await OrderActors.NameAsync(staff, actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.ActorUnknown);
 
-        var failed = apply(order, actorName, clock.GetUtcNow());
-        if (failed is not null)
-            return failed.Status == ResultStatus.NotFound
-                ? Result<ProductionOrderResponse>.NotFound([.. failed.Errors])
-                : Result<ProductionOrderResponse>.Conflict([.. failed.Errors]);
+        var applied = apply(order, actorName, clock.GetUtcNow());
+        if (applied.IsFailure) return applied.Error!.ToResult<ProductionOrderResponse>();
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(await cards.BuildAsync(order, actor, cancellationToken));
     }

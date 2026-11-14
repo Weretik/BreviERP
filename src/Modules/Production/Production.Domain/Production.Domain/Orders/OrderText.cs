@@ -1,8 +1,21 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Production.Domain.Orders;
 
-/// <summary>Texts of an order: trimmed; empty becomes null; too long is a programming error (validators stop it).</summary>
+/// <summary>
+/// Texts of an order: trimmed; empty becomes null. <see cref="Check"/> reports a missing or too long text as a rule;
+/// <see cref="Optional"/> and <see cref="Required"/> then normalize and only guard values already checked.
+/// </summary>
 public static class OrderText
 {
+    public static DomainResult Check(string? value, int maxLength, string field, bool required = false)
+    {
+        var text = value?.Trim();
+        if (string.IsNullOrEmpty(text))
+            return required ? ProductionTextErrors.Required(field) : DomainResult.Success();
+        return text.Length > maxLength ? ProductionTextErrors.TooLong(field, maxLength) : DomainResult.Success();
+    }
+
     public static string? Optional(string? value, int maxLength)
     {
         var text = value?.Trim();

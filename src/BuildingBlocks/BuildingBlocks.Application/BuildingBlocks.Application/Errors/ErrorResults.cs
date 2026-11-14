@@ -49,6 +49,13 @@ public static class ErrorResults
         return result.IsSuccess ? Result.Success() : result.Error!.ToResult();
     }
 
+    /// <summary>The failure of <paramref name="result"/>, or null on success (steps that return a refusal or nothing).</summary>
+    public static Result? FailureOrNull(this DomainResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        return result.IsSuccess ? null : result.Error!.ToResult();
+    }
+
     /// <summary>The failure of <paramref name="result"/> as a result of another value type.</summary>
     public static Result<T> ToResult<T>(this DomainResult result)
     {

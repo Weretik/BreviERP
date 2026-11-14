@@ -24,7 +24,7 @@ public sealed class PayrollChanges(IProductionDbContext db, IProductionStaffRead
         PayrollMonths.TryParse(monthText, out var month);
         if (month > PayrollMonths.Current(clock)) return Result<PayrollMonthResponse>.Conflict(PayrollMessages.FutureMonth);
         var period = await PayrollMonths.TrackAsync(db, month, cancellationToken);
-        if (period.IsClosed) return Result<PayrollMonthResponse>.Conflict(PayrollMessages.Closed);
+        if (period.IsClosed) return PayrollErrors.MonthClosed().ToResult<PayrollMonthResponse>();
         var actorName = await OrderActors.NameAsync(staff, actor.UserId, cancellationToken);
         if (actorName is null) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotSee);
         var refused = await change(new PayrollChange(period, actorName, clock.GetUtcNow()));

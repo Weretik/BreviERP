@@ -1,3 +1,4 @@
+using Production.Domain.Payroll;
 using Production.Application.Abstractions;
 using Production.Application.Contracts;
 using Production.Application.Orders;
@@ -42,9 +43,8 @@ public sealed class ClosePayrollMonthCommandHandler(PayrollChanges changes, Payr
             };
             var report = await reports.CalculateAsync(change.Period.Month, cancellationToken);
             report = report with { ClosedMonths = [report.From], OpenMonths = [] };
-            change.Period.Close(PayrollSheets.Serialize(closed), WorkshopReports.Serialize(report), change.ActorName,
-                change.Now);
-            return null;
+            return change.Period.Close(PayrollSheets.Serialize(closed), WorkshopReports.Serialize(report),
+                change.ActorName, change.Now).FailureOrNull();
         }, cancellationToken);
 }
 
@@ -70,10 +70,11 @@ public sealed class ReopenPayrollMonthCommandHandler(IProductionDbContext db, IP
         if (!command.Actor.CanPay) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotPay);
         PayrollMonths.TryParse(command.Month, out var month);
         var period = await db.PayrollMonths.SingleOrDefaultAsync(x => x.Month == month, cancellationToken);
-        if (period is not { IsClosed: true }) return Result<PayrollMonthResponse>.Conflict(PayrollMessages.NotClosed);
+        if (period is null) return PayrollErrors.MonthNotClosed().ToResult<PayrollMonthResponse>();
         var actorName = await OrderActors.NameAsync(staff, command.Actor.UserId, cancellationToken);
         if (actorName is null) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotPay);
-        period.Reopen(actorName, clock.GetUtcNow());
+        var reopened = period.Reopen(actorName, clock.GetUtcNow());
+        if (reopened.IsFailure) return reopened.Error!.ToResult<PayrollMonthResponse>();
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(await changes.ReadAsync(command.Actor, month, cancellationToken));
     }

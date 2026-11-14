@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 
 namespace Production.Domain.Payroll;
@@ -37,38 +38,36 @@ public sealed class PayrollMonth
 
     public bool IsClosed => ClosedAt is not null;
 
-    public void SetEmbroidery(int stitches, int? employeeId, string actorName, DateTimeOffset now)
+    public DomainResult SetEmbroidery(int stitches, int? employeeId, string actorName, DateTimeOffset now)
     {
-        EnsureOpen();
-        if (stitches is < 0 or > MaxStitches) throw new ArgumentOutOfRangeException(nameof(stitches));
+        if (IsClosed) return PayrollErrors.MonthClosed();
+        if (stitches is < 0 or > MaxStitches) return PayrollErrors.StitchesOutOfRange();
         Stitches = stitches;
         EmbroideryEmployeeId = employeeId;
         Touch(actorName, now);
+        return DomainResult.Success();
     }
 
-    public void Close(string snapshot, string reportSnapshot, string actorName, DateTimeOffset now)
+    public DomainResult Close(string snapshot, string reportSnapshot, string actorName, DateTimeOffset now)
     {
-        EnsureOpen();
+        if (IsClosed) return PayrollErrors.MonthClosed();
         Snapshot = snapshot;
         ReportSnapshot = reportSnapshot;
         ClosedAt = now;
         ClosedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         Touch(actorName, now);
+        return DomainResult.Success();
     }
 
-    public void Reopen(string actorName, DateTimeOffset now)
+    public DomainResult Reopen(string actorName, DateTimeOffset now)
     {
-        if (!IsClosed) throw new InvalidOperationException("The month is open.");
+        if (!IsClosed) return PayrollErrors.MonthNotClosed();
         Snapshot = null;
         ReportSnapshot = null;
         ClosedAt = null;
         ClosedByName = null;
         Touch(actorName, now);
-    }
-
-    private void EnsureOpen()
-    {
-        if (IsClosed) throw new InvalidOperationException("The month is closed.");
+        return DomainResult.Success();
     }
 
     private void Touch(string actorName, DateTimeOffset now)

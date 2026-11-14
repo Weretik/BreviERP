@@ -47,9 +47,10 @@ public sealed class UpdateProductionOrderCommandHandler(IProductionDbContext db,
             return new ItemUpdate(details, plan, actor.SeesSewingRate,
                 x.SewingRate is { } rate ? decimal.Round(rate, 2) : null);
         });
-        if (order.Update(new OrderHeader(input.ClientName, input.OrderDate, input.Comment), updates, actorName,
-                clock.GetUtcNow()))
-            await db.SaveChangesAsync(cancellationToken);
+        var updated = order.Update(new OrderHeader(input.ClientName, input.OrderDate, input.Comment), updates, actorName,
+            clock.GetUtcNow());
+        if (updated.IsFailure) return updated.Error!.ToResult<ProductionOrderResponse>();
+        if (updated.Value) await db.SaveChangesAsync(cancellationToken);
         return Result.Success(await cards.BuildAsync(order, actor, cancellationToken));
     }
 }

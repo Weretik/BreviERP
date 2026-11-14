@@ -55,7 +55,8 @@ public sealed class SendProductionOrderTelegramCommandHandler(
                 : OrderMessages.CannotSend);
 
         var chatId = settings.TelegramChatId!.Value;
-        delivery.Begin(chatId, settings.TelegramThreadId, actorName);
+        var begun = delivery.Begin(chatId, settings.TelegramThreadId, actorName);
+        if (begun.IsFailure) return begun.Error!.ToResult<ProductionOrderResponse>();
         try
         {
             // The «Надсилається» mark is saved first: a second press then finds it and does not send again.

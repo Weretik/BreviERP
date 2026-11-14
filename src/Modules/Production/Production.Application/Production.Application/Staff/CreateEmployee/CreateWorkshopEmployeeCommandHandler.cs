@@ -13,8 +13,10 @@ public sealed class CreateWorkshopEmployeeCommandHandler(IProductionDbContext db
         if (await EmployeeLookup.ActiveNameTakenAsync(db, command.Input.FullName, null, cancellationToken))
             return Result<WorkshopEmployeeResponse>.Conflict(StaffMessages.DuplicateName);
 
-        var employee = new WorkshopEmployee(command.Input.FullName, command.Input.Position, command.UserId,
+        var created = WorkshopEmployee.Create(command.Input.FullName, command.Input.Position, command.UserId,
             clock.GetUtcNow());
+        if (created.IsFailure) return created.Error!.ToResult<WorkshopEmployeeResponse>();
+        var employee = created.Value;
         db.Employees.Add(employee);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(employee.ToResponse());

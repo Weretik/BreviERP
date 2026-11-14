@@ -38,13 +38,8 @@ public sealed class CreateProductionShipmentCommandHandler(OrderTracking trackin
         return await tracking.ChangeAsync(command.Actor, command.OrderId, input.Version,
             order => command.Actor.CanTrack(order) ? null : OrderMessages.CannotTrack,
             (order, actorName, now) =>
-            {
-                if (order.Items.All(x => x.Id != command.ItemId)) return Result.NotFound(OrderMessages.ItemNotInOrder);
-                if (input.Quantity > order.RemainingToShip(command.ItemId))
-                    return Result.Conflict(OrderMessages.TooMuchShipped);
-                order.Ship(command.ItemId, input.Quantity, input.ShippedOn, input.Comment, actorName, now);
-                return null;
-            }, cancellationToken);
+                order.Ship(command.ItemId, input.Quantity, input.ShippedOn, input.Comment, actorName, now).WithoutValue(),
+            cancellationToken);
     }
 }
 
@@ -70,8 +65,6 @@ public sealed class CancelProductionShipmentCommandHandler(OrderTracking trackin
         CancellationToken cancellationToken) =>
         await tracking.ChangeAsync(command.Actor, command.OrderId, command.Version,
             order => command.Actor.CanTrack(order) ? null : OrderMessages.CannotTrack,
-            (order, actorName, now) => order.CancelShipment(command.ShipmentId, actorName, now)
-                ? null
-                : Result.NotFound(OrderMessages.ShipmentNotFound),
+            (order, actorName, now) => order.CancelShipment(command.ShipmentId, actorName, now),
             cancellationToken);
 }
