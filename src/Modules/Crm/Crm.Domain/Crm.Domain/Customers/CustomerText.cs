@@ -1,18 +1,21 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Crm.Domain.Customers;
 
 public static class CustomerText
 {
-    public static string Required(string? value, int max, string field)
+    public static DomainResult<string> Required(string? value, int max, string field)
     {
         var text = Optional(value, max, field);
-        return text ?? throw new CustomerValidationException($"{field}: required");
+        if (text.IsFailure) return text.Error!;
+        return text.Value is { } filled ? filled : CustomerErrors.Required(field);
     }
 
-    public static string? Optional(string? value, int max, string field)
+    public static DomainResult<string?> Optional(string? value, int max, string field)
     {
         var text = value?.Trim();
-        if (string.IsNullOrEmpty(text)) return null;
-        if (text.Length > max) throw new CustomerValidationException($"{field}: too_long");
+        if (string.IsNullOrEmpty(text)) return DomainResult<string?>.Success(null);
+        if (text.Length > max) return CustomerErrors.TooLong(field, max);
         return text;
     }
 

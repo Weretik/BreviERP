@@ -26,9 +26,10 @@ public sealed class CreateQuoteIntroductionCommandHandler(
         {
             var items = await builder.BuildAsync(introduction, input.Pages, [], author, now, cancellationToken);
             if (!items.IsSuccess) return items.Map(_ => default(Quote)!);
-            var quote = new Quote(number, QuoteKind.Introduction, author, input.ToHeader(), items.Value, now);
-            quote.SetIntroduction(introduction);
-            return Result.Success(quote);
+            var created = Quote.Create(number, QuoteKind.Introduction, author, input.ToHeader(), items.Value, now);
+            if (created.IsFailure) return created.Error!.ToResult<Quote>();
+            var introduced = created.Value.SetIntroduction(introduction);
+            return introduced.IsSuccess ? Result.Success(created.Value) : introduced.Error!.ToResult<Quote>();
         }, cancellationToken);
         return added.Map(quote => quote.ToResponse());
     }

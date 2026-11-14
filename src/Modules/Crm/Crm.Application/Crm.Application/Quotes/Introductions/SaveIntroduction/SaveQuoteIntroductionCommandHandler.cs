@@ -30,8 +30,10 @@ public sealed class SaveQuoteIntroductionCommandHandler(
         var items = await builder.BuildAsync(introduction, input.Pages, quote.Items, actor, now, cancellationToken);
         if (!items.IsSuccess) return items.Map(_ => default(QuoteResponse)!);
 
-        quote.Update(input.ToHeader(), items.Value, now);
-        quote.SetIntroduction(introduction);
+        var updated = quote.Update(input.ToHeader(), items.Value, now);
+        if (updated.IsFailure) return updated.Error!.ToResult<QuoteResponse>();
+        var introduced = quote.SetIntroduction(introduction);
+        if (introduced.IsFailure) return introduced.Error!.ToResult<QuoteResponse>();
         quote.Record(QuoteEventKind.Saved, actor, null, now);
         try
         {

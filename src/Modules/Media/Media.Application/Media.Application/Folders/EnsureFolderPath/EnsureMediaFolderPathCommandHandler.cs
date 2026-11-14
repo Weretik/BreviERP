@@ -12,13 +12,15 @@ public sealed class EnsureMediaFolderPathCommandHandler(IMediaDbContext db, Time
         int? parentId = null;
         foreach (var raw in command.Names)
         {
-            var name = MediaNames.Normalize(raw, MediaFolder.NameMaxLength);
+            var normalized = MediaNames.Normalize(raw, MediaFolder.NameMaxLength);
+            if (normalized.IsFailure) return normalized.Error!.ToResult<int>();
+            var name = normalized.Value;
             // Siblings are compared in memory: folders are few, and Cyrillic case must match on every database.
             var siblings = await db.Folders.Where(x => x.ParentId == parentId).ToListAsync(cancellationToken);
             var existing = siblings.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
             if (existing is null)
             {
-                existing = new MediaFolder(name, parentId, clock.GetUtcNow());
+                existing = MediaFolder.Create(name, parentId, clock.GetUtcNow()).Value;
                 db.Folders.Add(existing);
                 await db.SaveChangesAsync(cancellationToken);
             }

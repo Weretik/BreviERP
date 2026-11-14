@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Production.Domain.Orders;
 
 /// <summary>
@@ -20,7 +22,31 @@ public sealed class ProductionItem
 
     private ProductionItem() { }
 
-    public ProductionItem(int position, ItemSource source, ItemDetails details, decimal? plannedFabricMeters)
+    /// <summary>A new item; the details are the manager's input and are checked as rules.</summary>
+    public static DomainResult<ProductionItem> Create(int position, ItemSource source, ItemDetails details,
+        decimal? plannedFabricMeters)
+    {
+        var valid = Check(details);
+        return valid.IsFailure ? valid.Error! : new ProductionItem(position, source, details, plannedFabricMeters);
+    }
+
+    /// <summary>The first broken rule of the details a manager typed, or success.</summary>
+    public static DomainResult Check(ItemDetails details)
+    {
+        if (details.Quantity is <= 0 or > MaxQuantity) return ProductionOrderErrors.QuantityOutOfRange();
+        if (details.AdditionalColors.Count(x => !string.IsNullOrWhiteSpace(x)) > MaxAdditionalColors)
+            return ProductionOrderErrors.TooManyColors();
+        if (details.Applications.Count > MaxApplications) return ProductionOrderErrors.TooManyApplications();
+        return DomainResult.Combine(
+            OrderText.Check(details.MainColor, ColorMaxLength, "mainColor", required: true),
+            DomainResult.Combine(details.AdditionalColors
+                .Select(x => OrderText.Check(x, ColorMaxLength, "additionalColors")).ToArray()),
+            OrderText.Check(details.SizesText, LongTextMaxLength, "sizesText"),
+            OrderText.Check(details.TechnicalChanges, LongTextMaxLength, "technicalChanges"),
+            OrderText.Check(details.Comment, LongTextMaxLength, "comment"));
+    }
+
+    private ProductionItem(int position, ItemSource source, ItemDetails details, decimal? plannedFabricMeters)
     {
         Position = position;
         QuoteItemId = source.QuoteItemId;
@@ -93,7 +119,8 @@ public sealed class ProductionItem
     public ItemSource Source => new(QuoteItemId, QuoteOptionId, ProductId, ArticleId, ModelCode, ModelName, FabricId,
         FabricCode, FabricName, SewingRate, ReportUnitPrice);
 
-    public void Update(ItemDetails details, decimal? plannedFabricMeters)
+    /// <summary>The caller checked <paramref name="details"/> with <see cref="Check"/>.</summary>
+    internal void Update(ItemDetails details, decimal? plannedFabricMeters)
     {
         Apply(details);
         PlannedFabricMeters = plannedFabricMeters;

@@ -10,7 +10,7 @@ public sealed class PurchaseSourceRulesTests
     private static string Sha(string text) => Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
 
     private static NormalizedSourceRow Normalize(string?[] row, int rowNumber = 2) =>
-        SourceRowNormalizer.Normalize(row, rowNumber, FakeSheetReader.SpreadsheetId, FakeSheetReader.SheetId)!;
+        SourceRowNormalizer.Normalize(row, rowNumber, FakeSheetReader.SpreadsheetId, FakeSheetReader.SheetId).Value!;
 
     [Test]
     public void IdsFollowTheCalculatorFormulas()
@@ -73,8 +73,8 @@ public sealed class PurchaseSourceRulesTests
     [Test]
     public void EmptyRowsAreSkippedAndRowsWithoutIdentityAreRefused()
     {
-        Assert.That(SourceRowNormalizer.Normalize(["", " ", null], 5, "s", 1), Is.Null);
-        var error = Assert.Throws<PurchaseSourceException>(() => Normalize(SheetRow.Of("", chatId: "-1"), 7));
+        Assert.That(SourceRowNormalizer.Normalize(["", " ", null], 5, "s", 1).Value, Is.Null);
+        var error = SourceRowNormalizer.Normalize(SheetRow.Of("", chatId: "-1"), 7, "s", 1).Error;
         Assert.That(error!.Message, Does.Contain("Рядок 7"));
     }
 
@@ -92,7 +92,7 @@ public sealed class PurchaseSourceRulesTests
     public void TheSheetIsCheckedAsAWhole()
     {
         var rows = new[] { Normalize(SheetRow.Of("1"), 2), Normalize(SheetRow.Of("1", messageId: "11"), 3) };
-        Assert.That(Assert.Throws<PurchaseSourceException>(() => PurchaseSourceSnapshot.Create(rows))!.Message,
+        Assert.That(PurchaseSourceSnapshot.Create(rows).Error!.Message,
             Does.Contain("UID 1 повторюється в рядках 2, 3"));
 
         var marks = new[]
@@ -100,7 +100,7 @@ public sealed class PurchaseSourceRulesTests
             Normalize(SheetRow.Of("1", status: "СПЛАЧЕНО"), 2),
             Normalize(SheetRow.Of("2", status: ""), 3),
         };
-        Assert.That(Assert.Throws<PurchaseSourceException>(() => PurchaseSourceSnapshot.Create(marks))!.Message,
+        Assert.That(PurchaseSourceSnapshot.Create(marks).Error!.Message,
             Does.Contain("різні Status"));
     }
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using System.Text.RegularExpressions;
 
 namespace Content.Domain.SiteCompany;
@@ -69,25 +70,42 @@ public sealed partial class SiteCompanyInfo
 
     public string UpdatedBy { get; private set; } = null!;
 
-    public void Replace(string phone, string email, SiteText city, SiteText street, string mapQuery,
+    public DomainResult Replace(string phone, string email, SiteText city, SiteText street, string mapQuery,
         SiteSchedule schedule, IReadOnlyList<SiteManager> managers, SiteBankDetails bankDetails, SiteSocials socials,
         string updatedBy, DateTimeOffset now)
     {
-        Phone = FormatPhone(phone) ?? throw new ArgumentException("Invalid phone.");
-        Email = Clean(email) ?? throw new ArgumentException("Email is required.");
+        var formattedPhone = FormatPhone(phone);
+        if (formattedPhone is null) return SiteCompanyErrors.InvalidPhone("Phone");
+        var cleanEmail = Clean(email);
+        if (cleanEmail is null) return SiteCompanyErrors.EmailRequired();
+        var cleanMapQuery = Clean(mapQuery);
+        if (cleanMapQuery is null) return SiteCompanyErrors.MapQueryRequired();
+        var iban = FormatIban(bankDetails.Iban);
+        if (iban is null) return SiteCompanyErrors.InvalidIban();
+        var cleanManagers = new List<SiteManager>(managers.Count);
+        for (var i = 0; i < managers.Count; i++)
+        {
+            var m = managers[i];
+            var phones = m.Phones.Select(FormatPhone).ToArray();
+            if (phones.Any(p => p is null)) return SiteCompanyErrors.InvalidPhone($"Managers[{i}].Phones");
+            cleanManagers.Add(new SiteManager(Clean(m.Name), Clean(m.PhotoUrl), phones.Select(p => p!).ToArray(),
+                Clean(m.Email)));
+        }
+
+        Phone = formattedPhone;
+        Email = cleanEmail;
         City = Clean(city);
         Street = Clean(street);
-        MapQuery = Clean(mapQuery) ?? throw new ArgumentException("Map query is required.");
+        MapQuery = cleanMapQuery;
         Schedule = new SiteSchedule(schedule.Days.Distinct().Order().ToArray(), schedule.Opens.Trim(), schedule.Closes.Trim());
-        Managers = managers.Select(m => new SiteManager(Clean(m.Name), Clean(m.PhotoUrl),
-            m.Phones.Select(p => FormatPhone(p) ?? throw new ArgumentException("Invalid phone.")).ToArray(),
-            Clean(m.Email))).ToArray();
-        BankDetails = new SiteBankDetails(Clean(bankDetails.Recipient), Digits(bankDetails.Edrpou),
-            FormatIban(bankDetails.Iban) ?? throw new ArgumentException("Invalid IBAN."), Clean(bankDetails.Bank));
+        Managers = cleanManagers;
+        BankDetails = new SiteBankDetails(Clean(bankDetails.Recipient), Digits(bankDetails.Edrpou), iban,
+            Clean(bankDetails.Bank));
         Socials = new SiteSocials(Clean(socials.Instagram), Clean(socials.Youtube), Clean(socials.Facebook));
         Revision++;
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
+        return DomainResult.Success();
     }
 
     public static string? Clean(string? value) =>

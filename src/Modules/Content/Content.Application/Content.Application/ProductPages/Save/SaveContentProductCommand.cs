@@ -109,19 +109,25 @@ public sealed class SaveContentProductCommandHandler(IContentDbContext db, ICont
         var pageOldSlug = page?.Slug;
         if (page is null)
         {
-            page = new ProductPage(product.Id, slug, command.UpdatedBy, now);
+            var created = ProductPage.Create(product.Id, slug, command.UpdatedBy, now);
+            if (created.IsFailure) return created.Error!.ToResult<ContentProductResponse>();
+            page = created.Value;
             db.ProductPages.Add(page);
         }
 
         var texts = new Dictionary<string, ProductPageTextInput>();
         if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
         if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
-        page.Replace(slug, command.ShowOnSite, texts, command.UpdatedBy, now);
+        var replaced = page.Replace(slug, command.ShowOnSite, texts, command.UpdatedBy, now);
+        if (replaced.IsFailure) return replaced.Error!.ToResult<ContentProductResponse>();
 
         // The old address keeps working: a 301 to the new one (CNT-005 R-05).
         if (pageOldSlug is not null && pageOldSlug != slug)
-            await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Products, pageOldSlug, slug, command.UpdatedBy,
-                now, cancellationToken);
+        {
+            var redirected = await SiteRedirectWriter.SlugChangedAsync(db, SiteRedirectWriter.Products, pageOldSlug, slug,
+                command.UpdatedBy, now, cancellationToken);
+            if (redirected.IsFailure) return redirected.Error!.ToResult<ContentProductResponse>();
+        }
 
         try
         {

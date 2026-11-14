@@ -40,12 +40,10 @@ public sealed class SaveEmbroideryCalculationCommandHandler(
         var priced = await EmbroideryPricing.PriceAsync(store, stitchRate, input, cancellationToken);
         if (priced.Calculation.Result is not { } result || priced.Snapshot is not { } snapshot)
             return Result.Invalid(new ValidationError(priced.Calculation.Error!));
-        var category = command.Input.Category.Trim();
-        if (result.Prices.All(x => x.Name != category))
-            return Result.Invalid(new ValidationError(EmbroideryMessages.CategoryNotFound));
-
-        var saved = new EmbroiderySavedCalculation(command.Input.Name, command.Input.CustomerPublicId, customerName,
-            input, snapshot, result, actor.UserId, actor.Name, clock.GetUtcNow(), category);
+        var created = EmbroiderySavedCalculation.Create(command.Input.Name, command.Input.CustomerPublicId, customerName,
+            input, snapshot, result, actor.UserId, actor.Name, clock.GetUtcNow(), command.Input.Category.Trim());
+        if (created.IsFailure) return created.Error!.ToResult<EmbroiderySavedCalculationResponse>();
+        var saved = created.Value;
         store.EmbroideryCalculations.Add(saved);
         await store.SaveChangesAsync(cancellationToken);
         return Result.Success(saved.ToResponse(command.Actor.SeesCost));

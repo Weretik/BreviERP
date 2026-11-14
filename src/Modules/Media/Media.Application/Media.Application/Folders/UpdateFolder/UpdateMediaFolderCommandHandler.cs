@@ -13,7 +13,9 @@ public sealed class UpdateMediaFolderCommandHandler(IMediaDbContext db, TimeProv
         var folder = await db.Folders.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
         if (folder is null) return Result<MediaFolderResponse>.NotFound(FolderMessages.NotFound);
 
-        var name = MediaNames.Normalize(command.Input.Name, MediaFolder.NameMaxLength);
+        var normalized = MediaNames.Normalize(command.Input.Name, MediaFolder.NameMaxLength);
+        if (normalized.IsFailure) return normalized.Error!.ToResult<MediaFolderResponse>();
+        var name = normalized.Value;
         var parentId = command.Input.ParentId;
         var now = clock.GetUtcNow();
         if (parentId != folder.ParentId)
@@ -30,8 +32,10 @@ public sealed class UpdateMediaFolderCommandHandler(IMediaDbContext db, TimeProv
         if (await FolderLookup.NameTakenAsync(db, name, parentId, folder.Id, cancellationToken))
             return Result<MediaFolderResponse>.Conflict(FolderMessages.DuplicateName);
 
-        folder.Rename(name, now);
-        if (parentId != folder.ParentId) folder.MoveTo(parentId, now);
+        var changed = DomainResult.Combine(
+            folder.Rename(name, now),
+            parentId != folder.ParentId ? folder.MoveTo(parentId, now) : DomainResult.Success());
+        if (changed.IsFailure) return changed.Error!.ToResult<MediaFolderResponse>();
         await db.SaveChangesAsync(cancellationToken);
         var count = await db.Files.CountAsync(x => x.FolderId == folder.Id, cancellationToken);
         return Result.Success(new MediaFolderResponse(folder.Id, folder.Name, folder.ParentId, count));

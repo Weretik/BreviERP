@@ -58,7 +58,8 @@ public sealed class RestoreFabricMovementCommandHandler(IWarehouseDbContext db, 
 
         var revision = to.Revise(movement, last.Before, FabricMovementRevisionAction.Restore, null, actorName, pairs.Now,
             input.OperationId, last);
-        return await revisions.SaveAsync(command.Actor, input.OperationId, Kind, hash, revision, from, to,
+        if (revision.IsFailure) return revision.Error!.ToResult<FabricStockOperationResponse>();
+        return await revisions.SaveAsync(command.Actor, input.OperationId, Kind, hash, revision.Value, from, to,
             cancellationToken);
     }
 

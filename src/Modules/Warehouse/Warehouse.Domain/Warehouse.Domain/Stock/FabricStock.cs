@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Warehouse.Domain.Stock;
 
 /// <summary>The fabric of «Тканини» a stock line holds, copied when the line is created.</summary>
@@ -115,12 +117,12 @@ public sealed class FabricStock
     /// kind and its sign: a receipt and an opening stay positive (an opening may be zero), an issue negative, an
     /// adjustment non-zero; a voided movement has no effect. The caller restates the lines it left and joined.
     /// </summary>
-    public FabricMovementRevision Revise(FabricMovement movement, FabricMovementState state,
+    public DomainResult<FabricMovementRevision> Revise(FabricMovement movement, FabricMovementState state,
         FabricMovementRevisionAction action, string? reason, string actorName, DateTimeOffset now, Guid operationId,
         FabricMovementRevision? restores = null)
     {
-        if (!movement.CanRevise) throw new InvalidOperationException("This movement cannot be revised here.");
-        if (!IsValidMeters(state.Delta)) throw new ArgumentOutOfRangeException(nameof(state));
+        if (!movement.CanRevise) return StockErrors.CannotRevise();
+        if (!IsValidMeters(state.Delta)) return StockErrors.OutOfRange();
         var signed = state.IsVoided ? state.Delta == 0 : movement.Kind switch
         {
             FabricMovementKind.Opening => state.Delta >= 0,
@@ -128,7 +130,7 @@ public sealed class FabricStock
             FabricMovementKind.Issue => state.Delta < 0,
             _ => state.Delta != 0
         };
-        if (!signed) throw new ArgumentOutOfRangeException(nameof(state));
+        if (!signed) return StockErrors.WrongSign();
         HasMovements = true;
         UpdatedAt = now;
         return movement.Revise(this, state, action, reason, actorName, now, operationId, restores);

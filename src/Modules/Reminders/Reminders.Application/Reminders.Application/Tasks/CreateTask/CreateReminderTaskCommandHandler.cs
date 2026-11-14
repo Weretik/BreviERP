@@ -15,8 +15,10 @@ public sealed class CreateReminderTaskCommandHandler(IRemindersDbContext db, Rem
         var chat = await ReminderTaskChats.FindAsync(db, input.ChatId, cancellationToken);
         if (input.ChatId is not null && chat is null) return ReminderTaskChats.UnknownChat<ReminderTaskResponse>();
 
-        var task = ReminderTask.Create(input.Title, ReminderCodes.Organizations[input.Organization],
+        var created = ReminderTask.Create(input.Title, ReminderCodes.Organizations[input.Organization],
             ReminderTaskMapper.ToSchedule(input.Schedule), chat?.Id, input.ActiveFrom ?? clock.Today, input.IsEnabled, clock.Now);
+        if (created.IsFailure) return created.ToResult<ReminderTask, ReminderTaskResponse>();
+        var task = created.Value;
         db.Tasks.Add(task);
         await db.SaveChangesAsync(cancellationToken);
         var calendar = await db.LoadCalendarAsync(cancellationToken);

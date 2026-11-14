@@ -36,11 +36,7 @@ public sealed class SetProductionItemStagesCommandHandler(OrderTracking tracking
         var stages = command.Input.Stages.Select(x => Enum.Parse<ProductionStage>(x, ignoreCase: true)).ToArray();
         return await tracking.ChangeAsync(command.Actor, command.OrderId, command.Input.Version,
             order => command.Actor.CanTrack(order) ? null : OrderMessages.CannotTrack,
-            (order, actorName, now) =>
-            {
-                if (order.Items.All(x => x.Id != command.ItemId)) return Result.NotFound(OrderMessages.ItemNotInOrder);
-                order.SetItemStages(command.ItemId, stages, actorName, now);
-                return null;
-            }, cancellationToken);
+            (order, actorName, now) => order.SetItemStages(command.ItemId, stages, actorName, now).WithoutValue(),
+            cancellationToken);
     }
 }

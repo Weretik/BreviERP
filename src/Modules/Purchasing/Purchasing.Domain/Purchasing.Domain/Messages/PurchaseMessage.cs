@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Purchasing.Domain.Messages;
 
 /// <summary>
@@ -87,12 +89,14 @@ public sealed class PurchaseMessage
     }
 
     /// <summary>Removes an active payment link of this invoice and adds 1 to the review version.</summary>
-    public void UnlinkPayment(PurchasePayment payment, string by, DateTimeOffset now)
+    public DomainResult UnlinkPayment(PurchasePayment payment, string by, DateTimeOffset now)
     {
+        ArgumentNullException.ThrowIfNull(payment);
         if (payment.MessageId != Id || !payment.Active)
-            throw new InvalidOperationException("The payment is not an active link of this invoice.");
+            return PurchaseMessageErrors.PaymentNotLinked();
         payment.Unlink(by, now);
         Reviewed(by, now);
+        return DomainResult.Success();
     }
 
     private void Reviewed(string by, DateTimeOffset now)
@@ -106,12 +110,12 @@ public sealed class PurchaseMessage
     /// Sets the supplier link and note by hand. The note is trimmed and an empty one is removed. Returns the history entry,
     /// or null when nothing changed (the version stays). The caller checks the expected version first.
     /// </summary>
-    public PurchaseReviewChange? Review(int? supplierId, string? note, string reviewer, DateTimeOffset now)
+    public DomainResult<PurchaseReviewChange?> Review(int? supplierId, string? note, string reviewer, DateTimeOffset now)
     {
         var cleanNote = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
         if (cleanNote is { Length: > ReviewNoteMaxLength })
-            throw new ArgumentOutOfRangeException(nameof(note), "The note is longer than allowed.");
-        if (supplierId == SupplierId && cleanNote == ReviewNote) return null;
+            return PurchaseMessageErrors.NoteTooLong();
+        if (supplierId == SupplierId && cleanNote == ReviewNote) return DomainResult<PurchaseReviewChange?>.Success(null);
 
         var change = new PurchaseReviewChange(Id, reviewer, now,
             new PurchaseReview(SupplierId, ReviewNote, ReviewVersion),
@@ -119,6 +123,6 @@ public sealed class PurchaseMessage
         SupplierId = supplierId;
         ReviewNote = cleanNote;
         Reviewed(reviewer, now);
-        return change;
+        return (PurchaseReviewChange?)change;
     }
 }

@@ -52,9 +52,11 @@ public sealed class CreatePayrollPaymentCommandHandler(IProductionDbContext db, 
             var employee = await db.Employees.AsNoTracking()
                 .SingleOrDefaultAsync(x => x.Id == input.EmployeeId, cancellationToken);
             if (employee is null) return Result.Invalid(new ValidationError("Input.EmployeeId", PayrollMessages.EmployeeNotFound));
-            db.PayrollPayments.Add(new PayrollPayment(
+            var payment = PayrollPayment.Create(
                 new PayrollEntryTarget(change.Period.Month, employee.Id, employee.FullName), input.PaidOn,
-                Enum.Parse<PayrollPaymentKind>(input.Kind), input.Amount, input.Comment, change.ActorName, change.Now));
+                Enum.Parse<PayrollPaymentKind>(input.Kind), input.Amount, input.Comment, change.ActorName, change.Now);
+            if (payment.IsFailure) return payment.Error!.ToResult();
+            db.PayrollPayments.Add(payment.Value);
             return null;
         }, cancellationToken);
 }
@@ -84,11 +86,8 @@ public sealed class VoidPayrollPaymentCommandHandler(IProductionDbContext db, Pa
         var payment = await db.PayrollPayments.SingleOrDefaultAsync(x => x.Id == command.PaymentId, cancellationToken);
         if (payment is null) return Result<PayrollMonthResponse>.NotFound(PayrollMessages.PaymentNotFound);
         return await changes.ApplyAsync(command.Actor, PayrollMonths.Format(payment.Month), adminOnly: true, change =>
-        {
-            if (payment.IsVoided) return Task.FromResult<Result?>(Result.Conflict(PayrollMessages.AlreadyVoided));
-            payment.Void(command.Input.Reason, change.ActorName, change.Now);
-            return Task.FromResult<Result?>(null);
-        }, cancellationToken);
+            Task.FromResult(payment.Void(command.Input.Reason, change.ActorName, change.Now).FailureOrNull()),
+            cancellationToken);
     }
 }
 
@@ -125,9 +124,11 @@ public sealed class CreatePayrollAdjustmentCommandHandler(IProductionDbContext d
             var employee = await db.Employees.AsNoTracking()
                 .SingleOrDefaultAsync(x => x.Id == input.EmployeeId, cancellationToken);
             if (employee is null) return Result.Invalid(new ValidationError("Input.EmployeeId", PayrollMessages.EmployeeNotFound));
-            db.PayrollAdjustments.Add(new PayrollAdjustment(
+            var adjustment = PayrollAdjustment.Create(
                 new PayrollEntryTarget(change.Period.Month, employee.Id, employee.FullName), input.Amount, input.Reason,
-                change.ActorName, change.Now));
+                change.ActorName, change.Now);
+            if (adjustment.IsFailure) return adjustment.Error!.ToResult();
+            db.PayrollAdjustments.Add(adjustment.Value);
             return null;
         }, cancellationToken);
 }
@@ -158,11 +159,8 @@ public sealed class VoidPayrollAdjustmentCommandHandler(IProductionDbContext db,
             cancellationToken);
         if (adjustment is null) return Result<PayrollMonthResponse>.NotFound(PayrollMessages.AdjustmentNotFound);
         return await changes.ApplyAsync(command.Actor, PayrollMonths.Format(adjustment.Month), adminOnly: true, change =>
-        {
-            if (adjustment.IsVoided) return Task.FromResult<Result?>(Result.Conflict(PayrollMessages.AlreadyVoided));
-            adjustment.Void(command.Input.Reason, change.ActorName, change.Now);
-            return Task.FromResult<Result?>(null);
-        }, cancellationToken);
+            Task.FromResult(adjustment.Void(command.Input.Reason, change.ActorName, change.Now).FailureOrNull()),
+            cancellationToken);
     }
 }
 
@@ -210,7 +208,6 @@ public sealed class SetPayrollIssuedCommandHandler(IProductionDbContext db, Payr
                 db.PayrollIssued.Add(row);
             }
 
-            row.Set(amount, change.ActorName, change.Now);
-            return null;
+            return row.Set(amount, change.ActorName, change.Now).FailureOrNull();
         }, cancellationToken);
 }

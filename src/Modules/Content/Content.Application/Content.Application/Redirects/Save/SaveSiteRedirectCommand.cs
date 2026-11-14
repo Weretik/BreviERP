@@ -57,12 +57,15 @@ public sealed class SaveSiteRedirectCommandHandler(IContentDbContext db, TimePro
         var now = clock.GetUtcNow();
         if (redirect is null)
         {
-            redirect = new SiteRedirect(from, to, SiteRedirectSource.Manual, command.Note, command.UpdatedBy, now);
+            var created = SiteRedirect.Create(from, to, SiteRedirectSource.Manual, command.Note, command.UpdatedBy, now);
+            if (created.IsFailure) return created.Error!.ToResult<SiteRedirectResponse>();
+            redirect = created.Value;
             db.SiteRedirects.Add(redirect);
         }
         else
         {
-            redirect.Change(from, to, command.Note, SiteRedirectSource.Manual, command.UpdatedBy, now);
+            var changed = redirect.Change(from, to, command.Note, SiteRedirectSource.Manual, command.UpdatedBy, now);
+            if (changed.IsFailure) return changed.Error!.ToResult<SiteRedirectResponse>();
         }
 
         await db.SaveChangesAsync(cancellationToken);

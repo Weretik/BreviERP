@@ -52,14 +52,24 @@ public sealed class ImportProductionOrdersCommandHandler(IProductionDbContext db
                 var details = item.Details.ToDetails();
                 var code = Code(item.ModelCode);
                 var colors = 1 + details.AdditionalColors.Count(x => !string.IsNullOrWhiteSpace(x));
-                return new ProductionItem(index + 1,
+                return ProductionItem.Create(index + 1,
                     new ItemSource(null, null, null, null, code, item.ModelName, null, item.FabricCode, item.FabricName,
                         item.SewingRate, null),
                     details, FabricPlan.Meters(code is null ? null : norms.GetValueOrDefault(code), colors, details.Quantity));
             }).ToArray();
-            var order = new ProductionOrder(row.Number,
-                new OrderOrigin(null, row.QuoteNumber, null, manager?.UserId, row.ManagerName, null, row.LegacyId),
-                new OrderHeader(row.ClientName, row.OrderDate, row.Comment), null, items, actorName, now);
+            var created = items.FirstOrDefault(x => x.IsFailure)?.Error is { } itemError
+                ? DomainResult<ProductionOrder>.Failure(itemError)
+                : ProductionOrder.Create(row.Number,
+                    new OrderOrigin(null, row.QuoteNumber, null, manager?.UserId, row.ManagerName, null, row.LegacyId),
+                    new OrderHeader(row.ClientName, row.OrderDate, row.Comment), null, items.Select(x => x.Value),
+                    actorName, now);
+            if (created.IsFailure)
+            {
+                lines.Add(new(row.Number, row.ClientName, row.Items.Count, "error", created.Error!.Message));
+                continue;
+            }
+
+            var order = created.Value;
             order.SetTransferredStatus(Enum.Parse<ProductionOrderStatus>(row.Status, ignoreCase: true));
             order.Record("Перенесено", "Зі старого «Цеху»", actorName, now);
             orders.Add(order);

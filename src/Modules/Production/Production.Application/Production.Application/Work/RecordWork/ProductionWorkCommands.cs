@@ -69,9 +69,11 @@ public sealed class CreateProductionWorkCommandHandler(IProductionDbContext db, 
 
         var actorName = await OrderActors.NameAsync(staff, command.Actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
-        db.Work.Add(new ProductionWork(new WorkTarget(order.Id, item.Id, employee.Id, employee.FullName),
+        var work = ProductionWork.Create(new WorkTarget(order.Id, item.Id, employee.Id, employee.FullName),
             new WorkFacts(kind, input.Quantity, input.WorkDate, input.OverPlan, input.Reason, input.Comment,
-                item.SewingRate.Value), actorName, clock.GetUtcNow()));
+                item.SewingRate.Value), actorName, clock.GetUtcNow());
+        if (work.IsFailure) return work.Error!.ToResult<ProductionItemWorkResponse>();
+        db.Work.Add(work.Value);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(await cards.BuildAsync(order, item, command.Actor, cancellationToken));
     }
@@ -108,12 +110,12 @@ public sealed class VoidProductionWorkCommandHandler(IProductionDbContext db, IP
             .SingleOrDefaultAsync(x => x.Id == work.OrderId && x.DeletedAt == null, cancellationToken);
         if (order is null) return Result<ProductionItemWorkResponse>.NotFound(OrderMessages.NotFound);
         if (!command.Actor.CanRecordWork(order)) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
-        if (work.IsVoided) return Result<ProductionItemWorkResponse>.Conflict(WorkMessages.AlreadyVoided);
         if (await PayrollMonths.IsClosedAsync(db, work.WorkDate, cancellationToken))
             return Result<ProductionItemWorkResponse>.Conflict(PayrollMessages.Closed);
         var actorName = await OrderActors.NameAsync(staff, command.Actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
-        work.Void(command.Input.Reason, actorName, clock.GetUtcNow());
+        var voided = work.Void(command.Input.Reason, actorName, clock.GetUtcNow());
+        if (voided.IsFailure) return voided.Error!.ToResult<ProductionItemWorkResponse>();
         await db.SaveChangesAsync(cancellationToken);
         var item = order.Items.First(x => x.Id == work.ItemId);
         return Result.Success(await cards.BuildAsync(order, item, command.Actor, cancellationToken));

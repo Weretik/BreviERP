@@ -58,7 +58,9 @@ public sealed class ImportQuotesCommandHandler(
                 number = free;
             }
 
-            quotes.Add(mapper.Map(input, number, note, now, warnings));
+            var mapped = mapper.Map(input, number, note, now, warnings);
+            if (mapped.IsSuccess) quotes.Add(mapped.Value);
+            else warnings.Add(new(number.ToString(), null, $"КП не перенесено: {mapped.Error!.Message}"));
         }
 
         var applied = false;

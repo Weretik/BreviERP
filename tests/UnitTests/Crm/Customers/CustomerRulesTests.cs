@@ -13,7 +13,7 @@ public sealed class CustomerRulesTests
     {
         var customer = NewCustomer();
         customer.SaveContact(1, null, "First", null, true, true, []);
-        var selected = customer.SaveContact(2, null, "Second", null, true, true, []);
+        var selected = customer.SaveContact(2, null, "Second", null, true, true, []).Value;
         Assert.That(customer.Contacts.Count(x => x.Active && x.IsPrimary), Is.EqualTo(1));
         Assert.That(selected.IsPrimary, Is.True);
     }
@@ -22,23 +22,23 @@ public sealed class CustomerRulesTests
     public void DeactivatingContactClearsPrimaryAndRejectsStaleRevision()
     {
         var customer = NewCustomer();
-        var contact = customer.SaveContact(1, null, "First", null, true, true, []);
+        var contact = customer.SaveContact(1, null, "First", null, true, true, []).Value;
         customer.SaveContact(2, contact.PublicId, "First", null, false, true, []);
         Assert.That(contact.IsPrimary, Is.False);
-        Assert.Throws<CustomerRevisionException>(() => customer.Revise(2, "person", "Changed", null, null, true));
+        Assert.That(customer.Revise(2, "person", "Changed", null, null, true).Error?.Code, Is.EqualTo("crm.customer_stale"));
     }
 
     [TestCase("email", "not-mail")]
     [TestCase("phone", "abc")]
     public void InvalidChannelIsRejected(string kind, string value)
     {
-        Assert.Throws<CustomerValidationException>(() => CustomerChannel.Create(kind, value));
+        Assert.That(CustomerChannel.Create(kind, value).IsFailure, Is.True);
     }
 
     [Test]
     public void InternationalPhoneRetainsDisplayAndNormalizesDigits()
     {
-        var channel = CustomerChannel.Create("phone", "+44 (20) 1234-5678");
+        var channel = CustomerChannel.Create("phone", "+44 (20) 1234-5678").Value;
         Assert.That(channel.Value, Is.EqualTo("+44 (20) 1234-5678"));
         Assert.That(channel.NormalizedValue, Is.EqualTo("442012345678"));
     }
@@ -48,8 +48,8 @@ public sealed class CustomerRulesTests
     {
         var survivor = NewCustomer();
         var victim = NewCustomer();
-        var contact = victim.SaveContact(1, null, "Original", null, true, true, []);
-        survivor.MergeFrom(victim, 1, 2);
+        var contact = victim.SaveContact(1, null, "Original", null, true, true, []).Value;
+        Assert.That(survivor.MergeFrom(victim, 1, 2).IsSuccess, Is.True);
         Assert.That(survivor.Contacts.Single().PublicId, Is.EqualTo(contact.PublicId));
         Assert.That(victim.Active, Is.False);
         Assert.That(victim.Contacts, Is.Empty);
@@ -60,11 +60,11 @@ public sealed class CustomerRulesTests
     {
         var survivor = NewCustomer();
         var victim = NewCustomer();
-        survivor.AddExternalIdentity(CustomerExternalIdentity.Create("fixture", "client", "client-1"));
-        victim.AddExternalIdentity(CustomerExternalIdentity.Create("fixture", "client", "client-2"));
-        Assert.DoesNotThrow(() => survivor.MergeFrom(victim, 1, 1));
+        survivor.AddExternalIdentity(CustomerExternalIdentity.Create("fixture", "client", "client-1").Value);
+        victim.AddExternalIdentity(CustomerExternalIdentity.Create("fixture", "client", "client-2").Value);
+        Assert.That(survivor.MergeFrom(victim, 1, 1).IsSuccess, Is.True);
         Assert.That(survivor.ExternalIdentities.Select(x => x.ExternalId), Is.EquivalentTo(new[] { "client-1", "client-2" }));
     }
 
-    private static Customer NewCustomer() => Customer.Create("person", "Synthetic customer", null, null, new CrmUserId(1));
+    private static Customer NewCustomer() => Customer.Create("person", "Synthetic customer", null, null, new CrmUserId(1)).Value;
 }

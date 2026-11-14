@@ -47,7 +47,8 @@ public sealed class VoidFabricMovementCommandHandler(StockChanges changes, Stock
 
         var revision = line.Revise(movement, movement.State with { Delta = 0, IsVoided = true },
             FabricMovementRevisionAction.Void, input.Reason, actorName, pairs.Now, input.OperationId);
-        return await revisions.SaveAsync(command.Actor, input.OperationId, Kind, hash, revision, line, line,
+        if (revision.IsFailure) return revision.Error!.ToResult<FabricStockOperationResponse>();
+        return await revisions.SaveAsync(command.Actor, input.OperationId, Kind, hash, revision.Value, line, line,
             cancellationToken);
     }
 }

@@ -62,9 +62,9 @@ public sealed class QuoteIntroductionTests
                     new QuotePrice(1500m, null, false), new QuotePrice(1400m, null, false),
                     new QuotePrice(1300.2m + index, null, true), DateTimeOffset.UnixEpoch),
             ])).ToArray();
-        var quote = new Quote(new QuoteNumber(2026, 11, 7), QuoteKind.Introduction, new QuotePerson(5, "Юлія"),
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 7), QuoteKind.Introduction, new QuotePerson(5, "Юлія"),
             new QuoteHeader("Агро — знайомство", null, "Іван", "ТОВ «Агро»", null, "Передзвонити у вівторок"),
-            items, new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero));
+            items, new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero)).Value;
         quote.SetIntroduction(new QuoteIntroduction(QuoteIntroLayout.General, "office@agro.ua", "Після розмови"));
         return quote;
     }

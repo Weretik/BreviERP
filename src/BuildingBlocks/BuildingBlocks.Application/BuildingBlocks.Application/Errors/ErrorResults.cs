@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain.Errors;
+using BuildingBlocks.Domain.Results;
 using ErrorType = BuildingBlocks.Domain.Errors.ErrorType;
 
 namespace BuildingBlocks.Application.Errors;
@@ -14,7 +15,7 @@ public static class ErrorResults
         ArgumentNullException.ThrowIfNull(error);
         return error.Type switch
         {
-            ErrorType.Validation => Result.Invalid(new ValidationError(error.Code, error.Message)),
+            ErrorType.Validation => Result.Invalid(error.ToValidationError()),
             ErrorType.NotFound => Result.NotFound(error.Message),
             ErrorType.Conflict => Result.Conflict(error.Message),
             ErrorType.Forbidden => Result.Forbidden(error.Message),
@@ -27,12 +28,46 @@ public static class ErrorResults
         ArgumentNullException.ThrowIfNull(error);
         return error.Type switch
         {
-            ErrorType.Validation => Result<T>.Invalid(new ValidationError(error.Code, error.Message)),
+            ErrorType.Validation => Result<T>.Invalid(error.ToValidationError()),
             ErrorType.NotFound => Result<T>.NotFound(error.Message),
             ErrorType.Conflict => Result<T>.Conflict(error.Message),
             ErrorType.Forbidden => Result<T>.Forbidden(error.Message),
             _ => Result<T>.Error(error.Message)
         };
+    }
+
+    /// <summary>The validation error the admin shows under <see cref="Error.Field"/>, or as a general error.</summary>
+    public static ValidationError ToValidationError(this Error error)
+    {
+        ArgumentNullException.ThrowIfNull(error);
+        return new ValidationError(error.Field ?? error.Code, error.Message, error.Code, ValidationSeverity.Error);
+    }
+
+    public static Result ToResult(this DomainResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        return result.IsSuccess ? Result.Success() : result.Error!.ToResult();
+    }
+
+    /// <summary>The failure of <paramref name="result"/>, or null on success (steps that return a refusal or nothing).</summary>
+    public static Result? FailureOrNull(this DomainResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        return result.IsSuccess ? null : result.Error!.ToResult();
+    }
+
+    /// <summary>The failure of <paramref name="result"/> as a result of another value type.</summary>
+    public static Result<T> ToResult<T>(this DomainResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        return result.IsFailure ? result.Error!.ToResult<T>() : throw new InvalidOperationException("The result succeeded.");
+    }
+
+    /// <summary>The failure of <paramref name="result"/> as a result of another value type.</summary>
+    public static Result<TOut> ToResult<TIn, TOut>(this DomainResult<TIn> result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+        return result.IsFailure ? result.Error!.ToResult<TOut>() : throw new InvalidOperationException("The result succeeded.");
     }
 
     /// <summary>The same mapping for a response type known only at run time (Mediator pipeline behaviours).</summary>
@@ -48,7 +83,7 @@ public static class ErrorResults
         if (typeof(TResponse).IsGenericType && typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
         {
             var method = typeof(ErrorResults).GetMethods()
-                .Single(m => m.Name == nameof(ToResult) && m.IsGenericMethodDefinition)
+                .Single(m => m.Name == nameof(ToResult) && m.IsGenericMethodDefinition && m.GetParameters()[0].ParameterType == typeof(Error))
                 .MakeGenericMethod(typeof(TResponse).GetGenericArguments()[0]);
             response = (TResponse)method.Invoke(null, [error])!;
             return true;

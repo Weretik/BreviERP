@@ -400,8 +400,8 @@ public sealed class ProductionOrderHandlerTests
         ]);
         workshop.Fabrics.Fabrics.Add(new(23, "FAB-023", "Тканина «Грета»"));
         workshop.Models.Costs[5] = new(5, "MOD-052", new Dictionary<long, decimal?> { [77] = 343.254m });
-        workshop.Db.FabricNorms.Add(new ModelFabricNorm("MOD-052",
-            new FabricNormValues(2.5m, 2.2m, 0.3m, null, null, null), 1, workshop.Time.GetUtcNow()));
+        workshop.Db.FabricNorms.Add(ModelFabricNorm.Create("MOD-052",
+            new FabricNormValues(2.5m, 2.2m, 0.3m, null, null, null), 1, workshop.Time.GetUtcNow()).Value);
         workshop.Db.SaveChanges();
         workshop.Quotes.Quotes.Add(new ProductionQuote(10, "12-11-2026", true, "Геофізика", 9, 2, "Анастасія",
         [

@@ -44,12 +44,20 @@ public sealed class CopyProductionOrderCommandHandler(IProductionDbContext db, I
 
         var now = clock.GetUtcNow();
         var today = DateOnly.FromDateTime(now.UtcDateTime);
-        var items = source.Items.OrderBy(x => x.Position)
-            .Select(x => new ProductionItem(x.Position, x.Source, x.Details, x.PlannedFabricMeters));
-        var copy = new ProductionOrder(await OrderNumbers.NextAsync(db, cancellationToken),
+        var items = new List<ProductionItem>(source.Items.Count);
+        foreach (var item in source.Items.OrderBy(x => x.Position))
+        {
+            var copied = ProductionItem.Create(item.Position, item.Source, item.Details, item.PlannedFabricMeters);
+            if (copied.IsFailure) return copied.Error!.ToResult<ProductionOrderResponse>();
+            items.Add(copied.Value);
+        }
+
+        var created = ProductionOrder.Create(await OrderNumbers.NextAsync(db, cancellationToken),
             new OrderOrigin(source.QuoteId, source.QuoteNumber, source.CustomerId, person.UserId, person.Name,
                 command.Input.RequestId, CopiedFromOrderId: source.Id),
             new OrderHeader(source.ClientName, today, source.Comment), source.PriceTier, items, person.Name, now);
+        if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();
+        var copy = created.Value;
         copy.Record("Створено", $"Копія завдання № {source.Number}", person.Name, now);
         db.Orders.Add(copy);
         await db.SaveChangesAsync(cancellationToken);

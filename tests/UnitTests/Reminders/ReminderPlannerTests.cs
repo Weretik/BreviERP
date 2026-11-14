@@ -14,7 +14,7 @@ public sealed class ReminderPlannerTests
 
     private static ReminderTask Task(bool withChat = true) => ReminderTask.Create("Декларація з ПДВ", ReminderOrganization.PpBrevi,
         new ReminderSchedule(ReminderPeriodicity.Monthly, DueRule.DayOfMonth(5, 1), 5),
-        withChat ? new ReminderChatId(1) : null, new DateOnly(2026, 10, 1), true, Now);
+        withChat ? new ReminderChatId(1) : null, new DateOnly(2026, 10, 1), true, Now).Value;
 
     private static ReminderOccurrence Occurrence(DateOnly due) =>
         ReminderOccurrence.Open(new ReminderTaskId(1), new ReminderPeriod(ReminderPeriodicity.Monthly, new DateOnly(2026, 10, 1)), due, Now);

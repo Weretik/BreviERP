@@ -88,8 +88,8 @@ public sealed class QuoteRulesTests
     [Test]
     public void ManagerAccessesOnlyOwnQuote()
     {
-        var quote = new Quote(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Інший"),
-            new QuoteHeader("Клієнт", null, null, null, null, null), [], DateTimeOffset.UnixEpoch);
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Інший"),
+            new QuoteHeader("Клієнт", null, null, null, null, null), [], DateTimeOffset.UnixEpoch).Value;
         Assert.That(Manager.CanAccess(quote), Is.False);
         Assert.That(new QuoteActor(1, true).CanAccess(quote), Is.True);
         Assert.That(new QuoteActor(5, false).CanAccess(quote), Is.True);
@@ -103,8 +103,8 @@ public sealed class QuoteRulesTests
         option.SetManualAudit("Знижка", new QuotePerson(5, "Олена"), DateTimeOffset.UnixEpoch);
         var item = new QuoteItem(0, QuoteItemKind.CustomSewing, null, new QuoteItemTexts(null, "Фартух", null, null,
             null, null, null, null), [option], [new QuoteItemLine(0, QuoteItemLineKind.Operation, 155, "Шов", "хв", 1m, 12m)]);
-        var source = new Quote(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Олена"),
-            new QuoteHeader("Клієнт", 7, "Іван", "Агро", null, null), [item], DateTimeOffset.UnixEpoch);
+        var source = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(5, "Олена"),
+            new QuoteHeader("Клієнт", 7, "Іван", "Агро", null, null), [item], DateTimeOffset.UnixEpoch).Value;
         source.MarkSent(DateTimeOffset.UnixEpoch);
 
         var copy = source.CopyAs(new QuoteNumber(2026, 11, 2), new QuotePerson(1, "Директор"), DateTimeOffset.UnixEpoch);

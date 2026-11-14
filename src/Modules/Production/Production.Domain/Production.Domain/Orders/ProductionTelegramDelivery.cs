@@ -1,3 +1,6 @@
+using BuildingBlocks.Domain.Errors;
+using BuildingBlocks.Domain.Results;
+
 namespace Production.Domain.Orders;
 
 /// <summary>«Не надіслано», «Надсилається», «Надіслано», «Помилка».</summary>
@@ -38,15 +41,17 @@ public sealed class ProductionTelegramDelivery
 
     public bool CanSend => Status is TelegramDeliveryStatus.NotSent or TelegramDeliveryStatus.Failed;
 
-    public void Begin(long chatId, int? threadId, string actorName)
+    public DomainResult Begin(long chatId, int? threadId, string actorName)
     {
-        if (!CanSend) throw new InvalidOperationException("The message was already sent or is being sent.");
+        if (!CanSend)
+            return Error.Conflict("production.telegram_already_sent", "Повідомлення вже надіслано або його не можна надіслати.");
         Status = TelegramDeliveryStatus.Sending;
         ChatId = chatId;
         ThreadId = threadId;
         SentByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         Attempts++;
         Version++;
+        return DomainResult.Success();
     }
 
     public void Succeed(long messageId, DateTimeOffset now)

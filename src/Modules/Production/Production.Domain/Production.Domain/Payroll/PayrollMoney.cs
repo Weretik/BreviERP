@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 
 namespace Production.Domain.Payroll;
@@ -25,10 +26,19 @@ public sealed class PayrollPayment
 
     private PayrollPayment() { }
 
-    public PayrollPayment(PayrollEntryTarget target, DateOnly paidOn, PayrollPaymentKind kind, decimal amount,
+    public static DomainResult<PayrollPayment> Create(PayrollEntryTarget target, DateOnly paidOn,
+        PayrollPaymentKind kind, decimal amount, string? comment, string actorName, DateTimeOffset now)
+    {
+        if (amount is <= 0 or > MaxAmount) return PayrollErrors.AmountOutOfRange();
+        var text = OrderText.Check(comment, CommentMaxLength, "comment");
+        return text.IsFailure
+            ? text.Error!
+            : new PayrollPayment(target, paidOn, kind, amount, comment, actorName, now);
+    }
+
+    private PayrollPayment(PayrollEntryTarget target, DateOnly paidOn, PayrollPaymentKind kind, decimal amount,
         string? comment, string actorName, DateTimeOffset now)
     {
-        if (amount is <= 0 or > MaxAmount) throw new ArgumentOutOfRangeException(nameof(amount));
         Month = target.Month;
         EmployeeId = target.EmployeeId;
         EmployeeName = OrderText.Required(target.EmployeeName, ProductionOrder.PersonMaxLength);
@@ -56,12 +66,15 @@ public sealed class PayrollPayment
 
     public bool IsVoided => VoidedAt is not null;
 
-    public void Void(string reason, string actorName, DateTimeOffset now)
+    public DomainResult Void(string reason, string actorName, DateTimeOffset now)
     {
-        if (IsVoided) throw new InvalidOperationException("The payment is already cancelled.");
+        if (IsVoided) return PayrollErrors.AlreadyVoided();
+        var text = OrderText.Check(reason, ReasonMaxLength, "reason", required: true);
+        if (text.IsFailure) return text;
         VoidReason = OrderText.Required(reason, ReasonMaxLength);
         VoidedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         VoidedAt = now;
+        return DomainResult.Success();
     }
 }
 
@@ -73,11 +86,17 @@ public sealed class PayrollAdjustment
 {
     private PayrollAdjustment() { }
 
-    public PayrollAdjustment(PayrollEntryTarget target, decimal amount, string reason, string actorName,
+    public static DomainResult<PayrollAdjustment> Create(PayrollEntryTarget target, decimal amount, string reason,
+        string actorName, DateTimeOffset now)
+    {
+        if (amount == 0 || Math.Abs(amount) > PayrollPayment.MaxAmount) return PayrollErrors.AdjustmentAmountOutOfRange();
+        var text = OrderText.Check(reason, PayrollPayment.ReasonMaxLength, "reason", required: true);
+        return text.IsFailure ? text.Error! : new PayrollAdjustment(target, amount, reason, actorName, now);
+    }
+
+    private PayrollAdjustment(PayrollEntryTarget target, decimal amount, string reason, string actorName,
         DateTimeOffset now)
     {
-        if (amount == 0 || Math.Abs(amount) > PayrollPayment.MaxAmount)
-            throw new ArgumentOutOfRangeException(nameof(amount));
         Month = target.Month;
         EmployeeId = target.EmployeeId;
         EmployeeName = OrderText.Required(target.EmployeeName, ProductionOrder.PersonMaxLength);
@@ -101,12 +120,15 @@ public sealed class PayrollAdjustment
 
     public bool IsVoided => VoidedAt is not null;
 
-    public void Void(string reason, string actorName, DateTimeOffset now)
+    public DomainResult Void(string reason, string actorName, DateTimeOffset now)
     {
-        if (IsVoided) throw new InvalidOperationException("The adjustment is already cancelled.");
+        if (IsVoided) return PayrollErrors.AlreadyVoided();
+        var text = OrderText.Check(reason, PayrollPayment.ReasonMaxLength, "reason", required: true);
+        if (text.IsFailure) return text;
         VoidReason = OrderText.Required(reason, PayrollPayment.ReasonMaxLength);
         VoidedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         VoidedAt = now;
+        return DomainResult.Success();
     }
 }
 
@@ -123,11 +145,12 @@ public sealed class PayrollIssued
     public DateTimeOffset UpdatedAt { get; private set; }
     public string UpdatedByName { get; private set; } = null!;
 
-    public void Set(decimal amount, string actorName, DateTimeOffset now)
+    public DomainResult Set(decimal amount, string actorName, DateTimeOffset now)
     {
-        if (amount is < 0 or > PayrollPayment.MaxAmount) throw new ArgumentOutOfRangeException(nameof(amount));
+        if (amount is < 0 or > PayrollPayment.MaxAmount) return PayrollErrors.IssuedAmountOutOfRange();
         Amount = decimal.Round(amount, 2, MidpointRounding.AwayFromZero);
         UpdatedAt = now;
         UpdatedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
+        return DomainResult.Success();
     }
 }

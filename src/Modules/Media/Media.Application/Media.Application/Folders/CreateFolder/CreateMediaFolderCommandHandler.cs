@@ -10,7 +10,9 @@ public sealed class CreateMediaFolderCommandHandler(IMediaDbContext db, TimeProv
 {
     public async ValueTask<Result<MediaFolderResponse>> Handle(CreateMediaFolderCommand command, CancellationToken cancellationToken)
     {
-        var name = MediaNames.Normalize(command.Input.Name, MediaFolder.NameMaxLength);
+        var normalized = MediaNames.Normalize(command.Input.Name, MediaFolder.NameMaxLength);
+        if (normalized.IsFailure) return normalized.Error!.ToResult<MediaFolderResponse>();
+        var name = normalized.Value;
         var parentId = command.Input.ParentId;
         var tree = await FolderLookup.LoadTreeAsync(db, cancellationToken);
         if (parentId is { } parent && !tree.Contains(parent))
@@ -20,7 +22,7 @@ public sealed class CreateMediaFolderCommandHandler(IMediaDbContext db, TimeProv
         if (await FolderLookup.NameTakenAsync(db, name, parentId, null, cancellationToken))
             return Result<MediaFolderResponse>.Conflict(FolderMessages.DuplicateName);
 
-        var folder = new MediaFolder(name, parentId, clock.GetUtcNow());
+        var folder = MediaFolder.Create(name, parentId, clock.GetUtcNow()).Value;
         db.Folders.Add(folder);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(new MediaFolderResponse(folder.Id, folder.Name, folder.ParentId, 0));

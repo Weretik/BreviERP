@@ -1,6 +1,7 @@
 using Media.Application.Abstractions;
 using Media.Application.Contracts;
 using Media.Application.Files.Images;
+using Media.Domain;
 using Media.Domain.Files;
 
 namespace Media.Application.Files.UploadFile;
@@ -22,6 +23,10 @@ public sealed class UploadMediaFileCommandHandler(
         if (sourceKey is not null && await db.Files.AnyAsync(x => x.SourceKey == sourceKey, cancellationToken))
             return Result<MediaFileResponse>.Conflict(FileMessages.SourceAlreadyImported);
 
+        // The name is checked before the CDN upload, so a rejected name leaves no file behind.
+        var name = MediaNames.Normalize(command.DisplayName, MediaFile.FileNameMaxLength, "fileName");
+        if (name.IsFailure) return name.Error!.ToResult<MediaFileResponse>();
+
         var content = await ReadAllAsync(command.Content, cancellationToken);
         var storageKey = $"/{settings.BaseFolder.Trim().Trim('/')}/{Guid.NewGuid():N}{UploadMediaFileCommand.Extensions[command.ContentType]}";
         string publicUrl;
@@ -29,8 +34,8 @@ public sealed class UploadMediaFileCommandHandler(
             publicUrl = await storage.UploadAsync(original, storageKey, command.ContentType, cancellationToken);
 
         var now = clock.GetUtcNow();
-        var file = new MediaFile(
-            command.DisplayName,
+        var file = MediaFile.Create(
+            name.Value,
             command.FolderId,
             command.ContentType,
             command.SizeInBytes,
@@ -38,7 +43,7 @@ public sealed class UploadMediaFileCommandHandler(
             storageKey,
             publicUrl,
             now,
-            sourceKey);
+            sourceKey).Value;
         var image = await TryPrepareAsync(content, command.DisplayName, cancellationToken);
         if (image is not null)
             file.SetImage(image.Width, image.Height, image.ThumbnailStorageKey, image.ThumbnailUrl, now);

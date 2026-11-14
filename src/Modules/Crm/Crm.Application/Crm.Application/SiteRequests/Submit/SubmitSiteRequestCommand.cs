@@ -68,8 +68,10 @@ public sealed class SubmitSiteRequestCommandHandler(
             fileUrl = await files.UploadAsync(file.Content, key, ContentType(file.ContentType), cancellationToken);
         }
 
-        var request = new SiteRequest(command.Phone!, command.Workwear, command.Quantity, command.Comment,
+        var created = SiteRequest.Create(command.Phone, command.Workwear, command.Quantity, command.Comment,
             command.Locale ?? "uk", Path.GetFileName(command.File?.FileName), fileUrl, now);
+        if (created.IsFailure) return created.Error!.ToResult<SiteRequestReceivedResponse>();
+        var request = created.Value;
         store.SiteRequests.Add(request);
         await store.SaveChangesAsync(cancellationToken);
 

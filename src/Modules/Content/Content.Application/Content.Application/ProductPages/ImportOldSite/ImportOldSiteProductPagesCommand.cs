@@ -110,14 +110,19 @@ public sealed class ImportOldSiteProductPagesCommandHandler(
             }
             else
             {
-                page = new ProductPage(product.Id, FreeSlug(item, product, slugs), command.UpdatedBy, now);
+                var made = ProductPage.Create(product.Id, FreeSlug(item, product, slugs), command.UpdatedBy, now);
+                if (made.IsFailure) return made.Error!.ToResult<OldSiteImportResponse>();
+                page = made.Value;
                 slugs.Add(page.Slug);
                 if (!command.DryRun) db.ProductPages.Add(page);
                 created++;
             }
 
             if (!command.DryRun)
-                page.Replace(page.Slug, command.ShowOnSite || page.ShowOnSite, texts, command.UpdatedBy, now);
+            {
+                var replaced = page.Replace(page.Slug, command.ShowOnSite || page.ShowOnSite, texts, command.UpdatedBy, now);
+                if (replaced.IsFailure) return replaced.Error!.ToResult<OldSiteImportResponse>();
+            }
         }
 
         if (!command.DryRun) await db.SaveChangesAsync(cancellationToken);

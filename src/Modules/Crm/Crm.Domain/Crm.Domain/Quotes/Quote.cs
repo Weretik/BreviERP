@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Crm.Domain.Quotes;
 
 /// <summary>
@@ -11,7 +13,15 @@ public sealed class Quote
 
     private Quote() { }
 
-    public Quote(QuoteNumber number, QuoteKind kind, QuotePerson author, QuoteHeader header,
+    /// <summary>A new draft; the author is also responsible.</summary>
+    public static DomainResult<Quote> Create(QuoteNumber number, QuoteKind kind, QuotePerson author, QuoteHeader header,
+        IEnumerable<QuoteItem> items, DateTimeOffset now)
+    {
+        var valid = CheckHeader(header);
+        return valid.IsFailure ? valid.Error! : new Quote(number, kind, author, header, items, now);
+    }
+
+    private Quote(QuoteNumber number, QuoteKind kind, QuotePerson author, QuoteHeader header,
         IEnumerable<QuoteItem> items, DateTimeOffset now)
     {
         Number = number.ToString();
@@ -107,7 +117,7 @@ public sealed class Quote
         var copy = new Quote(number, Kind, author,
             new QuoteHeader(InternalName, CustomerId, RecipientName, CompanyName, ClientComment, ManagerNote),
             _items.OrderBy(x => x.Position).Select(x => x.Copy()), now);
-        if (Introduction is { } introduction) copy.SetIntroduction(introduction);
+        if (Introduction is { } introduction) copy.ApplyIntroduction(introduction);
         copy._events.Clear(); // the copy starts its history with «Копія КП N» instead of «Створено»
         copy.Record(QuoteEventKind.Copied, author, $"Копія КП {Number}", now);
         return copy;
@@ -117,17 +127,19 @@ public sealed class Quote
     /// A КП transferred from the old calculator (R-25): its number, people, dates, status and items as they were there,
     /// with its history: created, the given lines (letters, transfers) and the import line with <paramref name="note"/>.
     /// </summary>
-    public static Quote Import(QuoteImportedState state, QuoteHeader header, IEnumerable<QuoteItem> items,
+    public static DomainResult<Quote> Import(QuoteImportedState state, QuoteHeader header, IEnumerable<QuoteItem> items,
         QuoteIntroduction? introduction, IEnumerable<QuoteImportedEvent> events, QuotePerson importedBy, string note,
         DateTimeOffset now)
     {
+        var valid = CheckHeader(header);
+        if (valid.IsFailure) return valid.Error!;
         var quote = new Quote(state.Number, state.Kind, state.Author, header, items, state.CreatedAt)
         {
             ResponsibleUserId = state.Responsible.UserId,
             ResponsibleName = state.Responsible.Name,
             UpdatedAt = state.UpdatedAt,
         };
-        if (introduction is not null) quote.SetIntroduction(introduction);
+        if (introduction is not null) quote.ApplyIntroduction(introduction);
         if (state.Sent)
         {
             quote.Status = QuoteStatus.Sent;
@@ -154,28 +166,36 @@ public sealed class Quote
     }
 
     /// <summary>Replaces the header and the whole item list in one change.</summary>
-    public void Update(QuoteHeader header, IEnumerable<QuoteItem> items, DateTimeOffset now)
+    public DomainResult Update(QuoteHeader header, IEnumerable<QuoteItem> items, DateTimeOffset now)
     {
+        var valid = CheckHeader(header);
+        if (valid.IsFailure) return valid;
         ApplyHeader(header);
         _items.Clear();
         _items.AddRange(items);
         Touch(now);
+        return DomainResult.Success();
     }
 
     /// <summary>Appends one item after the others («Додати в КП»).</summary>
-    public void AddItem(QuoteItem item, DateTimeOffset now)
+    public DomainResult AddItem(QuoteItem item, DateTimeOffset now)
     {
-        if (_items.Count >= QuoteLimits.MaxItems)
-            throw new InvalidOperationException($"A КП holds at most {QuoteLimits.MaxItems} items.");
+        if (_items.Count >= QuoteLimits.MaxItems) return QuoteErrors.TooManyItems();
         _items.Add(item);
         Touch(now);
+        return DomainResult.Success();
     }
 
     /// <summary>The fields only an introduction has; the caller replaces the header and items in the same change.</summary>
-    public void SetIntroduction(QuoteIntroduction introduction)
+    public DomainResult SetIntroduction(QuoteIntroduction introduction)
     {
-        if (Kind != QuoteKind.Introduction)
-            throw new InvalidOperationException("Only a «КП для знайомства» has a layout.");
+        if (Kind != QuoteKind.Introduction) return QuoteErrors.NotIntroduction();
+        ApplyIntroduction(introduction);
+        return DomainResult.Success();
+    }
+
+    private void ApplyIntroduction(QuoteIntroduction introduction)
+    {
         IntroLayout = introduction.Layout;
         RecipientEmail = QuoteText.Normalize(introduction.RecipientEmail)?.ToLowerInvariant();
         LetterName = QuoteText.Normalize(introduction.LetterName);
@@ -206,10 +226,11 @@ public sealed class Quote
         Version++;
     }
 
+    private static DomainResult CheckHeader(QuoteHeader header) =>
+        DomainResult.Ensure(!string.IsNullOrWhiteSpace(header.InternalName), QuoteErrors.InternalNameRequired);
+
     private void ApplyHeader(QuoteHeader header)
     {
-        if (string.IsNullOrWhiteSpace(header.InternalName))
-            throw new ArgumentException("A КП needs an internal client or request name.", nameof(header));
         InternalName = header.InternalName.Trim();
         CustomerId = header.CustomerId;
         RecipientName = QuoteText.Normalize(header.RecipientName);

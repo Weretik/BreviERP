@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Production.Domain.Staff;
 
 /// <summary>
@@ -11,7 +13,13 @@ public sealed class WorkshopEmployee
 
     private WorkshopEmployee() { }
 
-    public WorkshopEmployee(string fullName, string position, int? userId, DateTimeOffset now)
+    public static DomainResult<WorkshopEmployee> Create(string fullName, string position, int? userId, DateTimeOffset now)
+    {
+        var valid = Check(fullName, position);
+        return valid.IsFailure ? valid.Error! : new WorkshopEmployee(fullName, position, userId, now);
+    }
+
+    private WorkshopEmployee(string fullName, string position, int? userId, DateTimeOffset now)
     {
         SetDetails(fullName, position);
         IsActive = true;
@@ -31,11 +39,18 @@ public sealed class WorkshopEmployee
     public DateTimeOffset UpdatedAt { get; private set; }
     public int? UpdatedByUserId { get; private set; }
 
-    public void Update(string fullName, string position, int? userId, DateTimeOffset now)
+    public DomainResult Update(string fullName, string position, int? userId, DateTimeOffset now)
     {
+        var valid = Check(fullName, position);
+        if (valid.IsFailure) return valid;
         SetDetails(fullName, position);
         Touch(userId, now);
+        return DomainResult.Success();
     }
+
+    private static DomainResult Check(string fullName, string position) => DomainResult.Combine(
+        ProductionText.Check(fullName, FullNameMaxLength, "fullName"),
+        ProductionText.Check(position, PositionMaxLength, "position"));
 
     public void SetActive(bool isActive, int? userId, DateTimeOffset now)
     {

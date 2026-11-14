@@ -143,13 +143,16 @@ public sealed class ImportOldSiteArticlesCommandHandler(
 
             if (!existing.TryGetValue(item.Slug, out var article))
             {
-                article = new Article(item.Slug, item.PublishedOn, command.UpdatedBy, now);
+                var made = Article.Create(item.Slug, item.PublishedOn, command.UpdatedBy, now);
+                if (made.IsFailure) return made.Error!.ToResult<OldSiteArticleImportResponse>();
+                article = made.Value;
                 db.Articles.Add(article);
                 existing[item.Slug] = article;
             }
 
-            article.Replace(item.Slug, item.PublishedOn, command.ShowOnSite || article.ShowOnSite, cover, texts,
-                command.UpdatedBy, now);
+            var replaced = article.Replace(item.Slug, item.PublishedOn, command.ShowOnSite || article.ShowOnSite, cover,
+                texts, command.UpdatedBy, now);
+            if (replaced.IsFailure) return replaced.Error!.ToResult<OldSiteArticleImportResponse>();
             await db.SaveChangesAsync(cancellationToken);
             foreach (var url in lost.Distinct())
                 problems.Add(new OldSiteImportNote(item.Slug, item.Uk?.Title, $"{PhotoFailed}: {url} ({failed[url]})."));

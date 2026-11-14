@@ -96,7 +96,7 @@ internal sealed class ReminderTestHarness
     public async Task<ReminderTask> TaskAsync(ReminderChat chat, DueRule due, DateOnly activeFrom, string title = "Реєстрація ПН")
     {
         var task = ReminderTask.Create(title, ReminderOrganization.PpBrevi,
-            new ReminderSchedule(ReminderPeriodicity.Monthly, due, 5), chat.Id, activeFrom, true, Clock.Now);
+            new ReminderSchedule(ReminderPeriodicity.Monthly, due, 5), chat.Id, activeFrom, true, Clock.Now).Value;
         Db.Tasks.Add(task);
         await Db.SaveChangesAsync();
         return task;

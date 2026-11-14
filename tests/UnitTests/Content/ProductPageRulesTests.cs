@@ -35,7 +35,7 @@ public sealed class ProductPageRulesTests
     [Test]
     public void New_page_is_hidden_and_has_revision_zero()
     {
-        var page = new ProductPage(7, "kostyum-lider", "a@b.c", DateTimeOffset.UnixEpoch);
+        var page = ProductPage.Create(7, "kostyum-lider", "a@b.c", DateTimeOffset.UnixEpoch).Value;
         Assert.Multiple(() =>
         {
             Assert.That(page.ShowOnSite, Is.False);
@@ -47,7 +47,7 @@ public sealed class ProductPageRulesTests
     [Test]
     public void Replace_cleans_texts_drops_empty_rows_and_empty_languages()
     {
-        var page = new ProductPage(7, "kostyum-lider", "a@b.c", DateTimeOffset.UnixEpoch);
+        var page = ProductPage.Create(7, "kostyum-lider", "a@b.c", DateTimeOffset.UnixEpoch).Value;
         page.Replace("kostyum-lider", true, new Dictionary<string, ProductPageTextInput>
         {
             ["uk"] = ContentTestHarness.Text(),
@@ -75,7 +75,7 @@ public sealed class ProductPageRulesTests
     [Test]
     public void Same_visibility_does_not_change_the_revision()
     {
-        var page = new ProductPage(7, "kostyum-lider", "a@b.c", DateTimeOffset.UnixEpoch);
+        var page = ProductPage.Create(7, "kostyum-lider", "a@b.c", DateTimeOffset.UnixEpoch).Value;
         page.SetVisibility(false, "a@b.c", DateTimeOffset.UnixEpoch);
         Assert.That(page.Revision, Is.Zero);
         page.SetVisibility(true, "a@b.c", DateTimeOffset.UnixEpoch);

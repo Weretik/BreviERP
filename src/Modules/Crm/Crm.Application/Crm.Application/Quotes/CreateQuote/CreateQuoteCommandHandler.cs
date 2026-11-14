@@ -23,9 +23,9 @@ public sealed class CreateQuoteCommandHandler(
         var added = await numbering.AddAsync(now, async number =>
         {
             var items = await builder.BuildAsync(input.Items, [], author, now, cancellationToken);
-            return items.IsSuccess
-                ? Result.Success(new Quote(number, QuoteKind.Request, author, header, items.Value, now))
-                : items.Map(_ => default(Quote)!);
+            if (!items.IsSuccess) return items.Map(_ => default(Quote)!);
+            var created = Quote.Create(number, QuoteKind.Request, author, header, items.Value, now);
+            return created.IsSuccess ? Result.Success(created.Value) : created.Error!.ToResult<Quote>();
         }, cancellationToken);
         return added.Map(quote => quote.ToResponse());
     }

@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Crm.Domain.Quotes.Settings;
 
 /// <summary>
@@ -10,11 +12,11 @@ public sealed class QuoteSettings
 
     private QuoteSettings() { }
 
-    public QuoteSettings(QuoteSettingsContent content, string updatedByName, DateTimeOffset now)
+    public static DomainResult<QuoteSettings> Create(QuoteSettingsContent content, string updatedByName, DateTimeOffset now)
     {
-        Id = SingletonId;
-        Version = 0;
-        Apply(content, updatedByName, now);
+        var settings = new QuoteSettings { Id = SingletonId, Version = 0 };
+        var applied = settings.Apply(content, updatedByName, now);
+        return applied.IsFailure ? applied.Error! : settings;
     }
 
     public int Id { get; private set; }
@@ -31,14 +33,12 @@ public sealed class QuoteSettings
     public QuoteSettingsContent Content =>
         new(Company, Email, Pdf, Introduction, LetterVariants, StaffContacts);
 
-    public void Apply(QuoteSettingsContent content, string updatedByName, DateTimeOffset now)
+    public DomainResult Apply(QuoteSettingsContent content, string updatedByName, DateTimeOffset now)
     {
-        if (string.IsNullOrWhiteSpace(content.Company.Name))
-            throw new ArgumentException("Company name is required.", nameof(content));
-        if (content.Introduction.Advantages.Count != QuoteSettingsLimits.AdvantagesCount)
-            throw new ArgumentException("The introduction catalogue has exactly five advantages.", nameof(content));
+        if (string.IsNullOrWhiteSpace(content.Company.Name)) return QuoteErrors.CompanyNameRequired();
+        if (content.Introduction.Advantages.Count != QuoteSettingsLimits.AdvantagesCount) return QuoteErrors.AdvantagesCount();
         if (content.StaffContacts.Select(x => x.UserId).Distinct().Count() != content.StaffContacts.Count)
-            throw new ArgumentException("One contact per staff member.", nameof(content));
+            return QuoteErrors.StaffContactRepeated();
 
         Company = content.Company;
         Email = content.Email;
@@ -49,6 +49,7 @@ public sealed class QuoteSettings
         UpdatedByName = updatedByName;
         UpdatedAt = now;
         Version++;
+        return DomainResult.Success();
     }
 
     /// <summary>The saved contact of a staff member, or null to use their account name, phone and email.</summary>

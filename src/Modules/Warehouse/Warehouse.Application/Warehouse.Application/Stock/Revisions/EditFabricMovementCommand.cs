@@ -76,7 +76,8 @@ public sealed class EditFabricMovementCommandHandler(StockChanges changes, Stock
 
         var revision = to.Revise(movement, state, FabricMovementRevisionAction.Edit, input.Reason, actorName,
             pairs.Now, input.OperationId);
-        return await revisions.SaveAsync(command.Actor, input.OperationId, Kind, hash, revision, from, to,
+        if (revision.IsFailure) return revision.Error!.ToResult<FabricStockOperationResponse>();
+        return await revisions.SaveAsync(command.Actor, input.OperationId, Kind, hash, revision.Value, from, to,
             cancellationToken);
     }
 

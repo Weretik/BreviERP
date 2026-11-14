@@ -30,12 +30,15 @@ public sealed class SaveQuoteSettingsCommandHandler(IQuoteStore store, IQuoteSta
         var now = clock.GetUtcNow();
         if (saved is null)
         {
-            saved = new QuoteSettings(content, actor.Name, now);
+            var created = QuoteSettings.Create(content, actor.Name, now);
+            if (created.IsFailure) return created.Error!.ToResult<QuoteSettingsResponse>();
+            saved = created.Value;
             store.QuoteSettings.Add(saved);
         }
         else
         {
-            saved.Apply(content, actor.Name, now);
+            var applied = saved.Apply(content, actor.Name, now);
+            if (applied.IsFailure) return applied.Error!.ToResult<QuoteSettingsResponse>();
         }
 
         try

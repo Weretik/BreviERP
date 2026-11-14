@@ -9,7 +9,6 @@ internal static class WorkMessages
     public const string NoRate = "У позиції немає розцінки пошиття. Вкажіть її в картці позиції перед обліком роботи.";
     public const string EmployeeNotFound = "Працівника немає серед тих, хто працює.";
     public const string WorkNotFound = "Запису роботи не знайдено.";
-    public const string AlreadyVoided = "Цей запис уже сторновано.";
     public const string FutureDate = "Дата роботи не може бути пізніше сьогодні.";
     public const string Month = "Місяць у форматі РРРР-ММ.";
     public const string Reason = "Для роботи понад план оберіть причину.";

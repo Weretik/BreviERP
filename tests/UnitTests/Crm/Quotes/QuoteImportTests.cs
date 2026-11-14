@@ -55,7 +55,7 @@ public sealed class QuoteImportTests
     {
         var warnings = new List<QuoteImportWarning>();
         var quote = (mapper ?? Mapper()).Map(input, QuoteImportNumber.Parse(input.Number), ImportQuotesCommandHandler.Note,
-            Now, warnings);
+            Now, warnings).Value;
         return (quote, warnings);
     }
 

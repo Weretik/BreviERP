@@ -77,8 +77,9 @@ public sealed class WorkshopSettingsHandler(
         }
 
         var input = command.Input;
-        settings.Update(input.TelegramEnabled, input.TelegramChatId, input.TelegramThreadId, actorName,
+        var updated = settings.Update(input.TelegramEnabled, input.TelegramChatId, input.TelegramThreadId, actorName,
             clock.GetUtcNow());
+        if (updated.IsFailure) return updated.Error!.ToResult<WorkshopSettingsResponse>();
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(await ResponseAsync(settings, cancellationToken));
     }

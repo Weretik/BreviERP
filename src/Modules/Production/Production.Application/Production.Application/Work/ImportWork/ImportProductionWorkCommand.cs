@@ -91,11 +91,19 @@ public sealed class ImportProductionWorkCommandHandler(IProductionDbContext db)
             }
 
             var employee = employees[ProductionText.Key(row.EmployeeName)];
-            var work = new ProductionWork(new WorkTarget(order!.Id, item!.Id, employee.Id, employee.FullName),
+            var work = ProductionWork.Create(new WorkTarget(order!.Id, item!.Id, employee.Id, employee.FullName),
                 new WorkFacts(Enum.Parse<ProductionWorkKind>(row.Kind), row.Quantity, row.WorkDate, row.OverPlan,
                     row.Reason, row.Comment, row.Rate), Transfer, row.At, legacyId);
-            if (row.VoidedAt is { } voidedAt) work.Void(row.VoidReason!, Transfer, voidedAt);
-            records.Add(work);
+            var voided = work.IsSuccess && row.VoidedAt is { } voidedAt
+                ? work.Value.Void(row.VoidReason!, Transfer, voidedAt)
+                : DomainResult.Success();
+            if ((work.IsFailure ? work.Error : voided.Error) is { } invalid)
+            {
+                lines.Add(Line("error", invalid.Message));
+                continue;
+            }
+
+            records.Add(work.Value);
             lines.Add(Line("created", null));
         }
 

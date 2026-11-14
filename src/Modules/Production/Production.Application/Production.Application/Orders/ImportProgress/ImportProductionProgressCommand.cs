@@ -112,7 +112,8 @@ public sealed class ImportProductionProgressCommandHandler(IProductionDbContext 
             if (!changed) continue;
             changes.Add(() =>
             {
-                foreach (var (item, stages) in stageChanges) order.SetItemStages(item.Id, stages, Transfer, now);
+                // The items come from the order itself, so a stage change cannot miss its item.
+                foreach (var (item, stages) in stageChanges) _ = order.SetItemStages(item.Id, stages, Transfer, now).Value;
                 foreach (var file in newFiles)
                 {
                     var itemId = file.Position is { } position ? byPosition[position].Id : (int?)null;

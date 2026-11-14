@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using System.Text.RegularExpressions;
 
 namespace Content.Domain.SiteSettings;
@@ -44,23 +45,28 @@ public sealed partial class SiteSeoSettings
 
     public string UpdatedBy { get; private set; } = null!;
 
-    public void Replace(string? googleAnalyticsId, string? googleTagManagerId, string? googleSiteVerification,
+    public DomainResult Replace(string? googleAnalyticsId, string? googleTagManagerId, string? googleSiteVerification,
         string? bingSiteVerification, int? defaultOgPhotoId, string updatedBy, DateTimeOffset now)
     {
-        GoogleAnalyticsId = Clean(googleAnalyticsId)?.ToUpperInvariant();
-        GoogleTagManagerId = Clean(googleTagManagerId)?.ToUpperInvariant();
-        GoogleSiteVerification = Clean(googleSiteVerification);
-        BingSiteVerification = Clean(bingSiteVerification);
-        if (GoogleAnalyticsId is not null && !IsAnalyticsId(GoogleAnalyticsId)) throw new ArgumentException("Invalid GA4 id.");
-        if (GoogleTagManagerId is not null && !IsTagManagerId(GoogleTagManagerId)) throw new ArgumentException("Invalid GTM id.");
-        if (GoogleSiteVerification is not null && !IsVerification(GoogleSiteVerification))
-            throw new ArgumentException("Invalid Google verification.");
-        if (BingSiteVerification is not null && !IsVerification(BingSiteVerification))
-            throw new ArgumentException("Invalid Bing verification.");
+        var analyticsId = Clean(googleAnalyticsId)?.ToUpperInvariant();
+        var tagManagerId = Clean(googleTagManagerId)?.ToUpperInvariant();
+        var googleVerification = Clean(googleSiteVerification);
+        var bingVerification = Clean(bingSiteVerification);
+        if (analyticsId is not null && !IsAnalyticsId(analyticsId)) return SiteSeoSettingsErrors.InvalidAnalyticsId();
+        if (tagManagerId is not null && !IsTagManagerId(tagManagerId)) return SiteSeoSettingsErrors.InvalidTagManagerId();
+        if (googleVerification is not null && !IsVerification(googleVerification))
+            return SiteSeoSettingsErrors.InvalidVerification("GoogleSiteVerification");
+        if (bingVerification is not null && !IsVerification(bingVerification))
+            return SiteSeoSettingsErrors.InvalidVerification("BingSiteVerification");
+        GoogleAnalyticsId = analyticsId;
+        GoogleTagManagerId = tagManagerId;
+        GoogleSiteVerification = googleVerification;
+        BingSiteVerification = bingVerification;
         DefaultOgPhotoId = defaultOgPhotoId;
         Revision++;
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
+        return DomainResult.Success();
     }
 
     public static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

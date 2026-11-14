@@ -50,7 +50,7 @@ public sealed class SaveForecastQueueCommandHandler(IProductionDbContext db, For
             db.ForecastQueues.Add(queue);
         }
 
-        queue.Set(command.Input.OrderIds, actorName, now);
+        if (queue.Set(command.Input.OrderIds, actorName, now).FailureOrNull() is { } invalid) return invalid;
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

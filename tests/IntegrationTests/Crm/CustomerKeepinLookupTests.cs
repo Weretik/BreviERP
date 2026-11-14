@@ -16,12 +16,12 @@ public sealed class CustomerKeepinLookupTests : CrmDatabaseFixture
         Guid active, archived;
         await using (var db = Context())
         {
-            var first = Customer.Create("organization", "ТОВ «Агро»", null, "12345678", new CrmUserId(1));
-            first.AddExternalIdentity(KeepinCrmClientIdentity.Create("100"));
-            var second = Customer.Create("organization", "ФОП Старий", null, null, new CrmUserId(1));
-            second.AddExternalIdentity(KeepinCrmClientIdentity.Create("200"));
+            var first = Customer.Create("organization", "ТОВ «Агро»", null, "12345678", new CrmUserId(1)).Value;
+            first.AddExternalIdentity(KeepinCrmClientIdentity.Create("100").Value);
+            var second = Customer.Create("organization", "ФОП Старий", null, null, new CrmUserId(1)).Value;
+            second.AddExternalIdentity(KeepinCrmClientIdentity.Create("200").Value);
             second.Revise(second.Revision, second.Kind, second.DisplayName, null, null, active: false);
-            var other = Customer.Create("organization", "Без KeepinCRM", null, null, new CrmUserId(1));
+            var other = Customer.Create("organization", "Без KeepinCRM", null, null, new CrmUserId(1)).Value;
             db.Customers.AddRange(first, second, other);
             await db.SaveChangesAsync();
             (active, archived) = (first.PublicId, second.PublicId);

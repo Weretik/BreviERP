@@ -28,7 +28,14 @@ public sealed class PurchaseRegisterSync(
         try
         {
             var content = await reader.ReadAsync(cancellationToken);
-            snapshot = Normalize(content);
+            var normalized = Normalize(content);
+            if (normalized.IsFailure)
+            {
+                await RecordFailureAsync(now, normalized.Error!.Message, cancellationToken);
+                return Result<PurchaseSyncResponse>.Error(normalized.Error.Message);
+            }
+
+            snapshot = normalized.Value;
         }
         catch (PurchaseSheetUnavailableException error)
         {
@@ -70,14 +77,15 @@ public sealed class PurchaseRegisterSync(
             counters.FilesDeactivated, now));
     }
 
-    private static PurchaseSourceSnapshot Normalize(PurchaseSheetContent content)
+    private static DomainResult<PurchaseSourceSnapshot> Normalize(PurchaseSheetContent content)
     {
         var rows = new List<NormalizedSourceRow>();
         for (var i = 0; i < content.Rows.Count; i++)
         {
             var row = SourceRowNormalizer.Normalize(content.Rows[i], PurchaseSheetContent.FirstRowNumber + i,
                 content.SpreadsheetId, content.SheetId);
-            if (row is not null) rows.Add(row);
+            if (row.IsFailure) return row.Error!;
+            if (row.Value is not null) rows.Add(row.Value);
         }
 
         return PurchaseSourceSnapshot.Create(rows);

@@ -88,11 +88,14 @@ public sealed class SaveSiteGalleryCommandHandler(IContentDbContext db, IContent
         var now = clock.GetUtcNow();
         if (gallery is null)
         {
-            gallery = new SiteGallery(command.Key, command.UpdatedBy, now);
+            var created = SiteGallery.Create(command.Key, command.UpdatedBy, now);
+            if (created.IsFailure) return created.Error!.ToResult<SiteGalleryResponse>();
+            gallery = created.Value;
             db.SiteGalleries.Add(gallery);
         }
 
-        gallery.Replace(items, command.UpdatedBy, now);
+        var replaced = gallery.Replace(items, command.UpdatedBy, now);
+        if (replaced.IsFailure) return replaced.Error!.ToResult<SiteGalleryResponse>();
         try
         {
             await db.SaveChangesAsync(cancellationToken);

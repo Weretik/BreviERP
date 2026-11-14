@@ -17,7 +17,13 @@ public sealed class ImportFabricNormsCommandHandler(IProductionDbContext db, IPr
         var changes = new List<Action>();
         foreach (var row in command.Rows)
         {
-            var code = ModelFabricNorm.NormalizeCode(row.ModelCode);
+            if (ModelFabricNorm.CheckCode(row.ModelCode) is { IsFailure: true } badCode)
+            {
+                lines.Add(new(row.ModelCode ?? string.Empty, null, "error", badCode.Error!.Message));
+                continue;
+            }
+
+            var code = ModelFabricNorm.NormalizeCode(row.ModelCode!);
             var values = row.Norm.ToValues();
             if (!catalog.TryGetValue(code, out var model))
             {
@@ -27,12 +33,25 @@ public sealed class ImportFabricNormsCommandHandler(IProductionDbContext db, IPr
 
             if (!existing.TryGetValue(code, out var norm))
             {
-                changes.Add(() => db.FabricNorms.Add(new ModelFabricNorm(code, values, command.UserId, now)));
+                var created = ModelFabricNorm.Create(code, values, command.UserId, now);
+                if (created.IsFailure)
+                {
+                    lines.Add(new(code, model.Name, "error", created.Error!.Message));
+                    continue;
+                }
+
+                changes.Add(() => db.FabricNorms.Add(created.Value));
                 lines.Add(new(code, model.Name, "created", null));
             }
             else if (norm.Values != values)
             {
-                changes.Add(() => norm.Set(values, command.UserId, now));
+                if (ModelFabricNorm.CheckValues(values) is { IsFailure: true } invalid)
+                {
+                    lines.Add(new(code, model.Name, "error", invalid.Error!.Message));
+                    continue;
+                }
+
+                changes.Add(() => _ = norm.Set(values, command.UserId, now));
                 lines.Add(new(code, model.Name, "updated", null));
             }
             else lines.Add(new(code, model.Name, "unchanged", null));

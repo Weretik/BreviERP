@@ -64,10 +64,10 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         await using var db = Context();
         var option = new QuoteItemOption(0, null, null, "Ціна", null, false, new QuotePrice(100m, null, true),
             new QuotePrice(90m, null, true), new QuotePrice(80m, null, true), _clock.GetUtcNow());
-        var quote = new Quote(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(17, "Олена"),
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 1), QuoteKind.Request, new QuotePerson(17, "Олена"),
             new QuoteHeader("Агро", null, null, "ТОВ «Агро»", null, null),
             [new QuoteItem(0, QuoteItemKind.OneOffPpe, null, new QuoteItemTexts(null, "Каска", null, null, null, null, null, null), [option])],
-            _clock.GetUtcNow());
+            _clock.GetUtcNow()).Value;
         db.Quotes.Add(quote);
         await db.SaveChangesAsync();
         return quote.Id;

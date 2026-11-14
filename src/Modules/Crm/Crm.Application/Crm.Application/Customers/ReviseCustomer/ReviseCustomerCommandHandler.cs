@@ -16,10 +16,19 @@ public sealed class ReviseCustomerCommandHandler(ICustomerMutationStore store) :
 
             var customer = await session.LoadAsync(command.CustomerId, ct);
             if (customer is null || !command.Actor.CanAccess(customer)) return Result.NotFound();
-            customer.Revise(command.ExpectedRevision, command.Input.Kind, command.Input.DisplayName, command.Input.LegalName, command.Input.TaxIdentity, command.Active);
-            foreach (var identity in command.Input.ExternalIdentities)
-                if (!customer.ExternalIdentities.Any(x => x.Source == identity.Source.Trim().ToLowerInvariant() && x.Type == identity.Type.Trim().ToLowerInvariant() && x.ExternalId == identity.ExternalId.Trim()))
-                    customer.AddExternalIdentity(CustomerExternalIdentity.Create(identity.Source, identity.Type, identity.ExternalId));
+            var revised = customer.Revise(command.ExpectedRevision, command.Input.Kind, command.Input.DisplayName,
+                command.Input.LegalName, command.Input.TaxIdentity, command.Active);
+            if (revised.IsFailure) return revised.Error!.ToResult<CustomerDetail>();
+            foreach (var input in command.Input.ExternalIdentities)
+            {
+                var identity = CustomerExternalIdentity.Create(input.Source, input.Type, input.ExternalId);
+                if (identity.IsFailure) return identity.Error!.ToResult<CustomerDetail>();
+                var known = identity.Value;
+                if (customer.ExternalIdentities.Any(x => x.Source == known.Source && x.Type == known.Type && x.ExternalId == known.ExternalId))
+                    continue;
+                var added = customer.AddExternalIdentity(known);
+                if (added.IsFailure) return added.Error!.ToResult<CustomerDetail>();
+            }
             await session.FlushAsync(ct);
             return Result.Success(CustomerDetailMapper.Map(customer, command.Actor));
 

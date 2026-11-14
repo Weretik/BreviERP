@@ -59,30 +59,17 @@ public sealed class ProductionOrderStatusCommandHandler(OrderTracking tracking) 
         CancellationToken cancellationToken) =>
         await tracking.ChangeAsync(command.Actor, command.OrderId, command.Version,
             order => command.Actor.CanTrack(order) ? null : OrderMessages.CannotTrack,
-            (order, actorName, now) =>
-            {
-                if (!order.IsFullyShipped) return Result.Conflict(OrderMessages.NotFullyShipped);
-                order.Close(actorName, now);
-                return null;
-            }, cancellationToken);
+            (order, actorName, now) => order.Close(actorName, now), cancellationToken);
 
     public async ValueTask<Result<ProductionOrderResponse>> Handle(CancelProductionOrderCommand command,
         CancellationToken cancellationToken) =>
         await tracking.ChangeAsync(command.Actor, command.OrderId, command.Input.Version,
             order => command.Actor.CanEdit(order) ? null : OrderMessages.CannotCancel,
-            (order, actorName, now) =>
-            {
-                order.Cancel(command.Input.Reason, actorName, now);
-                return null;
-            }, cancellationToken);
+            (order, actorName, now) => order.Cancel(command.Input.Reason, actorName, now), cancellationToken);
 
     public async ValueTask<Result<ProductionOrderResponse>> Handle(ReopenProductionOrderCommand command,
         CancellationToken cancellationToken) =>
         await tracking.ChangeAsync(command.Actor, command.OrderId, command.Version,
             order => command.Actor.CanReopen(order) ? null : OrderMessages.CannotReopen,
-            (order, actorName, now) =>
-            {
-                order.Reopen(actorName, now);
-                return null;
-            }, cancellationToken);
+            (order, actorName, now) => order.Reopen(actorName, now), cancellationToken);
 }

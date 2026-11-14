@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using Content.Domain.ProductPages;
 
 namespace Content.Domain.SiteCategories;
@@ -12,14 +13,20 @@ public sealed class SiteCategory
 
     private SiteCategory() { }
 
-    /// <summary>A new category, hidden from the site until someone switches it on.</summary>
-    public SiteCategory(int? parentId, string slug, int sortOrder, string updatedBy, DateTimeOffset now)
+    private SiteCategory(int? parentId, string slug, int sortOrder, string updatedBy, DateTimeOffset now)
     {
-        if (!ProductPageRules.IsValidSlug(slug)) throw new ArgumentException("Invalid slug.", nameof(slug));
         ParentId = parentId;
         Slug = slug;
         SortOrder = sortOrder;
         Touch(updatedBy, now, bump: false);
+    }
+
+    /// <summary>A new category, hidden from the site until someone switches it on.</summary>
+    public static DomainResult<SiteCategory> Create(int? parentId, string slug, int sortOrder, string updatedBy,
+        DateTimeOffset now)
+    {
+        if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
+        return new SiteCategory(parentId, slug, sortOrder, updatedBy, now);
     }
 
     public int Id { get; private set; }
@@ -58,10 +65,10 @@ public sealed class SiteCategory
     public void PlaceAt(int sortOrder) => SortOrder = sortOrder;
 
     /// <summary>Replaces the place in the tree, the address, the mark and all texts. A language without any text is not kept.</summary>
-    public void Replace(int? parentId, int sortOrder, string slug, bool showOnSite,
+    public DomainResult Replace(int? parentId, int sortOrder, string slug, bool showOnSite,
         IReadOnlyDictionary<string, SiteCategoryTextInput> texts, string updatedBy, DateTimeOffset now)
     {
-        if (!ProductPageRules.IsValidSlug(slug)) throw new ArgumentException("Invalid slug.", nameof(slug));
+        if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
         ParentId = parentId;
         SortOrder = sortOrder;
         Slug = slug;
@@ -81,6 +88,7 @@ public sealed class SiteCategory
         }
 
         Touch(updatedBy, now, bump: true);
+        return DomainResult.Success();
     }
 
     private void Touch(string updatedBy, DateTimeOffset now, bool bump)

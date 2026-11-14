@@ -15,7 +15,8 @@ public sealed class UpdateWorkshopEmployeeCommandHandler(IProductionDbContext db
             && await EmployeeLookup.ActiveNameTakenAsync(db, command.Input.FullName, employee.Id, cancellationToken))
             return Result<WorkshopEmployeeResponse>.Conflict(StaffMessages.DuplicateName);
 
-        employee.Update(command.Input.FullName, command.Input.Position, command.UserId, clock.GetUtcNow());
+        var updated = employee.Update(command.Input.FullName, command.Input.Position, command.UserId, clock.GetUtcNow());
+        if (updated.IsFailure) return updated.Error!.ToResult<WorkshopEmployeeResponse>();
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success(employee.ToResponse());
     }

@@ -27,8 +27,9 @@ public sealed class SaveQuoteCommandHandler(
         if (!items.IsSuccess) return items.Map(_ => default(QuoteResponse)!);
 
         var input = command.Input;
-        quote.Update(new QuoteHeader(input.InternalName, input.CustomerId, input.RecipientName, input.CompanyName,
+        var updated = quote.Update(new QuoteHeader(input.InternalName, input.CustomerId, input.RecipientName, input.CompanyName,
             input.ClientComment, input.ManagerNote), items.Value, now);
+        if (updated.IsFailure) return updated.Error!.ToResult<QuoteResponse>();
         quote.Record(QuoteEventKind.Saved, actor, null, now);
         try
         {

@@ -73,7 +73,8 @@ public sealed class SaveSitePageCommandHandler(IContentDbContext db, TimeProvide
             db.SitePages.Add(page);
         }
 
-        page.Replace(Input(command.Uk), Input(command.Ru), command.UpdatedBy, now);
+        var replaced = page.Replace(Input(command.Uk), Input(command.Ru), command.UpdatedBy, now);
+        if (replaced.IsFailure) return replaced.Error!.ToResult<SitePageResponse>();
         try
         {
             await db.SaveChangesAsync(cancellationToken);

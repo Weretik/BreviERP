@@ -22,13 +22,13 @@ public sealed class KeepinCrmClientSyncTests
     private static Customer Linked(long id, string keepinId, string name)
     {
         var customer = Unlinked(id, name);
-        customer.AddExternalIdentity(KeepinCrmClientIdentity.Create(keepinId));
+        customer.AddExternalIdentity(KeepinCrmClientIdentity.Create(keepinId).Value);
         return customer;
     }
 
     private static Customer Unlinked(long id, string name)
     {
-        var customer = Customer.Create("organization", name, null, null, Owner);
+        var customer = Customer.Create("organization", name, null, null, Owner).Value;
         typeof(Customer).GetProperty(nameof(Customer.Id))!.SetValue(customer, new CustomerId(id));
         return customer;
     }

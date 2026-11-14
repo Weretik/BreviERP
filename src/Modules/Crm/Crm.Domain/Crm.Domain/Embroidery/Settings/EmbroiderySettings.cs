@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Crm.Domain.Embroidery.Settings;
 
 /// <summary>
@@ -10,11 +12,11 @@ public sealed class EmbroiderySettings
 
     private EmbroiderySettings() { }
 
-    public EmbroiderySettings(EmbroiderySettingsContent content, string updatedByName, DateTimeOffset now)
+    public static DomainResult<EmbroiderySettings> Create(EmbroiderySettingsContent content, string updatedByName, DateTimeOffset now)
     {
-        Id = SingletonId;
-        Version = 0;
-        Apply(content, updatedByName, now);
+        var settings = new EmbroiderySettings { Id = SingletonId, Version = 0 };
+        var applied = settings.Apply(content, updatedByName, now);
+        return applied.IsFailure ? applied.Error! : settings;
     }
 
     public int Id { get; private set; }
@@ -23,12 +25,14 @@ public sealed class EmbroiderySettings
     public DateTimeOffset UpdatedAt { get; private set; }
     public int Version { get; private set; }
 
-    public void Apply(EmbroiderySettingsContent content, string updatedByName, DateTimeOffset now)
+    public DomainResult Apply(EmbroiderySettingsContent content, string updatedByName, DateTimeOffset now)
     {
-        EmbroiderySettingsRules.EnsureValid(content);
+        var valid = EmbroiderySettingsRules.Check(content);
+        if (valid.IsFailure) return valid;
         Content = content;
         UpdatedByName = updatedByName;
         UpdatedAt = now;
         Version++;
+        return DomainResult.Success();
     }
 }

@@ -7,6 +7,7 @@ public sealed class DeleteFabricNormCommandHandler(IProductionDbContext db) : IC
 {
     public async ValueTask<Result> Handle(DeleteFabricNormCommand command, CancellationToken cancellationToken)
     {
+        if (ModelFabricNorm.CheckCode(command.ModelCode).FailureOrNull() is { } badCode) return badCode;
         var code = ModelFabricNorm.NormalizeCode(command.ModelCode);
         var norm = await db.FabricNorms.FirstOrDefaultAsync(x => x.ModelCode == code, cancellationToken);
         if (norm is null) return Result.NotFound(FabricNormMessages.NormNotFound);

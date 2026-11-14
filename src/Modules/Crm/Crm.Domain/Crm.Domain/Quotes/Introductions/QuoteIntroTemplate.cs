@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Crm.Domain.Quotes.Introductions;
 
 /// <summary>
@@ -8,10 +10,15 @@ public sealed class QuoteIntroTemplate
 {
     private QuoteIntroTemplate() { }
 
-    public QuoteIntroTemplate(string name, QuoteIntroLayout layout, string? letterName,
+    public static DomainResult<QuoteIntroTemplate> Create(string name, QuoteIntroLayout layout, string? letterName,
+        IReadOnlyList<QuoteIntroTemplatePage> pages, QuotePerson author, DateTimeOffset now) =>
+        string.IsNullOrWhiteSpace(name)
+            ? QuoteErrors.TemplateNameRequired()
+            : new QuoteIntroTemplate(name, layout, letterName, pages, author, now);
+
+    private QuoteIntroTemplate(string name, QuoteIntroLayout layout, string? letterName,
         IReadOnlyList<QuoteIntroTemplatePage> pages, QuotePerson author, DateTimeOffset now)
     {
-        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("A template needs a name.", nameof(name));
         Name = name.Trim();
         NameKey = Name.ToLowerInvariant();
         Layout = layout;
