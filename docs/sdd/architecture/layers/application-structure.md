@@ -15,11 +15,11 @@ Every use case is one folder under `Commands/` (changes state) or `Queries/` (re
 │   └── <Feature>/
 │       ├── Commands/<UseCase>/
 │       │   ├── <UseCase>Command.cs
-│       │   ├── <UseCase>CommandHandler.cs
-│       │   ├── <UseCase>CommandValidator.cs
+│       │   ├── <UseCase>Handler.cs
+│       │   ├── <UseCase>Validator.cs
 │       │   └── <UseCase>Specification.cs    EF/Ardalis specification of this use case only
 │       ├── Queries/<UseCase>/
-│       │   ├── <UseCase>Query.cs, <UseCase>QueryHandler.cs, <UseCase>QueryValidator.cs
+│       │   ├── <UseCase>Query.cs, <UseCase>Handler.cs, <UseCase>Validator.cs, <Name>Dto.cs
 │       │   └── response DTOs of this query
 │       ├── EventHandlers/                   reactions to domain events or other modules' integration events
 │       └── Shared/                          DTOs, mapping, policies used by several use cases of this feature

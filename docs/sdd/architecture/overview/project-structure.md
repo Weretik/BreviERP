@@ -24,6 +24,8 @@ BreviERP.sln
 └── docs/sdd/                         active documentation
 ```
 
+One use case, one folder: `PlaceOrder/` holds `PlaceOrderCommand`, `PlaceOrderHandler`, `PlaceOrderValidator`, `PlaceOrderResponse` side by side, with no subfolders; `GetOrderDetails/` holds `GetOrderDetailsQuery`, `GetOrderDetailsHandler`, `OrderDetailsDto`. Ports that Application asks from the outside world (`IOrderRepository`, `IUnitOfWork`, `IClock`) live in `Abstractions/`.
+
 Folders inside each project are described in the [module rules](../../standards/module-rules.md#folder-structure-inside-a-module) and the layer documents: [Domain](../layers/domain-structure.md), [Application](../layers/application-structure.md), [Infrastructure](../layers/infrastructure-structure.md), [API and Host](../layers/api-host-structure.md).
 
 ## Dependency Diagram
