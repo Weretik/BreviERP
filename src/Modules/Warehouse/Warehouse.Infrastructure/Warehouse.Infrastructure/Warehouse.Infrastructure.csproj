@@ -6,6 +6,7 @@
     <ProjectReference Include="..\..\Warehouse.Domain\Warehouse.Domain\Warehouse.Domain.csproj" />
     <ProjectReference Include="..\..\..\Identity\Identity.Contracts\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Reference\Reference.Contracts\Reference.Contracts\Reference.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Production\Production.Contracts\Production.Contracts\Production.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

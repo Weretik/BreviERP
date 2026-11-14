@@ -13,6 +13,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Api\BuildingBlocks.Api.csproj" />
       <ProjectReference Include="..\..\Reference.Application\Reference.Application\Reference.Application.csproj" />
+      <ProjectReference Include="..\..\Reference.Infrastructure\Reference.Infrastructure\Reference.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,7 +1,15 @@
 using Catalog.Application.Contracts.Media;
 using Catalog.Application.Contracts.Pricing;
 using Catalog.Application.Contracts.Reference;
+using Catalog.Application.Contracts.SlugGeneration;
+using Catalog.Contracts.Pricing;
+using Catalog.Contracts.Products;
+using Catalog.Contracts.Sewing;
 using Catalog.Infrastructure.Adapters.Media;
+using Catalog.Infrastructure.Contracts.Pricing;
+using Catalog.Infrastructure.Contracts.Products;
+using Catalog.Infrastructure.Contracts.Sewing;
+using Catalog.Infrastructure.Products.SlugGeneration;
 using Catalog.Infrastructure.Adapters.Reference;
 using BuildingBlocks.Application.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -75,6 +83,14 @@ public static class CatalogDbContextExtensions
         services.AddScoped<IPricingReferenceVersionReader, PricingReferenceVersionReader>();
         services.AddScoped<IProductMediaReader, ProductMediaReader>();
         services.AddScoped<IProductPhotoSource, ProductPhotoSource>();
+        services.AddSingleton<IProductSlugGenerator, ProductSlugGenerator>();
+
+        // Catalog.Contracts for other modules.
+        services.AddScoped<ICatalogProductReader, CatalogProductReader>();
+        services.AddScoped<ICatalogUsage, CatalogUsage>();
+        services.AddScoped<ISewingModelReader, SewingModelReader>();
+        services.AddScoped<ISewingPriceCalculator, SewingPriceCalculator>();
+        services.AddScoped<IPricingSettingsSync, PricingSettingsSync>();
         return services;
     }
 }

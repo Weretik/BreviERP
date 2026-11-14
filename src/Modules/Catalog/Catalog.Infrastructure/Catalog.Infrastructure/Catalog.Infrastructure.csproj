@@ -18,6 +18,7 @@
       <ProjectReference Include="..\..\Catalog.Application\Catalog.Application\Catalog.Application.csproj" />
       <ProjectReference Include="..\..\..\Reference\Reference.Contracts\Reference.Contracts\Reference.Contracts.csproj" />
       <ProjectReference Include="..\..\..\Media\Media.Contracts\Media.Contracts\Media.Contracts.csproj" />
+      <ProjectReference Include="..\..\Catalog.Contracts\Catalog.Contracts\Catalog.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -16,7 +16,6 @@ public sealed class AiDependencyTests
             Assert.That(references.Any(x => OtherModules.Any(x.Contains)), Is.False, layer);
             if (layer == "Domain") Assert.That(references.All(x => x.Contains("BuildingBlocks.Domain")), Is.True);
             if (layer == "Application") Assert.That(references.Any(x => x.Contains("Infrastructure") || x.Contains("Ai.Api")), Is.False);
-            if (layer == "Api") Assert.That(references.Any(x => x.Contains("Ai.Infrastructure")), Is.False);
         }
     }
 

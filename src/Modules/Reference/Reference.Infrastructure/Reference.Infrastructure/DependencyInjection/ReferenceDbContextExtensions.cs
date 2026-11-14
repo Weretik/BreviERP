@@ -1,3 +1,5 @@
+using Reference.Application.Contracts.Catalog;
+using Reference.Infrastructure.Adapters.Catalog;
 using Reference.Contracts.Fabrics;
 using Reference.Infrastructure.Contracts.Fabrics;
 using Reference.Contracts.GarmentAccessories;
@@ -63,6 +65,10 @@ public static class ReferenceDbContextExtensions
         services.AddScoped<IPpeMarkupRuleDirectory, PpeMarkupRuleDirectory>();
         services.AddScoped<IProductSectionDirectory, ProductSectionDirectory>();
         services.AddScoped<IPricingInputVersionReader, PricingInputVersionReader>();
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IProductUsageReader, ProductUsageReader>();
+        services.AddScoped<IPricingSettingsChangeNotifier, PricingSettingsChangeNotifier>();
         services.AddScoped<ISeeder, SupplierSeeder>();
         services.AddScoped<ISeeder, FabricSeeder>();
         services.AddScoped<ISeeder, GarmentAccessorySeeder>();

@@ -46,7 +46,7 @@ src/Modules/Warehouse/Warehouse.Infrastructure/Warehouse.Infrastructure/Adapters
   Reference/WarehouseReferenceReader.cs    # Reference.Contracts fabrics with price, suppliers, colours
   Identity/WarehouseStaffReader.cs         # Identity.Contracts IStaffDirectory
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Warehouse/ProductionStockReader.cs  # Warehouse.Contracts IStockFacts for «Звіти цеху»
-src/Bootstrapper/Host.Api/Warehouse/WarehouseProductionReader.cs   # ProductionFabricPlans, ProductionAssemblies (moves to Production.Contracts in stage 3)
+src/Modules/Warehouse/Warehouse.Infrastructure/Warehouse.Infrastructure/Adapters/Production/WarehouseProductionReader.cs  # Production.Contracts IOrderFabricPlans (ProductionFabricPlans, ProductionAssemblies)
 ```
 
 ## Structure diagram

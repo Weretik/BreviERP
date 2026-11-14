@@ -12,6 +12,9 @@
         <ProjectReference Include="..\..\..\Reference\Reference.Contracts\Reference.Contracts\Reference.Contracts.csproj" />
         <ProjectReference Include="..\..\..\Media\Media.Contracts\Media.Contracts\Media.Contracts.csproj" />
         <ProjectReference Include="..\..\..\Reminders\Reminders.Contracts\Reminders.Contracts\Reminders.Contracts.csproj" />
+        <ProjectReference Include="..\..\Crm.Contracts\Crm.Contracts\Crm.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\Catalog\Catalog.Contracts\Catalog.Contracts\Catalog.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\Production\Production.Contracts\Production.Contracts\Production.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

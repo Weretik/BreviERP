@@ -31,7 +31,7 @@ src/Modules/Content/
   Content.Api/Content.Api/
     ProductPages/ContentProductsController.cs   # /api/content/products, policy access:content-products
     PublicCatalog/PublicCatalogController.cs    # /api/public/catalog, anonymous, read-only
-src/Bootstrapper/Host.Api/Content/ContentCatalogReader.cs   # Catalog overview and photos + Reference sections and fabrics
+src/Modules/Content/Content.Infrastructure/Content.Infrastructure/Adapters/Catalog/ContentCatalogReader.cs  # Catalog.Contracts products and photos + Reference.Contracts sections and fabrics
 ```
 
 ## Tests

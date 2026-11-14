@@ -1,8 +1,10 @@
 using System.Globalization;
+using Host.Api.DependencyInjection.ServiceRegistration;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
 using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseDefaultServiceProvider(ServiceProviderValidation.Apply);
 
 builder.AddSerilog();
 builder.Services.AddHostServices(builder.Configuration);

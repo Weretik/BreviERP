@@ -15,7 +15,7 @@ Versions and owning projects live only in the `.csproj` files under `src/` and `
 | Pattern | Source in code |
 | --- | --- |
 | Mediator and behavior ordering | [pipeline registration](../../../../src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/Pipeline/MediatorRegistrationExtensions.cs) |
-| FluentValidation | [validator registration](../../../../src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/Pipeline/FluentValidationRegistrationExtensions.cs) |
+| FluentValidation | [validator registration](../../../../src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/DependencyInjection/ModuleValidators.cs), called from each `Add<Module>Module()` |
 | EF Core with PostgreSQL | [Catalog DbContext registration](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DependencyInjection/CatalogDbContextExtensions.cs) |
 | Serilog, Swagger, and OpenAPI | [HTTP host](../../../../src/Bootstrapper/Host.Api/Program.cs) |
 | Slugify.Core and TranslitKit | [Catalog slug generator](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Products/SlugGeneration/ProductSlugGenerator.cs) |

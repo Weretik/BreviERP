@@ -9,7 +9,6 @@ public static class ApplicationRegistrationsExtensions
         IConfiguration configuration)
     {
         services.AddMediatorPipeline();
-        services.AddFluentValidation();
 
         return services;
     }

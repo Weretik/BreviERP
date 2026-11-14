@@ -9,4 +9,7 @@
         <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Api\BuildingBlocks.Api.csproj" />
         <ProjectReference Include="..\..\Crm.Application\Crm.Application\Crm.Application.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\Crm.Infrastructure\Crm.Infrastructure\Crm.Infrastructure.csproj" />
+    </ItemGroup>
 </Project>

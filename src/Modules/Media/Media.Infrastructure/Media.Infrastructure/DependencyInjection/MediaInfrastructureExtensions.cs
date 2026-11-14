@@ -45,6 +45,9 @@ public static class MediaInfrastructureExtensions
         services.AddScoped<IMediaFileUploader, MediaFileUploader>();
         services.AddSingleton<ICdnStorage, CdnStorage>();
         services.AddHttpClient<IMediaUrlImporter, MediaUrlImporter>(client => client.Timeout = TimeSpan.FromSeconds(30));
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IMediaUsageReader, Media.Infrastructure.Adapters.Catalog.MediaUsageReader>();
         return services;
     }
 }

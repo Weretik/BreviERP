@@ -16,7 +16,6 @@ public sealed class ProductionDependencyTests
             Assert.That(references.Where(x => !x.EndsWith(".Contracts.csproj")).Any(x => OtherModules.Any(x.Contains)), Is.False, layer);
             if (layer == "Domain") Assert.That(references.All(x => x.Contains("BuildingBlocks.Domain")), Is.True);
             if (layer == "Application") Assert.That(references.Any(x => x.Contains("Infrastructure") || x.Contains("Production.Api")), Is.False);
-            if (layer == "Api") Assert.That(references.Any(x => x.Contains("Production.Infrastructure")), Is.False);
         }
     }
 

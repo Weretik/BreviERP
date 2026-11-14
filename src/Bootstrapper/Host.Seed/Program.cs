@@ -15,6 +15,9 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.Services.AddSeedHostServices(builder.Configuration);
+// Same container checks as Host.Api in every environment: no Scoped service inside a Singleton, every registration resolves.
+builder.ConfigureContainer(new Microsoft.Extensions.DependencyInjection.DefaultServiceProviderFactory(
+    SeedHostServicesExtensions.ServiceProviderOptions));
 
 using var host = builder.Build();
 try

@@ -14,7 +14,7 @@ src/Modules/Ai/
     Abstractions/      # IAiDbContext, IAiKeyProtector, IOpenAiClient, IAiBasePrompt (fixed instruction a module shows)
     Calls/             # AiCaller: key, limit, extra rules, call, usage — the only sender to OpenAI
     Settings/          # get, update (version), set/remove key, prompts, «Перевірити»
-    Extraction/        # ExtractStructuredDataCommand for other modules (through host ports)
+    Extraction/        # ExtractStructuredDataCommand for other modules (through `Ai.Contracts`)
   Ai.Infrastructure/Ai.Infrastructure/
     Persistence/       # AiDbContext (schema ai), configurations, migrations
     Security/          # AiKeyProtector (Data Protection)

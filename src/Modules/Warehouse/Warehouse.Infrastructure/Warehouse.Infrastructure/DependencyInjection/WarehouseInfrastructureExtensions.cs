@@ -1,4 +1,5 @@
 using Warehouse.Infrastructure.Adapters.Identity;
+using Warehouse.Infrastructure.Adapters.Production;
 using Warehouse.Infrastructure.Adapters.Reference;
 using Warehouse.Contracts.Stock;
 using BuildingBlocks.Infrastructure.Migrations;
@@ -48,6 +49,7 @@ public static class WarehouseInfrastructureExtensions
         // Adapters from other modules' Contracts to this module's ports.
         services.AddScoped<IWarehouseReferenceReader, WarehouseReferenceReader>();
         services.AddScoped<IWarehouseStaffReader, WarehouseStaffReader>();
+        services.AddScoped<IWarehouseProductionReader, WarehouseProductionReader>();
         return services;
     }
 }

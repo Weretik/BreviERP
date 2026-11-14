@@ -33,7 +33,7 @@ src/Modules/Crm/
   Crm.Api/Crm.Api/Embroidery/EmbroideryController.cs  /api/crm/embroidery
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Reference/EmbroideryStitchRateReader.cs  Reference.Contracts adapter
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Media/EmbroideryMediaReader.cs        Media.Contracts adapter for «Макет»
-src/Bootstrapper/Host.Api/Production/ProductionEmbroideryReader.cs  saved calculations for the workshop
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Contracts/Embroidery/EmbroideryCalculationReader.cs  Crm.Contracts IEmbroideryCalculationReader: saved calculations for the workshop and «Медіа»
 ```
 
 [API contract](../../contracts/crm/embroidery.openapi.yaml), [database ownership](../../architecture/data-model/crm.md).

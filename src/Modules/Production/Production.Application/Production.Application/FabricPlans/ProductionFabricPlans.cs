@@ -2,42 +2,19 @@ using Production.Application.Abstractions;
 using Production.Application.Orders;
 using Production.Domain.FabricPlans;
 using Production.Domain.Orders;
+using Production.Contracts.FabricPlans;
 
 namespace Production.Application.FabricPlans;
 
-/// <summary>An order item and its fabric plan by colour, for «Склад тканин».</summary>
-/// <param name="IsOpen">The order is «Нове» and not deleted.</param>
-public sealed record ProductionPlanItem(
-    int OrderId,
-    int OrderNumber,
-    int OrderVersion,
-    bool IsOpen,
-    string ClientName,
-    int ItemId,
-    string ModelName,
-    string? FabricCode,
-    string? FabricName,
-    int Quantity,
-    bool HasNorm,
-    IReadOnlyList<FabricPlanPart> Parts,
-    string? ModelCode = null,
-    DateTimeOffset OrderCreatedAt = default,
-    DateOnly? DueDate = null);
-
-public sealed record ProductionLegacyOrder(string LegacyId, int OrderId, int Number,
-    IReadOnlyList<ProductionLegacyItem> Items);
-
-public sealed record ProductionLegacyItem(int Position, int ItemId, string ModelName, string? ModelCode = null,
-    int Quantity = 0);
-
 /// <summary>
 /// What «Склад тканин» (Warehouse) needs of the workshop: the plan of items by colour from the norms (PRD-D28), the
-/// orders moved from the old «Цех», and the line «Тканина» in an item's history. The host passes it on.
+/// orders moved from the old «Цех», and the line «Тканина» in an item's history. Other modules read it through `Production.Contracts`.
 /// </summary>
-public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider clock)
+public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider clock, ProductionAssemblies assemblies)
+    : IOrderFabricPlans
 {
     /// <summary>Items of «Нове» orders; <paramref name="fabricCode"/> narrows to the items that plan that fabric.</summary>
-    public async Task<IReadOnlyList<ProductionPlanItem>> OpenAsync(string? fabricCode,
+    public async Task<IReadOnlyList<OrderPlanItem>> OpenItemsAsync(string? fabricCode,
         CancellationToken cancellationToken)
     {
         var orders = await db.Orders.AsNoTracking().Include(x => x.Items)
@@ -50,7 +27,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
     }
 
     /// <summary>One item of an order that is not deleted, whatever its status.</summary>
-    public async Task<ProductionPlanItem?> ItemAsync(int orderId, int itemId, CancellationToken cancellationToken)
+    public async Task<OrderPlanItem?> ItemAsync(int orderId, int itemId, CancellationToken cancellationToken)
     {
         var order = await db.Orders.AsNoTracking().Include(x => x.Items)
             .SingleOrDefaultAsync(x => x.Id == orderId && x.DeletedAt == null, cancellationToken);
@@ -60,7 +37,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
     }
 
     /// <summary>The given items of orders that are not deleted, whatever their status; unknown ids are left out.</summary>
-    public async Task<IReadOnlyList<ProductionPlanItem>> ItemsAsync(IReadOnlyCollection<int> itemIds,
+    public async Task<IReadOnlyList<OrderPlanItem>> ItemsAsync(IReadOnlyCollection<int> itemIds,
         CancellationToken cancellationToken)
     {
         if (itemIds.Count == 0) return [];
@@ -74,16 +51,19 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
     }
 
     /// <summary>Orders moved from the old «Цех» that are not deleted, by their old id.</summary>
-    public async Task<IReadOnlyList<ProductionLegacyOrder>> LegacyAsync(IReadOnlyCollection<string> legacyIds,
+    public async Task<IReadOnlyList<LegacyOrder>> LegacyOrdersAsync(IReadOnlyCollection<string> legacyIds,
         CancellationToken cancellationToken)
     {
         var ids = legacyIds.ToArray();
         var orders = await db.Orders.AsNoTracking().Include(x => x.Items)
             .Where(x => x.LegacyId != null && ids.Contains(x.LegacyId) && x.DeletedAt == null)
             .ToListAsync(cancellationToken);
-        return orders.Select(o => new ProductionLegacyOrder(o.LegacyId!, o.Id, o.Number,
-            o.Items.Select(i => new ProductionLegacyItem(i.Position, i.Id, i.ModelName, i.ModelCode, i.Quantity)).ToList())).ToList();
+        return orders.Select(o => new LegacyOrder(o.LegacyId!, o.Id, o.Number,
+            o.Items.Select(i => new LegacyOrderItem(i.Position, i.Id, i.ModelName, i.ModelCode, i.Quantity)).ToList())).ToList();
     }
+
+    public Task<IReadOnlyList<AssemblyItem>> OpenAssembliesAsync(CancellationToken cancellationToken) =>
+        assemblies.OpenAsync(cancellationToken);
 
     /// <summary>Adds «Тканина» to the history of the item; nothing when the order is gone.</summary>
     public async Task RecordFabricAsync(int orderId, int itemId, string text, string actorName,
@@ -95,7 +75,7 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task<IReadOnlyList<ProductionPlanItem>> PlanAsync(
+    private async Task<IReadOnlyList<OrderPlanItem>> PlanAsync(
         IReadOnlyList<(ProductionOrder Order, ProductionItem Item)> items, CancellationToken cancellationToken)
     {
         if (items.Count == 0) return [];
@@ -103,12 +83,14 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
         return items.Select(x =>
         {
             var norm = x.Item.ModelCode is null ? null : norms.GetValueOrDefault(x.Item.ModelCode);
-            return new ProductionPlanItem(x.Order.Id, x.Order.Number, x.Order.Version,
+            return new OrderPlanItem(x.Order.Id, x.Order.Number, x.Order.Version,
                 x.Order is { Status: ProductionOrderStatus.New, IsDeleted: false }, x.Order.ClientName, x.Item.Id,
                 x.Item.ModelName,
                 x.Item.FabricCode, x.Item.FabricName, x.Item.Quantity, norm is not null,
                 FabricPlanParts.For(norm, x.Item.FabricCode, x.Item.MainColor, x.Item.AdditionalColors,
-                    x.Item.Quantity), x.Item.ModelCode, x.Order.CreatedAt, x.Item.DueDate);
+                        x.Item.Quantity)
+                    .Select(p => new OrderPlanPart(p.FabricCode, p.Color, p.ColorKey, p.Meters)).ToList(),
+                x.Item.ModelCode, x.Order.CreatedAt, x.Item.DueDate);
         }).ToList();
     }
 }

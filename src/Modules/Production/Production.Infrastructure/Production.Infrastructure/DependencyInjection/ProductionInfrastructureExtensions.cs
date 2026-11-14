@@ -1,4 +1,8 @@
+using Production.Infrastructure.Adapters.Catalog;
+using Production.Infrastructure.Adapters.Crm;
 using Production.Infrastructure.Adapters.Identity;
+using Production.Infrastructure.Contracts.Orders;
+using Production.Contracts.Orders;
 using Production.Infrastructure.Adapters.Media;
 using Production.Infrastructure.Adapters.Reference;
 using Production.Infrastructure.Adapters.Reminders;
@@ -36,6 +40,8 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<WorkCards>();
         services.AddScoped<Production.Application.FabricPlans.ProductionFabricPlans>();
         services.AddScoped<Production.Application.FabricPlans.ProductionAssemblies>();
+        services.AddScoped<Production.Contracts.FabricPlans.IOrderFabricPlans>(sp =>
+            sp.GetRequiredService<Production.Application.FabricPlans.ProductionFabricPlans>());
         services.AddScoped<ForecastQueueReader>();
         services.AddScoped<PayrollSheets>();
         services.AddScoped<WorkshopReports>();
@@ -54,6 +60,12 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();
         services.AddScoped<IProductionFileStorage, ProductionFileStorage>();
         services.AddScoped<IProductionTelegram, ProductionTelegram>();
+        services.AddScoped<IProductionModelReader, ProductionModelReader>();
+        services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
+        services.AddScoped<IProductionEmbroideryReader, ProductionEmbroideryReader>();
+
+        // Production.Contracts for other modules.
+        services.AddScoped<IQuoteOrderLinks, QuoteOrderLinks>();
         return services;
     }
 }
