@@ -1,3 +1,9 @@
+using Media.Contracts.Files;
+using Media.Contracts.Imports;
+using Media.Contracts.Storage;
+using Media.Infrastructure.Contracts.Files;
+using Media.Infrastructure.Contracts.Imports;
+using Media.Infrastructure.Contracts.Storage;
 using BuildingBlocks.Infrastructure.Migrations;
 using Media.Application.Abstractions;
 using Media.Application.Files.BackfillImages;
@@ -33,6 +39,12 @@ public static class MediaInfrastructureExtensions
         services.AddScoped<MediaImagePreparer>();
         services.AddScoped<MediaImageBackfill>();
         services.TryAddSingleton(TimeProvider.System);
+
+        // Contracts other modules use (ADR-0006).
+        services.AddScoped<IMediaFileReader, MediaFileReader>();
+        services.AddScoped<IMediaFileUploader, MediaFileUploader>();
+        services.AddSingleton<ICdnStorage, CdnStorage>();
+        services.AddHttpClient<IMediaUrlImporter, MediaUrlImporter>(client => client.Timeout = TimeSpan.FromSeconds(30));
         return services;
     }
 }

@@ -1,3 +1,5 @@
+using Reminders.Contracts.Telegram;
+using Reminders.Infrastructure.Contracts.Telegram;
 using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +31,9 @@ public static class RemindersInfrastructureExtensions
         services.AddHttpClient<ITelegramGateway, TelegramBotApiGateway>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.TryAddSingleton(TimeProvider.System);
         services.AddRemindersApplication();
+
+        // Contracts other modules use (ADR-0006).
+        services.AddScoped<ITelegramBot, TelegramBot>();
         return services;
     }
 

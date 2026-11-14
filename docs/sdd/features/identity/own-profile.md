@@ -28,7 +28,7 @@ src/Modules/Identity/
 └── Identity.Infrastructure/Identity.Infrastructure/
     ├── Services/Profile/ProfileService.cs
     └── Avatars/                                    # SkiaSharp processing, replace/remove
-src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/IdentityAvatarStorage.cs  # Media CDN bridge
+src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/Adapters/Media/CdnAvatarStorage.cs  # Media.Contracts ICdnStorage
 ```
 
 ## Tests

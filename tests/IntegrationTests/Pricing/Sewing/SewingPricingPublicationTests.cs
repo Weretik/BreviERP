@@ -11,7 +11,8 @@ using Catalog.Infrastructure.Pricing.History.Publications;
 using Catalog.Infrastructure.Pricing.History.Transactions;
 using Catalog.Infrastructure.Pricing.Reading;
 using Catalog.Infrastructure.Pricing.SewingSettings.Writing;
-using Host.Api.DependencyInjection.ServiceRegistration;
+using Catalog.Infrastructure.Adapters.Reference;
+using Reference.Infrastructure.Contracts.Pricing;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Pricing;
 using Reference.Infrastructure.Pricing.Reading;
@@ -42,7 +43,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         var publications = new SewingPublicationStore(catalog);
         var inputReader = new SewingPricingInputReader(catalog);
         var settingsReader = new SewingPricingSettingsReader(catalog);
-        var bridge = new CatalogPricingReferenceReader(new ReferencePricingVersionReader(reference), catalog, reference);
+        var bridge = new PricingReferenceVersionReader(new PricingInputVersionReader(new ReferencePricingVersionReader(reference), reference), catalog);
         var save = new SaveSewingCalculationCommandHandler(transactions, calculations, inputReader, settingsReader, bridge);
         var publish = new PublishSewingCalculationCommandHandler(transactions, calculations, publications, inputReader, settingsReader, bridge);
         // Without operations the Article has no price: the saved calculation is blocked.

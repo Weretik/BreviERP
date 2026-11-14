@@ -20,8 +20,13 @@ src/Modules/Ai/
     Security/          # AiKeyProtector (Data Protection)
     OpenAi/            # OpenAiResponsesClient (Responses API, strict json_schema)
   Ai.Api/Ai.Api/Settings/AiSettingsController.cs   # /api/ai/settings, policy RequireAdminRole
-src/Bootstrapper/Host.Api/Purchasing/PurchaseDocumentRecognizer.cs   # Purchasing → Ai port
-src/Bootstrapper/Host.Api/Purchasing/PurchaseInvoiceBasePrompt.cs    # invoice base instruction shown read-only
+  Ai.Contracts/Ai.Contracts/
+    Extraction/IStructuredDataExtractor.cs  # structured answer from text and files, for other modules
+    Prompts/{IAiBasePrompt,AiPromptKeys}.cs # base instructions other modules register
+  Ai.Infrastructure/Ai.Infrastructure/Contracts/Extraction/StructuredDataExtractor.cs
+src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/Adapters/Ai/
+  PurchaseDocumentRecognizer.cs    # Purchasing → Ai.Contracts
+  PurchaseInvoiceBasePrompt.cs     # invoice base instruction shown read-only
 ```
 
 ## Tests

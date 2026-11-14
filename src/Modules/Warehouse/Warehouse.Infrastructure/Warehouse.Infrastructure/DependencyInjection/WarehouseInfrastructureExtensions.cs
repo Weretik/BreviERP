@@ -1,3 +1,6 @@
+using Warehouse.Infrastructure.Adapters.Identity;
+using Warehouse.Infrastructure.Adapters.Reference;
+using Warehouse.Contracts.Stock;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,7 +40,14 @@ public static class WarehouseInfrastructureExtensions
         services.AddScoped<ItemFabricCards>();
         services.AddScoped<ItemPlans>();
         services.AddScoped<StockFacts>();
+
+        // Contracts other modules use (ADR-0006).
+        services.AddScoped<IStockFacts>(sp => sp.GetRequiredService<StockFacts>());
         services.TryAddSingleton(TimeProvider.System);
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IWarehouseReferenceReader, WarehouseReferenceReader>();
+        services.AddScoped<IWarehouseStaffReader, WarehouseStaffReader>();
         return services;
     }
 }

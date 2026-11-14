@@ -8,6 +8,10 @@
         <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Crm.Application\Crm.Application\Crm.Application.csproj" />
         <ProjectReference Include="..\..\Crm.Domain\Crm.Domain\Crm.Domain.csproj" />
+        <ProjectReference Include="..\..\..\Identity\Identity.Contracts\Identity.Contracts\Identity.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\Reference\Reference.Contracts\Reference.Contracts\Reference.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\Media\Media.Contracts\Media.Contracts\Media.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\Reminders\Reminders.Contracts\Reminders.Contracts\Reminders.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

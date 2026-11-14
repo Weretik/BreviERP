@@ -50,8 +50,9 @@ src/Modules/Reference/
     InputVersions/{Configuration,Reading,Changes}/  # effective reads; tracked changes and atomic revision append
     OtherCosts/Writing/                            # explicit service-cost revision adapter
     Usage/                                        # retained-history use checks
-src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/
-  CatalogPricingReferenceReader.cs                 # Reference reads enlist in Catalog pricing transaction
+src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Reference/
+  PricingReferenceVersionReader.cs                 # Reference.Contracts IPricingInputVersionReader, enlisted in the Catalog pricing transaction
+src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Contracts/Pricing/PricingInputVersionReader.cs  # provider side
 src/Jobs/SewingPricing/
   Bootstrap/{Source,Inputs,Reconciliation}/         # source mapping, input baseline and immutable-version comparison
   Reading/                                        # seed-job cross-module bridge

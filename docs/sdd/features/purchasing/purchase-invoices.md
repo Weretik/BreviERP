@@ -39,9 +39,10 @@ src/Modules/Purchasing/
   Purchasing.Api/Purchasing.Api/
     Register/PurchaseInvoicesController.cs   # /api/purchasing/invoices, policy access:purchase-invoices
 src/Bootstrapper/Host.Seed/Jobs/Sync/PurchaseInvoicesSyncTask.cs   # daily step purchase-invoices
-src/Bootstrapper/Host.Api/Purchasing/PurchasingSupplierReader.cs     # Reference suppliers for the link
-src/Bootstrapper/Host.Api/Purchasing/PurchasingPaymentReader.cs      # Accounting expenses for the payment links
-src/Bootstrapper/Host.Api/Purchasing/PurchaseDocumentRecognizer.cs   # reading originals through the Ai module
+src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/Adapters/
+  Reference/PurchasingSupplierReader.cs     # Reference.Contracts suppliers for the link
+  Accounting/PurchasingPaymentReader.cs     # Accounting.Contracts expenses for the payment links
+  Ai/PurchaseDocumentRecognizer.cs          # reading originals through Ai.Contracts
 ```
 
 ## Structure diagram

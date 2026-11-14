@@ -15,11 +15,11 @@ Every use case is one folder under `Commands/` (changes state) or `Queries/` (re
 │   └── <Feature>/
 │       ├── Commands/<UseCase>/
 │       │   ├── <UseCase>Command.cs
-│       │   ├── <UseCase>CommandHandler.cs
-│       │   ├── <UseCase>CommandValidator.cs
+│       │   ├── <UseCase>Handler.cs
+│       │   ├── <UseCase>Validator.cs
 │       │   └── <UseCase>Specification.cs    EF/Ardalis specification of this use case only
 │       ├── Queries/<UseCase>/
-│       │   ├── <UseCase>Query.cs, <UseCase>QueryHandler.cs, <UseCase>QueryValidator.cs
+│       │   ├── <UseCase>Query.cs, <UseCase>Handler.cs, <UseCase>Validator.cs, <Name>Dto.cs
 │       │   └── response DTOs of this query
 │       ├── EventHandlers/                   reactions to domain events or other modules' integration events
 │       └── Shared/                          DTOs, mapping, policies used by several use cases of this feature
@@ -42,6 +42,10 @@ Handler ──→ Domain aggregate / Application abstraction
        │
        └──→ Result.Success | Result.NotFound | Result.Conflict | Result.Invalid
 ```
+
+## Handler responsibilities
+
+A handler only orders the steps: load data, check what needs outside data, call the domain method (the rules are checked there), save with one `SaveChanges`, return an id or a DTO, never an entity. The table, the five steps, and the batch exception are in the [module rules](../../standards/module-rules.md#layer-responsibilities-and-the-handler).
 
 ## Rules
 

@@ -30,7 +30,6 @@ using Media.Infrastructure.DependencyInjection;
 using Host.Api.Production;
 using Production.Application.Abstractions;
 using Production.Infrastructure.DependencyInjection;
-using Host.Api.Purchasing;
 using Purchasing.Application.Abstractions;
 using Purchasing.Infrastructure.DependencyInjection;
 using Content.Application.Abstractions;
@@ -50,8 +49,6 @@ public static class ModuleRegistrationsExtensions
         IConfiguration configuration)
     {
         services.AddIdentityConfiguration(configuration);
-        // Before Identity, which falls back to switched-off avatars when nothing is registered.
-        services.AddSingleton<Identity.Application.Services.IAvatarStorage, IdentityAvatarStorage>();
         services.AddIdentityInfrastructureServices(configuration);
 
         services.AddInfrastructureServices(configuration);
@@ -59,63 +56,30 @@ public static class ModuleRegistrationsExtensions
         services.AddReferenceInfrastructureServices(configuration);
         services.AddAccountingInfrastructure(configuration);
         services.AddScoped<IAccountingCustomerReader, AccountingCustomerReader>();
-        services.AddScoped<IAccountingSupplierReader, AccountingSupplierReader>();
         services.AddCatalogInfrastructureServices(configuration);
         services.AddCrmDbContextServices(configuration);
         services.AddCrmKeepinCrmSync(configuration);
         services.AddScoped<IQuoteCatalogReader, QuoteCatalogReader>();
-        services.AddScoped<IQuoteFabricFactsReader, QuoteFabricFactsReader>();
         services.AddScoped<IQuoteProductionOrders, QuoteProductionOrders>();
-        services.AddScoped<IQuotePhotoStorage, QuotePhotoStorage>();
-        services.AddScoped<ISiteRequestFileStorage, SiteRequestFileStorage>();
-        services.AddScoped<ISiteRequestNotifier, SiteRequestNotifier>();
         services.AddScoped<IQuoteSewingCalculator, QuoteSewingCalculator>();
         services.AddScoped<IQuoteModelCompositionReader, QuoteModelCompositionReader>();
-        services.AddScoped<IQuoteStaffReader, QuoteStaffReader>();
         services.AddScoped<IQuoteImportLookup, QuoteImportLookup>();
-        services.AddScoped<ITaskStaffReader, TaskStaffReader>();
-        services.AddScoped<IEmbroideryStitchRateReader, EmbroideryStitchRateReader>();
-        services.AddScoped<IEmbroideryMediaReader, EmbroideryMediaReader>();
         services.AddRemindersInfrastructure(configuration);
         services.AddMediaInfrastructure(configuration);
         services.AddPurchasingInfrastructure(configuration);
         services.AddContentInfrastructure(configuration);
         services.AddScoped<IContentCatalogReader, ContentCatalogReader>();
-        services.AddScoped<IContentMediaReader, ContentMediaReader>();
-        services.AddScoped<IContentPhotoImporter, ContentPhotoImporter>();
-        services.AddScoped<IPurchasingSupplierReader, PurchasingSupplierReader>();
-        services.AddScoped<IPurchasingPaymentReader, PurchasingPaymentReader>();
-        // Recognition runs only in the API: the recognizer reaches the Ai module through Mediator.
-        services.AddScoped<IPurchaseDocumentRecognizer, PurchaseDocumentRecognizer>();
-        services.AddSingleton<global::Ai.Application.Abstractions.IAiBasePrompt, PurchaseInvoiceBasePrompt>();
-        services.AddScoped<global::Purchasing.Application.Documents.Recognize.PurchaseFileRecognition>();
         services.AddAiInfrastructure(configuration);
-        services.AddScoped<IProductMediaReader, CatalogProductMediaReader>();
-        services.AddHttpClient<IProductPhotoSource, CatalogProductPhotoSource>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddScoped<IMediaUsageReader, MediaProductUsageReader>();
-        services.AddScoped<IProductReferenceReader, CatalogProductReferenceReader>();
-        services.AddScoped<IProductSectionReader, CatalogProductSectionReader>();
-        services.AddScoped<IFabricNameReader, CatalogFabricNameReader>();
-        services.AddScoped<IProductReferenceCodeReader, CatalogProductReferenceCodeReader>();
-        services.AddScoped<Catalog.Application.Contracts.Pricing.IPricingReferenceVersionReader, CatalogPricingReferenceReader>();
         services.AddScoped<IProductUsageReader, CatalogProductUsageReader>();
         services.AddScoped<IPricingSettingsChangeNotifier, CatalogPricingSettingsSync>();
         // Warehouse before Production: its first migration takes over «Склад тканин» from the production schema.
         services.AddWarehouseInfrastructure(configuration);
-        services.AddScoped<IWarehouseReferenceReader, WarehouseReferenceReader>();
-        services.AddScoped<IWarehouseStaffReader, WarehouseStaffReader>();
         services.AddScoped<IWarehouseProductionReader, WarehouseProductionReader>();
         services.AddProductionInfrastructure(configuration);
         services.AddScoped<IProductionModelReader, ProductionModelReader>();
         services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
         services.AddScoped<IProductionEmbroideryReader, ProductionEmbroideryReader>();
-        services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
-        services.AddScoped<IProductionColorReader, ProductionColorReader>();
-        services.AddScoped<IProductionStockReader, ProductionStockReader>();
-        services.AddScoped<IProductionStaffReader, ProductionStaffReader>();
-        services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();
-        services.AddScoped<IProductionFileStorage, ProductionFileStorage>();
-        services.AddScoped<IProductionTelegram, ProductionTelegram>();
         services.AddSingleton<IProductSlugGenerator, ProductSlugGenerator>();
 
         return services;

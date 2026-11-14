@@ -1,3 +1,8 @@
+using Production.Infrastructure.Adapters.Identity;
+using Production.Infrastructure.Adapters.Media;
+using Production.Infrastructure.Adapters.Reference;
+using Production.Infrastructure.Adapters.Reminders;
+using Production.Infrastructure.Adapters.Warehouse;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Production.Application.Abstractions;
@@ -40,6 +45,15 @@ public static class ProductionInfrastructureExtensions
             ? url
             : "https://office.brevi.com.ua"));
         services.TryAddSingleton(TimeProvider.System);
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IProductionFabricReader, ProductionFabricReader>();
+        services.AddScoped<IProductionColorReader, ProductionColorReader>();
+        services.AddScoped<IProductionStockReader, ProductionStockReader>();
+        services.AddScoped<IProductionStaffReader, ProductionStaffReader>();
+        services.AddScoped<IPayrollParameterReader, PayrollParameterReader>();
+        services.AddScoped<IProductionFileStorage, ProductionFileStorage>();
+        services.AddScoped<IProductionTelegram, ProductionTelegram>();
         return services;
     }
 }

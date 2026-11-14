@@ -33,12 +33,12 @@ public sealed class MediaDependencyTests
     }
 
     [Test]
-    public void CatalogDoesNotReferenceMediaModule()
+    public void CatalogUsesMediaOnlyThroughContracts()
     {
         var catalog = Path.Combine(RepositoryRoot(), "src", "Modules", "Catalog");
         var references = Directory.GetFiles(catalog, "*.csproj", SearchOption.AllDirectories)
             .SelectMany(project => XDocument.Load(project).Descendants("ProjectReference").Select(x => x.Attribute("Include")!.Value));
-        Assert.That(references.Any(x => x.Contains("Media.")), Is.False, "Catalog reads photos only through IProductMediaReader");
+        Assert.That(references.Any(x => x.Contains("Media.") && !x.EndsWith("Media.Contracts.csproj")), Is.False, "Catalog reads photos only through Media.Contracts");
     }
 
     private static string RepositoryRoot()

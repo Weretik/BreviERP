@@ -4,6 +4,11 @@
     <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Production.Application\Production.Application\Production.Application.csproj" />
     <ProjectReference Include="..\..\Production.Domain\Production.Domain\Production.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Identity\Identity.Contracts\Identity.Contracts\Identity.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Reference\Reference.Contracts\Reference.Contracts\Reference.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Media\Media.Contracts\Media.Contracts\Media.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Warehouse\Warehouse.Contracts\Warehouse.Contracts\Warehouse.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Reminders\Reminders.Contracts\Reminders.Contracts\Reminders.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

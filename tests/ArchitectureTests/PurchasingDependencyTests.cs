@@ -13,7 +13,7 @@ public sealed class PurchasingDependencyTests
         {
             var project = Path.Combine(root.FullName, "src", "Modules", "Purchasing", $"Purchasing.{layer}", $"Purchasing.{layer}", $"Purchasing.{layer}.csproj");
             var references = XDocument.Load(project).Descendants("ProjectReference").Select(x => x.Attribute("Include")!.Value).ToArray();
-            Assert.That(references.Any(x => OtherModules.Any(x.Contains)), Is.False, layer);
+            Assert.That(references.Where(x => !x.EndsWith(".Contracts.csproj")).Any(x => OtherModules.Any(x.Contains)), Is.False, layer);
             if (layer == "Domain") Assert.That(references.All(x => x.Contains("BuildingBlocks.Domain")), Is.True);
             if (layer == "Application") Assert.That(references.Any(x => x.Contains("Infrastructure") || x.Contains("Purchasing.Api")), Is.False);
             if (layer == "Api") Assert.That(references.Any(x => x.Contains("Purchasing.Infrastructure")), Is.False);

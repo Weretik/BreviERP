@@ -24,6 +24,10 @@ BreviERP.sln
 └── docs/sdd/                         active documentation
 ```
 
+One use case, one folder: `PlaceOrder/` holds `PlaceOrderCommand`, `PlaceOrderHandler`, `PlaceOrderValidator`, `PlaceOrderResponse` side by side, with no subfolders; `GetOrderDetails/` holds `GetOrderDetailsQuery`, `GetOrderDetailsHandler`, `OrderDetailsDto`. Ports that Application asks from the outside world (`IOrderRepository`, `IUnitOfWork`, `IClock`) live in `Abstractions/`.
+
+A handler only orders the steps: load data, check what needs outside data, call the domain method (the rules are checked there), save with one `SaveChanges`, return an id or a DTO, not an entity. Rules live in the Domain aggregate, storage in Infrastructure, HTTP in Api.
+
 Folders inside each project are described in the [module rules](../../standards/module-rules.md#folder-structure-inside-a-module) and the layer documents: [Domain](../layers/domain-structure.md), [Application](../layers/application-structure.md), [Infrastructure](../layers/infrastructure-structure.md), [API and Host](../layers/api-host-structure.md).
 
 ## Dependency Diagram

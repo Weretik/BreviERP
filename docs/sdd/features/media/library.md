@@ -25,8 +25,10 @@ src/Modules/Media/
   Media.Api/Media.Api/
     Folders/MediaFoldersController.cs   # /api/media/folders
     Files/MediaFilesController.cs       # /api/media/files
+  Media.Contracts/Media.Contracts/{Files,Imports,Storage}/   # IMediaFileReader, IMediaFileUploader, IMediaUrlImporter, ICdnStorage
+  Media.Infrastructure/Media.Infrastructure/Contracts/       # their implementations
+src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Media/ProductMediaReader.cs  # Catalog IProductMediaReader → Media.Contracts
 src/Bootstrapper/Host.Api/DependencyInjection/ServiceRegistration/
-  CatalogProductMediaReader.cs   # Catalog IProductMediaReader → Media GetMediaFilesByIdsQuery
   MediaProductUsageReader.cs     # Media IMediaUsageReader → Catalog GetProductMediaUsagesQuery
 src/Bootstrapper/Host.Seed/Jobs/Sync/MediaThumbnailsSyncTask.cs # sync step media-thumbnails
 ```

@@ -13,7 +13,7 @@ public sealed class ProductionDependencyTests
         {
             var project = Path.Combine(root, "src", "Modules", "Production", $"Production.{layer}", $"Production.{layer}", $"Production.{layer}.csproj");
             var references = XDocument.Load(project).Descendants("ProjectReference").Select(x => x.Attribute("Include")!.Value).ToArray();
-            Assert.That(references.Any(x => OtherModules.Any(x.Contains)), Is.False, layer);
+            Assert.That(references.Where(x => !x.EndsWith(".Contracts.csproj")).Any(x => OtherModules.Any(x.Contains)), Is.False, layer);
             if (layer == "Domain") Assert.That(references.All(x => x.Contains("BuildingBlocks.Domain")), Is.True);
             if (layer == "Application") Assert.That(references.Any(x => x.Contains("Infrastructure") || x.Contains("Production.Api")), Is.False);
             if (layer == "Api") Assert.That(references.Any(x => x.Contains("Production.Infrastructure")), Is.False);
@@ -39,7 +39,7 @@ public sealed class ProductionDependencyTests
         var references = OtherModules
             .SelectMany(module => Directory.GetFiles(Path.Combine(modules, module), "*.csproj", SearchOption.AllDirectories))
             .SelectMany(project => XDocument.Load(project).Descendants("ProjectReference").Select(x => x.Attribute("Include")!.Value));
-        Assert.That(references.Any(x => x.Contains("Production.")), Is.False, "the workshop reads Catalog and Reference only through ports in the host");
+        Assert.That(references.Any(x => x.Contains("Production.") && !x.EndsWith("Production.Contracts.csproj")), Is.False, "other modules use Production only through Production.Contracts");
     }
 
     private static string RepositoryRoot()

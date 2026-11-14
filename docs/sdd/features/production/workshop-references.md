@@ -24,7 +24,7 @@ src/Modules/Production/
     FabricNorms/FabricNormsController.cs         # /api/production/fabric-norms, /compositions
 src/Bootstrapper/Host.Api/Production/
   ProductionModelReader.cs     # IProductionModelReader → Catalog GetProductOverviewPageQuery (sewing, all pages), ListSewingCompositionsQuery
-  PayrollParameterReader.cs    # IPayrollParameterReader → Reference GetPricingParametersQuery
+src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Reference/ProductionReferenceReaders.cs  # PayrollParameterReader → Reference.Contracts IPricingParameterDirectory
 ```
 
 ## Structure diagram

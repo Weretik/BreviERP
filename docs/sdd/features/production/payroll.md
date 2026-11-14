@@ -34,7 +34,7 @@ flowchart LR
   Controllers --> UseCases[Timesheet and Payroll use cases]
   UseCases --> Db[(production.TimeEntries / Payroll*)]
   UseCases --> Work[(production.Work / Items / Employees)]
-  UseCases --> Params[IPayrollParameterReader] -.host.-> Reference[«Параметри ціноутворення»]
+  UseCases --> Params[IPayrollParameterReader] -.Reference.Contracts.-> Reference[«Параметри ціноутворення»]
 ```
 
 ## Tests

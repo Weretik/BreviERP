@@ -1,3 +1,4 @@
+using Ai.Contracts.Prompts;
 using Ai.Application.Abstractions;
 using Ai.Application.Calls;
 using Ai.Application.Contracts;
@@ -31,7 +32,7 @@ public sealed class ExtractStructuredDataCommandValidator : AbstractValidator<Ex
         RuleForEach(x => x.Files).Must(x => x.Content.Length is > 0 and <= MaxFileBytes && !string.IsNullOrWhiteSpace(x.FileName));
         RuleFor(x => x.SchemaName).Matches("^[a-zA-Z0-9_-]{1,64}$");
         RuleFor(x => x.SchemaJson).NotEmpty();
-        RuleFor(x => x.PromptKey).Must(key => key is null || Settings.AiPromptKeys.IsKnown(key));
+        RuleFor(x => x.PromptKey).Must(key => key is null || AiPromptKeys.IsKnown(key));
     }
 }
 

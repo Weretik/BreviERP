@@ -1,3 +1,4 @@
+using Content.Infrastructure.Adapters.Media;
 using BuildingBlocks.Infrastructure.Migrations;
 using Content.Application.Abstractions;
 using Content.Application.PublicArticles;
@@ -34,6 +35,10 @@ public static class ContentInfrastructureExtensions
         services.AddScoped<IPublicSiteCompanySource, PublicSiteCompanySource>();
         services.AddScoped<IPublicSiteGalleriesSource, PublicSiteGalleriesSource>();
         services.TryAddSingleton(TimeProvider.System);
+
+        // Adapters from other modules' Contracts to this module's ports.
+        services.AddScoped<IContentMediaReader, ContentMediaReader>();
+        services.AddScoped<IContentPhotoImporter, ContentPhotoImporter>();
         return services;
     }
 }
