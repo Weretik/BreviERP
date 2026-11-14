@@ -3,6 +3,7 @@ using Crm.Application;
 using Crm.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Crm.Api;
 
 namespace Crm.Api.DependencyInjection;
 

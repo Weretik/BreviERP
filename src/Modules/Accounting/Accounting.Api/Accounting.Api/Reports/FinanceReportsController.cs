@@ -2,7 +2,7 @@ using Accounting.Api.Counterparties;
 using Accounting.Api.Access;
 using BuildingBlocks.Application.Errors;
 using BuildingBlocks.Domain.Results;
-using Accounting.Api.Results;
+using Accounting.Api.Attachments;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;

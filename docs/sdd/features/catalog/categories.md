@@ -6,7 +6,7 @@ Admin CRUD and list for Storefront.
 
 ## Structure and relationships
 
-[ProductCategoriesController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductCategoriesController.cs) routes requests to the [admin query](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Queries/GetAdminProductCategories/GetAdminProductCategoriesHandler.cs), store query, and command handlers. [ProductCategory](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/ProductCategories/ProductCategory.cs) is persisted through [CatalogEfRepository](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogEfRepository.cs). The category belongs to Catalog even though the API route starts with `/api/reference/`.
+[ProductCategoriesController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/ProductCategory/ProductCategoriesController.cs) routes requests to the [admin query](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/ProductCategory/Queries/GetAdminProductCategories/GetAdminProductCategoriesHandler.cs), store query, and command handlers. [ProductCategory](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/ProductCategories/ProductCategory.cs) is persisted through [CatalogEfRepository](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogEfRepository.cs). The category belongs to Catalog even though the API route starts with `/api/reference/`.
 
 ## Code structure
 
@@ -15,7 +15,7 @@ The following are verified entry points and key feature components; the tree doe
 ```text
 src/
 └── Modules/Catalog/
-    ├── Catalog.Api/Catalog.Api/Controllers/ProductCategoriesController.cs  # HTTP entry point
+    ├── Catalog.Api/Catalog.Api/ProductCategory/ProductCategoriesController.cs  # HTTP entry point
     ├── Catalog.Application/Catalog.Application/Features/ProductCategory/
     │   ├── Commands/CreateProductCategory/CreateProductCategoryHandler.cs  # use-case handler
     │   ├── Commands/DeleteProductCategory/DeleteProductCategoryHandler.cs  # use-case handler

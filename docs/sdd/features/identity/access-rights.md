@@ -27,9 +27,9 @@ src/Modules/Identity/
 │   ├── Persistence/Access/RoleAccess.cs, Persistence/Access/RoleAccessConfiguration.cs
 │   └── Integrations/AspNetIdentity/Access/      # AccessRightsService, AccessGrantSource (cached)
 └── Identity.Api/Identity.Api/
-    ├── Controllers/AccessRightsController.cs    # /api/admin/access
-    ├── Controllers/AuthSessionController.cs     # GET /api/auth/session/access
-    ├── Contracts/Access/AccessContracts.cs
+    ├── Access/AccessRightsController.cs         # /api/admin/access
+    ├── Auth/AuthSessionController.cs            # GET /api/auth/session/access
+    ├── Access/AccessContracts.cs
     ├── Access/                                  # AccessPolicyProvider, AccessRequirementHandler, DefaultAccessGrantSource
     └── DependencyInjection/IdentityAuthorizationExtensions.cs # named policies, AddAccessPolicies
 src/BuildingBlocks/BuildingBlocks.Api/Authorization/AccessActionAttribute.cs

@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Fabrics” lookup, with the fields
 
 ## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/FabricsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Fabric/Commands/CreateFabric/CreateFabricHandler.cs) and adjacent query/update/delete handlers validate the data; [Fabric](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/Fabric.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. Fabrics are used as part of Sewing products.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Fabric/FabricsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Fabric/Commands/CreateFabric/CreateFabricHandler.cs) and adjacent query/update/delete handlers validate the data; [Fabric](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/Fabric.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. Fabrics are used as part of Sewing products.
 
 ## Code Structure
 
@@ -15,7 +15,7 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Controllers/FabricsController.cs  # HTTP entry point
+    ├── Reference.Api/Reference.Api/Fabric/FabricsController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/Fabric/
     │   ├── Commands/CreateFabric/CreateFabricHandler.cs  # use case handler
     │   ├── Commands/DeleteFabric/DeleteFabricHandler.cs  # use case handler

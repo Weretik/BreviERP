@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Ardalis.Result;
-using Catalog.Api.Contracts.Products.Overview;
 using Catalog.Domain.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -12,6 +11,7 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
+using Catalog.Api.Product.Overview;
 
 namespace UnitTests;
 
@@ -140,7 +140,7 @@ public sealed class CatalogSheetImportHandlerTests
     [Test]
     public void Sheet_import_operation_exists_and_requires_product_management()
     {
-        var methods = typeof(Catalog.Api.Controllers.ProductOverviewController).GetMethods()
+        var methods = typeof(Catalog.Api.Product.Overview.ProductOverviewController).GetMethods()
             .Where(method => method.GetCustomAttributes(typeof(HttpMethodAttribute), false)
                 .Cast<HttpMethodAttribute>().Any(attribute => attribute.Name == "importSheetProducts")).ToArray();
         Assert.That(methods, Has.Length.EqualTo(1));

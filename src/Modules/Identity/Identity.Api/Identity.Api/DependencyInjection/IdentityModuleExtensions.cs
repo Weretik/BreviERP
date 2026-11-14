@@ -3,6 +3,7 @@ using Identity.Application;
 using Identity.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Identity.Api;
 
 namespace Identity.Api.DependencyInjection;
 

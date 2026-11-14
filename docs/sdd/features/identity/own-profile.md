@@ -17,8 +17,7 @@
 ```text
 src/Modules/Identity/
 ├── Identity.Api/Identity.Api/
-│   ├── Controllers/ProfileController.cs            # /api/profile
-│   ├── Contracts/Profile/                          # request and response records
+│   ├── Profile/                                    # ProfileController (/api/profile), request and response records
 │   └── Avatars/AvatarUploadResults.cs              # multipart limit, 503 mapping
 ├── Identity.Application/Identity.Application/
 │   ├── Features/Profile/{Commands,Queries}/        # GetProfile, ChangeOwnName, ChangeOwnPhone, ChangeOwnEmail,

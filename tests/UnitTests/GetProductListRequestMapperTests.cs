@@ -1,6 +1,6 @@
 using Ardalis.Result;
-using Catalog.Api.Contracts.Products;
 using Catalog.Domain.Products;
+using Catalog.Api.Product.List;
 
 namespace UnitTests;
 

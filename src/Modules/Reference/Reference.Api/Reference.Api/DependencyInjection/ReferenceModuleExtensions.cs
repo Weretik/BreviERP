@@ -3,6 +3,7 @@ using Reference.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reference.Infrastructure.DependencyInjection;
+using Reference.Api;
 
 namespace Reference.Api.DependencyInjection;
 

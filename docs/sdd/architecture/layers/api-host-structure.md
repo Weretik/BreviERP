@@ -4,16 +4,17 @@
 
 ```text
 <Module>.Api/
-├── Features/<Feature>/
+├── <Feature>/                           same feature names as Application (Product, Pricing/Ppe, Users)
 │   ├── <Feature>Controller.cs           one audience (admin or public) of one feature
-│   └── <Request>.cs                     request models of these controllers
+│   └── <Request>.cs, <Response>.cs      request and response models and their mappers, next to the controller
+├── Access/                              policy names of the module's pages
 ├── DependencyInjection/
 │   └── <Module>ModuleExtensions.cs      Add<Module>Module(): Application, Infrastructure, Contracts implementations, controllers
 ├── GlobalUsing.cs
 └── <Module>.Api.csproj
 ```
 
-Controllers bind HTTP input, call `ISender.Send` with a `CancellationToken`, and return the established Result mapping. They do not run EF queries, create repositories, or contain domain rules. Only `DependencyInjection/` may use Infrastructure types.
+Controllers bind HTTP input, call `ISender.Send` with a `CancellationToken`, and return the established Result mapping. They do not run EF queries, create repositories, or contain domain rules. Only `DependencyInjection/` may use Infrastructure types. No folder is named after a kind of class (`Controllers/`, `Contracts/`, `Requests/`, `Mapping/`, `Options/`, `Results/`); `tests/ArchitectureTests/ApiLayoutTests.cs` checks it. The shared result mapping (`ToActionResult`, `ToNoContentResult`) lives in `BuildingBlocks.Api/Result`.
 
 ## Host structure
 
@@ -21,12 +22,11 @@ The host is the composition root and nothing more. It holds no readers, adapters
 
 ```text
 Bootstrapper/Host.Api/
-├── Program.cs
+├── Program.cs                    nothing else besides DependencyInjection/ (ModuleCompositionTests)
 ├── DependencyInjection/          one file per technical concern
 │   ├── ModulesRegistrationExtensions.cs   list of Add<Module>Module() calls
-│   ├── Pipeline/, Web/, Observability/, Options/
+│   ├── Pipeline/, Web/, Observability/
 │   └── SecurityRegistrationExtensions.cs
-├── Security/                     access policies, CSRF, trusted proxy middleware
 ├── Properties/launchSettings.json
 └── appsettings*.json
 

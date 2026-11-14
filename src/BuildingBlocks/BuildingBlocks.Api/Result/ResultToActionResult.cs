@@ -17,4 +17,8 @@ public static class ResultToActionResult
             ResultStatus.Unauthorized => controller.Unauthorized(),
             _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
         };
+
+    /// <summary>204 on success, otherwise the shared status mapping.</summary>
+    public static ActionResult ToNoContentResult(this ControllerBase controller, Ardalis.Result.Result result) =>
+        result.IsSuccess ? controller.NoContent() : controller.ToActionResult<Ardalis.Result.Result>(result);
 }

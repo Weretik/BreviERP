@@ -33,8 +33,4 @@ internal static class ProductionAccess
         int.TryParse(controller.User.FindFirstValue(ClaimTypes.NameIdentifier), NumberStyles.Integer, CultureInfo.InvariantCulture, out var id)
             ? id
             : null;
-
-    /// <summary>204 on success, otherwise the shared status mapping.</summary>
-    public static ActionResult ToNoContentResult(this ControllerBase controller, Result result) =>
-        result.IsSuccess ? controller.NoContent() : controller.ToActionResult<Result>(result);
 }

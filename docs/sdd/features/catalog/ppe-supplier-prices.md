@@ -41,7 +41,7 @@ Catalog.Infrastructure/
   Integrations/PpeSupplierFiles/          # Insight XmlReader, СЕМТО PdfPig, gzip unpack
   Integrations/PpeSupplierSites/          # АВ-Центр / Перчатка-центр page patterns, 3C CSV lists, HTTP client
     Cabinets/                             # Трєле sign-in, session pages, dealer price, options
-Catalog.Api/Controllers/Pricing/Ppe/PpeSupplierPricesController.cs
+Catalog.Api/Pricing/Ppe/PpeSupplierPricesController.cs
 Host.Seed/Jobs/Sync/PpeSupplierPricesSyncTask.cs  # brevierp-sync step ppe-supplier-prices (Mon–Fri 09:00)
 ```
 

@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Garment Accessories” lookup, wit
 
 ## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentAccessory/Commands/CreateGarmentAccessory/CreateGarmentAccessoryHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentAccessory](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/GarmentAccessory.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. A garment accessory has a supplier; a Sewing product references its ID and its own quantity.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/GarmentAccessory/GarmentAccessoriesController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentAccessory/Commands/CreateGarmentAccessory/CreateGarmentAccessoryHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentAccessory](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/GarmentAccessory.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. A garment accessory has a supplier; a Sewing product references its ID and its own quantity.
 
 ## Code Structure
 
@@ -15,7 +15,7 @@ Verified entry points and key feature components are shown; the tree does not li
 ```text
 src/
 └── Modules/Reference/
-    ├── Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs  # HTTP entry point
+    ├── Reference.Api/Reference.Api/GarmentAccessory/GarmentAccessoriesController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/GarmentAccessory/
     │   ├── Commands/CreateGarmentAccessory/CreateGarmentAccessoryHandler.cs  # use case handler
     │   ├── Commands/DeleteGarmentAccessory/DeleteGarmentAccessoryHandler.cs  # use case handler

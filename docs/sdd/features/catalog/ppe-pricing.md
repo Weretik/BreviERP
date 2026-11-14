@@ -41,8 +41,7 @@ Catalog.Infrastructure/Persistence/Pricing/Ppe/
                            # PpePricingInputReader: fixed-query batch in one repeatable-read snapshot;
                            # version writers: expected-version, actor-bound replay and transactions
 Catalog.Api/
-  Controllers/Pricing/Ppe/  # read/manage policies and claim actor
-  Contracts/Pricing/Ppe/    # write request boundary
+  Pricing/Ppe/              # controllers (read/manage policies, claim actor) and write requests
 Jobs/CatalogImport/PpePricing/
   Source/                  # bounded frozen source parsing
   Planning/                # source column map, no price formulas
