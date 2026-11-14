@@ -30,6 +30,14 @@ public sealed class ResultToHttpResultTests
     }
 
     [Test]
+    public async Task Success_without_a_value_is_204_as_MVC_answered_a_null_value()
+    {
+        var (status, body) = await RunAsync(Result.Success().ToHttpResult());
+        var (nullStatus, _) = await RunAsync(Result<string?>.Success(null).ToHttpResult());
+        Assert.That((status, body, nullStatus), Is.EqualTo((204, "", 204)));
+    }
+
+    [Test]
     public async Task Invalid_is_400_with_the_validation_errors_list()
     {
         var (status, body) = await RunAsync(Result<int>.Invalid(new ValidationError("Name", "Вкажіть назву.")).ToHttpResult());

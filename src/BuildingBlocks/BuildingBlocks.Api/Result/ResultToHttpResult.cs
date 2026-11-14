@@ -10,9 +10,11 @@ namespace BuildingBlocks.Api.Result;
 /// </summary>
 public static class ResultToHttpResult
 {
+    /// <remarks>A success without a value (a plain <c>Result</c> or a null value) is 204, as MVC's
+    /// <c>Ok(null)</c> answered through its no-content formatter.</remarks>
     public static IResult ToHttpResult<T>(this Result<T> result) => result.Status switch
     {
-        ResultStatus.Ok => Results.Ok(result.Value),
+        ResultStatus.Ok => result.Value is null ? Results.NoContent() : Results.Ok(result.Value),
         ResultStatus.NotFound => Results.NotFound(),
         ResultStatus.Invalid => Results.BadRequest(result.ValidationErrors),
         ResultStatus.Conflict => Results.Conflict(result.Errors),
