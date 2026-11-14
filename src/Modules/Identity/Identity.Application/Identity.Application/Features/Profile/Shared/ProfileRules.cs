@@ -8,16 +8,16 @@ public static class ProfileRules
     public const int EmailMaxLength = 256;
 
     public static IRuleBuilderOptions<T, string> FullName<T>(this IRuleBuilder<T, string> rule) =>
-        rule.Must(value => !string.IsNullOrWhiteSpace(value)).WithMessage("Name is required.")
+        rule.Must(value => !string.IsNullOrWhiteSpace(value)).WithMessage("Вкажіть ім'я.")
             .Must(value => value is null || value.Trim().Length <= FullNameMaxLength)
-            .WithMessage($"Name must be at most {FullNameMaxLength} characters.");
+            .WithMessage($"Ім'я — не більше {FullNameMaxLength} символів.");
 
     public const int PhoneMaxLength = 20;
 
     /// <summary>Optional; digits with an optional leading +, spaces, dashes and brackets, 7 to 15 digits.</summary>
     public static IRuleBuilderOptions<T, string?> PhoneNumber<T>(this IRuleBuilder<T, string?> rule) =>
         rule.Must(value => string.IsNullOrWhiteSpace(value) || IsPhone(value.Trim()))
-            .WithMessage("Phone must contain 7 to 15 digits, optionally with +, spaces, dashes or brackets.");
+            .WithMessage("Телефон має містити від 7 до 15 цифр; можна +, пробіли, дефіси та дужки.");
 
     private static bool IsPhone(string value)
     {

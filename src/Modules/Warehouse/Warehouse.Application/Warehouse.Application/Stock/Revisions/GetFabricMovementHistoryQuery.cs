@@ -41,3 +41,8 @@ public sealed class GetFabricMovementHistoryQueryHandler(IWarehouseDbContext db)
         return Result.Success(new FabricMovementHistoryResponse(movement.Id, movement.Revision, canRestore, rows));
     }
 }
+
+public sealed class GetFabricMovementHistoryQueryValidator : AbstractValidator<GetFabricMovementHistoryQuery>
+{
+    public GetFabricMovementHistoryQueryValidator() => RuleFor(x => x.MovementId).GreaterThan(0);
+}

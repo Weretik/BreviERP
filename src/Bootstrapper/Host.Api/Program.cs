@@ -18,16 +18,17 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 
 var app = builder.Build();
 
+// One global exception handler in every environment: Ukrainian ProblemDetails with traceId, no stack trace to the client.
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
     app.MapOpenApi().AllowAnonymous();
 }
 else
 {
-    app.UseExceptionHandler(opt => { });
     app.UseStatusCodePages();
     app.UseHsts();
 }

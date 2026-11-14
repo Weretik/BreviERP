@@ -106,3 +106,12 @@ public sealed class FinancePaymentQueriesHandler(IAccountingDbContext db, IAccou
         return rows.Select(x => FinanceTransactionResponse.From(x, names)).ToList();
     }
 }
+
+public sealed class GetFinanceTransactionsByIdsQueryValidator : AbstractValidator<GetFinanceTransactionsByIdsQuery>
+{
+    public GetFinanceTransactionsByIdsQueryValidator()
+    {
+        RuleFor(x => x.Ids).NotNull();
+        RuleForEach(x => x.Ids).NotEmpty();
+    }
+}

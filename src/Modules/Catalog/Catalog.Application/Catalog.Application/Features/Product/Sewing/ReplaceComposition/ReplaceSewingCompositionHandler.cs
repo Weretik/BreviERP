@@ -12,11 +12,8 @@ public sealed class ReplaceSewingCompositionHandler(
     public async ValueTask<Result<SewingComposition>> Handle(ReplaceSewingCompositionCommand command, CancellationToken cancellationToken)
     {
         var request = command.Request;
-        var errors = ReplaceSewingCompositionCommandValidator.Validate(command);
         if (string.IsNullOrWhiteSpace(command.Actor) || command.Actor.Length > 200)
             return Result.Unauthorized();
-        if (errors.Count > 0)
-            return Result.Invalid(errors);
         var product = await store.LoadAsync(command.ProductId, cancellationToken);
         if (product is null)
             return Result.NotFound();

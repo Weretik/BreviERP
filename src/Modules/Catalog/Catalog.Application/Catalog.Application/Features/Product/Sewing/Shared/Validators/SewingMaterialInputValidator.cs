@@ -1,65 +1,50 @@
+using Catalog.Domain.Products.Entities;
 using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Application.Features.Product.Sewing;
 
-internal static class SewingMaterialInputValidator
+/// <summary>One material line of a sewing composition. Error keys stay camelCase: <c>materials[i].quantity</c>.</summary>
+public sealed class SewingMaterialInputValidator : AbstractValidator<SewingMaterialInput>
 {
-    internal static List<ValidationError> Validate(IReadOnlyList<SewingMaterialInput>? materials)
+    public SewingMaterialInputValidator()
     {
-        var errors = new List<ValidationError>();
-        if (materials is null || materials.Count > 2_000)
-        {
-            errors.Add(new("materials", "Provide at most 2000 material lines."));
-            return errors;
-        }
-
-        for (var index = 0; index < materials.Count; index++)
-        {
-            var line = materials[index];
-            var field = $"materials[{index}]";
-            if (line is null)
-            {
-                errors.Add(new(field, "A material line is required."));
-                continue;
-            }
-
-            var validKind = Enum.TryParse<SewingMaterialKind>(line.Kind, out var kind)
-                && Enum.IsDefined(kind) && kind.ToString() == line.Kind;
-            if (!validKind)
-                errors.Add(new(field + ".kind", "Unknown material kind."));
-            if (!ValidDecimal(line.Quantity))
-                errors.Add(new(field + ".quantity", "Use a positive value with at most six decimal places."));
-            if (line.SortOrder < 0)
-                errors.Add(new(field + ".sortOrder", "Order must be nonnegative."));
-            if (line.Comment?.Trim().Length > Catalog.Domain.Products.Entities.SewingMaterialLine.CommentMaxLength)
-                errors.Add(new(field + ".comment", "Comment must be at most 500 characters."));
-
-            var unit = kind switch
-            {
-                SewingMaterialKind.Fabric => "Metre",
-                SewingMaterialKind.Accessory => "Piece",
-                SewingMaterialKind.OtherCost => "Service",
-                _ => null
-            };
-            if (unit is null || (line.Unit != unit
-                && !(kind == SewingMaterialKind.Accessory && line.Unit == "Metre")))
-                errors.Add(new(field + ".unit", "Unit is incompatible with this material kind."));
-
-            if (kind == SewingMaterialKind.OtherCost)
-            {
-                if (line.ReferenceId.HasValue || string.IsNullOrWhiteSpace(line.CostCode)
-                    || line.CostCode.Trim().Length > 80)
-                    errors.Add(new(field + ".costCode", "Other cost requires a cost code and no inventory reference."));
-            }
-            else if (line.ReferenceId is null or <= 0 || !string.IsNullOrWhiteSpace(line.CostCode))
-            {
-                errors.Add(new(field + ".referenceId", "A positive material reference is required; cost code must be empty."));
-            }
-        }
-
-        return errors;
+        RuleFor(x => x.Kind).Must(kind => Kind(kind) is not null).OverridePropertyName("kind")
+            .WithMessage("Невідомий вид матеріалу.");
+        RuleFor(x => x.Quantity).Must(SewingRules.PositiveDecimal).OverridePropertyName("quantity")
+            .WithMessage("Вкажіть число більше 0, не більше шести знаків після коми.");
+        RuleFor(x => x.SortOrder).GreaterThanOrEqualTo(0).OverridePropertyName("sortOrder")
+            .WithMessage("Порядок не може бути від'ємним.");
+        RuleFor(x => x.Comment).Must(comment => comment is null || comment.Trim().Length <= SewingMaterialLine.CommentMaxLength)
+            .OverridePropertyName("comment")
+            .WithMessage($"Коментар — не більше {SewingMaterialLine.CommentMaxLength} символів.");
+        RuleFor(x => x).Must(UnitFits).OverridePropertyName("unit")
+            .WithMessage("Одиниця не підходить для цього виду матеріалу.");
+        RuleFor(x => x).Must(line => line.ReferenceId is null && !string.IsNullOrWhiteSpace(line.CostCode)
+                && line.CostCode.Trim().Length <= SewingRules.MaxCodeLength)
+            .When(line => Kind(line.Kind) == SewingMaterialKind.OtherCost)
+            .OverridePropertyName("costCode")
+            .WithMessage($"Для інших витрат вкажіть код витрати до {SewingRules.MaxCodeLength} символів, без матеріалу.");
+        RuleFor(x => x).Must(line => line.ReferenceId is > 0 && string.IsNullOrWhiteSpace(line.CostCode))
+            .When(line => Kind(line.Kind) != SewingMaterialKind.OtherCost)
+            .OverridePropertyName("referenceId")
+            .WithMessage("Оберіть матеріал; код витрати має бути порожнім.");
     }
 
-    private static bool ValidDecimal(decimal value)
-        => value > 0 && value <= 999_999_999_999.999999m && decimal.Round(value, 6) == value;
+    private static SewingMaterialKind? Kind(string? value) =>
+        Enum.TryParse<SewingMaterialKind>(value, out var kind) && Enum.IsDefined(kind) && kind.ToString() == value
+            ? kind
+            : null;
+
+    private static bool UnitFits(SewingMaterialInput line)
+    {
+        var kind = Kind(line.Kind);
+        var unit = kind switch
+        {
+            SewingMaterialKind.Fabric => "Metre",
+            SewingMaterialKind.Accessory => "Piece",
+            SewingMaterialKind.OtherCost => "Service",
+            _ => null
+        };
+        return unit is not null && (line.Unit == unit || (kind == SewingMaterialKind.Accessory && line.Unit == "Metre"));
+    }
 }

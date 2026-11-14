@@ -18,8 +18,6 @@ public sealed class GetSewingArticleSummaryQueryHandler(
     public async ValueTask<Result<SewingArticleSummary>> Handle(
         GetSewingArticleSummaryQuery query, CancellationToken cancellationToken)
     {
-        if (query.ProductId <= 0)
-            return Result.Invalid(new ValidationError("productId", "A positive Product ID is required."));
         var list = await composition.ReadArticlesAsync(query.ProductId, cancellationToken);
         if (list is null)
             return Result.NotFound();

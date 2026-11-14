@@ -8,11 +8,11 @@ public sealed class SaveRoleAccessCommandValidator : AbstractValidator<SaveRoleA
     public SaveRoleAccessCommandValidator()
     {
         RuleFor(x => x.Role).NotEmpty().MaximumLength(256)
-            .Must(role => !AccessCatalog.IsLocked(role)).WithMessage("The director always has every right.");
+            .Must(role => !AccessCatalog.IsLocked(role)).WithMessage("Директор завжди має всі права.");
         RuleFor(x => x.Version).GreaterThanOrEqualTo(0);
         RuleFor(x => x.Grants).NotNull();
         RuleForEach(x => x.Grants).Must(BeKnown)
-            .WithMessage("Unknown page, or an action the page does not have.");
+            .WithMessage("Невідома сторінка або дія, якої на цій сторінці немає.");
         RuleForEach(x => x.Grants).Must(SeeFirst)
             .WithMessage("A page must be visible («Перегляд») before anything else is allowed on it.");
     }
