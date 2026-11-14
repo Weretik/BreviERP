@@ -15,19 +15,29 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULES_DIR = ROOT / "src" / "Modules"
-# Modules whose tests are not yet all under tests/<Project>/<Module>/ (stage 9 moves them): a change runs everything.
-# Catalog: 42 unit test files at the UnitTests root; Reference: its pricing tests live under IntegrationTests.Pricing.
-UNGROUPED = {"Catalog", "Reference"}
+JOBS_DIR = ROOT / "src" / "Jobs"
+# Operational job projects (src/Jobs) are tested under tests/<Project>/Jobs/. Catalog and Reference database tests
+# seed their data through these jobs (TestSupport/SewingPricingDatabaseFixture), so a job change runs them too.
+JOBS = "Jobs"
+JOB_TEST_USERS = {"Catalog", "Reference"}
 
 
 def module_names(root: Path = MODULES_DIR) -> list[str]:
     return sorted(p.name for p in root.iterdir() if p.is_dir())
 
 
-def referenced_by(root: Path = MODULES_DIR) -> dict[str, set[str]]:
-    """module -> modules whose projects reference any project of that module (from the .csproj files)."""
+def referenced_by(root: Path = MODULES_DIR, jobs: Path = JOBS_DIR) -> dict[str, set[str]]:
+    """module -> modules (and Jobs) whose projects reference any project of that module (from the .csproj files)."""
     modules = module_names(root)
     users = {m: set() for m in modules}
+    users[JOBS] = set(JOB_TEST_USERS)
+    for project in jobs.rglob("*.csproj") if jobs.exists() else []:
+        if "obj" in project.parts:
+            continue
+        for include in re.findall(r'<ProjectReference\s+Include="([^"]+)"', project.read_text(encoding="utf-8-sig")):
+            provider = Path(include.replace("\\", "/")).name.split(".")[0]
+            if provider in users and provider != JOBS:
+                users[provider].add(JOBS)
     for module in modules:
         for project in (root / module).rglob("*.csproj"):
             if "obj" in project.parts:
@@ -47,6 +57,8 @@ def affected(paths: list[str], users: dict[str, set[str]]) -> str:
         parts = path.split("/")
         if parts[0] == "src" and len(parts) > 2 and parts[1] == "Modules" and parts[2] in users:
             changed.add(parts[2])
+        elif parts[0] == "src" and len(parts) > 2 and parts[1] == JOBS and JOBS in users:
+            changed.add(JOBS)
         elif parts[0] == "tests" and len(parts) > 3 and parts[1] in ("UnitTests", "IntegrationTests") and parts[2] in users:
             changed.add(parts[2])
         elif parts[0] == "tests" and len(parts) > 1 and parts[1] == "ArchitectureTests":
@@ -58,8 +70,8 @@ def affected(paths: list[str], users: dict[str, set[str]]) -> str:
     modules = set(changed)
     for module in changed:
         modules |= users[module]
-    if modules & UNGROUPED:
-        return "all"
+    if JOBS in users and modules & JOB_TEST_USERS:
+        modules.add(JOBS)
     return "|".join(f"FullyQualifiedName~{project}.{module}." for module in sorted(modules)
                     for project in ("UnitTests", "IntegrationTests"))
 

@@ -52,8 +52,8 @@ Existing import mappers/current readers remain the owners of conversion/selectio
 
 ## Tests
 
-- `tests/UnitTests/PricingInputReviewTests.cs`
-- `tests/IntegrationTests/Pricing/PricingInputReviewTests.cs`
+- `tests/UnitTests/Jobs/SewingPricing/PricingInputReviewTests.cs`
+- `tests/IntegrationTests/Jobs/SewingPricing/PricingInputReviewTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingInputReview`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingInputReview` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 

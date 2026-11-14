@@ -42,8 +42,8 @@ Every production type has one file. No module/API/project/schema dependency is a
 
 ## Tests
 
-- `tests/UnitTests/PricingActivationTests.cs`
-- `tests/IntegrationTests/Pricing/PricingActivationTests.cs`
+- `tests/UnitTests/Jobs/SewingPricing/PricingActivationTests.cs`
+- `tests/IntegrationTests/Jobs/SewingPricing/PricingActivationTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter PricingActivation`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter PricingActivation` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 

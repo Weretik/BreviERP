@@ -47,7 +47,7 @@ flowchart LR
 
 ## Tests
 
-`tests/UnitTests/Reference/FabricPresentationMetadataTests.cs` covers metadata normalization and bounds; `tests/UnitTests/Reference/ReferenceSheetImportTests.cs` covers the sheet import. No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+`tests/UnitTests/Reference/FabricPresentationMetadataTests.cs` covers metadata normalization and bounds; `tests/UnitTests/Reference/ReferenceSheetImportTests.cs` covers the sheet import. No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/Reference/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

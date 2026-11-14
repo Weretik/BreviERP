@@ -46,7 +46,7 @@ flowchart LR
 
 ## Tests
 
-`tests/UnitTests/Reference/SupplierTests.cs`, `KeepinCrmSupplierParserTests.cs`, `KeepinCrmSupplierSyncTests.cs`: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Reference`. `tests/UnitTests/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
+`tests/UnitTests/Reference/SupplierTests.cs`, `KeepinCrmSupplierParserTests.cs`, `KeepinCrmSupplierSyncTests.cs`: `dotnet test tests/UnitTests/UnitTests.csproj --filter FullyQualifiedName~UnitTests.Reference`. `tests/UnitTests/Reference/ReferenceProductUsageTests.cs` covers rejecting deletion of reference data used by a Product.
 
 **Data:** [reference schema](../../architecture/data-model/reference.md)
 

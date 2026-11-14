@@ -80,8 +80,8 @@ flowchart LR
 
 ## Tests
 
-- `tests/UnitTests/Product*Tests.cs` (incl. `ProductOverviewTests.cs`, `ProductOverviewListingTests.cs`), `tests/UnitTests/CatalogProductCreation*Tests.cs`, `tests/UnitTests/CatalogSheetImport*Tests.cs`, `tests/UnitTests/GetProductListRequestMapperTests.cs`, `tests/UnitTests/UnitTest1.cs` (ProductDomainTests), `tests/UnitTests/ProductPhotoListTests.cs`, `tests/UnitTests/OldSitePhotoImportTests.cs`
-- `tests/IntegrationTests/ProductsApiTests.cs`, `tests/IntegrationTests/ProductDeletionTests.cs`, `tests/IntegrationTests/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/GetAdminProductsSpecTests.cs`, `tests/IntegrationTests/CatalogSheetImportStoreTests.cs` (list page, prices and automatic publication), `tests/IntegrationTests/ProductPhotoPersistenceTests.cs`
+- `tests/UnitTests/Catalog/Products/Product*Tests.cs` (incl. `ProductOverviewTests.cs`, `ProductOverviewListingTests.cs`), `tests/UnitTests/Catalog/Products/CatalogProductCreation*Tests.cs`, `tests/UnitTests/Catalog/SheetImport/CatalogSheetImport*Tests.cs`, `tests/UnitTests/Catalog/Products/GetProductListRequestMapperTests.cs`, `tests/UnitTests/Catalog/Products/ProductDomainTests.cs` (ProductDomainTests), `tests/UnitTests/Catalog/Products/ProductPhotoListTests.cs`, `tests/UnitTests/Catalog/Products/OldSitePhotoImportTests.cs`
+- `tests/IntegrationTests/Catalog/Products/ProductsApiTests.cs`, `tests/IntegrationTests/Catalog/Products/ProductDeletionTests.cs`, `tests/IntegrationTests/Catalog/Products/CatalogProductPersistenceTests.cs`, `tests/IntegrationTests/Catalog/Products/GetAdminProductsSpecTests.cs`, `tests/IntegrationTests/Catalog/SheetImport/CatalogSheetImportStoreTests.cs` (list page, prices and automatic publication), `tests/IntegrationTests/Catalog/Products/ProductPhotoPersistenceTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product` (covers `CatalogProductCreation`); `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter Product` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 

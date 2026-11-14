@@ -56,12 +56,12 @@ The fabric importer also stores nullable composition/density from the frozen `Т
 
 ## Tests
 
-- `tests/UnitTests/CatalogImportSourceTests.cs`
-- `tests/UnitTests/CatalogImportTargetTests.cs`
-- `tests/IntegrationTests/CatalogImportCommandTests.cs`
+- `tests/UnitTests/Jobs/CatalogImport/CatalogImportSourceTests.cs`
+- `tests/UnitTests/Jobs/CatalogImport/CatalogImportTargetTests.cs`
+- `tests/IntegrationTests/Jobs/CatalogImport/CatalogImportCommandTests.cs`
 - `tools/catalog-import/tests/import-catalog.Tests.ps1` (offline gcloud mocks)
 - `tools/catalog-import/tests/test_render_catalog_import_job.py` (CI job isolation)
-- `tests/IntegrationTests/CatalogImportPersistenceTests.cs`
+- `tests/IntegrationTests/Jobs/CatalogImport/CatalogImportPersistenceTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter CatalogImport`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter CatalogImport` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).
 

@@ -20,7 +20,7 @@ Versions and owning projects live only in the `.csproj` files under `src/` and `
 | Serilog, Swagger, and OpenAPI | [HTTP host](../../../../src/Bootstrapper/Host.Api/Program.cs) |
 | Slugify.Core and TranslitKit | [Catalog slug generator](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Products/ProductSlugGenerator.cs) |
 | libphonenumber-csharp | [phone number helper service](../../../../src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/Helpers/PhoneNumberHelper.cs) |
-| Moq and NUnit | [Product unit tests](../../../../tests/UnitTests/ProductCommandHandlerTests.cs) |
-| YamlDotNet | [session OpenAPI contract validation](../../../../tests/UnitTests/SessionOpenApiContractTests.cs) |
+| Moq and NUnit | [Product unit tests](../../../../tests/UnitTests/Catalog/Products/ProductCommandHandlerTests.cs) |
+| YamlDotNet | [session OpenAPI contract validation](../../../../tests/UnitTests/Identity/SessionOpenApiContractTests.cs) |
 
 For any package, find a call, type, or configuration in the code before claiming it is actually used. If a package appears unnecessary, removing it requires a separate build and test check.
