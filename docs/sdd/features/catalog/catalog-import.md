@@ -22,7 +22,7 @@ src/Jobs/CatalogImport/
     Provenance/{Records,Configuration,Data,Writing}/ # source audit data and individual EF mappings
   Migrations/                             # imports schema, independent of Catalog schema
 deployment/{prepare-catalog-source,import-catalog}.ps1 # source preparation and operator execution
-deployment/render-catalog-import-job.py    # job configuration rendered by the deploy workflow
+tools/catalog-import/render-catalog-import-job.py    # job configuration rendered by the deploy workflow
 src/Modules/Catalog/
   Catalog.Domain/.../Products/Entities/ProductCatalogProfile.cs
   Catalog.Infrastructure/.../Congigurations/ProductCatalogProfileConfiguration.cs
@@ -59,8 +59,8 @@ The fabric importer also stores nullable composition/density from the frozen `Т
 - `tests/UnitTests/CatalogImportSourceTests.cs`
 - `tests/UnitTests/CatalogImportTargetTests.cs`
 - `tests/IntegrationTests/CatalogImportCommandTests.cs`
-- `deployment/tests/import-catalog.Tests.ps1` (offline gcloud mocks)
-- `deployment/tests/test_render_catalog_import_job.py` (CI job isolation)
+- `tools/catalog-import/tests/import-catalog.Tests.ps1` (offline gcloud mocks)
+- `tools/catalog-import/tests/test_render_catalog_import_job.py` (CI job isolation)
 - `tests/IntegrationTests/CatalogImportPersistenceTests.cs`
 
 Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter CatalogImport`; `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter CatalogImport` (slow; needs `BREVIERP_CATALOG_TEST_CONNECTION`).

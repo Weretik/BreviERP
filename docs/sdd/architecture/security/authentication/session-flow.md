@@ -8,7 +8,7 @@ BreviERP has one sign-in scheme: the ASP.NET Core Identity session cookie (`Iden
 Admin (office.brevi.com.ua)
   | POST https://api.brevi.com.ua/api/auth/cookie/login { email, password }
   ▼
-Cloudflare Worker (deploy/cloudflare/api-proxy) → Cloud Run Host.Api
+Cloudflare Worker (tools/cloudflare/api-proxy) → Cloud Run Host.Api
   ▼
 CookieAuthController (AllowAnonymous, AuthLogin rate limit)
   ▼

@@ -257,7 +257,7 @@ jobs:
           printf 'catalogue import reports\n' > "$RUNNER_TEMP/catalog-import-report-prefix"
           gcloud storage cp --no-clobber "$RUNNER_TEMP/catalog-import-report-prefix" \
             "gs://${CATALOG_IMPORT_BUCKET}/catalog-import/${CATALOG_IMPORT_SOURCE_SHA256}/reports/.keep" --quiet
-          python3 deployment/render-catalog-import-job.py \
+          python3 tools/catalog-import/render-catalog-import-job.py \
             --seed-config "$RUNNER_TEMP/catalog-import-seed.json" \
             --image "$SEED_IMAGE" \
             --bucket "$CATALOG_IMPORT_BUCKET" \
