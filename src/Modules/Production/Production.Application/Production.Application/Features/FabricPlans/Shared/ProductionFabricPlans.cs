@@ -3,6 +3,7 @@ using Production.Domain.FabricPlans;
 using Production.Domain.Orders;
 using Production.Contracts.FabricPlans;
 using Production.Application.Features.Orders.Shared;
+using Production.Domain.Orders.Enums;
 
 namespace Production.Application.Features.FabricPlans.Shared;
 

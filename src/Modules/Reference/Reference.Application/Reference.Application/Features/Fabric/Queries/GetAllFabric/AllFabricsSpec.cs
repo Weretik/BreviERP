@@ -1,4 +1,4 @@
-using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
+using FabricEntity = Reference.Domain.Fabrics.Fabric;
 
 namespace Reference.Application.Features.Fabric.Queries.GetAllFabric;
 

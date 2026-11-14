@@ -1,5 +1,9 @@
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.Productivity;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Ppe.Pricing;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace UnitTests.Catalog.Products;
 

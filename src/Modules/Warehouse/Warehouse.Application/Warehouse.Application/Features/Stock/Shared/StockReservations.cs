@@ -1,5 +1,6 @@
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
+using Warehouse.Domain.Stock.Plans;
 
 namespace Warehouse.Application.Features.Stock.Shared;
 

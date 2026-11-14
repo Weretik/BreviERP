@@ -24,6 +24,7 @@ using Catalog.Application.Features.Product.Commands.ReplaceProduct;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 using Catalog.Application.Features.Product.Shared;
+using Catalog.Domain.Products.Enums;
 
 namespace IntegrationTests.Catalog.Products;
 

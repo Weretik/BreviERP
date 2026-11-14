@@ -1,5 +1,5 @@
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
-using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
+using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.Supplier.Queries.GetSuppliers;
 

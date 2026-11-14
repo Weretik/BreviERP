@@ -1,4 +1,4 @@
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
+using GarmentPartEntity = Reference.Domain.GarmentParts.GarmentPart;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 using Reference.Application.Abstractions;
 

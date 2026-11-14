@@ -2,6 +2,7 @@ using Catalog.Contracts.Pricing;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Catalog.Domain.Products.Sewing.Composition;
 
 namespace Catalog.Infrastructure.Persistence.Pricing;
 

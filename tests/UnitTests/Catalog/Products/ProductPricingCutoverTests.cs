@@ -2,6 +2,7 @@ using Catalog.Domain.Products;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Shared;
+using Catalog.Domain.Products.Ppe.Pricing;
 
 namespace UnitTests.Catalog.Products;
 
@@ -16,7 +17,7 @@ public sealed class ProductPricingCutoverTests
             new Dictionary<int, OperationReferenceItem>(), new Dictionary<int, AdditionalReferenceItem>());
         var input = new PpeReadModel(1, 100, PricePercentSource.Custom, null, 50, PricePercentSource.Custom, null, 36);
         var product = new ProductAdminDetailReadModel(42, "PPE", "PPE RU", "ppe",
-            global::Catalog.Domain.Products.ProductType.Ppe, "", "", [], [], [], [], null, input, DateTimeOffset.UtcNow, null);
+            global::Catalog.Domain.Products.Enums.ProductType.Ppe, "", "", [], [], [], [], null, input, DateTimeOffset.UtcNow, null);
         var mapped = ProductAdminDetailMapper.Map(product, references,
             new Dictionary<int, CategoryAdminDetail>(), new Dictionary<int, string>()).Ppe!;
         Assert.That(mapped.BasePrice, Is.EqualTo(100));

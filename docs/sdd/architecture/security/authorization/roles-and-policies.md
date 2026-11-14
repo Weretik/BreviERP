@@ -8,7 +8,7 @@ Authentication answers **who is calling**. Authorization answers **whether that 
 
 ## Roles
 
-Canonical role constants are in `Identity.Domain/Authorization/RoleNames.cs`; inherited code also contains `Identity.Domain/Authorization/AppRoles.cs` with the same set of values.
+Canonical role constants are in `Identity.Domain/Authorization/Roles/RoleNames.cs`; inherited code also contains `Identity.Domain/Authorization/Roles/AppRoles.cs` with the same set of values.
 
 | Role | Current meaning | Created by seeding |
 | --- | --- | --- |

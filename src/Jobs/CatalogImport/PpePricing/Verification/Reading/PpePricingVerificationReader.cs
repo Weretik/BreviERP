@@ -8,6 +8,7 @@ using Npgsql;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Domain.Products.Enums;
 
 namespace CatalogImport.PpePricing.Verification;
 

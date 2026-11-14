@@ -4,6 +4,8 @@ using Accounting.Domain.Movements;
 using Accounting.Domain.Statements;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Statements.Shared;
+using Accounting.Domain.Statements.Enums;
+using Accounting.Domain.Statements.ValueObjects;
 
 namespace Accounting.Application.Features.Statements.Queries.GetBankStatement;
 

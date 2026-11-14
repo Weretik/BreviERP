@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Domain.Products.Enums;
 
 namespace SewingPricing.Jobs.Readiness;
 

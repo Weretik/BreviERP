@@ -1,5 +1,6 @@
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Shared;
+using Crm.Domain.Tasks.Enums;
 
 namespace Crm.Application.Features.Tasks.Shared.Mapping;
 

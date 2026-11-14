@@ -1,5 +1,6 @@
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Commands.DeleteSewingArticle;
 

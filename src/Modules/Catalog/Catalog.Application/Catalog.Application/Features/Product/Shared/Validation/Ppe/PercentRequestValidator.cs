@@ -1,6 +1,7 @@
 using Catalog.Application.Features.Product.Shared.Validation.Resources;
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Domain.Products.Ppe.Pricing;
 
 namespace Catalog.Application.Features.Product.Shared.Validation.Ppe;
 

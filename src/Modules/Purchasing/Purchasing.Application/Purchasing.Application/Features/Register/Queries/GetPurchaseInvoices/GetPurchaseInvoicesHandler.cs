@@ -4,6 +4,7 @@ using Purchasing.Domain.Ingestion;
 using Purchasing.Domain.Messages;
 using Purchasing.Application.Features.Documents.Shared;
 using Purchasing.Application.Features.Register.Shared;
+using Purchasing.Domain.Ingestion.Normalization;
 
 namespace Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
 

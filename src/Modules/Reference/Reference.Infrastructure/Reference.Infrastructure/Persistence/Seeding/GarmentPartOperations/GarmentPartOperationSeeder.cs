@@ -4,6 +4,7 @@ using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Suppliers;
 using Microsoft.Extensions.Hosting;
 using Reference.Infrastructure.Persistence;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Infrastructure.Persistence.Seeding.GarmentPartOperations;
 

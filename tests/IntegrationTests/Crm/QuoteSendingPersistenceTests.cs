@@ -11,6 +11,9 @@ using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Pdf.Composing;
 using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace IntegrationTests.Crm;
 

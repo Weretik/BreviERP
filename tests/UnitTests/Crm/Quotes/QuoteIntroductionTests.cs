@@ -5,6 +5,9 @@ using Crm.Application.Features.Quotes.Shared.Introductions;
 using Crm.Application.Features.Quotes.Shared.Introductions.Validation;
 using Crm.Application.Features.Quotes.Shared.Pdf.Introduction;
 using Crm.Infrastructure.Integrations.Pdf;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace UnitTests.Crm.Quotes;
 

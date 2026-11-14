@@ -13,6 +13,7 @@ using Content.Application.Features.Articles.Shared;
 using Content.Api.Endpoints.Articles.ImportOldSiteArticles;
 using Content.Api.Endpoints.Articles.SetContentArticleVisibility;
 using Content.Api.Endpoints.Articles.Shared;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Content;
 

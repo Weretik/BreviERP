@@ -1,4 +1,6 @@
 using BuildingBlocks.Domain.Results;
+using Warehouse.Domain.Stock.Errors;
+using Warehouse.Domain.Stock.Movements;
 
 namespace Warehouse.Domain.Stock;
 

@@ -1,3 +1,5 @@
+using Identity.Domain.Authorization.Roles;
+
 namespace Identity.Domain.Authorization;
 
 /// <summary>What a role may do on a page of «Права доступу».</summary>

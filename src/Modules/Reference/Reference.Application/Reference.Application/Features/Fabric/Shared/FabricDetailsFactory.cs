@@ -1,5 +1,6 @@
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
+using Reference.Domain.Fabrics;
 
 namespace Reference.Application.Features.Fabric.Shared;
 

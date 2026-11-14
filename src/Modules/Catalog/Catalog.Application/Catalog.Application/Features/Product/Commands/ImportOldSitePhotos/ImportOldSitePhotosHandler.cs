@@ -8,6 +8,7 @@ using Catalog.Application.Features.Product.Commands.SetProductPhotos;
 using Catalog.Application.Features.Product.Queries.GetProductSkuIndex;
 using Catalog.Application.Features.Product.Shared.Overview;
 using Catalog.Application.Features.Product.Shared.Photos;
+using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
 

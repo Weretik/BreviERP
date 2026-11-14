@@ -1,5 +1,7 @@
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Catalog.Domain.Products.Ppe;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Infrastructure.Persistence.Products;
 

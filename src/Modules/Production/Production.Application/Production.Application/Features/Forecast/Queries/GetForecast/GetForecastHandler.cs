@@ -6,6 +6,7 @@ using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Orders.Shared.Validation;
 using Production.Application.Features.PayrollParameters.Shared;
 using Production.Application.Features.Work.Shared;
+using Production.Domain.Orders.Enums;
 
 namespace Production.Application.Features.Forecast.Queries.GetForecast;
 

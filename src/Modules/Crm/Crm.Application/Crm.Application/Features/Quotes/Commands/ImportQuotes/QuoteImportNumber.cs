@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Crm.Domain.Quotes;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Application.Features.Quotes.Commands.ImportQuotes;
 

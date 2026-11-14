@@ -5,6 +5,7 @@ using Moq;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Media;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
+using Catalog.Domain.Products.Enums;
 
 namespace UnitTests.Catalog.Products;
 

@@ -1,4 +1,6 @@
 using Crm.Domain.Quotes;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.Items;
 
 namespace Crm.Application.Features.Quotes.Shared.Introductions.Building;
 

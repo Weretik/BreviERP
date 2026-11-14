@@ -1,6 +1,7 @@
 using Crm.Domain.Leads;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Crm.Domain.Leads.Enums;
 
 namespace Crm.Infrastructure.Persistence.Leads;
 

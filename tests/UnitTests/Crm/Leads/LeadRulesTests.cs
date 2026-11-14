@@ -2,6 +2,9 @@ using Crm.Domain.Leads;
 using Identity.Domain.Authorization;
 using Crm.Application.Features.Leads.Shared.Sheet;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Domain.Leads.Enums;
+using Crm.Domain.Leads.ValueObjects;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Crm.Leads;
 

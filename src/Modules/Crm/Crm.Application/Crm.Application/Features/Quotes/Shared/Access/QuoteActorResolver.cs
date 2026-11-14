@@ -1,5 +1,6 @@
 using Crm.Domain.Quotes;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Application.Features.Quotes.Shared.Access;
 

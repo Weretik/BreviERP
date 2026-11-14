@@ -1,4 +1,6 @@
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.Sewing.Enums;
 
 namespace Catalog.Application.Features.Product.Shared.Sewing;
 

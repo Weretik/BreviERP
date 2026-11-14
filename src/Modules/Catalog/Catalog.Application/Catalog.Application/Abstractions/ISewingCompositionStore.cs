@@ -1,5 +1,6 @@
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace Catalog.Application.Abstractions;
 

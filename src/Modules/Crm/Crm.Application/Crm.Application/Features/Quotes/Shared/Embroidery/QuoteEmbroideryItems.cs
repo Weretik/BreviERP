@@ -3,6 +3,8 @@ using Crm.Domain.Embroidery.Calculation;
 using Crm.Domain.Embroidery.Saved;
 using Crm.Domain.Embroidery.Settings;
 using Crm.Domain.Quotes;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Application.Features.Quotes.Shared.Embroidery;
 

@@ -2,6 +2,7 @@ using Accounting.Domain.Counterparties;
 using Accounting.Domain.Statements;
 using Accounting.Domain.Transactions;
 using Accounting.Infrastructure.Persistence;
+using Accounting.Domain.Statements.ValueObjects;
 
 namespace Accounting.Infrastructure.Persistence.Statements;
 

@@ -1,4 +1,4 @@
-using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
+using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using Reference.Application.Abstractions;
 
 namespace Reference.Application.Features.Fabric.Commands.DeleteFabric;

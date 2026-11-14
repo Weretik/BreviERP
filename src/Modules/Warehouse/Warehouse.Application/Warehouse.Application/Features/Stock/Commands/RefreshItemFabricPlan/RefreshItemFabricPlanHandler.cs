@@ -2,6 +2,7 @@ using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Domain.Stock.Plans;
 
 namespace Warehouse.Application.Features.Stock.Commands.RefreshItemFabricPlan;
 

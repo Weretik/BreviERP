@@ -1,6 +1,8 @@
 using Crm.Domain.Quotes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Infrastructure.Persistence.Quotes;
 

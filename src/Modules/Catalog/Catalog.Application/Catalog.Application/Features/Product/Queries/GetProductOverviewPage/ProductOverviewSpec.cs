@@ -1,5 +1,7 @@
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 

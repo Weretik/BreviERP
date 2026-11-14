@@ -1,4 +1,5 @@
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Application.Features.Product.Shared;
 

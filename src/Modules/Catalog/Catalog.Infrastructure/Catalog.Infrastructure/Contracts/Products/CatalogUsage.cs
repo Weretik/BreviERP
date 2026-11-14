@@ -4,6 +4,8 @@ using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Features.Product.Queries.GetProductMediaUsages;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Domain.Products.Sewing.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace Catalog.Infrastructure.Contracts.Products;
 

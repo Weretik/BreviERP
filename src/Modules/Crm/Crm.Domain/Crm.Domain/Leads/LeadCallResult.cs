@@ -1,3 +1,5 @@
+using Crm.Domain.Leads.Enums;
+
 namespace Crm.Domain.Leads;
 
 /// <summary>

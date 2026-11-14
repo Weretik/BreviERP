@@ -1,5 +1,8 @@
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Infrastructure.Persistence.Products;
 

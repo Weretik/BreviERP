@@ -2,6 +2,8 @@ using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Building;
 using Crm.Application.Features.Quotes.Shared.Validation;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace UnitTests.Crm.Quotes;
 

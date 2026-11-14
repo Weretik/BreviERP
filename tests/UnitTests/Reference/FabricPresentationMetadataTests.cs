@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Domain.ValueObjects;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
+using Reference.Domain.Fabrics;
 
 namespace UnitTests.Reference;
 

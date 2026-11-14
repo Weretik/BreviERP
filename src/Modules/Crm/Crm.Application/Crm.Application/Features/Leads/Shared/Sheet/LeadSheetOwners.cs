@@ -1,5 +1,6 @@
 using Crm.Domain.Leads;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Domain.Leads.ValueObjects;
 
 namespace Crm.Application.Features.Leads.Shared.Sheet;
 

@@ -2,6 +2,8 @@ using Catalog.Domain.Products;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Shared;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Ppe.Pricing;
 
 namespace UnitTests.Catalog.Products;
 

@@ -4,6 +4,7 @@ using Purchasing.Domain.Documents;
 using Purchasing.Domain.Files;
 using Purchasing.Domain.Ingestion;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
+using Purchasing.Domain.Ingestion.Normalization;
 
 namespace Purchasing.Application.Features.Documents.Shared;
 

@@ -2,6 +2,7 @@
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Reference.Domain.GarmentAccessories;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Domain.GarmentPartOperations;
 

@@ -6,6 +6,7 @@ using Accounting.Domain.Statements;
 using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Accounting.Domain.Statements.ValueObjects;
 
 namespace Accounting.Infrastructure.Persistence;
 

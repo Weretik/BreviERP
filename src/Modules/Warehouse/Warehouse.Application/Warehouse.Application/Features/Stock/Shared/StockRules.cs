@@ -1,4 +1,5 @@
 using Warehouse.Domain.Stock;
+using Warehouse.Domain.Stock.Movements;
 
 namespace Warehouse.Application.Features.Stock.Shared;
 

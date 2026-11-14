@@ -6,6 +6,7 @@ using Identity.Application.Features.Access.Commands.DeleteRole;
 using Identity.Application.Features.Access.Commands.SaveRoleAccess;
 using Identity.Infrastructure.Integrations.AspNetIdentity.Access;
 using Identity.Api.Access;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Identity;
 

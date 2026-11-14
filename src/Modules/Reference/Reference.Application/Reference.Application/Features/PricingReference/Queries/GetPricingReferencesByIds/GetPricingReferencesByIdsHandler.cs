@@ -1,5 +1,5 @@
 using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
-using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
+using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 using Reference.Application.Abstractions;

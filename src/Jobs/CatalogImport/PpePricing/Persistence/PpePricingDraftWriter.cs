@@ -3,6 +3,7 @@ using Catalog.Domain.Products;
 using CatalogImport.PpePricing.Planning;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace CatalogImport.PpePricing.Persistence;
 

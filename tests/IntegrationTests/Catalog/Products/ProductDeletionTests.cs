@@ -7,6 +7,9 @@ using Npgsql;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Features.Product.Commands.DeleteProduct;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Photos;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace IntegrationTests.Catalog.Products;
 

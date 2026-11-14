@@ -7,6 +7,8 @@ using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Suppliers;
 using Reference.Application.Abstractions;
+using Reference.Domain.Fabrics;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Infrastructure.Persistence;
 

@@ -1,6 +1,7 @@
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
+using Catalog.Domain.Products.Ppe.Pricing;
 
 namespace Catalog.Application.Features.Product.Shared;
 

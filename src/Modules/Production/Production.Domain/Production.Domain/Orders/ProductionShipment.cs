@@ -1,3 +1,5 @@
+using Production.Domain.Orders.Rules;
+
 namespace Production.Domain.Orders;
 
 /// <summary>«Відвантаження»: part of an item handed to the client on a day.</summary>

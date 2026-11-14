@@ -6,6 +6,7 @@ using Crm.Application.Features.Quotes.Shared.Introductions;
 using Crm.Application.Features.Quotes.Shared.Introductions.Templates;
 using Crm.Application.Features.Quotes.Shared.Persistence;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Application.Features.Quotes.Commands.CreateQuoteIntroTemplate;
 

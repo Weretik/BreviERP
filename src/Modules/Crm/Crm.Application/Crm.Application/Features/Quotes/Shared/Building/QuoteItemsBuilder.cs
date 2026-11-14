@@ -3,6 +3,9 @@ using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Catalog;
 using Crm.Application.Features.Quotes.Shared.Embroidery;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Application.Features.Quotes.Shared.Building;
 

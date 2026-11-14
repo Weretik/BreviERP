@@ -1,8 +1,9 @@
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Suppliers;
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
+using GarmentPartEntity = Reference.Domain.GarmentParts.GarmentPart;
 using Reference.Application.Abstractions;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Application.Features.GarmentPart.Commands.CreateGarmentPart;
 

@@ -4,6 +4,7 @@ using Production.Application.Features.Colors.Shared;
 using Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Validation;
+using Production.Domain.Orders.Rules;
 
 namespace Production.Application.Features.Orders.Commands.UpdateProductionOrder;
 

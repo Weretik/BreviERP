@@ -6,6 +6,7 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Pricing.Calculations;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Infrastructure.Persistence.Products;
 

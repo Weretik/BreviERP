@@ -13,6 +13,8 @@ using Crm.Application.Features.Leads.Shared.Access;
 using Crm.Application.Features.Leads.Shared.Sheet;
 using Crm.Application.Abstractions.Leads;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Domain.Leads.Enums;
+using Crm.Domain.Tasks.Enums;
 
 namespace IntegrationTests.Crm;
 

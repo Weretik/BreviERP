@@ -8,6 +8,7 @@ using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
 using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Shared.Overview;
+using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Application.Features.Product.Shared.Overview.Items;
 

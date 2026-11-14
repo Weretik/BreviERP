@@ -1,6 +1,7 @@
 using Ardalis.Result;
 using Catalog.Domain.Products;
 using Catalog.Api.Endpoints.Product.GetProducts;
+using Catalog.Domain.Products.Enums;
 
 namespace UnitTests.Catalog.Products;
 

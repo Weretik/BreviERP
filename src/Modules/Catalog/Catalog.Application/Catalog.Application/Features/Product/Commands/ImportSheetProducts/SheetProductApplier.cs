@@ -1,5 +1,8 @@
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.Sewing.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 

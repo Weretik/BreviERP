@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SeoOverview.Queries.GetSeoOverview;
 using Content.Application.Features.SeoOverview.Shared;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Content;
 

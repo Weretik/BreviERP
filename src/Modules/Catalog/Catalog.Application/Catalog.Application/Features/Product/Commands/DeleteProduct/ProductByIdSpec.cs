@@ -1,5 +1,6 @@
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Commands.DeleteProduct;
 

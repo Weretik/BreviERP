@@ -4,6 +4,7 @@ using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Statements;
+using Accounting.Domain.Statements.Enums;
 
 namespace Accounting.Application.Features.Statements.Shared;
 

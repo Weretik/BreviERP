@@ -1,4 +1,7 @@
 using BuildingBlocks.Domain.Results;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.Errors;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Domain.Quotes.Introductions;
 

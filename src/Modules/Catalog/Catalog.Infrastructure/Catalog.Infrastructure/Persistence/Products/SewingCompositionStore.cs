@@ -4,6 +4,9 @@ using Npgsql;
 using Catalog.Application.Abstractions;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Pricing.Calculations;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Infrastructure.Persistence.Products;
 

@@ -2,6 +2,7 @@ using System.Globalization;
 using Accounting.Application.Abstractions;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Statements;
+using Accounting.Domain.Statements.Enums;
 
 namespace Accounting.Application.Features.Statements.Shared;
 

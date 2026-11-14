@@ -6,6 +6,10 @@ using Crm.Application.Features.Leads.Shared.Calling;
 using Crm.Application.Features.Leads.Shared.Persistence;
 using Crm.Application.Abstractions.Leads;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Domain.Leads.Enums;
+using Crm.Domain.Leads.Errors;
+using Crm.Domain.Leads.ValueObjects;
+using Crm.Domain.Tasks.ValueObjects;
 
 namespace Crm.Application.Features.Leads.Shared.Sheet;
 

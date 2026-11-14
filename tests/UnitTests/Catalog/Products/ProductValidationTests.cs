@@ -5,6 +5,8 @@ using Catalog.Application.Features.Product.Commands.DeleteProduct;
 using Catalog.Application.Features.Product.Commands.ReplaceProduct;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Ppe.Pricing;
 
 namespace UnitTests.Catalog.Products;
 

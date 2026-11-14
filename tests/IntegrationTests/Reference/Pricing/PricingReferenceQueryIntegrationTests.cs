@@ -10,6 +10,7 @@ using Reference.Domain.GarmentPartOperations;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds;
 using Reference.Infrastructure.Persistence;
+using Reference.Domain.Fabrics;
 
 namespace IntegrationTests.Reference.Pricing;
 

@@ -2,6 +2,8 @@ using Catalog.Domain.Products;
 using Catalog.Domain.Products.Readiness;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Features.Product.Shared.Sewing;
+using Catalog.Domain.Products.Sewing.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Shared.Sewing.Mapping;
 

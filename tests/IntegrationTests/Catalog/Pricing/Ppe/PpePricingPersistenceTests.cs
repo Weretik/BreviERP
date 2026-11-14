@@ -6,6 +6,7 @@ using IntegrationTests.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Features.Pricing.Queries.GetPpeProductPrices;
 using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Domain.Products.Enums;
 namespace IntegrationTests.Catalog.Pricing.Ppe;
 [NonParallelizable]
 public sealed class PpePricingPersistenceTests : SewingPricingDatabaseFixture

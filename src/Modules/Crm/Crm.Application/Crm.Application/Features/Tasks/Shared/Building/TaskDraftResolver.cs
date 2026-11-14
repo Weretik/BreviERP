@@ -3,6 +3,7 @@ using Crm.Application.Features.Tasks.Shared;
 using Crm.Application.Features.Tasks.Shared.Access;
 using Crm.Application.Features.Tasks.Shared.Persistence;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Domain.Tasks.ValueObjects;
 
 namespace Crm.Application.Features.Tasks.Shared.Building;
 

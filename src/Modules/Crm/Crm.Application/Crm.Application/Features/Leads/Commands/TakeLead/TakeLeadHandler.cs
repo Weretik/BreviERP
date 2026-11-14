@@ -5,6 +5,7 @@ using Crm.Application.Features.Leads.Shared.Calling;
 using Crm.Application.Features.Leads.Shared.Persistence;
 using Crm.Application.Abstractions.Leads;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Domain.Leads.ValueObjects;
 
 namespace Crm.Application.Features.Leads.Commands.TakeLead;
 

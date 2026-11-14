@@ -1,4 +1,5 @@
 using Crm.Domain.Leads;
+using Crm.Domain.Leads.Enums;
 
 namespace Crm.Application.Features.Leads.Shared.Sheet;
 

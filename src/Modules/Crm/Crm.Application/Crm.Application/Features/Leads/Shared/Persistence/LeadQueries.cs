@@ -1,6 +1,7 @@
 using Crm.Domain.Leads;
 using Crm.Domain.Tasks;
 using Crm.Application.Abstractions.Leads;
+using Crm.Domain.Tasks.Enums;
 
 namespace Crm.Application.Features.Leads.Shared.Persistence;
 

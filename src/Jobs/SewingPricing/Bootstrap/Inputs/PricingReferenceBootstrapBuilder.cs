@@ -3,6 +3,7 @@ using CatalogImport.Source;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
+using Reference.Domain.Fabrics;
 
 namespace SewingPricing.Jobs.Bootstrap;
 

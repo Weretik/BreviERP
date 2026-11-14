@@ -1,4 +1,6 @@
 using Crm.Domain.Leads;
+using Crm.Domain.Leads.Errors;
+using Crm.Domain.Leads.ValueObjects;
 
 namespace Crm.Application.Features.Leads.Shared.Sheet;
 

@@ -1,5 +1,7 @@
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace Crm.Application.Features.Quotes.Shared.Mapping;
 

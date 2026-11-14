@@ -1,5 +1,7 @@
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.Photos;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Infrastructure.Persistence.Products;
 

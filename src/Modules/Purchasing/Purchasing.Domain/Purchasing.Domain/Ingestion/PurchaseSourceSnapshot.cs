@@ -1,4 +1,6 @@
 using BuildingBlocks.Domain.Results;
+using Purchasing.Domain.Ingestion.Errors;
+using Purchasing.Domain.Ingestion.Normalization;
 
 namespace Purchasing.Domain.Ingestion;
 

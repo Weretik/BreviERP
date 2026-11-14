@@ -15,6 +15,9 @@ using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 using Catalog.Infrastructure.Persistence.Pricing.PpeSupplierPrices;
 using Catalog.Application.Features.Pricing.Commands.RefreshDuePpeSupplierPrices;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Ppe;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace IntegrationTests.Catalog.Pricing.Ppe;
 

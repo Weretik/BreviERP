@@ -3,6 +3,9 @@ using Crm.Application.Features.Quotes.Commands.CreateQuote;
 using Crm.Application.Features.Quotes.Queries.GetQuotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace UnitTests.Crm.Quotes;
 

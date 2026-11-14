@@ -12,6 +12,7 @@ using Content.Application.Features.Redirects.Queries.GetSiteRedirects;
 using Content.Application.Features.Redirects.Shared;
 using Content.Api.Endpoints.Redirects.ImportOldSiteRedirects;
 using Content.Api.Endpoints.Redirects.Shared;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Content;
 

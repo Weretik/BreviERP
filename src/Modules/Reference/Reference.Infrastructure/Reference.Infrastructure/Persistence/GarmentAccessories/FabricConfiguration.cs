@@ -2,6 +2,7 @@ using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Suppliers;
 using Reference.Infrastructure.Persistence;
+using Reference.Domain.Fabrics;
 
 namespace Reference.Infrastructure.Persistence.GarmentAccessories;
 

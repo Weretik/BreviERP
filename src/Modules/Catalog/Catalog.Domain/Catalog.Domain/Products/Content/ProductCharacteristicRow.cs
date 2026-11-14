@@ -1,4 +1,6 @@
 
+using Catalog.Domain.Products.Errors;
+
 namespace Catalog.Domain.Products;
 
 public sealed class ProductCharacteristicRow

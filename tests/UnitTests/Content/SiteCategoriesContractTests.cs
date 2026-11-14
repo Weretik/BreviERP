@@ -14,6 +14,7 @@ using Content.Api.Endpoints.SiteCategories.ImportOldSiteCategories;
 using Content.Api.Endpoints.SiteCategories.ReorderSiteCategories;
 using Content.Api.Endpoints.SiteCategories.SetSiteCategoryVisibility;
 using Content.Api.Endpoints.SiteCategories.Shared;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Content;
 

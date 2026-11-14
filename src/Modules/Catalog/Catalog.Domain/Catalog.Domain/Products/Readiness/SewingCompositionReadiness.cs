@@ -1,4 +1,5 @@
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.Sewing.Enums;
 
 namespace Catalog.Domain.Products.Readiness;
 

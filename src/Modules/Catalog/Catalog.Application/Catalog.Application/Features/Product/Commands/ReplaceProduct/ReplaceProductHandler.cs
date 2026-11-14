@@ -10,6 +10,8 @@ using Catalog.Application.Abstractions.Media;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Application.Features.Product.Shared;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Commands.ReplaceProduct;
 

@@ -1,4 +1,5 @@
 using Identity.Domain.Authorization;
+using Identity.Domain.Authorization.Roles;
 
 namespace Identity.Application.Features.Users.Shared;
 

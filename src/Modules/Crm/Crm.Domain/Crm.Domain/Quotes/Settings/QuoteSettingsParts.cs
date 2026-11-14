@@ -1,3 +1,5 @@
+using Crm.Domain.Quotes.Enums;
+
 namespace Crm.Domain.Quotes.Settings;
 
 /// <summary>«Реквізити та контакти Brevi»: printed in the PDF header and footer.</summary>

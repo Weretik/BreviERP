@@ -3,6 +3,7 @@ using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Validation;
 using Production.Application.Features.Work.Shared;
+using Production.Domain.Orders.Enums;
 
 namespace Production.Application.Features.Orders.Queries.GetProductionOrders;
 

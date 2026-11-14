@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
 using Reference.Infrastructure.Persistence;
+using Reference.Domain.Fabrics;
 
 namespace CatalogImport.Persistence;
 

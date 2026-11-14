@@ -54,7 +54,7 @@ public sealed class ErrorTests
     }
 
     private static IEnumerable<MethodInfo> ErrorFactories() =>
-        new[] { typeof(global::Catalog.Domain.Products.ProductErrors).Assembly, typeof(global::Reference.Domain.GarmentAccessories.Fabric).Assembly }
+        new[] { typeof(global::Catalog.Domain.Products.Errors.ProductErrors).Assembly, typeof(global::Reference.Domain.Fabrics.Fabric).Assembly }
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => type.Name.EndsWith("Errors", StringComparison.Ordinal) && type.IsAbstract && type.IsSealed)
             .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Static))

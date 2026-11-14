@@ -4,6 +4,8 @@ using Purchasing.Domain.Ingestion;
 using Purchasing.Domain.Messages;
 using Purchasing.Domain.Sources;
 using Purchasing.Domain.Sync;
+using Purchasing.Domain.Ingestion.Errors;
+using Purchasing.Domain.Ingestion.Normalization;
 
 namespace Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
 

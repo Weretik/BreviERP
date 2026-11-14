@@ -1,4 +1,7 @@
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace SewingPricing.Jobs.Review;
 

@@ -1,5 +1,6 @@
 using BuildingBlocks.Domain.Entity;
 using Catalog.Domain.ProductCategories;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Domain.Products;
 

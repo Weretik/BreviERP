@@ -6,6 +6,9 @@ using Npgsql;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Shared.Photos;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Photos;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace IntegrationTests.Catalog.Products;
 

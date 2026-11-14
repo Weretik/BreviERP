@@ -8,6 +8,7 @@ using Crm.Application.Features.Quotes.Shared.Persistence;
 using Crm.Application.Features.Quotes.Shared.Settings;
 using Crm.Application.Features.Quotes.Shared.Settings.Reading;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Application.Features.Quotes.Shared.Pdf.Composing;
 

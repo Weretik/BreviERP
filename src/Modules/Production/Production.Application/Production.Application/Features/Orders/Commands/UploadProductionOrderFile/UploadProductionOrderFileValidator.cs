@@ -2,6 +2,7 @@ using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Validation;
+using Production.Domain.Orders.Enums;
 
 namespace Production.Application.Features.Orders.Commands.UploadProductionOrderFile;
 
