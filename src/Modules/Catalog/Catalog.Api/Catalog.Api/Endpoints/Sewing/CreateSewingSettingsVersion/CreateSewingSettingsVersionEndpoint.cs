@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Sewing.CreateSewingSettingsVersion;
 

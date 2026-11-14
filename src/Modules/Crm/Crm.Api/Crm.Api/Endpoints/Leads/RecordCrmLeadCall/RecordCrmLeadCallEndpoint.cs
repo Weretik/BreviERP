@@ -1,6 +1,7 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Leads.Commands.RecordLeadCall;
 using Crm.Application.Features.Leads.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Leads.RecordCrmLeadCall;
 

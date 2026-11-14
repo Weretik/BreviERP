@@ -2,5 +2,5 @@
 global using System;
 global using System.Text.RegularExpressions;
 
-global using BuildingBlocks.Domain.ValueObjects;
+global using BuildingBlocks.Domain;
 global using Vogen;

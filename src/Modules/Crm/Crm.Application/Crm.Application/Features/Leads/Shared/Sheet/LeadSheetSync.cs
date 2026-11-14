@@ -10,6 +10,7 @@ using Crm.Domain.Leads.Enums;
 using Crm.Domain.Leads.Errors;
 using Crm.Domain.Leads.ValueObjects;
 using Crm.Domain.Tasks.ValueObjects;
+using BuildingBlocks.Application;
 
 namespace Crm.Application.Features.Leads.Shared.Sheet;
 

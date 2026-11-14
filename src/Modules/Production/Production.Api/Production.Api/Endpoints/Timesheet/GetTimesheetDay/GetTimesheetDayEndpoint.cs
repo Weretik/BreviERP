@@ -1,4 +1,5 @@
 using Production.Application.Features.Timesheet.Queries.GetTimesheetDay;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Timesheet.GetTimesheetDay;
 

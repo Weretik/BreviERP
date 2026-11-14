@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Queries.GetProductOverviewItem;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Overview.GetProductOverviewItem;
 

@@ -5,6 +5,7 @@ using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Application.Abstractions.Sewing;
 using Catalog.Application.Features.Product.Shared.Sewing.Views;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.Product.Commands.CreateSewingArticle;
 

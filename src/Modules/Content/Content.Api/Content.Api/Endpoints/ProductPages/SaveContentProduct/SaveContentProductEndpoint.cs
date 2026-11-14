@@ -1,4 +1,5 @@
 using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.ProductPages.SaveContentProduct;
 

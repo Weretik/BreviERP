@@ -1,6 +1,5 @@
 using Content.Infrastructure.Adapters.Catalog;
 using Content.Infrastructure.Adapters.Media;
-using BuildingBlocks.Infrastructure.Migrations;
 using Content.Application.Abstractions;
 using Content.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +16,7 @@ using Content.Application.Features.SiteSettings.Shared;
 using Content.Application.Features.Articles.Shared.Public;
 using Content.Application.Features.SiteCompany.Shared.Public;
 using Content.Application.Features.SiteGalleries.Shared.Public;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Content.Infrastructure.DependencyInjection;
 

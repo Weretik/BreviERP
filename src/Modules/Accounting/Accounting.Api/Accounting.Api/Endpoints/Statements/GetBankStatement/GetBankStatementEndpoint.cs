@@ -1,6 +1,8 @@
 using Accounting.Application.Features.Statements.Queries.GetBankStatement;
 using Accounting.Domain.Statements;
 using Accounting.Domain.Statements.Enums;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Accounting.Api.Endpoints.Statements.GetBankStatement;
 

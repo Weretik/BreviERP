@@ -1,6 +1,7 @@
 using Accounting.Domain.Categories;
 using Accounting.Domain;
 using Accounting.Domain.Ledger;
+using BuildingBlocks.Domain.Entity;
 
 namespace Accounting.Domain.Counterparties;
 

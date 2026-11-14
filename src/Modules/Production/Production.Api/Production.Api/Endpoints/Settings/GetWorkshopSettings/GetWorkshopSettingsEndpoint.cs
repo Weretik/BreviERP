@@ -1,4 +1,5 @@
 using Production.Application.Features.Settings.Queries.GetWorkshopSettings;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Settings.GetWorkshopSettings;
 

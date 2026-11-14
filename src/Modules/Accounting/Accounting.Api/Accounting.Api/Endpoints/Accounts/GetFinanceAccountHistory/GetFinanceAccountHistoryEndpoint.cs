@@ -1,5 +1,6 @@
 using Accounting.Application.Features.History.Queries.GetFinanceHistory;
 using Accounting.Domain.Audit;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Accounts.GetFinanceAccountHistory;
 

@@ -2,6 +2,7 @@ using Reference.Application.Features.FabricColor.Shared;
 using Reference.Domain.FabricColors;
 using FabricColorEntity = Reference.Domain.FabricColors.FabricColor;
 using Reference.Application.Abstractions;
+using BuildingBlocks.Application;
 
 namespace Reference.Application.Features.FabricColor.Commands.CreateFabricColor;
 

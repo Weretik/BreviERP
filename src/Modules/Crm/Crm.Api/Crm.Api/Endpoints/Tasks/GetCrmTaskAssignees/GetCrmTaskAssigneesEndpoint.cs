@@ -1,4 +1,5 @@
 using Crm.Application.Features.Tasks.Queries.GetTaskAssignees;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Tasks.GetCrmTaskAssignees;
 

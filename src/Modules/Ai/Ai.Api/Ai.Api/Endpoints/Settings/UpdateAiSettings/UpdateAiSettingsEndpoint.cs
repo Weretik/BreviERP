@@ -1,5 +1,6 @@
 using Ai.Application.Features.Settings.Commands.UpdateAiSettings;
 using Ai.Application.Features.Settings.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Ai.Api.Endpoints.Settings.UpdateAiSettings;
 

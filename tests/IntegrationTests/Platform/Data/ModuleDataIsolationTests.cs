@@ -1,4 +1,4 @@
-using Host.Api.DependencyInjection.ServiceRegistration;
+using Host.Api.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

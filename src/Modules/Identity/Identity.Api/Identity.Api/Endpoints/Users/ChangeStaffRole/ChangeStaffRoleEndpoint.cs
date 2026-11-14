@@ -1,4 +1,5 @@
 using Identity.Application.Features.Users.Commands.ChangeStaffRole;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.Users.ChangeStaffRole;
 

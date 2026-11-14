@@ -1,5 +1,6 @@
 using Purchasing.Application.Features.Documents.Commands.RecognizeNewPurchaseFiles;
 using Purchasing.Application.Features.Documents.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Purchasing.Api.Endpoints.Documents.RecognizeNewPurchaseFiles;
 

@@ -1,4 +1,5 @@
 using Media.Application.Features.Folders.Commands.DeleteMediaFolder;
+using BuildingBlocks.Api.Errors;
 
 namespace Media.Api.Endpoints.Folders.DeleteMediaFolder;
 

@@ -1,5 +1,6 @@
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Api.Endpoints.Product.Detail;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Product.GetProduct;
 

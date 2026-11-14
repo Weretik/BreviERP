@@ -2,6 +2,7 @@ using Production.Application.Abstractions;
 using Production.Domain.Staff;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Staff.Shared;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.Staff.Commands.CreateWorkshopEmployee;
 

@@ -1,5 +1,6 @@
 using CatalogImport.Execution;
 using Npgsql;
+using CatalogImport.Execution.Target;
 
 namespace UnitTests.Jobs.CatalogImport;
 

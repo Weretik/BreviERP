@@ -11,11 +11,11 @@ using Production.Api.Endpoints.Timesheet;
 using Production.Api.Endpoints.Work;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using BuildingBlocks.Application.DependencyInjection;
 using Production.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Production.Infrastructure.DependencyInjection;
+using BuildingBlocks.Application.Validation;
 
 namespace Production.Api.DependencyInjection;
 

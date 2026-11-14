@@ -1,5 +1,6 @@
 using Reference.Application.Features.Pricing.Commands.ReviseOtherCost;
 using System.Text.Json.Serialization;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.OtherCostPricing.ReviseOtherCost;
 

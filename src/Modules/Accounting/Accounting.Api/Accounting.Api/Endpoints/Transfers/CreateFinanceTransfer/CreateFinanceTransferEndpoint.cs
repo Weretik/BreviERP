@@ -1,5 +1,6 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Transfers.Commands.CreateFinanceTransfer;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Transfers.CreateFinanceTransfer;
 

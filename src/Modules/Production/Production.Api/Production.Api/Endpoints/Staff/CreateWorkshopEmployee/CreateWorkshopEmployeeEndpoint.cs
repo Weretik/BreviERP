@@ -1,5 +1,6 @@
 using Production.Application.Features.Staff.Commands.CreateWorkshopEmployee;
 using Production.Application.Features.Staff.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Staff.CreateWorkshopEmployee;
 

@@ -1,5 +1,6 @@
 using Media.Application.Features.Folders.Queries.GetMediaFolders;
 using Media.Application.Features.Folders.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Media.Api.Endpoints.Folders.GetMediaFolders;
 

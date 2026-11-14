@@ -1,5 +1,4 @@
 using Ardalis.Specification.EntityFrameworkCore;
-using BuildingBlocks.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
@@ -11,6 +10,7 @@ using Reference.Application.Abstractions;
 using Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds;
 using Reference.Infrastructure.Persistence;
 using Reference.Domain.Fabrics;
+using BuildingBlocks.Domain.Entity;
 
 namespace IntegrationTests.Reference.Pricing;
 

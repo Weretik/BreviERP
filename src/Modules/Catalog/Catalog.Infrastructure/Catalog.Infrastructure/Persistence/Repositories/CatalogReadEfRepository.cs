@@ -1,5 +1,5 @@
-using BuildingBlocks.Domain.Abstractions;
 using Catalog.Application.Abstractions;
+using BuildingBlocks.Domain.Entity;
 
 namespace Catalog.Infrastructure.Persistence.Repositories;
 

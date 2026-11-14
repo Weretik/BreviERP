@@ -1,5 +1,6 @@
 using Production.Application.Features.Payroll.Commands.VoidPayrollAdjustment;
 using Production.Application.Features.Payroll.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Payroll.VoidPayrollAdjustment;
 

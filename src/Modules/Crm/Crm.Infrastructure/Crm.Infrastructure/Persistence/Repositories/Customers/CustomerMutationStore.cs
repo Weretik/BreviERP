@@ -1,4 +1,3 @@
-using BuildingBlocks.Application.Errors;
 using Crm.Infrastructure.Persistence;
 using Ardalis.Result;
 using Crm.Domain.Customers;
@@ -6,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Crm.Application.Abstractions.Customers;
 using Crm.Application.Abstractions.Customers.Views;
+using BuildingBlocks.Application;
 
 namespace Crm.Infrastructure.Persistence.Repositories.Customers;
 

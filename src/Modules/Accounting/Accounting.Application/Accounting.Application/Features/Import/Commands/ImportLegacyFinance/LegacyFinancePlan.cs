@@ -1,5 +1,4 @@
 using System.Text.Json;
-using BuildingBlocks.Domain.Errors;
 using Accounting.Domain;
 using Accounting.Application.Abstractions;
 using Accounting.Domain.Accounts;

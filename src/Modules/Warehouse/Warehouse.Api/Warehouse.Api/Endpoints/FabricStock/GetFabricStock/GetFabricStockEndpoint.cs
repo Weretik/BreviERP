@@ -1,6 +1,7 @@
 using Warehouse.Application.Features.Stock.Queries.GetFabricStock;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Queries.GetFabricStock.Results;
+using BuildingBlocks.Api.Errors;
 
 namespace Warehouse.Api.Endpoints.FabricStock.GetFabricStock;
 

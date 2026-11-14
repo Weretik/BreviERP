@@ -5,6 +5,7 @@ using Accounting.Domain;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Statements;
+using BuildingBlocks.Domain.Entity;
 
 namespace Accounting.Domain.Transactions;
 

@@ -1,4 +1,5 @@
 using Content.Application.Features.Articles.Queries.GetContentArticles;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.Articles.GetContentArticles;
 

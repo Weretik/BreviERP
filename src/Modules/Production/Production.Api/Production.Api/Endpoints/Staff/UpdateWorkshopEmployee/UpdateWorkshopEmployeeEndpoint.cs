@@ -1,5 +1,6 @@
 using Production.Application.Features.Staff.Commands.UpdateWorkshopEmployee;
 using Production.Application.Features.Staff.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Staff.UpdateWorkshopEmployee;
 

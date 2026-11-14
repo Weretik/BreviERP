@@ -1,5 +1,6 @@
 using Content.Application.Features.SiteGalleries.Queries.GetSiteGallery;
 using Content.Application.Features.SiteGalleries.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteGalleries.GetSiteCertificates;
 

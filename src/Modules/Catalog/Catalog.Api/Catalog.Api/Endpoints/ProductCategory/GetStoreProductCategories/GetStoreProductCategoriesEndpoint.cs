@@ -1,4 +1,5 @@
 using Catalog.Application.Features.ProductCategory.Queries.GetStoreProductCategories;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.ProductCategory.GetStoreProductCategories;
 

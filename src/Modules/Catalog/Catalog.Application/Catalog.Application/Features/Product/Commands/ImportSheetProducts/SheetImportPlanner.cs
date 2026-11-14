@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Errors;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions.Pricing;

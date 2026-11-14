@@ -1,6 +1,7 @@
 using Warehouse.Application.Features.Stock.Commands.RestoreFabricMovement;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Shared.Operations;
+using BuildingBlocks.Api.Errors;
 
 namespace Warehouse.Api.Endpoints.FabricStock.RestoreFabricMovement;
 

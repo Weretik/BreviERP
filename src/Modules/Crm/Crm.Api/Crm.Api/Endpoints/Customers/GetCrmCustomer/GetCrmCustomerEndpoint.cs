@@ -1,5 +1,6 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Customers.Queries.GetCustomer;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Customers.GetCrmCustomer;
 

@@ -7,7 +7,6 @@ using Catalog.Infrastructure.Contracts.Products;
 using Catalog.Infrastructure.Contracts.Sewing;
 using Catalog.Infrastructure.Adapters.Reference;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Media;
@@ -19,6 +18,7 @@ using Catalog.Infrastructure.Persistence.Configurations.Products;
 using Catalog.Infrastructure.Persistence.Repositories;
 using Catalog.Infrastructure.Persistence.Repositories.Sewing;
 using Catalog.Application.Abstractions.Products;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Catalog.Infrastructure.DependencyInjection;
 

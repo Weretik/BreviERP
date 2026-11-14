@@ -1,4 +1,5 @@
 using Production.Application.Features.Payroll.Commands.ReopenPayrollMonth;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Payroll.ReopenPayrollMonth;
 

@@ -3,6 +3,7 @@ using Accounting.Domain.Audit;
 using Accounting.Application;
 using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Application.Features.Journal.Shared;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Counterparties.Commands.UpdateFinanceCounterparty;
 

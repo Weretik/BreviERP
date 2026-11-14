@@ -1,6 +1,7 @@
 using Purchasing.Application.Features.Documents.Commands.RecognizePurchaseFile;
 using Purchasing.Application.Features.Documents.Shared;
 using Purchasing.Application.Features.Documents.Shared.Recognition;
+using BuildingBlocks.Api.Errors;
 
 namespace Purchasing.Api.Endpoints.Documents.RecognizePurchaseFile;
 

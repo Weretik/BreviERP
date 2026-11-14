@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Reminders.Domain.Identifiers;

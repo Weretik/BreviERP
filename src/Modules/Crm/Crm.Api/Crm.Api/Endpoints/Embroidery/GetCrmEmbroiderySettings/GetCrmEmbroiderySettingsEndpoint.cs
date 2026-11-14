@@ -1,5 +1,6 @@
 using Crm.Application.Features.Embroidery.Queries.GetEmbroiderySettings;
 using Crm.Application.Features.Embroidery.Shared.Access;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Embroidery.GetCrmEmbroiderySettings;
 

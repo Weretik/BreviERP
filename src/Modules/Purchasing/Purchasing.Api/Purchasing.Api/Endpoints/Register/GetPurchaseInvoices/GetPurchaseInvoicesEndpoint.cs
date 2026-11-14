@@ -2,6 +2,8 @@ using Purchasing.Application.Features.Documents.Shared;
 using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
 using Purchasing.Application.Features.Register.Shared;
 using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices.Results;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Purchasing.Api.Endpoints.Register.GetPurchaseInvoices;
 

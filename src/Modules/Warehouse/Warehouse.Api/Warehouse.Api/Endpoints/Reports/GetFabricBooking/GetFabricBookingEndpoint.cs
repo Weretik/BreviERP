@@ -1,6 +1,7 @@
 using Warehouse.Application.Features.Stock.Queries.GetFabricBooking;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Application.Features.Stock.Shared.Booking;
+using BuildingBlocks.Api.Errors;
 
 namespace Warehouse.Api.Endpoints.Reports.GetFabricBooking;
 

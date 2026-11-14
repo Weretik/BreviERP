@@ -4,6 +4,8 @@ using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Api.Endpoints.Reports.Shared;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Accounting.Api.Endpoints.Reports.GetFinanceReport;
 

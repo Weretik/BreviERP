@@ -1,4 +1,7 @@
 using Catalog.Api.Endpoints.Product.Shared;
+using Catalog.Api.Endpoints.Product.Detail.Content;
+using Catalog.Api.Endpoints.Product.Detail.Ppe;
+using Catalog.Api.Endpoints.Product.Detail.Sewing;
 
 namespace Catalog.Api.Endpoints.Product.Detail;
 

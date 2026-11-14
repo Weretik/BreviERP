@@ -5,6 +5,7 @@ using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Orders.Shared.Validation;
 using Production.Application.Features.Orders.Shared.Responses;
 using Production.Application.Features.Orders.Shared.Rules;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.Orders.Commands.CopyProductionOrder;
 

@@ -20,7 +20,7 @@
 └── <Module>.Api.csproj
 ```
 
-Endpoints bind HTTP input (`ISender` with `[FromServices]`), call `ISender.Send` with a `CancellationToken`, and return the shared Result mapping (`ToHttpResult`, `ToNoContentHttpResult` in `BuildingBlocks.Api/Result`). The host maps every module in `MapModuleEndpoints()`. They do not run EF queries, create repositories, or contain domain rules. Only `DependencyInjection/` may use Infrastructure types. No folder is named after a kind of class (`Controllers/`, `Contracts/`, `Requests/`, `Mapping/`, `Options/`, `Results/`); The project root holds only `Access/`, `DependencyInjection/`, `Endpoints/` and `Middleware/`; `tests/ArchitectureTests/ApiLayoutTests.cs` checks these rules and one folder per use case.
+Endpoints bind HTTP input (`ISender` with `[FromServices]`), call `ISender.Send` with a `CancellationToken`, and return the shared Result mapping (`ToHttpResult`, `ToNoContentHttpResult` in `BuildingBlocks.Api/Errors`). The host maps every module in `MapModuleEndpoints()`. They do not run EF queries, create repositories, or contain domain rules. Only `DependencyInjection/` may use Infrastructure types. No folder is named after a kind of class (`Controllers/`, `Contracts/`, `Requests/`, `Mapping/`, `Options/`, `Results/`); The project root holds only `Access/`, `DependencyInjection/`, `Endpoints/` and `Middleware/`; `tests/ArchitectureTests/ApiLayoutTests.cs` checks these rules and one folder per use case.
 
 ## Host structure
 

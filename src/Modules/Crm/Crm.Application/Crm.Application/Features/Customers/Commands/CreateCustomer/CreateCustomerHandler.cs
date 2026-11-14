@@ -5,6 +5,7 @@ using Crm.Domain.Customers.Identifiers;
 using Crm.Application.Features.Customers.Shared.Mapping;
 using Crm.Application.Abstractions.Customers;
 using Crm.Application.Abstractions.Customers.Views;
+using BuildingBlocks.Application;
 namespace Crm.Application.Features.Customers.Commands.CreateCustomer;
 
 public sealed class CreateCustomerHandler(ICustomerMutationStore store) : ICommandHandler<CreateCustomerCommand, Result<CustomerDetail>>

@@ -1,4 +1,5 @@
 using Reference.Application.Features.GarmentPartOperation.Commands.ImportGarmentPartOperations;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.GarmentPartOperations.ImportGarmentPartOperations;
 

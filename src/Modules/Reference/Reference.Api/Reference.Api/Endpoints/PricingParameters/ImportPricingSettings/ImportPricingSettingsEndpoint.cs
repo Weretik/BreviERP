@@ -1,5 +1,6 @@
 using Reference.Application.Features.PricingSettingsImport.Commands.ImportPricingSettings;
 using Reference.Application.Features.PricingSettingsImport.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.PricingParameters.ImportPricingSettings;
 

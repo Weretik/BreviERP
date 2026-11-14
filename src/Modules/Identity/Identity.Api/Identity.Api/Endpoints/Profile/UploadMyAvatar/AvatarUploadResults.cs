@@ -1,4 +1,5 @@
 using Identity.Application.Features.Avatars.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.Profile.UploadMyAvatar;
 

@@ -1,4 +1,5 @@
 using Content.Application.Features.SitePages.Queries.GetPublicSitePages;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.PublicSitePages.GetPublicSitePages;
 

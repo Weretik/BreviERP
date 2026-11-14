@@ -1,6 +1,5 @@
 using Ardalis.Result;
 using Ardalis.Specification;
-using BuildingBlocks.Domain.ValueObjects;
 using Moq;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
@@ -11,6 +10,7 @@ using Reference.Application.Features.GarmentAccessory.Commands.DeleteGarmentAcce
 using Reference.Application.Features.GarmentPartOperation.Commands.DeleteGarmentPartOperation;
 using Reference.Domain.Fabrics;
 using Reference.Domain.GarmentParts;
+using BuildingBlocks.Domain;
 
 namespace UnitTests.Reference;
 
@@ -43,7 +43,7 @@ public sealed class ReferenceProductUsageTests
         operations.Verify(x => x.DeleteAsync(It.IsAny<GarmentPartOperation>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    private static Mock<IReferenceRepository<T>> Repository<T>(T entity) where T : class, BuildingBlocks.Domain.Abstractions.IAggregateRoot
+    private static Mock<IReferenceRepository<T>> Repository<T>(T entity) where T : class, BuildingBlocks.Domain.Entity.IAggregateRoot
     {
         var repository = new Mock<IReferenceRepository<T>>();
         repository.Setup(x => x.FirstOrDefaultAsync(It.IsAny<ISpecification<T>>(), It.IsAny<CancellationToken>())).ReturnsAsync(entity);

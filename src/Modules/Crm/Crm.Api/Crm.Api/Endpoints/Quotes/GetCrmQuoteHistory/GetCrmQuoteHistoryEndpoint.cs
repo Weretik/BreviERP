@@ -1,5 +1,6 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Queries.GetQuoteHistory;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Quotes.GetCrmQuoteHistory;
 

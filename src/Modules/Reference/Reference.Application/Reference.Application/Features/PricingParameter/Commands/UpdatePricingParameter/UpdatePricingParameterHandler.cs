@@ -1,6 +1,7 @@
 using Reference.Application.Features.PricingParameter.Shared;
 using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
 using Reference.Application.Abstractions;
+using BuildingBlocks.Application;
 
 namespace Reference.Application.Features.PricingParameter.Commands.UpdatePricingParameter;
 

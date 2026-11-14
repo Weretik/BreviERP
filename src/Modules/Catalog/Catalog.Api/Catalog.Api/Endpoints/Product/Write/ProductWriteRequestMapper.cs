@@ -3,6 +3,9 @@ using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Domain.Products.Enums;
 using Catalog.Application.Features.Product.Commands.CreateProduct.Content;
+using Catalog.Api.Endpoints.Product.Write.Content;
+using Catalog.Api.Endpoints.Product.Write.Ppe;
+using Catalog.Api.Endpoints.Product.Write.Sewing;
 
 namespace Catalog.Api.Endpoints.Product.Write;
 

@@ -1,5 +1,6 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Counterparties.Commands.MergeFinanceCounterparty;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Counterparties.MergeFinanceCounterparty;
 

@@ -1,4 +1,5 @@
 using Reference.Application.Features.PricingParameter.Commands.CreatePricingParameter;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.PricingParameters.CreatePricingParameter;
 

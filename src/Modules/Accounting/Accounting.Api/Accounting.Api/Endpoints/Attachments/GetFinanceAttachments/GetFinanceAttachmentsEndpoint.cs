@@ -1,4 +1,5 @@
 using Accounting.Application.Features.Attachments.Queries.GetFinanceAttachments;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Attachments.GetFinanceAttachments;
 

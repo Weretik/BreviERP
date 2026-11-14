@@ -4,6 +4,10 @@ using Catalog.Application.Features.Product.Shared.Detail;
 using Catalog.Application.Features.Product.Shared.Detail.Ppe;
 using Catalog.Application.Features.Product.Shared.Detail.Sewing;
 using Catalog.Application.Features.Product.Shared.Detail.Sewing.Prices;
+using Catalog.Api.Endpoints.Product.Detail.Content;
+using Catalog.Api.Endpoints.Product.Detail.Ppe;
+using Catalog.Api.Endpoints.Product.Detail.Sewing;
+using Catalog.Api.Endpoints.Product.Detail.Sewing.Prices;
 
 namespace Catalog.Api.Endpoints.Product.Detail;
 

@@ -1,5 +1,6 @@
 using Reminders.Application.Features.Calendar.Queries.GetNonWorkingDays;
 using Reminders.Application.Features.Calendar.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Calendar.GetReminderNonWorkingDays;
 

@@ -11,6 +11,7 @@ using Catalog.Application.Features.Product.Shared;
 using Catalog.Domain.Products.ValueObjects;
 using Catalog.Application.Abstractions.Products;
 using Catalog.Application.Features.Product.Shared.Detail;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.Product.Commands.CreateProduct;
 

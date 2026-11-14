@@ -1,4 +1,5 @@
 using Accounting.Application.Features.Accounts.Queries.GetFinanceAccounts;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Accounts.GetFinanceAccounts;
 

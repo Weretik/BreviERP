@@ -1,4 +1,5 @@
 using Reference.Application.Features.Supplier.Commands.CreateSupplier;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.Suppliers.CreateSupplier;
 

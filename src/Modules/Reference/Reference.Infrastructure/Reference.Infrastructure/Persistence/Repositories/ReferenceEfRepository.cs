@@ -1,5 +1,5 @@
-﻿using BuildingBlocks.Domain.Abstractions;
-using Reference.Application.Abstractions;
+﻿using Reference.Application.Abstractions;
+using BuildingBlocks.Domain.Entity;
 
 namespace Reference.Infrastructure.Persistence.Repositories;
 

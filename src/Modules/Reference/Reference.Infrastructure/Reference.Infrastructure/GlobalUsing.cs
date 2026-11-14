@@ -22,4 +22,4 @@ global using Microsoft.Extensions.Hosting;
 global using Ardalis.Specification.EntityFrameworkCore;
 global using Ardalis.Specification;
 global using Mediator;
-global using BuildingBlocks.Domain.ValueObjects;
+global using BuildingBlocks.Domain;

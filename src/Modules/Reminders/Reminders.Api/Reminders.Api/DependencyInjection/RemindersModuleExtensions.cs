@@ -3,11 +3,11 @@ using Reminders.Api.Endpoints.Chats;
 using Reminders.Api.Endpoints.Occurrences;
 using Reminders.Api.Endpoints.Tasks;
 using Reminders.Api.Endpoints.Telegram;
-using BuildingBlocks.Application.DependencyInjection;
 using Reminders.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Reminders.Infrastructure.DependencyInjection;
+using BuildingBlocks.Application.Validation;
 
 namespace Reminders.Api.DependencyInjection;
 

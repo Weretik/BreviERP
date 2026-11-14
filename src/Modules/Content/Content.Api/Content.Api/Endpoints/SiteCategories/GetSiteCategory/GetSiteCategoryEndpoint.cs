@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteCategories.Queries.GetSiteCategory;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteCategories.GetSiteCategory;
 

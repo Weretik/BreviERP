@@ -1,6 +1,7 @@
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Messages;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
+using BuildingBlocks.Application;
 
 namespace Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
 

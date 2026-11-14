@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Errors;
 
 namespace Catalog.Domain.Products.Errors;
 

@@ -2,6 +2,7 @@ using Content.Application.Abstractions;
 using Content.Domain.Redirects;
 using Content.Application.Features.Redirects.Shared;
 using Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects.Results;
+using BuildingBlocks.Application;
 
 namespace Content.Application.Features.Redirects.Commands.ImportOldSiteRedirects;
 

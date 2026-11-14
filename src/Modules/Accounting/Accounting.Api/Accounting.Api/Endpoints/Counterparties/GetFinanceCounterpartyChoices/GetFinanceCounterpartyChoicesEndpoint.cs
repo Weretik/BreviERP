@@ -1,4 +1,5 @@
 using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterpartyChoices;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Counterparties.GetFinanceCounterpartyChoices;
 

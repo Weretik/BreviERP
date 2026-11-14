@@ -1,4 +1,5 @@
 using Production.Application.Features.Forecast.Commands.SaveForecastQueue;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Forecast.SaveSewingForecastQueue;
 

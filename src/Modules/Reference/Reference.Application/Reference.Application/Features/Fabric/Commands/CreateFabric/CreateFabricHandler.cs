@@ -4,6 +4,8 @@ using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using Reference.Application.Abstractions;
 using Reference.Domain.Fabrics;
+using BuildingBlocks.Application;
+using BuildingBlocks.Domain;
 
 namespace Reference.Application.Features.Fabric.Commands.CreateFabric;
 

@@ -3,6 +3,7 @@ using Catalog.Domain.Products;
 using System.Text.Json;
 using Catalog.Api.Endpoints.Product.Write;
 using Catalog.Domain.Products.Enums;
+using Catalog.Api.Endpoints.Product.Write.Ppe;
 
 namespace UnitTests.Catalog.Products;
 

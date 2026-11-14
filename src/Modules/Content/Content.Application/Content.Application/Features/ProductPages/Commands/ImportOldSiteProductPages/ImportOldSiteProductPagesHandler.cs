@@ -2,6 +2,7 @@ using Content.Application.Abstractions;
 using Content.Domain.ProductPages;
 using Content.Application.Features.Articles.Shared;
 using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
+using BuildingBlocks.Application;
 
 namespace Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPages;
 

@@ -1,4 +1,5 @@
 using Content.Application.Features.SeoOverview.Queries.GetSeoOverview;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SeoOverview.GetSeoOverview;
 

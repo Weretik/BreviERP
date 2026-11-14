@@ -2,6 +2,7 @@ using Catalog.Domain.ProductCategories;
 using ProductCategoryEntity = Catalog.Domain.ProductCategories.ProductCategory;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Features.ProductCategory.Shared;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.ProductCategory.Commands.UpdateProductCategory;
 

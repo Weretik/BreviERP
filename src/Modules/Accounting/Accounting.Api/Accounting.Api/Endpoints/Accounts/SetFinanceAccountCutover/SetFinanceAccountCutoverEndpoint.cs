@@ -1,5 +1,6 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Accounts.Commands.SetCutoverBalance;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Accounts.SetFinanceAccountCutover;
 

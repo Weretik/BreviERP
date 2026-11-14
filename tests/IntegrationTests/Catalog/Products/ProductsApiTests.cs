@@ -2,7 +2,6 @@ using Catalog.Api.DependencyInjection;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using Host.Api.DependencyInjection.ServiceRegistration.Web;
 using Identity.Api.DependencyInjection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;

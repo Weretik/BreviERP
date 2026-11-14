@@ -1,4 +1,3 @@
-using BuildingBlocks.Application.DependencyInjection;
 using Warehouse.Application;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +5,7 @@ using Warehouse.Api.Endpoints.FabricStock;
 using Warehouse.Api.Endpoints.OrderItemFabric;
 using Warehouse.Api.Endpoints.Reports;
 using Warehouse.Infrastructure.DependencyInjection;
+using BuildingBlocks.Application.Validation;
 
 namespace Warehouse.Api.DependencyInjection;
 

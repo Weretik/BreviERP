@@ -1,6 +1,7 @@
 using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
 using Content.Application.Features.SiteGalleries.Shared;
 using Content.Api.Endpoints.SiteGalleries.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteGalleries.SaveSiteCertificates;
 

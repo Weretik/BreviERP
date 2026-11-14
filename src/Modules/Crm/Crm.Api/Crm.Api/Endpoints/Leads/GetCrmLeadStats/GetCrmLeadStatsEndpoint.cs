@@ -1,4 +1,5 @@
 using Crm.Application.Features.Leads.Queries.GetLeadStats;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Leads.GetCrmLeadStats;
 

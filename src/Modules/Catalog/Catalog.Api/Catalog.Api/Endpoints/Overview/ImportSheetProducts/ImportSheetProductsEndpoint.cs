@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Overview.ImportSheetProducts;
 

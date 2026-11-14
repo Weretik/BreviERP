@@ -1,5 +1,6 @@
 using Content.Application.Features.SitePages.Shared;
 using Content.Application.Features.SitePages.Commands.SaveSitePage;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SitePages.SaveSitePage;
 

@@ -8,6 +8,7 @@ using Accounting.Application.Features.Statements.Shared;
 using Accounting.Application.Features.Statements.Shared.Reading;
 using Accounting.Domain.Statements.ValueObjects;
 using Accounting.Application.Features.Statements.Shared.Responses;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Statements.Commands.UploadBankStatement;
 

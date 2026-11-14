@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Photos.ImportOldSitePhotos;
 

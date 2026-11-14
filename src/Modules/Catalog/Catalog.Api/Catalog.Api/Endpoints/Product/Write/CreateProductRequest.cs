@@ -1,4 +1,7 @@
 using System.Text.Json.Serialization;
+using Catalog.Api.Endpoints.Product.Write.Content;
+using Catalog.Api.Endpoints.Product.Write.Ppe;
+using Catalog.Api.Endpoints.Product.Write.Sewing;
 
 namespace Catalog.Api.Endpoints.Product.Write;
 

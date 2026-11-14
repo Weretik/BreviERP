@@ -1,5 +1,6 @@
 using Content.Application.Features.SiteCompany.Shared;
 using Content.Application.Features.SiteCompany.Commands.SaveSiteCompany;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteCompany.SaveSiteCompany;
 

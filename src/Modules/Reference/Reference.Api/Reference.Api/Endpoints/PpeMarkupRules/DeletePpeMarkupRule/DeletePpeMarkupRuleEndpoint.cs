@@ -1,4 +1,5 @@
 using Reference.Application.Features.PpeMarkupRule.Commands.DeletePpeMarkupRule;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.PpeMarkupRules.DeletePpeMarkupRule;
 

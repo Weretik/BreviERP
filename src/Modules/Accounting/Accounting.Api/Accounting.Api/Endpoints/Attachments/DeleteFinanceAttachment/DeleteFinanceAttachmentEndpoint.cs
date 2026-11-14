@@ -1,5 +1,6 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Attachments.Commands.DeleteFinanceAttachment;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Attachments.DeleteFinanceAttachment;
 

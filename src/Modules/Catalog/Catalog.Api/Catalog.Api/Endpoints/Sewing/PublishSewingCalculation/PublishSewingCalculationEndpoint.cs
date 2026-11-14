@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Sewing.PublishSewingCalculation;
 

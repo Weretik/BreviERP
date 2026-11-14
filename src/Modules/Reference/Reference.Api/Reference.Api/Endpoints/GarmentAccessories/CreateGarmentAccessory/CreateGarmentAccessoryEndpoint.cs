@@ -1,4 +1,5 @@
 using Reference.Application.Features.GarmentAccessory.Commands.CreateGarmentAccessory;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.GarmentAccessories.CreateGarmentAccessory;
 

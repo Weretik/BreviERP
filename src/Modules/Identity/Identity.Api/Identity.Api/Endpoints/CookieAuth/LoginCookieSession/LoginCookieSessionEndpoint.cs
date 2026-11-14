@@ -1,6 +1,7 @@
 using Identity.Application.Features.Auth.Commands.CookieLogin;
 using Identity.Api.Endpoints.CookieAuth.Shared;
 using Identity.Api.Endpoints.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.CookieAuth.LoginCookieSession;
 

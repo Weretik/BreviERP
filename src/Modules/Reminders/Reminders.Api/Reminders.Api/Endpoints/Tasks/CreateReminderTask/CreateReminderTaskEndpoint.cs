@@ -1,5 +1,6 @@
 using Reminders.Application.Features.Tasks.Commands.CreateReminderTask;
 using Reminders.Application.Features.Tasks.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Tasks.CreateReminderTask;
 

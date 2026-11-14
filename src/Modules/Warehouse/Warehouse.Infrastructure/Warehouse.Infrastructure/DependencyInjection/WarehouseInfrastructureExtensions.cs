@@ -2,7 +2,6 @@ using Warehouse.Infrastructure.Adapters.Identity;
 using Warehouse.Infrastructure.Adapters.Production;
 using Warehouse.Infrastructure.Adapters.Reference;
 using Warehouse.Contracts.Stock;
-using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +13,7 @@ using Warehouse.Application.Features.Stock.Shared.Facts;
 using Warehouse.Application.Features.Stock.Shared.Booking;
 using Warehouse.Application.Features.Stock.Shared.Operations;
 using Warehouse.Application.Features.Stock.Shared.Plans;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Warehouse.Infrastructure.DependencyInjection;
 

@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Errors;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.Identifiers;

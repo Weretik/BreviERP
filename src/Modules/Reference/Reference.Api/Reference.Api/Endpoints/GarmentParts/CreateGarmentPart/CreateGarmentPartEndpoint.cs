@@ -1,4 +1,5 @@
 using Reference.Application.Features.GarmentPart.Commands.CreateGarmentPart;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.GarmentParts.CreateGarmentPart;
 

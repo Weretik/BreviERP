@@ -1,4 +1,5 @@
 using Reference.Application.Features.GarmentAccessory.Commands.DeleteGarmentAccessory;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.GarmentAccessories.DeleteGarmentAccessory;
 

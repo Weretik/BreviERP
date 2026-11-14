@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Queries.ListSewingArticles;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Sewing.ListSewingArticles;
 

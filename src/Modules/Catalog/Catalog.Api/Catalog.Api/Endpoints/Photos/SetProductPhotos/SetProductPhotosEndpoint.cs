@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.SetProductPhotos;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Photos.SetProductPhotos;
 

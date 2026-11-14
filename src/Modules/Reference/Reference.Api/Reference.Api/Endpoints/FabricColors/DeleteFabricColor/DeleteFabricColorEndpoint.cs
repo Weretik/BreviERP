@@ -1,4 +1,5 @@
 using Reference.Application.Features.FabricColor.Commands.DeleteFabricColor;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.FabricColors.DeleteFabricColor;
 

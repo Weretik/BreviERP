@@ -1,4 +1,5 @@
 using Reference.Application.Features.Supplier.Queries.GetSuppliers;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.Suppliers.GetSuppliers;
 

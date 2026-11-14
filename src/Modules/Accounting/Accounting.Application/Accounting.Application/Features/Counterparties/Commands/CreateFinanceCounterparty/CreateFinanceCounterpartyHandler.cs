@@ -6,6 +6,7 @@ using Accounting.Application.Features.Audit.Shared;
 using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Application.Features.Journal.Shared;
 using Accounting.Application.Features.Lookup.Shared;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Counterparties.Commands.CreateFinanceCounterparty;
 

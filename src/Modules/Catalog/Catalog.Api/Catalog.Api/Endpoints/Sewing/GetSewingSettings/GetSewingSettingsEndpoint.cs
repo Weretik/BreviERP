@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Pricing.Queries.GetSewingSettings;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Sewing.GetSewingSettings;
 

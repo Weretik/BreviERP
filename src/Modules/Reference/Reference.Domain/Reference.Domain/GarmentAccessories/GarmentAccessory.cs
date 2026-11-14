@@ -1,7 +1,7 @@
-﻿using BuildingBlocks.Domain.Abstractions;
-using BuildingBlocks.Domain.Entity;
+﻿using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Reference.Domain.Suppliers;
+using BuildingBlocks.Domain;
 
 namespace Reference.Domain.GarmentAccessories;
 

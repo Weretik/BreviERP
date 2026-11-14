@@ -1,4 +1,5 @@
 using Catalog.Application.Features.ProductCategory.Queries.GetAdminProductCategories;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.ProductCategory.GetAdminProductCategories;
 

@@ -1,4 +1,5 @@
 using Accounting.Application.Features.Import.Commands.ImportLegacyFinance;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Import.ImportLegacyFinance;
 

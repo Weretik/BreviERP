@@ -1,5 +1,6 @@
 using Crm.Application.Features.SiteRequests.Commands.SubmitSiteRequest;
 using Crm.Application.Features.SiteRequests.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.SiteRequests.SubmitPublicSiteRequest;
 

@@ -1,5 +1,6 @@
 using Reminders.Application.Features.Chats.Queries.GetReminderChats;
 using Reminders.Application.Features.Chats.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Chats.GetReminderChats;
 

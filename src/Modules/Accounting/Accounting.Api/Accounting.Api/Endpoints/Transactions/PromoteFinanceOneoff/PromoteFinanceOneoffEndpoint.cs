@@ -1,6 +1,7 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Transactions.Commands.PromoteFinanceOneoff;
 using Accounting.Api.Endpoints.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Transactions.PromoteFinanceOneoff;
 

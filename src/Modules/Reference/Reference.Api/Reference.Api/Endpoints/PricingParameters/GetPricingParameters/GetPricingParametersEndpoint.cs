@@ -1,4 +1,5 @@
 using Reference.Application.Features.PricingParameter.Queries.GetPricingParameters;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.PricingParameters.GetPricingParameters;
 

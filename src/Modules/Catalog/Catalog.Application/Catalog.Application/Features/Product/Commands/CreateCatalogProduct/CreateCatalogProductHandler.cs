@@ -11,6 +11,7 @@ using Catalog.Domain.Products.ValueObjects;
 using Catalog.Application.Abstractions.Pricing.Ppe;
 using Catalog.Application.Abstractions.Pricing.Ppe.Versions;
 using Catalog.Application.Abstractions.Products;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
 

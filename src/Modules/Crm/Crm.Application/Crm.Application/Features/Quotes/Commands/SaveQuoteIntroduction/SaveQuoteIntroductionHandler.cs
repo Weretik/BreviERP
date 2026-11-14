@@ -7,6 +7,7 @@ using Crm.Application.Features.Quotes.Shared.Mapping;
 using Crm.Application.Features.Quotes.Shared.Persistence;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Domain.Quotes.Enums;
+using BuildingBlocks.Application;
 
 namespace Crm.Application.Features.Quotes.Commands.SaveQuoteIntroduction;
 

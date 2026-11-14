@@ -1,4 +1,5 @@
 using Catalog.Application.Features.ProductCategory.Commands.DeleteProductCategory;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.ProductCategory.DeleteProductCategory;
 

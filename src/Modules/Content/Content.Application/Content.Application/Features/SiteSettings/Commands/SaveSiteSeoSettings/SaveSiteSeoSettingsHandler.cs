@@ -1,6 +1,7 @@
 using Content.Application.Abstractions;
 using Content.Domain.SiteSettings;
 using Content.Application.Features.SiteSettings.Shared;
+using BuildingBlocks.Application;
 
 namespace Content.Application.Features.SiteSettings.Commands.SaveSiteSeoSettings;
 

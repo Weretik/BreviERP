@@ -1,4 +1,5 @@
 using Accounting.Application.Features.Statements.Commands.UpdateBankLine;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Statements.UpdateBankStatementLine;
 

@@ -1,6 +1,5 @@
 using Reminders.Contracts.Telegram;
 using Reminders.Infrastructure.Contracts.Telegram;
-using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +12,7 @@ using Reminders.Infrastructure.Persistence;
 using Reminders.Infrastructure.Persistence.Seeding;
 using Reminders.Infrastructure.Integrations.Telegram;
 using Reminders.Application.Abstractions.Telegram;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Reminders.Infrastructure.DependencyInjection;
 

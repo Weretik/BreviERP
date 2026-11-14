@@ -1,4 +1,5 @@
 using Content.Application.Features.Articles.Commands.SetContentArticleVisibility;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.Articles.SetContentArticleVisibility;
 

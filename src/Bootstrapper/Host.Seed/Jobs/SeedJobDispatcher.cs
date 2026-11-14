@@ -1,6 +1,8 @@
-using BuildingBlocks.Infrastructure.Extensions;
 using Host.Seed.Jobs.Sync;
 using Microsoft.Extensions.Configuration;
+using BuildingBlocks.Infrastructure.Database;
+using BuildingBlocks.Infrastructure.Seeding;
+using Host.Seed.Jobs.Pricing.Ppe;
 
 namespace Host.Seed.Jobs;
 

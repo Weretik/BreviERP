@@ -4,6 +4,7 @@ using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Application.Features.Product.Shared.Sewing.Mapping;
 using Catalog.Application.Abstractions.Sewing;
 using Catalog.Application.Features.Product.Shared.Sewing.Inputs;
+using BuildingBlocks.Application;
 
 namespace Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
 

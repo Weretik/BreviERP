@@ -1,6 +1,7 @@
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Application.Features.FabricNorms.Shared;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.FabricNorms.Commands.DeleteFabricNorm;
 

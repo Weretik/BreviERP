@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 using Catalog.Domain.Media;
 using Catalog.Domain.ProductCategories;

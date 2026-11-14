@@ -1,5 +1,6 @@
 using Crm.Application.Features.Quotes.Queries.CalculateQuoteCustomSewing;
 using Crm.Application.Features.Quotes.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Quotes.CalculateCrmQuoteCustomSewing;
 

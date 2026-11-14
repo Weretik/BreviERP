@@ -1,6 +1,6 @@
 using Ardalis.Result;
-using BuildingBlocks.Api.Result;
 using Microsoft.AspNetCore.Http;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Shared;
 

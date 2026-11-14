@@ -1,4 +1,5 @@
 using Production.Application.Features.Payroll.Commands.CreatePayrollPayment;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Payroll.CreatePayrollPayment;
 

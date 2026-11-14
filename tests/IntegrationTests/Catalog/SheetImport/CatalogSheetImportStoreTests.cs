@@ -1,10 +1,10 @@
+using Host.Api.DependencyInjection;
 using IntegrationTests.TestSupport;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Catalog.Domain.Products;
-using Host.Api.DependencyInjection.ServiceRegistration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Reference.Domain.Suppliers;
-using BuildingBlocks.Domain.ValueObjects;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 using Catalog.Infrastructure.Persistence;
 using Reference.Infrastructure.Persistence;
@@ -25,6 +24,8 @@ using Identity.Infrastructure.Persistence;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts.Report;
+using BuildingBlocks.Domain;
+using Host.Api.DependencyInjection.Modules;
 
 namespace IntegrationTests.Catalog.SheetImport;
 

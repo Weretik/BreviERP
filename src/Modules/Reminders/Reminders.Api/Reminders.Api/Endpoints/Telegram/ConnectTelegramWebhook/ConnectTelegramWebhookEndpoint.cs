@@ -1,4 +1,5 @@
 using Reminders.Application.Features.Telegram.Commands.ConnectTelegramWebhook;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Telegram.ConnectTelegramWebhook;
 

@@ -1,4 +1,5 @@
 ﻿using Identity.Application.Abstractions;
+using BuildingBlocks.Domain.Entity;
 
 
 namespace Identity.Infrastructure.Persistence.Repositories;

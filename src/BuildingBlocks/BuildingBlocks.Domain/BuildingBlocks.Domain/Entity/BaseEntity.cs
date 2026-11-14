@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Domain.Abstractions;
-
+﻿
 namespace BuildingBlocks.Domain.Entity;
 
 public abstract class BaseEntity<TId> : IEntity<TId>

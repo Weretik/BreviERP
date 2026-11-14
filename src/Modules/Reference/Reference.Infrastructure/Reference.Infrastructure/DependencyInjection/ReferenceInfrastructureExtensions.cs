@@ -20,7 +20,6 @@ using Reference.Contracts.Pricing;
 using Reference.Infrastructure.Contracts.Pricing;
 using Catalog.Contracts.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Application.Abstractions;
 using Reference.Infrastructure.Persistence;
@@ -30,6 +29,7 @@ using Reference.Infrastructure.Persistence.Seeding.GarmentPartOperations;
 using Reference.Infrastructure.Persistence.Seeding.GarmentParts;
 using Reference.Infrastructure.Persistence.Seeding.Suppliers;
 using Reference.Infrastructure.Persistence.Repositories;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Reference.Infrastructure.DependencyInjection;
 

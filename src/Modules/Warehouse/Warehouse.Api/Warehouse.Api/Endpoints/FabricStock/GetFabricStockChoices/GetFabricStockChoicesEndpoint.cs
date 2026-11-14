@@ -1,5 +1,6 @@
 using Warehouse.Application.Features.Stock.Queries.GetFabricStockChoices;
 using Warehouse.Application.Features.Stock.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Warehouse.Api.Endpoints.FabricStock.GetFabricStockChoices;
 

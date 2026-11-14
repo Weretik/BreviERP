@@ -3,6 +3,7 @@ using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 using Reference.Application.Abstractions;
 using Reference.Application.Abstractions.Pricing;
+using BuildingBlocks.Domain;
 
 namespace Reference.Application.Features.GarmentAccessory.Commands.UpdateGarmentAccessory;
 

@@ -1,4 +1,5 @@
 using Production.Application.Features.Archive.Queries.GetWorkshopArchive;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Archive.GetWorkshopArchive;
 

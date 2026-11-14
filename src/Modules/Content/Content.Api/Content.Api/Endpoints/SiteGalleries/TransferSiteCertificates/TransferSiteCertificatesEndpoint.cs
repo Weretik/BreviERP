@@ -1,5 +1,6 @@
 using Content.Application.Features.SiteGalleries.Commands.TransferSiteGallery;
 using Content.Application.Features.SiteGalleries.Shared;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteGalleries.TransferSiteCertificates;
 

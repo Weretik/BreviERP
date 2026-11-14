@@ -5,6 +5,8 @@ using Accounting.Domain.Counterparties;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Api.Endpoints.Shared;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Accounting.Api.Endpoints.Transactions.GetFinanceTransactions;
 

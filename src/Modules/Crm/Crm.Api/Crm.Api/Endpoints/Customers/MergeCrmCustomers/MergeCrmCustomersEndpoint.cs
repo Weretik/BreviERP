@@ -1,5 +1,6 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Customers.Commands.MergeCustomers;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Customers.MergeCrmCustomers;
 

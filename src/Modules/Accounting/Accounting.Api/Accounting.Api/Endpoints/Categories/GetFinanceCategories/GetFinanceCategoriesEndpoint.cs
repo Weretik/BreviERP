@@ -1,5 +1,7 @@
 using Accounting.Application.Features.Categories.Queries.GetFinanceCategories;
 using Accounting.Domain.Ledger;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Accounting.Api.Endpoints.Categories.GetFinanceCategories;
 

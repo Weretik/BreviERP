@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Domain.Errors;
-
+﻿
 namespace BuildingBlocks.Domain.Results;
 
 /// <summary>

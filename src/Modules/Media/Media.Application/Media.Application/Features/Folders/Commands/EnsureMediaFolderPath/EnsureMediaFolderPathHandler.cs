@@ -1,6 +1,7 @@
 using Media.Application.Abstractions;
 using Media.Domain;
 using Media.Domain.Folders;
+using BuildingBlocks.Application;
 
 namespace Media.Application.Features.Folders.Commands.EnsureMediaFolderPath;
 

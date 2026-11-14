@@ -1,4 +1,5 @@
 using Production.Application.Features.Staff.Commands.SetWorkshopEmployeeActive;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Staff.SetWorkshopEmployeeActive;
 

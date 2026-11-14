@@ -1,4 +1,5 @@
 using Crm.Application.Features.Quotes.Commands.UploadQuotePhoto;
+using BuildingBlocks.Api.Errors;
 
 namespace Crm.Api.Endpoints.Quotes.UploadCrmQuotePhoto;
 

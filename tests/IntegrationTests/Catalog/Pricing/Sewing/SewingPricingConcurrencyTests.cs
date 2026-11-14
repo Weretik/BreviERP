@@ -1,6 +1,5 @@
 using IntegrationTests.TestSupport;
 using Ardalis.Result;
-using BuildingBlocks.Domain.ValueObjects;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.Adapters.Reference;
 using Reference.Infrastructure.Contracts.Pricing;
@@ -15,6 +14,7 @@ using Catalog.Infrastructure.Persistence.Repositories.Pricing.Calculations;
 using Catalog.Infrastructure.Persistence.Repositories.Pricing.Publications;
 using Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;
 using Reference.Infrastructure.Persistence.Repositories.Pricing;
+using BuildingBlocks.Domain;
 
 namespace IntegrationTests.Catalog.Pricing.Sewing;
 

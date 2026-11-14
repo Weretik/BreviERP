@@ -1,4 +1,5 @@
 using Production.Application.Features.Payroll.Queries.GetPayrollYear;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Payroll.GetPayrollYear;
 

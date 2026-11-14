@@ -1,4 +1,5 @@
 using Production.Application.Features.FabricNorms.Queries.GetModelCompositions;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.FabricNorms.GetModelCompositions;
 

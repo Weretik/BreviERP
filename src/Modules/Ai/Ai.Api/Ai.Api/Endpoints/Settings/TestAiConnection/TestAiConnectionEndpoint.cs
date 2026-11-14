@@ -1,6 +1,7 @@
 using Ai.Application.Features.Settings.Commands.TestAiConnection;
 using Ai.Application.Features.Settings.Shared;
 using Ai.Domain.Settings;
+using BuildingBlocks.Api.Errors;
 
 namespace Ai.Api.Endpoints.Settings.TestAiConnection;
 

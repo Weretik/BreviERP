@@ -3,6 +3,7 @@ using Content.Domain.SiteCompany;
 using Content.Domain.SiteGalleries;
 using Content.Application.Features.SiteGalleries.Shared;
 using Content.Application.Features.SiteGalleries.Shared.Admin;
+using BuildingBlocks.Application;
 
 namespace Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
 

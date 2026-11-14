@@ -1,4 +1,5 @@
 using Production.Application.Features.Work.Queries.GetWorkLog;
+using BuildingBlocks.Api.Errors;
 
 namespace Production.Api.Endpoints.Work.GetWorkLog;
 

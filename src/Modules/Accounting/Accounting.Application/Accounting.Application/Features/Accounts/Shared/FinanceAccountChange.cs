@@ -4,6 +4,7 @@ using Accounting.Domain.Audit;
 using Accounting.Application;
 using Accounting.Application.Features.Audit.Shared;
 using Accounting.Application.Features.Balances.Shared;
+using BuildingBlocks.Application;
 
 namespace Accounting.Application.Features.Accounts.Shared;
 

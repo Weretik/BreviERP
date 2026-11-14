@@ -1,9 +1,9 @@
-using BuildingBlocks.Application.DependencyInjection;
 using Ai.Application;
 using Ai.Api.Endpoints.Settings;
 using Ai.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using BuildingBlocks.Application.Validation;
 
 namespace Ai.Api.DependencyInjection;
 

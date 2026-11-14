@@ -1,5 +1,7 @@
 using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties;
 using Accounting.Application.Features.Counterparties.Queries.GetFinanceCounterparties.Results;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Accounting.Api.Endpoints.Counterparties.GetFinanceCounterparties;
 

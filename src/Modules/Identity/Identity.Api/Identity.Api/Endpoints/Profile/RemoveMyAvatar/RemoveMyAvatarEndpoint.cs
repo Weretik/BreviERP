@@ -1,4 +1,5 @@
 using Identity.Application.Features.Profile.Commands.RemoveOwnAvatar;
+using BuildingBlocks.Api.Errors;
 
 namespace Identity.Api.Endpoints.Profile.RemoveMyAvatar;
 

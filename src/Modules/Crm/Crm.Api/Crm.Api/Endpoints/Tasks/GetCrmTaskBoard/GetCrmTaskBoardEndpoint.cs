@@ -1,5 +1,7 @@
 using Crm.Api.Access;
 using Crm.Application.Features.Tasks.Queries.GetTaskBoard;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Crm.Api.Endpoints.Tasks.GetCrmTaskBoard;
 

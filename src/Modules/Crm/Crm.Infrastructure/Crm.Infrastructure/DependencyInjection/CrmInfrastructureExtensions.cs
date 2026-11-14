@@ -11,7 +11,6 @@ using Crm.Infrastructure.Contracts.Quotes;
 using Crm.Infrastructure.Adapters.Media;
 using Crm.Infrastructure.Adapters.Reference;
 using Crm.Infrastructure.Adapters.Reminders;
-using BuildingBlocks.Infrastructure.Migrations;
 using Crm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,6 +45,7 @@ using Crm.Infrastructure.Integrations.Pdf;
 using Crm.Infrastructure.Persistence.Repositories.Customers;
 using Crm.Application.Abstractions.Quotes.Products;
 using Crm.Application.Abstractions.Quotes.Sending;
+using BuildingBlocks.Infrastructure.Database;
 
 namespace Crm.Infrastructure.DependencyInjection;
 

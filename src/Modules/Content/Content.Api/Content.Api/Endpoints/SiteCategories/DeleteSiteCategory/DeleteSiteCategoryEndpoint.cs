@@ -1,4 +1,5 @@
 using Content.Application.Features.SiteCategories.Commands.DeleteSiteCategory;
+using BuildingBlocks.Api.Errors;
 
 namespace Content.Api.Endpoints.SiteCategories.DeleteSiteCategory;
 

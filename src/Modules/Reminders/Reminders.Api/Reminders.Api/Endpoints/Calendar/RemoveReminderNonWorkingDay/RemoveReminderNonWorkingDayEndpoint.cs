@@ -1,4 +1,5 @@
 using Reminders.Application.Features.Calendar.Commands.RemoveNonWorkingDay;
+using BuildingBlocks.Api.Errors;
 
 namespace Reminders.Api.Endpoints.Calendar.RemoveReminderNonWorkingDay;
 

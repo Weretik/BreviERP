@@ -1,4 +1,5 @@
 using Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Sewing.ReplaceSewingComposition;
 

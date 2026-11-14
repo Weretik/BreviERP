@@ -1,4 +1,5 @@
 using Reference.Application.Features.GarmentPart.Commands.DeleteGarmentPart;
+using BuildingBlocks.Api.Errors;
 
 namespace Reference.Api.Endpoints.GarmentParts.DeleteGarmentPart;
 

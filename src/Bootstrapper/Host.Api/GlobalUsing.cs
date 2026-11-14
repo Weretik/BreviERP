@@ -1,8 +1,9 @@
-global using BuildingBlocks.Infrastructure.Extensions;
+global using BuildingBlocks.Infrastructure.Database;
+global using BuildingBlocks.Infrastructure.Seeding;
 
 global using Host.Api.DependencyInjection;
-global using Host.Api.DependencyInjection.ServiceRegistration;
-global using Host.Api.DependencyInjection.ServiceRegistration.Observability;
+global using Host.Api.DependencyInjection.Http;
+global using Host.Api.DependencyInjection.Modules;
 
 global using DotNetEnv;
 global using Serilog;

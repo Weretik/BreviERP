@@ -10,6 +10,7 @@ using Production.Application.Abstractions.Sales;
 using Production.Application.Features.Orders.Shared.Items;
 using Production.Application.Features.Orders.Shared.Responses;
 using Production.Application.Features.Orders.Shared.Rules;
+using BuildingBlocks.Application;
 
 namespace Production.Application.Features.Orders.Commands.CreateProductionOrder;
 

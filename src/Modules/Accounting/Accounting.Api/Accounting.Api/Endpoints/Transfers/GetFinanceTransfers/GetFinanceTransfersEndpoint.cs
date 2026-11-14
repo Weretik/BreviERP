@@ -2,6 +2,8 @@ using Accounting.Application.Features.Journal.Shared;
 using Accounting.Application.Features.Transfers.Queries.GetFinanceTransfers;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
+using BuildingBlocks.Api.Errors;
+using BuildingBlocks.Api.Http;
 
 namespace Accounting.Api.Endpoints.Transfers.GetFinanceTransfers;
 

@@ -1,5 +1,6 @@
 using Accounting.Api.Access;
 using Accounting.Application.Features.Categories.Commands.CreateFinanceCategory;
+using BuildingBlocks.Api.Errors;
 
 namespace Accounting.Api.Endpoints.Categories.CreateFinanceCategory;
 

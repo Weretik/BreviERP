@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using Host.Api.DependencyInjection.ServiceRegistration;
 using Identity.Api.DependencyInjection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +10,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Host.Api.DependencyInjection.Modules;
 
 namespace HostApiTests.TestSupport;
 
