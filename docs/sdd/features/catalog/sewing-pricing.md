@@ -34,10 +34,11 @@ src/Modules/Catalog/
       Queries/GetSewingArticleSummary/            # live per-Article card summary (CAT-007)
       Commands/CreateSewingSettingsVersion/, Queries/GetSewingSettings/  # complete settings revision / current read
       Commands/SyncPricingSettings/               # outbox: Reference settings changed
-  Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Pricing/
+  Catalog.Infrastructure/Catalog.Infrastructure/Persistence/{Configurations,Repositories}/Pricing/
     Sewing/                                        # settings versions and expected-version writes; calculation input projection
     Calculations/                                  # calculation storage, snapshot serialization, row and configuration
     Publications/                                  # publication storage, row and configuration; two-query Product projection (JSON tier extraction only)
+  Catalog.Infrastructure/Catalog.Infrastructure/Persistence/
     SewingPricingTransaction.cs                    # advisory/Product locks and commit; shared scoped DbContext
     SewingPricingInputChangeInterceptor.cs         # marks changed inputs for automatic publication
   Catalog.Api/Catalog.Api/
@@ -46,8 +47,8 @@ src/Modules/Catalog/
 src/Modules/Reference/
   Reference.Domain/Reference.Domain/Pricing/InputVersions/ # immutable typed versions and units
   Reference.Application/Reference.Application/Abstractions/  # IReferencePricingVersionReader, IReferencePricingUsageReader
-  Reference.Infrastructure/Reference.Infrastructure/Persistence/Pricing/
-    InputVersions/                                 # effective reads; tracked changes and atomic revision append
+  Reference.Infrastructure/Reference.Infrastructure/Persistence/{Configurations,Repositories}/Pricing/
+    ReferencePricing*.cs, TrackedReferencePricingChanges.cs  # effective reads; tracked changes and atomic revision append
     OtherCostPricingVersionWriter.cs               # explicit service-cost revision adapter
     ReferencePricingUsageReader.cs                 # retained-history use checks
 src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Reference/

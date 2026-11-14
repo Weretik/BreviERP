@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using SewingPricing.Jobs.Bootstrap;
 using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
 using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
-using Catalog.Infrastructure.Persistence.Pricing;
-using Catalog.Infrastructure.Persistence.Pricing.Calculations;
-using Catalog.Infrastructure.Persistence.Pricing.Publications;
-using Catalog.Infrastructure.Persistence.Pricing.Sewing;
-using Reference.Infrastructure.Persistence.Pricing.InputVersions;
 using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Calculations;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Publications;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;
+using Reference.Infrastructure.Persistence.Repositories.Pricing;
 
 namespace IntegrationTests.Catalog.Pricing.Sewing;
 

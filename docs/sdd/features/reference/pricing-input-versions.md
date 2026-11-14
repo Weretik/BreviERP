@@ -20,12 +20,12 @@ src/Modules/Reference/
     Features/{Fabric,GarmentAccessory,GarmentPartOperation}/Commands/Update…/ # controlled 409 mapping
   Reference.Infrastructure/Reference.Infrastructure/
     Persistence/ReferenceDbContext.PricingWrites.cs       # atomic SaveChanges transaction hook
-    Persistence/Pricing/InputVersions/
+    Persistence/Repositories/Pricing/
       TrackedReferencePricingChanges.cs              # EF tracked-value detection and extraction
       ReferencePricingTrackedChange.cs               # original/current values and typed SQL owner predicate
       ReferencePricingChangeAppender.cs              # reads current version; stages retained revision
       ReferencePricingVersionReader.cs, *Configuration.cs # approved effective read and constraints
-    Persistence/Pricing/OtherCostPricingVersionWriter.cs  # explicit service revision / retry storage
+    Persistence/Repositories/Pricing/OtherCostPricingVersionWriter.cs  # explicit service revision / retry storage
   Reference.Api/Reference.Api/
     Endpoints/OtherCostPricing/ReviseOtherCost/  # endpoint with ReviseOtherCostRequest
 ```

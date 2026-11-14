@@ -16,7 +16,7 @@ src/Modules/Reference/
 │   └── Shared/                                      # fields, validator, duplicate key, spec
 ├── Reference.Domain/Reference.Domain/FabricColors/  # entity, details, errors, id
 └── Reference.Infrastructure/Reference.Infrastructure/
-    ├── Persistence/FabricColors/FabricColorConfiguration.cs
+    ├── Persistence/Configurations/Materials/FabricColorConfiguration.cs
     └── Persistence/Migrations/*_AddFabricColors.cs              # table + the 61 sheet colours
 src/Modules/Production/Production.Application/Production.Application/
 ├── Abstractions/IProductionColorReader.cs

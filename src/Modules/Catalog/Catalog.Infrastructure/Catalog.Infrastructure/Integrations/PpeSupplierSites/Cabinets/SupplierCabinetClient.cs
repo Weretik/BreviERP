@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Catalog.Infrastructure.Integrations.PpeSupplierSites;
+using Catalog.Infrastructure.Integrations.PpeSupplierSites.Pages;
 
 namespace Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets;
 

@@ -11,7 +11,7 @@ src/Modules/Production/
     Features/Archive/Queries/GetWorkshopArchive/
     Features/Archive/Commands/ImportWorkshopArchive/
     Features/Archive/Shared/ArchiveMessages.cs
-  Production.Infrastructure/.../Persistence/Archive/WorkshopArchiveConfiguration.cs
+  Production.Infrastructure/.../Persistence/Configurations/Workshop/WorkshopArchiveConfiguration.cs
   Production.Api/Production.Api/Endpoints/Archive/   # /api/production/archive
 ```
 

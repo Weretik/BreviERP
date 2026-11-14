@@ -1,13 +1,15 @@
 namespace ArchitectureTests;
 
 /// <summary>
-/// Infrastructure projects group persistence by aggregate and outside systems by system (module rules «Folders»):
-/// <c>Persistence/</c> (DbContext, migrations, <c>&lt;Aggregate&gt;/</c>, <c>Seeding/</c>), <c>Integrations/&lt;System&gt;/</c>,
+/// Infrastructure projects follow module rules «Folders»: <c>Persistence/</c> (DbContext on top, then <c>Configurations/</c>,
+/// <c>Repositories/</c>, <c>Seeding/</c>, <c>Migrations/</c>), <c>Integrations/&lt;System&gt;/</c>,
 /// <c>Adapters/&lt;Provider&gt;/</c>, <c>Contracts/&lt;Feature&gt;/</c>, <c>DependencyInjection/</c>.
 /// </summary>
 public sealed class InfrastructureLayoutTests
 {
     private static readonly string[] TopFolders = ["Persistence", "Integrations", "Adapters", "Contracts", "DependencyInjection"];
+
+    private static readonly string[] PersistenceFolders = ["Configurations", "Repositories", "Seeding", "Migrations"];
 
     private static readonly string[] KindFolders =
         ["Configurations", "Congigurations", "Configuration", "DataBase", "Repositories", "Seeders", "Entities", "Services", "Records", "Reading", "Writing"];
@@ -29,7 +31,7 @@ public sealed class InfrastructureLayoutTests
         var offending = InfrastructureProjects()
             .SelectMany(project => Directory.GetDirectories(project, "*", SearchOption.AllDirectories))
             .Where(NotBuildOutput)
-            .Where(dir => KindFolders.Contains(Path.GetFileName(dir)))
+            .Where(dir => KindFolders.Contains(Path.GetFileName(dir)) && !IsPersistenceFolder(dir))
             .Where(dir => Directory.EnumerateFiles(dir, "*.cs", SearchOption.AllDirectories).Any())
             .Select(Relative)
             .ToArray();
@@ -38,18 +40,34 @@ public sealed class InfrastructureLayoutTests
     }
 
     [Test]
-    public void Entity_configurations_live_in_persistence()
+    public void Persistence_has_only_configurations_repositories_seeding_and_migrations()
     {
         var offending = InfrastructureProjects()
-            .SelectMany(project => Directory.EnumerateFiles(project, "*.cs", SearchOption.AllDirectories)
-                .Where(NotBuildOutput)
-                .Where(file => File.ReadAllText(file).Contains("IEntityTypeConfiguration<", StringComparison.Ordinal))
-                .Where(file => !Path.GetRelativePath(project, file).StartsWith("Persistence" + Path.DirectorySeparatorChar, StringComparison.Ordinal)))
+            .Select(project => Path.Combine(project, "Persistence"))
+            .Where(Directory.Exists)
+            .SelectMany(persistence => Folders(persistence).Where(dir => !PersistenceFolders.Contains(Path.GetFileName(dir))))
             .Select(Relative)
             .ToArray();
 
         Assert.That(offending, Is.Empty);
     }
+
+    [Test]
+    public void Entity_configurations_live_in_persistence_configurations()
+    {
+        var offending = InfrastructureProjects()
+            .SelectMany(project => Directory.EnumerateFiles(project, "*.cs", SearchOption.AllDirectories)
+                .Where(NotBuildOutput)
+                .Where(file => File.ReadAllText(file).Contains("IEntityTypeConfiguration<", StringComparison.Ordinal))
+                .Where(file => !Path.GetRelativePath(project, file).StartsWith(Path.Combine("Persistence", "Configurations") + Path.DirectorySeparatorChar, StringComparison.Ordinal)))
+            .Select(Relative)
+            .ToArray();
+
+        Assert.That(offending, Is.Empty);
+    }
+
+    private static bool IsPersistenceFolder(string dir) =>
+        Path.GetFileName(Path.GetDirectoryName(dir)) == "Persistence" && PersistenceFolders.Contains(Path.GetFileName(dir));
 
     private static IEnumerable<string> InfrastructureProjects() =>
         Directory.GetFiles(Path.Combine(Root(), "src", "Modules"), "*.Infrastructure.csproj", SearchOption.AllDirectories)

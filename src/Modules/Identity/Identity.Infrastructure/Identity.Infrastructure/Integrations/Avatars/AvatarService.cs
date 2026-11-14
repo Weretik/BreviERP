@@ -1,7 +1,7 @@
 using Ardalis.Result;
 using Identity.Application.Abstractions;
 using Identity.Application.Features.Avatars.Shared;
-using Identity.Infrastructure.Persistence.Users;
+using Identity.Infrastructure.Persistence.Configurations.Users;
 
 namespace Identity.Infrastructure.Integrations.Avatars;
 

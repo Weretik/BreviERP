@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Identity.Infrastructure.Integrations.AspNetIdentity;
 using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.Persistence.Seeding;
-using Identity.Infrastructure.Persistence.Users;
+using Identity.Infrastructure.Persistence.Configurations.Users;
 
 namespace Identity.Infrastructure.DependencyInjection;
 

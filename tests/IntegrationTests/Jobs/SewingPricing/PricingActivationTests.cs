@@ -11,8 +11,8 @@ using Reference.Infrastructure.DependencyInjection;
 using SewingPricing.Jobs.Activation;
 using SewingPricing.Jobs.Bootstrap;
 using SewingPricing.Jobs.Review;
-using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
 
 namespace IntegrationTests.Jobs.SewingPricing;
 

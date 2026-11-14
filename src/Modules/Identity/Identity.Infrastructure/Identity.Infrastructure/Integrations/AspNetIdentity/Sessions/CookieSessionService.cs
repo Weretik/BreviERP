@@ -1,6 +1,6 @@
 using Identity.Application.Abstractions;
 using Identity.Application.Features.Auth.Queries.SessionMe;
-using Identity.Infrastructure.Persistence.Users;
+using Identity.Infrastructure.Persistence.Configurations.Users;
 
 namespace Identity.Infrastructure.Integrations.AspNetIdentity.Sessions;
 

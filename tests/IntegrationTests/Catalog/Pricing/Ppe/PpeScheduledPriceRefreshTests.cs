@@ -12,12 +12,13 @@ using Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 using Catalog.Infrastructure.Persistence;
-using Catalog.Infrastructure.Persistence.Pricing.Ppe;
-using Catalog.Infrastructure.Persistence.Pricing.PpeSupplierPrices;
 using Catalog.Application.Features.Pricing.Commands.RefreshDuePpeSupplierPrices;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Ppe;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
+using Catalog.Infrastructure.Persistence.Repositories;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Ppe;
 
 namespace IntegrationTests.Catalog.Pricing.Ppe;
 

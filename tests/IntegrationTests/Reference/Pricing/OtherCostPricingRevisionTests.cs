@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Pricing;
 using SewingPricing.Jobs.Bootstrap;
 using Reference.Application.Features.Pricing.Commands.ReviseOtherCost;
-using Reference.Infrastructure.Persistence.Pricing;
+using Reference.Infrastructure.Persistence.Repositories.Pricing;
 
 namespace IntegrationTests.Reference.Pricing;
 

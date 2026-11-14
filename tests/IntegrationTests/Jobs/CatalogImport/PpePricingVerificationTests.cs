@@ -1,7 +1,7 @@
 using CatalogImport.PpePricing.Verification;
 using IntegrationTests.TestSupport;
 using Microsoft.EntityFrameworkCore;
-using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
 
 namespace IntegrationTests.Jobs.CatalogImport;
 

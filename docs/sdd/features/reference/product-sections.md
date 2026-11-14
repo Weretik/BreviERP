@@ -17,7 +17,7 @@ src/Modules/Reference/
 │   └── Shared/                                      # fields, type names, specifications
 ├── Reference.Domain/Reference.Domain/ProductSections/  # entity, details, type, errors, id
 └── Reference.Infrastructure/Reference.Infrastructure/
-    ├── Persistence/ProductSections/ProductSectionConfiguration.cs
+    ├── Persistence/Configurations/ProductSectionConfiguration.cs
     └── Persistence/Migrations/*_AddProductSections.cs
 ```
 

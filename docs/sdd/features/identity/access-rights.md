@@ -25,7 +25,7 @@ src/Modules/Identity/
 │   │                                            # AccessRoles, DefaultAccessGrantSource (catalogue defaults)
 │   └── Abstractions/IAccessRightsService.cs
 ├── Identity.Infrastructure/Identity.Infrastructure/
-│   ├── Persistence/Access/RoleAccess.cs, Persistence/Access/RoleAccessConfiguration.cs
+│   ├── Persistence/Configurations/RoleAccess.cs, Persistence/Configurations/RoleAccessConfiguration.cs
 │   └── Integrations/AspNetIdentity/Access/      # AccessRightsService, AccessGrantSource (cached)
 └── Identity.Api/Identity.Api/
     ├── Endpoints/AccessRights/                  # /api/admin/access, one <UseCase>/ folder each

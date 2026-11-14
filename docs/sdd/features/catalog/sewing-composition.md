@@ -34,9 +34,9 @@ src/Modules/Catalog/
 │   ├── Readiness/                                                 # one policy and separate typed material/operation facts
 │   └── ArticleId.cs, CompositionLineId.cs, *ReferenceId.cs              # typed child and Reference IDs
 └── Catalog.Infrastructure/Catalog.Infrastructure/
-    ├── Persistence/Products/SewingCompositionStore.cs                       # tracked writes and conflict mapping
-    ├── Persistence/Products/SewingCompositionReadStore.cs                   # no-tracking read projections; ReadAllAsync for all models
-    ├── Persistence/Products/Sewing*Configuration.cs                 # integrity and typed ID mappings
+    ├── Persistence/Repositories/Sewing/SewingCompositionStore.cs                       # tracked writes and conflict mapping
+    ├── Persistence/Repositories/Sewing/SewingCompositionReadStore.cs                   # no-tracking read projections; ReadAllAsync for all models
+    ├── Persistence/Configurations/Sewing/**/*.cs                     # integrity and typed ID mappings
     └── Persistence/Migrations/20261024215605_AddSewingComposition.cs              # additive rollout
 ```
 

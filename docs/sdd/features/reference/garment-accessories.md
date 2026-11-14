@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Garment Accessories” lookup, wit
 
 ## Structure and Relationships
 
-[Endpoints](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Endpoints/GarmentAccessories/GarmentAccessoriesEndpoints.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentAccessory/Commands/CreateGarmentAccessory/CreateGarmentAccessoryHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentAccessory](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/GarmentAccessory.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. A garment accessory has a supplier; a Sewing product references its ID and its own quantity.
+[Endpoints](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Endpoints/GarmentAccessories/GarmentAccessoriesEndpoints.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentAccessory/Commands/CreateGarmentAccessory/CreateGarmentAccessoryHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentAccessory](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/GarmentAccessory.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. A garment accessory has a supplier; a Sewing product references its ID and its own quantity.
 
 ## Code Structure
 
@@ -26,7 +26,7 @@ src/
     ├── Reference.Domain/Reference.Domain/GarmentAccessories/GarmentAccessory.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
         ├── Persistence/ReferenceDbContext.cs  # data context
-        └── Persistence/ReferenceEfRepository.cs  # data access
+        └── Persistence/Repositories/ReferenceEfRepository.cs  # data access
 ```
 
 ## Structure Diagram

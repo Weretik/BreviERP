@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Catalog.Infrastructure.Persistence;
-using Catalog.Infrastructure.Persistence.Products;
+using Catalog.Infrastructure.Persistence.Repositories.Sewing;
 
 namespace IntegrationTests.Catalog.Composition;
 

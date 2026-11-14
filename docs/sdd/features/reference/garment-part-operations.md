@@ -6,7 +6,7 @@ CRUD operations, list retrieval and the import of the Calculator sheet «Опе�
 
 ## Structure and Relationships
 
-[Endpoints](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Endpoints/GarmentPartOperations/GarmentPartOperationsEndpoints.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentPartOperation/Commands/CreateGarmentPartOperation/CreateGarmentPartOperationHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentPartOperation](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentPartOperations/GarmentPartOperation.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. An operation belongs to a garment part («Група деталей») and has a sheet code (OP-…), element, variant, norm in minutes, a «time per product» flag (no fixed norm), the norm check date, an active flag and notes; Product stores references to the selected operations. Labour cost is not stored: clients compute it from the norm and the sewing pricing settings. A group with operations cannot be deleted.
+[Endpoints](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Endpoints/GarmentPartOperations/GarmentPartOperationsEndpoints.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentPartOperation/Commands/CreateGarmentPartOperation/CreateGarmentPartOperationHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentPartOperation](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentPartOperations/GarmentPartOperation.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. An operation belongs to a garment part («Група деталей») and has a sheet code (OP-…), element, variant, norm in minutes, a «time per product» flag (no fixed norm), the norm check date, an active flag and notes; Product stores references to the selected operations. Labour cost is not stored: clients compute it from the norm and the sewing pricing settings. A group with operations cannot be deleted.
 
 ## Code Structure
 
@@ -26,7 +26,7 @@ src/
     ├── Reference.Domain/Reference.Domain/GarmentPartOperations/GarmentPartOperation.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
         ├── Persistence/ReferenceDbContext.cs  # data context
-        └── Persistence/ReferenceEfRepository.cs  # data access
+        └── Persistence/Repositories/ReferenceEfRepository.cs  # data access
 ```
 
 ## Structure Diagram

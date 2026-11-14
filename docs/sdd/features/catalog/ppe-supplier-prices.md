@@ -37,7 +37,8 @@ Catalog.Application/
     Shared/Ppe/SupplierPrices/            # Sources/ (fixed list, key normalization), Running/ (plan, save offers, record the run),
                                           # supplier resolution, product specs
 Catalog.Infrastructure/
-  Persistence/Pricing/PpeSupplierPrices/  # two catalog tables: rows, configurations, PpePriceSourceStore
+  Persistence/Configurations/Pricing/PpeSupplierPrices/  # two catalog tables: rows and configurations
+  Persistence/Repositories/Pricing/Ppe/PpePriceSourceStore.cs
   Integrations/PpeSupplierFiles/          # Insight XmlReader, СЕМТО PdfPig, gzip unpack
   Integrations/PpeSupplierSites/          # АВ-Центр / Перчатка-центр page patterns, 3C CSV lists, HTTP client
     Cabinets/                             # Трєле sign-in, session pages, dealer price, options

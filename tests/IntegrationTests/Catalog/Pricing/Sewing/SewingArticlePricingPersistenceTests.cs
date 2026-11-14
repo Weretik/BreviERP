@@ -15,9 +15,8 @@ using Reference.Domain.Suppliers;
 using IntegrationTests.TestSupport;
 using Reference.Application.Abstractions;
 using Catalog.Application.Features.Pricing.Queries.CalculateSewingArticle;
-using Catalog.Infrastructure.Persistence.Pricing.Sewing;
-using Reference.Infrastructure.Persistence.Pricing;
-using Reference.Infrastructure.Persistence.Pricing.InputVersions;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;
+using Reference.Infrastructure.Persistence.Repositories.Pricing;
 
 namespace IntegrationTests.Catalog.Pricing.Sewing;
 

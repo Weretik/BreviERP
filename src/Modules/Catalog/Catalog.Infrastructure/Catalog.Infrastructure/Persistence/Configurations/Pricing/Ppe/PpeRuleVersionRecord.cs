@@ -1,0 +1,18 @@
+using System.Text.Json;
+using Catalog.Application.Abstractions.Pricing;
+
+namespace Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
+public sealed class PpeRuleVersionRecord
+{
+    public long Id { get; set; }
+    public Guid PublicId { get; set; }
+    public Guid RequestId { get; set; }
+    public string RequestHash { get; set; } = string.Empty;
+    public string ValuesJson { get; set; } = string.Empty;
+    public string? ApprovedBy { get; set; }
+    public DateTimeOffset? ApprovedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public string Code { get; set; } = string.Empty;
+    public PpeRuleValues Values() => JsonSerializer.Deserialize<PpeRuleValues>(ValuesJson)!;
+    public PpeRuleVersion ToVersion() => new(PublicId, Values(), ApprovedBy is not null, ApprovedBy, ApprovedAt, CreatedAt);
+}

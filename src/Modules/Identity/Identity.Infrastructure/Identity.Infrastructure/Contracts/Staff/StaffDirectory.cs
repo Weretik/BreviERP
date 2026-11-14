@@ -1,5 +1,5 @@
 using Identity.Contracts.Staff;
-using Identity.Infrastructure.Persistence.Users;
+using Identity.Infrastructure.Persistence.Configurations.Users;
 
 namespace Identity.Infrastructure.Contracts.Staff;
 
