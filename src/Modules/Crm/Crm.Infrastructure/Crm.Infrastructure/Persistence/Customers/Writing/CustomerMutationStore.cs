@@ -1,13 +1,11 @@
 using BuildingBlocks.Application.Errors;
 using Crm.Infrastructure.Persistence.Customers.Idempotency;
 using Crm.Infrastructure.Persistence;
-using Crm.Application.Customers.Contracts.Responses;
-using Crm.Application.Customers.Access;
 using Ardalis.Result;
-using Crm.Application.Customers.Persistence;
 using Crm.Domain.Customers;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Crm.Application.Abstractions.Customers;
 namespace Crm.Infrastructure.Persistence.Customers.Writing;
 
 public sealed class CustomerMutationStore(CrmDbContext db) : ICustomerMutationStore

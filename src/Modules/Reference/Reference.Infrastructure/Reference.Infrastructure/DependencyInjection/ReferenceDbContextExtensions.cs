@@ -1,5 +1,4 @@
 using BuildingBlocks.Infrastructure.Outbox;
-using Reference.Application.Contracts.Catalog;
 using Reference.Infrastructure.Adapters.Catalog;
 using Reference.Contracts.Fabrics;
 using Reference.Infrastructure.Contracts.Fabrics;
@@ -23,7 +22,6 @@ using Catalog.Contracts.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
-using Reference.Application.Contracts.Persistence;
 using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Pricing.InputVersions.Changes;
 using Reference.Infrastructure.Repositories;
@@ -32,6 +30,7 @@ using Reference.Infrastructure.Seeders.GarmentAccessories;
 using Reference.Infrastructure.Seeders.GarmentParts;
 using Reference.Infrastructure.Seeders.GarmentPartOperations;
 using Reference.Infrastructure.Seeders.Suppliers;
+using Reference.Application.Abstractions;
 
 namespace Reference.Infrastructure.DependencyInjection;
 
@@ -57,9 +56,9 @@ public static class ReferenceDbContextExtensions
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
         services.AddOutbox<ReferenceDbContext>();
         services.AddOutboxHandler<PricingSettingsChangedOutboxHandler>();
-        services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingVersionReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingVersionReader>();
-        services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingUsageReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingUsageReader>();
-        services.AddScoped<Reference.Application.Contracts.Pricing.IOtherCostPricingVersionWriter, Reference.Infrastructure.Pricing.OtherCosts.Writing.OtherCostPricingVersionWriter>();
+        services.AddScoped<Reference.Application.Abstractions.IReferencePricingVersionReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingVersionReader>();
+        services.AddScoped<Reference.Application.Abstractions.IReferencePricingUsageReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingUsageReader>();
+        services.AddScoped<Reference.Application.Abstractions.IOtherCostPricingVersionWriter, Reference.Infrastructure.Pricing.OtherCosts.Writing.OtherCostPricingVersionWriter>();
         // Contracts other modules use (ADR-0006).
         services.AddScoped<IFabricDirectory, FabricDirectory>();
         services.AddScoped<IGarmentAccessoryDirectory, GarmentAccessoryDirectory>();

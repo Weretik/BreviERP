@@ -1,7 +1,8 @@
-using Crm.Application.Customers.Lookup;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
 using Crm.Infrastructure.Persistence.Customers.Reading;
+using Crm.Application.Features.Customers.Queries.GetCustomerLookup;
+using Crm.Application.Features.Customers.Queries.GetCustomersByTaxIds;
 
 namespace IntegrationTests.Crm;
 
@@ -25,7 +26,7 @@ public sealed class CustomerTaxIdLookupTests : CrmDatabaseFixture
         }
 
         await using var read = Context();
-        var rows = await new GetCustomersByTaxIdsQueryHandler(new CustomerReadRepository(read))
+        var rows = await new GetCustomersByTaxIdsHandler(new CustomerReadRepository(read))
             .Handle(new GetCustomersByTaxIdsQuery(["12345678", "87654321", "99999999"]), default);
 
         Assert.That(rows, Is.EqualTo(new[] { new CustomerLookup(wanted, "ТОВ «Агро»", "12345678", true) }));

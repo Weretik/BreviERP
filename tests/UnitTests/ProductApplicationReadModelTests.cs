@@ -1,11 +1,7 @@
-using Catalog.Application.Contracts.Admin;
-using Catalog.Application.Contracts.Admin.Product;
-using Catalog.Application.Contracts.Admin.Ppe;
-using Catalog.Application.Contracts.Admin.Reference;
-using Catalog.Application.Contracts.Admin.Sewing;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
 using Catalog.Domain.Products;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
+using Catalog.Application.Features.Product.Shared;
 
 namespace UnitTests;
 

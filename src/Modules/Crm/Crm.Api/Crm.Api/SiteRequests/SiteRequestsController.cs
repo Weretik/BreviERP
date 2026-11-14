@@ -2,13 +2,13 @@ using System.Security.Claims;
 using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
-using Crm.Application.SiteRequests.Change;
-using Crm.Application.SiteRequests.Contracts;
-using Crm.Application.SiteRequests.GetList;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.SiteRequests.Commands.ChangeSiteRequest;
+using Crm.Application.Features.SiteRequests.Queries.GetSiteRequests;
+using Crm.Application.Features.SiteRequests.Shared;
 
 namespace Crm.Api.SiteRequests;
 

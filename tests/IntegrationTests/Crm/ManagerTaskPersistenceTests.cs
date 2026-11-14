@@ -1,17 +1,17 @@
 using Ardalis.Result;
-using Crm.Application.Tasks.Access;
-using Crm.Application.Tasks.ChangeTaskStatus;
-using Crm.Application.Tasks.Contracts;
-using Crm.Application.Tasks.CreateTask;
-using Crm.Application.Tasks.DeleteTask;
-using Crm.Application.Tasks.EditTask;
-using Crm.Application.Tasks.GetTask;
-using Crm.Application.Tasks.GetTaskBoard;
-using Crm.Application.Tasks.GetTaskOverview;
-using Crm.Application.Tasks.GetTasks;
-using Crm.Application.Tasks.MarkTaskStep;
-using Crm.Application.Tasks.SetTaskUrgent;
-using Crm.Application.Tasks.Staff;
+using Crm.Application.Features.Tasks.Commands.ChangeTaskStatus;
+using Crm.Application.Features.Tasks.Commands.CreateTask;
+using Crm.Application.Features.Tasks.Commands.DeleteTask;
+using Crm.Application.Features.Tasks.Commands.EditTask;
+using Crm.Application.Features.Tasks.Commands.MarkTaskStep;
+using Crm.Application.Features.Tasks.Commands.SetTaskUrgent;
+using Crm.Application.Features.Tasks.Queries.GetTask;
+using Crm.Application.Features.Tasks.Queries.GetTaskBoard;
+using Crm.Application.Features.Tasks.Queries.GetTaskOverview;
+using Crm.Application.Features.Tasks.Queries.GetTasks;
+using Crm.Application.Features.Tasks.Shared;
+using Crm.Application.Features.Tasks.Shared.Access;
+using Crm.Application.Abstractions.Tasks;
 
 namespace IntegrationTests.Crm;
 
@@ -36,7 +36,7 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
     private async Task<TaskDetailResponse> Create(SaveTaskInput input)
     {
         await using var db = Context();
-        var result = await new CreateTaskCommandHandler(db, _staff, _clock)
+        var result = await new CreateTaskHandler(db, _staff, _clock)
             .Handle(new CreateTaskCommand(Director, input), default);
         Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors.Concat(result.ValidationErrors.Select(x => x.ErrorMessage))));
         return result.Value;
@@ -46,14 +46,14 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
         string? search = null)
     {
         await using var db = Context();
-        return (await new GetTasksQueryHandler(db, _clock)
+        return (await new GetTasksHandler(db, _clock)
             .Handle(new GetTasksQuery(actor, search, filter, assignee), default)).Value;
     }
 
     private async Task<Result<TaskDetailResponse>> Status(TaskActor actor, TaskDetailResponse task, string status)
     {
         await using var db = Context();
-        return await new ChangeTaskStatusCommandHandler(db, _staff, _clock)
+        return await new ChangeTaskStatusHandler(db, _staff, _clock)
             .Handle(new ChangeTaskStatusCommand(actor, task.Id, task.Version, status), default);
     }
 
@@ -75,7 +75,7 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
     public async Task OnlyAnActiveManagerCanReceiveATaskAndOnlyAdminGivesIt()
     {
         await using var db = Context();
-        var handler = new CreateTaskCommandHandler(db, _staff, _clock);
+        var handler = new CreateTaskHandler(db, _staff, _clock);
 
         var toDirector = await handler.Handle(new CreateTaskCommand(Director, Input(assignee: 1)), default);
         var byManager = await handler.Handle(new CreateTaskCommand(Olha, Input()), default);
@@ -113,7 +113,7 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
         _clock.Now = _clock.Now.AddHours(2);
 
         await using var db = Context();
-        var board = (await new GetTaskBoardQueryHandler(db, _clock).Handle(new GetTaskBoardQuery(Olha, null), default)).Value;
+        var board = (await new GetTaskBoardHandler(db, _clock).Handle(new GetTaskBoardQuery(Olha, null), default)).Value;
 
         Assert.That(board.Items.Select(x => (x.Title, x.Lane)), Is.EquivalentTo(new[]
         {
@@ -131,7 +131,7 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
     private async Task<IReadOnlyList<string>> Board(TaskBoardPeriod period)
     {
         await using var db = Context();
-        return (await new GetTaskBoardQueryHandler(db, _clock)
+        return (await new GetTaskBoardHandler(db, _clock)
             .Handle(new GetTaskBoardQuery(Director, null, period), default)).Value.Items.Select(x => x.Title).ToArray();
     }
 
@@ -167,7 +167,7 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
         var task = await Create(Input());
         await using (var db = Context())
         {
-            var edited = await new EditTaskCommandHandler(db, _staff, _clock).Handle(new EditTaskCommand(Director, task.Id,
+            var edited = await new EditTaskHandler(db, _staff, _clock).Handle(new EditTaskCommand(Director, task.Id,
                 Input(18, task.Version, "Нова назва", 5, true)), default);
             Assert.That(edited.Value.Assignee.Name, Is.EqualTo("Ірина Мельник"));
             Assert.That(edited.Value.History.Select(x => x.Kind),
@@ -176,14 +176,14 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var stale = await new EditTaskCommandHandler(db, _staff, _clock)
+            var stale = await new EditTaskHandler(db, _staff, _clock)
                 .Handle(new EditTaskCommand(Director, task.Id, Input(17, task.Version)), default);
             Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
         }
 
         await using (var db = Context())
         {
-            var olha = await new GetTaskQueryHandler(db, _clock).Handle(new GetTaskQuery(Olha, task.Id), default);
+            var olha = await new GetTaskHandler(db, _clock).Handle(new GetTaskQuery(Olha, task.Id), default);
             Assert.That(olha.Status, Is.EqualTo(ResultStatus.NotFound), "given to Iryna now");
         }
     }
@@ -195,7 +195,7 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
         TaskDetailResponse marked;
         await using (var db = Context())
         {
-            marked = (await new MarkTaskStepCommandHandler(db, _staff, _clock)
+            marked = (await new MarkTaskStepHandler(db, _staff, _clock)
                 .Handle(new MarkTaskStepCommand(Olha, task.Id, task.Steps[0].Id, task.Version, true), default)).Value;
         }
 
@@ -204,9 +204,9 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var byManager = await new SetTaskUrgentCommandHandler(db, _staff, _clock)
+            var byManager = await new SetTaskUrgentHandler(db, _staff, _clock)
                 .Handle(new SetTaskUrgentCommand(Olha, task.Id, marked.Version, true), default);
-            var byDirector = await new SetTaskUrgentCommandHandler(db, _staff, _clock)
+            var byDirector = await new SetTaskUrgentHandler(db, _staff, _clock)
                 .Handle(new SetTaskUrgentCommand(Director, task.Id, marked.Version, true), default);
             Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
             Assert.That(byDirector.Value.Lane, Is.EqualTo("Urgent"));
@@ -215,7 +215,7 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var deleted = await new DeleteTaskCommandHandler(db)
+            var deleted = await new DeleteTaskHandler(db)
                 .Handle(new DeleteTaskCommand(Director, task.Id, marked.Version), default);
             Assert.That(deleted.IsSuccess, Is.True);
         }
@@ -233,7 +233,7 @@ public sealed class ManagerTaskPersistenceTests : CrmDatabaseFixture
         _clock.Now = _clock.Now.AddHours(2);
 
         await using var db = Context();
-        var handler = new GetTaskOverviewQueryHandler(db, _staff, _clock);
+        var handler = new GetTaskOverviewHandler(db, _staff, _clock);
         var all = (await handler.Handle(new GetTaskOverviewQuery(Director, null), default)).Value;
         var olha = (await handler.Handle(new GetTaskOverviewQuery(Olha, 18), default)).Value;
 

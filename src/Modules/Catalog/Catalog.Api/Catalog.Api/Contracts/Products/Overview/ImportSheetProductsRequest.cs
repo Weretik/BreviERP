@@ -1,4 +1,4 @@
-using Catalog.Application.Features.Product.SheetImport.DTOs;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
 namespace Catalog.Api.Contracts.Products.Overview;
 

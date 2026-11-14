@@ -13,21 +13,18 @@ src/Modules/Crm/
     Identifiers/                      typed long keys and int actor reference
     Contacts/                         contact and channel validation
     ExternalIdentities/               exact source identity
-  Crm.Application/Crm.Application/Customers/
-    Access/                           authenticated actor reference
-    Contracts/Inputs/                 shared customer/source intent types
-    Contracts/Responses/              pure detail/contact/source response records
-    Mapping/                          domain-to-detail mapping
-    GetCustomers/DTOs/                page summary projection
-    SaveCustomerContact/Inputs/       contact/channel intent types
-    Persistence/                      transaction session and read ports
-    GetCustomer/Specifications/       scoped SQL detail projection
-    GetCustomers/Specifications/      SQL page/count/search projections
-    CreateCustomer/                   command, handler, validator
-    ReviseCustomer/                   command, handler, validator
-    SaveCustomerContact/              create/revise contact use case
-    MergeCustomers/                   Admin merge orchestration
-    KeepinCrmSync/                    KeepinCRM → Brevi client sync, ports and command
+  Crm.Application/Crm.Application/Abstractions/Customers/  transaction session, mutation store and read ports; CrmActor and detail records they use;
+                                    KeepinCRM client source and sync store
+  Crm.Application/Crm.Application/Features/Customers/
+    Queries/GetCustomer/              scoped SQL detail projection
+    Queries/GetCustomers/             page summary, SQL page/count/search projections
+    Queries/GetCustomerLookup/, GetCustomersByKeepinIds/, GetCustomersByTaxIds/   reads for other features and modules
+    Commands/CreateCustomer/          command, handler, validator
+    Commands/ReviseCustomer/          command, handler, validator
+    Commands/SaveCustomerContact/     create/revise contact use case with contact/channel inputs
+    Commands/MergeCustomers/          Admin merge orchestration
+    Commands/SyncKeepinCrmClients/    KeepinCRM → Brevi client sync
+    Shared/                           customer/source inputs, responses, Mapping/ (domain to detail)
   Crm.Infrastructure/Crm.Infrastructure/
     Persistence/                      EF context, entity configurations/migrations
     Persistence/Customers/Reading/     scoped read repository
@@ -95,26 +92,25 @@ src/Modules/Crm/
     Introductions/                       QuoteIntroTemplate («Готовий шаблон») and its limits
     Settings/                            QuoteSettings (one row), its sections, defaults from the Calculator
     Sending/                             StaffMailbox (connected Gmail), QuoteSending (sent letter), limits
-  Crm.Application/Crm.Application/Quotes/
-    Access/                              QuoteActor (own vs all), messages, actor name lookup
-    Contracts/                           inputs and responses
-    Validation/                          FluentValidation of the editor content
-    Building/                            QuoteItemsBuilder (Catalog prices, manual price audit), QuoteNumbering, Kyiv clock
-    Catalog/, Staff/                     ports implemented by Crm.Infrastructure/Adapters/
-    CustomSewing/                        «Виріб з нуля» and changed models: IQuoteSewingCalculator and IQuoteModelCompositionReader ports, item builder, price preview and model composition queries
-    Persistence/                         IQuoteStore (CrmDbContext) and load query
-    Mapping/                             responses
-    CreateQuote/, SaveQuote/, DeleteQuote/, GetQuote/, GetQuotes/,
-    SetResponsible/, RepriceQuote/, History/, LegacyArchive/, CopyQuote/, ProductionLinks/, Photos/,
-    Import/                              transfer of Calculator КП: command, validator, handler, mapper, IQuoteImportLookup port, report
-    SearchCatalog/, GetCatalogProducts/,
-    GetStaff/                            one use case per folder: command/query, validator, handler
-    Introductions/                       Contracts/, Validation/, Building/ (pages → items, page rules), Setup/,
-                                         CreateIntroduction/, SaveIntroduction/, Templates/ (Create/Delete/GetTemplates)
-    Settings/                            Contracts/ (DTOs, mapper), Reading/, GetSettings/, SaveSettings/
-    Pdf/                                 QuotePdfModel (client view) and builder, IQuotePdfRenderer, Composing/ (shared PDF build), GetPdf/,
-                                         Introduction/ (catalogue client view and builder)
-    Sending/                             Gmail/ (ports, options), Connect/, Disconnect/, Draft/, Send/, recipients, marks
+  Crm.Application/Crm.Application/Abstractions/Quotes/  ports implemented by Crm.Infrastructure: IQuoteStore (CrmDbContext), IQuoteCatalogReader,
+                                       IQuoteStaffReader, IQuoteSewingCalculator, IQuoteModelCompositionReader, IQuoteProductionOrders,
+                                       IQuotePdfRenderer, IGmailClient, IMailboxProtector, IQuoteImportLookup, IQuotePhotoStorage, IQuoteFabricFactsReader
+  Crm.Application/Crm.Application/Features/Quotes/
+    Commands/                          CreateQuote SaveQuote DeleteQuote CopyQuote SetQuoteResponsible RepriceQuote UploadQuotePhoto
+                                       ImportQuotes (transfer of Calculator КП: validator, handler, mapper, report) PurgeLegacyArchivedQuotes
+                                       CreateQuoteIntroduction SaveQuoteIntroduction CreateQuoteIntroTemplate DeleteQuoteIntroTemplate
+                                       SaveQuoteSettings StartMailboxConnect CompleteMailboxConnect DisconnectMailbox SendQuote AddEmbroideryToQuote
+    Queries/                           GetQuote GetQuotes GetQuoteHistory GetLegacyArchivedQuotes GetQuotePeriod GetQuoteStaff
+                                       SearchQuoteCatalog GetQuoteCatalogProducts GetQuoteModelComposition CalculateQuoteCustomSewing («Виріб з нуля»)
+                                       GetQuoteFabricFacts GetQuoteIntroductionSetup GetQuoteIntroTemplates GetQuoteSettings GetQuotePdf GetQuoteSendDraft
+    Shared/Access/                     QuoteActor (own vs all), messages, actor name lookup
+    Shared/Validation/                 FluentValidation of the editor content
+    Shared/Building/                   QuoteItemsBuilder (Catalog prices, manual price audit), QuoteNumbering, Kyiv clock
+    Shared/Introductions/              Validation/, Building/ (pages → items, page rules), Templates/
+    Shared/Settings/                   DTOs, mapper, Reading/
+    Shared/Pdf/                        QuotePdfModel (client view) and builder, Composing/ (shared PDF build), Introduction/ (catalogue client view)
+    Shared/Sending/                    Gmail options, recipients, marks
+    Shared/                            inputs, responses, Mapping/, custom sewing item builder
   Crm.Infrastructure/Crm.Infrastructure/
     Persistence/Configurations/Quotes/   EF mappings of КП, settings, mailboxes and sendings
     Persistence/Quotes/                  unique-number, settings and mailbox race detection

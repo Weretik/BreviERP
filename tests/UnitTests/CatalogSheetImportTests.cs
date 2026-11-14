@@ -1,7 +1,6 @@
-using Catalog.Application.Features.Product.SheetImport.DTOs;
-using Catalog.Application.Features.Product.SheetImport.Planning;
 using Catalog.Domain.Products;
 using static UnitTests.CatalogSheetImportFixtures;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
 namespace UnitTests;
 
@@ -58,7 +57,7 @@ public sealed class CatalogSheetImportTests
         var sewing = Stored(first.Writes[0], 300);
         var ppe = Stored(first.Writes[1], 120);
 
-        var plan = Plan(context: Context([sewing, ppe], new Dictionary<int, Catalog.Application.Contracts.Pricing.Ppe.PpeOfferVersion>
+        var plan = Plan(context: Context([sewing, ppe], new Dictionary<int, Catalog.Application.Abstractions.Pricing.PpeOfferVersion>
         {
             [120] = Offer(120, 518.64m),
         }));
@@ -79,7 +78,7 @@ public sealed class CatalogSheetImportTests
         var ppe = Stored(first.Writes[1], 120);
         var current = Offer(120, 500m);
         var context = Context([Stored(first.Writes[0], 300), ppe],
-            new Dictionary<int, Catalog.Application.Contracts.Pricing.Ppe.PpeOfferVersion> { [120] = current });
+            new Dictionary<int, Catalog.Application.Abstractions.Pricing.PpeOfferVersion> { [120] = current });
 
         var changedPrice = Plan(context: context);
         var noPrice = Plan(Command(ppe: [Ppe(price: null)]), context);

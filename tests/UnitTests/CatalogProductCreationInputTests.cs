@@ -2,13 +2,6 @@ using System.Text.Json;
 using Ardalis.Result;
 using Ardalis.Specification;
 using Catalog.Api.Contracts.Products.Overview;
-using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.Preview;
-using Catalog.Application.Features.Product.Overview.CodeCheck;
-using Catalog.Application.Features.Product.Overview.Create;
-using Catalog.Application.Features.Product.Overview.Create.Validators;
-using Catalog.Application.Features.Product.Overview.Shared;
 using Catalog.Domain.Pricing.Ppe;
 using Catalog.Domain.Products;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +9,12 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using YamlDotNet.RepresentationModel;
 using static UnitTests.CatalogProductCreationTests;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Queries.PreviewPpePrices;
+using Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
+using Catalog.Application.Features.Product.Queries.GetProductCodeCheck;
+using Catalog.Application.Features.Product.Shared.Overview;
 
 namespace UnitTests;
 
@@ -37,7 +36,7 @@ public sealed class CatalogProductCreationInputTests
     [Test]
     public void Validator_accepts_a_sheet_row_of_each_type()
     {
-        var validator = new CreateCatalogProductCommandValidator();
+        var validator = new CreateCatalogProductValidator();
         Assert.That(validator.Validate(Sewing()).IsValid, Is.True);
         Assert.That(validator.Validate(Ppe()).IsValid, Is.True);
     }
@@ -65,7 +64,7 @@ public sealed class CatalogProductCreationInputTests
             _ => Sewing() with { Season = "Осінь" },
         };
 
-        Assert.That(new CreateCatalogProductCommandValidator().Validate(command).IsValid, Is.False);
+        Assert.That(new CreateCatalogProductValidator().Validate(command).IsValid, Is.False);
     }
 
     [Test]
@@ -77,12 +76,12 @@ public sealed class CatalogProductCreationInputTests
             .ReturnsAsync((ISpecification<Product, string> spec, CancellationToken _) => spec.Evaluate(products).ToList());
         repository.Setup(x => x.FirstOrDefaultAsync(It.IsAny<ISpecification<Product>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ISpecification<Product> spec, CancellationToken _) => spec.Evaluate(products).FirstOrDefault());
-        var handler = new GetProductCodeCheckQueryHandler(repository.Object);
+        var handler = new GetProductCodeCheckHandler(repository.Object);
 
         var free = await handler.Handle(new GetProductCodeCheckQuery("Ppe", " 18 "), CancellationToken.None);
         var taken = await handler.Handle(new GetProductCodeCheckQuery("Sewing", "MOD-124"), CancellationToken.None);
         var suggestion = await handler.Handle(new GetProductCodeCheckQuery("Sewing", null), CancellationToken.None);
-        var unknown = new GetProductCodeCheckQueryValidator().Validate(new GetProductCodeCheckQuery("Fabric", null));
+        var unknown = new GetProductCodeCheckValidator().Validate(new GetProductCodeCheckQuery("Fabric", null));
 
         Assert.Multiple(() =>
         {
@@ -98,11 +97,11 @@ public sealed class CatalogProductCreationInputTests
     {
         var inputs = new Mock<IPpePricingInputReader>();
         inputs.Setup(x => x.ReadRuleAsync(RuleCode, It.IsAny<CancellationToken>())).ReturnsAsync(Rule());
-        var handler = new PreviewPpePricesQueryHandler(inputs.Object);
+        var handler = new PreviewPpePricesHandler(inputs.Object);
 
         var prices = await handler.Handle(new PreviewPpePricesQuery($" {RuleCode} ", 100m), CancellationToken.None);
         var unknown = await handler.Handle(new PreviewPpePricesQuery("Невідоме правило", 100m), CancellationToken.None);
-        var noPrice = new PreviewPpePricesQueryValidator().Validate(new PreviewPpePricesQuery(RuleCode, 0m));
+        var noPrice = new PreviewPpePricesValidator().Validate(new PreviewPpePricesQuery(RuleCode, 0m));
 
         Assert.Multiple(() =>
         {
@@ -119,7 +118,7 @@ public sealed class CatalogProductCreationInputTests
         var inputs = new Mock<IPpePricingInputReader>();
         inputs.Setup(x => x.ReadRuleAsync(RuleCode, It.IsAny<CancellationToken>())).ReturnsAsync(Rule(approved: false));
 
-        var result = await new PreviewPpePricesQueryHandler(inputs.Object)
+        var result = await new PreviewPpePricesHandler(inputs.Object)
             .Handle(new PreviewPpePricesQuery(RuleCode, 100m), CancellationToken.None);
 
         Assert.That(result.Value.Blockers.Select(x => x.Code), Is.EqualTo(new[] { "MissingRule" }));

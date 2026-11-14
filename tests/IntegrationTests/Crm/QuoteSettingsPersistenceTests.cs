@@ -1,12 +1,12 @@
 using Ardalis.Result;
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Pdf;
-using Crm.Application.Quotes.Pdf.Composing;
-using Crm.Application.Quotes.Pdf.GetPdf;
-using Crm.Application.Quotes.Settings.Contracts;
-using Crm.Application.Quotes.Settings.GetSettings;
-using Crm.Application.Quotes.Settings.SaveSettings;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Commands.SaveQuoteSettings;
+using Crm.Application.Features.Quotes.Queries.GetQuotePdf;
+using Crm.Application.Features.Quotes.Queries.GetQuoteSettings;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Features.Quotes.Shared.Pdf;
+using Crm.Application.Features.Quotes.Shared.Pdf.Composing;
+using Crm.Application.Features.Quotes.Shared.Settings;
 
 namespace IntegrationTests.Crm;
 
@@ -22,13 +22,13 @@ public sealed class QuoteSettingsPersistenceTests : CrmDatabaseFixture
     private async Task<QuoteSettingsResponse> Load()
     {
         await using var db = Context();
-        return (await new GetQuoteSettingsQueryHandler(db, _staff).Handle(new GetQuoteSettingsQuery(), default)).Value;
+        return (await new GetQuoteSettingsHandler(db, _staff).Handle(new GetQuoteSettingsQuery(), default)).Value;
     }
 
     private async Task<Result<QuoteSettingsResponse>> Save(QuoteActor actor, SaveQuoteSettingsInput input)
     {
         await using var db = Context();
-        return await new SaveQuoteSettingsCommandHandler(db, _staff, _clock)
+        return await new SaveQuoteSettingsHandler(db, _staff, _clock)
             .Handle(new SaveQuoteSettingsCommand(actor, input), default);
     }
 
@@ -96,9 +96,9 @@ public sealed class QuoteSettingsPersistenceTests : CrmDatabaseFixture
         var renderer = new QuoteTestRenderer();
         await using (var db = Context())
         {
-            var own = await new GetQuotePdfQueryHandler(db, new QuotePdfComposer(db, _staff, renderer, new QuoteTestNoCatalog())).Handle(new GetQuotePdfQuery(Olena, quoteId), default);
+            var own = await new GetQuotePdfHandler(db, new QuotePdfComposer(db, _staff, renderer, new QuoteTestNoCatalog())).Handle(new GetQuotePdfQuery(Olena, quoteId), default);
             Assert.That(own.Value.FileName, Is.EqualTo("КП 1-11-2026.pdf"));
-            var other = await new GetQuotePdfQueryHandler(db, new QuotePdfComposer(db, _staff, renderer, new QuoteTestNoCatalog()))
+            var other = await new GetQuotePdfHandler(db, new QuotePdfComposer(db, _staff, renderer, new QuoteTestNoCatalog()))
                 .Handle(new GetQuotePdfQuery(new QuoteActor(18, false), quoteId), default);
             Assert.That(other.Status, Is.EqualTo(ResultStatus.NotFound));
         }

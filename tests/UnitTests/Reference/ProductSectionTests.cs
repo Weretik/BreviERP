@@ -1,12 +1,10 @@
 ﻿using BuildingBlocks.Domain.Results;
 using Moq;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.ProductSection.GetList;
-using Reference.Application.Features.ProductSection.Import;
-using Reference.Application.Features.ProductSection.Import.DTOs;
-using Reference.Application.Features.ProductSection.Import.Validators;
-using Reference.Application.Features.Shared.SheetImport;
 using Reference.Domain.ProductSections;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.ProductSection.Commands.ImportProductSections;
+using Reference.Application.Features.ProductSection.Queries.GetProductSections;
+using Reference.Application.Features.SheetImport.Shared;
 
 namespace UnitTests.Reference;
 
@@ -42,7 +40,7 @@ public sealed class ProductSectionTests
 
     private static async Task<ProductSectionImportResult> Import(Mock<IReferenceRepository<ProductSection>> repository,
         IReadOnlyList<ProductSectionImportRow> rows, bool dryRun = false, bool deleteMissing = false) =>
-        (await new ImportProductSectionsCommandHandler(repository.Object)
+        (await new ImportProductSectionsHandler(repository.Object)
             .Handle(new ImportProductSectionsCommand(rows, dryRun, deleteMissing), CancellationToken.None)).Value;
 
     [Test]
@@ -121,7 +119,7 @@ public sealed class ProductSectionTests
     [Test]
     public void File_with_repeated_names_is_rejected()
     {
-        var validation = new ImportProductSectionsCommandValidator().Validate(new ImportProductSectionsCommand(
+        var validation = new ImportProductSectionsValidator().Validate(new ImportProductSectionsCommand(
             [Row(2, "Sewing", "Одяг ЛІТО"), Row(3, "Sewing", "одяг літо")], true, false));
 
         Assert.That(validation.IsValid, Is.False);
@@ -138,7 +136,7 @@ public sealed class ProductSectionTests
             Stored(3, ProductSectionType.Sewing, "Одяг ЛІТО", order: 2),
         ]);
 
-        var rows = (await new GetProductSectionsQueryHandler(repository.Object)
+        var rows = (await new GetProductSectionsHandler(repository.Object)
             .Handle(new GetProductSectionsQuery(), CancellationToken.None)).Value;
 
         Assert.Multiple(() =>

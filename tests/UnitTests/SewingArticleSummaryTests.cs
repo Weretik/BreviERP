@@ -1,10 +1,12 @@
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Features.Pricing.Sewing.ArticleSummary;
-using Catalog.Application.Features.Product.Sewing;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
 using Moq;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Pricing.Queries.GetSewingArticleSummary;
+using Catalog.Application.Features.Product.Queries.ListSewingArticles;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace UnitTests;
 
@@ -18,7 +20,7 @@ public sealed class SewingArticleSummaryTests
         public override DateTimeOffset GetUtcNow() => Now;
     }
 
-    private static GetSewingArticleSummaryQueryHandler Handler(SewingArticleList? list,
+    private static GetSewingArticleSummaryHandler Handler(SewingArticleList? list,
         IReadOnlyList<SewingPublishedProductPrices>? published = null)
     {
         var composition = new Mock<ISewingCompositionReadStore>();
@@ -50,7 +52,7 @@ public sealed class SewingArticleSummaryTests
         var prices = new Mock<ISewingPublishedPriceReader>();
         prices.Setup(x => x.ReadAsync(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(published ?? []);
-        return new GetSewingArticleSummaryQueryHandler(composition.Object, inputs.Object, settings.Object,
+        return new GetSewingArticleSummaryHandler(composition.Object, inputs.Object, settings.Object,
             references.Object, prices.Object, names.Object, new FixedTime());
     }
 

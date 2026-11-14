@@ -1,5 +1,5 @@
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Features.Pricing.Sewing.Publications.GetProducts;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Queries.GetPublishedSewingProducts;
 
 namespace Catalog.Api.Controllers.Pricing.Sewing;
 

@@ -1,7 +1,7 @@
-using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
+using Catalog.Application.Abstractions.Pricing;
 namespace Catalog.Infrastructure.Pricing.Ppe.Reading;
 public sealed class PpePricingInputReader(CatalogDbContext db) : IPpePricingInputReader
 {

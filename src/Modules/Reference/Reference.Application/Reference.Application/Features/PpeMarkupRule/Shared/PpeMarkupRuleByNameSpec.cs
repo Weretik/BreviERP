@@ -1,0 +1,8 @@
+using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
+
+namespace Reference.Application.Features.PpeMarkupRule.Shared;
+
+public sealed class PpeMarkupRuleByNameSpec : Specification<PpeMarkupRuleEntity>
+{
+    public PpeMarkupRuleByNameSpec(string name) => Query.Where(x => x.Name == name);
+}

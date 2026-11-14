@@ -1,13 +1,10 @@
 using Reference.Api.Contracts.PricingParameters;
-using Reference.Application.Features.PricingParameter.Create;
-using Reference.Application.Features.PricingParameter.Create.DTOs;
-using Reference.Application.Features.PricingParameter.Delete;
-using Reference.Application.Features.PricingParameter.GetList;
-using Reference.Application.Features.PricingParameter.GetList.DTOs;
-using Reference.Application.Features.PricingParameter.Update;
-using Reference.Application.Features.PricingParameter.Update.DTOs;
-using Reference.Application.Features.PricingSettingsImport;
-using Reference.Application.Features.PricingSettingsImport.DTOs;
+using Reference.Application.Features.PricingParameter.Commands.CreatePricingParameter;
+using Reference.Application.Features.PricingParameter.Commands.DeletePricingParameter;
+using Reference.Application.Features.PricingParameter.Commands.UpdatePricingParameter;
+using Reference.Application.Features.PricingParameter.Queries.GetPricingParameters;
+using Reference.Application.Features.PricingSettingsImport.Commands.ImportPricingSettings;
+using Reference.Application.Features.PricingSettingsImport.Shared;
 
 namespace Reference.Api.Controllers;
 

@@ -1,16 +1,10 @@
 using System.Globalization;
-using Catalog.Application.Features.Product.Create;
-using Catalog.Application.Features.Product.Create.DTOs;
-using Catalog.Application.Features.Product.Create.Validators;
-using Catalog.Application.Features.Product.Delete;
-using Catalog.Application.Features.Product.Delete.Validators;
-using Catalog.Application.Features.Product.GetAdminDetail;
-using Catalog.Application.Features.Product.GetAdminDetail.Validators;
-using Catalog.Application.Features.Product.GetAdminList;
-using Catalog.Application.Features.Product.GetAdminList.Validators;
-using Catalog.Application.Features.Product.Update;
-using Catalog.Application.Features.Product.Update.Validators;
 using Catalog.Domain.Products;
+using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Commands.DeleteProduct;
+using Catalog.Application.Features.Product.Commands.ReplaceProduct;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 
 namespace UnitTests;
 
@@ -22,7 +16,7 @@ public sealed class ProductValidationTests
         using var _ = UseCulture("uk-UA");
         var request = ValidSewingRequest() with { Photos = [new ProductPhotoRequest(0, null, true, true, 0)] };
 
-        var result = new CreateProductCommandValidator().Validate(new CreateProductCommand(request));
+        var result = new CreateProductValidator().Validate(new CreateProductCommand(request));
 
         Assert.Multiple(() =>
         {
@@ -38,7 +32,7 @@ public sealed class ProductValidationTests
         var request = ValidSewingRequest() with { Name = string.Empty };
         using var _ = UseCulture("ru-RU");
 
-        var result = new CreateProductCommandValidator().Validate(new CreateProductCommand(request));
+        var result = new CreateProductValidator().Validate(new CreateProductCommand(request));
 
         Assert.That(result.Errors, Has.One.Matches<FluentValidation.Results.ValidationFailure>(x =>
             x.PropertyName == "Request.Name" && x.ErrorMessage.Contains("Украинское название")));
@@ -47,7 +41,7 @@ public sealed class ProductValidationTests
     [Test]
     public void Create_accepts_valid_sewing_request()
     {
-        var result = new CreateProductCommandValidator().Validate(new CreateProductCommand(ValidSewingRequest()));
+        var result = new CreateProductValidator().Validate(new CreateProductCommand(ValidSewingRequest()));
 
         Assert.That(result.IsValid, Is.True);
     }
@@ -55,7 +49,7 @@ public sealed class ProductValidationTests
     [Test]
     public void Update_rejects_route_and_request_id_mismatch()
     {
-        var result = new ReplaceProductCommandValidator().Validate(new ReplaceProductCommand(2, ValidSewingRequest() with { Id = 1 }));
+        var result = new ReplaceProductValidator().Validate(new ReplaceProductCommand(2, ValidSewingRequest() with { Id = 1 }));
 
         Assert.That(result.Errors, Has.One.Matches<FluentValidation.Results.ValidationFailure>(x => x.PropertyName == "Request.Id"));
     }
@@ -71,7 +65,7 @@ public sealed class ProductValidationTests
             }
         };
 
-        var result = new ReplaceProductCommandValidator().Validate(new ReplaceProductCommand(1, request));
+        var result = new ReplaceProductValidator().Validate(new ReplaceProductCommand(1, request));
 
         Assert.That(result.Errors, Has.One.Matches<FluentValidation.Results.ValidationFailure>(x =>
             x.PropertyName == "Request.Ppe.RetailPercent.CustomPercent"));
@@ -80,17 +74,17 @@ public sealed class ProductValidationTests
     [TestCase(0)]
     [TestCase(-1)]
     public void Delete_rejects_non_positive_id(int id)
-        => Assert.That(new DeleteProductCommandValidator().Validate(new DeleteProductCommand(id)).IsValid, Is.False);
+        => Assert.That(new DeleteProductValidator().Validate(new DeleteProductCommand(id)).IsValid, Is.False);
 
     [TestCase(0)]
     [TestCase(-1)]
     public void Detail_rejects_non_positive_id(int id)
-        => Assert.That(new GetAdminProductDetailQueryValidator().Validate(new GetAdminProductDetailQuery(id)).IsValid, Is.False);
+        => Assert.That(new GetAdminProductDetailValidator().Validate(new GetAdminProductDetailQuery(id)).IsValid, Is.False);
 
     [Test]
     public void List_rejects_invalid_paging_search_category_and_sorting()
     {
-        var result = new GetAdminProductsQueryValidator().Validate(
+        var result = new GetAdminProductsValidator().Validate(
             new GetAdminProductsQuery(0, 15, " ", null, 0, "price"));
 
         Assert.Multiple(() =>
@@ -102,7 +96,7 @@ public sealed class ProductValidationTests
 
     [Test]
     public void List_accepts_documented_paging_boundary()
-        => Assert.That(new GetAdminProductsQueryValidator().Validate(new GetAdminProductsQuery(1, 50, "тест", ProductType.Sewing, 1, "updatedAt")).IsValid, Is.True);
+        => Assert.That(new GetAdminProductsValidator().Validate(new GetAdminProductsQuery(1, 50, "тест", ProductType.Sewing, 1, "updatedAt")).IsValid, Is.True);
 
     private static CreateProductCommandRequest ValidSewingRequest()
         => new(

@@ -1,6 +1,6 @@
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
 using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Store;
 using IntegrationTests.Pricing.Sewing;
+using Catalog.Application.Abstractions.Pricing;
 
 namespace IntegrationTests.Pricing.Ppe;
 

@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Fabrics” lookup, with the fields
 
 ## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/FabricsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Fabric/Create/CreateFabricCommandHandler.cs) and adjacent query/update/delete handlers validate the data; [Fabric](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/Fabric.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. Fabrics are used as part of Sewing products.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/FabricsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Fabric/Commands/CreateFabric/CreateFabricHandler.cs) and adjacent query/update/delete handlers validate the data; [Fabric](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/Fabric.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. Fabrics are used as part of Sewing products.
 
 ## Code Structure
 
@@ -17,12 +17,12 @@ src/
 └── Modules/Reference/
     ├── Reference.Api/Reference.Api/Controllers/FabricsController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/Fabric/
-    │   ├── Create/CreateFabricCommandHandler.cs  # use case handler
-    │   ├── Delete/DeleteFabricCommandHandler.cs  # use case handler
-    │   ├── GetList/GetAllFabricQueryHandler.cs  # use case handler
-    │   ├── Import/ImportFabricsCommandHandler.cs  # sheet import with preview
+    │   ├── Commands/CreateFabric/CreateFabricHandler.cs  # use case handler
+    │   ├── Commands/DeleteFabric/DeleteFabricHandler.cs  # use case handler
+    │   ├── Queries/GetAllFabric/GetAllFabricHandler.cs  # use case handler
+    │   ├── Commands/ImportFabrics/ImportFabricsHandler.cs  # sheet import with preview
     │   ├── Shared/  # fields contract, validator, code spec
-    │   └── Update/UpdateFabricCommandHandler.cs  # use case handler
+    │   └── Commands/UpdateFabric/UpdateFabricHandler.cs  # use case handler
     ├── Reference.Domain/Reference.Domain/GarmentAccessories/Fabric.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
         ├── DataBase/ReferenceDbContext.cs  # data context

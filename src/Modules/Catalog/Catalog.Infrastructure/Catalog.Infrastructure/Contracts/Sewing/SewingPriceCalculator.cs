@@ -1,8 +1,7 @@
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Features.Pricing.Sewing.Composition;
 using Catalog.Contracts.Products;
 using Catalog.Contracts.Sewing;
 using Mediator;
+using Catalog.Application.Features.Pricing.Queries.CalculateSewingComposition;
 
 namespace Catalog.Infrastructure.Contracts.Sewing;
 

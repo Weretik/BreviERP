@@ -1,7 +1,7 @@
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Features.Pricing.Sewing.Composition;
 using Catalog.Domain.Pricing.Sewing;
 using Moq;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Queries.CalculateSewingComposition;
 
 namespace UnitTests;
 
@@ -13,7 +13,7 @@ public sealed class SewingCompositionPricingTests
     private static readonly SewingCalculationSettings Settings =
         new(24_000m, 20m, 480m, 5m, 0.1m, 0.1m, 0.05m, 0.05m, 0.05m, 48_000m, 2m, 1.8m, 1.5m);
 
-    private static CalculateSewingCompositionQueryHandler Handler(params PricingReferenceValue[] values)
+    private static CalculateSewingCompositionHandler Handler(params PricingReferenceValue[] values)
     {
         var settings = new Mock<ISewingPricingSettingsReader>();
         settings.Setup(x => x.ReadCandidatesAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
@@ -24,7 +24,7 @@ public sealed class SewingCompositionPricingTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyCollection<string> keys, DateTimeOffset _, CancellationToken _) =>
                 values.Where(x => keys.Contains(x.ReferenceKey)).ToArray());
-        return new CalculateSewingCompositionQueryHandler(settings.Object, references.Object);
+        return new CalculateSewingCompositionHandler(settings.Object, references.Object);
     }
 
     private static PricingReferenceValue Value(string key, decimal value, string unit) =>
@@ -91,7 +91,7 @@ public sealed class SewingCompositionPricingTests
             ],
             [new SewingCompositionOperation(40, 1m)], Now);
 
-        var errors = new CalculateSewingCompositionQueryValidator().Validate(query).Errors
+        var errors = new CalculateSewingCompositionValidator().Validate(query).Errors
             .Select(x => x.PropertyName).ToArray();
 
         Assert.That(errors, Is.SupersetOf(new[]
@@ -135,7 +135,7 @@ public sealed class SewingCompositionPricingTests
             [new SewingCompositionMaterial(SewingCompositionMaterialKind.Fabric, 4, 0m)],
             [new SewingCompositionOperation(40, 1m, -1m)], Now);
 
-        var result = new CalculateSewingCompositionQueryValidator().Validate(invalid);
+        var result = new CalculateSewingCompositionValidator().Validate(invalid);
 
         Assert.That(result.Errors.Select(x => x.PropertyName),
             Is.SupersetOf(new[] { "Materials[0].Quantity", "Operations[0].ManualMinutes" }));

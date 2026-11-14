@@ -1,6 +1,6 @@
-using Crm.Application.Embroidery.StitchRate;
 
 using Reference.Contracts.PricingParameters;
+using Crm.Application.Abstractions.Embroidery;
 
 namespace Crm.Infrastructure.Adapters.Reference;
 

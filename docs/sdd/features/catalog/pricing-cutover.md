@@ -18,10 +18,9 @@ flowchart LR
 
 ```text
 Catalog.Application/
-  Features/Product/GetAdminList/       # metadata/media projection, no price references
-  Contracts/Admin/Product/             # aggregate metadata mapper
-  Contracts/Admin/Sewing/              # manufacturing metadata, prices=null
-  Contracts/Admin/Ppe/                 # supplier/archive metadata, retired price placeholders
+  Features/Product/Queries/GetAdminProducts/  # metadata/media projection, no price references
+  Features/Product/Shared/             # admin detail mappers: Product aggregate metadata, Sewing (prices=null),
+                                       # PPE (supplier/archive metadata, retired price placeholders)
   Features/Pricing/                    # sole current pricing scenarios
 Catalog.Domain/Pricing/                # current Sewing and PPE arithmetic
 Jobs/SewingPricing/Verification/       # per-component source parity and strict blockers

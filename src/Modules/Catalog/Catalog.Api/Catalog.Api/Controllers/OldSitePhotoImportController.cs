@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using Catalog.Api.Contracts.Products.Photos;
-using Catalog.Application.Features.Product.OldSitePhotoImport;
+using Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
 
 namespace Catalog.Api.Controllers;
 

@@ -5,9 +5,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Ardalis.Result;
-using Crm.Application.Quotes.Sending.Gmail;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Quotes.Sending;
 

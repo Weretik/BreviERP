@@ -1,5 +1,7 @@
 using System.Security.Claims;
-using Catalog.Application.Features.Product.Sewing;
+using Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
+using Catalog.Application.Features.Product.Queries.GetSewingComposition;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace Catalog.Api.Controllers;
 

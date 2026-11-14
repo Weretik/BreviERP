@@ -1,5 +1,5 @@
 using Ardalis.Result;
-using Catalog.Application.Features.Product.GetAdminList.DTOs;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 
 namespace Catalog.Api.Contracts.Products;
 

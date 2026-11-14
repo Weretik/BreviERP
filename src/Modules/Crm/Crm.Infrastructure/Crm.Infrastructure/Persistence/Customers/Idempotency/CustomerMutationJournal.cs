@@ -2,10 +2,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Ardalis.Result;
-using Crm.Application.Customers.Access;
-using Crm.Application.Customers.Contracts.Responses;
 using Crm.Domain.Customers.Identifiers;
 using Microsoft.EntityFrameworkCore;
+using Crm.Application.Abstractions.Customers;
 
 namespace Crm.Infrastructure.Persistence.Customers.Idempotency;
 

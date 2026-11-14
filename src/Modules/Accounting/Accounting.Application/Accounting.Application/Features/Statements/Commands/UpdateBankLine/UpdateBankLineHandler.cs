@@ -1,0 +1,50 @@
+using Accounting.Application.Abstractions;
+using Accounting.Domain.Categories;
+using Accounting.Domain.Statements;
+using Accounting.Application;
+using Accounting.Application.Features.Counterparties.Shared;
+using Accounting.Application.Features.Lookup.Shared;
+using Accounting.Application.Features.Statements.Shared;
+using Accounting.Application.Features.Transactions.Shared;
+
+namespace Accounting.Application.Features.Statements.Commands.UpdateBankLine;
+
+public sealed class UpdateBankLineHandler(IAccountingDbContext db, IAccountingCustomerReader customers,
+    IAccountingSupplierReader suppliers)
+    : ICommandHandler<UpdateBankLineCommand, Result<BankStatementLineResponse>>
+{
+    public async ValueTask<Result<BankStatementLineResponse>> Handle(UpdateBankLineCommand command,
+        CancellationToken cancellationToken)
+    {
+        var statementId = BankStatementId.From(command.StatementId);
+        var statement = await db.BankStatements.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == statementId, cancellationToken);
+        if (statement is null) return Result.NotFound(StatementMessages.NotFound);
+        var lineId = BankStatementLineId.From(command.LineId);
+        var line = await db.BankStatementLines
+            .FirstOrDefaultAsync(x => x.Id == lineId && x.StatementId == statementId, cancellationToken);
+        if (line is null) return Result.NotFound(StatementMessages.LineNotFound);
+        if (statement.CheckPreview() is { IsFailure: true } booked) return booked.Error!.ToResult<BankStatementLineResponse>();
+
+        FinanceCategory? category = null;
+        if (command.CategoryId is { } categoryId)
+        {
+            var id = FinanceCategoryId.From(categoryId);
+            category = await db.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            if (category is null) return Result.NotFound(AccountingMessages.CategoryNotFound);
+        }
+
+        var readers = new CounterpartyReaders(db, customers, suppliers);
+        var link = FinanceCounterpartyLinkInput.LinkOf(command.Counterparty);
+        if (link.IsFailure) return link.Error!.ToResult<BankStatementLineResponse>();
+        var (counterparty, gone) = await CounterpartyStates.ResolveAsync(readers, link.Value, cancellationToken);
+        if (gone is not null) return Result.NotFound(gone);
+
+        var edited = line.Edit(category, counterparty, command.OneoffName, command.Description, command.Comment,
+            command.Excluded);
+        if (edited.IsFailure) return edited.Error!.ToResult<BankStatementLineResponse>();
+        await db.SaveChangesAsync(cancellationToken);
+        var names = await FinanceNames.LoadAsync(db, cancellationToken);
+        return Result.Success(BankStatementLineResponse.From(line, names));
+    }
+}

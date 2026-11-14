@@ -1,5 +1,5 @@
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Period;
+using Crm.Application.Features.Quotes.Queries.GetQuotePeriod;
+using Crm.Application.Features.Quotes.Shared.Access;
 
 namespace UnitTests.Crm.Quotes;
 
@@ -31,7 +31,7 @@ public sealed class QuotePeriodTests
     [Test]
     public void A_period_ending_before_it_starts_is_refused()
     {
-        var validator = new GetQuotePeriodQueryValidator();
+        var validator = new GetQuotePeriodValidator();
         var actor = new QuoteActor(1, CanSeeAll: true);
 
         Assert.Multiple(() =>

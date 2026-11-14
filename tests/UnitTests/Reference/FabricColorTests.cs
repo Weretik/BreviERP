@@ -1,12 +1,12 @@
 ﻿using BuildingBlocks.Domain.Results;
 using Ardalis.Result;
 using Moq;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.FabricColor.Create;
-using Reference.Application.Features.FabricColor.GetList;
 using Reference.Application.Features.FabricColor.Shared;
-using Reference.Application.Features.FabricColor.Update;
 using Reference.Domain.FabricColors;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.FabricColor.Commands.CreateFabricColor;
+using Reference.Application.Features.FabricColor.Commands.UpdateFabricColor;
+using Reference.Application.Features.FabricColor.Queries.GetFabricColors;
 
 namespace UnitTests.Reference;
 
@@ -46,7 +46,7 @@ public sealed class FabricColorTests
     public async Task Create_takes_the_next_id_and_rejects_the_same_colour_with_other_case_or_spaces()
     {
         var (repository, added) = Repository([Stored(1, "Чорний"), Stored(4, "Світло-сірий")]);
-        var handler = new CreateFabricColorCommandHandler(repository.Object);
+        var handler = new CreateFabricColorHandler(repository.Object);
 
         var created = await handler.Handle(new(new FabricColorFields("Вафля", SortOrder: 61)), CancellationToken.None);
         var duplicate = await handler.Handle(new(new FabricColorFields("світло - сірий")), CancellationToken.None);
@@ -65,7 +65,7 @@ public sealed class FabricColorTests
     {
         var black = Stored(1, "Чорний");
         var (repository, _) = Repository([black, Stored(2, "Синій")]);
-        var handler = new UpdateFabricColorCommandHandler(repository.Object);
+        var handler = new UpdateFabricColorHandler(repository.Object);
 
         var clash = await handler.Handle(new(1, new FabricColorFields("СИНІЙ")), CancellationToken.None);
         var saved = await handler.Handle(new(1, new FabricColorFields("Чорний ", false, 3)), CancellationToken.None);
@@ -87,7 +87,7 @@ public sealed class FabricColorTests
         repository.Setup(x => x.ListAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync([Stored(3, "Синій", order: 2), Stored(1, "Чорний", order: 1), Stored(2, "Вафля", false, 61)]);
 
-        var rows = (await new GetFabricColorsQueryHandler(repository.Object)
+        var rows = (await new GetFabricColorsHandler(repository.Object)
             .Handle(new GetFabricColorsQuery(), CancellationToken.None)).Value;
 
         Assert.That(rows.Select(x => x.Name), Is.EqualTo(new[] { "Чорний", "Синій", "Вафля" }));

@@ -1,16 +1,15 @@
-using Crm.Application.Customers.GetCustomers.DTOs;
-using Crm.Application.Customers.Contracts.Responses;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Ardalis.Result;
 using Crm.Api;
 using Crm.Api.Customers.Requests;
-using Crm.Application.Customers.CreateCustomer;
-using Crm.Application.Customers.GetCustomers;
 using IntegrationTests.Crm.Support;
 using Mediator;
 using Moq;
+using Crm.Application.Features.Customers.Commands.CreateCustomer;
+using Crm.Application.Features.Customers.Queries.GetCustomers;
+using Crm.Application.Abstractions.Customers;
 
 namespace IntegrationTests.Crm;
 

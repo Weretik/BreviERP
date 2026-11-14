@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-using Catalog.Application.Features.Pricing.Sewing.Preview;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
@@ -11,7 +10,6 @@ using SewingPricing.Jobs.Bootstrap;
 using SewingPricing.Jobs.Reading;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Reference.Application.Contracts.Pricing;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Pricing;
 using Reference.Domain.Suppliers;

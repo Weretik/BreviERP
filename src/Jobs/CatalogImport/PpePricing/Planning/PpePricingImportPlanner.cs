@@ -1,6 +1,6 @@
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.Validation;
 using CatalogImport.PpePricing.Source;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Shared.Ppe.Validation;
 namespace CatalogImport.PpePricing.Planning;
 public static class PpePricingImportPlanner
 {

@@ -1,8 +1,8 @@
-using Reference.Application.Contracts.Pricing;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
 using Reference.Infrastructure.DataBase;
+using Reference.Application.Abstractions;
 
 namespace Reference.Infrastructure.Pricing.Reading;
 

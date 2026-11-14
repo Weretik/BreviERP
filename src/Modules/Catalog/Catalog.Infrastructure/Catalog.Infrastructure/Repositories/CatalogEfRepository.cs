@@ -1,6 +1,6 @@
 using BuildingBlocks.Domain.Abstractions;
-using Catalog.Application.Contracts.Persistence;
 using Catalog.Infrastructure.DataBase;
+using Catalog.Application.Abstractions;
 
 namespace Catalog.Infrastructure.Repositories;
 

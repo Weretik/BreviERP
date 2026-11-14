@@ -1,11 +1,5 @@
 using BuildingBlocks.Application.Outbox;
 using BuildingBlocks.Infrastructure.Outbox;
-using Crm.Application.Customers.KeepinCrmSync;
-using Crm.Application.Embroidery.Persistence;
-using Crm.Application.Leads.Persistence;
-using Crm.Application.Quotes.Persistence;
-using Crm.Application.SiteRequests.Abstractions;
-using Crm.Application.Tasks.Persistence;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Embroidery.Saved;
@@ -19,6 +13,15 @@ using Crm.Domain.SiteRequests;
 using Crm.Domain.Tasks;
 using Crm.Infrastructure.Persistence.Quotes;
 using Microsoft.EntityFrameworkCore;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
+using Crm.Application.Features.Leads.Shared.Persistence;
+using Crm.Application.Features.Quotes.Shared.Persistence;
+using Crm.Application.Features.Tasks.Shared.Persistence;
+using Crm.Application.Abstractions.Embroidery;
+using Crm.Application.Abstractions.Leads;
+using Crm.Application.Abstractions.Quotes;
+using Crm.Application.Abstractions.SiteRequests;
+using Crm.Application.Abstractions.Tasks;
 
 namespace Crm.Infrastructure.Persistence;
 

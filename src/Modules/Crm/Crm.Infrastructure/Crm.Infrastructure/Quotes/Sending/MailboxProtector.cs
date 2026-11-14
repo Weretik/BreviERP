@@ -1,7 +1,8 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-using Crm.Application.Quotes.Sending.Gmail;
 using Microsoft.AspNetCore.DataProtection;
+using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Quotes.Sending;
 

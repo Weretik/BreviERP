@@ -1,4 +1,3 @@
-using Reference.Application.Features.Fabric.Shared.DTOs;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
 

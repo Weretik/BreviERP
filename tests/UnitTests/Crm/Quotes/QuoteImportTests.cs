@@ -1,7 +1,7 @@
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Import;
-using Crm.Application.Quotes.Staff;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Commands.ImportQuotes;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Abstractions.Quotes;
 
 namespace UnitTests.Crm.Quotes;
 
@@ -54,7 +54,7 @@ public sealed class QuoteImportTests
     private static (Quote Quote, List<QuoteImportWarning> Warnings) Map(ImportQuoteInput input, QuoteImportMapper? mapper = null)
     {
         var warnings = new List<QuoteImportWarning>();
-        var quote = (mapper ?? Mapper()).Map(input, QuoteImportNumber.Parse(input.Number), ImportQuotesCommandHandler.Note,
+        var quote = (mapper ?? Mapper()).Map(input, QuoteImportNumber.Parse(input.Number), ImportQuotesHandler.Note,
             Now, warnings).Value;
         return (quote, warnings);
     }
@@ -190,7 +190,7 @@ public sealed class QuoteImportTests
     public void ValidatorRejectsBadNumbersKindsAndRepeats()
     {
         var actor = new QuoteActor(1, true);
-        var validator = new ImportQuotesCommandValidator();
+        var validator = new ImportQuotesValidator();
         Assert.Multiple(() =>
         {
             Assert.That(validator.Validate(new ImportQuotesCommand(actor, true, [Quote(items: Item("Sewing", "MOD-166"))])).IsValid,

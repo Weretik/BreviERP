@@ -6,7 +6,7 @@ CRUD operations, list retrieval and the import of the Calculator sheet «Опе�
 
 ## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/GarmentPartOperationsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentPartOperation/Create/CreateGarmentPartOperationCommandHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentPartOperation](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentPartOperations/GarmentPartOperation.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. An operation belongs to a garment part («Група деталей») and has a sheet code (OP-…), element, variant, norm in minutes, a «time per product» flag (no fixed norm), the norm check date, an active flag and notes; Product stores references to the selected operations. Labour cost is not stored: clients compute it from the norm and the sewing pricing settings. A group with operations cannot be deleted.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/GarmentPartOperationsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentPartOperation/Commands/CreateGarmentPartOperation/CreateGarmentPartOperationHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentPartOperation](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentPartOperations/GarmentPartOperation.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. An operation belongs to a garment part («Група деталей») and has a sheet code (OP-…), element, variant, norm in minutes, a «time per product» flag (no fixed norm), the norm check date, an active flag and notes; Product stores references to the selected operations. Labour cost is not stored: clients compute it from the norm and the sewing pricing settings. A group with operations cannot be deleted.
 
 ## Code Structure
 
@@ -17,12 +17,12 @@ src/
 └── Modules/Reference/
     ├── Reference.Api/Reference.Api/Controllers/GarmentPartOperationsController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/GarmentPartOperation/
-    │   ├── Create/CreateGarmentPartOperationCommandHandler.cs  # use case handler
-    │   ├── Delete/DeleteGarmentPartOperationCommandHandler.cs  # use case handler
-    │   ├── GetList/GetGarmentPartOperationsQueryHandler.cs  # use case handler
-    │   ├── Import/ImportGarmentPartOperationsCommandHandler.cs  # sheet import with preview
+    │   ├── Commands/CreateGarmentPartOperation/CreateGarmentPartOperationHandler.cs  # use case handler
+    │   ├── Commands/DeleteGarmentPartOperation/DeleteGarmentPartOperationHandler.cs  # use case handler
+    │   ├── Queries/GetGarmentPartOperations/GetGarmentPartOperationsHandler.cs  # use case handler
+    │   ├── Commands/ImportGarmentPartOperations/ImportGarmentPartOperationsHandler.cs  # sheet import with preview
     │   ├── Shared/  # common fields, validator, details factory, code spec
-    │   └── Update/UpdateGarmentPartOperationCommandHandler.cs  # use case handler
+    │   └── Commands/UpdateGarmentPartOperation/UpdateGarmentPartOperationHandler.cs  # use case handler
     ├── Reference.Domain/Reference.Domain/GarmentPartOperations/GarmentPartOperation.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
         ├── DataBase/ReferenceDbContext.cs  # data context

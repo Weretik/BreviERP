@@ -20,9 +20,9 @@ src/Modules/Reference/
 │   ├── Controllers/PpeMarkupRulesController.cs      # PPE markup rules CRUD
 │   └── Contracts/{PricingParameters,PpeMarkupRules}/
 ├── Reference.Application/Reference.Application/Features/
-│   ├── PricingParameter/{Create,Update,Delete,GetList,Shared}/
-│   ├── PpeMarkupRule/{Create,Update,Delete,GetList,Shared}/
-│   └── PricingSettingsImport/                       # import of both tables, preview and apply
+│   ├── PricingParameter/{Commands,Queries,Shared}/   # Create/Update/DeletePricingParameter, GetPricingParameters
+│   ├── PpeMarkupRule/{Commands,Queries,Shared}/      # Create/Update/DeletePpeMarkupRule, GetPpeMarkupRules
+│   └── PricingSettingsImport/                       # Commands/ImportPricingSettings: both tables, preview and apply
 ├── Reference.Domain/Reference.Domain/
 │   ├── PricingParameters/                           # entity, details, formulas, errors, id
 │   └── PpeMarkupRules/                              # entity, details, errors, id

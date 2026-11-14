@@ -1,7 +1,7 @@
 using Ardalis.Result;
-using Crm.Application.Quotes.Building;
-using Crm.Application.Quotes.Contracts;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Building;
 
 namespace UnitTests.Crm.Quotes;
 

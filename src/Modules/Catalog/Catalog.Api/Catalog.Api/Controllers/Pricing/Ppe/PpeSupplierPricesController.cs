@@ -2,11 +2,11 @@ using System.Security.Claims;
 using Ardalis.Result;
 using BuildingBlocks.Api.Authorization;
 using Catalog.Api.Contracts.Pricing.Ppe.SupplierPrices;
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.List;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Settings;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
+using Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices;
+using Catalog.Application.Features.Pricing.Commands.UpdatePpePriceSource;
+using Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
 
 namespace Catalog.Api.Controllers.Pricing.Ppe;
 

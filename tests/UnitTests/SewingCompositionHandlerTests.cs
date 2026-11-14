@@ -1,16 +1,19 @@
 using Ardalis.Result;
 using Ardalis.Specification;
-using Catalog.Application.Contracts.Admin;
-using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Contracts.SlugGeneration;
-using Catalog.Application.Features.Product.Create.DTOs;
-using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
-using Catalog.Application.Features.Product.Sewing;
-using Catalog.Application.Features.Product.Update;
+using Catalog.Application.Features.Product.Shared;
 using Catalog.Domain.Products;
 using Moq;
 using ProductCategory = Catalog.Domain.ProductCategories.ProductCategory;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Commands.CreateSewingArticle;
+using Catalog.Application.Features.Product.Commands.DeleteSewingArticle;
+using Catalog.Application.Features.Product.Commands.ReplaceProduct;
+using Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
+using Catalog.Application.Features.Product.Commands.UpdateSewingArticle;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace UnitTests;
 
@@ -61,7 +64,7 @@ public sealed class SewingCompositionHandlerTests
     [Test]
     public void Invalid_quantity_or_unit_returns_indexed_ukrainian_validation_errors()
     {
-        var result = new ReplaceSewingCompositionCommandValidator().Validate(new ReplaceSewingCompositionCommand(101,
+        var result = new ReplaceSewingCompositionValidator().Validate(new ReplaceSewingCompositionCommand(101,
             new(null, [FabricInput(10) with { Quantity = 0, Unit = "Piece" }], [], 0), "manager-1"));
 
         var errors = result.Errors.ToDictionary(x => x.PropertyName, x => x.ErrorMessage);
@@ -72,7 +75,7 @@ public sealed class SewingCompositionHandlerTests
     [Test]
     public void Variant_fields_return_camel_case_keys()
     {
-        var result = new CreateSewingArticleCommandValidator().Validate(new CreateSewingArticleCommand(0,
+        var result = new CreateSewingArticleValidator().Validate(new CreateSewingArticleCommand(0,
             new(" ", true, -1, 0, 0, -1)));
 
         Assert.That(result.Errors.Select(x => x.PropertyName), Is.EquivalentTo(new[]
@@ -305,11 +308,11 @@ public sealed class SewingCompositionHandlerTests
     private sealed class ReplaceFixture
     {
         public Mock<ICatalogRepository<Product>> Repository { get; } = new();
-        private readonly Mock<Catalog.Application.Contracts.Media.IProductMediaReader> _media = new();
+        private readonly Mock<Catalog.Application.Abstractions.Media.IProductMediaReader> _media = new();
         private readonly Mock<IProductReferenceReader> _references = new();
         private readonly Mock<ICatalogReadRepository<ProductCategory>> _categories = new();
         private readonly Mock<IProductSlugGenerator> _slug = new();
-        public ReplaceProductCommandHandler Handler { get; }
+        public ReplaceProductHandler Handler { get; }
 
         public ReplaceFixture()
         {

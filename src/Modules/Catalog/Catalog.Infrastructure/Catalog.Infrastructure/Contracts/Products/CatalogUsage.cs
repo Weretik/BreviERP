@@ -1,9 +1,9 @@
-using Catalog.Application.Features.Product.GetMediaUsages;
 using Catalog.Contracts.Products;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Application.Features.Product.Queries.GetProductMediaUsages;
 
 namespace Catalog.Infrastructure.Contracts.Products;
 

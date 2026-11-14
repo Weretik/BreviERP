@@ -1,5 +1,6 @@
 using System.Text;
-using Crm.Application.Quotes.Sending.Gmail;
+using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Quotes.Sending;
 

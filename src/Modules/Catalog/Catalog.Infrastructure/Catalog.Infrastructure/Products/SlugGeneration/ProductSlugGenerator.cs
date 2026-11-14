@@ -1,6 +1,6 @@
-using Catalog.Application.Contracts.SlugGeneration;
 using Slugify;
 using TranslitKit;
+using Catalog.Application.Abstractions;
 
 namespace Catalog.Infrastructure.Products.SlugGeneration;
 

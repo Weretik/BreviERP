@@ -1,4 +1,4 @@
-using Reference.Application.Features.GarmentPartOperation.Import.DTOs;
+using Reference.Application.Features.GarmentPartOperation.Commands.ImportGarmentPartOperations;
 
 namespace Reference.Api.Contracts.GarmentPartOperations;
 

@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using Catalog.Application.Contracts.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing;
 namespace Catalog.Api.Contracts.Pricing.Ppe;
 public sealed record PpeOfferValuesRequest(
     [property: JsonRequired] string? RuleCode,

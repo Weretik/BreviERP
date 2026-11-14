@@ -1,6 +1,8 @@
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Features.Product.Sewing;
 using Moq;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Queries.ListSewingCompositions;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace UnitTests;
 

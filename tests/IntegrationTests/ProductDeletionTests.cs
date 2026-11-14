@@ -1,12 +1,12 @@
 ﻿using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
-using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Features.Product.Delete;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Features.Product.Commands.DeleteProduct;
 
 namespace IntegrationTests;
 
@@ -68,7 +68,7 @@ public sealed class ProductDeletionTests
         db.Add(product);
         await db.SaveChangesAsync();
 
-        var handler = new DeleteProductCommandHandler(new TestCatalogRepository(db));
+        var handler = new DeleteProductHandler(new TestCatalogRepository(db));
         var result = await handler.Handle(new DeleteProductCommand(productId), CancellationToken.None);
 
         db.ChangeTracker.Clear();
@@ -81,7 +81,7 @@ public sealed class ProductDeletionTests
     public async Task Handler_returns_not_found_when_product_does_not_exist()
     {
         await using var db = CreateContext();
-        var handler = new DeleteProductCommandHandler(new TestCatalogRepository(db));
+        var handler = new DeleteProductHandler(new TestCatalogRepository(db));
 
         var result = await handler.Handle(new DeleteProductCommand(999_999), CancellationToken.None);
 

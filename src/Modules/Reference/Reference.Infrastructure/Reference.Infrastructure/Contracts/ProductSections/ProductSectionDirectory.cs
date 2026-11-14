@@ -1,6 +1,6 @@
 using Mediator;
-using Reference.Application.Features.ProductSection.GetList;
 using Reference.Contracts.ProductSections;
+using Reference.Application.Features.ProductSection.Queries.GetProductSections;
 
 namespace Reference.Infrastructure.Contracts.ProductSections;
 

@@ -1,15 +1,13 @@
 using System.Security.Claims;
 using Catalog.Api.Contracts.Products.Overview;
-using Catalog.Application.Features.Product.Overview.CodeCheck;
-using Catalog.Application.Features.Product.Overview.Create;
-using Catalog.Application.Features.Product.Overview.GetList;
-using Catalog.Application.Features.Product.Overview.GetList.DTOs;
-using Catalog.Application.Features.Product.Overview.GetOne;
-using Catalog.Application.Features.Product.Overview.Shared;
-using Catalog.Application.Features.Product.Overview.Update;
-using Catalog.Application.Features.Product.SheetImport;
-using Catalog.Application.Features.Product.SheetImport.DTOs;
 using Catalog.Domain.Products;
+using Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
+using Catalog.Application.Features.Product.Commands.UpdateProductOverview;
+using Catalog.Application.Features.Product.Queries.GetProductCodeCheck;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewItem;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
+using Catalog.Application.Features.Product.Shared.Overview;
 
 namespace Catalog.Api.Controllers;
 

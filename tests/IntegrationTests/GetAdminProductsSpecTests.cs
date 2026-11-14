@@ -1,7 +1,5 @@
 ﻿using System.Data.Common;
 using Ardalis.Specification.EntityFrameworkCore;
-using Catalog.Application.Features.Product.GetAdminList;
-using Catalog.Application.Features.Product.GetAdminList.Specifications;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
@@ -9,6 +7,7 @@ using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 
 namespace IntegrationTests;
 

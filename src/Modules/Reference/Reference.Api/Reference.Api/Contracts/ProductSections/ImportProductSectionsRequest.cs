@@ -1,4 +1,4 @@
-using Reference.Application.Features.ProductSection.Import.DTOs;
+using Reference.Application.Features.ProductSection.Commands.ImportProductSections;
 
 namespace Reference.Api.Contracts.ProductSections;
 

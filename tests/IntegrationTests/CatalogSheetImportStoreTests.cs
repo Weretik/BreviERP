@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using Catalog.Application.Features.Product.SheetImport.DTOs;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Host.Api.DependencyInjection.ServiceRegistration;
@@ -21,6 +20,7 @@ using Npgsql;
 using Reference.Domain.Suppliers;
 using Reference.Infrastructure.DataBase;
 using BuildingBlocks.Domain.ValueObjects;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
 namespace IntegrationTests;
 

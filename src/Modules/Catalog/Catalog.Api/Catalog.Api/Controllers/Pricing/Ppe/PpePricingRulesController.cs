@@ -1,11 +1,11 @@
 using BuildingBlocks.Api.Authorization;
 using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Ppe;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.Rules.CreateVersion;
-using Catalog.Application.Features.Pricing.Ppe.Preview;
-using Catalog.Application.Features.Pricing.Ppe.Rules.GetCurrent;
 using Catalog.Domain.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.CreatePpeRuleVersion;
+using Catalog.Application.Features.Pricing.Queries.GetPpeRule;
+using Catalog.Application.Features.Pricing.Queries.PreviewPpePrices;
 namespace Catalog.Api.Controllers.Pricing.Ppe;
 [ApiController]
 [Route("api/v1/pricing/ppe/rules")]

@@ -1,10 +1,6 @@
 ﻿using Ardalis.Result;
 using Ardalis.Specification.EntityFrameworkCore;
 using BuildingBlocks.Application.Behaviors;
-using Catalog.Application.Contracts.Admin.Product;
-using Catalog.Application.Features.Product.Create;
-using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
-using Catalog.Application.Features.Product.GetAdminDetail.Specifications;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
@@ -13,6 +9,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
 using Microsoft.Extensions.Logging.Abstractions;
+using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
+using Catalog.Application.Features.Product.Shared;
 
 namespace IntegrationTests;
 

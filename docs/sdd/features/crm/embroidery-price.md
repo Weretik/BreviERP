@@ -16,19 +16,17 @@ src/Modules/Crm/
     Settings/EmbroiderySettingsRules.cs, EmbroiderySettingsDefaults.cs
     Saved/EmbroiderySavedCalculation.cs   saved record, number «ВШ-0042», name rule
     Saved/EmbroideryRateSnapshot.cs       stitch rate + settings content at saving
-  Crm.Application/Crm.Application/Embroidery/
-    Access/                               EmbroideryActor (Admin sees cost), messages
-    StitchRate/IEmbroideryStitchRateReader.cs  pricing parameter port
-    Persistence/IEmbroideryStore.cs       store port and settings lookup
-    Contracts/, Mapping/, Validation/
-    GetForm/ Calculate/ GetSettings/ SaveSettings/
-    Calculate/EmbroideryPricing.cs        shared pricing for calculate and save
-    SaveCalculation/ GetCalculations/ GetCalculation/ DeleteCalculation/  «Збережені»
-    ImportArchive/                        «Імпорт архіву» of the old calculator
-    Mockup/                               «Макет»: IEmbroideryMediaReader port, set command, usages for «Медіа»
-  Crm.Application/Crm.Application/Quotes/
-    AddEmbroidery/                        «Додати в КП» command
-    Embroidery/QuoteEmbroideryItems.cs    saved calculation → КП item, kept on save
+  Crm.Application/Crm.Application/Abstractions/Embroidery/  IEmbroideryStore, IEmbroideryStitchRateReader (pricing parameter), IEmbroideryMediaReader
+  Crm.Application/Crm.Application/Features/Embroidery/
+    Queries/                              GetEmbroideryForm CalculateEmbroidery GetEmbroiderySettings
+                                          GetEmbroideryCalculations GetEmbroideryCalculation («Збережені») GetEmbroideryMockupUsages (for «Медіа»)
+    Commands/                             SaveEmbroiderySettings SaveEmbroideryCalculation DeleteEmbroideryCalculation
+                                          ImportEmbroideryArchive («Імпорт архіву» of the old calculator) SetEmbroideryMockup («Макет»)
+    Shared/Access/                        EmbroideryActor (Admin sees cost), messages
+    Shared/                               EmbroideryPricing (shared by calculate and save), responses, Mapping/, Validation/
+  Crm.Application/Crm.Application/Features/Quotes/
+    Commands/AddEmbroideryToQuote/        «Додати в КП» command
+    Shared/Embroidery/QuoteEmbroideryItems.cs  saved calculation → КП item, kept on save
   Crm.Infrastructure/.../Configurations/Embroidery/  settings row, saved calculations
   Crm.Api/Crm.Api/Embroidery/EmbroideryController.cs  /api/crm/embroidery
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Reference/EmbroideryStitchRateReader.cs  Reference.Contracts adapter

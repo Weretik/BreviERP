@@ -28,15 +28,14 @@ flowchart LR
 
 ```text
 Catalog.Application/
-  Contracts/Pricing/Ppe/SupplierPrices/   # store port, file and online reader ports, run/problem records
-  Features/Pricing/Ppe/SupplierPrices/
-    Sources/                              # fixed source list, key normalization
-    List/                                 # source rows with counts and last run
-    Settings/                             # discount and supplier (admins, director)
-    Import/                               # file import command, planner, rows
-    Refresh/                              # «Оновити зараз» command, Monday schedule
-    Running/                              # shared run: plan, save offers, record the run
-    Shared/                               # supplier resolution, product specs
+  Abstractions/Pricing/                   # store port, file and online reader ports, run/problem records
+  Features/Pricing/
+    Queries/GetPpePriceSources/           # source rows with counts and last run
+    Commands/UpdatePpePriceSource/        # discount and supplier (admins, director)
+    Commands/ImportPpeSupplierFiles/      # file import command, planner, rows
+    Commands/RefreshPpeSupplierPrices/    # «Оновити зараз» command, Monday schedule
+    Shared/Ppe/SupplierPrices/            # Sources/ (fixed list, key normalization), Running/ (plan, save offers, record the run),
+                                          # supplier resolution, product specs
 Catalog.Infrastructure/Pricing/Ppe/SupplierPrices/
   Records/ Configuration/ Store/          # two catalog tables
   Files/                                  # Insight XmlReader, СЕМТО PdfPig, gzip unpack

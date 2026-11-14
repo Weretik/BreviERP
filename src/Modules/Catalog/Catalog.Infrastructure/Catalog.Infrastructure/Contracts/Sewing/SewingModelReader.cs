@@ -1,7 +1,7 @@
-using Catalog.Application.Features.Pricing.Sewing.ArticleSummary;
-using Catalog.Application.Features.Product.Sewing;
 using Catalog.Contracts.Sewing;
 using Mediator;
+using Catalog.Application.Features.Pricing.Queries.GetSewingArticleSummary;
+using Catalog.Application.Features.Product.Queries.ListSewingCompositions;
 
 namespace Catalog.Infrastructure.Contracts.Sewing;
 

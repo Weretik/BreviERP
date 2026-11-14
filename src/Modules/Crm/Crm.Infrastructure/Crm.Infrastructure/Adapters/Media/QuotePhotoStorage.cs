@@ -1,8 +1,9 @@
 using Ardalis.Result;
 
-using Crm.Application.Quotes.Photos;
 
 using Media.Contracts.Files;
+using Crm.Application.Features.Quotes.Commands.UploadQuotePhoto;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Adapters.Media;
 

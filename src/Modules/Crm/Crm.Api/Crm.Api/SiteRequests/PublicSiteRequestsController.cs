@@ -1,11 +1,11 @@
 using BuildingBlocks.Api.Result;
-using Crm.Application.SiteRequests.Contracts;
-using Crm.Application.SiteRequests.Submit;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Crm.Application.Features.SiteRequests.Commands.SubmitSiteRequest;
+using Crm.Application.Features.SiteRequests.Shared;
 
 namespace Crm.Api.SiteRequests;
 

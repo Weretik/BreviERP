@@ -1,7 +1,7 @@
-using Crm.Application.Leads.Sheet;
-using Crm.Application.Tasks.Staff;
 using Crm.Domain.Leads;
 using Identity.Domain.Authorization;
+using Crm.Application.Features.Leads.Shared.Sheet;
+using Crm.Application.Abstractions.Tasks;
 
 namespace UnitTests.Crm.Leads;
 

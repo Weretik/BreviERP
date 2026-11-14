@@ -1,7 +1,3 @@
-using Catalog.Application.Features.Pricing.Ppe.Rules.CreateVersion;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.Products;
-using Catalog.Application.Features.Pricing.Ppe.Offers.CreateVersion;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -9,7 +5,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Ardalis.Result;
 using Catalog.Api;
-using Catalog.Application.Features.Product.Sewing;
 using Mediator;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -20,13 +15,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Features.Pricing.Sewing.Publications.GetProducts;
-using Catalog.Application.Features.Pricing.Sewing.Settings.CreateVersion;
-using Catalog.Application.Features.Pricing.Sewing.Publications.GetCurrent;
-using Catalog.Application.Features.Pricing.Sewing.Publications.Publish;
-using Catalog.Application.Features.Pricing.Sewing.Calculations.Save;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.CreatePpeOfferVersion;
+using Catalog.Application.Features.Pricing.Commands.CreatePpeRuleVersion;
+using Catalog.Application.Features.Pricing.Queries.GetPpeProductPrices;
+using Catalog.Application.Features.Pricing.Shared;
 namespace IntegrationTests.Pricing.Ppe;
 
 [NonParallelizable]

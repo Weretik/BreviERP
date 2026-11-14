@@ -3,16 +3,16 @@ using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Crm.Api.Customers.Requests;
 using Crm.Api.Access;
-using Crm.Application.Customers.CreateCustomer;
-using Crm.Application.Customers.GetCustomer;
-using Crm.Application.Customers.GetCustomers;
-using Crm.Application.Customers.KeepinCrmSync;
-using Crm.Application.Customers.MergeCustomers;
-using Crm.Application.Customers.ReviseCustomer;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Customers.Commands.CreateCustomer;
+using Crm.Application.Features.Customers.Commands.MergeCustomers;
+using Crm.Application.Features.Customers.Commands.ReviseCustomer;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
+using Crm.Application.Features.Customers.Queries.GetCustomer;
+using Crm.Application.Features.Customers.Queries.GetCustomers;
 namespace Crm.Api.Customers;
 
 [ApiController]

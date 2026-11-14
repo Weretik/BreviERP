@@ -1,10 +1,10 @@
-using Crm.Application.Tasks.GetTaskBoard;
-using Crm.Application.Tasks.Access;
-using Crm.Application.Tasks.ChangeTaskStatus;
-using Crm.Application.Tasks.Contracts;
-using Crm.Application.Tasks.CreateTask;
-using Crm.Application.Tasks.GetTasks;
 using Crm.Domain.Tasks;
+using Crm.Application.Features.Tasks.Commands.ChangeTaskStatus;
+using Crm.Application.Features.Tasks.Commands.CreateTask;
+using Crm.Application.Features.Tasks.Queries.GetTaskBoard;
+using Crm.Application.Features.Tasks.Queries.GetTasks;
+using Crm.Application.Features.Tasks.Shared;
+using Crm.Application.Features.Tasks.Shared.Access;
 
 namespace UnitTests.Crm.Tasks;
 
@@ -69,7 +69,7 @@ public sealed class ManagerTaskRulesTests
     [Test]
     public void SidePanelRules()
     {
-        var validator = new CreateTaskCommandValidator();
+        var validator = new CreateTaskValidator();
         Assert.That(validator.Validate(new CreateTaskCommand(Admin, Input())).IsValid, Is.True);
         Assert.That(validator.Validate(new CreateTaskCommand(Admin, Input(title: "  "))).IsValid, Is.False);
         Assert.That(validator.Validate(new CreateTaskCommand(Admin, Input(title: new string('a', 201)))).IsValid, Is.False);
@@ -86,7 +86,7 @@ public sealed class ManagerTaskRulesTests
     [TestCase("Overdue", false)]
     [TestCase("done", false)]
     public void OnlyKnownStatusNames(string status, bool valid) =>
-        Assert.That(new ChangeTaskStatusCommandValidator()
+        Assert.That(new ChangeTaskStatusValidator()
             .Validate(new ChangeTaskStatusCommand(Admin, 1, 1, status)).IsValid, Is.EqualTo(valid));
 
     [TestCase(null, true)]
@@ -94,7 +94,7 @@ public sealed class ManagerTaskRulesTests
     [TestCase("All", false)]
     [TestCase("2", false)]
     public void OnlyKnownListFilters(string? filter, bool valid) =>
-        Assert.That(new GetTasksQueryValidator().Validate(new GetTasksQuery(Admin, null, filter, null)).IsValid,
+        Assert.That(new GetTasksValidator().Validate(new GetTasksQuery(Admin, null, filter, null)).IsValid,
             Is.EqualTo(valid));
 
     [Test]

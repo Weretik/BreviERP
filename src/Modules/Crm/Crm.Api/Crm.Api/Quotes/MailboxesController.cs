@@ -1,12 +1,13 @@
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
 using Crm.Api.Quotes.Requests;
-using Crm.Application.Quotes.Sending.Connect;
-using Crm.Application.Quotes.Sending.Disconnect;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Quotes.Commands.CompleteMailboxConnect;
+using Crm.Application.Features.Quotes.Commands.DisconnectMailbox;
+using Crm.Application.Features.Quotes.Commands.StartMailboxConnect;
 
 namespace Crm.Api.Quotes;
 

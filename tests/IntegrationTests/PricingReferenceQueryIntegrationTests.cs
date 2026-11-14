@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Data.Common;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.PricingReference.GetByIds;
 using Reference.Domain.PricingParameters;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Infrastructure.DataBase;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds;
 
 namespace IntegrationTests;
 
@@ -60,7 +60,7 @@ public sealed class PricingReferenceQueryIntegrationTests
                 new PricingParameterDetails("Прибуток", "Інший", 99m, "%", false, null, 2), null).Value);
         await db.SaveChangesAsync();
 
-        var handler = new GetPricingReferencesByIdsQueryHandler(
+        var handler = new GetPricingReferencesByIdsHandler(
             new TestReferenceReadRepository<Fabric>(db),
             new TestReferenceReadRepository<GarmentAccessory>(db),
             new TestReferenceReadRepository<GarmentPartOperation>(db),
@@ -87,7 +87,7 @@ public sealed class PricingReferenceQueryIntegrationTests
         var commandCounter = new SelectCommandCounter();
         await using var db = CreateContext(commandCounter);
         var ids = Enumerable.Range(1, pageSize).ToArray();
-        var handler = new GetPricingReferencesByIdsQueryHandler(
+        var handler = new GetPricingReferencesByIdsHandler(
             new TestReferenceReadRepository<Fabric>(db),
             new TestReferenceReadRepository<GarmentAccessory>(db),
             new TestReferenceReadRepository<GarmentPartOperation>(db),

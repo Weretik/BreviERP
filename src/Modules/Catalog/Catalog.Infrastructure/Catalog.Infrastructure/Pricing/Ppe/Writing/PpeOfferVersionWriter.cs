@@ -2,9 +2,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Ardalis.Result;
-using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
+using Catalog.Application.Abstractions.Pricing;
 namespace Catalog.Infrastructure.Pricing.Ppe.Writing;
 public sealed class PpeOfferVersionWriter(CatalogDbContext db) : IPpeOfferVersionWriter
 {

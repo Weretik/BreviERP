@@ -12,30 +12,3 @@ namespace Accounting.Application.Features.Accounts.Commands.UpdateFinanceAccount
 /// </summary>
 public sealed record UpdateFinanceAccountCommand(Guid Id, FinanceAccountFields Fields, int Version, string By)
     : ICommand<Result<FinanceAccountResponse>>;
-
-public sealed class UpdateFinanceAccountValidator : AbstractValidator<UpdateFinanceAccountCommand>
-{
-    public UpdateFinanceAccountValidator()
-    {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.Fields).NotNull().SetValidator(new FinanceAccountFieldsValidator());
-        RuleFor(x => x.Version).GreaterThan(0);
-        RuleFor(x => x.By).NotEmpty().MaximumLength(FinanceAccount.ByMaxLength);
-    }
-}
-
-public sealed class UpdateFinanceAccountHandler(IAccountingDbContext db, TimeProvider clock)
-    : ICommandHandler<UpdateFinanceAccountCommand, Result<FinanceAccountResponse>>
-{
-    public async ValueTask<Result<FinanceAccountResponse>> Handle(UpdateFinanceAccountCommand command,
-        CancellationToken cancellationToken)
-    {
-        var now = clock.GetUtcNow();
-        var details = command.Fields.ToDetails();
-        if (details.IsFailure) return details.Error!.ToResult<FinanceAccountResponse>();
-        var usage = await FinanceBalances.UsageAsync(db, FinanceAccountId.From(command.Id), cancellationToken);
-        return await FinanceAccountChange.ApplyAsync(db, command.Id, command.Version, command.By, now,
-            account => account.Update(details.Value, usage, now).Map<AuditAction?>(changed => changed ? AuditAction.Update : null),
-            cancellationToken);
-    }
-}

@@ -1,13 +1,13 @@
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
-using Crm.Application.Quotes.Introductions.Contracts;
-using Crm.Application.Quotes.Introductions.Templates.CreateTemplate;
-using Crm.Application.Quotes.Introductions.Templates.DeleteTemplate;
-using Crm.Application.Quotes.Introductions.Templates.GetTemplates;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Quotes.Commands.CreateQuoteIntroTemplate;
+using Crm.Application.Features.Quotes.Commands.DeleteQuoteIntroTemplate;
+using Crm.Application.Features.Quotes.Queries.GetQuoteIntroTemplates;
+using Crm.Application.Features.Quotes.Shared.Introductions;
 
 namespace Crm.Api.Quotes;
 

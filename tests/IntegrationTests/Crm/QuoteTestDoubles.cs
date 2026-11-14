@@ -1,8 +1,8 @@
-using Crm.Application.Quotes.Catalog;
-using Crm.Application.Quotes.Pdf;
-using Crm.Application.Quotes.Pdf.Introduction;
-using Crm.Application.Quotes.Staff;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Shared.Catalog;
+using Crm.Application.Features.Quotes.Shared.Pdf;
+using Crm.Application.Features.Quotes.Shared.Pdf.Introduction;
+using Crm.Application.Abstractions.Quotes;
 
 namespace IntegrationTests.Crm;
 

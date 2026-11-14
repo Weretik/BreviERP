@@ -1,4 +1,4 @@
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.List;
+using Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
 
 namespace Catalog.Api.Contracts.Pricing.Ppe.SupplierPrices;
 

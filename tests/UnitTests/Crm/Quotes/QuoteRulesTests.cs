@@ -1,8 +1,8 @@
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.CreateQuote;
-using Crm.Application.Quotes.GetQuotes;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Commands.CreateQuote;
+using Crm.Application.Features.Quotes.Queries.GetQuotes;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Access;
 
 namespace UnitTests.Crm.Quotes;
 
@@ -34,7 +34,7 @@ public sealed class QuoteRulesTests
     {
         var command = new CreateQuoteCommand(Manager,
             Input(new QuoteItemInput(null, "Sewing", 10, null, null, null, null, [Option(100, manual: 500)])));
-        Assert.That(new CreateQuoteCommandValidator().Validate(command).IsValid, Is.False);
+        Assert.That(new CreateQuoteValidator().Validate(command).IsValid, Is.False);
     }
 
     [Test]
@@ -44,8 +44,8 @@ public sealed class QuoteRulesTests
             Input(new QuoteItemInput(null, "OneOffPpe", null, " ", null, null, null, [Option(manual: 100)])));
         var withProduct = new CreateQuoteCommand(Manager,
             Input(new QuoteItemInput(null, "OneOffPpe", 5, "Каска", null, null, null, [Option(manual: 100)])));
-        Assert.That(new CreateQuoteCommandValidator().Validate(noName).IsValid, Is.False);
-        Assert.That(new CreateQuoteCommandValidator().Validate(withProduct).IsValid, Is.False);
+        Assert.That(new CreateQuoteValidator().Validate(noName).IsValid, Is.False);
+        Assert.That(new CreateQuoteValidator().Validate(withProduct).IsValid, Is.False);
     }
 
     [Test]
@@ -53,7 +53,7 @@ public sealed class QuoteRulesTests
     {
         var command = new CreateQuoteCommand(Manager,
             Input(new QuoteItemInput(null, "OneOffPpe", null, "Каска", null, null, null, [Option(manual: -1)])));
-        Assert.That(new CreateQuoteCommandValidator().Validate(command).IsValid, Is.False);
+        Assert.That(new CreateQuoteValidator().Validate(command).IsValid, Is.False);
     }
 
     [Test]
@@ -62,7 +62,7 @@ public sealed class QuoteRulesTests
         var command = new CreateQuoteCommand(Manager,
             new SaveQuoteInput(0, "", null, null, null, null, null,
                 [new QuoteItemInput(null, "Gift", null, null, null, null, null, [Option()])]));
-        var errors = new CreateQuoteCommandValidator().Validate(command).Errors.Select(x => x.PropertyName).ToArray();
+        var errors = new CreateQuoteValidator().Validate(command).Errors.Select(x => x.PropertyName).ToArray();
         Assert.That(errors, Does.Contain("Input.InternalName"));
         Assert.That(errors.Any(x => x.EndsWith(".Kind", StringComparison.Ordinal)), Is.True);
     }
@@ -72,17 +72,17 @@ public sealed class QuoteRulesTests
     {
         var command = new CreateQuoteCommand(Manager,
             Input(new QuoteItemInput(null, "Sewing", 10, null, null, null, null, [Option(100)])));
-        Assert.That(new CreateQuoteCommandValidator().Validate(command).IsValid, Is.True);
+        Assert.That(new CreateQuoteValidator().Validate(command).IsValid, Is.True);
     }
 
     [Test]
     public void ListPageIsLimited() =>
-        Assert.That(new GetQuotesQueryValidator().Validate(new GetQuotesQuery(Manager, null, null, null, 1, 101)).IsValid,
+        Assert.That(new GetQuotesValidator().Validate(new GetQuotesQuery(Manager, null, null, null, 1, 101)).IsValid,
             Is.False);
 
     [Test]
     public void ClientFilterNeedsAPositiveId() =>
-        Assert.That(new GetQuotesQueryValidator().Validate(new GetQuotesQuery(Manager, null, null, null, CustomerId: 0))
+        Assert.That(new GetQuotesValidator().Validate(new GetQuotesQuery(Manager, null, null, null, CustomerId: 0))
             .IsValid, Is.False);
 
     [Test]

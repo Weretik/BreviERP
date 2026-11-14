@@ -1,7 +1,7 @@
-using Catalog.Application.Features.Product.OldSitePhotoImport;
-using Catalog.Application.Features.Product.Photos.SetPhotos;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
+using Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
+using Catalog.Application.Features.Product.Commands.SetProductPhotos;
 
 namespace UnitTests;
 
@@ -59,7 +59,7 @@ public sealed class ProductPhotoListTests
     [Test]
     public void Save_rejects_a_repeated_photo_and_a_main_photo_outside_the_list()
     {
-        var validator = new SetProductPhotosCommandValidator();
+        var validator = new SetProductPhotosValidator();
 
         Assert.Multiple(() =>
         {

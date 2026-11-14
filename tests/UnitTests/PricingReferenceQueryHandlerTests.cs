@@ -1,10 +1,10 @@
 using Ardalis.Specification;
 using Moq;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.PricingReference.GetByIds;
 using Reference.Domain.PricingParameters;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds;
 
 namespace UnitTests;
 
@@ -25,7 +25,7 @@ public sealed class PricingReferenceQueryHandlerTests
             .ReturnsAsync([new PricingReferenceItem(20, 15m)]);
         pricingParameters.Setup(x => x.ListAsync(It.IsAny<ISpecification<PricingParameter, PricingReferenceItem>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new PricingReferenceItem(30, 10m, "SEWING_PRICE_COEF_1", "%")]);
-        var handler = new GetPricingReferencesByIdsQueryHandler(
+        var handler = new GetPricingReferencesByIdsHandler(
             fabrics.Object,
             accessories.Object,
             operations.Object,

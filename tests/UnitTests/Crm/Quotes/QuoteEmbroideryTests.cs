@@ -1,5 +1,5 @@
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.Validation;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Validation;
 
 namespace UnitTests.Crm.Quotes;
 

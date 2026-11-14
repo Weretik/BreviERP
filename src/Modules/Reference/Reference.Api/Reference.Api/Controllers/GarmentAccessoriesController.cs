@@ -1,13 +1,10 @@
 using Reference.Api.Contracts.GarmentAccessories;
-using Reference.Application.Features.GarmentAccessory.Create;
-using Reference.Application.Features.GarmentAccessory.Create.DTOs;
-using Reference.Application.Features.GarmentAccessory.Delete;
-using Reference.Application.Features.GarmentAccessory.GetList;
-using Reference.Application.Features.GarmentAccessory.GetList.DTOs;
-using Reference.Application.Features.GarmentAccessory.Import;
-using Reference.Application.Features.Shared.SheetImport;
-using Reference.Application.Features.GarmentAccessory.Update;
-using Reference.Application.Features.GarmentAccessory.Update.DTOs;
+using Reference.Application.Features.GarmentAccessory.Commands.CreateGarmentAccessory;
+using Reference.Application.Features.GarmentAccessory.Commands.DeleteGarmentAccessory;
+using Reference.Application.Features.GarmentAccessory.Commands.ImportGarmentAccessories;
+using Reference.Application.Features.GarmentAccessory.Commands.UpdateGarmentAccessory;
+using Reference.Application.Features.GarmentAccessory.Queries.GetGarmentAccessories;
+using Reference.Application.Features.SheetImport.Shared;
 
 namespace Reference.Api.Controllers;
 

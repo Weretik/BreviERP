@@ -1,10 +1,10 @@
 using System.Text.Json;
 using BuildingBlocks.Api.Authorization;
 using Crm.Api.Leads;
-using Crm.Application.Leads.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using YamlDotNet.RepresentationModel;
+using Crm.Application.Features.Leads.Shared;
 
 namespace UnitTests.Crm.Leads;
 

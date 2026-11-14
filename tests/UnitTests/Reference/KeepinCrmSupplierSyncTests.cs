@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
-using Reference.Application.Contracts.KeepinCrm;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.Supplier.KeepinCrmSync;
 using Reference.Domain.Suppliers;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSuppliers;
 
 namespace UnitTests.Reference;
 

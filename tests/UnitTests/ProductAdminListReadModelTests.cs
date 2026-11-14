@@ -1,11 +1,10 @@
 using Ardalis.Specification;
-using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Features.Product.GetAdminList;
-using Catalog.Application.Features.Product.GetAdminList.DTOs;
-using Catalog.Application.Contracts.Media;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
 using Moq;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Media;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 
 namespace UnitTests;
 
@@ -23,7 +22,7 @@ public sealed class ProductAdminListReadModelTests
                 new(2, "PPE", "ppe", ProductType.Ppe, [], 501, DateTimeOffset.UtcNow, null)]);
         media.Setup(x => x.GetUrlsAsync(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Dictionary<int, string> { [501] = "https://cdn.example.test/501.jpg" });
-        var result = await new GetAdminProductsQueryHandler(products.Object, categories.Object, media.Object)
+        var result = await new GetAdminProductsHandler(products.Object, categories.Object, media.Object)
             .Handle(new GetAdminProductsQuery(), CancellationToken.None);
         Assert.That(result.Value.Select(x => x.MinimumWholesalePrice), Is.All.Zero);
         Assert.That(result.Value.Single(x => x.Id == 2).MainPhoto!.Url, Is.EqualTo("https://cdn.example.test/501.jpg"));
@@ -38,7 +37,7 @@ public sealed class ProductAdminListReadModelTests
         var media = new Mock<IProductMediaReader>();
         products.Setup(x => x.CountAsync(It.IsAny<ISpecification<Product>>(), It.IsAny<CancellationToken>())).ReturnsAsync(0);
         products.Setup(x => x.ListAsync(It.IsAny<ISpecification<Product, ProductListItemReadModel>>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        var result = await new GetAdminProductsQueryHandler(products.Object, categories.Object, media.Object)
+        var result = await new GetAdminProductsHandler(products.Object, categories.Object, media.Object)
             .Handle(new GetAdminProductsQuery(), CancellationToken.None);
         Assert.That(result.Value, Is.Empty);
         media.VerifyNoOtherCalls();

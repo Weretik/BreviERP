@@ -1,4 +1,4 @@
-using Catalog.Application.Contracts.Pricing;
+using Catalog.Application.Abstractions.Pricing;
 
 namespace Catalog.Infrastructure.Pricing.History.Calculations;
 

@@ -1,17 +1,18 @@
-using Crm.Application.Leads.Access;
-using Crm.Application.Leads.Contracts;
-using Crm.Application.Leads.GetLeads;
-using Crm.Application.Leads.GetMyDay;
-using Crm.Application.Leads.RecordLeadCall;
-using Crm.Application.Leads.ReleaseLead;
-using Crm.Application.Leads.Sheet;
-using Crm.Application.Leads.Stats;
-using Crm.Application.Leads.TakeLead;
-using Crm.Application.Tasks.Staff;
 using Crm.Domain.Leads;
 using Crm.Domain.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
+using Crm.Application.Features.Leads.Commands.RecordLeadCall;
+using Crm.Application.Features.Leads.Commands.ReleaseLead;
+using Crm.Application.Features.Leads.Commands.TakeLead;
+using Crm.Application.Features.Leads.Queries.GetLeadStats;
+using Crm.Application.Features.Leads.Queries.GetLeads;
+using Crm.Application.Features.Leads.Queries.GetMyDay;
+using Crm.Application.Features.Leads.Shared;
+using Crm.Application.Features.Leads.Shared.Access;
+using Crm.Application.Features.Leads.Shared.Sheet;
+using Crm.Application.Abstractions.Leads;
+using Crm.Application.Abstractions.Tasks;
 
 namespace IntegrationTests.Crm;
 
@@ -66,14 +67,14 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
     private async Task<Ardalis.Result.Result<LeadDetailResponse>> Take(LeadActor actor, long id)
     {
         await using var db = Context();
-        return await new TakeLeadCommandHandler(db, _staff, _clock).Handle(new TakeLeadCommand(actor, id), default);
+        return await new TakeLeadHandler(db, _staff, _clock).Handle(new TakeLeadCommand(actor, id), default);
     }
 
     private async Task<Ardalis.Result.Result<LeadDetailResponse>> Call(LeadActor actor, LeadDetailResponse lead,
         string result, DateTimeOffset? next = null, string? comment = null)
     {
         await using var db = Context();
-        return await new RecordLeadCallCommandHandler(db, _staff, _clock).Handle(
+        return await new RecordLeadCallHandler(db, _staff, _clock).Handle(
             new RecordLeadCallCommand(actor, lead.Id, new RecordLeadCallInput(await ResultId(result), comment, next, lead.Version)),
             default);
     }
@@ -219,14 +220,14 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var byVadym = await new ReleaseLeadCommandHandler(db, _clock)
+            var byVadym = await new ReleaseLeadHandler(db, _clock)
                 .Handle(new ReleaseLeadCommand(Vadym, lead.Id, lead.Version), default);
             Assert.That(byVadym.Status, Is.EqualTo(Ardalis.Result.ResultStatus.Forbidden));
         }
 
         await using (var db = Context())
         {
-            var byDirector = await new ReleaseLeadCommandHandler(db, _clock)
+            var byDirector = await new ReleaseLeadHandler(db, _clock)
                 .Handle(new ReleaseLeadCommand(Director, lead.Id, lead.Version), default);
             Assert.That(byDirector.Value.Owner, Is.Null);
             Assert.That(byDirector.Value.Stage, Is.EqualTo("InWork"));
@@ -244,10 +245,10 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
         await Call(Anastasia, later, "Передзвонити", _clock.Now.AddDays(4));
 
         await using var db = Context();
-        var day = (await new GetMyDayQueryHandler(db, _clock).Handle(new GetMyDayQuery(Anastasia), default)).Value;
-        var page = (await new GetLeadsQueryHandler(db, _clock)
+        var day = (await new GetMyDayHandler(db, _clock).Handle(new GetMyDayQuery(Anastasia), default)).Value;
+        var page = (await new GetLeadsHandler(db, _clock)
             .Handle(new GetLeadsQuery(Anastasia, "київ", "All", null, null, 1, 25), default)).Value;
-        var free = (await new GetLeadsQueryHandler(db, _clock)
+        var free = (await new GetLeadsHandler(db, _clock)
             .Handle(new GetLeadsQuery(Vadym, null, "Free", null, "Open", 1, 25), default)).Value;
 
         Assert.Multiple(() =>
@@ -270,7 +271,7 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
         await Call(Anastasia, lead, "Надіслали пропозицію", _clock.Now.AddDays(2));
 
         await using var db = Context();
-        var stats = (await new GetLeadStatsQueryHandler(db, _clock).Handle(new GetLeadStatsQuery(null, null), default)).Value;
+        var stats = (await new GetLeadStatsHandler(db, _clock).Handle(new GetLeadStatsQuery(null, null), default)).Value;
 
         Assert.Multiple(() =>
         {

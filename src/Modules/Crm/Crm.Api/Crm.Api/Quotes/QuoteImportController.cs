@@ -1,11 +1,11 @@
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
 using Crm.Api.Quotes.Requests;
-using Crm.Application.Quotes.Import;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Quotes.Commands.ImportQuotes;
 
 namespace Crm.Api.Quotes;
 

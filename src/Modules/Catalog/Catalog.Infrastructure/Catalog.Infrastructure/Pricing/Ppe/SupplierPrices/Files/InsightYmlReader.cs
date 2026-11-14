@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Xml;
 using Ardalis.Result;
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 
 namespace Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Files;
 

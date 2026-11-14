@@ -2,14 +2,13 @@ using Ardalis.Result;
 using Ardalis.Specification;
 using BuildingBlocks.Domain.ValueObjects;
 using Moq;
-using Reference.Application.Contracts.Catalog;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.Fabric.Delete;
-using Reference.Application.Features.GarmentAccessory.Delete;
-using Reference.Application.Features.GarmentPartOperation.Delete;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Suppliers;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.Fabric.Commands.DeleteFabric;
+using Reference.Application.Features.GarmentAccessory.Commands.DeleteGarmentAccessory;
+using Reference.Application.Features.GarmentPartOperation.Commands.DeleteGarmentPartOperation;
 
 namespace UnitTests;
 
@@ -27,9 +26,9 @@ public sealed class ReferenceProductUsageTests
         var accessories = Repository(GarmentAccessory.Create(GarmentAccessoryId.From(2), "Фурнітура", MoneyAmount.From(1m)).Value);
         var operations = Repository(GarmentPartOperation.Create(GarmentPartOperationId.From(3), GarmentPartId.From(1), "Операція", 1m).Value);
 
-        var fabricResult = await new DeleteFabricCommandHandler(fabrics.Object, usage.Object).Handle(new DeleteFabricCommand(1), CancellationToken.None);
-        var accessoryResult = await new DeleteGarmentAccessoryCommandHandler(accessories.Object, usage.Object).Handle(new DeleteGarmentAccessoryCommand(2), CancellationToken.None);
-        var operationResult = await new DeleteGarmentPartOperationCommandHandler(operations.Object, usage.Object).Handle(new DeleteGarmentPartOperationCommand(3), CancellationToken.None);
+        var fabricResult = await new DeleteFabricHandler(fabrics.Object, usage.Object).Handle(new DeleteFabricCommand(1), CancellationToken.None);
+        var accessoryResult = await new DeleteGarmentAccessoryHandler(accessories.Object, usage.Object).Handle(new DeleteGarmentAccessoryCommand(2), CancellationToken.None);
+        var operationResult = await new DeleteGarmentPartOperationHandler(operations.Object, usage.Object).Handle(new DeleteGarmentPartOperationCommand(3), CancellationToken.None);
 
         Assert.Multiple(() =>
         {

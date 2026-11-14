@@ -1,6 +1,8 @@
-using Catalog.Application.Features.Product.Sewing;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Features.Product.Queries.ListSewingArticles;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace Catalog.Infrastructure.Repositories;
 

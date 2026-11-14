@@ -9,11 +9,11 @@ Access: page `site-requests` (view, edit) — Admin, Manager; the director alway
 ```text
 src/Modules/Crm/
   Crm.Domain/Crm.Domain/SiteRequests/        SiteRequest (take, close, reopen, notified), SiteRequestStatus
-  Crm.Application/Crm.Application/SiteRequests/
-    Abstractions/SiteRequestPorts.cs         store, file storage, notifier, admin links
-    Contracts/, SiteRequestMapper.cs, SiteRequestMessages.cs
-    Submit/ GetList/ Change/
-    Notify/NotifySiteRequestOutboxHandler.cs  outbox message crm.site-request.notify
+  Crm.Application/Crm.Application/Abstractions/SiteRequests/SiteRequestPorts.cs   store, file storage, notifier, admin links
+  Crm.Application/Crm.Application/Features/SiteRequests/
+    Commands/SubmitSiteRequest/ Commands/ChangeSiteRequest/ Queries/GetSiteRequests/
+    Shared/                                  responses, SiteRequestMapper, SiteRequestMessages
+    Shared/Notify/NotifySiteRequestOutboxHandler.cs  outbox message crm.site-request.notify
   Crm.Infrastructure/Crm.Infrastructure/Persistence/Configurations/SiteRequests/
   Crm.Api/Crm.Api/SiteRequests/              SiteRequestsController, PublicSiteRequestsController
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/

@@ -1,5 +1,5 @@
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
+using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 
 namespace Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online;
 

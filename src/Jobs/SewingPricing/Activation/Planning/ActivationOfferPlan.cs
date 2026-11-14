@@ -1,5 +1,5 @@
-using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Domain.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing;
 
 namespace SewingPricing.Jobs.Activation;
 
