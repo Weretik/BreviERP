@@ -112,35 +112,20 @@ public sealed class BookBankStatementHandler(IAccountingDbContext db, IAccountin
         return Result.Success(BankStatementResponse.From(statement, account.Name));
     }
 
-    /// <summary>
-    /// One unconfirmed finance counterparty per ЄДРПОУ, else IBAN, else bank name for the lines nobody was recognised
-    /// for; the lines are linked to it.
-    /// </summary>
+    /// <summary>Creates the new counterparties of the lines nobody was recognised for (Domain rules) and links the lines.</summary>
     private DomainResult<Dictionary<CounterpartyLink, CounterpartyState>> CreateCounterparties(IEnumerable<BankStatementLine> lines,
         BankStatement statement, DateTimeOffset now)
     {
         var created = new Dictionary<string, FinanceCounterparty>();
-        foreach (var line in lines.Where(x => x.TransferAccountId is null && x.Counterparty is null
-                     && x.OneoffName.Length == 0 && x.HasParty))
+        foreach (var line in lines.Where(x => x.NeedsNewCounterparty))
         {
-            var key = line.Edrpou.Length > 0 ? "code:" + line.Edrpou
-                : line.Iban.Length > 0 ? "iban:" + line.Iban
-                : "name:" + line.BankName.ToLowerInvariant();
-            if (!created.TryGetValue(key, out var counterparty))
+            if (!created.TryGetValue(line.PartyKey, out var counterparty))
             {
-                var name = line.BankName.Length > 0 ? line.BankName
-                    : line.Edrpou.Length > 0 ? $"ЄДРПОУ {line.Edrpou}"
-                    : $"IBAN {line.Iban}";
-                var details = FinanceCounterpartyDetails.Of(name,
-                    line.Edrpou.Length <= FinanceCounterpartyDetails.EdrpouMaxLength ? line.Edrpou : null,
-                    line.Iban.Length <= FinanceCounterpartyDetails.IbanMaxLength ? line.Iban : null, line.BankName, null,
-                    null, false, $"Створено з виписки «{statement.FileName}».");
-                if (details.IsFailure) return details.Error!;
-                var made = FinanceCounterparty.Create(FinanceCounterpartyId.New(), details.Value, null, verified: false, now);
+                var made = line.NewCounterparty(FinanceCounterpartyId.New(), statement.FileName, now);
                 if (made.IsFailure) return made.Error!;
                 counterparty = made.Value;
                 db.Counterparties.Add(counterparty);
-                created[key] = counterparty;
+                created[line.PartyKey] = counterparty;
             }
 
             line.UseCreatedCounterparty(counterparty.State);

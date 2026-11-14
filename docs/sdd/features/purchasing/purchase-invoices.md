@@ -36,8 +36,8 @@ src/Modules/Purchasing/
       Shared/          # PurchasePayments (total, issues, payments block), shared responses
   Purchasing.Infrastructure/Purchasing.Infrastructure/
     Persistence/       # PurchasingDbContext (schema purchasing, advisory lock), configurations, migrations
-    GoogleSheets/      # options, Application Default Credentials token, Sheets API v4 reader
-    Dropbox/           # DropboxFileDownloader (dl=1, 20 MB, PDF and pictures)
+    Integrations/GoogleSheets/ # options, Application Default Credentials token, Sheets API v4 reader
+    Integrations/Dropbox/ # DropboxFileDownloader (dl=1, 20 MB, PDF and pictures)
     DependencyInjection/
   Purchasing.Api/Purchasing.Api/
     Register/PurchaseInvoicesController.cs   # /api/purchasing/invoices, policy access:purchase-invoices

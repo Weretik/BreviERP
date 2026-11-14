@@ -29,10 +29,10 @@ src/Modules/Reference/
     ├── Persistence/{PricingParameters,PpeMarkupRules}/*Configuration.cs
     └── Persistence/Migrations/*_PricingSettingsFromSheet.cs     # renames AdditionalReferences, keeps old rows
 
-src/Modules/Reference/.../Contracts/Catalog/IPricingSettingsChangeNotifier.cs   # port called after each save
+src/Modules/Reference/.../Abstractions/IPricingSettingsChangeNotifier.cs        # port called after each save
 src/Modules/Reference/.../Adapters/Catalog/PricingSettingsChangeNotifier.cs  # port → Catalog.Contracts IPricingSettingsSync
 src/Modules/Catalog/.../Contracts/Pricing/PricingSettingsSync.cs               # reads both Reference.Contracts lists, sends Catalog sync
-src/Modules/Catalog/.../Features/Pricing/SettingsSync/                          # sheet codes → sewing settings, PPE rule versions
+src/Modules/Catalog/.../Features/Pricing/Commands/SyncPricingSettings/           # sheet codes → sewing settings, PPE rule versions
 ```
 
 ## Tests

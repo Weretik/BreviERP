@@ -25,12 +25,12 @@ HTTP request
 ## Feature placement
 
 ```text
-<Module>.Application/Features/<Area>/<UseCase>/
+<Module>.Application/Features/<Feature>/Commands|Queries/<UseCase>/
   <UseCase>Command|Query.cs
-  <UseCase>Command|QueryHandler.cs
-  DTOs/                 only when private to this use case
-  Validators/
-  Extensions/           cohesive query/mapping helpers only
+  <UseCase>Handler.cs
+  <UseCase>Validator.cs
+  <UseCase>Response.cs  only when private to this use case
+<Module>.Application/Features/<Feature>/Shared/   what several use cases of the feature share
 ```
 
 Split a file when its responsibilities evolve independently. Do not create generic dump folders such as `Common`, `Helpers`, or `Utils`.

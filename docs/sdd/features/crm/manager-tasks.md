@@ -20,11 +20,11 @@ src/Modules/Crm/
     Shared/Building/TaskDraftResolver.cs  side panel → domain draft (assignee, client)
     Shared/                        responses, Mapping/, Validation/
   Crm.Infrastructure/Crm.Infrastructure/Persistence/
-    Configurations/Tasks/          three tables, cascade steps and events
+    Tasks/                         three tables, cascade steps and events
     CrmDbContext.cs                implements ITaskStore
   Crm.Api/Crm.Api/Tasks/
     ManagerTasksController.cs      /api/crm/tasks
-    Requests/                      status, urgent and step requests
+    *Request.cs                    status, urgent and step requests
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Identity/TaskStaffReader.cs   Identity.Contracts adapter
 ```
 

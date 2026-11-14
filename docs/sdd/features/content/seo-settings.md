@@ -14,7 +14,7 @@ src/Modules/Content/
       Queries/GetSiteSeoSettings/, Commands/SaveSiteSeoSettings/    # admin read and save
       Queries/GetPublicSiteSettings/                                # public read kept a minute
       Shared/                                                       # responses, picture, messages
-  Content.Infrastructure/.../Configurations/SiteSeoSettingsConfiguration.cs
+  Content.Infrastructure/.../Persistence/SiteSettings/SiteSeoSettingsConfiguration.cs
   Content.Api/Content.Api/
     SiteSettings/SiteSeoSettingsController.cs                       # /api/content/seo-settings, policy access:content-seo-settings
     PublicSiteSettings/PublicSiteSettingsController.cs              # /api/public/site-settings, anonymous

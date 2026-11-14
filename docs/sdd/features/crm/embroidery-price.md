@@ -27,7 +27,7 @@ src/Modules/Crm/
   Crm.Application/Crm.Application/Features/Quotes/
     Commands/AddEmbroideryToQuote/        «Додати в КП» command
     Shared/Embroidery/QuoteEmbroideryItems.cs  saved calculation → КП item, kept on save
-  Crm.Infrastructure/.../Configurations/Embroidery/  settings row, saved calculations
+  Crm.Infrastructure/.../Persistence/Embroidery/  settings row, saved calculations
   Crm.Api/Crm.Api/Embroidery/EmbroideryController.cs  /api/crm/embroidery
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Reference/EmbroideryStitchRateReader.cs  Reference.Contracts adapter
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Media/EmbroideryMediaReader.cs        Media.Contracts adapter for «Макет»

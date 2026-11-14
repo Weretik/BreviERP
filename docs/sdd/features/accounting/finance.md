@@ -17,7 +17,7 @@ src/Modules/Accounting/
     Attachments/       # FinanceAttachment (file of an operation, soft delete), FinanceAttachmentKind (PDF/JPEG/PNG by first bytes), id
     Statements/        # BankStatement (preview → booked), BankStatementLine (bank data, recognition, director's edit, state), BankLineData, BankLineState, BankDuplicate, ids
     Audit/             # AuditEntry, AuditEntity, AuditAction
-    Errors/            # AccountingDomainError
+    AccountingErrors.cs # typed domain errors of the module
   Accounting.Application/Accounting.Application/
     Abstractions/      # IAccountingDbContext, IAccountingCustomerReader, IAccountingSupplierReader, IAccountingFileStorage, IBankStatementFileReader
     Features/          # Commands/<UseCase>, Queries/<UseCase>, Shared/ per feature; responses sit with their use case or in Shared/
@@ -41,13 +41,12 @@ src/Modules/Accounting/
       Settings/          # GetAccountingSettingsQuery (cutover date, today in Kyiv)
       Audit/             # AuditTrail (JSON snapshots), GetFinanceAuditQuery («Журнал змін» of all records, titles from snapshots)
   Accounting.Infrastructure/Accounting.Infrastructure/
-    Statements/        # BankStatementFileReader: XLSX/XLS (ExcelDataReader, 64 MiB unpacked limit) and CSV (encoding and separator detection)
-    Files/             # AccountingFilesOptions (Accounting:Files), Google Cloud Storage bucket, local folder, not configured
+    Integrations/BankStatementFiles/ # BankStatementFileReader: XLSX/XLS (ExcelDataReader, 64 MiB unpacked limit) and CSV (encoding and separator detection)
+    Integrations/FileStorage/        # AccountingFilesOptions (Accounting:Files), Google Cloud Storage bucket, local folder, not configured
     Persistence/       # AccountingDbContext (schema accounting), configurations, converters, migrations, design-time factory
     DependencyInjection/
   Accounting.Api/Accounting.Api/
     Access/            # policy access:accounting (Director by default), who made the change
-    Results/           # 204 for deletes, 503 while the file storage is off
     Accounts/          # /api/accounting/accounts
     Categories/        # /api/accounting/categories
     Settings/          # /api/accounting/settings
@@ -55,7 +54,7 @@ src/Modules/Accounting/
     Transfers/         # /api/accounting/transfers
     Overview/          # /api/accounting/overview
     Counterparties/    # /api/accounting/counterparties
-    Attachments/       # /api/accounting/transactions/{id}/attachments, /api/accounting/attachments/{id}[/content]
+    Attachments/       # /api/accounting/transactions/{id}/attachments, /api/accounting/attachments/{id}[/content]; FileResults (file body, 503 while the file storage is off)
     Import/            # POST /api/accounting/legacy-import?dryRun=
     Statements/        # /api/accounting/statements[/{id}[/lines/{lineId}|/book|/rollback]]
     Reports/           # /api/accounting/reports[/csv], /api/accounting/audit, /api/accounting/export

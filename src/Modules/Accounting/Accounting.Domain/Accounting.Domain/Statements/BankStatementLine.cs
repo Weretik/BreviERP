@@ -71,6 +71,33 @@ public sealed class BankStatementLine : IEntity<BankStatementLineId>
 
     public bool HasParty => BankName.Length > 0 || Edrpou.Length > 0 || Iban.Length > 0;
 
+    /// <summary>«Провести виписку» creates a finance counterparty for a recognised-by-nobody party of an operation.</summary>
+    public bool NeedsNewCounterparty =>
+        TransferAccountId is null && Counterparty is null && OneoffName.Length == 0 && HasParty;
+
+    /// <summary>One new counterparty per ЄДРПОУ, else IBAN, else bank name (case ignored).</summary>
+    public string PartyKey => Edrpou.Length > 0 ? "code:" + Edrpou
+        : Iban.Length > 0 ? "iban:" + Iban
+        : "name:" + BankName.ToLowerInvariant();
+
+    /// <summary>
+    /// The unconfirmed finance counterparty «Провести виписку» creates for this line's party: named after the bank's
+    /// name, else the ЄДРПОУ, else the IBAN; codes too long for the card are left out.
+    /// </summary>
+    public DomainResult<FinanceCounterparty> NewCounterparty(FinanceCounterpartyId id, string statementFileName,
+        DateTimeOffset now)
+    {
+        var name = BankName.Length > 0 ? BankName
+            : Edrpou.Length > 0 ? $"ЄДРПОУ {Edrpou}"
+            : $"IBAN {Iban}";
+        var details = FinanceCounterpartyDetails.Of(name,
+            Edrpou.Length <= FinanceCounterpartyDetails.EdrpouMaxLength ? Edrpou : null,
+            Iban.Length <= FinanceCounterpartyDetails.IbanMaxLength ? Iban : null, BankName, null,
+            null, false, $"Створено з виписки «{statementFileName}».");
+        if (details.IsFailure) return details.Error!;
+        return FinanceCounterparty.Create(id, details.Value, null, verified: false, now);
+    }
+
     /// <summary>Whether «Провести виписку» turns this line into a record.</summary>
     public bool WillBook => !Excluded && State != BankLineState.Error && Duplicate != BankDuplicate.Exact;
 

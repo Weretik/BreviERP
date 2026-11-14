@@ -36,12 +36,13 @@ src/Modules/Warehouse/
         StockOperations.cs       # request hash and replay
         StockRules.cs, StockList.cs, StockMessages.cs, MovementRevisions.cs, ItemPlans.cs, ItemFabricCards.cs, FabricBookingCalculator.cs
         Facts/StockFacts.cs      # issues of a period and balances at a date for «Звіти цеху»
-  Warehouse.Infrastructure/…/Persistence/  WarehouseDbContext (schema warehouse), FabricStockConfiguration, migrations
+  Warehouse.Infrastructure/Warehouse.Infrastructure/Persistence/  WarehouseDbContext (schema warehouse), FabricStockConfiguration, migrations
   Warehouse.Api/Warehouse.Api/Stock/
     FabricStockController.cs     # /api/warehouse/fabric-stock (policy access:fabric-stock)
     OrderItemFabricController.cs # /api/warehouse/orders/{id}/items/{itemId}/fabric… (policy access:production-orders)
     StockReportsController.cs    # /api/warehouse/reports/… (a policy per report: access:fabric-plan-fact, access:fabric-booking, access:fabric-valuation, access:hardware-order)
-src/Modules/Production/…/FabricPlans/      # FabricPlanParts, PlanColor; ProductionFabricPlans and ProductionAssemblies for the stock
+src/Modules/Production/Production.Domain/Production.Domain/FabricPlans/  # FabricPlanParts, PlanColor
+src/Modules/Production/Production.Application/Production.Application/Features/FabricPlans/Shared/  # ProductionFabricPlans and ProductionAssemblies for the stock
 src/Modules/Warehouse/Warehouse.Contracts/Warehouse.Contracts/Stock/IStockFacts.cs  # issues and balances for other modules
 src/Modules/Warehouse/Warehouse.Infrastructure/Warehouse.Infrastructure/Adapters/
   Reference/WarehouseReferenceReader.cs    # Reference.Contracts fabrics with price, suppliers, colours

@@ -70,6 +70,8 @@ public sealed class ImportOldSiteCategoriesHandler(
         }
 
         var now = clock.GetUtcNow();
+        // Categories are saved level by level (subcategories need their parents' ids) and links last: one transaction.
+        await using var transaction = command.DryRun ? null : await db.BeginTransactionAsync(cancellationToken);
         foreach (var level in new[] { true, false })
         {
             foreach (var (item, isNew) in accepted.Where(x => (x.Item.ParentSlug is null) == level))
@@ -121,7 +123,12 @@ public sealed class ImportOldSiteCategoriesHandler(
             }
         }
 
-        if (!command.DryRun) await db.SaveChangesAsync(cancellationToken);
+        if (transaction is not null)
+        {
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+
         return new OldSiteCategoryImportResponse(command.DryRun, command.Items.Count, created, updated, kept, productLinks,
             notMatched.Values.ToArray(), problems);
     }

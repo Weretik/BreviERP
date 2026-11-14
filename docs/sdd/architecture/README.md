@@ -45,7 +45,7 @@ Architecture documents describe stable rules. A planned change belongs in `docs/
 
 ## Structure migration
 
-The audit of 2026-11-14 found that the code does not yet follow the [module rules](../standards/module-rules.md). It moves to them in stages, one pull request each; the open items are the [known deviations](../standards/module-rules.md#known-deviations).
+The audit of 2026-11-14 found that the code does not yet follow the [module rules](../standards/module-rules.md). It moves to them in stages, one pull request each. Stages 1–10 and the outbox are done (the outbox Cloud Scheduler entry waits for the owner); what is left is the last stage and the [known deviations](../standards/module-rules.md#known-deviations).
 
 | Stage | Scope |
 | --- | --- |

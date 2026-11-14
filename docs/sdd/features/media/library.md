@@ -17,8 +17,8 @@ src/Modules/Media/
     Features/Files/Shared/Images/ # MediaImagePreparer (size + preview upload, shared by upload and backfill), MediaImageBackfill (brevierp-sync previews)
   Media.Infrastructure/Media.Infrastructure/
     Persistence/       # MediaDbContext (schema media), configurations, migrations
-    Storage/           # AdmToolsMediaStorage (CDN adapter, download by public URL), options
-    Images/            # SkiaMediaImageProcessor (SkiaSharp: size, EXIF turn, WebP preview)
+    Integrations/AdmTools/ # AdmToolsMediaStorage (CDN adapter, download by public URL), options
+    Integrations/Skia/ # SkiaMediaImageProcessor (SkiaSharp: size, EXIF turn, WebP preview)
     DependencyInjection/
   Media.Api/Media.Api/
     Folders/MediaFoldersController.cs   # /api/media/folders

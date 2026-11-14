@@ -28,7 +28,7 @@ src/Modules/Reminders/
       Access/Shared/   # ReminderAdmin
   Reminders.Infrastructure/Reminders.Infrastructure/
     Persistence/       # RemindersDbContext (schema reminders), configurations, migrations, Seeding/ (25 default tasks)
-    Telegram/          # TelegramOptions, TelegramBotApiGateway (HttpClient)
+    Integrations/Telegram/ # TelegramOptions, TelegramBotApiGateway (HttpClient)
     DependencyInjection/
   Reminders.Api/Reminders.Api/
     Tasks/ Occurrences/ Chats/ Calendar/   # Admin controllers under /api/reminders

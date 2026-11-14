@@ -123,6 +123,15 @@ internal sealed class SqliteContentDb(ContentDbContext db) : IContentDbContext
     public DbSet<SiteCompanyInfo> CompanyInfo => db.CompanyInfo;
     public DbSet<SiteGallery> SiteGalleries => db.SiteGalleries;
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
+
+    public async Task<IContentTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
+        new Transaction(await db.Database.BeginTransactionAsync(cancellationToken));
+
+    private sealed class Transaction(Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction) : IContentTransaction
+    {
+        public Task CommitAsync(CancellationToken cancellationToken) => transaction.CommitAsync(cancellationToken);
+        public ValueTask DisposeAsync() => transaction.DisposeAsync();
+    }
 }
 
 internal sealed class ContentTestHarness : IDisposable
