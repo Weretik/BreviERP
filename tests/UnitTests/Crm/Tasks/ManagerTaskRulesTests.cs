@@ -5,6 +5,8 @@ using Crm.Application.Features.Tasks.Queries.GetTaskBoard;
 using Crm.Application.Features.Tasks.Queries.GetTasks;
 using Crm.Application.Features.Tasks.Shared;
 using Crm.Application.Features.Tasks.Shared.Access;
+using Crm.Domain.Tasks.Enums;
+using Crm.Domain.Tasks.ValueObjects;
 
 namespace UnitTests.Crm.Tasks;
 

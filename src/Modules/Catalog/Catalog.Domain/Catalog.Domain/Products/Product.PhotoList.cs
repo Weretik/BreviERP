@@ -1,4 +1,6 @@
 using Catalog.Domain.Media;
+using Catalog.Domain.Products.Errors;
+using Catalog.Domain.Products.Photos;
 
 namespace Catalog.Domain.Products;
 

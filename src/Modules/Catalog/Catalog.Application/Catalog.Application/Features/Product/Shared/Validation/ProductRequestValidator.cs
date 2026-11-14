@@ -5,6 +5,7 @@ using Catalog.Application.Features.Product.Shared.Validation.Resources;
 using Catalog.Application.Features.Product.Shared.Validation.Sewing;
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Application.Features.Product.Shared.Validation;
 

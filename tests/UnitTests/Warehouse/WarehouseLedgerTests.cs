@@ -7,6 +7,7 @@ using Warehouse.Application.Features.Stock.Commands.IssueFabric;
 using Warehouse.Application.Features.Stock.Queries.GetFabricMovements;
 using Warehouse.Application.Features.Stock.Queries.GetFabricStockChoices;
 using Warehouse.Application.Features.Stock.Shared;
+using Warehouse.Domain.Stock.Movements;
 
 namespace UnitTests.Warehouse;
 

@@ -2,6 +2,7 @@ using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Introductions;
 using Crm.Application.Features.Quotes.Commands.SendQuote;
 using Crm.Application.Features.Quotes.Shared.Introductions;
+using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Application.Features.Quotes.Shared.Introductions.Validation;
 

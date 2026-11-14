@@ -4,6 +4,11 @@ using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Photos;
+using Catalog.Domain.Products.Ppe.Pricing;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Shared.Card;
 

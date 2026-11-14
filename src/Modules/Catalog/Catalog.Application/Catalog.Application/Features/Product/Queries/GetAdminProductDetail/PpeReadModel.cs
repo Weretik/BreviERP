@@ -1,4 +1,5 @@
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.Ppe.Pricing;
 
 namespace Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 

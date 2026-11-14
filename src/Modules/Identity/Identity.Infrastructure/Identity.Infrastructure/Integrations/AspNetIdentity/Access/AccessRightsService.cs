@@ -7,6 +7,7 @@ using Identity.Application.Abstractions;
 using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.Persistence.Access;
 using Identity.Infrastructure.Persistence.Users;
+using Identity.Domain.Authorization.Roles;
 
 namespace Identity.Infrastructure.Integrations.AspNetIdentity.Access;
 

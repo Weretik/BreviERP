@@ -1,3 +1,6 @@
+using Crm.Domain.Tasks.Enums;
+using Crm.Domain.Tasks.ValueObjects;
+
 namespace Crm.Domain.Tasks;
 
 /// <summary>A row of «Історія змін»: who changed what and when (R-11).</summary>

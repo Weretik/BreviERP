@@ -2,6 +2,7 @@ using Catalog.Domain.Products;
 using CatalogImport.PpePricing.Planning;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Domain.Products.Enums;
 
 namespace CatalogImport.PpePricing.Persistence;
 

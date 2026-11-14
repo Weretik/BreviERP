@@ -2,6 +2,7 @@ using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Access;
+using Production.Domain.Orders.ValueObjects;
 
 namespace Production.Application.Features.Orders.Queries.GetProductionEmbroideries;
 

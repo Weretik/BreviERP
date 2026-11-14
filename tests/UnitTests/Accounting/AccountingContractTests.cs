@@ -45,6 +45,7 @@ using Accounting.Api.Endpoints.Transactions.ReviewFinanceTransaction;
 using Accounting.Api.Endpoints.Transactions.UpdateFinanceTransaction;
 using Accounting.Api.Endpoints.Transfers.CreateFinanceTransfer;
 using Accounting.Api.Endpoints.Transfers.UpdateFinanceTransfer;
+using Accounting.Domain.Statements.Enums;
 
 namespace UnitTests.Accounting;
 

@@ -1,5 +1,6 @@
 using Crm.Domain.Leads;
 using Crm.Application.Features.Leads.Shared;
+using Crm.Domain.Leads.Enums;
 
 namespace Crm.Application.Features.Leads.Shared.Mapping;
 

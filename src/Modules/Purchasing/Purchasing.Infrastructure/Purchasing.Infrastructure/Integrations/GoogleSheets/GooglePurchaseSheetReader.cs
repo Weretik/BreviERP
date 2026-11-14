@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Ingestion;
+using Purchasing.Domain.Ingestion.Errors;
 
 namespace Purchasing.Infrastructure.Integrations.GoogleSheets;
 

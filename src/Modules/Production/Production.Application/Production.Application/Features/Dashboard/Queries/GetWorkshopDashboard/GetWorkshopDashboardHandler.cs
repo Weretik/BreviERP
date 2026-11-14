@@ -3,6 +3,8 @@ using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Orders.Shared.Validation;
 using Production.Application.Features.Work.Shared;
+using Production.Domain.Orders.Enums;
+using Production.Domain.Orders.Rules;
 
 namespace Production.Application.Features.Dashboard.Queries.GetWorkshopDashboard;
 

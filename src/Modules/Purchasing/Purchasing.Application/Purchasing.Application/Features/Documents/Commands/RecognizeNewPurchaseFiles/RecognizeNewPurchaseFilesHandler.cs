@@ -1,6 +1,7 @@
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Ingestion;
 using Purchasing.Application.Features.Documents.Shared;
+using Purchasing.Domain.Ingestion.Normalization;
 
 namespace Purchasing.Application.Features.Documents.Commands.RecognizeNewPurchaseFiles;
 

@@ -1,3 +1,5 @@
+using Reference.Domain.GarmentParts;
+
 namespace Reference.Domain.GarmentPartOperations;
 
 /// <summary>Operation card fields from the Calculator sheet «Операції».</summary>

@@ -1,6 +1,7 @@
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Contracts.FabricPlans;
+using Production.Domain.Orders.Enums;
 
 namespace Production.Application.Features.FabricPlans.Shared;
 

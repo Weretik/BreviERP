@@ -1,4 +1,8 @@
 
+using Catalog.Domain.Products.Errors;
+using Catalog.Domain.Products.Ppe.Pricing;
+using Catalog.Domain.Products.ValueObjects;
+
 namespace Catalog.Domain.Products;
 
 public sealed class PpeProductDetails

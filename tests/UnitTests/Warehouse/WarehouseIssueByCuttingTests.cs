@@ -163,9 +163,9 @@ public sealed class WarehouseIssueByCuttingTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(global::Warehouse.Domain.Stock.FabricItemPlan.ComparisonPlan(30m, 4, 10), Is.EqualTo(12m), "A16");
-            Assert.That(global::Warehouse.Domain.Stock.FabricItemPlan.ComparisonPlan(6.6m, 1, 3), Is.EqualTo(2.2m));
-            Assert.That(global::Warehouse.Domain.Stock.FabricItemPlan.ComparisonPlan(0.25m, 1, 2), Is.EqualTo(0.13m));
+            Assert.That(global::Warehouse.Domain.Stock.Plans.FabricItemPlan.ComparisonPlan(30m, 4, 10), Is.EqualTo(12m), "A16");
+            Assert.That(global::Warehouse.Domain.Stock.Plans.FabricItemPlan.ComparisonPlan(6.6m, 1, 3), Is.EqualTo(2.2m));
+            Assert.That(global::Warehouse.Domain.Stock.Plans.FabricItemPlan.ComparisonPlan(0.25m, 1, 2), Is.EqualTo(0.13m));
         });
     }
 

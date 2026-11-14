@@ -1,4 +1,6 @@
 using Warehouse.Domain.Stock;
+using Warehouse.Domain.Stock.Movements;
+using Warehouse.Domain.Stock.Plans;
 
 namespace Warehouse.Application.Abstractions;
 

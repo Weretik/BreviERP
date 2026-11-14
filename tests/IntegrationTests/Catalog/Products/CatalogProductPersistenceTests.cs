@@ -12,6 +12,9 @@ using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Shared;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace IntegrationTests.Catalog.Products;
 

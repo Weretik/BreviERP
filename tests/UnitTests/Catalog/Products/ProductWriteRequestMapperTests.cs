@@ -2,6 +2,7 @@ using Ardalis.Result;
 using Catalog.Domain.Products;
 using System.Text.Json;
 using Catalog.Api.Endpoints.Product.Write;
+using Catalog.Domain.Products.Enums;
 
 namespace UnitTests.Catalog.Products;
 

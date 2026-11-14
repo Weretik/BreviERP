@@ -1,6 +1,7 @@
 using Accounting.Domain.Categories;
 using Accounting.Domain.Statements;
 using Accounting.Application.Features.Lookup.Shared;
+using Accounting.Domain.Statements.Enums;
 
 namespace Accounting.Application.Features.Statements.Shared;
 

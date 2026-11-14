@@ -12,6 +12,7 @@ using SewingPricing.Jobs.Activation;
 using SewingPricing.Jobs.Bootstrap;
 using SewingPricing.Jobs.Review;
 using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Domain.Products.Sewing.Composition;
 
 namespace IntegrationTests.Jobs.SewingPricing;
 

@@ -2,6 +2,7 @@ using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Application.Features.Quotes.Shared;
+using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Application.Features.Quotes.Shared.Settings;
 

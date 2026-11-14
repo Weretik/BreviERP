@@ -1,6 +1,7 @@
 using Production.Application.Abstractions;
 using Production.Domain.Forecast;
 using Production.Domain.Orders;
+using Production.Domain.Orders.Enums;
 
 namespace Production.Application.Features.Forecast.Shared;
 

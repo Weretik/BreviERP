@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace IntegrationTests.Catalog.Products;
 

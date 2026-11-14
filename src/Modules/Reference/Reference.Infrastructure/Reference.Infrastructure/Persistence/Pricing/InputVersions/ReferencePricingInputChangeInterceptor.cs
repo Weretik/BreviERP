@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
+using Reference.Domain.Fabrics;
 
 namespace Reference.Infrastructure.Persistence.Pricing.InputVersions;
 

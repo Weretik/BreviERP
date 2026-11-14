@@ -4,6 +4,7 @@ using Mediator;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewItem;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Queries.GetProductPhotos;
+using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Infrastructure.Contracts.Products;
 

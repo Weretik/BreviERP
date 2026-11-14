@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Pricing;
 using Reference.Domain.Suppliers;
+using Reference.Domain.Fabrics;
 
 namespace IntegrationTests.Reference.Pricing;
 

@@ -1,8 +1,9 @@
 using Reference.Domain.GarmentPartOperations;
-using GarmentPartEntity = Reference.Domain.GarmentPartOperations.GarmentPart;
+using GarmentPartEntity = Reference.Domain.GarmentParts.GarmentPart;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.SheetImport.Shared;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Application.Features.GarmentPartOperation.Commands.ImportGarmentPartOperations;
 

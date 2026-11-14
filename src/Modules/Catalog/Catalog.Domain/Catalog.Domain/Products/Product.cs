@@ -2,6 +2,11 @@ using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 using Catalog.Domain.Media;
 using Catalog.Domain.ProductCategories;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Errors;
+using Catalog.Domain.Products.Photos;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Domain.Products;
 

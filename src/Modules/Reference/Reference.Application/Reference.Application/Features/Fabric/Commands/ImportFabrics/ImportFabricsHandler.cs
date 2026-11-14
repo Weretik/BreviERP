@@ -1,8 +1,9 @@
 using Reference.Domain.GarmentAccessories;
-using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
+using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.SheetImport.Shared;
+using Reference.Domain.Fabrics;
 
 namespace Reference.Application.Features.Fabric.Commands.ImportFabrics;
 

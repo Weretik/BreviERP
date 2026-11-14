@@ -1,3 +1,5 @@
+using Crm.Domain.Quotes.ValueObjects;
+
 namespace Crm.Domain.Quotes.Sending;
 
 /// <summary>One letter with a КП that Gmail accepted: who sent it, from which address, to whom and when.</summary>

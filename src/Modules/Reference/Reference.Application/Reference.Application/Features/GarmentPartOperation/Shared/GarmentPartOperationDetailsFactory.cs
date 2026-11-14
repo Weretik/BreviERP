@@ -1,4 +1,5 @@
 using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Application.Features.GarmentPartOperation.Shared;
 

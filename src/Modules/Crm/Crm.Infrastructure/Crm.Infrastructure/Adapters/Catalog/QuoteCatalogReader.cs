@@ -3,6 +3,7 @@ using Crm.Domain.Quotes;
 using Reference.Contracts.Fabrics;
 using Crm.Application.Features.Quotes.Shared.Catalog;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Infrastructure.Adapters.Catalog;
 

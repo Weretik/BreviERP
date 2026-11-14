@@ -22,6 +22,8 @@ using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 using Catalog.Infrastructure.Persistence;
 using Reference.Infrastructure.Persistence;
 using Identity.Infrastructure.Persistence;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace IntegrationTests.Catalog.SheetImport;
 

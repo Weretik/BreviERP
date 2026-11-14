@@ -6,6 +6,8 @@ using Warehouse.Application.Features.Stock.Shared;
 using Production.Application.Features.Orders.Commands.ImportProductionOrders;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Access;
+using Warehouse.Domain.Stock.Movements;
+using Warehouse.Domain.Stock.Plans;
 
 namespace UnitTests.Warehouse;
 

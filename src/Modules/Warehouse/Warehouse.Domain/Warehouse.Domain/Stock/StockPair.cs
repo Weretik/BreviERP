@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using Warehouse.Domain.Stock.Movements;
 
 namespace Warehouse.Domain.Stock;
 

@@ -1,5 +1,6 @@
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Statements;
+using Accounting.Domain.Statements.ValueObjects;
 
 namespace UnitTests.Accounting.Domain.Statements;
 

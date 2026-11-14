@@ -2,6 +2,7 @@ using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Domain.FabricPlans;
 using Production.Application.Features.Orders.Queries.GetProductionOrders;
+using Production.Domain.Orders.Enums;
 
 namespace Production.Application.Features.Orders.Shared;
 

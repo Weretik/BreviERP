@@ -4,7 +4,7 @@ namespace Purchasing.Application.Abstractions;
 public interface IPurchaseSheetReader
 {
     /// <exception cref="PurchaseSheetUnavailableException">Google cannot be reached or refuses access.</exception>
-    /// <exception cref="Purchasing.Domain.Ingestion.PurchaseSourceException">The sheet is not the expected one.</exception>
+    /// <exception cref="Purchasing.Domain.Ingestion.Errors.PurchaseSourceException">The sheet is not the expected one.</exception>
     Task<PurchaseSheetContent> ReadAsync(CancellationToken cancellationToken);
 }
 

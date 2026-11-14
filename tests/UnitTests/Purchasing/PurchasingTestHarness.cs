@@ -13,6 +13,7 @@ using Purchasing.Infrastructure.Persistence;
 using Purchasing.Application.Features.Documents.Shared;
 using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
+using Purchasing.Domain.Ingestion.Normalization;
 
 namespace UnitTests.Purchasing;
 

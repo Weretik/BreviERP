@@ -4,6 +4,9 @@ using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared.Sewing.Evaluation;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 

@@ -4,6 +4,8 @@ using Production.Application.Features.FabricNorms.Shared;
 using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Orders.Shared.Validation;
 using Production.Application.Features.Staff.Shared;
+using Production.Domain.Orders.Enums;
+using Production.Domain.Orders.ValueObjects;
 
 namespace Production.Application.Features.Orders.Shared;
 

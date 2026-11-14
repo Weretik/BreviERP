@@ -3,6 +3,9 @@ using Catalog.Domain.Products;
 using IntegrationTests.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Infrastructure.Persistence.Products;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.Sewing.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace IntegrationTests.Catalog.Composition;
 

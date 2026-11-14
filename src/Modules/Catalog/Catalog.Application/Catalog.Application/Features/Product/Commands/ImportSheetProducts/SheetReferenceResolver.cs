@@ -1,6 +1,7 @@
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Shared.Overview;
+using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 

@@ -1,6 +1,8 @@
 using Accounting.Domain.Accounts;
 using Accounting.Domain;
 using Accounting.Domain.Movements;
+using Accounting.Domain.Statements.Enums;
+using Accounting.Domain.Statements.ValueObjects;
 
 namespace Accounting.Domain.Statements;
 

@@ -3,6 +3,7 @@ using Crm.Application.Features.Leads.Shared;
 using Crm.Application.Features.Leads.Shared.Mapping;
 using Crm.Application.Features.Leads.Shared.Persistence;
 using Crm.Application.Abstractions.Leads;
+using Crm.Domain.Leads.Enums;
 
 namespace Crm.Application.Features.Leads.Queries.GetMyDay;
 

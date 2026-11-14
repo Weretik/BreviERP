@@ -1,5 +1,6 @@
 using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared.Pdf;
+using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Application.Features.Quotes.Shared.Pdf.Introduction;
 

@@ -11,6 +11,8 @@ using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Application.Features.Journal.Shared;
 using Accounting.Application.Features.Lookup.Shared;
 using Accounting.Application.Features.Statements.Shared;
+using Accounting.Domain.Statements.Enums;
+using Accounting.Domain.Statements.ValueObjects;
 
 namespace Accounting.Application.Features.Statements.Commands.BookBankStatement;
 

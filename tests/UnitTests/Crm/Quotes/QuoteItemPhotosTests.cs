@@ -2,6 +2,9 @@ using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 using Crm.Application.Features.Quotes.Shared.Catalog;
 using Crm.Application.Features.Quotes.Shared.Pdf;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace UnitTests.Crm.Quotes;
 

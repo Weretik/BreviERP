@@ -1,5 +1,6 @@
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Ingestion;
+using Purchasing.Domain.Ingestion.Normalization;
 
 namespace Purchasing.Infrastructure.Integrations.Dropbox;
 

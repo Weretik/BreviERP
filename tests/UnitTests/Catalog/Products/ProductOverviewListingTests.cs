@@ -1,5 +1,6 @@
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
+using Catalog.Domain.Products.Enums;
 
 namespace UnitTests.Catalog.Products;
 

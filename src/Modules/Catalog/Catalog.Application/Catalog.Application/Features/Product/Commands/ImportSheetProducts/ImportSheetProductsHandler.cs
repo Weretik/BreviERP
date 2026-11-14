@@ -2,6 +2,7 @@ using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
+using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 

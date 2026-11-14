@@ -4,6 +4,7 @@ using Crm.Application.Features.Quotes.Shared.Catalog;
 using Crm.Application.Features.Quotes.Shared.Introductions.Building;
 using Crm.Application.Features.Quotes.Shared.Mapping;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Application.Features.Quotes.Queries.SearchQuoteCatalog;
 

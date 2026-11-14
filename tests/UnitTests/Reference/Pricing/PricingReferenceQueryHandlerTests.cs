@@ -5,6 +5,7 @@ using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds;
+using Reference.Domain.Fabrics;
 
 namespace UnitTests.Reference.Pricing;
 

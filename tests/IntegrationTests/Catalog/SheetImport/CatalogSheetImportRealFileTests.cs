@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.Enums;
 using CatalogImport.Execution;
 using CatalogImport.Persistence;
 using Microsoft.EntityFrameworkCore;

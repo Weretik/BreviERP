@@ -7,6 +7,7 @@ using Reference.Domain.Suppliers;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Infrastructure.Persistence.Products;
 using Reference.Infrastructure.Persistence;
+using Catalog.Domain.Products.Sewing.Composition;
 
 namespace IntegrationTests.Jobs.CatalogImport;
 

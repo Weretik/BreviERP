@@ -2,6 +2,7 @@ using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Shared;
 using Crm.Application.Features.Tasks.Shared.Persistence;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Domain.Tasks.Enums;
 
 namespace Crm.Application.Features.Tasks.Queries.GetTaskOverview;
 

@@ -1,5 +1,6 @@
 using Reference.Domain.GarmentPartOperations;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Application.Features.GarmentPart.Commands.DeleteGarmentPart;
 

@@ -1,5 +1,7 @@
 using Catalog.Domain.Products;
 using Catalog.Application.Features.Product.Commands.UpdateProductOverview;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace UnitTests.Catalog.Products;
 

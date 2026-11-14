@@ -1,6 +1,6 @@
 using Reference.Application.Features.Fabric.Shared;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
-using FabricEntity = Reference.Domain.GarmentAccessories.Fabric;
+using FabricEntity = Reference.Domain.Fabrics.Fabric;
 using Reference.Application.Abstractions;
 
 namespace Reference.Application.Features.Fabric.Commands.UpdateFabric;

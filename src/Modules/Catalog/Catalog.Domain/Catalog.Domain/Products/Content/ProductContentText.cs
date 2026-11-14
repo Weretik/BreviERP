@@ -1,4 +1,6 @@
 
+using Catalog.Domain.Products.Errors;
+
 namespace Catalog.Domain.Products;
 
 internal static class ProductContentText

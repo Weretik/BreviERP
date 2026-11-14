@@ -1,4 +1,7 @@
 
+using Catalog.Domain.Products.Ppe;
+using Catalog.Domain.Products.ValueObjects;
+
 namespace Catalog.Domain.Products;
 
 public sealed class ProductCatalogProfile

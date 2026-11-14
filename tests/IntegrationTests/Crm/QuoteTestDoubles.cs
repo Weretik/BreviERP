@@ -3,6 +3,7 @@ using Crm.Application.Features.Quotes.Shared.Catalog;
 using Crm.Application.Features.Quotes.Shared.Pdf;
 using Crm.Application.Features.Quotes.Shared.Pdf.Introduction;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.Enums;
 
 namespace IntegrationTests.Crm;
 

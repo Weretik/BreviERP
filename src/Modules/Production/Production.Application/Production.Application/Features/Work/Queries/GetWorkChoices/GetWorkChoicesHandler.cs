@@ -4,6 +4,7 @@ using Production.Domain.Work;
 using Production.Application.Features.Orders.Shared.Access;
 using Production.Application.Features.Orders.Shared.Validation;
 using Production.Application.Features.Work.Shared;
+using Production.Domain.Orders.Enums;
 
 namespace Production.Application.Features.Work.Queries.GetWorkChoices;
 

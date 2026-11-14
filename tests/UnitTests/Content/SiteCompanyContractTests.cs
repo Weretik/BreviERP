@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SiteCompany.Shared;
 using Content.Api.Endpoints.SiteCompany.SaveSiteCompany;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Content;
 

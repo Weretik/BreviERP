@@ -1,4 +1,5 @@
 using Catalog.Domain.Products;
+using Catalog.Domain.Products.Sewing.Composition;
 
 namespace Catalog.Application.Features.Product.Shared.Sewing;
 

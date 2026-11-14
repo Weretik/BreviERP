@@ -13,6 +13,8 @@ using Catalog.Infrastructure.Persistence.Pricing.Calculations;
 using Catalog.Infrastructure.Persistence.Pricing.Publications;
 using Catalog.Infrastructure.Persistence.Pricing.Sewing;
 using Reference.Infrastructure.Persistence.Pricing.InputVersions;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace IntegrationTests.Catalog.Pricing.Sewing;
 

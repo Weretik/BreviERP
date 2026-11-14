@@ -2,6 +2,7 @@ using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.Garmen
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Suppliers;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Application.Features.GarmentPartOperation.Commands.UpdateGarmentPartOperation;
 

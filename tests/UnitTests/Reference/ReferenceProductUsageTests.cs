@@ -9,6 +9,8 @@ using Reference.Application.Abstractions;
 using Reference.Application.Features.Fabric.Commands.DeleteFabric;
 using Reference.Application.Features.GarmentAccessory.Commands.DeleteGarmentAccessory;
 using Reference.Application.Features.GarmentPartOperation.Commands.DeleteGarmentPartOperation;
+using Reference.Domain.Fabrics;
+using Reference.Domain.GarmentParts;
 
 namespace UnitTests.Reference;
 

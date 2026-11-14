@@ -1,4 +1,5 @@
 using Crm.Domain.Tasks;
+using Crm.Domain.Tasks.Enums;
 
 namespace Crm.Application.Features.Tasks.Shared.Validation;
 

@@ -1,6 +1,7 @@
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Catalog.Domain.Products.Sewing.ValueObjects;
 
 namespace Catalog.Infrastructure.Persistence.Products;
 

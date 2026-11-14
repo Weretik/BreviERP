@@ -3,6 +3,8 @@ using Reference.Domain.PricingParameters;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Suppliers;
+using Reference.Domain.Fabrics;
+using Reference.Domain.GarmentParts;
 
 namespace Reference.Application.Abstractions;
 

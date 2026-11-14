@@ -8,6 +8,8 @@ using Production.Application.Features.Orders.Queries.GetProductionOrderFilterOpt
 using Production.Application.Features.Orders.Queries.GetProductionOrders;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Access;
+using Production.Domain.Orders.Enums;
+using Production.Domain.Orders.Rules;
 
 namespace UnitTests.Production;
 

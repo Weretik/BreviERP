@@ -1,5 +1,6 @@
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
+using Reference.Domain.Fabrics;
 
 namespace Reference.Domain.Pricing;
 

@@ -6,6 +6,7 @@ using Accounting.Application;
 using Accounting.Application.Features.Journal.Shared;
 using Accounting.Application.Features.Statements.Shared;
 using Accounting.Application.Features.Statements.Shared.Reading;
+using Accounting.Domain.Statements.ValueObjects;
 
 namespace Accounting.Application.Features.Statements.Commands.UploadBankStatement;
 

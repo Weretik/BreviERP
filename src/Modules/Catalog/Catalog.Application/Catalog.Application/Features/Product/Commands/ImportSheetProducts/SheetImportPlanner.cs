@@ -3,6 +3,9 @@ using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Product.Shared.Overview;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 

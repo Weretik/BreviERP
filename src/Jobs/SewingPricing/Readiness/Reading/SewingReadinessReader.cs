@@ -10,6 +10,7 @@ using Catalog.Infrastructure.Persistence.Pricing.Publications;
 using Catalog.Infrastructure.Persistence.Pricing.Sewing;
 using Reference.Infrastructure.Persistence;
 using Reference.Infrastructure.Persistence.Pricing.InputVersions;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace SewingPricing.Jobs.Readiness;
 

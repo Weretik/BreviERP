@@ -6,6 +6,7 @@ using UnitTests.TestSupport;
 using YamlDotNet.RepresentationModel;
 using Crm.Application.Features.SiteRequests.Shared;
 using Crm.Api.Endpoints.SiteRequests.SubmitPublicSiteRequest;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Crm.SiteRequests;
 

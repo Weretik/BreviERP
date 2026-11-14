@@ -9,6 +9,7 @@ using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
 using Content.Application.Features.SiteGalleries.Commands.TransferSiteGallery;
 using Content.Application.Features.SiteGalleries.Shared;
 using Content.Api.Endpoints.SiteGalleries.Shared;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Content;
 

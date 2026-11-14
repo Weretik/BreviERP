@@ -3,6 +3,7 @@ using Reference.Domain.GarmentPartOperations;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.GarmentPartOperation.Commands.ImportGarmentPartOperations;
 using Reference.Application.Features.SheetImport.Shared;
+using Reference.Domain.GarmentParts;
 
 namespace UnitTests.Reference;
 

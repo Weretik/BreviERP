@@ -6,6 +6,7 @@ using Reference.Contracts.GarmentPartOperations;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Catalog;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Domain.Quotes.Enums;
 
 namespace Crm.Infrastructure.Adapters.Catalog;
 

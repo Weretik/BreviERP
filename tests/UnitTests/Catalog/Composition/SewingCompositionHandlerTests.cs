@@ -14,6 +14,12 @@ using Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
 using Catalog.Application.Features.Product.Commands.UpdateSewingArticle;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Shared.Sewing;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Ppe.Pricing;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.Sewing.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace UnitTests.Catalog.Composition;
 

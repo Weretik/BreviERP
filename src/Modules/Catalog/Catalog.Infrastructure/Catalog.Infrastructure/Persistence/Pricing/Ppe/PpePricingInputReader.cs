@@ -1,6 +1,7 @@
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Domain.Products.Enums;
 namespace Catalog.Infrastructure.Persistence.Pricing.Ppe;
 public sealed class PpePricingInputReader(CatalogDbContext db) : IPpePricingInputReader
 {

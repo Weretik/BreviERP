@@ -11,7 +11,7 @@ public sealed class PpeOfferVersionConfiguration : IEntityTypeConfiguration<PpeO
  builder.Property(x => x.RequestHash).HasMaxLength(64).IsRequired();
  builder.Property(x => x.ValuesJson).HasColumnType("jsonb").IsRequired();
  builder.Property(x => x.ApprovedBy).HasMaxLength(200);
- builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => Catalog.Domain.Products.ProductId.Create(x));
+ builder.Property(x => x.ProductId).HasConversion(x => x.Value, x => Catalog.Domain.Products.ValueObjects.ProductId.Create(x));
  builder.HasOne<Catalog.Domain.Products.Product>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Restrict);
  builder.HasIndex(x => new { x.ProductId, x.Id });
  }

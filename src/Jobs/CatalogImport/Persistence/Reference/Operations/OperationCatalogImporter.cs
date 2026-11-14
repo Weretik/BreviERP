@@ -4,6 +4,7 @@ using CatalogImport.Planning;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Infrastructure.Persistence;
+using Reference.Domain.GarmentParts;
 
 namespace CatalogImport.Persistence;
 

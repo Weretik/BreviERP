@@ -14,6 +14,11 @@ using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 using Catalog.Api.Endpoints.Overview.ImportSheetProducts;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Domain.Products.Sewing.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace UnitTests.Catalog.SheetImport;
 

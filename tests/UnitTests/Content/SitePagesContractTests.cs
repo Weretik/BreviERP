@@ -9,6 +9,7 @@ using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SitePages.Queries.GetSitePages;
 using Content.Application.Features.SitePages.Shared;
 using Content.Api.Endpoints.SitePages.SaveSitePage;
+using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Content;
 

@@ -3,6 +3,9 @@ using Crm.Domain.Quotes.Settings;
 using Microsoft.Extensions.Logging.Abstractions;
 using Crm.Application.Features.Quotes.Shared.Pdf;
 using Crm.Infrastructure.Integrations.Pdf;
+using Crm.Domain.Quotes.Enums;
+using Crm.Domain.Quotes.Items;
+using Crm.Domain.Quotes.ValueObjects;
 
 namespace UnitTests.Crm.Quotes;
 

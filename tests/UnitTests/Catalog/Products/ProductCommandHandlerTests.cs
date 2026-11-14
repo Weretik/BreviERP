@@ -11,6 +11,8 @@ using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Application.Features.Product.Commands.ReplaceProduct;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace UnitTests.Catalog.Products;
 

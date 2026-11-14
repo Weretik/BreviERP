@@ -3,6 +3,7 @@ using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Features.Product.Shared.Overview;
 using Catalog.Application.Features.Product.Shared.Photos;
+using Catalog.Domain.Products.Enums;
 
 namespace Catalog.Application.Features.Product.Queries.GetProductSkuIndex;
 

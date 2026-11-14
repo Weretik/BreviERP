@@ -5,6 +5,9 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Abstractions.Reference;
 using Catalog.Application.Features.Product.Shared.Overview;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Ppe;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
 

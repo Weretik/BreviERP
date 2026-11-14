@@ -6,6 +6,8 @@ using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Transactions;
 using Accounting.Domain.Transfers;
+using Accounting.Domain.Statements.Enums;
+using Accounting.Domain.Statements.ValueObjects;
 
 namespace Accounting.Domain.Statements;
 

@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Purchasing.Domain.Ingestion;
 using Purchasing.Domain.Messages;
+using Purchasing.Domain.Ingestion.Normalization;
 
 namespace UnitTests.Purchasing;
 

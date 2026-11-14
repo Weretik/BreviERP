@@ -1,3 +1,5 @@
+using Crm.Domain.Quotes.ValueObjects;
+
 namespace Crm.Domain.Quotes;
 
 /// <summary>One line of «Історія змін» of a КП (R-22): what happened, who did it and when.</summary>

@@ -5,6 +5,7 @@ using Identity.Application.Abstractions;
 using Identity.Infrastructure.Integrations.Avatars;
 using Identity.Infrastructure.Persistence;
 using Identity.Infrastructure.Persistence.Users;
+using Identity.Domain.Authorization.Roles;
 
 namespace Identity.Infrastructure.Integrations.AspNetIdentity.Users;
 

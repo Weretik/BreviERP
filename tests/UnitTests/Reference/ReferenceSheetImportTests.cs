@@ -6,6 +6,7 @@ using Reference.Application.Abstractions;
 using Reference.Application.Features.Fabric.Commands.ImportFabrics;
 using Reference.Application.Features.GarmentAccessory.Commands.ImportGarmentAccessories;
 using Reference.Application.Features.SheetImport.Shared;
+using Reference.Domain.Fabrics;
 
 namespace UnitTests.Reference;
 

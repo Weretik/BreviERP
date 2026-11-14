@@ -3,6 +3,9 @@ using Catalog.Application.Abstractions;
 using Catalog.Application.Features.Product.Queries.ListSewingArticles;
 using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Infrastructure.Persistence;
+using Catalog.Domain.Products.Enums;
+using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Domain.Products.ValueObjects;
 
 namespace Catalog.Infrastructure.Persistence.Products;
 
