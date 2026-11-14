@@ -1,8 +1,8 @@
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
-using Crm.Infrastructure.Persistence.Customers.Reading;
 using Crm.Application.Features.Customers.Queries.GetCustomerLookup;
 using Crm.Application.Features.Customers.Queries.GetCustomersByTaxIds;
+using Crm.Infrastructure.Persistence.Customers;
 
 namespace IntegrationTests.Crm;
 

@@ -1,0 +1,14 @@
+namespace Reference.Infrastructure.Persistence.Seeding.GarmentPartOperations;
+
+/// <summary>A row of the Calculator sheet «Операції» for an empty database.</summary>
+public sealed record GarmentPartOperationSeedRow(
+    int Id,
+    int GarmentPartId,
+    string Name,
+    decimal Min,
+    string? Code = null,
+    string? Element = null,
+    string? Variant = null,
+    bool MinutesPerProduct = false,
+    bool IsActive = true,
+    string? Notes = null);

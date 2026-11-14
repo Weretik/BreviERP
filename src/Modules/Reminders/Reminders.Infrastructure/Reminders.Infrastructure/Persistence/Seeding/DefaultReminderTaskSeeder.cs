@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Reminders.Domain;
 using Reminders.Domain.Tasks;
+using Reminders.Infrastructure.Persistence;
 
 namespace Reminders.Infrastructure.Persistence.Seeding;
 

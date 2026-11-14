@@ -19,7 +19,7 @@ src/Modules/Reference/
     Features/Pricing/Commands/ReviseOtherCost/       # one command and handler
     Features/{Fabric,GarmentAccessory,GarmentPartOperation}/Commands/Update…/ # controlled 409 mapping
   Reference.Infrastructure/Reference.Infrastructure/
-    DataBase/ReferenceDbContext.PricingWrites.cs       # atomic SaveChanges transaction hook
+    Persistence/ReferenceDbContext.PricingWrites.cs       # atomic SaveChanges transaction hook
     Pricing/InputVersions/Changes/
       TrackedReferencePricingChanges.cs              # EF tracked-value detection and extraction
       ReferencePricingTrackedChange.cs               # original/current values and typed SQL owner predicate

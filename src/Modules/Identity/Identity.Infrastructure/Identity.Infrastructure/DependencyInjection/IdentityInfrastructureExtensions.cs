@@ -1,15 +1,16 @@
 using Identity.Application.Security.Access;
 using Identity.Contracts.Staff;
 using Identity.Infrastructure.Adapters.Media;
-using Identity.Infrastructure.Avatars;
 using Identity.Infrastructure.Contracts.Staff;
-using Identity.Infrastructure.Options;
-using Identity.Infrastructure.Services.Access;
-using Identity.Infrastructure.Services.Profile;
-using Identity.Infrastructure.Services.Sessions;
-using Identity.Infrastructure.Services.Users;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Identity.Application.Abstractions;
+using Identity.Infrastructure.Integrations.AspNetIdentity;
+using Identity.Infrastructure.Integrations.AspNetIdentity.Access;
+using Identity.Infrastructure.Integrations.AspNetIdentity.Profile;
+using Identity.Infrastructure.Integrations.AspNetIdentity.Sessions;
+using Identity.Infrastructure.Integrations.AspNetIdentity.Users;
+using Identity.Infrastructure.Integrations.Avatars;
+using Identity.Infrastructure.Persistence.Seeding;
 
 namespace Identity.Infrastructure.DependencyInjection;
 

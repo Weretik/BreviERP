@@ -1,12 +1,12 @@
 using System.IO.Compression;
 using System.Text;
-using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Files;
 using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.Core;
 using UglyToad.PdfPig.Fonts.Standard14Fonts;
 using UglyToad.PdfPig.Writer;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
+using Catalog.Infrastructure.Integrations.PpeSupplierFiles;
 
 namespace IntegrationTests.Pricing.Ppe;
 

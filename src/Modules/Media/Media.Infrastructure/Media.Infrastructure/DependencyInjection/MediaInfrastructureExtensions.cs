@@ -6,11 +6,11 @@ using Media.Infrastructure.Contracts.Imports;
 using Media.Infrastructure.Contracts.Storage;
 using BuildingBlocks.Infrastructure.Migrations;
 using Media.Application.Abstractions;
-using Media.Infrastructure.Images;
 using Media.Infrastructure.Persistence;
-using Media.Infrastructure.Storage;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Media.Application.Features.Files.Shared.Images;
+using Media.Infrastructure.Integrations.AdmTools;
+using Media.Infrastructure.Integrations.Skia;
 
 namespace Media.Infrastructure.DependencyInjection;
 

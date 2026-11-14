@@ -22,6 +22,7 @@ using Crm.Application.Abstractions.Leads;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Application.Abstractions.SiteRequests;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Infrastructure.Persistence.Customers;
 
 namespace Crm.Infrastructure.Persistence;
 

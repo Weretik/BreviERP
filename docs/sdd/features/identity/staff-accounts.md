@@ -27,7 +27,7 @@ src/Modules/Identity/
 │   │                                                # UpdateStaffDetails
 │   │                                                # + validators
 │   └── Abstractions/IStaffAccountService.cs
-└── Identity.Infrastructure/Identity.Infrastructure/Services/Users/StaffAccountService.cs
+└── Identity.Infrastructure/Identity.Infrastructure/Integrations/AspNetIdentity/Users/StaffAccountService.cs
 ```
 
 ## Tests

@@ -12,12 +12,7 @@ using Crm.Infrastructure.Adapters.Media;
 using Crm.Infrastructure.Adapters.Reference;
 using Crm.Infrastructure.Adapters.Reminders;
 using BuildingBlocks.Infrastructure.Migrations;
-using Crm.Infrastructure.Leads;
 using Crm.Infrastructure.Persistence;
-using Crm.Infrastructure.Persistence.Customers.Reading;
-using Crm.Infrastructure.Persistence.Customers.Writing;
-using Crm.Infrastructure.Quotes.Pdf;
-using Crm.Infrastructure.Quotes.Sending;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +40,10 @@ using Crm.Application.Abstractions.Leads;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Application.Abstractions.SiteRequests;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Infrastructure.Integrations.Gmail;
+using Crm.Infrastructure.Integrations.GoogleSheets;
+using Crm.Infrastructure.Integrations.Pdf;
+using Crm.Infrastructure.Persistence.Customers;
 
 namespace Crm.Infrastructure.DependencyInjection;
 

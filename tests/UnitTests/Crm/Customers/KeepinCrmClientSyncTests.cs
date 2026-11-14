@@ -2,11 +2,11 @@ using System.Reflection;
 using System.Text.Json.Nodes;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
-using Crm.Infrastructure.KeepinCrm;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 using Crm.Application.Abstractions.Customers;
+using Crm.Infrastructure.Integrations.KeepinCrm;
 
 namespace UnitTests.Crm.Customers;
 

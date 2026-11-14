@@ -9,10 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Purchasing.Application.Abstractions;
 using Purchasing.Application.DependencyInjection;
-using Purchasing.Infrastructure.Dropbox;
-using Purchasing.Infrastructure.GoogleSheets;
 using Purchasing.Infrastructure.Persistence;
 using Purchasing.Application.Features.Documents.Shared;
+using Purchasing.Infrastructure.Integrations.Dropbox;
+using Purchasing.Infrastructure.Integrations.GoogleSheets;
 
 namespace Purchasing.Infrastructure.DependencyInjection;
 

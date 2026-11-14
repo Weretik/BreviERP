@@ -19,7 +19,7 @@ src/Modules/Content/
       Queries/GetPublicRedirects/        # public list, chains followed
       Shared/                            # responses, mapping, messages, SiteRedirectWriter (address changes), public source kept for a minute
   Content.Infrastructure/Content.Infrastructure/
-    Persistence/Configurations/SiteRedirectConfiguration.cs
+    Persistence/Redirects/SiteRedirectConfiguration.cs
   Content.Api/Content.Api/
     Redirects/ContentRedirectsController.cs        # /api/content/redirects, policy access:content-redirects
     PublicRedirects/PublicRedirectsController.cs   # /api/public/redirects, anonymous, read-only

@@ -1,13 +1,13 @@
 using BuildingBlocks.Application.Outbox;
 using BuildingBlocks.Infrastructure.Outbox;
 using Crm.Domain.SiteRequests;
-using Crm.Infrastructure.Persistence.Configurations.SiteRequests;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Crm.Application.Features.SiteRequests.Shared.Notify;
 using Crm.Application.Abstractions.SiteRequests;
 using Crm.Application.Abstractions.Tasks;
+using Crm.Infrastructure.Persistence.SiteRequests;
 
 namespace UnitTests.Crm.SiteRequests;
 

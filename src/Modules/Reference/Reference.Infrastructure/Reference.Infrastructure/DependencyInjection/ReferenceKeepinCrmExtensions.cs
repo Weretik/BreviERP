@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Reference.Infrastructure.KeepinCrm;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSuppliers;
+using Reference.Infrastructure.Integrations.KeepinCrm;
 
 namespace Reference.Infrastructure.DependencyInjection;
 

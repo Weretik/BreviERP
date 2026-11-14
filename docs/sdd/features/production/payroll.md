@@ -22,7 +22,7 @@ src/Modules/Production/
       Shared/PayrollChanges.cs       # access, open month, change, fresh month
       Shared/PayrollMonths.cs        # «РРРР-ММ», closed-month lock (also used by Work/CreateProductionWork)
       Shared/                        # responses, PayrollInputRules, messages
-  Production.Infrastructure/.../Persistence/Configurations/PayrollConfiguration.cs
+  Production.Infrastructure/.../Persistence/Payroll/PayrollConfiguration.cs
   Production.Api/Production.Api/Timesheet/TimesheetController.cs  # /api/production/timesheet
   Production.Api/Production.Api/Payroll/PayrollController.cs      # /api/production/payroll…
 ```

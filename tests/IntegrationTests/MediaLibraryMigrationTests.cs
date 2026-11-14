@@ -1,9 +1,9 @@
-using Catalog.Infrastructure.DataBase;
 using Media.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
+using Catalog.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

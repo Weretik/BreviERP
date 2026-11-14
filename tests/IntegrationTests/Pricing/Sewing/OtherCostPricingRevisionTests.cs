@@ -2,9 +2,9 @@ using Ardalis.Result;
 using BuildingBlocks.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Pricing;
-using Reference.Infrastructure.Pricing.OtherCosts.Writing;
 using SewingPricing.Jobs.Bootstrap;
 using Reference.Application.Features.Pricing.Commands.ReviseOtherCost;
+using Reference.Infrastructure.Persistence.Pricing;
 
 namespace IntegrationTests.Pricing.Sewing;
 

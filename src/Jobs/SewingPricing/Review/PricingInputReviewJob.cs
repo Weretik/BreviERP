@@ -1,7 +1,6 @@
 using System.Data;
 using System.Net;
 using System.Text.Json;
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Persistence;
 using CatalogImport.Planning;
 using CatalogImport.PpePricing.Planning;
@@ -9,8 +8,9 @@ using CatalogImport.PpePricing.Source;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Reference.Infrastructure.DataBase;
 using SewingPricing.Jobs.Bootstrap;
+using Catalog.Infrastructure.Persistence;
+using Reference.Infrastructure.Persistence;
 
 namespace SewingPricing.Jobs.Review;
 

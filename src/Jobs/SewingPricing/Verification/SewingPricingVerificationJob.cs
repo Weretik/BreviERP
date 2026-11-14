@@ -3,15 +3,15 @@ using System.Net;
 using System.Text.Json;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
-using Catalog.Infrastructure.Pricing.Reading;
 using CatalogImport.Persistence;
 using SewingPricing.Jobs.Reading;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Reference.Infrastructure.DataBase;
-using Reference.Infrastructure.Pricing.Reading;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Pricing.Sewing;
+using Reference.Infrastructure.Persistence;
+using Reference.Infrastructure.Persistence.Pricing.InputVersions;
 
 namespace SewingPricing.Jobs.Verification;
 

@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Nodes;
-using Reference.Infrastructure.KeepinCrm;
+using Reference.Infrastructure.Integrations.KeepinCrm;
 
 namespace UnitTests.Reference;
 

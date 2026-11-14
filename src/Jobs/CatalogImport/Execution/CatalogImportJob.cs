@@ -1,12 +1,12 @@
 using System.Data;
 using System.Text.Json;
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Persistence;
 using CatalogImport.Planning;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Reference.Infrastructure.DataBase;
+using Catalog.Infrastructure.Persistence;
+using Reference.Infrastructure.Persistence;
 
 namespace CatalogImport.Execution;
 

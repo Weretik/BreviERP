@@ -27,8 +27,8 @@ src/Modules/Reference/
 │   ├── PricingParameters/                           # entity, details, formulas, errors, id
 │   └── PpeMarkupRules/                              # entity, details, errors, id
 └── Reference.Infrastructure/Reference.Infrastructure/
-    ├── Congigurations/{PricingParameter,PpeMarkupRule}Configuration.cs
-    └── Migrations/*_PricingSettingsFromSheet.cs     # renames AdditionalReferences, keeps old rows
+    ├── Persistence/{PricingParameters,PpeMarkupRules}/*Configuration.cs
+    └── Persistence/Migrations/*_PricingSettingsFromSheet.cs     # renames AdditionalReferences, keeps old rows
 
 src/Modules/Reference/.../Contracts/Catalog/IPricingSettingsChangeNotifier.cs   # port called after each save
 src/Modules/Reference/.../Adapters/Catalog/PricingSettingsChangeNotifier.cs  # port → Catalog.Contracts IPricingSettingsSync

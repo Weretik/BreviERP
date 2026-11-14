@@ -2,15 +2,14 @@ using Ai.Contracts.Extraction;
 using Ai.Infrastructure.Contracts.Extraction;
 using Ai.Application.Abstractions;
 using Ai.Application.DependencyInjection;
-using Ai.Infrastructure.OpenAi;
 using Ai.Infrastructure.Persistence;
-using Ai.Infrastructure.Security;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Ai.Infrastructure.Integrations.OpenAi;
 
 namespace Ai.Infrastructure.DependencyInjection;
 

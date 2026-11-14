@@ -3,7 +3,7 @@ using CatalogImport.Execution;
 using CatalogImport.Planning;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.GarmentPartOperations;
-using Reference.Infrastructure.DataBase;
+using Reference.Infrastructure.Persistence;
 
 namespace CatalogImport.Persistence;
 

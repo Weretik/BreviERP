@@ -1,29 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-
-    <ItemGroup>
-      <Folder Include="Migrations\" />
-    </ItemGroup>
-
     <ItemGroup>
       <InternalsVisibleTo Include="UnitTests" />
       <InternalsVisibleTo Include="IntegrationTests" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Seeders\Fabrics\Data\fabric.json">
+        <Content Include="Persistence\Seeding\Fabrics\Data\fabric.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
-        <Content Include="Seeders\GarmentParts\Data\garment_part.json">
+        <Content Include="Persistence\Seeding\GarmentParts\Data\garment_part.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
-        <Content Include="Seeders\GarmentPartOperations\Data\garment_part_operation.json">
+        <Content Include="Persistence\Seeding\GarmentPartOperations\Data\garment_part_operation.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
-        <Content Include="Seeders\Suppliers\Data\supplier.json">
+        <Content Include="Persistence\Seeding\Suppliers\Data\supplier.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>

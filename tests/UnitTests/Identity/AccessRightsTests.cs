@@ -2,10 +2,10 @@ using FluentValidation.TestHelper;
 using Identity.Api.Contracts.Access;
 using Identity.Application.Security.Access;
 using Identity.Domain.Authorization;
-using Identity.Infrastructure.Services.Access;
 using Identity.Application.Features.Access.Commands.CreateRole;
 using Identity.Application.Features.Access.Commands.DeleteRole;
 using Identity.Application.Features.Access.Commands.SaveRoleAccess;
+using Identity.Infrastructure.Integrations.AspNetIdentity.Access;
 
 namespace UnitTests.Identity;
 

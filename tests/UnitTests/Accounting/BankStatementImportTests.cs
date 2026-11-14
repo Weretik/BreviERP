@@ -9,7 +9,6 @@ using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
 using Accounting.Domain.Statements;
 using Accounting.Domain.Transactions;
-using Accounting.Infrastructure.Statements;
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Accounting.Application.Features.Statements.Commands.BookBankStatement;
@@ -18,6 +17,7 @@ using Accounting.Application.Features.Statements.Commands.UpdateBankLine;
 using Accounting.Application.Features.Statements.Commands.UploadBankStatement;
 using Accounting.Application.Features.Statements.Queries.GetBankStatement;
 using Accounting.Application.Features.Statements.Shared;
+using Accounting.Infrastructure.Integrations.BankStatementFiles;
 
 namespace UnitTests.Accounting;
 

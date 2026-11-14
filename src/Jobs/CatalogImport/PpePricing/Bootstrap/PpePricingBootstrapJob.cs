@@ -1,11 +1,11 @@
 using System.Data;
 using System.Net;
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.PpePricing.Persistence;
 using CatalogImport.PpePricing.Planning;
 using CatalogImport.PpePricing.Source;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Catalog.Infrastructure.Persistence;
 
 namespace CatalogImport.PpePricing.Bootstrap;
 

@@ -1,6 +1,6 @@
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Execution;
 using CatalogImport.Planning;
+using Catalog.Infrastructure.Persistence;
 
 namespace CatalogImport.Persistence;
 

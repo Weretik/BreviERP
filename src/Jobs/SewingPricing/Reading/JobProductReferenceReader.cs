@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Reference.Infrastructure.DataBase;
 using Catalog.Application.Abstractions.Reference;
+using Reference.Infrastructure.Persistence;
 
 namespace SewingPricing.Jobs.Reading;
 

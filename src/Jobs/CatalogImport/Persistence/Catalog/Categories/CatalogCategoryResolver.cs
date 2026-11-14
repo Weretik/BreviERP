@@ -1,6 +1,6 @@
 using Catalog.Domain.ProductCategories;
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Execution;
+using Catalog.Infrastructure.Persistence;
 
 namespace CatalogImport.Persistence;
 

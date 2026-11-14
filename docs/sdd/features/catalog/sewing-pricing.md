@@ -34,23 +34,22 @@ src/Modules/Catalog/
       Queries/GetSewingArticleSummary/            # live per-Article card summary (CAT-007)
       Commands/CreateSewingSettingsVersion/, Queries/GetSewingSettings/  # complete settings revision / current read
       Commands/SyncPricingSettings/               # outbox: Reference settings changed
-  Catalog.Infrastructure/Catalog.Infrastructure/Pricing/
-    SewingSettings/{Configuration,Reading,Writing}/ # settings versions and expected-version writes
-    SewingComposition/Reading/                     # calculation input projection
-    History/Calculations/                          # calculation storage and snapshot serialization; Records/Configuration
-    History/Publications/                          # publication storage; Records/Configuration
-    History/Publications/Reading/                  # two-query Product projection; JSON tier extraction only
-    History/Transactions/                          # advisory/Product locks and commit; shared scoped DbContext
+  Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Pricing/
+    Sewing/                                        # settings versions and expected-version writes; calculation input projection
+    Calculations/                                  # calculation storage, snapshot serialization, row and configuration
+    Publications/                                  # publication storage, row and configuration; two-query Product projection (JSON tier extraction only)
+    SewingPricingTransaction.cs                    # advisory/Product locks and commit; shared scoped DbContext
+    SewingPricingInputChangeInterceptor.cs         # marks changed inputs for automatic publication
   Catalog.Api/Catalog.Api/
     Controllers/Pricing/Sewing/                     # Article pricing and settings HTTP controllers
     Contracts/Pricing/Sewing/{Calculations,Settings}/ # complete settings and calculation request UUID
 src/Modules/Reference/
   Reference.Domain/Reference.Domain/Pricing/InputVersions/ # immutable typed versions and units
   Reference.Application/Reference.Application/Abstractions/  # IReferencePricingVersionReader, IReferencePricingUsageReader
-  Reference.Infrastructure/Reference.Infrastructure/Pricing/
-    InputVersions/{Configuration,Reading,Changes}/  # effective reads; tracked changes and atomic revision append
-    OtherCosts/Writing/                            # explicit service-cost revision adapter
-    Usage/                                        # retained-history use checks
+  Reference.Infrastructure/Reference.Infrastructure/Persistence/Pricing/
+    InputVersions/                                 # effective reads; tracked changes and atomic revision append
+    OtherCostPricingVersionWriter.cs               # explicit service-cost revision adapter
+    ReferencePricingUsageReader.cs                 # retained-history use checks
 src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Reference/
   PricingReferenceVersionReader.cs                 # Reference.Contracts IPricingInputVersionReader, enlisted in the Catalog pricing transaction
 src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Contracts/Pricing/PricingInputVersionReader.cs  # provider side

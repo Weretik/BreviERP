@@ -25,7 +25,7 @@ src/Modules/Content/
       Shared/                                 # responses, mapping, free slug, next place, messages
     Features/ProductPages/Shared/ProductCategoryLinks.cs   # categories of one product
   Content.Infrastructure/Content.Infrastructure/
-    Persistence/Configurations/SiteCategoryConfiguration.cs
+    Persistence/SiteCategories/SiteCategoryConfiguration.cs
   Content.Api/Content.Api/
     SiteCategories/SiteCategoriesController.cs   # /api/content/categories, policy access:content-categories
 ```

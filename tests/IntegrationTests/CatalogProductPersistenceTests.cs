@@ -3,7 +3,6 @@ using Ardalis.Specification.EntityFrameworkCore;
 using BuildingBlocks.Application.Behaviors;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Catalog.Application.Features.Product.Commands.CreateProduct;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Application.Features.Product.Shared;
+using Catalog.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

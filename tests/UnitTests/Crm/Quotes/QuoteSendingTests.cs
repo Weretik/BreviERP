@@ -1,11 +1,11 @@
 using System.Text;
-using Crm.Infrastructure.Quotes.Sending;
 using Crm.Application.Features.Quotes.Commands.SendQuote;
 using Crm.Application.Features.Quotes.Commands.StartMailboxConnect;
 using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Sending;
 using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Infrastructure.Integrations.Gmail;
 
 namespace UnitTests.Crm.Quotes;
 

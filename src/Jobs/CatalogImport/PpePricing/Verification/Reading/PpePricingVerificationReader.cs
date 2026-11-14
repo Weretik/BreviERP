@@ -1,13 +1,13 @@
 using System.Net;
 using System.Text.Json;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
-using Catalog.Infrastructure.Pricing.Ppe.Reading;
 using CatalogImport.Persistence;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 
 namespace CatalogImport.PpePricing.Verification;
 

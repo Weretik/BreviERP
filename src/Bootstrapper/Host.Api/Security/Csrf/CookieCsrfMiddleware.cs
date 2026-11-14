@@ -1,6 +1,6 @@
 using Identity.Api.Cookies;
-using Identity.Infrastructure.Options;
 using Microsoft.Extensions.Options;
+using Identity.Infrastructure.Integrations.AspNetIdentity;
 
 namespace Host.Api.Security.Csrf;
 

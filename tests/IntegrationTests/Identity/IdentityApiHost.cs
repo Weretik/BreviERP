@@ -2,9 +2,7 @@ using BuildingBlocks.Application.DependencyInjection;
 using Identity.Api.DependencyInjection;
 using Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
-using Identity.Infrastructure.DataBase;
 using Identity.Infrastructure.DependencyInjection;
-using Identity.Infrastructure.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -12,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using Identity.Infrastructure.Persistence;
+using Identity.Infrastructure.Persistence.Seeding;
 
 namespace IntegrationTests.Identity;
 

@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using Catalog.Infrastructure.DataBase;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
+using Catalog.Infrastructure.Persistence;
 
 namespace SewingPricing.Jobs.Activation;
 

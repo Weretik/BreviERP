@@ -1,9 +1,8 @@
-using Identity.Infrastructure.Contracts;
-using Identity.Infrastructure.DataBase;
-using Identity.Infrastructure.Entities;
-using Identity.Infrastructure.Security;
-using Identity.Infrastructure.Seeders;
 using Microsoft.AspNetCore.DataProtection;
+using Identity.Infrastructure.Integrations.AspNetIdentity;
+using Identity.Infrastructure.Persistence;
+using Identity.Infrastructure.Persistence.Seeding;
+using Identity.Infrastructure.Persistence.Users;
 
 namespace Identity.Infrastructure.DependencyInjection;
 

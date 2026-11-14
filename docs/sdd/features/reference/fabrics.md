@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Fabrics” lookup, with the fields
 
 ## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/FabricsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Fabric/Commands/CreateFabric/CreateFabricHandler.cs) and adjacent query/update/delete handlers validate the data; [Fabric](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/Fabric.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. Fabrics are used as part of Sewing products.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/FabricsController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Fabric/Commands/CreateFabric/CreateFabricHandler.cs) and adjacent query/update/delete handlers validate the data; [Fabric](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/Fabric.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. Fabrics are used as part of Sewing products.
 
 ## Code Structure
 
@@ -25,11 +25,11 @@ src/
     │   └── Commands/UpdateFabric/UpdateFabricHandler.cs  # use case handler
     ├── Reference.Domain/Reference.Domain/GarmentAccessories/Fabric.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
-        ├── DataBase/ReferenceDbContext.cs  # data context
-        ├── Congigurations/FabricConfiguration.cs  # nullable bounded public metadata mapping
-        ├── Migrations/20261029153930_AddFabricPresentationMetadata.cs  # additive schema
-        ├── Migrations/*_AddFabricAccessorySheetFields.cs  # sheet fields, code index
-        └── Repositories/ReferenceEfRepository.cs  # data access
+        ├── Persistence/ReferenceDbContext.cs  # data context
+        ├── Persistence/GarmentAccessories/FabricConfiguration.cs  # nullable bounded public metadata mapping
+        ├── Persistence/Migrations/20261029153930_AddFabricPresentationMetadata.cs  # additive schema
+        ├── Persistence/Migrations/*_AddFabricAccessorySheetFields.cs  # sheet fields, code index
+        └── Persistence/ReferenceEfRepository.cs  # data access
 ```
 
 ## Structure Diagram

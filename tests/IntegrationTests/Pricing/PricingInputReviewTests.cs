@@ -1,11 +1,11 @@
 using System.Text.Json;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.Pricing.Ppe.Records;
 using CatalogImport.PpePricing.Bootstrap;
 using IntegrationTests.Pricing.Sewing;
 using Microsoft.EntityFrameworkCore;
 using SewingPricing.Jobs.Bootstrap;
 using SewingPricing.Jobs.Review;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 
 namespace IntegrationTests.Pricing;
 

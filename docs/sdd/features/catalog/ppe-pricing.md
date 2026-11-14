@@ -36,11 +36,10 @@ Catalog.Application/
     Shared/Ppe/Evaluation/          # active/enrolled input selection
     Shared/Ppe/Validation/          # request/precision/provenance checks
     Shared/Ppe/SupplierOffer/       # card view and reader
-Catalog.Infrastructure/Pricing/Ppe/
-  Records/                 # private append-only persistence rows
-  Configuration/           # identity/UUID/scope indexes, Product FK, jsonb
-  Reading/                 # fixed-query batch in one repeatable-read snapshot
-  Writing/                 # expected-version, actor-bound replay and transactions
+Catalog.Infrastructure/Persistence/Pricing/Ppe/
+                           # private append-only rows and their configurations (identity/UUID/scope indexes, Product FK, jsonb);
+                           # PpePricingInputReader: fixed-query batch in one repeatable-read snapshot;
+                           # version writers: expected-version, actor-bound replay and transactions
 Catalog.Api/
   Controllers/Pricing/Ppe/  # read/manage policies and claim actor
   Contracts/Pricing/Ppe/    # write request boundary

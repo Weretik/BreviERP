@@ -3,13 +3,13 @@ using Accounting.Infrastructure.Adapters.Reference;
 using Accounting.Contracts.Payments;
 using Accounting.Infrastructure.Contracts.Payments;
 using Accounting.Application.Abstractions;
-using Accounting.Infrastructure.Files;
 using Accounting.Infrastructure.Persistence;
-using Accounting.Infrastructure.Statements;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Accounting.Infrastructure.Integrations.BankStatementFiles;
+using Accounting.Infrastructure.Integrations.FileStorage;
 
 namespace Accounting.Infrastructure.DependencyInjection;
 

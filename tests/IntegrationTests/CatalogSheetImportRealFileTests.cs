@@ -8,8 +8,8 @@ using CatalogImport.Execution;
 using CatalogImport.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Suppliers;
-using Reference.Infrastructure.DataBase;
 using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
+using Reference.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

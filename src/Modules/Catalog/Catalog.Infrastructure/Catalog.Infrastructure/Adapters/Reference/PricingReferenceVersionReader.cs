@@ -1,9 +1,9 @@
-using Catalog.Infrastructure.DataBase;
 
 using Microsoft.EntityFrameworkCore.Storage;
 
 using Reference.Contracts.Pricing;
 using Catalog.Application.Abstractions.Pricing;
+using Catalog.Infrastructure.Persistence;
 
 namespace Catalog.Infrastructure.Adapters.Reference;
 

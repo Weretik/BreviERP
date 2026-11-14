@@ -1,9 +1,9 @@
 using CatalogImport.Source;
 using Reference.Domain.Pricing;
-using Reference.Infrastructure.DataBase;
-using Reference.Infrastructure.Pricing.Reading;
 using SewingPricing.Jobs.Bootstrap;
 using SewingPricing.Jobs.Reading;
+using Reference.Infrastructure.Persistence;
+using Reference.Infrastructure.Persistence.Pricing.InputVersions;
 
 namespace SewingPricing.Jobs.Review;
 

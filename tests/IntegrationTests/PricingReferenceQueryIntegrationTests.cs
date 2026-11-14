@@ -7,9 +7,9 @@ using System.Data.Common;
 using Reference.Domain.PricingParameters;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
-using Reference.Infrastructure.DataBase;
 using Reference.Application.Abstractions;
 using Reference.Application.Features.PricingReference.Queries.GetPricingReferencesByIds;
+using Reference.Infrastructure.Persistence;
 
 namespace IntegrationTests;
 

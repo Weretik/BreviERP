@@ -1,9 +1,9 @@
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
-using Catalog.Infrastructure.Pricing.Ppe.Reading;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 
 namespace SewingPricing.Jobs.Readiness;
 

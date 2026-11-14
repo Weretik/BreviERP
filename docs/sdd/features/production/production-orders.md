@@ -34,7 +34,7 @@ src/Modules/Production/
         ProductionOrderFiltering.cs, OrderCards.cs (order + files + Telegram mark), QuoteItemResolver.cs
         OrderMapping.cs, OrderNorms.cs, OrderNumbers.cs, OrderActors.cs, OrderMessages.cs, inputs and responses
     Features/Settings/           # GetWorkshopSettings, UpdateWorkshopSettings, SendWorkshopTelegramTest; Shared/WorkshopSettingsReading
-  Production.Infrastructure/.../Persistence/Configurations/ProductionOrderConfiguration.cs, ProductionTrackingConfiguration.cs, JsonColumn.cs
+  Production.Infrastructure/.../Persistence/Orders/ProductionOrderConfiguration.cs, ProductionTrackingConfiguration.cs, JsonColumn.cs
   Production.Api/Production.Api/Orders/ProductionOrdersController.cs   # /api/production/orders
   Production.Api/Production.Api/Orders/ProductionOrderTrackingController.cs   # stages, shipments, status, files, telegram, progress-import, report-price-import
   Production.Api/Production.Api/Settings/WorkshopSettingsController.cs        # /api/production/settings

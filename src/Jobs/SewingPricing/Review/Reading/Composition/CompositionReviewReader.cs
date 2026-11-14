@@ -1,7 +1,7 @@
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Persistence;
 using CatalogImport.Planning;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Infrastructure.Persistence;
 
 namespace SewingPricing.Jobs.Review;
 

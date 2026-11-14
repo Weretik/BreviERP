@@ -36,10 +36,10 @@ Catalog.Application/
     Commands/RefreshPpeSupplierPrices/    # «Оновити зараз» command, Monday schedule
     Shared/Ppe/SupplierPrices/            # Sources/ (fixed list, key normalization), Running/ (plan, save offers, record the run),
                                           # supplier resolution, product specs
-Catalog.Infrastructure/Pricing/Ppe/SupplierPrices/
-  Records/ Configuration/ Store/          # two catalog tables
-  Files/                                  # Insight XmlReader, СЕМТО PdfPig, gzip unpack
-  Online/                                 # АВ-Центр / Перчатка-центр page patterns, 3C CSV lists, HTTP client
+Catalog.Infrastructure/
+  Persistence/Pricing/PpeSupplierPrices/  # two catalog tables: rows, configurations, PpePriceSourceStore
+  Integrations/PpeSupplierFiles/          # Insight XmlReader, СЕМТО PdfPig, gzip unpack
+  Integrations/PpeSupplierSites/          # АВ-Центр / Перчатка-центр page patterns, 3C CSV lists, HTTP client
     Cabinets/                             # Трєле sign-in, session pages, dealer price, options
 Catalog.Api/Controllers/Pricing/Ppe/PpeSupplierPricesController.cs
 Host.Seed/Jobs/Sync/PpeSupplierPricesSyncTask.cs  # brevierp-sync step ppe-supplier-prices (Mon–Fri 09:00)

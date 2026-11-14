@@ -1,5 +1,5 @@
-using Identity.Infrastructure.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Identity.Infrastructure.Integrations.AspNetIdentity;
 
 namespace Identity.Infrastructure.DependencyInjection;
 

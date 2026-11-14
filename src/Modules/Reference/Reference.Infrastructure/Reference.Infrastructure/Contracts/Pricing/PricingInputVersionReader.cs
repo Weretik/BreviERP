@@ -1,8 +1,8 @@
 using System.Data.Common;
 
 using Reference.Contracts.Pricing;
-using Reference.Infrastructure.DataBase;
 using Reference.Application.Abstractions;
+using Reference.Infrastructure.Persistence;
 
 namespace Reference.Infrastructure.Contracts.Pricing;
 

@@ -1,5 +1,4 @@
 using Media.Application.Abstractions;
-using Media.Infrastructure.Images;
 using Media.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +9,7 @@ using Media.Application.Features.Files.Shared;
 using Media.Application.Features.Files.Shared.Images;
 using Media.Application.Features.Folders.Commands.CreateMediaFolder;
 using Media.Application.Features.Folders.Shared;
+using Media.Infrastructure.Integrations.Skia;
 
 namespace UnitTests.Media;
 

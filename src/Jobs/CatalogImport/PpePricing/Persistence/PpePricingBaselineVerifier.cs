@@ -1,7 +1,7 @@
-using Catalog.Infrastructure.DataBase;
-using Catalog.Infrastructure.Pricing.Ppe.Records;
 using CatalogImport.PpePricing.Planning;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 
 namespace CatalogImport.PpePricing.Persistence;
 

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Reference.Domain.Pricing;
-using Reference.Infrastructure.Pricing.OtherCosts.Writing;
 using SewingPricing.Jobs.Bootstrap;
 using Reference.Application.Abstractions;
 

@@ -1,11 +1,11 @@
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.DataBase;
 using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Application.Abstractions.Pricing;
 using Catalog.Application.Features.Pricing.Queries.CalculateSewingArticle;
 using Catalog.Application.Features.Pricing.Shared.Sewing.Evaluation;
+using Catalog.Infrastructure.Persistence;
 
 namespace SewingPricing.Jobs.Verification;
 

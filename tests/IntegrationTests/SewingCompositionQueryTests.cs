@@ -1,6 +1,6 @@
-using Catalog.Infrastructure.DataBase;
-using Catalog.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Products;
 
 namespace IntegrationTests;
 

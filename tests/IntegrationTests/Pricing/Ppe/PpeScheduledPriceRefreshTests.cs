@@ -1,10 +1,5 @@
 using Ardalis.Result;
 using Catalog.Domain.Products;
-using Catalog.Infrastructure.Pricing.Ppe.Reading;
-using Catalog.Infrastructure.Pricing.Ppe.Records;
-using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Store;
-using Catalog.Infrastructure.Pricing.Ppe.Writing;
-using Catalog.Infrastructure.Repositories;
 using IntegrationTests.Pricing.Sewing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +11,9 @@ using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
 using Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running;
 using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Infrastructure.Persistence.Pricing.PpeSupplierPrices;
 
 namespace IntegrationTests.Pricing.Ppe;
 
@@ -79,7 +77,7 @@ public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
         Assert.That(scope.ServiceProvider.GetRequiredService<PpeScheduledPriceRefresh>(), Is.Not.Null);
     }
 
-    private static PpeScheduledPriceRefresh Refresh(Catalog.Infrastructure.DataBase.CatalogDbContext db, DateTimeOffset now)
+    private static PpeScheduledPriceRefresh Refresh(Catalog.Infrastructure.Persistence.CatalogDbContext db, DateTimeOffset now)
     {
         var references = new Mock<IProductReferenceReader>();
         references.Setup(x => x.GetSnapshotAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new ProductReferenceData(

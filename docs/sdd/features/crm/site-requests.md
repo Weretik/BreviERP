@@ -14,7 +14,7 @@ src/Modules/Crm/
     Commands/SubmitSiteRequest/ Commands/ChangeSiteRequest/ Queries/GetSiteRequests/
     Shared/                                  responses, SiteRequestMapper, SiteRequestMessages
     Shared/Notify/NotifySiteRequestOutboxHandler.cs  outbox message crm.site-request.notify
-  Crm.Infrastructure/Crm.Infrastructure/Persistence/Configurations/SiteRequests/
+  Crm.Infrastructure/Crm.Infrastructure/Persistence/SiteRequests/
   Crm.Api/Crm.Api/SiteRequests/              SiteRequestsController, PublicSiteRequestsController
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/
   Media/SiteRequestFileStorage.cs           Media.Contracts upload
