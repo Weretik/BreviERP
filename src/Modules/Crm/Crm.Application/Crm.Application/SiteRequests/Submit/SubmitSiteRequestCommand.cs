@@ -1,14 +1,15 @@
-using System.Net;
-using System.Text;
+using BuildingBlocks.Application.Outbox;
 using Crm.Application.SiteRequests.Abstractions;
 using Crm.Application.SiteRequests.Contracts;
+using Crm.Application.SiteRequests.Notify;
 using Crm.Domain.SiteRequests;
 
 namespace Crm.Application.SiteRequests.Submit;
 
 /// <summary>
-/// A request from the «Заявка» form of the public site (LEAD-002 SC-01): saves it with the file on the CDN, then the
-/// bot posts it to the chosen groups. A Telegram failure does not lose the request: it is saved with the reason.
+/// A request from the «Заявка» form of the public site (LEAD-002 SC-01): saves it with the file on the CDN and, in the
+/// same transaction, the outbox message that posts it to the bot's groups (PLT-003 R-07). The post is tried at once;
+/// a Telegram failure keeps the request with the reason and the outbox tries again.
 /// </summary>
 public sealed record SubmitSiteRequestCommand(
     string? Phone,
@@ -52,8 +53,7 @@ public sealed class SubmitSiteRequestCommandValidator : AbstractValidator<Submit
 }
 
 public sealed class SubmitSiteRequestCommandHandler(
-    ISiteRequestStore store, ISiteRequestFileStorage files, ISiteRequestNotifier notifier, SiteRequestLinks links,
-    TimeProvider clock, ILogger<SubmitSiteRequestCommandHandler> logger)
+    ISiteRequestStore store, ISiteRequestFileStorage files, IOutboxDispatcher outbox, TimeProvider clock)
     : ICommandHandler<SubmitSiteRequestCommand, Result<SiteRequestReceivedResponse>>
 {
     public async ValueTask<Result<SiteRequestReceivedResponse>> Handle(SubmitSiteRequestCommand command,
@@ -72,43 +72,21 @@ public sealed class SubmitSiteRequestCommandHandler(
             command.Locale ?? "uk", Path.GetFileName(command.File?.FileName), fileUrl, now);
         if (created.IsFailure) return created.Error!.ToResult<SiteRequestReceivedResponse>();
         var request = created.Value;
+
+        // The id comes from the database, so the request is saved first; one transaction keeps both or neither.
+        await using var transaction = await store.Database.BeginTransactionAsync(cancellationToken);
         store.SiteRequests.Add(request);
         await store.SaveChangesAsync(cancellationToken);
+        var message = OutboxMessage.Create(NotifySiteRequestOutboxHandler.MessageType,
+            new NotifySiteRequestPayload(request.Id), now);
+        store.OutboxMessages.Add(message);
+        await store.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
-        string? error;
-        try
-        {
-            error = await notifier.NotifyAsync(Message(request, links), cancellationToken);
-        }
-        catch (Exception exception) when (exception is not OperationCanceledException)
-        {
-            logger.LogWarning(exception, "Site request {Id} was not posted to Telegram", request.Id);
-            error = "Telegram недоступний.";
-        }
-
-        request.Notified(error is null ? clock.GetUtcNow() : null, error);
-        await store.SaveChangesAsync(CancellationToken.None);
+        await outbox.DispatchAsync([message.Id], CancellationToken.None);
         return Result.Success(new SiteRequestReceivedResponse(request.Id));
     }
 
     private static string ContentType(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "application/octet-stream" : value;
-
-    /// <summary>The Telegram card of a new request, in Telegram HTML.</summary>
-    public static string Message(SiteRequest request, SiteRequestLinks links)
-    {
-        static string E(string value) => WebUtility.HtmlEncode(value);
-        var text = new StringBuilder();
-        text.Append("🆕 <b>Заявка з сайту</b> №").Append(request.Id).Append('\n');
-        text.Append("📞 <b>").Append(E(request.Phone)).Append("</b>\n");
-        if (request.Workwear is not null) text.Append("Що пошити: ").Append(E(request.Workwear)).Append('\n');
-        if (request.Quantity is not null) text.Append("Кількість: ").Append(E(request.Quantity)).Append('\n');
-        if (request.Comment is not null) text.Append("Коментар: ").Append(E(request.Comment)).Append('\n');
-        if (request.FileUrl is not null)
-            text.Append("Файл: <a href=\"").Append(E(request.FileUrl)).Append("\">")
-                .Append(E(request.FileName ?? "файл")).Append("</a>\n");
-        if (request.Locale == "ru") text.Append("Сторінка російською\n");
-        text.Append("<a href=\"").Append(E(links.List)).Append("\">Відкрити в адмінці</a>");
-        return text.ToString();
-    }
 }

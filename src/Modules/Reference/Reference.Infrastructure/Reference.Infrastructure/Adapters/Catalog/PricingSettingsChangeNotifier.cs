@@ -1,11 +1,12 @@
-using Catalog.Contracts.Pricing;
+using BuildingBlocks.Application.Outbox;
 using Reference.Application.Contracts.Catalog;
 
 namespace Reference.Infrastructure.Adapters.Catalog;
 
-/// <summary>Tells Catalog that «Параметри ціноутворення» changed; Catalog logs and never throws.</summary>
-internal sealed class PricingSettingsChangeNotifier(IPricingSettingsSync sync) : IPricingSettingsChangeNotifier
+/// <summary>Tries at once the Catalog messages the last saves wrote (PLT-003 R-09).</summary>
+internal sealed class PricingSettingsChangeNotifier(PricingSettingsOutboxInterceptor saved, IOutboxDispatcher outbox)
+    : IPricingSettingsChangeNotifier
 {
     public Task PricingSettingsChangedAsync(CancellationToken cancellationToken) =>
-        sync.SettingsChangedAsync(cancellationToken);
+        outbox.DispatchAsync(saved.TakeSaved(), CancellationToken.None);
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Outbox;
 using Reference.Application.Contracts.Persistence;
 using Reference.Domain.FabricColors.Entities;
 using Reference.Domain.PpeMarkupRules.Entities;
@@ -32,5 +33,6 @@ public partial class ReferenceDbContext(DbContextOptions<ReferenceDbContext> opt
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(ReferenceDbContext).Assembly,
             type => type.Namespace?.StartsWith("Reference.Infrastructure") ?? false);
+        modelBuilder.AddOutbox();
     }
 }

@@ -4,6 +4,7 @@ using Crm.Application.SiteRequests.Abstractions;
 using Crm.Application.SiteRequests.Change;
 using Crm.Application.SiteRequests.Contracts;
 using Crm.Application.SiteRequests.GetList;
+using Crm.Application.SiteRequests.Notify;
 using Crm.Application.SiteRequests.Submit;
 using FluentValidation.TestHelper;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Time.Testing;
 namespace UnitTests.Crm.SiteRequests;
 
 /// <summary>«Заявки з сайту»: the site form, the Telegram card and the work of managers (LEAD-002).</summary>
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public sealed class SiteRequestsTests
 {
     private static readonly CancellationToken None = CancellationToken.None;
@@ -21,7 +23,7 @@ public sealed class SiteRequestsTests
     private static readonly SiteRequestLinks Links = new("https://admin.test/");
 
     private SubmitSiteRequestCommandHandler Submit(Func<SiteRequestTestDb> open) =>
-        new(open(), files, notifier, Links, time, NullLogger<SubmitSiteRequestCommandHandler>.Instance);
+        new(open(), files, new InlineSiteRequestOutbox(open, notifier, Links, time), time);
 
     private ChangeSiteRequestCommandHandler Change(Func<SiteRequestTestDb> open) =>
         new(open(), new FakeSiteRequestStaff(), time);
@@ -73,6 +75,52 @@ public sealed class SiteRequestsTests
             Assert.That(second.IsSuccess, Is.True);
             Assert.That(requests.Select(x => x.NotifyError), Is.EqualTo(new[] { "Не вибрано групу.", "Telegram недоступний." }));
             Assert.That(requests.All(x => x.NotifiedAt is null), Is.True);
+        });
+    }
+
+    [Test]
+    public async Task A_failed_post_is_retried_by_the_outbox_and_sent_once()
+    {
+        var (connection, open) = SiteRequestTestDb.Create();
+        using var _ = connection;
+        notifier.Throws = true;
+        await Submit(open).Handle(Form(), None);
+        notifier.Throws = false;
+        var outbox = new InlineSiteRequestOutbox(open, notifier, Links, time);
+
+        await outbox.DispatchDueAsync(None);
+        await outbox.DispatchDueAsync(None);
+
+        await using var db = open();
+        var request = db.SiteRequests.Single();
+        var message = db.OutboxMessages.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(notifier.Messages, Has.Count.EqualTo(1));
+            Assert.That(request.NotifiedAt, Is.EqualTo(time.GetUtcNow()));
+            Assert.That(request.NotifyError, Is.Null);
+            Assert.That(message.ProcessedAt, Is.Not.Null);
+            Assert.That(message.Attempts, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task A_repeated_message_of_a_posted_request_sends_nothing()
+    {
+        var (connection, open) = SiteRequestTestDb.Create();
+        using var _ = connection;
+        await Submit(open).Handle(Form(), None);
+        await using var db = open();
+        var payload = db.OutboxMessages.Single().Payload;
+
+        await using var handlerDb = open();
+        var again = await new NotifySiteRequestOutboxHandler(handlerDb, notifier, Links, time,
+            NullLogger<NotifySiteRequestOutboxHandler>.Instance).HandleAsync(payload, None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(again, Is.Null);
+            Assert.That(notifier.Messages, Has.Count.EqualTo(1));
         });
     }
 

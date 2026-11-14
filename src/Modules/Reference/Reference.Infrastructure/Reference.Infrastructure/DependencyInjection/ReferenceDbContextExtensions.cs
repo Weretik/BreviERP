@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Outbox;
 using Reference.Application.Contracts.Catalog;
 using Reference.Infrastructure.Adapters.Catalog;
 using Reference.Contracts.Fabrics;
@@ -44,14 +45,18 @@ public static class ReferenceDbContextExtensions
 
         services.TryAddScoped<PricingInputChanges>();
         services.AddScoped<ReferencePricingInputChangeInterceptor>();
+        services.AddScoped<PricingSettingsOutboxInterceptor>();
         services.AddDbContext<ReferenceDbContext>((provider, options) => options.UseNpgsql(connectionString)
-            .AddInterceptors(provider.GetRequiredService<ReferencePricingInputChangeInterceptor>()));
+            .AddInterceptors(provider.GetRequiredService<ReferencePricingInputChangeInterceptor>(),
+                provider.GetRequiredService<PricingSettingsOutboxInterceptor>()));
         services.AddScoped<IReadReferenceDbContext>(sp => sp.GetRequiredService<ReferenceDbContext>());
 
         services.AddScoped(typeof(IReferenceRepository<>), typeof(ReferenceEfRepository<>));
         services.AddScoped(typeof(IReferenceReadRepository<>), typeof(ReferenceReadEfRepository<>));
 
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
+        services.AddOutbox<ReferenceDbContext>();
+        services.AddOutboxHandler<PricingSettingsChangedOutboxHandler>();
         services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingVersionReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingVersionReader>();
         services.AddScoped<Reference.Application.Contracts.Pricing.IReferencePricingUsageReader, Reference.Infrastructure.Pricing.Reading.ReferencePricingUsageReader>();
         services.AddScoped<Reference.Application.Contracts.Pricing.IOtherCostPricingVersionWriter, Reference.Infrastructure.Pricing.OtherCosts.Writing.OtherCostPricingVersionWriter>();

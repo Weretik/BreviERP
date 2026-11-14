@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Outbox;
 using Production.Domain.Archive;
 using Production.Domain.FabricNorms;
 using Production.Domain.Forecast;
@@ -30,5 +31,9 @@ public interface IProductionDbContext
     DbSet<PayrollAdjustment> PayrollAdjustments { get; }
     DbSet<PayrollIssued> PayrollIssued { get; }
     DbSet<WorkshopArchiveRecord> Archive { get; }
+
+    /// <summary>The Production outbox: «Надіслати в цех» saves its message with «Надсилається» (PLT-003 R-08).</summary>
+    DbSet<OutboxMessage> OutboxMessages { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

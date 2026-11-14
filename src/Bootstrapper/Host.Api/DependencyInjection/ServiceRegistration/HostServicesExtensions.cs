@@ -1,3 +1,5 @@
+using BuildingBlocks.Api.Outbox;
+
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 
 public static class HostServicesExtensions
@@ -11,6 +13,7 @@ public static class HostServicesExtensions
         services.AddApplicationRegistrations(configuration);
         services.AddApiRegistrations();
         services.AddSecurityRegistrations(configuration);
+        services.AddOutboxDispatchEndpoint(configuration);
         return services;
     }
 }

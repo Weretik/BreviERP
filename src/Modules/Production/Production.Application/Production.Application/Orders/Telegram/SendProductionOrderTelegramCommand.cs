@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Outbox;
 using Production.Application.Abstractions;
 using Production.Application.Contracts;
 using Production.Application.Orders.Access;
@@ -9,7 +10,7 @@ namespace Production.Application.Orders.Telegram;
 
 /// <summary>
 /// «Надіслати в цех»: one message to the workshop group with the items, files and a link to the order. A sent
-/// message is never sent again; a failed one can be retried.
+/// message is never sent again; a failed one can be retried. The send itself runs through the outbox (PLT-003 R-08).
 /// </summary>
 public sealed record SendProductionOrderTelegramCommand(ProductionActor Actor, int OrderId)
     : ICommand<Result<ProductionOrderResponse>>;
@@ -24,8 +25,8 @@ public sealed class SendProductionOrderTelegramCommandValidator : AbstractValida
 }
 
 public sealed class SendProductionOrderTelegramCommandHandler(
-    IProductionDbContext db, IProductionStaffReader staff, IProductionTelegram telegram, ProductionLinks links,
-    OrderCards cards, TimeProvider clock, ILogger<SendProductionOrderTelegramCommandHandler> logger)
+    IProductionDbContext db, IProductionStaffReader staff, IProductionTelegram telegram, OrderCards cards,
+    IOutboxDispatcher outbox, TimeProvider clock)
     : ICommandHandler<SendProductionOrderTelegramCommand, Result<ProductionOrderResponse>>
 {
     public async ValueTask<Result<ProductionOrderResponse>> Handle(SendProductionOrderTelegramCommand command,
@@ -54,12 +55,15 @@ public sealed class SendProductionOrderTelegramCommandHandler(
                 ? OrderMessages.SendingInProgress
                 : OrderMessages.CannotSend);
 
-        var chatId = settings.TelegramChatId!.Value;
-        var begun = delivery.Begin(chatId, settings.TelegramThreadId, actorName);
+        var begun = delivery.Begin(settings.TelegramChatId!.Value, settings.TelegramThreadId, actorName);
         if (begun.IsFailure) return begun.Error!.ToResult<ProductionOrderResponse>();
+        // «Надсилається» and the outbox message are saved together: a second press finds the mark and does not send
+        // again, and a stop before the send leaves the message for the next dispatch.
+        var message = OutboxMessage.Create(SendProductionOrderTelegramOutboxHandler.MessageType,
+            new SendProductionOrderTelegramPayload(order.Id), clock.GetUtcNow());
+        db.OutboxMessages.Add(message);
         try
         {
-            // The «Надсилається» mark is saved first: a second press then finds it and does not send again.
             await db.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException)
@@ -67,25 +71,9 @@ public sealed class SendProductionOrderTelegramCommandHandler(
             return Result<ProductionOrderResponse>.Conflict(OrderMessages.SendingInProgress);
         }
 
-        var files = await db.OrderFiles.AsNoTracking()
-            .Where(x => x.OrderId == order.Id && x.DeletedAt == null)
-            .OrderBy(x => x.Id).ToListAsync(cancellationToken);
-        var text = ProductionTelegramMessage.Build(order, files, links.Order(order.Id));
-        var now = clock.GetUtcNow();
-        try
-        {
-            var messageId = await telegram.SendAsync(chatId, settings.TelegramThreadId, text, CancellationToken.None);
-            delivery.Succeed(messageId, now);
-            order.RecordAbout(null, "Telegram", null, "Надіслано в цех", actorName, now);
-        }
-        catch (ProductionTelegramException error)
-        {
-            logger.LogWarning("Telegram message for production order {Number} failed: {Error}", order.Number,
-                error.Message);
-            delivery.Fail(error.Message);
-        }
-
-        await db.SaveChangesAsync(CancellationToken.None);
-        return Result.Success(await cards.BuildAsync(order, actor, cancellationToken));
+        await outbox.DispatchAsync([message.Id], CancellationToken.None);
+        // The send ran in its own scope; read the order as it is now.
+        var current = await cards.Orders.AsNoTracking().SingleAsync(x => x.Id == order.Id, CancellationToken.None);
+        return Result.Success(await cards.BuildAsync(current, actor, cancellationToken));
     }
 }
