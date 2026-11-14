@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
-using Reference.Application.Contracts.Pricing;
 using Reference.Domain.Pricing;
 using Reference.Infrastructure.DataBase;
+using Reference.Application.Abstractions;
 
 namespace Reference.Infrastructure.Pricing.InputVersions.Changes;
 

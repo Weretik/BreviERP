@@ -1,8 +1,5 @@
 using Ardalis.Result;
 using BuildingBlocks.Domain.ValueObjects;
-using Catalog.Application.Features.Pricing.Sewing.Settings.CreateVersion;
-using Catalog.Application.Features.Pricing.Sewing.Publications.Publish;
-using Catalog.Application.Features.Pricing.Sewing.Calculations.Save;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.Pricing.History.Calculations;
@@ -16,6 +13,9 @@ using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Pricing;
 using Reference.Infrastructure.Pricing.Reading;
 using SewingPricing.Jobs.Bootstrap;
+using Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
+using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
+using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
 
 namespace IntegrationTests.Pricing.Sewing;
 
@@ -43,8 +43,8 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         var inputReader = new SewingPricingInputReader(catalog);
         var settingsReader = new SewingPricingSettingsReader(catalog);
         var bridge = new PricingReferenceVersionReader(new PricingInputVersionReader(new ReferencePricingVersionReader(reference), reference), catalog);
-        var save = new SaveSewingCalculationCommandHandler(transactions, calculations, inputReader, settingsReader, bridge);
-        var publish = new PublishSewingCalculationCommandHandler(transactions, calculations, publications, inputReader, settingsReader, bridge);
+        var save = new SaveSewingCalculationHandler(transactions, calculations, inputReader, settingsReader, bridge);
+        var publish = new PublishSewingCalculationHandler(transactions, calculations, publications, inputReader, settingsReader, bridge);
         // Without operations the Article has no price: the saved calculation is blocked.
         var fullMaterials = product.MaterialLines.Select(x => SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
             x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder).Value).ToArray();
@@ -102,7 +102,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
 
         var settings = afterCostChange.Snapshot.Settings!;
         var beforeSettingsChange = await Save();
-        var settingsHandler = new CreateSewingSettingsVersionCommandHandler(new SewingPricingSettingsWriter(catalog));
+        var settingsHandler = new CreateSewingSettingsVersionHandler(new SewingPricingSettingsWriter(catalog));
         var settingsCommand = new CreateSewingSettingsVersionCommand(settings.Id, Guid.NewGuid(),
             settings.Settings with { MonthlySalary = 19000 }, "manager");
         var changed = await settingsHandler.Handle(settingsCommand, CancellationToken.None);
@@ -124,7 +124,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         Assert.That(await calculations.FindAsync(productId, product.Articles.Single(x => x.SaleSku == "247").Id.Value,
             current.Id, CancellationToken.None), Is.Null);
 
-        async Task<Catalog.Application.Contracts.Pricing.SavedSewingCalculation> Save()
+        async Task<Catalog.Application.Abstractions.Pricing.SavedSewingCalculation> Save()
         {
             var result = await save.Handle(new(productId, articleId, Guid.NewGuid(), "manager"), CancellationToken.None);
             Assert.That(result.IsSuccess, Is.True);

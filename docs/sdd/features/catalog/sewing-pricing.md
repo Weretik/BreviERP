@@ -22,17 +22,18 @@ src/Modules/Catalog/
     Results/                                      # breakdown, tiers and named blockers
     Settings/                                     # parameter value, version/ID and settings validation
   Catalog.Application/Catalog.Application/
-    Contracts/Pricing/{SewingComposition,SewingSettings,ReferenceInputs,SewingCalculation}/
-    Contracts/Pricing/History/{Calculations,Publications,Transactions}/ # focused storage/transaction boundaries
-    Features/Pricing/Sewing/
-      Evaluation/                                 # shared evaluator and input resolution
-      Preview/                                    # internal calculation query and handler
-      Composition/                                # price of a free composition (КП «виріб з нуля», changed model; fabrics, accessories, OtherCost by code), not saved
-      Calculations/{Save,Get}/                     # immutable saved-calculation scenarios
-      Publications/{Publish,GetCurrent}/           # publication / current published-price scenarios
-      Publications/GetProducts/                   # bounded Product-page published-price projection
-      ArticleSummary/                             # live per-Article card summary (CAT-007)
-      Settings/{CreateVersion,GetCurrent}/         # complete settings revision / current read
+    Abstractions/Pricing/                         # input, settings, calculation, publication and transaction ports with their records
+    Features/Pricing/
+      Shared/Sewing/Evaluation/                   # shared evaluator and input resolution
+      Shared/Sewing/AutoPublication/              # SewingPricePublisher (publish after input changes)
+      Queries/CalculateSewingArticle/             # internal calculation query and handler
+      Queries/CalculateSewingComposition/         # price of a free composition (КП «виріб з нуля», changed model; fabrics, accessories, OtherCost by code), not saved
+      Commands/SaveSewingCalculation/, Queries/GetSewingCalculation/   # immutable saved calculations
+      Commands/PublishSewingCalculation/, Queries/GetPublishedSewingPrice/  # publication / current published price
+      Queries/GetPublishedSewingProducts/         # bounded Product-page published-price projection
+      Queries/GetSewingArticleSummary/            # live per-Article card summary (CAT-007)
+      Commands/CreateSewingSettingsVersion/, Queries/GetSewingSettings/  # complete settings revision / current read
+      Commands/SyncPricingSettings/               # outbox: Reference settings changed
   Catalog.Infrastructure/Catalog.Infrastructure/Pricing/
     SewingSettings/{Configuration,Reading,Writing}/ # settings versions and expected-version writes
     SewingComposition/Reading/                     # calculation input projection
@@ -45,7 +46,7 @@ src/Modules/Catalog/
     Contracts/Pricing/Sewing/{Calculations,Settings}/ # complete settings and calculation request UUID
 src/Modules/Reference/
   Reference.Domain/Reference.Domain/Pricing/InputVersions/ # immutable typed versions and units
-  Reference.Application/Reference.Application/Contracts/Pricing/{InputVersions,Usage}/
+  Reference.Application/Reference.Application/Abstractions/  # IReferencePricingVersionReader, IReferencePricingUsageReader
   Reference.Infrastructure/Reference.Infrastructure/Pricing/
     InputVersions/{Configuration,Reading,Changes}/  # effective reads; tracked changes and atomic revision append
     OtherCosts/Writing/                            # explicit service-cost revision adapter

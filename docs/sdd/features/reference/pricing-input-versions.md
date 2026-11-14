@@ -15,9 +15,9 @@ src/Modules/Reference/
   Reference.Domain/Reference.Domain/Pricing/InputVersions/
     ReferencePricingInputVersion.cs                 # immutable owner/value/unit/effective provenance
   Reference.Application/Reference.Application/
-    Contracts/Pricing/InputVersions/                 # read/revision boundaries and expected conflicts
-    Features/Pricing/ReviseOtherCost/                 # one command and handler
-    Features/{Fabric,GarmentAccessory,GarmentPartOperation}/Update/ # controlled 409 mapping
+    Abstractions/                                    # IReferencePricingVersionReader, IOtherCostPricingVersionWriter, ReferencePricingConflictException
+    Features/Pricing/Commands/ReviseOtherCost/       # one command and handler
+    Features/{Fabric,GarmentAccessory,GarmentPartOperation}/Commands/Update…/ # controlled 409 mapping
   Reference.Infrastructure/Reference.Infrastructure/
     DataBase/ReferenceDbContext.PricingWrites.cs       # atomic SaveChanges transaction hook
     Pricing/InputVersions/Changes/

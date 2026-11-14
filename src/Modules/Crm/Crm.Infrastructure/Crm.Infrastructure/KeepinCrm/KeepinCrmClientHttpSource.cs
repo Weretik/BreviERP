@@ -1,8 +1,9 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Crm.Application.Customers.KeepinCrmSync;
 using Microsoft.Extensions.Options;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
+using Crm.Application.Abstractions.Customers;
 
 namespace Crm.Infrastructure.KeepinCrm;
 

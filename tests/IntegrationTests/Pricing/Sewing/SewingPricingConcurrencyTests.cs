@@ -1,7 +1,5 @@
 using Ardalis.Result;
 using BuildingBlocks.Domain.ValueObjects;
-using Catalog.Application.Features.Pricing.Sewing.Publications.Publish;
-using Catalog.Application.Features.Pricing.Sewing.Calculations.Save;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.Pricing.History.Calculations;
 using Catalog.Infrastructure.Pricing.History.Publications;
@@ -12,6 +10,8 @@ using Reference.Infrastructure.Contracts.Pricing;
 using Microsoft.EntityFrameworkCore;
 using Reference.Infrastructure.Pricing.Reading;
 using SewingPricing.Jobs.Bootstrap;
+using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
+using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
 
 namespace IntegrationTests.Pricing.Sewing;
 
@@ -40,7 +40,7 @@ public sealed class SewingPricingConcurrencyTests : SewingPricingDatabaseFixture
         var inputs = new SewingPricingInputReader(catalog);
         var settings = new SewingPricingSettingsReader(catalog);
         var bridge = new PricingReferenceVersionReader(new PricingInputVersionReader(new ReferencePricingVersionReader(reference), reference), catalog);
-        var saved = await new SaveSewingCalculationCommandHandler(transactions, calculations, inputs, settings, bridge)
+        var saved = await new SaveSewingCalculationHandler(transactions, calculations, inputs, settings, bridge)
             .Handle(new(product.Id.Value, article.Id.Value, Guid.NewGuid(), "manager"), CancellationToken.None);
         Assert.That(saved.Value.Snapshot.Calculation.IsCalculated, Is.True);
 
@@ -51,7 +51,7 @@ public sealed class SewingPricingConcurrencyTests : SewingPricingDatabaseFixture
         fabric.Update(fabric.Name, MoneyAmount.From(50), fabric.ProviderId);
         await writer.SaveChangesAsync();
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        var publishing = new PublishSewingCalculationCommandHandler(transactions, calculations, publications, inputs, settings, bridge)
+        var publishing = new PublishSewingCalculationHandler(transactions, calculations, publications, inputs, settings, bridge)
             .Handle(new(product.Id.Value, article.Id.Value, saved.Value.Id, "manager"), timeout.Token).AsTask();
         try
         {

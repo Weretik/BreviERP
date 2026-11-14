@@ -1,4 +1,8 @@
-using Catalog.Application.Features.Product.Sewing;
+using Catalog.Application.Features.Product.Commands.CreateSewingArticle;
+using Catalog.Application.Features.Product.Commands.DeleteSewingArticle;
+using Catalog.Application.Features.Product.Commands.UpdateSewingArticle;
+using Catalog.Application.Features.Product.Queries.ListSewingArticles;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace Catalog.Api.Controllers;
 

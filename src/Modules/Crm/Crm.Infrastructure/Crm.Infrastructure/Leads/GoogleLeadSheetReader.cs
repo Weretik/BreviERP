@@ -1,9 +1,10 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Crm.Application.Leads.Sheet;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Options;
+using Crm.Application.Features.Leads.Shared.Sheet;
+using Crm.Application.Abstractions.Leads;
 
 namespace Crm.Infrastructure.Leads;
 

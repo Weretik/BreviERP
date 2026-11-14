@@ -26,18 +26,16 @@ Catalog.Domain/Pricing/Ppe/
   Calculation/             # tier precedence, rounding and typed blockers
   Results/                 # independent prices and readiness
 Catalog.Application/
-  Contracts/Pricing/Ppe/
-    Rules/                 # rule values/version and writer port
-    Offers/                # offer values/version and writer port
-    Products/              # Product read inputs/results and reader port
-  Features/Pricing/Ppe/
-    Products/              # bounded Product pricing query
-    Evaluation/            # active/enrolled input selection
-    Rules/                 # exact rule lookup and approved version creation
-    Offers/                # Product offer version creation
-    Validation/            # request/precision/provenance checks
-    SupplierOffer/         # PPE card: Get / Update / Shared view and reader
-    Preview/               # three prices for a supplier price and rule, not saved
+  Abstractions/Pricing/    # rule, offer and Product input ports with their values/version records
+  Features/Pricing/
+    Queries/GetPpeProductPrices/    # bounded Product pricing query
+    Queries/GetPpeRule/, Commands/CreatePpeRuleVersion/  # exact rule lookup and approved version creation
+    Commands/CreatePpeOfferVersion/ # Product offer version creation
+    Queries/GetPpeSupplierOffer/, Commands/UpdatePpeSupplierOffer/  # PPE card
+    Queries/PreviewPpePrices/       # three prices for a supplier price and rule, not saved
+    Shared/Ppe/Evaluation/          # active/enrolled input selection
+    Shared/Ppe/Validation/          # request/precision/provenance checks
+    Shared/Ppe/SupplierOffer/       # card view and reader
 Catalog.Infrastructure/Pricing/Ppe/
   Records/                 # private append-only persistence rows
   Configuration/           # identity/UUID/scope indexes, Product FK, jsonb

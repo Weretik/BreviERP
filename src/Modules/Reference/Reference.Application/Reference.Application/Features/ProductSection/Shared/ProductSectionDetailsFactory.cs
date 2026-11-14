@@ -1,4 +1,3 @@
-using Reference.Application.Features.ProductSection.Shared.DTOs;
 using Reference.Domain.ProductSections;
 
 namespace Reference.Application.Features.ProductSection.Shared;

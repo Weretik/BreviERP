@@ -1,4 +1,3 @@
-using Catalog.Application.Contracts.Reference;
 
 using Reference.Contracts.Fabrics;
 using Reference.Contracts.GarmentAccessories;
@@ -6,6 +5,7 @@ using Reference.Contracts.GarmentPartOperations;
 using Reference.Contracts.PricingParameters;
 using Reference.Contracts.ProductSections;
 using Reference.Contracts.Suppliers;
+using Catalog.Application.Abstractions.Reference;
 
 namespace Catalog.Infrastructure.Adapters.Reference;
 

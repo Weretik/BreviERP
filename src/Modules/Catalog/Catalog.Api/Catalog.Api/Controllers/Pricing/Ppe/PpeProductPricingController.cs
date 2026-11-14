@@ -1,9 +1,10 @@
 using BuildingBlocks.Api.Authorization;
 using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Ppe;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.Products;
-using Catalog.Application.Features.Pricing.Ppe.Offers.CreateVersion;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.CreatePpeOfferVersion;
+using Catalog.Application.Features.Pricing.Queries.GetPpeProductPrices;
+using Catalog.Application.Features.Pricing.Shared;
 namespace Catalog.Api.Controllers.Pricing.Ppe;
 [ApiController]
 [Route("api/v1/pricing/ppe/products")]

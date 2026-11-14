@@ -1,0 +1,5 @@
+
+namespace Reference.Application.Features.PricingParameter.Queries.GetPricingParameters;
+
+/// <summary>All pricing parameters in sheet order; an empty list when there are none.</summary>
+public sealed record GetPricingParametersQuery : IQuery<Result<List<PricingParameterRowDTO>>>;

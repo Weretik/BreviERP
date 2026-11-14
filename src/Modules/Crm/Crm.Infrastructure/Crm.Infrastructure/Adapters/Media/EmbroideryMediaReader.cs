@@ -1,7 +1,7 @@
-using Crm.Application.Embroidery.Contracts;
-using Crm.Application.Embroidery.Mockup;
 
 using Media.Contracts.Files;
+using Crm.Application.Features.Embroidery.Shared;
+using Crm.Application.Abstractions.Embroidery;
 
 namespace Crm.Infrastructure.Adapters.Media;
 

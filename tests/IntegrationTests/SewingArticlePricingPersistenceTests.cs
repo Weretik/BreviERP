@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text.Json;
-using Catalog.Application.Features.Pricing.Sewing.Preview;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
@@ -11,7 +10,6 @@ using SewingPricing.Jobs.Bootstrap;
 using SewingPricing.Jobs.Reading;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using Reference.Application.Contracts.Pricing;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Pricing;
 using Reference.Domain.Suppliers;
@@ -19,6 +17,8 @@ using Reference.Infrastructure.DataBase;
 using Reference.Infrastructure.Pricing.Reading;
 
 using IntegrationTests.Pricing.Sewing;
+using Reference.Application.Abstractions;
+using Catalog.Application.Features.Pricing.Queries.CalculateSewingArticle;
 
 namespace IntegrationTests;
 
@@ -43,7 +43,7 @@ public sealed class SewingArticlePricingPersistenceTests : SewingPricingDatabase
             .Include(x => x.OperationLines).AsSplitQuery().SingleAsync(x => x.ModelCode == "MOD-025");
         var article = product.Articles.Single(x => x.SaleSku == "246");
         var reader = new ReferencePricingVersionReader(reference);
-        var handler = new CalculateSewingArticleQueryHandler(new SewingPricingInputReader(catalog),
+        var handler = new CalculateSewingArticleHandler(new SewingPricingInputReader(catalog),
             new SewingPricingSettingsReader(catalog), new JobPricingReferenceReader(reader));
         var query = new CalculateSewingArticleQuery(product.Id.Value, article.Id.Value, EffectiveFrom);
         // The imported composition needs no review: it is calculated as it is.

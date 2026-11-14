@@ -1,5 +1,3 @@
-using Catalog.Application.Features.Pricing.SettingsSync;
-using Catalog.Application.Features.Pricing.Sewing.AutoPublication;
 using Catalog.Contracts.Pricing;
 using Catalog.Domain.Pricing.Ppe;
 using Mediator;
@@ -7,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Reference.Contracts.PpeMarkupRules;
 using Reference.Contracts.PricingParameters;
+using Catalog.Application.Features.Pricing.Commands.SyncPricingSettings;
+using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 
 namespace Catalog.Infrastructure.Contracts.Pricing;
 

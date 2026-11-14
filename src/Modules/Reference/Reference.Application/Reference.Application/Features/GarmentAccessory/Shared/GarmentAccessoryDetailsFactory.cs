@@ -1,4 +1,3 @@
-using Reference.Application.Features.GarmentAccessory.Shared.DTOs;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;

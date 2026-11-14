@@ -1,14 +1,16 @@
 using Ardalis.Result;
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.Pdf.Composing;
-using Crm.Application.Quotes.Sending.Connect;
-using Crm.Application.Quotes.Sending.Draft;
-using Crm.Application.Quotes.Sending.Gmail;
-using Crm.Application.Quotes.Sending.Send;
-using Crm.Application.Quotes.Settings.GetSettings;
 using Crm.Domain.Quotes;
 using Microsoft.Extensions.Logging.Abstractions;
+using Crm.Application.Features.Quotes.Commands.CompleteMailboxConnect;
+using Crm.Application.Features.Quotes.Commands.SendQuote;
+using Crm.Application.Features.Quotes.Commands.StartMailboxConnect;
+using Crm.Application.Features.Quotes.Queries.GetQuoteSendDraft;
+using Crm.Application.Features.Quotes.Queries.GetQuoteSettings;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Features.Quotes.Shared.Pdf.Composing;
+using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
+using Crm.Application.Abstractions.Quotes;
 
 namespace IntegrationTests.Crm;
 
@@ -35,7 +37,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
     private async Task<string> StartConnect(QuoteActor actor, int userId)
     {
         await using var db = Context();
-        var result = await new StartMailboxConnectCommandHandler(_staff, _gmail, _protector)
+        var result = await new StartMailboxConnectHandler(_staff, _gmail, _protector)
             .Handle(new StartMailboxConnectCommand(actor, userId, "/crm/quote-settings"), default);
         Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
         return _protector.LastState!;
@@ -44,8 +46,8 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
     private async Task<string> Callback(string? code, string? state, string? error = null)
     {
         await using var db = Context();
-        var result = await new CompleteMailboxConnectCommandHandler(db, _gmail, _protector, Mail, _clock,
-            NullLogger<CompleteMailboxConnectCommandHandler>.Instance).Handle(
+        var result = await new CompleteMailboxConnectHandler(db, _gmail, _protector, Mail, _clock,
+            NullLogger<CompleteMailboxConnectHandler>.Instance).Handle(
             new CompleteMailboxConnectCommand(code, state, error), default);
         return result.Value;
     }
@@ -53,8 +55,8 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
     private async Task<Result<QuoteResponse>> Send(QuoteActor actor, long id, int version)
     {
         await using var db = Context();
-        return await new SendQuoteCommandHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer(), new QuoteTestNoCatalog()), _gmail,
-                _protector, _clock, NullLogger<SendQuoteCommandHandler>.Instance)
+        return await new SendQuoteHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer(), new QuoteTestNoCatalog()), _gmail,
+                _protector, _clock, NullLogger<SendQuoteHandler>.Instance)
             .Handle(new SendQuoteCommand(actor, id, new SendQuoteInput(version, "client@agro.test; boss@agro.test",
                 "КП № 1-11-2026", "Добрий день")), default);
     }
@@ -87,7 +89,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         Assert.That(mailbox.ConnectedByName, Is.EqualTo("Директор"));
         Assert.That(mailbox.ProtectedRefreshToken, Is.EqualTo("protected:refresh-1"));
 
-        var settings = (await new GetQuoteSettingsQueryHandler(db, _staff).Handle(new GetQuoteSettingsQuery(), default)).Value;
+        var settings = (await new GetQuoteSettingsHandler(db, _staff).Handle(new GetQuoteSettingsQuery(), default)).Value;
         Assert.That(settings.StaffContacts.Single(x => x.UserId == 17).MailboxEmail, Is.EqualTo("olena.manager@brevi.test"));
         Assert.That(settings.StaffContacts.Single(x => x.UserId == 1).MailboxEmail, Is.Null);
     }
@@ -97,7 +99,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
     {
         await using (var db = Context())
         {
-            var other = await new StartMailboxConnectCommandHandler(_staff, _gmail, _protector)
+            var other = await new StartMailboxConnectHandler(_staff, _gmail, _protector)
                 .Handle(new StartMailboxConnectCommand(Olena, 1, "/crm/quote-settings"), default);
             Assert.That(other.Status, Is.EqualTo(ResultStatus.Forbidden));
         }
@@ -157,7 +159,7 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
     {
         var id = await AddQuote();
         await using var db = Context();
-        var draft = (await new GetQuoteSendDraftQueryHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer(), new QuoteTestNoCatalog()), _gmail)
+        var draft = (await new GetQuoteSendDraftHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer(), new QuoteTestNoCatalog()), _gmail)
             .Handle(new GetQuoteSendDraftQuery(Olena, id), default)).Value;
 
         Assert.That(draft.FromEmail, Is.Null);

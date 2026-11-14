@@ -1,17 +1,17 @@
 using Ardalis.Result;
 using Ardalis.Specification;
-using Catalog.Application.Contracts.Media;
-using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Features.Product.OldSitePhotoImport;
-using Catalog.Application.Features.Product.Overview.Create;
-using Catalog.Application.Features.Product.Photos.DTOs;
-using Catalog.Application.Features.Product.Photos.SetPhotos;
-using Catalog.Application.Features.Product.Photos.SkuIndex;
 using Catalog.Domain.Media;
 using Catalog.Domain.Products;
 using Mediator;
 using Moq;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Media;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
+using Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
+using Catalog.Application.Features.Product.Commands.SetProductPhotos;
+using Catalog.Application.Features.Product.Queries.GetProductSkuIndex;
+using Catalog.Application.Features.Product.Shared.Photos;
 
 namespace UnitTests;
 
@@ -58,7 +58,7 @@ public sealed class OldSitePhotoImportTests
         var line = result.Value.Lines.Single();
         Assert.Multiple(() =>
         {
-            Assert.That(line.Status, Is.EqualTo(ImportOldSitePhotosCommandHandler.Created));
+            Assert.That(line.Status, Is.EqualTo(ImportOldSitePhotosHandler.Created));
             Assert.That(line.ProductId, Is.EqualTo(300));
             Assert.That(line.PhotosAdded, Is.EqualTo(2));
             Assert.That(setup.Created!.IsActive, Is.False);
@@ -104,7 +104,7 @@ public sealed class OldSitePhotoImportTests
     [Test]
     public void Real_run_takes_at_most_twenty_products_and_only_https()
     {
-        var validator = new ImportOldSitePhotosCommandValidator();
+        var validator = new ImportOldSitePhotosValidator();
         var many = Enumerable.Range(1, 21).Select(x => Old(x, ["1"])).ToList();
 
         Assert.Multiple(() =>
@@ -168,7 +168,7 @@ public sealed class OldSitePhotoImportTests
         public SetProductPhotosCommand? Saved { get; private set; }
 
         public async Task<Result<OldSitePhotoImportReport>> Run(bool dryRun, params OldSiteProduct[] products)
-            => await new ImportOldSitePhotosCommandHandler(Sender.Object, Products.Object, Sections.Object, Source.Object)
+            => await new ImportOldSitePhotosHandler(Sender.Object, Products.Object, Sections.Object, Source.Object)
                 .Handle(new ImportOldSitePhotosCommand(dryRun, BaseUrl, products, "user-1"), CancellationToken.None);
 
         private Product Build(int id)

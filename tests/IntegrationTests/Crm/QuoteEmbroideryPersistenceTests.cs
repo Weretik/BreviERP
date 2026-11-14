@@ -1,17 +1,18 @@
 using Ardalis.Result;
-using Crm.Application.Embroidery.Access;
-using Crm.Application.Embroidery.Contracts;
-using Crm.Application.Embroidery.SaveCalculation;
-using Crm.Application.Embroidery.StitchRate;
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.AddEmbroidery;
-using Crm.Application.Quotes.Building;
-using Crm.Application.Quotes.Catalog;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.CopyQuote;
-using Crm.Application.Quotes.CreateQuote;
-using Crm.Application.Quotes.SaveQuote;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Embroidery.Commands.SaveEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Shared;
+using Crm.Application.Features.Embroidery.Shared.Access;
+using Crm.Application.Features.Quotes.Commands.AddEmbroideryToQuote;
+using Crm.Application.Features.Quotes.Commands.CopyQuote;
+using Crm.Application.Features.Quotes.Commands.CreateQuote;
+using Crm.Application.Features.Quotes.Commands.SaveQuote;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Features.Quotes.Shared.Building;
+using Crm.Application.Features.Quotes.Shared.Catalog;
+using Crm.Application.Abstractions.Embroidery;
+using Crm.Application.Abstractions.Quotes;
 
 namespace IntegrationTests.Crm;
 
@@ -34,7 +35,7 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
     private async Task<long> SaveCalculation()
     {
         await using var db = Context();
-        var saved = await new SaveEmbroideryCalculationCommandHandler(db, new FixedStitchRate(), _staff, _clock)
+        var saved = await new SaveEmbroideryCalculationHandler(db, new FixedStitchRate(), _staff, _clock)
             .Handle(new SaveEmbroideryCalculationCommand(new EmbroideryActor(17, false),
                 new SaveEmbroideryCalculationInput("Логотип на поло", null,
                     new CalculateEmbroideryInput("Garment", 50, 10_000, "18", 1, 1, 1, "New", 60, null, "UsedBlanks",
@@ -46,14 +47,14 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
     private async Task<QuoteResponse> CreateQuote()
     {
         await using var db = Context();
-        return (await new CreateQuoteCommandHandler(_staff, _builder, new QuoteNumbering(db), _clock)
+        return (await new CreateQuoteHandler(_staff, _builder, new QuoteNumbering(db), _clock)
             .Handle(new CreateQuoteCommand(Olena, OneOff()), default)).Value;
     }
 
     private async Task<Result<QuoteResponse>> Add(QuoteActor actor, long quoteId, long calculationId)
     {
         await using var db = Context();
-        return await new AddEmbroideryToQuoteCommandHandler(db, db, _staff, _clock)
+        return await new AddEmbroideryToQuoteHandler(db, db, _staff, _clock)
             .Handle(new AddEmbroideryToQuoteCommand(actor, quoteId, calculationId), default);
     }
 
@@ -84,7 +85,7 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
         var input = OneOff(added.Value.Version) with { Items = [OneOff().Items[0], keep] };
         await using (var db = Context())
         {
-            var saved = await new SaveQuoteCommandHandler(db, _staff, _builder, _clock)
+            var saved = await new SaveQuoteHandler(db, _staff, _builder, _clock)
                 .Handle(new SaveQuoteCommand(Olena, quote.Id, input), default);
             Assert.That(saved.IsSuccess, Is.True, string.Join(",", saved.ValidationErrors.Select(x => x.ErrorMessage)));
             var kept = saved.Value.Items[^1];
@@ -93,7 +94,7 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
             Assert.That(kept.Options[0].Large.Amount, Is.EqualTo(unit));
             Assert.That(kept.EmbroideryCalculationId, Is.EqualTo(calculationId));
 
-            var copy = await new CopyQuoteCommandHandler(db, _staff, new QuoteNumbering(db), _clock)
+            var copy = await new CopyQuoteHandler(db, _staff, new QuoteNumbering(db), _clock)
                 .Handle(new CopyQuoteCommand(Olena, quote.Id), default);
             Assert.That(copy.Value.Items[^1].EmbroideryCalculationId, Is.EqualTo(calculationId));
         }
@@ -111,7 +112,7 @@ public sealed class QuoteEmbroideryPersistenceTests : CrmDatabaseFixture
         var typed = new QuoteItemInput(null, "Embroidery", null, null, null, null, null,
             [new QuoteOptionInput(null, null, false, new(true, null), new(true, null), new(true, null), null)]);
         await using var db = Context();
-        var saved = await new SaveQuoteCommandHandler(db, _staff, _builder, _clock).Handle(
+        var saved = await new SaveQuoteHandler(db, _staff, _builder, _clock).Handle(
             new SaveQuoteCommand(Olena, quote.Id, OneOff(quote.Version) with { Items = [typed] }), default);
         Assert.That(saved.Status, Is.EqualTo(ResultStatus.Invalid));
     }

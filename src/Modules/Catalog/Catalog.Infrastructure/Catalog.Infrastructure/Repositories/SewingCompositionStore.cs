@@ -1,9 +1,9 @@
 using BuildingBlocks.Domain.Results;
-using Catalog.Application.Features.Product.Sewing;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.History;
 using Npgsql;
+using Catalog.Application.Abstractions;
 
 namespace Catalog.Infrastructure.Repositories;
 

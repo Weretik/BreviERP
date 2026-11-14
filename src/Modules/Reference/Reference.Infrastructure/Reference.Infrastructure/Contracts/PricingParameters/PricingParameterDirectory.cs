@@ -1,6 +1,6 @@
 using Mediator;
-using Reference.Application.Features.PricingParameter.GetList;
 using Reference.Contracts.PricingParameters;
+using Reference.Application.Features.PricingParameter.Queries.GetPricingParameters;
 
 namespace Reference.Infrastructure.Contracts.PricingParameters;
 

@@ -1,6 +1,6 @@
 using Ardalis.Result;
-using Catalog.Application.Features.Product.GetAdminList;
 using Catalog.Domain.Products;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts;
 
 namespace Catalog.Api.Contracts.Products;
 

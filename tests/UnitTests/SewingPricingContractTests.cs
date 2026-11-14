@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using System.Text.Json;
 using Catalog.Api.Contracts.Pricing.Sewing.Calculations;
 using Catalog.Api.Contracts.Pricing.Sewing.Settings;
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Features.Pricing.Sewing.ArticleSummary;
-using Catalog.Application.Features.Pricing.Sewing.Preview;
 using Catalog.Domain.Pricing.Sewing;
 using YamlDotNet.RepresentationModel;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Queries.GetSewingArticleSummary;
 
 namespace UnitTests;
 

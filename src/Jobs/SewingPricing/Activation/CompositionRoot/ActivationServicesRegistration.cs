@@ -1,7 +1,7 @@
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Contracts.Reference;
 using Microsoft.Extensions.DependencyInjection;
 using SewingPricing.Jobs.Reading;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Reference;
 
 namespace SewingPricing.Jobs.Activation;
 

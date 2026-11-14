@@ -5,7 +5,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Ardalis.Result;
 using Catalog.Api;
-using Catalog.Application.Features.Product.Sewing;
 using Mediator;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -16,6 +15,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Catalog.Application.Features.Product.Commands.CreateSewingArticle;
+using Catalog.Application.Features.Product.Commands.DeleteSewingArticle;
+using Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
+using Catalog.Application.Features.Product.Commands.UpdateSewingArticle;
+using Catalog.Application.Features.Product.Queries.GetSewingComposition;
+using Catalog.Application.Features.Product.Queries.ListSewingArticles;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace IntegrationTests;
 

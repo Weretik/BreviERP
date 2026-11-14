@@ -1,8 +1,8 @@
-using Crm.Application.Customers.KeepinCrmSync;
-using Crm.Application.Customers.Lookup;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
 using Crm.Infrastructure.Persistence.Customers.Reading;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
+using Crm.Application.Features.Customers.Queries.GetCustomersByKeepinIds;
 
 namespace IntegrationTests.Crm;
 
@@ -28,7 +28,7 @@ public sealed class CustomerKeepinLookupTests : CrmDatabaseFixture
         }
 
         await using var read = Context();
-        var rows = await new GetCustomersByKeepinIdsQueryHandler(new CustomerReadRepository(read))
+        var rows = await new GetCustomersByKeepinIdsHandler(new CustomerReadRepository(read))
             .Handle(new GetCustomersByKeepinIdsQuery(["100", "200", "300"]), default);
 
         Assert.That(rows.OrderBy(x => x.KeepinId), Is.EqualTo(new[]

@@ -1,5 +1,5 @@
-using Catalog.Application.Contracts.Persistence.ProductOverview;
 using Catalog.Infrastructure.DataBase;
+using Catalog.Application.Abstractions;
 
 namespace Catalog.Infrastructure.Products.Overview;
 

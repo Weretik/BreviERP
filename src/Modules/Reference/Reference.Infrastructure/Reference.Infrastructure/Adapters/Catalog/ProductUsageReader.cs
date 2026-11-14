@@ -1,6 +1,5 @@
 using Catalog.Contracts.Products;
-using Reference.Application.Contracts.Catalog;
-using Reference.Application.Contracts.Pricing;
+using Reference.Application.Abstractions;
 
 namespace Reference.Infrastructure.Adapters.Catalog;
 

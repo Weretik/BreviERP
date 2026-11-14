@@ -1,9 +1,9 @@
 using Reference.Api.Contracts.FabricColors;
-using Reference.Application.Features.FabricColor.Create;
-using Reference.Application.Features.FabricColor.Delete;
-using Reference.Application.Features.FabricColor.GetList;
 using Reference.Application.Features.FabricColor.Shared;
-using Reference.Application.Features.FabricColor.Update;
+using Reference.Application.Features.FabricColor.Commands.CreateFabricColor;
+using Reference.Application.Features.FabricColor.Commands.DeleteFabricColor;
+using Reference.Application.Features.FabricColor.Commands.UpdateFabricColor;
+using Reference.Application.Features.FabricColor.Queries.GetFabricColors;
 
 namespace Reference.Api.Controllers;
 

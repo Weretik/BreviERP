@@ -1,6 +1,6 @@
 using Mediator;
-using Reference.Application.Features.Fabric.GetList;
 using Reference.Contracts.Fabrics;
+using Reference.Application.Features.Fabric.Queries.GetAllFabric;
 
 namespace Reference.Infrastructure.Contracts.Fabrics;
 

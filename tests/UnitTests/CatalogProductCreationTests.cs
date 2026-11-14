@@ -1,14 +1,13 @@
 using Ardalis.Result;
 using Ardalis.Specification;
-using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Contracts.SlugGeneration;
-using Catalog.Application.Features.Product.Overview.Create;
 using Catalog.Domain.Pricing.Ppe;
 using Catalog.Domain.Products;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Commands.CreateCatalogProduct;
 
 namespace UnitTests;
 
@@ -89,7 +88,7 @@ public sealed class CatalogProductCreationTests
             Assert.That(profile.SupplierPrice, Is.EqualTo(518.64m));
             Assert.That(profile.PricingRuleCode, Is.EqualTo(RuleCode));
             Assert.That(profile.Unit, Is.EqualTo("шт."));
-            Assert.That(written!.Source, Is.EqualTo(CreateCatalogProductCommandHandler.OfferSource));
+            Assert.That(written!.Source, Is.EqualTo(CreateCatalogProductHandler.OfferSource));
             Assert.That(written.Source, Is.EqualTo("Створення ЗІЗ"));
             Assert.That(written.SupplierCost, Is.EqualTo(518.64m));
             Assert.That(written.RuleCode, Is.EqualTo(RuleCode));
@@ -159,7 +158,7 @@ public sealed class CatalogProductCreationTests
         public Mock<IPpeOfferVersionWriter> Offers { get; } = new();
         public Mock<IProductSlugGenerator> Slugs { get; } = new();
         public Product? Added { get; private set; }
-        public CreateCatalogProductCommandHandler Handler { get; }
+        public CreateCatalogProductHandler Handler { get; }
 
         public Setup(bool withExisting = true)
         {
@@ -187,7 +186,7 @@ public sealed class CatalogProductCreationTests
             inputs.Setup(x => x.ReadRuleAsync(RuleCode, It.IsAny<CancellationToken>())).ReturnsAsync(Rule());
             Slugs.Setup(x => x.GenerateFromUkrainianName(It.IsAny<string>())).Returns("kurtka-verde");
 
-            Handler = new CreateCatalogProductCommandHandler(Repository.Object, sections.Object, references.Object,
+            Handler = new CreateCatalogProductHandler(Repository.Object, sections.Object, references.Object,
                 inputs.Object, Offers.Object, Slugs.Object, new FakeTimeProvider(Now));
         }
     }

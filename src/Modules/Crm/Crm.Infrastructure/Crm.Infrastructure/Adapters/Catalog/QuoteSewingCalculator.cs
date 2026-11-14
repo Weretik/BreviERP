@@ -1,10 +1,11 @@
 using Catalog.Contracts.Sewing;
-using Crm.Application.Quotes.Catalog;
-using Crm.Application.Quotes.CustomSewing;
 using Crm.Domain.Quotes;
 using Reference.Contracts.Fabrics;
 using Reference.Contracts.GarmentAccessories;
 using Reference.Contracts.GarmentPartOperations;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Catalog;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Adapters.Catalog;
 

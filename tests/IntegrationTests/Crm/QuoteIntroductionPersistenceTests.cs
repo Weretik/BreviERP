@@ -1,17 +1,18 @@
 using Ardalis.Result;
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Building;
-using Crm.Application.Quotes.Catalog;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.Introductions.Building;
-using Crm.Application.Quotes.Introductions.Contracts;
-using Crm.Application.Quotes.Introductions.CreateIntroduction;
-using Crm.Application.Quotes.Introductions.SaveIntroduction;
-using Crm.Application.Quotes.Introductions.Templates.CreateTemplate;
-using Crm.Application.Quotes.Introductions.Templates.DeleteTemplate;
-using Crm.Application.Quotes.Introductions.Templates.GetTemplates;
-using Crm.Application.Quotes.SaveQuote;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Commands.CreateQuoteIntroTemplate;
+using Crm.Application.Features.Quotes.Commands.CreateQuoteIntroduction;
+using Crm.Application.Features.Quotes.Commands.DeleteQuoteIntroTemplate;
+using Crm.Application.Features.Quotes.Commands.SaveQuote;
+using Crm.Application.Features.Quotes.Commands.SaveQuoteIntroduction;
+using Crm.Application.Features.Quotes.Queries.GetQuoteIntroTemplates;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Features.Quotes.Shared.Building;
+using Crm.Application.Features.Quotes.Shared.Catalog;
+using Crm.Application.Features.Quotes.Shared.Introductions;
+using Crm.Application.Features.Quotes.Shared.Introductions.Building;
+using Crm.Application.Abstractions.Quotes;
 
 namespace IntegrationTests.Crm;
 
@@ -38,7 +39,7 @@ public sealed class QuoteIntroductionPersistenceTests : CrmDatabaseFixture
     {
         await using var db = Context();
         var builder = new QuoteIntroductionBuilder(new QuoteItemsBuilder(_catalog), db);
-        return await new CreateQuoteIntroductionCommandHandler(_staff, builder, new QuoteNumbering(db), _clock)
+        return await new CreateQuoteIntroductionHandler(_staff, builder, new QuoteNumbering(db), _clock)
             .Handle(new CreateQuoteIntroductionCommand(Olena, input), default);
     }
 
@@ -80,9 +81,9 @@ public sealed class QuoteIntroductionPersistenceTests : CrmDatabaseFixture
 
         await using var db = Context();
         var builder = new QuoteIntroductionBuilder(new QuoteItemsBuilder(_catalog), db);
-        var saved = await new SaveQuoteIntroductionCommandHandler(db, _staff, builder, _clock)
+        var saved = await new SaveQuoteIntroductionHandler(db, _staff, builder, _clock)
             .Handle(new SaveQuoteIntroductionCommand(Olena, created.Id, General(created.Version) with { Pages = pages }), default);
-        var asRequest = await new SaveQuoteCommandHandler(db, _staff, new QuoteItemsBuilder(_catalog), _clock)
+        var asRequest = await new SaveQuoteHandler(db, _staff, new QuoteItemsBuilder(_catalog), _clock)
             .Handle(new SaveQuoteCommand(Olena, created.Id,
                 new SaveQuoteInput(saved.Value.Version, "x", null, null, null, null, null, [])), default);
 
@@ -97,15 +98,15 @@ public sealed class QuoteIntroductionPersistenceTests : CrmDatabaseFixture
     {
         var input = new CreateQuoteIntroTemplateInput("Агро база", "Summer", null, [Page("Summer", 1, 2, 3, 4)]);
         await using var db = Context();
-        var create = new CreateQuoteIntroTemplateCommandHandler(db, _staff, _catalog, _clock);
+        var create = new CreateQuoteIntroTemplateHandler(db, _staff, _catalog, _clock);
         var first = await create.Handle(new CreateQuoteIntroTemplateCommand(Olena, input), default);
         var duplicate = await create.Handle(new CreateQuoteIntroTemplateCommand(Olena, input with { Name = " агро БАЗА " }), default);
 
         await using var read = Context();
-        var forPetro = await new GetQuoteIntroTemplatesQueryHandler(read).Handle(new GetQuoteIntroTemplatesQuery(Petro), default);
-        var byPetro = await new DeleteQuoteIntroTemplateCommandHandler(read)
+        var forPetro = await new GetQuoteIntroTemplatesHandler(read).Handle(new GetQuoteIntroTemplatesQuery(Petro), default);
+        var byPetro = await new DeleteQuoteIntroTemplateHandler(read)
             .Handle(new DeleteQuoteIntroTemplateCommand(Petro, first.Value.Id), default);
-        var byDirector = await new DeleteQuoteIntroTemplateCommandHandler(read)
+        var byDirector = await new DeleteQuoteIntroTemplateHandler(read)
             .Handle(new DeleteQuoteIntroTemplateCommand(Director, first.Value.Id), default);
 
         Assert.That(first.IsSuccess, Is.True, string.Join(",", first.Errors));

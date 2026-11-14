@@ -1,18 +1,18 @@
 using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
-using Crm.Application.Leads.Contracts;
-using Crm.Application.Leads.GetLead;
-using Crm.Application.Leads.GetLeadCallResults;
-using Crm.Application.Leads.GetLeads;
-using Crm.Application.Leads.GetMyDay;
-using Crm.Application.Leads.RecordLeadCall;
-using Crm.Application.Leads.ReleaseLead;
-using Crm.Application.Leads.TakeLead;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Leads.Commands.RecordLeadCall;
+using Crm.Application.Features.Leads.Commands.ReleaseLead;
+using Crm.Application.Features.Leads.Commands.TakeLead;
+using Crm.Application.Features.Leads.Queries.GetLead;
+using Crm.Application.Features.Leads.Queries.GetLeadCallResults;
+using Crm.Application.Features.Leads.Queries.GetLeads;
+using Crm.Application.Features.Leads.Queries.GetMyDay;
+using Crm.Application.Features.Leads.Shared;
 
 namespace Crm.Api.Leads;
 

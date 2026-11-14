@@ -1,8 +1,8 @@
 using Crm.Infrastructure.Persistence;
-using Crm.Application.Customers.Persistence;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Microsoft.EntityFrameworkCore;
+using Crm.Application.Abstractions.Customers;
 namespace Crm.Infrastructure.Persistence.Customers.Writing;
 
 internal sealed class CustomerWriteSession(CrmDbContext db) : ICustomerWriteSession

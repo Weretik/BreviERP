@@ -1,6 +1,6 @@
-using Catalog.Application.Contracts.Pricing;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Infrastructure.DataBase;
+using Catalog.Application.Abstractions.Pricing;
 
 namespace Catalog.Infrastructure.Pricing.Reading;
 

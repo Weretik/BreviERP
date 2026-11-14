@@ -1,13 +1,9 @@
 using Reference.Api.Contracts.ProductSections;
-using Reference.Application.Features.ProductSection.Create;
-using Reference.Application.Features.ProductSection.Create.DTOs;
-using Reference.Application.Features.ProductSection.Delete;
-using Reference.Application.Features.ProductSection.GetList;
-using Reference.Application.Features.ProductSection.GetList.DTOs;
-using Reference.Application.Features.ProductSection.Import;
-using Reference.Application.Features.ProductSection.Import.DTOs;
-using Reference.Application.Features.ProductSection.Update;
-using Reference.Application.Features.ProductSection.Update.DTOs;
+using Reference.Application.Features.ProductSection.Commands.CreateProductSection;
+using Reference.Application.Features.ProductSection.Commands.DeleteProductSection;
+using Reference.Application.Features.ProductSection.Commands.ImportProductSections;
+using Reference.Application.Features.ProductSection.Commands.UpdateProductSection;
+using Reference.Application.Features.ProductSection.Queries.GetProductSections;
 
 namespace Reference.Api.Controllers;
 

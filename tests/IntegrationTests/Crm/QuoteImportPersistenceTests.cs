@@ -1,17 +1,17 @@
-using Crm.Application.Customers.KeepinCrmSync;
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Building;
-using Crm.Application.Quotes.Catalog;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.CreateQuote;
-using Crm.Application.Quotes.CustomSewing;
-using Crm.Application.Quotes.History;
-using Crm.Application.Quotes.Import;
-using Crm.Application.Quotes.RepriceQuote;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
 using Crm.Domain.Quotes;
 using Microsoft.EntityFrameworkCore;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
+using Crm.Application.Features.Quotes.Commands.CreateQuote;
+using Crm.Application.Features.Quotes.Commands.ImportQuotes;
+using Crm.Application.Features.Quotes.Commands.RepriceQuote;
+using Crm.Application.Features.Quotes.Queries.GetQuoteHistory;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Features.Quotes.Shared.Building;
+using Crm.Application.Features.Quotes.Shared.Catalog;
+using Crm.Application.Abstractions.Quotes;
 
 namespace IntegrationTests.Crm;
 
@@ -40,7 +40,7 @@ public sealed class QuoteImportPersistenceTests : CrmDatabaseFixture
     private async Task<QuoteImportReport> Import(bool dryRun, params ImportQuoteInput[] quotes)
     {
         await using var db = Context();
-        var result = await new ImportQuotesCommandHandler(db, new QuoteTestStaff(), new EmptyLookup(), _clock)
+        var result = await new ImportQuotesHandler(db, new QuoteTestStaff(), new EmptyLookup(), _clock)
             .Handle(new ImportQuotesCommand(Director, dryRun, quotes), default);
         Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
         return result.Value;
@@ -60,7 +60,7 @@ public sealed class QuoteImportPersistenceTests : CrmDatabaseFixture
         // A new Brevi КП already holds 1-11-2026.
         await using (var db = Context())
         {
-            var created = await new CreateQuoteCommandHandler(new QuoteTestStaff(), new QuoteItemsBuilder(new NoCatalog()),
+            var created = await new CreateQuoteHandler(new QuoteTestStaff(), new QuoteItemsBuilder(new NoCatalog()),
                     new QuoteNumbering(db), _clock)
                 .Handle(new CreateQuoteCommand(Director, new SaveQuoteInput(0, "Новий", null, null, null, null, null, [])),
                     default);
@@ -94,13 +94,13 @@ public sealed class QuoteImportPersistenceTests : CrmDatabaseFixture
                 Assert.That(imported[0].Items.Single().Options.Single().Retail.Amount, Is.EqualTo(900m));
             });
 
-            var history = (await new GetQuoteHistoryQueryHandler(db)
+            var history = (await new GetQuoteHistoryHandler(db)
                 .Handle(new GetQuoteHistoryQuery(Director, imported[1].Id), default)).Value;
             Assert.That(history.Select(x => x.Kind), Is.EquivalentTo(new[] { "Created", "Sent", "Imported" }));
             Assert.That(history.Single(x => x.Kind == "Imported").Details,
                 Is.EqualTo("Перенесено з калькулятора, старий номер 1-11-2026"));
 
-            var reprice = await new RepriceQuoteCommandHandler(db, new QuoteTestStaff(), new NoCatalog(), _clock,
+            var reprice = await new RepriceQuoteHandler(db, new QuoteTestStaff(), new NoCatalog(), _clock,
                     new NoSewing())
                 .Handle(new RepriceQuoteCommand(Director, imported[0].Id, imported[0].Version, false), default);
             Assert.That(reprice.Value.Unavailable.Single().Reason, Is.EqualTo(QuoteImportMapper.MissingCompositionReason));

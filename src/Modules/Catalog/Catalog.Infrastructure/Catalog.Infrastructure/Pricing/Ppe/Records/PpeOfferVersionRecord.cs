@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Catalog.Application.Contracts.Pricing.Ppe;
+using Catalog.Application.Abstractions.Pricing;
 namespace Catalog.Infrastructure.Pricing.Ppe.Records;
 public sealed class PpeOfferVersionRecord
 {

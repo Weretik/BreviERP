@@ -1,6 +1,5 @@
-using Catalog.Application.Features.Product.Overview.Update;
-using Catalog.Application.Features.Product.Overview.Update.Validators;
 using Catalog.Domain.Products;
+using Catalog.Application.Features.Product.Commands.UpdateProductOverview;
 
 namespace UnitTests;
 
@@ -61,7 +60,7 @@ public sealed class ProductOverviewTests
     [TestCase(null, "ftp://brevi.com.ua/x")]
     public void Validator_rejects_unknown_season_and_non_web_link(string? season, string? url)
     {
-        var result = new UpdateProductOverviewCommandValidator().Validate(
+        var result = new UpdateProductOverviewValidator().Validate(
             new UpdateProductOverviewCommand(1, "MOD-001", 2, season, true, url, null));
 
         Assert.That(result.IsValid, Is.False);
@@ -70,7 +69,7 @@ public sealed class ProductOverviewTests
     [Test]
     public void Validator_accepts_a_sheet_row()
     {
-        var result = new UpdateProductOverviewCommandValidator().Validate(new UpdateProductOverviewCommand(
+        var result = new UpdateProductOverviewValidator().Validate(new UpdateProductOverviewCommand(
             1, "MOD-025", 2, "Літо", true, "https://brevi.com.ua/specodyag-litnij/kostyum-verde",
             "Костюм із курткою та штанами."));
 

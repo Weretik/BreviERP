@@ -1,10 +1,9 @@
-using Catalog.Application.Features.Product.Overview.GetList;
-using Catalog.Application.Features.Product.Overview.GetList.DTOs;
-using Catalog.Application.Features.Product.Overview.GetOne;
-using Catalog.Application.Features.Product.Photos.GetPhotos;
 using Catalog.Contracts.Products;
 using Catalog.Domain.Products;
 using Mediator;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewItem;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
+using Catalog.Application.Features.Product.Queries.GetProductPhotos;
 
 namespace Catalog.Infrastructure.Contracts.Products;
 

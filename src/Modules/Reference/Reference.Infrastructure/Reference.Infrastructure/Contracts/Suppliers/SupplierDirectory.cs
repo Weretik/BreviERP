@@ -1,6 +1,6 @@
 using Mediator;
-using Reference.Application.Features.Supplier.GetList;
 using Reference.Contracts.Suppliers;
+using Reference.Application.Features.Supplier.Queries.GetSuppliers;
 
 namespace Reference.Infrastructure.Contracts.Suppliers;
 

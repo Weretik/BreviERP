@@ -1,10 +1,10 @@
 using Crm.Domain.Embroidery.Settings;
-using Crm.Application.Embroidery.Access;
-using Crm.Application.Embroidery.Contracts;
-using Crm.Application.Embroidery.GetCalculations;
-using Crm.Application.Embroidery.ImportArchive;
-using Crm.Application.Embroidery.SaveCalculation;
 using Crm.Domain.Embroidery.Saved;
+using Crm.Application.Features.Embroidery.Commands.ImportEmbroideryArchive;
+using Crm.Application.Features.Embroidery.Commands.SaveEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculations;
+using Crm.Application.Features.Embroidery.Shared;
+using Crm.Application.Features.Embroidery.Shared.Access;
 
 namespace UnitTests.Crm.Embroidery;
 
@@ -14,7 +14,7 @@ public sealed class EmbroiderySavedTests
     private static CalculateEmbroideryInput Form() =>
         new("Garment", 50, 10_000, "18", 1, 1, 1, "New", 60, null, "UsedBlanks", null);
 
-    private static bool Valid(SaveEmbroideryCalculationInput input) => new SaveEmbroideryCalculationCommandValidator()
+    private static bool Valid(SaveEmbroideryCalculationInput input) => new SaveEmbroideryCalculationValidator()
         .Validate(new SaveEmbroideryCalculationCommand(new EmbroideryActor(17, false), input)).IsValid;
 
     [Test]
@@ -53,7 +53,7 @@ public sealed class EmbroiderySavedTests
     [Test]
     public void ListPageIsLimited()
     {
-        var validator = new GetEmbroideryCalculationsQueryValidator();
+        var validator = new GetEmbroideryCalculationsValidator();
         var actor = new EmbroideryActor(17, false);
         Assert.That(validator.Validate(new GetEmbroideryCalculationsQuery(actor, null)).IsValid, Is.True);
         Assert.That(validator.Validate(new GetEmbroideryCalculationsQuery(actor, null, 1, 101)).IsValid, Is.False);
@@ -63,7 +63,7 @@ public sealed class EmbroiderySavedTests
     [Test]
     public void ArchiveImportNeedsRowsWithAnIdAndPrices()
     {
-        var validator = new ImportEmbroideryArchiveCommandValidator();
+        var validator = new ImportEmbroideryArchiveValidator();
         var actor = new EmbroideryActor(1, true);
         var settings = new SaveEmbroiderySettingsInput(0, new EmbroideryRatesDto(0.3m, 10m, 300m, 24m),
             [new("Опт", 60m), new("Стандарт", 90m), new("Терміново", 120m)], new EmbroideryMaterialDto(20m, 90m),

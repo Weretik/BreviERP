@@ -1,6 +1,6 @@
-using Crm.Application.Tasks.Staff;
 
 using Identity.Contracts.Staff;
+using Crm.Application.Abstractions.Tasks;
 
 namespace Crm.Infrastructure.Adapters.Identity;
 

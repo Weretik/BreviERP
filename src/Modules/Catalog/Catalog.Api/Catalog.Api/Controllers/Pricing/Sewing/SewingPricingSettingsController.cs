@@ -1,9 +1,9 @@
 using BuildingBlocks.Api.Authorization;
 using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Sewing.Settings;
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Features.Pricing.Sewing.Settings.CreateVersion;
-using Catalog.Application.Features.Pricing.Sewing.Settings.GetCurrent;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
+using Catalog.Application.Features.Pricing.Queries.GetSewingSettings;
 
 namespace Catalog.Api.Controllers.Pricing.Sewing;
 

@@ -1,15 +1,14 @@
 using Catalog.Api.Contracts.Pricing.Ppe;
-using Catalog.Application.Contracts.Pricing.Ppe;
 using Catalog.Domain.Pricing.Ppe;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using System.Text.Json;
 using Catalog.Api.Contracts.Pricing.Sewing.Calculations;
 using Catalog.Api.Contracts.Pricing.Sewing.Settings;
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Features.Pricing.Sewing.Preview;
 using Catalog.Domain.Pricing.Sewing;
 using YamlDotNet.RepresentationModel;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Shared;
 
 namespace UnitTests;
 
@@ -29,7 +28,7 @@ public sealed class PpePricingContractTests
     [TestCase(typeof(PpeOfferVersion))]
     [TestCase(typeof(CreatePpeOfferVersionRequest))]
     [TestCase(typeof(PpeProductPricing))]
-    [TestCase(typeof(Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Shared.PpeSupplierOffer))]
+    [TestCase(typeof(Catalog.Application.Features.Pricing.Shared.Ppe.SupplierOffer.PpeSupplierOffer))]
     [TestCase(typeof(UpdatePpeSupplierOfferRequest))]
     public void Serialized_properties_match_the_machine_contract(Type type)
     {

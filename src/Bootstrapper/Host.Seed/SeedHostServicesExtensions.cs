@@ -16,7 +16,6 @@ using CatalogImport.Persistence;
 using BuildingBlocks.Infrastructure.Migrations;
 using Microsoft.EntityFrameworkCore;
 using SewingPricing.Jobs.Activation;
-using Crm.Application.Tasks.Staff;
 
 namespace Host.Seed;
 

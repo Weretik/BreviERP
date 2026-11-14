@@ -12,7 +12,8 @@ src/Modules/Reference/
 │   ├── Controllers/FabricColorsController.cs        # /api/reference/fabric-colors
 │   └── Contracts/FabricColors/FabricColorRequest.cs
 ├── Reference.Application/Reference.Application/Features/FabricColor/
-│   ├── {Create,Update,Delete,GetList}/              # CRUD and list, FluentValidation
+│   ├── Commands/{Create,Update,Delete}FabricColor/  # CRUD, FluentValidation
+│   ├── Queries/GetFabricColors/                     # list
 │   └── Shared/                                      # fields, validator, duplicate key, spec
 ├── Reference.Domain/Reference.Domain/FabricColors/  # entity, details, errors, id
 └── Reference.Infrastructure/Reference.Infrastructure/

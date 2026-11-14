@@ -1,4 +1,4 @@
-using Catalog.Application.Features.Product.Sewing;
+using Catalog.Application.Abstractions;
 
 namespace SewingPricing.Jobs.Activation;
 

@@ -1,5 +1,5 @@
-using Catalog.Application.Features.Product.Sewing;
 using Catalog.Domain.Pricing.Sewing;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace SewingPricing.Jobs.Activation;
 

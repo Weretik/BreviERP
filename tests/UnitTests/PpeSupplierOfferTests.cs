@@ -1,14 +1,13 @@
 using Ardalis.Result;
 using Ardalis.Specification;
-using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Update;
-using Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Update.Validators;
 using Catalog.Domain.Pricing.Ppe;
 using Catalog.Domain.Products;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Pricing.Commands.UpdatePpeSupplierOffer;
 
 namespace UnitTests;
 
@@ -52,13 +51,13 @@ public sealed class PpeSupplierOfferTests
     [TestCase(5, "ftp://avcentr.com.ua/x")]
     public void Validator_rejects_missing_supplier_and_non_web_link(int supplierId, string? url)
     {
-        var result = new UpdatePpeSupplierOfferCommandValidator().Validate(Command(supplierId: supplierId, url: url));
+        var result = new UpdatePpeSupplierOfferValidator().Validate(Command(supplierId: supplierId, url: url));
         Assert.That(result.IsValid, Is.False);
     }
 
     [Test]
     public void Validator_rejects_more_than_two_decimals()
-        => Assert.That(new UpdatePpeSupplierOfferCommandValidator().Validate(Command(price: 1.005m)).IsValid, Is.False);
+        => Assert.That(new UpdatePpeSupplierOfferValidator().Validate(Command(price: 1.005m)).IsValid, Is.False);
 
     [Test]
     public async Task New_supplier_price_appends_an_approved_offer_version_with_the_insight_prices()
@@ -78,7 +77,7 @@ public sealed class PpeSupplierOfferTests
             Assert.That(written!.SupplierCost, Is.EqualTo(518.64m));
             Assert.That(written.RuleCode, Is.EqualTo("Одяг ЗІЗ — АВ-Центр"));
             Assert.That(written.ExternalWholesale, Is.EqualTo(700m));
-            Assert.That(written.Source, Is.EqualTo(UpdatePpeSupplierOfferCommandHandler.Source));
+            Assert.That(written.Source, Is.EqualTo(UpdatePpeSupplierOfferHandler.Source));
             Assert.That(written.SourceDate, Is.EqualTo("03.11.2026"));
         });
         setup.Products.Verify(x => x.UpdateAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -115,7 +114,7 @@ public sealed class PpeSupplierOfferTests
     {
         public Mock<ICatalogRepository<Product>> Products { get; } = new();
         public Mock<IPpeOfferVersionWriter> Offers { get; } = new();
-        public UpdatePpeSupplierOfferCommandHandler Handler { get; }
+        public UpdatePpeSupplierOfferHandler Handler { get; }
 
         public Setup(PpeOfferVersion offer)
         {
@@ -133,7 +132,7 @@ public sealed class PpeSupplierOfferTests
             inputs.Setup(x => x.ReadRuleAsync("Одяг ЗІЗ — АВ-Центр", It.IsAny<CancellationToken>())).ReturnsAsync(rule);
             inputs.Setup(x => x.ReadAsync(It.IsAny<IReadOnlyCollection<int>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync([new PpePricingProductInput(101, true, offer, rule)]);
-            Handler = new UpdatePpeSupplierOfferCommandHandler(Products.Object, references.Object, inputs.Object,
+            Handler = new UpdatePpeSupplierOfferHandler(Products.Object, references.Object, inputs.Object,
                 Offers.Object, new FakeTimeProvider(Now));
         }
     }

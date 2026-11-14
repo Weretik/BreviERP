@@ -1,9 +1,9 @@
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.GetQuote;
-using Crm.Application.Quotes.GetQuotes;
 using Crm.Contracts.Quotes;
 using Mediator;
+using Crm.Application.Features.Quotes.Queries.GetQuote;
+using Crm.Application.Features.Quotes.Queries.GetQuotes;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Access;
 
 namespace Crm.Infrastructure.Contracts.Quotes;
 

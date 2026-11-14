@@ -1,6 +1,6 @@
-using Catalog.Application.Features.Pricing.Sewing.AutoPublication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 
 namespace Host.Seed.Jobs.Sync;
 

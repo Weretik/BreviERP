@@ -1,10 +1,10 @@
 using Ardalis.Result;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.Products;
-using Catalog.Application.Features.Pricing.Ppe.Evaluation;
-using Catalog.Application.Features.Pricing.Ppe.Rules.CreateVersion;
-using Catalog.Application.Features.Pricing.Ppe.Offers.CreateVersion;
 using Moq;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.CreatePpeOfferVersion;
+using Catalog.Application.Features.Pricing.Commands.CreatePpeRuleVersion;
+using Catalog.Application.Features.Pricing.Queries.GetPpeProductPrices;
+using Catalog.Application.Features.Pricing.Shared.Ppe.Evaluation;
 namespace UnitTests;
 
 public sealed class PpePricingQueryTests
@@ -12,7 +12,7 @@ public sealed class PpePricingQueryTests
     [Test]
     public void Invalid_product_sets_are_rejected_by_the_validator()
     {
-        var validator = new GetPpeProductPricesQueryValidator();
+        var validator = new GetPpeProductPricesValidator();
         foreach (var ids in new int[][] { [], [0], [1, 1], Enumerable.Range(1, 101).ToArray() })
             Assert.That(validator.Validate(new GetPpeProductPricesQuery(ids)).IsValid, Is.False);
         Assert.That(validator.Validate(new GetPpeProductPricesQuery([1, 2])).IsValid, Is.True);
@@ -30,9 +30,9 @@ public sealed class PpePricingQueryTests
     public void Invalid_amount_precision_or_actor_are_rejected_by_the_validators()
     {
         var values = new PpeOfferValues("rule", 100.0000001m, null, null, "source", "2026-10-25");
-        var offer = new CreatePpeOfferVersionCommandValidator().Validate(new CreatePpeOfferVersionCommand(42, null, Guid.NewGuid(), values, "manager"));
+        var offer = new CreatePpeOfferVersionValidator().Validate(new CreatePpeOfferVersionCommand(42, null, Guid.NewGuid(), values, "manager"));
         Assert.That(offer.Errors.Select(x => x.PropertyName), Is.EquivalentTo(new[] { "Values" }));
-        var rule = new CreatePpeRuleVersionCommandValidator().Validate(new CreatePpeRuleVersionCommand(null, Guid.NewGuid(), new("r", new(.5m, .3m, .2m), "source", "date"), ""));
+        var rule = new CreatePpeRuleVersionValidator().Validate(new CreatePpeRuleVersionCommand(null, Guid.NewGuid(), new("r", new(.5m, .3m, .2m), "source", "date"), ""));
         Assert.That(rule.Errors.Select(x => x.PropertyName), Is.EquivalentTo(new[] { "Actor" }));
     }
 }

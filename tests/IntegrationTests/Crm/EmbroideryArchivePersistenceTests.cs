@@ -1,11 +1,11 @@
 using Ardalis.Result;
-using Crm.Application.Embroidery.Access;
-using Crm.Application.Embroidery.Contracts;
-using Crm.Application.Embroidery.GetCalculation;
-using Crm.Application.Embroidery.ImportArchive;
-using Crm.Application.Embroidery.Mapping;
-using Crm.Application.Embroidery.StitchRate;
 using Crm.Domain.Embroidery.Settings;
+using Crm.Application.Features.Embroidery.Commands.ImportEmbroideryArchive;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Shared;
+using Crm.Application.Features.Embroidery.Shared.Access;
+using Crm.Application.Features.Embroidery.Shared.Mapping;
+using Crm.Application.Abstractions.Embroidery;
 
 namespace IntegrationTests.Crm;
 
@@ -38,7 +38,7 @@ public sealed class EmbroideryArchivePersistenceTests : CrmDatabaseFixture
         params EmbroideryArchiveRow[] rows)
     {
         await using var db = Context();
-        return await new ImportEmbroideryArchiveCommandHandler(db, _staff)
+        return await new ImportEmbroideryArchiveHandler(db, _staff)
             .Handle(new ImportEmbroideryArchiveCommand(actor, rows, dryRun), default);
     }
 
@@ -63,7 +63,7 @@ public sealed class EmbroideryArchivePersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var saved = (await new GetEmbroideryCalculationQueryHandler(db, new EmbroiderySavedPersistenceTests.FakeMedia())
+            var saved = (await new GetEmbroideryCalculationHandler(db, new EmbroiderySavedPersistenceTests.FakeMedia())
                 .Handle(new GetEmbroideryCalculationQuery(Director, 1), default)).Value;
             Assert.That(saved.Summary.CreatedAt, Is.EqualTo(OldDate));
             Assert.That(saved.Summary.CreatedByName, Is.EqualTo("Олена"));

@@ -1,4 +1,3 @@
-using Reference.Application.Features.PricingParameter.Shared.DTOs;
 using Reference.Domain.PricingParameters;
 
 namespace Reference.Application.Features.PricingParameter.Shared;

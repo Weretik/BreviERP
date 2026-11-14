@@ -1,4 +1,4 @@
-using Reference.Application.Features.Fabric.Import.DTOs;
+using Reference.Application.Features.Fabric.Commands.ImportFabrics;
 
 namespace Reference.Api.Contracts.Fabrics;
 

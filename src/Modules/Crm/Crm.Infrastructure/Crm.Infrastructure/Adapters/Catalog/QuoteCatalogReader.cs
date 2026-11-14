@@ -1,7 +1,8 @@
 using Catalog.Contracts.Products;
-using Crm.Application.Quotes.Catalog;
 using Crm.Domain.Quotes;
 using Reference.Contracts.Fabrics;
+using Crm.Application.Features.Quotes.Shared.Catalog;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Adapters.Catalog;
 

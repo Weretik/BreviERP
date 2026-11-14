@@ -1,5 +1,5 @@
-using Catalog.Application.Contracts.Pricing.Ppe;
 using CatalogImport.Source;
+using Catalog.Application.Abstractions.Pricing;
 
 namespace CatalogImport.PpePricing.Verification;
 

@@ -1,18 +1,16 @@
 using Ardalis.Result;
 using Ardalis.Specification;
-using Catalog.Application.Contracts.Admin;
-using Catalog.Application.Contracts.Persistence;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Contracts.SlugGeneration;
-using Catalog.Application.Features.Product.Create;
-using Catalog.Application.Features.Product.Create.DTOs;
-using Catalog.Application.Features.Product.GetAdminDetail.DTOs;
-using Catalog.Application.Features.Product.Update;
-using Catalog.Application.Contracts.Media;
+using Catalog.Application.Features.Product.Shared;
 using Catalog.Domain.Media;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
 using Moq;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Media;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Commands.ReplaceProduct;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 
 namespace UnitTests;
 
@@ -159,8 +157,8 @@ public sealed class ProductCommandHandlerTests
         public Mock<IProductReferenceReader> ReferenceReader { get; } = new();
         public Mock<ICatalogReadRepository<ProductCategory>> CategoryRepository { get; } = new();
         private Mock<IProductSlugGenerator> SlugGenerator { get; } = new();
-        public CreateProductCommandHandler CreateHandler { get; }
-        public ReplaceProductCommandHandler ReplaceHandler { get; }
+        public CreateProductHandler CreateHandler { get; }
+        public ReplaceProductHandler ReplaceHandler { get; }
 
         public Fixture()
         {

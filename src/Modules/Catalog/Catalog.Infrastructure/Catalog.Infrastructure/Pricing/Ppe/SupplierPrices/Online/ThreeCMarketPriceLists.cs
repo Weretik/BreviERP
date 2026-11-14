@@ -1,5 +1,5 @@
 using System.Globalization;
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
+using Catalog.Application.Abstractions.Pricing;
 
 namespace Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online;
 

@@ -1,7 +1,3 @@
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Running;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.Pricing.Ppe.Reading;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
@@ -16,6 +12,10 @@ using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.Core;
 using UglyToad.PdfPig.Fonts.Standard14Fonts;
 using UglyToad.PdfPig.Writer;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running;
 
 namespace IntegrationTests.Pricing.Ppe;
 
@@ -68,7 +68,7 @@ public sealed class PpeSupplierFileImportTests : SewingPricingDatabaseFixture
             new Dictionary<int, ReferenceItem> { [1] = new(1, "СЕМТО") }, new Dictionary<int, PricedReferenceItem>(),
             new Dictionary<int, PricedReferenceItem>(), new Dictionary<int, OperationReferenceItem>(),
             new Dictionary<int, AdditionalReferenceItem>()));
-        var handler = new ImportPpeSupplierFilesCommandHandler(new PpeSupplierFileReader(), new PpePriceImportRunner(
+        var handler = new ImportPpeSupplierFilesHandler(new PpeSupplierFileReader(), new PpePriceImportRunner(
             new PpePriceSourceStore(db), references.Object, new CatalogEfRepository<Product>(db),
             new PpePricingInputReader(db), new PpeOfferVersionWriter(db), TimeProvider.System));
         return await handler.Handle(new ImportPpeSupplierFilesCommand("cemto", [CemtoPdf()], dryRun, "manager-id", "manager@brevi"),

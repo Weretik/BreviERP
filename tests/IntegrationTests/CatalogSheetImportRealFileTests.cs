@@ -3,13 +3,13 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
-using Catalog.Application.Features.Product.SheetImport.DTOs;
 using Catalog.Domain.Products;
 using CatalogImport.Execution;
 using CatalogImport.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Reference.Domain.Suppliers;
 using Reference.Infrastructure.DataBase;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
 namespace IntegrationTests;
 

@@ -1,12 +1,11 @@
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Sewing.Evaluation;
-using Catalog.Application.Features.Pricing.Sewing.Preview;
-using Catalog.Application.Features.Product.Sewing;
 using Catalog.Domain.Pricing.Ppe;
 using Catalog.Domain.Pricing.Sewing;
 using Microsoft.Extensions.DependencyInjection;
 using SewingPricing.Jobs.Readiness;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Queries.CalculateSewingArticle;
+using Catalog.Application.Features.Pricing.Shared.Sewing.Evaluation;
 
 namespace SewingPricing.Jobs.Activation;
 
@@ -25,7 +24,7 @@ public static class PricingActivationPlanner
         var inputs = provider.GetRequiredService<ISewingPricingInputReader>();
         var settings = provider.GetRequiredService<ISewingPricingSettingsReader>();
         var references = provider.GetRequiredService<IPricingReferenceVersionReader>();
-        var evaluator = new CalculateSewingArticleQueryHandler(inputs, settings, references);
+        var evaluator = new CalculateSewingArticleHandler(inputs, settings, references);
         var models = new List<ActivationModelPlan>();
         foreach (var group in inventory.Items.Where(x => x.Kind == "Sewing" && !exclusions.Contains(x.SaleSku)).GroupBy(x => x.ProductId))
         {

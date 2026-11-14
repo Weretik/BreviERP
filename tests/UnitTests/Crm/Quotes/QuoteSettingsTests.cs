@@ -1,8 +1,8 @@
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Settings.Contracts;
-using Crm.Application.Quotes.Settings.SaveSettings;
-using Crm.Application.Quotes.Staff;
 using Crm.Domain.Quotes.Settings;
+using Crm.Application.Features.Quotes.Commands.SaveQuoteSettings;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Features.Quotes.Shared.Settings;
+using Crm.Application.Abstractions.Quotes;
 
 namespace UnitTests.Crm.Quotes;
 
@@ -19,7 +19,7 @@ public sealed class QuoteSettingsTests
     }
 
     private static bool Valid(SaveQuoteSettingsInput input) =>
-        new SaveQuoteSettingsCommandValidator().Validate(new SaveQuoteSettingsCommand(new QuoteActor(1, true), input)).IsValid;
+        new SaveQuoteSettingsValidator().Validate(new SaveQuoteSettingsCommand(new QuoteActor(1, true), input)).IsValid;
 
     [Test]
     public void DefaultsAreValidAndTakeTheAccountContact()

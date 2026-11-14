@@ -1,10 +1,4 @@
 using Ardalis.Result;
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Running;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.Pricing.Ppe.Reading;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
@@ -16,6 +10,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
+using Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Running;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 
 namespace IntegrationTests.Pricing.Ppe;
 

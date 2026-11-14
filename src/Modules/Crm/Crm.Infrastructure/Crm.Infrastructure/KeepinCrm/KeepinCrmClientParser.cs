@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Crm.Application.Customers.KeepinCrmSync;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 
 namespace Crm.Infrastructure.KeepinCrm;
 

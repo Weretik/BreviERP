@@ -12,16 +12,16 @@ src/Modules/Catalog/
 │   ├── SewingArticlesController.cs                                # protected variant list/create/update/delete boundary
 │   └── SewingCompositionController.cs                             # protected composition read/replace boundary
 ├── Catalog.Application/Catalog.Application/
-│   ├── Features/Product/Sewing/
-│   │   ├── CreateArticle/                                         # variant with its fabric in one transaction
-│   │   ├── UpdateArticle/                                         # variant SKU, activity and fabric
-│   │   ├── DeleteArticle/                                         # variant without price history
-│   │   ├── ListArticles/                                          # list query, result and handler
-│   │   ├── GetComposition/                                        # effective composition query and handler
-│   │   ├── ListCompositions/                                      # every model's lines with codes and names, for the workshop (PRD-009)
-│   │   ├── ReplaceComposition/                                    # shared norms replacement
-│   │   └── Shared/{DTOs,Validators,Mapping}/                       # genuinely shared line contracts, validation and assembly
-│   └── Contracts/Persistence/Sewing/                              # separate read/write contracts and projection snapshot
+│   ├── Features/Product/
+│   │   ├── Commands/CreateSewingArticle/                          # variant with its fabric in one transaction
+│   │   ├── Commands/UpdateSewingArticle/                          # variant SKU, activity and fabric
+│   │   ├── Commands/DeleteSewingArticle/                          # variant without price history
+│   │   ├── Queries/ListSewingArticles/                            # list query, result and handler
+│   │   ├── Queries/GetSewingComposition/                          # effective composition query and handler
+│   │   ├── Queries/ListSewingCompositions/                        # every model's lines with codes and names, for the workshop (PRD-009)
+│   │   ├── Commands/ReplaceSewingComposition/                     # shared norms replacement
+│   │   └── Shared/Sewing/, Shared/Validation/Sewing/              # shared line contracts, validation and assembly
+│   └── Abstractions/                                              # ISewingCompositionStore, ISewingCompositionReadStore, ISewingCompositionListReader and snapshots
 ├── Catalog.Domain/Catalog.Domain/Products/
 │   ├── Entities/Product.cs                                          # aggregate root
 │   ├── Entities/Product.SewingIdentity.cs                           # model code and Article identity

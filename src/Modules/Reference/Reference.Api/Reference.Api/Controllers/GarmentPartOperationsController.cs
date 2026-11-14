@@ -1,13 +1,9 @@
 using Reference.Api.Contracts.GarmentPartOperations;
-using Reference.Application.Features.GarmentPartOperation.Create;
-using Reference.Application.Features.GarmentPartOperation.Create.DTOs;
-using Reference.Application.Features.GarmentPartOperation.Delete;
-using Reference.Application.Features.GarmentPartOperation.GetList;
-using Reference.Application.Features.GarmentPartOperation.GetList.DTOs;
-using Reference.Application.Features.GarmentPartOperation.Import;
-using Reference.Application.Features.GarmentPartOperation.Import.DTOs;
-using Reference.Application.Features.GarmentPartOperation.Update;
-using Reference.Application.Features.GarmentPartOperation.Update.DTOs;
+using Reference.Application.Features.GarmentPartOperation.Commands.CreateGarmentPartOperation;
+using Reference.Application.Features.GarmentPartOperation.Commands.DeleteGarmentPartOperation;
+using Reference.Application.Features.GarmentPartOperation.Commands.ImportGarmentPartOperations;
+using Reference.Application.Features.GarmentPartOperation.Commands.UpdateGarmentPartOperation;
+using Reference.Application.Features.GarmentPartOperation.Queries.GetGarmentPartOperations;
 
 namespace Reference.Api.Controllers;
 

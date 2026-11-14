@@ -1,6 +1,6 @@
 using Mediator;
-using Reference.Application.Features.PpeMarkupRule.GetList;
 using Reference.Contracts.PpeMarkupRules;
+using Reference.Application.Features.PpeMarkupRule.Queries.GetPpeMarkupRules;
 
 namespace Reference.Infrastructure.Contracts.PpeMarkupRules;
 

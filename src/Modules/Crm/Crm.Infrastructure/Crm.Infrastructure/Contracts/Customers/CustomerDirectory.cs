@@ -1,6 +1,8 @@
-using Crm.Application.Customers.Lookup;
 using Crm.Contracts.Customers;
 using Mediator;
+using Crm.Application.Features.Customers.Queries.GetCustomerLookup;
+using Crm.Application.Features.Customers.Queries.GetCustomersByKeepinIds;
+using Crm.Application.Features.Customers.Queries.GetCustomersByTaxIds;
 
 namespace Crm.Infrastructure.Contracts.Customers;
 

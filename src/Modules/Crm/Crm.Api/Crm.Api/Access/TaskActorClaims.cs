@@ -1,5 +1,5 @@
-using Crm.Application.Tasks.Access;
 using System.Security.Claims;
+using Crm.Application.Features.Tasks.Shared.Access;
 
 namespace Crm.Api.Access;
 

@@ -1,10 +1,11 @@
 using System.Text;
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Sending;
-using Crm.Application.Quotes.Sending.Connect;
-using Crm.Application.Quotes.Sending.Gmail;
-using Crm.Application.Quotes.Sending.Send;
 using Crm.Infrastructure.Quotes.Sending;
+using Crm.Application.Features.Quotes.Commands.SendQuote;
+using Crm.Application.Features.Quotes.Commands.StartMailboxConnect;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Features.Quotes.Shared.Sending;
+using Crm.Application.Features.Quotes.Shared.Sending.Gmail;
+using Crm.Application.Abstractions.Quotes;
 
 namespace UnitTests.Crm.Quotes;
 
@@ -23,7 +24,7 @@ public sealed class QuoteSendingTests
     [Test]
     public void SendNeedsValidAddressesAOneLineSubjectAndText()
     {
-        var validator = new SendQuoteCommandValidator();
+        var validator = new SendQuoteValidator();
         Assert.That(validator.Validate(Command("client@agro.test, boss@agro.test")).IsValid, Is.True);
         Assert.That(validator.Validate(Command("client@agro")).IsValid, Is.False);
         Assert.That(validator.Validate(Command("")).IsValid, Is.False);
@@ -36,7 +37,7 @@ public sealed class QuoteSendingTests
     [Test]
     public void ConnectReturnsOnlyToAdminCrmPages()
     {
-        var validator = new StartMailboxConnectCommandValidator();
+        var validator = new StartMailboxConnectValidator();
         Assert.That(validator.Validate(new StartMailboxConnectCommand(Manager, 17, "/crm/quotes/4")).IsValid, Is.True);
         Assert.That(validator.Validate(new StartMailboxConnectCommand(Manager, 17, "https://evil.test/crm/")).IsValid,
             Is.False);

@@ -1,6 +1,6 @@
 using Mediator;
-using Reference.Application.Features.GarmentAccessory.GetList;
 using Reference.Contracts.GarmentAccessories;
+using Reference.Application.Features.GarmentAccessory.Queries.GetGarmentAccessories;
 
 namespace Reference.Infrastructure.Contracts.GarmentAccessories;
 

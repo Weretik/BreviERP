@@ -1,10 +1,8 @@
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Contracts.SlugGeneration;
-using Catalog.Application.Features.Product.SheetImport;
-using Catalog.Application.Features.Product.SheetImport.DTOs;
-using Catalog.Application.Features.Product.SheetImport.Planning;
 using Catalog.Domain.Products;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
 namespace UnitTests;
 

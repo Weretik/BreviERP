@@ -1,5 +1,5 @@
-using Catalog.Application.Features.Product.Sewing;
 using SewingPricing.Jobs.Activation;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace UnitTests;
 

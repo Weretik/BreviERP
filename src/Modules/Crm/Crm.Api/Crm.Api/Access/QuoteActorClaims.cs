@@ -1,5 +1,5 @@
-using Crm.Application.Quotes.Access;
 using System.Security.Claims;
+using Crm.Application.Features.Quotes.Shared.Access;
 
 namespace Crm.Api.Access;
 

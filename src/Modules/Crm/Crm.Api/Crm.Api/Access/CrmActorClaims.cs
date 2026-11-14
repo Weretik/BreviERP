@@ -1,5 +1,5 @@
-using Crm.Application.Customers.Access;
 using System.Security.Claims;
+using Crm.Application.Abstractions.Customers;
 namespace Crm.Api.Access;
 
 internal static class CrmActorClaims

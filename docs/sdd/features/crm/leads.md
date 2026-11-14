@@ -13,14 +13,15 @@ src/Modules/Crm/
     LeadCall.cs, LeadSheetRow.cs, LeadPerson.cs, LeadStage.cs, LeadOutcome.cs (stage/date rules)
     LeadCallResult.cs, LeadCategory.cs, LeadSyncState.cs, LeadLimits.cs
   Crm.Domain/Crm.Domain/Tasks/ManagerTask.cs   LeadId, ForLeadCall
-  Crm.Application/Crm.Application/Leads/
-    Access/                        LeadActor, Ukrainian messages
-    Persistence/                   ILeadStore port (sync lock), load/save helpers
-    Sheet/                         ILeadSheetReader, LeadSheetParser (columns by header), LeadSheetSync
-    Calling/LeadDetailLoader.cs    card with category text and open task
-    Contracts/, Mapping/, LeadClock.cs (Kyiv day)
-    GetLeads/ GetLead/ GetMyDay/ TakeLead/ ReleaseLead/ RecordLeadCall/ GetLeadCallResults/
-    Stats/ References/ Sync/
+  Crm.Application/Crm.Application/Abstractions/Leads/   ILeadStore (sync lock), ILeadSheetReader
+  Crm.Application/Crm.Application/Features/Leads/
+    Queries/                       GetLeads GetLead GetMyDay GetLeadCallResults GetLeadStats GetLeadCategories
+    Commands/                      TakeLead ReleaseLead RecordLeadCall SaveLeadCallResult SaveLeadCategory SyncLeads
+    Shared/Access/                 LeadActor, Ukrainian messages
+    Shared/Persistence/            load/save helpers
+    Shared/Sheet/                  LeadSheetParser (columns by header), LeadSheetSync
+    Shared/Calling/LeadDetailLoader.cs  card with category text and open task
+    Shared/                        responses, Mapping/, LeadClock.cs (Kyiv day)
   Crm.Infrastructure/Crm.Infrastructure/
     Leads/                         GoogleLeadSheetReader (ADC, read-only), LeadSheetOptions (Crm:LeadSheet)
     Persistence/Configurations/Leads/   five tables, seeded call results

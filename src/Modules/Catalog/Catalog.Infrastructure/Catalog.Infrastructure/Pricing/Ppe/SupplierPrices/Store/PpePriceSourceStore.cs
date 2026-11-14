@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Records;
+using Catalog.Application.Abstractions.Pricing;
 
 namespace Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Store;
 

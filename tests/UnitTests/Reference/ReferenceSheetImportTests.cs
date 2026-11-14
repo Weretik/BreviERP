@@ -1,13 +1,11 @@
 ﻿using BuildingBlocks.Domain.ValueObjects;
 using Moq;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.Fabric.Import;
-using Reference.Application.Features.Fabric.Import.DTOs;
-using Reference.Application.Features.GarmentAccessory.Import;
-using Reference.Application.Features.GarmentAccessory.Import.DTOs;
-using Reference.Application.Features.Shared.SheetImport;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.Suppliers;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.Fabric.Commands.ImportFabrics;
+using Reference.Application.Features.GarmentAccessory.Commands.ImportGarmentAccessories;
+using Reference.Application.Features.SheetImport.Shared;
 
 namespace UnitTests.Reference;
 
@@ -50,7 +48,7 @@ public sealed class ReferenceSheetImportTests
         var addedSuppliers = new List<Supplier>();
         var fabrics = Repository([coded, legacy, stale], added);
         var suppliers = Repository(Suppliers(), addedSuppliers);
-        var handler = new ImportFabricsCommandHandler(fabrics.Object, suppliers.Object);
+        var handler = new ImportFabricsHandler(fabrics.Object, suppliers.Object);
 
         var result = await handler.Handle(new ImportFabricsCommand(
         [
@@ -85,7 +83,7 @@ public sealed class ReferenceSheetImportTests
             "100% бавовна", null, "260", true, null, null), MoneyAmount.From(147), SheetDate).Value;
         var added = new List<Fabric>();
         var fabrics = Repository([fabric], added);
-        var handler = new ImportFabricsCommandHandler(fabrics.Object, Repository(Suppliers(), []).Object);
+        var handler = new ImportFabricsHandler(fabrics.Object, Repository(Suppliers(), []).Object);
 
         var result = await handler.Handle(new ImportFabricsCommand(
             [FabricRow("FAB-001", "МВО", "Спецтекстиль", 147m), FabricRow("FAB-002", "Бріз", "Спецтекстиль", 68m, 3)],
@@ -106,7 +104,7 @@ public sealed class ReferenceSheetImportTests
     {
         var added = new List<GarmentAccessory>();
         var accessories = Repository(new List<GarmentAccessory>(), added);
-        var handler = new ImportGarmentAccessoriesCommandHandler(accessories.Object, Repository(Suppliers(), []).Object);
+        var handler = new ImportGarmentAccessoriesHandler(accessories.Object, Repository(Suppliers(), []).Object);
 
         var result = await handler.Handle(new ImportGarmentAccessoriesCommand(
             [AccessoryRow("FUR-001", "Нитки", "шт"), AccessoryRow("FUR-002", "Тасьма", "кг", 3)],
@@ -126,7 +124,7 @@ public sealed class ReferenceSheetImportTests
     public async Task Accessory_import_keeps_sheet_unit_and_price_date()
     {
         var added = new List<GarmentAccessory>();
-        var handler = new ImportGarmentAccessoriesCommandHandler(
+        var handler = new ImportGarmentAccessoriesHandler(
             Repository(new List<GarmentAccessory>(), added).Object, Repository(Suppliers(), []).Object);
 
         await handler.Handle(new ImportGarmentAccessoriesCommand(

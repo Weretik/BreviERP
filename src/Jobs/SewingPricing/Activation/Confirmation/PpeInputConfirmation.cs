@@ -1,6 +1,6 @@
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.Offers.CreateVersion;
-using Catalog.Application.Features.Pricing.Ppe.Rules.CreateVersion;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.CreatePpeOfferVersion;
+using Catalog.Application.Features.Pricing.Commands.CreatePpeRuleVersion;
 
 namespace SewingPricing.Jobs.Activation;
 
@@ -12,7 +12,7 @@ public sealed class PpeInputConfirmation(IPpePricingInputReader reads, IPpeRuleV
         if (current is null || current.Values != plan.Values || current.Id != plan.ExpectedId && !current.IsApproved)
             throw new InvalidOperationException("PPE rule changed after planning.");
         if (current.IsApproved || !apply) return current.Id;
-        var result = await new CreatePpeRuleVersionCommandHandler(rules)
+        var result = await new CreatePpeRuleVersionHandler(rules)
             .Handle(new(plan.ExpectedId, plan.RequestId, plan.Values, actor), cancellationToken);
         if (!result.IsSuccess) throw new InvalidOperationException($"PPE rule confirmation: {result.Status}.");
         return result.Value.Id;
@@ -25,7 +25,7 @@ public sealed class PpeInputConfirmation(IPpePricingInputReader reads, IPpeRuleV
             || current.Id != plan.ExpectedId && !current.IsApproved)
             throw new InvalidOperationException("PPE offer/activity changed after planning.");
         if (current.IsApproved || !apply) return current.Id;
-        var result = await new CreatePpeOfferVersionCommandHandler(offers)
+        var result = await new CreatePpeOfferVersionHandler(offers)
             .Handle(new(plan.ProductId, plan.ExpectedId, plan.RequestId, plan.Values, actor), cancellationToken);
         if (!result.IsSuccess) throw new InvalidOperationException($"PPE offer confirmation: {result.Status}.");
         return result.Value.Id;

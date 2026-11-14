@@ -1,7 +1,7 @@
-using Crm.Application.Quotes.Pdf.Introduction;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using Crm.Application.Features.Quotes.Shared.Pdf.Introduction;
 
 namespace Crm.Infrastructure.Quotes.Pdf;
 

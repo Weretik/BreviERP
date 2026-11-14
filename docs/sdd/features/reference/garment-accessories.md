@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Garment Accessories” lookup, wit
 
 ## Structure and Relationships
 
-[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentAccessory/Create/CreateGarmentAccessoryCommandHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentAccessory](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/GarmentAccessory.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. A garment accessory has a supplier; a Sewing product references its ID and its own quantity.
+[Controller](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/GarmentAccessory/Commands/CreateGarmentAccessory/CreateGarmentAccessoryHandler.cs) and adjacent query/update/delete handlers validate the data; [GarmentAccessory](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/GarmentAccessories/GarmentAccessory.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/DataBase/ReferenceDbContext.cs) persist it. A garment accessory has a supplier; a Sewing product references its ID and its own quantity.
 
 ## Code Structure
 
@@ -17,12 +17,12 @@ src/
 └── Modules/Reference/
     ├── Reference.Api/Reference.Api/Controllers/GarmentAccessoriesController.cs  # HTTP entry point
     ├── Reference.Application/Reference.Application/Features/GarmentAccessory/
-    │   ├── Create/CreateGarmentAccessoryCommandHandler.cs  # use case handler
-    │   ├── Delete/DeleteGarmentAccessoryCommandHandler.cs  # use case handler
-    │   ├── GetList/GetGarmentAccessoriesQueryHandler.cs  # use case handler
-    │   ├── Import/ImportGarmentAccessoriesCommandHandler.cs  # sheet import with preview
+    │   ├── Commands/CreateGarmentAccessory/CreateGarmentAccessoryHandler.cs  # use case handler
+    │   ├── Commands/DeleteGarmentAccessory/DeleteGarmentAccessoryHandler.cs  # use case handler
+    │   ├── Queries/GetGarmentAccessories/GetGarmentAccessoriesHandler.cs  # use case handler
+    │   ├── Commands/ImportGarmentAccessories/ImportGarmentAccessoriesHandler.cs  # sheet import with preview
     │   ├── Shared/  # fields contract, validator, code spec
-    │   └── Update/UpdateGarmentAccessoryCommandHandler.cs  # use case handler
+    │   └── Commands/UpdateGarmentAccessory/UpdateGarmentAccessoryHandler.cs  # use case handler
     ├── Reference.Domain/Reference.Domain/GarmentAccessories/GarmentAccessory.cs  # domain model
     └── Reference.Infrastructure/Reference.Infrastructure/
         ├── DataBase/ReferenceDbContext.cs  # data context

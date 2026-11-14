@@ -1,4 +1,3 @@
-using Catalog.Application.Features.Product.Sewing;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;

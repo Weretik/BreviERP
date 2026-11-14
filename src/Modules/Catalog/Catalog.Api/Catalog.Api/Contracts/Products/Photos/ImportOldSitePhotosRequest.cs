@@ -1,4 +1,4 @@
-using Catalog.Application.Features.Product.OldSitePhotoImport;
+using Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
 
 namespace Catalog.Api.Contracts.Products.Photos;
 

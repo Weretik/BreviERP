@@ -1,6 +1,6 @@
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices;
 
 namespace Host.Seed.Jobs.Sync;
 

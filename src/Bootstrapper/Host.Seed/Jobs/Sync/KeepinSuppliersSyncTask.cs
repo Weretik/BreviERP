@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Reference.Application.Features.Supplier.KeepinCrmSync;
+using Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSuppliers;
 
 namespace Host.Seed.Jobs.Sync;
 

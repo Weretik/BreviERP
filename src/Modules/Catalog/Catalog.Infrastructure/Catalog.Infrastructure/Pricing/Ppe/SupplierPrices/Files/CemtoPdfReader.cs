@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Ardalis.Result;
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
+using Catalog.Application.Abstractions.Pricing;
 
 namespace Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Files;
 

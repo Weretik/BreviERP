@@ -3,11 +3,10 @@ using BuildingBlocks.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Reference.Application.Contracts.Pricing;
-using Reference.Application.Features.Pricing.ReviseOtherCost;
 using Reference.Domain.Pricing;
 using Reference.Infrastructure.Pricing.OtherCosts.Writing;
 using SewingPricing.Jobs.Bootstrap;
+using Reference.Application.Abstractions;
 
 namespace IntegrationTests.Pricing.Sewing;
 

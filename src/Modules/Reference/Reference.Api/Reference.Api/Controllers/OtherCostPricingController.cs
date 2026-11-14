@@ -1,6 +1,6 @@
 using BuildingBlocks.Api.Authorization;
 using Reference.Api.Contracts.Pricing;
-using Reference.Application.Features.Pricing.ReviseOtherCost;
+using Reference.Application.Features.Pricing.Commands.ReviseOtherCost;
 
 namespace Reference.Api.Controllers;
 

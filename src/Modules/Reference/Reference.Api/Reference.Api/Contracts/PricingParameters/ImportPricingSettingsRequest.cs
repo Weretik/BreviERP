@@ -1,4 +1,4 @@
-using Reference.Application.Features.PricingSettingsImport.DTOs;
+using Reference.Application.Features.PricingSettingsImport.Shared;
 
 namespace Reference.Api.Contracts.PricingParameters;
 

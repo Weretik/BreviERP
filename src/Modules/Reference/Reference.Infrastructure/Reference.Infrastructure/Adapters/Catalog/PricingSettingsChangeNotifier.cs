@@ -1,5 +1,5 @@
 using BuildingBlocks.Application.Outbox;
-using Reference.Application.Contracts.Catalog;
+using Reference.Application.Abstractions;
 
 namespace Reference.Infrastructure.Adapters.Catalog;
 

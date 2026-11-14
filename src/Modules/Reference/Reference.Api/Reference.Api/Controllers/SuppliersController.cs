@@ -1,15 +1,11 @@
 ﻿using BuildingBlocks.Api.Authorization;
 using Reference.Api.Contracts.Suppliers;
-using Reference.Application.Features.Supplier.Create;
-using Reference.Application.Features.Supplier.Create.DTOs;
-using Reference.Application.Features.Supplier.Delete;
-using Reference.Application.Features.Supplier.GetList;
-using Reference.Application.Features.Supplier.GetList.DTOs;
-using Reference.Application.Features.Supplier.KeepinCrmSync;
-using Reference.Application.Features.Supplier.KeepinCrmSync.DTOs;
-using Reference.Application.Features.Supplier.UpdateBreviFields;
-using Reference.Application.Features.Supplier.Update;
-using Reference.Application.Features.Supplier.Update.DTOs;
+using Reference.Application.Features.Supplier.Commands.CreateSupplier;
+using Reference.Application.Features.Supplier.Commands.DeleteSupplier;
+using Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSuppliers;
+using Reference.Application.Features.Supplier.Commands.UpdateSupplier;
+using Reference.Application.Features.Supplier.Commands.UpdateSupplierBreviFields;
+using Reference.Application.Features.Supplier.Queries.GetSuppliers;
 
 namespace Reference.Api.Controllers;
 

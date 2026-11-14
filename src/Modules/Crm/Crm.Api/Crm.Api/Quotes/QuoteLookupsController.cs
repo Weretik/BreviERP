@@ -1,19 +1,20 @@
 using BuildingBlocks.Api.Result;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.CustomSewing;
-using Crm.Application.Quotes.FabricFacts;
-using Crm.Application.Quotes.GetCatalogProducts;
-using Crm.Application.Quotes.GetStaff;
-using Crm.Application.Quotes.Introductions.Contracts;
-using Crm.Application.Quotes.Introductions.Setup;
-using Crm.Application.Quotes.Photos;
 using Crm.Api.Quotes.Requests;
-using Crm.Application.Quotes.SearchCatalog;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Crm.Api.Access;
+using Crm.Application.Features.Quotes.Commands.UploadQuotePhoto;
+using Crm.Application.Features.Quotes.Queries.CalculateQuoteCustomSewing;
+using Crm.Application.Features.Quotes.Queries.GetQuoteCatalogProducts;
+using Crm.Application.Features.Quotes.Queries.GetQuoteFabricFacts;
+using Crm.Application.Features.Quotes.Queries.GetQuoteIntroductionSetup;
+using Crm.Application.Features.Quotes.Queries.GetQuoteModelComposition;
+using Crm.Application.Features.Quotes.Queries.GetQuoteStaff;
+using Crm.Application.Features.Quotes.Queries.SearchQuoteCatalog;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Introductions;
 
 namespace Crm.Api.Quotes;
 

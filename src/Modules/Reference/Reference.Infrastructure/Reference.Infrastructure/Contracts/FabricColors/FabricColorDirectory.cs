@@ -1,6 +1,6 @@
 using Mediator;
-using Reference.Application.Features.FabricColor.GetList;
 using Reference.Contracts.FabricColors;
+using Reference.Application.Features.FabricColor.Queries.GetFabricColors;
 
 namespace Reference.Infrastructure.Contracts.FabricColors;
 

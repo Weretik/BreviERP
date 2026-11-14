@@ -1,24 +1,23 @@
 using Ardalis.Result;
-using Crm.Application.Quotes.Access;
-using Crm.Application.Quotes.Building;
-using Crm.Application.Quotes.Catalog;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.CopyQuote;
-using Crm.Application.Quotes.CreateQuote;
-using Crm.Application.Quotes.CustomSewing;
-using Crm.Application.Quotes.DeleteQuote;
-using Crm.Application.Quotes.GetQuote;
-using Crm.Application.Quotes.GetQuotes;
-using Crm.Application.Quotes.History;
-using Crm.Application.Quotes.LegacyArchive;
-using Crm.Application.Quotes.ProductionLinks;
-using Crm.Application.Quotes.RepriceQuote;
-using Crm.Application.Quotes.SaveQuote;
-using Crm.Application.Quotes.SetResponsible;
-using Crm.Application.Quotes.Staff;
 using Crm.Domain.Quotes;
 using Crm.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Crm.Application.Features.Quotes.Commands.CopyQuote;
+using Crm.Application.Features.Quotes.Commands.CreateQuote;
+using Crm.Application.Features.Quotes.Commands.DeleteQuote;
+using Crm.Application.Features.Quotes.Commands.PurgeLegacyArchivedQuotes;
+using Crm.Application.Features.Quotes.Commands.RepriceQuote;
+using Crm.Application.Features.Quotes.Commands.SaveQuote;
+using Crm.Application.Features.Quotes.Commands.SetQuoteResponsible;
+using Crm.Application.Features.Quotes.Queries.GetLegacyArchivedQuotes;
+using Crm.Application.Features.Quotes.Queries.GetQuote;
+using Crm.Application.Features.Quotes.Queries.GetQuoteHistory;
+using Crm.Application.Features.Quotes.Queries.GetQuotes;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Access;
+using Crm.Application.Features.Quotes.Shared.Building;
+using Crm.Application.Features.Quotes.Shared.Catalog;
+using Crm.Application.Abstractions.Quotes;
 
 namespace IntegrationTests.Crm;
 
@@ -48,7 +47,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     private async Task<QuoteResponse> Create(QuoteActor actor, string name = "ТОВ «Агро»", long? customerId = null)
     {
         await using var db = Context();
-        var result = await new CreateQuoteCommandHandler(_staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
+        var result = await new CreateQuoteHandler(_staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
             .Handle(new CreateQuoteCommand(actor, Input(name: name, customerId: customerId)), default);
         Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors.Concat(result.ValidationErrors.Select(x => x.ErrorMessage))));
         return result.Value;
@@ -73,10 +72,10 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         var petros = await Create(Petro, "Будівельник");
 
         await using var db = Context();
-        var own = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Olena, null, null, null), default);
-        var all = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Director, null, null, null), default);
-        var foreign = await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, petros.Id), default);
-        var search = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Director, "будів", null, null), default);
+        var own = await new GetQuotesHandler(db).Handle(new GetQuotesQuery(Olena, null, null, null), default);
+        var all = await new GetQuotesHandler(db).Handle(new GetQuotesQuery(Director, null, null, null), default);
+        var foreign = await new GetQuoteHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, petros.Id), default);
+        var search = await new GetQuotesHandler(db).Handle(new GetQuotesQuery(Director, "будів", null, null), default);
 
         Assert.That(own.Value.Total, Is.EqualTo(1));
         Assert.That(all.Value.Total, Is.EqualTo(2));
@@ -92,9 +91,9 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         await Create(Olena, "Інший клієнт", customerId: 41);
 
         await using var db = Context();
-        var forDirector = await new GetQuotesQueryHandler(db)
+        var forDirector = await new GetQuotesHandler(db)
             .Handle(new GetQuotesQuery(Director, null, null, null, CustomerId: 40), default);
-        var forOlena = await new GetQuotesQueryHandler(db)
+        var forOlena = await new GetQuotesHandler(db)
             .Handle(new GetQuotesQuery(Olena, null, null, null, CustomerId: 40), default);
 
         Assert.That(forDirector.Value.Total, Is.EqualTo(2));
@@ -145,7 +144,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var quote = await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default);
+            var quote = await new GetQuoteHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default);
             Assert.That(quote.Value.Items.Single().Options.Single().Retail.Amount, Is.EqualTo(1000m));
         }
     }
@@ -156,13 +155,13 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         var created = await Create(Olena);
 
         await using var db = Context();
-        var handler = new SetQuoteResponsibleCommandHandler(db, _staff, _clock);
+        var handler = new SetQuoteResponsibleHandler(db, _staff, _clock);
         var byManager = await handler.Handle(new SetQuoteResponsibleCommand(Olena, created.Id, created.Version, 18), default);
         var byDirector = await handler.Handle(new SetQuoteResponsibleCommand(Director, created.Id, created.Version, 18), default);
 
         Assert.That(byManager.Status, Is.EqualTo(ResultStatus.Forbidden));
         Assert.That(byDirector.Value.Responsible.Name, Is.EqualTo("Петро"));
-        var visibleToOlena = await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default);
+        var visibleToOlena = await new GetQuoteHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default);
         Assert.That(visibleToOlena.Status, Is.EqualTo(ResultStatus.NotFound));
     }
 
@@ -174,7 +173,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         var production = new ProductionOrders(kept.Id);
 
         await using var db = Context();
-        var handler = new DeleteQuoteCommandHandler(db, production);
+        var handler = new DeleteQuoteHandler(db, production);
         var byManager = await handler.Handle(new DeleteQuoteCommand(Olena, created.Id, created.Version), default);
         var withOrder = await handler.Handle(new DeleteQuoteCommand(Director, kept.Id, kept.Version), default);
         var deleted = await handler.Handle(new DeleteQuoteCommand(Director, created.Id, created.Version), default);
@@ -199,7 +198,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         QuoteResponse created;
         await using (var db = Context())
         {
-            var result = await new CreateQuoteCommandHandler(_staff, new QuoteItemsBuilder(_catalog, sewing),
+            var result = await new CreateQuoteHandler(_staff, new QuoteItemsBuilder(_catalog, sewing),
                 new QuoteNumbering(db), _clock).Handle(new CreateQuoteCommand(Olena, input), default);
             Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
             created = result.Value;
@@ -208,7 +207,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         sewing.PerMeter = 300m;
         await using (var db = Context())
         {
-            var loaded = (await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
+            var loaded = (await new GetQuoteHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
             var item = loaded.Items.Single();
             Assert.Multiple(() =>
             {
@@ -224,7 +223,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
                 Assert.That(item.Options.Single().Retail.Amount, Is.EqualTo(250m));
             });
 
-            var repriced = await new RepriceQuoteCommandHandler(db, _staff, _catalog, _clock, sewing)
+            var repriced = await new RepriceQuoteHandler(db, _staff, _catalog, _clock, sewing)
                 .Handle(new RepriceQuoteCommand(Olena, created.Id, loaded.Version, true), default);
             Assert.That(repriced.Value.Changes.Single().After.Retail, Is.EqualTo(375m));
         }
@@ -246,7 +245,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         QuoteResponse created;
         await using (var db = Context())
         {
-            var result = await new CreateQuoteCommandHandler(_staff, new QuoteItemsBuilder(_catalog, sewing),
+            var result = await new CreateQuoteHandler(_staff, new QuoteItemsBuilder(_catalog, sewing),
                 new QuoteNumbering(db), _clock).Handle(new CreateQuoteCommand(Olena, input), default);
             Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
             created = result.Value;
@@ -254,7 +253,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var loaded = (await new GetQuoteQueryHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
+            var loaded = (await new GetQuoteHandler(db, _catalog).Handle(new GetQuoteQuery(Olena, created.Id), default)).Value;
             var item = loaded.Items.Single();
             Assert.Multiple(() =>
             {
@@ -267,7 +266,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
                 }));
             });
 
-            var report = await new RepriceQuoteCommandHandler(db, _staff, _catalog, _clock, sewing)
+            var report = await new RepriceQuoteHandler(db, _staff, _catalog, _clock, sewing)
                 .Handle(new RepriceQuoteCommand(Olena, created.Id, loaded.Version, false), default);
             Assert.That(report.Value.Unavailable, Is.Empty);
         }
@@ -283,14 +282,14 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         _catalog.Retail = 1000;
         await using (var db = Context()) await Reprice(db, created.Id, 2, apply: true);
         await using (var db = Context())
-            await new SetQuoteResponsibleCommandHandler(db, _staff, _clock)
+            await new SetQuoteResponsibleHandler(db, _staff, _clock)
                 .Handle(new SetQuoteResponsibleCommand(Director, created.Id, 3, 18), default);
 
         await using (var db = Context())
         {
-            var history = (await new GetQuoteHistoryQueryHandler(db)
+            var history = (await new GetQuoteHistoryHandler(db)
                 .Handle(new GetQuoteHistoryQuery(Director, created.Id), default)).Value;
-            var foreign = await new GetQuoteHistoryQueryHandler(db)
+            var foreign = await new GetQuoteHistoryHandler(db)
                 .Handle(new GetQuoteHistoryQuery(Olena, created.Id), default);
 
             Assert.That(history.Select(x => x.Kind).Reverse(),
@@ -312,11 +311,11 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         await using var db = Context();
         await db.Database.ExecuteSqlInterpolatedAsync(
             $"UPDATE crm.\"Quotes\" SET \"ArchivedAt\" = now(), \"ArchivedByName\" = 'Олена' WHERE \"Id\" IN ({gone.Id}, {kept.Id})");
-        var listed = await new GetQuotesQueryHandler(db).Handle(new GetQuotesQuery(Olena, null, null, null), default);
-        var count = await new GetLegacyArchivedQuotesQueryHandler(db).Handle(new GetLegacyArchivedQuotesQuery(Director), default);
-        var refused = await new PurgeLegacyArchivedQuotesCommandHandler(db, new ProductionOrders(kept.Id), _staff, _clock)
+        var listed = await new GetQuotesHandler(db).Handle(new GetQuotesQuery(Olena, null, null, null), default);
+        var count = await new GetLegacyArchivedQuotesHandler(db).Handle(new GetLegacyArchivedQuotesQuery(Director), default);
+        var refused = await new PurgeLegacyArchivedQuotesHandler(db, new ProductionOrders(kept.Id), _staff, _clock)
             .Handle(new PurgeLegacyArchivedQuotesCommand(Olena), default);
-        var purged = await new PurgeLegacyArchivedQuotesCommandHandler(db, new ProductionOrders(kept.Id), _staff, _clock)
+        var purged = await new PurgeLegacyArchivedQuotesHandler(db, new ProductionOrders(kept.Id), _staff, _clock)
             .Handle(new PurgeLegacyArchivedQuotesCommand(Director), default);
 
         Assert.That(listed.Value.Items.Select(x => x.Id), Is.EqualTo(new[] { working.Id }));
@@ -335,7 +334,7 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         _catalog.Retail = 2000;
 
         await using var db = Context();
-        var copy = await new CopyQuoteCommandHandler(db, _staff, new QuoteNumbering(db), _clock)
+        var copy = await new CopyQuoteHandler(db, _staff, new QuoteNumbering(db), _clock)
             .Handle(new CopyQuoteCommand(Director, created.Id), default);
 
         Assert.That(copy.IsSuccess, Is.True, string.Join(",", copy.Errors));
@@ -350,17 +349,17 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
             Assert.That(copy.Value.Items.Single().Options.Single().Retail.Amount, Is.EqualTo(900m));
             Assert.That(copy.Value.Items.Single().Id, Is.Not.EqualTo(created.Items.Single().Id));
         });
-        var history = (await new GetQuoteHistoryQueryHandler(db)
+        var history = (await new GetQuoteHistoryHandler(db)
             .Handle(new GetQuoteHistoryQuery(Director, copy.Value.Id), default)).Value;
         Assert.That(history.Single().Details, Is.EqualTo($"Копія КП {created.Number}"));
     }
 
     private Task<Result<QuoteResponse>> Save(CrmDbContext db, long id, SaveQuoteInput input) =>
-        new SaveQuoteCommandHandler(db, _staff, new QuoteItemsBuilder(_catalog), _clock)
+        new SaveQuoteHandler(db, _staff, new QuoteItemsBuilder(_catalog), _clock)
             .Handle(new SaveQuoteCommand(Olena, id, input), default).AsTask();
 
     private Task<Result<QuoteRepriceReport>> Reprice(CrmDbContext db, long id, int version, bool apply) =>
-        new RepriceQuoteCommandHandler(db, _staff, _catalog, _clock)
+        new RepriceQuoteHandler(db, _staff, _catalog, _clock)
             .Handle(new RepriceQuoteCommand(Olena, id, version, apply), default).AsTask();
 
     private sealed class Catalog : IQuoteCatalogReader

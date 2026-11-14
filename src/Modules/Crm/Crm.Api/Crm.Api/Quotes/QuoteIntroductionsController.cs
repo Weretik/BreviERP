@@ -1,13 +1,13 @@
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.Introductions.Contracts;
-using Crm.Application.Quotes.Introductions.CreateIntroduction;
-using Crm.Application.Quotes.Introductions.SaveIntroduction;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Quotes.Commands.CreateQuoteIntroduction;
+using Crm.Application.Features.Quotes.Commands.SaveQuoteIntroduction;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Introductions;
 
 namespace Crm.Api.Quotes;
 

@@ -1,4 +1,4 @@
-using Catalog.Application.Features.Pricing.Sewing.ArticleSummary;
+using Catalog.Application.Features.Pricing.Queries.GetSewingArticleSummary;
 
 namespace Catalog.Api.Controllers.Pricing.Sewing;
 

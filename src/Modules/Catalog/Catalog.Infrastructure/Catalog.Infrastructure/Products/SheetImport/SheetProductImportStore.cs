@@ -1,11 +1,11 @@
 using Ardalis.Result;
-using Catalog.Application.Contracts.Persistence.SheetImport;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Product.SheetImport.Planning;
 using Catalog.Domain.Products;
 using Catalog.Infrastructure.DataBase;
 using Catalog.Infrastructure.Pricing.History;
 using Npgsql;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
 namespace Catalog.Infrastructure.Products.SheetImport;
 

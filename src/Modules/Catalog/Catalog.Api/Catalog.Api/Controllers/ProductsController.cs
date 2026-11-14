@@ -1,9 +1,8 @@
 using Catalog.Api.Contracts.Products;
-using Catalog.Application.Features.Product.Create;
-using Catalog.Application.Features.Product.Delete;
-using Catalog.Application.Features.Product.GetAdminDetail;
-using Catalog.Application.Features.Product.GetAdminList;
-using Catalog.Application.Features.Product.Update;
+using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Commands.DeleteProduct;
+using Catalog.Application.Features.Product.Commands.ReplaceProduct;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 
 namespace Catalog.Api.Controllers;
 

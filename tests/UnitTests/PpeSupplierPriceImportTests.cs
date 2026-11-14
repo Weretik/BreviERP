@@ -1,9 +1,8 @@
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Settings;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Settings.Validators;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Shared;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
+using Catalog.Application.Features.Pricing.Commands.UpdatePpePriceSource;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 
 namespace UnitTests;
 
@@ -32,7 +31,7 @@ public sealed class PpeSupplierPriceImportTests
     [Test]
     public void Supplier_is_found_by_alias_or_by_the_saved_choice()
     {
-        var suppliers = new Dictionary<int, Catalog.Application.Contracts.Reference.ReferenceItem>
+        var suppliers = new Dictionary<int, Catalog.Application.Abstractions.Reference.ReferenceItem>
         {
             [7] = new(7, "3C-Макркет"),
             [8] = new(8, "Інший")
@@ -157,7 +156,7 @@ public sealed class PpeSupplierPriceImportTests
     [TestCase(91, false)]
     [TestCase(5.555, false)]
     public void Discount_is_between_0_and_90_with_two_decimals(decimal discount, bool valid)
-        => Assert.That(new UpdatePpePriceSourceCommandValidator()
+        => Assert.That(new UpdatePpePriceSourceValidator()
             .Validate(new UpdatePpePriceSourceCommand("av-center", discount, null, "admin")).IsValid, Is.EqualTo(valid));
 
     private static PpePriceImportProduct Product(int id, string code, string? sku = null, string? url = null,

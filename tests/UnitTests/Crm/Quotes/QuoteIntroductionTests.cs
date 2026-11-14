@@ -1,10 +1,10 @@
-using Crm.Application.Quotes.Introductions.Contracts;
-using Crm.Application.Quotes.Introductions.Validation;
-using Crm.Application.Quotes.Pdf.Introduction;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
 using Crm.Infrastructure.Quotes.Pdf;
 using Microsoft.Extensions.Logging.Abstractions;
+using Crm.Application.Features.Quotes.Shared.Introductions;
+using Crm.Application.Features.Quotes.Shared.Introductions.Validation;
+using Crm.Application.Features.Quotes.Shared.Pdf.Introduction;
 
 namespace UnitTests.Crm.Quotes;
 

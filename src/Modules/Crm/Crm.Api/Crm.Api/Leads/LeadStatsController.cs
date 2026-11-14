@@ -2,15 +2,17 @@ using Ardalis.Result;
 using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
-using Crm.Application.Leads.Contracts;
-using Crm.Application.Leads.GetLeadCallResults;
-using Crm.Application.Leads.References;
-using Crm.Application.Leads.Stats;
-using Crm.Application.Leads.Sync;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Leads.Commands.SaveLeadCallResult;
+using Crm.Application.Features.Leads.Commands.SaveLeadCategory;
+using Crm.Application.Features.Leads.Commands.SyncLeads;
+using Crm.Application.Features.Leads.Queries.GetLeadCallResults;
+using Crm.Application.Features.Leads.Queries.GetLeadCategories;
+using Crm.Application.Features.Leads.Queries.GetLeadStats;
+using Crm.Application.Features.Leads.Shared;
 
 namespace Crm.Api.Leads;
 

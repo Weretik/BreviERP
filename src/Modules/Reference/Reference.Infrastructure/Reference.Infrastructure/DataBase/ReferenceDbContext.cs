@@ -1,5 +1,4 @@
 using BuildingBlocks.Infrastructure.Outbox;
-using Reference.Application.Contracts.Persistence;
 using Reference.Domain.FabricColors;
 using Reference.Domain.PpeMarkupRules;
 using Reference.Domain.PricingParameters;
@@ -7,6 +6,7 @@ using Reference.Domain.ProductSections;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Suppliers;
+using Reference.Application.Abstractions;
 
 namespace Reference.Infrastructure.DataBase;
 

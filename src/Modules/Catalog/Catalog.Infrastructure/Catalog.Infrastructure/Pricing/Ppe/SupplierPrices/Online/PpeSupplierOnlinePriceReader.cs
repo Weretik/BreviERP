@@ -1,9 +1,9 @@
 using Ardalis.Result;
 using System.Collections.Concurrent;
-using Catalog.Application.Contracts.Pricing.Ppe.SupplierPrices;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Sources;
 using Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online.Cabinets;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierPrices.Sources;
 
 namespace Catalog.Infrastructure.Pricing.Ppe.SupplierPrices.Online;
 

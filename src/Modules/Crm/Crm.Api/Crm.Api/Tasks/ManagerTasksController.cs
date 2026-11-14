@@ -1,22 +1,22 @@
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
 using Crm.Api.Tasks.Requests;
-using Crm.Application.Tasks.ChangeTaskStatus;
-using Crm.Application.Tasks.Contracts;
-using Crm.Application.Tasks.CreateTask;
-using Crm.Application.Tasks.DeleteTask;
-using Crm.Application.Tasks.EditTask;
-using Crm.Application.Tasks.GetTask;
-using Crm.Application.Tasks.GetTaskAssignees;
-using Crm.Application.Tasks.GetTaskBoard;
-using Crm.Application.Tasks.GetTaskOverview;
-using Crm.Application.Tasks.GetTasks;
-using Crm.Application.Tasks.MarkTaskStep;
-using Crm.Application.Tasks.SetTaskUrgent;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Tasks.Commands.ChangeTaskStatus;
+using Crm.Application.Features.Tasks.Commands.CreateTask;
+using Crm.Application.Features.Tasks.Commands.DeleteTask;
+using Crm.Application.Features.Tasks.Commands.EditTask;
+using Crm.Application.Features.Tasks.Commands.MarkTaskStep;
+using Crm.Application.Features.Tasks.Commands.SetTaskUrgent;
+using Crm.Application.Features.Tasks.Queries.GetTask;
+using Crm.Application.Features.Tasks.Queries.GetTaskAssignees;
+using Crm.Application.Features.Tasks.Queries.GetTaskBoard;
+using Crm.Application.Features.Tasks.Queries.GetTaskOverview;
+using Crm.Application.Features.Tasks.Queries.GetTasks;
+using Crm.Application.Features.Tasks.Shared;
 
 namespace Crm.Api.Tasks;
 

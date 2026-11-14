@@ -1,10 +1,10 @@
-using Crm.Application.Embroidery.Access;
-using Crm.Application.Embroidery.Contracts;
-using Crm.Application.Embroidery.GetCalculation;
-using Crm.Application.Embroidery.GetCalculations;
 using Crm.Contracts.Embroidery;
 using Mediator;
-using MockupUsagesQuery = Crm.Application.Embroidery.Mockup.GetEmbroideryMockupUsagesQuery;
+using MockupUsagesQuery = Crm.Application.Features.Embroidery.Queries.GetEmbroideryMockupUsages.GetEmbroideryMockupUsagesQuery;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculations;
+using Crm.Application.Features.Embroidery.Shared;
+using Crm.Application.Features.Embroidery.Shared.Access;
 
 namespace Crm.Infrastructure.Contracts.Embroidery;
 

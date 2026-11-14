@@ -1,8 +1,9 @@
-using Crm.Application.Quotes.Building;
-using Crm.Application.Quotes.Contracts;
-using Crm.Application.Quotes.CustomSewing;
-using Crm.Application.Quotes.Validation;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Queries.GetQuoteModelComposition;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Features.Quotes.Shared.Building;
+using Crm.Application.Features.Quotes.Shared.Validation;
+using Crm.Application.Abstractions.Quotes;
 
 namespace UnitTests.Crm.Quotes;
 
@@ -104,7 +105,7 @@ public sealed class QuoteChangedModelTests
     public async Task The_model_composition_is_read_for_the_panel_or_not_found()
     {
         var reader = new FakeModelCompositionReader();
-        var handler = new GetQuoteModelCompositionQueryHandler(reader);
+        var handler = new GetQuoteModelCompositionHandler(reader);
 
         var found = await handler.Handle(new GetQuoteModelCompositionQuery(10), default);
         var missing = await handler.Handle(new GetQuoteModelCompositionQuery(11), default);

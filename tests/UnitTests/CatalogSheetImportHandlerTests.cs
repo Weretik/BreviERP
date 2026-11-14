@@ -1,14 +1,6 @@
 using System.Text.Json;
 using Ardalis.Result;
 using Catalog.Api.Contracts.Products.Overview;
-using Catalog.Application.Contracts.Persistence.SheetImport;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Contracts.SlugGeneration;
-using Catalog.Application.Features.Product.SheetImport;
-using Catalog.Application.Features.Product.SheetImport.DTOs;
-using Catalog.Application.Features.Product.SheetImport.Planning;
-using Catalog.Application.Features.Product.SheetImport.Validators;
 using Catalog.Domain.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -16,6 +8,10 @@ using Microsoft.Extensions.Time.Testing;
 using Moq;
 using YamlDotNet.RepresentationModel;
 using static UnitTests.CatalogSheetImportFixtures;
+using Catalog.Application.Abstractions;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 
 namespace UnitTests;
 
@@ -84,7 +80,7 @@ public sealed class CatalogSheetImportHandlerTests
     [Test]
     public void Validator_accepts_a_body_and_rejects_an_empty_one()
     {
-        var validator = new ImportSheetProductsCommandValidator();
+        var validator = new ImportSheetProductsValidator();
 
         Assert.Multiple(() =>
         {
@@ -162,7 +158,7 @@ public sealed class CatalogSheetImportHandlerTests
     {
         public Mock<ISheetProductImportStore> Store { get; } = new();
         public SheetImportPlan? Written { get; private set; }
-        public ImportSheetProductsCommandHandler Handler { get; }
+        public ImportSheetProductsHandler Handler { get; }
 
         public Setup(Result? write = null)
         {
@@ -179,7 +175,7 @@ public sealed class CatalogSheetImportHandlerTests
                 true, "x", Now, Now));
             var slugs = new Mock<IProductSlugGenerator>();
             slugs.Setup(x => x.GenerateFromUkrainianName(It.IsAny<string>())).Returns("tovar");
-            Handler = new ImportSheetProductsCommandHandler(Store.Object, codes.Object, inputs.Object, slugs.Object,
+            Handler = new ImportSheetProductsHandler(Store.Object, codes.Object, inputs.Object, slugs.Object,
                 new FakeTimeProvider(Now));
         }
     }

@@ -1,7 +1,7 @@
 using Catalog.Api.Contracts.Products.Photos;
-using Catalog.Application.Features.Product.Photos.DTOs;
-using Catalog.Application.Features.Product.Photos.GetPhotos;
-using Catalog.Application.Features.Product.Photos.SetPhotos;
+using Catalog.Application.Features.Product.Commands.SetProductPhotos;
+using Catalog.Application.Features.Product.Queries.GetProductPhotos;
+using Catalog.Application.Features.Product.Shared.Photos;
 
 namespace Catalog.Api.Controllers;
 

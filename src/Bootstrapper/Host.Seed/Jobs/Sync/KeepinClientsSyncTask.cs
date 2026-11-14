@@ -1,6 +1,6 @@
-using Crm.Application.Customers.KeepinCrmSync;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 
 namespace Host.Seed.Jobs.Sync;
 

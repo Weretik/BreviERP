@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Get;
-using Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Shared;
-using Catalog.Application.Features.Pricing.Ppe.SupplierOffer.Update;
+using Catalog.Application.Features.Pricing.Commands.UpdatePpeSupplierOffer;
+using Catalog.Application.Features.Pricing.Queries.GetPpeSupplierOffer;
+using Catalog.Application.Features.Pricing.Shared.Ppe.SupplierOffer;
 
 namespace Catalog.Api.Controllers.Pricing.Ppe;
 

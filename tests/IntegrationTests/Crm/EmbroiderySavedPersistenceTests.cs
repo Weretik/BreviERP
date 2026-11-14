@@ -1,14 +1,15 @@
 using Ardalis.Result;
-using Crm.Application.Embroidery.Access;
-using Crm.Application.Embroidery.Contracts;
-using Crm.Application.Embroidery.DeleteCalculation;
-using Crm.Application.Embroidery.GetCalculation;
-using Crm.Application.Embroidery.GetCalculations;
-using Crm.Application.Embroidery.GetSettings;
-using Crm.Application.Embroidery.Mockup;
-using Crm.Application.Embroidery.SaveCalculation;
-using Crm.Application.Embroidery.SaveSettings;
-using Crm.Application.Embroidery.StitchRate;
+using Crm.Application.Features.Embroidery.Commands.DeleteEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Commands.SaveEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Commands.SaveEmbroiderySettings;
+using Crm.Application.Features.Embroidery.Commands.SetEmbroideryMockup;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculations;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryMockupUsages;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroiderySettings;
+using Crm.Application.Features.Embroidery.Shared;
+using Crm.Application.Features.Embroidery.Shared.Access;
+using Crm.Application.Abstractions.Embroidery;
 
 namespace IntegrationTests.Crm;
 
@@ -30,33 +31,33 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
         SaveEmbroideryCalculationInput input)
     {
         await using var db = Context();
-        return await new SaveEmbroideryCalculationCommandHandler(db, _stitchRate, _staff, _clock)
+        return await new SaveEmbroideryCalculationHandler(db, _stitchRate, _staff, _clock)
             .Handle(new SaveEmbroideryCalculationCommand(actor, input), default);
     }
 
     private async Task<Result<EmbroiderySavedCalculationResponse>> Get(EmbroideryActor actor, long id)
     {
         await using var db = Context();
-        return await new GetEmbroideryCalculationQueryHandler(db, _media)
+        return await new GetEmbroideryCalculationHandler(db, _media)
             .Handle(new GetEmbroideryCalculationQuery(actor, id), default);
     }
 
     private async Task<EmbroiderySavedPageResponse> List(string? search)
     {
         await using var db = Context();
-        return (await new GetEmbroideryCalculationsQueryHandler(db, _media)
+        return (await new GetEmbroideryCalculationsHandler(db, _media)
             .Handle(new GetEmbroideryCalculationsQuery(Olena, search), default)).Value;
     }
 
     private async Task RaiseHoopingRate(decimal rate)
     {
         await using var db = Context();
-        var current = (await new GetEmbroiderySettingsQueryHandler(db, _stitchRate)
+        var current = (await new GetEmbroiderySettingsHandler(db, _stitchRate)
             .Handle(new GetEmbroiderySettingsQuery(Director), default)).Value;
         var input = new SaveEmbroiderySettingsInput(current.Version, current.Rates with { HoopingRate = rate },
             current.Markups, current.Stabilizer, current.Fabric, current.FabricIncreasePercent, current.Hoops,
             current.Expenses);
-        var saved = await new SaveEmbroiderySettingsCommandHandler(db, _stitchRate, _staff, _clock)
+        var saved = await new SaveEmbroiderySettingsHandler(db, _stitchRate, _staff, _clock)
             .Handle(new SaveEmbroiderySettingsCommand(Director, input), default);
         Assert.That(saved.IsSuccess, Is.True, string.Join(",", saved.Errors));
     }
@@ -120,7 +121,7 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var handler = new DeleteEmbroideryCalculationCommandHandler(db);
+            var handler = new DeleteEmbroideryCalculationHandler(db);
             Assert.That((await handler.Handle(new DeleteEmbroideryCalculationCommand(Olena, saved.Summary.Id), default))
                 .Status, Is.EqualTo(ResultStatus.Forbidden));
             Assert.That((await handler.Handle(new DeleteEmbroideryCalculationCommand(Director, saved.Summary.Id),
@@ -138,7 +139,7 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
 
         await using (var db = Context())
         {
-            var handler = new SetEmbroideryMockupCommandHandler(db, _media);
+            var handler = new SetEmbroideryMockupHandler(db, _media);
             var missing = await handler.Handle(new SetEmbroideryMockupCommand(Olena, saved.Summary.Id,
                 new SetEmbroideryMockupInput(99)), default);
             var set = await handler.Handle(new SetEmbroideryMockupCommand(Olena, saved.Summary.Id,
@@ -151,11 +152,11 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
         Assert.That((await List(null)).Items.Single().Mockup!.FileName, Is.EqualTo("logo.png"));
         await using (var db = Context())
         {
-            var usages = (await new GetEmbroideryMockupUsagesQueryHandler(db)
+            var usages = (await new GetEmbroideryMockupUsagesHandler(db)
                 .Handle(new GetEmbroideryMockupUsagesQuery([5, 6]), default)).Value;
             Assert.That(usages.Single().Title, Is.EqualTo(saved.Summary.Number + " Поло"));
 
-            var cleared = await new SetEmbroideryMockupCommandHandler(db, _media).Handle(
+            var cleared = await new SetEmbroideryMockupHandler(db, _media).Handle(
                 new SetEmbroideryMockupCommand(Olena, saved.Summary.Id, new SetEmbroideryMockupInput(null)), default);
             Assert.That(cleared.Value.Summary.Mockup, Is.Null);
         }

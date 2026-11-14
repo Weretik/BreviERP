@@ -1,4 +1,5 @@
-using Crm.Application.Quotes.FabricFacts;
+using Crm.Application.Features.Quotes.Queries.GetQuoteFabricFacts;
+using Crm.Application.Abstractions.Quotes;
 
 namespace UnitTests.Crm.Quotes;
 
@@ -13,7 +14,7 @@ public sealed class QuoteFabricFactsTests
             new QuoteFabricFacts(1, "Грета", " 53% бавовна ", "220 г/м²", 133m, 7, "Спецтекстиль"),
             new QuoteFabricFacts(2, "Ортон", null, " ", 98.5m, null, "-"),
             new QuoteFabricFacts(3, "Не питали", null, null, 1m, null, null));
-        var handler = new GetQuoteFabricFactsQueryHandler(reader);
+        var handler = new GetQuoteFabricFactsHandler(reader);
 
         var result = await handler.Handle(new GetQuoteFabricFactsQuery([1, 2, 1, 99]), CancellationToken.None);
 
@@ -32,7 +33,7 @@ public sealed class QuoteFabricFactsTests
     [TestCase(201)]
     public void Asks_for_one_to_two_hundred_fabrics(int count)
     {
-        var validator = new GetQuoteFabricFactsQueryValidator();
+        var validator = new GetQuoteFabricFactsValidator();
 
         var result = validator.Validate(new GetQuoteFabricFactsQuery(Enumerable.Range(1, count).ToArray()));
 

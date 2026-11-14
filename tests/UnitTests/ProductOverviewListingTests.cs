@@ -1,7 +1,5 @@
-using Catalog.Application.Features.Product.Overview.GetList;
-using Catalog.Application.Features.Product.Overview.GetList.DTOs;
-using Catalog.Application.Features.Product.Overview.GetList.Validators;
 using Catalog.Domain.Products;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 
 namespace UnitTests;
 
@@ -57,7 +55,7 @@ public sealed class ProductOverviewListingTests
     [Test]
     public void Page_size_and_page_are_validated()
     {
-        var validator = new GetProductOverviewPageQueryValidator();
+        var validator = new GetProductOverviewPageValidator();
         Assert.Multiple(() =>
         {
             Assert.That(validator.Validate(Query()).IsValid, Is.True);

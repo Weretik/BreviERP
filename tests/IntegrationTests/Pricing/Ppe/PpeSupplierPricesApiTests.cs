@@ -5,10 +5,6 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Ardalis.Result;
 using Catalog.Api;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Import;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.List;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Refresh;
-using Catalog.Application.Features.Pricing.Ppe.SupplierPrices.Settings;
 using Mediator;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -19,6 +15,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Catalog.Application.Features.Pricing.Commands.ImportPpeSupplierFiles;
+using Catalog.Application.Features.Pricing.Commands.RefreshPpeSupplierPrices;
+using Catalog.Application.Features.Pricing.Commands.UpdatePpePriceSource;
+using Catalog.Application.Features.Pricing.Queries.GetPpePriceSources;
 
 namespace IntegrationTests.Pricing.Ppe;
 

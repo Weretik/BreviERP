@@ -1,10 +1,9 @@
 using Ardalis.Result;
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.SettingsSync;
 using Catalog.Domain.Pricing.Ppe;
 using Catalog.Domain.Pricing.Sewing;
 using Moq;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.SyncPricingSettings;
 
 namespace UnitTests;
 
@@ -35,7 +34,7 @@ public sealed class PricingSettingsSyncTests
         (sewingReader, sewingWriter, ppeReader, ppeWriter) = (new(), new(), new(), new());
     }
 
-    private SyncPricingSettingsCommandHandler Handler()
+    private SyncPricingSettingsHandler Handler()
     {
         sewingReader.Setup(x => x.ReadCandidatesAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([new SewingPricingSettingsSelection(4, 4, DateTimeOffset.UtcNow.AddDays(-1), "v1", Current)]);
@@ -117,7 +116,7 @@ public sealed class PricingSettingsSyncTests
 
         Assert.That(result.PpeRulesUpdated, Is.EqualTo(new[] { "Взуття", "Рукавички" }));
         ppeWriter.Verify(x => x.AppendAsync(current.Id, It.IsAny<Guid>(),
-            It.Is<PpeRuleValues>(v => v.Code == "Взуття" && v.Source == SyncPricingSettingsCommandHandler.Source),
+            It.Is<PpeRuleValues>(v => v.Code == "Взуття" && v.Source == SyncPricingSettingsHandler.Source),
             "t", It.IsAny<CancellationToken>()), Times.Once);
         ppeWriter.Verify(x => x.AppendAsync(null, It.IsAny<Guid>(), It.Is<PpeRuleValues>(v => v.Code == "Рукавички"),
             "t", It.IsAny<CancellationToken>()), Times.Once);

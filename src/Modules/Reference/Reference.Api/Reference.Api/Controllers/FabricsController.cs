@@ -1,13 +1,10 @@
 using Reference.Api.Contracts.Fabrics;
-using Reference.Application.Features.Fabric.Create;
-using Reference.Application.Features.Fabric.Create.DTOs;
-using Reference.Application.Features.Fabric.Delete;
-using Reference.Application.Features.Fabric.GetList;
-using Reference.Application.Features.Fabric.GetList.DTOs;
-using Reference.Application.Features.Fabric.Import;
-using Reference.Application.Features.Shared.SheetImport;
-using Reference.Application.Features.Fabric.Update;
-using Reference.Application.Features.Fabric.Update.DTOs;
+using Reference.Application.Features.Fabric.Commands.CreateFabric;
+using Reference.Application.Features.Fabric.Commands.DeleteFabric;
+using Reference.Application.Features.Fabric.Commands.ImportFabrics;
+using Reference.Application.Features.Fabric.Commands.UpdateFabric;
+using Reference.Application.Features.Fabric.Queries.GetAllFabric;
+using Reference.Application.Features.SheetImport.Shared;
 
 namespace Reference.Api.Controllers;
 

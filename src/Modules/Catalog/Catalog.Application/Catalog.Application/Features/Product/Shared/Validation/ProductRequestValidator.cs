@@ -1,10 +1,10 @@
-using Catalog.Application.Features.Product.Create.DTOs;
 using Catalog.Application.Features.Product.Shared.Validation.Common;
 using Catalog.Application.Features.Product.Shared.Validation.Content;
 using Catalog.Application.Features.Product.Shared.Validation.Ppe;
 using Catalog.Application.Features.Product.Shared.Validation.Resources;
 using Catalog.Application.Features.Product.Shared.Validation.Sewing;
 using Catalog.Domain.Products;
+using Catalog.Application.Features.Product.Commands.CreateProduct;
 
 namespace Catalog.Application.Features.Product.Shared.Validation;
 

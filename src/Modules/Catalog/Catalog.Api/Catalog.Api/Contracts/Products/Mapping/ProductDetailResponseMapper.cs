@@ -1,6 +1,4 @@
-using Catalog.Application.Contracts.Admin.Ppe;
-using Catalog.Application.Contracts.Admin.Product;
-using Catalog.Application.Contracts.Admin.Sewing;
+using Catalog.Application.Features.Product.Shared;
 
 namespace Catalog.Api.Contracts.Products;
 

@@ -1,10 +1,8 @@
 ﻿using Moq;
-using Reference.Application.Contracts.Catalog;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.GarmentPartOperation.Import;
-using Reference.Application.Features.GarmentPartOperation.Import.DTOs;
-using Reference.Application.Features.Shared.SheetImport;
 using Reference.Domain.GarmentPartOperations;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.GarmentPartOperation.Commands.ImportGarmentPartOperations;
+using Reference.Application.Features.SheetImport.Shared;
 
 namespace UnitTests.Reference;
 
@@ -50,7 +48,7 @@ public sealed class GarmentPartOperationImportTests
         var groups = Repository([sleeve, oldGroup, usedGroup], addedGroups, deletedGroups);
         var usage = new Mock<IProductUsageReader>();
         usage.Setup(x => x.IsGarmentPartOperationUsedAsync(7, It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        var handler = new ImportGarmentPartOperationsCommandHandler(operations.Object, groups.Object, usage.Object);
+        var handler = new ImportGarmentPartOperationsHandler(operations.Object, groups.Object, usage.Object);
 
         var result = await handler.Handle(new ImportGarmentPartOperationsCommand(
         [
@@ -87,7 +85,7 @@ public sealed class GarmentPartOperationImportTests
         var deleted = new List<GarmentPartOperation>();
         var operations = Repository([stale], added, deleted);
         var groups = Repository([sleeve], [], []);
-        var handler = new ImportGarmentPartOperationsCommandHandler(operations.Object, groups.Object,
+        var handler = new ImportGarmentPartOperationsHandler(operations.Object, groups.Object,
             new Mock<IProductUsageReader>().Object);
 
         var preview = await handler.Handle(new ImportGarmentPartOperationsCommand(

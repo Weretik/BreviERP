@@ -1,6 +1,6 @@
-using Crm.Application.SiteRequests.Abstractions;
 
 using Reminders.Contracts.Telegram;
+using Crm.Application.Abstractions.SiteRequests;
 
 namespace Crm.Infrastructure.Adapters.Reminders;
 

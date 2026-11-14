@@ -1,13 +1,9 @@
 ﻿using Catalog.Api.Contracts.ProductCategories;
-using Catalog.Application.Features.ProductCategory.Create;
-using Catalog.Application.Features.ProductCategory.Create.DTOs;
-using Catalog.Application.Features.ProductCategory.Delete;
-using Catalog.Application.Features.ProductCategory.GetAdminList;
-using Catalog.Application.Features.ProductCategory.GetAdminList.DTOs;
-using Catalog.Application.Features.ProductCategory.GetStoreList;
-using Catalog.Application.Features.ProductCategory.GetStoreList.DTOs;
-using Catalog.Application.Features.ProductCategory.Update;
-using Catalog.Application.Features.ProductCategory.Update.DTOs;
+using Catalog.Application.Features.ProductCategory.Commands.CreateProductCategory;
+using Catalog.Application.Features.ProductCategory.Commands.DeleteProductCategory;
+using Catalog.Application.Features.ProductCategory.Commands.UpdateProductCategory;
+using Catalog.Application.Features.ProductCategory.Queries.GetAdminProductCategories;
+using Catalog.Application.Features.ProductCategory.Queries.GetStoreProductCategories;
 
 namespace Catalog.Api.Controllers;
 

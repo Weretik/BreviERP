@@ -1,8 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
-using Reference.Application.Contracts.KeepinCrm;
 using Reference.Domain.Suppliers;
+using Reference.Application.Abstractions;
 
 namespace Reference.Infrastructure.KeepinCrm;
 

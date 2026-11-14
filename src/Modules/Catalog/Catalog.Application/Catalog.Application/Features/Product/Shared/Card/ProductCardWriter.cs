@@ -1,9 +1,9 @@
-using Catalog.Application.Contracts.Reference;
-using Catalog.Application.Features.Product.Create.DTOs;
 using Catalog.Domain.Media;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
+using Catalog.Application.Abstractions.Reference;
+using Catalog.Application.Features.Product.Commands.CreateProduct;
 
 namespace Catalog.Application.Features.Product.Shared.Card;
 

@@ -9,13 +9,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Ardalis.Result;
 using Catalog.Api;
-using Catalog.Application.Contracts.Admin.Product;
-using Catalog.Application.Features.Product.Create;
-using Catalog.Application.Features.Product.Delete;
-using Catalog.Application.Features.Product.GetAdminDetail;
-using Catalog.Application.Features.Product.GetAdminList;
-using Catalog.Application.Features.Product.GetAdminList.DTOs;
-using Catalog.Application.Features.Product.Update;
 using Catalog.Domain.Products;
 using Mediator;
 using Microsoft.AspNetCore.Builder;
@@ -23,6 +16,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Catalog.Application.Features.Product.Commands.CreateProduct;
+using Catalog.Application.Features.Product.Commands.DeleteProduct;
+using Catalog.Application.Features.Product.Commands.ReplaceProduct;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
+using Catalog.Application.Features.Product.Queries.GetAdminProducts;
+using Catalog.Application.Features.Product.Shared;
 
 namespace IntegrationTests;
 
@@ -216,7 +215,7 @@ public sealed class ProductsApiTests
     private static ProductAdminDetail Detail(int id = 1)
         => new(id, "Product", "Товар", "product", ProductType.Ppe, "Description", "Описание", [],
             [new(10, "https://cdn.test/main.jpg", null, true, true, 0), new(11, "https://cdn.test/second.jpg", "Second", true, false, 1)], [], [], null,
-            new(new(7, "Supplier"), 100m, new(Catalog.Application.Contracts.Admin.Ppe.PpePercentSource.Custom, null, 25.5m), new(Catalog.Application.Contracts.Admin.Ppe.PpePercentSource.Custom, null, 15.25m), 0m, 0m), DateTimeOffset.UtcNow, null);
+            new(new(7, "Supplier"), 100m, new(Catalog.Application.Features.Product.Shared.PpePercentSource.Custom, null, 25.5m), new(Catalog.Application.Features.Product.Shared.PpePercentSource.Custom, null, 15.25m), 0m, 0m), DateTimeOffset.UtcNow, null);
 
     [Test]
     public async Task List_requires_a_signed_in_staff_user()

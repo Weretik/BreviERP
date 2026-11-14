@@ -20,7 +20,7 @@ The [Sewing Article/composition extension](sewing-composition.md) adds fabric va
 
 ## Structure and Relationships
 
-[ProductsController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductsController.cs) invokes the [create handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Create/CreateProductCommandHandler.cs) and the replace/delete/read handlers. [Product](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Product.cs) owns categories, photos, description, and either [Sewing](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Sewing/SewingProductDetails.cs) or [PPE](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Ppe/PpeProductDetails.cs) details. The handler validates IDs in Reference through the read boundary, and [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs) persists the aggregate.
+[ProductsController](../../../../src/Modules/Catalog/Catalog.Api/Catalog.Api/Controllers/ProductsController.cs) invokes the [create handler](../../../../src/Modules/Catalog/Catalog.Application/Catalog.Application/Features/Product/Commands/CreateProduct/CreateProductHandler.cs) and the replace/delete/read handlers. [Product](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Product.cs) owns categories, photos, description, and either [Sewing](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Sewing/SewingProductDetails.cs) or [PPE](../../../../src/Modules/Catalog/Catalog.Domain/Catalog.Domain/Products/Ppe/PpeProductDetails.cs) details. The handler validates IDs in Reference through the read boundary, and [CatalogDbContext](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DataBase/CatalogDbContext.cs) persists the aggregate.
 
 ## Code Structure
 
@@ -32,25 +32,25 @@ src/
     ├── Catalog.Api/Catalog.Api/Controllers/ProductsController.cs  # HTTP entry point
     ├── Catalog.Api/Catalog.Api/Controllers/ProductOverviewController.cs  # «Товари» page API
     ├── Catalog.Application/Catalog.Application/Features/Product/
-    │   ├── Create/CreateProductCommandHandler.cs  # use case handler
-    │   ├── Delete/DeleteProductCommandHandler.cs  # use case handler
-    │   ├── GetAdminDetail/GetAdminProductDetailQueryHandler.cs  # use case handler
-    │   ├── GetAdminList/GetAdminProductsQueryHandler.cs  # use case handler
-    │   ├── Overview/CodeCheck/GetProductCodeCheckQueryHandler.cs  # free code and next MOD-XXX
-    │   ├── Overview/Create/CreateCatalogProductCommandHandler.cs  # «Новий ЗІЗ» / «Нова модель»
-    │   ├── Overview/GetList/GetProductOverviewPageQueryHandler.cs  # «Товари» page (CAT-013)
-    │   ├── Overview/GetList/ProductOverviewListing.cs  # search, filters, sort, page
-    │   ├── Overview/GetOne/GetProductOverviewItemQueryHandler.cs  # one row for the card
-    │   ├── Overview/Shared/Items/ProductOverviewItemReader.cs  # rows with published prices
-    │   ├── Overview/Shared/SewingModelCodes.cs  # next MOD-XXX
-    │   ├── Overview/Update/UpdateProductOverviewCommandHandler.cs  # «Товари» page fields
-    │   ├── Overview/Shared/ProductSlugCandidates.cs  # slug choices for a new product
-    │   ├── Photos/SetPhotos/SetProductPhotosCommandHandler.cs  # tab «Фото» save (CAT-018)
-    │   ├── Photos/SkuIndex/GetProductSkuIndexQueryHandler.cs  # products by sale SKU for imports
-    │   ├── OldSitePhotoImport/ImportOldSitePhotosCommandHandler.cs  # old-site photos and models (CAT-018)
-    │   ├── SheetImport/ImportSheetProductsCommandHandler.cs  # sheet import (CAT-010)
-    │   ├── SheetImport/Planning/SheetImportPlanner.cs  # pure plan and report
-    │   └── Update/ReplaceProductCommandHandler.cs  # use case handler
+    │   ├── Commands/CreateProduct/CreateProductHandler.cs  # use case handler
+    │   ├── Commands/DeleteProduct/DeleteProductHandler.cs  # use case handler
+    │   ├── Queries/GetAdminProductDetail/GetAdminProductDetailHandler.cs  # use case handler
+    │   ├── Queries/GetAdminProducts/GetAdminProductsHandler.cs  # use case handler
+    │   ├── Queries/GetProductCodeCheck/GetProductCodeCheckHandler.cs  # free code and next MOD-XXX
+    │   ├── Commands/CreateCatalogProduct/CreateCatalogProductHandler.cs  # «Новий ЗІЗ» / «Нова модель»
+    │   ├── Queries/GetProductOverviewPage/GetProductOverviewPageHandler.cs  # «Товари» page (CAT-013)
+    │   ├── Queries/GetProductOverviewPage/ProductOverviewListing.cs  # search, filters, sort, page
+    │   ├── Queries/GetProductOverviewItem/GetProductOverviewItemHandler.cs  # one row for the card
+    │   ├── Shared/Overview/Items/ProductOverviewItemReader.cs  # rows with published prices
+    │   ├── Shared/Overview/SewingModelCodes.cs  # next MOD-XXX
+    │   ├── Commands/UpdateProductOverview/UpdateProductOverviewHandler.cs  # «Товари» page fields
+    │   ├── Shared/Overview/ProductSlugCandidates.cs  # slug choices for a new product
+    │   ├── Commands/SetProductPhotos/SetProductPhotosHandler.cs  # tab «Фото» save (CAT-018)
+    │   ├── Queries/GetProductSkuIndex/GetProductSkuIndexHandler.cs  # products by sale SKU for imports
+    │   ├── Commands/ImportOldSitePhotos/ImportOldSitePhotosHandler.cs  # old-site photos and models (CAT-018)
+    │   ├── Commands/ImportSheetProducts/ImportSheetProductsHandler.cs  # sheet import (CAT-010)
+    │   ├── Commands/ImportSheetProducts/SheetImportPlanner.cs  # pure plan and report
+    │   └── Commands/ReplaceProduct/ReplaceProductHandler.cs  # use case handler
     ├── Catalog.Domain/Catalog.Domain/Products/
     │   ├── Ppe/PpeProductDetails.cs  # domain model
     │   ├── Product.cs  # domain model

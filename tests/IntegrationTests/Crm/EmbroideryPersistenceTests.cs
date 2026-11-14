@@ -1,11 +1,10 @@
 using Ardalis.Result;
-using Crm.Application.Embroidery.Access;
-using Crm.Application.Embroidery.Calculate;
-using Crm.Application.Embroidery.Contracts;
-using Crm.Application.Embroidery.GetSettings;
-using Crm.Application.Embroidery.Persistence;
-using Crm.Application.Embroidery.StitchRate;
-using Crm.Application.Embroidery.SaveSettings;
+using Crm.Application.Features.Embroidery.Commands.SaveEmbroiderySettings;
+using Crm.Application.Features.Embroidery.Queries.CalculateEmbroidery;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroiderySettings;
+using Crm.Application.Features.Embroidery.Shared;
+using Crm.Application.Features.Embroidery.Shared.Access;
+using Crm.Application.Abstractions.Embroidery;
 
 namespace IntegrationTests.Crm;
 
@@ -22,14 +21,14 @@ public sealed class EmbroideryPersistenceTests : CrmDatabaseFixture
     private async Task<EmbroiderySettingsResponse> Load()
     {
         await using var db = Context();
-        return (await new GetEmbroiderySettingsQueryHandler(db, _stitchRate)
+        return (await new GetEmbroiderySettingsHandler(db, _stitchRate)
             .Handle(new GetEmbroiderySettingsQuery(Director), default)).Value;
     }
 
     private async Task<Result<EmbroiderySettingsResponse>> Save(EmbroideryActor actor, SaveEmbroiderySettingsInput input)
     {
         await using var db = Context();
-        return await new SaveEmbroiderySettingsCommandHandler(db, _stitchRate, _staff, _clock)
+        return await new SaveEmbroiderySettingsHandler(db, _stitchRate, _staff, _clock)
             .Handle(new SaveEmbroiderySettingsCommand(actor, input), default);
     }
 
@@ -62,7 +61,7 @@ public sealed class EmbroideryPersistenceTests : CrmDatabaseFixture
     public async Task ManagerCannotReadOrChangeTheSettings()
     {
         await using var db = Context();
-        var read = await new GetEmbroiderySettingsQueryHandler(db, _stitchRate)
+        var read = await new GetEmbroiderySettingsHandler(db, _stitchRate)
             .Handle(new GetEmbroiderySettingsQuery(Olena), default);
         Assert.That(read.Status, Is.EqualTo(ResultStatus.Forbidden));
         Assert.That((await Save(Olena, ToInput(await Load()))).Status, Is.EqualTo(ResultStatus.Forbidden));
@@ -75,7 +74,7 @@ public sealed class EmbroideryPersistenceTests : CrmDatabaseFixture
         Assert.That((await Save(Director, input with { Rates = input.Rates with { HoopingRate = 12m } })).IsSuccess, Is.True);
 
         await using var db = Context();
-        var result = await new CalculateEmbroideryQueryHandler(db, _stitchRate).Handle(new CalculateEmbroideryQuery(Director,
+        var result = await new CalculateEmbroideryHandler(db, _stitchRate).Handle(new CalculateEmbroideryQuery(Director,
             new CalculateEmbroideryInput("Garment", 50, 10_000, "18", 1, 1, 1, "New", 60, null, "UsedBlanks", null)), default);
 
         Assert.That(result.Value.Cost!.Rows.Single(x => x.Kind == "Hooping").Amount, Is.EqualTo(600m));

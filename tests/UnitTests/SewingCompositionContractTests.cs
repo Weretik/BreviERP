@@ -1,6 +1,10 @@
 using System.Text.Json;
-using Catalog.Application.Features.Product.Sewing;
 using YamlDotNet.RepresentationModel;
+using Catalog.Application.Features.Product.Commands.CreateSewingArticle;
+using Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
+using Catalog.Application.Features.Product.Commands.UpdateSewingArticle;
+using Catalog.Application.Features.Product.Queries.ListSewingArticles;
+using Catalog.Application.Features.Product.Shared.Sewing;
 
 namespace UnitTests;
 

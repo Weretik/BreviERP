@@ -1,6 +1,7 @@
 using Catalog.Contracts.Sewing;
-using Crm.Application.Quotes.CustomSewing;
 using Crm.Domain.Quotes;
+using Crm.Application.Features.Quotes.Shared;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Adapters.Catalog;
 

@@ -1,14 +1,13 @@
 using Ardalis.Result;
-using Crm.Application.SiteRequests;
-using Crm.Application.SiteRequests.Abstractions;
-using Crm.Application.SiteRequests.Change;
-using Crm.Application.SiteRequests.Contracts;
-using Crm.Application.SiteRequests.GetList;
-using Crm.Application.SiteRequests.Notify;
-using Crm.Application.SiteRequests.Submit;
 using FluentValidation.TestHelper;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
+using Crm.Application.Features.SiteRequests.Commands.ChangeSiteRequest;
+using Crm.Application.Features.SiteRequests.Commands.SubmitSiteRequest;
+using Crm.Application.Features.SiteRequests.Queries.GetSiteRequests;
+using Crm.Application.Features.SiteRequests.Shared;
+using Crm.Application.Features.SiteRequests.Shared.Notify;
+using Crm.Application.Abstractions.SiteRequests;
 
 namespace UnitTests.Crm.SiteRequests;
 
@@ -22,10 +21,10 @@ public sealed class SiteRequestsTests
     private readonly FakeSiteRequestNotifier notifier = new();
     private static readonly SiteRequestLinks Links = new("https://admin.test/");
 
-    private SubmitSiteRequestCommandHandler Submit(Func<SiteRequestTestDb> open) =>
+    private SubmitSiteRequestHandler Submit(Func<SiteRequestTestDb> open) =>
         new(open(), files, new InlineSiteRequestOutbox(open, notifier, Links, time), time);
 
-    private ChangeSiteRequestCommandHandler Change(Func<SiteRequestTestDb> open) =>
+    private ChangeSiteRequestHandler Change(Func<SiteRequestTestDb> open) =>
         new(open(), new FakeSiteRequestStaff(), time);
 
     private static SubmitSiteRequestCommand Form(string phone = "+38 (050) 123-45-67", SiteRequestFile? file = null) =>
@@ -127,7 +126,7 @@ public sealed class SiteRequestsTests
     [Test]
     public void The_form_needs_a_ukrainian_phone_and_an_allowed_small_file()
     {
-        var validator = new SubmitSiteRequestCommandValidator();
+        var validator = new SubmitSiteRequestValidator();
         SiteRequestFile File(string name, long length) => new(Stream.Null, name, "application/octet-stream", length);
 
         Assert.Multiple(() =>
@@ -183,10 +182,10 @@ public sealed class SiteRequestsTests
         await Change(open).Handle(new ChangeSiteRequestCommand(1, false, 2, new("Take", 1, null)), None);
         await Change(open).Handle(new ChangeSiteRequestCommand(2, false, 3, new("Spam", 1, null)), None);
 
-        var handler = new GetSiteRequestsQueryHandler(open());
+        var handler = new GetSiteRequestsHandler(open());
         var openList = (await handler.Handle(new GetSiteRequestsQuery(1, null), None)).Value;
-        var mine = (await new GetSiteRequestsQueryHandler(open()).Handle(new GetSiteRequestsQuery(1, "Mine"), None)).Value;
-        var closed = (await new GetSiteRequestsQueryHandler(open()).Handle(new GetSiteRequestsQuery(1, "Closed"), None)).Value;
+        var mine = (await new GetSiteRequestsHandler(open()).Handle(new GetSiteRequestsQuery(1, "Mine"), None)).Value;
+        var closed = (await new GetSiteRequestsHandler(open()).Handle(new GetSiteRequestsQuery(1, "Closed"), None)).Value;
 
         Assert.Multiple(() =>
         {

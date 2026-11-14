@@ -1,7 +1,7 @@
-using Crm.Application.Quotes.Catalog;
-using Crm.Application.Quotes.Pdf;
 using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Settings;
+using Crm.Application.Features.Quotes.Shared.Catalog;
+using Crm.Application.Features.Quotes.Shared.Pdf;
 
 namespace UnitTests.Crm.Quotes;
 

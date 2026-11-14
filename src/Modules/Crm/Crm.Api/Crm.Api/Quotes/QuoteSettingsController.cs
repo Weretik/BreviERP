@@ -1,12 +1,12 @@
 using BuildingBlocks.Api.Result;
 using Crm.Api.Access;
-using Crm.Application.Quotes.Settings.Contracts;
-using Crm.Application.Quotes.Settings.GetSettings;
-using Crm.Application.Quotes.Settings.SaveSettings;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Crm.Application.Features.Quotes.Commands.SaveQuoteSettings;
+using Crm.Application.Features.Quotes.Queries.GetQuoteSettings;
+using Crm.Application.Features.Quotes.Shared.Settings;
 
 namespace Crm.Api.Quotes;
 

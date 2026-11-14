@@ -1,4 +1,4 @@
-using Crm.Application.Quotes.Import;
+using Crm.Application.Features.Quotes.Commands.ImportQuotes;
 
 namespace Crm.Api.Quotes.Requests;
 

@@ -1,11 +1,11 @@
 using BuildingBlocks.Api.Authorization;
 using System.Security.Claims;
 using Catalog.Api.Contracts.Pricing.Sewing.Calculations;
-using Catalog.Application.Contracts.Pricing;
-using Catalog.Application.Features.Pricing.Sewing.Calculations.Get;
-using Catalog.Application.Features.Pricing.Sewing.Publications.GetCurrent;
-using Catalog.Application.Features.Pricing.Sewing.Publications.Publish;
-using Catalog.Application.Features.Pricing.Sewing.Calculations.Save;
+using Catalog.Application.Abstractions.Pricing;
+using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
+using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
+using Catalog.Application.Features.Pricing.Queries.GetPublishedSewingPrice;
+using Catalog.Application.Features.Pricing.Queries.GetSewingCalculation;
 
 namespace Catalog.Api.Controllers.Pricing.Sewing;
 

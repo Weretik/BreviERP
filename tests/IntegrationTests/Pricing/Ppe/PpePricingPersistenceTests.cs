@@ -1,7 +1,5 @@
 using System.Text.Json;
 using Ardalis.Result;
-using Catalog.Application.Contracts.Pricing.Ppe;
-using Catalog.Application.Features.Pricing.Ppe.Products;
 using Catalog.Infrastructure.Pricing.Ppe.Reading;
 using Catalog.Infrastructure.Pricing.Ppe.Records;
 using Catalog.Infrastructure.Pricing.Ppe.Writing;
@@ -9,6 +7,7 @@ using CatalogImport.PpePricing.Bootstrap;
 using Catalog.Domain.Products;
 using IntegrationTests.Pricing.Sewing;
 using Microsoft.EntityFrameworkCore;
+using Catalog.Application.Features.Pricing.Queries.GetPpeProductPrices;
 namespace IntegrationTests.Pricing.Ppe;
 [NonParallelizable]
 public sealed class PpePricingPersistenceTests : SewingPricingDatabaseFixture
@@ -35,7 +34,7 @@ public sealed class PpePricingPersistenceTests : SewingPricingDatabaseFixture
             await using var db=Catalog();
             var id=(await db.Products.SingleAsync(x=>x.Type==ProductType.Ppe)).Id.Value;
             var reader=new PpePricingInputReader(db);
-            var query=new GetPpeProductPricesQueryHandler(reader);
+            var query=new GetPpeProductPricesHandler(reader);
             var draft=(await query.Handle(new([id]),CancellationToken.None)).Value.Single();
             Assert.That(draft.Calculation.Prices,Is.Null);
             Assert.That(draft.Offer.IsApproved,Is.False);

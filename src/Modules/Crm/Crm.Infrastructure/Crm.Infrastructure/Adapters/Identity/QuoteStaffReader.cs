@@ -1,6 +1,6 @@
-using Crm.Application.Quotes.Staff;
 
 using Identity.Contracts.Staff;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Adapters.Identity;
 

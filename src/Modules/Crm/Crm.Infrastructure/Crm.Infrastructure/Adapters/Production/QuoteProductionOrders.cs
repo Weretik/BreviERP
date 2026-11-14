@@ -1,5 +1,5 @@
-using Crm.Application.Quotes.ProductionLinks;
 using Production.Contracts.Orders;
+using Crm.Application.Abstractions.Quotes;
 
 namespace Crm.Infrastructure.Adapters.Production;
 

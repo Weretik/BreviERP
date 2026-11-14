@@ -1,13 +1,12 @@
 ﻿using BuildingBlocks.Domain.Results;
 using Moq;
-using Reference.Application.Contracts.Catalog;
-using Reference.Application.Contracts.Persistence;
-using Reference.Application.Features.PricingParameter.GetList;
-using Reference.Application.Features.PricingSettingsImport;
-using Reference.Application.Features.PricingSettingsImport.DTOs;
-using Reference.Application.Features.Shared.SheetImport;
 using Reference.Domain.PpeMarkupRules;
 using Reference.Domain.PricingParameters;
+using Reference.Application.Abstractions;
+using Reference.Application.Features.PricingParameter.Queries.GetPricingParameters;
+using Reference.Application.Features.PricingSettingsImport.Commands.ImportPricingSettings;
+using Reference.Application.Features.PricingSettingsImport.Shared;
+using Reference.Application.Features.SheetImport.Shared;
 
 namespace UnitTests.Reference;
 
@@ -72,7 +71,7 @@ public sealed class PricingSettingsTests
             Stored(3, "MINUTES_SHIFT", 480m),
         ]);
 
-        var rows = (await new GetPricingParametersQueryHandler(repository.Object)
+        var rows = (await new GetPricingParametersHandler(repository.Object)
             .Handle(new GetPricingParametersQuery(), CancellationToken.None)).Value;
 
         Assert.Multiple(() =>
@@ -95,7 +94,7 @@ public sealed class PricingSettingsTests
             new List<PricingParameter>(), new List<PpeMarkupRule>(), new List<PpeMarkupRule>());
         var parameters = Repository([assembly, legacy], addedParameters, deletedParameters);
         var rules = Repository([oldRule], addedRules, deletedRules);
-        var handler = new ImportPricingSettingsCommandHandler(parameters.Object, rules.Object, notifier.Object);
+        var handler = new ImportPricingSettingsHandler(parameters.Object, rules.Object, notifier.Object);
 
         var result = (await handler.Handle(new ImportPricingSettingsCommand(
             [
@@ -129,7 +128,7 @@ public sealed class PricingSettingsTests
         var assembly = Stored(5, "ASSEMBLY_RATE", 0.2m);
         var parameters = Repository([assembly], [], []);
         var rules = Repository(new List<PpeMarkupRule>(), [], []);
-        var handler = new ImportPricingSettingsCommandHandler(parameters.Object, rules.Object, notifier.Object);
+        var handler = new ImportPricingSettingsHandler(parameters.Object, rules.Object, notifier.Object);
         var rows = new[] { Parameter(7, "ASSEMBLY_RATE", 0.25m) };
 
         var preview = (await handler.Handle(new ImportPricingSettingsCommand(rows, [], DryRun: true, DeleteMissing: true),

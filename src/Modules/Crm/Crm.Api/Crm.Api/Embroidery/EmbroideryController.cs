@@ -1,23 +1,23 @@
 using BuildingBlocks.Api.Authorization;
 using BuildingBlocks.Api.Result;
-using Crm.Application.Embroidery.Access;
-using Crm.Application.Embroidery.Calculate;
-using Crm.Application.Embroidery.Contracts;
-using Crm.Application.Embroidery.DeleteCalculation;
-using Crm.Application.Embroidery.GetCalculation;
-using Crm.Application.Embroidery.GetCalculations;
-using Crm.Application.Embroidery.GetForm;
-using Crm.Application.Embroidery.GetSettings;
-using Crm.Application.Embroidery.ImportArchive;
-using Crm.Application.Embroidery.Mockup;
-using Crm.Application.Embroidery.SaveCalculation;
-using Crm.Application.Embroidery.SaveSettings;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Crm.Api.Access;
+using Crm.Application.Features.Embroidery.Commands.DeleteEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Commands.ImportEmbroideryArchive;
+using Crm.Application.Features.Embroidery.Commands.SaveEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Commands.SaveEmbroiderySettings;
+using Crm.Application.Features.Embroidery.Commands.SetEmbroideryMockup;
+using Crm.Application.Features.Embroidery.Queries.CalculateEmbroidery;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculations;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryForm;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroiderySettings;
+using Crm.Application.Features.Embroidery.Shared;
+using Crm.Application.Features.Embroidery.Shared.Access;
 
 namespace Crm.Api.Embroidery;
 

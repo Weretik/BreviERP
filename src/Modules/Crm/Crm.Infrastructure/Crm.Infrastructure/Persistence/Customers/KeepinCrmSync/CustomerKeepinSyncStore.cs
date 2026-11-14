@@ -1,8 +1,9 @@
-using Crm.Application.Customers.KeepinCrmSync;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.Identifiers;
 using Microsoft.EntityFrameworkCore;
+using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
+using Crm.Application.Abstractions.Customers;
 
 namespace Crm.Infrastructure.Persistence.Customers.KeepinCrmSync;
 

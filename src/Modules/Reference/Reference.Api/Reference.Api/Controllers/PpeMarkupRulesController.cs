@@ -1,11 +1,8 @@
 using Reference.Api.Contracts.PpeMarkupRules;
-using Reference.Application.Features.PpeMarkupRule.Create;
-using Reference.Application.Features.PpeMarkupRule.Create.DTOs;
-using Reference.Application.Features.PpeMarkupRule.Delete;
-using Reference.Application.Features.PpeMarkupRule.GetList;
-using Reference.Application.Features.PpeMarkupRule.GetList.DTOs;
-using Reference.Application.Features.PpeMarkupRule.Update;
-using Reference.Application.Features.PpeMarkupRule.Update.DTOs;
+using Reference.Application.Features.PpeMarkupRule.Commands.CreatePpeMarkupRule;
+using Reference.Application.Features.PpeMarkupRule.Commands.DeletePpeMarkupRule;
+using Reference.Application.Features.PpeMarkupRule.Commands.UpdatePpeMarkupRule;
+using Reference.Application.Features.PpeMarkupRule.Queries.GetPpeMarkupRules;
 
 namespace Reference.Api.Controllers;
 
