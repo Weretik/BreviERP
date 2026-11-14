@@ -5,10 +5,5 @@
     <ProjectReference Include="..\..\Purchasing.Domain\Purchasing.Domain\Purchasing.Domain.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
 
 </Project>

@@ -24,7 +24,7 @@ public sealed class ContainerRestoreCoverageTests
         foreach (Match match in Regex.Matches(beforeRestore, @"^COPY\s+(\[[^\r\n]+\])", RegexOptions.Multiline))
         {
             var arguments = JsonSerializer.Deserialize<string[]>(match.Groups[1].Value)!;
-            copied.Add(Path.GetFullPath(Path.Combine(root, arguments[0])));
+            foreach (var source in arguments[..^1]) copied.Add(Path.GetFullPath(Path.Combine(root, source)));
         }
 
         var visited = new HashSet<string>(StringComparer.Ordinal);
@@ -40,6 +40,9 @@ public sealed class ContainerRestoreCoverageTests
                 pending.Push(Path.Combine(Path.GetDirectoryName(current)!, include));
             }
         }
+
+        foreach (var shared in new[] { "global.json", "Directory.Build.props", "Directory.Packages.props" })
+            visited.Add(Path.GetFullPath(Path.Combine(root, shared)));
 
         var missing = visited.Except(copied).Select(path => Path.GetRelativePath(root, path)).Order().ToArray();
         Assert.That(missing, Is.Empty,

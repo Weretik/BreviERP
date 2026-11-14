@@ -9,7 +9,7 @@ BreviERP is the backend for Brevi, which sells in-house sewn products (Sewing: p
 ## Project context
 
 - [Architecture](docs/sdd/architecture/README.md) — modules, layers, and dependency boundaries.
-- [Module rules](docs/sdd/standards/module-rules.md) — every module is `Api`, `Application`, `Contracts`, `Domain`, `Infrastructure`; another module is used only through its `Contracts` ([ADR-0006](docs/sdd/architecture/decisions/0006-module-contracts.md)); folders follow aggregates and features (`Features/<Feature>/{Commands,Queries}/<UseCase>/`), never kinds of classes; the hosts hold only composition. Open items are its «Known deviations».
+- [Module rules](docs/sdd/standards/module-rules.md) — every module is `Api`, `Application`, `Contracts`, `Domain`, `Infrastructure`; another module is used only through its `Contracts` ([ADR-0006](docs/sdd/architecture/decisions/0006-module-contracts.md)); folders follow aggregates and features (`Features/<Feature>/{Commands,Queries}/<UseCase>/`), never kinds of classes; the hosts hold only composition; business rules return typed errors (exceptions only for the unexpected, one global exception handler); every input has a FluentValidation validator with Ukrainian messages. Open items are its «Known deviations».
 - [Standards](docs/sdd/standards/README.md) — stable rules for development, delivery, and verification.
 - [Specifications](docs/sdd/specs/README.md) — feature requirements, decisions, tasks, and completion evidence.
 - [Implemented feature map](docs/sdd/features/README.md) — navigation by module, structure, and code entry points.

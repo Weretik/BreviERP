@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY ["BreviERP.sln", "./"]
+COPY ["BreviERP.sln", "global.json", "Directory.Build.props", "Directory.Packages.props", "./"]
 COPY ["src/Bootstrapper/Host.Seed/Host.Seed.csproj", "src/Bootstrapper/Host.Seed/"]
 COPY ["src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/BuildingBlocks.Application.csproj", "src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/"]
 COPY ["src/BuildingBlocks/BuildingBlocks.Domain/BuildingBlocks.Domain/BuildingBlocks.Domain.csproj", "src/BuildingBlocks/BuildingBlocks.Domain/BuildingBlocks.Domain/"]
