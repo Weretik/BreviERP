@@ -162,6 +162,7 @@ The rules above are only real when a test fails on a violation. The architecture
 - Api endpoints do not use Infrastructure types;
 - folders: no type folders (`Entities`, `Enums`, `Errors`, `ValueObjects`, `Configurations`, `Interfaces`, `DTOs`, `Models`, `Common`, `Helpers`, `Utils`), command and query handlers sit under `Features.<Feature>.Commands.<UseCase>` / `.Queries.<UseCase>` with no deeper folder, each use-case namespace holds one request and one handler, ports sit in `Abstractions`;
 - hosts contain no class that implements a module port;
+- each module's EF model maps only its own entities, with no navigation or foreign key to another module's entity or schema;
 - test sources sit in a responsibility folder and their namespace follows the path.
 
 A new module, layer, or rule is added to these tests in the same change, test first: the new architecture test must fail on the old code (Red) before the code is moved (Green), as the project's testing rules require for any behavior.
@@ -187,7 +188,24 @@ Host.Api/
 - Each module owns its tables in its own PostgreSQL schema, named after the module in lower case (`content`, `crm`). Its `DbContext` calls `modelBuilder.HasDefaultSchema("<module>")`.
 - Keep the module's migration history in its schema: `UseNpgsql(connection, x => x.MigrationsHistoryTable("__EFMigrationsHistory", "<module>"))`, in both runtime registration and the design-time factory.
 - One module's `DbContext` maps only its own tables. Do not add foreign keys, joins, or EF navigation to another module's tables; store the other module's identifier as a value and read its data through that module's `Contracts`.
+- **No entity of another module inside an entity.** An entity never holds a navigation property, a collection, or a field typed with another module's entity (for example, `OrderLine.Product` from the Catalog domain). It keeps the other module's id as a plain value (`ProductId`, no foreign key) and a snapshot of what the owning aggregate needs at that moment (`ProductName`, `UnitPrice`), so an order still reads correctly after the product changes or disappears.
 - The first migration of a new module creates its schema; check it against an empty database as the [database rules](database-rules.md) require.
+
+## Extensibility without over-engineering
+
+Add new behavior by adding a class, not by editing a growing chain of conditions, but only when the need is real.
+
+| What is added | Tool | Example |
+| --- | --- | --- |
+| Another variant of the same action | Strategy: one port in `Application/Abstractions/`, one implementation per variant in Infrastructure, chosen through keyed DI or a registry, never a growing `switch` | Delivery providers, payment methods |
+| The same behavior around every use case | A Mediator pipeline behavior in `BuildingBlocks.Application/Behaviors/` | Logging, validation, performance, transactions |
+| Another reaction to something that happened | A new domain or integration event handler; across modules or to an outside system through the outbox | «Order placed» → notification, export to the accounting system |
+| Switching a capability on or off without a deploy | A feature flag, only by a recorded product decision, with an owner and a removal date | Gradual rollout of a new checkout |
+
+- **Rule of three.** Introduce the abstraction at the third variant, reaction, or copy, not before. Two cases stay a plain `if` or a short `switch`; mapping an enum to a name or a status is not a growing chain and stays a `switch` expression.
+- No speculative interfaces, factories, base classes, generic repositories, or plug-in points "for the future". An interface exists only for a port (an outside dependency that Application must not know) or for a variant that already has at least two implementations.
+- A pipeline behavior holds only cross-cutting plumbing; business rules stay in Domain and handlers.
+- An audit reports both directions: a `switch` or `if` chain on a type or code that has reached three branches in more than one place, and an abstraction with a single implementation and no port role.
 
 ## Errors
 
@@ -215,6 +233,7 @@ Business outcomes travel as results; exceptions are only for the unexpected.
 - Architecture tests list the modules in `tests/ArchitectureTests/`; add a new module there.
 - Container checks: `Host.Api` and `Host.Seed` turn on `ValidateScopes` and `ValidateOnBuild` in every environment; `tests/IntegrationTests/Platform/DependencyInjection/ServiceProviderValidationTests.cs` builds both containers in Production mode without a database. Each module registers its validators in `Add<Module>Module()` through `AddModuleValidators` (`BuildingBlocks.Application`), which skips child validators that a parent builds with `new`.
 - Validation: `AddModuleValidators` switches FluentValidation to `UkrainianValidationLanguage` (`BuildingBlocks.Application/Validation`): the built-in messages are Ukrainian whatever the request culture and never name the field, because the admin shows each message under its own field. `tests/IntegrationTests/Platform/Validation/ValidationCoverageTests.cs` fails when a command or query with input has no validator or when a validator message is not Ukrainian or contains `{PropertyName}`. A request whose response is not `Result` (for example `PagedResult`) gets its validation failures from `GlobalExceptionHandler` as a 400 `ProblemDetails` with `errors` by field.
+- Data isolation: `tests/IntegrationTests/Platform/Data/ModuleDataIsolationTests.cs` builds the EF model of every module `DbContext` in the API container (no database) and fails on an entity, navigation, or foreign key of another module or schema. Audit 2026-11-14: all 12 models are clean and no migration creates a cross-schema foreign key; the only cross-schema SQL is the one-time data takeover in the first Media and Warehouse migrations. Cross-module ids keep snapshots (Crm quote items, Production items and orders, Warehouse stock and movements, Content page texts).
 - Errors: `GlobalExceptionHandler` (`BuildingBlocks.Api/Errors`) is the one place that turns an exception into an answer: `ValidationException` 400, `BadHttpRequestException` its status, anything else 500 «Сталася помилка на сервері.», always with `traceId` and never with the exception text; `tests/HostApiTests/GlobalExceptionHandlerTests.cs` guards it. `ExceptionBehavior` keeps only `DomainException` → 400 and a unique-key violation → 409 until the Errors PR.
 - `Crm` is the reference implementation of a module schema: `HasDefaultSchema("crm")` and `MigrationsHistoryTable("__EFMigrationsHistory", "crm")`.
 
