@@ -12,6 +12,10 @@ Every new or changed observable behavior must link to an acceptance scenario suc
 
 Do not repeat an entire scenario at every level without a separate risk. Several focused tests can support one scenario.
 
+## Test folders
+
+Tests mirror the module and feature they check: see [test structure](module-rules.md#test-structure). Architecture tests check module references, Contracts-only access, folder names, and host content for every business module ([architecture tests](module-rules.md#architecture-tests)).
+
 ## Red → Green → Refactor
 
 For new behavior:

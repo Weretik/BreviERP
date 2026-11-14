@@ -1,6 +1,6 @@
 # ADR-0002: Modules talk through ports implemented in the host
 
-**Status:** accepted · **Date:** 2026-11-13 (recorded from the current code)
+**Status:** superseded by [ADR-0006](0006-module-contracts.md) on 2026-11-14 · **Date:** 2026-11-13 (recorded from the current code)
 
 ## Context
 

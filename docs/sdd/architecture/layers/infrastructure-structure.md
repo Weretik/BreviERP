@@ -6,17 +6,19 @@ Infrastructure is the adapter layer. It implements Application contracts and sto
 
 ## Target module structure
 
+Persistence is grouped by aggregate, with the same names as in Domain; integrations by external system. No flat `Configurations/`, `Repositories/`, `DataBase/`, or `Services/` folders.
+
 ```text
 <Module>.Infrastructure/
-├── DataBase/
-│   └── <Module>DbContext.cs
-├── Configurations/          EF IEntityTypeConfiguration classes
-├── Migrations/              EF migrations and model snapshot
-├── Repositories/            EF repository implementations
-├── Projections/             building read models from persisted data
-├── Integrations/            HTTP, queue, and storage adapters
-├── Services/                storage, export, and notification adapters
-├── DependencyInjection/     Add<Module>... extension methods
+├── Persistence/
+│   ├── <Module>DbContext.cs, <Module>DbContextFactory.cs
+│   ├── Migrations/               EF migrations and model snapshot
+│   ├── Seeding/                  seed data of the module, when it has any
+│   └── <Aggregate>/              entity configurations, repository, read queries of that aggregate
+├── Integrations/<System>/        KeepinCrm, Dropbox, GoogleSheets, OpenAi, Telegram, Cdn
+├── Contracts/<Feature>/          implementations of the module's own Contracts interfaces
+├── Adapters/<Provider>/          adapters from another module's Contracts to this module's own ports
+├── DependencyInjection/          Add<Module>Infrastructure
 └── <Module>.Infrastructure.csproj
 ```
 
@@ -35,6 +37,7 @@ Infrastructure adapter
 ## Rules
 
 - EF configurations and migrations never belong in Domain or Application.
-- Register adapters through the module's existing DI extension method.
+- Register adapters through the module's DI extension method; `Add<Module>Module()` in the Api project calls it.
+- Moving a migration file between folders keeps its class name, namespace, and `[Migration]` id, so EF history does not change.
 - Infrastructure may reference Application and Domain; the reverse direction is forbidden.
 - Keep external-data mapping at the adapter boundary and do not let generated client types leak inward.

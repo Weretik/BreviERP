@@ -5,10 +5,11 @@ Keep accepted decisions that change long-term boundaries, contracts, or approach
 | # | Decision | Status |
 | --- | --- | --- |
 | [0001](0001-modular-monolith.md) | Modular monolith with a database schema per module | Accepted |
-| [0002](0002-cross-module-ports.md) | Modules talk through ports implemented in the host | Accepted |
+| [0002](0002-cross-module-ports.md) | Modules talk through ports implemented in the host | Superseded by 0006 |
 | [0003](0003-cookie-session-behind-proxy.md) | Cookie session + CSRF behind a Cloudflare proxy | Accepted |
 | [0004](0004-keyless-cloud-run-delivery.md) | Keyless delivery to Cloud Run, migrations as a job | Accepted |
 | [0005](0005-nextjs-site-on-workers.md) | Public site on Next.js + Cloudflare Workers, reading the ERP API | Accepted |
+| [0006](0006-module-contracts.md) | Modules talk through their own Contracts projects | Accepted |
 
 For a new decision, create `NNNN-short-name.md` and record:
 
