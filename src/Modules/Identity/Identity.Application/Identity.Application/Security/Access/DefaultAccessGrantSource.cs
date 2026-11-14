@@ -1,7 +1,6 @@
-using Identity.Application.Security.Access;
 using Identity.Domain.Authorization;
 
-namespace Identity.Api.Access;
+namespace Identity.Application.Security.Access;
 
 /// <summary>
 /// The catalogue defaults only: used when the Identity database is not registered (API tests without a database).

@@ -8,5 +8,6 @@ public sealed record PpeRuleValuesRequest(
     [property: JsonRequired] string Source,
     [property: JsonRequired] string SourceDate)
 {
-    public PpeRuleValues ToValues() => new(Code, Markups.ToMarkups(), Source, SourceDate);
+    public PpeRuleValues ToValues() =>
+        PpeRuleValues.Of(Code, Markups.Retail, Markups.Wholesale, Markups.LargeWholesale, Source, SourceDate);
 }

@@ -88,7 +88,7 @@ public sealed class FinanceCounterpartyTests
         var create = new CreateFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time);
         var archived = harness.Parties.Clients[1];
         var bySupplier = (await new GetFinanceTransactionsHandler(harness.Fresh(), harness.Parties, harness.Parties)
-            .Handle(new GetFinanceTransactionsQuery(Filter() with { Counterparty = CounterpartyLink.Of(CounterpartyKind.Supplier, "7").Value },
+            .Handle(new GetFinanceTransactionsQuery(Filter() with { Counterparty = new FinanceCounterpartyLinkInput(CounterpartyKind.Supplier, "7") },
                 FinanceJournalSort.Date, FinanceSortDirection.Desc, 1), default)).Value;
 
         AssertDomain(await create.Handle(new CreateFinanceTransactionCommand(LedgerScope.Current,

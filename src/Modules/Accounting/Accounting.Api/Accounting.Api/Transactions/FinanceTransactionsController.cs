@@ -55,11 +55,9 @@ public sealed class FinanceTransactionsController(ISender sender) : ControllerBa
         [FromQuery] int page = 1,
         CancellationToken cancellationToken = default)
     {
-        var link = AccountingQueryLink.Of(counterpartyKind, counterpartyId);
-        if (link.IsFailure) return this.ToActionResult(link.Error!.ToResult<FinanceTransactionPageResponse>());
         return this.ToActionResult(await sender.Send(new GetFinanceTransactionsQuery(
             new FinanceTransactionFilter(scope, from, to, accountId, type, categoryId, subcategoryId, search, minMinor,
-                maxMinor, source, includeVoided, needsReview, link.Value), sort, direction, page), cancellationToken));
+                maxMinor, source, includeVoided, needsReview, AccountingQueryLink.Of(counterpartyKind, counterpartyId)), sort, direction, page), cancellationToken));
     }
 
     [HttpPost(Name = "createFinanceTransaction")]

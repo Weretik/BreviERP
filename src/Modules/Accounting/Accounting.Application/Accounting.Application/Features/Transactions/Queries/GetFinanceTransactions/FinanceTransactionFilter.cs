@@ -32,4 +32,4 @@ public sealed record FinanceTransactionFilter(
     MovementSource? Source,
     bool IncludeVoided,
     bool NeedsReview = false,
-    CounterpartyLink? Counterparty = null);
+    FinanceCounterpartyLinkInput? Counterparty = null);

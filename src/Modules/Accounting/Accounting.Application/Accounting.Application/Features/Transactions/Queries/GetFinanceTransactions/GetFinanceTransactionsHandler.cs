@@ -19,8 +19,10 @@ public sealed class GetFinanceTransactionsHandler(IAccountingDbContext db, IAcco
     public async ValueTask<Result<FinanceTransactionPageResponse>> Handle(GetFinanceTransactionsQuery query,
         CancellationToken cancellationToken)
     {
+        var counterparty = FinanceCounterpartyLinkInput.LinkOf(query.Filter.Counterparty);
+        if (counterparty.IsFailure) return counterparty.Error!.ToResult<FinanceTransactionPageResponse>();
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
-        var filtered = Filter(db.Transactions.AsNoTracking(), query.Filter, names);
+        var filtered = Filter(db.Transactions.AsNoTracking(), query.Filter, counterparty.Value, names);
 
         var total = await filtered.CountAsync(cancellationToken);
         var sums = await filtered.Where(x => x.Status == MovementStatus.Active)
@@ -46,7 +48,7 @@ public sealed class GetFinanceTransactionsHandler(IAccountingDbContext db, IAcco
     }
 
     private static IQueryable<FinanceTransaction> Filter(IQueryable<FinanceTransaction> rows, FinanceTransactionFilter f,
-        FinanceNames names)
+        CounterpartyLink? counterparty, FinanceNames names)
     {
         rows = rows.Where(x => x.Scope == f.Scope);
         if (!f.IncludeVoided) rows = rows.Where(x => x.Status == MovementStatus.Active);
@@ -74,7 +76,7 @@ public sealed class GetFinanceTransactionsHandler(IAccountingDbContext db, IAcco
         if (f.MaxMinor is { } max) rows = rows.Where(x => x.AmountMinor <= max);
         if (f.Source is { } source) rows = rows.Where(x => x.Source == source);
         if (f.NeedsReview) rows = rows.Where(x => x.Verification != VerificationStatus.Verified);
-        if (f.Counterparty is { } link)
+        if (counterparty is { } link)
             rows = rows.Where(x => x.CounterpartyKind == link.Kind && x.CounterpartyId == link.Id);
         var search = FinanceText.Clean(f.Search).ToLowerInvariant();
         if (search.Length > 0)

@@ -21,7 +21,8 @@ src/Modules/Identity/
 ├── Identity.Application/Identity.Application/
 │   ├── Features/Access/{Commands,Queries}/      # GetAccessRights, SaveRoleAccess, CreateRole, DeleteRole,
 │   │                                            # GetMyAccess + validators, Shared DTOs
-│   ├── Security/Access/                         # AccessPolicies (policy names), IAccessGrantSource, AccessClaims
+│   ├── Security/Access/                         # AccessPolicies, IAccessGrantSource, AccessClaims, AccessCheck,
+│   │                                            # AccessRoles, DefaultAccessGrantSource (catalogue defaults)
 │   └── Abstractions/IAccessRightsService.cs
 ├── Identity.Infrastructure/Identity.Infrastructure/
 │   ├── Persistence/Access/RoleAccess.cs, Persistence/Access/RoleAccessConfiguration.cs
@@ -30,7 +31,7 @@ src/Modules/Identity/
     ├── Access/AccessRightsController.cs         # /api/admin/access
     ├── Auth/AuthSessionController.cs            # GET /api/auth/session/access
     ├── Access/AccessContracts.cs
-    ├── Access/                                  # AccessPolicyProvider, AccessRequirementHandler, DefaultAccessGrantSource
+    ├── Access/                                  # AccessPolicyProvider, AccessRequirementHandler (asks AccessCheck)
     └── DependencyInjection/IdentityAuthorizationExtensions.cs # named policies, AddAccessPolicies
 src/BuildingBlocks/BuildingBlocks.Api/Authorization/AccessActionAttribute.cs
 ```
