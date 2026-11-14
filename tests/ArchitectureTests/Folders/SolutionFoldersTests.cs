@@ -3,8 +3,7 @@ using System.Text.RegularExpressions;
 namespace ArchitectureTests.Folders;
 
 /// <summary>
-/// Every project lives on disk under <c>src/</c> or <c>tests/</c>, and the solution shows it under the solution folder of
-/// the same name: Rider and Visual Studio show the solution folders, so a project folder left at the solution root
+/// Every project lives on disk under <c>src/</c> or <c>tests/</c>, and the solution folders mirror its disk folders: Rider and Visual Studio show the solution folders, so a project folder left at the solution root
 /// (as «Jobs» was) looks like a separate layer outside <c>src</c>.
 /// </summary>
 public sealed partial class SolutionFoldersTests
@@ -20,26 +19,45 @@ public sealed partial class SolutionFoldersTests
         Assert.That(offending, Is.Empty);
     }
 
+    /// <summary>
+    /// The chain of solution folders above a project equals its disk folders, without the project's own folder
+    /// (<c>src/Modules/Catalog/Catalog.Api/Catalog.Api/Catalog.Api.csproj</c> sits in <c>src/Modules/Catalog</c>).
+    /// </summary>
     [Test]
-    public void Solution_folders_match_the_disk_top_folder()
+    public void Solution_folders_mirror_the_disk()
     {
         var solution = File.ReadAllText(Path.Combine(Root(), "BreviERP.sln"));
         var names = ProjectLine().Matches(solution).ToDictionary(m => m.Groups["id"].Value, m => m.Groups["name"].Value);
         var parents = NestedLine().Matches(solution).ToDictionary(m => m.Groups["child"].Value, m => m.Groups["parent"].Value);
 
         var offending = Projects()
-            .Where(p => TopSolutionFolder(p.Id, parents, names) != p.Path.Split('/')[0])
-            .Select(p => $"{p.Path} is under solution folder «{TopSolutionFolder(p.Id, parents, names)}»")
+            .Select(p => (p.Path, Solution: SolutionFolders(p.Id, parents, names), Disk: DiskFolders(p.Path)))
+            .Where(p => p.Solution != p.Disk)
+            .Select(p => $"{p.Path} is in solution folder «{p.Solution}», expected «{p.Disk}»")
             .ToArray();
 
         Assert.That(offending, Is.Empty);
     }
 
-    private static string TopSolutionFolder(string id, Dictionary<string, string> parents, Dictionary<string, string> names)
+    private static string SolutionFolders(string id, Dictionary<string, string> parents, Dictionary<string, string> names)
     {
+        var chain = new List<string>();
         var current = id;
-        while (parents.TryGetValue(current, out var parent)) current = parent;
-        return current == id ? "(solution root)" : names[current];
+        while (parents.TryGetValue(current, out var parent))
+        {
+            chain.Insert(0, names[parent]);
+            current = parent;
+        }
+
+        return string.Join('/', chain);
+    }
+
+    private static string DiskFolders(string projectPath)
+    {
+        var project = Path.GetFileNameWithoutExtension(projectPath);
+        var folders = projectPath.Split('/')[..^1].ToList();
+        while (folders.Count > 0 && folders[^1] == project) folders.RemoveAt(folders.Count - 1);
+        return string.Join('/', folders);
     }
 
     private static IEnumerable<(string Id, string Path)> Projects() =>

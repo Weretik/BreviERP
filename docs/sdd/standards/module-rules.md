@@ -28,7 +28,7 @@ Every feature belongs to one business module. Before an SDD design, name the own
 ```
 
 - A `.csproj` holds only what is specific to that project: its SDK, references, and `<PackageReference Include="..." />` without `Version`. Settings that every project shares go into `Directory.Build.props`; package versions go only into `Directory.Packages.props`, so one package has one version in the whole solution.
-- Every project lives under `src/` or `tests/`, and the solution file mirrors the disk: a project in `src/Jobs/` sits in the solution folder `src/Jobs`, never in a solution folder at the root, so the IDE shows no layer outside `src` (`tests/ArchitectureTests/Folders/SolutionFoldersTests.cs`).
+- Every project lives under `src/` or `tests/`, and the solution folders mirror its disk folders (without the project's own folder): `src/Jobs/CatalogImport/CatalogImport.csproj` sits in `src/Jobs`, `src/Modules/Catalog/Catalog.Api/Catalog.Api/Catalog.Api.csproj` in `src/Modules/Catalog`, never in a solution folder at the root, so the IDE shows no layer outside `src` (`tests/ArchitectureTests/Folders/SolutionFoldersTests.cs`).
 - Dockerfiles that restore before copying the sources copy `Directory.Build.props`, `Directory.Packages.props`, and `global.json` together with the project files.
 - No other files at the root besides the solution, these props files, repository configuration (`.editorconfig`, `.gitignore`, `.gitattributes`, `.config/`), `README.md`, `AGENTS.md`, `CLAUDE.md`, and the license.
 
