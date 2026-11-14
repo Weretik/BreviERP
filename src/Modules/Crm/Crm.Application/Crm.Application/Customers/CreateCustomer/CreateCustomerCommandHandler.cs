@@ -14,9 +14,17 @@ public sealed class CreateCustomerCommandHandler(ICustomerMutationStore store) :
         return await store.ExecuteAsync("CreateCustomer", command.RequestId, command.Actor, command, async (session, ct) =>
         {
 
-            var customer = Customer.Create(command.Input.Kind, command.Input.DisplayName, command.Input.LegalName, command.Input.TaxIdentity, new CrmUserId(command.Actor.UserId));
-            foreach (var identity in command.Input.ExternalIdentities)
-                customer.AddExternalIdentity(CustomerExternalIdentity.Create(identity.Source, identity.Type, identity.ExternalId));
+            var created = Customer.Create(command.Input.Kind, command.Input.DisplayName, command.Input.LegalName,
+                command.Input.TaxIdentity, new CrmUserId(command.Actor.UserId));
+            if (created.IsFailure) return created.Error!.ToResult<CustomerDetail>();
+            var customer = created.Value;
+            foreach (var input in command.Input.ExternalIdentities)
+            {
+                var identity = CustomerExternalIdentity.Create(input.Source, input.Type, input.ExternalId);
+                if (identity.IsFailure) return identity.Error!.ToResult<CustomerDetail>();
+                var added = customer.AddExternalIdentity(identity.Value);
+                if (added.IsFailure) return added.Error!.ToResult<CustomerDetail>();
+            }
             session.Add(customer);
             await session.FlushAsync(ct);
             return Result.Success(CustomerDetailMapper.Map(customer, command.Actor));

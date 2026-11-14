@@ -37,16 +37,9 @@ internal sealed record KeepinCrmClientTarget(
         foreach (var (kind, value) in Phones.Select(x => ("phone", x)).Concat(Emails.Select(x => ("email", x))))
         {
             if (result.Count == ChannelsMax) break;
-            CustomerChannel channel;
-            try
-            {
-                channel = CustomerChannel.Create(kind, value);
-            }
-            catch (CustomerValidationException)
-            {
-                continue;
-            }
-
+            var created = CustomerChannel.Create(kind, value);
+            if (created.IsFailure) continue;
+            var channel = created.Value;
             if (keys.Add($"{channel.Kind}:{channel.NormalizedValue}"))
                 result.Add(channel);
         }

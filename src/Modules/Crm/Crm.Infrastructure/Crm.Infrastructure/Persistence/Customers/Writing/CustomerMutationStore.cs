@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Errors;
 using Crm.Infrastructure.Persistence.Customers.Idempotency;
 using Crm.Infrastructure.Persistence;
 using Crm.Application.Customers.Contracts.Responses;
@@ -33,9 +34,7 @@ public sealed class CustomerMutationStore(CrmDbContext db) : ICustomerMutationSt
             committed = true;
             return result;
         }
-        catch (CustomerRevisionException) { return Result.Conflict("Клієнта вже змінили. Оновіть сторінку й повторіть зміни."); }
-        catch (CustomerValidationException exception) { return Result.Invalid(new ValidationError("customer", exception.Message)); }
-        catch (DbUpdateConcurrencyException) { return Result.Conflict("Клієнта вже змінили. Оновіть сторінку й повторіть зміни."); }
+        catch (DbUpdateConcurrencyException) { return CustomerErrors.Stale().ToResult<CustomerDetail>(); }
         catch (DbUpdateException exception) when (exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
         { return Result.Conflict("Такий клієнт або основний контакт уже є."); }
         finally

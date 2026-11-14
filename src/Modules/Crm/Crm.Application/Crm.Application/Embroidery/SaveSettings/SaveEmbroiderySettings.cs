@@ -33,12 +33,15 @@ public sealed class SaveEmbroiderySettingsCommandHandler(
         var now = clock.GetUtcNow();
         if (saved is null)
         {
-            saved = new EmbroiderySettings(content, actor.Name, now);
+            var created = EmbroiderySettings.Create(content, actor.Name, now);
+            if (created.IsFailure) return created.Error!.ToResult<EmbroiderySettingsResponse>();
+            saved = created.Value;
             store.EmbroiderySettings.Add(saved);
         }
         else
         {
-            saved.Apply(content, actor.Name, now);
+            var applied = saved.Apply(content, actor.Name, now);
+            if (applied.IsFailure) return applied.Error!.ToResult<EmbroiderySettingsResponse>();
         }
 
         try

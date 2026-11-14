@@ -15,10 +15,10 @@ public sealed class CustomerTaxIdLookupTests : CrmDatabaseFixture
         Guid wanted;
         await using (var db = Context())
         {
-            var first = Customer.Create("organization", "ТОВ «Агро»", null, "12345678", new CrmUserId(1));
-            var archived = Customer.Create("organization", "ФОП Старий", null, "87654321", new CrmUserId(1));
+            var first = Customer.Create("organization", "ТОВ «Агро»", null, "12345678", new CrmUserId(1)).Value;
+            var archived = Customer.Create("organization", "ФОП Старий", null, "87654321", new CrmUserId(1)).Value;
             archived.Revise(archived.Revision, archived.Kind, archived.DisplayName, null, "87654321", active: false);
-            var other = Customer.Create("organization", "Інший код", null, "11112222", new CrmUserId(1));
+            var other = Customer.Create("organization", "Інший код", null, "11112222", new CrmUserId(1)).Value;
             db.Customers.AddRange(first, archived, other);
             await db.SaveChangesAsync();
             wanted = first.PublicId;

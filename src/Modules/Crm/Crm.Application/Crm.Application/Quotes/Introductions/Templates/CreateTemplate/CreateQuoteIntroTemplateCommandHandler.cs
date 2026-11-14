@@ -40,8 +40,10 @@ public sealed class CreateQuoteIntroTemplateCommandHandler(
             pages.Add(new QuoteIntroTemplatePage(Enum.Parse<QuoteIntroSeason>(page.Season), models));
         }
 
-        var template = new QuoteIntroTemplate(input.Name, Enum.Parse<QuoteIntroLayout>(input.Layout), input.LetterName,
+        var created = QuoteIntroTemplate.Create(input.Name, Enum.Parse<QuoteIntroLayout>(input.Layout), input.LetterName,
             pages, author, clock.GetUtcNow());
+        if (created.IsFailure) return created.Error!.ToResult<QuoteIntroTemplateResponse>();
+        var template = created.Value;
         store.QuoteIntroTemplates.Add(template);
         try
         {

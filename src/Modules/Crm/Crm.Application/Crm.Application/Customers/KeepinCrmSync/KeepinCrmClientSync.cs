@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Errors;
 using Crm.Application.Customers.KeepinCrmSync.DTOs;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
@@ -42,17 +43,21 @@ public sealed class KeepinCrmClientSync(
             var target = KeepinCrmClientTarget.From(snapshot);
             if (linked.TryGetValue(snapshot.KeepinCrmId, out var existing))
             {
-                if (Apply(existing, target)) updated++;
+                var applied = Apply(existing, target);
+                if (applied.IsFailure) Skip(snapshot.KeepinCrmId, applied.Error!);
+                if (applied.IsSuccess && applied.Value) updated++;
                 else unchanged++;
                 continue;
             }
 
-            var customer = Customer.Create(target.Kind, target.Name, null, null, settings.Owner);
-            customer.AddExternalIdentity(KeepinCrmClientIdentity.Create(snapshot.KeepinCrmId));
-            if (!target.Active) customer.Revise(customer.Revision, target.Kind, target.Name, null, null, false);
-            customer.SaveContact(customer.Revision, null, target.ContactName, KeepinCrmClientIdentity.ContactPosition,
-                true, true, target.Channels());
-            store.Add(customer);
+            var customer = NewCustomer(snapshot.KeepinCrmId, target);
+            if (customer.IsFailure)
+            {
+                Skip(snapshot.KeepinCrmId, customer.Error!);
+                continue;
+            }
+
+            store.Add(customer.Value);
             created++;
         }
 
@@ -60,7 +65,7 @@ public sealed class KeepinCrmClientSync(
         foreach (var (id, customer) in linked.Where(pair => !seen.Contains(pair.Key)))
         {
             if (!customer.Active) continue;
-            Deactivate(customer);
+            if (!Deactivate(customer, id)) continue;
             deactivated.Add($"{customer.DisplayName} (KeepinCRM {id})");
         }
 
@@ -73,7 +78,7 @@ public sealed class KeepinCrmClientSync(
             {
                 if (inUse.Contains(customer.Id))
                 {
-                    if (customer.Active) Deactivate(customer);
+                    if (customer.Active) Deactivate(customer, customer.DisplayName);
                     hidden.Add(customer.DisplayName);
                 }
                 else
@@ -96,16 +101,45 @@ public sealed class KeepinCrmClientSync(
         return result;
     }
 
-    private static void Deactivate(Customer customer) =>
-        customer.Revise(customer.Revision, customer.Kind, customer.DisplayName, customer.LegalName, customer.TaxIdentity, false);
+    /// <summary>A client KeepinCRM data breaks a Brevi rule for is left as it is and logged; the rest still syncs.</summary>
+    private void Skip(string keepinCrmId, Error error) =>
+        logger.LogWarning("KeepinCRM client {KeepinCrmId} skipped: {Code}", keepinCrmId, error.Code);
+
+    private bool Deactivate(Customer customer, string label)
+    {
+        var revised = customer.Revise(customer.Revision, customer.Kind, customer.DisplayName, customer.LegalName,
+            customer.TaxIdentity, false);
+        if (revised.IsFailure) Skip(label, revised.Error!);
+        return revised.IsSuccess;
+    }
+
+    private DomainResult<Customer> NewCustomer(string keepinCrmId, KeepinCrmClientTarget target)
+    {
+        var created = Customer.Create(target.Kind, target.Name, null, null, settings.Owner);
+        if (created.IsFailure) return created;
+        var customer = created.Value;
+        var identity = KeepinCrmClientIdentity.Create(keepinCrmId);
+        if (identity.IsFailure) return identity.Error!;
+        var steps = DomainResult.Combine(
+            customer.AddExternalIdentity(identity.Value),
+            target.Active
+                ? DomainResult.Success()
+                : customer.Revise(customer.Revision, target.Kind, target.Name, null, null, false));
+        if (steps.IsFailure) return steps.Error!;
+        var contact = customer.SaveContact(customer.Revision, null, target.ContactName,
+            KeepinCrmClientIdentity.ContactPosition, true, true, target.Channels());
+        return contact.IsFailure ? contact.Error! : customer;
+    }
 
     /// <summary>Updates a linked client; true when anything changed. Brevi-owned legal name and tax ID stay.</summary>
-    private static bool Apply(Customer customer, KeepinCrmClientTarget target)
+    private static DomainResult<bool> Apply(Customer customer, KeepinCrmClientTarget target)
     {
         var changed = false;
         if (customer.Kind != target.Kind || customer.DisplayName != target.Name || customer.Active != target.Active)
         {
-            customer.Revise(customer.Revision, target.Kind, target.Name, customer.LegalName, customer.TaxIdentity, target.Active);
+            var revised = customer.Revise(customer.Revision, target.Kind, target.Name, customer.LegalName,
+                customer.TaxIdentity, target.Active);
+            if (revised.IsFailure) return revised.Error!;
             changed = true;
         }
 
@@ -114,8 +148,9 @@ public sealed class KeepinCrmClientSync(
         if (contact is null || !SameContact(contact, target.ContactName, channels))
         {
             var primary = contact?.IsPrimary ?? !customer.Contacts.Any(x => x.Active && x.IsPrimary);
-            customer.SaveContact(customer.Revision, contact?.PublicId, target.ContactName,
+            var saved = customer.SaveContact(customer.Revision, contact?.PublicId, target.ContactName,
                 KeepinCrmClientIdentity.ContactPosition, true, primary, channels);
+            if (saved.IsFailure) return saved.Error!;
             changed = true;
         }
 

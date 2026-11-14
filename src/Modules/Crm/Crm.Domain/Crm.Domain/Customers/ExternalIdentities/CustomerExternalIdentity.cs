@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain.Entity;
+using BuildingBlocks.Domain.Results;
 using Crm.Domain.Customers.Identifiers;
 
 namespace Crm.Domain.Customers.ExternalIdentities;
@@ -14,10 +15,19 @@ public sealed class CustomerExternalIdentity : BaseEntity<CustomerExternalIdenti
 
     internal void MoveTo(CustomerId customerId) => CustomerId = customerId;
 
-    public static CustomerExternalIdentity Create(string source, string type, string externalId) => new()
+    public static DomainResult<CustomerExternalIdentity> Create(string source, string type, string externalId)
     {
-        Source = CustomerText.Required(source, 80, "identity.source").ToLowerInvariant(),
-        Type = CustomerText.Required(type, 80, "identity.type").ToLowerInvariant(),
-        ExternalId = CustomerText.Required(externalId, 200, "identity.externalId")
-    };
+        var cleanSource = CustomerText.Required(source, 80, "externalIdentities.source");
+        if (cleanSource.IsFailure) return cleanSource.Error!;
+        var cleanType = CustomerText.Required(type, 80, "externalIdentities.type");
+        if (cleanType.IsFailure) return cleanType.Error!;
+        var cleanId = CustomerText.Required(externalId, 200, "externalIdentities.externalId");
+        if (cleanId.IsFailure) return cleanId.Error!;
+        return new CustomerExternalIdentity
+        {
+            Source = cleanSource.Value.ToLowerInvariant(),
+            Type = cleanType.Value.ToLowerInvariant(),
+            ExternalId = cleanId.Value
+        };
+    }
 }

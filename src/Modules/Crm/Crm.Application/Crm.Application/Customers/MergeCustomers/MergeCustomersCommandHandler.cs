@@ -15,14 +15,16 @@ public sealed class MergeCustomersCommandHandler(ICustomerMutationStore store) :
         {
 
             if (!command.Actor.IsAdmin) return Result.Forbidden();
-            CustomerText.Required(command.Reason, 500, "merge.reason");
+            var reason = CustomerText.Required(command.Reason, 500, "reason");
+            if (reason.IsFailure) return reason.Error!.ToResult<CustomerDetail>();
             var ids = new[] { command.CustomerId, command.VictimId }.Order().ToArray();
             var first = await session.LoadAsync(ids[0], ct);
             var second = await session.LoadAsync(ids[1], ct);
             var survivor = first?.PublicId == command.CustomerId ? first : second;
             var victim = first?.PublicId == command.VictimId ? first : second;
             if (survivor is null || victim is null) return Result.NotFound();
-            survivor.MergeFrom(victim, command.ExpectedRevision, command.VictimRevision);
+            var merged = survivor.MergeFrom(victim, command.ExpectedRevision, command.VictimRevision);
+            if (merged.IsFailure) return merged.Error!.ToResult<CustomerDetail>();
             await session.FlushAsync(ct);
             return Result.Success(CustomerDetailMapper.Map(survivor, command.Actor));
 

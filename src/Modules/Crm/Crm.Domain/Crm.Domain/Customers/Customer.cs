@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Customers.Contacts;
@@ -29,61 +30,77 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
 
     private Customer() { }
 
-    public static Customer Create(string kind, string displayName, string? legalName, string? taxIdentity, CrmUserId owner)
+    public static DomainResult<Customer> Create(string kind, string displayName, string? legalName, string? taxIdentity,
+        CrmUserId owner)
     {
-        if (owner.Value <= 0) throw new CustomerValidationException("owner: invalid");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(owner.Value);
         var customer = new Customer { OwnerId = owner };
-        customer.SetDetails(kind, displayName, legalName, taxIdentity, true);
-        return customer;
+        var details = customer.SetDetails(kind, displayName, legalName, taxIdentity, true);
+        return details.IsFailure ? details.Error! : customer;
     }
 
-    public void Revise(long expectedRevision, string kind, string displayName, string? legalName, string? taxIdentity, bool active)
+    public DomainResult Revise(long expectedRevision, string kind, string displayName, string? legalName,
+        string? taxIdentity, bool active)
     {
-        AssertRevision(expectedRevision);
-        SetDetails(kind, displayName, legalName, taxIdentity, active);
+        var current = CheckRevision(expectedRevision);
+        if (current.IsFailure) return current;
+        var details = SetDetails(kind, displayName, legalName, taxIdentity, active);
+        if (details.IsFailure) return details;
         Touch();
+        return DomainResult.Success();
     }
 
-    public void AssertRevision(long expectedRevision)
-    {
-        if (MergedIntoId is not null || Revision != expectedRevision) throw new CustomerRevisionException();
-    }
+    /// <summary>The client was not changed or merged since the form read <paramref name="expectedRevision"/>.</summary>
+    public DomainResult CheckRevision(long expectedRevision) =>
+        DomainResult.Ensure(MergedIntoId is null && Revision == expectedRevision, CustomerErrors.Stale);
 
-    public CustomerContact SaveContact(long expectedRevision, Guid? publicId, string name, string? position, bool active, bool primary, IEnumerable<CustomerChannel> channels)
+    public DomainResult<CustomerContact> SaveContact(long expectedRevision, Guid? publicId, string name, string? position,
+        bool active, bool primary, IEnumerable<CustomerChannel> channels)
     {
-        AssertRevision(expectedRevision);
+        var current = CheckRevision(expectedRevision);
+        if (current.IsFailure) return current.Error!;
         var contact = publicId is null ? null : Contacts.SingleOrDefault(x => x.PublicId == publicId);
-        if (publicId is not null && contact is null) throw new CustomerValidationException("contact: not_found");
+        if (publicId is not null && contact is null) return CustomerErrors.ContactNotFound();
         if (contact is null)
         {
-            if (Contacts.Count >= 100) throw new CustomerValidationException("contacts: too_many");
-            contact = CustomerContact.Create(name, position, active, primary, channels);
+            if (Contacts.Count >= CustomerErrors.MaxContacts) return CustomerErrors.TooManyContacts();
+            var created = CustomerContact.Create(name, position, active, primary, channels);
+            if (created.IsFailure) return created.Error!;
+            contact = created.Value;
             _contacts.Add(contact);
         }
-        else contact.Revise(name, position, active, primary, channels);
+        else
+        {
+            var revised = contact.Revise(name, position, active, primary, channels);
+            if (revised.IsFailure) return revised.Error!;
+        }
+
         if (contact.IsPrimary)
             foreach (var other in Contacts.Where(x => x.PublicId != contact.PublicId)) other.ClearPrimary();
         Touch();
         return contact;
     }
 
-    public void AddExternalIdentity(CustomerExternalIdentity identity)
+    public DomainResult AddExternalIdentity(CustomerExternalIdentity identity)
     {
-        if (ExternalIdentities.Count >= 30 || ExternalIdentities.Any(x => x.Source == identity.Source && x.Type == identity.Type && x.ExternalId == identity.ExternalId))
-            throw new CustomerValidationException("external_identity: duplicate_or_too_many");
+        if (ExternalIdentities.Count >= CustomerErrors.MaxExternalIdentities || ExternalIdentities.Any(x =>
+                x.Source == identity.Source && x.Type == identity.Type && x.ExternalId == identity.ExternalId))
+            return CustomerErrors.ExternalIdentityDuplicateOrTooMany();
         _externalIdentities.Add(identity);
+        return DomainResult.Success();
     }
 
-    public void MergeFrom(Customer victim, long expectedRevision, long victimRevision)
+    public DomainResult MergeFrom(Customer victim, long expectedRevision, long victimRevision)
     {
-        AssertRevision(expectedRevision);
-        victim.AssertRevision(victimRevision);
-        if (PublicId == victim.PublicId) throw new CustomerValidationException("merge: same_customer");
-        if (!Active) throw new CustomerValidationException("merge: survivor_inactive");
+        var current = DomainResult.Combine(CheckRevision(expectedRevision), victim.CheckRevision(victimRevision));
+        if (current.IsFailure) return current;
+        if (PublicId == victim.PublicId) return CustomerErrors.MergeSameCustomer();
+        if (!Active) return CustomerErrors.MergeSurvivorInactive();
         if (ExternalIdentities.Any(a => victim.ExternalIdentities.Any(b => a.Source == b.Source && a.Type == b.Type && a.ExternalId == b.ExternalId)))
-            throw new CustomerValidationException("merge: external_identity_conflict");
-        if (Contacts.Count + victim.Contacts.Count > 100 || ExternalIdentities.Count + victim.ExternalIdentities.Count > 30)
-            throw new CustomerValidationException("merge: limits_exceeded");
+            return CustomerErrors.MergeExternalIdentityConflict();
+        if (Contacts.Count + victim.Contacts.Count > CustomerErrors.MaxContacts ||
+            ExternalIdentities.Count + victim.ExternalIdentities.Count > CustomerErrors.MaxExternalIdentities)
+            return CustomerErrors.MergeLimitsExceeded();
         foreach (var contact in victim.Contacts) { contact.ClearPrimary(); contact.MoveTo(Id); }
         foreach (var identity in victim.ExternalIdentities) identity.MoveTo(Id);
         _contacts.AddRange(victim.Contacts);
@@ -94,17 +111,25 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
         victim.Active = false;
         victim.Touch();
         Touch();
+        return DomainResult.Success();
     }
 
-    private void SetDetails(string kind, string name, string? legalName, string? taxIdentity, bool active)
+    private DomainResult SetDetails(string kind, string name, string? legalName, string? taxIdentity, bool active)
     {
-        if (kind is not ("organization" or "person")) throw new CustomerValidationException("kind: invalid");
+        if (kind is not ("organization" or "person")) return CustomerErrors.KindInvalid();
+        var displayName = CustomerText.Required(name, 300, "displayName");
+        if (displayName.IsFailure) return displayName.Error!;
+        var cleanLegalName = CustomerText.Optional(legalName, 500, "legalName");
+        if (cleanLegalName.IsFailure) return cleanLegalName.Error!;
+        var cleanTaxIdentity = CustomerText.Optional(taxIdentity, 80, "taxIdentity");
+        if (cleanTaxIdentity.IsFailure) return cleanTaxIdentity.Error!;
         Kind = kind;
-        DisplayName = CustomerText.Required(name, 300, "displayName");
+        DisplayName = displayName.Value;
         NormalizedName = CustomerText.Normalize(DisplayName);
-        LegalName = CustomerText.Optional(legalName, 500, "legalName");
-        TaxIdentity = CustomerText.Optional(taxIdentity, 80, "taxIdentity");
+        LegalName = cleanLegalName.Value;
+        TaxIdentity = cleanTaxIdentity.Value;
         Active = active;
+        return DomainResult.Success();
     }
 
     private void Touch()

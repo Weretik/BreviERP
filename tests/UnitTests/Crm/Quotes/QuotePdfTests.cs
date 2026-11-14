@@ -31,9 +31,9 @@ public sealed class QuotePdfTests
         var ppe = new QuoteItem(1, QuoteItemKind.Ppe, 20,
             new QuoteItemTexts("PPE-1", "Рукавиці", "ЗІЗ · готовий товар", null, null, null, null, null), [ppeOption]);
 
-        return new Quote(new QuoteNumber(2026, 11, 3), QuoteKind.Request, new QuotePerson(5, "Юлія"),
+        return Quote.Create(new QuoteNumber(2026, 11, 3), QuoteKind.Request, new QuotePerson(5, "Юлія"),
             new QuoteHeader("Саша — 50 курток", null, "Олександр", "ТОВ «Агро»", "Ціни дійсні 14 днів.", "Подзвонити в п'ятницю"),
-            [sewing, ppe], new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero));
+            [sewing, ppe], new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero)).Value;
     }
 
     [Test]
@@ -183,8 +183,8 @@ public sealed class QuotePdfTests
                 null, null, null, null),
             [new QuoteItemOption(0, 100, 5, "Саржа", null, true, new QuotePrice(100m, null, true),
                 new QuotePrice(90m, null, true), new QuotePrice(80m, null, true), DateTimeOffset.UnixEpoch)]);
-        var quote = new Quote(new QuoteNumber(2026, 11, 24), QuoteKind.Request, new QuotePerson(5, "Юлія"),
-            new QuoteHeader("Довге", null, null, null, null, null), [item, item], DateTimeOffset.UnixEpoch);
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 24), QuoteKind.Request, new QuotePerson(5, "Юлія"),
+            new QuoteHeader("Довге", null, null, null, null, null), [item, item], DateTimeOffset.UnixEpoch).Value;
         var model = QuotePdfModelBuilder.Build(quote, QuoteSettingsDefaults.Content, Manager);
         var renderer = new QuotePdfRenderer(new QuotePdfImageLoader(new HttpClient(), NullLogger<QuotePdfImageLoader>.Instance));
 
@@ -271,8 +271,8 @@ public sealed class QuotePdfTests
         var item = new QuoteItem(0, QuoteItemKind.Sewing, 10,
             new QuoteItemTexts("MOD-1", "Вест Бери спина", null, null, null, null, null, null),
             [Option(0, true), Option(1, false)]);
-        var quote = new Quote(new QuoteNumber(2026, 11, 23), QuoteKind.Request, new QuotePerson(5, "Юлія"),
-            new QuoteHeader("Агробат", null, null, "Агробат ТОВ", null, null), [item], DateTimeOffset.UnixEpoch);
+        var quote = Quote.Create(new QuoteNumber(2026, 11, 23), QuoteKind.Request, new QuotePerson(5, "Юлія"),
+            new QuoteHeader("Агробат", null, null, "Агробат ТОВ", null, null), [item], DateTimeOffset.UnixEpoch).Value;
         var model = QuotePdfModelBuilder.Build(quote, QuoteSettingsDefaults.Content, Manager);
         var renderer = new QuotePdfRenderer(new QuotePdfImageLoader(new HttpClient(), NullLogger<QuotePdfImageLoader>.Instance));
 

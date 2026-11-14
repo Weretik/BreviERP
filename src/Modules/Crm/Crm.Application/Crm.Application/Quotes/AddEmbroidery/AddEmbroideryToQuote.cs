@@ -33,7 +33,6 @@ public sealed class AddEmbroideryToQuoteCommandHandler(
         var quote = await quotes.LoadAsync(command.QuoteId, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Kind != QuoteKind.Request) return Result.Conflict(QuoteMessages.WrongKind);
-        if (quote.Items.Count >= QuoteLimits.MaxItems) return Result.Conflict(Full);
 
         var actor = await staff.PersonAsync(command.Actor, cancellationToken);
         if (actor is null) return Result.Forbidden(QuoteMessages.ActorUnknown);
@@ -46,7 +45,8 @@ public sealed class AddEmbroideryToQuoteCommandHandler(
 
         var now = clock.GetUtcNow();
         var position = quote.Items.Count == 0 ? 0 : quote.Items.Max(x => x.Position) + 1;
-        quote.AddItem(QuoteEmbroideryItems.Create(position, saved, price), now);
+        var added = quote.AddItem(QuoteEmbroideryItems.Create(position, saved, price), now);
+        if (added.IsFailure) return added.Error!.ToResult<QuoteResponse>();
         quote.Record(QuoteEventKind.EmbroideryAdded, actor,
             $"{EmbroiderySavedCalculation.NumberOf(saved.Id)}, {EmbroideryCategories.Label(price.Name)}", now);
         try

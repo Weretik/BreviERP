@@ -38,7 +38,7 @@ public sealed class EmbroideryContractTests
         Assert.That(input.Version, Is.Zero);
         Assert.That(input.Markups.Select(x => x.Name), Is.EqualTo(new[] { "Категорія 1", "Категорія 2" }));
         Assert.That(input.ToContent(), Is.Not.Null);
-        Assert.DoesNotThrow(() => EmbroiderySettingsRules.EnsureValid(input.ToContent()));
+        Assert.That(EmbroiderySettingsRules.Check(input.ToContent()).IsSuccess, Is.True);
     }
 
     [Test]

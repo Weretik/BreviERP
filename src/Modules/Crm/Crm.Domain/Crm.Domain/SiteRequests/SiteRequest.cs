@@ -1,3 +1,5 @@
+using BuildingBlocks.Domain.Results;
+
 namespace Crm.Domain.SiteRequests;
 
 /// <summary>
@@ -19,10 +21,16 @@ public sealed class SiteRequest
 
     private SiteRequest() { }
 
-    public SiteRequest(string phone, string? workwear, string? quantity, string? comment, string locale,
+    public static DomainResult<SiteRequest> Create(string? phone, string? workwear, string? quantity, string? comment,
+        string locale, string? fileName, string? fileUrl, DateTimeOffset now) =>
+        Cut(phone, PhoneMaxLength) is { } cleanPhone
+            ? new SiteRequest(cleanPhone, workwear, quantity, comment, locale, fileName, fileUrl, now)
+            : SiteRequestErrors.PhoneRequired();
+
+    private SiteRequest(string phone, string? workwear, string? quantity, string? comment, string locale,
         string? fileName, string? fileUrl, DateTimeOffset now)
     {
-        Phone = Cut(phone, PhoneMaxLength) ?? throw new ArgumentException("A phone is required.", nameof(phone));
+        Phone = phone;
         Workwear = Cut(workwear, WorkwearMaxLength);
         Quantity = Cut(quantity, QuantityMaxLength);
         Comment = Cut(comment, CommentMaxLength);
@@ -87,10 +95,9 @@ public sealed class SiteRequest
     }
 
     /// <summary>«Готово» or «Не заявка» with what came of it; the closer becomes the owner when nobody was.</summary>
-    public void Close(SiteRequestStatus status, int userId, string name, string? note, DateTimeOffset now)
+    public DomainResult Close(SiteRequestStatus status, int userId, string name, string? note, DateTimeOffset now)
     {
-        if (status is not (SiteRequestStatus.Done or SiteRequestStatus.Spam))
-            throw new ArgumentException("A request closes as done or spam.", nameof(status));
+        if (status is not (SiteRequestStatus.Done or SiteRequestStatus.Spam)) return SiteRequestErrors.CloseStatusInvalid();
         if (OwnerUserId is null)
         {
             OwnerUserId = userId;
@@ -102,6 +109,7 @@ public sealed class SiteRequest
         Note = Cut(note, NoteMaxLength);
         ClosedAt = now;
         Touch(now);
+        return DomainResult.Success();
     }
 
     /// <summary>«Повернути в нові»: frees the request again.</summary>

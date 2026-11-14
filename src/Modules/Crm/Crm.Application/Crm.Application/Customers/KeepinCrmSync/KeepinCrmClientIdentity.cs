@@ -15,6 +15,6 @@ public static class KeepinCrmClientIdentity
     public static string? IdOf(Customer customer) =>
         customer.ExternalIdentities.FirstOrDefault(x => x.Source == Source && x.Type == Type)?.ExternalId;
 
-    public static CustomerExternalIdentity Create(string keepinCrmId) =>
+    public static DomainResult<CustomerExternalIdentity> Create(string keepinCrmId) =>
         CustomerExternalIdentity.Create(Source, Type, keepinCrmId);
 }

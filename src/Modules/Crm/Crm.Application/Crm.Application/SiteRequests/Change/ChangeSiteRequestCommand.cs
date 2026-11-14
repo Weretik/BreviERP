@@ -48,8 +48,9 @@ public sealed class ChangeSiteRequestCommandHandler(ISiteRequestStore store, ITa
             case "Done" or "Spam":
                 if (!request.IsOpen) return Result.Invalid(new ValidationError(SiteRequestMessages.Closed));
                 if (!mayManage) return Result.Forbidden(SiteRequestMessages.NotYours);
-                request.Close(command.Input.Action == "Done" ? SiteRequestStatus.Done : SiteRequestStatus.Spam,
+                var closed = request.Close(command.Input.Action == "Done" ? SiteRequestStatus.Done : SiteRequestStatus.Spam,
                     member.UserId, member.Name, command.Input.Note, now);
+                if (closed.IsFailure) return closed.Error!.ToResult<SiteRequestResponse>();
                 break;
             default:
                 if (!mayManage) return Result.Forbidden(SiteRequestMessages.NotYours);

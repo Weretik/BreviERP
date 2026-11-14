@@ -27,7 +27,7 @@ public sealed class QuoteImportMapper(
 
     public IReadOnlyList<QuoteImportPerson> UnknownPeople => _unknown.Values.ToArray();
 
-    public Quote Map(ImportQuoteInput input, QuoteNumber number, string note, DateTimeOffset now,
+    public DomainResult<Quote> Map(ImportQuoteInput input, QuoteNumber number, string note, DateTimeOffset now,
         List<QuoteImportWarning> warnings)
     {
         var shown = number.ToString();

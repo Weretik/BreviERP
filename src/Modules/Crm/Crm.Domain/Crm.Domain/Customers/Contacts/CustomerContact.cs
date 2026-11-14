@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Customers.Identifiers;
 
@@ -16,24 +17,30 @@ public sealed class CustomerContact : BaseEntity<CustomerContactId>
 
     private CustomerContact() { }
 
-    internal static CustomerContact Create(string name, string? position, bool active, bool primary, IEnumerable<CustomerChannel> channels)
+    internal static DomainResult<CustomerContact> Create(string name, string? position, bool active, bool primary,
+        IEnumerable<CustomerChannel> channels)
     {
         var contact = new CustomerContact();
-        contact.Revise(name, position, active, primary, channels);
-        return contact;
+        var revised = contact.Revise(name, position, active, primary, channels);
+        return revised.IsFailure ? revised.Error! : contact;
     }
 
-    internal void Revise(string name, string? position, bool active, bool primary, IEnumerable<CustomerChannel> channels)
+    internal DomainResult Revise(string name, string? position, bool active, bool primary, IEnumerable<CustomerChannel> channels)
     {
-        Name = CustomerText.Required(name, 300, "contact.name");
-        Position = CustomerText.Optional(position, 200, "contact.position");
+        var cleanName = CustomerText.Required(name, 300, "name");
+        if (cleanName.IsFailure) return cleanName.Error!;
+        var cleanPosition = CustomerText.Optional(position, 200, "position");
+        if (cleanPosition.IsFailure) return cleanPosition.Error!;
+        var incoming = channels.ToList();
+        if (incoming.Count > CustomerErrors.MaxChannels || incoming.GroupBy(x => (x.Kind, x.NormalizedValue)).Any(x => x.Count() > 1))
+            return CustomerErrors.ChannelsDuplicateOrTooMany();
+        Name = cleanName.Value;
+        Position = cleanPosition.Value;
         Active = active;
         IsPrimary = active && primary;
-        var incoming = channels.ToList();
-        if (incoming.Count > 10 || incoming.GroupBy(x => (x.Kind, x.NormalizedValue)).Any(x => x.Count() > 1))
-            throw new CustomerValidationException("contact.channels: duplicate_or_too_many");
         _channels.Clear();
         _channels.AddRange(incoming);
+        return DomainResult.Success();
     }
 
     internal void MoveTo(CustomerId customerId) => CustomerId = customerId;

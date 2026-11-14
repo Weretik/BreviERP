@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Results;
 using System.Globalization;
 using Crm.Domain.Embroidery.Calculation;
 using Crm.Domain.Embroidery.Settings;
@@ -18,12 +19,18 @@ public sealed class EmbroiderySavedCalculation
 
     private EmbroiderySavedCalculation() { }
 
-    public EmbroiderySavedCalculation(string? name, Guid? customerPublicId, string? customerName, EmbroideryInput input,
+    public static DomainResult<EmbroiderySavedCalculation> Create(string? name, Guid? customerPublicId,
+        string? customerName, EmbroideryInput input, EmbroideryRateSnapshot snapshot, EmbroideryResult result,
+        int createdByUserId, string createdByName, DateTimeOffset now, string? category = null) =>
+        category is not null && result.Prices.All(x => x.Name != category)
+            ? Settings.EmbroiderySettingsErrors.CategoryNotInResult()
+            : new EmbroiderySavedCalculation(name, customerPublicId, customerName, input, snapshot, result,
+                createdByUserId, createdByName, now, category);
+
+    private EmbroiderySavedCalculation(string? name, Guid? customerPublicId, string? customerName, EmbroideryInput input,
         EmbroideryRateSnapshot snapshot, EmbroideryResult result, int createdByUserId, string createdByName,
-        DateTimeOffset now, string? category = null)
+        DateTimeOffset now, string? category)
     {
-        if (category is not null && result.Prices.All(x => x.Name != category))
-            throw new ArgumentException("The category is one of the result's prices.", nameof(category));
         Category = category;
         Name = NormalizeName(name);
         CustomerPublicId = customerPublicId;
@@ -83,7 +90,7 @@ public sealed class EmbroiderySavedCalculation
     public static EmbroiderySavedCalculation Transferred(string legacyId, string? name, EmbroideryInput input,
         EmbroideryRateSnapshot snapshot, EmbroideryResult result, int createdByUserId, string createdByName,
         DateTimeOffset createdAt) =>
-        new(name, null, null, input, snapshot, result, createdByUserId, createdByName, createdAt)
+        new(name, null, null, input, snapshot, result, createdByUserId, createdByName, createdAt, null)
         {
             LegacyId = Cut(legacyId.Trim(), LegacyIdMaxLength),
         };

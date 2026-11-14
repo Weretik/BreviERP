@@ -235,5 +235,5 @@ public sealed class EmbroideryCalculatorTests
 
     [Test]
     public void DefaultsAreValidSettings() =>
-        Assert.DoesNotThrow(() => EmbroiderySettingsRules.EnsureValid(EmbroiderySettingsDefaults.Content));
+        Assert.That(EmbroiderySettingsRules.Check(EmbroiderySettingsDefaults.Content).IsSuccess, Is.True);
 }
