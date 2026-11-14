@@ -28,8 +28,8 @@ src/Modules/Identity/
 │   ├── Persistence/Access/RoleAccess.cs, Persistence/Access/RoleAccessConfiguration.cs
 │   └── Integrations/AspNetIdentity/Access/      # AccessRightsService, AccessGrantSource (cached)
 └── Identity.Api/Identity.Api/
-    ├── Access/AccessRightsController.cs         # /api/admin/access
-    ├── Auth/AuthSessionController.cs            # GET /api/auth/session/access
+    ├── Endpoints/AccessRights/                  # /api/admin/access, one <UseCase>Endpoint.cs each
+    ├── Endpoints/Session/GetSessionAccessEndpoint.cs # GET /api/auth/session/access
     ├── Access/AccessContracts.cs
     ├── Access/                                  # AccessPolicyProvider, AccessRequirementHandler (asks AccessCheck)
     └── DependencyInjection/IdentityAuthorizationExtensions.cs # named policies, AddAccessPolicies

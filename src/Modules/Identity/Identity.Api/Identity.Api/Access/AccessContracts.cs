@@ -64,12 +64,6 @@ public sealed record AccessRightsResponse(IReadOnlyList<AccessAreaResponse> Area
             dto.Roles.Select(AccessRoleResponse.From).ToList());
 }
 
-/// <param name="Version">The version the page was loaded with; 409 when someone saved in between.</param>
-/// <param name="Grants">Page key → actions (<c>view</c>, <c>create</c>, <c>edit</c>, <c>delete</c>); «view» comes first.</param>
-public sealed record SaveRoleAccessRequest(int Version, IReadOnlyDictionary<string, IReadOnlyList<string>> Grants);
-
-public sealed record CreateRoleRequest(string Title);
-
 public sealed record RoleTitleResponse(string Name, string Title, bool BuiltIn);
 
 /// <param name="AllowAll">The director: every page and action, even ones added later.</param>

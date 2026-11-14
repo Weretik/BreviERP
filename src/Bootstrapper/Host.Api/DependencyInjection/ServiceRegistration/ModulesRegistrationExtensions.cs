@@ -45,6 +45,7 @@ public static class ModuleRegistrationsExtensions
         app.MapWarehouseEndpoints();
         app.MapRemindersEndpoints();
         app.MapMediaEndpoints();
+        app.MapIdentityEndpoints();
 
         return app;
     }

@@ -21,6 +21,16 @@ public static class ResultToHttpResult
         _ => Results.StatusCode(StatusCodes.Status500InternalServerError)
     };
 
+    /// <summary>200 with the mapped value on success, otherwise the shared status mapping.</summary>
+    public static IResult ToHttpResult<T, TResponse>(this Result<T> result, Func<T, TResponse> map) =>
+        result.Status == ResultStatus.Ok ? Results.Ok(map(result.Value)) : result.ToHttpResult();
+
+    /// <summary>201 with the mapped value and no Location, as the controllers answered; otherwise the shared mapping.</summary>
+    public static IResult ToCreatedHttpResult<T, TResponse>(this Result<T> result, Func<T, TResponse> map) =>
+        result.Status == ResultStatus.Ok
+            ? Results.Json(map(result.Value), statusCode: StatusCodes.Status201Created)
+            : result.ToHttpResult();
+
     /// <summary>204 on success, otherwise the shared status mapping.</summary>
     public static IResult ToNoContentHttpResult(this Ardalis.Result.Result result) =>
         result.IsSuccess ? Results.NoContent() : result.ToHttpResult();

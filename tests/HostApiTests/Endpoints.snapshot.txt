@@ -227,7 +227,7 @@ POST api/accounting/transfers/{id:guid}/void | voidFinanceTransfer | policy:acce
 POST api/admin/access/roles | createRole | policy:CanManageUsers
 POST api/admin/users | createStaffAccount | policy:CanManageUsers
 POST api/ai/settings/test | testAiConnection | policy:RequireAdminRole
-POST api/auth/cookie/login | loginCookieSession | anonymous
+POST api/auth/cookie/login | loginCookieSession | anonymous,rate-limit:AuthLogin
 POST api/auth/cookie/logout | logoutCookieSession | signed-in
 POST api/content/articles | createContentArticle | policy:access:content-articles
 POST api/content/articles/old-site-import | importOldSiteArticles | policy:access:content-articles,body-limit:20971520
@@ -291,7 +291,7 @@ POST api/production/staff | createWorkshopEmployee | policy:access:workshop-staf
 POST api/production/staff/import | importWorkshopStaff | policy:access:workshop-staff
 POST api/production/work/import | importProductionWork | policy:access:work-log
 POST api/production/work/{workId:int}/void | voidProductionWork | policy:access:work-log,action:edit
-POST api/public/site-requests | submitPublicSiteRequest | anonymous,body-limit:11534336,form-limit:11534336
+POST api/public/site-requests | submitPublicSiteRequest | anonymous,body-limit:11534336,form-limit:11534336,rate-limit:SiteRequest
 POST api/purchasing/invoices/files/{fileId}/recognize | recognizePurchaseFile | policy:access:purchase-invoices
 POST api/purchasing/invoices/recognize-new | recognizeNewPurchaseFiles | policy:access:purchase-invoices
 POST api/purchasing/invoices/sync | syncPurchaseInvoices | policy:access:purchase-invoices

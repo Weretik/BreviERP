@@ -6,3 +6,8 @@ global using Microsoft.Extensions.Options;
 global using System.Security.Cryptography;
 global using Mediator;
 global using BuildingBlocks.Api.Result;
+global using System.Security.Claims;
+global using BuildingBlocks.Api.Authorization;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Routing;
+global using IResult = Microsoft.AspNetCore.Http.IResult;
