@@ -18,4 +18,6 @@ Respect existing transaction and concurrency boundaries. Do not add automatic re
 
 EF Core mapping belongs in Infrastructure. Each new module keeps its tables and migration history in its own schema and does not reference another module's tables; see the [module rules](module-rules.md#database-schema-per-module). Domain entities have no persistence-mechanism dependencies. Create a migration only when the feature scope requires it; do not edit applied migrations. Verify a new migration against an empty test database and document rollback and deployment risks.
 
+Use the EF Core CLI as the repository-pinned local tool (`.config/dotnet-tools.json`, same version as `Microsoft.EntityFrameworkCore` in `Directory.Packages.props`): run `dotnet tool restore` once, then `dotnet ef ...`. Do not install `dotnet-ef` globally; when the EF Core package version is raised, raise the tool version with it.
+
 Preserve query semantics and database contracts. Change reference and seed data through the existing mechanism, not hidden runtime writes.
