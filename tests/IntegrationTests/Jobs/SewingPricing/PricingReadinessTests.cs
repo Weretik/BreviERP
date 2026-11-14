@@ -5,9 +5,9 @@ using IntegrationTests.TestSupport;
 using Microsoft.EntityFrameworkCore;
 using SewingPricing.Jobs.Readiness;
 using Catalog.Application.Abstractions.Pricing;
-using Catalog.Infrastructure.Persistence.Pricing.Ppe;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
 
 namespace IntegrationTests.Jobs.SewingPricing;
 

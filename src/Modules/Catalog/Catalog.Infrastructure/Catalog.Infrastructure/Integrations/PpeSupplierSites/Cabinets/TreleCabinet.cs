@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Catalog.Infrastructure.Integrations.PpeSupplierSites;
+using Catalog.Infrastructure.Integrations.PpeSupplierSites.Pages;
 
 namespace Catalog.Infrastructure.Integrations.PpeSupplierSites.Cabinets;
 

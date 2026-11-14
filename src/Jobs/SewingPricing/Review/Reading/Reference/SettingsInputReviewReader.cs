@@ -1,7 +1,7 @@
 using Catalog.Domain.Pricing.Sewing;
 using SewingPricing.Jobs.Bootstrap;
 using Catalog.Infrastructure.Persistence;
-using Catalog.Infrastructure.Persistence.Pricing.Sewing;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;
 
 namespace SewingPricing.Jobs.Review;
 

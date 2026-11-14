@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Reference.Domain.Suppliers;
 using Catalog.Infrastructure.Persistence;
-using Catalog.Infrastructure.Persistence.Products;
 using Reference.Infrastructure.Persistence;
 using Catalog.Domain.Products.Sewing.Composition;
+using Catalog.Infrastructure.Persistence.Repositories.Sewing;
 
 namespace IntegrationTests.Jobs.CatalogImport;
 

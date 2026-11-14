@@ -1,6 +1,6 @@
 using Identity.Domain.Authorization;
-using Identity.Infrastructure.Persistence.Users;
 using Identity.Domain.Authorization.Roles;
+using Identity.Infrastructure.Persistence.Configurations.Users;
 
 namespace Identity.Infrastructure.Persistence.Seeding;
 

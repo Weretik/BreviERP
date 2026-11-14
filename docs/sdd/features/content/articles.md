@@ -26,7 +26,7 @@ src/Modules/Content/
       Queries/GetPublicArticles/, GetPublicArticle/  # public list and page, language fallback
       Shared/                          # responses, mapping, free slug, photo read, messages, public source kept for a minute
   Content.Infrastructure/Content.Infrastructure/
-    Persistence/Articles/ArticleConfiguration.cs
+    Persistence/Configurations/Pages/ArticleConfiguration.cs
   Content.Api/Content.Api/
     Endpoints/Articles/ContentArticlesEndpoints.cs   # /api/content/articles, policy access:content-articles
     Endpoints/PublicArticles/PublicArticlesEndpoints.cs # /api/public/articles, anonymous, read-only

@@ -19,7 +19,7 @@ src/Modules/Production/
     Features/Forecast/
       Shared/ForecastQueueReader.cs  # «Нове» orders in queue order
       Queries/GetForecast, Commands/SaveForecastQueue
-  Production.Infrastructure/.../Persistence/Work/ProductionWorkConfiguration.cs
+  Production.Infrastructure/.../Persistence/Configurations/ProductionWorkConfiguration.cs
   Production.Api/Production.Api/Endpoints/Work/      # /api/production/work…, items/{itemId}/work
   Production.Api/Production.Api/Endpoints/Forecast/  # /api/production/forecast
 ```

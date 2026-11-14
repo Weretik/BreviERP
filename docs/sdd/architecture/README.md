@@ -57,7 +57,7 @@ The audit of 2026-11-14 found that the code does not yet follow the [module rule
 | Jobs audit | Jobs projects, Cloud Run Jobs and Cloud Scheduler entries: a report with proposed merges before any cloud change |
 | 4 | Domain folders by aggregate |
 | 5 | Application `Features/<Feature>/{Commands,Queries}/<UseCase>/` |
-| 6 | Infrastructure `Persistence/<Aggregate>/`, `Integrations/<System>/` |
+| 6 | Infrastructure `Persistence/{Configurations,Repositories,Seeding,Migrations}/`, `Integrations/<System>/` |
 | 7 | Api `Features/<Feature>/` |
 | 8 | Jobs and `Host.Seed` |
 | 9 | Test structure and architecture tests for every rule |

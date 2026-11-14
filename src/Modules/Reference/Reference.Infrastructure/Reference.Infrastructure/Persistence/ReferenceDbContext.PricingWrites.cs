@@ -1,4 +1,5 @@
-using Reference.Infrastructure.Persistence.Pricing.InputVersions;
+
+using Reference.Infrastructure.Persistence.Repositories.Pricing;
 
 namespace Reference.Infrastructure.Persistence;
 

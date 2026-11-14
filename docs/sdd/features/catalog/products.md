@@ -58,8 +58,8 @@ src/
     │   ├── Product.PhotoList.cs  # photo order and main photo (CAT-018)
     │   ├── ProductCatalogProfile.cs  # sheet row fields, section ID
     │   └── Sewing/SewingProductDetails.cs  # domain model
-    ├── Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Products/SheetProductImportStore.cs  # one-transaction import write
-    ├── Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Products/ProductOverviewVariantReader.cs  # variants, fabrics, prices in one query
+    ├── Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Repositories/Products/SheetProductImportStore.cs  # one-transaction import write
+    ├── Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Repositories/Products/ProductOverviewVariantReader.cs  # variants, fabrics, prices in one query
     └── Catalog.Infrastructure/Catalog.Infrastructure/Persistence/CatalogDbContext.cs  # data context
 ```
 

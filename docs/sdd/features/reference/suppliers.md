@@ -6,7 +6,7 @@ CRUD operations and list retrieval for the “Suppliers” lookup. Suppliers com
 
 ## Structure and Relationships
 
-[Endpoints](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Endpoints/Suppliers/SuppliersEndpoints.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Supplier/Commands/CreateSupplier/CreateSupplierHandler.cs) and adjacent query/update/delete handlers validate the data; [Supplier](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/Suppliers/Supplier.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. Suppliers are external reference data for PPE products and garment accessories.
+[Endpoints](../../../../src/Modules/Reference/Reference.Api/Reference.Api/Endpoints/Suppliers/SuppliersEndpoints.cs) exposes CRUD. The [create handler](../../../../src/Modules/Reference/Reference.Application/Reference.Application/Features/Supplier/Commands/CreateSupplier/CreateSupplierHandler.cs) and adjacent query/update/delete handlers validate the data; [Supplier](../../../../src/Modules/Reference/Reference.Domain/Reference.Domain/Suppliers/Supplier.cs) is the domain entity. [ReferenceEfRepository](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/Repositories/ReferenceEfRepository.cs) and [ReferenceDbContext](../../../../src/Modules/Reference/Reference.Infrastructure/Reference.Infrastructure/Persistence/ReferenceDbContext.cs) persist it. Suppliers are external reference data for PPE products and garment accessories.
 
 ## Code Structure
 
@@ -27,7 +27,7 @@ src/
     └── Reference.Infrastructure/Reference.Infrastructure/
         ├── Integrations/KeepinCrm/  # KeepinCRM HTTP client and response parser
         ├── Persistence/ReferenceDbContext.cs  # data context
-        └── Persistence/ReferenceEfRepository.cs  # data access
+        └── Persistence/Repositories/ReferenceEfRepository.cs  # data access
 ```
 
 ## Structure Diagram

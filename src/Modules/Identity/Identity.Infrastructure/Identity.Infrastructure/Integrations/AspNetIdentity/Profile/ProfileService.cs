@@ -5,7 +5,7 @@ using Identity.Domain.Authorization;
 using Identity.Application.Abstractions;
 using Identity.Application.Features.Avatars.Shared;
 using Identity.Infrastructure.Integrations.Avatars;
-using Identity.Infrastructure.Persistence.Users;
+using Identity.Infrastructure.Persistence.Configurations.Users;
 
 namespace Identity.Infrastructure.Integrations.AspNetIdentity.Profile;
 

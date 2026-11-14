@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
-using Identity.Infrastructure.Persistence.Access;
-using Identity.Infrastructure.Persistence.Users;
+using Identity.Infrastructure.Persistence.Configurations;
+using Identity.Infrastructure.Persistence.Configurations.Users;
 
 namespace Identity.Infrastructure.Persistence;
 

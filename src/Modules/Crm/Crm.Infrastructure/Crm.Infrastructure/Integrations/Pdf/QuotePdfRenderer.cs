@@ -3,6 +3,7 @@ using QuestPDF.Infrastructure;
 using Crm.Application.Features.Quotes.Shared.Pdf;
 using Crm.Application.Features.Quotes.Shared.Pdf.Introduction;
 using Crm.Application.Abstractions.Quotes;
+using Crm.Infrastructure.Integrations.Pdf.Intro;
 
 namespace Crm.Infrastructure.Integrations.Pdf;
 

@@ -11,13 +11,13 @@ using SewingPricing.Jobs.Bootstrap;
 using Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
 using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
 using Catalog.Application.Features.Pricing.Commands.SaveSewingCalculation;
-using Catalog.Infrastructure.Persistence.Pricing;
-using Catalog.Infrastructure.Persistence.Pricing.Calculations;
-using Catalog.Infrastructure.Persistence.Pricing.Publications;
-using Catalog.Infrastructure.Persistence.Pricing.Sewing;
-using Reference.Infrastructure.Persistence.Pricing.InputVersions;
 using Catalog.Domain.Products.Sewing.Composition;
 using Catalog.Domain.Products.Sewing.ValueObjects;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Calculations;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Publications;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;
+using Reference.Infrastructure.Persistence.Repositories.Pricing;
 
 namespace IntegrationTests.Catalog.Pricing.Sewing;
 
@@ -37,7 +37,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         var articleId = article.Id.Value;
         var transactions = new SewingPricingTransaction(catalog);
         var calculations = new SewingCalculationStore(catalog);
-        var publishedReader = new global::Catalog.Infrastructure.Persistence.Pricing.Publications.SewingPublishedPriceReader(catalog);
+        var publishedReader = new global::Catalog.Infrastructure.Persistence.Repositories.Pricing.Publications.SewingPublishedPriceReader(catalog);
         var initialPrices = await publishedReader.ReadAsync([productId], CancellationToken.None);
         Assert.That(initialPrices.Single().ArticleCount, Is.EqualTo(2));
         Assert.That(initialPrices.Single().Articles, Is.Empty);

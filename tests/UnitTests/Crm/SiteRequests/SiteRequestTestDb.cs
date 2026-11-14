@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Crm.Application.Features.SiteRequests.Shared.Notify;
 using Crm.Application.Abstractions.SiteRequests;
 using Crm.Application.Abstractions.Tasks;
-using Crm.Infrastructure.Persistence.SiteRequests;
+using Crm.Infrastructure.Persistence.Configurations;
 
 namespace UnitTests.Crm.SiteRequests;
 

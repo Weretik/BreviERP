@@ -6,11 +6,11 @@ using Npgsql;
 using SewingPricing.Jobs.Reading;
 using Catalog.Application.Features.Pricing.Queries.CalculateSewingArticle;
 using Catalog.Infrastructure.Persistence;
-using Catalog.Infrastructure.Persistence.Pricing.Publications;
-using Catalog.Infrastructure.Persistence.Pricing.Sewing;
 using Reference.Infrastructure.Persistence;
-using Reference.Infrastructure.Persistence.Pricing.InputVersions;
 using Catalog.Domain.Products.ValueObjects;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Publications;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;
+using Reference.Infrastructure.Persistence.Repositories.Pricing;
 
 namespace SewingPricing.Jobs.Readiness;
 

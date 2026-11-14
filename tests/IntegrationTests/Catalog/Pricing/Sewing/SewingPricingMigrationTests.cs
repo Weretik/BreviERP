@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
-using Catalog.Infrastructure.Persistence.Pricing;
-using Catalog.Infrastructure.Persistence.Pricing.Calculations;
+using Catalog.Infrastructure.Persistence;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Calculations;
 
 namespace IntegrationTests.Catalog.Pricing.Sewing;
 

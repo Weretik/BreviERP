@@ -9,9 +9,9 @@ using CatalogImport.Source;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Catalog.Infrastructure.Persistence;
-using Catalog.Infrastructure.Persistence.Pricing.Sewing;
 using Reference.Infrastructure.Persistence;
-using Reference.Infrastructure.Persistence.Pricing.InputVersions;
+using Catalog.Infrastructure.Persistence.Repositories.Pricing.Sewing;
+using Reference.Infrastructure.Persistence.Repositories.Pricing;
 
 namespace SewingPricing.Jobs.Verification;
 

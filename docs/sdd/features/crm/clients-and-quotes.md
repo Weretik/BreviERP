@@ -27,7 +27,7 @@ src/Modules/Crm/
     Shared/                           customer/source inputs, responses, Mapping/ (domain to detail)
   Crm.Infrastructure/Crm.Infrastructure/
     Persistence/                      EF context, entity configurations/migrations
-    Persistence/Customers/            read repository, write session and root locks, mutation journal (idempotency), KeepinCRM sync store
+    Persistence/Repositories/Customers/  read repository, write session and root locks, mutation journal (idempotency), KeepinCRM sync store
     Integrations/KeepinCrm/           KeepinCRM clients HTTP source, parser, options
     DependencyInjection/              existing host/seed registration; CrmKeepinCrmExtensions
   Crm.Api/Crm.Api/Endpoints/Customers/
@@ -110,8 +110,8 @@ src/Modules/Crm/
     Shared/Sending/                    Gmail options, recipients, marks
     Shared/                            inputs, responses, Mapping/, custom sewing item builder
   Crm.Infrastructure/Crm.Infrastructure/
-    Persistence/Quotes/                  EF mappings of КП, settings, mailboxes and sendings
-    Persistence/Quotes/                  unique-number, settings and mailbox race detection
+    Persistence/Configurations/Quotes/   EF mappings of КП, settings, mailboxes and sendings
+    Persistence/Repositories/QuoteStoreErrors.cs  unique-number, settings and mailbox race detection
     Integrations/Pdf/                    QuestPDF documents (КП, introduction catalogue), shared parts, renderer, photo loader, fonts
     Integrations/Gmail/                  GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options
   Crm.Api/Crm.Api/Endpoints/Quotes/      groups Quotes, QuoteIntroductions, QuoteIntroTemplates, QuoteLookups, QuoteSettings,

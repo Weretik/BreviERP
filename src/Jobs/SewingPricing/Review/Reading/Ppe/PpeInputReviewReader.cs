@@ -1,7 +1,7 @@
 using CatalogImport.PpePricing.Planning;
 using Microsoft.EntityFrameworkCore;
 using Catalog.Infrastructure.Persistence;
-using Catalog.Infrastructure.Persistence.Pricing.Ppe;
+using Catalog.Infrastructure.Persistence.Configurations.Pricing.Ppe;
 
 namespace SewingPricing.Jobs.Review;
 

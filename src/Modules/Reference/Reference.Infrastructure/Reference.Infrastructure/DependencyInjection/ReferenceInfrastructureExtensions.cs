@@ -24,12 +24,12 @@ using BuildingBlocks.Infrastructure.Migrations;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Application.Abstractions;
 using Reference.Infrastructure.Persistence;
-using Reference.Infrastructure.Persistence.Pricing.InputVersions;
 using Reference.Infrastructure.Persistence.Seeding.Fabrics;
 using Reference.Infrastructure.Persistence.Seeding.GarmentAccessories;
 using Reference.Infrastructure.Persistence.Seeding.GarmentPartOperations;
 using Reference.Infrastructure.Persistence.Seeding.GarmentParts;
 using Reference.Infrastructure.Persistence.Seeding.Suppliers;
+using Reference.Infrastructure.Persistence.Repositories;
 
 namespace Reference.Infrastructure.DependencyInjection;
 
@@ -56,9 +56,9 @@ public static class ReferenceInfrastructureExtensions
         services.AddScoped<IDatabaseMigrator, DbMigrator<ReferenceDbContext>>();
         services.AddOutbox<ReferenceDbContext>();
         services.AddOutboxHandler<PricingSettingsChangedOutboxHandler>();
-        services.AddScoped<Reference.Application.Abstractions.IReferencePricingVersionReader, Reference.Infrastructure.Persistence.Pricing.InputVersions.ReferencePricingVersionReader>();
-        services.AddScoped<Reference.Application.Abstractions.IReferencePricingUsageReader, Reference.Infrastructure.Persistence.Pricing.ReferencePricingUsageReader>();
-        services.AddScoped<Reference.Application.Abstractions.IOtherCostPricingVersionWriter, Reference.Infrastructure.Persistence.Pricing.OtherCostPricingVersionWriter>();
+        services.AddScoped<Reference.Application.Abstractions.IReferencePricingVersionReader, Reference.Infrastructure.Persistence.Repositories.Pricing.ReferencePricingVersionReader>();
+        services.AddScoped<Reference.Application.Abstractions.IReferencePricingUsageReader, Reference.Infrastructure.Persistence.Repositories.Pricing.ReferencePricingUsageReader>();
+        services.AddScoped<Reference.Application.Abstractions.IOtherCostPricingVersionWriter, Reference.Infrastructure.Persistence.Repositories.Pricing.OtherCostPricingVersionWriter>();
         // Contracts other modules use (ADR-0006).
         services.AddScoped<IFabricDirectory, FabricDirectory>();
         services.AddScoped<IGarmentAccessoryDirectory, GarmentAccessoryDirectory>();

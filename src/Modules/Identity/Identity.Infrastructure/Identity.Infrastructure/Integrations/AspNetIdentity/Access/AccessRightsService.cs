@@ -5,9 +5,9 @@ using Identity.Domain.Authorization;
 using Microsoft.Extensions.Caching.Memory;
 using Identity.Application.Abstractions;
 using Identity.Infrastructure.Persistence;
-using Identity.Infrastructure.Persistence.Access;
-using Identity.Infrastructure.Persistence.Users;
 using Identity.Domain.Authorization.Roles;
+using Identity.Infrastructure.Persistence.Configurations;
+using Identity.Infrastructure.Persistence.Configurations.Users;
 
 namespace Identity.Infrastructure.Integrations.AspNetIdentity.Access;
 

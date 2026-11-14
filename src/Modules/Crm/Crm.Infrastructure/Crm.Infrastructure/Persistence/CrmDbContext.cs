@@ -11,7 +11,6 @@ using Crm.Domain.Quotes.Sending;
 using Crm.Domain.Quotes.Settings;
 using Crm.Domain.SiteRequests;
 using Crm.Domain.Tasks;
-using Crm.Infrastructure.Persistence.Quotes;
 using Microsoft.EntityFrameworkCore;
 using Crm.Application.Features.Customers.Commands.SyncKeepinCrmClients;
 using Crm.Application.Features.Leads.Shared.Persistence;
@@ -22,7 +21,8 @@ using Crm.Application.Abstractions.Leads;
 using Crm.Application.Abstractions.Quotes;
 using Crm.Application.Abstractions.SiteRequests;
 using Crm.Application.Abstractions.Tasks;
-using Crm.Infrastructure.Persistence.Customers;
+using Crm.Infrastructure.Persistence.Configurations.Customers;
+using Crm.Infrastructure.Persistence.Repositories;
 
 namespace Crm.Infrastructure.Persistence;
 

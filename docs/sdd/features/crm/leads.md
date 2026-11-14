@@ -24,7 +24,7 @@ src/Modules/Crm/
     Shared/                        responses, Mapping/, LeadClock.cs (Kyiv day)
   Crm.Infrastructure/Crm.Infrastructure/
     Integrations/GoogleSheets/     GoogleLeadSheetReader (ADC, read-only), LeadSheetOptions (Crm:LeadSheet)
-    Persistence/Leads/                  five tables, seeded call results
+    Persistence/Configurations/Leads/               five tables, seeded call results
     Persistence/CrmDbContext.cs    implements ILeadStore
   Crm.Api/Crm.Api/Endpoints/Leads/
     LeadsEndpoints.cs              /api/crm/leads

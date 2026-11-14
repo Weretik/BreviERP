@@ -3,7 +3,7 @@ using Reference.Domain.Pricing;
 using SewingPricing.Jobs.Bootstrap;
 using SewingPricing.Jobs.Reading;
 using Reference.Infrastructure.Persistence;
-using Reference.Infrastructure.Persistence.Pricing.InputVersions;
+using Reference.Infrastructure.Persistence.Repositories.Pricing;
 
 namespace SewingPricing.Jobs.Review;
 

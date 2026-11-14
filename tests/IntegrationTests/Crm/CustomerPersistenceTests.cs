@@ -9,7 +9,7 @@ using Crm.Application.Features.Customers.Queries.GetCustomer;
 using Crm.Application.Features.Customers.Queries.GetCustomers;
 using Crm.Application.Features.Customers.Shared.Inputs;
 using Crm.Application.Abstractions.Customers;
-using Crm.Infrastructure.Persistence.Customers;
+using Crm.Infrastructure.Persistence.Repositories.Customers;
 namespace IntegrationTests.Crm;
 
 [NonParallelizable]
