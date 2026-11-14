@@ -17,7 +17,7 @@ Persistence is grouped by aggregate, with the same names as in Domain; integrati
 │   └── <Aggregate>/              entity configurations, repository, read queries of that aggregate
 ├── Integrations/<System>/        KeepinCrm, Dropbox, GoogleSheets, OpenAi, Telegram, Cdn
 ├── Contracts/<Feature>/          implementations of the module's own Contracts interfaces
-├── Adapters/<Provider>/          adapters from another module's Contracts into this module's ports
+├── Adapters/<Provider>/          adapters from another module's Contracts to this module's own ports
 ├── DependencyInjection/          Add<Module>Infrastructure
 └── <Module>.Infrastructure.csproj
 ```
