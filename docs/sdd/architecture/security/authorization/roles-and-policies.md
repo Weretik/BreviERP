@@ -42,7 +42,7 @@ Policy names are in `Identity.Application/Security/Policies/PolicyNames.cs`; the
 
 ### «Права доступу» pages
 
-Every work page of the admin is guarded by `access:<page>`; the action comes from the HTTP method (GET view, POST create, PUT/PATCH edit, DELETE delete), a page without that action asks for edit, and `access:<page>:<action>` or `[AccessAction]` names it when the method says otherwise. Pages and defaults are in `Identity.Domain/Authorization/AccessCatalog.cs`, in the groups and order of the admin menu (`apps/admin-react/src/app/router/legacy-menu.ts` in brevi-web); until a role is saved its defaults are the rules below. Each page offers only the actions it really has: «Створення» and «Видалення» appear where the page creates or deletes something (2026-11-12 audit), and a POST that changes, voids, closes or reopens something is marked `[AccessAction(Edit)]`.
+Every work page of the admin is guarded by `access:<page>`; the action comes from the HTTP method (GET view, POST create, PUT/PATCH edit, DELETE delete), a page without that action asks for edit, and `access:<page>:<action>` or `[AccessAction]` (Minimal API: `.RequireAccessAction(...)`) names it when the method says otherwise. Pages and defaults are in `Identity.Domain/Authorization/AccessCatalog.cs`, in the groups and order of the admin menu (`apps/admin-react/src/app/router/legacy-menu.ts` in brevi-web); until a role is saved its defaults are the rules below. Each page offers only the actions it really has: «Створення» and «Видалення» appear where the page creates or deletes something (2026-11-12 audit), and a POST that changes, voids, closes or reopens something is marked `[AccessAction(Edit)]`.
 
 | Page | Endpoints | Default rights |
 | --- | --- | --- |
@@ -116,7 +116,7 @@ Every staff page of the admin and every API it calls must be configurable on «�
    If the feature only adds a part of an existing page (a tab, a panel, a button), reuse that page's key and pick the action instead. Add a new key only when the director would want to grant it separately.
 2. **Guard every endpoint** with `[Authorize(Policy = "access:<page>")]`. Put the constant in the module's `Api/Access/*Access.cs`, like `CrmAccess` or `ProductionAccess`.
    - The HTTP method gives the action: GET view, POST create, PUT/PATCH edit, DELETE delete.
-   - When the method doesn't match the meaning, name the action: `access:<page>:delete` for a delete done by POST, or `[AccessAction(AccessActionAttribute.Edit)]` for a POST that only edits (send, reprice).
+   - When the method doesn't match the meaning, name the action: `access:<page>:delete` for a delete done by POST, or `[AccessAction(AccessActionAttribute.Edit)]` on a controller action or `.RequireAccessAction(AccessActionAttribute.Edit)` on a Minimal API endpoint for a POST that only edits (send, reprice).
    - Never `[Authorize(Roles = …)]` on a work page. Users, «Права доступу» and system settings stay `CanManageUsers`, and shared catalogue reads stay `CatalogRead`.
 3. **Keep business rules inside Application.** Rules such as "a manager sees only their own КП" stay in the handler. The page right only decides whether the person may open the page or do the action. Write down in the SDD how a role made on «Права доступу» is treated by those rules: today it is treated like a manager.
 4. **Tests:**

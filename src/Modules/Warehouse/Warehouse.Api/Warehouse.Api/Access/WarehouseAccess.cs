@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
 using Warehouse.Application.Features.Stock.Shared;
 
 namespace Warehouse.Api.Access;
@@ -25,10 +24,9 @@ internal static class WarehouseAccess
     public const string ProductionOrders = "access:production-orders";
 
     /// <summary>The person and their roles for the stock rules; null without a user id.</summary>
-    public static WarehouseActor? Actor(this ControllerBase controller) =>
-        int.TryParse(controller.User.FindFirstValue(ClaimTypes.NameIdentifier), NumberStyles.Integer,
+    public static WarehouseActor? WarehouseActor(this ClaimsPrincipal user) =>
+        int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), NumberStyles.Integer,
             CultureInfo.InvariantCulture, out var id) && id > 0
-            ? new WarehouseActor(id, controller.User.IsInRole("Admin"), controller.User.IsInRole("Manager"),
-                controller.User.IsInRole("WorkshopChief"))
+            ? new WarehouseActor(id, user.IsInRole("Admin"), user.IsInRole("Manager"), user.IsInRole("WorkshopChief"))
             : null;
 }
