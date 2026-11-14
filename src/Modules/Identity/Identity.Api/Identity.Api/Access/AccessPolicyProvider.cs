@@ -2,7 +2,7 @@ using Identity.Application.Security.Access;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
-namespace Host.Api.Security.Access;
+namespace Identity.Api.Access;
 
 /// <summary>
 /// Builds <c>access:page[:action]</c> policies on demand; every other name goes to the policies registered in

@@ -11,7 +11,7 @@ public static class ReferenceModuleExtensions
     /// <summary>Registers the Reference module: Application, Infrastructure, its Contracts implementations and controllers.</summary>
     public static IServiceCollection AddReferenceModule(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddReferenceInfrastructureServices(configuration);
+        services.AddReferenceInfrastructure(configuration);
         services.AddModuleValidators(typeof(ReferenceApplicationAssemblyMarker).Assembly);
         services.AddControllers().AddApplicationPart(typeof(ReferenceApiAssemblyMarker).Assembly);
         return services;

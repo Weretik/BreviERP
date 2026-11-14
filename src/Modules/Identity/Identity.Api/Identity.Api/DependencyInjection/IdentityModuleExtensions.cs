@@ -12,7 +12,7 @@ public static class IdentityModuleExtensions
     public static IServiceCollection AddIdentityModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddIdentityConfiguration(configuration);
-        services.AddIdentityInfrastructureServices(configuration);
+        services.AddIdentityInfrastructure(configuration);
         services.AddModuleValidators(typeof(IdentityApplicationAssemblyMarker).Assembly);
         services.AddControllers().AddApplicationPart(typeof(IdentityApiAssemblyMarker).Assembly);
         return services;

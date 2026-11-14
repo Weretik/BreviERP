@@ -15,7 +15,7 @@ public static class CatalogModuleExtensions
     /// <summary>Registers the Catalog module: Application, Infrastructure, its Contracts implementations and controllers.</summary>
     public static IServiceCollection AddCatalogModule(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddCatalogInfrastructureServices(configuration);
+        services.AddCatalogInfrastructure(configuration);
         // Publishes new Sewing prices after any action that saved a pricing input, in this or another module.
         services.TryAddScoped<PricingInputChanges>();
         services.Configure<MvcOptions>(options => options.Filters.Add<SewingPriceAutoPublicationFilter>());

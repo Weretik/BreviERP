@@ -1,13 +1,14 @@
-using Host.Api.Security.Access;
+using Identity.Api.Access;
 using Identity.Application.Security.Access;
 using Identity.Application.Security.Policies;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Host.Api.DependencyInjection.ServiceRegistration.Web;
+namespace Identity.Api.DependencyInjection;
 
-public static class AuthorizationPoliciesRegistrationExtensions
+public static class IdentityAuthorizationExtensions
 {
     public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
     {

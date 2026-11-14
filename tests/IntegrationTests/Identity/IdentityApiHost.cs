@@ -1,7 +1,7 @@
 using BuildingBlocks.Application.DependencyInjection;
 using Identity.Api.DependencyInjection;
 using Host.Api.DependencyInjection.ServiceRegistration.Pipeline;
-using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Identity.Api.DependencyInjection;
 using Identity.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -62,7 +62,7 @@ internal sealed class IdentityApiHost : IAsyncDisposable
         builder.Services.AddIdentityConfiguration(builder.Configuration);
         var avatars = new InMemoryAvatarStorage();
         builder.Services.AddSingleton<global::Identity.Application.Abstractions.IAvatarStorage>(avatars);
-        builder.Services.AddIdentityInfrastructureServices(builder.Configuration);
+        builder.Services.AddIdentityInfrastructure(builder.Configuration);
         builder.Services.AddMediatorPipeline();
         builder.Services.AddModuleValidators(typeof(global::Identity.Application.IdentityApplicationAssemblyMarker).Assembly);
         builder.Services.AddAuthorizationPolicies();

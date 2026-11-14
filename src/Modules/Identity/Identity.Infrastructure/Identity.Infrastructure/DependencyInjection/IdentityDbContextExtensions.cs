@@ -6,9 +6,9 @@ using Identity.Infrastructure.Persistence.Users;
 
 namespace Identity.Infrastructure.DependencyInjection;
 
-public static class IdentityDbContextExtensions
+internal static class IdentityDbContextExtensions
 {
-    public static IServiceCollection AddIdentityDbContextServices(
+    internal static IServiceCollection AddIdentityDbContextServices(
         this IServiceCollection services,
         IConfiguration configuration)
     {

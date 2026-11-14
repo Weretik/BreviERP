@@ -1,4 +1,5 @@
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Identity.Api.DependencyInjection;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Encodings.Web;

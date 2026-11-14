@@ -1,4 +1,6 @@
+using BuildingBlocks.Api.TrustedProxy;
 using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Identity.Api.DependencyInjection;
 
 namespace Host.Api.DependencyInjection.ServiceRegistration;
 

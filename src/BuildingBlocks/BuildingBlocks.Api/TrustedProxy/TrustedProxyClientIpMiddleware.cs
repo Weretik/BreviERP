@@ -1,9 +1,10 @@
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Host.Api.Security.TrustedProxy;
+namespace BuildingBlocks.Api.TrustedProxy;
 
 /// <summary>
 /// Restores the real client IP when the request comes through the Cloudflare API proxy.

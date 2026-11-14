@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Host.Api.DependencyInjection.ServiceRegistration.Web;
+using Identity.Api.DependencyInjection;
 using Catalog.Application.Features.Product.Commands.CreateSewingArticle;
 using Catalog.Application.Features.Product.Commands.DeleteSewingArticle;
 using Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
