@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
@@ -12,14 +11,14 @@ public partial class Product
     /// stay keep their id, alt text and visibility; new ones get the next ids. <paramref name="mainMediaFileId"/> becomes
     /// the main photo; when it is null the current main photo stays, or the first one becomes main.
     /// </summary>
-    public void SetPhotoList(IReadOnlyList<MediaFileId> mediaFileIds, MediaFileId? mainMediaFileId, DateTimeOffset updatedAt)
+    public DomainResult SetPhotoList(IReadOnlyList<MediaFileId> mediaFileIds, MediaFileId? mainMediaFileId, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(mediaFileIds);
         var duplicate = mediaFileIds.GroupBy(x => x).FirstOrDefault(x => x.Count() > 1);
         if (duplicate is not null)
-            throw new DomainException(ProductErrors.PhotoMediaFileAlreadyAttached(duplicate.Key.Value));
+            return ProductErrors.PhotoMediaFileAlreadyAttached(duplicate.Key.Value);
         if (mainMediaFileId is { } main && !mediaFileIds.Contains(main))
-            throw new DomainException(ProductErrors.PhotoMediaFileIdIsRequired());
+            return ProductErrors.PhotoMediaFileIdIsRequired();
 
         var currentMain = _photos.FirstOrDefault(x => x.IsMain)?.MediaFileId;
         _photos.RemoveAll(x => !mediaFileIds.Contains(x.MediaFileId));
@@ -30,10 +29,11 @@ public partial class Product
             var photo = _photos.FirstOrDefault(x => x.MediaFileId == fileId);
             if (photo is null)
             {
-                photo = ProductPhoto.Create(Id, ProductPhotoId.Create(nextId++), fileId, null, true, index, false);
+                // No alt text and a position from 0: a new photo here cannot break a rule.
+                photo = ProductPhoto.Create(Id, ProductPhotoId.Create(nextId++), fileId, null, true, index, false).Value;
                 _photos.Add(photo);
             }
-            else photo.SetSortOrder(index);
+            else photo.SetSortOrder(index).ThrowIfFailure();
         }
 
         var wanted = mainMediaFileId ?? (currentMain is { } kept && mediaFileIds.Contains(kept) ? kept : null);
@@ -41,5 +41,6 @@ public partial class Product
         if (wanted is { } target) _photos.First(x => x.MediaFileId == target).SetMain(true);
         else EnsureMainPhotoSelected();
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 }

@@ -6,7 +6,36 @@ namespace Catalog.Application.Features.Product.Sewing;
 
 internal static class CompositionLineFactory
 {
-    internal static SewingMaterialLine Material(SewingMaterialInput line, ProductId productId, ArticleId? articleId)
+    /// <summary>The lines of a request; the first line a rule refuses stops it.</summary>
+    internal static DomainResult<List<SewingMaterialLine>> Materials(IEnumerable<SewingMaterialInput> lines,
+        ProductId productId)
+    {
+        var result = new List<SewingMaterialLine>();
+        foreach (var line in lines)
+        {
+            var material = Material(line, productId, null);
+            if (material.IsFailure) return material.Error!;
+            result.Add(material.Value);
+        }
+
+        return result;
+    }
+
+    internal static DomainResult<List<SewingOperationLine>> Operations(IEnumerable<SewingOperationInput> lines,
+        ProductId productId)
+    {
+        var result = new List<SewingOperationLine>();
+        foreach (var line in lines)
+        {
+            var operation = Operation(line, productId);
+            if (operation.IsFailure) return operation.Error!;
+            result.Add(operation.Value);
+        }
+
+        return result;
+    }
+
+    internal static DomainResult<SewingMaterialLine> Material(SewingMaterialInput line, ProductId productId, ArticleId? articleId)
     {
         var kind = Enum.Parse<SewingMaterialKind>(line.Kind);
         return SewingMaterialLine.Create(default, productId, articleId, kind,
@@ -16,7 +45,7 @@ internal static class CompositionLineFactory
             line.Comment);
     }
 
-    internal static SewingOperationLine Operation(SewingOperationInput line, ProductId productId)
+    internal static DomainResult<SewingOperationLine> Operation(SewingOperationInput line, ProductId productId)
         => SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(line.OperationId),
             line.Quantity, line.ManualMinutes, line.SortOrder, line.Comment);
 }

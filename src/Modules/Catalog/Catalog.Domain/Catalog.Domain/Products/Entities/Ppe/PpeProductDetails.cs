@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -22,11 +21,11 @@ public sealed class PpeProductDetails
         WholesalePercent = wholesalePercent;
     }
 
-    public static PpeProductDetails Create(ProductId productId, int supplierId, decimal basePrice, RetailPricePercent retailPercent, WholesalePricePercent wholesalePercent)
+    public static DomainResult<PpeProductDetails> Create(ProductId productId, int supplierId, decimal basePrice, RetailPricePercent retailPercent, WholesalePricePercent wholesalePercent)
     {
-        if (productId.Value == default) throw new DomainException(ProductErrors.IdIsRequired());
-        if (supplierId <= 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(SupplierId)));
-        if (basePrice <= 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(BasePrice)));
+        if (productId.Value == default) throw new ArgumentException("PPE details need their product id.", nameof(productId));
+        if (supplierId <= 0) return ProductErrors.PositiveValueRequired(nameof(SupplierId));
+        if (basePrice <= 0) return ProductErrors.PositiveValueRequired(nameof(BasePrice));
         ArgumentNullException.ThrowIfNull(retailPercent);
         ArgumentNullException.ThrowIfNull(wholesalePercent);
         return new PpeProductDetails(supplierId, basePrice, retailPercent, wholesalePercent) { ProductId = productId };

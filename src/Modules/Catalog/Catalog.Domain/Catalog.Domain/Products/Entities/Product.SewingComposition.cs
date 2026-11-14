@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.Readiness;
@@ -8,53 +7,59 @@ namespace Catalog.Domain.Products.Entities;
 
 public partial class Product
 {
-    public void ReplaceComposition(IEnumerable<SewingMaterialLine> materialLines,
+    public DomainResult ReplaceComposition(IEnumerable<SewingMaterialLine> materialLines,
         IEnumerable<SewingOperationLine> operationLines, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(materialLines);
         ArgumentNullException.ThrowIfNull(operationLines);
         if (Type != ProductType.Sewing)
-            throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
+            return ProductErrors.TypeSpecificDataInvalid();
         var materials = materialLines.ToList();
         var operations = operationLines.ToList();
         if (materials.Any(x => x.ProductId != Id || (x.ArticleId.HasValue && !_articles.Any(a => a.Id == x.ArticleId))))
-            throw new DomainException(ProductErrors.CompositionParentMismatch());
+            return ProductErrors.CompositionParentMismatch();
         if (operations.Any(x => x.ProductId != Id || (x.ArticleId.HasValue && !_articles.Any(a => a.Id == x.ArticleId))))
-            throw new DomainException(ProductErrors.CompositionParentMismatch());
+            return ProductErrors.CompositionParentMismatch();
         var commonKeys = materials.Where(x => !x.ArticleId.HasValue).Select(x => (x.Kind, x.ReferenceKey)).ToHashSet();
         if (materials.Where(x => x.ArticleId.HasValue).Any(x => commonKeys.Contains((x.Kind, x.ReferenceKey))))
-            throw new DomainException(ProductErrors.CompositionScopeConflict());
+            return ProductErrors.CompositionScopeConflict();
         // A fabric variant (Article) has only its fabric; everything else is shared by the model (CAT-015).
         var articleLines = materials.Where(x => x.ArticleId.HasValue).ToList();
         if (articleLines.Any(x => x.Kind != SewingMaterialKind.Fabric) || articleLines.GroupBy(x => x.ArticleId).Any(g => g.Count() > 1))
-            throw new DomainException(ProductErrors.ArticleLineMustBeFabric());
+            return ProductErrors.ArticleLineMustBeFabric();
         if (materials.GroupBy(x => (x.ArticleId, x.Kind, x.ReferenceKey)).Any(g => g.Count() > 1))
-            throw new DomainException(ProductErrors.DuplicateCompositionLine());
+            return ProductErrors.DuplicateCompositionLine();
         if (materials.Count > 2_000 || operations.Count > 2_000)
-            throw new DomainException(ProductErrors.CompositionLineLimitReached());
+            return ProductErrors.CompositionLineLimitReached();
         _materialLines.Clear();
         _materialLines.AddRange(materials);
         _operationLines.Clear();
         _operationLines.AddRange(operations);
         CompositionVersion++;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void ReplaceArticleComposition(ArticleId articleId, IEnumerable<SewingMaterialLine> materialLines,
+    public DomainResult ReplaceArticleComposition(ArticleId articleId, IEnumerable<SewingMaterialLine> materialLines,
         DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(materialLines);
         var articleLines = materialLines.ToList();
         if (!_articles.Any(a => a.Id == articleId)
             || articleLines.Any(x => x.ProductId != Id || x.ArticleId != articleId))
-            throw new DomainException(ProductErrors.CompositionParentMismatch());
+            return ProductErrors.CompositionParentMismatch();
         var candidate = _materialLines.Where(x => x.ArticleId != articleId).Concat(articleLines).ToList();
-        ReplaceComposition(candidate, _operationLines, updatedAt);
+        return ReplaceComposition(candidate, _operationLines.ToList(), updatedAt);
     }
 
     /// <summary>Sets the one fabric line (metres per product) of a fabric variant (CAT-015).</summary>
-    public void SetArticleFabric(ArticleId articleId, FabricReferenceId fabricId, decimal quantity, DateTimeOffset updatedAt)
-        => ReplaceArticleComposition(articleId, [SewingMaterialLine.Create(default, Id, articleId,
-            SewingMaterialKind.Fabric, fabricId, null, null, quantity, SewingMaterialUnit.Metre, 0)], updatedAt);
+    public DomainResult SetArticleFabric(ArticleId articleId, FabricReferenceId fabricId, decimal quantity,
+        DateTimeOffset updatedAt)
+    {
+        var line = SewingMaterialLine.Create(default, Id, articleId, SewingMaterialKind.Fabric, fabricId, null, null,
+            quantity, SewingMaterialUnit.Metre, 0);
+        if (line.IsFailure) return line.Error!;
+        return ReplaceArticleComposition(articleId, [line.Value], updatedAt);
+    }
 
 }

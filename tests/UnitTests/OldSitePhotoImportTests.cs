@@ -176,7 +176,7 @@ public sealed class OldSitePhotoImportTests
         private Product Build(int id)
         {
             var now = DateTimeOffset.UtcNow;
-            var product = Product.Create(ProductId.Create(id), "P", "P", ProductSlug.Create($"p-{id}"), ProductType.Sewing, now);
+            var product = Product.Create(ProductId.Create(id), "P", "P", ProductSlug.Create($"p-{id}").Value, ProductType.Sewing, now).Value;
             foreach (var (file, index) in ProductPhotos[id].Select((file, index) => (file, index)))
                 product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(file), now, sortOrder: index);
             return product;

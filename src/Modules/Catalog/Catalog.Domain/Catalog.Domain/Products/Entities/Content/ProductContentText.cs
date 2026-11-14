@@ -1,15 +1,14 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 
 namespace Catalog.Domain.Products.Entities;
 
 internal static class ProductContentText
 {
-    public static string Required(string value, int maxLength, string field)
+    public static DomainResult<string> Required(string value, int maxLength, string field)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new DomainException(ProductErrors.PositiveValueRequired(field));
+        if (string.IsNullOrWhiteSpace(value)) return ProductErrors.ContentTextRequired();
         var normalized = value.Trim();
-        if (normalized.Length > maxLength) throw new DomainException(ProductErrors.NameLengthInvalid(maxLength));
+        if (normalized.Length > maxLength) return ProductErrors.ContentTextTooLong(maxLength);
         return normalized;
     }
 }

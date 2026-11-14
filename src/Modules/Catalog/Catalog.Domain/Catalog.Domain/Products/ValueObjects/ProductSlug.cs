@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 
 namespace Catalog.Domain.Products.ValueObjects;
@@ -15,14 +14,14 @@ public readonly record struct ProductSlug
         Value = value;
     }
 
-    public static ProductSlug Create(string value)
+    public static DomainResult<ProductSlug> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new DomainException(ProductErrors.SlugIsRequired());
+            return ProductErrors.SlugIsRequired();
 
         var normalizedValue = value.Trim().ToLowerInvariant();
         if (normalizedValue.Length > MaxLength || !SlugRegex.IsMatch(normalizedValue))
-            throw new DomainException(ProductErrors.SlugFormatInvalid());
+            return ProductErrors.SlugFormatInvalid();
 
         return new ProductSlug(normalizedValue);
     }

@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 
 namespace Catalog.Domain.Products.Entities;
@@ -15,16 +14,28 @@ public sealed class ProductCharacteristicRow
 
     private ProductCharacteristicRow() { }
 
-    public ProductCharacteristicRow(Guid tableId, string labelUk, string labelRu, string valueUk, string valueRu, int sortOrder)
+    internal static DomainResult<ProductCharacteristicRow> Create(Guid tableId, string labelUk, string labelRu,
+        string valueUk, string valueRu, int sortOrder)
     {
-        if (tableId == Guid.Empty) throw new DomainException(ProductErrors.CharacteristicRowBelongsToAnotherTable());
-        Id = Guid.NewGuid();
-        TableId = tableId;
-        LabelUk = ProductContentText.Required(labelUk, 200, nameof(LabelUk));
-        LabelRu = ProductContentText.Required(labelRu, 200, nameof(LabelRu));
-        ValueUk = ProductContentText.Required(valueUk, 1_000, nameof(ValueUk));
-        ValueRu = ProductContentText.Required(valueRu, 1_000, nameof(ValueRu));
-        if (sortOrder < 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(SortOrder)));
-        SortOrder = sortOrder;
+        if (tableId == Guid.Empty) throw new ArgumentException("A row needs its table id.", nameof(tableId));
+        var label = ProductContentText.Required(labelUk, 200, nameof(LabelUk));
+        if (label.IsFailure) return label.Error!;
+        var labelRuText = ProductContentText.Required(labelRu, 200, nameof(LabelRu));
+        if (labelRuText.IsFailure) return labelRuText.Error!;
+        var value = ProductContentText.Required(valueUk, 1_000, nameof(ValueUk));
+        if (value.IsFailure) return value.Error!;
+        var valueRuText = ProductContentText.Required(valueRu, 1_000, nameof(ValueRu));
+        if (valueRuText.IsFailure) return valueRuText.Error!;
+        if (sortOrder < 0) return ProductErrors.PositiveValueRequired(nameof(SortOrder));
+        return new ProductCharacteristicRow
+        {
+            Id = Guid.NewGuid(),
+            TableId = tableId,
+            LabelUk = label.Value,
+            LabelRu = labelRuText.Value,
+            ValueUk = value.Value,
+            ValueRu = valueRuText.Value,
+            SortOrder = sortOrder,
+        };
     }
 }

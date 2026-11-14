@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -13,15 +12,12 @@ public sealed class ProductAccessory
 
     private ProductAccessory() { }
 
-    public ProductAccessory(ProductId productId, int garmentAccessoryId, decimal quantity, int sortOrder)
+    public static DomainResult<ProductAccessory> Create(ProductId productId, int garmentAccessoryId, decimal quantity, int sortOrder)
     {
-        if (productId.Value == default) throw new DomainException(ProductErrors.IdIsRequired());
-        if (garmentAccessoryId <= 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(GarmentAccessoryId)));
-        if (quantity <= 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(Quantity)));
-        if (sortOrder < 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(SortOrder)));
-        ProductId = productId;
-        GarmentAccessoryId = garmentAccessoryId;
-        Quantity = quantity;
-        SortOrder = sortOrder;
+        if (productId.Value == default) throw new ArgumentException("An accessory line needs its product id.", nameof(productId));
+        if (garmentAccessoryId <= 0) return ProductErrors.PositiveValueRequired(nameof(GarmentAccessoryId));
+        if (quantity <= 0) return ProductErrors.PositiveValueRequired(nameof(Quantity));
+        if (sortOrder < 0) return ProductErrors.PositiveValueRequired(nameof(SortOrder));
+        return new ProductAccessory { ProductId = productId, GarmentAccessoryId = garmentAccessoryId, Quantity = quantity, SortOrder = sortOrder };
     }
 }

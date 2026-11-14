@@ -73,7 +73,7 @@ public sealed class CreateProductCategoryCommandHandler(ICatalogRepository<Produ
                 "Категорія товарів з таким slug уже існує в цій батьківській категорії.")]);
         }
 
-        var entity = ProductCategoryEntity.Create(
+        var created = ProductCategoryEntity.Create(
             id,
             name,
             ruName,
@@ -83,6 +83,8 @@ public sealed class CreateProductCategoryCommandHandler(ICatalogRepository<Produ
             request.SortOrder,
             request.IsActive,
             request.Description);
+        if (created.IsFailure) return created.Error!.ToResult<int>();
+        var entity = created.Value;
 
         await repository.AddAsync(entity, cancellationToken);
 

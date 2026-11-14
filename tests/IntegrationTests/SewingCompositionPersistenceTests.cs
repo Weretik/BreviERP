@@ -71,14 +71,14 @@ public sealed class SewingCompositionPersistenceTests
         using var db = CreateContext();
         var now = DateTimeOffset.UtcNow;
         var productId = ProductId.Create(7);
-        var product = Product.Create(productId, "Model", "Модель", ProductSlug.Create("model"), ProductType.Sewing, now);
-        product.AddArticle(SewingArticle.Create(default, productId, "SKU-1"), now);
-        product.AddArticle(SewingArticle.Create(default, productId, "SKU-2"), now);
+        var product = Product.Create(productId, "Model", "Модель", ProductSlug.Create("model").Value, ProductType.Sewing, now).Value;
+        product.AddArticle(SewingArticle.Create(default, productId, "SKU-1").Value, now);
+        product.AddArticle(SewingArticle.Create(default, productId, "SKU-2").Value, now);
         product.ReplaceComposition(
         [
-            SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-1", 1m, SewingMaterialUnit.Service, 0),
-            SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-2", 1m, SewingMaterialUnit.Service, 1)
-        ], [SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(1), 1m, null, 0)], now);
+            SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-1", 1m, SewingMaterialUnit.Service, 0).Value,
+            SewingMaterialLine.Create(default, productId, null, SewingMaterialKind.OtherCost, null, null, "COST-2", 1m, SewingMaterialUnit.Service, 1).Value
+        ], [SewingOperationLine.Create(default, productId, null, OperationReferenceId.Create(1), 1m, null, 0).Value], now);
 
         Assert.DoesNotThrow(() => db.Products.Add(product));
         var articleIds = db.Entry(product).Collection(x => x.Articles).CurrentValue!

@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -13,14 +12,11 @@ public sealed class ProductFabric
 
     private ProductFabric() { }
 
-    public ProductFabric(ProductId productId, int fabricId, bool isPrimary, int sortOrder)
+    public static DomainResult<ProductFabric> Create(ProductId productId, int fabricId, bool isPrimary, int sortOrder)
     {
-        if (productId.Value == default) throw new DomainException(ProductErrors.IdIsRequired());
-        if (fabricId <= 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(FabricId)));
-        if (sortOrder < 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(SortOrder)));
-        ProductId = productId;
-        FabricId = fabricId;
-        IsPrimary = isPrimary;
-        SortOrder = sortOrder;
+        if (productId.Value == default) throw new ArgumentException("A fabric line needs its product id.", nameof(productId));
+        if (fabricId <= 0) return ProductErrors.PositiveValueRequired(nameof(FabricId));
+        if (sortOrder < 0) return ProductErrors.PositiveValueRequired(nameof(SortOrder));
+        return new ProductFabric { ProductId = productId, FabricId = fabricId, IsPrimary = isPrimary, SortOrder = sortOrder };
     }
 }

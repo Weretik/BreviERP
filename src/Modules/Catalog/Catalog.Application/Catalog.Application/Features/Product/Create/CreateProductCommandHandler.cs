@@ -5,6 +5,7 @@ using Catalog.Application.Contracts.Admin.Product;
 using Catalog.Application.Contracts.SlugGeneration;
 using Catalog.Application.Features.Product.Create.DTOs;
 using Catalog.Application.Features.Product.Create.Specifications;
+using Catalog.Application.Features.Product.Shared.Card;
 using ProductAdminDetailSpec = Catalog.Application.Features.Product.GetAdminDetail.Specifications.ProductAdminDetailSpec;
 using Catalog.Application.Contracts.Media;
 using Catalog.Domain.Media.ValueObjects;
@@ -41,46 +42,23 @@ public sealed class CreateProductCommandHandler(
             return Result.Conflict("Деяких категорій товару не знайдено.");
 
         var references = await referenceReader.GetSnapshotAsync(cancellationToken);
-        var missingReference = FindMissingReference(request, references);
+        var missingReference = ProductCardWriter.FindMissingReference(request, references);
         if (missingReference is not null)
             return Result.Conflict(missingReference);
-
-        var now = TimeProvider.System.GetUtcNow();
-        var product = ProductEntity.Create(ProductId.Create(request.Id), name, ruName, ProductSlug.Create(slug), request.Type, now);
-        product.SetDescriptions(request.DescriptionUk, request.DescriptionRu, now);
-        product.ReplaceCategories(request.CategoryIds.Select(ProductCategoryId.Create), now);
 
         var mediaUrls = await mediaReader.GetUrlsAsync(request.Photos.Select(x => x.MediaFileId).ToList(), cancellationToken);
         var missingPhoto = request.Photos.FirstOrDefault(x => !mediaUrls.ContainsKey(x.MediaFileId));
         if (missingPhoto is not null)
             return Result.Conflict($"Фото {missingPhoto.MediaFileId} не знайдено в медіатеці.");
-        foreach (var (photo, index) in request.Photos.Select((photo, index) => (photo, index)))
-            product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(photo.MediaFileId), now,
-                photo.Alt, photo.IsVisible, photo.SortOrder, photo.IsMain);
 
-        var blocks = request.InformationBlocks.Select(x => new ProductInformationBlock(product.Id, x.TitleUk, x.TitleRu, x.TextUk, x.TextRu, x.SortOrder));
-        var tables = request.CharacteristicTables.Select(x =>
-        {
-            var table = new ProductCharacteristicTable(product.Id, x.TitleUk, x.TitleRu, x.SortOrder, []);
-            foreach (var row in x.Rows) table.AddRow(row.LabelUk, row.LabelRu, row.ValueUk, row.ValueRu, row.SortOrder);
-            return table;
-        });
-        product.ReplaceContent(blocks, tables, now);
-
-        if (request.Type == ProductType.Sewing)
-        {
-            var sewing = request.Sewing!;
-            product.ConfigureSewing(SewingProductDetails.Create(product.Id, sewing.MetersPerProduct,
-                sewing.Fabrics.Select(x => new ProductFabric(product.Id, x.FabricId, x.IsPrimary, x.SortOrder)),
-                sewing.Accessories.Select(x => new ProductAccessory(product.Id, x.GarmentAccessoryId, x.Quantity, x.SortOrder)),
-                sewing.OperationIds.Select(x => new ProductOperation(product.Id, x))), now);
-        }
-        else
-        {
-            var ppe = request.Ppe!;
-            product.ConfigurePpe(PpeProductDetails.Create(product.Id, ppe.SupplierId, ppe.BasePrice,
-                ToRetailPercent(ppe.RetailPercent), ToWholesalePercent(ppe.WholesalePercent)), now);
-        }
+        var now = TimeProvider.System.GetUtcNow();
+        var productSlug = ProductSlug.Create(slug);
+        if (productSlug.IsFailure) return productSlug.Error!.ToResult<ProductAdminDetail>();
+        var created = ProductEntity.Create(ProductId.Create(request.Id), name, ruName, productSlug.Value, request.Type, now);
+        if (created.IsFailure) return created.Error!.ToResult<ProductAdminDetail>();
+        var product = created.Value;
+        var card = ProductCardWriter.Apply(product, request, now);
+        if (card.IsFailure) return card.Error!.ToResult<ProductAdminDetail>();
         await repository.AddAsync(product, cancellationToken);
         var categoryDetails = categories.ToDictionary(
             x => x.Id.Value,
@@ -90,32 +68,4 @@ public sealed class CreateProductCommandHandler(
             ? Result.Error("Не вдалося прочитати створений товар.")
             : Result.Success(ProductAdminDetailMapper.Map(detail, references, categoryDetails, mediaUrls));
     }
-
-    private static string? FindMissingReference(CreateProductCommandRequest request, ProductReferenceData references)
-    {
-        if (request.Type == ProductType.Sewing)
-        {
-            var sewing = request.Sewing!;
-            if (sewing.Fabrics.Any(x => !references.Fabrics.ContainsKey(x.FabricId))) return "One or more Fabric IDs do not exist.";
-            if (sewing.Accessories.Any(x => !references.GarmentAccessories.ContainsKey(x.GarmentAccessoryId))) return "One or more GarmentAccessory IDs do not exist.";
-            if (sewing.OperationIds.Any(x => !references.GarmentPartOperations.ContainsKey(x))) return "One or more GarmentPartOperation IDs do not exist.";
-            return null;
-        }
-        var ppe = request.Ppe!;
-        if (!references.Suppliers.ContainsKey(ppe.SupplierId)) return "Supplier ID does not exist.";
-        return ValidatePercent(ppe.RetailPercent, references) ?? ValidatePercent(ppe.WholesalePercent, references);
-    }
-
-    private static string? ValidatePercent(PercentRequest percent, ProductReferenceData references)
-    {
-        if (percent.Source == PricePercentSource.Custom) return null;
-        if (!references.AdditionalReferences.TryGetValue(percent.AdditionalReferenceId!.Value, out var item) || item.Unit != "%")
-            return "AdditionalReference percent must exist and use '%' unit.";
-        return null;
-    }
-
-    private static RetailPricePercent ToRetailPercent(PercentRequest value) => value.Source == PricePercentSource.Reference
-        ? RetailPricePercent.FromReference(value.AdditionalReferenceId!.Value) : RetailPricePercent.FromCustom(value.CustomPercent!.Value);
-    private static WholesalePricePercent ToWholesalePercent(PercentRequest value) => value.Source == PricePercentSource.Reference
-        ? WholesalePricePercent.FromReference(value.AdditionalReferenceId!.Value) : WholesalePricePercent.FromCustom(value.CustomPercent!.Value);
 }

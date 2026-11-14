@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.Readiness;
@@ -8,53 +7,58 @@ namespace Catalog.Domain.Products.Entities;
 
 public partial class Product
 {
-    public void SetModelCode(string? modelCode, DateTimeOffset updatedAt)
+    public DomainResult SetModelCode(string? modelCode, DateTimeOffset updatedAt)
     {
         if (Type != ProductType.Sewing)
-            throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
+            return ProductErrors.TypeSpecificDataInvalid();
         var normalized = string.IsNullOrWhiteSpace(modelCode) ? null : modelCode.Trim();
         if (normalized?.Length > 80)
-            throw new DomainException(ProductErrors.ModelCodeInvalid());
+            return ProductErrors.ModelCodeInvalid();
         ModelCode = normalized;
         CompositionVersion++;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
-    public void AddArticle(SewingArticle article, DateTimeOffset updatedAt)
+    public DomainResult AddArticle(SewingArticle article, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(article);
         if (Type != ProductType.Sewing || article.ProductId != Id)
-            throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
+            return ProductErrors.DetailsBelongToAnotherProduct();
         if (_articles.Count >= 200)
-            throw new DomainException(ProductErrors.ArticleLimitReached());
+            return ProductErrors.ArticleLimitReached();
         if (_articles.Any(x => string.Equals(x.SaleSku, article.SaleSku, StringComparison.Ordinal)))
-            throw new DomainException(ProductErrors.DuplicateSaleSku(article.SaleSku));
+            return ProductErrors.DuplicateSaleSku(article.SaleSku);
         _articles.Add(article);
         CompositionVersion++;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
     /// <summary>Changes the sale SKU and the activity of one article (CAT-015).</summary>
-    public void UpdateArticle(ArticleId articleId, string saleSku, bool isActive, DateTimeOffset updatedAt)
+    public DomainResult UpdateArticle(ArticleId articleId, string saleSku, bool isActive, DateTimeOffset updatedAt)
     {
-        var article = _articles.FirstOrDefault(x => x.Id == articleId)
-            ?? throw new DomainException(ProductErrors.ArticleNotFound());
+        var article = _articles.FirstOrDefault(x => x.Id == articleId);
+        if (article is null) return ProductErrors.ArticleNotFound();
         var sku = saleSku?.Trim() ?? string.Empty;
         if (_articles.Any(x => x.Id != articleId && string.Equals(x.SaleSku, sku, StringComparison.Ordinal)))
-            throw new DomainException(ProductErrors.DuplicateSaleSku(sku));
-        article.Rename(sku, isActive);
+            return ProductErrors.DuplicateSaleSku(sku);
+        var renamed = article.Rename(sku, isActive);
+        if (renamed.IsFailure) return renamed;
         CompositionVersion++;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
     /// <summary>Removes one article with its fabric line (CAT-015).</summary>
-    public void RemoveArticle(ArticleId articleId, DateTimeOffset updatedAt)
+    public DomainResult RemoveArticle(ArticleId articleId, DateTimeOffset updatedAt)
     {
         if (_articles.RemoveAll(x => x.Id == articleId) == 0)
-            throw new DomainException(ProductErrors.ArticleNotFound());
+            return ProductErrors.ArticleNotFound();
         _materialLines.RemoveAll(x => x.ArticleId == articleId);
         CompositionVersion++;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
     /// <summary>
@@ -62,19 +66,19 @@ public partial class Product
     /// is kept with its ID and takes the new activity and position; the others are added. Articles that are not in
     /// the list are removed together with their article-specific material lines.
     /// </summary>
-    public void ReplaceArticles(IEnumerable<SewingArticle> articles, DateTimeOffset updatedAt)
+    public DomainResult ReplaceArticles(IEnumerable<SewingArticle> articles, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(articles);
         if (Type != ProductType.Sewing)
-            throw new DomainException(ProductErrors.TypeSpecificDataInvalid());
+            return ProductErrors.TypeSpecificDataInvalid();
         var desired = articles.ToList();
         if (desired.Any(x => x.ProductId != Id))
-            throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
+            return ProductErrors.DetailsBelongToAnotherProduct();
         if (desired.Count > 200)
-            throw new DomainException(ProductErrors.ArticleLimitReached());
+            return ProductErrors.ArticleLimitReached();
         var duplicate = desired.GroupBy(x => x.SaleSku, StringComparer.Ordinal).FirstOrDefault(x => x.Count() > 1);
         if (duplicate is not null)
-            throw new DomainException(ProductErrors.DuplicateSaleSku(duplicate.Key));
+            return ProductErrors.DuplicateSaleSku(duplicate.Key);
 
         var bySku = desired.ToDictionary(x => x.SaleSku, StringComparer.Ordinal);
         var removed = _articles.Where(x => !bySku.ContainsKey(x.SaleSku)).Select(x => x.Id).ToHashSet();
@@ -90,5 +94,6 @@ public partial class Product
         }
         CompositionVersion++;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 }

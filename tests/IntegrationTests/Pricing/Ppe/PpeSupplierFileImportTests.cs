@@ -80,7 +80,7 @@ public sealed class PpeSupplierFileImportTests : SewingPricingDatabaseFixture
     private static Product Ppe(int id, string code, string sku, decimal price, bool manual)
     {
         var product = Product.Create(ProductId.Create(id), "Черевики " + sku, "Черевики " + sku,
-            ProductSlug.Create("cherevyky-" + sku), ProductType.Ppe, Now);
+            ProductSlug.Create("cherevyky-" + sku).Value, ProductType.Ppe, Now).Value;
         product.SetCode(code, Now);
         product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(1), sku, null, price, manual, "Взуття", "пара"), Now);
         return product;

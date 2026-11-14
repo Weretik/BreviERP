@@ -16,9 +16,9 @@ public interface ISewingCompositionStore
 
     /// <summary>
     /// Adds a fabric variant and its fabric line in one transaction: the article gets its ID first, then the line.
-    /// False when the composition or the SKU changed meanwhile.
+    /// False when the composition or the SKU changed meanwhile; a failure when a rule refuses the variant.
     /// </summary>
-    Task<bool> AddArticleAsync(ProductEntity product, SewingArticle article, FabricReferenceId fabricId,
+    Task<DomainResult<bool>> AddArticleAsync(ProductEntity product, SewingArticle article, FabricReferenceId fabricId,
         decimal fabricQuantity, DateTimeOffset now, CancellationToken cancellationToken);
 
     Task<bool> SaveAsync(CancellationToken cancellationToken);

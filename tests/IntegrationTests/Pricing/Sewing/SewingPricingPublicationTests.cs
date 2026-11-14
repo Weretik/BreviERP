@@ -48,9 +48,9 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
         var publish = new PublishSewingCalculationCommandHandler(transactions, calculations, publications, inputReader, settingsReader, bridge);
         // Without operations the Article has no price: the saved calculation is blocked.
         var fullMaterials = product.MaterialLines.Select(x => SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
-            x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder)).ToArray();
+            x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder).Value).ToArray();
         var fullOperations = product.OperationLines.Select(x => SewingOperationLine.Create(CompositionLineId.Create(0), product.Id,
-            null, x.OperationId, x.Quantity, x.ManualMinutes, x.SortOrder)).ToArray();
+            null, x.OperationId, x.Quantity, x.ManualMinutes, x.SortOrder).Value).ToArray();
         product.ReplaceComposition(fullMaterials, [], DateTimeOffset.UtcNow);
         await catalog.SaveChangesAsync();
         var blockedRequest = new SaveSewingCalculationCommand(productId, articleId, Guid.NewGuid(), "manager");
@@ -62,7 +62,7 @@ public sealed class SewingPricingPublicationTests : SewingPricingDatabaseFixture
 
         product.ReplaceComposition(
             fullMaterials.Select(x => SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
-                x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder)).ToArray(),
+                x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder).Value).ToArray(),
             fullOperations, DateTimeOffset.UtcNow);
         await catalog.SaveChangesAsync();
         var replayBlocked = await save.Handle(blockedRequest, CancellationToken.None);

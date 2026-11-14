@@ -65,7 +65,7 @@ public sealed class ProductDeletionTests
         const int mediaFileId = 801;
         await using var db = CreateContext();
         var product = Product.Create(ProductId.Create(productId), "Product", "Товар",
-            ProductSlug.Create("product"), ProductType.Sewing, DateTimeOffset.UtcNow);
+            ProductSlug.Create("product").Value, ProductType.Sewing, DateTimeOffset.UtcNow).Value;
         product.AddPhoto(ProductPhotoId.Create(1), MediaFileId.Create(mediaFileId), DateTimeOffset.UtcNow);
         db.Add(product);
         await db.SaveChangesAsync();

@@ -99,14 +99,14 @@ public sealed class CatalogSheetImportHandlerTests
     [Test]
     public void Replace_articles_keeps_the_id_of_a_kept_sku_and_removes_the_rest_with_their_lines()
     {
-        var product = Product.Create(ProductId.Create(5), "Модель", "Модель", ProductSlug.Create("model"), ProductType.Sewing, Now);
-        product.AddArticle(SewingArticle.Create(ArticleId.Create(1), product.Id, "246"), Now);
-        product.AddArticle(SewingArticle.Create(ArticleId.Create(2), product.Id, "247"), Now);
+        var product = Product.Create(ProductId.Create(5), "Модель", "Модель", ProductSlug.Create("model").Value, ProductType.Sewing, Now).Value;
+        product.AddArticle(SewingArticle.Create(ArticleId.Create(1), product.Id, "246").Value, Now);
+        product.AddArticle(SewingArticle.Create(ArticleId.Create(2), product.Id, "247").Value, Now);
         product.ReplaceComposition([SewingMaterialLine.Create(default, product.Id, ArticleId.Create(2),
-            SewingMaterialKind.Fabric, FabricReferenceId.Create(23), null, null, 1, SewingMaterialUnit.Metre, 0)], [], Now);
+            SewingMaterialKind.Fabric, FabricReferenceId.Create(23), null, null, 1, SewingMaterialUnit.Metre, 0).Value], [], Now);
 
-        product.ReplaceArticles([SewingArticle.Create(default, product.Id, "248", true, 0),
-            SewingArticle.Create(default, product.Id, "246", false, 1)], Now);
+        product.ReplaceArticles([SewingArticle.Create(default, product.Id, "248", true, 0).Value,
+            SewingArticle.Create(default, product.Id, "246", false, 1).Value], Now);
 
         Assert.Multiple(() =>
         {

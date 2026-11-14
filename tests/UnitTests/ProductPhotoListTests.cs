@@ -90,7 +90,7 @@ public sealed class ProductPhotoListTests
     private static Product Product(params int[] mediaFileIds)
     {
         var product = Catalog.Domain.Products.Entities.Product.Create(ProductId.Create(1), "Куртка", "Куртка",
-            ProductSlug.Create("kurtka"), ProductType.Sewing, Now);
+            ProductSlug.Create("kurtka").Value, ProductType.Sewing, Now).Value;
         foreach (var (id, index) in mediaFileIds.Select((id, index) => (id, index)))
             product.AddPhoto(ProductPhotoId.Create(index + 1), MediaFileId.Create(id), Now, sortOrder: index);
         return product;

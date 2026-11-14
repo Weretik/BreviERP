@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 
 namespace Catalog.Domain.Products.ValueObjects;
@@ -18,15 +17,15 @@ public sealed class WholesalePricePercent
         CustomPercent = customPercent;
     }
 
-    public static WholesalePricePercent FromReference(int additionalReferenceId)
+    public static DomainResult<WholesalePricePercent> FromReference(int additionalReferenceId)
     {
-        if (additionalReferenceId <= 0) throw new DomainException(ProductErrors.PositiveValueRequired(nameof(additionalReferenceId)));
+        if (additionalReferenceId <= 0) return ProductErrors.PositiveValueRequired(nameof(additionalReferenceId));
         return new WholesalePricePercent(PricePercentSource.Reference, additionalReferenceId, null);
     }
 
-    public static WholesalePricePercent FromCustom(decimal customPercent)
+    public static DomainResult<WholesalePricePercent> FromCustom(decimal customPercent)
     {
-        if (customPercent < 0) throw new DomainException(ProductErrors.PercentageConfigurationInvalid(nameof(customPercent)));
+        if (customPercent < 0) return ProductErrors.PercentageConfigurationInvalid(nameof(customPercent));
         return new WholesalePricePercent(PricePercentSource.Custom, null, customPercent);
     }
 }

@@ -1,5 +1,4 @@
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.ProductCategories.ValueObjects;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
@@ -16,7 +15,7 @@ public class ProductCategoryReference : BaseEntity<ProductCategoryId>
     private ProductCategoryReference(ProductId productId, ProductCategoryId categoryId)
     {
         if (productId.Value == default)
-            throw new DomainException(ProductErrors.IdIsRequired());
+            throw new ArgumentException("A category link needs its product id.", nameof(productId));
 
         ProductId = productId;
         SetId(categoryId);
@@ -27,7 +26,7 @@ public class ProductCategoryReference : BaseEntity<ProductCategoryId>
     private void SetId(ProductCategoryId categoryId)
     {
         if (categoryId.Value == default)
-            throw new DomainException(ProductErrors.CategoryIdIsRequired());
+            throw new ArgumentException("A category link needs a category id.", nameof(categoryId));
 
         Id = categoryId;
     }

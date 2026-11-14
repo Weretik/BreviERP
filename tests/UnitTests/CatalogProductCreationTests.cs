@@ -202,10 +202,10 @@ public sealed class CatalogProductCreationTests
     internal static List<Product> Existing()
     {
         var sewing = Product.Create(ProductId.Create(300), "Костюм «Верде»", "Костюм «Верде» RU",
-            ProductSlug.Create("kostium-verde"), ProductType.Sewing, Now);
+            ProductSlug.Create("kostium-verde").Value, ProductType.Sewing, Now).Value;
         sewing.SetCode("MOD-124", Now);
         var ppe = Product.Create(ProductId.Create(120), "Костюм ВОЛОГОЗАХИСНИЙ", "Костюм ВОЛОГОЗАХИСНИЙ RU",
-            ProductSlug.Create("kostyum-vologozahysnyj"), ProductType.Ppe, Now);
+            ProductSlug.Create("kostyum-vologozahysnyj").Value, ProductType.Ppe, Now).Value;
         ppe.SetCode("17", Now);
         return [sewing, ppe];
     }

@@ -1,5 +1,4 @@
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Media.ValueObjects;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
@@ -22,30 +21,11 @@ public class ProductPhoto : BaseEntity<ProductPhotoId>
     #region Constructors
     private ProductPhoto() { }
 
-    private ProductPhoto(
-        ProductId productId,
-        ProductPhotoId id,
-        MediaFileId mediaFileId,
-        string? alt,
-        bool isVisible,
-        int sortOrder,
-        bool isMain)
-    {
-        if (productId.Value == default)
-            throw new DomainException(ProductErrors.IdIsRequired());
-
-        ProductId = productId;
-        SetId(id);
-        SetMediaFileId(mediaFileId);
-        SetAlt(alt);
-        IsVisible = isVisible;
-        SetSortOrder(sortOrder);
-        IsMain = isMain;
-    }
     #endregion
 
     #region Factories
-    public static ProductPhoto Create(
+
+    public static DomainResult<ProductPhoto> Create(
         ProductId productId,
         ProductPhotoId id,
         MediaFileId mediaFileId,
@@ -53,16 +33,37 @@ public class ProductPhoto : BaseEntity<ProductPhotoId>
         bool isVisible = true,
         int sortOrder = 0,
         bool isMain = false)
-        => new(productId, id, mediaFileId, alt, isVisible, sortOrder, isMain);
+    {
+        if (productId.Value == default) throw new ArgumentException("A photo needs its product id.", nameof(productId));
+        if (id.Value == default) throw new ArgumentException("A photo needs an id.", nameof(id));
+        var cleanAlt = CleanAlt(alt);
+        if (cleanAlt.IsFailure) return cleanAlt.Error!;
+        if (sortOrder < 0) return ProductErrors.PhotoSortOrderInvalid();
+        var photo = new ProductPhoto
+        {
+            ProductId = productId,
+            Id = id,
+            Alt = cleanAlt.Value,
+            IsVisible = isVisible,
+            SortOrder = sortOrder,
+            IsMain = isMain,
+        };
+        photo.ReplaceMediaFile(mediaFileId);
+        return photo;
+    }
 
     public void ReplaceMediaFile(MediaFileId mediaFileId)
     {
-        SetMediaFileId(mediaFileId);
+        if (mediaFileId.Value == default) throw new ArgumentException("A photo needs a media file.", nameof(mediaFileId));
+        MediaFileId = mediaFileId;
     }
 
-    public void SetAltText(string? alt)
+    public DomainResult SetAltText(string? alt)
     {
-        SetAlt(alt);
+        var cleanAlt = CleanAlt(alt);
+        if (cleanAlt.IsFailure) return cleanAlt.Error!;
+        Alt = cleanAlt.Value;
+        return DomainResult.Success();
     }
 
     public void SetVisibility(bool isVisible)
@@ -70,50 +71,29 @@ public class ProductPhoto : BaseEntity<ProductPhotoId>
         IsVisible = isVisible;
     }
 
-    public void SetSortOrder(int sortOrder)
+    public DomainResult SetSortOrder(int sortOrder)
     {
-        if (sortOrder < 0)
-            throw new DomainException(ProductErrors.PhotoSortOrderInvalid());
-
+        if (sortOrder < 0) return ProductErrors.PhotoSortOrderInvalid();
         SortOrder = sortOrder;
+        return DomainResult.Success();
     }
 
     public void SetMain(bool isMain)
     {
         IsMain = isMain;
     }
+
     #endregion
 
-    #region Setters/Validation
-    private void SetId(ProductPhotoId id)
+    #region Validation
+
+    private static DomainResult<string?> CleanAlt(string? alt)
     {
-        if (id.Value == default)
-            throw new DomainException(ProductErrors.PhotoIdIsRequired());
-
-        Id = id;
-    }
-
-    private void SetMediaFileId(MediaFileId mediaFileId)
-    {
-        if (mediaFileId.Value == default)
-            throw new DomainException(ProductErrors.PhotoMediaFileIdIsRequired());
-
-        MediaFileId = mediaFileId;
-    }
-
-    private void SetAlt(string? alt)
-    {
-        if (string.IsNullOrWhiteSpace(alt))
-        {
-            Alt = null;
-            return;
-        }
-
+        if (string.IsNullOrWhiteSpace(alt)) return DomainResult<string?>.Success(null);
         var normalizedAlt = alt.Trim();
-        if (normalizedAlt.Length > AltMaxLength)
-            throw new DomainException(ProductErrors.PhotoAltLengthInvalid(AltMaxLength));
-
-        Alt = normalizedAlt;
+        if (normalizedAlt.Length > AltMaxLength) return ProductErrors.PhotoAltLengthInvalid(AltMaxLength);
+        return normalizedAlt;
     }
+
     #endregion
 }

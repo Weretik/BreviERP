@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
@@ -27,14 +26,14 @@ public sealed class SewingMaterialLine
     };
 
     private SewingMaterialLine() { }
-    public static SewingMaterialLine Create(CompositionLineId id, ProductId productId, ArticleId? articleId,
+    public static DomainResult<SewingMaterialLine> Create(CompositionLineId id, ProductId productId, ArticleId? articleId,
         SewingMaterialKind kind, FabricReferenceId? fabricId, AccessoryReferenceId? accessoryId, string? costCode,
         decimal quantity, SewingMaterialUnit unit, int sortOrder, string? comment = null)
     {
-        if (id.Value < 0 || productId.Value <= 0)
-            throw new DomainException(ProductErrors.IdIsRequired());
+        if (id.Value < 0) throw new ArgumentException("A line id cannot be negative.", nameof(id));
+        if (productId.Value <= 0) throw new ArgumentException("A line needs its product id.", nameof(productId));
         if (quantity <= 0 || !Enum.IsDefined(unit) || sortOrder < 0)
-            throw new DomainException(ProductErrors.PositiveValueRequired(nameof(Quantity)));
+            return ProductErrors.PositiveValueRequired(nameof(Quantity));
         var validReference = kind switch
         {
             SewingMaterialKind.Fabric => fabricId is { Value: > 0 } && !accessoryId.HasValue
@@ -47,10 +46,10 @@ public sealed class SewingMaterialLine
                 && unit == SewingMaterialUnit.Service,
             _ => false
         };
-        if (!validReference) throw new DomainException(ProductErrors.MaterialReferenceInvalid());
+        if (!validReference) return ProductErrors.MaterialReferenceInvalid();
         var note = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
         if (note?.Length > CommentMaxLength)
-            throw new DomainException(ProductErrors.CommentTooLong(CommentMaxLength));
+            return ProductErrors.CommentTooLong(CommentMaxLength);
         return new SewingMaterialLine
         {
             Id = id,

@@ -28,17 +28,19 @@ public sealed class CatalogProductFactory(CatalogImportPlan plan, CatalogImportR
             ruName = name;
         if (!sewing)
             ruName += $" (SKU {sourceKey})";
-        return Product.Create(ProductId.Create(id), name, ruName,
-            ProductSlug.Create(sewing ? $"model-{sourceKey.ToLowerInvariant()}" : $"ppe-{sourceKey.ToLowerInvariant()}"),
-            sewing ? ProductType.Sewing : ProductType.Ppe, now);
+        var slug = ProductSlug.Create(sewing ? $"model-{sourceKey.ToLowerInvariant()}" : $"ppe-{sourceKey.ToLowerInvariant()}")
+            .Require($"{row.Key} slug");
+        return Product.Create(ProductId.Create(id), name, ruName, slug, sewing ? ProductType.Sewing : ProductType.Ppe, now)
+            .Require(row.Key);
     }
 
     public void AddSewingIdentity(Product product, WorkbookRow row, DateTimeOffset now)
     {
-        product.SetModelCode(row.Text(0), now);
+        product.SetModelCode(row.Text(0), now).Require($"{row.Key} model code");
         foreach (var article in plan.Articles.Where(a => CatalogSourceIdentity.ModelCode(a) == row.Text(0)))
             product.AddArticle(SewingArticle.Create(ArticleId.Create(0), product.Id,
-                article.Text(0), article.Flag(10), product.Articles.Count), now);
+                article.Text(0), article.Flag(10), product.Articles.Count).Require($"Article {article.Text(0)}"), now)
+                .Require($"Article {article.Text(0)}");
     }
 }
 

@@ -29,9 +29,9 @@ public sealed class SewingPricingConcurrencyTests : SewingPricingDatabaseFixture
             .Include(x => x.OperationLines).AsSplitQuery().SingleAsync(x => x.ModelCode == "MOD-025");
         product.ReplaceComposition(
             product.MaterialLines.Select(x => SewingMaterialLine.Create(CompositionLineId.Create(0), product.Id,
-                x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder)).ToArray(),
+                x.ArticleId, x.Kind, x.FabricId, x.AccessoryId, x.CostCode, x.Quantity, x.Unit, x.SortOrder).Value).ToArray(),
             product.OperationLines.Select(x => SewingOperationLine.Create(CompositionLineId.Create(0), product.Id,
-                null, x.OperationId, x.Quantity, x.ManualMinutes, x.SortOrder)).ToArray(),
+                null, x.OperationId, x.Quantity, x.ManualMinutes, x.SortOrder).Value).ToArray(),
             DateTimeOffset.UtcNow);
         await catalog.SaveChangesAsync();
         var article = product.Articles.First();

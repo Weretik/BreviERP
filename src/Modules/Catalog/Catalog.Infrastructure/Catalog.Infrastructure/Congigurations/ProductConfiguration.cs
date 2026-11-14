@@ -24,7 +24,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired();
 
         builder.Property(x => x.Slug)
-            .HasConversion(x => x.Value, x => ProductSlug.Create(x))
+            .HasConversion(x => x.Value, x => ProductSlug.Create(x).Value)
             .HasMaxLength(160)
             .IsRequired();
 

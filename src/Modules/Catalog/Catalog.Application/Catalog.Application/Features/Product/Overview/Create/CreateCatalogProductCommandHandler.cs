@@ -60,14 +60,20 @@ public sealed class CreateCatalogProductCommandHandler(
         var now = timeProvider.GetUtcNow();
 
         // Russian names are not kept for new products; the column stays filled until the Content module owns texts.
-        var product = ProductEntity.Create(id, name, name, ProductSlug.Create(slug), type, now);
-        product.SetCode(code, now);
-        product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season, command.IsActive,
-            command.CurrentSiteUrl, command.QuoteDescription), now);
-        if (command.Ppe is { } supplier)
-            product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(supplier.SupplierId),
+        var productSlug = ProductSlug.Create(slug);
+        if (productSlug.IsFailure) return productSlug.Error!.ToResult<CreatedCatalogProduct>();
+        var created = ProductEntity.Create(id, name, name, productSlug.Value, type, now);
+        if (created.IsFailure) return created.Error!.ToResult<CreatedCatalogProduct>();
+        var product = created.Value;
+        var card = product.SetCode(code, now);
+        if (card.IsSuccess)
+            card = product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season, command.IsActive,
+                command.CurrentSiteUrl, command.QuoteDescription), now);
+        if (card.IsSuccess && command.Ppe is { } supplier)
+            card = product.SetPpeSupplier(new PpeSupplierDetails(SupplierReferenceId.Create(supplier.SupplierId),
                 supplier.SupplierSku, supplier.SupplierUrl, supplier.SupplierPrice, supplier.AllowManualPrice,
                 supplier.RuleCode.Trim(), supplier.Unit), now);
+        if (card.IsFailure) return card.Error!.ToResult<CreatedCatalogProduct>();
         await repository.AddAsync(product, cancellationToken);
 
         var priceSaved = true;

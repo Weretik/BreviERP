@@ -49,26 +49,30 @@ public sealed class UpdateProductCategoryCommandHandler(ICatalogRepository<Produ
             ? await repository.ListAsync(new ProductCategoryDescendantsByPathSpec(command.Id, oldPath), cancellationToken)
             : [];
 
-        entity.Update(
+        var updated = entity.Update(
             request.Name.Trim(),
             request.RuName.Trim(),
             slug,
             request.SortOrder,
             request.IsActive,
             request.Description);
+        if (updated.IsFailure) return updated.Error!.ToResult();
 
         if (parentChanged)
         {
-            entity.MoveTo(
+            var moved = entity.MoveTo(
                 request.ParentId.HasValue ? ProductCategoryId.Create(request.ParentId.Value) : null,
                 parent?.Path);
+            if (moved.IsFailure) return moved.Error!.ToResult();
         }
 
         if (parentChanged && descendants.Count > 0)
         {
             foreach (var descendant in descendants)
             {
-                descendant.RebasePath(oldPath, entity.Path);
+                // A deep tree may outgrow the path limit; nothing is saved then.
+                var rebased = descendant.RebasePath(oldPath, entity.Path);
+                if (rebased.IsFailure) return rebased.Error!.ToResult();
             }
 
             descendants.Insert(0, entity);

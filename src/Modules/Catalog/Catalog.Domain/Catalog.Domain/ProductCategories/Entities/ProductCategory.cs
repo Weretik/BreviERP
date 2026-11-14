@@ -1,6 +1,5 @@
 using BuildingBlocks.Domain.Abstractions;
 using BuildingBlocks.Domain.Entity;
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.ProductCategories.Errors;
 using Catalog.Domain.ProductCategories.ValueObjects;
 
@@ -26,28 +25,7 @@ public class ProductCategory : BaseEntity<ProductCategoryId>, IAggregateRoot
 
     private ProductCategory() { }
 
-    private ProductCategory(
-        ProductCategoryId id,
-        string name,
-        string ruName,
-        string slug,
-        ProductCategoryId? parentId,
-        string? parentPath,
-        int sortOrder,
-        bool isActive,
-        string? description)
-    {
-        SetId(id);
-        SetName(name);
-        SetRuName(ruName);
-        SetSlug(slug);
-        SetDescription(description);
-        SetParent(parentId, parentPath);
-        SetSortOrder(sortOrder);
-        IsActive = isActive;
-    }
-
-    public static ProductCategory Create(
+    public static DomainResult<ProductCategory> Create(
         ProductCategoryId id,
         string name,
         string ruName,
@@ -57,145 +35,121 @@ public class ProductCategory : BaseEntity<ProductCategoryId>, IAggregateRoot
         int sortOrder = 0,
         bool isActive = true,
         string? description = null)
-        => new(id, name, ruName, slug, parentId, parentPath, sortOrder, isActive, description);
+    {
+        if (id.Value == default) throw new ArgumentException("A category needs an id.", nameof(id));
+        var category = new ProductCategory { Id = id };
+        var applied = category.Apply(name, ruName, slug, sortOrder, isActive, description);
+        if (applied.IsFailure) return applied.Error!;
+        var placed = category.SetParent(parentId, parentPath);
+        if (placed.IsFailure) return placed.Error!;
+        return category;
+    }
 
-    public void Update(
+    public DomainResult Update(
         string name,
         string ruName,
         string slug,
         int sortOrder,
         bool isActive,
-        string? description = null)
+        string? description = null) =>
+        Apply(name, ruName, slug, sortOrder, isActive, description);
+
+    public DomainResult MoveTo(ProductCategoryId? parentId, string? parentPath) => SetParent(parentId, parentPath);
+
+    public DomainResult RebasePath(string oldAncestorPath, string newAncestorPath)
     {
-        SetName(name);
-        SetRuName(ruName);
-        SetSlug(slug);
-        SetSortOrder(sortOrder);
-        SetDescription(description);
-        IsActive = isActive;
-    }
-
-    public void MoveTo(ProductCategoryId? parentId, string? parentPath)
-    {
-        SetParent(parentId, parentPath);
-    }
-
-    public void RebasePath(string oldAncestorPath, string newAncestorPath)
-    {
-        var normalizedOldAncestorPath = NormalizeParentPath(oldAncestorPath);
-        var normalizedNewAncestorPath = NormalizeParentPath(newAncestorPath);
-
-        if (!Path.StartsWith(normalizedOldAncestorPath, StringComparison.Ordinal))
-            throw new DomainException(ProductCategoryErrors.PathAncestorMismatch());
-
-        Path = $"{normalizedNewAncestorPath}{Path[normalizedOldAncestorPath.Length..]}";
-
-        if (Path.Length > PathMaxLength)
-            throw new DomainException(ProductCategoryErrors.PathLengthInvalid(PathMaxLength));
-
+        var oldPath = NormalizeParentPath(oldAncestorPath);
+        if (oldPath.IsFailure) return oldPath.Error!;
+        var newPath = NormalizeParentPath(newAncestorPath);
+        if (newPath.IsFailure) return newPath.Error!;
+        if (!Path.StartsWith(oldPath.Value, StringComparison.Ordinal))
+            return ProductCategoryErrors.PathAncestorMismatch();
+        var path = $"{newPath.Value}{Path[oldPath.Value.Length..]}";
+        if (path.Length > PathMaxLength)
+            return ProductCategoryErrors.PathLengthInvalid(PathMaxLength);
+        Path = path;
         Level = Path.Count(x => x == '/') - 2;
+        return DomainResult.Success();
     }
 
-    private void SetId(ProductCategoryId id)
+    /// <summary>Checks every field first, so a refused change leaves the category as it was.</summary>
+    private DomainResult Apply(string name, string ruName, string slug, int sortOrder, bool isActive, string? description)
     {
-        if (id.Value == default)
-            throw new DomainException(ProductCategoryErrors.IdIsRequired());
-
-        Id = id;
+        var cleanName = CleanName(name);
+        if (cleanName.IsFailure) return cleanName.Error!;
+        var cleanRuName = CleanName(ruName);
+        if (cleanRuName.IsFailure) return cleanRuName.Error!;
+        var cleanSlug = CleanSlug(slug);
+        if (cleanSlug.IsFailure) return cleanSlug.Error!;
+        if (sortOrder < 0) return ProductCategoryErrors.SortOrderOutOfRange();
+        Name = cleanName.Value;
+        RuName = cleanRuName.Value;
+        Slug = cleanSlug.Value;
+        SortOrder = sortOrder;
+        Description = CleanDescription(description);
+        IsActive = isActive;
+        return DomainResult.Success();
     }
 
-    private void SetName(string name)
+    private static DomainResult<string> CleanName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException(ProductCategoryErrors.NameIsRequired());
-
+            return ProductCategoryErrors.NameIsRequired();
         var normalizedName = name.Trim();
         if (normalizedName.Length > NameMaxLength)
-            throw new DomainException(ProductCategoryErrors.NameLengthInvalid(NameMaxLength));
-
-        Name = normalizedName;
+            return ProductCategoryErrors.NameLengthInvalid(NameMaxLength);
+        return normalizedName;
     }
 
-    private void SetRuName(string ruName)
-    {
-        if (string.IsNullOrWhiteSpace(ruName))
-            throw new DomainException(ProductCategoryErrors.NameIsRequired());
-
-        var normalizedRuName = ruName.Trim();
-        if (normalizedRuName.Length > NameMaxLength)
-            throw new DomainException(ProductCategoryErrors.NameLengthInvalid(NameMaxLength));
-
-        RuName = normalizedRuName;
-    }
-
-    private void SetSlug(string slug)
+    private static DomainResult<string> CleanSlug(string slug)
     {
         if (string.IsNullOrWhiteSpace(slug))
-            throw new DomainException(ProductCategoryErrors.SlugIsRequired());
-
+            return ProductCategoryErrors.SlugIsRequired();
         var normalizedSlug = slug.Trim().ToLowerInvariant();
         if (normalizedSlug.Length > SlugMaxLength || !SlugRegex.IsMatch(normalizedSlug))
-            throw new DomainException(ProductCategoryErrors.SlugFormatInvalid());
-
-        Slug = normalizedSlug;
+            return ProductCategoryErrors.SlugFormatInvalid();
+        return normalizedSlug;
     }
 
-    private void SetDescription(string? description)
+    private static string? CleanDescription(string? description)
     {
         if (string.IsNullOrWhiteSpace(description))
-        {
-            Description = null;
-            return;
-        }
-
+            return null;
         var normalizedDescription = description.Trim();
-        Description = normalizedDescription.Length > DescriptionMaxLength
+        return normalizedDescription.Length > DescriptionMaxLength
             ? normalizedDescription[..DescriptionMaxLength]
             : normalizedDescription;
     }
 
-    private void SetParent(ProductCategoryId? parentId, string? parentPath)
+    private DomainResult SetParent(ProductCategoryId? parentId, string? parentPath)
     {
         if (parentId == Id)
-            throw new DomainException(ProductCategoryErrors.ParentCannotBeSelf());
-
+            return ProductCategoryErrors.ParentCannotBeSelf();
         var normalizedParentPath = NormalizeParentPath(parentPath);
+        if (normalizedParentPath.IsFailure) return normalizedParentPath.Error!;
         var ownPathSegment = $"/{Id.Value}/";
-        if (normalizedParentPath.Contains(ownPathSegment, StringComparison.Ordinal))
-            throw new DomainException(ProductCategoryErrors.ParentCannotBeDescendant());
-
+        if (normalizedParentPath.Value.Contains(ownPathSegment, StringComparison.Ordinal))
+            return ProductCategoryErrors.ParentCannotBeDescendant();
+        var path = $"{normalizedParentPath.Value}{Id.Value}/";
+        if (path.Length > PathMaxLength)
+            return ProductCategoryErrors.PathLengthInvalid(PathMaxLength);
         ParentId = parentId;
-        Path = $"{normalizedParentPath}{Id.Value}/";
-
-        if (Path.Length > PathMaxLength)
-            throw new DomainException(ProductCategoryErrors.PathLengthInvalid(PathMaxLength));
-
+        Path = path;
         Level = Path.Count(x => x == '/') - 2;
+        return DomainResult.Success();
     }
 
-    private void SetSortOrder(int sortOrder)
-    {
-        if (sortOrder < 0)
-            throw new DomainException(ProductCategoryErrors.SortOrderOutOfRange());
-
-        SortOrder = sortOrder;
-    }
-
-    private static string NormalizeParentPath(string? parentPath)
+    private static DomainResult<string> NormalizeParentPath(string? parentPath)
     {
         if (string.IsNullOrWhiteSpace(parentPath))
             return "/";
-
         var normalizedPath = parentPath.Trim();
         if (normalizedPath.Length > PathMaxLength)
-            throw new DomainException(ProductCategoryErrors.PathLengthInvalid(PathMaxLength));
-
+            return ProductCategoryErrors.PathLengthInvalid(PathMaxLength);
         if (!normalizedPath.StartsWith('/'))
             normalizedPath = $"/{normalizedPath}";
-
         if (!normalizedPath.EndsWith('/'))
             normalizedPath = $"{normalizedPath}/";
-
         return normalizedPath;
     }
 }

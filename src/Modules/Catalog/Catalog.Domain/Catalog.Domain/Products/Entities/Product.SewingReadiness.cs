@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.Readiness;
@@ -21,12 +20,13 @@ public partial class Product
                 operation.Id)));
     }
 
-    public IReadOnlyList<SewingMaterialLine> GetEffectiveMaterials(ArticleId? articleId = null)
+    public DomainResult<IReadOnlyList<SewingMaterialLine>> GetEffectiveMaterials(ArticleId? articleId = null)
     {
         if (articleId.HasValue && !_articles.Any(a => a.Id == articleId.Value))
-            throw new DomainException(ProductErrors.CompositionParentMismatch());
-        return _materialLines.Where(x => !x.ArticleId.HasValue || x.ArticleId == articleId)
-            .OrderBy(x => x.SortOrder).ThenBy(x => x.Id.Value).ToArray();
+            return ProductErrors.CompositionParentMismatch();
+        return DomainResult<IReadOnlyList<SewingMaterialLine>>.Success(_materialLines
+            .Where(x => !x.ArticleId.HasValue || x.ArticleId == articleId)
+            .OrderBy(x => x.SortOrder).ThenBy(x => x.Id.Value).ToArray());
     }
 
 }

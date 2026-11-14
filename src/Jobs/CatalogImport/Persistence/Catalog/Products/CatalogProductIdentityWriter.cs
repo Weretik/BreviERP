@@ -22,11 +22,11 @@ public sealed class CatalogProductIdentityWriter(CatalogDbContext db, SourceMapp
         {
             var sewing = row.Sheet == "Товари";
             var product = factory.Create(row, ++nextProduct, now);
-            product.AddCategory(categories.Resolve(row.Text(sewing ? 3 : 2)), now);
+            product.AddCategory(categories.Resolve(row.Text(sewing ? 3 : 2)), now).Require($"{row.Key} category");
             var profile = CatalogProductProfileMapper.Create(row, product.Id, plan, references);
             if (sewing)
                 factory.AddSewingIdentity(product, row, now);
-            product.SetCatalogProfile(profile, now);
+            product.SetCatalogProfile(profile, now).Require($"{row.Key} profile");
             products.Add(row.Text(0), product);
             db.Products.Add(product);
             mappings.Add(sewing ? "Model" : "Ppe", row.Text(0), "Product", product.Id.Value);

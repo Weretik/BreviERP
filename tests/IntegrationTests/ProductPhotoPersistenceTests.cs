@@ -56,7 +56,7 @@ public sealed class ProductPhotoPersistenceTests
         await using (var db = CreateContext())
         {
             var product = Product.Create(ProductId.Create(901), "Куртка «Тест»", "Куртка «Тест»",
-                ProductSlug.Create("kurtka-test"), ProductType.Sewing, Now);
+                ProductSlug.Create("kurtka-test").Value, ProductType.Sewing, Now).Value;
             product.AddPhoto(ProductPhotoId.Create(1), MediaFileId.Create(10), Now, sortOrder: 0);
             product.AddPhoto(ProductPhotoId.Create(2), MediaFileId.Create(20), Now, sortOrder: 1);
             db.Products.Add(product);

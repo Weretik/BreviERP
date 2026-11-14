@@ -35,9 +35,11 @@ public sealed class UpdateProductOverviewCommandHandler(
         }
 
         var now = timeProvider.GetUtcNow();
-        product.SetCode(code, now);
-        product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season, command.IsActive,
-            command.CurrentSiteUrl, command.QuoteDescription), now);
+        var changed = product.SetCode(code, now);
+        if (changed.IsSuccess)
+            changed = product.SetOverview(new ProductOverviewDetails(command.SectionId, command.Season,
+                command.IsActive, command.CurrentSiteUrl, command.QuoteDescription), now);
+        if (changed.IsFailure) return changed.Error!.ToResult();
         await repository.UpdateAsync(product, cancellationToken);
         return Result.Success();
     }

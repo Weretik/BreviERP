@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -15,17 +14,19 @@ public sealed class SewingOperationLine
     public int SortOrder { get; private set; }
     public string? Comment { get; private set; }
     private SewingOperationLine() { }
-    public static SewingOperationLine Create(CompositionLineId id, ProductId productId, ArticleId? articleId,
+    public static DomainResult<SewingOperationLine> Create(CompositionLineId id, ProductId productId, ArticleId? articleId,
         OperationReferenceId operationId, decimal quantity, decimal? manualMinutes, int sortOrder,
         string? comment = null)
     {
-        if (id.Value < 0 || productId.Value <= 0 || operationId.Value <= 0) throw new DomainException(ProductErrors.IdIsRequired());
-        if (articleId.HasValue) throw new DomainException(ProductErrors.ArticleSpecificOperationsNotSupported());
+        if (id.Value < 0) throw new ArgumentException("A line id cannot be negative.", nameof(id));
+        if (productId.Value <= 0) throw new ArgumentException("A line needs its product id.", nameof(productId));
+        if (operationId.Value <= 0) return ProductErrors.PositiveValueRequired("GarmentPartOperationId");
+        if (articleId.HasValue) return ProductErrors.ArticleSpecificOperationsNotSupported();
         if (quantity <= 0 || (manualMinutes.HasValue && manualMinutes <= 0) || sortOrder < 0)
-            throw new DomainException(ProductErrors.PositiveValueRequired(nameof(Quantity)));
+            return ProductErrors.PositiveValueRequired(nameof(Quantity));
         var note = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
         if (note?.Length > SewingMaterialLine.CommentMaxLength)
-            throw new DomainException(ProductErrors.CommentTooLong(SewingMaterialLine.CommentMaxLength));
+            return ProductErrors.CommentTooLong(SewingMaterialLine.CommentMaxLength);
         return new SewingOperationLine { Id = id, ProductId = productId, ArticleId = articleId, OperationId = operationId,
             Quantity = quantity, ManualMinutes = manualMinutes, SortOrder = sortOrder,
             Comment = note };

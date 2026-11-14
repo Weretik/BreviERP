@@ -62,7 +62,7 @@ internal static class CatalogSheetImportFixtures
     public static Product Stored(SheetPlannedProduct planned, int? id = null)
     {
         var product = Product.Create(id is null ? planned.Id : ProductId.Create(id.Value), planned.Draft.Name,
-            planned.Draft.Name, ProductSlug.Create(planned.Slug), planned.Draft.Type, Now);
+            planned.Draft.Name, ProductSlug.Create(planned.Slug).Value, planned.Draft.Type, Now).Value;
         var offset = (id ?? planned.Id.Value) * 100;
         SheetProductApplier.ApplyCard(product, planned.Draft, Now,
             index => ArticleId.Create(offset + index + 1));
@@ -73,7 +73,7 @@ internal static class CatalogSheetImportFixtures
 
     public static Product Legacy(int id, ProductType type, string name, string? code)
     {
-        var product = Product.Create(ProductId.Create(id), name, name + " RU", ProductSlug.Create("legacy-" + id), type, Now);
+        var product = Product.Create(ProductId.Create(id), name, name + " RU", ProductSlug.Create("legacy-" + id).Value, type, Now).Value;
         product.SetCode(code, Now);
         return product;
     }

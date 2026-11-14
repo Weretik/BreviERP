@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.Readiness;
@@ -10,13 +9,14 @@ public partial class Product
 {
     public ProductCatalogProfile? CatalogProfile { get; private set; }
 
-    public void SetCatalogProfile(ProductCatalogProfile profile, DateTimeOffset updatedAt)
+    public DomainResult SetCatalogProfile(ProductCatalogProfile profile, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(profile);
         if (profile.ProductId != Id || (Type == ProductType.Ppe && string.IsNullOrWhiteSpace(profile.SaleSku)))
-            throw new DomainException(ProductErrors.DetailsBelongToAnotherProduct());
+            return ProductErrors.DetailsBelongToAnotherProduct();
         CatalogProfile = profile;
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
 }

@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
@@ -16,23 +15,24 @@ public partial class Product
     /// Sets the PPE card fields from the sheet tab «ЗІЗ»: supplier, its product link and article, supplier price,
     /// «Дозволити ручну ціну», pricing rule and unit.
     /// </summary>
-    public void SetPpeSupplier(PpeSupplierDetails details, DateTimeOffset updatedAt)
+    public DomainResult SetPpeSupplier(PpeSupplierDetails details, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(details);
         if (Type != ProductType.Ppe)
-            throw new DomainException(ProductErrors.OverviewInvalid("Supplier fields belong to a PPE product"));
+            return ProductErrors.OverviewInvalid("Поля постачальника — лише для товару ЗІЗ.");
         var url = Normalize(details.SupplierUrl);
         if (url is not null && (url.Length > SupplierUrlMaxLength || !IsWebUrl(url)))
-            throw new DomainException(ProductErrors.OverviewInvalid("Supplier link must be an http(s) address"));
+            return ProductErrors.OverviewInvalid("Посилання постачальника — адреса http(s) до 2048 символів.");
         if (details.SupplierPrice is <= 0)
-            throw new DomainException(ProductErrors.OverviewInvalid("Supplier price must be positive"));
+            return ProductErrors.OverviewInvalid("Ціна постачальника має бути більше нуля.");
         if (Normalize(details.SupplierSku)?.Length > SupplierSkuMaxLength
             || Normalize(details.Unit)?.Length > UnitMaxLength
             || Normalize(details.PricingRuleCode)?.Length > PricingRuleCodeMaxLength)
-            throw new DomainException(ProductErrors.OverviewInvalid("Supplier article, unit or rule is too long"));
+            return ProductErrors.OverviewInvalid("Артикул постачальника, одиниця або правило ціни задовгі.");
 
         EnsureCatalogProfile().SetSupplier(details.SupplierId, details.SupplierSku, url, details.SupplierPrice,
             details.AllowManualPrice, details.PricingRuleCode, details.Unit);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 }

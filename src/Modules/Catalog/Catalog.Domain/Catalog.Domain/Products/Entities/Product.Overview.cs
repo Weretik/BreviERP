@@ -1,4 +1,3 @@
-using BuildingBlocks.Domain.Exceptions;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.Errors;
 using Catalog.Domain.Products.ValueObjects;
@@ -16,39 +15,37 @@ public partial class Product
     public string? Code => Type == ProductType.Ppe ? CatalogProfile?.SaleSku : ModelCode;
 
     /// <summary>Sets <see cref="Code"/>. PPE needs a code; a sewing code change bumps the composition version.</summary>
-    public void SetCode(string? code, DateTimeOffset updatedAt)
+    public DomainResult SetCode(string? code, DateTimeOffset updatedAt)
     {
         var normalized = string.IsNullOrWhiteSpace(code) ? null : code.Trim();
-        if (normalized == Code) return;
-        if (Type == ProductType.Sewing)
-        {
-            SetModelCode(normalized, updatedAt);
-            return;
-        }
+        if (normalized == Code) return DomainResult.Success();
+        if (Type == ProductType.Sewing) return SetModelCode(normalized, updatedAt);
         if (normalized is null || normalized.Length > CodeMaxLength)
-            throw new DomainException(ProductErrors.OverviewInvalid("PPE needs a site article up to 80 characters"));
+            return ProductErrors.OverviewInvalid("Для ЗІЗ вкажіть артикул сайту до 80 символів.");
         EnsureCatalogProfile().SetSaleSku(normalized);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
     /// <summary>Replaces the «Товари» page fields.</summary>
-    public void SetOverview(ProductOverviewDetails details, DateTimeOffset updatedAt)
+    public DomainResult SetOverview(ProductOverviewDetails details, DateTimeOffset updatedAt)
     {
         ArgumentNullException.ThrowIfNull(details);
         if (details.SectionId is <= 0)
-            throw new DomainException(ProductErrors.OverviewInvalid("Section ID must be positive"));
+            return ProductErrors.OverviewInvalid("Розділ вказано неправильно.");
         var season = Normalize(details.Season);
         if (season is not null && (Type != ProductType.Sewing || !Seasons.Contains(season)))
-            throw new DomainException(ProductErrors.OverviewInvalid("Season «Літо» or «Зима» is allowed only for a sewing product"));
+            return ProductErrors.OverviewInvalid("Сезон «Літо» або «Зима» — лише для швейного товару.");
         var url = Normalize(details.CurrentSiteUrl);
         if (url is not null && (url.Length > CurrentSiteUrlMaxLength || !IsWebUrl(url)))
-            throw new DomainException(ProductErrors.OverviewInvalid("Current site link must be an http(s) address up to 500 characters"));
+            return ProductErrors.OverviewInvalid("Посилання на поточний сайт — адреса http(s) до 500 символів.");
         var quoteDescription = Normalize(details.QuoteDescription);
         if (quoteDescription?.Length > QuoteDescriptionMaxLength)
-            throw new DomainException(ProductErrors.OverviewInvalid("Quote description must be 2000 characters or less"));
+            return ProductErrors.OverviewInvalid("Опис для КП — не більше 2000 символів.");
 
         EnsureCatalogProfile().SetOverview(details.SectionId, season, details.IsActive, url, quoteDescription);
         MarkAsUpdated(updatedAt);
+        return DomainResult.Success();
     }
 
     private ProductCatalogProfile EnsureCatalogProfile() => CatalogProfile ??= ProductCatalogProfile.Create(Id, true);
