@@ -1,19 +1,10 @@
-using Host.Api.DependencyInjection.ServiceRegistration.Web;
-using Identity.Api.DependencyInjection;
 using System.Net;
-using System.Security.Claims;
-using System.Text.Encodings.Web;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+
+using HostApiTests.TestSupport;
 
 namespace HostApiTests;
 
@@ -49,29 +40,29 @@ public sealed class ApiAccessTests
     [Test]
     public async Task Only_the_listed_endpoints_are_anonymous()
     {
-        await using var host = await Fixture.CreateAsync();
+        await using var host = await ApiTestHost.CreateAsync();
 
-        var anonymous = host.ControllerEndpoints()
+        var anonymous = host.ApiEndpoints()
             .Where(endpoint => endpoint.Metadata.GetMetadata<IAllowAnonymous>() is not null)
-            .Select(Describe)
+            .Select(ApiTestHost.Describe)
             .ToArray();
 
-        TestContext.WriteLine($"Controller endpoints: {host.ControllerEndpoints().Length}");
-        Assert.That(host.ControllerEndpoints().Length, Is.GreaterThan(50));
+        TestContext.WriteLine($"Controller endpoints: {host.ApiEndpoints().Length}");
+        Assert.That(host.ApiEndpoints().Length, Is.GreaterThan(50));
         Assert.That(anonymous, Is.EquivalentTo(PublicEndpoints));
     }
 
     [Test]
     public async Task Every_other_endpoint_needs_a_role_or_policy_except_own_session_actions()
     {
-        await using var host = await Fixture.CreateAsync();
+        await using var host = await ApiTestHost.CreateAsync();
         string[] signedInOnly = ["GET api/auth/session/me", "GET api/auth/session/access", "POST api/auth/cookie/logout"];
 
-        var withoutStaffRule = host.ControllerEndpoints()
+        var withoutStaffRule = host.ApiEndpoints()
             .Where(endpoint => endpoint.Metadata.GetMetadata<IAllowAnonymous>() is null)
             .Where(endpoint => !endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>()
                 .Any(data => !string.IsNullOrEmpty(data.Policy) || !string.IsNullOrEmpty(data.Roles)))
-            .Select(Describe)
+            .Select(ApiTestHost.Describe)
             .Except(signedInOnly)
             .ToArray();
 
@@ -82,7 +73,7 @@ public sealed class ApiAccessTests
     [TestCase("User", HttpStatusCode.Forbidden)]
     public async Task Admin_catalogue_write_rejects_anonymous_and_non_staff(string? role, HttpStatusCode expected)
     {
-        await using var host = await Fixture.CreateAsync();
+        await using var host = await ApiTestHost.CreateAsync();
         if (role is not null)
             host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", role);
 
@@ -94,7 +85,7 @@ public sealed class ApiAccessTests
     [Test]
     public async Task Manager_cannot_open_the_users_page_api()
     {
-        await using var host = await Fixture.CreateAsync();
+        await using var host = await ApiTestHost.CreateAsync();
         host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", "Manager");
 
         var response = await host.Client.GetAsync("/api/admin/users");
@@ -106,7 +97,7 @@ public sealed class ApiAccessTests
     [TestCase("Manager")]
     public async Task Only_the_director_and_the_accountant_open_purchase_invoices(string role)
     {
-        await using var host = await Fixture.CreateAsync();
+        await using var host = await ApiTestHost.CreateAsync();
         host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", role);
 
         var response = await host.Client.GetAsync("/api/purchasing/invoices/sync-state");
@@ -117,9 +108,9 @@ public sealed class ApiAccessTests
     [Test]
     public async Task Every_policy_an_endpoint_names_exists()
     {
-        await using var host = await Fixture.CreateAsync();
+        await using var host = await ApiTestHost.CreateAsync();
         var provider = host.Services.GetRequiredService<IAuthorizationPolicyProvider>();
-        var names = host.ControllerEndpoints()
+        var names = host.ApiEndpoints()
             .SelectMany(endpoint => endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>())
             .Select(data => data.Policy)
             .OfType<string>()
@@ -146,80 +137,11 @@ public sealed class ApiAccessTests
     [TestCase("Manager", "GET", "/api/admin/access")]
     public async Task A_role_without_the_right_gets_403(string role, string method, string path)
     {
-        await using var host = await Fixture.CreateAsync();
+        await using var host = await ApiTestHost.CreateAsync();
         host.Client.DefaultRequestHeaders.Add("X-Fixture-Role", role);
 
         var response = await host.Client.SendAsync(new HttpRequestMessage(new HttpMethod(method), path));
 
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
-    }
-
-    private static string Describe(Endpoint endpoint)
-    {
-        var route = ((RouteEndpoint)endpoint).RoutePattern.RawText!.Replace(":int", string.Empty);
-        var method = endpoint.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods.FirstOrDefault() ?? "ANY";
-        return $"{method} {route}";
-    }
-
-    private static readonly Type[] ApiMarkers =
-    [
-        typeof(Accounting.Api.AccountingApiAssemblyMarker), typeof(Ai.Api.AiApiAssemblyMarker),
-        typeof(Catalog.Api.CatalogApiAssemblyMarker), typeof(Content.Api.ContentApiAssemblyMarker),
-        typeof(Crm.Api.CrmApiAssemblyMarker), typeof(Identity.Api.IdentityApiAssemblyMarker),
-        typeof(Media.Api.MediaApiAssemblyMarker), typeof(Production.Api.ProductionApiAssemblyMarker),
-        typeof(Purchasing.Api.PurchasingApiAssemblyMarker), typeof(Reference.Api.ReferenceApiAssemblyMarker),
-        typeof(Reminders.Api.RemindersApiAssemblyMarker), typeof(Warehouse.Api.WarehouseApiAssemblyMarker)
-    ];
-
-    private sealed class Fixture(WebApplication app, HttpClient client) : IAsyncDisposable
-    {
-        public HttpClient Client { get; } = client;
-
-        public IServiceProvider Services => app.Services;
-
-        public Endpoint[] ControllerEndpoints() => ((IEndpointRouteBuilder)app).DataSources
-            .SelectMany(source => source.Endpoints)
-            .Where(endpoint => endpoint.Metadata.GetMetadata<ControllerActionDescriptor>() is not null)
-            .ToArray();
-
-        public static async Task<Fixture> CreateAsync()
-        {
-            var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
-            builder.WebHost.UseTestServer();
-            builder.Services.AddAuthentication("Fixture")
-                .AddScheme<AuthenticationSchemeOptions, FixtureAuthenticationHandler>("Fixture", _ => { });
-            builder.Services.AddAuthorizationPolicies();
-            // Controllers only: each module adds its own in Add<Module>Module(), which also needs a database.
-            var mvc = builder.Services.AddControllers();
-            foreach (var marker in ApiMarkers) mvc.AddApplicationPart(marker.Assembly);
-            var app = builder.Build();
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.MapControllers();
-            await app.StartAsync();
-            return new Fixture(app, app.GetTestClient());
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            Client.Dispose();
-            await app.DisposeAsync();
-        }
-    }
-
-    private sealed class FixtureAuthenticationHandler(
-        IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
-    {
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
-        {
-            if (!Request.Headers.TryGetValue("X-Fixture-Role", out var role))
-                return Task.FromResult(AuthenticateResult.NoResult());
-            var principal = new ClaimsPrincipal(new ClaimsIdentity(
-                [new Claim(ClaimTypes.NameIdentifier, "7"), new Claim(ClaimTypes.Role, role.ToString())], Scheme.Name));
-            return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name)));
-        }
     }
 }
