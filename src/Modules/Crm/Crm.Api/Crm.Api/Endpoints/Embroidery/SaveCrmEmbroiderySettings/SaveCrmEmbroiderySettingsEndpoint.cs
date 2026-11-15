@@ -12,7 +12,8 @@ internal static class SaveCrmEmbroiderySettingsEndpoint
         group.MapPut("settings", HandleAsync).WithName("saveCrmEmbroiderySettings")
             .WithSummary("Saves the whole page")
             .WithDescription("Saves the whole page. `version` is the one read; a stale version is 409.")
-            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+            .Produces<EmbroiderySettingsResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveEmbroiderySettingsInput input,
         [FromServices] ISender sender,

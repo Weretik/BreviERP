@@ -12,7 +12,8 @@ internal static class TransferSiteWorksEndpoint
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("transfer", HandleAsync).WithName("transferSiteWorks")
             .WithSummary("Transfer site works")
-            .WithDescription("Moves up to 10 pictures the site still keeps as its own files into the «Фото» library (folder «Сайт»), keeping the order and the texts. The Admin repeats the call while moved > 0 and left > 0. A picture already in the library is not downloaded again.");
+            .WithDescription("Moves up to 10 pictures the site still keeps as its own files into the «Фото» library (folder «Сайт»), keeping the order and the texts. The Admin repeats the call while moved > 0 and left > 0. A picture already in the library is not downloaded again.")
+            .Produces<SiteGalleryTransferResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

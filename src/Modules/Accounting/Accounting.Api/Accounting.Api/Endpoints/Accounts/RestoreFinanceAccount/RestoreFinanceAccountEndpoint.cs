@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Accounts.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Accounts.Commands.SetFinanceAccountActive;
 using Accounting.Api.Endpoints.Shared;
@@ -10,7 +11,8 @@ internal static class RestoreFinanceAccountEndpoint
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:guid}/restore", HandleAsync).WithName("restoreFinanceAccount")
             .WithSummary("«Відновити» an archived account")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<FinanceAccountResponse>();
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceVersionInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

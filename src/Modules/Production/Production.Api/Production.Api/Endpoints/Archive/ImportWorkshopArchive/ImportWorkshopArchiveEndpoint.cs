@@ -8,7 +8,8 @@ internal static class ImportWorkshopArchiveEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("import", HandleAsync).WithName("importWorkshopArchive")
-            .WithSummary("Admin: move workshop-archive.json; dryRun only counts; a line already moved is skipped; any error saves nothing");
+            .WithSummary("Admin: move workshop-archive.json; dryRun only counts; a line already moved is skipped; any error saves nothing")
+            .Produces<WorkshopArchiveImportResult>();
 
     private static async Task<IResult> HandleAsync([FromBody] IReadOnlyList<WorkshopArchiveImportRow> rows,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = default,

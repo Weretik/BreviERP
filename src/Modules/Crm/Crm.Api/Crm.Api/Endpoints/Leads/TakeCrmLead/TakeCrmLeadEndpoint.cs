@@ -1,3 +1,4 @@
+using Crm.Application.Features.Leads.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Leads.Commands.TakeLead;
 using BuildingBlocks.Api.Errors;
@@ -11,7 +12,8 @@ internal static class TakeCrmLeadEndpoint
         group.MapPost("{id:long}/take", HandleAsync).WithName("takeCrmLead")
             .WithSummary("Take CRM lead")
             .WithDescription("Requires access:leads (edit). «Взяти собі»: a free open lead becomes the actor's; taking an own lead again changes nothing.")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<LeadDetailResponse>();
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

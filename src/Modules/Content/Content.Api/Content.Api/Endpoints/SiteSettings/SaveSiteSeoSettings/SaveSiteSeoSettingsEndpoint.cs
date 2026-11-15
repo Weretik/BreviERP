@@ -1,3 +1,4 @@
+using Content.Application.Features.SiteSettings.Shared;
 using Content.Application.Features.SiteSettings.Commands.SaveSiteSeoSettings;
 using BuildingBlocks.Api.Errors;
 
@@ -9,7 +10,8 @@ internal static class SaveSiteSeoSettingsEndpoint
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("", HandleAsync).WithName("saveSiteSeoSettings")
             .WithSummary("Replaces the settings as a whole; an empty field removes that code")
-            .WithDescription("Replaces the settings as a whole; an empty field removes that code. Ids are kept in upper case.");
+            .WithDescription("Replaces the settings as a whole; an empty field removes that code. Ids are kept in upper case.")
+            .Produces<SiteSeoSettingsResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveSiteSeoSettingsRequest request,
         [FromServices] ISender sender,

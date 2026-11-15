@@ -21,7 +21,8 @@ internal static class ImportPpeSupplierPricesEndpoint
             .RequireAuthorization("access:price-import")
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
-            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });
+            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes })
+            .Produces<PpePriceImportResult>();
 
     private static async Task<IResult> HandleAsync(string key, IFormFileCollection files,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = true,

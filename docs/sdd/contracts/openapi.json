@@ -4679,7 +4679,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopArchiveImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -4782,7 +4789,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FabricNormRowResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -4841,7 +4855,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FabricNormImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -4932,7 +4953,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -4978,7 +5006,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5023,7 +5058,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5059,7 +5101,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5095,7 +5144,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5131,7 +5187,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5197,7 +5260,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5233,7 +5303,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5259,7 +5336,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5296,7 +5380,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionProgressImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -5333,7 +5424,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionReportPriceImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -5514,7 +5612,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5713,7 +5818,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -5942,7 +6054,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5979,7 +6098,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionOrderImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -6118,7 +6244,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6152,7 +6285,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6186,7 +6326,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6222,7 +6369,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6256,7 +6410,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6292,7 +6453,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6326,7 +6494,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6350,7 +6525,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6374,7 +6556,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollMonthResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6470,7 +6659,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopSettingsResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6540,7 +6736,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopEmployeeResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6576,7 +6779,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopEmployeeResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6612,7 +6822,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopEmployeeResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6649,7 +6866,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkshopStaffImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -6702,7 +6926,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimesheetDayResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6857,7 +7088,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionItemWorkResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6893,7 +7131,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionItemWorkResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6927,7 +7172,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionWorkImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -6984,7 +7236,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceAccountResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7020,7 +7279,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceAccountResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -7089,7 +7355,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceAccountResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7124,7 +7397,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceAccountResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7159,7 +7439,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceAccountResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7268,7 +7555,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceAttachmentResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7376,7 +7670,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceCategoryResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7411,7 +7712,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceCategoryResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -7557,7 +7865,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceCounterpartyResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7627,7 +7942,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceCounterpartyResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7663,7 +7985,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceCounterpartyResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7698,7 +8027,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceCounterpartyResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7733,7 +8069,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceCounterpartyResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7769,7 +8112,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceCounterpartyResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -7844,7 +8194,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyFinanceImportReport"
+                }
+              }
+            }
           }
         }
       }
@@ -8217,7 +8574,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankStatementResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8311,7 +8675,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankStatementLineResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8347,7 +8718,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankStatementResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8383,7 +8761,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankStatementResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8567,7 +8952,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransactionResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8603,7 +8995,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransactionResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8639,7 +9038,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransactionResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8675,7 +9081,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransactionResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8711,7 +9124,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransactionResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8885,7 +9305,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransferResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8920,7 +9347,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransferResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -8955,7 +9389,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinanceTransferResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9026,7 +9467,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDetail"
+                }
+              }
+            }
           }
         }
       }
@@ -9071,7 +9519,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDetail"
+                }
+              }
+            }
           }
         }
       }
@@ -9149,8 +9604,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDetail"
+                }
+              }
+            }
           }
         }
       }
@@ -9217,7 +9679,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDetail"
+                }
+              }
+            }
           }
         }
       }
@@ -9253,7 +9722,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerDetail"
+                }
+              }
+            }
           }
         }
       }
@@ -9284,7 +9760,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeepinCrmClientSyncResult"
+                }
+              }
+            }
           }
         }
       }
@@ -9331,7 +9814,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbroideryCalculationResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9403,7 +9893,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbroiderySavedCalculationResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9497,7 +9994,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbroiderySavedCalculationResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9535,7 +10039,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbroideryArchiveImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -9579,7 +10090,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbroiderySettingsResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9667,7 +10185,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadCallResultResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9704,7 +10229,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadCallResultResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9764,7 +10296,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadCategoryResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9779,7 +10318,14 @@
         "operationId": "syncCrmLeads",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadSyncResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9957,7 +10503,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetailResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -9993,7 +10546,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetailResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10030,7 +10590,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeadDetailResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10067,7 +10634,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxConnectResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10156,7 +10730,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteImportReport"
+                }
+              }
+            }
           }
         }
       }
@@ -10202,8 +10783,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteIntroTemplateResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10253,8 +10841,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10291,7 +10886,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10477,7 +11079,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteCustomSewingPriceResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10565,7 +11174,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotePhotoResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10609,7 +11225,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteSettingsResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10702,8 +11325,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -10811,7 +11441,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -10909,7 +11546,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteRepriceReport"
+                }
+              }
+            }
           }
         }
       }
@@ -10945,7 +11589,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11016,7 +11667,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11088,7 +11746,14 @@
         "operationId": "purgeCrmLegacyArchivedQuotes",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyArchivePurgeResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11125,7 +11790,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11151,8 +11823,15 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuoteResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11182,7 +11861,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteRequestReceivedResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11266,7 +11952,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteRequestResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11352,8 +12045,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetailResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11516,7 +12216,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetailResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -11586,7 +12293,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetailResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11622,7 +12336,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetailResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11668,7 +12389,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskDetailResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -11782,8 +12510,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedCatalogProduct"
+                }
+              }
+            }
           }
         }
       }
@@ -11877,7 +12612,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SheetImportReport"
+                }
+              }
+            }
           }
         }
       }
@@ -11941,7 +12683,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OldSitePhotoImportReport"
+                }
+              }
+            }
           }
         }
       }
@@ -12010,7 +12759,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPhotoList"
+                }
+              }
+            }
           }
         }
       }
@@ -12067,7 +12823,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeRuleVersion"
+                }
+              }
+            }
           }
         }
       }
@@ -12183,7 +12946,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeOfferVersion"
+                }
+              }
+            }
           }
         }
       }
@@ -12252,7 +13022,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpeSupplierOffer"
+                }
+              }
+            }
           }
         }
       }
@@ -12363,7 +13140,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpePriceImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -12396,7 +13180,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PpePriceImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -12496,8 +13287,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductAdminDetail"
+                }
+              }
+            }
           }
         }
       }
@@ -12564,7 +13362,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductAdminDetail"
+                }
+              }
+            }
           }
         }
       },
@@ -12832,8 +13637,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SewingArticleView"
+                }
+              }
+            }
           }
         }
       }
@@ -12880,7 +13692,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SewingArticleView"
+                }
+              }
+            }
           }
         }
       },
@@ -13001,7 +13820,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SewingComposition"
+                }
+              }
+            }
           }
         }
       }
@@ -13048,7 +13874,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedSewingCalculation"
+                }
+              }
+            }
           }
         }
       }
@@ -13147,7 +13980,14 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishedSewingPrice"
+                }
+              }
+            }
           }
         }
       }
@@ -13238,7 +14078,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SewingPricingSettingsSelection"
+                }
+              }
+            }
           }
         }
       }
@@ -13321,7 +14168,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -13389,7 +14243,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -13450,7 +14311,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleVisibilityResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -13475,7 +14343,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OldSiteArticleImportResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -13623,7 +14498,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentProductResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -13685,7 +14567,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContentProductVisibilityResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -13710,7 +14599,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OldSiteImportResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14172,7 +15068,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteRedirectResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14208,7 +15111,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteRedirectResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -14257,7 +15167,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OldSiteRedirectImportResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14322,7 +15239,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteCategoryResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14390,7 +15314,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteCategoryResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -14452,7 +15383,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteCategoryVisibilityResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14502,7 +15440,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OldSiteCategoryImportResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14545,7 +15490,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteCompanyResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14589,7 +15541,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteGalleryResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14604,7 +15563,14 @@
         "operationId": "transferSiteCertificates",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteGalleryTransferResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14648,7 +15614,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteGalleryResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14663,7 +15636,14 @@
         "operationId": "transferSiteWorks",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteGalleryTransferResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14718,7 +15698,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SitePageResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -14762,7 +15749,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteSeoSettingsResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -15665,6 +16659,27 @@
             "items": {
               "$ref": "#/components/schemas/ArticleBlock"
             }
+          }
+        }
+      },
+      "ArticleVisibilityResponse": {
+        "required": [
+          "id",
+          "showOnSite",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "showOnSite": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -17068,6 +18083,35 @@
           }
         }
       },
+      "ContentProductVisibilityResponse": {
+        "required": [
+          "productId",
+          "showOnSite",
+          "onSite",
+          "revision",
+          "slug"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "showOnSite": {
+            "type": "boolean"
+          },
+          "onSite": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
       "CopyProductionOrderInput": {
         "required": [
           "requestId"
@@ -17163,6 +18207,33 @@
           },
           "input": {
             "$ref": "#/components/schemas/CustomerInput"
+          }
+        }
+      },
+      "CreatedCatalogProduct": {
+        "required": [
+          "id",
+          "type",
+          "code",
+          "priceSaved"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "priceSaved": {
+            "type": "boolean"
           }
         }
       },
@@ -18618,6 +19689,81 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "EmbroideryArchiveImportLine": {
+        "required": [
+          "legacyId",
+          "name",
+          "createdAt",
+          "createdByName",
+          "action",
+          "message",
+          "number"
+        ],
+        "type": "object",
+        "properties": {
+          "legacyId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdByName": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "number": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "EmbroideryArchiveImportResult": {
+        "required": [
+          "dryRun",
+          "created",
+          "unchanged",
+          "errors",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmbroideryArchiveImportLine"
+            }
           }
         }
       },
@@ -20733,6 +21879,73 @@
           },
           "isVoided": {
             "type": "boolean"
+          }
+        }
+      },
+      "FabricNormImportLine": {
+        "required": [
+          "modelCode",
+          "modelName",
+          "action",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "modelCode": {
+            "type": "string"
+          },
+          "modelName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "action": {
+            "type": "string"
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "FabricNormImportResult": {
+        "required": [
+          "dryRun",
+          "created",
+          "updated",
+          "unchanged",
+          "errors",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FabricNormImportLine"
+            }
           }
         }
       },
@@ -25468,6 +26681,66 @@
         }
       },
       "JsonElement": { },
+      "KeepinCrmClientSyncResult": {
+        "required": [
+          "applied",
+          "received",
+          "created",
+          "updated",
+          "unchanged",
+          "deactivated",
+          "deleted",
+          "hiddenInUse",
+          "syncedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "applied": {
+            "type": "boolean"
+          },
+          "received": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "deactivated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deleted": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hiddenInUse": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "syncedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
       "KeepinCrmSupplierSyncResult": {
         "required": [
           "received",
@@ -26251,6 +27524,65 @@
           }
         }
       },
+      "LeadSyncResponse": {
+        "required": [
+          "rows",
+          "added",
+          "updated",
+          "gone",
+          "skipped",
+          "at",
+          "duplicates",
+          "assigned",
+          "calls",
+          "warning"
+        ],
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "added": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gone": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "duplicates": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "assigned": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "calls": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warning": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "LeadSyncStateResponse": {
         "required": [
           "lastRunAt",
@@ -26321,6 +27653,256 @@
           }
         }
       },
+      "LegacyArchivePurgeResponse": {
+        "required": [
+          "deleted",
+          "returned"
+        ],
+        "type": "object",
+        "properties": {
+          "deleted": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "returned": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LegacyFinanceImportReport": {
+        "required": [
+          "applied",
+          "canApply",
+          "exportedAt",
+          "counts",
+          "parties",
+          "totals",
+          "balances",
+          "errorCount",
+          "errors",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "applied": {
+            "type": "boolean"
+          },
+          "canApply": {
+            "type": "boolean"
+          },
+          "exportedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "counts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LegacyImportCountResponse"
+            }
+          },
+          "parties": {
+            "$ref": "#/components/schemas/LegacyImportPartiesResponse"
+          },
+          "totals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LegacyImportTotalResponse"
+            }
+          },
+          "balances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LegacyImportBalanceResponse"
+            }
+          },
+          "errorCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "LegacyImportBalanceResponse": {
+        "required": [
+          "accountId",
+          "name",
+          "currency",
+          "active",
+          "archiveMinor",
+          "cutoverMinor",
+          "currentMinor",
+          "differenceMinor"
+        ],
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "archiveMinor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cutoverMinor": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
+          },
+          "currentMinor": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
+          },
+          "differenceMinor": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
+          }
+        }
+      },
+      "LegacyImportCountResponse": {
+        "required": [
+          "kind",
+          "inFile",
+          "toAdd",
+          "alreadyMoved",
+          "skipped"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/LegacyImportKind"
+          },
+          "inFile": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "toAdd": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "alreadyMoved": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LegacyImportKind": {
+        "enum": [
+          "Accounts",
+          "Categories",
+          "Counterparties",
+          "Transactions",
+          "Transfers",
+          "AuditEntries"
+        ]
+      },
+      "LegacyImportMovement": {
+        "enum": [
+          "Income",
+          "Expense",
+          "Transfer"
+        ]
+      },
+      "LegacyImportPartiesResponse": {
+        "required": [
+          "clientsLinked",
+          "clientsAsFinancial",
+          "suppliersLinked",
+          "suppliersAsFinancial",
+          "unused"
+        ],
+        "type": "object",
+        "properties": {
+          "clientsLinked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "clientsAsFinancial": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suppliersLinked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suppliersAsFinancial": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unused": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LegacyImportTotalResponse": {
+        "required": [
+          "scope",
+          "movement",
+          "status",
+          "currency",
+          "count",
+          "amountMinor"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/LedgerScope"
+          },
+          "movement": {
+            "$ref": "#/components/schemas/LegacyImportMovement"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MovementStatus"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amountMinor": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "MailboxConnectRequest": {
         "required": [
           "returnPath"
@@ -26328,6 +27910,17 @@
         "type": "object",
         "properties": {
           "returnPath": {
+            "type": "string"
+          }
+        }
+      },
+      "MailboxConnectResponse": {
+        "required": [
+          "consentUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "consentUrl": {
             "type": "string"
           }
         }
@@ -26932,6 +28525,54 @@
           }
         }
       },
+      "OldSiteArticleImportResponse": {
+        "required": [
+          "dryRun",
+          "total",
+          "created",
+          "updated",
+          "kept",
+          "photosToDownload",
+          "photosDownloaded",
+          "problems"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kept": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "photosToDownload": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "photosDownloaded": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OldSiteImportNote"
+            }
+          }
+        }
+      },
       "OldSiteArticleText": {
         "required": [
           "title",
@@ -27027,6 +28668,123 @@
           }
         }
       },
+      "OldSiteCategoryImportResponse": {
+        "required": [
+          "dryRun",
+          "total",
+          "created",
+          "updated",
+          "kept",
+          "productLinks",
+          "notMatched",
+          "problems"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kept": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productLinks": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notMatched": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OldSiteImportNote"
+            }
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OldSiteImportNote"
+            }
+          }
+        }
+      },
+      "OldSiteImportNote": {
+        "required": [
+          "url",
+          "name",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "OldSiteImportResponse": {
+        "required": [
+          "dryRun",
+          "total",
+          "created",
+          "updated",
+          "kept",
+          "notMatched",
+          "problems"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kept": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notMatched": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OldSiteImportNote"
+            }
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OldSiteImportNote"
+            }
+          }
+        }
+      },
       "OldSiteNewModel": {
         "required": [
           "name",
@@ -27061,6 +28819,116 @@
           },
           "isMain": {
             "type": "boolean"
+          }
+        }
+      },
+      "OldSitePhotoImportLine": {
+        "required": [
+          "oldId",
+          "oldName",
+          "status",
+          "productId",
+          "productName",
+          "photosToAdd",
+          "photosAdded",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "oldId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "oldName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "productId": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "productName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "photosToAdd": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "photosAdded": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OldSitePhotoImportReport": {
+        "required": [
+          "dryRun",
+          "products",
+          "found",
+          "modelsToCreate",
+          "modelsCreated",
+          "notFound",
+          "filesToDownload",
+          "filesDownloaded",
+          "photosAdded",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "products": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "found": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "modelsToCreate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "modelsCreated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notFound": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filesToDownload": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "filesDownloaded": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "photosAdded": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OldSitePhotoImportLine"
+            }
           }
         }
       },
@@ -27145,6 +29013,49 @@
           }
         }
       },
+      "OldSiteRedirectImportResponse": {
+        "required": [
+          "dryRun",
+          "total",
+          "created",
+          "updated",
+          "kept",
+          "unresolved",
+          "rows"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "kept": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unresolved": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OldSiteRedirectRow"
+            }
+          }
+        }
+      },
       "OldSiteRedirectItem": {
         "required": [
           "from",
@@ -27160,6 +29071,35 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "OldSiteRedirectRow": {
+        "required": [
+          "fromPath",
+          "toPath",
+          "note",
+          "result"
+        ],
+        "type": "object",
+        "properties": {
+          "fromPath": {
+            "type": "string"
+          },
+          "toPath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "result": {
+            "type": "string"
           }
         }
       },
@@ -28392,6 +30332,135 @@
           }
         }
       },
+      "PpePriceImportResult": {
+        "required": [
+          "sourceKey",
+          "applied",
+          "discountPercent",
+          "checked",
+          "changed",
+          "unchanged",
+          "skipped",
+          "rows"
+        ],
+        "type": "object",
+        "properties": {
+          "sourceKey": {
+            "type": "string"
+          },
+          "applied": {
+            "type": "boolean"
+          },
+          "discountPercent": {
+            "type": "number",
+            "format": "double"
+          },
+          "checked": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "changed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PpePriceImportRow"
+            }
+          }
+        }
+      },
+      "PpePriceImportRow": {
+        "required": [
+          "productId",
+          "code",
+          "name",
+          "status",
+          "oldPrice",
+          "newPrice",
+          "oldWholesale",
+          "newWholesale",
+          "oldRetail",
+          "newRetail",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PpePriceImportStatus"
+          },
+          "oldPrice": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "newPrice": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "oldWholesale": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "newWholesale": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "oldRetail": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "newRetail": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "message": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "PpePriceImportRun": {
         "required": [
           "sourceKey",
@@ -28442,6 +30511,16 @@
             }
           }
         }
+      },
+      "PpePriceImportStatus": {
+        "enum": [
+          "Changed",
+          "Unchanged",
+          "ManualPrice",
+          "Inactive",
+          "NotInFile",
+          "Invalid"
+        ]
       },
       "PpePriceSourceMethod": {
         "enum": [
@@ -30138,6 +32217,71 @@
           }
         }
       },
+      "ProductionOrderImportLine": {
+        "required": [
+          "number",
+          "clientName",
+          "items",
+          "action",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "clientName": {
+            "type": "string"
+          },
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "action": {
+            "type": "string"
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ProductionOrderImportResult": {
+        "required": [
+          "dryRun",
+          "created",
+          "unchanged",
+          "errors",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductionOrderImportLine"
+            }
+          }
+        }
+      },
       "ProductionOrderImportRow": {
         "required": [
           "legacyId",
@@ -30548,6 +32692,79 @@
           }
         }
       },
+      "ProductionProgressImportLine": {
+        "required": [
+          "number",
+          "legacyId",
+          "stages",
+          "files",
+          "action",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "legacyId": {
+            "type": "string"
+          },
+          "stages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "files": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "action": {
+            "type": "string"
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ProductionProgressImportResult": {
+        "required": [
+          "dryRun",
+          "updated",
+          "unchanged",
+          "errors",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductionProgressImportLine"
+            }
+          }
+        }
+      },
       "ProductionProgressImportRow": {
         "required": [
           "legacyId",
@@ -30779,6 +32996,74 @@
           }
         }
       },
+      "ProductionReportPriceImportLine": {
+        "required": [
+          "number",
+          "legacyId",
+          "prices",
+          "action",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "legacyId": {
+            "type": "string"
+          },
+          "prices": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "action": {
+            "type": "string"
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ProductionReportPriceImportResult": {
+        "required": [
+          "dryRun",
+          "updated",
+          "unchanged",
+          "errors",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductionReportPriceImportLine"
+            }
+          }
+        }
+      },
       "ProductionReportPriceImportRow": {
         "required": [
           "legacyId",
@@ -30903,6 +33188,87 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProductionWorkImportRow"
+            }
+          }
+        }
+      },
+      "ProductionWorkImportLine": {
+        "required": [
+          "legacyId",
+          "orderNumber",
+          "position",
+          "employeeName",
+          "kind",
+          "quantity",
+          "action",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "legacyId": {
+            "type": "string"
+          },
+          "orderNumber": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "employeeName": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "action": {
+            "type": "string"
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ProductionWorkImportResult": {
+        "required": [
+          "dryRun",
+          "created",
+          "unchanged",
+          "errors",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductionWorkImportLine"
             }
           }
         }
@@ -34299,6 +36665,94 @@
           }
         }
       },
+      "QuoteCustomSewingFabricResponse": {
+        "required": [
+          "fabricId",
+          "meters",
+          "name",
+          "details",
+          "pricePerMeter"
+        ],
+        "type": "object",
+        "properties": {
+          "fabricId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "meters": {
+            "type": "number",
+            "format": "double"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "details": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pricePerMeter": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "QuoteCustomSewingLineResponse": {
+        "required": [
+          "kind",
+          "referenceId",
+          "name",
+          "unit",
+          "unitValue",
+          "isActive",
+          "costCode"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "unit": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "unitValue": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "costCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "QuoteCustomSewingPriceInput": {
         "required": [
           "variants",
@@ -34320,6 +36774,27 @@
           }
         }
       },
+      "QuoteCustomSewingPriceResponse": {
+        "required": [
+          "lines",
+          "variants"
+        ],
+        "type": "object",
+        "properties": {
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteCustomSewingLineResponse"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteCustomSewingVariantResponse"
+            }
+          }
+        }
+      },
       "QuoteCustomSewingVariantInput": {
         "required": [
           "fabrics"
@@ -34330,6 +36805,69 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/QuoteOptionFabricInput"
+            }
+          }
+        }
+      },
+      "QuoteCustomSewingVariantResponse": {
+        "required": [
+          "title",
+          "fabrics",
+          "minutes",
+          "laborCost",
+          "fullCost",
+          "prices",
+          "problems"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fabrics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteCustomSewingFabricResponse"
+            }
+          },
+          "minutes": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "laborCost": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "fullCost": {
+            "type": [
+              "null",
+              "number"
+            ],
+            "format": "double"
+          },
+          "prices": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/QuoteTierPricesResponse"
+              }
+            ]
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           }
         }
@@ -34428,6 +36966,129 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "QuoteImportPerson": {
+        "required": [
+          "email",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "QuoteImportRenumbered": {
+        "required": [
+          "from",
+          "to"
+        ],
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          }
+        }
+      },
+      "QuoteImportReport": {
+        "required": [
+          "dryRun",
+          "applied",
+          "total",
+          "created",
+          "requests",
+          "introductions",
+          "items",
+          "alreadyImported",
+          "renumbered",
+          "unknownPeople",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "applied": {
+            "type": "boolean"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requests": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "introductions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "alreadyImported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "renumbered": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteImportRenumbered"
+            }
+          },
+          "unknownPeople": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteImportPerson"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteImportWarning"
+            }
+          }
+        }
+      },
+      "QuoteImportWarning": {
+        "required": [
+          "number",
+          "item",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string"
+          },
+          "item": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "message": {
+            "type": "string"
           }
         }
       },
@@ -35663,6 +38324,17 @@
           }
         }
       },
+      "QuotePhotoResponse": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        }
+      },
       "QuotePriceInput": {
         "required": [
           "shown",
@@ -35710,6 +38382,88 @@
           },
           "shown": {
             "type": "boolean"
+          }
+        }
+      },
+      "QuoteRepriceChange": {
+        "required": [
+          "optionId",
+          "itemName",
+          "optionTitle",
+          "before",
+          "after"
+        ],
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "itemName": {
+            "type": "string"
+          },
+          "optionTitle": {
+            "type": "string"
+          },
+          "before": {
+            "$ref": "#/components/schemas/QuoteTierPricesResponse"
+          },
+          "after": {
+            "$ref": "#/components/schemas/QuoteTierPricesResponse"
+          }
+        }
+      },
+      "QuoteRepriceProblem": {
+        "required": [
+          "optionId",
+          "itemName",
+          "optionTitle",
+          "reason"
+        ],
+        "type": "object",
+        "properties": {
+          "optionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "itemName": {
+            "type": "string"
+          },
+          "optionTitle": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "QuoteRepriceReport": {
+        "required": [
+          "applied",
+          "version",
+          "changes",
+          "unavailable"
+        ],
+        "type": "object",
+        "properties": {
+          "applied": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteRepriceChange"
+            }
+          },
+          "unavailable": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuoteRepriceProblem"
+            }
           }
         }
       },
@@ -39817,6 +42571,125 @@
           }
         }
       },
+      "SheetImportCounts": {
+        "required": [
+          "created",
+          "updated",
+          "unchanged"
+        ],
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SheetImportDeletion": {
+        "required": [
+          "id",
+          "type",
+          "code",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "SheetImportIssue": {
+        "required": [
+          "scope",
+          "rowNumber",
+          "code",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string"
+          },
+          "rowNumber": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "SheetImportReport": {
+        "required": [
+          "applied",
+          "sewing",
+          "ppe",
+          "toDelete",
+          "problems",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "applied": {
+            "type": "boolean"
+          },
+          "sewing": {
+            "$ref": "#/components/schemas/SheetImportCounts"
+          },
+          "ppe": {
+            "$ref": "#/components/schemas/SheetImportCounts"
+          },
+          "toDelete": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SheetImportDeletion"
+            }
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SheetImportIssue"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SheetImportIssue"
+            }
+          }
+        }
+      },
       "SheetPpeRow": {
         "required": [
           "rowNumber",
@@ -40319,6 +43192,31 @@
           }
         }
       },
+      "SiteCategoryVisibilityResponse": {
+        "required": [
+          "id",
+          "showOnSite",
+          "onSite",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "showOnSite": {
+            "type": "boolean"
+          },
+          "onSite": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "SiteCompanyResponse": {
         "required": [
           "phone",
@@ -40565,6 +43463,34 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "SiteGalleryTransferResponse": {
+        "required": [
+          "moved",
+          "left",
+          "problems",
+          "gallery"
+        ],
+        "type": "object",
+        "properties": {
+          "moved": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "left": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gallery": {
+            "$ref": "#/components/schemas/SiteGalleryResponse"
           }
         }
       },
@@ -40824,6 +43750,18 @@
           },
           "counts": {
             "$ref": "#/components/schemas/SiteRequestCountsResponse"
+          }
+        }
+      },
+      "SiteRequestReceivedResponse": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -43522,6 +46460,54 @@
           }
         }
       },
+      "WorkshopArchiveImportError": {
+        "required": [
+          "sourceKey",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "sourceKey": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkshopArchiveImportResult": {
+        "required": [
+          "dryRun",
+          "created",
+          "unchanged",
+          "errors",
+          "errorLines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "errorLines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkshopArchiveImportError"
+            }
+          }
+        }
+      },
       "WorkshopArchiveImportRow": {
         "required": [
           "kind",
@@ -44105,6 +47091,58 @@
               "string"
             ],
             "format": "date-time"
+          }
+        }
+      },
+      "WorkshopStaffImportLine": {
+        "required": [
+          "fullName",
+          "position",
+          "action"
+        ],
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "position": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          }
+        }
+      },
+      "WorkshopStaffImportResult": {
+        "required": [
+          "dryRun",
+          "created",
+          "updated",
+          "unchanged",
+          "lines"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "created": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unchanged": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkshopStaffImportLine"
+            }
           }
         }
       },

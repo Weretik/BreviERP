@@ -1,3 +1,4 @@
+using Production.Application.Features.Staff.Shared;
 using Production.Application.Features.Staff.Commands.SetWorkshopEmployeeActive;
 using BuildingBlocks.Api.Errors;
 
@@ -8,7 +9,8 @@ internal static class SetWorkshopEmployeeActiveEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:int}/active", HandleAsync).WithName("setWorkshopEmployeeActive")
-            .WithSummary("Archive a worker who left (isActive false) or return them to the list");
+            .WithSummary("Archive a worker who left (isActive false) or return them to the list")
+            .Produces<WorkshopEmployeeResponse>();
 
     private static async Task<IResult> HandleAsync(int id, SetWorkshopEmployeeActiveRequest request,
         ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>

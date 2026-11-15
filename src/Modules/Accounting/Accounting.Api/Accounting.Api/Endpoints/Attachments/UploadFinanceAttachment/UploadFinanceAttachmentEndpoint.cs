@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Attachments.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Attachments.Commands.UploadFinanceAttachment;
 using Accounting.Api.Endpoints.Shared;
@@ -16,7 +17,8 @@ internal static class UploadFinanceAttachmentEndpoint
             .WithDescription("«Додати файл»: a PDF, JPEG or PNG from 1 byte to 10 MiB, told by its first bytes, into the private storage under finance/<transactionId>/<attachmentId>.<ext>. A voided operation takes no files. Logged as AttachmentAdd of the Transaction.")
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
-            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });
+            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes })
+            .Produces<FinanceAttachmentResponse>();
 
     /// <param name="file">A PDF, JPEG or PNG up to 10 MiB.</param>
     private static async Task<IResult> HandleAsync(Guid id, IFormFile? file, ClaimsPrincipal user,

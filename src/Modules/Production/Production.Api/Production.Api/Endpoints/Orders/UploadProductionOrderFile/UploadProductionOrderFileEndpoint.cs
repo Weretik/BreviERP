@@ -1,3 +1,4 @@
+using Production.Application.Features.Orders.Shared.Responses;
 using Production.Application.Features.Orders.Commands.UploadProductionOrderFile;
 using BuildingBlocks.Api.Errors;
 
@@ -15,7 +16,8 @@ internal static class UploadProductionOrderFileEndpoint
             .RequireAccessAction(AccessActionAttribute.Edit)
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
-            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });
+            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes })
+            .Produces<ProductionOrderResponse>();
 
     /// <param name="kind">Sizes, Application, Extra or Photo.</param>
     /// <param name="itemId">The item the file is for; empty for the whole order.</param>

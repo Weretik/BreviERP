@@ -11,7 +11,8 @@ internal static class CreateCrmLeadCallResultEndpoint
         group.MapPost("call-results", HandleAsync).WithName("createCrmLeadCallResult")
             .WithSummary("Create CRM lead call result")
             .WithDescription("Requires access:lead-stats (edit). Adds a call result (at most 30).")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<LeadCallResultResponse>();
 
     private static async Task<IResult> HandleAsync(SaveLeadCallResultInput input, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

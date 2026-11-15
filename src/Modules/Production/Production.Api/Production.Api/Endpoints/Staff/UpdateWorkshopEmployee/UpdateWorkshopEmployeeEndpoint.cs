@@ -8,7 +8,8 @@ internal static class UpdateWorkshopEmployeeEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:int}", HandleAsync).WithName("updateWorkshopEmployee")
-            .WithSummary("Change the name or position of a worker");
+            .WithSummary("Change the name or position of a worker")
+            .Produces<WorkshopEmployeeResponse>();
 
     private static async Task<IResult> HandleAsync(int id, WorkshopEmployeeInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

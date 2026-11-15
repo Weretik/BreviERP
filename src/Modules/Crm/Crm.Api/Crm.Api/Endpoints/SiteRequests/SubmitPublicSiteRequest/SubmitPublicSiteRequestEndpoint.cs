@@ -16,7 +16,8 @@ internal static class SubmitPublicSiteRequestEndpoint
             .RequireRateLimiting(RatePolicy)
             .WithMetadata(new RequestSizeLimitAttribute(MaxBody))
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxBody })
-            .DisableAntiforgery();
+            .DisableAntiforgery()
+            .Produces<SiteRequestReceivedResponse>();
 
     private static async Task<IResult> HandleAsync([FromForm] PublicSiteRequestForm form, [FromServices] ISender sender,
         CancellationToken cancellationToken)

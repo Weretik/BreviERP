@@ -9,7 +9,8 @@ internal static class ImportProductionOrdersEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("import", HandleAsync).WithName("importProductionOrders")
-            .WithSummary("Admin: move orders of the old «Цех»; with dryRun only a preview. A list with any wrong order saves nothing");
+            .WithSummary("Admin: move orders of the old «Цех»; with dryRun only a preview. A list with any wrong order saves nothing")
+            .Produces<ProductionOrderImportResult>();
 
     private static async Task<IResult> HandleAsync([FromBody] IReadOnlyList<ProductionOrderImportRow> rows,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = default,

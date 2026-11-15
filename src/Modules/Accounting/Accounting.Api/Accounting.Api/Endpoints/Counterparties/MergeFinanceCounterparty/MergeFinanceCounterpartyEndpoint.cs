@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Counterparties.Commands.MergeFinanceCounterparty;
 using BuildingBlocks.Api.Errors;
@@ -11,7 +12,8 @@ internal static class MergeFinanceCounterpartyEndpoint
         group.MapPost("{id:guid}/merge", HandleAsync).WithName("mergeFinanceCounterparty")
             .WithSummary("«Об'єднати»: the counterparty is a duplicate of targetId")
             .WithDescription("«Об'єднати»: the counterparty is a duplicate of targetId. Its operations move to the target, its names become other names of the target, and it is archived with mergedIntoId. Returns the target.")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<FinanceCounterpartyResponse>();
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceCounterpartyMergeInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Transactions.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Transactions.Commands.VoidFinanceTransaction;
 using Accounting.Api.Endpoints.Shared;
@@ -11,7 +12,8 @@ internal static class VoidFinanceTransactionEndpoint
         group.MapPost("{id:guid}/void", HandleAsync).WithName("voidFinanceTransaction")
             .WithSummary("«Анулювати»: never deleted; the operation stays in the journal (includeVoided) and the log but no longer counts")
             .WithDescription("«Анулювати»: never deleted; the operation stays in the journal (includeVoided) and the log but no longer counts. A cancelled operation cannot be changed (400).")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<FinanceTransactionResponse>();
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceVersionInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

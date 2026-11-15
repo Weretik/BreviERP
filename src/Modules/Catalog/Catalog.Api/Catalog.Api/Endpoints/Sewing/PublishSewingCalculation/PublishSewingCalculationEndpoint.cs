@@ -1,3 +1,4 @@
+using Catalog.Application.Abstractions.Pricing.Publications;
 using Catalog.Application.Features.Pricing.Commands.PublishSewingCalculation;
 using BuildingBlocks.Api.Errors;
 
@@ -10,7 +11,8 @@ internal static class PublishSewingCalculationEndpoint
             .WithSummary("Publish an unblocked current calculation")
             .WithDescription("Publish an unblocked current calculation. Replaying an already published calculation returns its original publication without replacing the current price. Requires access:products.")
             .RequireAccessAction(AccessActionAttribute.Edit)
-            .RequireAuthorization("access:products");
+            .RequireAuthorization("access:products")
+            .Produces<PublishedSewingPrice>();
 
     private static async Task<IResult> HandleAsync(int productId, long articleId, Guid calculationId,
         ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken)

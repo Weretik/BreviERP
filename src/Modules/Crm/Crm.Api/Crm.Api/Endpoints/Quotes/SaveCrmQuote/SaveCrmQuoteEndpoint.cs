@@ -11,7 +11,8 @@ internal static class SaveCrmQuoteEndpoint
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:long}", HandleAsync).WithName("saveCrmQuote")
             .WithSummary("Saves the whole editor content")
-            .WithDescription("Saves the whole editor content. Saved rows keep their prices; only the shown flags and PPE manual prices change.");
+            .WithDescription("Saves the whole editor content. Saved rows keep their prices; only the shown flags and PPE manual prices change.")
+            .Produces<QuoteResponse>();
 
     private static async Task<IResult> HandleAsync(long id, SaveQuoteInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

@@ -10,7 +10,8 @@ internal static class SaveCrmQuoteSettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("", HandleAsync).WithName("saveCrmQuoteSettings")
-            .WithSummary("Saves the whole page with the version that was loaded");
+            .WithSummary("Saves the whole page with the version that was loaded")
+            .Produces<QuoteSettingsResponse>();
 
     private static async Task<IResult> HandleAsync(SaveQuoteSettingsInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

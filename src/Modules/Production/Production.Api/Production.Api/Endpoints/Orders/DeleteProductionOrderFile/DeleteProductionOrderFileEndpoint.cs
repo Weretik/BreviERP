@@ -1,3 +1,4 @@
+using Production.Application.Features.Orders.Shared.Responses;
 using Production.Application.Features.Orders.Commands.DeleteProductionOrderFile;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,8 @@ internal static class DeleteProductionOrderFileEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("{id:int}/files/{fileId:int}", HandleAsync).WithName("deleteProductionOrderFile")
-            .WithSummary("Remove a file; a CDN file is deleted too");
+            .WithSummary("Remove a file; a CDN file is deleted too")
+            .Produces<ProductionOrderResponse>();
 
     private static async Task<IResult> HandleAsync(int id, int fileId, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>
