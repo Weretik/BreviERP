@@ -76,9 +76,8 @@ public sealed class CreateProductionOrderHandler(
         if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();
         var order = created.Value;
         order.Record("Створено", $"З КП {quote.Number}", actorName, now);
-        db.Orders.Add(order);
         // No delivery row yet: a missing row reads as «Не надіслано», and «Надіслати в цех» creates it.
-        await db.SaveChangesAsync(cancellationToken);
-        return Result.Success(await cards.BuildAsync(order, actor, cancellationToken));
+        var saved = await OrderNumbers.SaveNewAsync(db, order, cancellationToken);
+        return Result.Success(await cards.BuildAsync(saved, actor, cancellationToken));
     }
 }

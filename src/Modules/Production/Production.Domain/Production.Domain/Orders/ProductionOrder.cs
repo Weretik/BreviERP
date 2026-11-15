@@ -65,6 +65,13 @@ public sealed class ProductionOrder
     /// <summary>Order number shown to people; the old app's numbers are kept on transfer.</summary>
     public int Number { get; private set; }
 
+    /// <summary>A new order that lost its number to another order saved first takes the next one.</summary>
+    public void TakeNumber(int number)
+    {
+        if (Id != 0) throw new InvalidOperationException("A saved order keeps its number.");
+        Number = number;
+    }
+
     /// <summary>The Crm КП; null for an order moved from the old app, which keeps only <see cref="QuoteNumber"/>.</summary>
     public long? QuoteId { get; private set; }
 
