@@ -28279,6 +28279,10 @@
         }
       },
       "PpePercentSource": {
+        "enum": [
+          0,
+          1
+        ],
         "type": "integer"
       },
       "PpePriceCalculation": {
@@ -31794,6 +31798,10 @@
         ]
       },
       "ProductType": {
+        "enum": [
+          1,
+          2
+        ],
         "type": "integer"
       },
       "ProductWriteRequest": {
