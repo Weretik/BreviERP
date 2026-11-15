@@ -14,6 +14,7 @@ using Warehouse.Application.Features.Stock.Shared.Booking;
 using Warehouse.Application.Features.Stock.Shared.Operations;
 using Warehouse.Application.Features.Stock.Shared.Plans;
 using BuildingBlocks.Infrastructure.Database;
+using BuildingBlocks.Infrastructure.Outbox;
 
 namespace Warehouse.Infrastructure.DependencyInjection;
 
@@ -40,6 +41,9 @@ public static class WarehouseInfrastructureExtensions
         services.AddScoped<ItemFabricCards>();
         services.AddScoped<ItemPlans>();
         services.AddScoped<StockFacts>();
+        services.AddScoped<FabricHistory>();
+        services.AddOutbox<WarehouseDbContext>();
+        services.AddOutboxHandler<RecordFabricHistoryOutboxHandler>();
 
         // Contracts other modules use (ADR-0006).
         services.AddScoped<IStockFacts>(sp => sp.GetRequiredService<StockFacts>());

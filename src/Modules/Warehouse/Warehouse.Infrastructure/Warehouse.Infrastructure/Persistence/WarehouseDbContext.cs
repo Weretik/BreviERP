@@ -1,4 +1,6 @@
+using BuildingBlocks.Application.Outbox;
 using BuildingBlocks.Infrastructure.Database;
+using BuildingBlocks.Infrastructure.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Warehouse.Application.Abstractions;
@@ -19,6 +21,7 @@ public sealed class WarehouseDbContext(DbContextOptions<WarehouseDbContext> opti
     public DbSet<FabricItemPlan> FabricItemPlans => Set<FabricItemPlan>();
     public DbSet<StockOperation> StockOperations => Set<StockOperation>();
     public DbSet<StockTransfer> StockTransfers => Set<StockTransfer>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public async Task<IWarehouseTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
         new Transaction(await Database.BeginTransactionAsync(cancellationToken));
@@ -27,6 +30,7 @@ public sealed class WarehouseDbContext(DbContextOptions<WarehouseDbContext> opti
     {
         builder.HasDefaultSchema(Schema);
         builder.AddTrigramSearch();
+        builder.AddOutbox();
         builder.ApplyConfigurationsFromAssembly(typeof(WarehouseDbContext).Assembly);
     }
 

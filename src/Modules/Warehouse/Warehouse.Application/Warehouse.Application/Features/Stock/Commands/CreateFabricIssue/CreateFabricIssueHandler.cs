@@ -9,7 +9,8 @@ using Warehouse.Application.Features.Stock.Shared.Plans;
 namespace Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
 
 public sealed class CreateFabricIssueHandler(IWarehouseProductionReader production, IWarehouseDbContext db,
-    StockChanges changes, StockPairs pairs, StockOperations operations, ItemPlans plans, ItemFabricCards cards)
+    StockChanges changes, StockPairs pairs, StockOperations operations, ItemPlans plans, ItemFabricCards cards,
+    FabricHistory history)
     : ICommandHandler<CreateFabricIssueCommand, Result<ProductionItemFabricResponse>>
 {
     public const string Kind = "order-issue";
@@ -102,10 +103,11 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
         }
 
         db.FabricIssues.Add(issue);
+        var note = history.Note(item.OrderId, item.ItemId,
+            $"Видано {Meters(issue.Lines.Sum(x => x.Meters))} м на {input.IssuedQuantity} шт.", actorName, now);
         var saved = await SaveAsync(command.Actor, input.OperationId, hash, touched, issue, forms[0].Pair, cancellationToken);
         if (saved is not null) return saved;
-        await production.RecordFabricAsync(item.OrderId, item.ItemId,
-            $"Видано {Meters(issue.Lines.Sum(x => x.Meters))} м на {input.IssuedQuantity} шт.", actorName, cancellationToken);
+        await history.SendAsync(note);
         return Result.Success(await cards.BuildAsync(item, command.Actor, cancellationToken));
     }
 

@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Outbox;
 using Warehouse.Domain.Stock;
 using Warehouse.Domain.Stock.Movements;
 using Warehouse.Domain.Stock.Plans;
@@ -14,6 +15,7 @@ public interface IWarehouseDbContext
     DbSet<StockOperation> StockOperations { get; }
     DbSet<FabricMovementRevision> FabricMovementRevisions { get; }
     DbSet<StockTransfer> StockTransfers { get; }
+    DbSet<OutboxMessage> OutboxMessages { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 
     /// <summary>Several saves that stand or fall together (the transfer replaces the whole stock).</summary>

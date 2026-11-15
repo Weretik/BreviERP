@@ -199,7 +199,7 @@ public sealed class WarehouseIssueByCuttingTests
     {
         workshop.Db.ChangeTracker.Clear();
         return await new RefreshItemFabricPlanHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
-                workshop.Plans(), workshop.ItemFabric())
+                workshop.Plans(), workshop.ItemFabric(), workshop.History())
             .Handle(new(Chief, orderId, itemId, new(version, planVersion)), CancellationToken.None);
     }
 

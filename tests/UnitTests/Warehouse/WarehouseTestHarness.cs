@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Outbox;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -62,6 +63,35 @@ internal sealed class HarnessProductionStockReader(StockFacts facts) : global::P
                 x.FabricName, x.Color, x.Meters)).ToArray();
 }
 
+/// <summary>The warehouse outbox run at once after the save, as the real dispatch tries it; it can be held back.</summary>
+internal sealed class InlineWarehouseOutbox(WarehouseDbContext db, IWarehouseProductionReader production)
+    : IOutboxDispatcher
+{
+    /// <summary>The try after the save does not happen (a stop or a failure); the messages wait.</summary>
+    public bool HoldBack { get; set; }
+
+    public Task DispatchAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken) =>
+        HoldBack ? Task.CompletedTask : RunAsync(ids, cancellationToken);
+
+    public async Task<OutboxRun> DispatchDueAsync(CancellationToken cancellationToken) =>
+        new(await RunAsync(null, cancellationToken), 0);
+
+    private async Task<int> RunAsync(IReadOnlyCollection<Guid>? ids, CancellationToken cancellationToken)
+    {
+        var handler = new RecordFabricHistoryOutboxHandler(production);
+        var due = await db.OutboxMessages.Where(x => x.ProcessedAt == null && (ids == null || ids.Contains(x.Id)))
+            .ToListAsync(cancellationToken);
+        foreach (var message in due)
+        {
+            await handler.HandleAsync(message.Payload, cancellationToken);
+            message.Succeed(DateTimeOffset.UtcNow);
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return due.Count;
+    }
+}
+
 /// <summary>Warehouse module on SQLite in memory next to a Production harness with its orders and norms.</summary>
 internal sealed class WarehouseTestHarness : IDisposable
 {
@@ -83,7 +113,12 @@ internal sealed class WarehouseTestHarness : IDisposable
         Staff = new HarnessWarehouseStaffReader(workshop);
         Production = new WarehouseProductionReader(new ProductionFabricPlans(workshop.Db, workshop.Time,
             new ProductionAssemblies(workshop.Db, workshop.Models)));
+        Outbox = new InlineWarehouseOutbox(Db, Production);
     }
+
+    public InlineWarehouseOutbox Outbox { get; }
+
+    public FabricHistory History() => new(Db, Outbox);
 
     public ProductionTestHarness Workshop { get; }
     public WarehouseDbContext Db { get; }

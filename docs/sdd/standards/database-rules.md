@@ -195,12 +195,15 @@ Each module owns its `DbContext`, schema and migration history ([module rules](m
 - `BuildingBlocks.Application/SearchWords`: `rows.WhereSearchText(text)` keeps rows whose `SearchText` holds every word; `WhereEveryWord(text, pattern => x => ...)` when a word may also match a number, an amount or a child row; `SearchWords.Matches<T>(pattern)` for a specification in a project without EF Core. Patterns are lower case and escaped.
 - A table whose domain already keeps a lower-case `SearchText` (`WorkshopArchiveRecord`, `FinanceCounterparty`) only gets the `gin_trgm_ops` index.
 - A ledger whose search also covers its parent's fields (`FabricMovement` and its shelf line) indexes its own text columns; the few parent rows are read and matched in memory and enter the query as a list of ids (`FabricMovementLedger`). A report over several periods reads its sources once for the whole range (`PayrollSheets.ReadRangeAsync`), never per period.
+- A short list that is read whole anyway (the «Товари» overview, «Товари на сайті», «План/факт тканини») keeps its search in memory with the same rule: `SearchWords.MatchesEveryWord(text, fields)`. Move it to SQL with a `SearchText` column when the list grows past about 2 000 rows.
 - Unit tests on SQLite call `connection.WithSearch()` (`tests/UnitTests/TestSupport/SqliteSearch.cs`) so `lower` handles Cyrillic as PostgreSQL does.
 - A migration that adds a search column keeps `pg_trgm` in `Down`: other modules' indexes use it.
 
 ### Outbox and jobs
 
-- The transactional outbox (`BuildingBlocks.Infrastructure/Outbox`) claims messages with `FOR UPDATE SKIP LOCKED` and is dispatched by Cloud Scheduler through the protected outbox endpoint (3.4, 4).
+- The transactional outbox (`BuildingBlocks.Infrastructure/Outbox`) claims messages with `FOR UPDATE SKIP LOCKED` and is dispatched by Cloud Scheduler through the protected outbox endpoint (3.4, 4). A partial index on `CreatedAt` where `ProcessedAt IS NULL` serves the claim. Each handler has `OutboxOptions.HandlerTimeout` (20 s); a handler may run twice, so it checks its own record first.
+- Crm, Production, Reference and Warehouse have outboxes. The warehouse writes «Тканина» lines of the order history through it (`FabricHistory`): the note is saved with the stock change, and Production skips a line it already has.
+- The scheduler tick runs alone: `SchedulingDbContext.TryLockTickAsync` takes a session `pg_try_advisory_lock`; a tick that finds it taken does nothing.
 - Background tasks run through the tasks job of `Host.Seed`, launched by Cloud Scheduler; sync jobs (KeepinCRM, 1C) are steps that are safe to re-run (3.3).
 
 ### Concurrency already in place
@@ -209,6 +212,7 @@ Each module owns its `DbContext`, schema and migration history ([module rules](m
 - Double submit: a create form makes a `RequestId` when it opens and sends it with «Зберегти». The row stores it under a unique partial index (`"RequestId" IS NOT NULL`); a repeat returns the saved row, also when the first request wins a race (catch `DbUpdateException`, read by `RequestId`). In place for workshop orders and work, payroll payments and adjustments (`PayrollChanges.ApplyOnceAsync`), finance operations and transfers, КП create, «КП для знайомства» and copy (`QuoteNumbering.AddAsync`), lead calls, КП letters and site requests (the site form sends `requestId` with the multipart body). The field is optional, so an older client keeps working. A КП letter is checked before Gmail is called: a repeat after success sends nothing, while two presses that reach the server at the same moment are still both sent, and the second only fails to mark the КП (the version check).
 - Crm edit forms (КП, leads, tasks, customers, embroidery settings) carry a version and return 409 on `DbUpdateConcurrencyException`.
 - «Нагадування»: `ReminderOccurrence.Version` is a concurrency token that every close, postpone, reopen and reschedule moves. Two «Виконано» presses, or a press and the admin close, cannot both be recorded: the Telegram press that loses reads the period again and answers «Вже закрито: …»; the admin gets 409.
+- Workshop order numbers are «MAX + 1» without gaps; a create that loses the race to the unique index takes the next number and saves again, and a double press returns the saved order (`OrderNumbers.SaveNewAsync`), like КП numbers (`QuoteNumbering`).
 - A save is answered as «someone was first» only for a race: `catch (DbUpdateException e) when (e.IsRace())` (`BuildingBlocks.Application/SaveRaces`: a concurrency exception or a unique violation, PostgreSQL `23505`). Any other failed save, such as a broken reference or a too long value, reaches the global exception handler as an error. The warehouse stock operations use it.
 
 ## Known deviations
@@ -217,6 +221,4 @@ From the database audit of 2026-11-15; each row is removed when its fix is merge
 
 | Rule | Where | Status | Plan |
 | --- | --- | --- | --- |
-| 1.4, 2.1 | `ProductOverviewListing`, `GetContentProductsHandler`, `GetFabricPlanFactHandler` (search in C# over a model loaded whole) | open | Audit stage 7: filter in SQL or cache the model |
-| 4 | `OrderNumbers` (`MAX + 1`) | open | Audit stage 7: database sequence |
 | 5.2, 5.3 | CI has no idempotent script review or pending-model-changes check | open | Audit stage 8 |

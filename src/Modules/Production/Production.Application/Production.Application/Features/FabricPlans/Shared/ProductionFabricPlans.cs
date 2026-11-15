@@ -67,15 +67,21 @@ public sealed class ProductionFabricPlans(IProductionDbContext db, TimeProvider 
     public Task<IReadOnlyList<AssemblyItem>> OpenAssembliesAsync(CancellationToken cancellationToken) =>
         assemblies.OpenAsync(cancellationToken);
 
-    /// <summary>Adds «Тканина» to the history of the item; nothing when the order is gone.</summary>
-    public async Task RecordFabricAsync(int orderId, int itemId, string text, string actorName,
+    /// <summary>Adds «Тканина» to the history of the item once; nothing when the order is gone.</summary>
+    public async Task RecordFabricAsync(int orderId, int itemId, string text, string actorName, DateTimeOffset at,
         CancellationToken cancellationToken)
     {
+        // PostgreSQL keeps microseconds: the same instant must compare equal after a round trip.
+        var when = at.AddTicks(-(at.Ticks % 10));
+        if (await db.OrderChanges.AnyAsync(x => x.OrderId == orderId && x.ItemId == itemId && x.Field == FabricField
+                && x.After == text && x.At == when, cancellationToken)) return;
         var order = await db.Orders.Include(x => x.Items).SingleOrDefaultAsync(x => x.Id == orderId, cancellationToken);
         if (order is null) return;
-        order.RecordAbout(itemId, "Тканина", null, text, actorName, clock.GetUtcNow());
+        order.RecordAbout(itemId, FabricField, null, text, actorName, when);
         await db.SaveChangesAsync(cancellationToken);
     }
+
+    private const string FabricField = "Тканина";
 
     private async Task<IReadOnlyList<OrderPlanItem>> PlanAsync(
         IReadOnlyList<(ProductionOrder Order, ProductionItem Item)> items, CancellationToken cancellationToken)
