@@ -37,7 +37,7 @@ public sealed class RefreshItemFabricPlanHandler(IWarehouseProductionReader prod
         {
             await db.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException exception) when (exception.IsRace())
         {
             return Result<ProductionItemFabricResponse>.Conflict(StockMessages.PlanStale);
         }

@@ -68,13 +68,9 @@ public sealed class StockChanges(IWarehouseDbContext db, IWarehouseStaffReader s
             await db.SaveChangesAsync(cancellationToken);
             return Result.Success();
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateException exception) when (exception.IsRace())
         {
-            return Result.Conflict(StockMessages.Stale);
-        }
-        catch (DbUpdateException)
-        {
-            // Two people opened the same new fabric and colour at once: the unique index refused the second.
+            // Someone changed the line in between, or two people opened the same new fabric and colour at once.
             return Result.Conflict(StockMessages.Stale);
         }
     }

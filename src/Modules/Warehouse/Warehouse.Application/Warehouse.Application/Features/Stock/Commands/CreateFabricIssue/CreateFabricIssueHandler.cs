@@ -123,7 +123,7 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
             await db.SaveChangesAsync(cancellationToken);
             return null;
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException exception) when (exception.IsRace())
         {
             if (await operations.ReplayAsync(operationId, hash, cancellationToken) is { IsSuccess: true })
                 return null;

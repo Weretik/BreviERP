@@ -208,6 +208,8 @@ Each module owns its `DbContext`, schema and migration history ([module rules](m
 - «Зарплата»: `PayrollMonth.Version` is a concurrency token. Every change of work, hours, payments and adjustments calls `PayrollMonth.RecordChange` (through `PayrollChanges.ApplyAsync` or `PayrollMonths.MarkChangedAsync`) and saves with `PayrollMonths.SaveAsync`, so a change that races the closing of its month gets 409 instead of landing in a closed month.
 - Double submit: a create form makes a `RequestId` when it opens and sends it with «Зберегти». The row stores it under a unique partial index (`"RequestId" IS NOT NULL`); a repeat returns the saved row, also when the first request wins a race (catch `DbUpdateException`, read by `RequestId`). In place for workshop orders and work, payroll payments and adjustments (`PayrollChanges.ApplyOnceAsync`), finance operations and transfers, КП create, «КП для знайомства» and copy (`QuoteNumbering.AddAsync`), lead calls, КП letters and site requests (the site form sends `requestId` with the multipart body). The field is optional, so an older client keeps working. A КП letter is checked before Gmail is called: a repeat after success sends nothing, while two presses that reach the server at the same moment are still both sent, and the second only fails to mark the КП (the version check).
 - Crm edit forms (КП, leads, tasks, customers, embroidery settings) carry a version and return 409 on `DbUpdateConcurrencyException`.
+- «Нагадування»: `ReminderOccurrence.Version` is a concurrency token that every close, postpone, reopen and reschedule moves. Two «Виконано» presses, or a press and the admin close, cannot both be recorded: the Telegram press that loses reads the period again and answers «Вже закрито: …»; the admin gets 409.
+- A save is answered as «someone was first» only for a race: `catch (DbUpdateException e) when (e.IsRace())` (`BuildingBlocks.Application/SaveRaces`: a concurrency exception or a unique violation, PostgreSQL `23505`). Any other failed save, such as a broken reference or a too long value, reaches the global exception handler as an error. The warehouse stock operations use it.
 
 ## Known deviations
 
@@ -216,6 +218,5 @@ From the database audit of 2026-11-15; each row is removed when its fix is merge
 | Rule | Where | Status | Plan |
 | --- | --- | --- | --- |
 | 1.4, 2.1 | `ProductOverviewListing`, `GetContentProductsHandler`, `GetFabricPlanFactHandler` (search in C# over a model loaded whole) | open | Audit stage 7: filter in SQL or cache the model |
-| 4 | `ReminderButtonHandler` (no version); `StockChanges` catches every `DbUpdateException` as stale | open | Audit stage 6: `xmin`, catch only concurrency and unique violations |
 | 4 | `OrderNumbers` (`MAX + 1`) | open | Audit stage 7: database sequence |
 | 5.2, 5.3 | CI has no idempotent script review or pending-model-changes check | open | Audit stage 8 |

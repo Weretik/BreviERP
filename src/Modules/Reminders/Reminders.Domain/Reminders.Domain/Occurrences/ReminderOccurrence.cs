@@ -22,6 +22,9 @@ public sealed class ReminderOccurrence : BaseEntity<ReminderOccurrenceId>, IAggr
     public ReminderActor? PostponedBy { get; private set; }
     public DateTimeOffset? PostponedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+
+    /// <summary>Moves on every change, so two presses at once cannot both close or postpone the period.</summary>
+    public int Version { get; private set; }
     public IReadOnlyCollection<ReminderAction> Actions => _actions.AsReadOnly();
 
     public ReminderPeriod Period => new(Periodicity, PeriodStart);
@@ -39,7 +42,9 @@ public sealed class ReminderOccurrence : BaseEntity<ReminderOccurrenceId>, IAggr
     /// <summary>After the task's rule changes, an open period follows the new deadline; closed periods keep history.</summary>
     public void Reschedule(DateOnly dueDate)
     {
-        if (Status == ReminderOccurrenceStatus.Open) DueDate = dueDate;
+        if (Status != ReminderOccurrenceStatus.Open || DueDate == dueDate) return;
+        DueDate = dueDate;
+        Version++;
     }
 
     public bool IsPostponedOn(DateOnly today) => Status == ReminderOccurrenceStatus.Open && SnoozedUntil > today;
@@ -52,6 +57,7 @@ public sealed class ReminderOccurrence : BaseEntity<ReminderOccurrenceId>, IAggr
         ClosedBy = actor;
         ClosedAt = now;
         SnoozedUntil = null;
+        Version++;
         _actions.Add(new ReminderAction(ReminderActionKind.Done, actor, now, null));
         return true;
     }
@@ -62,6 +68,7 @@ public sealed class ReminderOccurrence : BaseEntity<ReminderOccurrenceId>, IAggr
         SnoozedUntil = until;
         PostponedBy = actor;
         PostponedAt = now;
+        Version++;
         _actions.Add(new ReminderAction(ReminderActionKind.Postponed, actor, now, until));
         return true;
     }
@@ -72,6 +79,7 @@ public sealed class ReminderOccurrence : BaseEntity<ReminderOccurrenceId>, IAggr
         Status = ReminderOccurrenceStatus.Open;
         ClosedBy = null;
         ClosedAt = null;
+        Version++;
         _actions.Add(new ReminderAction(ReminderActionKind.Reopened, actor, now, null));
         return true;
     }

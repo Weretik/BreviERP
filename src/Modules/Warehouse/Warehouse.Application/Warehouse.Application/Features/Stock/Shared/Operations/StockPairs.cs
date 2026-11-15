@@ -47,7 +47,7 @@ public sealed class StockPairs(IWarehouseDbContext db, StockOperations operation
         {
             await db.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException exception) when (exception.IsRace())
         {
             // Another person changed the pair, or the same operation was saved in parallel: answer the saved result.
             if (await operations.ReplayAsync(operationId, hash, cancellationToken) is { } replay) return replay;
