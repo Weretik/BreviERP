@@ -179,6 +179,7 @@ public sealed class ContentProductPagesTests
         var offSite = await h.List().Handle(new GetContentProductsQuery(1, 50, OnSite: false), None);
         var bySlug = await h.List().Handle(new GetContentProductsQuery(1, 50, "KOSTYUM"), None);
         var byCode = await h.List().Handle(new GetContentProductsQuery(1, 50, "mod-002"), None);
+        var byWords = await h.List().Handle(new GetContentProductsQuery(1, 50, "зима КУРТКА"), None);
 
         var row = onSite.Value.Items.Single();
         Assert.Multiple(() =>
@@ -193,6 +194,7 @@ public sealed class ContentProductPagesTests
             Assert.That(row.HasSeo, Is.False);
             Assert.That(row.SectionName, Is.EqualTo("Костюми"));
             Assert.That(offSite.Value.Total, Is.EqualTo(2));
+            Assert.That(byWords.Value.Items.Single().ProductId, Is.EqualTo(2), "every word, any order");
             Assert.That(bySlug.Value.Items.Single().ProductId, Is.EqualTo(1));
             Assert.That(byCode.Value.Items.Single().ProductId, Is.EqualTo(2));
         });

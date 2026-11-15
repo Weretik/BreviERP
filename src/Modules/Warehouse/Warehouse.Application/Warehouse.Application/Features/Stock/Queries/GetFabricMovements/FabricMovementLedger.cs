@@ -50,7 +50,7 @@ internal static class FabricMovementLedger
         if (query.ItemId is { } itemId) movements = movements.Where(x => x.ItemId == itemId);
         if (query.From is { } from) movements = movements.Where(x => x.OperationDate >= from);
         if (query.To is { } to) movements = movements.Where(x => x.OperationDate <= to);
-        foreach (var word in Words(query.Search)) movements = movements.Where(Matches(word, shelf));
+        foreach (var word in SearchWords.Words(query.Search)) movements = movements.Where(Matches(word, shelf));
         return movements;
     }
 
@@ -66,13 +66,6 @@ internal static class FabricMovementLedger
                     || lines.Contains(x.StockId)
                     || ("ц-" + x.OrderNumber.ToString() + " " + x.OrderNumber.ToString()).Contains(word);
     }
-
-    private static IEnumerable<string> Words(string? search) =>
-        string.IsNullOrWhiteSpace(search)
-            ? []
-            : search.Normalize(System.Text.NormalizationForm.FormC)
-                .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)
-                .Select(SearchWords.Normalize).Distinct();
 
     /// <summary>The movements of a kind chip, as a database filter.</summary>
     public static Expression<Func<FabricMovement, bool>> Of(FabricMovementFilter kind) => kind switch

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 
 namespace BuildingBlocks.Application;
@@ -17,10 +18,26 @@ public static class SearchWords
 
     /// <summary>One <c>LIKE</c> pattern per distinct word: lower case, apostrophes unified, wildcards escaped.</summary>
     public static IReadOnlyList<string> Patterns(string? input) =>
+        Words(input).Select(word => $"%{EscapeWildcards(word)}%").ToList();
+
+    /// <summary>The distinct words of the input, normalized as the generated column stores text.</summary>
+    public static IReadOnlyList<string> Words(string? input) =>
         string.IsNullOrWhiteSpace(input)
             ? []
-            : input.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)
-                .Select(word => $"%{EscapeWildcards(Normalize(word))}%").Distinct().ToList();
+            : input.Normalize(NormalizationForm.FormC).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)
+                .Select(Normalize).Distinct().ToList();
+
+    /// <summary>
+    /// The same rule in memory, for a short list that is read whole anyway: every word is a part of one of the
+    /// <paramref name="texts"/>, in any order.
+    /// </summary>
+    public static bool MatchesEveryWord(string? input, IEnumerable<string?> texts)
+    {
+        var words = Words(input);
+        if (words.Count == 0) return true;
+        var text = Normalize(string.Join('\n', texts.OfType<string>()).Normalize(NormalizationForm.FormC));
+        return words.All(word => text.Contains(word, StringComparison.Ordinal));
+    }
 
     /// <summary>Lower case with one apostrophe, the same as the generated column stores.</summary>
     public static string Normalize(string text) =>

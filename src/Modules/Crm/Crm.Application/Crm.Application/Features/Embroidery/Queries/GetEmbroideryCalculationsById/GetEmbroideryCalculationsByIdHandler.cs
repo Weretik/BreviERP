@@ -2,7 +2,7 @@ using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Shared.Mapping;
 using Crm.Application.Abstractions.Embroidery;
 
-namespace Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+namespace Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculationsById;
 
 /// <summary>The calculations and their mockups in two queries, whatever the number of ids.</summary>
 public sealed class GetEmbroideryCalculationsByIdHandler(IEmbroideryStore store, IEmbroideryMediaReader media)

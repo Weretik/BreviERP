@@ -1,4 +1,4 @@
-namespace Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+namespace Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculationsById;
 
 public sealed class GetEmbroideryCalculationsByIdValidator : AbstractValidator<GetEmbroideryCalculationsByIdQuery>
 {

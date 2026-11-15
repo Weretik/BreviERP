@@ -4,6 +4,7 @@ using Crm.Application.Features.Embroidery.Commands.SaveEmbroideryCalculation;
 using Crm.Application.Features.Embroidery.Commands.SaveEmbroiderySettings;
 using Crm.Application.Features.Embroidery.Commands.SetEmbroideryMockup;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculationsById;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculations;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryMockupUsages;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroiderySettings;
