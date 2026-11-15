@@ -16,4 +16,5 @@ public sealed record SubmitSiteRequestCommand(
     string? Quantity,
     string? Comment,
     string? Locale,
-    SiteRequestFile? File) : ICommand<Result<SiteRequestReceivedResponse>>;
+    SiteRequestFile? File,
+    Guid? RequestId = null) : ICommand<Result<SiteRequestReceivedResponse>>;

@@ -18,6 +18,7 @@ public sealed class LeadCallConfiguration : IEntityTypeConfiguration<LeadCall>
         b.Property(x => x.Comment).HasMaxLength(LeadLimits.CommentMaxLength);
         b.HasIndex(x => x.At);
         b.HasIndex(x => new { x.ByUserId, x.At });
+        b.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
         // The result by id without a foreign key: the call keeps the result's name at the time of the call.
     }
 }

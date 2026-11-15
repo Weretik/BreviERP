@@ -44,6 +44,7 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.HasIndex(x => x.UpdatedAt);
         b.HasIndex(x => x.ArchivedAt);
         b.HasIndex(x => x.CustomerId);
+        b.HasIndex(x => x.CreateRequestId).IsUnique().HasFilter("\"CreateRequestId\" IS NOT NULL");
         b.HasSearchText(nameof(Quote.Number), nameof(Quote.InternalName), nameof(Quote.CompanyName),
             nameof(Quote.RecipientName));
 

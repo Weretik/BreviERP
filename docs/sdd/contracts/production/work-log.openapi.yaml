@@ -469,6 +469,12 @@ components:
           - string
           - 'null'
           maxLength: 1000
+        requestId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: New for every form; a repeat with the same id returns the item card without new work.
     VoidProductionWorkInput:
       type: object
       required:

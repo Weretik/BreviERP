@@ -9,8 +9,9 @@ public sealed class LeadCall
     private LeadCall() { }
 
     internal LeadCall(LeadPerson by, LeadCallResult result, string? comment, DateTimeOffset? nextContactAt,
-        DateTimeOffset at)
+        DateTimeOffset at, Guid? requestId = null)
     {
+        RequestId = requestId;
         ByUserId = by.UserId;
         ByName = by.Name;
         ResultId = result.Id;
@@ -22,6 +23,9 @@ public sealed class LeadCall
     }
 
     public long Id { get; private set; }
+
+    /// <summary>The «Зберегти» attempt; a repeat with the same id records nothing new (unique).</summary>
+    public Guid? RequestId { get; private set; }
     public long LeadId { get; private set; }
     public int ByUserId { get; private set; }
     public string ByName { get; private set; } = null!;

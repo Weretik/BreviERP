@@ -612,6 +612,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<long>("ResultId")
                         .HasColumnType("bigint");
 
@@ -625,6 +628,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasIndex("At");
 
                     b.HasIndex("LeadId");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.HasIndex("ByUserId", "At");
 
@@ -1168,6 +1175,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<Guid?>("CreateRequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1258,6 +1268,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ArchivedAt");
 
+                    b.HasIndex("CreateRequestId")
+                        .IsUnique()
+                        .HasFilter("\"CreateRequestId\" IS NOT NULL");
+
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("Number")
@@ -1346,6 +1360,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<int>("QuoteVersion")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("SenderName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1368,6 +1385,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(2000)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.HasIndex("QuoteId", "SentAt");
 
@@ -1511,6 +1532,9 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1533,6 +1557,10 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerUserId");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.HasIndex("Status");
 

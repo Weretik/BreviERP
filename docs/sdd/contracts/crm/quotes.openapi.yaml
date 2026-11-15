@@ -267,7 +267,12 @@ paths:
         - bearerAuth: []
       description: >-
         «Копіювати»: a new draft with the next number, the same header, introduction and items with their saved
-        prices. The actor becomes its author and responsible.
+        prices. The actor becomes its author and responsible. A repeat with the same `requestId` returns the same copy.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CrmCopyQuoteInput" }
       responses:
         "201":
           description: The new КП.
@@ -1041,6 +1046,10 @@ components:
           maxItems: 200
           description: CustomSewing only (needs at least one operation); prices come from the server.
           items: { $ref: "#/components/schemas/CrmQuoteItemLineInput" }
+    CrmCopyQuoteInput:
+      type: object
+      properties:
+        requestId: { type: [string, "null"], format: uuid, description: New for every press. }
     CrmSaveQuoteInput:
       type: object
       required: [version, internalName, items]
@@ -1056,6 +1065,7 @@ components:
           type: array
           maxItems: 100
           items: { $ref: "#/components/schemas/CrmQuoteItemInput" }
+        requestId: { type: [string, "null"], format: uuid, description: "Create only: new for every form; a repeat with the same id returns the same КП." }
     CrmQuotePrice:
       type: object
       required: [isManual, shown]
@@ -1618,6 +1628,7 @@ components:
         to: { type: string, maxLength: 2000, description: "1 to 10 addresses separated by commas, semicolons or spaces." }
         subject: { type: string, maxLength: 300, description: One line. }
         body: { type: string, maxLength: 10000, description: Plain text. }
+        requestId: { type: [string, "null"], format: uuid, description: New for every press; a repeat with the same id returns the КП without a second letter. }
     CrmQuoteIntroLayout:
       type: string
       enum: [General, Summer, Winter]
@@ -1671,6 +1682,7 @@ components:
           type: array
           description: One page per season of the layout, summer first; a model only once.
           items: { $ref: "#/components/schemas/CrmQuoteIntroPageInput" }
+        requestId: { type: [string, "null"], format: uuid, description: "Create only: new for every form; a repeat with the same id returns the same КП." }
     CrmQuoteIntroMainModel:
       type: object
       required: [code]

@@ -25,8 +25,9 @@ public sealed class CopyQuoteHandler(
         if (author is null) return Result.Forbidden(QuoteMessages.ActorUnknown);
 
         var now = clock.GetUtcNow();
-        var added = await numbering.AddAsync(now,
-            number => Task.FromResult(Result.Success(source.CopyAs(number, author, now))), cancellationToken);
+        var requestId = command.Input?.RequestId;
+        var added = await numbering.AddAsync(now, requestId,
+            number => Task.FromResult(Result.Success(source.CopyAs(number, author, now, requestId))), cancellationToken);
         return added.Map(quote => quote.ToResponse());
     }
 }

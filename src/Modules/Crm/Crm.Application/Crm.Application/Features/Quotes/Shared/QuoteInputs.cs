@@ -5,6 +5,7 @@ namespace Crm.Application.Features.Quotes.Shared;
 /// Catalog, an existing row keeps its own. Only PPE rows carry manual prices.
 /// </summary>
 /// <param name="Version">The version the editor loaded; ignored on create.</param>
+/// <param name="RequestId">Create only: new for every form; a repeat with the same id returns the same КП.</param>
 public sealed record SaveQuoteInput(
     int Version,
     string InternalName,
@@ -13,7 +14,8 @@ public sealed record SaveQuoteInput(
     string? CompanyName,
     string? ClientComment,
     string? ManagerNote,
-    IReadOnlyList<QuoteItemInput> Items);
+    IReadOnlyList<QuoteItemInput> Items,
+    Guid? RequestId = null);
 
 /// <param name="Id">The saved item, or null for a new one.</param>
 /// <param name="Kind">`Sewing`, `Ppe`, `OneOffPpe`, `CustomSewing` or `Embroidery` (a saved one only: new ones come from «Додати в КП»).</param>
