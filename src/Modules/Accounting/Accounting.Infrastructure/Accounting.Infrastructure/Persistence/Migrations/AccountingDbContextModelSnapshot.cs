@@ -632,6 +632,9 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Scope")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -676,6 +679,10 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.HasIndex("ExternalId");
 
                     b.HasIndex("Fingerprint");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.HasIndex("SearchText");
 
@@ -739,6 +746,9 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1500)
                         .HasColumnType("character varying(1500)");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Scope")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -776,6 +786,10 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.HasIndex("Fingerprint");
 
                     b.HasIndex("FromAccountId");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.HasIndex("SearchText");
 

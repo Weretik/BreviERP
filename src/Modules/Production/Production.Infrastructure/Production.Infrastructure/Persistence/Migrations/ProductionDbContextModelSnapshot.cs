@@ -680,6 +680,9 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("VoidReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -696,6 +699,10 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("Month");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.ToTable("PayrollAdjustments", "production");
                 });
@@ -812,6 +819,9 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("PaidOn")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("VoidReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -828,6 +838,10 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("Month");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.ToTable("PayrollPayments", "production");
                 });

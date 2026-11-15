@@ -38,6 +38,37 @@ public sealed class PayrollChanges(IProductionDbContext db, IProductionStaffRead
         return Result.Success(await ReadAsync(actor, month, cancellationToken));
     }
 
+    /// <summary>
+    /// <see cref="ApplyAsync"/> for an admin's create with the form's request id: a repeat whose row
+    /// <paramref name="exists"/> (also when the first one wins a race) returns the month as it is and adds nothing.
+    /// </summary>
+    public async Task<Result<PayrollMonthResponse>> ApplyOnceAsync(ProductionActor actor, string monthText,
+        Guid? requestId, Func<Guid, CancellationToken, Task<bool>> exists, Func<PayrollChange, Task<Result?>> change,
+        CancellationToken cancellationToken)
+    {
+        if (requestId is not { } id) return await ApplyAsync(actor, monthText, true, change, cancellationToken);
+        if (!actor.CanPay) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotPay);
+        if (await exists(id, cancellationToken)) return await RepeatAsync(actor, monthText, cancellationToken);
+        try
+        {
+            var result = await ApplyAsync(actor, monthText, true, change, cancellationToken);
+            if (result.Status != ResultStatus.Conflict || !await exists(id, cancellationToken)) return result;
+        }
+        catch (DbUpdateException)
+        {
+            if (!await exists(id, cancellationToken)) throw;
+        }
+
+        return await RepeatAsync(actor, monthText, cancellationToken);
+    }
+
+    private async Task<Result<PayrollMonthResponse>> RepeatAsync(ProductionActor actor, string monthText,
+        CancellationToken cancellationToken)
+    {
+        PayrollMonths.TryParse(monthText, out var month);
+        return Result.Success(await ReadAsync(actor, month, cancellationToken));
+    }
+
     public async Task<PayrollMonthResponse> ReadAsync(ProductionActor actor, DateOnly month,
         CancellationToken cancellationToken) =>
         PayrollSheets.Present((await sheets.ReadAsync(month, cancellationToken)).Month, actor, clock);

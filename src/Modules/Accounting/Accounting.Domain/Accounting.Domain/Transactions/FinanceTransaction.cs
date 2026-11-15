@@ -19,6 +19,9 @@ public sealed class FinanceTransaction : IAggregateRoot
     private FinanceTransaction() { }
 
     public FinanceTransactionId Id { get; private set; }
+
+    /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
+    public Guid? RequestId { get; private set; }
     public DateOnly Date { get; private set; }
     public CategoryDirection Type { get; private set; }
     public FinanceAccountId AccountId { get; private set; }
@@ -72,12 +75,13 @@ public sealed class FinanceTransaction : IAggregateRoot
     /// </summary>
     public static DomainResult<FinanceTransaction> Create(FinanceTransactionId id, LedgerScope scope,
         FinanceTransactionDetails details, FinanceAccount account, FinanceCategory category,
-        CounterpartyState? counterparty, string by, DateTimeOffset now)
+        CounterpartyState? counterparty, string by, DateTimeOffset now, Guid? requestId = null)
     {
         if (MovementRules.CheckScope(scope) is { IsFailure: true } badScope) return badScope.Error!;
         var transaction = new FinanceTransaction
         {
             Id = id,
+            RequestId = requestId,
             Scope = scope,
             Source = MovementSource.Manual,
             Status = MovementStatus.Active,

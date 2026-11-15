@@ -28,13 +28,14 @@ public sealed class PayrollPayment
     private PayrollPayment() { }
 
     public static DomainResult<PayrollPayment> Create(PayrollEntryTarget target, DateOnly paidOn,
-        PayrollPaymentKind kind, decimal amount, string? comment, string actorName, DateTimeOffset now)
+        PayrollPaymentKind kind, decimal amount, string? comment, string actorName, DateTimeOffset now,
+        Guid? requestId = null)
     {
         if (amount is <= 0 or > MaxAmount) return PayrollErrors.AmountOutOfRange();
         var text = OrderText.Check(comment, CommentMaxLength, "comment");
         return text.IsFailure
             ? text.Error!
-            : new PayrollPayment(target, paidOn, kind, amount, comment, actorName, now);
+            : new PayrollPayment(target, paidOn, kind, amount, comment, actorName, now) { RequestId = requestId };
     }
 
     private PayrollPayment(PayrollEntryTarget target, DateOnly paidOn, PayrollPaymentKind kind, decimal amount,
@@ -52,6 +53,10 @@ public sealed class PayrollPayment
     }
 
     public int Id { get; private set; }
+
+    /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
+    public Guid? RequestId { get; private init; }
+
     public DateOnly Month { get; private set; }
     public int EmployeeId { get; private set; }
     public string EmployeeName { get; private set; } = null!;
@@ -88,11 +93,13 @@ public sealed class PayrollAdjustment
     private PayrollAdjustment() { }
 
     public static DomainResult<PayrollAdjustment> Create(PayrollEntryTarget target, decimal amount, string reason,
-        string actorName, DateTimeOffset now)
+        string actorName, DateTimeOffset now, Guid? requestId = null)
     {
         if (amount == 0 || Math.Abs(amount) > PayrollPayment.MaxAmount) return PayrollErrors.AdjustmentAmountOutOfRange();
         var text = OrderText.Check(reason, PayrollPayment.ReasonMaxLength, "reason", required: true);
-        return text.IsFailure ? text.Error! : new PayrollAdjustment(target, amount, reason, actorName, now);
+        return text.IsFailure
+            ? text.Error!
+            : new PayrollAdjustment(target, amount, reason, actorName, now) { RequestId = requestId };
     }
 
     private PayrollAdjustment(PayrollEntryTarget target, decimal amount, string reason, string actorName,
@@ -108,6 +115,10 @@ public sealed class PayrollAdjustment
     }
 
     public int Id { get; private set; }
+
+    /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
+    public Guid? RequestId { get; private init; }
+
     public DateOnly Month { get; private set; }
     public int EmployeeId { get; private set; }
     public string EmployeeName { get; private set; } = null!;

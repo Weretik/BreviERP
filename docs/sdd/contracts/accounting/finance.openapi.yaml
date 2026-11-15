@@ -2650,6 +2650,12 @@ components:
           - $ref: '#/components/schemas/FinanceCounterpartyLinkInput'
           - type: 'null'
           description: Picked from the list; cannot go together with oneoffName
+        requestId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Made when the form opens; a repeat with the same id returns the saved row and adds nothing
       required:
       - scope
       - date
@@ -2825,6 +2831,12 @@ components:
           - string
           - 'null'
           maxLength: 1520
+        requestId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+          description: Made when the form opens; a repeat with the same id returns the saved row and adds nothing
       required:
       - scope
       - date

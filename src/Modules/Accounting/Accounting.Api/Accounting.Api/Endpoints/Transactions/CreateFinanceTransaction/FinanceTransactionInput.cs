@@ -6,7 +6,8 @@ namespace Accounting.Api.Endpoints.Transactions.CreateFinanceTransaction;
 
 /// <summary>
 /// New income or expense: the area of the screen, kopecks, <c>Date</c> as YYYY-MM-DD. <c>Counterparty</c> (picked from
-/// the list) and <c>OneoffName</c> (typed for this operation only) cannot both be set.
+/// the list) and <c>OneoffName</c> (typed for this operation only) cannot both be set. <c>RequestId</c> is made when the
+/// form opens: a repeated «Зберегти» returns the saved operation.
 /// </summary>
 public sealed record FinanceTransactionInput(
     LedgerScope Scope,
@@ -18,7 +19,8 @@ public sealed record FinanceTransactionInput(
     FinanceCounterpartyLinkInput? Counterparty,
     string? OneoffName,
     string? Description,
-    string? Comment)
+    string? Comment,
+    Guid? RequestId = null)
 {
     public FinanceTransactionFields ToFields() =>
         new(Date, Type, AccountId, AmountMinor, CategoryId, Counterparty, OneoffName, Description, Comment);

@@ -205,6 +205,7 @@ Each module owns its `DbContext`, schema and migration history ([module rules](m
 ### Concurrency already in place
 
 - «Зарплата»: `PayrollMonth.Version` is a concurrency token. Every change of work, hours, payments and adjustments calls `PayrollMonth.RecordChange` (through `PayrollChanges.ApplyAsync` or `PayrollMonths.MarkChangedAsync`) and saves with `PayrollMonths.SaveAsync`, so a change that races the closing of its month gets 409 instead of landing in a closed month.
+- Double submit: a create form makes a `RequestId` when it opens and sends it with «Зберегти». The row stores it under a unique partial index (`"RequestId" IS NOT NULL`); a repeat returns the saved row, also when the first request wins a race (catch `DbUpdateException`, read by `RequestId`). In place for workshop orders, payroll payments and adjustments (`PayrollChanges.ApplyOnceAsync`), finance operations and transfers. The field is optional, so an older client keeps working.
 - Crm edit forms (КП, leads, tasks, customers, embroidery settings) carry a version and return 409 on `DbUpdateConcurrencyException`.
 
 ## Known deviations
@@ -214,7 +215,7 @@ From the database audit of 2026-11-15; each row is removed when its fix is merge
 | Rule | Where | Status | Plan |
 | --- | --- | --- | --- |
 | 1.4, 2.1 | `ProductOverviewListing`, `GetContentProductsHandler`, `GetFabricPlanFactHandler` (search in C# over a model loaded whole) | open | Audit stage 7: filter in SQL or cache the model |
-| 4 | Money and КП create commands (no idempotency key) | open | Audit stage 4: `RequestId` with a unique index |
+| 4 | Create commands without a request id: `CreateProductionWork`, `CreateQuote`, `CopyQuote`, `RecordLeadCall`, `SubmitSiteRequest`, `SendQuote` | open | Audit stage 4b: `RequestId` with a unique index, as for payroll and finance |
 | 1.4 | `GetFabricMovementsHandler` (whole ledger), `GetPayrollYearHandler` (per-month reads) | open | Audit stage 5: SQL aggregation |
 | 4 | `ReminderButtonHandler` (no version); `StockChanges` catches every `DbUpdateException` as stale | open | Audit stage 6: `xmin`, catch only concurrency and unique violations |
 | 4 | `OrderNumbers` (`MAX + 1`) | open | Audit stage 7: database sequence |

@@ -11,5 +11,7 @@ using Accounting.Application.Features.Transactions.Shared;
 namespace Accounting.Application.Features.Transactions.Commands.CreateFinanceTransaction;
 
 /// <summary>«Додати дохід» / «Додати витрату» in the current books or in «Домашня бухгалтерія» (<paramref name="Scope"/>).</summary>
-public sealed record CreateFinanceTransactionCommand(LedgerScope Scope, FinanceTransactionFields Fields, string By)
+/// <remarks><paramref name="RequestId"/> is made when the form opens: a repeated «Зберегти» returns the saved one.</remarks>
+public sealed record CreateFinanceTransactionCommand(LedgerScope Scope, FinanceTransactionFields Fields, string By,
+    Guid? RequestId = null)
     : ICommand<Result<FinanceTransactionResponse>>;

@@ -24,6 +24,30 @@ namespace UnitTests.Accounting.Ledger;
 public sealed class FinanceTransactionTests
 {
     [Test]
+    public async Task A_repeated_operation_request_is_saved_once()
+    {
+        using var harness = new AccountingTestHarness();
+        var bank = await Account(harness, "Банк", 1_000_00, cutoverMinor: 1_000_00);
+        var rent = await Category(harness, "Оренда");
+        var command = new CreateFinanceTransactionCommand(LedgerScope.Current, Fields(bank.Id, rent.Id, 300_00),
+            AccountingTestHarness.Director, Guid.NewGuid());
+
+        var first = await new CreateFinanceTransactionHandler(harness.Db, harness.Parties, harness.Parties, harness.Time)
+            .Handle(command, default);
+        var repeat = await new CreateFinanceTransactionHandler(harness.Fresh(), harness.Parties, harness.Parties,
+            harness.Time).Handle(command, default);
+        var other = await new CreateFinanceTransactionHandler(harness.Fresh(), harness.Parties, harness.Parties,
+            harness.Time).Handle(command with { RequestId = Guid.NewGuid() }, default);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(repeat.Value.Id, Is.EqualTo(first.Value.Id), "the repeat answers with the saved operation");
+            Assert.That(other.Value.Id, Is.Not.EqualTo(first.Value.Id));
+            Assert.That(harness.Fresh().Transactions.Count(), Is.EqualTo(2));
+        });
+    }
+
+    [Test]
     public async Task Operations_move_the_balances_of_their_area_only()
     {
         using var harness = new AccountingTestHarness();
