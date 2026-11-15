@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Time.Testing;
 using UnitTests.TestSupport;
 using Production.Application.Abstractions;
@@ -169,8 +170,9 @@ internal sealed class ProductionTestHarness : IDisposable
     public ProductionDbContext Db { get; }
 
     /// <summary>A second context on the same database: another request running at the same time.</summary>
-    public ProductionDbContext OtherRequest() =>
-        new(new DbContextOptionsBuilder<ProductionDbContext>().UseSqlite(_connection).Options);
+    public ProductionDbContext OtherRequest(params IInterceptor[] interceptors) =>
+        new(new DbContextOptionsBuilder<ProductionDbContext>().UseSqlite(_connection).AddInterceptors(interceptors)
+            .Options);
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero));
     public FakeProductionModelReader Models { get; } = new();
     public FakeProductionQuoteReader Quotes { get; } = new();

@@ -194,6 +194,7 @@ Each module owns its `DbContext`, schema and migration history ([module rules](m
 - `BuildingBlocks.Infrastructure/Database/SearchTextColumn`: `builder.HasSearchText(columns...)` adds a generated stored column `SearchText` = lower case of the columns joined by spaces, with `’` and `ʼ` as `'`, and its `gin_trgm_ops` index; `modelBuilder.AddTrigramSearch()` enables `pg_trgm` in the context. The database fills the column for old and new rows, so a new searched table needs no back-fill and no domain code.
 - `BuildingBlocks.Application/SearchWords`: `rows.WhereSearchText(text)` keeps rows whose `SearchText` holds every word; `WhereEveryWord(text, pattern => x => ...)` when a word may also match a number, an amount or a child row; `SearchWords.Matches<T>(pattern)` for a specification in a project without EF Core. Patterns are lower case and escaped.
 - A table whose domain already keeps a lower-case `SearchText` (`WorkshopArchiveRecord`, `FinanceCounterparty`) only gets the `gin_trgm_ops` index.
+- A ledger whose search also covers its parent's fields (`FabricMovement` and its shelf line) indexes its own text columns; the few parent rows are read and matched in memory and enter the query as a list of ids (`FabricMovementLedger`). A report over several periods reads its sources once for the whole range (`PayrollSheets.ReadRangeAsync`), never per period.
 - Unit tests on SQLite call `connection.WithSearch()` (`tests/UnitTests/TestSupport/SqliteSearch.cs`) so `lower` handles Cyrillic as PostgreSQL does.
 - A migration that adds a search column keeps `pg_trgm` in `Down`: other modules' indexes use it.
 
@@ -215,7 +216,6 @@ From the database audit of 2026-11-15; each row is removed when its fix is merge
 | Rule | Where | Status | Plan |
 | --- | --- | --- | --- |
 | 1.4, 2.1 | `ProductOverviewListing`, `GetContentProductsHandler`, `GetFabricPlanFactHandler` (search in C# over a model loaded whole) | open | Audit stage 7: filter in SQL or cache the model |
-| 1.4 | `GetFabricMovementsHandler` (whole ledger), `GetPayrollYearHandler` (per-month reads) | open | Audit stage 5: SQL aggregation |
 | 4 | `ReminderButtonHandler` (no version); `StockChanges` catches every `DbUpdateException` as stale | open | Audit stage 6: `xmin`, catch only concurrency and unique violations |
 | 4 | `OrderNumbers` (`MAX + 1`) | open | Audit stage 7: database sequence |
 | 5.2, 5.3 | CI has no idempotent script review or pending-model-changes check | open | Audit stage 8 |

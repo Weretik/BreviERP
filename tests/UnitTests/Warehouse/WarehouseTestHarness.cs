@@ -1,5 +1,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using UnitTests.TestSupport;
 using UnitTests.Production;
 using Warehouse.Application.Abstractions;
 using Warehouse.Infrastructure.Adapters.Production;
@@ -73,7 +75,10 @@ internal sealed class WarehouseTestHarness : IDisposable
         _ownsWorkshop = ownsWorkshop;
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
-        Db = new WarehouseDbContext(new DbContextOptionsBuilder<WarehouseDbContext>().UseSqlite(_connection).Options);
+        _connection.WithSearch();
+        // «Рух тканини» sorts by record time in SQL; SQLite sorts DateTimeOffset only as numbers.
+        Db = new WarehouseDbContext(new DbContextOptionsBuilder<WarehouseDbContext>().UseSqlite(_connection)
+            .ReplaceService<IModelCustomizer, SqliteInstantsCustomizer>().Options);
         Db.Database.EnsureCreated();
         Staff = new HarnessWarehouseStaffReader(workshop);
         Production = new WarehouseProductionReader(new ProductionFabricPlans(workshop.Db, workshop.Time,

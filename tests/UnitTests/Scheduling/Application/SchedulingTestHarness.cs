@@ -11,6 +11,8 @@ using Scheduling.Application.Features.Tick.Commands.RunSchedulerTick;
 using Scheduling.Domain.Schedules;
 using Scheduling.Infrastructure.Persistence;
 
+using UnitTests.TestSupport;
+
 namespace UnitTests.Scheduling.Application;
 
 internal sealed class FakeLauncher : ITaskJobLauncher
@@ -35,20 +37,6 @@ internal sealed class FakeOutboxWork : ITickWork
     {
         Calls++;
         return Failure is null ? Task.FromResult("Нічого досилати.") : throw new InvalidOperationException(Failure);
-    }
-}
-
-/// <summary>
-/// SQLite cannot compare or sort DateTimeOffset text; as numbers it can, the way PostgreSQL compares timestamptz.
-/// </summary>
-internal sealed class SqliteInstantsCustomizer(ModelCustomizerDependencies dependencies) : RelationalModelCustomizer(dependencies)
-{
-    public override void Customize(ModelBuilder modelBuilder, DbContext context)
-    {
-        base.Customize(modelBuilder, context);
-        foreach (var property in modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties())
-                     .Where(x => x.ClrType == typeof(DateTimeOffset) || x.ClrType == typeof(DateTimeOffset?)))
-            property.SetValueConverter(new DateTimeOffsetToBinaryConverter());
     }
 }
 

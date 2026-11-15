@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Warehouse.Application.Abstractions;
@@ -25,6 +26,7 @@ public sealed class WarehouseDbContext(DbContextOptions<WarehouseDbContext> opti
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);
+        builder.AddTrigramSearch();
         builder.ApplyConfigurationsFromAssembly(typeof(WarehouseDbContext).Assembly);
     }
 

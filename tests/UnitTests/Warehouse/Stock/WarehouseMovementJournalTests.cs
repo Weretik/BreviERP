@@ -53,6 +53,27 @@ public sealed class WarehouseMovementJournalTests
     }
 
     [Test]
+    public async Task The_search_finds_the_fabric_by_any_code_of_its_group_and_by_colour()
+    {
+        using var workshop = Workshop();
+        await Seed(workshop);
+        var canonical = await Page(workshop,
+            new(Chief, 1, FabricMovementFilter.All, null, null, null, "fab-023", null, null));
+        var colour = await Page(workshop,
+            new(Chief, 1, FabricMovementFilter.All, null, null, null, "темно-сірий зразки", null, null));
+        var nothing = await Page(workshop,
+            new(Chief, 1, FabricMovementFilter.All, null, null, null, "ц-999", null, null));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(canonical.Total, Is.EqualTo(3), "the alias line FAB-067 belongs to FAB-023");
+            Assert.That(colour.Rows.Single().Destination, Is.EqualTo("Зразки"));
+            Assert.That(nothing.Total, Is.Zero);
+            Assert.That(nothing.Counts!.All, Is.Zero);
+        });
+    }
+
+    [Test]
     public void A_period_must_not_end_before_it_starts()
     {
         var result = new GetFabricMovementsValidator().Validate(new GetFabricMovementsQuery(Chief, 1,
