@@ -15369,7 +15369,9 @@
           "kind",
           "text",
           "lead",
-          "items"
+          "items",
+          "photoId",
+          "alt"
         ],
         "type": "object",
         "properties": {
@@ -15765,7 +15767,8 @@
           "lines",
           "total",
           "page",
-          "pageSize"
+          "pageSize",
+          "rollback"
         ],
         "type": "object",
         "properties": {
@@ -16071,7 +16074,8 @@
           "createdAt",
           "bookedBy",
           "bookedAt",
-          "version"
+          "version",
+          "existing"
         ],
         "type": "object",
         "properties": {
@@ -18351,7 +18355,11 @@
           "ownerId",
           "active",
           "revision",
-          "updatedAt"
+          "updatedAt",
+          "keepinCrmId",
+          "contactName",
+          "phones",
+          "keepinSyncedAt"
         ],
         "type": "object",
         "properties": {
@@ -19635,7 +19643,9 @@
           "free",
           "toOrder",
           "shortage",
-          "items"
+          "items",
+          "supplier",
+          "needBy"
         ],
         "type": "object",
         "properties": {
@@ -19700,7 +19710,8 @@
           "toOrder",
           "pairs",
           "unknown",
-          "calculatedAt"
+          "calculatedAt",
+          "canReceive"
         ],
         "type": "object",
         "properties": {
@@ -19824,7 +19835,10 @@
           "rows",
           "received",
           "issued",
-          "issuedValue"
+          "issuedValue",
+          "issuedToTasks",
+          "oneOff",
+          "corrected"
         ],
         "type": "object",
         "properties": {
@@ -19883,7 +19897,9 @@
           "received",
           "issued",
           "corrected",
-          "issuedValue"
+          "issuedValue",
+          "issuedToTasks",
+          "oneOff"
         ],
         "type": "object",
         "properties": {
@@ -20417,7 +20433,9 @@
           "rows",
           "page",
           "hasMore",
-          "permissions"
+          "permissions",
+          "total",
+          "counts"
         ],
         "type": "object",
         "properties": {
@@ -20530,7 +20548,9 @@
           "canReverse",
           "isVoided",
           "revision",
-          "canEdit"
+          "canEdit",
+          "perProduct",
+          "pairMetersAfter"
         ],
         "type": "object",
         "properties": {
@@ -20795,7 +20815,9 @@
           "twoColorsTotal",
           "threeColorsTotal",
           "updatedAt",
-          "problem"
+          "problem",
+          "productId",
+          "season"
         ],
         "type": "object",
         "properties": {
@@ -20875,7 +20897,8 @@
           "difference",
           "result",
           "reason",
-          "materials"
+          "materials",
+          "issuedOn"
         ],
         "type": "object",
         "properties": {
@@ -21347,7 +21370,12 @@
           "colorKey",
           "meters",
           "version",
-          "sources"
+          "sources",
+          "booked",
+          "free",
+          "toOrder",
+          "lastMovement",
+          "bookings"
         ],
         "type": "object",
         "properties": {
@@ -21467,7 +21495,10 @@
           "composition",
           "density",
           "meters",
-          "colors"
+          "colors",
+          "supplier",
+          "booked",
+          "free"
         ],
         "type": "object",
         "properties": {
@@ -21584,7 +21615,8 @@
           "meters",
           "pairs",
           "negative",
-          "permissions"
+          "permissions",
+          "short"
         ],
         "type": "object",
         "properties": {
@@ -23138,7 +23170,19 @@
           "operations",
           "incomeMinor",
           "expenseMinor",
-          "resultMinor"
+          "resultMinor",
+          "account",
+          "type",
+          "category",
+          "subcategory",
+          "counterparty",
+          "incomingTransfersMinor",
+          "outgoingTransfersMinor",
+          "date",
+          "amountMinor",
+          "note",
+          "source",
+          "id"
         ],
         "type": "object",
         "properties": {
@@ -24401,7 +24445,8 @@
           "modelName",
           "norm",
           "products",
-          "quantity"
+          "quantity",
+          "dueDate"
         ],
         "type": "object",
         "properties": {
@@ -24452,7 +24497,8 @@
           "note",
           "unit",
           "quantity",
-          "orders"
+          "orders",
+          "dueDate"
         ],
         "type": "object",
         "properties": {
@@ -28288,7 +28334,8 @@
       "PpePriceCalculation": {
         "required": [
           "prices",
-          "blockers"
+          "blockers",
+          "isCalculated"
         ],
         "type": "object",
         "properties": {
@@ -29008,6 +29055,13 @@
         }
       },
       "ProblemDetails": {
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance"
+        ],
         "type": "object",
         "properties": {
           "type": {
@@ -31167,7 +31221,9 @@
           "prices",
           "pricesUpdatedAt",
           "problems",
-          "variants"
+          "variants",
+          "mainPhotoUrl",
+          "mainPhotoFullUrl"
         ],
         "type": "object",
         "properties": {
@@ -31270,7 +31326,8 @@
           "total",
           "all",
           "sections",
-          "withoutPrice"
+          "withoutPrice",
+          "inactive"
         ],
         "type": "object",
         "properties": {
@@ -34129,7 +34186,8 @@
           "title",
           "fabricInfo",
           "prices",
-          "problem"
+          "problem",
+          "fabricId"
         ],
         "type": "object",
         "properties": {
@@ -34448,7 +34506,10 @@
           "productButtonText",
           "nextStepText",
           "accentColor",
-          "advantages"
+          "advantages",
+          "summerMainCode",
+          "winterMainCode",
+          "pricesNote"
         ],
         "type": "object",
         "properties": {
@@ -34900,7 +34961,8 @@
           "season",
           "supplierUrl",
           "options",
-          "lines"
+          "lines",
+          "embroideryCalculationId"
         ],
         "type": "object",
         "properties": {
@@ -35413,7 +35475,9 @@
           "siteLink",
           "fabricsTitle",
           "recommended",
-          "commentTitle"
+          "commentTitle",
+          "clientTitle",
+          "showClient"
         ],
         "type": "object",
         "properties": {
@@ -35473,7 +35537,9 @@
           "vatNotice",
           "ctaTitle",
           "ctaText",
-          "ctaContactTemplate"
+          "ctaContactTemplate",
+          "intros",
+          "labels"
         ],
         "type": "object",
         "properties": {
@@ -35766,7 +35832,8 @@
           "fromName",
           "gmailConfigured",
           "fileName",
-          "letters"
+          "letters",
+          "to"
         ],
         "type": "object",
         "properties": {
@@ -38000,7 +38067,12 @@
       },
       "ScheduleInput": {
         "required": [
-          "kind"
+          "kind",
+          "everyMinutes",
+          "fromHour",
+          "toHour",
+          "times",
+          "days"
         ],
         "type": "object",
         "properties": {
@@ -38486,7 +38558,8 @@
         "required": [
           "breakdown",
           "prices",
-          "blockers"
+          "blockers",
+          "isCalculated"
         ],
         "type": "object",
         "properties": {
@@ -39141,7 +39214,9 @@
           "master",
           "manager",
           "bonus",
-          "overhead"
+          "overhead",
+          "materialsTotal",
+          "fullCost"
         ],
         "type": "object",
         "properties": {
@@ -40561,7 +40636,9 @@
       "SitePageText": {
         "required": [
           "title",
-          "description"
+          "description",
+          "text",
+          "faq"
         ],
         "type": "object",
         "properties": {
@@ -41501,7 +41578,8 @@
           "completedAt",
           "createdAt",
           "updatedAt",
-          "version"
+          "version",
+          "leadId"
         ],
         "type": "object",
         "properties": {
