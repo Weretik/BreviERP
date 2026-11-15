@@ -6,7 +6,7 @@ Public routes, action names, and response fields are stable by default. Prefer a
 
 For new or changed HTTP behavior, link each operation to its `SC-*` acceptance scenarios. Where practical, agree on a human-readable contract and a versioned OpenAPI document before implementing the transport layer. Use the agreed contract to create focused Red tests, implement transport, and verify runtime behavior against OpenAPI before handing it to consumers.
 
-Use task-specific DTOs. Do not expose entities, persistence types, secrets, or internal exceptions. Define `Idempotency-Key` semantics before implementing write operations that might be retried.
+Use task-specific DTOs. Do not expose entities, persistence types, secrets, or internal exceptions. Decide what a repeat does for every write before implementing it, and take a `requestId` where the [idempotency rules](idempotency-rules.md) require one (money, stock, orders, numbered documents, messages, public forms).
 
 ## Controllers
 
