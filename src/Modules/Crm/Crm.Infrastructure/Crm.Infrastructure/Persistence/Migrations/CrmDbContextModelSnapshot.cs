@@ -57,7 +57,8 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProcessedAt", "NextAttemptAt");
+                    b.HasIndex("CreatedAt")
+                        .HasFilter("\"ProcessedAt\" IS NULL");
 
                     b.ToTable("OutboxMessages", "crm");
                 });

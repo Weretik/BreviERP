@@ -2,6 +2,7 @@ using BuildingBlocks.Application.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Infrastructure.Outbox;
 
@@ -12,7 +13,8 @@ internal interface IOutboxModule
 }
 
 internal sealed class OutboxModule<TContext>(
-    IServiceScopeFactory scopes, TimeProvider clock, ILogger<OutboxModule<TContext>> logger) : IOutboxModule
+    IServiceScopeFactory scopes, TimeProvider clock, IOptions<OutboxOptions> options, ILogger<OutboxModule<TContext>> logger)
+    : IOutboxModule
     where TContext : DbContext
 {
     public const int BatchSize = 20;
@@ -72,12 +74,19 @@ internal sealed class OutboxModule<TContext>(
         await using var scope = scopes.CreateAsyncScope();
         var handler = scope.ServiceProvider.GetServices<IOutboxHandler>().FirstOrDefault(x => x.Type == message.Type);
         if (handler is null) return $"No handler for {message.Type}.";
+        var timeout = options.Value.HandlerTimeout;
+        using var limit = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        limit.CancelAfter(timeout);
         try
         {
-            return await handler.HandleAsync(message.Payload, cancellationToken);
+            return await handler.HandleAsync(message.Payload, limit.Token);
         }
-        catch (Exception exception) when (exception is not OperationCanceledException
-                                              || !cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            logger.LogWarning("Outbox handler {Type} took longer than {Timeout} for {Id}", message.Type, timeout, message.Id);
+            return $"No answer in {timeout.TotalSeconds:0.#} s.";
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             logger.LogWarning(exception, "Outbox handler {Type} threw for {Id}", message.Type, message.Id);
             return exception.Message;

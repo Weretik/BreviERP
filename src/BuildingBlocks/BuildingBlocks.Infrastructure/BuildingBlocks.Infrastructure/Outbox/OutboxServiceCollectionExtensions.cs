@@ -15,6 +15,7 @@ public static class OutboxServiceCollectionExtensions
         where TContext : DbContext
     {
         services.TryAddSingleton(TimeProvider.System);
+        services.AddOptions<OutboxOptions>();
         services.TryAddScoped<IOutboxDispatcher, OutboxDispatcher>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IOutboxModule, OutboxModule<TContext>>());
         return services;
