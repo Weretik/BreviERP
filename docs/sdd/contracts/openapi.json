@@ -12410,7 +12410,7 @@
         "operationId": "getAdminProducts",
         "parameters": [
           {
-            "name": "Page",
+            "name": "page",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -12419,7 +12419,7 @@
             }
           },
           {
-            "name": "PageSize",
+            "name": "pageSize",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -12428,21 +12428,21 @@
             }
           },
           {
-            "name": "Search",
+            "name": "search",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "Type",
+            "name": "type",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "CategoryId",
+            "name": "categoryId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -12450,7 +12450,7 @@
             }
           },
           {
-            "name": "SortBy",
+            "name": "sortBy",
             "in": "query",
             "schema": {
               "type": "string",
@@ -12458,7 +12458,7 @@
             }
           },
           {
-            "name": "SortDirection",
+            "name": "sortDirection",
             "in": "query",
             "schema": {
               "type": "string",

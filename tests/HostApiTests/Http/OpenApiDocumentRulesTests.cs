@@ -54,6 +54,14 @@ public sealed class OpenApiDocumentRulesTests
     }
 
     [Test]
+    public void Query_parameters_are_camel_case()
+    {
+        var violations = QueryParameterNames().Where(name => !char.IsLower(name[0])).ToList();
+
+        Assert.That(violations, Is.Empty);
+    }
+
+    [Test]
     public void Numbers_are_not_also_strings()
     {
         // The web JSON defaults read "12" as 12, which the generator documents as integer|string with a pattern; the
@@ -82,6 +90,12 @@ public sealed class OpenApiDocumentRulesTests
         .SelectMany(path => Methods
             .Where(method => path.Value?[method] is JsonObject)
             .Select(method => ($"{method.ToUpperInvariant()} {path.Key}", (JsonObject)path.Value![method]!)));
+
+    private static IEnumerable<string> QueryParameterNames() =>
+        Operations()
+            .SelectMany(op => op.Operation["parameters"] as JsonArray ?? [])
+            .Where(parameter => parameter?["in"]?.GetValue<string>() == "query")
+            .Select(parameter => parameter!["name"]!.GetValue<string>());
 
     private static IEnumerable<JsonNode> Nodes(JsonNode? node) => node switch
     {
