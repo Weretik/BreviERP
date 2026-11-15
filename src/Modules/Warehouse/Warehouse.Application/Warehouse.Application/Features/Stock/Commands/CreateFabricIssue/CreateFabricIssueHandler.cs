@@ -46,10 +46,12 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
 
         // Every pair is loaded and checked before anything is spent; lines of one pair spend it one after another.
         var forms = new List<(FabricIssueLineInput Row, StockPair Pair, FabricItemPlanPart? Part)>();
+        var loaded = await pairs.LoadManyAsync(input.Lines.Select(x => (x.FabricCode, x.Color)).ToList(),
+            cancellationToken);
         for (var i = 0; i < input.Lines.Count; i++)
         {
             var row = input.Lines[i];
-            var pair = await pairs.LoadAsync(row.FabricCode, row.Color, cancellationToken);
+            var pair = loaded[i];
             if (pair.Lines.Count == 0) return Invalid($"Lines[{i}]", StockMessages.NotHeld);
             if (row.ExpectedVersion is { Length: > 0 } version && version != pair.Version)
                 return Result<ProductionItemFabricResponse>.Conflict(StockMessages.PairStale);

@@ -106,6 +106,20 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
     }
 
     [Test]
+    public async Task SeveralCalculationsAreReadAtOnceAndAMissingIdIsLeftOut()
+    {
+        var first = (await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form(), "Категорія 1"))).Value;
+        var second = (await Save(Olena, new SaveEmbroideryCalculationInput("Куртка", null, Form(), "Категорія 1"))).Value;
+
+        await using var db = Context();
+        var found = await new GetEmbroideryCalculationsByIdHandler(db, _media).Handle(
+            new GetEmbroideryCalculationsByIdQuery(Olena, [second.Summary.Id, first.Summary.Id, 999]), default);
+
+        Assert.That(found.Value.Select(x => x.Summary.Name).Order(), Is.EqualTo(new[] { "Куртка", "Поло" }));
+        Assert.That(found.Value.All(x => x.Result.Cost is null), Is.True, "a Manager never gets the cost");
+    }
+
+    [Test]
     public async Task UnknownCustomerAndMissingCalculationAreRejected()
     {
         var unknown = await Save(Olena, new SaveEmbroideryCalculationInput(null, Guid.NewGuid(), Form(), "Категорія 1"));

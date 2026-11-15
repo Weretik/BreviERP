@@ -21,15 +21,10 @@ internal sealed class ProductionEmbroideryReader(IEmbroideryCalculationReader ca
     public async Task<IReadOnlyDictionary<long, ProductionEmbroideryResponse>> ReadAsync(int userId,
         IReadOnlyCollection<long> ids, CancellationToken cancellationToken)
     {
-        var found = new Dictionary<long, ProductionEmbroideryResponse>();
-        foreach (var id in ids.Distinct())
-        {
-            if (await calculations.FindAsync(userId, id, cancellationToken) is not { } x) continue;
-            found[id] = new ProductionEmbroideryResponse(x.Id, x.Number, x.Name, x.CustomerName, x.Mode, x.Quantity,
-                x.StitchesPerUnit, x.HoopLabel, x.Hoopings, x.StabilizerMetres, x.FabricMetres, x.MockupUrl,
-                x.MockupThumbnailUrl);
-        }
-
-        return found;
+        if (ids.Count == 0) return new Dictionary<long, ProductionEmbroideryResponse>();
+        return (await calculations.FindManyAsync(userId, ids.Distinct().ToArray(), cancellationToken))
+            .ToDictionary(x => x.Id, x => new ProductionEmbroideryResponse(x.Id, x.Number, x.Name, x.CustomerName,
+                x.Mode, x.Quantity, x.StitchesPerUnit, x.HoopLabel, x.Hoopings, x.StabilizerMetres, x.FabricMetres,
+                x.MockupUrl, x.MockupThumbnailUrl));
     }
 }

@@ -14,7 +14,7 @@ public sealed class GetPpeSupplierOfferHandler(
 {
     public async ValueTask<Result<PpeSupplierOffer>> Handle(GetPpeSupplierOfferQuery query, CancellationToken cancellationToken)
     {
-        var product = await products.FirstOrDefaultAsync(new PpeProductWithProfileSpec(query.ProductId), cancellationToken);
+        var product = await products.FirstOrDefaultAsync(new PpeProductWithProfileSpec(query.ProductId, forReading: true), cancellationToken);
         if (product is null) return Result.NotFound();
         return Result.Success(await PpeSupplierOfferReader.ReadAsync(product, references, inputs, cancellationToken));
     }
