@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.ReceiveFabric;
 internal static class ReceiveFabricEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("receipts", HandleAsync).WithName("receiveFabric").Produces<FabricStockOperationResponse>();
+        group.MapPost("receipts", HandleAsync).WithName("receiveFabric")
+            .WithSummary("«Прихід» of the offer picked; the supplier is a name, not a required counterparty").Produces<FabricStockOperationResponse>();
 
     private static async Task<IResult> HandleAsync(ReceiveFabricInput input, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

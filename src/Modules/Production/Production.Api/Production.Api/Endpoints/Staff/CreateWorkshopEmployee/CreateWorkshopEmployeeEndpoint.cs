@@ -7,7 +7,8 @@ namespace Production.Api.Endpoints.Staff.CreateWorkshopEmployee;
 internal static class CreateWorkshopEmployeeEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createWorkshopEmployee");
+        group.MapPost("", HandleAsync).WithName("createWorkshopEmployee")
+            .WithSummary("Add a worker");
 
     private static async Task<IResult> HandleAsync(WorkshopEmployeeInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

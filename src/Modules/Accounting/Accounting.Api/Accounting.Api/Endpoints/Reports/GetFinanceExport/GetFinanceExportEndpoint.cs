@@ -6,7 +6,10 @@ namespace Accounting.Api.Endpoints.Reports.GetFinanceExport;
 internal static class GetFinanceExportEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getFinanceExport");
+        group.MapGet("", HandleAsync).WithName("getFinanceExport")
+            .WithSummary("Get finance export")
+            .WithDescription("«Резервна копія» (stage 8): one JSON file brevi-finance-YYYY-MM-DD.json (Kyiv day), format brevi-erp-finance-v1, with every stored field of accounts, categories, counterparties, transactions and transfers (cancelled ones too), attachment details (not the files), auditEntries, bankStatements and bankStatementLines. Cache-Control private, no-store.")
+            .Produces(StatusCodes.Status200OK, contentType: "application/json");
 
     private static async Task<IResult> HandleAsync(HttpResponse response, [FromServices] ISender sender,
         CancellationToken cancellationToken)

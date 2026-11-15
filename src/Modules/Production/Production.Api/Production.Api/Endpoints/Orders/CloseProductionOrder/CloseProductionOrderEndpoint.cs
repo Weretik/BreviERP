@@ -9,6 +9,7 @@ internal static class CloseProductionOrderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:int}/close", HandleAsync).WithName("closeProductionOrder")
+            .WithSummary("«Закрити»: every item is shipped in full")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int id, ProductionOrderVersionInput input, ClaimsPrincipal user,

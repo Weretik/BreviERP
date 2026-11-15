@@ -7,6 +7,8 @@ internal static class UpdatePpeSupplierOfferEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("", HandleAsync).WithName("updatePpeSupplierOffer")
+            .WithSummary("Update PPE supplier offer")
+            .WithDescription("access:products. Replaces the supplier fields. When the supplier price or the rule changes, appends an approved offer version (source «Картка ЗІЗ», server actor/time) that keeps the Insight prices; expectedOfferVersionId must name the current version (null when none).")
             .RequireAuthorization("access:products");
 
     private static async Task<IResult> HandleAsync(int productId, UpdatePpeSupplierOfferRequest request,

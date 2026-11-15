@@ -9,7 +9,9 @@ internal static class GetPublicCatalogProductsEndpoint
     public const int DefaultPageSize = 24;
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("products", HandleAsync).WithName("getPublicCatalogProducts");
+        group.MapGet("products", HandleAsync).WithName("getPublicCatalogProducts")
+            .WithSummary("One page of product cards, sewing first, by code")
+            .Produces<PublicCatalogCardPage>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         string language = SiteLanguages.Ukrainian, string? type = null, int? sectionId = null, string? category = null,

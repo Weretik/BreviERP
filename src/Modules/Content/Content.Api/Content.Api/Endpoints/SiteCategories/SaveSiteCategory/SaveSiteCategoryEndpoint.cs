@@ -12,7 +12,9 @@ internal static class SaveSiteCategoryEndpoint
             ContentEditor.By(user));
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}", HandleAsync).WithName("saveSiteCategory");
+        group.MapPut("{id:int}", HandleAsync).WithName("saveSiteCategory")
+            .WithSummary("Replaces the category as a whole")
+            .WithDescription("Replaces the category as a whole. revision is the number the editor showed. An empty slug keeps the current address. Another parentId moves the category to the end of the new parent; a category with subcategories cannot become a subcategory.");
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, int id, SaveSiteCategoryRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

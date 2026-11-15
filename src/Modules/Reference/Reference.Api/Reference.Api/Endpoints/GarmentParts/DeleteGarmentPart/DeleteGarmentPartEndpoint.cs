@@ -6,7 +6,9 @@ namespace Reference.Api.Endpoints.GarmentParts.DeleteGarmentPart;
 internal static class DeleteGarmentPartEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{id:int}", HandleAsync);
+        group.MapDelete("{id:int}", HandleAsync)
+            .WithName("deleteGarmentPart")
+            .WithSummary("Delete a garment part");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

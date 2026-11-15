@@ -9,6 +9,7 @@ internal static class ArchiveFinanceAccountEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:guid}/archive", HandleAsync).WithName("archiveFinanceAccount")
+            .WithSummary("«Архівувати»: the account leaves the active list")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceVersionInput input, ClaimsPrincipal user,

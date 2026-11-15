@@ -26,7 +26,7 @@ One row in `content.SiteCompany`, edited as a whole on one Admin page. The migra
 
 ## Design
 
-Admin API `/api/content/company` ([contract](../../../contracts/content/content-company.openapi.yaml)): `getSiteCompany`, `saveSiteCompany`. Public API `/api/public/company` ([contract](../../../contracts/content/content-public-company.openapi.yaml)): `getPublicSiteCompany`. Migration `AddSiteCompany`.
+Admin API `/api/content/company` ([contract](../../../contracts/openapi.json)): `getSiteCompany`, `saveSiteCompany`. Public API `/api/public/company` ([contract](../../../contracts/openapi.json)): `getPublicSiteCompany`. Migration `AddSiteCompany`.
 
 | Path | Responsibility | State |
 | --- | --- | --- |

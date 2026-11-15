@@ -9,6 +9,7 @@ internal static class RestoreFinanceCounterpartyEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:guid}/restore", HandleAsync).WithName("restoreFinanceCounterparty")
+            .WithSummary("«Відновити» an archived finance counterparty")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceVersionInput input, ClaimsPrincipal user,

@@ -7,7 +7,9 @@ namespace Accounting.Api.Endpoints.Attachments.DeleteFinanceAttachment;
 internal static class DeleteFinanceAttachmentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("api/accounting/attachments/{id:guid}", HandleAsync).WithName("deleteFinanceAttachment");
+        group.MapDelete("api/accounting/attachments/{id:guid}", HandleAsync).WithName("deleteFinanceAttachment")
+            .WithSummary("Delete finance attachment")
+            .WithDescription("«Видалити»: the file leaves the operation and the storage; the change log keeps its name (AttachmentDelete of the Transaction).");
 
     private static async Task<IResult> HandleAsync(Guid id, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

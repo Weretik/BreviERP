@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Queries.GetQuoteCatalogProducts;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Crm.Api.Endpoints.Quotes.GetCrmQuoteCatalogProducts;
 internal static class GetCrmQuoteCatalogProductsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("products", HandleAsync).WithName("getCrmQuoteCatalogProducts");
+        group.MapGet("products", HandleAsync).WithName("getCrmQuoteCatalogProducts")
+            .WithSummary("Current Catalog data of chosen products (a saved introduction or a template); unknown ids are left out")
+            .Produces<IReadOnlyList<QuoteCatalogProductResponse>>();
 
     private static async Task<IResult> HandleAsync([FromQuery] int[] ids, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

@@ -11,7 +11,7 @@ After [CAT-011](../011-product-list-prices/README.md) the «Товари» page 
 
 ## API
 
-[product-overview.openapi.yaml](../../../contracts/catalog/product-overview.openapi.yaml): `getProductOverview` (query `type`, `search`, `section`, `withoutPrice`, `sort`, `direction`, `page`, `pageSize`; returns `ProductOverviewPage`), `getProductOverviewItem` (`ProductOverviewItem`). `getProductOverviewPrices` and the schemas `ProductOverviewRow`, `ProductOverviewPrices`, `ProductOverviewArticlePrices` are removed. Both reads need `CatalogRead`.
+[OpenAPI](../../../contracts/openapi.json): `getProductOverview` (query `type`, `search`, `section`, `withoutPrice`, `sort`, `direction`, `page`, `pageSize`; returns `ProductOverviewPage`), `getProductOverviewItem` (`ProductOverviewItem`). `getProductOverviewPrices` and the schemas `ProductOverviewRow`, `ProductOverviewPrices`, `ProductOverviewArticlePrices` are removed. Both reads need `CatalogRead`.
 
 ## Rules
 

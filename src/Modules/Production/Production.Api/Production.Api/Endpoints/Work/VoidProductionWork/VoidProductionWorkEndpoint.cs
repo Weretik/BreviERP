@@ -8,6 +8,7 @@ internal static class VoidProductionWorkEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("work/{workId:int}/void", HandleAsync).WithName("voidProductionWork")
+            .WithSummary("«Сторно» of a record with a reason")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int workId, VoidProductionWorkInput input, ClaimsPrincipal user,

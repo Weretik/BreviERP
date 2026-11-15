@@ -24,7 +24,7 @@ The same row of `content.SitePages` that holds the search texts also holds, per 
 
 ## Design
 
-The [admin contract](../../../contracts/content/content-site-pages.openapi.yaml) adds `text` and `faq` to `SitePageText` and the schema `SiteFaqItem`; the [public contract](../../../contracts/content/content-public-site-pages.openapi.yaml) returns them. Block shape: `ProductTextBlock` of the [products contract](../../../contracts/content/content-products.openapi.yaml).
+The [admin contract](../../../contracts/openapi.json) adds `text` and `faq` to `SitePageText` and the schema `SiteFaqItem`; the [public contract](../../../contracts/openapi.json) returns them. Block shape: `ProductTextBlock` of the [products contract](../../../contracts/openapi.json).
 
 | Path | Responsibility | State |
 | --- | --- | --- |

@@ -6,7 +6,8 @@ namespace Production.Api.Endpoints.Orders.DeleteProductionOrderFile;
 internal static class DeleteProductionOrderFileEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{id:int}/files/{fileId:int}", HandleAsync).WithName("deleteProductionOrderFile");
+        group.MapDelete("{id:int}/files/{fileId:int}", HandleAsync).WithName("deleteProductionOrderFile")
+            .WithSummary("Remove a file; a CDN file is deleted too");
 
     private static async Task<IResult> HandleAsync(int id, int fileId, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

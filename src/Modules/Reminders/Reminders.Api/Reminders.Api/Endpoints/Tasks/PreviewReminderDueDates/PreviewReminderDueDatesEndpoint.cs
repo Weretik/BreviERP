@@ -7,7 +7,8 @@ namespace Reminders.Api.Endpoints.Tasks.PreviewReminderDueDates;
 internal static class PreviewReminderDueDatesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("preview", HandleAsync).WithName("previewReminderDueDates").Produces<IReadOnlyList<DueDatePreview>>()
+        group.MapPost("preview", HandleAsync).WithName("previewReminderDueDates")
+            .WithSummary("Preview reminder due dates").Produces<IReadOnlyList<DueDatePreview>>()
             .RequireAccessAction(AccessActionAttribute.View);
 
     private static async Task<IResult> HandleAsync(PreviewReminderDueDatesRequest request, [FromServices] ISender sender, CancellationToken cancellationToken) =>

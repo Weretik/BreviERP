@@ -7,7 +7,8 @@ namespace Reminders.Api.Endpoints.Tasks.GetReminderTasks;
 internal static class GetReminderTasksEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getReminderTasks").Produces<IReadOnlyList<ReminderTaskResponse>>();
+        group.MapGet("", HandleAsync).WithName("getReminderTasks")
+            .WithSummary("Get reminder tasks").Produces<IReadOnlyList<ReminderTaskResponse>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new GetReminderTasksQuery(), cancellationToken)).ToHttpResult();

@@ -13,6 +13,8 @@ internal static class RecognizePurchaseFileEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("files/{fileId}/recognize", HandleAsync).WithName("recognizePurchaseFile")
+            .WithSummary("Recognize purchase file")
+            .WithDescription("«Розпізнати» / «Розпізнати знову» (stage 3): downloads the Dropbox original (PDF or picture, at most 20 MB), reads it with the fast model of «Налаштування ШІ», checks the facts in kopecks and retries once with the strong model. Valid facts are saved (earlier ones go to history); otherwise the problems are recorded and shown on the card. Problems of the answer come back with 200.")
             .Produces<PurchaseRecognitionResponse>();
 
     private static async Task<IResult> HandleAsync(string fileId, ClaimsPrincipal user, [FromServices] ISender sender,

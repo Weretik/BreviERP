@@ -8,7 +8,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.GetFabricMovementHistory;
 internal static class GetFabricMovementHistoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("movements/{movementId:int}/revisions", HandleAsync).WithName("getFabricMovementHistory").Produces<FabricMovementHistoryResponse>();
+        group.MapGet("movements/{movementId:int}/revisions", HandleAsync).WithName("getFabricMovementHistory")
+            .WithSummary("«Історія правок» of a movement, newest first").Produces<FabricMovementHistoryResponse>();
 
     private static async Task<IResult> HandleAsync(int movementId, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

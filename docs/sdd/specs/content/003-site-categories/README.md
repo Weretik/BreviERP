@@ -39,7 +39,7 @@ The site gets its own category tree, owned by Content, with two levels as on the
 
 ## Stage 1 design (implemented)
 
-Admin API `/api/content/categories` ([contract](../../../contracts/content/content-categories.openapi.yaml)), policy `access:content-categories`: `getSiteCategories` (the tree as a flat ordered list), `getSiteCategory`, `createSiteCategory`, `saveSiteCategory`, `setSiteCategoryVisibility`, `reorderSiteCategories`, `deleteSiteCategory`. Tables `SiteCategories`, `SiteCategoryTexts`, `SiteCategoryProducts` in schema `content` (migration `AddSiteCategories`); the product link table is created now and gets its API in stage 3. Validation (FluentValidation): Ukrainian name, slug shape, lengths of name and SEO, at most 200 text blocks and 20 000 characters; the two-level rule, slug uniqueness and the revision are checked in the handler and answer 409 with a Ukrainian message.
+Admin API `/api/content/categories` ([contract](../../../contracts/openapi.json)), policy `access:content-categories`: `getSiteCategories` (the tree as a flat ordered list), `getSiteCategory`, `createSiteCategory`, `saveSiteCategory`, `setSiteCategoryVisibility`, `reorderSiteCategories`, `deleteSiteCategory`. Tables `SiteCategories`, `SiteCategoryTexts`, `SiteCategoryProducts` in schema `content` (migration `AddSiteCategories`); the product link table is created now and gets its API in stage 3. Validation (FluentValidation): Ukrainian name, slug shape, lengths of name and SEO, at most 200 text blocks and 20 000 characters; the two-level rule, slug uniqueness and the revision are checked in the handler and answer 409 with a Ukrainian message.
 
 | Path | Role |
 | --- | --- |
@@ -69,7 +69,7 @@ No schema change in this stage.
 
 ## Stage 4 design (implemented)
 
-Additions to the anonymous `/api/public/catalog` ([contract](../../../contracts/content/content-public-catalog.openapi.yaml) 1.1.0); nothing is removed, so the deployed site keeps working until stage 5.
+Additions to the anonymous `/api/public/catalog` ([contract](../../../contracts/openapi.json) 1.1.0); nothing is removed, so the deployed site keeps working until stage 5.
 
 - `getPublicCatalogCategories` (`GET categories`): shown categories in their order, each with its shown subcategories, names in both languages (the Russian one falls back to Ukrainian) and the number of products on the site. A subcategory of a hidden category is left out; a marked category without products comes back (R-02).
 - `getPublicCatalogCategory` (`GET categories/{slug}?language=`): name, SEO, text, parent, subcategories. Language fallback as for a product page: a category without a Russian name or text answers with the Ukrainian texts and says so in `language`. Hidden or unknown is 404.

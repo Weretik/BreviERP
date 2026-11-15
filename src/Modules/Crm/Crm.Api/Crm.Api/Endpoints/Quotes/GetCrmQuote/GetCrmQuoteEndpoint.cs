@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Queries.GetQuote;
 using BuildingBlocks.Api.Errors;
@@ -7,7 +8,9 @@ namespace Crm.Api.Endpoints.Quotes.GetCrmQuote;
 internal static class GetCrmQuoteEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:long}", HandleAsync).WithName("getCrmQuote");
+        group.MapGet("{id:long}", HandleAsync).WithName("getCrmQuote")
+            .WithSummary("Get CRM quote")
+            .Produces<QuoteResponse>();
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

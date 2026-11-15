@@ -4,7 +4,7 @@
 
 ## Scope
 
-In: new response fields of `GET /api/warehouse/fabric-stock` ([contract](../../../contracts/warehouse/fabric-stock.openapi.yaml)). Read only; the page stays `fabric-stock` in «Права доступу».
+In: new response fields of `GET /api/warehouse/fabric-stock` ([contract](../../../contracts/openapi.json)). Read only; the page stays `fabric-stock` in «Права доступу».
 
 Out: changes to the booking rules of [WH-005](../005-reports/README.md) (they are reused as they are), new filters on the server (search and problem chips stay on the page).
 

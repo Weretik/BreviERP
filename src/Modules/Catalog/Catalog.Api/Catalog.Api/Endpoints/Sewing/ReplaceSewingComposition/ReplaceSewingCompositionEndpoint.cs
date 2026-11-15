@@ -7,6 +7,8 @@ internal static class ReplaceSewingCompositionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("composition", HandleAsync).WithName("replaceSewingComposition")
+            .WithSummary("Replace model-wide Sewing composition")
+            .WithDescription("Requires access:products. Replaces all model-wide materials and operations atomically. A stale expectedVersion returns 409; clients must not replay automatically and should retain the user's draft for resolution.")
             .RequireAuthorization("access:products");
 
     private static async Task<IResult> HandleAsync(int productId, ReplaceSewingCompositionRequest request,

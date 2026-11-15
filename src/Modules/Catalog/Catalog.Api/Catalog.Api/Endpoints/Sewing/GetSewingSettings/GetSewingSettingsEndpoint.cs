@@ -1,3 +1,4 @@
+using Catalog.Application.Abstractions.Pricing.Settings;
 using Catalog.Application.Features.Pricing.Queries.GetSewingSettings;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,10 @@ internal static class GetSewingSettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("", HandleAsync).WithName("getSewingSettings")
-            .RequireAuthorization("CatalogRead");
+            .WithSummary("Read the current approved effective settings")
+            .WithDescription("Read the current approved effective settings. Requires CatalogRead.")
+            .RequireAuthorization("CatalogRead")
+            .Produces<SewingPricingSettingsSelection>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

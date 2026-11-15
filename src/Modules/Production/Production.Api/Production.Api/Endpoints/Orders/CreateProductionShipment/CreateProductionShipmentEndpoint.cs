@@ -7,7 +7,8 @@ namespace Production.Api.Endpoints.Orders.CreateProductionShipment;
 internal static class CreateProductionShipmentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("{id:int}/items/{itemId:int}/shipments", HandleAsync).WithName("createProductionShipment");
+        group.MapPost("{id:int}/items/{itemId:int}/shipments", HandleAsync).WithName("createProductionShipment")
+            .WithSummary("«Відвантажити» part of an item; a full shipment ticks «Фактично відвантажено»");
 
     private static async Task<IResult> HandleAsync(int id, int itemId, CreateProductionShipmentInput input,
         ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>

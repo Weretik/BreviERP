@@ -1,3 +1,4 @@
+using Production.Application.Features.Payroll.Shared.Month;
 using Production.Application.Features.Payroll.Queries.GetPayrollMonth;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Production.Api.Endpoints.Payroll.GetPayrollMonth;
 internal static class GetPayrollMonthEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{month}", HandleAsync).WithName("getPayrollMonth");
+        group.MapGet("{month}", HandleAsync).WithName("getPayrollMonth")
+            .WithSummary("«Зарплата» of a month")
+            .Produces<PayrollMonthResponse>();
 
     private static async Task<IResult> HandleAsync(string month, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

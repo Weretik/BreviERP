@@ -1,6 +1,6 @@
 # API contract decisions
 
-Machine-readable contract: [telegram-reminders.openapi.yaml](../../../../contracts/reminders/telegram-reminders.openapi.yaml), generated from the running Host.Api on 2026-11-01 and referenced from the aggregate [openapi.yaml](../../../../contracts/openapi.yaml).
+Machine-readable contract: [OpenAPI](../../../../contracts/openapi.json), generated from the running Host.Api on 2026-11-01 and referenced from the aggregate [openapi.json](../../../../contracts/openapi.json).
 
 - Consumer: Brevi Admin (`libs/admin/reminders` in brevi-web).
 - Security: Admin role in normal mode; the temporary anonymous API mode opens them like every controller. The webhook is anonymous, protected by the secret header and not part of the contract.

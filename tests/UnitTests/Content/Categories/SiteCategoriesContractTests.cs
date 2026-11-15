@@ -5,7 +5,6 @@ using System.Text.Json;
 using Content.Domain.SiteCategories;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SiteCategories.Commands.ImportOldSiteCategories;
 using Content.Application.Features.SiteCategories.Commands.SetSiteCategoryVisibility;
 using Content.Application.Features.SiteCategories.Queries.GetSiteCategories;
@@ -18,29 +17,10 @@ using Identity.Domain.Authorization.Roles;
 
 namespace UnitTests.Content.Categories;
 
-/// <summary>«Контент → Розділи» types and operations match docs/sdd/contracts/content/content-categories.openapi.yaml (CNT-003).</summary>
+/// <summary>«Контент → Розділи» types and operations match the generated contract docs/sdd/contracts/openapi.json (CNT-003).</summary>
 public sealed class SiteCategoriesContractTests
 {
     private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
-
-    [TestCase(typeof(SiteCategoryRow), "SiteCategoryRow")]
-    [TestCase(typeof(SiteCategoryList), "SiteCategoryList")]
-    [TestCase(typeof(SiteCategoryTextResponse), "SiteCategoryTextResponse")]
-    [TestCase(typeof(SiteCategoryResponse), "SiteCategoryResponse")]
-    [TestCase(typeof(SiteCategoryVisibilityResponse), "SiteCategoryVisibilityResponse")]
-    [TestCase(typeof(SaveSiteCategoryRequest), "SaveSiteCategoryRequest")]
-    [TestCase(typeof(SiteCategoryVisibilityRequest), "SiteCategoryVisibilityRequest")]
-    [TestCase(typeof(ReorderSiteCategoriesRequest), "ReorderSiteCategoriesRequest")]
-    [TestCase(typeof(SiteCategoryTextInput), "SiteCategoryTextInput")]
-    [TestCase(typeof(OldSiteCategory), "OldSiteCategory")]
-    [TestCase(typeof(ImportOldSiteCategoriesRequest), "ImportOldSiteCategoriesRequest")]
-    [TestCase(typeof(OldSiteCategoryImportResponse), "OldSiteCategoryImportResponse")]
-    public void Serialized_properties_match_the_machine_contract(Type type, string schema)
-    {
-        var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
-        Assert.That(properties.Children.Keys.Cast<YamlScalarNode>().Select(x => x.Value),
-            Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
-    }
 
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_content_categories_policy()
@@ -54,7 +34,7 @@ public sealed class SiteCategoriesContractTests
         {
             Assert.That(policy, Is.EqualTo($"access:{AccessCatalog.ContentCategories}"));
             Assert.That(operations, Has.Length.EqualTo(8));
-            Assert.That(Operations(), Is.EquivalentTo(operations));
+            Assert.That(ApiContract.OperationIds, Is.SupersetOf(operations));
         });
     }
 
@@ -71,24 +51,4 @@ public sealed class SiteCategoriesContractTests
             Assert.That(AccessCatalog.DefaultsOf(RoleNames.Accountant), Does.Not.ContainKey(AccessCatalog.ContentCategories));
         });
     }
-
-    private static YamlMappingNode Root()
-    {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "BreviERP.sln")))
-            directory = directory.Parent;
-        using var reader = File.OpenText(Path.Combine(directory!.FullName, "docs/sdd/contracts/content/content-categories.openapi.yaml"));
-        var yaml = new YamlStream();
-        yaml.Load(reader);
-        return (YamlMappingNode)yaml.Documents[0].RootNode;
-    }
-
-    private static YamlMappingNode Schemas() =>
-        (YamlMappingNode)((YamlMappingNode)Root()["components"])["schemas"];
-
-    private static IEnumerable<string> Operations() =>
-        ((YamlMappingNode)Root()["paths"]).Children.Values.Cast<YamlMappingNode>()
-        .SelectMany(path => path.Children.Values.OfType<YamlMappingNode>())
-        .Where(operation => operation.Children.ContainsKey("operationId"))
-        .Select(operation => ((YamlScalarNode)operation["operationId"]).Value!);
 }

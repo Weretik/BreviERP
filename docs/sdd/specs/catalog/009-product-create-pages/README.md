@@ -16,7 +16,7 @@ The Admin pages «Новий ЗІЗ» and «Нова модель» add a produc
 
 ## API
 
-Contracts: [product-overview.openapi.yaml](../../../contracts/catalog/product-overview.openapi.yaml), [ppe-pricing.openapi.yaml](../../../contracts/catalog/ppe-pricing.openapi.yaml).
+Contracts: [OpenAPI](../../../contracts/openapi.json), [OpenAPI](../../../contracts/openapi.json).
 
 | Operation | Endpoint | Policy |
 | --- | --- | --- |

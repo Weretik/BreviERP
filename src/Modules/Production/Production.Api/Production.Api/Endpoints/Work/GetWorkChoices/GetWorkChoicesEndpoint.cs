@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.Work.GetWorkChoices;
 internal static class GetWorkChoicesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("work/choices", HandleAsync).WithName("getWorkChoices");
+        group.MapGet("work/choices", HandleAsync).WithName("getWorkChoices")
+            .WithSummary("Workers, items of «Нове» orders and over-plan reasons")
+            .Produces<WorkChoicesResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

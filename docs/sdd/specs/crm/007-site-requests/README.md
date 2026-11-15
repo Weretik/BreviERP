@@ -1,6 +1,6 @@
 # LEAD-002 — «Заявки з сайту»: requests from the site form
 
-**Status:** backend implemented 2026-11-11; Admin page, the «Нагадування» checkbox and the site form in brevi-web. **Date:** 2026-11-11. **Module:** Crm («Менеджер сервісу»), schema `crm`; one column in Reminders. Feature card: [site requests](../../../features/crm/site-requests.md). Contract: [site-requests.openapi.yaml](../../../contracts/crm/site-requests.openapi.yaml).
+**Status:** backend implemented 2026-11-11; Admin page, the «Нагадування» checkbox and the site form in brevi-web. **Date:** 2026-11-11. **Module:** Crm («Менеджер сервісу»), schema `crm`; one column in Reminders. Feature card: [site requests](../../../features/crm/site-requests.md). Contract: [OpenAPI](../../../contracts/openapi.json).
 
 ## Why
 

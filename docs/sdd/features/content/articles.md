@@ -1,10 +1,10 @@
 # Articles «Контент → Статті»
 
-Articles of the public site. Each has an address, the date readers see, the «Показувати на сайті» mark, a cover and, in Ukrainian and Russian, a title, a short text for lists, SEO title and description and a body of paragraphs, headings, lists and pictures. Pictures are photos of the «Фото» library (CDN) named by id; a save with a photo that is not in the library is refused. Staff add, change, hide and delete articles; an article is saved as a whole with a revision check, and a taken address or a stale revision is refused with a Ukrainian message. Admin and the Director edit, Manager reads. [SDD](../../specs/content/004-articles/README.md), [contract](../../contracts/content/content-articles.openapi.yaml), [tables](../../architecture/data-model/content.md).
+Articles of the public site. Each has an address, the date readers see, the «Показувати на сайті» mark, a cover and, in Ukrainian and Russian, a title, a short text for lists, SEO title and description and a body of paragraphs, headings, lists and pictures. Pictures are photos of the «Фото» library (CDN) named by id; a save with a photo that is not in the library is refused. Staff add, change, hide and delete articles; an article is saved as a whole with a revision check, and a taken address or a stale revision is refused with a Ukrainian message. Admin and the Director edit, Manager reads. [SDD](../../specs/content/004-articles/README.md), [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/content.md).
 
 A one-time transfer brings the articles of the old site from a prepared file: preview first, then apply; pictures are downloaded from `brevi.com.ua` into «Фото», folder «Старий сайт / Статті», an existing article is kept unless «перезаписати» is asked, and a picture that failed is named in the report.
 
-The public site reads the shown articles without sign-in from `/api/public/articles` ([contract](../../contracts/content/content-public-articles.openapi.yaml)): the list, newest first, and a page by address with SEO, text and CDN pictures; an article without a Russian text comes back in Ukrainian. Answers are rebuilt at most once a minute.
+The public site reads the shown articles without sign-in from `/api/public/articles` ([contract](../../contracts/openapi.json)): the list, newest first, and a page by address with SEO, text and CDN pictures; an article without a Russian text comes back in Ukrainian. Answers are rebuilt at most once a minute.
 
 ## Code structure
 

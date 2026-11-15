@@ -8,6 +8,8 @@ internal static class GetPurchaseDocumentTemplateEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("files/{fileId}/document-template", HandleAsync).WithName("getPurchaseDocumentTemplate")
+            .WithSummary("Get purchase document template")
+            .WithDescription("«Шаблон JSON»: the saved facts, else the last AI answer, else empty fields, with sourceUID and originalFileLink filled in.")
             .Produces<object>(contentType: "application/json");
 
     private static async Task<IResult> HandleAsync(string fileId, [FromServices] ISender sender,

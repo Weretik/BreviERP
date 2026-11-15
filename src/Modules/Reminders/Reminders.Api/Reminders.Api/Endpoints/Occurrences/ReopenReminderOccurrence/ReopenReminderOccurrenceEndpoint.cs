@@ -7,7 +7,8 @@ namespace Reminders.Api.Endpoints.Occurrences.ReopenReminderOccurrence;
 internal static class ReopenReminderOccurrenceEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("{id:long}/reopen", HandleAsync).WithName("reopenReminderOccurrence").Produces<ReminderOccurrenceResponse>()
+        group.MapPost("{id:long}/reopen", HandleAsync).WithName("reopenReminderOccurrence")
+            .WithSummary("Reopen reminder occurrence").Produces<ReminderOccurrenceResponse>()
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>

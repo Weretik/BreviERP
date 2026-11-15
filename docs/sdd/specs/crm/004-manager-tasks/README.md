@@ -1,6 +1,6 @@
 # TSK-001 — Manager tasks and kanban
 
-**Status:** stage 1 (backend) implemented 2026-11-04; Admin stages 2–4 in brevi-web. **Date:** 2026-11-04. **Module:** Crm («Менеджер сервісу»), schema `crm`, migration history `crm.__EFMigrationsHistory` ([module rules](../../../standards/module-rules.md)). Feature card: [manager tasks](../../../features/crm/manager-tasks.md). Contract: [tasks.openapi.yaml](../../../contracts/crm/tasks.openapi.yaml).
+**Status:** stage 1 (backend) implemented 2026-11-04; Admin stages 2–4 in brevi-web. **Date:** 2026-11-04. **Module:** Crm («Менеджер сервісу»), schema `crm`, migration history `crm.__EFMigrationsHistory` ([module rules](../../../standards/module-rules.md)). Feature card: [manager tasks](../../../features/crm/manager-tasks.md). Contract: [OpenAPI](../../../contracts/openapi.json).
 
 ## Why
 

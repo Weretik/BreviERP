@@ -7,6 +7,9 @@ internal static class UpdateProductSectionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:int}", HandleAsync)
+            .WithName("updateProductSection")
+            .WithSummary("Edit a product section")
+            .WithDescription("Requires access:product-sections. The name stays unique; products keep their link by ID.")
             .RequireAuthorization("access:product-sections");
 
     private static async Task<IResult> HandleAsync(int id, UpdateProductSectionRequest request,

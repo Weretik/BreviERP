@@ -7,6 +7,8 @@ internal static class DeleteFabricColorEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("{id:int}", HandleAsync).WithName("deleteFabricColor")
+            .WithSummary("Delete a colour")
+            .WithDescription("Requires access:materials. Saved items and stock lines keep their colour text.")
             .RequireAuthorization("access:materials");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,

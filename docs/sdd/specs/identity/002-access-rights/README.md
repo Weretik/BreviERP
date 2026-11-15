@@ -23,7 +23,7 @@ The director and administrators decide, per role, which admin pages it sees and 
 
 ## Contract and tests
 
-[OpenAPI](../../../contracts/identity/access.openapi.yaml): `getAccessRights`, `saveRoleAccess`, `createRole`, `deleteRole`; `getSessionAccess` in the [session contract](../../../contracts/identity/session.openapi.yaml). Tests: `tests/UnitTests/Identity/AccessRightsTests.cs`, `tests/HostApiTests/AccessRequirementHandlerTests.cs`, `tests/HostApiTests/ApiAccessTests.cs`, `tests/IntegrationTests/Identity/AccessRightsApiTests.cs`.
+[OpenAPI](../../../contracts/openapi.json): `getAccessRights`, `saveRoleAccess`, `createRole`, `deleteRole`; `getSessionAccess` in the [session contract](../../../contracts/openapi.json). Tests: `tests/UnitTests/Identity/AccessRightsTests.cs`, `tests/HostApiTests/AccessRequirementHandlerTests.cs`, `tests/HostApiTests/ApiAccessTests.cs`, `tests/IntegrationTests/Identity/AccessRightsApiTests.cs`.
 
 ## Deployment
 

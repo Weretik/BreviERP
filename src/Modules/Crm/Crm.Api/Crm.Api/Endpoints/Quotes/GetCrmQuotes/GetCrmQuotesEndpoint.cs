@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Queries.GetQuotes;
 using BuildingBlocks.Api.Errors;
@@ -7,7 +8,9 @@ namespace Crm.Api.Endpoints.Quotes.GetCrmQuotes;
 internal static class GetCrmQuotesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getCrmQuotes");
+        group.MapGet("", HandleAsync).WithName("getCrmQuotes")
+            .WithSummary("КП the actor may see, newest change first")
+            .Produces<QuotePageResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         string? search = null, string? status = null, int? responsibleUserId = null, int page = 1, int pageSize = 50,

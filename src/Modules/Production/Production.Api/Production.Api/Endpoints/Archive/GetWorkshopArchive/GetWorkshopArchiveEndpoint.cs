@@ -1,3 +1,4 @@
+using Production.Application.Features.Archive.Queries.GetWorkshopArchive.Results;
 using Production.Application.Features.Archive.Queries.GetWorkshopArchive;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Production.Api.Endpoints.Archive.GetWorkshopArchive;
 internal static class GetWorkshopArchiveEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getWorkshopArchive");
+        group.MapGet("", HandleAsync).WithName("getWorkshopArchive")
+            .WithSummary("A page of «Архів цеху»: one old book, newest first, found by every word and limited by date")
+            .Produces<WorkshopArchivePageResponse>();
 
     private static async Task<IResult> HandleAsync(string kind, ClaimsPrincipal user, [FromServices] ISender sender,
         string? search = null, DateOnly? from = null, DateOnly? to = null, int page = 1, int pageSize = 50,

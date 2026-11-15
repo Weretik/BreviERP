@@ -7,7 +7,8 @@ namespace Reminders.Api.Endpoints.Chats.GetReminderChats;
 internal static class GetReminderChatsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getReminderChats").Produces<IReadOnlyList<ReminderChatResponse>>();
+        group.MapGet("", HandleAsync).WithName("getReminderChats")
+            .WithSummary("Get reminder chats").Produces<IReadOnlyList<ReminderChatResponse>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new GetReminderChatsQuery(), cancellationToken)).ToHttpResult();

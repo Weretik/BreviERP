@@ -29,4 +29,4 @@ src/Modules/Reference/
 
 ## Related Sources
 
-[OpenAPI](../../contracts/reference/product-sections.openapi.yaml) · [Reference boundaries](../../architecture/overview/modules.md).
+[OpenAPI](../../contracts/openapi.json) · [Reference boundaries](../../architecture/overview/modules.md).

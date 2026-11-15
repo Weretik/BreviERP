@@ -27,7 +27,7 @@ Photos lived inside Catalog (`catalog.MediaFiles`, `/api/catalog/media`) and in 
 
 ## Contract
 
-[media-library.openapi.yaml](../../../contracts/media/media-library.openapi.yaml): `getMediaFolders`, `createMediaFolder`, `updateMediaFolder`, `deleteMediaFolder`, `searchMediaFiles`, `getMediaFile`, `uploadMediaFile`, `updateMediaFile`, `moveMediaFiles`, `deleteMediaFile`. The old `getCatalogMedia`, `uploadCatalogMedia` and `deleteCatalogMedia` are removed; the Admin switches in the same release.
+[OpenAPI](../../../contracts/openapi.json): `getMediaFolders`, `createMediaFolder`, `updateMediaFolder`, `deleteMediaFolder`, `searchMediaFiles`, `getMediaFile`, `uploadMediaFile`, `updateMediaFile`, `moveMediaFiles`, `deleteMediaFile`. The old `getCatalogMedia`, `uploadCatalogMedia` and `deleteCatalogMedia` are removed; the Admin switches in the same release.
 
 ## Stages
 

@@ -9,7 +9,11 @@ namespace Reference.Api.Endpoints.GarmentAccessories.ImportGarmentAccessories;
 internal static class ImportGarmentAccessoriesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).Produces<ReferenceImportResult>()
+        group.MapPost("import", HandleAsync)
+            .WithName("importGarmentAccessories")
+            .WithSummary("Import the Calculator sheet «Фурнітура»")
+            .WithDescription("Requires access:materials. Same rules as importFabrics with FUR- codes. unit is one of шт., м, послуга («шт», «м.», «Послуга» are accepted); an unknown unit is a row error.")
+            .Produces<ReferenceImportResult>()
             .RequireAuthorization("access:materials");
 
     private static async Task<IResult> HandleAsync(ImportGarmentAccessoriesRequest request,

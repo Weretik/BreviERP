@@ -7,7 +7,10 @@ internal static class ListSewingArticlesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("articles", HandleAsync).WithName("listSewingArticles")
-            .RequireAuthorization("CatalogRead");
+            .WithSummary("List Articles for a Sewing Product")
+            .WithDescription("Requires CatalogRead. The result is bounded to at most 200 Articles.")
+            .RequireAuthorization("CatalogRead")
+            .Produces<SewingArticleList>();
 
     private static async Task<IResult> HandleAsync(int productId, [FromServices] ISender sender,
         CancellationToken cancellationToken)

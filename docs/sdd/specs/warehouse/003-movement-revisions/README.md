@@ -26,7 +26,7 @@ Per row (for those who may move stock and only where `canEdit`): an edit icon op
 
 ## Contract
 
-[warehouse/fabric-stock.openapi.yaml](../../../contracts/warehouse/fabric-stock.openapi.yaml), additive:
+[OpenAPI](../../../contracts/openapi.json), additive:
 
 - `PUT /api/warehouse/fabric-stock/movements/{movementId}` (`EditFabricMovementInput`).
 - `POST …/movements/{movementId}/void` (`VoidFabricMovementInput`), `POST …/movements/{movementId}/restore` (`RestoreFabricMovementInput`); all three return `FabricStockOperationResponse` (the pair the movement is on after the change).

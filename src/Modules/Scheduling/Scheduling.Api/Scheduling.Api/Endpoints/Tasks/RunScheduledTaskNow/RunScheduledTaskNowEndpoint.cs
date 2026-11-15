@@ -7,6 +7,8 @@ internal static class RunScheduledTaskNowEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{key}/run", HandleAsync).WithName("runScheduledTaskNow")
+            .WithSummary("«Запустити зараз», also for a disabled task")
+            .WithDescription("«Запустити зараз», also for a disabled task. The next tick, within a minute, starts it.")
             .Produces<ScheduledTaskResponse>();
 
     private static async Task<IResult> HandleAsync(string key, ClaimsPrincipal user, [FromServices] ISender sender,

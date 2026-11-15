@@ -8,7 +8,8 @@ namespace Production.Api.Endpoints.Orders.ImportProductionOrders;
 internal static class ImportProductionOrdersEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).WithName("importProductionOrders");
+        group.MapPost("import", HandleAsync).WithName("importProductionOrders")
+            .WithSummary("Admin: move orders of the old «Цех»; with dryRun only a preview. A list with any wrong order saves nothing");
 
     private static async Task<IResult> HandleAsync([FromBody] IReadOnlyList<ProductionOrderImportRow> rows,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = default,

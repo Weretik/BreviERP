@@ -1,3 +1,4 @@
+using Production.Application.Features.Timesheet.Shared;
 using Production.Application.Features.Timesheet.Queries.GetTimesheetDay;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Production.Api.Endpoints.Timesheet.GetTimesheetDay;
 internal static class GetTimesheetDayEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getTimesheetDay");
+        group.MapGet("", HandleAsync).WithName("getTimesheetDay")
+            .WithSummary("«Робочий час» of a day with the totals of its month")
+            .Produces<TimesheetDayResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         DateOnly? date = null, CancellationToken cancellationToken = default) =>

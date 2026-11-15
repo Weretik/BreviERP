@@ -1,6 +1,6 @@
 # Workshop references («Швейний цех», stage 1)
 
-The head of the workshop (role `WorkshopChief`), Admin and Director keep the workers of the workshop and fabric norms per Catalog sewing model, and see the composition of every model («Комплектація моделей»: lining, insulation, fleece and the full composition, read from Catalog). Payroll coefficients are shown only in «Параметри ціноутворення». Workers do not sign in. [SDD](../../specs/production/001-workshop-references/README.md), [norms and compositions](../../specs/production/009-fabric-norms-and-compositions/README.md), [contract](../../contracts/production/workshop-references.openapi.yaml), [tables](../../architecture/data-model/production.md).
+The head of the workshop (role `WorkshopChief`), Admin and Director keep the workers of the workshop and fabric norms per Catalog sewing model, and see the composition of every model («Комплектація моделей»: lining, insulation, fleece and the full composition, read from Catalog). Payroll coefficients are shown only in «Параметри ціноутворення». Workers do not sign in. [SDD](../../specs/production/001-workshop-references/README.md), [norms and compositions](../../specs/production/009-fabric-norms-and-compositions/README.md), [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/production.md).
 
 ## Code structure
 

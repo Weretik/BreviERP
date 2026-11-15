@@ -6,7 +6,9 @@ namespace Content.Api.Endpoints.PublicRedirects.GetPublicRedirects;
 internal static class GetPublicRedirectsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getPublicRedirects");
+        group.MapGet("", HandleAsync).WithName("getPublicRedirects")
+            .WithSummary("Every redirect of the site, by the old address")
+            .Produces<PublicRedirectList>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

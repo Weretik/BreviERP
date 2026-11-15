@@ -1,3 +1,4 @@
+using Crm.Application.Features.Leads.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Leads.Queries.GetLead;
 using BuildingBlocks.Api.Errors;
@@ -7,7 +8,10 @@ namespace Crm.Api.Endpoints.Leads.GetCrmLead;
 internal static class GetCrmLeadEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:long}", HandleAsync).WithName("getCrmLead");
+        group.MapGet("{id:long}", HandleAsync).WithName("getCrmLead")
+            .WithSummary("Get CRM lead")
+            .WithDescription("Requires access:leads (view). The card of a lead with its calls, newest first.")
+            .Produces<LeadDetailResponse>();
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

@@ -12,7 +12,9 @@ internal static class CreateSiteCategoryEndpoint
             ContentEditor.By(user));
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createSiteCategory");
+        group.MapPost("", HandleAsync).WithName("createSiteCategory")
+            .WithSummary("Adds a category (parentId null) or a subcategory at the end of its parent, hidden unless showOnSite is true")
+            .WithDescription("Adds a category (parentId null) or a subcategory at the end of its parent, hidden unless showOnSite is true. revision is 0. An empty slug is built from the Ukrainian name. A language without any text is not kept.");
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveSiteCategoryRequest request,
         [FromServices] ISender sender,

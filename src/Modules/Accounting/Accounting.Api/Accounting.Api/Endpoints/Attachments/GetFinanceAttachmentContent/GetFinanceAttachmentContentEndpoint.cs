@@ -8,7 +8,10 @@ internal static class GetFinanceAttachmentContentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("api/accounting/attachments/{id:guid}/content",
-            HandleAsync).WithName("getFinanceAttachmentContent");
+            HandleAsync).WithName("getFinanceAttachmentContent")
+            .WithSummary("Get finance attachment content")
+            .WithDescription("The content for an inline view: Content-Disposition inline, Cache-Control private, no-store, X-Content-Type-Options nosniff.")
+            .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream");
 
     private static async Task<IResult> HandleAsync(Guid id, HttpResponse response, [FromServices] ISender sender,
         CancellationToken cancellationToken)

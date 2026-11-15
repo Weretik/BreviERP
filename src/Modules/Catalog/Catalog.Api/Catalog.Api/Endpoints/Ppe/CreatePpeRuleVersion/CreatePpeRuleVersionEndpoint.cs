@@ -7,6 +7,8 @@ internal static class CreatePpeRuleVersionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("versions", HandleAsync).WithName("createPpeRuleVersion")
+            .WithSummary("Create PPE rule version")
+            .WithDescription("access:pricing-parameters. Append and approve a version using server actor/time. expectedVersionId null only for first enrollment. Request UUID retries are actor/payload-bound.")
             .RequireAccessAction(AccessActionAttribute.Edit)
             .RequireAuthorization("access:pricing-parameters");
 

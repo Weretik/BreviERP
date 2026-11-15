@@ -30,7 +30,7 @@ Sheet «Постачальники» (export 2026-11-02): 43 rows, columns `ID K
 - Infrastructure: `KeepinCrm/` (options, HTTP client, parser of the script's field rules), `DependencyInjection/ReferenceKeepinCrmExtensions.cs` used by Host.Api and Host.Seed.
 - Host.Seed: `Jobs/Sync/KeepinSuppliersSyncTask.cs`, step of `--sync=true` (`Jobs/Sync/SyncJobRunner.cs`); deploy workflow job `brevierp-sync`; [runbook](../../../operations/jobs/sync-job.md).
 - Data: migration `AddSupplierKeepinCrmFields` adds nullable columns, `IsActive` default true, a filtered unique index on `KeepinCrmId`, and widens `PhoneNumber` to 100 for several KeepinCRM phones. Rollback: the migration `Down`; existing rows are unaffected.
-- Contract: [suppliers.openapi.yaml](../../../contracts/reference/suppliers.openapi.yaml) 1.2.0, additive except that `updateSupplier` now returns 400 for KeepinCRM suppliers (none exist before the first sync).
+- Contract: [OpenAPI](../../../contracts/openapi.json) 1.2.0, additive except that `updateSupplier` now returns 400 for KeepinCRM suppliers (none exist before the first sync).
 
 ## Tasks
 

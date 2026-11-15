@@ -7,7 +7,9 @@ namespace Identity.Api.Endpoints.Profile.ChangeMyPassword;
 internal static class ChangeMyPasswordEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("password", HandleAsync).WithName("changeMyPassword").Produces(StatusCodes.Status204NoContent)
+        group.MapPut("password", HandleAsync).WithName("changeMyPassword")
+            .WithSummary("Change own password (administrators)")
+            .WithDescription("Needs the current password; a wrong one counts towards lockout. Other sessions end; this browser stays signed in.").Produces(StatusCodes.Status204NoContent)
             .RequireAuthorization(PolicyNames.RequireAdminRole);
 
     private static async Task<IResult> HandleAsync(ChangeOwnPasswordRequest request, [FromServices] ISender sender, CancellationToken cancellationToken) =>

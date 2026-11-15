@@ -6,7 +6,9 @@ namespace Content.Api.Endpoints.Articles.DeleteContentArticle;
 internal static class DeleteContentArticleEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{id:int}", HandleAsync).WithName("deleteContentArticle");
+        group.MapDelete("{id:int}", HandleAsync).WithName("deleteContentArticle")
+            .WithSummary("Removes the article with its texts")
+            .WithDescription("Removes the article with its texts. Its photos stay in the «Фото» library.");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,
         CancellationToken cancellationToken)

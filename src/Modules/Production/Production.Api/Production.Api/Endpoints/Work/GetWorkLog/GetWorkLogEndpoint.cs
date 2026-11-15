@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.Work.GetWorkLog;
 internal static class GetWorkLogEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("work", HandleAsync).WithName("getWorkLog");
+        group.MapGet("work", HandleAsync).WithName("getWorkLog")
+            .WithSummary("«Журнал робіт» of a month, optionally of one worker or order")
+            .Produces<WorkLogResponse>();
 
     private static async Task<IResult> HandleAsync(string month, ClaimsPrincipal user, [FromServices] ISender sender,
         int? employeeId = null, int? orderId = null, CancellationToken cancellationToken = default) =>

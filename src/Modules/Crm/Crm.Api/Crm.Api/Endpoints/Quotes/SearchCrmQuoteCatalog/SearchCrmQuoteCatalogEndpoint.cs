@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Queries.SearchQuoteCatalog;
 using BuildingBlocks.Api.Errors;
 
@@ -8,7 +9,9 @@ namespace Crm.Api.Endpoints.Quotes.SearchCrmQuoteCatalog;
 internal static class SearchCrmQuoteCatalogEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("catalog", HandleAsync).WithName("searchCrmQuoteCatalog");
+        group.MapGet("catalog", HandleAsync).WithName("searchCrmQuoteCatalog")
+            .WithSummary("Catalog products for «Додати товар» with published prices; problem says why a row cannot be added")
+            .Produces<QuoteCatalogPageResponse>();
 
     private static async Task<IResult> HandleAsync(string kind, [FromServices] ISender sender, string? search = null,
         string? season = null, int page = 1, int pageSize = 20, CancellationToken cancellationToken = default) =>

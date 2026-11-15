@@ -21,7 +21,7 @@ One place where the admin connects Brevi to OpenAI and keeps its cost under cont
 
 ## Contract and tests
 
-[OpenAPI](../../../contracts/ai/ai-settings.openapi.yaml): `getAiSettings`, `updateAiSettings`, `setAiKey`, `removeAiKey`, `updateAiPrompt`, `testAiConnection`. Tests: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Ai"` and `tests/ArchitectureTests/AiDependencyTests.cs`.
+[OpenAPI](../../../contracts/openapi.json): `getAiSettings`, `updateAiSettings`, `setAiKey`, `removeAiKey`, `updateAiPrompt`, `testAiConnection`. Tests: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Ai"` and `tests/ArchitectureTests/AiDependencyTests.cs`.
 
 ## Deployment
 

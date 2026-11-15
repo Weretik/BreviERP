@@ -6,7 +6,11 @@ namespace Reference.Api.Endpoints.PricingParameters.CreatePricingParameter;
 internal static class CreatePricingParameterEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).Produces<int>()
+        group.MapPost("", HandleAsync)
+            .WithName("createPricingParameter")
+            .WithSummary("Add a pricing parameter")
+            .WithDescription("Requires access:pricing-parameters. The ID is assigned by Brevi; updatedOn becomes today (Kyiv).")
+            .Produces<int>()
             .RequireAuthorization("access:pricing-parameters");
 
     private static async Task<IResult> HandleAsync(CreatePricingParameterRequest request,

@@ -32,4 +32,4 @@ src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapt
 
 ## Related Sources
 
-[OpenAPI](../../contracts/reference/fabric-colors.openapi.yaml) · [Reference boundaries](../../architecture/overview/modules.md).
+[OpenAPI](../../contracts/openapi.json) · [Reference boundaries](../../architecture/overview/modules.md).

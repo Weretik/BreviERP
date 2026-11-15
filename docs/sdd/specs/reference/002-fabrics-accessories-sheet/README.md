@@ -36,7 +36,7 @@ Brevi already had 44 fabrics and 36 accessories without codes (older seed data, 
 - API: `POST /api/reference/fabrics/import`, `POST /api/reference/garment-accessories/import` (CanManageProducts). The caller sends the sheet rows as JSON; the one-time transfer used the client's .xlsx (86 fabrics, 43 accessories). The endpoints stay for a repeat transfer if the sheet is still used in parallel.
 - Data: migration `AddFabricAccessorySheetFields` adds nullable columns, defaults `IsActive=true` and `Unit='шт.'`, replaces unique name indexes with plain ones and adds filtered unique `Code` indexes. Rollback: the migration `Down` (fails if duplicate names were saved meanwhile).
 - The older `CatalogImport` job matches by code before name, so it does not duplicate imported rows.
-- Contract: [fabrics](../../../contracts/reference/fabrics.openapi.yaml) and [garment accessories](../../../contracts/reference/garment-accessories.openapi.yaml) 1.1.0, additive; a missing supplier on update now returns 400 instead of 404, duplicate names are allowed.
+- Contract: [fabrics](../../../contracts/openapi.json) and [garment accessories](../../../contracts/openapi.json) 1.1.0, additive; a missing supplier on update now returns 400 instead of 404, duplicate names are allowed.
 
 ## Tasks
 

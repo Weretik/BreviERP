@@ -6,7 +6,9 @@ namespace Content.Api.Endpoints.SitePages.GetSitePages;
 internal static class GetSitePagesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getSitePages");
+        group.MapGet("", HandleAsync).WithName("getSitePages")
+            .WithSummary("Every fixed page in menu order with its texts; revision 0 for a page never saved")
+            .Produces<SitePageListResponse>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

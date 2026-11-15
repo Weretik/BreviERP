@@ -1,8 +1,8 @@
 # SEO settings «Контент → Налаштування SEO сайту»
 
-Site-wide SEO settings of the public site: Google Analytics 4 and Google Tag Manager ids, the verification codes of Google Search Console and Bing Webmaster Tools, and the default sharing picture from the «Фото» library. One row, saved as a whole with a revision check; a code of the wrong shape or a missing photo is refused with a Ukrainian message. Admin and the Director edit, Manager reads. [SDD](../../specs/content/006-seo-settings/README.md), [contract](../../contracts/content/content-seo-settings.openapi.yaml), [tables](../../architecture/data-model/content.md).
+Site-wide SEO settings of the public site: Google Analytics 4 and Google Tag Manager ids, the verification codes of Google Search Console and Bing Webmaster Tools, and the default sharing picture from the «Фото» library. One row, saved as a whole with a revision check; a code of the wrong shape or a missing photo is refused with a Ukrainian message. Admin and the Director edit, Manager reads. [SDD](../../specs/content/006-seo-settings/README.md), [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/content.md).
 
-The public site reads them without sign-in from `/api/public/site-settings` ([contract](../../contracts/content/content-public-site-settings.openapi.yaml)), rebuilt at most once a minute.
+The public site reads them without sign-in from `/api/public/site-settings` ([contract](../../contracts/openapi.json)), rebuilt at most once a minute.
 
 ## Code structure
 

@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.FabricNorms.GetModelCompositions;
 internal static class GetModelCompositionsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("compositions", HandleAsync).WithName("getModelCompositions");
+        group.MapGet("compositions", HandleAsync).WithName("getModelCompositions")
+            .WithSummary("Every Catalog sewing model by code with its lining, insulation and fleece and its full composition from «Товари» (read-only)")
+            .Produces<IReadOnlyList<ModelCompositionResponse>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

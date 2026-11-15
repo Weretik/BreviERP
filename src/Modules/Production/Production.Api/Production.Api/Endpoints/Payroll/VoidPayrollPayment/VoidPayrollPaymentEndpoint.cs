@@ -8,6 +8,7 @@ internal static class VoidPayrollPaymentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("payments/{paymentId:int}/void", HandleAsync).WithName("voidPayrollPayment")
+            .WithSummary("Cancels a payment with a reason (Admin)")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int paymentId, VoidPayrollEntryInput input, ClaimsPrincipal user,

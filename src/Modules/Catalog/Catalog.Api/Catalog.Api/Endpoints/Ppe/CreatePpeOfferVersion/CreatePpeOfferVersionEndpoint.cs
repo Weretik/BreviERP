@@ -7,6 +7,8 @@ internal static class CreatePpeOfferVersionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{productId:int}/offer/versions", HandleAsync).WithName("createPpeOfferVersion")
+            .WithSummary("Create PPE offer version")
+            .WithDescription("access:products. Append and approve a version using server actor/time. expectedVersionId null only for first enrollment. Request UUID retries are actor/payload-bound.")
             .RequireAccessAction(AccessActionAttribute.Edit)
             .RequireAuthorization("access:products");
 

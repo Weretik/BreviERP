@@ -9,6 +9,8 @@ internal static class CreateCrmTaskEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("", HandleAsync).WithName("createCrmTask")
+            .WithSummary("Director or Admin gives a new task to an active Manager")
+            .WithDescription("Director or Admin gives a new task to an active Manager. `version` must be 0.")
             .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
     private static async Task<IResult> HandleAsync(SaveTaskInput input, ClaimsPrincipal user,

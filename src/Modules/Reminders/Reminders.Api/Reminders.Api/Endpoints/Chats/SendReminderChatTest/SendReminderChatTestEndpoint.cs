@@ -7,6 +7,7 @@ internal static class SendReminderChatTestEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:long}/test-message", HandleAsync).WithName("sendReminderChatTest")
+            .WithSummary("Send reminder chat test")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(long id, [FromServices] ISender sender, CancellationToken cancellationToken) =>

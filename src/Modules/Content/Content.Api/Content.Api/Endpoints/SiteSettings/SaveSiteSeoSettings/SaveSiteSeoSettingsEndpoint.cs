@@ -7,7 +7,9 @@ namespace Content.Api.Endpoints.SiteSettings.SaveSiteSeoSettings;
 internal static class SaveSiteSeoSettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("", HandleAsync).WithName("saveSiteSeoSettings");
+        group.MapPut("", HandleAsync).WithName("saveSiteSeoSettings")
+            .WithSummary("Replaces the settings as a whole; an empty field removes that code")
+            .WithDescription("Replaces the settings as a whole; an empty field removes that code. Ids are kept in upper case.");
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveSiteSeoSettingsRequest request,
         [FromServices] ISender sender,

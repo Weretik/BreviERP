@@ -9,6 +9,7 @@ internal static class MoveMediaFilesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("move", HandleAsync).WithName("moveMediaFiles")
+            .WithSummary("Move up to 200 photos into one folder (null = library root)")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(MoveMediaFilesInput input, [FromServices] ISender sender, CancellationToken cancellationToken) =>

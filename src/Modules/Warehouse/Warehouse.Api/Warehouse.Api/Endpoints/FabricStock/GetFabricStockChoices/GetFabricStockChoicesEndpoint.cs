@@ -8,7 +8,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.GetFabricStockChoices;
 internal static class GetFabricStockChoicesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("choices", HandleAsync).WithName("getFabricStockChoices").Produces<FabricStockChoicesResponse>();
+        group.MapGet("choices", HandleAsync).WithName("getFabricStockChoices")
+            .WithSummary("Active offers of «Тканини» with a FAB- code, supplier names and colours for the stock forms").Produces<FabricStockChoicesResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

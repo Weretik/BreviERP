@@ -1,3 +1,4 @@
+using Catalog.Application.Features.Product.Queries.GetProductOverviewPage.Results;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewItem;
 using BuildingBlocks.Api.Errors;
 
@@ -8,7 +9,10 @@ internal static class GetProductOverviewItemEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("{id:int}/overview", HandleAsync).WithName("getProductOverviewItem")
-            .RequireAuthorization("CatalogRead");
+            .WithSummary("One «Товари» row with prices and fabric variants (CAT-013)")
+            .WithDescription("CatalogRead. The same item as in the list page, for the product card.")
+            .RequireAuthorization("CatalogRead")
+            .Produces<ProductOverviewItem>();
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

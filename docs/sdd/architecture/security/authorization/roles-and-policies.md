@@ -128,7 +128,7 @@ Every staff page of the admin and every API it calls must be configurable on Â«Ð
 5. **Docs:**
    - Add the row to the pages table above.
    - In the feature card, state the page key and default rights.
-   - In the OpenAPI contract, write `Requires access:<page>` in each operation's description, quoted inside a flow mapping, because a bare `:` breaks YAML there.
+   - The generated OpenAPI contract shows the endpoint; say the needed page in its `WithDescription` when a reader of the contract needs it.
 6. **Hand off to the frontend:** the admin needs the same key on its menu item and its route, and its actions on buttons. See the brevi-web standard `docs/standards/admin/access-rights.md`.
 
 ## Adding a policy or role

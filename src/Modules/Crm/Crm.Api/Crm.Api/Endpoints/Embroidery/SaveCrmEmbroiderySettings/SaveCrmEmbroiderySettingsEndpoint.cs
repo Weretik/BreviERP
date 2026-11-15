@@ -10,6 +10,8 @@ internal static class SaveCrmEmbroiderySettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("settings", HandleAsync).WithName("saveCrmEmbroiderySettings")
+            .WithSummary("Saves the whole page")
+            .WithDescription("Saves the whole page. `version` is the one read; a stale version is 409.")
             .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveEmbroiderySettingsInput input,

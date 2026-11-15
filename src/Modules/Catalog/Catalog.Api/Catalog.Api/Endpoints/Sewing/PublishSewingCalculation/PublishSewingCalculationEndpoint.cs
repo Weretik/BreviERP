@@ -7,6 +7,8 @@ internal static class PublishSewingCalculationEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("calculations/{calculationId:guid}/publication", HandleAsync).WithName("publishSewingCalculation")
+            .WithSummary("Publish an unblocked current calculation")
+            .WithDescription("Publish an unblocked current calculation. Replaying an already published calculation returns its original publication without replacing the current price. Requires access:products.")
             .RequireAccessAction(AccessActionAttribute.Edit)
             .RequireAuthorization("access:products");
 

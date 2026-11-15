@@ -8,7 +8,8 @@ namespace Media.Api.Endpoints.Files.UpdateMediaFile;
 internal static class UpdateMediaFileEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}", HandleAsync).WithName("updateMediaFile").Produces<MediaFileResponse>();
+        group.MapPut("{id:int}", HandleAsync).WithName("updateMediaFile")
+            .WithSummary("Rename the photo, change its default alt text or folder; the CDN URL stays the same").Produces<MediaFileResponse>();
 
     private static async Task<IResult> HandleAsync(int id, MediaFileInput input, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new UpdateMediaFileCommand(id, input), cancellationToken)).ToHttpResult();

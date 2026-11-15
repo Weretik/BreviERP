@@ -4,7 +4,7 @@
 
 ## Scope
 
-In: `GET /api/warehouse/reports/plan-fact` takes `from` and `to`, and each item carries `issuedOn`; `GET /api/warehouse/fabric-stock/consumption` splits what was issued ([contract](../../../contracts/warehouse/fabric-stock.openapi.yaml)). Read only; access pages unchanged.
+In: `GET /api/warehouse/reports/plan-fact` takes `from` and `to`, and each item carries `issuedOn`; `GET /api/warehouse/fabric-stock/consumption` splits what was issued ([contract](../../../contracts/openapi.json)). Read only; access pages unchanged.
 
 Out: how plan and fact are compared ([WH-005](../005-reports/README.md)); «Вартість складу» (its per-fabric totals already exist).
 

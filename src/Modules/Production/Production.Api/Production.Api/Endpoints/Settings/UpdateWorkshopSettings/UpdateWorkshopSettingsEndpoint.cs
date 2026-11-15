@@ -6,7 +6,8 @@ namespace Production.Api.Endpoints.Settings.UpdateWorkshopSettings;
 internal static class UpdateWorkshopSettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("", HandleAsync).WithName("updateWorkshopSettings");
+        group.MapPut("", HandleAsync).WithName("updateWorkshopSettings")
+            .WithSummary("Choose the group and topic, turn sending on or off");
 
     private static async Task<IResult> HandleAsync(WorkshopSettingsInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

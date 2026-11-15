@@ -7,6 +7,9 @@ internal static class UpdatePricingParameterEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:int}", HandleAsync)
+            .WithName("updatePricingParameter")
+            .WithSummary("Update a pricing parameter")
+            .WithDescription("Requires access:pricing-parameters. The code cannot change. When the value or type changes, updatedOn becomes today (Kyiv). A calculated parameter takes no value.")
             .RequireAuthorization("access:pricing-parameters");
 
     private static async Task<IResult> HandleAsync(int id, UpdatePricingParameterRequest request,

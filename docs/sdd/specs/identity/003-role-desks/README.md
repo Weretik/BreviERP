@@ -33,7 +33,7 @@ Every built-in role opens its own «Робочий стіл» with the blocks of
 
 ## Contract and tests
 
-Stage 5 adds `getCrmQuotePeriod` to the [quotes contract](../../../contracts/crm/quotes.openapi.yaml); `StaffRole`, session roles and `OwnProfile` descriptions name `Seo` in the [users](../../../contracts/identity/users.openapi.yaml), [session](../../../contracts/identity/session.openapi.yaml) and [profile](../../../contracts/identity/profile.openapi.yaml) contracts. Tests: `tests/UnitTests/Identity/AccessRightsTests.cs` (Seo defaults, desks per role, desks for roles saved earlier), `tests/UnitTests/Crm/Quotes/QuotePeriodTests.cs` (period totals per manager, period validation), `tests/HostApiTests`.
+Stage 5 adds `getCrmQuotePeriod` to the [quotes contract](../../../contracts/openapi.json); `StaffRole`, session roles and `OwnProfile` descriptions name `Seo` in the [users](../../../contracts/openapi.json), [session](../../../contracts/openapi.json) and [profile](../../../contracts/openapi.json) contracts. Tests: `tests/UnitTests/Identity/AccessRightsTests.cs` (Seo defaults, desks per role, desks for roles saved earlier), `tests/UnitTests/Crm/Quotes/QuotePeriodTests.cs` (period totals per manager, period validation), `tests/HostApiTests`.
 
 ## Deployment
 

@@ -29,7 +29,7 @@ Redirects are owned by Content: they lead to pages Content owns, and a change of
 
 ## Design
 
-Table `content.SiteRedirects` (migration `AddSiteRedirects`): Id identity, FromPath unique, ToPath indexed, Source int, Note, UpdatedAtUtc, UpdatedBy. Admin API `/api/content/redirects` ([contract](../../../contracts/content/content-redirects.openapi.yaml)): `getSiteRedirects`, `createSiteRedirect`, `saveSiteRedirect`, `deleteSiteRedirect`, `importOldSiteRedirects`. Public API `/api/public/redirects` ([contract](../../../contracts/content/content-public-redirects.openapi.yaml)): `getPublicRedirects`, anonymous, memory cache of 60 s.
+Table `content.SiteRedirects` (migration `AddSiteRedirects`): Id identity, FromPath unique, ToPath indexed, Source int, Note, UpdatedAtUtc, UpdatedBy. Admin API `/api/content/redirects` ([contract](../../../contracts/openapi.json)): `getSiteRedirects`, `createSiteRedirect`, `saveSiteRedirect`, `deleteSiteRedirect`, `importOldSiteRedirects`. Public API `/api/public/redirects` ([contract](../../../contracts/openapi.json)): `getPublicRedirects`, anonymous, memory cache of 60 s.
 
 | Path | Responsibility | State |
 | --- | --- | --- |

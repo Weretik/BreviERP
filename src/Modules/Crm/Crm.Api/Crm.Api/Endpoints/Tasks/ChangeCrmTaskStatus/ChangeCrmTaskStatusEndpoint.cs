@@ -7,7 +7,9 @@ namespace Crm.Api.Endpoints.Tasks.ChangeCrmTaskStatus;
 internal static class ChangeCrmTaskStatusEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:long}/status", HandleAsync).WithName("changeCrmTaskStatus");
+        group.MapPut("{id:long}/status", HandleAsync).WithName("changeCrmTaskStatus")
+            .WithSummary("The assignee or Admin moves the task")
+            .WithDescription("The assignee or Admin moves the task. `Done` sets `completedAt`; leaving `Done` clears it. The same status changes nothing.");
 
     private static async Task<IResult> HandleAsync(long id, ChangeTaskStatusRequest request, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

@@ -48,4 +48,4 @@ No automated tests cover this feature yet.
 
 ## Related sources
 
-[OpenAPI](../../contracts/catalog/product-dependencies.openapi.yaml) · [Admin product list SDD](../../specs/catalog/admin-product-list/README.md).
+[OpenAPI](../../contracts/openapi.json) · [Admin product list SDD](../../specs/catalog/admin-product-list/README.md).

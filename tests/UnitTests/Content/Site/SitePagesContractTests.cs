@@ -5,7 +5,6 @@ using System.Text.Json;
 using Content.Domain.SitePages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SitePages.Queries.GetSitePages;
 using Content.Application.Features.SitePages.Shared;
 using Content.Api.Endpoints.SitePages.SaveSitePage;
@@ -14,30 +13,12 @@ using Identity.Domain.Authorization.Roles;
 namespace UnitTests.Content.Site;
 
 /// <summary>
-/// «Сторінки сайту» and the public page texts match docs/sdd/contracts/content/content-site-pages.openapi.yaml and
+/// «Сторінки сайту» and the public page texts match the generated contract docs/sdd/contracts/openapi.json and
 /// content-public-site-pages.openapi.yaml (CNT-007, CNT-010).
 /// </summary>
 public sealed class SitePagesContractTests
 {
     private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
-
-    private const string Admin = "content-site-pages.openapi.yaml";
-    private const string Public = "content-public-site-pages.openapi.yaml";
-
-    [TestCase(typeof(SitePageResponse), Admin, "SitePageResponse")]
-    [TestCase(typeof(SitePageListResponse), Admin, "SitePageListResponse")]
-    [TestCase(typeof(SitePageText), Admin, "SitePageText")]
-    [TestCase(typeof(SaveSitePageRequest), Admin, "SaveSitePageRequest")]
-    [TestCase(typeof(SiteFaqItem), Admin, "SiteFaqItem")]
-    [TestCase(typeof(PublicSitePagesResponse), Public, "PublicSitePagesResponse")]
-    [TestCase(typeof(PublicSitePage), Public, "PublicSitePage")]
-    [TestCase(typeof(SitePageText), Public, "SitePageText")]
-    public void Serialized_properties_match_the_machine_contract(Type type, string file, string schema)
-    {
-        var properties = (YamlMappingNode)((YamlMappingNode)Schemas(file)[schema])["properties"];
-        Assert.That(properties.Children.Keys.Cast<YamlScalarNode>().Select(x => x.Value),
-            Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
-    }
 
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_the_site_pages_policy()
@@ -48,8 +29,8 @@ public sealed class SitePagesContractTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.EqualTo($"access:{AccessCatalog.ContentSitePages}"));
-            Assert.That(Operations(Admin), Is.EquivalentTo(OperationsOf(controller)));
-            Assert.That(Operations(Public), Is.EquivalentTo(OperationsOf("PublicSitePages")));
+            Assert.That(ApiContract.OperationIds, Is.SupersetOf(OperationsOf(controller)));
+            Assert.That(ApiContract.OperationIds, Is.SupersetOf(OperationsOf("PublicSitePages")));
         });
     }
 
@@ -68,23 +49,4 @@ public sealed class SitePagesContractTests
 
     private static string[] OperationsOf(string controller) => MappedEndpoints.Of(Map, controller)
         .Select(x => x.Name!).ToArray();
-
-    private static YamlMappingNode Root(string file)
-    {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "BreviERP.sln")))
-            directory = directory.Parent;
-        using var reader = File.OpenText(Path.Combine(directory!.FullName, "docs/sdd/contracts/content", file));
-        var yaml = new YamlStream();
-        yaml.Load(reader);
-        return (YamlMappingNode)yaml.Documents[0].RootNode;
-    }
-
-    private static YamlMappingNode Schemas(string file) =>
-        (YamlMappingNode)((YamlMappingNode)Root(file)["components"])["schemas"];
-
-    private static IEnumerable<string> Operations(string file) =>
-        ((YamlMappingNode)Root(file)["paths"]).Children.Values.Cast<YamlMappingNode>()
-        .SelectMany(path => path.Children.Where(x => ((YamlScalarNode)x.Key).Value != "parameters"))
-        .Select(x => ((YamlScalarNode)((YamlMappingNode)x.Value)["operationId"]).Value!);
 }

@@ -1,3 +1,4 @@
+using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Application.Features.Product.Queries.GetSewingComposition;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,10 @@ internal static class GetSewingCompositionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("composition", HandleAsync).WithName("getSewingComposition")
-            .RequireAuthorization("CatalogRead");
+            .WithSummary("Get shared and effective Article composition")
+            .WithDescription("Requires CatalogRead. Returns model-wide lines and shared operations when articleId is omitted. When articleId is supplied, also returns that Article's material lines; the effective materials are model-wide plus Article-scoped, and every material line identifies its scope.")
+            .RequireAuthorization("CatalogRead")
+            .Produces<SewingComposition>();
 
     private static async Task<IResult> HandleAsync(int productId, [FromServices] ISender sender, long? articleId = null,
         CancellationToken cancellationToken = default)

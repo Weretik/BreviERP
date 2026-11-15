@@ -32,7 +32,7 @@ src/Modules/Crm/
 src/Bootstrapper/Host.Seed/Jobs/Tasks/Office/LeadsTaskRunner.cs   task `leads`
 ```
 
-[API contract](../../contracts/crm/leads.openapi.yaml), [database ownership](../../architecture/data-model/crm.md), [sync job](../../operations/jobs/sync-job.md#leads).
+[API contract](../../contracts/openapi.json), [database ownership](../../architecture/data-model/crm.md), [sync job](../../operations/jobs/sync-job.md#leads).
 
 ## Tests
 

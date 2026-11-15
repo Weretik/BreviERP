@@ -61,7 +61,7 @@ The first migration `InitialContent` creates the schema and both tables; it copi
 
 ## Contract
 
-Admin, [content-products.openapi.yaml](../../../contracts/content/content-products.openapi.yaml) (stage 1), every operation requires `access:content-products`:
+Admin, [OpenAPI](../../../contracts/openapi.json) (stage 1), every operation requires `access:content-products`:
 
 | Operation | Route | Notes |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ Admin, [content-products.openapi.yaml](../../../contracts/content/content-produc
 | `deleteContentProduct` | `DELETE /api/content/products/{productId}` | 204; 404 when there is no page |
 | `importOldSiteProductPages` | `POST /api/content/products/old-site-import` | stage 3; `dryRun` true by default; create action; at most 500 pages per request |
 
-Public (stage 4), [content-public-catalog.openapi.yaml](../../../contracts/content/content-public-catalog.openapi.yaml), anonymous, `Cache-Control: public, max-age=300`:
+Public (stage 4), [OpenAPI](../../../contracts/openapi.json), anonymous, `Cache-Control: public, max-age=300`:
 
 | Operation | Route |
 | --- | --- |

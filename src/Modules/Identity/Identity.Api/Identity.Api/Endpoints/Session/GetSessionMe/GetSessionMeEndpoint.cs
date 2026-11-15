@@ -7,7 +7,9 @@ namespace Identity.Api.Endpoints.Session.GetSessionMe;
 internal static class GetSessionMeEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("me", HandleAsync).WithName("getSessionMe").Produces<SessionMeResponse>();
+        group.MapGet("me", HandleAsync).WithName("getCurrentSession")
+            .WithSummary("Get the current user")
+            .WithDescription("For a cookie session it reissues a missing CSRF cookie.").Produces<SessionMeResponse>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken)
     {

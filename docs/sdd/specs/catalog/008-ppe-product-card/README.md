@@ -36,7 +36,7 @@ The wholesale note (column M of «Прайс на сайт») is the rule's «П
 
 - Domain: `Product.SetPpeSupplier(PpeSupplierDetails)` (`Product.PpeSupplier.cs`), `ProductCatalogProfile.SetSupplier`.
 - Application: `Features/Pricing/Ppe/SupplierOffer/` with `Get/` (`GetPpeSupplierOfferQuery`), `Update/` (`UpdatePpeSupplierOfferCommand`, FluentValidation validator) and `Shared/` (`PpeSupplierOffer` view, `PpeProductWithProfileSpec`, `PpeSupplierOfferReader`).
-- API: `GET` (`CatalogRead`) and `PUT` (`CanManageProducts`) `/api/v1/products/{productId}/ppe-offer`. Contract: [ppe-pricing.openapi.yaml](../../../contracts/catalog/ppe-pricing.openapi.yaml).
+- API: `GET` (`CatalogRead`) and `PUT` (`CanManageProducts`) `/api/v1/products/{productId}/ppe-offer`. Contract: [OpenAPI](../../../contracts/openapi.json).
 
 ## Tasks
 

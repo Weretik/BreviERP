@@ -9,6 +9,7 @@ internal static class ReopenProductionOrderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:int}/reopen", HandleAsync).WithName("reopenProductionOrder")
+            .WithSummary("Admin: «Повернути в роботу» a closed or cancelled order")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int id, ProductionOrderVersionInput input, ClaimsPrincipal user,

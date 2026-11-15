@@ -48,4 +48,4 @@ No automated tests cover this feature's CRUD operations yet. `tests/UnitTests/Re
 
 ## Related Sources
 
-[OpenAPI](../../contracts/reference/garment-parts.openapi.yaml) · [Reference boundaries](../../architecture/overview/modules.md).
+[OpenAPI](../../contracts/openapi.json) · [Reference boundaries](../../architecture/overview/modules.md).

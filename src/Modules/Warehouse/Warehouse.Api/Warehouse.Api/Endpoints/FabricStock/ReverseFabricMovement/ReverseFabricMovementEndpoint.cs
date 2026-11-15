@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.ReverseFabricMovement;
 internal static class ReverseFabricMovementEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("movements/{movementId:int}/reverse", HandleAsync).WithName("reverseFabricMovement").Produces<FabricStockOperationResponse>().RequireAccessAction(AccessActionAttribute.Edit);
+        group.MapPost("movements/{movementId:int}/reverse", HandleAsync).WithName("reverseFabricMovement")
+            .WithSummary("«Сторно» of an opening, receipt, correction or issue without an order").Produces<FabricStockOperationResponse>().RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int movementId, ReverseFabricMovementInput input, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

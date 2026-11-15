@@ -9,7 +9,9 @@ namespace Ai.Api.Endpoints.Settings.TestAiConnection;
 internal static class TestAiConnectionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("test", HandleAsync).WithName("testAiConnection").Produces<AiTestResponse>();
+        group.MapPost("test", HandleAsync).WithName("testAiConnection")
+            .WithSummary("«Перевірити»: a tiny request to the model of the tier (works while the AI is off)")
+            .WithDescription("«Перевірити»: a tiny request to the model of the tier (works while the AI is off). Its cost is added to the month.").Produces<AiTestResponse>();
 
     private static async Task<IResult> HandleAsync(AiTestRequest request, [FromServices] ISender sender,
         CancellationToken cancellationToken)

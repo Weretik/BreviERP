@@ -8,7 +8,8 @@ namespace Media.Api.Endpoints.Folders.UpdateMediaFolder;
 internal static class UpdateMediaFolderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}", HandleAsync).WithName("updateMediaFolder").Produces<MediaFolderResponse>();
+        group.MapPut("{id:int}", HandleAsync).WithName("updateMediaFolder")
+            .WithSummary("Rename the folder and/or move it under another parent (null = top level)").Produces<MediaFolderResponse>();
 
     private static async Task<IResult> HandleAsync(int id, MediaFolderInput input, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new UpdateMediaFolderCommand(id, input), cancellationToken)).ToHttpResult();

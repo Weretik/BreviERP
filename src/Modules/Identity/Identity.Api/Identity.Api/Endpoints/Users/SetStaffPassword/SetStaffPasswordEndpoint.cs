@@ -6,7 +6,9 @@ namespace Identity.Api.Endpoints.Users.SetStaffPassword;
 internal static class SetStaffPasswordEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{userId:int}/password", HandleAsync).WithName("setStaffPassword").Produces(StatusCodes.Status204NoContent);
+        group.MapPut("{userId:int}/password", HandleAsync).WithName("setStaffPassword")
+            .WithSummary("Set a new password for a staff account")
+            .WithDescription("Ends the account's existing sessions. Only the director changes the director's password (403).").Produces(StatusCodes.Status204NoContent);
 
     private static async Task<IResult> HandleAsync(int userId, SetStaffPasswordRequest request, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new SetStaffPasswordCommand(userId, request.Password), cancellationToken)).ToNoContentHttpResult();

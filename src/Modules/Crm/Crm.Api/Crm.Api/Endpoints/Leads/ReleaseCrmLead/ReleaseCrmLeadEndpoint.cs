@@ -9,6 +9,8 @@ internal static class ReleaseCrmLeadEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:long}/release", HandleAsync).WithName("releaseCrmLead")
+            .WithSummary("Release CRM lead")
+            .WithDescription("Requires access:leads (edit). «Повернути у вільні»: the owner, or Director/Admin for anybody's lead. The next contact is cleared and the open «Подзвонити» task is deleted.")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,

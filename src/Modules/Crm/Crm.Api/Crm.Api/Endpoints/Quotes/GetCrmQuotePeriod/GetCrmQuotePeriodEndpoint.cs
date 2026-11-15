@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Queries.GetQuotePeriod;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,10 @@ namespace Crm.Api.Endpoints.Quotes.GetCrmQuotePeriod;
 internal static class GetCrmQuotePeriodEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("period", HandleAsync).WithName("getCrmQuotePeriod");
+        group.MapGet("period", HandleAsync).WithName("getCrmQuotePeriod")
+            .WithSummary("«КП за місяць» of «Робочий стіл» (DESK-001)")
+            .WithDescription("«КП за місяць» of «Робочий стіл» (DESK-001). КП created and sent in a Kyiv period, both days included, in total and per responsible person; a КП sent more than once counts once. By default the current Kyiv month up to today. A Manager counts only their own.")
+            .Produces<QuotePeriodResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default)

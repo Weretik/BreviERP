@@ -5,7 +5,6 @@ using System.Text.Json;
 using Content.Domain.ProductPages;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using YamlDotNet.RepresentationModel;
 using Content.Application.Features.Articles.Shared;
 using Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPages;
 using Content.Application.Features.ProductPages.Commands.SetContentProductVisibility;
@@ -19,44 +18,17 @@ using Content.Application.Features.ProductPages.Shared.Responses;
 
 namespace UnitTests.Content.ProductPages;
 
-/// <summary>«Контент → Товари» types and operations match docs/sdd/contracts/content/content-products.openapi.yaml (CNT-002).</summary>
+/// <summary>«Контент → Товари» types and operations match the generated contract docs/sdd/contracts/openapi.json (CNT-002).</summary>
 public sealed class ContentProductsContractTests
 {
     private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
 
-    [TestCase(typeof(ContentProductRow), "ContentProductRow")]
-    [TestCase(typeof(ContentProductPage), "ContentProductPage")]
-    [TestCase(typeof(ContentProductTextResponse), "ContentProductTextResponse")]
-    [TestCase(typeof(ContentProductVariantResponse), "ContentProductVariantResponse")]
-    [TestCase(typeof(ContentPriceTiersResponse), "ContentPriceTiersResponse")]
-    [TestCase(typeof(ContentProductResponse), "ContentProductResponse")]
-    [TestCase(typeof(ContentProductVisibilityResponse), "ContentProductVisibilityResponse")]
-    [TestCase(typeof(SaveContentProductRequest), "SaveContentProductRequest")]
-    [TestCase(typeof(ContentProductVisibilityRequest), "ContentProductVisibilityRequest")]
-    [TestCase(typeof(ImportOldSiteProductPagesRequest), "ImportOldSiteProductPagesRequest")]
-    [TestCase(typeof(OldSiteProductPage), "OldSiteProductPage")]
-    [TestCase(typeof(OldSiteImportNote), "OldSiteImportNote")]
-    [TestCase(typeof(OldSiteImportResponse), "OldSiteImportResponse")]
-    [TestCase(typeof(ProductPageTextInput), "ProductPageTextInput")]
-    [TestCase(typeof(ProductFact), "ProductFact")]
-    [TestCase(typeof(ProductTextBlock), "ProductTextBlock")]
-    [TestCase(typeof(ProductSpecGroup), "ProductSpecGroup")]
-    [TestCase(typeof(ProductSpecRow), "ProductSpecRow")]
-    public void Serialized_properties_match_the_machine_contract(Type type, string schema)
-    {
-        var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
-        Assert.That(properties.Children.Keys.Cast<YamlScalarNode>().Select(x => x.Value),
-            Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
-    }
-
     [Test]
     public void Block_kind_is_written_by_name_as_in_the_contract()
     {
-        var values = (YamlSequenceNode)((YamlMappingNode)Schemas()["ProductTextBlockKind"])["enum"];
         Assert.Multiple(() =>
         {
-            Assert.That(values.Children.Cast<YamlScalarNode>().Select(x => x.Value),
-                Is.EqualTo(Enum.GetNames<ProductTextBlockKind>()));
+            Assert.That(ApiContract.EnumValues("ProductTextBlockKind"), Is.EqualTo(Enum.GetNames<ProductTextBlockKind>()));
             Assert.That(JsonSerializer.Serialize(ProductTextBlockKind.List), Is.EqualTo("\"List\""));
         });
     }
@@ -73,7 +45,7 @@ public sealed class ContentProductsContractTests
         {
             Assert.That(policy, Is.EqualTo($"access:{AccessCatalog.ContentProducts}"));
             Assert.That(operations, Has.Length.EqualTo(6));
-            Assert.That(Operations(), Is.EquivalentTo(operations));
+            Assert.That(ApiContract.OperationIds, Is.SupersetOf(operations));
         });
     }
 
@@ -89,24 +61,4 @@ public sealed class ContentProductsContractTests
             Assert.That(AccessCatalog.DefaultsOf(RoleNames.Accountant), Does.Not.ContainKey(AccessCatalog.ContentProducts));
         });
     }
-
-    private static YamlMappingNode Root()
-    {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "BreviERP.sln")))
-            directory = directory.Parent;
-        using var reader = File.OpenText(Path.Combine(directory!.FullName, "docs/sdd/contracts/content/content-products.openapi.yaml"));
-        var yaml = new YamlStream();
-        yaml.Load(reader);
-        return (YamlMappingNode)yaml.Documents[0].RootNode;
-    }
-
-    private static YamlMappingNode Schemas() =>
-        (YamlMappingNode)((YamlMappingNode)Root()["components"])["schemas"];
-
-    private static IEnumerable<string> Operations() =>
-        ((YamlMappingNode)Root()["paths"]).Children.Values.Cast<YamlMappingNode>()
-        .SelectMany(path => path.Children.Values.OfType<YamlMappingNode>())
-        .Where(operation => operation.Children.ContainsKey("operationId"))
-        .Select(operation => ((YamlScalarNode)operation["operationId"]).Value!);
 }

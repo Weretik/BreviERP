@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.IssueFabric;
 internal static class IssueFabricEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("issues", HandleAsync).WithName("issueFabric").Produces<FabricStockOperationResponse>();
+        group.MapPost("issues", HandleAsync).WithName("issueFabric")
+            .WithSummary("«Разова витрата / без замовлення»: lines spent in order, the balance may go below zero").Produces<FabricStockOperationResponse>();
 
     private static async Task<IResult> HandleAsync(IssueFabricInput input, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

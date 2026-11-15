@@ -11,6 +11,7 @@ internal static class UploadProductionOrderFileEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:int}/files", HandleAsync).WithName("uploadProductionOrderFile")
+            .WithSummary("Upload a file of the order or of one item to the CDN (up to 20 MB, any type)")
             .RequireAccessAction(AccessActionAttribute.Edit)
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))

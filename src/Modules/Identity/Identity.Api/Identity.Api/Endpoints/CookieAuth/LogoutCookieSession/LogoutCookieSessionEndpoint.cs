@@ -6,7 +6,8 @@ namespace Identity.Api.Endpoints.CookieAuth.LogoutCookieSession;
 internal static class LogoutCookieSessionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("logout", HandleAsync).WithName("logoutCookieSession").Produces(StatusCodes.Status204NoContent)
+        group.MapPost("logout", HandleAsync).WithName("logoutCookieSession")
+            .WithSummary("End the browser session").Produces(StatusCodes.Status204NoContent)
             .RequireAuthorization();
 
     private static async Task<IResult> HandleAsync(HttpResponse response, [FromServices] ISender sender,

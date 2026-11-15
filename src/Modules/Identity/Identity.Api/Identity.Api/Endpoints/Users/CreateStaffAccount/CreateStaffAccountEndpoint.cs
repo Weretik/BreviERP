@@ -7,7 +7,9 @@ namespace Identity.Api.Endpoints.Users.CreateStaffAccount;
 internal static class CreateStaffAccountEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createStaffAccount").Produces<StaffAccountResponse>();
+        group.MapPost("", HandleAsync).WithName("createStaffAccount")
+            .WithSummary("Create a staff account")
+            .WithDescription("There is at most one director.").Produces<StaffAccountResponse>();
 
     private static async Task<IResult> HandleAsync(CreateStaffAccountRequest request, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new CreateStaffCommand(request.Email, request.FullName, request.Role, request.Password,

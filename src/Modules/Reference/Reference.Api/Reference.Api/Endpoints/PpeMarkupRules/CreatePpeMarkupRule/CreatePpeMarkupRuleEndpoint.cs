@@ -6,7 +6,11 @@ namespace Reference.Api.Endpoints.PpeMarkupRules.CreatePpeMarkupRule;
 internal static class CreatePpeMarkupRuleEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).Produces<int>()
+        group.MapPost("", HandleAsync)
+            .WithName("createPpeMarkupRule")
+            .WithSummary("Add a PPE markup rule")
+            .WithDescription("Requires access:pricing-parameters. The name is unique and cannot change later; PPE offers refer to it.")
+            .Produces<int>()
             .RequireAuthorization("access:pricing-parameters");
 
     private static async Task<IResult> HandleAsync(CreatePpeMarkupRuleRequest request, [FromServices] ISender sender,

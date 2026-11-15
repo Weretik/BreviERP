@@ -8,6 +8,7 @@ internal static class VoidPayrollAdjustmentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("adjustments/{adjustmentId:int}/void", HandleAsync).WithName("voidPayrollAdjustment")
+            .WithSummary("Cancels an adjustment with a reason (Admin)")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int adjustmentId, VoidPayrollEntryInput input, ClaimsPrincipal user,

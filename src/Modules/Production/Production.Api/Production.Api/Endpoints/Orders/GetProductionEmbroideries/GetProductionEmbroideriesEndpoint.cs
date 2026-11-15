@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.Orders.GetProductionEmbroideries;
 internal static class GetProductionEmbroideriesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("embroideries", HandleAsync).WithName("getProductionEmbroideries");
+        group.MapGet("embroideries", HandleAsync).WithName("getProductionEmbroideries")
+            .WithSummary("«Розрахунок вишивки»: saved «Ціна вишивки» calculations to link to an embroidery, newest first, at most 50; no prices")
+            .Produces<IReadOnlyList<ProductionEmbroideryChoiceResponse>>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         string? search = null, CancellationToken cancellationToken = default) =>

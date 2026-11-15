@@ -8,7 +8,9 @@ namespace Reference.Api.Endpoints.OtherCostPricing.ReviseOtherCost;
 internal static class ReviseOtherCostEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("reviseOtherCost").Produces<long>()
+        group.MapPost("", HandleAsync).WithName("reviseOtherCost")
+            .WithSummary("Append an approved revision to an existing non-inventory service cost")
+            .WithDescription("Append an approved revision to an existing non-inventory service cost. Unit and source identity are preserved. requestId makes retries idempotent; expectedVersionId prevents lost updates. Requires access:pricing-parameters.").Produces<long>()
             .RequireAuthorization("access:pricing-parameters").RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(string code, ReviseOtherCostRequest request,

@@ -41,4 +41,4 @@ src/Modules/Identity/Identity.Infrastructure/Identity.Infrastructure/Adapters/Me
 
 ## Related sources
 
-[OpenAPI](../../contracts/identity/profile.openapi.yaml), [roles and policies](../../architecture/security/authorization/roles-and-policies.md), [staff accounts](staff-accounts.md).
+[OpenAPI](../../contracts/openapi.json), [roles and policies](../../architecture/security/authorization/roles-and-policies.md), [staff accounts](staff-accounts.md).

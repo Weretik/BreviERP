@@ -1,8 +1,8 @@
 # Site pictures «Контент → Наші роботи» and «Контент → Сертифікати»
 
-The pictures of the site pages «Наші роботи» (photos of sewn clothing with descriptions) and «Сертифікати» (documents with titles, notes and standards). Each page is one list saved as a whole with a revision check; the migration seeds what the site showed, as files of the site, and «Перенести у бібліотеку фото» moves them into the «Фото» library in steps of 10. New pictures come from the library. Director, Admin and the SEO specialist edit, Manager reads. [SDD](../../specs/content/011-site-galleries/README.md), [contract](../../contracts/content/content-galleries.openapi.yaml), [tables](../../architecture/data-model/content.md).
+The pictures of the site pages «Наші роботи» (photos of sewn clothing with descriptions) and «Сертифікати» (documents with titles, notes and standards). Each page is one list saved as a whole with a revision check; the migration seeds what the site showed, as files of the site, and «Перенести у бібліотеку фото» moves them into the «Фото» library in steps of 10. New pictures come from the library. Director, Admin and the SEO specialist edit, Manager reads. [SDD](../../specs/content/011-site-galleries/README.md), [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/content.md).
 
-The public site reads both lists without sign-in from `/api/public/galleries` ([contract](../../contracts/content/content-public-galleries.openapi.yaml)), rebuilt at most once a minute; with empty lists the site keeps its own.
+The public site reads both lists without sign-in from `/api/public/galleries` ([contract](../../contracts/openapi.json)), rebuilt at most once a minute; with empty lists the site keeps its own.
 
 ## Code structure
 

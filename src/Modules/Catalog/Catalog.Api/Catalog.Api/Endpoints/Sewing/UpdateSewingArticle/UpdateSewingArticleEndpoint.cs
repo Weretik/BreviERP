@@ -8,6 +8,8 @@ internal static class UpdateSewingArticleEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("articles/{articleId:long}", HandleAsync).WithName("updateSewingArticle")
+            .WithSummary("Change a fabric variant")
+            .WithDescription("Requires access:products. Changes the sale SKU, activity and the variant's fabric with metres per product (CAT-015). A stale expectedVersion returns 409.")
             .RequireAuthorization("access:products");
 
     private static async Task<IResult> HandleAsync(int productId, long articleId, UpdateSewingArticleRequest request,

@@ -1,3 +1,4 @@
+using Production.Application.Features.Orders.Queries.GetProductionQuoteDraft.Results;
 using Production.Application.Features.Orders.Queries.GetProductionQuoteDraft;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Production.Api.Endpoints.Orders.GetProductionQuoteDraft;
 internal static class GetProductionQuoteDraftEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("quote-sources/{quoteId:long}", HandleAsync).WithName("getProductionQuoteDraft");
+        group.MapGet("quote-sources/{quoteId:long}", HandleAsync).WithName("getProductionQuoteDraft")
+            .WithSummary("The КП for the order form: sewn items, fabric variants, workshop norm and (not for managers) the sewing rate")
+            .Produces<ProductionQuoteDraftResponse>();
 
     private static async Task<IResult> HandleAsync(long quoteId, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

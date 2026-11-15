@@ -6,7 +6,8 @@ namespace Production.Api.Endpoints.Orders.CopyProductionOrder;
 internal static class CopyProductionOrderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("{id:int}/copy", HandleAsync).WithName("copyProductionOrder");
+        group.MapPost("{id:int}/copy", HandleAsync).WithName("copyProductionOrder")
+            .WithSummary("«Копіювати»: a new «Нове» order of the person who copies, dated today");
 
     private static async Task<IResult> HandleAsync(int id, CopyProductionOrderInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

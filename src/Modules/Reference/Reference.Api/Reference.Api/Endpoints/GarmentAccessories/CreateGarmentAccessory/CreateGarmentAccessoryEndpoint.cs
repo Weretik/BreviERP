@@ -6,7 +6,11 @@ namespace Reference.Api.Endpoints.GarmentAccessories.CreateGarmentAccessory;
 internal static class CreateGarmentAccessoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).Produces<int>()
+        group.MapPost("", HandleAsync)
+            .WithName("createGarmentAccessory")
+            .WithSummary("Create a garment accessory with a client supplied ID")
+            .WithDescription("Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.")
+            .Produces<int>()
             .RequireAuthorization("access:materials");
 
     private static async Task<IResult> HandleAsync(CreateGarmentAccessoryRequest request,

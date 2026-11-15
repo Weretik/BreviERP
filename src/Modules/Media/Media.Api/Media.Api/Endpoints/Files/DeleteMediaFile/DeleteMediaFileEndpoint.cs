@@ -7,7 +7,8 @@ namespace Media.Api.Endpoints.Files.DeleteMediaFile;
 internal static class DeleteMediaFileEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{id:int}", HandleAsync).WithName("deleteMediaFile");
+        group.MapDelete("{id:int}", HandleAsync).WithName("deleteMediaFile")
+            .WithSummary("Delete an unused photo from the CDN and the library");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new DeleteMediaFileCommand(id), cancellationToken)).ToNoContentHttpResult();

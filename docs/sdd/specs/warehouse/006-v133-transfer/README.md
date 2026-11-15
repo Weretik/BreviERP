@@ -41,7 +41,7 @@ Refused with the table and row id (errors), nothing written:
 
 ## Contract
 
-[warehouse/fabric-stock.openapi.yaml](../../../contracts/warehouse/fabric-stock.openapi.yaml): `POST /api/warehouse/fabric-stock/transfer?dryRun&confirmReplace` takes `StockTransferInput` (nine tables, camelCase columns) and returns `StockTransferResult` (source control numbers, what Brevi gets, what it holds now, errors, notes). It replaces `POST …/fabric-stock/import` (the 23.10 copy, PRD-D32), which is removed.
+[OpenAPI](../../../contracts/openapi.json): `POST /api/warehouse/fabric-stock/transfer?dryRun&confirmReplace` takes `StockTransferInput` (nine tables, camelCase columns) and returns `StockTransferResult` (source control numbers, what Brevi gets, what it holds now, errors, notes). It replaces `POST …/fabric-stock/import` (the 23.10 copy, PRD-D32), which is removed.
 
 ## Run order
 

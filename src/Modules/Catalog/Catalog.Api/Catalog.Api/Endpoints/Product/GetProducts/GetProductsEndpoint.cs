@@ -4,7 +4,10 @@ namespace Catalog.Api.Endpoints.Product.GetProducts;
 internal static class GetProductsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync);
+        group.MapGet("", HandleAsync)
+            .WithName("getAdminProducts")
+            .WithSummary("Get a paged Product list")
+            .Produces<ProductListPageResponse>();
 
     private static async Task<IResult> HandleAsync([AsParameters] GetProductListRequest request,
         [FromServices] ISender sender,

@@ -7,6 +7,8 @@ internal static class CreateSewingSettingsVersionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("versions", HandleAsync).WithName("createSewingSettingsVersion")
+            .WithSummary("Append a complete approved settings revision effective at server time")
+            .WithDescription("Append a complete approved settings revision effective at server time. expectedVersionId must match the latest revision; no partial setting updates. requestId makes retries idempotent. Requires access:pricing-parameters.")
             .RequireAccessAction(AccessActionAttribute.Edit)
             .RequireAuthorization("access:pricing-parameters");
 

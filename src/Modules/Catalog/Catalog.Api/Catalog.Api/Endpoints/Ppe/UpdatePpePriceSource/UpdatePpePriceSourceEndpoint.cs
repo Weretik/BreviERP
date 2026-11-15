@@ -7,6 +7,8 @@ internal static class UpdatePpePriceSourceEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{key}", HandleAsync).WithName("updatePpePriceSource")
+            .WithSummary("RequireAdminRole (administrators and the director)")
+            .WithDescription("RequireAdminRole (administrators and the director). Saves the discount and, optionally, the «Постачальники» row.")
             .RequireAuthorization("RequireAdminRole");
 
     private static async Task<IResult> HandleAsync(string key, UpdatePpePriceSourceRequest request,

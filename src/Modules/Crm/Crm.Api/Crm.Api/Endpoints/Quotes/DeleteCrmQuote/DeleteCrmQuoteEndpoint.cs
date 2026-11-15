@@ -9,6 +9,8 @@ internal static class DeleteCrmQuoteEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("{id:long}", HandleAsync).WithName("deleteCrmQuote")
+            .WithSummary("Delete CRM quote")
+            .WithDescription("R-33. «Видалити КП»: a КП of any status with its items and history. Only the Director for now; a КП with a production order that is not deleted stays (409).")
             .RequireAuthorization(CrmAccess.QuotesDelete);
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,

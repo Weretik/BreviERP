@@ -7,7 +7,9 @@ namespace Accounting.Api.Endpoints.Categories.GetFinanceCategoryHistory;
 internal static class GetFinanceCategoryHistoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:guid}/history", HandleAsync).WithName("getFinanceCategoryHistory");
+        group.MapGet("{id:guid}/history", HandleAsync).WithName("getFinanceCategoryHistory")
+            .WithSummary("Change log of one category, newest first")
+            .Produces<IReadOnlyList<FinanceHistoryEntryResponse>>();
 
     private static async Task<IResult> HandleAsync(Guid id, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

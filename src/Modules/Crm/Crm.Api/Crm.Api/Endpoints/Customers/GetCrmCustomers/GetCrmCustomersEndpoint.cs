@@ -6,7 +6,10 @@ namespace Crm.Api.Endpoints.Customers.GetCrmCustomers;
 internal static class GetCrmCustomersEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getCrmCustomers");
+        group.MapGet("", HandleAsync).WithName("getCrmCustomers")
+            .WithSummary("List CRM customers in the owner scope")
+            .WithDescription("Admin or Manager, server-owned actor. Customer owner scope enforced; merge is Admin-only. Mutation requestId replays the same payload; revisions protect existing roots.")
+            .Produces<CrmCustomerPageResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         string? search = null, bool? active = null, int page = 1, int pageSize = 25,
@@ -16,6 +19,6 @@ internal static class GetCrmCustomersEndpoint
         if (actor is null) return Results.Forbid();
         if (page is < 1 or > 1_000_000 || pageSize is < 1 or > 100 || search?.Length > 300) return Results.BadRequest("invalid_pagination");
         var result = await sender.Send(new GetCustomersQuery(actor, search, active, page, pageSize), cancellationToken);
-        return Results.Ok(new { value = result.Value, pagedInfo = result.PagedInfo });
+        return Results.Ok(new CrmCustomerPageResponse(result.Value, result.PagedInfo));
     }
 }

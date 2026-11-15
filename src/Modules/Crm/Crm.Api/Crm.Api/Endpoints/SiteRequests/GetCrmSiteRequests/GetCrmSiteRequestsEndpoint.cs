@@ -1,3 +1,4 @@
+using Crm.Application.Features.SiteRequests.Shared;
 using Crm.Application.Features.SiteRequests.Queries.GetSiteRequests;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Crm.Api.Endpoints.SiteRequests.GetCrmSiteRequests;
 internal static class GetCrmSiteRequestsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getCrmSiteRequests");
+        group.MapGet("", HandleAsync).WithName("getCrmSiteRequests")
+            .WithSummary("Newest first, with the counts for the tabs")
+            .Produces<SiteRequestPageResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         string? scope = null, int page = 1,

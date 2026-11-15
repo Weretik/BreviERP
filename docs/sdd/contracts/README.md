@@ -1,59 +1,28 @@
 # API Contracts
 
-`docs/sdd/contracts/` is the canonical, versioned source for machine-readable public API contracts.
+[`openapi.json`](openapi.json) is the only machine-readable contract of the public HTTP API. It is **generated from the code**: every build of `Host.Api` writes it ([ADR-0015](../architecture/decisions/0015-openapi-generated-from-code.md)). Do not edit it by hand.
 
-## Structure
+## How it works
 
-```text
-docs/sdd/contracts/
-├── openapi.yaml                         # aggregate entry point for all public APIs
-└── <module>/
-    └── <feature>.openapi.yaml           # contract owned by one feature
-```
+1. An endpoint describes itself in code: `.WithName("getFabrics")` (unique camelCase operation id, the frontend sees it), `.WithSummary("List fabrics")`, `.WithDescription(...)` for rules a reader needs, typed `.Produces<TResponse>()` and `.ProducesProblem(status)` for every error it returns, and its request type through the handler parameters. A file answer declares its content type: `.Produces(StatusCodes.Status200OK, contentType: "application/pdf")`.
+2. `dotnet build` (or any build or test of `Host.Api`) regenerates `openapi.json`. Commit it together with the endpoint change.
+3. CI builds the solution and fails with «OpenAPI contract is out of date» when the committed file differs from the code.
+4. [`OpenApiDocumentRulesTests`](../../../tests/HostApiTests/Http/OpenApiDocumentRulesTests.cs) requires an operation id, a summary and a tag on every operation, unique ids, a typed body on every read, and numbers documented as numbers. Unit tests check that an operation is published through [`ApiContract`](../../../tests/UnitTests/TestSupport/ApiContract.cs).
+5. brevi-web downloads `openapi.json` from `master` (`npm run contracts:sync`), generates types with `openapi-typescript` and calls the API through `openapi-fetch`. Its CI fails when its copy is behind `master`, and a daily job opens a sync PR. A breaking change of a path, parameter or schema becomes a TypeScript error there.
 
-`openapi.yaml` is the entry point for Swagger UI, frontend client generation, and contract tests. It references module contracts through `$ref`; do not duplicate operations or schemas in the aggregate file.
+The document describes the code; it does not make an endpoint public. The host endpoint conventions, authorization policies and the fallback policy decide runtime access.
 
-## Current frontend handoff
+## Changing the API
 
-- [Frontend integration guide](frontend-integration.md) describes authentication, CSRF, pagination, errors, and current contract coverage.
-- [Aggregated OpenAPI 3.1 contract](openapi.yaml) covers APIs for which a versioned contract has been created and verified.
-- Identity: [session](identity/session.openapi.yaml), [access rights](identity/access.openapi.yaml).
-- Catalog: [products](catalog/product-catalog.openapi.yaml), [«Товари» page overview](catalog/product-overview.openapi.yaml), [categories](catalog/product-dependencies.openapi.yaml).
-- Media: [photo library with folders](media/media-library.openapi.yaml).
-- Production: [workshop references](production/workshop-references.openapi.yaml), [orders](production/production-orders.openapi.yaml).
-- Warehouse: [fabric stock](warehouse/fabric-stock.openapi.yaml).
-- Reference: [suppliers](reference/suppliers.openapi.yaml), [fabrics](reference/fabrics.openapi.yaml), [garment accessories](reference/garment-accessories.openapi.yaml), [garment parts](reference/garment-parts.openapi.yaml), [operations](reference/garment-part-operations.openapi.yaml), [pricing parameters and PPE markup rules](reference/pricing-parameters.openapi.yaml), [product sections](reference/product-sections.openapi.yaml), [fabric colours](reference/fabric-colors.openapi.yaml).
+- Record decisions a person must read (boundaries, consumers, compatibility, security, errors, idempotency, deployment) in the feature's `contracts/api-contract.md`.
+- Write the API or unit test first, then the endpoint; the regenerated `openapi.json` shows the contract change in review.
+- A breaking change (removed or renamed path, parameter or field, changed type) needs a migration path for the admin and the site.
+- In the PR say that brevi-web must sync the contract; its daily job also opens the sync PR on its own.
 
-OpenAPI files describe the contract of the actual code. They do not make an endpoint publicly accessible: the host endpoint conventions, authorization attributes and fallback policy determine runtime access.
+## Frontend handoff
 
-Each feature SDD contains `contracts/api-contract.md` for human-readable decisions: boundaries, consumers, compatibility, security, errors, idempotency, and deployment. For new or changed HTTP behavior, agree on these decisions and create or update the machine-readable contract before implementing the transport layer where practical. Add focused Red contract/API tests based on the agreed contract, then implement the transport. The feature document must link to `docs/sdd/contracts/<module>/<feature>.openapi.yaml`, and the aggregate `openapi.yaml` must be updated in the same change.
-
-Do not create a public OpenAPI document for internal-only changes. Before adding an HTTP contract, agree on the route, method, operation ID, DTOs, examples, errors, security, idempotency for side-effecting writes, and migration path for breaking changes.
-
-- Crm: [clients and contacts](crm/clients-quotes.openapi.yaml), [КП (commercial proposals)](crm/quotes.openapi.yaml), [manager tasks](crm/tasks.openapi.yaml), [leads](crm/leads.openapi.yaml), [site requests](crm/site-requests.openapi.yaml), [embroidery price](crm/embroidery.openapi.yaml).
-
-- Ai: [«Налаштування ШІ»](ai/ai-settings.openapi.yaml) — the OpenAI key (write-only), models, prices, limit and extra rules.
-- Accounting: [«Бухгалтерія»](accounting/finance.openapi.yaml) — «Рахунки і каси» with balances, «Категорії», «Операції», «Перекази», «Огляд», «Контрагенти», «Потребують перевірки» and their change log; director only.
-- Content: [«Контент → Товари» site pages of products](content/content-products.openapi.yaml) — the «Показувати на сайті» mark, address and texts in two languages.
-- Content: [«Контент → Розділи» categories of the site](content/content-categories.openapi.yaml) — the two-level tree, the «Показувати на сайті» mark, address, order and texts in two languages.
-- Content: [«Контент → Статті» articles of the site](content/content-articles.openapi.yaml) — the «Показувати на сайті» mark, address, date, cover and texts with SEO in two languages; pictures are photos of the «Фото» library; one-time transfer of the old-site articles with their pictures.
-- Content: [«Контент → Переадресації» redirects of the site](content/content-redirects.openapi.yaml) — 301 redirects: list, add, change, delete and the transfer of the old-site addresses.
-- Content: [«Контент → Налаштування SEO сайту»](content/content-seo-settings.openapi.yaml) — analytics ids, verification codes and the default sharing picture.
-- Content: [public site settings](content/content-public-site-settings.openapi.yaml) — anonymous read of those settings for the site.
-- Content: [«Контент → Сторінки сайту»](content/content-site-pages.openapi.yaml) — search titles and descriptions of the fixed site pages.
-- Content: [«Контент → SEO-огляд»](content/content-seo-overview.openapi.yaml) — read-only list of what the site misses for search.
-- Content: [«Контент → Контакти та компанія»](content/content-company.openapi.yaml) — company phone, email, address, hours, managers, payment details and links of the site.
-- Content: [public company facts](content/content-public-company.openapi.yaml) — anonymous read of those facts for the site.
-- Content: [«Контент → Наші роботи» and «Сертифікати»](content/content-galleries.openapi.yaml) — pictures of the two site pages, saved as whole lists, and their transfer into the «Фото» library.
-- Content: [public works and certificates](content/content-public-galleries.openapi.yaml) — anonymous read of those pictures for the site.
-- Content: [public site page texts](content/content-public-site-pages.openapi.yaml) — anonymous read of those texts for the site.
-- Content: [public redirects of the site](content/content-public-redirects.openapi.yaml) — anonymous list of every redirect with the final page of its chain.
-- Content: [public articles of the site](content/content-public-articles.openapi.yaml) — anonymous read-only list and page of the articles marked «Показувати на сайті», with SEO, text and CDN pictures; Ukrainian when there is no Russian text.
-- Content: [public catalog of the site](content/content-public-catalog.openapi.yaml) — anonymous read-only tree, site categories with SEO and text, product cards with «від» (also by category), product by address, addresses for the sitemap.
-- Scheduling: [«Адміністрування → Фонові задачі»](scheduling/background-tasks.openapi.yaml) — background tasks with schedules, last success and failure, run history and «Запустити зараз».
-- Purchasing: [«Рахунки на закупку» register](purchasing/purchase-invoices.openapi.yaml) — purchase invoices read from the Google Sheet «финансы».
-
-- Reminders: [Telegram reminders admin API](reminders/telegram-reminders.openapi.yaml) — tasks, periods, chats, non-working days and bot connection. The Telegram webhook is intentionally not in the contract.
+- [Frontend integration guide](frontend-integration.md): authentication, CSRF, pagination, errors, and current routes.
+- Swagger UI in Development: `/swagger`, reading `/openapi/v1.json`.
 
 ## Access
 

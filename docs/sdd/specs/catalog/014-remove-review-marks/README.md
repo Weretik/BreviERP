@@ -18,11 +18,11 @@ The client's feedback on the Calculator port (items 8, 11, 12, 17, 18): nobody r
 
 ## API
 
-- [sewing-composition.openapi.yaml](../../../contracts/catalog/sewing-composition.openapi.yaml): `required`, `reviewed`, `reviewedBy`, `reviewedAt` removed from the material and operation schemas.
-- [product-overview.openapi.yaml](../../../contracts/catalog/product-overview.openapi.yaml): `isVerified`, `verifiedOn` removed from the item, the update and create requests and the sheet rows; `isRequired` removed from the sheet material row.
-- [ppe-pricing.openapi.yaml](../../../contracts/catalog/ppe-pricing.openapi.yaml): `sourceReviewed` removed from `PpeOfferValues`.
-- [sewing-pricing.openapi.yaml](../../../contracts/catalog/sewing-pricing.openapi.yaml): `isRequired`, `isReviewed` removed from the pricing rows.
-- [garment-part-operations.openapi.yaml](../../../contracts/reference/garment-part-operations.openapi.yaml): `normCheckedAt` removed.
+- [OpenAPI](../../../contracts/openapi.json): `required`, `reviewed`, `reviewedBy`, `reviewedAt` removed from the material and operation schemas.
+- [OpenAPI](../../../contracts/openapi.json): `isVerified`, `verifiedOn` removed from the item, the update and create requests and the sheet rows; `isRequired` removed from the sheet material row.
+- [OpenAPI](../../../contracts/openapi.json): `sourceReviewed` removed from `PpeOfferValues`.
+- [OpenAPI](../../../contracts/openapi.json): `isRequired`, `isReviewed` removed from the pricing rows.
+- [OpenAPI](../../../contracts/openapi.json): `normCheckedAt` removed.
 
 Clients that still send the removed fields are not rejected: the fields are ignored.
 

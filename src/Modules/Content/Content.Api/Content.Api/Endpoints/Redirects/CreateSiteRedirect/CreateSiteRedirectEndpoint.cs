@@ -11,7 +11,8 @@ internal static class CreateSiteRedirectEndpoint
         new(id, request.FromPath, request.ToPath, request.Note, ContentEditor.By(user));
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createSiteRedirect");
+        group.MapPost("", HandleAsync).WithName("createSiteRedirect")
+            .WithSummary("Adds a redirect made by hand (source Manual)");
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveSiteRedirectRequest request,
         [FromServices] ISender sender,

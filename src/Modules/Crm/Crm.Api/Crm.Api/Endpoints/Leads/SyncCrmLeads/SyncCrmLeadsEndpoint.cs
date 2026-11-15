@@ -10,6 +10,8 @@ internal static class SyncCrmLeadsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("sync", HandleAsync).WithName("syncCrmLeads")
+            .WithSummary("Sync CRM leads")
+            .WithDescription("Requires access:lead-stats (create). «Синхронізувати зараз»: reads the sheet and applies it in one transaction, the same run as the weekday 09:00 job. Rows are matched by «ID»; the calling work is never touched; rows missing from the sheet only get `inSheet: false`.")
             .RequireAuthorization(CrmAccess.LeadSync);
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken)

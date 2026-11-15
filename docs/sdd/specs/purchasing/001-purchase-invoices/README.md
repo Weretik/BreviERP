@@ -71,7 +71,7 @@ The client's technical description of version 217 is kept outside the repository
 
 ## Contract and tests
 
-[OpenAPI](../../../contracts/purchasing/purchase-invoices.openapi.yaml): `getPurchaseInvoices`, `getPurchaseInvoicesSyncState`, `syncPurchaseInvoices`, `getPurchaseInvoiceSuppliers`, `reviewPurchaseInvoice`, `recognizePurchaseFile`, `recognizeNewPurchaseFiles`, `savePurchaseDocument`, `getPurchaseDocumentTemplate`, `getPurchasePaymentCandidates`, `linkPurchasePayment`, `unlinkPurchasePayment`. Tests: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Purchasing"` (source rules, sync on SQLite, list query, review, facts rules, recognition, manual JSON, contract) and `tests/ArchitectureTests/PurchasingDependencyTests.cs`.
+[OpenAPI](../../../contracts/openapi.json): `getPurchaseInvoices`, `getPurchaseInvoicesSyncState`, `syncPurchaseInvoices`, `getPurchaseInvoiceSuppliers`, `reviewPurchaseInvoice`, `recognizePurchaseFile`, `recognizeNewPurchaseFiles`, `savePurchaseDocument`, `getPurchaseDocumentTemplate`, `getPurchasePaymentCandidates`, `linkPurchasePayment`, `unlinkPurchasePayment`. Tests: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Purchasing"` (source rules, sync on SQLite, list query, review, facts rules, recognition, manual JSON, contract) and `tests/ArchitectureTests/PurchasingDependencyTests.cs`.
 
 ## Deployment
 

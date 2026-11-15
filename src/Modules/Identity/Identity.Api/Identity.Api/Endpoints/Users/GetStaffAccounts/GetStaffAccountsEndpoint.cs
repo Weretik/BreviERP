@@ -6,7 +6,9 @@ namespace Identity.Api.Endpoints.Users.GetStaffAccounts;
 internal static class GetStaffAccountsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getStaffAccounts").Produces<IReadOnlyList<StaffAccountResponse>>();
+        group.MapGet("", HandleAsync).WithName("getStaffAccounts")
+            .WithSummary("List staff accounts")
+            .WithDescription("Policy `CanManageUsers` (role Admin; the director also holds Admin). Customers are not listed. Each account shows its strongest role.").Produces<IReadOnlyList<StaffAccountResponse>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken) =>
         Results.Ok((await sender.Send(new GetStaffListQuery(), cancellationToken)).Value.Select(StaffAccountResponse.From)

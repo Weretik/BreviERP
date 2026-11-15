@@ -8,6 +8,7 @@ internal static class SendProductionOrderTelegramEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:int}/telegram", HandleAsync).WithName("sendProductionOrderTelegram")
+            .WithSummary("«Надіслати в цех»: the one message to the workshop group; never sent twice, a failure is shown on the card and can be retried")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int id, ClaimsPrincipal user, [FromServices] ISender sender,

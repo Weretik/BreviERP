@@ -8,6 +8,8 @@ internal static class DeleteSewingArticleEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("articles/{articleId:long}", HandleAsync).WithName("deleteSewingArticle")
+            .WithSummary("Remove a fabric variant")
+            .WithDescription("Requires access:products. Removes the variant with its fabric line. A variant that already has saved prices returns 409 and can be switched off instead.")
             .RequireAuthorization("access:products");
 
     private static async Task<IResult> HandleAsync(int productId, long articleId, [FromServices] ISender sender,

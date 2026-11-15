@@ -10,7 +10,10 @@ namespace Accounting.Api.Endpoints.Transfers.GetFinanceTransfers;
 internal static class GetFinanceTransfersEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getFinanceTransfers");
+        group.MapGet("", HandleAsync).WithName("getFinanceTransfers")
+            .WithSummary("«Перекази»: one area, newest first by default")
+            .WithDescription("«Перекази»: one area, newest first by default. accountId matches either side. Totals sum active transfers of the whole selection once per transfer, per currency.")
+            .Produces<FinanceTransferPageResponse>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, QueryEnum<LedgerScope>? scope = null,
         DateOnly? from = null, DateOnly? to = null, Guid? accountId = null, string? search = null,

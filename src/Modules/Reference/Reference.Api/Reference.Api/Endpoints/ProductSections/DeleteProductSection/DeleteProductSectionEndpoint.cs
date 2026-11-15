@@ -7,6 +7,9 @@ internal static class DeleteProductSectionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("{id:int}", HandleAsync)
+            .WithName("deleteProductSection")
+            .WithSummary("Delete a product section")
+            .WithDescription("Requires access:product-sections.")
             .RequireAuthorization("access:product-sections");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,

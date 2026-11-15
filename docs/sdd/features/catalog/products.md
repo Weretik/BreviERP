@@ -89,4 +89,4 @@ Focused run: `dotnet test tests/UnitTests/UnitTests.csproj --filter Product` (co
 
 ## Related Sources
 
-[OpenAPI](../../contracts/catalog/product-catalog.openapi.yaml) · [Overview OpenAPI](../../contracts/catalog/product-overview.openapi.yaml) · [Photos OpenAPI](../../contracts/catalog/product-photos.openapi.yaml) · [Current SDD](../../specs/catalog/001-product-page/README.md).
+[OpenAPI](../../contracts/openapi.json) · [Overview OpenAPI](../../contracts/openapi.json) · [Photos OpenAPI](../../contracts/openapi.json) · [Current SDD](../../specs/catalog/001-product-page/README.md).

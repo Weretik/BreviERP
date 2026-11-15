@@ -11,6 +11,8 @@ internal static class UploadCrmQuotePhotoEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("photos", HandleAsync).WithName("uploadCrmQuotePhoto")
+            .WithSummary("Upload CRM quote photo")
+            .WithDescription("R-34. «Змінити фото → Завантажити своє»: stores a JPG, PNG or WebP photo in the media library folder «Фото КП» (its CDN path) and returns its address. The editor puts it into one item; it is not added to the product.")
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxPhotoRequestBytes))
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxPhotoRequestBytes });

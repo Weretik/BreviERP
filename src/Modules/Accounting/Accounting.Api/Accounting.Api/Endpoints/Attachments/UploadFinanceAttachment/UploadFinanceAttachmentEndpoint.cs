@@ -12,6 +12,8 @@ internal static class UploadFinanceAttachmentEndpoint
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("api/accounting/transactions/{id:guid}/attachments", HandleAsync)
             .WithName("uploadFinanceAttachment")
+            .WithSummary("Upload finance attachment")
+            .WithDescription("«Додати файл»: a PDF, JPEG or PNG from 1 byte to 10 MiB, told by its first bytes, into the private storage under finance/<transactionId>/<attachmentId>.<ext>. A voided operation takes no files. Logged as AttachmentAdd of the Transaction.")
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });

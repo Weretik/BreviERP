@@ -10,7 +10,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.GetFabricMovements;
 internal static class GetFabricMovementsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("movements", HandleAsync).WithName("getFabricMovements").Produces<FabricMovementPageResponse>();
+        group.MapGet("movements", HandleAsync).WithName("getFabricMovements")
+            .WithSummary("«Рух тканини»: 50 per page, newest operation date first (then record time and id), with kind counts").Produces<FabricMovementPageResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, int page = 1, QueryEnum<FabricMovementFilter>? kind = null, string? fabricCode = null, string? color = null, int? itemId = null, string? search = null, DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default) =>
         user.WarehouseActor() is { } actor

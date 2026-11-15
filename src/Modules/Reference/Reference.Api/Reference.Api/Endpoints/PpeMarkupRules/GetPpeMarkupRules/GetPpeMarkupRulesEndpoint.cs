@@ -6,7 +6,10 @@ namespace Reference.Api.Endpoints.PpeMarkupRules.GetPpeMarkupRules;
 internal static class GetPpeMarkupRulesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).Produces<List<PpeMarkupRuleRowDTO>>()
+        group.MapGet("", HandleAsync)
+            .WithName("getPpeMarkupRules")
+            .WithSummary("List PPE markup rules in sheet order")
+            .Produces<List<PpeMarkupRuleRowDTO>>()
             .RequireAuthorization("CatalogRead");
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,

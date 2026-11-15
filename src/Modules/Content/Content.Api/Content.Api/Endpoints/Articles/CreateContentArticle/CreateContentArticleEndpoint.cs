@@ -13,7 +13,9 @@ internal static class CreateContentArticleEndpoint
             request.Uk, request.Ru, ContentEditor.By(user));
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createContentArticle");
+        group.MapPost("", HandleAsync).WithName("createContentArticle")
+            .WithSummary("Adds an article, hidden unless showOnSite is true")
+            .WithDescription("Adds an article, hidden unless showOnSite is true. revision is 0. An empty slug is built from the Ukrainian title. A language without any text is not kept.");
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveContentArticleRequest request,
         [FromServices] ISender sender,

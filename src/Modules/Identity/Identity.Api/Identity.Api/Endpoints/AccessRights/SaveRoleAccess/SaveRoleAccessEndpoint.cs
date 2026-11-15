@@ -7,7 +7,9 @@ namespace Identity.Api.Endpoints.AccessRights.SaveRoleAccess;
 internal static class SaveRoleAccessEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("roles/{role}", HandleAsync).WithName("saveRoleAccess").Produces<AccessRoleResponse>();
+        group.MapPut("roles/{role}", HandleAsync).WithName("saveRoleAccess")
+            .WithSummary("Save a role's rights")
+            .WithDescription("Replaces every page of the role; a page left out is hidden from it. Every action needs «view» on the same page.").Produces<AccessRoleResponse>();
 
     private static async Task<IResult> HandleAsync(string role, SaveRoleAccessRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken)

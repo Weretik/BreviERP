@@ -9,6 +9,8 @@ internal static class UpdateFabricColorEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:int}", HandleAsync).WithName("updateFabricColor")
+            .WithSummary("Edit a colour")
+            .WithDescription("Requires access:materials. The name stays unique; saved items and stock lines keep their text.")
             .RequireAuthorization("access:materials");
 
     private static async Task<IResult> HandleAsync(int id, FabricColorRequest request, [FromServices] ISender sender,

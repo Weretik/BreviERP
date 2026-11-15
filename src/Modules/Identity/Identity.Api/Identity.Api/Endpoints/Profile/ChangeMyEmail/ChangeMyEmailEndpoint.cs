@@ -7,7 +7,9 @@ namespace Identity.Api.Endpoints.Profile.ChangeMyEmail;
 internal static class ChangeMyEmailEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("email", HandleAsync).WithName("changeMyEmail").Produces(StatusCodes.Status204NoContent)
+        group.MapPut("email", HandleAsync).WithName("changeMyEmail")
+            .WithSummary("Change own email (administrators)")
+            .WithDescription("Needs the current password; a wrong one counts towards lockout. Other sessions end; this browser stays signed in.").Produces(StatusCodes.Status204NoContent)
             .RequireAuthorization(PolicyNames.RequireAdminRole);
 
     private static async Task<IResult> HandleAsync(ChangeOwnEmailRequest request, [FromServices] ISender sender, CancellationToken cancellationToken) =>

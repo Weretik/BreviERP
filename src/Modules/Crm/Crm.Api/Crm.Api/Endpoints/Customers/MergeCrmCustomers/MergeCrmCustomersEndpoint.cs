@@ -8,6 +8,8 @@ internal static class MergeCrmCustomersEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{customerId:guid}/merge", HandleAsync).WithName("mergeCrmCustomers")
+            .WithSummary("Merge CRM customers")
+            .WithDescription("Admin or Manager, server-owned actor. Customer owner scope enforced; merge is Admin-only. Mutation requestId replays the same payload; revisions protect existing roots.")
             .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
     private static async Task<IResult> HandleAsync(Guid customerId, MergeCustomersRequest request, ClaimsPrincipal user,

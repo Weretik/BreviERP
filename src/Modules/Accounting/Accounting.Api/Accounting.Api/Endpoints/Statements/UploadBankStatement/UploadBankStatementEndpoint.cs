@@ -11,6 +11,8 @@ internal static class UploadBankStatementEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("", HandleAsync).WithName("uploadBankStatement")
+            .WithSummary("Upload bank statement")
+            .WithDescription("«Завантажити виписку» (stage 6): a statement of one account as the bank gave it — XLSX, XLS or CSV, at most 12 MiB and 10 000 rows. It becomes a preview with recognised lines (duplicates, transfers between own accounts, counterparties by ЄДРПОУ, IBAN or name, auto categories); nothing reaches the books until book. The same file of the same account returns the statement uploaded before with existing=true.")
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });

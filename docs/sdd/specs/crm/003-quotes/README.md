@@ -123,7 +123,7 @@ Clients come from the same module (`/api/crm/customers`).
 
 ## API (stage 1)
 
-Contract: [crm/quotes.openapi.yaml](../../../contracts/crm/quotes.openapi.yaml). Every operation needs a signed-in Manager or Admin (the Director also holds Admin); ownership is checked in the handlers.
+Contract: [OpenAPI](../../../contracts/openapi.json). Every operation needs a signed-in Manager or Admin (the Director also holds Admin); ownership is checked in the handlers.
 
 | Operation | Endpoint |
 | --- | --- |

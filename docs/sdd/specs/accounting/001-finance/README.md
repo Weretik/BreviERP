@@ -44,7 +44,7 @@ Move the «Фінанси» section of the old Calculator (version 217) into Bre
 - «Архівувати» hides the account from the default list; «Показати архівні» lists archived ones last. «Відновити» brings it back.
 - «Видалити» removes an unused record; the log keeps its last snapshot. A category root is deleted with its subcategories, each with its own entry. Stage 2 adds the rules for used records below.
 - A subcategory must have an active root of the same area and direction; there is no third level.
-- Contract: [finance.openapi.yaml](../../../contracts/accounting/finance.openapi.yaml). Feature card: [«Бухгалтерія»](../../../features/accounting/finance.md).
+- Contract: [OpenAPI](../../../contracts/openapi.json). Feature card: [«Бухгалтерія»](../../../features/accounting/finance.md).
 
 ## Stage 2 rules
 

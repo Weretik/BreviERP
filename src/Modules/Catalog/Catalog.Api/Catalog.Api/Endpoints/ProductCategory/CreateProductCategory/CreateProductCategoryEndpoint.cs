@@ -6,7 +6,9 @@ namespace Catalog.Api.Endpoints.ProductCategory.CreateProductCategory;
 internal static class CreateProductCategoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync);
+        group.MapPost("", HandleAsync)
+            .WithName("createProductCategory")
+            .WithSummary("Create a product category");
 
     private static async Task<IResult> HandleAsync(CreateProductCategoryRequest request, [FromServices] ISender sender,
         CancellationToken cancellationToken)

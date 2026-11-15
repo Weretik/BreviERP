@@ -10,7 +10,10 @@ namespace Crm.Api.Endpoints.Quotes.GetCrmQuoteModelComposition;
 internal static class GetCrmQuoteModelCompositionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("catalog/{productId:int}/composition", HandleAsync).WithName("getCrmQuoteModelComposition");
+        group.MapGet("catalog/{productId:int}/composition", HandleAsync).WithName("getCrmQuoteModelComposition")
+            .WithSummary("Get CRM quote model composition")
+            .WithDescription("«Змінити склад» (R-21): the composition of a Catalog sewing model to start a changed model from: the fabric of each variant with its metres, and the shared accessories, services, extra fabrics and operations. Nothing is saved.")
+            .Produces<QuoteModelCompositionResponse>();
 
     private static async Task<IResult> HandleAsync(int productId, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

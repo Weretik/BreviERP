@@ -8,7 +8,6 @@ using Catalog.Domain.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
-using YamlDotNet.RepresentationModel;
 using static UnitTests.Catalog.Products.Creation.CatalogProductCreationTests;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
@@ -127,25 +126,6 @@ public sealed class CatalogProductCreationInputTests
         Assert.That(result.Value.Blockers.Select(x => x.Code), Is.EqualTo(new[] { "MissingRule" }));
     }
 
-    [TestCase(typeof(CreateCatalogProductRequest))]
-    [TestCase(typeof(CreatePpeSupplierRequest))]
-    [TestCase(typeof(CreatedCatalogProduct))]
-    [TestCase(typeof(ProductCodeCheck))]
-    public void Serialized_properties_match_the_product_overview_contract(Type type)
-    {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "BreviERP.sln")))
-            directory = directory.Parent;
-        Assert.That(directory, Is.Not.Null);
-        using var reader = File.OpenText(Path.Combine(directory!.FullName, "docs/sdd/contracts/catalog/product-overview.openapi.yaml"));
-        var yaml = new YamlStream();
-        yaml.Load(reader);
-        var root = (YamlMappingNode)yaml.Documents[0].RootNode;
-        var schemas = (YamlMappingNode)((YamlMappingNode)root["components"])["schemas"];
-        var properties = (YamlMappingNode)((YamlMappingNode)schemas[type.Name])["properties"];
-        Assert.That(properties.Children.Keys.Cast<YamlScalarNode>().Select(x => x.Value),
-            Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
-    }
 
     [TestCase("createCatalogProduct", "access:products")]
     [TestCase("getProductCodeCheck", "CatalogRead")]

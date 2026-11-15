@@ -7,7 +7,6 @@ using Content.Application.Abstractions;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
-using YamlDotNet.RepresentationModel;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategories;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogCategory;
 using Content.Application.Features.Catalog.Queries.GetPublicCatalogProduct;
@@ -260,29 +259,6 @@ public sealed class PublicCatalogTests
         });
     }
 
-    [TestCase(typeof(PublicCatalogTree), "PublicCatalogTree")]
-    [TestCase(typeof(PublicCatalogType), "PublicCatalogType")]
-    [TestCase(typeof(PublicCatalogSection), "PublicCatalogSection")]
-    [TestCase(typeof(PublicCatalogCard), "PublicCatalogCard")]
-    [TestCase(typeof(PublicCatalogCardPage), "PublicCatalogCardPage")]
-    [TestCase(typeof(PublicCatalogSectionLink), "PublicCatalogSectionLink")]
-    [TestCase(typeof(PublicCatalogPhoto), "PublicCatalogPhoto")]
-    [TestCase(typeof(PublicCatalogVariant), "PublicCatalogVariant")]
-    [TestCase(typeof(PublicCatalogProduct), "PublicCatalogProduct")]
-    [TestCase(typeof(PublicCatalogSlug), "PublicCatalogSlug")]
-    [TestCase(typeof(PublicCatalogCategoryTree), "PublicCatalogCategoryTree")]
-    [TestCase(typeof(PublicCatalogCategory), "PublicCatalogCategory")]
-    [TestCase(typeof(PublicCatalogCategoryLink), "PublicCatalogCategoryLink")]
-    [TestCase(typeof(PublicCatalogChildCategory), "PublicCatalogChildCategory")]
-    [TestCase(typeof(PublicCatalogCategoryPage), "PublicCatalogCategoryPage")]
-    [TestCase(typeof(PublicCatalogProductCategory), "PublicCatalogProductCategory")]
-    public void Serialized_properties_match_the_machine_contract(Type type, string schema)
-    {
-        var properties = (YamlMappingNode)((YamlMappingNode)Schemas()[schema])["properties"];
-        Assert.That(properties.Children.Keys.Cast<YamlScalarNode>().Select(x => x.Value),
-            Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
-    }
-
     [Test]
     public void Every_operation_is_in_the_contract_open_to_everyone_and_read_only()
     {
@@ -294,7 +270,7 @@ public sealed class PublicCatalogTests
         {
             Assert.That(methods.All(x => x.Anonymous), Is.True);
             Assert.That(methods.All(x => x.Method == "GET"), Is.True);
-            Assert.That(methods.Select(x => x.Name), Is.EquivalentTo(Operations()));
+            Assert.That(ApiContract.OperationIds, Is.SupersetOf(methods.Select(x => x.Name)));
             Assert.That(methods, Has.Length.EqualTo(7));
         });
     }
@@ -314,24 +290,4 @@ public sealed class PublicCatalogTests
         Assert.That(names.Where(name => forbidden.Any(x => name.Contains(x, StringComparison.OrdinalIgnoreCase))),
             Is.Empty);
     }
-
-    private static YamlMappingNode Root()
-    {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "BreviERP.sln")))
-            directory = directory.Parent;
-        using var reader = File.OpenText(Path.Combine(directory!.FullName, "docs/sdd/contracts/content/content-public-catalog.openapi.yaml"));
-        var yaml = new YamlStream();
-        yaml.Load(reader);
-        return (YamlMappingNode)yaml.Documents[0].RootNode;
-    }
-
-    private static YamlMappingNode Schemas() =>
-        (YamlMappingNode)((YamlMappingNode)Root()["components"])["schemas"];
-
-    private static IEnumerable<string> Operations() =>
-        ((YamlMappingNode)Root()["paths"]).Children.Values.Cast<YamlMappingNode>()
-        .SelectMany(path => path.Children.Values.OfType<YamlMappingNode>())
-        .Where(operation => operation.Children.ContainsKey("operationId"))
-        .Select(operation => ((YamlScalarNode)operation["operationId"]).Value!);
 }

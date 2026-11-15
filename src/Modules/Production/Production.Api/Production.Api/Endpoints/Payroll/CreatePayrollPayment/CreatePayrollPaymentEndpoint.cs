@@ -6,7 +6,8 @@ namespace Production.Api.Endpoints.Payroll.CreatePayrollPayment;
 internal static class CreatePayrollPaymentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("{month}/payments", HandleAsync).WithName("createPayrollPayment");
+        group.MapPost("{month}/payments", HandleAsync).WithName("createPayrollPayment")
+            .WithSummary("Adds a payment (Admin)");
 
     private static async Task<IResult> HandleAsync(string month, CreatePayrollPaymentInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

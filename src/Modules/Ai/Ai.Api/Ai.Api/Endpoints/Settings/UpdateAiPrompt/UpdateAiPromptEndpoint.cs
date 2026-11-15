@@ -8,7 +8,9 @@ namespace Ai.Api.Endpoints.Settings.UpdateAiPrompt;
 internal static class UpdateAiPromptEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("prompts/{key}", HandleAsync).WithName("updateAiPrompt").Produces<AiSettingsResponse>();
+        group.MapPut("prompts/{key}", HandleAsync).WithName("updateAiPrompt")
+            .WithSummary("Update ai prompt")
+            .WithDescription("Extra rules of one request kind (purchase-invoices = «Умови розпізнавання рахунків»), added after the fixed instruction of the module. Empty text removes them.").Produces<AiSettingsResponse>();
 
     private static async Task<IResult> HandleAsync(string key, AiPromptRequest request, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

@@ -9,6 +9,8 @@ internal static class MergeFinanceCounterpartyEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:guid}/merge", HandleAsync).WithName("mergeFinanceCounterparty")
+            .WithSummary("«Об'єднати»: the counterparty is a duplicate of targetId")
+            .WithDescription("«Об'єднати»: the counterparty is a duplicate of targetId. Its operations move to the target, its names become other names of the target, and it is archived with mergedIntoId. Returns the target.")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceCounterpartyMergeInput input, ClaimsPrincipal user,

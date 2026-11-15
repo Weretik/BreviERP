@@ -8,6 +8,7 @@ internal static class SetCrmTaskUrgentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:long}/urgent", HandleAsync).WithName("setCrmTaskUrgent")
+            .WithSummary("Director or Admin drags a card into or out of «Терміново»")
             .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
     private static async Task<IResult> HandleAsync(long id, SetTaskUrgentRequest request, ClaimsPrincipal user,

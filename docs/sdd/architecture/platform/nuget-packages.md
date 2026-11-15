@@ -4,11 +4,11 @@ Versions and owning projects live only in the `.csproj` files under `src/` and `
 
 ## Dependency group roles
 
-- **Host.Api:** ASP.NET Core, Mediator source generator, OpenAPI/Swagger, Serilog, EF Core tools, and Scriban templating. Check concrete behavior in `src/Bootstrapper/Host.Api/Program.cs` and dependency registrations.
+- **Host.Api:** ASP.NET Core, Mediator source generator, the built-in OpenAPI generator with build-time generation (`Microsoft.Extensions.ApiDescription.Server`, [ADR-0015](../decisions/0015-openapi-generated-from-code.md)) and Swagger UI, Serilog, EF Core tools, and Scriban templating. Check concrete behavior in `src/Bootstrapper/Host.Api/Program.cs` and dependency registrations.
 - **Host.Seed:** a separate migration and seeding host; its startup is described in the [operational instructions](../../operations/data/migrations-and-seeding.md).
 - **BuildingBlocks.Domain:** typed values and domain primitives; **BuildingBlocks.Application:** results, specifications, validation, Mediator, EF/Npgsql, and shared services; **BuildingBlocks.Api:** map results to HTTP.
 - **Catalog.Infrastructure:** slug normalization and transliteration for module adapters.
-- **Tests:** NUnit, the test SDK and adapter, mocks, coverage, API TestHost, and YAML/OpenAPI validation. Test packages must not be presented as runtime dependencies.
+- **Tests:** NUnit, the test SDK and adapter, mocks, coverage, and API TestHost. Test packages must not be presented as runtime dependencies.
 
 ## Examples of verified usage
 
@@ -17,10 +17,10 @@ Versions and owning projects live only in the `.csproj` files under `src/` and `
 | Mediator and behavior ordering | [pipeline registration](../../../../src/Bootstrapper/Host.Api/DependencyInjection/Modules/MediatorRegistrationExtensions.cs) |
 | FluentValidation | [validator registration](../../../../src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/Validation/ModuleValidators.cs), called from each `Add<Module>Module()` |
 | EF Core with PostgreSQL | [Catalog DbContext registration](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/DependencyInjection/CatalogInfrastructureExtensions.cs) |
-| Serilog, Swagger, and OpenAPI | [HTTP host](../../../../src/Bootstrapper/Host.Api/Program.cs) |
+| Serilog | [HTTP host](../../../../src/Bootstrapper/Host.Api/Program.cs) |
+| OpenAPI generation and Swagger UI | [OpenAPI registration](../../../../src/Bootstrapper/Host.Api/DependencyInjection/Http/OpenApi/OpenApiRegistrationExtensions.cs), [Host.Api project](../../../../src/Bootstrapper/Host.Api/Host.Api.csproj) |
 | Slugify.Core and TranslitKit | [Catalog slug generator](../../../../src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Persistence/Configurations/Products/ProductSlugGenerator.cs) |
 | libphonenumber-csharp | [phone number helper service](../../../../src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application/PhoneNumberHelper.cs) |
 | Moq and NUnit | [Product unit tests](../../../../tests/UnitTests/Catalog/Products/Creation/ProductCommandHandlerTests.cs) |
-| YamlDotNet | [session OpenAPI contract validation](../../../../tests/UnitTests/Identity/SessionOpenApiContractTests.cs) |
 
 For any package, find a call, type, or configuration in the code before claiming it is actually used. If a package appears unnecessary, removing it requires a separate build and test check.

@@ -7,7 +7,8 @@ namespace Production.Api.Endpoints.Timesheet.SaveTimesheetDay;
 internal static class SaveTimesheetDayEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("", HandleAsync).WithName("saveTimesheetDay");
+        group.MapPut("", HandleAsync).WithName("saveTimesheetDay")
+            .WithSummary("Saves the changed marks of a day; each change is kept in the history");
 
     private static async Task<IResult> HandleAsync(SaveTimesheetDayInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

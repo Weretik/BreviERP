@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
-using YamlDotNet.RepresentationModel;
 using static UnitTests.Catalog.SheetImport.CatalogSheetImportFixtures;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
@@ -124,31 +123,6 @@ public sealed class CatalogSheetImportHandlerTests
         });
     }
 
-    [TestCase(typeof(ImportSheetProductsRequest))]
-    [TestCase(typeof(SheetSewingRow))]
-    [TestCase(typeof(SheetSewingArticleRow))]
-    [TestCase(typeof(SheetSewingMaterialRow))]
-    [TestCase(typeof(SheetSewingOperationRow))]
-    [TestCase(typeof(SheetPpeRow))]
-    [TestCase(typeof(SheetImportReport))]
-    [TestCase(typeof(SheetImportCounts))]
-    [TestCase(typeof(SheetImportDeletion))]
-    [TestCase(typeof(SheetImportIssue))]
-    public void Serialized_properties_match_the_sheet_import_contract(Type type)
-    {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "BreviERP.sln")))
-            directory = directory.Parent;
-        Assert.That(directory, Is.Not.Null);
-        using var reader = File.OpenText(Path.Combine(directory!.FullName, "docs/sdd/contracts/catalog/product-overview.openapi.yaml"));
-        var yaml = new YamlStream();
-        yaml.Load(reader);
-        var root = (YamlMappingNode)yaml.Documents[0].RootNode;
-        var schemas = (YamlMappingNode)((YamlMappingNode)root["components"])["schemas"];
-        var properties = (YamlMappingNode)((YamlMappingNode)schemas[type.Name])["properties"];
-        Assert.That(properties.Children.Keys.Cast<YamlScalarNode>().Select(x => x.Value),
-            Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
-    }
 
     [Test]
     public void Sheet_import_operation_exists_and_requires_product_management()

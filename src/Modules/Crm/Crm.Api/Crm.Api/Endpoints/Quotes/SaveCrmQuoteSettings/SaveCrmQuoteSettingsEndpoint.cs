@@ -9,7 +9,8 @@ namespace Crm.Api.Endpoints.Quotes.SaveCrmQuoteSettings;
 internal static class SaveCrmQuoteSettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("", HandleAsync).WithName("saveCrmQuoteSettings");
+        group.MapPut("", HandleAsync).WithName("saveCrmQuoteSettings")
+            .WithSummary("Saves the whole page with the version that was loaded");
 
     private static async Task<IResult> HandleAsync(SaveQuoteSettingsInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

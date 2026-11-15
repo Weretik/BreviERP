@@ -33,7 +33,7 @@ Stage 2 of the products transfer (plan: «Brevi: перенос «Товари»
 - The fields live in the existing `ProductCatalogProfile` (it already held season, activity, review flag/date, website URL and short description from the catalogue import and is read by quotes and suggestions). New column `SectionId` (migration `AddProductCatalogProfileSection`, additive; rollback is the migration `Down`). The profile is created when a product without one is saved.
 - Domain: `Product.Overview.cs` (`Code`, `SetCode`, `SetOverview`), `ProductOverviewDetails`, `ProductCatalogProfile.SetOverview`/`SetSaleSku`.
 - Application: `Features/Product/Overview/` (`GetList`, `Update`, FluentValidation). The section is read through `IProductSectionReader`, implemented in Host.Api over the Reference query.
-- API: `GET /api/v1/products/overview?type=Sewing|Ppe` (anonymous), `PUT /api/v1/products/{id}/overview` (`CanManageProducts`). Contract: [product-overview.openapi.yaml](../../../contracts/catalog/product-overview.openapi.yaml).
+- API: `GET /api/v1/products/overview?type=Sewing|Ppe` (anonymous), `PUT /api/v1/products/{id}/overview` (`CanManageProducts`). Contract: [OpenAPI](../../../contracts/openapi.json).
 - Content fields (Russian name, slug, descriptions, information blocks, characteristic tables, photos, site categories) stay in the database for the Content module; the «Товари» page does not show them.
 - Deleting a section in Reference does not check products yet; the Admin shows an unknown section ID as «—». The check comes with the sheet import (stage 5).
 

@@ -8,7 +8,9 @@ namespace Media.Api.Endpoints.Files.UploadMediaFile;
 internal static class UploadMediaFileEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("uploadMediaFile").Produces<MediaFileResponse>()
+        group.MapPost("", HandleAsync).WithName("uploadMediaFile")
+            .WithSummary("Upload one photo into a folder")
+            .WithDescription("The file is stored on the CDN first; the library row is created only after the CDN accepted it. Upload several photos with several requests.").Produces<MediaFileResponse>()
             .Accepts<IFormFile>("multipart/form-data").ProducesProblem(StatusCodes.Status400BadRequest)
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MediaAccess.MaxRequestBytes),

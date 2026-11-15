@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.RestoreFabricMovement;
 internal static class RestoreFabricMovementEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("movements/{movementId:int}/restore", HandleAsync).WithName("restoreFabricMovement").Produces<FabricStockOperationResponse>().RequireAccessAction(AccessActionAttribute.Edit);
+        group.MapPost("movements/{movementId:int}/restore", HandleAsync).WithName("restoreFabricMovement")
+            .WithSummary("«Скасувати останню правку»: the state before the newest edit or void not yet taken back comes back, only while the movement still is what it left").Produces<FabricStockOperationResponse>().RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int movementId, RestoreFabricMovementInput input, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

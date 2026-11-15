@@ -7,7 +7,9 @@ namespace Identity.Api.Endpoints.Profile.ChangeMyPhone;
 internal static class ChangeMyPhoneEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("phone", HandleAsync).WithName("changeMyPhone").Produces(StatusCodes.Status204NoContent)
+        group.MapPut("phone", HandleAsync).WithName("changeMyPhone")
+            .WithSummary("Change own phone number (administrators)")
+            .WithDescription("Empty or null clears it. 7 to 15 digits, optionally a leading +, spaces, dashes or brackets.").Produces(StatusCodes.Status204NoContent)
             .RequireAuthorization(PolicyNames.RequireAdminRole);
 
     private static async Task<IResult> HandleAsync(ChangePhoneRequest request, [FromServices] ISender sender, CancellationToken cancellationToken) =>

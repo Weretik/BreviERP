@@ -20,7 +20,7 @@
 | Дерево категорий: названия uk и ru, один слаг, путь, уровень, порядок, активность    | `Catalog.Domain/ProductCategories/Entities/ProductCategory.cs` |
 | Модель (`ModelCode`), SKU продажи у PPE (`CatalogProfile.SaleSku`)                    | `Product.cs`, `Product.CatalogProfile.cs`                |
 | Опубликованные цены Sewing по артикулам и цены PPE по офферам поставщиков              | `Catalog` pricing, см. [карту фич](../sdd/features/README.md) |
-| Только админские API, вход по cookie или токену                                       | `docs/sdd/contracts/openapi.yaml`                        |
+| Только админские API, вход по cookie или токену                                       | `docs/sdd/contracts/openapi.json`                        |
 
 ## 2. Чего не хватает сайту
 

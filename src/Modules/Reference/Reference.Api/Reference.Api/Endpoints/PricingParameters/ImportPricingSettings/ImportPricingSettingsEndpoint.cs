@@ -9,7 +9,11 @@ namespace Reference.Api.Endpoints.PricingParameters.ImportPricingSettings;
 internal static class ImportPricingSettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).Produces<PricingSettingsImportResult>()
+        group.MapPost("import", HandleAsync)
+            .WithName("importPricingSettings")
+            .WithSummary("Import both tables of the Calculator sheet «Налаштування цін»")
+            .WithDescription("Requires access:pricing-parameters. Parameters are matched by code, PPE markup rules by name; the row number becomes the display order. dryRun (default) returns the preview only. Otherwise nothing is saved when any row has an error. deleteMissing deletes parameters and rules that are not in the sheet. Repeating the same file changes nothing.")
+            .Produces<PricingSettingsImportResult>()
             .RequireAuthorization("access:pricing-parameters");
 
     private static async Task<IResult> HandleAsync(ImportPricingSettingsRequest request,

@@ -11,7 +11,9 @@ internal static class SaveSiteWorksEndpoint
     private const string Key = SiteGalleryKeys.Works;
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("", HandleAsync).WithName("saveSiteWorks");
+        group.MapPut("", HandleAsync).WithName("saveSiteWorks")
+            .WithSummary("Save site works")
+            .WithDescription("Replaces the list as a whole. A new picture is a photo of the «Фото» library; a file the site still keeps may stay (by its legacyPath) but cannot be added.");
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveSiteGalleryRequest request,
         [FromServices] ISender sender,

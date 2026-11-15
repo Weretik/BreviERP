@@ -7,7 +7,8 @@ namespace Reminders.Api.Endpoints.Calendar.GetReminderNonWorkingDays;
 internal static class GetReminderNonWorkingDaysEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getReminderNonWorkingDays").Produces<IReadOnlyList<NonWorkingDayResponse>>();
+        group.MapGet("", HandleAsync).WithName("getReminderNonWorkingDays")
+            .WithSummary("Get reminder non working days").Produces<IReadOnlyList<NonWorkingDayResponse>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new GetNonWorkingDaysQuery(), cancellationToken)).ToHttpResult();

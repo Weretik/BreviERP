@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.OrderItemFabric.GetProductionItemFabric;
 internal static class GetProductionItemFabricEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:int}/items/{itemId:int}/fabric", HandleAsync).WithName("getProductionItemFabric").Produces<ProductionItemFabricResponse>();
+        group.MapGet("{id:int}/items/{itemId:int}/fabric", HandleAsync).WithName("getProductionItemFabric")
+            .WithSummary("Tab «Тканина»: plan by colour, issues and whether the person may issue").Produces<ProductionItemFabricResponse>();
 
     private static async Task<IResult> HandleAsync(int id, int itemId, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

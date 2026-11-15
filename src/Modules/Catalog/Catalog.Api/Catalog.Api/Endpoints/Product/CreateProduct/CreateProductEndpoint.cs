@@ -8,7 +8,9 @@ namespace Catalog.Api.Endpoints.Product.CreateProduct;
 internal static class CreateProductEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync);
+        group.MapPost("", HandleAsync)
+            .WithName("createProduct")
+            .WithSummary("Create a Product with the administrator-supplied ID");
 
     private static async Task<IResult> HandleAsync(CreateProductRequest request, HttpRequest http,
         [FromServices] ISender sender, CancellationToken cancellationToken)

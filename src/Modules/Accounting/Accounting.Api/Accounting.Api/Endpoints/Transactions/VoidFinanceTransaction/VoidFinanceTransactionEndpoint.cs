@@ -9,6 +9,8 @@ internal static class VoidFinanceTransactionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:guid}/void", HandleAsync).WithName("voidFinanceTransaction")
+            .WithSummary("«Анулювати»: never deleted; the operation stays in the journal (includeVoided) and the log but no longer counts")
+            .WithDescription("«Анулювати»: never deleted; the operation stays in the journal (includeVoided) and the log but no longer counts. A cancelled operation cannot be changed (400).")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceVersionInput input, ClaimsPrincipal user,

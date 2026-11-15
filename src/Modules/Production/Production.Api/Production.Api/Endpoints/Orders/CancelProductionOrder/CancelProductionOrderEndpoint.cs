@@ -8,6 +8,7 @@ internal static class CancelProductionOrderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:int}/cancel", HandleAsync).WithName("cancelProductionOrder")
+            .WithSummary("«Скасувати» with a reason")
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(int id, CancelProductionOrderInput input, ClaimsPrincipal user,

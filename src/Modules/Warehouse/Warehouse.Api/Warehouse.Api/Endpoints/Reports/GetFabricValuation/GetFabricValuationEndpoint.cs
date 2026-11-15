@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.Reports.GetFabricValuation;
 internal static class GetFabricValuationEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("valuation", HandleAsync).WithName("getFabricValuation").Produces<FabricValuationResponse>()
+        group.MapGet("valuation", HandleAsync).WithName("getFabricValuation")
+            .WithSummary("«Вартість складу»: positive balances at today's prices of «Тканини»; owner only by default (access:fabric-valuation)").Produces<FabricValuationResponse>()
             .RequireAuthorization(WarehouseAccess.FabricValuation);
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>

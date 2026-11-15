@@ -7,6 +7,9 @@ internal static class GetStoreProductCategoriesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("store/{language}", HandleAsync)
+            .WithName("getStoreProductCategories")
+            .WithSummary("List product categories of a store")
+            .Produces<List<StoreProductCategoryRowDTO>>()
             .AllowAnonymous();
 
     private static async Task<IResult> HandleAsync(string language, [FromServices] ISender sender,

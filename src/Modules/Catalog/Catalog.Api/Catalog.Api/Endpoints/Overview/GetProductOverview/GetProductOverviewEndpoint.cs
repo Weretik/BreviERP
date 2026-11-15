@@ -1,3 +1,4 @@
+using Catalog.Application.Features.Product.Queries.GetProductOverviewPage.Results;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Shared.Overview;
 using BuildingBlocks.Api.Errors;
@@ -12,7 +13,10 @@ internal static class GetProductOverviewEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("overview", HandleAsync).WithName("getProductOverview")
-            .RequireAuthorization("CatalogRead");
+            .WithSummary("One page of a «Товари» tab (CAT-013)")
+            .WithDescription("CatalogRead. The server searches, filters, sorts and pages the rows of one type and returns them with their prices, so the list needs this single request. Prices are read, never recalculated: sewing prices are the stored published prices of each fabric variant (automatic publication keeps them current, CAT-012); PPE prices come from the current offer and rule. prices is the lowest price of each tier among the active variants. problems lists the reasons a price is missing (of the row or of an active variant) and is empty when everything is priced. sections and withoutPrice count every row of the type, for the filter chips.")
+            .RequireAuthorization("CatalogRead")
+            .Produces<ProductOverviewPage>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, string? type = null,
         string? search = null, string? section = null, bool withoutPrice = false, string? sort = null,

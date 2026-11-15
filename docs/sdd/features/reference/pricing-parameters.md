@@ -43,4 +43,4 @@ src/Modules/Catalog/.../Features/Pricing/Commands/SyncPricingSettings/          
 
 ## Related Sources
 
-[OpenAPI](../../contracts/reference/pricing-parameters.openapi.yaml) · [Reference boundaries](../../architecture/overview/modules.md).
+[OpenAPI](../../contracts/openapi.json) · [Reference boundaries](../../architecture/overview/modules.md).

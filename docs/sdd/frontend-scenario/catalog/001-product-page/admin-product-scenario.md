@@ -3,7 +3,7 @@
 **Audience:** a developer or AI building the catalog admin frontend.
 **Scope:** list, create, view, edit, and delete `Sewing` and `Ppe` products. The public product page is outside this scenario.
 
-This document defines the visible sections and the manager's action sequence. It does not duplicate DTOs or the design system. Get exact field names, types, required status, response codes, and request examples from [Product OpenAPI](../../../contracts/catalog/product-catalog.openapi.yaml). Data rules are in the [overview](../../../specs/catalog/001-product-page/requirements/overview.md), [product content](../../../specs/catalog/001-product-page/requirements/product-content.md), [Sewing](../../../specs/catalog/001-product-page/requirements/sewing.md), [PPE](../../../specs/catalog/001-product-page/requirements/ppe.md), and [pricing](../../../specs/catalog/001-product-page/requirements/pricing.md). If this scenario and OpenAPI differ on HTTP behavior, follow OpenAPI and clarify the scenario before implementation.
+This document defines the visible sections and the manager's action sequence. It does not duplicate DTOs or the design system. Get exact field names, types, required status, response codes, and request examples from [Product OpenAPI](../../../contracts/openapi.json). Data rules are in the [overview](../../../specs/catalog/001-product-page/requirements/overview.md), [product content](../../../specs/catalog/001-product-page/requirements/product-content.md), [Sewing](../../../specs/catalog/001-product-page/requirements/sewing.md), [PPE](../../../specs/catalog/001-product-page/requirements/ppe.md), and [pricing](../../../specs/catalog/001-product-page/requirements/pricing.md). If this scenario and OpenAPI differ on HTTP behavior, follow OpenAPI and clarify the scenario before implementation.
 
 ## 1. Screens and Navigation
 
@@ -36,8 +36,8 @@ The form may be one screen or a sequence of steps, but it saves the product in o
 
 ### Section 2 — Categories and Photos
 
-- The manager selects zero or more categories without duplicate IDs. Load options using `GET /api/reference/product-categories/admin` as described by the [dependency contract](../../../contracts/catalog/product-dependencies.openapi.yaml).
-- (Updated 2026-11-03: photos now come from the [Media library](../../../contracts/media/media-library.openapi.yaml), `searchMediaFiles` / `uploadMediaFile`.) The manager selects existing photos through `GET /api/catalog/media` or uploads a new one through `POST /api/catalog/media` (`multipart/form-data`). Link only media files in the `Ready` state to Product; the upload alone does not create a product link.
+- The manager selects zero or more categories without duplicate IDs. Load options using `GET /api/reference/product-categories/admin` as described by the [dependency contract](../../../contracts/openapi.json).
+- (Updated 2026-11-03: photos now come from the [Media library](../../../contracts/openapi.json), `searchMediaFiles` / `uploadMediaFile`.) The manager selects existing photos through `GET /api/catalog/media` or uploads a new one through `POST /api/catalog/media` (`multipart/form-data`). Link only media files in the `Ready` state to Product; the upload alone does not create a product link.
 - Configure `alt`, visibility, order, and main-photo status for each selected photo. If there are photos, exactly one must be main. Show its preview using the ready URL; send `mediaFileId` and link fields in the request, not the URL. Do not add the same media file twice.
 
 ### Section 3 — Descriptive Content
@@ -49,16 +49,16 @@ The form may be one screen or a sequence of steps, but it saves the product in o
 ### Section 4A — `Sewing` Only
 
 - Enter `metersPerProduct`, a positive number of fabric meters per product.
-- Select fabrics from the [Fabric reference](../../../contracts/reference/fabrics.openapi.yaml). Set `isPrimary` and `sortOrder` for each. Do not add a fabric twice; if exactly one is selected, it is primary; at most two may be primary, with the rest additional. Show primary fabrics first, ordered within each group by `sortOrder`.
-- Select accessories from the [GarmentAccessory reference](../../../contracts/reference/garment-accessories.openapi.yaml). Set a positive per-product `quantity` and `sortOrder` for each, without duplicate IDs.
-- Select operations from the [GarmentPartOperation reference](../../../contracts/reference/garment-part-operations.openapi.yaml), without duplicate IDs. Get duration from the reference data rather than entering it on Product. A product may be created as a draft without operations; `piecesPerShift` and dependent calculations may then be absent.
+- Select fabrics from the [Fabric reference](../../../contracts/openapi.json). Set `isPrimary` and `sortOrder` for each. Do not add a fabric twice; if exactly one is selected, it is primary; at most two may be primary, with the rest additional. Show primary fabrics first, ordered within each group by `sortOrder`.
+- Select accessories from the [GarmentAccessory reference](../../../contracts/openapi.json). Set a positive per-product `quantity` and `sortOrder` for each, without duplicate IDs.
+- Select operations from the [GarmentPartOperation reference](../../../contracts/openapi.json), without duplicate IDs. Get duration from the reference data rather than entering it on Product. A product may be created as a draft without operations; `piecesPerShift` and dependent calculations may then be absent.
 - Do not manually enter the three prices for each fabric or productivity. After saving, show them from the Product detail response if the backend calculated them. Before the first save, do not present a local estimate as a server price.
 
 ### Section 4B — `Ppe` Only
 
-- Select exactly one supplier from the [Supplier reference](../../../contracts/reference/suppliers.openapi.yaml).
+- Select exactly one supplier from the [Supplier reference](../../../contracts/openapi.json).
 - Enter a positive `basePrice` manually.
-- Choose `Reference` or `Custom` separately for retail and wholesale percentages. For `Reference`, select an [AdditionalReference](../../../contracts/reference/additional-references.openapi.yaml) entry with unit `%` and send its ID. For `Custom`, enter a non-negative percentage; no reference record is created.
+- Choose `Reference` or `Custom` separately for retail and wholesale percentages. For `Reference`, select an [AdditionalReference](../../../contracts/openapi.json) entry with unit `%` and send its ID. For `Custom`, enter a non-negative percentage; no reference record is created.
 - Do not enter retail or wholesale prices manually. After saving, show the calculated `retailPrice` and `wholesalePrice` from the response.
 
 ### Save
@@ -129,8 +129,8 @@ Get HTTP error formats from Product OpenAPI and the [human-readable contract](..
 | Open full detail | `GET /api/v1/products/{id}` |
 | Save edits or a type change | `PUT /api/v1/products/{id}` |
 | Delete a product | `DELETE /api/v1/products/{id}` |
-| Select categories and fetch/upload photos | [Product form dependencies](../../../contracts/catalog/product-dependencies.openapi.yaml) |
-| Select fabrics, accessories, operations, supplier, and reference percentages | Corresponding [Reference OpenAPI](../../../contracts/reference/) |
+| Select categories and fetch/upload photos | [Product form dependencies](../../../contracts/openapi.json) |
+| Select fabrics, accessories, operations, supplier, and reference percentages | Corresponding [OpenAPI](../../../contracts/openapi.json) |
 
 ## 9. Verifiable Frontend Acceptance Scenarios
 

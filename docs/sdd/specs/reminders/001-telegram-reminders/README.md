@@ -11,7 +11,7 @@ Admin staff keep a list of recurring deadline tasks for ПП «Бреві», Ф�
 - [Requirements and scenarios](requirements.md)
 - [Design and decisions](design.md), including the new-module decision and rejected alternatives
 - [Data model](data-model.md)
-- [API contract decisions](contracts/api-contract.md) and the machine-readable [OpenAPI contract](../../../contracts/reminders/telegram-reminders.openapi.yaml)
+- [API contract decisions](contracts/api-contract.md) and the machine-readable [OpenAPI contract](../../../contracts/openapi.json)
 - [Tasks](tasks.md) and [traceability and evidence](traceability.md)
 - Operations: [Telegram reminders runbook](../../../operations/jobs/telegram-reminders.md)
 - Feature card: [Telegram reminders](../../../features/reminders/telegram-reminders.md)

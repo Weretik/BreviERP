@@ -4,7 +4,7 @@
 
 ## Scope
 
-In: new response fields of `GET /api/warehouse/fabric-stock/reports/booking` and `.../reports/hardware` ([contract](../../../contracts/warehouse/fabric-stock.openapi.yaml)). Read only; access pages unchanged (`fabric-booking`, `hardware-order`).
+In: new response fields of `GET /api/warehouse/fabric-stock/reports/booking` and `.../reports/hardware` ([contract](../../../contracts/openapi.json)). Read only; access pages unchanged (`fabric-booking`, `hardware-order`).
 
 Out: changes to how the booking or the accessory need is counted ([WH-005](../005-reports/README.md)); accessory stock (the owner decided not to track it).
 
