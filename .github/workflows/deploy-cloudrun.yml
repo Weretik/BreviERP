@@ -78,6 +78,16 @@ jobs:
       - run: dotnet test tests/ArchitectureTests/ArchitectureTests.csproj --no-build --configuration Release
       - run: dotnet test tests/HostApiTests/HostApiTests.csproj --no-build --configuration Release
       - run: dotnet test tests/IntegrationTests/IntegrationTests.csproj --no-build --configuration Release --filter "FullyQualifiedName~IntegrationTests.Platform."
+      # Database rules 5.2, 5.3: every model change has its migration, and each module's idempotent SQL applies twice
+      # to an empty database. The scripts are attached to the run, to read what the deploy will change.
+      - run: dotnet tool restore
+      - run: python3 tools/ci/migrations.py --configuration Release --no-build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: migration-scripts
+          path: artifacts/migrations/
+          if-no-files-found: ignore
       # A pull request runs the unit and integration tests of the modules it changed (tools/ci/affected_tests.py);
       # shared code (BuildingBlocks, hosts, jobs, build files) and every master push run all of them.
       - name: Pick unit and integration tests

@@ -30,13 +30,8 @@ public sealed class GetAdminProductsSpec : Specification<ProductEntity, ProductL
             }
             else
             {
-                foreach (var searchTerm in searchTerms)
-                {
-                    var normalizedTerm = searchTerm.ToLowerInvariant();
-                    Query.Where(x =>
-                        x.Name.ToLower().Contains(normalizedTerm) ||
-                        x.RuName.ToLower().Contains(normalizedTerm));
-                }
+                foreach (var pattern in SearchWords.Patterns(search))
+                    Query.Where(SearchWords.Matches<ProductEntity>(pattern));
             }
         }
 

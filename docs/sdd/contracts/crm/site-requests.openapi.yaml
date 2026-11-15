@@ -150,6 +150,10 @@ components:
           type: string
           format: binary
           description: Up to 10 MB; pdf, doc, docx, xls, xlsx, zip, rar, 7z, jpg, jpeg, png, cdr, ai, eps, psd.
+        requestId:
+          type: string
+          format: uuid
+          description: New for every filled form; the same form sent again returns the same request.
     CrmSiteRequestReceived:
       type: object
       required:

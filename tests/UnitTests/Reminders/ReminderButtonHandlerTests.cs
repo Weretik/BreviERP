@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Reminders.Domain.Occurrences;
 using Reminders.Domain.Schedules;
 using Reminders.Application.Features.Messages.Shared;
+using Reminders.Infrastructure.Persistence;
 
 namespace UnitTests.Reminders;
 
@@ -35,6 +37,44 @@ public sealed class ReminderButtonHandlerTests
         Assert.That(h.Telegram.Edited[0].Text, Does.Contain("Закрито ✅").And.Contain("👤 Олена, 16.11.2026 09:00"));
         Assert.That(h.Telegram.Edited[0].Keyboard, Is.Null);
         Assert.That(h.Telegram.Answers[1].Text, Does.StartWith("Вже закрито: Олена"));
+    }
+
+    [Test]
+    public async Task Done_pressed_while_someone_else_closes_the_period_keeps_the_first_close()
+    {
+        var (h, messageId, id) = await SentCardAsync();
+        var admin = new CloseFirst(h);
+        await using var press = h.OtherRequest(admin);
+
+        await h.Buttons(press).HandleAsync(ReminderTestHarness.Press(messageId, $"rm:{id}:done"), CancellationToken.None);
+
+        h.Db.ChangeTracker.Clear();
+        var occurrence = await h.Db.Occurrences.Include(x => x.Actions).SingleAsync();
+        Assert.Multiple(() =>
+        {
+            Assert.That(admin.Closed, Is.True);
+            Assert.That(occurrence.ClosedBy, Is.EqualTo(ReminderActor.Admin(7, "Марія")));
+            Assert.That(occurrence.Actions, Has.Count.EqualTo(1), "the second close is not recorded");
+            Assert.That(h.Telegram.Answers.Single().Text, Does.StartWith("Вже закрито: Марія"));
+        });
+    }
+
+    /// <summary>Closes the period from another request just before the press saves.</summary>
+    private sealed class CloseFirst(ReminderTestHarness h) : SaveChangesInterceptor
+    {
+        public bool Closed { get; private set; }
+
+        public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
+            InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            if (Closed) return result;
+            Closed = true;
+            await using var other = h.OtherRequest();
+            var occurrence = await other.Occurrences.Include(x => x.Actions).SingleAsync(cancellationToken);
+            occurrence.Close(ReminderActor.Admin(7, "Марія"), h.Clock.Now);
+            await other.SaveChangesAsync(cancellationToken);
+            return result;
+        }
     }
 
     [Test]

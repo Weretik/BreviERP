@@ -41,7 +41,7 @@ public sealed class ProductionWork
     private ProductionWork() { }
 
     public static DomainResult<ProductionWork> Create(WorkTarget target, WorkFacts facts, string actorName,
-        DateTimeOffset now, string? legacyId = null)
+        DateTimeOffset now, string? legacyId = null, Guid? requestId = null)
     {
         if (facts.Quantity is <= 0 or > MaxQuantity)
             return Error.Validation("production.work_quantity", $"Кількість — від 1 до {MaxQuantity}.", "quantity");
@@ -50,7 +50,9 @@ public sealed class ProductionWork
         if (facts.OverPlan && !OverPlanReasons.IsKnown(facts.Reason))
             return Error.Validation("production.work_over_plan_reason", "Для роботи понад план оберіть причину.", "reason");
         var comment = OrderText.Check(facts.Comment, CommentMaxLength, "comment");
-        return comment.IsFailure ? comment.Error! : new ProductionWork(target, facts, actorName, now, legacyId);
+        return comment.IsFailure
+            ? comment.Error!
+            : new ProductionWork(target, facts, actorName, now, legacyId) { RequestId = requestId };
     }
 
     private ProductionWork(WorkTarget target, WorkFacts facts, string actorName, DateTimeOffset now, string? legacyId)
@@ -95,6 +97,9 @@ public sealed class ProductionWork
     public string? VoidedByName { get; private set; }
     public string? VoidReason { get; private set; }
     public string? LegacyId { get; private set; }
+
+    /// <summary>The «Додати роботу» attempt; a repeat with the same id records nothing new (unique).</summary>
+    public Guid? RequestId { get; private init; }
 
     public bool IsVoided => VoidedAt is not null;
 

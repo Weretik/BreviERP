@@ -13,6 +13,10 @@ public interface ICatalogProductReader
 
     Task<CatalogProduct?> FindAsync(int productId, CancellationToken cancellationToken);
 
+    /// <summary>The products with these ids in one read (a КП with many lines); missing ids are left out.</summary>
+    Task<IReadOnlyDictionary<int, CatalogProduct>> FindManyAsync(IReadOnlyCollection<int> productIds,
+        CancellationToken cancellationToken);
+
     /// <summary>The photos of the card tab «Фото» that exist in the library, main first.</summary>
     Task<IReadOnlyList<CatalogPhoto>> PhotosAsync(int productId, CancellationToken cancellationToken);
 }

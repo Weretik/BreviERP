@@ -27,8 +27,9 @@ public interface IWarehouseProductionReader
     Task<IReadOnlyList<WarehouseLegacyOrder>> LegacyOrdersAsync(IReadOnlyCollection<string> legacyIds,
         CancellationToken cancellationToken);
 
-    /// <summary>Adds a line «Тканина» to the history of the item.</summary>
-    Task RecordFabricAsync(int orderId, int itemId, string text, string actorName, CancellationToken cancellationToken);
+    /// <summary>Adds a line «Тканина» made at <paramref name="at"/> to the history of the item, once.</summary>
+    Task RecordFabricAsync(int orderId, int itemId, string text, string actorName, DateTimeOffset at,
+        CancellationToken cancellationToken);
 }
 
 /// <summary>A planned colour of an item: fabric, colour as typed, key, metres for the whole quantity, layer.</summary>

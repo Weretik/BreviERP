@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -28,6 +29,7 @@ public sealed class ManagerTaskConfiguration : IEntityTypeConfiguration<ManagerT
         b.HasIndex(x => new { x.AssigneeUserId, x.Status, x.DueAt });
         b.HasIndex(x => new { x.Status, x.DueAt });
         b.HasIndex(x => x.CompletedAt);
+        b.HasSearchText(nameof(ManagerTask.Title), nameof(ManagerTask.CustomerName), nameof(ManagerTask.AssigneeName));
         // The lead of a «Подзвонити» task (LEAD-001 R-08), without a foreign key: tasks never block leads.
         b.HasIndex(x => new { x.LeadId, x.Status });
 

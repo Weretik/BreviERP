@@ -23,7 +23,15 @@ public sealed class ReminderOccurrenceStatusChanger(
         var changed = close ? occurrence.Close(actor, clock.Now) : occurrence.Reopen(actor, clock.Now);
         if (!changed)
             return Result<ReminderOccurrenceResponse>.Conflict(close ? "Період уже закрито." : "Період уже відкрито.");
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Result<ReminderOccurrenceResponse>.Conflict("Період щойно змінили в Telegram. Оновіть сторінку.");
+        }
+
         if (close) await UpdateLiveCardsAsync(task, occurrence, cancellationToken);
         return Result.Success(ReminderOccurrenceMapper.ToResponse(occurrence, task));
     }

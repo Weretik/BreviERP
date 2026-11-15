@@ -73,14 +73,14 @@ public sealed class GetFinanceCounterpartiesHandler(IAccountingDbContext db, IAc
     {
         var rows = db.Counterparties.AsNoTracking();
         if (!includeArchived) rows = rows.Where(x => x.Active);
-        return term.Length > 0 ? rows.Where(x => x.SearchText.Contains(term)) : rows;
+        return rows.WhereEveryWord(term, pattern => x => EF.Functions.Like(x.SearchText, pattern, SearchWords.Escape));
     }
 
     private IQueryable<FinanceTransaction> Oneoffs(string term, bool includeArchived)
     {
         var rows = db.Transactions.AsNoTracking().Where(x => x.OneoffName != "");
         if (!includeArchived) rows = rows.Where(x => x.Status == MovementStatus.Active);
-        return term.Length > 0 ? rows.Where(x => x.OneoffName.ToLower().Contains(term)) : rows;
+        return rows.WhereSearchText(term);
     }
 
     internal static List<AccountingParty> Matching(IEnumerable<AccountingParty> parties, string term, bool includeArchived) =>

@@ -56,8 +56,6 @@ public sealed class GetFinanceTransfersHandler(IAccountingDbContext db)
         if (f.MinMinor is { } min) rows = rows.Where(x => x.AmountMinor >= min);
         if (f.MaxMinor is { } max) rows = rows.Where(x => x.AmountMinor <= max);
         if (f.Source is { } source) rows = rows.Where(x => x.Source == source);
-        var search = FinanceText.Clean(f.Search).ToLowerInvariant();
-        if (search.Length > 0) rows = rows.Where(x => x.Note.ToLower().Contains(search));
-        return rows;
+        return rows.WhereSearchText(f.Search);
     }
 }

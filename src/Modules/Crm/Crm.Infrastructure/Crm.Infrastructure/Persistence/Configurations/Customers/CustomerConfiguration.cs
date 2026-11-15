@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.ExternalIdentities;
@@ -28,6 +29,7 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         b.HasIndex(x => new { x.OwnerId, x.Active, x.UpdatedAt });
         b.HasIndex(x => x.NormalizedName);
         b.HasIndex(x => x.TaxIdentity);
+        b.HasSearchText(nameof(Customer.NormalizedName), nameof(Customer.TaxIdentity));
         b.HasMany(x => x.Contacts).WithOne().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
         b.HasMany(x => x.ExternalIdentities).WithOne().HasForeignKey(x => x.CustomerId).OnDelete(DeleteBehavior.Restrict);
     }

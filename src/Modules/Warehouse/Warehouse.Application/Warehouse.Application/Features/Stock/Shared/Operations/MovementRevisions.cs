@@ -63,7 +63,7 @@ public sealed class MovementRevisions(IWarehouseDbContext db, StockOperations op
         {
             await db.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException exception) when (exception.IsRace())
         {
             if (await operations.ReplayAsync(operationId, hash, cancellationToken) is { } replay) return replay;
             return Result<FabricStockOperationResponse>.Conflict(StockMessages.RevisionStale);

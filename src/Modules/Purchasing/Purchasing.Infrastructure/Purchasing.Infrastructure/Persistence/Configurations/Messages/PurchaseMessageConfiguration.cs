@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Purchasing.Domain.Messages;
@@ -20,5 +21,6 @@ public sealed class PurchaseMessageConfiguration : IEntityTypeConfiguration<Purc
         b.Property(x => x.ReviewedBy).HasMaxLength(PurchaseMessage.ReviewerMaxLength);
         b.HasIndex(x => x.SupplierId);
         b.HasIndex(x => x.MessageDate);
+        b.HasSearchText(nameof(PurchaseMessage.Text));
     }
 }

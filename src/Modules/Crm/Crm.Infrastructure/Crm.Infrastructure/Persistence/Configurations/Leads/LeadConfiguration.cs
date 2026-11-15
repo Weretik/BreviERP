@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Leads;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -50,6 +51,8 @@ public sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
         b.HasIndex(x => new { x.OwnerUserId, x.Stage, x.NextContactAt });
         b.HasIndex(x => new { x.Stage, x.OwnerUserId });
         b.HasIndex(x => x.Category);
+        b.HasSearchText(nameof(Lead.Company), nameof(Lead.Region), nameof(Lead.Industry), nameof(Lead.Contacts),
+            nameof(Lead.OwnerName));
 
         b.HasMany(x => x.Calls).WithOne().HasForeignKey(x => x.LeadId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(x => x.Calls).HasField("_calls").UsePropertyAccessMode(PropertyAccessMode.Field);

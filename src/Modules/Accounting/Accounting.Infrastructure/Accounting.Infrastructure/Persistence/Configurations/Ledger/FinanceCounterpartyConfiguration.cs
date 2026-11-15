@@ -32,5 +32,6 @@ internal sealed class FinanceCounterpartyConfiguration : IEntityTypeConfiguratio
         builder.HasIndex(x => new { x.Active, x.Name });
         builder.HasIndex(x => x.Edrpou);
         builder.HasIndex(x => x.Iban);
+        builder.HasIndex(x => x.SearchText).HasMethod("gin").HasOperators("gin_trgm_ops");
     }
 }

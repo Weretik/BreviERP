@@ -8,6 +8,7 @@ internal static class PayrollMessages
     public const string CannotPay = "Виплати, утримання й закриття місяця веде адміністратор.";
     public const string Month = "Місяць у форматі РРРР-ММ.";
     public const string FutureMonth = "Цей місяць ще не настав.";
+    public const string Changed = "Місяць зарплати щойно змінили (наприклад, закрили). Оновіть сторінку й повторіть.";
     public const string Closed = "Місяць зарплати закрито: змінювати роботу, години й виплати в ньому не можна.";
     public const string HasWarnings = "Місяць не закрито: спершу виправте попередження розрахунку.";
     public const string EmployeeNotFound = "Працівника не знайдено.";

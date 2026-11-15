@@ -38,11 +38,11 @@ internal sealed class QuoteCatalogReader(ICatalogProductReader products, IFabric
     public async Task<IReadOnlyDictionary<int, QuoteCatalogProduct>> GetAsync(IReadOnlyCollection<int> productIds,
         CancellationToken cancellationToken)
     {
+        if (productIds.Count == 0) return new Dictionary<int, QuoteCatalogProduct>();
+        var found = await products.FindManyAsync(productIds, cancellationToken);
+        if (found.Count == 0) return new Dictionary<int, QuoteCatalogProduct>();
         var fabrics = await FabricsAsync(cancellationToken);
-        var found = new Dictionary<int, QuoteCatalogProduct>(productIds.Count);
-        foreach (var id in productIds)
-            if (await products.FindAsync(id, cancellationToken) is { } product) found[id] = Map(product, fabrics);
-        return found;
+        return found.ToDictionary(x => x.Key, x => Map(x.Value, fabrics));
     }
 
     private async Task<IReadOnlyDictionary<int, FabricInfo>> FabricsAsync(CancellationToken cancellationToken) =>

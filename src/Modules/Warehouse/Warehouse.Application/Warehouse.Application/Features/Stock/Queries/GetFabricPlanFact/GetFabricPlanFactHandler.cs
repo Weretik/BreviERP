@@ -44,17 +44,14 @@ public sealed class GetFabricPlanFactHandler(
             evaluated.Count(x => x.InProgress)));
     }
 
+    /// <summary>Every word of each box (database rules 2.1), over the few items of the period read whole.</summary>
     private static bool Matches(FabricPlanFactEntry entry, GetFabricPlanFactQuery query) =>
-        Contains(query.Model, entry.ModelName, entry.ModelCode) &&
-        Contains(query.Client, entry.Item.ClientName) &&
+        SearchWords.MatchesEveryWord(query.Model, [entry.ModelName, entry.ModelCode]) &&
+        SearchWords.MatchesEveryWord(query.Client, [entry.Item.ClientName]) &&
         (string.IsNullOrWhiteSpace(query.Fabric) || entry.Item.Materials.Any(m =>
-            Contains(query.Fabric, m.PlanFabricCode, m.PlanFabricName, m.PlanColor) ||
-            m.Used.Any(u => Contains(query.Fabric, u))));
+            SearchWords.MatchesEveryWord(query.Fabric, [m.PlanFabricCode, m.PlanFabricName, m.PlanColor]) ||
+            m.Used.Any(u => SearchWords.MatchesEveryWord(query.Fabric, [u]))));
 
     private static bool InPeriod(DateOnly? day, GetFabricPlanFactQuery query) =>
         (query.From is null || day >= query.From) && (query.To is null || day <= query.To);
-
-    private static bool Contains(string? search, params string?[] values) =>
-        string.IsNullOrWhiteSpace(search) ||
-        values.Any(x => x is not null && x.Contains(search.Trim(), StringComparison.CurrentCultureIgnoreCase));
 }

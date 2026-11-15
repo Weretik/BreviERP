@@ -9,7 +9,7 @@ using Warehouse.Application.Features.Stock.Shared.Plans;
 namespace Warehouse.Application.Features.Stock.Commands.RefreshItemFabricPlan;
 
 public sealed class RefreshItemFabricPlanHandler(IWarehouseProductionReader production, IWarehouseDbContext db,
-    StockChanges changes, ItemPlans plans, ItemFabricCards cards)
+    StockChanges changes, ItemPlans plans, ItemFabricCards cards, FabricHistory history)
     : ICommandHandler<RefreshItemFabricPlanCommand, Result<ProductionItemFabricResponse>>
 {
     public async ValueTask<Result<ProductionItemFabricResponse>> Handle(RefreshItemFabricPlanCommand command,
@@ -33,17 +33,18 @@ public sealed class RefreshItemFabricPlanHandler(IWarehouseProductionReader prod
         if (before == after) return Result<ProductionItemFabricResponse>.Invalid(
             new ValidationError("PlanVersion", StockMessages.NothingToRefresh));
         plan.Refresh(Math.Max(1, item.Quantity), parts, actorName, changes.Now);
+        var note = history.Note(item.OrderId, item.ItemId, $"План тканини оновлено: було {before}; стало {after}",
+            actorName, changes.Now);
         try
         {
             await db.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException exception) when (exception.IsRace())
         {
             return Result<ProductionItemFabricResponse>.Conflict(StockMessages.PlanStale);
         }
 
-        await production.RecordFabricAsync(item.OrderId, item.ItemId, $"План тканини оновлено: було {before}; стало {after}",
-            actorName, cancellationToken);
+        await history.SendAsync(note);
         return Result.Success(await cards.BuildAsync(item, command.Actor, cancellationToken));
     }
 

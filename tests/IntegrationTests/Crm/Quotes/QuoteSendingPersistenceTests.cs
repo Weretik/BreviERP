@@ -56,13 +56,13 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         return result.Value;
     }
 
-    private async Task<Result<QuoteResponse>> Send(QuoteActor actor, long id, int version)
+    private async Task<Result<QuoteResponse>> Send(QuoteActor actor, long id, int version, Guid? requestId = null)
     {
         await using var db = Context();
         return await new SendQuoteHandler(db, new QuotePdfComposer(db, _staff, new QuoteTestRenderer(), new QuoteTestNoCatalog()), _gmail,
                 _protector, _clock, NullLogger<SendQuoteHandler>.Instance)
             .Handle(new SendQuoteCommand(actor, id, new SendQuoteInput(version, "client@agro.test; boss@agro.test",
-                "КП № 1-11-2026", "Добрий день")), default);
+                "КП № 1-11-2026", "Добрий день", requestId)), default);
     }
 
     private async Task<long> AddQuote()
@@ -139,6 +139,25 @@ public sealed class QuoteSendingPersistenceTests : CrmDatabaseFixture
         await using var db = Context();
         var log = db.QuoteSendings.Single();
         Assert.That((log.QuoteVersion, log.SenderName, log.To), Is.EqualTo((1, "Олена", "client@agro.test, boss@agro.test")));
+    }
+
+    [Test]
+    public async Task ARepeatedSendWithTheSameRequestIdSendsOneLetter()
+    {
+        var id = await AddQuote();
+        await Callback("code-1", await StartConnect(Olena, 17));
+        var request = Guid.NewGuid();
+
+        var sent = await Send(Olena, id, 1, request);
+        var repeat = await Send(Olena, id, 1, request);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(sent.IsSuccess, Is.True, string.Join(",", sent.Errors));
+            Assert.That(repeat.Status, Is.EqualTo(ResultStatus.Ok), "not «stale»: it is the same press");
+            Assert.That(repeat.Value.Version, Is.EqualTo(sent.Value.Version));
+            Assert.That(_gmail.Sent, Has.Count.EqualTo(1));
+        });
     }
 
     [Test]

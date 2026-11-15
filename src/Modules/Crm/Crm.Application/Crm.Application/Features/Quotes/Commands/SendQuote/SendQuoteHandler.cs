@@ -21,6 +21,9 @@ public sealed class SendQuoteHandler(IQuoteStore store, QuotePdfComposer compose
     {
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
+        if (command.Input.RequestId is { } requestId
+            && await store.QuoteSendings.AsNoTracking().AnyAsync(x => x.RequestId == requestId, cancellationToken))
+            return Result.Success(quote.ToResponse());
         if (quote.Version != command.Input.Version) return Result.Conflict(QuoteMessages.Stale);
         if (!gmail.IsConfigured) return Result.Conflict(QuoteSendingMessages.NotConfigured);
 
@@ -44,7 +47,8 @@ public sealed class SendQuoteHandler(IQuoteStore store, QuotePdfComposer compose
 
         var now = clock.GetUtcNow();
         store.QuoteSendings.Add(new QuoteSending(quote.Id, quote.Version, new QuotePerson(member.UserId, member.Name),
-            mailbox.Email, string.Join(", ", recipients), subject, sent.Value, now));
+            mailbox.Email, string.Join(", ", recipients), subject, sent.Value, now,
+            command.Input.RequestId));
         quote.MarkSent(now);
         quote.Record(QuoteEventKind.Sent, new QuotePerson(member.UserId, member.Name), $"Кому: {string.Join(", ", recipients)}",
             now);

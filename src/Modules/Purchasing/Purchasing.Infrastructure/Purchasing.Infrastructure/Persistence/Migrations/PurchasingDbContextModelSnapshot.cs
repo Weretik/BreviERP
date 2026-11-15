@@ -22,6 +22,7 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Purchasing.Domain.Documents.PurchaseCheckedDocument", b =>
@@ -273,6 +274,11 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"Text\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("StatusOriginal")
                         .IsRequired()
                         .HasColumnType("text");
@@ -294,6 +300,11 @@ namespace Purchasing.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MessageDate");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("SupplierId");
 

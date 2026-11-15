@@ -21,10 +21,9 @@ public sealed class GetFinancePaymentCandidatesHandler(IAccountingDbContext db, 
         var search = FinanceText.Clean(query.Search);
         if (search.Length > 0)
         {
-            var term = search.ToLowerInvariant();
             var amount = AmountOf(search);
-            rows = rows.Where(x => x.Description.ToLower().Contains(term) || x.Comment.ToLower().Contains(term)
-                || x.OneoffName.ToLower().Contains(term) || (amount != null && x.AmountMinor == amount));
+            rows = rows.WhereEveryWord(search, pattern => x => (amount != null && x.AmountMinor == amount) ||
+                EF.Functions.Like(EF.Property<string>(x, SearchWords.Column), pattern, SearchWords.Escape));
         }
         else if (query.SupplierId is { } supplierId)
         {

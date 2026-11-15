@@ -25,6 +25,21 @@ public sealed class StockPairs(IWarehouseDbContext db, StockOperations operation
         return new StockPair(code, key, lines.Where(x => StockColor.Key(x.Color) == key));
     }
 
+    /// <summary>Several pairs in one read, in the order asked; a pair asked twice shares its tracked lines.</summary>
+    public async Task<IReadOnlyList<StockPair>> LoadManyAsync(IReadOnlyList<(string Code, string Color)> wanted,
+        CancellationToken cancellationToken)
+    {
+        var codes = wanted.SelectMany(x => FabricAliases.Members(x.Code)).Distinct().ToArray();
+        var lines = await db.FabricStocks.Where(x => codes.Contains(x.FabricCode)).ToListAsync(cancellationToken);
+        return wanted.Select(x =>
+        {
+            var members = FabricAliases.Members(x.Code).ToHashSet();
+            var key = StockColor.Key(x.Color);
+            return new StockPair(x.Code, key,
+                lines.Where(line => members.Contains(line.FabricCode) && StockColor.Key(line.Color) == key));
+        }).ToList();
+    }
+
     /// <summary>
     /// Adds new lines, restates the chain of every line touched by operation date, record time and id, records the
     /// operation and saves. A change by someone else in between is a conflict; a parallel repeat of the same id
@@ -47,7 +62,7 @@ public sealed class StockPairs(IWarehouseDbContext db, StockOperations operation
         {
             await db.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException exception) when (exception.IsRace())
         {
             // Another person changed the pair, or the same operation was saved in parallel: answer the saved result.
             if (await operations.ReplayAsync(operationId, hash, cancellationToken) is { } replay) return replay;

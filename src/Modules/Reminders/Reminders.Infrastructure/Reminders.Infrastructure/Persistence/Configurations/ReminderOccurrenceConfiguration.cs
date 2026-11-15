@@ -17,6 +17,7 @@ public sealed class ReminderOccurrenceConfiguration : IEntityTypeConfiguration<R
         b.Property(x => x.TaskId).HasConversion(x => x.Value, x => new ReminderTaskId(x));
         b.Property(x => x.Periodicity).HasConversion<int>();
         b.Property(x => x.Status).HasConversion<int>();
+        b.Property(x => x.Version).IsConcurrencyToken();
         b.OwnsOne(x => x.ClosedBy, a => ConfigureActor(a, "ClosedBy"));
         b.OwnsOne(x => x.PostponedBy, a => ConfigureActor(a, "PostponedBy"));
         b.HasMany(x => x.Actions).WithOne().HasForeignKey("OccurrenceId").IsRequired().OnDelete(DeleteBehavior.Cascade);

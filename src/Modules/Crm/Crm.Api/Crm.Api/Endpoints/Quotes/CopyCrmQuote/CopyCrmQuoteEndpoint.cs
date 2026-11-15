@@ -10,12 +10,12 @@ internal static class CopyCrmQuoteEndpoint
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:long}/copy", HandleAsync).WithName("copyCrmQuote");
 
-    private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(long id, CopyQuoteInput? input, ClaimsPrincipal user,
+        [FromServices] ISender sender, CancellationToken cancellationToken)
     {
         var actor = QuoteActorClaims.Read(user);
         if (actor is null) return Results.Forbid();
-        var result = await sender.Send(new CopyQuoteCommand(actor, id), cancellationToken);
+        var result = await sender.Send(new CopyQuoteCommand(actor, id, input), cancellationToken);
         return result.IsSuccess
             ? Results.CreatedAtRoute("getCrmQuote", new { id = result.Value.Id }, result.Value)
             : result.ToHttpResult();

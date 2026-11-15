@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Transfers.Commands.CreateFinanceTransfer;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Ledger;
 using Accounting.Domain.Movements;
@@ -31,6 +32,27 @@ public sealed class FinanceTransferTests
             Assert.That(accounts.Single(x => x.Id == bank.Id).Balance!.CurrentMinor, Is.EqualTo(600_00));
             Assert.That(accounts.Single(x => x.Id == cash.Id).Balance!.CurrentMinor, Is.EqualTo(400_00));
             Assert.That(accounts.Sum(x => x.Balance!.TotalMinor), Is.EqualTo(1_000_00));
+        });
+    }
+
+    [Test]
+    public async Task A_repeated_transfer_request_is_saved_once()
+    {
+        using var harness = new AccountingTestHarness();
+        var bank = await Account(harness, "Банк", 1_000_00, cutoverMinor: 1_000_00);
+        var cash = await Account(harness, "Каса", 0, cutoverMinor: 0);
+        var command = new CreateFinanceTransferCommand(LedgerScope.Current,
+            new FinanceTransferFields(Current, bank.Id, cash.Id, 400_00, null), AccountingTestHarness.Director,
+            Guid.NewGuid());
+
+        var first = await new CreateFinanceTransferHandler(harness.Db, harness.Time).Handle(command, default);
+        var repeat = await new CreateFinanceTransferHandler(harness.Fresh(), harness.Time).Handle(command, default);
+        var accounts = await Accounts(harness);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(repeat.Value.Id, Is.EqualTo(first.Value.Id), "the repeat answers with the saved transfer");
+            Assert.That(accounts.Single(x => x.Id == cash.Id).Balance!.CurrentMinor, Is.EqualTo(400_00));
         });
     }
 

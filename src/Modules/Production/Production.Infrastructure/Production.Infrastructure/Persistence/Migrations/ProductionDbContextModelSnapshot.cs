@@ -21,6 +21,7 @@ namespace Production.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("BuildingBlocks.Application.Outbox.OutboxMessage", b =>
@@ -55,7 +56,8 @@ namespace Production.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProcessedAt", "NextAttemptAt");
+                    b.HasIndex("CreatedAt")
+                        .HasFilter("\"ProcessedAt\" IS NULL");
 
                     b.ToTable("OutboxMessages", "production");
                 });
@@ -132,6 +134,11 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .HasColumnName("Links");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("SourceKey")
                         .IsUnique();
@@ -289,6 +296,11 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("numeric(12,2)");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"ModelName\", '') || ' ' || coalesce(\"ModelCode\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<decimal?>("SewingRate")
                         .HasPrecision(12, 2)
                         .HasColumnType("numeric(12,2)");
@@ -321,6 +333,11 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.HasIndex("CurrentStage");
 
                     b.HasIndex("ModelCode");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("OrderId", "Position")
                         .IsUnique();
@@ -398,6 +415,11 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"ClientName\", '') || ' ' || coalesce(\"QuoteNumber\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -424,6 +446,11 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("QuoteId");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.ToTable("Orders", "production");
                 });
@@ -654,6 +681,9 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("VoidReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -670,6 +700,10 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("Month");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.ToTable("PayrollAdjustments", "production");
                 });
@@ -786,6 +820,9 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly>("PaidOn")
                         .HasColumnType("date");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("VoidReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -802,6 +839,10 @@ namespace Production.Infrastructure.Persistence.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("Month");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.ToTable("PayrollPayments", "production");
                 });
@@ -1037,6 +1078,9 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("VoidReason")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -1061,6 +1105,10 @@ namespace Production.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique()
+                        .HasFilter("\"RequestId\" IS NOT NULL");
 
                     b.HasIndex("WorkDate");
 

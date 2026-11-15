@@ -138,7 +138,7 @@ public sealed class WarehouseStockHandlerTests
         var issued = await Issue(workshop, Chief, order.Id, itemId, order.Version,
             L("темно-сірий", "Темно-сірий", 6.6m));
         var reversed = await new ReverseFabricIssueHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
-                workshop.ItemFabric())
+                workshop.ItemFabric(), workshop.History())
             .Handle(new(Chief, order.Id, issued.Value.Issues[0].Id, new(order.Version, "Видали не ту тканину")),
                 CancellationToken.None);
         var stock = await List(workshop, Chief);
@@ -153,6 +153,34 @@ public sealed class WarehouseStockHandlerTests
             Assert.That(history, Is.EqualTo(2));
         });
     }
+
+    [Test]
+    public async Task A_history_line_that_could_not_be_written_at_once_comes_with_the_next_dispatch_and_only_once()
+    {
+        using var workshop = Workshop();
+        await Receive(workshop, Chief, "Opening", 10m);
+        var order = (await ProductionOrderHandlerTests.Create(workshop.Workshop, OrderManager, ProductionOrderHandlerTests.Input())).Value;
+        workshop.Outbox.HoldBack = true;
+
+        var issued = await Issue(workshop, Chief, order.Id, order.Items[0].Id, order.Version,
+            L("темно-сірий", "Темно-сірий", 6.6m));
+        var before = await FabricLinesAsync(workshop);
+        await workshop.Outbox.DispatchDueAsync(CancellationToken.None);
+        var message = await workshop.Db.OutboxMessages.AsNoTracking().SingleAsync();
+        await new RecordFabricHistoryOutboxHandler(workshop.Production).HandleAsync(message.Payload, CancellationToken.None);
+        var after = await FabricLinesAsync(workshop);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(issued.IsSuccess, Is.True, "the fabric is issued even when the history waits");
+            Assert.That(before, Is.Zero);
+            Assert.That(message.ProcessedAt, Is.Not.Null);
+            Assert.That(after, Is.EqualTo(1), "a second delivery adds nothing");
+        });
+    }
+
+    private static Task<int> FabricLinesAsync(WarehouseTestHarness workshop) =>
+        workshop.Workshop.Db.OrderChanges.AsNoTracking().CountAsync(x => x.Field == "Тканина");
 
     [Test]
     public async Task New_stock_line_takes_a_colour_from_the_list_and_choices_list_it()
@@ -259,7 +287,7 @@ public sealed class WarehouseStockHandlerTests
         var saved = planVersion ?? await workshop.Db.FabricItemPlans.AsNoTracking().Where(x => x.ItemId == itemId)
             .Select(x => x.Version).SingleOrDefaultAsync();
         return await new CreateFabricIssueHandler(workshop.Production, workshop.Db, workshop.StockChanges(),
-                workshop.Pairs(), workshop.Operations(), workshop.Plans(), workshop.ItemFabric())
+                workshop.Pairs(), workshop.Operations(), workshop.Plans(), workshop.ItemFabric(), workshop.History())
             .Handle(new(actor, orderId, itemId, new(operationId ?? Guid.NewGuid(), version, saved, Day, cut, null, lines)),
                 CancellationToken.None);
     }

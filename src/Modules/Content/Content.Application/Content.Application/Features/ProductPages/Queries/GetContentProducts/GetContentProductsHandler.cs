@@ -54,9 +54,7 @@ public sealed class GetContentProductsHandler(IContentDbContext db, IContentCata
             _ => categoryIds.Any(wanted!.Contains),
         };
 
+    /// <summary>Every word (database rules 2.1) in the code, name or address of the product.</summary>
     private static bool Matches(ContentProductRow row, string search) =>
-        Has(row.Code, search) || Has(row.Name, search) || Has(row.Slug, search);
-
-    private static bool Has(string? value, string search) =>
-        value is not null && value.Contains(search, StringComparison.OrdinalIgnoreCase);
+        SearchWords.MatchesEveryWord(search, [row.Code, row.Name, row.Slug]);
 }

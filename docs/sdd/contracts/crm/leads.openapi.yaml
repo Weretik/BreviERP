@@ -615,6 +615,7 @@ components:
         comment: { type: [string, "null"], maxLength: 2000 }
         nextContactAt: { type: [string, "null"], format: date-time }
         version: { type: integer, minimum: 1 }
+        requestId: { type: [string, "null"], format: uuid, description: New for every form; a repeat with the same id returns the lead without a second call. }
     CrmSaveLeadCallResultInput:
       type: object
       required: [name, outcome, isActive, position]

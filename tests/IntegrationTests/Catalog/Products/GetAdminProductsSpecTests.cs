@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 using Catalog.Application.Features.Product.Queries.GetAdminProducts;
+using Catalog.Application.Features.Product.Queries.GetAdminProductDetail.Specs;
+using ReplaceProductSpec = Catalog.Application.Features.Product.Commands.ReplaceProduct.ProductByIdSpec;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Domain.Products.Enums;
 using Catalog.Domain.Products.ValueObjects;
@@ -91,6 +94,31 @@ public sealed class GetAdminProductsSpecTests
     }
 
     [Test]
+    public async Task Overview_reads_several_products_by_id_in_one_query()
+    {
+        var counter = new QueryCommandCounter();
+        await using var db = CreateContext(commandInterceptor: counter);
+        var category = ProductCategory.Create(ProductCategoryId.Create(16), "КП", "КП", "kp").Value;
+        db.ProductCategories.Add(category);
+        db.Products.AddRange(
+            CreateProduct(1150, "Халат", "khalat", ProductType.Sewing, category.Id),
+            CreateProduct(1160, "Куртка", "kurtka", ProductType.Sewing, category.Id),
+            CreateProduct(1170, "Рукавиці", "rukavytsi", ProductType.Ppe, category.Id));
+        await db.SaveChangesAsync();
+        counter.Reset();
+
+        var rows = await SpecificationEvaluator.Default
+            .GetQuery(db.Products.AsQueryable(), new ProductOverviewSpec(null, [1150, 1170, 999]))
+            .ToListAsync();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(rows.Select(x => x.Id), Is.EquivalentTo(new[] { 1150, 1170 }));
+            Assert.That(counter.ReaderCommandCount, Is.EqualTo(1));
+        });
+    }
+
+    [Test]
     public async Task Specification_uses_id_as_a_stable_secondary_sort_for_paged_results()
     {
         await using var db = CreateContext();
@@ -131,6 +159,23 @@ public sealed class GetAdminProductsSpecTests
         var items = await query.ToListAsync();
 
         Assert.That(items.Select(x => x.Id), Does.Contain(140));
+    }
+
+    [Test]
+    public async Task Product_card_and_its_save_load_collections_with_split_queries()
+    {
+        await using var db = CreateContext(throwOnMultipleCollectionIncludeWarning: true);
+        var category = ProductCategory.Create(ProductCategoryId.Create(17), "Картка", "Карточка", "card").Value;
+        db.ProductCategories.Add(category);
+        db.Products.Add(CreateProduct(1180, "Картка", "card-product", ProductType.Sewing, category.Id));
+        await db.SaveChangesAsync();
+
+        var card = await SpecificationEvaluator.Default.GetQuery(db.Products.AsQueryable(),
+            new ProductAdminDetailSpec(1180)).SingleAsync();
+        var forSave = await SpecificationEvaluator.Default.GetQuery(db.Products.AsQueryable(),
+            new ReplaceProductSpec(1180)).SingleAsync();
+
+        Assert.That((card.Id, forSave.Id.Value), Is.EqualTo((1180, 1180)));
     }
 
     [Test]

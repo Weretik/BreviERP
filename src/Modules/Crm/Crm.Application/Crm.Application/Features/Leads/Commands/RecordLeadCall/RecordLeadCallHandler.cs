@@ -29,6 +29,8 @@ public sealed class RecordLeadCallHandler(ILeadStore store, ITaskStaffReader sta
         var input = command.Input;
         var lead = await store.LoadAsync(command.Id, cancellationToken);
         if (lead is null) return Result.NotFound(LeadMessages.NotFound);
+        if (await RecordedAsync(lead.Id, input.RequestId, cancellationToken))
+            return Result.Success(await store.DetailAsync(lead, clock.GetUtcNow(), cancellationToken));
         if (lead.Version != input.Version) return Result.Conflict(LeadMessages.Stale);
         if (!lead.IsOpen) return Result.Invalid(new ValidationError(LeadMessages.Closed));
         if (lead.OwnerUserId is not null && !lead.IsOwnedBy(command.Actor.UserId))
@@ -51,17 +53,25 @@ public sealed class RecordLeadCallHandler(ILeadStore store, ITaskStaffReader sta
         var taskPerson = new ManagerTaskPerson(member.UserId, member.Name);
 
         lead.Take(by, now);
-        var call = lead.RecordCall(by, result, input.Comment, next, now);
+        var call = lead.RecordCall(by, result, input.Comment, next, now, input.RequestId);
 
         foreach (var open in await store.OpenTasksAsync(lead.Id, cancellationToken))
             open.ChangeStatus(ManagerTaskStatus.Done, taskPerson, now);
         if (call.NextContactAt is { } nextAt)
             store.ManagerTasks.Add(LeadCallTask.Create(lead, call, taskPerson, nextAt, now));
 
-        return await store.TrySaveAsync(cancellationToken)
-            ? Result.Success(await store.DetailAsync(lead, now, cancellationToken))
-            : Result.Conflict(LeadMessages.Stale);
+        if (await store.TrySaveAsync(cancellationToken))
+            return Result.Success(await store.DetailAsync(lead, now, cancellationToken));
+        // The same press arrived twice at once: the other request recorded the call.
+        if (!await RecordedAsync(lead.Id, input.RequestId, cancellationToken)) return Result.Conflict(LeadMessages.Stale);
+        store.Leads.Entry(lead).Context.ChangeTracker.Clear();
+        var saved = await store.LoadAsync(lead.Id, cancellationToken);
+        return Result.Success(await store.DetailAsync(saved!, now, cancellationToken));
     }
+
+    private async Task<bool> RecordedAsync(long leadId, Guid? requestId, CancellationToken cancellationToken) =>
+        requestId is { } id
+        && await store.LeadCalls.AsNoTracking().AnyAsync(x => x.LeadId == leadId && x.RequestId == id, cancellationToken);
 
     /// <summary>A retry without a date is planned <see cref="LeadCallResult.RetryDays"/> days later (R-06).</summary>
     private static DateTimeOffset? NextContact(LeadCallResult result, DateTimeOffset? given, DateTimeOffset now) =>

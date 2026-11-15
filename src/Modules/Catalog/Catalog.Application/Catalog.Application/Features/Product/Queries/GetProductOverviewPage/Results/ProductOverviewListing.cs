@@ -44,10 +44,8 @@ public static class ProductOverviewListing
         return descending ? items.OrderByDescending(key, comparer) : items.OrderBy(key, comparer);
     }
 
+    /// <summary>Every word (database rules 2.1) in the code, name, КП text or a variant's SKU or fabric.</summary>
     private static bool Matches(ProductOverviewItem item, string search)
-        => Contains(item.Code, search) || Contains(item.Name, search) || Contains(item.QuoteDescription, search)
-            || item.Variants.Any(v => Contains(v.SaleSku, search) || Contains(v.FabricName, search));
-
-    private static bool Contains(string? value, string search)
-        => value is not null && value.Contains(search, StringComparison.CurrentCultureIgnoreCase);
+        => SearchWords.MatchesEveryWord(search, new[] { item.Code, item.Name, item.QuoteDescription }
+            .Concat(item.Variants.SelectMany(v => new[] { v.SaleSku, v.FabricName })));
 }

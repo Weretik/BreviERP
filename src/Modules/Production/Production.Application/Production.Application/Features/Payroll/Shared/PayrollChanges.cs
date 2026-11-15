@@ -28,9 +28,44 @@ public sealed class PayrollChanges(IProductionDbContext db, IProductionStaffRead
         if (period.IsClosed) return PayrollErrors.MonthClosed().ToResult<PayrollMonthResponse>();
         var actorName = await OrderActors.NameAsync(staff, actor.UserId, cancellationToken);
         if (actorName is null) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotSee);
-        var refused = await change(new PayrollChange(period, actorName, clock.GetUtcNow()));
+        var now = clock.GetUtcNow();
+        var refused = await change(new PayrollChange(period, actorName, now));
         if (refused is not null) return Map(refused);
-        await db.SaveChangesAsync(cancellationToken);
+        if (!period.IsClosed && period.RecordChange(actorName, now).IsFailure)
+            return PayrollErrors.MonthClosed().ToResult<PayrollMonthResponse>();
+        var saved = await PayrollMonths.SaveAsync(db, cancellationToken);
+        if (!saved.IsSuccess) return Map(saved);
+        return Result.Success(await ReadAsync(actor, month, cancellationToken));
+    }
+
+    /// <summary>
+    /// <see cref="ApplyAsync"/> for an admin's create with the form's request id: a repeat whose row
+    /// <paramref name="exists"/> (also when the first one wins a race) returns the month as it is and adds nothing.
+    /// </summary>
+    public async Task<Result<PayrollMonthResponse>> ApplyOnceAsync(ProductionActor actor, string monthText,
+        Guid? requestId, Func<Guid, CancellationToken, Task<bool>> exists, Func<PayrollChange, Task<Result?>> change,
+        CancellationToken cancellationToken)
+    {
+        if (requestId is not { } id) return await ApplyAsync(actor, monthText, true, change, cancellationToken);
+        if (!actor.CanPay) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotPay);
+        if (await exists(id, cancellationToken)) return await RepeatAsync(actor, monthText, cancellationToken);
+        try
+        {
+            var result = await ApplyAsync(actor, monthText, true, change, cancellationToken);
+            if (result.Status != ResultStatus.Conflict || !await exists(id, cancellationToken)) return result;
+        }
+        catch (DbUpdateException)
+        {
+            if (!await exists(id, cancellationToken)) throw;
+        }
+
+        return await RepeatAsync(actor, monthText, cancellationToken);
+    }
+
+    private async Task<Result<PayrollMonthResponse>> RepeatAsync(ProductionActor actor, string monthText,
+        CancellationToken cancellationToken)
+    {
+        PayrollMonths.TryParse(monthText, out var month);
         return Result.Success(await ReadAsync(actor, month, cancellationToken));
     }
 

@@ -4,6 +4,7 @@ using Crm.Application.Features.Embroidery.Commands.SaveEmbroideryCalculation;
 using Crm.Application.Features.Embroidery.Commands.SaveEmbroiderySettings;
 using Crm.Application.Features.Embroidery.Commands.SetEmbroideryMockup;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculationsById;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculations;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryMockupUsages;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroiderySettings;
@@ -103,6 +104,20 @@ public sealed class EmbroiderySavedPersistenceTests : CrmDatabaseFixture
         Assert.That((await List("поло")).Items.Select(x => x.Id), Is.EqualTo(new long[] { 1 }));
         Assert.That((await List("вш-0002")).Items.Select(x => x.Id), Is.EqualTo(new long[] { 2 }));
         Assert.That((await List("нічого")).Total, Is.Zero);
+    }
+
+    [Test]
+    public async Task SeveralCalculationsAreReadAtOnceAndAMissingIdIsLeftOut()
+    {
+        var first = (await Save(Olena, new SaveEmbroideryCalculationInput("Поло", null, Form(), "Категорія 1"))).Value;
+        var second = (await Save(Olena, new SaveEmbroideryCalculationInput("Куртка", null, Form(), "Категорія 1"))).Value;
+
+        await using var db = Context();
+        var found = await new GetEmbroideryCalculationsByIdHandler(db, _media).Handle(
+            new GetEmbroideryCalculationsByIdQuery(Olena, [second.Summary.Id, first.Summary.Id, 999]), default);
+
+        Assert.That(found.Value.Select(x => x.Summary.Name).Order(), Is.EqualTo(new[] { "Куртка", "Поло" }));
+        Assert.That(found.Value.All(x => x.Result.Cost is null), Is.True, "a Manager never gets the cost");
     }
 
     [Test]

@@ -28,5 +28,6 @@ public sealed class SiteRequestConfiguration : IEntityTypeConfiguration<SiteRequ
         b.Ignore(x => x.IsOpen);
         b.HasIndex(x => x.Status);
         b.HasIndex(x => x.OwnerUserId);
+        b.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
     }
 }

@@ -16,6 +16,9 @@ public sealed class FinanceTransfer : IAggregateRoot
     private FinanceTransfer() { }
 
     public FinanceTransferId Id { get; private set; }
+
+    /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
+    public Guid? RequestId { get; private set; }
     public DateOnly Date { get; private set; }
     public FinanceAccountId FromAccountId { get; private set; }
     public FinanceAccountId ToAccountId { get; private set; }
@@ -39,12 +42,14 @@ public sealed class FinanceTransfer : IAggregateRoot
     public FinanceTransferDetails Details => new(Date, FromAccountId, ToAccountId, AmountMinor, Note);
 
     public static DomainResult<FinanceTransfer> Create(FinanceTransferId id, LedgerScope scope,
-        FinanceTransferDetails details, FinanceAccount from, FinanceAccount to, string by, DateTimeOffset now)
+        FinanceTransferDetails details, FinanceAccount from, FinanceAccount to, string by, DateTimeOffset now,
+        Guid? requestId = null)
     {
         if (MovementRules.CheckScope(scope) is { IsFailure: true } badScope) return badScope.Error!;
         var transfer = new FinanceTransfer
         {
             Id = id,
+            RequestId = requestId,
             Scope = scope,
             Source = MovementSource.Manual,
             Status = MovementStatus.Active,

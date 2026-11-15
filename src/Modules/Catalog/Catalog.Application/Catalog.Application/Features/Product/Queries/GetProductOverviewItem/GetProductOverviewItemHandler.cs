@@ -10,7 +10,7 @@ public sealed class GetProductOverviewItemHandler(ProductOverviewItemReader read
     public async ValueTask<Result<ProductOverviewItem>> Handle(
         GetProductOverviewItemQuery query, CancellationToken cancellationToken)
     {
-        var items = await reader.ReadAsync(null, query.Id, cancellationToken);
+        var items = await reader.ReadAsync(null, [query.Id], cancellationToken);
         return items.Count == 0
             ? Result.NotFound()
             : Result.Success((await reader.WithProblemsAsync(items, cancellationToken))[0]);

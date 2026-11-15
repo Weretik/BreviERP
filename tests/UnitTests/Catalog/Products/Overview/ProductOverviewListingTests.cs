@@ -36,6 +36,8 @@ public sealed class ProductOverviewListingTests
             Assert.That(Filtered(Query() with { Search = "халат" }), Is.EqualTo(new[] { 1 }));
             Assert.That(Filtered(Query() with { Search = "sku-3" }), Is.EqualTo(new[] { 3 }));
             Assert.That(Filtered(Query() with { Search = "БЯЗЬ" }), Is.EqualTo(new[] { 2 }));
+            Assert.That(Filtered(Query() with { Search = "бязь куртка" }), Is.EqualTo(new[] { 2 }), "every word, any order");
+            Assert.That(Filtered(Query() with { Search = "куртка габардин" }), Is.Empty);
         });
     }
 

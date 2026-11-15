@@ -210,10 +210,10 @@ public sealed class Lead
     /// result: required for callback, talking and offer, cleared when the result closes the lead.
     /// </summary>
     public LeadCall RecordCall(LeadPerson by, LeadCallResult result, string? comment, DateTimeOffset? nextContactAt,
-        DateTimeOffset now)
+        DateTimeOffset now, Guid? requestId = null)
     {
         var next = result.Outcome.Closes() ? null : nextContactAt;
-        var call = new LeadCall(by, result, comment, next, now);
+        var call = new LeadCall(by, result, comment, next, now, requestId);
         _calls.Add(call);
         Stage = result.Outcome.Stage();
         LastResultName = result.Name;

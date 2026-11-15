@@ -12,7 +12,8 @@ public sealed class CreatePayrollPaymentHandler(IProductionDbContext db, Payroll
 {
     public async ValueTask<Result<PayrollMonthResponse>> Handle(CreatePayrollPaymentCommand command,
         CancellationToken cancellationToken) =>
-        await changes.ApplyAsync(command.Actor, command.Month, adminOnly: true, async change =>
+        await changes.ApplyOnceAsync(command.Actor, command.Month, command.Input.RequestId,
+            (id, ct) => db.PayrollPayments.AsNoTracking().AnyAsync(x => x.RequestId == id, ct), async change =>
         {
             var input = command.Input;
             if (input.PaidOn > WorkshopDay.Today(clock))
@@ -22,7 +23,8 @@ public sealed class CreatePayrollPaymentHandler(IProductionDbContext db, Payroll
             if (employee is null) return Result.Invalid(new ValidationError("Input.EmployeeId", PayrollMessages.EmployeeNotFound));
             var payment = PayrollPayment.Create(
                 new PayrollEntryTarget(change.Period.Month, employee.Id, employee.FullName), input.PaidOn,
-                Enum.Parse<PayrollPaymentKind>(input.Kind), input.Amount, input.Comment, change.ActorName, change.Now);
+                Enum.Parse<PayrollPaymentKind>(input.Kind), input.Amount, input.Comment, change.ActorName, change.Now,
+                input.RequestId);
             if (payment.IsFailure) return payment.Error!.ToResult();
             db.PayrollPayments.Add(payment.Value);
             return null;

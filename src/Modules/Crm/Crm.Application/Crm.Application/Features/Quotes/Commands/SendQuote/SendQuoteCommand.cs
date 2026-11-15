@@ -11,4 +11,5 @@ public sealed record SendQuoteCommand(QuoteActor Actor, long Id, SendQuoteInput 
 
 /// <param name="Version">The КП version the editor shows; the PDF of exactly this version is sent.</param>
 /// <param name="To">One or more addresses separated by commas or semicolons.</param>
-public sealed record SendQuoteInput(int Version, string To, string Subject, string Body);
+/// <param name="RequestId">New for every press; a repeat with the same id returns the КП without a second letter.</param>
+public sealed record SendQuoteInput(int Version, string To, string Subject, string Body, Guid? RequestId = null);

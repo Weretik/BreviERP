@@ -71,6 +71,17 @@ public sealed class PayrollMonth
         return DomainResult.Success();
     }
 
+    /// <summary>
+    /// Marks a change of work, hours or pay in the month: a request that closes the month at the same moment then
+    /// fails on <see cref="Version"/> instead of letting the change land in a closed month.
+    /// </summary>
+    public DomainResult RecordChange(string actorName, DateTimeOffset now)
+    {
+        if (IsClosed) return PayrollErrors.MonthClosed();
+        Touch(actorName, now);
+        return DomainResult.Success();
+    }
+
     private void Touch(string actorName, DateTimeOffset now)
     {
         UpdatedAt = now;

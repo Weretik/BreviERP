@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Documents;
@@ -40,6 +41,7 @@ public sealed class PurchasingDbContext(DbContextOptions<PurchasingDbContext> op
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);
+        builder.AddTrigramSearch();
         builder.ApplyConfigurationsFromAssembly(typeof(PurchasingDbContext).Assembly);
     }
 }

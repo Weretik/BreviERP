@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 using Reminders.Application.Abstractions;
@@ -84,7 +85,13 @@ internal sealed class ReminderTestHarness
 
     public ReminderDispatcher Dispatcher() => new(Db, Telegram, Clock, new ReminderOccurrenceGenerator(Db), NullLogger<ReminderDispatcher>.Instance);
 
-    public ReminderButtonHandler Buttons() => new(Db, Telegram, Clock);
+    public ReminderButtonHandler Buttons() => Buttons(Db);
+
+    public ReminderButtonHandler Buttons(RemindersDbContext db) => new(db, Telegram, Clock);
+
+    /// <summary>Another request on the same database, as a second person's press.</summary>
+    public RemindersDbContext OtherRequest(params IInterceptor[] interceptors) =>
+        new(new DbContextOptionsBuilder<RemindersDbContext>().UseSqlite(_connection).AddInterceptors(interceptors).Options);
 
     public async Task<ReminderChat> ApprovedGroupAsync()
     {

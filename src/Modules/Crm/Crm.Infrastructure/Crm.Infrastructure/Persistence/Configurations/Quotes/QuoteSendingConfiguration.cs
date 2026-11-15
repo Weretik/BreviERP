@@ -20,5 +20,6 @@ public sealed class QuoteSendingConfiguration : IEntityTypeConfiguration<QuoteSe
         b.Property(x => x.ProviderMessageId).HasMaxLength(200);
         b.HasOne<Quote>().WithMany().HasForeignKey(x => x.QuoteId).OnDelete(DeleteBehavior.Cascade);
         b.HasIndex(x => new { x.QuoteId, x.SentAt });
+        b.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
     }
 }

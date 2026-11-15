@@ -22,11 +22,11 @@ public sealed class CreateQuoteHandler(
         var input = command.Input;
         var header = new QuoteHeader(input.InternalName, input.CustomerId, input.RecipientName, input.CompanyName,
             input.ClientComment, input.ManagerNote);
-        var added = await numbering.AddAsync(now, async number =>
+        var added = await numbering.AddAsync(now, input.RequestId, async number =>
         {
             var items = await builder.BuildAsync(input.Items, [], author, now, cancellationToken);
             if (!items.IsSuccess) return items.Map(_ => default(Quote)!);
-            var created = Quote.Create(number, QuoteKind.Request, author, header, items.Value, now);
+            var created = Quote.Create(number, QuoteKind.Request, author, header, items.Value, now, input.RequestId);
             return created.IsSuccess ? Result.Success(created.Value) : created.Error!.ToResult<Quote>();
         }, cancellationToken);
         return added.Map(quote => quote.ToResponse());

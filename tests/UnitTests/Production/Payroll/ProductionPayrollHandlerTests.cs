@@ -10,6 +10,7 @@ using Production.Application.Features.Payroll.Commands.ReopenPayrollMonth;
 using Production.Application.Features.Payroll.Commands.SetPayrollRoles;
 using Production.Application.Features.Payroll.Queries.GetPayrollEmployee;
 using Production.Application.Features.Payroll.Queries.GetPayrollMonth;
+using Production.Application.Features.Payroll.Queries.GetPayrollYear;
 using Production.Application.Features.Payroll.Shared;
 using Production.Application.Features.PayrollParameters.Shared;
 using Production.Application.Features.Reports.Shared;
@@ -21,6 +22,8 @@ using Production.Application.Features.Work.Commands.VoidProductionWork;
 using Production.Application.Features.Work.Shared;
 using Production.Application.Features.Payroll.Shared.Month;
 using UnitTests.Production.Orders;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace UnitTests.Production.Payroll;
 
@@ -193,6 +196,48 @@ public sealed class ProductionPayrollHandlerTests
         new(PayrollParameterCodes.ShopManagerRate, "Начальник", 0.12m, "%", null),
         new(PayrollParameterCodes.EmbroideryRate, "Вишивка", 1m, "грн", null)
     ]);
+
+    [Test]
+    public async Task The_year_reads_its_months_in_a_handful_of_queries()
+    {
+        using var workshop = ProductionOrderHandlerTests.Workshop();
+        var employee = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
+        workshop.Db.Employees.Add(employee);
+        await workshop.Db.SaveChangesAsync();
+        foreach (var (month, amount) in new[] { ("2026-03", 300m), ("2026-10", 100m), (Month, 250m) })
+            await new CreatePayrollAdjustmentHandler(workshop.Db, Changes(workshop))
+                .Handle(new(Admin, month, new(employee.Id, amount, "Премія")), CancellationToken.None);
+
+        var commands = new CommandCounter();
+        await using var db = workshop.OtherRequest(commands);
+        var year = await new GetPayrollYearHandler(new PayrollSheets(db, workshop.Parameters), workshop.Time)
+            .Handle(new(Admin, 2026), CancellationToken.None);
+
+        var row = year.Value.Rows.Single();
+        Assert.Multiple(() =>
+        {
+            Assert.That(year.Value.Months.Select(x => x.Month).First(), Is.EqualTo("2026-01"));
+            Assert.That(year.Value.Months, Has.Count.EqualTo(11), "January to the current November");
+            Assert.That(row.Accrued[2], Is.EqualTo(300m));
+            Assert.That(row.Accrued[9], Is.EqualTo(100m));
+            Assert.That(row.Accrued[10], Is.EqualTo(250m));
+            Assert.That(row.Accrued[0], Is.Null);
+            Assert.That(row.Total, Is.EqualTo(650m));
+            Assert.That(commands.Count, Is.LessThanOrEqualTo(12), "not a set of queries per month");
+        });
+    }
+
+    private sealed class CommandCounter : DbCommandInterceptor
+    {
+        public int Count { get; private set; }
+
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command,
+            CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+        {
+            Count++;
+            return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
+        }
+    }
 
     private static PayrollSheets Sheets(ProductionTestHarness workshop) => new(workshop.Db, workshop.Parameters);
 

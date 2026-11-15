@@ -4,7 +4,8 @@ namespace Scheduling.Application.Features.Tick.Commands.RunSchedulerTick;
 
 /// <summary>
 /// SCH-001 R-04: (a) inline work (outbox), (b) stuck runs failed, (c, d) due tasks claimed one by one with the
-/// concurrency check, (e) one job execution for all of them, R-05 when it cannot start, (f) old runs deleted.
+/// concurrency check, (e) one job execution for all of them, R-05 when it cannot start, (f) old runs deleted. Only one
+/// tick runs at a time: a tick that finds the lock taken does nothing.
 /// </summary>
 public sealed class RunSchedulerTickHandler(
     ISchedulingDbContext db,
@@ -17,6 +18,13 @@ public sealed class RunSchedulerTickHandler(
 
     public async ValueTask<Result<SchedulerTickResponse>> Handle(RunSchedulerTickCommand command, CancellationToken cancellationToken)
     {
+        await using var tickLock = await db.TryLockTickAsync(cancellationToken);
+        if (tickLock is null)
+        {
+            logger.LogInformation("Scheduler: another tick is running; this one does nothing");
+            return Result.Success(new SchedulerTickResponse(new Dictionary<string, string>(), [], null));
+        }
+
         var rows = await ScheduledTaskRows.LoadAsync(db, clock.GetUtcNow(), cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 

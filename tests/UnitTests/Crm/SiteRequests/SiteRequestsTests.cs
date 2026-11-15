@@ -57,6 +57,29 @@ public sealed class SiteRequestsTests
     }
 
     [Test]
+    public async Task A_form_sent_twice_with_the_same_request_id_is_one_request()
+    {
+        var (connection, open) = SiteRequestTestDb.Create();
+        using var _ = connection;
+        var form = Form(file: new SiteRequestFile(new MemoryStream(new byte[16]), "a.pdf", "application/pdf", 16)) with
+        {
+            RequestId = Guid.NewGuid()
+        };
+
+        var first = await Submit(open).Handle(form, None);
+        var repeat = await Submit(open).Handle(form, None);
+        await using var db = open();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(repeat.Value.Id, Is.EqualTo(first.Value.Id));
+            Assert.That(db.SiteRequests.Count(), Is.EqualTo(1));
+            Assert.That(files.Uploads, Has.Count.EqualTo(1), "the repeat uploads nothing");
+            Assert.That(notifier.Messages, Has.Count.EqualTo(1), "and posts nothing");
+        });
+    }
+
+    [Test]
     public async Task A_telegram_failure_keeps_the_request_with_the_reason()
     {
         var (connection, open) = SiteRequestTestDb.Create();

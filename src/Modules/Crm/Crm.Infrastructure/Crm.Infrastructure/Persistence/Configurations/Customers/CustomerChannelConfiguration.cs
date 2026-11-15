@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.ExternalIdentities;
@@ -21,5 +22,6 @@ public sealed class CustomerChannelConfiguration : IEntityTypeConfiguration<Cust
         b.Property(x => x.NormalizedValue).HasMaxLength(254);
         b.HasIndex(x => new { x.ContactId, x.Kind, x.NormalizedValue }).IsUnique();
         b.HasIndex(x => x.NormalizedValue);
+        b.HasSearchText(nameof(CustomerChannel.NormalizedValue));
     }
 }

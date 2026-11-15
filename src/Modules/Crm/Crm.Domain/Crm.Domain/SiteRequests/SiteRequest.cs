@@ -22,9 +22,12 @@ public sealed class SiteRequest
     private SiteRequest() { }
 
     public static DomainResult<SiteRequest> Create(string? phone, string? workwear, string? quantity, string? comment,
-        string locale, string? fileName, string? fileUrl, DateTimeOffset now) =>
+        string locale, string? fileName, string? fileUrl, DateTimeOffset now, Guid? requestId = null) =>
         Cut(phone, PhoneMaxLength) is { } cleanPhone
             ? new SiteRequest(cleanPhone, workwear, quantity, comment, locale, fileName, fileUrl, now)
+            {
+                RequestId = requestId
+            }
             : SiteRequestErrors.PhoneRequired();
 
     private SiteRequest(string phone, string? workwear, string? quantity, string? comment, string locale,
@@ -43,6 +46,9 @@ public sealed class SiteRequest
     }
 
     public long Id { get; private set; }
+
+    /// <summary>The form the site sent; the same form sent again adds nothing (unique).</summary>
+    public Guid? RequestId { get; private init; }
     public string Phone { get; private set; } = null!;
     public string? Workwear { get; private set; }
     public string? Quantity { get; private set; }

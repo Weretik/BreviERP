@@ -12,6 +12,7 @@ internal static class CreateFinanceTransactionEndpoint
     private static async Task<IResult> HandleAsync(FinanceTransactionInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(
-            new CreateFinanceTransactionCommand(input.Scope, input.ToFields(), AccountingAccess.By(user)),
+            new CreateFinanceTransactionCommand(input.Scope, input.ToFields(), AccountingAccess.By(user),
+                input.RequestId),
                 cancellationToken)).ToHttpResult();
 }
