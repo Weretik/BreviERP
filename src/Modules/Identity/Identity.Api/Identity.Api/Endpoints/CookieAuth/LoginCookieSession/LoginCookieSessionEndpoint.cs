@@ -8,7 +8,9 @@ namespace Identity.Api.Endpoints.CookieAuth.LoginCookieSession;
 internal static class LoginCookieSessionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("login", HandleAsync).WithName("loginCookieSession").Produces<SessionMeResponse>()
+        group.MapPost("login", HandleAsync).WithName("loginCookieSession")
+            .WithSummary("Sign a browser in with the session cookie")
+            .WithDescription("Admin (React). Rate-limited by the AuthLogin policy. Sets the HttpOnly session cookie `__Host-brevi.session` (SameSite=Lax, sliding 7 days) and the readable `brevi.csrf` cookie. No token is returned. Five wrong passwords lock the account for 15 minutes.").Produces<SessionMeResponse>()
             .AllowAnonymous().RequireRateLimiting("AuthLogin");
 
     private static async Task<IResult> HandleAsync(SessionLoginRequest request, HttpResponse response,

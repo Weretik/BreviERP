@@ -11,7 +11,7 @@ Stage 5 of moving the client's Calculator into Brevi, after the Reference import
 
 ## API
 
-Contract: [product-overview.openapi.yaml](../../../contracts/catalog/product-overview.openapi.yaml).
+Contract: [OpenAPI](../../../contracts/openapi.json).
 
 | Operation | Endpoint | Policy |
 | --- | --- | --- |

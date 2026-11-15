@@ -42,4 +42,4 @@ Focused runs: `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filt
 
 ## Related sources
 
-[OpenAPI](../../contracts/identity/session.openapi.yaml), [Cloudflare API proxy](../../operations/deployment/cloudflare-api-proxy.md).
+[OpenAPI](../../contracts/openapi.json), [Cloudflare API proxy](../../operations/deployment/cloudflare-api-proxy.md).

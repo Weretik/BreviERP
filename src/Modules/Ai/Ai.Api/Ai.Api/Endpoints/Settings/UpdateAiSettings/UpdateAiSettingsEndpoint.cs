@@ -8,7 +8,9 @@ namespace Ai.Api.Endpoints.Settings.UpdateAiSettings;
 internal static class UpdateAiSettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("", HandleAsync).WithName("updateAiSettings").Produces<AiSettingsResponse>();
+        group.MapPut("", HandleAsync).WithName("updateAiSettings")
+            .WithSummary("Models, prices per 1M tokens, on/off and the monthly limit in USD")
+            .WithDescription("Models, prices per 1M tokens, on/off and the monthly limit in USD. version is the one the admin saw.").Produces<AiSettingsResponse>();
 
     private static async Task<IResult> HandleAsync(AiSettingsRequest request, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

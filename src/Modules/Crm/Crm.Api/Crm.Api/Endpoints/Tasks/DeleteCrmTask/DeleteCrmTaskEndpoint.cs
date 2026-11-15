@@ -8,6 +8,7 @@ internal static class DeleteCrmTaskEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("{id:long}", HandleAsync).WithName("deleteCrmTask")
+            .WithSummary("Director or Admin deletes the task with its steps and history")
             .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,

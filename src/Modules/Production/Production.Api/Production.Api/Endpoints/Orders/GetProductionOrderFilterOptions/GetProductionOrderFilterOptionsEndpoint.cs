@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.Orders.GetProductionOrderFilterOptions;
 internal static class GetProductionOrderFilterOptionsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("filter-options", HandleAsync).WithName("getProductionOrderFilterOptions");
+        group.MapGet("filter-options", HandleAsync).WithName("getProductionOrderFilterOptions")
+            .WithSummary("Values «Фільтри» offer: clients, models, fabrics, colours and seasons used by not deleted orders")
+            .Produces<ProductionOrderFilterOptionsResponse>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

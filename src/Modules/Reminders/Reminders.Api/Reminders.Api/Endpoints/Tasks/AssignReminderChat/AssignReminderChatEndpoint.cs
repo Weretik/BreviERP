@@ -6,7 +6,8 @@ namespace Reminders.Api.Endpoints.Tasks.AssignReminderChat;
 internal static class AssignReminderChatEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("assign-chat", HandleAsync).WithName("assignReminderChat").Produces<int>()
+        group.MapPost("assign-chat", HandleAsync).WithName("assignReminderChat")
+            .WithSummary("Assign reminder chat").Produces<int>()
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(AssignReminderChatRequest request, [FromServices] ISender sender, CancellationToken cancellationToken) =>

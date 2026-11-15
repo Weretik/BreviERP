@@ -29,7 +29,7 @@ Step 4 of moving the client's Calculator into Brevi. The admin gets «Загал
 - Application: `Crm.Application/Customers/KeepinCrmSync/` (`KeepinCrmClientSync`, target mapping, identity, store and source ports, command).
 - Infrastructure: `Crm.Infrastructure/KeepinCrm/` (options, parser, HTTP source), `Persistence/Customers/KeepinCrmSync/CustomerKeepinSyncStore.cs`, `DependencyInjection/CrmKeepinCrmExtensions.cs` (Host.Api and Host.Seed).
 - Data: migration `AddCustomerKeepinSyncedAt` adds nullable `crm.Customers.KeepinSyncedAt`; rollback is its `Down`.
-- API: `POST /api/crm/customers/keepin-sync` `{dryRun, removeUnlinked}`; the list summary gains `keepinCrmId`, `contactName`, `phones`. Contract [clients-quotes](../../../contracts/crm/clients-quotes.openapi.yaml) 1.2.0, additive (`keepinSyncedAt`, result `syncedAt`).
+- API: `POST /api/crm/customers/keepin-sync` `{dryRun, removeUnlinked}`; the list summary gains `keepinCrmId`, `contactName`, `phones`. Contract [clients-quotes](../../../contracts/openapi.json) 1.2.0, additive (`keepinSyncedAt`, result `syncedAt`).
 - Known limit: a Manager sees only clients they own, so KeepinCRM clients are visible to Admins (and to the owner user) until owner mapping from `main_responsible` is decided.
 
 ## Tasks

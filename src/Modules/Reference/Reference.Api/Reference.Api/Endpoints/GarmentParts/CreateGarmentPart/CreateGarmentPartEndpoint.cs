@@ -6,7 +6,10 @@ namespace Reference.Api.Endpoints.GarmentParts.CreateGarmentPart;
 internal static class CreateGarmentPartEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).Produces<int>();
+        group.MapPost("", HandleAsync)
+            .WithName("createGarmentPart")
+            .WithSummary("Create a garment part with a client supplied ID")
+            .Produces<int>();
 
     private static async Task<IResult> HandleAsync(CreateGarmentPartRequest request, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

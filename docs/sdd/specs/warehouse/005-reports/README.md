@@ -79,7 +79,7 @@ New pages of «Права доступу» (group «Склад тканин»), 
 
 ## Contract
 
-[warehouse/fabric-stock.openapi.yaml](../../../contracts/warehouse/fabric-stock.openapi.yaml), additive:
+[OpenAPI](../../../contracts/openapi.json), additive:
 - `GET /api/warehouse/reports/plan-fact?model&client&fabric` returns `FabricPlanFactResponse`.
 - `GET /api/warehouse/reports/booking` returns `FabricBookingResponse`.
 - `GET /api/warehouse/reports/valuation` returns `FabricValuationResponse`.

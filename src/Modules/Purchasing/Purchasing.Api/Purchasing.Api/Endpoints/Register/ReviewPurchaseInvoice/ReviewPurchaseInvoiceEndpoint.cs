@@ -12,6 +12,8 @@ internal static class ReviewPurchaseInvoiceEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{messageId}/review", HandleAsync).WithName("reviewPurchaseInvoice")
+            .WithSummary("Links a supplier (or none) and writes a note (stage 2)")
+            .WithDescription("Links a supplier (or none) and writes a note (stage 2). version is the reviewVersion the user saw; each real change adds 1 and a history entry with the values before and after. Saving the same values changes nothing. The sheet sync never touches these fields.")
             .Produces<PurchaseInvoiceReviewResponse>();
 
     private static async Task<IResult> HandleAsync(string messageId, PurchaseInvoiceReviewRequest request,

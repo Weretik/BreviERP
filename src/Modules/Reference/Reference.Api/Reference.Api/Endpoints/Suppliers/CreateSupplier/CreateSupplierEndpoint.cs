@@ -6,7 +6,10 @@ namespace Reference.Api.Endpoints.Suppliers.CreateSupplier;
 internal static class CreateSupplierEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).Produces<int>();
+        group.MapPost("", HandleAsync)
+            .WithName("createSupplier")
+            .WithSummary("Create a supplier with a client supplied ID")
+            .Produces<int>();
 
     private static async Task<IResult> HandleAsync(CreateSupplierRequest request, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

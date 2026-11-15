@@ -8,7 +8,8 @@ namespace Crm.Api.Endpoints.Mailboxes.DisconnectCrmMailbox;
 internal static class DisconnectCrmMailboxEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{userId:int}", HandleAsync).WithName("disconnectCrmMailbox");
+        group.MapDelete("{userId:int}", HandleAsync).WithName("disconnectCrmMailbox")
+            .WithSummary("Forgets the connected Gmail (Admin for anyone, a Manager for themselves)");
 
     private static async Task<IResult> HandleAsync(int userId, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

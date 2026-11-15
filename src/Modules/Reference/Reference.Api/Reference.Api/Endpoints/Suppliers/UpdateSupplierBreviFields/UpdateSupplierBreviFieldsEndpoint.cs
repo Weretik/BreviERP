@@ -7,7 +7,10 @@ namespace Reference.Api.Endpoints.Suppliers.UpdateSupplierBreviFields;
 internal static class UpdateSupplierBreviFieldsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}/brevi-fields", HandleAsync);
+        group.MapPut("{id:int}/brevi-fields", HandleAsync)
+            .WithName("updateSupplierBreviFields")
+            .WithSummary("Change the fields Brevi always owns")
+            .WithDescription("isActive («Використовувати в проєкті») and notes, for any supplier including a KeepinCRM one.");
 
     private static async Task<IResult> HandleAsync(int id, UpdateSupplierBreviFieldsRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

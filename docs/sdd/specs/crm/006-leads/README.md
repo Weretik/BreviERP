@@ -1,6 +1,6 @@
 # LEAD-001 — «Ліди»: calling the companies the AI finds
 
-**Status:** stage 1 (backend) implemented 2026-11-08; Admin stages 2–3 in brevi-web. **Date:** 2026-11-08. **Module:** Crm («Менеджер сервісу»), schema `crm`. Feature card: [leads](../../../features/crm/leads.md). Contract: [leads.openapi.yaml](../../../contracts/crm/leads.openapi.yaml).
+**Status:** stage 1 (backend) implemented 2026-11-08; Admin stages 2–3 in brevi-web. **Date:** 2026-11-08. **Module:** Crm («Менеджер сервісу»), schema `crm`. Feature card: [leads](../../../features/crm/leads.md). Contract: [OpenAPI](../../../contracts/openapi.json).
 
 ## Why
 

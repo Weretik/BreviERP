@@ -9,7 +9,10 @@ internal static class CreateCrmLeadCallResultEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("call-results", HandleAsync).WithName("createCrmLeadCallResult")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .WithSummary("Create CRM lead call result")
+            .WithDescription("Requires access:lead-stats (edit). Adds a call result (at most 30).")
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<LeadCallResultResponse>();
 
     private static async Task<IResult> HandleAsync(SaveLeadCallResultInput input, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

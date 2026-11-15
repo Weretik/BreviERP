@@ -8,7 +8,9 @@ namespace Content.Api.Endpoints.SitePages.SaveSitePage;
 internal static class SaveSitePageEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{key}", HandleAsync).WithName("saveSitePage");
+        group.MapPut("{key}", HandleAsync).WithName("saveSitePage")
+            .WithSummary("Replaces the texts of one page; spaces and line breaks inside a text are joined to one line")
+            .Produces<SitePageResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, string key, SaveSitePageRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

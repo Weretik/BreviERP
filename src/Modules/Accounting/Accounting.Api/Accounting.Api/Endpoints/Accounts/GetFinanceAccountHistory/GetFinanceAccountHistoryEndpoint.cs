@@ -7,7 +7,9 @@ namespace Accounting.Api.Endpoints.Accounts.GetFinanceAccountHistory;
 internal static class GetFinanceAccountHistoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:guid}/history", HandleAsync).WithName("getFinanceAccountHistory");
+        group.MapGet("{id:guid}/history", HandleAsync).WithName("getFinanceAccountHistory")
+            .WithSummary("Change log of one account, newest first")
+            .Produces<IReadOnlyList<FinanceHistoryEntryResponse>>();
 
     private static async Task<IResult> HandleAsync(Guid id, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

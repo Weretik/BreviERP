@@ -1,3 +1,4 @@
+using Production.Application.Features.Payroll.Shared.Month;
 using Production.Application.Features.Payroll.Commands.SetPayrollIssued;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Production.Api.Endpoints.Payroll.SetPayrollIssued;
 internal static class SetPayrollIssuedEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{month}/issued", HandleAsync).WithName("setPayrollIssued");
+        group.MapPut("{month}/issued", HandleAsync).WithName("setPayrollIssued")
+            .WithSummary("Sets «Видано» of a worker (Admin)")
+            .Produces<PayrollMonthResponse>();
 
     private static async Task<IResult> HandleAsync(string month, SetPayrollIssuedInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

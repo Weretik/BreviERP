@@ -7,6 +7,8 @@ internal static class UpdatePpeMarkupRuleEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:int}", HandleAsync)
+            .WithName("updatePpeMarkupRule")
+            .WithSummary("Update a PPE markup rule")
             .RequireAuthorization("access:pricing-parameters");
 
     private static async Task<IResult> HandleAsync(int id, UpdatePpeMarkupRuleRequest request,

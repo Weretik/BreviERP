@@ -6,7 +6,11 @@ namespace Reference.Api.Endpoints.GarmentPartOperations.CreateGarmentPartOperati
 internal static class CreateGarmentPartOperationEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).Produces<int>()
+        group.MapPost("", HandleAsync)
+            .WithName("createGarmentPartOperation")
+            .WithSummary("Create a garment part operation with a client supplied ID")
+            .WithDescription("Requires access:operations. The code (OP-…) is unique when given; a duplicate is a 400 on Request.Code. Numeric edits append an approved pricing revision when the reference is versioned.")
+            .Produces<int>()
             .RequireAuthorization("access:operations");
 
     private static async Task<IResult> HandleAsync(CreateGarmentPartOperationRequest request,

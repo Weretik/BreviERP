@@ -8,7 +8,9 @@ namespace Production.Api.Endpoints.Orders.ImportProductionReportPrices;
 internal static class ImportProductionReportPricesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("report-price-import", HandleAsync).WithName("importProductionReportPrices");
+        group.MapPost("report-price-import", HandleAsync).WithName("importProductionReportPrices")
+            .WithSummary("Admin: «Ціни КП» of orders moved from the old «Цех» for «Звіти цеху»; only an item without a price takes one; dryRun only shows them; any error saves nothing")
+            .Produces<ProductionReportPriceImportResult>();
 
     private static async Task<IResult> HandleAsync([FromBody] IReadOnlyList<ProductionReportPriceImportRow> rows,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = default,

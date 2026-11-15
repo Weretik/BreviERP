@@ -1,3 +1,4 @@
+using Production.Application.Features.Orders.Shared.Responses;
 using Production.Application.Features.Orders.Commands.CloseProductionOrder;
 using Production.Application.Features.Orders.Shared;
 using BuildingBlocks.Api.Errors;
@@ -9,7 +10,9 @@ internal static class CloseProductionOrderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:int}/close", HandleAsync).WithName("closeProductionOrder")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .WithSummary("«Закрити»: every item is shipped in full")
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<ProductionOrderResponse>();
 
     private static async Task<IResult> HandleAsync(int id, ProductionOrderVersionInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

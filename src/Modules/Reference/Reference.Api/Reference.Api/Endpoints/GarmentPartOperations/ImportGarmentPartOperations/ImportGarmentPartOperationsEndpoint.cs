@@ -9,7 +9,11 @@ namespace Reference.Api.Endpoints.GarmentPartOperations.ImportGarmentPartOperati
 internal static class ImportGarmentPartOperationsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).Produces<GarmentPartOperationImportResult>()
+        group.MapPost("import", HandleAsync)
+            .WithName("importGarmentPartOperations")
+            .WithSummary("Import the Calculator sheet «Операції»")
+            .WithDescription("Requires access:operations. The caller sends the sheet rows as JSON (one-time transfer from the Calculator sheet). A row is matched by code (OP-…); the rest are created with the next ID. «Група деталей» is matched by name (case and punctuation ignored); an unknown one becomes a new group. dryRun (default) returns the preview only. Otherwise nothing is saved when any row has an error. deleteMissing deletes operations that are not in the sheet; an operation still used by a product or price history is marked not used instead (keptInUse). Groups left without operations are then deleted. Repeating the same file changes nothing.")
+            .Produces<GarmentPartOperationImportResult>()
             .RequireAuthorization("access:operations");
 
     private static async Task<IResult> HandleAsync(ImportGarmentPartOperationsRequest request,

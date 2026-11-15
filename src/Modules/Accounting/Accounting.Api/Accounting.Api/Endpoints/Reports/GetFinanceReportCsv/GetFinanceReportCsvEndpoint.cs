@@ -14,7 +14,10 @@ namespace Accounting.Api.Endpoints.Reports.GetFinanceReportCsv;
 internal static class GetFinanceReportCsvEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("csv", HandleAsync).WithName("getFinanceReportCsv");
+        group.MapGet("csv", HandleAsync).WithName("getFinanceReportCsv")
+            .WithSummary("Get finance report csv")
+            .WithDescription("The same report as a download: UTF-8 with BOM, «;» separators, CRLF, every field quoted, sums in hryvnias with a decimal comma, dates dd.MM.yyyy; text starting with = + - @ gets a leading apostrophe. The operations report holds up to 50 000 rows. Cache-Control private, no-store.")
+            .Produces(StatusCodes.Status200OK, contentType: "text/csv");
 
     private static async Task<IResult> HandleAsync(HttpResponse response, [FromServices] ISender sender,
         QueryEnum<FinanceReportKind>? kind = null, DateOnly? from = null, DateOnly? to = null,

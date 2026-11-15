@@ -9,7 +9,9 @@ internal static class ChangeCrmSiteRequestEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:long}/change", HandleAsync).WithName("changeCrmSiteRequest")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .WithSummary("Take (anyone with edit), Done or Spam with a note, Reopen (the owner or an Admin)")
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<SiteRequestResponse>();
 
     private static async Task<IResult> HandleAsync(long id, ChangeSiteRequestInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

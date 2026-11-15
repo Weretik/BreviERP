@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Queries.GetLegacyArchivedQuotes;
 using BuildingBlocks.Api.Errors;
@@ -9,7 +10,10 @@ internal static class GetCrmLegacyArchivedQuotesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("legacy-archive", HandleAsync).WithName("getCrmLegacyArchivedQuotes")
-            .RequireAuthorization(CrmAccess.QuotesDelete);
+            .WithSummary("Get CRM legacy archived quotes")
+            .WithDescription("R-23. «Архів» is removed; its КП are no longer listed. How many are left, shown to the Director before deleting them.")
+            .RequireAuthorization(CrmAccess.QuotesDelete)
+            .Produces<LegacyArchivedQuotesResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

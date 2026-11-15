@@ -1,3 +1,4 @@
+using Content.Application.Features.SiteCompany.Shared;
 using Content.Application.Features.SiteCompany.Queries.GetSiteCompany;
 using BuildingBlocks.Api.Errors;
 
@@ -6,7 +7,9 @@ namespace Content.Api.Endpoints.SiteCompany.GetSiteCompany;
 internal static class GetSiteCompanyEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getSiteCompany");
+        group.MapGet("", HandleAsync).WithName("getSiteCompany")
+            .WithSummary("The facts; revision 0 only in an empty database")
+            .Produces<SiteCompanyResponse>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

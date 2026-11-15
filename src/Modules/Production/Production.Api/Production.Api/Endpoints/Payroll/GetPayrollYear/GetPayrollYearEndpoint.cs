@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.Payroll.GetPayrollYear;
 internal static class GetPayrollYearEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("history/{year:int}", HandleAsync).WithName("getPayrollYear");
+        group.MapGet("history/{year:int}", HandleAsync).WithName("getPayrollYear")
+            .WithSummary("«Історія за рік»")
+            .Produces<PayrollYearResponse>();
 
     private static async Task<IResult> HandleAsync(int year, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

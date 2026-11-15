@@ -8,7 +8,9 @@ namespace Crm.Api.Endpoints.Quotes.CreateCrmQuoteIntroTemplate;
 internal static class CreateCrmQuoteIntroTemplateEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createCrmQuoteIntroTemplate");
+        group.MapPost("", HandleAsync).WithName("createCrmQuoteIntroTemplate")
+            .WithSummary("«Зберегти як готовий шаблон»; the name is unique ignoring case, at most 200 templates")
+            .Produces<QuoteIntroTemplateResponse>(StatusCodes.Status201Created);
 
     private static async Task<IResult> HandleAsync(CreateQuoteIntroTemplateInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

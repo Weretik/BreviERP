@@ -8,6 +8,7 @@ internal static class DeleteFabricStockEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("{id:int}", Handle).WithName("deleteFabricStock")
+            .WithSummary("Always 410: stock lines keep their history; «Уточнити» brings a balance to zero")
             .ProducesProblem(StatusCodes.Status410Gone);
 
     private static IResult Handle(int id) => Results.Problem(statusCode: StatusCodes.Status410Gone, title: Deleted);

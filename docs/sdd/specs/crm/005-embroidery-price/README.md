@@ -1,6 +1,6 @@
 # EMB-001 — «Ціна вишивки» (embroidery price calculator)
 
-**Status:** stage 1 (Розрахунок + Налаштування) implemented 2026-11-04. **Date:** 2026-11-04. **Module:** Crm («Менеджер сервісу»), schema `crm`. Feature card: [embroidery price](../../../features/crm/embroidery-price.md). Contract: [embroidery.openapi.yaml](../../../contracts/crm/embroidery.openapi.yaml).
+**Status:** stage 1 (Розрахунок + Налаштування) implemented 2026-11-04. **Date:** 2026-11-04. **Module:** Crm («Менеджер сервісу»), schema `crm`. Feature card: [embroidery price](../../../features/crm/embroidery-price.md). Contract: [OpenAPI](../../../contracts/openapi.json).
 
 ## Why
 

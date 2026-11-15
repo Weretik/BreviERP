@@ -7,7 +7,10 @@ namespace Crm.Api.Endpoints.Leads.EditCrmLeadCategory;
 internal static class EditCrmLeadCategoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("categories/{code}", HandleAsync).WithName("editCrmLeadCategory");
+        group.MapPut("categories/{code}", HandleAsync).WithName("editCrmLeadCategory")
+            .WithSummary("Edit CRM lead category")
+            .WithDescription("Requires access:lead-stats (edit). Writes what a category means.")
+            .Produces<LeadCategoryResponse>();
 
     private static async Task<IResult> HandleAsync(string code, SaveLeadCategoryInput input,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

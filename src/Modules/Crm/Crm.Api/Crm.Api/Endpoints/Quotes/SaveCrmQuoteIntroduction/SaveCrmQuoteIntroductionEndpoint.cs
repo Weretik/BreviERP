@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Commands.SaveQuoteIntroduction;
 using Crm.Application.Features.Quotes.Shared.Introductions;
@@ -9,7 +10,10 @@ namespace Crm.Api.Endpoints.Quotes.SaveCrmQuoteIntroduction;
 internal static class SaveCrmQuoteIntroductionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:long}", HandleAsync).WithName("saveCrmQuoteIntroduction");
+        group.MapPut("{id:long}", HandleAsync).WithName("saveCrmQuoteIntroduction")
+            .WithSummary("Saves the whole introduction; a saved model keeps its price")
+            .WithDescription("Saves the whole introduction; a saved model keeps its price. 409 for a stale version or a КП «під запит».")
+            .Produces<QuoteResponse>();
 
     private static async Task<IResult> HandleAsync(long id, SaveQuoteIntroductionInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

@@ -1,3 +1,4 @@
+using Catalog.Application.Features.Product.Shared.Detail;
 using Catalog.Application.Features.Product.Queries.GetAdminProductDetail;
 using Catalog.Api.Endpoints.Product.Detail;
 using BuildingBlocks.Api.Errors;
@@ -7,7 +8,10 @@ namespace Catalog.Api.Endpoints.Product.GetProduct;
 internal static class GetProductEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:int}", HandleAsync);
+        group.MapGet("{id:int}", HandleAsync)
+            .WithName("getAdminProductById")
+            .WithSummary("Get the full configurable Product detail")
+            .Produces<ProductAdminDetail>();
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,
         CancellationToken cancellationToken)

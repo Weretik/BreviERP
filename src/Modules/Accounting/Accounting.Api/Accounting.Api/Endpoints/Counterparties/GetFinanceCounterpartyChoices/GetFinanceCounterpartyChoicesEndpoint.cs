@@ -6,7 +6,10 @@ namespace Accounting.Api.Endpoints.Counterparties.GetFinanceCounterpartyChoices;
 internal static class GetFinanceCounterpartyChoicesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("choices", HandleAsync).WithName("getFinanceCounterpartyChoices");
+        group.MapGet("choices", HandleAsync).WithName("getFinanceCounterpartyChoices")
+            .WithSummary("Get finance counterparty choices")
+            .WithDescription("Choices of the counterparty field of an operation: active finance counterparties, clients and suppliers matching search, at most 15 of each kind in that order.")
+            .Produces<IReadOnlyList<FinanceCounterpartyChoiceResponse>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, string? search = null,
         CancellationToken cancellationToken = default) =>

@@ -6,7 +6,9 @@ namespace Production.Api.Endpoints.Payroll.GetPayrollEmployee;
 internal static class GetPayrollEmployeeEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{month}/employees/{employeeId:int}", HandleAsync).WithName("getPayrollEmployee");
+        group.MapGet("{month}/employees/{employeeId:int}", HandleAsync).WithName("getPayrollEmployee")
+            .WithSummary("A worker's month in detail")
+            .Produces<PayrollEmployeeResponse>();
 
     private static async Task<IResult> HandleAsync(string month, int employeeId, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

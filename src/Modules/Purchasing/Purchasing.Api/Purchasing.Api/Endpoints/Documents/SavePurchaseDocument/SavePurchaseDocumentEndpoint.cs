@@ -10,6 +10,8 @@ internal static class SavePurchaseDocumentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("files/{fileId}/document", HandleAsync).WithName("savePurchaseDocument")
+            .WithSummary("«Завантажити JSON»: checked facts prepared by hand")
+            .WithDescription("«Завантажити JSON»: checked facts prepared by hand. sourceUID must be an active row of the file's message and originalFileLink the exact link. The same facts again change nothing; different saved facts need replace = true (the old ones go to history).")
             .Produces<PurchaseDocumentSaveResponse>();
 
     private static async Task<IResult> HandleAsync(string fileId, PurchaseDocumentSaveRequest request,

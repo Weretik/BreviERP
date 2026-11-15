@@ -8,7 +8,9 @@ namespace Production.Api.Endpoints.Work.ImportProductionWork;
 internal static class ImportProductionWorkEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("work/import", HandleAsync).WithName("importProductionWork");
+        group.MapPost("work/import", HandleAsync).WithName("importProductionWork")
+            .WithSummary("Moves the work log of the old «Цех» (Admin); nothing is saved unless every row is fine")
+            .Produces<ProductionWorkImportResult>();
 
     private static async Task<IResult> HandleAsync(ProductionWorkImportInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, bool dryRun = default, CancellationToken cancellationToken = default) =>

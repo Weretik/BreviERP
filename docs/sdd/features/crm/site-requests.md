@@ -22,7 +22,7 @@ src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/
 src/Modules/Reminders/.../Chats/ReminderChat.cs   ReceivesSiteRequests
 ```
 
-[API contract](../../contracts/crm/site-requests.openapi.yaml), [database ownership](../../architecture/data-model/crm.md).
+[API contract](../../contracts/openapi.json), [database ownership](../../architecture/data-model/crm.md).
 
 ## Tests
 

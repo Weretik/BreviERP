@@ -9,6 +9,8 @@ internal static class RecognizeNewPurchaseFilesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("recognize-new", HandleAsync).WithName("recognizeNewPurchaseFiles")
+            .WithSummary("One batch (5 files) of «Розпізнати всі нові»: active safe links never tried before, newest messages first")
+            .WithDescription("One batch (5 files) of «Розпізнати всі нові»: active safe links never tried before, newest messages first. Repeat while remaining is above 0 and stopReason is null. Failed files are not retried here; use recognizePurchaseFile.")
             .Produces<PurchaseRecognitionBatchResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,

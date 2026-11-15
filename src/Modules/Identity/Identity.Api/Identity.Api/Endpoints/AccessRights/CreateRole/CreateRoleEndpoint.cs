@@ -7,7 +7,9 @@ namespace Identity.Api.Endpoints.AccessRights.CreateRole;
 internal static class CreateRoleEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("roles", HandleAsync).WithName("createRole").Produces<AccessRoleResponse>();
+        group.MapPost("roles", HandleAsync).WithName("createRole")
+            .WithSummary("Add a role")
+            .WithDescription("The role starts with no rights and gets a generated name `custom-…`.").Produces<AccessRoleResponse>();
 
     private static async Task<IResult> HandleAsync(CreateRoleRequest request, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new CreateRoleCommand(request.Title ?? string.Empty), cancellationToken))

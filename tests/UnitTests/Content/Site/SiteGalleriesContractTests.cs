@@ -4,7 +4,6 @@ using Content.Api.DependencyInjection;
 using System.Text.Json;
 using Identity.Domain.Authorization;
 using Microsoft.AspNetCore.Authorization;
-using YamlDotNet.RepresentationModel;
 using Content.Application.Features.SiteGalleries.Commands.SaveSiteGallery;
 using Content.Application.Features.SiteGalleries.Commands.TransferSiteGallery;
 using Content.Application.Features.SiteGalleries.Shared;
@@ -16,31 +15,12 @@ using Content.Application.Features.SiteGalleries.Shared.Public;
 namespace UnitTests.Content.Site;
 
 /// <summary>
-/// «Наші роботи», «Сертифікати» and their public pictures match docs/sdd/contracts/content/content-galleries.openapi.yaml
+/// «Наші роботи», «Сертифікати» and their public pictures match the generated contract docs/sdd/contracts/openapi.json
 /// and content-public-galleries.openapi.yaml (CNT-011).
 /// </summary>
 public sealed class SiteGalleriesContractTests
 {
     private static readonly Action<IEndpointRouteBuilder> Map = app => app.MapContentEndpoints();
-
-    private const string Admin = "content-galleries.openapi.yaml";
-    private const string Public = "content-public-galleries.openapi.yaml";
-
-    [TestCase(typeof(SiteGalleryResponse), Admin, "SiteGalleryResponse")]
-    [TestCase(typeof(SiteGalleryItemResponse), Admin, "SiteGalleryItemResponse")]
-    [TestCase(typeof(SiteGalleryItemInput), Admin, "SiteGalleryItemInput")]
-    [TestCase(typeof(SaveSiteGalleryRequest), Admin, "SaveSiteGalleryRequest")]
-    [TestCase(typeof(SiteGalleryTransferResponse), Admin, "SiteGalleryTransferResponse")]
-    [TestCase(typeof(GalleryText), Admin, "GalleryText")]
-    [TestCase(typeof(PublicSiteGalleriesResponse), Public, "PublicSiteGalleriesResponse")]
-    [TestCase(typeof(PublicGalleryItem), Public, "PublicGalleryItem")]
-    [TestCase(typeof(GalleryText), Public, "GalleryText")]
-    public void Serialized_properties_match_the_machine_contract(Type type, string file, string schema)
-    {
-        var properties = (YamlMappingNode)((YamlMappingNode)Schemas(file)[schema])["properties"];
-        Assert.That(properties.Children.Keys.Cast<YamlScalarNode>().Select(x => x.Value),
-            Is.EquivalentTo(type.GetProperties().Select(x => JsonNamingPolicy.CamelCase.ConvertName(x.Name))));
-    }
 
     [Test]
     public void Every_operation_is_in_the_contract_and_needs_its_page_policy()
@@ -49,9 +29,9 @@ public sealed class SiteGalleriesContractTests
         {
             Assert.That(Policy("SiteWorks"), Is.EqualTo($"access:{AccessCatalog.ContentWorks}"));
             Assert.That(Policy("SiteCertificates"), Is.EqualTo($"access:{AccessCatalog.ContentCertificates}"));
-            Assert.That(Operations(Admin), Is.EquivalentTo(
+            Assert.That(ApiContract.OperationIds, Is.SupersetOf(
                 OperationsOf("SiteWorks").Concat(OperationsOf("SiteCertificates"))));
-            Assert.That(Operations(Public), Is.EquivalentTo(OperationsOf("PublicSiteGalleries")));
+            Assert.That(ApiContract.OperationIds, Is.SupersetOf(OperationsOf("PublicSiteGalleries")));
         });
     }
 
@@ -74,23 +54,4 @@ public sealed class SiteGalleriesContractTests
 
     private static string[] OperationsOf(string controller) => MappedEndpoints.Of(Map, controller)
         .Select(x => x.Name!).ToArray();
-
-    private static YamlMappingNode Root(string file)
-    {
-        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "BreviERP.sln")))
-            directory = directory.Parent;
-        using var reader = File.OpenText(Path.Combine(directory!.FullName, "docs/sdd/contracts/content", file));
-        var yaml = new YamlStream();
-        yaml.Load(reader);
-        return (YamlMappingNode)yaml.Documents[0].RootNode;
-    }
-
-    private static YamlMappingNode Schemas(string file) =>
-        (YamlMappingNode)((YamlMappingNode)Root(file)["components"])["schemas"];
-
-    private static IEnumerable<string> Operations(string file) =>
-        ((YamlMappingNode)Root(file)["paths"]).Children.Values.Cast<YamlMappingNode>()
-        .SelectMany(path => path.Children.Where(x => ((YamlScalarNode)x.Key).Value != "parameters"))
-        .Select(x => ((YamlScalarNode)((YamlMappingNode)x.Value)["operationId"]).Value!);
 }

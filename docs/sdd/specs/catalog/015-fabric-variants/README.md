@@ -19,7 +19,7 @@ The client's feedback on the Calculator port (items 4, 5, 7, 9, 10): «Арти�
 
 ## API
 
-- [sewing-composition.openapi.yaml](../../../contracts/catalog/sewing-composition.openapi.yaml):
+- [OpenAPI](../../../contracts/openapi.json):
   - `SewingArticle` gains `fabricId` and `fabricQuantity` (null when the variant has no fabric yet).
   - `createSewingArticle` requires `fabricId` and `fabricQuantity`.
   - New `PUT /api/v1/products/{productId}/articles/{articleId}` (`updateSewingArticle`) and `DELETE …?expectedVersion=` (`deleteSewingArticle`).

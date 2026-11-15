@@ -7,7 +7,9 @@ namespace Accounting.Api.Endpoints.Counterparties.GetFinanceCounterpartyHistory;
 internal static class GetFinanceCounterpartyHistoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:guid}/history", HandleAsync).WithName("getFinanceCounterpartyHistory");
+        group.MapGet("{id:guid}/history", HandleAsync).WithName("getFinanceCounterpartyHistory")
+            .WithSummary("Change log of one finance counterparty, newest first")
+            .Produces<IReadOnlyList<FinanceHistoryEntryResponse>>();
 
     private static async Task<IResult> HandleAsync(Guid id, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

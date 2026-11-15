@@ -7,7 +7,10 @@ namespace Content.Api.Endpoints.SiteCategories.SetSiteCategoryVisibility;
 internal static class SetSiteCategoryVisibilityEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPatch("{id:int}/visibility", HandleAsync).WithName("setSiteCategoryVisibility");
+        group.MapPatch("{id:int}/visibility", HandleAsync).WithName("setSiteCategoryVisibility")
+            .WithSummary("«Показувати на сайті» from the tree")
+            .WithDescription("«Показувати на сайті» from the tree. A subcategory is on the site only together with its parent.")
+            .Produces<SiteCategoryVisibilityResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, int id, SiteCategoryVisibilityRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

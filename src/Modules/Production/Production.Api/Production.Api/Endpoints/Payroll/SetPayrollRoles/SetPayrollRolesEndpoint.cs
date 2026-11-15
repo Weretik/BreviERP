@@ -1,3 +1,4 @@
+using Production.Application.Features.Payroll.Shared.Month;
 using Production.Application.Features.Payroll.Commands.SetPayrollRoles;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Production.Api.Endpoints.Payroll.SetPayrollRoles;
 internal static class SetPayrollRolesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{month}/roles", HandleAsync).WithName("setPayrollRoles");
+        group.MapPut("{month}/roles", HandleAsync).WithName("setPayrollRoles")
+            .WithSummary("Chooses the master and the chief (holds for every open month)")
+            .Produces<PayrollMonthResponse>();
 
     private static async Task<IResult> HandleAsync(string month, SetPayrollRolesInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

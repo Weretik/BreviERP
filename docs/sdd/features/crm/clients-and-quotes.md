@@ -52,13 +52,13 @@ flowchart LR
   Audit --> PG
 ```
 
-[Actual API contract](../../contracts/crm/clients-quotes.openapi.yaml), [database ownership](../../architecture/data-model/crm.md), [local migration job](../../operations/data/crm-clients.md). Host.Api registers the Crm Mediator assembly and infrastructure; Host.Seed runs the Crm migrations in the normal deployment flow. Existing Catalog/Reference/Identity remain separate owners.
+[Actual API contract](../../contracts/openapi.json), [database ownership](../../architecture/data-model/crm.md), [local migration job](../../operations/data/crm-clients.md). Host.Api registers the Crm Mediator assembly and infrastructure; Host.Seed runs the Crm migrations in the normal deployment flow. Existing Catalog/Reference/Identity remain separate owners.
 
 The transaction coordinator retains commit/rollback ownership; the journal uses the same context and transaction.
 
 ## КП (commercial proposals)
 
-[QTE-001](../../specs/crm/003-quotes/README.md), [API contract](../../contracts/crm/quotes.openapi.yaml), tables `Quotes`, `QuoteItems`, `QuoteItemOptions`, `QuoteItemOptionFabrics`, `QuoteSettings`, `StaffMailboxes`, `QuoteSendings`, `QuoteIntroTemplates`, `QuoteEvents` in [schema crm](../../architecture/data-model/crm.md).
+[QTE-001](../../specs/crm/003-quotes/README.md), [API contract](../../contracts/openapi.json), tables `Quotes`, `QuoteItems`, `QuoteItemOptions`, `QuoteItemOptionFabrics`, `QuoteSettings`, `StaffMailboxes`, `QuoteSendings`, `QuoteIntroTemplates`, `QuoteEvents` in [schema crm](../../architecture/data-model/crm.md).
 
 - «КП за місяць» of «Робочий стіл» ([DESK-001](../../specs/identity/003-role-desks/README.md)): `GET /api/crm/quotes/period` counts КП created and sent in a Kyiv period, in total and per responsible person (code `Quotes/Period/`, test `QuotePeriodTests`).
 - Any Manager creates a КП and becomes responsible; a Manager sees and changes only own КП. Admin (the Director also holds Admin) sees all and gives a КП to any active manager (`PUT /api/crm/quotes/{id}/responsible`).

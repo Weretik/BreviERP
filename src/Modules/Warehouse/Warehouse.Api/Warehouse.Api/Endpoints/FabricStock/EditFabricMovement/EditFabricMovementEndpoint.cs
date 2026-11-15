@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.EditFabricMovement;
 internal static class EditFabricMovementEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("movements/{movementId:int}", HandleAsync).WithName("editFabricMovement").Produces<FabricStockOperationResponse>();
+        group.MapPut("movements/{movementId:int}", HandleAsync).WithName("editFabricMovement")
+            .WithSummary("Edits an opening, receipt, correction or issue without an order; the chains of both lines are restated").Produces<FabricStockOperationResponse>();
 
     private static async Task<IResult> HandleAsync(int movementId, EditFabricMovementInput input, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

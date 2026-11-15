@@ -1,3 +1,4 @@
+using Content.Application.Features.Articles.Shared.Admin;
 using Content.Application.Features.Articles.Commands.SaveContentArticle;
 using Content.Api.Endpoints.Articles.Shared;
 using BuildingBlocks.Api.Errors;
@@ -13,7 +14,10 @@ internal static class SaveContentArticleEndpoint
             request.Uk, request.Ru, ContentEditor.By(user));
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}", HandleAsync).WithName("saveContentArticle");
+        group.MapPut("{id:int}", HandleAsync).WithName("saveContentArticle")
+            .WithSummary("Replaces the article as a whole")
+            .WithDescription("Replaces the article as a whole. revision is the number the editor showed. An empty slug keeps the current address.")
+            .Produces<ArticleResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, int id, SaveContentArticleRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

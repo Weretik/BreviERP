@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.Reports.GetWorkshopReport;
 internal static class GetWorkshopReportEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getWorkshopReport");
+        group.MapGet("", HandleAsync).WithName("getWorkshopReport")
+            .WithSummary("«Звіти цеху» of the months from..to (at most 12) and, with both compare months, the months to compare with (Admin)")
+            .Produces<WorkshopReportPairResponse>();
 
     private static async Task<IResult> HandleAsync(string from, string to, ClaimsPrincipal user,
         [FromServices] ISender sender, string? compareFrom = null, string? compareTo = null,

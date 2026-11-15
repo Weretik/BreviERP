@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Accounts.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Accounts.Commands.SetFinanceAccountActive;
 using Accounting.Api.Endpoints.Shared;
@@ -9,7 +10,9 @@ internal static class ArchiveFinanceAccountEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:guid}/archive", HandleAsync).WithName("archiveFinanceAccount")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .WithSummary("«Архівувати»: the account leaves the active list")
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<FinanceAccountResponse>();
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceVersionInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

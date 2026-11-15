@@ -27,7 +27,7 @@ The tab «ЗІЗ» uses its own 11 categories in «Розділ / категор
 
 - Domain: `ProductSections/` (`ProductSection`, `ProductSectionDetails`, `ProductSectionType`).
 - Application: `Features/ProductSection/` (CRUD, list, `Import/`, FluentValidation). IDs are assigned by Brevi (next free).
-- API: `api/reference/product-sections` (+ `/import`); reads anonymous, writes `CanManageProducts`. Contract: [product-sections.openapi.yaml](../../../contracts/reference/product-sections.openapi.yaml).
+- API: `api/reference/product-sections` (+ `/import`); reads anonymous, writes `CanManageProducts`. Contract: [OpenAPI](../../../contracts/openapi.json).
 - Data: migration `AddProductSections` creates `reference.ProductSections` with a unique name index. Additive; rollback is the migration `Down`.
 - Deleting a section does not check products yet: stage 2 adds the product link and the check.
 

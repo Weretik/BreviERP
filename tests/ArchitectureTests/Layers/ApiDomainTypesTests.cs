@@ -6,7 +6,8 @@ namespace ArchitectureTests.Layers;
 /// Api code holds no domain type (module rules «Handlers and endpoints»): requests, responses and controllers use the
 /// Application's commands, queries and DTOs. Domain enums are the one exception: they are the plain value lists that the
 /// OpenAPI contract shows by name. The files listed below still take a domain text type as
-/// part of the request and wait for their own request types.
+/// part of the request and wait for their own request types; the PPE price preview still answers with the domain
+/// calculation (its OpenAPI <c>Produces</c> names it) and waits for its own response type.
 /// </summary>
 public sealed partial class ApiDomainTypesTests
 {
@@ -15,6 +16,7 @@ public sealed partial class ApiDomainTypesTests
         "Content.Api/Endpoints/Articles/Shared/SaveContentArticleRequest.cs",
         "Content.Api/Endpoints/ProductPages/SaveContentProduct/SaveContentProductRequest.cs",
         "Content.Api/Endpoints/SiteCategories/Shared/SaveSiteCategoryRequest.cs",
+        "Catalog.Api/Endpoints/Ppe/PreviewPpePrices/PreviewPpePricesEndpoint.cs",
     ];
 
     [Test]

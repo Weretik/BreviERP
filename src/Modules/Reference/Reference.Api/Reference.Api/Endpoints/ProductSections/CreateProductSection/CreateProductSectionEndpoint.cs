@@ -6,7 +6,11 @@ namespace Reference.Api.Endpoints.ProductSections.CreateProductSection;
 internal static class CreateProductSectionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).Produces<int>()
+        group.MapPost("", HandleAsync)
+            .WithName("createProductSection")
+            .WithSummary("Add a product section")
+            .WithDescription("Requires access:product-sections. The ID is assigned by Brevi; the name must be unique.")
+            .Produces<int>()
             .RequireAuthorization("access:product-sections");
 
     private static async Task<IResult> HandleAsync(CreateProductSectionRequest request, [FromServices] ISender sender,

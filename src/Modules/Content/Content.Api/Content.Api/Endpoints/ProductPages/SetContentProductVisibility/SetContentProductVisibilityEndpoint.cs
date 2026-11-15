@@ -7,7 +7,10 @@ namespace Content.Api.Endpoints.ProductPages.SetContentProductVisibility;
 internal static class SetContentProductVisibilityEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPatch("{productId:int}/visibility", HandleAsync).WithName("setContentProductVisibility");
+        group.MapPatch("{productId:int}/visibility", HandleAsync).WithName("setContentProductVisibility")
+            .WithSummary("«Показувати на сайті» from the list")
+            .WithDescription("«Показувати на сайті» from the list. A product without a page gets an empty one with an address built from its name.")
+            .Produces<ContentProductVisibilityResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, int productId,
         ContentProductVisibilityRequest request,

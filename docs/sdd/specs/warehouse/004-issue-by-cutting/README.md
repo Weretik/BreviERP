@@ -41,7 +41,7 @@ Out:
 
 ## Contract
 
-[warehouse/fabric-stock.openapi.yaml](../../../contracts/warehouse/fabric-stock.openapi.yaml).
+[OpenAPI](../../../contracts/openapi.json).
 
 New operations, under the `access:fabric-stock` policy:
 - `GET /api/warehouse/fabric-stock/issue-items?search` returns `FabricIssueItemsResponse` (at most 30, newest first).

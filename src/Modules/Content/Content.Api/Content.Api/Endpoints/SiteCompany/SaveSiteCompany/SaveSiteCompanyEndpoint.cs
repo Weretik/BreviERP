@@ -8,7 +8,9 @@ namespace Content.Api.Endpoints.SiteCompany.SaveSiteCompany;
 internal static class SaveSiteCompanyEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("", HandleAsync).WithName("saveSiteCompany");
+        group.MapPut("", HandleAsync).WithName("saveSiteCompany")
+            .WithSummary("Replaces the facts as a whole; spaces inside texts are joined, phones and the IBAN are formatted")
+            .Produces<SiteCompanyResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveSiteCompanyRequest request,
         [FromServices] ISender sender,

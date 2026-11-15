@@ -1,3 +1,4 @@
+using Content.Application.Features.Redirects.Shared;
 using Content.Application.Features.Redirects.Commands.SaveSiteRedirect;
 using Content.Api.Endpoints.Redirects.Shared;
 using BuildingBlocks.Api.Errors;
@@ -11,7 +12,9 @@ internal static class CreateSiteRedirectEndpoint
         new(id, request.FromPath, request.ToPath, request.Note, ContentEditor.By(user));
 
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createSiteRedirect");
+        group.MapPost("", HandleAsync).WithName("createSiteRedirect")
+            .WithSummary("Adds a redirect made by hand (source Manual)")
+            .Produces<SiteRedirectResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, SaveSiteRedirectRequest request,
         [FromServices] ISender sender,

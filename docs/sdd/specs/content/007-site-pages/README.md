@@ -26,7 +26,7 @@ A row per fixed page in `content.SitePages`, keyed by a stable page key the site
 
 ## Design
 
-Admin API `/api/content/site-pages` ([contract](../../../contracts/content/content-site-pages.openapi.yaml)): `getSitePages`, `saveSitePage`. Public API `/api/public/site-pages` ([contract](../../../contracts/content/content-public-site-pages.openapi.yaml)): `getPublicSitePages`. Migration `AddSitePages`.
+Admin API `/api/content/site-pages` ([contract](../../../contracts/openapi.json)): `getSitePages`, `saveSitePage`. Public API `/api/public/site-pages` ([contract](../../../contracts/openapi.json)): `getPublicSitePages`. Migration `AddSitePages`.
 
 | Path | Responsibility | State |
 | --- | --- | --- |

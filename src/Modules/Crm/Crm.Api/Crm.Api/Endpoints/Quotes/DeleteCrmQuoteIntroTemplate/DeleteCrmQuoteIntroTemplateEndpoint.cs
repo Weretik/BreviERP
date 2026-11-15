@@ -8,7 +8,8 @@ namespace Crm.Api.Endpoints.Quotes.DeleteCrmQuoteIntroTemplate;
 internal static class DeleteCrmQuoteIntroTemplateEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{id:long}", HandleAsync).WithName("deleteCrmQuoteIntroTemplate");
+        group.MapDelete("{id:long}", HandleAsync).WithName("deleteCrmQuoteIntroTemplate")
+            .WithSummary("The author, Director or Admin");
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

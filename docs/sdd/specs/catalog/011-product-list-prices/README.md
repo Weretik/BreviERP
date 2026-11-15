@@ -11,7 +11,7 @@ Stage 6 of moving the client's Calculator into Brevi. On the old site the price 
 
 ## API
 
-Contracts: [product-overview.openapi.yaml](../../../contracts/catalog/product-overview.openapi.yaml), [sewing-pricing.openapi.yaml](../../../contracts/catalog/sewing-pricing.openapi.yaml).
+Contracts: [OpenAPI](../../../contracts/openapi.json), [OpenAPI](../../../contracts/openapi.json).
 
 | Operation | Endpoint | Policy |
 | --- | --- | --- |

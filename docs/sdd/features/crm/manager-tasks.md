@@ -28,7 +28,7 @@ src/Modules/Crm/
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Identity/TaskStaffReader.cs   Identity.Contracts adapter
 ```
 
-[API contract](../../contracts/crm/tasks.openapi.yaml), [database ownership](../../architecture/data-model/crm.md).
+[API contract](../../contracts/openapi.json), [database ownership](../../architecture/data-model/crm.md).
 
 ## Tests
 

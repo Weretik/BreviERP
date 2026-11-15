@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Queries.GetQuoteHistory;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,10 @@ namespace Crm.Api.Endpoints.Quotes.GetCrmQuoteHistory;
 internal static class GetCrmQuoteHistoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:long}/history", HandleAsync).WithName("getCrmQuoteHistory");
+        group.MapGet("{id:long}/history", HandleAsync).WithName("getCrmQuoteHistory")
+            .WithSummary("Get CRM quote history")
+            .WithDescription("«Історія змін»: who created, saved, sent, repriced, passed, copied or (before R-23) archived the КП; newest first, at most 500 lines.")
+            .Produces<IReadOnlyList<QuoteEventResponse>>();
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

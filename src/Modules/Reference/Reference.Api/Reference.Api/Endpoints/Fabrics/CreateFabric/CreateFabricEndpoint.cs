@@ -6,7 +6,11 @@ namespace Reference.Api.Endpoints.Fabrics.CreateFabric;
 internal static class CreateFabricEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).Produces<int>()
+        group.MapPost("", HandleAsync)
+            .WithName("createFabric")
+            .WithSummary("Create a fabric with a client supplied ID")
+            .WithDescription("Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.")
+            .Produces<int>()
             .RequireAuthorization("access:materials");
 
     private static async Task<IResult> HandleAsync(CreateFabricRequest request, [FromServices] ISender sender,

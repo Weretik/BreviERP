@@ -7,7 +7,9 @@ namespace Identity.Api.Endpoints.Profile.UploadMyAvatar;
 internal static class UploadMyAvatarEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("avatar", HandleAsync).WithName("uploadMyAvatar").Produces<AvatarResponse>()
+        group.MapPut("avatar", HandleAsync).WithName("uploadMyAvatar")
+            .WithSummary("Upload own photo")
+            .WithDescription("JPEG, PNG or WebP up to 2 MB, at least 128×128 px. The server crops the centre square and stores a 256×256 WebP under a new name, then deletes the previous file.").Produces<AvatarResponse>()
             .Accepts<IFormFile>("multipart/form-data").DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(AvatarUploadResults.RequestLimit),
                 new RequestFormLimitsAttribute { MultipartBodyLengthLimit = AvatarUploadResults.RequestLimit });

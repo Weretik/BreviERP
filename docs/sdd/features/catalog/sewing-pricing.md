@@ -1,6 +1,6 @@
 # Sewing Article pricing, saved calculations and publication
 
-Implemented sewing engine and backend publication stages of [Pricing SDD 003](../../specs/catalog/003-sheet-pricing-parity/README.md). See the [initial engine design](../../specs/catalog/003-sheet-pricing-parity/sewing-implementation.md), [publication design](../../specs/catalog/003-sheet-pricing-parity/publication-implementation.md), [API contract](../../contracts/catalog/sewing-pricing.openapi.yaml) and [publication evidence](../../specs/catalog/003-sheet-pricing-parity/publication-evidence.md). The React Admin TS-005 consumer is implemented and verified; it reads published prices through the bounded Product projection while legacy Product response fields remain compatible.
+Implemented sewing engine and backend publication stages of [Pricing SDD 003](../../specs/catalog/003-sheet-pricing-parity/README.md). See the [initial engine design](../../specs/catalog/003-sheet-pricing-parity/sewing-implementation.md), [publication design](../../specs/catalog/003-sheet-pricing-parity/publication-implementation.md), [API contract](../../contracts/openapi.json) and [publication evidence](../../specs/catalog/003-sheet-pricing-parity/publication-evidence.md). The React Admin TS-005 consumer is implemented and verified; it reads published prices through the bounded Product projection while legacy Product response fields remain compatible.
 
 ## Current behavior
 

@@ -1,6 +1,6 @@
 # AI settings «Налаштування ШІ»
 
-The OpenAI account of Brevi for «Адміністрування → Налаштування ШІ»: the key (encrypted, write-only, shown as the last four characters), fast and strong models with prices per 1M tokens, on/off, monthly limit and this month's use, «Перевірити», and «Умови розпізнавання рахунків» added to the invoice recognition, shown under the fixed base instruction (read-only). Admin only. [SDD](../../specs/ai/001-ai-settings/README.md), [contract](../../contracts/ai/ai-settings.openapi.yaml), [tables](../../architecture/data-model/ai.md).
+The OpenAI account of Brevi for «Адміністрування → Налаштування ШІ»: the key (encrypted, write-only, shown as the last four characters), fast and strong models with prices per 1M tokens, on/off, monthly limit and this month's use, «Перевірити», and «Умови розпізнавання рахунків» added to the invoice recognition, shown under the fixed base instruction (read-only). Admin only. [SDD](../../specs/ai/001-ai-settings/README.md), [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/ai.md).
 
 ## Code structure
 

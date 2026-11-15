@@ -6,7 +6,9 @@ namespace Catalog.Api.Endpoints.ProductCategory.UpdateProductCategory;
 internal static class UpdateProductCategoryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}", HandleAsync);
+        group.MapPut("{id:int}", HandleAsync)
+            .WithName("updateProductCategory")
+            .WithSummary("Change a product category");
 
     private static async Task<IResult> HandleAsync(int id, UpdateProductCategoryRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken)

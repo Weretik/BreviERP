@@ -25,7 +25,7 @@ A read-only query over the data «Контент» already owns: no new table. O
 
 ## Design
 
-Admin API `GET /api/content/seo-overview` ([contract](../../../contracts/content/content-seo-overview.openapi.yaml)), operation `getSeoOverview`.
+Admin API `GET /api/content/seo-overview` ([contract](../../../contracts/openapi.json)), operation `getSeoOverview`.
 
 | Path | Responsibility | State |
 | --- | --- | --- |

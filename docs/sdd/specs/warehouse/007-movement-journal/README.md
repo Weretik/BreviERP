@@ -4,7 +4,7 @@
 
 ## Scope
 
-In: new query parameters and response fields of `GET /api/warehouse/fabric-stock/movements` ([contract](../../../contracts/warehouse/fabric-stock.openapi.yaml)). Read only; no new access page (it stays `fabric-stock`).
+In: new query parameters and response fields of `GET /api/warehouse/fabric-stock/movements` ([contract](../../../contracts/openapi.json)). Read only; no new access page (it stays `fabric-stock`).
 
 Out: new movement kinds, changes to edit, void or reversal rules (the frontend joins «Скасувати» and «Сторно» into one dialog over the existing endpoints).
 

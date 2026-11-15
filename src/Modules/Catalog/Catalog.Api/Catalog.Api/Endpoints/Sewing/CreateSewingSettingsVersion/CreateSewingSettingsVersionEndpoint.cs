@@ -1,3 +1,4 @@
+using Catalog.Application.Abstractions.Pricing.Settings;
 using Catalog.Application.Features.Pricing.Commands.CreateSewingSettingsVersion;
 using BuildingBlocks.Api.Errors;
 
@@ -7,8 +8,11 @@ internal static class CreateSewingSettingsVersionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("versions", HandleAsync).WithName("createSewingSettingsVersion")
+            .WithSummary("Append a complete approved settings revision effective at server time")
+            .WithDescription("Append a complete approved settings revision effective at server time. expectedVersionId must match the latest revision; no partial setting updates. requestId makes retries idempotent. Requires access:pricing-parameters.")
             .RequireAccessAction(AccessActionAttribute.Edit)
-            .RequireAuthorization("access:pricing-parameters");
+            .RequireAuthorization("access:pricing-parameters")
+            .Produces<SewingPricingSettingsSelection>();
 
     private static async Task<IResult> HandleAsync(CreateSewingSettingsVersionRequest request, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

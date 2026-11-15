@@ -7,7 +7,8 @@ namespace Reminders.Api.Endpoints.Chats.UpdateReminderChat;
 internal static class UpdateReminderChatEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:long}", HandleAsync).WithName("updateReminderChat").Produces<ReminderChatResponse>();
+        group.MapPut("{id:long}", HandleAsync).WithName("updateReminderChat")
+            .WithSummary("Update reminder chat").Produces<ReminderChatResponse>();
 
     private static async Task<IResult> HandleAsync(long id, ReminderChatInput input, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new UpdateReminderChatCommand(id, input), cancellationToken)).ToHttpResult();

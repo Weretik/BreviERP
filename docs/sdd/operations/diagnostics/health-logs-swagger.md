@@ -12,7 +12,7 @@ Swagger UI is enabled only when `ASPNETCORE_ENVIRONMENT=Development`. With the H
 https://localhost:7142/swagger
 ```
 
-Sign in with `POST /api/auth/cookie/login` from Swagger on the same host; the browser keeps the session cookie. For `POST`, `PUT` and `DELETE` also add header `X-CSRF-Token` with the `brevi.csrf` cookie value, otherwise the API answers `400 Invalid CSRF token.`
+Swagger UI reads the built-in document `/openapi/v1.json`, the same one the build writes to `docs/sdd/contracts/openapi.json`. Sign in with `POST /api/auth/cookie/login` from Swagger on the same host; the browser keeps the session cookie. For `POST`, `PUT` and `DELETE` also add header `X-CSRF-Token` with the `brevi.csrf` cookie value, otherwise the API answers `400 Invalid CSRF token.`
 
 For a reproducible feature test, add a specific task to the verification phase of the [feature specification](../../specs/README.md). It should record the route, prerequisites, input, expected status, and failure cases.
 

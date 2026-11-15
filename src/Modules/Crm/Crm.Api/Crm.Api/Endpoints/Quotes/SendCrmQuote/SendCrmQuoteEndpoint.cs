@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Commands.SendQuote;
 using BuildingBlocks.Api.Errors;
@@ -9,7 +10,10 @@ internal static class SendCrmQuoteEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:long}/send", HandleAsync).WithName("sendCrmQuote")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .WithSummary("Sends the PDF of the saved КП of exactly `version` from the signed-in person's Gmail")
+            .WithDescription("Sends the PDF of the saved КП of exactly `version` from the signed-in person's Gmail. On success the КП becomes Sent with `lastSentAt` and its version grows; it can be edited and sent again. Any failure (no Gmail, Gmail refused, stale version) leaves the КП as it was and returns 409 with the reason.")
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<QuoteResponse>();
 
     private static async Task<IResult> HandleAsync(long id, SendQuoteInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

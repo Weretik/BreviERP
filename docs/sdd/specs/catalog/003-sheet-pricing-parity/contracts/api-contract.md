@@ -1,6 +1,6 @@
 # Sewing pricing API decisions
 
-Source: [OpenAPI](../../../../contracts/catalog/sewing-pricing.openapi.yaml). Scope: [EN-004 / TS-004](../publication-implementation.md).
+Source: [OpenAPI](../../../../contracts/openapi.json). Scope: [EN-004 / TS-004](../publication-implementation.md).
 
 All reads require CatalogRead and all writes CanManageProducts. Article routes retain existing numeric Product/Article IDs; new calculations/publications expose UUIDs, hiding relational history IDs. The actor is read from the authenticated NameIdentifier claim; no actor, arbitrary price, effective time or approval flag is accepted in calculation/publication requests.
 

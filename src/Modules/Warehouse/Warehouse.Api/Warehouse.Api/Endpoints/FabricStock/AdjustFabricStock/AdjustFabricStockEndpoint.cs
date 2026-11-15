@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.AdjustFabricStock;
 internal static class AdjustFabricStockEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("adjustments", HandleAsync).WithName("adjustFabricStock").Produces<FabricStockOperationResponse>();
+        group.MapPost("adjustments", HandleAsync).WithName("adjustFabricStock")
+            .WithSummary("«Уточнити»: the counted total of a pair with a reason; it may not end below min(0, current total)").Produces<FabricStockOperationResponse>();
 
     private static async Task<IResult> HandleAsync(AdjustFabricStockInput input, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

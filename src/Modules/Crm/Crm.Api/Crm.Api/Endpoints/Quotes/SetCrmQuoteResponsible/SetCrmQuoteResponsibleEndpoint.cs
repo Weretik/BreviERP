@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Quotes.Commands.SetQuoteResponsible;
 using BuildingBlocks.Api.Errors;
@@ -9,7 +10,9 @@ internal static class SetCrmQuoteResponsibleEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:long}/responsible", HandleAsync).WithName("setCrmQuoteResponsible")
-            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+            .WithSummary("Admin (Director) gives the КП to themselves or another active manager")
+            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+            .Produces<QuoteResponse>();
 
     private static async Task<IResult> HandleAsync(long id, SetQuoteResponsibleRequest request, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

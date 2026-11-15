@@ -1,8 +1,8 @@
 # Company facts «Контент → Контакти та компанія»
 
-The company facts of the public site: the company phone and email, the address and the map query, the working hours, the client managers of «Контакти» (name, photo, phones, email), the payment details and the Instagram, YouTube and Facebook links. One record saved as a whole with a revision check; the migration seeds what the site showed before. Admin and the Director edit, Manager reads. [SDD](../../specs/content/009-site-company/README.md), [contract](../../contracts/content/content-company.openapi.yaml), [tables](../../architecture/data-model/content.md).
+The company facts of the public site: the company phone and email, the address and the map query, the working hours, the client managers of «Контакти» (name, photo, phones, email), the payment details and the Instagram, YouTube and Facebook links. One record saved as a whole with a revision check; the migration seeds what the site showed before. Admin and the Director edit, Manager reads. [SDD](../../specs/content/009-site-company/README.md), [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/content.md).
 
-The public site reads them without sign-in from `/api/public/company` ([contract](../../contracts/content/content-public-company.openapi.yaml)), with every phone also in the `tel:` form, rebuilt at most once a minute; without the facts the site keeps its own.
+The public site reads them without sign-in from `/api/public/company` ([contract](../../contracts/openapi.json)), with every phone also in the `tel:` form, rebuilt at most once a minute; without the facts the site keeps its own.
 
 ## Code structure
 

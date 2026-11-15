@@ -37,7 +37,7 @@ list an «Активний» switch and filter, so staff see which products work
 
 - Media: `MediaFile.SourceKey` (nullable, unique when set; migration `MediaFileSourceKey`), `UploadMediaFileCommand.SourceKey`, `GetMediaFilesBySourceKeysQuery`, `EnsureMediaFolderPathCommand`.
 - Catalog: `Product.SetPhotoList`, `Features/Product/Photos` (get, set, SKU index), `Features/Product/OldSitePhotoImport`, port `IProductPhotoSource` implemented in Host.Api (`CatalogProductPhotoSource`: HttpClient + Media commands), `IProductMediaReader.GetFilesAsync`, `IProductSectionReader.ListAsync`.
-- Contract: [product-photos.openapi.yaml](../../../contracts/catalog/product-photos.openapi.yaml), [product-overview.openapi.yaml](../../../contracts/catalog/product-overview.openapi.yaml) (`active`, `inactive`, `mainPhotoUrl`).
+- Contract: [OpenAPI](../../../contracts/openapi.json), [OpenAPI](../../../contracts/openapi.json) (`active`, `inactive`, `mainPhotoUrl`).
 
 ## Risks
 

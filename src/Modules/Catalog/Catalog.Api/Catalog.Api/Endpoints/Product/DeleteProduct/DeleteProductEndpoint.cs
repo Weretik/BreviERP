@@ -6,7 +6,9 @@ namespace Catalog.Api.Endpoints.Product.DeleteProduct;
 internal static class DeleteProductEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{id:int}", HandleAsync);
+        group.MapDelete("{id:int}", HandleAsync)
+            .WithName("deleteProduct")
+            .WithSummary("Delete a Product and its Product-owned details and links");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,
         CancellationToken cancellationToken)

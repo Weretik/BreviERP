@@ -11,10 +11,13 @@ internal static class SubmitPublicSiteRequestEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("", HandleAsync).WithName("submitPublicSiteRequest")
+            .WithSummary("Submit public site request")
+            .WithDescription("Saves the request. A Telegram failure does not refuse it; the reason is kept for staff.")
             .RequireRateLimiting(RatePolicy)
             .WithMetadata(new RequestSizeLimitAttribute(MaxBody))
             .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxBody })
-            .DisableAntiforgery();
+            .DisableAntiforgery()
+            .Produces<SiteRequestReceivedResponse>();
 
     private static async Task<IResult> HandleAsync([FromForm] PublicSiteRequestForm form, [FromServices] ISender sender,
         CancellationToken cancellationToken)

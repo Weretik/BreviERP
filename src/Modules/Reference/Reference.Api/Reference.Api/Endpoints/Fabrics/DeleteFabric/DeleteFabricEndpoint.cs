@@ -7,6 +7,9 @@ internal static class DeleteFabricEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("{id:int}", HandleAsync)
+            .WithName("deleteFabric")
+            .WithSummary("Delete a fabric")
+            .WithDescription("Requires access:materials. Numeric edits append an approved pricing revision when the reference is versioned.")
             .RequireAuthorization("access:materials");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,

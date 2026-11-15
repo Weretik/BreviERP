@@ -28,7 +28,7 @@ One row per page in `content.SiteGalleries` with the list as JSON, saved as a wh
 
 ## Design
 
-Admin API `/api/content/works` and `/api/content/certificates` ([contract](../../../contracts/content/content-galleries.openapi.yaml)): get, save (PUT) and `POST …/transfer`. Public API `/api/public/galleries` ([contract](../../../contracts/content/content-public-galleries.openapi.yaml)). Migration `AddSiteGalleries`.
+Admin API `/api/content/works` and `/api/content/certificates` ([contract](../../../contracts/openapi.json)): get, save (PUT) and `POST …/transfer`. Public API `/api/public/galleries` ([contract](../../../contracts/openapi.json)). Migration `AddSiteGalleries`.
 
 | Path | Responsibility | State |
 | --- | --- | --- |

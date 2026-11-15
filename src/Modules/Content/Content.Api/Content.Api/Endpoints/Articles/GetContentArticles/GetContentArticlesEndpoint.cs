@@ -6,7 +6,9 @@ namespace Content.Api.Endpoints.Articles.GetContentArticles;
 internal static class GetContentArticlesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getContentArticles");
+        group.MapGet("", HandleAsync).WithName("getContentArticles")
+            .WithSummary("Every article, the newest first")
+            .Produces<ArticleList>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

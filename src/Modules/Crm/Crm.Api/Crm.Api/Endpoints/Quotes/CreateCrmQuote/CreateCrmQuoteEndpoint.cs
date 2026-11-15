@@ -8,7 +8,10 @@ namespace Crm.Api.Endpoints.Quotes.CreateCrmQuote;
 internal static class CreateCrmQuoteEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createCrmQuote");
+        group.MapPost("", HandleAsync).WithName("createCrmQuote")
+            .WithSummary("Creates a draft «КП під запит»; the creator becomes responsible")
+            .WithDescription("Creates a draft «КП під запит»; the creator becomes responsible. The number is «n-month-year», counted per Kyiv month.")
+            .Produces<QuoteResponse>(StatusCodes.Status201Created);
 
     private static async Task<IResult> HandleAsync(SaveQuoteInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

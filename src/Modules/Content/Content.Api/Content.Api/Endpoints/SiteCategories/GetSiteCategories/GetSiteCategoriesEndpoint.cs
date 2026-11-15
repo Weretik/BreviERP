@@ -6,7 +6,9 @@ namespace Content.Api.Endpoints.SiteCategories.GetSiteCategories;
 internal static class GetSiteCategoriesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getSiteCategories");
+        group.MapGet("", HandleAsync).WithName("getSiteCategories")
+            .WithSummary("The whole tree in site order, every category followed by its subcategories")
+            .Produces<SiteCategoryList>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.Reports.GetHardwareOrder;
 internal static class GetHardwareOrderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("hardware", HandleAsync).WithName("getHardwareOrder").Produces<HardwareOrderResponse>()
+        group.MapGet("hardware", HandleAsync).WithName("getHardwareOrder")
+            .WithSummary("«Фурнітура до замовлення»: full accessory need of open orders by model composition (access:hardware-order)").Produces<HardwareOrderResponse>()
             .RequireAuthorization(WarehouseAccess.HardwareOrder);
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>

@@ -8,7 +8,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.GetFabricConsumption;
 internal static class GetFabricConsumptionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("consumption", HandleAsync).WithName("getFabricConsumption").Produces<FabricConsumptionResponse>();
+        group.MapGet("consumption", HandleAsync).WithName("getFabricConsumption")
+            .WithSummary("«Зведення витрати»: received, issued and corrected per line by operation date").Produces<FabricConsumptionResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default) =>
         user.WarehouseActor() is { } actor

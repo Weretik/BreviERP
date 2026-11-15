@@ -7,7 +7,10 @@ internal static class CreateCatalogProductEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("overview", HandleAsync).WithName("createCatalogProduct")
-            .RequireAuthorization("access:products");
+            .WithSummary("Create a product from the page «Новий ЗІЗ» or «Нова модель»")
+            .WithDescription("Requires access:products and an actor (CAT-009). The server picks the ID (largest + 1) and the slug (from the Ukrainian name; the code and then a number are added when it is taken). The name is Ukrainian only. An empty sewing code takes the next free MOD-XXX. The section must belong to the type. A PPE product needs the ppe block; the first price version is appended with source «Створення ЗІЗ». priceSaved is false when the product was saved but its price was not; the card then asks to save the price again.")
+            .RequireAuthorization("access:products")
+            .Produces<CreatedCatalogProduct>(StatusCodes.Status201Created);
 
     private static async Task<IResult> HandleAsync(CreateCatalogProductRequest request, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

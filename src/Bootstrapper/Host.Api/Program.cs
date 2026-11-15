@@ -4,12 +4,14 @@ using BuildingBlocks.Api.TrustedProxy;
 using Identity.Api.DependencyInjection;
 using Microsoft.AspNetCore.Localization;
 using Host.Api.DependencyInjection.Modules;
+using Host.Api.DependencyInjection.Http.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseDefaultServiceProvider(ServiceProviderValidation.Apply);
 
 builder.AddSerilog();
 builder.Services.AddHostServices(builder.Configuration);
+builder.Services.WithoutBackgroundWorkForBuildTimeDocument();
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { new CultureInfo("uk-UA"), new CultureInfo("ru-RU") };
@@ -25,9 +27,7 @@ app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.MapOpenApi().AllowAnonymous();
+    app.MapApiDocument();
 }
 else
 {

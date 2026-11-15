@@ -1,3 +1,4 @@
+using Production.Application.Features.Work.Shared;
 using Production.Application.Features.Work.Commands.VoidProductionWork;
 using BuildingBlocks.Api.Errors;
 
@@ -8,7 +9,9 @@ internal static class VoidProductionWorkEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("work/{workId:int}/void", HandleAsync).WithName("voidProductionWork")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .WithSummary("«Сторно» of a record with a reason")
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<ProductionItemWorkResponse>();
 
     private static async Task<IResult> HandleAsync(int workId, VoidProductionWorkInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

@@ -73,6 +73,14 @@ jobs:
           dotnet-version: 10.0.x
       - run: dotnet restore BreviERP.sln
       - run: dotnet build BreviERP.sln --no-restore --configuration Release
+      # The build writes the OpenAPI document of the code (ADR-0015); the committed copy must match it.
+      - name: Check the OpenAPI contract is up to date
+        run: |
+          if ! git diff --quiet -- docs/sdd/contracts/openapi.json; then
+            git diff --stat -- docs/sdd/contracts/openapi.json
+            echo "::error file=docs/sdd/contracts/openapi.json::OpenAPI contract is out of date. Build Host.Api and commit docs/sdd/contracts/openapi.json."
+            exit 1
+          fi
       # Always run (seconds): the test selection's own tests, architecture, host and Platform integration tests.
       - run: python3 -m unittest discover -s tools/ci
       - run: dotnet test tests/ArchitectureTests/ArchitectureTests.csproj --no-build --configuration Release

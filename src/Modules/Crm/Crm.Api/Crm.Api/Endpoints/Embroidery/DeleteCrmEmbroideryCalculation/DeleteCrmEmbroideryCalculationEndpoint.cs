@@ -8,6 +8,7 @@ internal static class DeleteCrmEmbroideryCalculationEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("calculations/{id:long}", HandleAsync).WithName("deleteCrmEmbroideryCalculation")
+            .WithSummary("Removes a saved calculation for good")
             .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, long id, [FromServices] ISender sender,

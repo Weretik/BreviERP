@@ -1,3 +1,4 @@
+using Catalog.Application.Features.Product.Shared.Detail;
 using Catalog.Application.Features.Product.Commands.ReplaceProduct;
 using Catalog.Api.Endpoints.Product.Detail;
 using Catalog.Api.Endpoints.Product.Write;
@@ -8,7 +9,10 @@ namespace Catalog.Api.Endpoints.Product.ReplaceProduct;
 internal static class ReplaceProductEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}", HandleAsync);
+        group.MapPut("{id:int}", HandleAsync)
+            .WithName("replaceProduct")
+            .WithSummary("Fully replace all editable Product data")
+            .Produces<ProductAdminDetail>();
 
     private static async Task<IResult> HandleAsync(int id, ProductWriteRequest request, [FromServices] ISender sender,
         CancellationToken cancellationToken)

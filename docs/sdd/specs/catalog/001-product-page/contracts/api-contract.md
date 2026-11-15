@@ -1,6 +1,6 @@
 # Product page — API contract
 
-**Status:** implemented and verified by automated tests; manual Swagger/API scenarios remain open. Machine-readable source of truth: [product-catalog.openapi.yaml](../../../../contracts/catalog/product-catalog.openapi.yaml).
+**Status:** implemented and verified by automated tests; manual Swagger/API scenarios remain open. Machine-readable source of truth: [OpenAPI](../../../../contracts/openapi.json).
 
 **Versioning:** all endpoints in this delivery use the `/api/v1` prefix.
 

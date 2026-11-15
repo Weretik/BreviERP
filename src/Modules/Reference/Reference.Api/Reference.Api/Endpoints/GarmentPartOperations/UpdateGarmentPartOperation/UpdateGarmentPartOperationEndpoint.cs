@@ -7,6 +7,9 @@ internal static class UpdateGarmentPartOperationEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("{id:int}", HandleAsync)
+            .WithName("updateGarmentPartOperation")
+            .WithSummary("Update a garment part operation")
+            .WithDescription("Requires access:operations. Numeric edits append an approved pricing revision when the reference is versioned.")
             .RequireAuthorization("access:operations");
 
     private static async Task<IResult> HandleAsync(int id, UpdateGarmentPartOperationRequest request,

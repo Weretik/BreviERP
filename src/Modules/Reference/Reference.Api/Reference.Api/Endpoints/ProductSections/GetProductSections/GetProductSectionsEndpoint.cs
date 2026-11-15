@@ -6,7 +6,11 @@ namespace Reference.Api.Endpoints.ProductSections.GetProductSections;
 internal static class GetProductSectionsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).Produces<List<ProductSectionRowDTO>>()
+        group.MapGet("", HandleAsync)
+            .WithName("getProductSections")
+            .WithSummary("List product sections, sewing first, each type in sheet order")
+            .WithDescription("Anonymous. An empty list when there are none.")
+            .Produces<List<ProductSectionRowDTO>>()
             .RequireAuthorization("CatalogRead");
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,

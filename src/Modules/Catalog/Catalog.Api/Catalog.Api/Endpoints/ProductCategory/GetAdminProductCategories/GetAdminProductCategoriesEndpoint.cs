@@ -6,7 +6,10 @@ namespace Catalog.Api.Endpoints.ProductCategory.GetAdminProductCategories;
 internal static class GetAdminProductCategoriesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("admin", HandleAsync);
+        group.MapGet("admin", HandleAsync)
+            .WithName("getAdminProductCategories")
+            .WithSummary("List admin product categories")
+            .Produces<List<AdminProductCategoryRowDTO>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken)
     {

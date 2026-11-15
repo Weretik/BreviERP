@@ -11,7 +11,7 @@ After [CAT-011](../011-product-list-prices/README.md) a changed fabric, accessor
 
 ## API
 
-`recalculateSewingPrices` is removed from [sewing-pricing.openapi.yaml](../../../contracts/catalog/sewing-pricing.openapi.yaml). `getProductOverviewPrices` was later replaced by the paged list of [CAT-013](../013-product-list-page/README.md), which reads only published prices.
+`recalculateSewingPrices` is removed from [OpenAPI](../../../contracts/openapi.json). `getProductOverviewPrices` was later replaced by the paged list of [CAT-013](../013-product-list-page/README.md), which reads only published prices.
 
 ## Rules
 

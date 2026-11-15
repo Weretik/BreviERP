@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Transfers.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Transfers.Commands.UpdateFinanceTransfer;
 using BuildingBlocks.Api.Errors;
@@ -7,7 +8,9 @@ namespace Accounting.Api.Endpoints.Transfers.UpdateFinanceTransfer;
 internal static class UpdateFinanceTransferEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:guid}", HandleAsync).WithName("updateFinanceTransfer");
+        group.MapPut("{id:guid}", HandleAsync).WithName("updateFinanceTransfer")
+            .WithSummary("Edit an active hand-made transfer; the area stays")
+            .Produces<FinanceTransferResponse>();
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceTransferUpdateInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

@@ -1,3 +1,4 @@
+using Crm.Application.Features.Tasks.Shared;
 using Crm.Api.Access;
 using Crm.Application.Features.Tasks.Queries.GetTasks;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,10 @@ namespace Crm.Api.Endpoints.Tasks.GetCrmTasks;
 internal static class GetCrmTasksEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getCrmTasks");
+        group.MapGet("", HandleAsync).WithName("getCrmTasks")
+            .WithSummary("A page of tasks")
+            .WithDescription("A page of tasks. Not done: overdue first, then urgent, then by due time. `Done`: newest completion first. Search matches the number («ЗД-0142», «142»), title, client and manager name.")
+            .Produces<TaskPageResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         string? search = null, string? filter = null, int? assigneeUserId = null, int page = 1, int pageSize = 25,

@@ -6,7 +6,10 @@ namespace Reference.Api.Endpoints.Fabrics.GetFabrics;
 internal static class GetFabricsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).Produces<List<FabricRowDTO>>()
+        group.MapGet("", HandleAsync)
+            .WithName("getFabrics")
+            .WithSummary("List fabrics")
+            .Produces<List<FabricRowDTO>>()
             .RequireAuthorization("CatalogRead");
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,

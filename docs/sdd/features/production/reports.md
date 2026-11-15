@@ -1,6 +1,6 @@
 # Workshop reports and overview («Звіти цеху», «Огляд виробництва», stage 7)
 
-«Звіти цеху» (Admin; the director holds Admin): for whole months, at most 12, output at the КП price, what the workers earned with pay per 8 hours, fabric issued and the stock at the end at the price of «Тканини», optionally against a second period. Pieces and metres without a price are given apart. A month closed in «Зарплата» keeps its report. «Огляд виробництва» on the admin home: the «Нове» orders by the stage of their slowest item, late ones, what is ready to ship and, for the head of the workshop and Admin, the hours of this week. SDD: [stage 7](../../specs/production/007-workshop-reports/README.md); [contract](../../contracts/production/workshop-reports.openapi.yaml), [tables](../../architecture/data-model/production.md).
+«Звіти цеху» (Admin; the director holds Admin): for whole months, at most 12, output at the КП price, what the workers earned with pay per 8 hours, fabric issued and the stock at the end at the price of «Тканини», optionally against a second period. Pieces and metres without a price are given apart. A month closed in «Зарплата» keeps its report. «Огляд виробництва» on the admin home: the «Нове» orders by the stage of their slowest item, late ones, what is ready to ship and, for the head of the workshop and Admin, the hours of this week. SDD: [stage 7](../../specs/production/007-workshop-reports/README.md); [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/production.md).
 
 ## Code structure
 

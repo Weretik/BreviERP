@@ -1,6 +1,6 @@
 # Proposed HTTP contract
 
-**Status:** implemented in the Catalog API, 2026-10-25. The canonical [sewing composition OpenAPI](../../../../contracts/catalog/sewing-composition.openapi.yaml) defines exact DTOs, operation IDs, access and errors. Existing Product operations remain available. See the [implementation checkpoint](../implementation.md) for rollout and verification limits.
+**Status:** implemented in the Catalog API, 2026-10-25. The canonical [sewing composition OpenAPI](../../../../contracts/openapi.json) defines exact DTOs, operation IDs, access and errors. Existing Product operations remain available. See the [implementation checkpoint](../implementation.md) for rollout and verification limits.
 
 | Method and proposed route | Proposed operationId | Request/response | Access and failure |
 | --- | --- | --- | --- |

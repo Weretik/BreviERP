@@ -8,7 +8,9 @@ namespace Production.Api.Endpoints.Orders.ImportProductionProgress;
 internal static class ImportProductionProgressEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("progress-import", HandleAsync).WithName("importProductionProgress");
+        group.MapPost("progress-import", HandleAsync).WithName("importProductionProgress")
+            .WithSummary("Admin: move stages, file links and Telegram marks of the old «Цех»; dryRun only shows them; any error saves nothing")
+            .Produces<ProductionProgressImportResult>();
 
     private static async Task<IResult> HandleAsync([FromBody] IReadOnlyList<ProductionProgressImportRow> rows,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = default,

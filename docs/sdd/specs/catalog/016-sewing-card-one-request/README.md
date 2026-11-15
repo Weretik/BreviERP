@@ -13,7 +13,7 @@ Client feedback items 2, 12 and 14 (2026-11-03). The sewing card made about ten 
 
 ## API
 
-- [sewing-pricing.openapi.yaml](../../../contracts/catalog/sewing-pricing.openapi.yaml): `SewingArticleSummaryRow` gains `fabricId`, `fabricName`, `fabricPrice`, `fabricQuantity`; `SewingArticleSummary` gains `materials` (`SewingCardMaterial`) and `operations` (`SewingCardOperation`). Additive; no route change.
+- [OpenAPI](../../../contracts/openapi.json): `SewingArticleSummaryRow` gains `fabricId`, `fabricName`, `fabricPrice`, `fabricQuantity`; `SewingArticleSummary` gains `materials` (`SewingCardMaterial`) and `operations` (`SewingCardOperation`). Additive; no route change.
 
 ## Tests
 

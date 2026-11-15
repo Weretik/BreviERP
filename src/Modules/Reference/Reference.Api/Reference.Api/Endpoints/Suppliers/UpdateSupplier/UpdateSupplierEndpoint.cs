@@ -6,7 +6,10 @@ namespace Reference.Api.Endpoints.Suppliers.UpdateSupplier;
 internal static class UpdateSupplierEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}", HandleAsync);
+        group.MapPut("{id:int}", HandleAsync)
+            .WithName("updateSupplier")
+            .WithSummary("Update a supplier")
+            .WithDescription("Manual suppliers only. For a KeepinCRM supplier (keepinCrmId set) it returns 400; use updateSupplierBreviFields.");
 
     private static async Task<IResult> HandleAsync(int id, UpdateSupplierRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

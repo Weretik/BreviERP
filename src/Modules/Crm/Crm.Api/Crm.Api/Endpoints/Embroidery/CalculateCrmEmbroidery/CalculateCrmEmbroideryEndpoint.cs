@@ -10,7 +10,10 @@ internal static class CalculateCrmEmbroideryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("calculate", HandleAsync).WithName("calculateCrmEmbroidery")
-            .RequireAccessAction(AccessActionAttribute.View);
+            .WithSummary("Computes the price and saves nothing")
+            .WithDescription("Computes the price and saves nothing. A problem that stops the price (a blank wider than the roll, an unknown hoop, no stitch rate) comes back as `error` with status 200 and no prices. `cost` and money of the cut layout are null for a Manager.")
+            .RequireAccessAction(AccessActionAttribute.View)
+            .Produces<EmbroideryCalculationResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, CalculateEmbroideryInput input,
         [FromServices] ISender sender,

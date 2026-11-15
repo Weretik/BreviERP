@@ -7,7 +7,8 @@ namespace Production.Api.Endpoints.Settings.SendWorkshopTelegramTest;
 internal static class SendWorkshopTelegramTestEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("telegram-test", HandleAsync).WithName("sendWorkshopTelegramTest");
+        group.MapPost("telegram-test", HandleAsync).WithName("sendWorkshopTelegramTest")
+            .WithSummary("Send a test line to the chosen group and topic");
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

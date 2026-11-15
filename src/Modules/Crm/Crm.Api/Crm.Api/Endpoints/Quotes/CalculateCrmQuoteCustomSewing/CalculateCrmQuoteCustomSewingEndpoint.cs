@@ -11,7 +11,10 @@ namespace Crm.Api.Endpoints.Quotes.CalculateCrmQuoteCustomSewing;
 internal static class CalculateCrmQuoteCustomSewingEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("custom-sewing-price", HandleAsync).WithName("calculateCrmQuoteCustomSewing");
+        group.MapPost("custom-sewing-price", HandleAsync).WithName("calculateCrmQuoteCustomSewing")
+            .WithSummary("Calculate CRM quote custom sewing")
+            .WithDescription("«Виріб з нуля» (R-20, R-26) or a model row in another fabric (R-27): prices each variant, the sum of its fabrics with the shared accessories and operations, by the Catalog sewing formula and the current settings and reference prices. Nothing is saved; a variant that cannot be priced lists its problems.")
+            .Produces<QuoteCustomSewingPriceResponse>();
 
     private static async Task<IResult> HandleAsync(QuoteCustomSewingPriceInput input, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

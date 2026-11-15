@@ -67,7 +67,7 @@ Legacy Product editing preserves these records and rejects changes to legacy nor
 
 ## Related sources
 
-[Canonical API](../../contracts/catalog/sewing-composition.openapi.yaml) · [Product feature](products.md) · [Database map](../../architecture/data-model/catalog.md).
+[Canonical API](../../contracts/openapi.json) · [Product feature](products.md) · [Database map](../../architecture/data-model/catalog.md).
 
 [Responsibility audit](../../specs/catalog/002-sewing-articles-and-composition/code-audit/audit.md) · [Structural remediation](../../specs/catalog/004-sewing-composition-structure/README.md). Readiness is assembled from the same projection snapshot as its version and lines, without a second tracked Product load. The replacement response uses the same Domain policy as GET.
 

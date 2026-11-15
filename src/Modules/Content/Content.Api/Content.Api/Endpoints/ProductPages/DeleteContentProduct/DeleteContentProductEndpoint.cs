@@ -6,7 +6,9 @@ namespace Content.Api.Endpoints.ProductPages.DeleteContentProduct;
 internal static class DeleteContentProductEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{productId:int}", HandleAsync).WithName("deleteContentProduct");
+        group.MapDelete("{productId:int}", HandleAsync).WithName("deleteContentProduct")
+            .WithSummary("Removes the site page with its texts")
+            .WithDescription("Removes the site page with its texts. The Catalog product stays and the site stops showing it.");
 
     private static async Task<IResult> HandleAsync(int productId, [FromServices] ISender sender,
         CancellationToken cancellationToken)

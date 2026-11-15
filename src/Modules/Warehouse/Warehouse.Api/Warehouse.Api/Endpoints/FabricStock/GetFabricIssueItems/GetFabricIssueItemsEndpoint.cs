@@ -8,7 +8,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.GetFabricIssueItems;
 internal static class GetFabricIssueItemsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("issue-items", HandleAsync).WithName("getFabricIssueItems").Produces<FabricIssueItemsResponse>();
+        group.MapGet("issue-items", HandleAsync).WithName("getFabricIssueItems")
+            .WithSummary("«Видача на завдання»: open items found by order number (with or without «Ц-»), client, model or fabric; at most 30, newest first").Produces<FabricIssueItemsResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, string? search = null, CancellationToken cancellationToken = default) =>
         user.WarehouseActor() is { } actor

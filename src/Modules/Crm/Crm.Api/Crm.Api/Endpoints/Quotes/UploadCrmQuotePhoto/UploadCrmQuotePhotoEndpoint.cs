@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Commands.UploadQuotePhoto;
 using BuildingBlocks.Api.Errors;
 
@@ -11,9 +12,12 @@ internal static class UploadCrmQuotePhotoEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("photos", HandleAsync).WithName("uploadCrmQuotePhoto")
+            .WithSummary("Upload CRM quote photo")
+            .WithDescription("R-34. «Змінити фото → Завантажити своє»: stores a JPG, PNG or WebP photo in the media library folder «Фото КП» (its CDN path) and returns its address. The editor puts it into one item; it is not added to the product.")
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxPhotoRequestBytes))
-            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxPhotoRequestBytes });
+            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxPhotoRequestBytes })
+            .Produces<QuotePhotoResponse>();
 
     private static async Task<IResult> HandleAsync(IFormFile? file, [FromServices] ISender sender,
         CancellationToken cancellationToken)

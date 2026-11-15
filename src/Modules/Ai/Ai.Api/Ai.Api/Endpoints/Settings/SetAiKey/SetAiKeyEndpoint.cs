@@ -8,7 +8,9 @@ namespace Ai.Api.Endpoints.Settings.SetAiKey;
 internal static class SetAiKeyEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("key", HandleAsync).WithName("setAiKey").Produces<AiSettingsResponse>();
+        group.MapPut("key", HandleAsync).WithName("setAiKey")
+            .WithSummary("Replaces the OpenAI key")
+            .WithDescription("Replaces the OpenAI key. It is stored encrypted (ASP.NET Data Protection) and never returned or logged.").Produces<AiSettingsResponse>();
 
     private static async Task<IResult> HandleAsync(AiKeyRequest request, ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

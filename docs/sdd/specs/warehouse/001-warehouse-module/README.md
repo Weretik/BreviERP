@@ -42,7 +42,7 @@ The owner decided on 2026-11-11 that «Склад тканин» is a separate b
 
 ## Contract
 
-[warehouse/fabric-stock.openapi.yaml](../../../contracts/warehouse/fabric-stock.openapi.yaml): `/api/warehouse/fabric-stock` (list, choices, line, movements, correction, reversal, consumption, import) and `/api/warehouse/orders/{id}/items/{itemId}/fabric`, `.../fabric-issues`, `/api/warehouse/orders/{id}/fabric-issues/{issueId}/reverse`. Breaking for the Admin: the paths change in the same release as brevi-web.
+[OpenAPI](../../../contracts/openapi.json): `/api/warehouse/fabric-stock` (list, choices, line, movements, correction, reversal, consumption, import) and `/api/warehouse/orders/{id}/items/{itemId}/fabric`, `.../fabric-issues`, `/api/warehouse/orders/{id}/fabric-issues/{issueId}/reverse`. Breaking for the Admin: the paths change in the same release as brevi-web.
 
 ## File map
 

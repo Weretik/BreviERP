@@ -34,7 +34,7 @@ Brevi had 34 groups and 151 operations without codes, with Russian names. No nam
 - Application: `Features/GarmentPartOperation/Shared/` (fields interface, validator, details factory, code spec), `Features/GarmentPartOperation/Import/`; create/update/list carry the new fields; `GarmentPart/Delete` rejects a group with operations.
 - API: `POST /api/reference/garment-part-operations/import` (CanManageProducts).
 - Data: migration `AddOperationSheetFields` adds nullable columns, defaults `IsActive=true`, `MinutesPerProduct=false`, and a filtered unique `Code` index. Rollback: the migration `Down`. Seed data is regenerated from the sheet (27 groups, 187 operations).
-- Contract: [operations](../../../contracts/reference/garment-part-operations.openapi.yaml) 1.1.0, additive; [garment parts](../../../contracts/reference/garment-parts.openapi.yaml) delete gains 409.
+- Contract: [operations](../../../contracts/openapi.json) 1.1.0, additive; [garment parts](../../../contracts/openapi.json) delete gains 409.
 
 ## Tasks
 

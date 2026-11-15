@@ -7,7 +7,8 @@ namespace Reminders.Api.Endpoints.Occurrences.CloseReminderOccurrence;
 internal static class CloseReminderOccurrenceEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("{id:long}/close", HandleAsync).WithName("closeReminderOccurrence").Produces<ReminderOccurrenceResponse>()
+        group.MapPost("{id:long}/close", HandleAsync).WithName("closeReminderOccurrence")
+            .WithSummary("Close reminder occurrence").Produces<ReminderOccurrenceResponse>()
             .RequireAccessAction(AccessActionAttribute.Edit);
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>

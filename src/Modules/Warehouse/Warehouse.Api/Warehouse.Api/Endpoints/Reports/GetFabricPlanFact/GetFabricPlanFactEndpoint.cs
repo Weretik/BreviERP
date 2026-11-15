@@ -8,7 +8,8 @@ namespace Warehouse.Api.Endpoints.Reports.GetFabricPlanFact;
 internal static class GetFabricPlanFactEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("plan-fact", HandleAsync).WithName("getFabricPlanFact").Produces<FabricPlanFactResponse>()
+        group.MapGet("plan-fact", HandleAsync).WithName("getFabricPlanFact")
+            .WithSummary("«План і факт»: main fabric by model for items issued for all their products (access:fabric-plan-fact)").Produces<FabricPlanFactResponse>()
             .RequireAuthorization(WarehouseAccess.FabricPlanFact);
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender, string? model = null, string? client = null, string? fabric = null, DateOnly? from = null, DateOnly? to = null, CancellationToken cancellationToken = default) =>

@@ -1,3 +1,4 @@
+using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroiderySettings;
 using Crm.Application.Features.Embroidery.Shared.Access;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,9 @@ internal static class GetCrmEmbroiderySettingsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("settings", HandleAsync).WithName("getCrmEmbroiderySettings")
-            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" });
+            .WithSummary("The saved settings, or the old calculator's rates with `version` 0 before the first save")
+            .RequireAuthorization(new AuthorizeAttribute { Roles = "Admin" })
+            .Produces<EmbroiderySettingsResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

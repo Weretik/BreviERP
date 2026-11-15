@@ -6,7 +6,10 @@ namespace Reference.Api.Endpoints.Suppliers.GetSuppliers;
 internal static class GetSuppliersEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).Produces<List<SupplierRowDTO>>();
+        group.MapGet("", HandleAsync)
+            .WithName("getSuppliers")
+            .WithSummary("List suppliers")
+            .Produces<List<SupplierRowDTO>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

@@ -1,3 +1,4 @@
+using Crm.Application.Features.Quotes.Shared.Introductions;
 using Crm.Application.Features.Quotes.Queries.GetQuoteIntroductionSetup;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,9 @@ namespace Crm.Api.Endpoints.Quotes.GetCrmQuoteIntroductionSetup;
 internal static class GetCrmQuoteIntroductionSetupEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("introduction", HandleAsync).WithName("getCrmQuoteIntroductionSetup");
+        group.MapGet("introduction", HandleAsync).WithName("getCrmQuoteIntroductionSetup")
+            .WithSummary("The main model of each season (codes from «Налаштування КП») and the letter variants")
+            .Produces<QuoteIntroductionSetupResponse>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

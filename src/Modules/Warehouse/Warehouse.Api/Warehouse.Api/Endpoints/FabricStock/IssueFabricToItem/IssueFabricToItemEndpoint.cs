@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.IssueFabricToItem;
 internal static class IssueFabricToItemEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("issue-items/{orderId:int}/{itemId:int}/issues", HandleAsync).WithName("issueFabricToItem").Produces<ProductionItemFabricResponse>();
+        group.MapPost("issue-items/{orderId:int}/{itemId:int}/issues", HandleAsync).WithName("issueFabricToItem")
+            .WithSummary("«Видача» by actual cutting: products cut and the real pairs; one package per operation id").Produces<ProductionItemFabricResponse>();
 
     private static async Task<IResult> HandleAsync(int orderId, int itemId, CreateFabricIssueInput input, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor

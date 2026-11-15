@@ -1,3 +1,4 @@
+using Production.Application.Features.Orders.Shared.Responses;
 using Production.Application.Features.Orders.Commands.UploadProductionOrderFile;
 using BuildingBlocks.Api.Errors;
 
@@ -11,10 +12,12 @@ internal static class UploadProductionOrderFileEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:int}/files", HandleAsync).WithName("uploadProductionOrderFile")
+            .WithSummary("Upload a file of the order or of one item to the CDN (up to 20 MB, any type)")
             .RequireAccessAction(AccessActionAttribute.Edit)
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
-            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });
+            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes })
+            .Produces<ProductionOrderResponse>();
 
     /// <param name="kind">Sizes, Application, Extra or Photo.</param>
     /// <param name="itemId">The item the file is for; empty for the whole order.</param>

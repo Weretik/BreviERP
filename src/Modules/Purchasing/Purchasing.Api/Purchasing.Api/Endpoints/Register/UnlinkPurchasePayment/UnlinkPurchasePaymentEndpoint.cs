@@ -10,6 +10,7 @@ internal static class UnlinkPurchasePaymentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{messageId}/payments/unlink", HandleAsync).WithName("unlinkPurchasePayment")
+            .WithSummary("Removes an active payment link and adds 1 to reviewVersion; the link stays in the history with who removed it and when")
             .Produces<PurchaseInvoicePaymentsResponse>();
 
     private static async Task<IResult> HandleAsync(string messageId, PurchasePaymentRequest request,

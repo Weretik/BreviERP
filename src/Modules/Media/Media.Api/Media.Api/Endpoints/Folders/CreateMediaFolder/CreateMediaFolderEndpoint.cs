@@ -7,7 +7,8 @@ namespace Media.Api.Endpoints.Folders.CreateMediaFolder;
 internal static class CreateMediaFolderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("", HandleAsync).WithName("createMediaFolder").Produces<MediaFolderResponse>();
+        group.MapPost("", HandleAsync).WithName("createMediaFolder")
+            .WithSummary("Create a folder at the top level or inside another folder").Produces<MediaFolderResponse>();
 
     private static async Task<IResult> HandleAsync(MediaFolderInput input, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         (await sender.Send(new CreateMediaFolderCommand(input), cancellationToken)).ToHttpResult();

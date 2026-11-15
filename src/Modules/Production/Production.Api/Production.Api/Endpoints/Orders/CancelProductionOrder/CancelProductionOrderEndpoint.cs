@@ -1,3 +1,4 @@
+using Production.Application.Features.Orders.Shared.Responses;
 using Production.Application.Features.Orders.Commands.CancelProductionOrder;
 using BuildingBlocks.Api.Errors;
 
@@ -8,7 +9,9 @@ internal static class CancelProductionOrderEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:int}/cancel", HandleAsync).WithName("cancelProductionOrder")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .WithSummary("«Скасувати» with a reason")
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<ProductionOrderResponse>();
 
     private static async Task<IResult> HandleAsync(int id, CancelProductionOrderInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

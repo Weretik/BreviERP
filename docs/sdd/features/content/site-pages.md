@@ -1,8 +1,8 @@
 # Site pages «Контент → Сторінки сайту»
 
-Texts of the 16 fixed pages of the public site (home, catalog, wholesale, contacts and others) in Ukrainian and Russian: search title and description, the main text at the bottom of the page (visual editor blocks) and frequent questions, saved per page with a revision check. The list of pages is fixed in code; the migration seeds the texts the site showed before. Admin and the Director edit, Manager reads. SDD: [search texts](../../specs/content/007-site-pages/README.md), [main text and questions](../../specs/content/010-site-page-texts/README.md); [contract](../../contracts/content/content-site-pages.openapi.yaml), [tables](../../architecture/data-model/content.md).
+Texts of the 16 fixed pages of the public site (home, catalog, wholesale, contacts and others) in Ukrainian and Russian: search title and description, the main text at the bottom of the page (visual editor blocks) and frequent questions, saved per page with a revision check. The list of pages is fixed in code; the migration seeds the texts the site showed before. Admin and the Director edit, Manager reads. SDD: [search texts](../../specs/content/007-site-pages/README.md), [main text and questions](../../specs/content/010-site-page-texts/README.md); [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/content.md).
 
-The public site reads them without sign-in from `/api/public/site-pages` ([contract](../../contracts/content/content-public-site-pages.openapi.yaml)), rebuilt at most once a minute; an empty text or list keeps the site's own text.
+The public site reads them without sign-in from `/api/public/site-pages` ([contract](../../contracts/openapi.json)), rebuilt at most once a minute; an empty text or list keeps the site's own text.
 
 ## Code structure
 

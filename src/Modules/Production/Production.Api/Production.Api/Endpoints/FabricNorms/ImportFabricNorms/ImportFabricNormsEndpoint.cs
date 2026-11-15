@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.FabricNorms.ImportFabricNorms;
 internal static class ImportFabricNormsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).WithName("importFabricNorms");
+        group.MapPost("import", HandleAsync).WithName("importFabricNorms")
+            .WithSummary("Load norms from a list (up to 1000); nothing is saved while a row has an error")
+            .Produces<FabricNormImportResult>();
 
     private static async Task<IResult> HandleAsync([FromBody] IReadOnlyList<FabricNormImportRow> rows,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = default,

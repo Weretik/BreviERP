@@ -30,7 +30,7 @@ Site names and texts of articles (columns B–E of «Прайс на сайт»,
 
 - Domain: `SewingMaterialLine.Comment`, `SewingOperationLine.Comment` (`CommentMaxLength` 500). Migration `AddSewingCompositionLineComments` adds two nullable columns; rollback is the migration `Down`.
 - Application: `SewingMaterialInput`/`SewingOperationInput` take an optional `comment`; the views return it. `Features/Pricing/Sewing/ArticleSummary/` (`GetSewingArticleSummaryQuery`) reuses `SewingArticlePricingEvaluator` per Article and `ISewingPublishedPriceReader`.
-- API: `GET /api/v1/products/{productId}/articles/pricing-summary` (`CatalogRead`). Contracts: [sewing-pricing.openapi.yaml](../../../contracts/catalog/sewing-pricing.openapi.yaml), [sewing-composition.openapi.yaml](../../../contracts/catalog/sewing-composition.openapi.yaml).
+- API: `GET /api/v1/products/{productId}/articles/pricing-summary` (`CatalogRead`). Contracts: [OpenAPI](../../../contracts/openapi.json), [OpenAPI](../../../contracts/openapi.json).
 
 ## Tasks
 

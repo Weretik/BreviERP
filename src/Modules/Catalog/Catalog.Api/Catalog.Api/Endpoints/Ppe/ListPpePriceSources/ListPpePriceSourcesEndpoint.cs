@@ -10,7 +10,10 @@ internal static class ListPpePriceSourcesEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("", HandleAsync).WithName("listPpePriceSources")
-            .RequireAuthorization("CatalogRead");
+            .WithSummary("List PPE price sources")
+            .WithDescription("CatalogRead. Sources of «Довідники» → «Імпорт цін» with logic, schedule, discount, product counts and the last run.")
+            .RequireAuthorization("CatalogRead")
+            .Produces<PpePriceSourcesResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken)

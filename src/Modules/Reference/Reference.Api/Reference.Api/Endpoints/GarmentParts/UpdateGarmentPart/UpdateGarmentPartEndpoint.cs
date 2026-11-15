@@ -6,7 +6,9 @@ namespace Reference.Api.Endpoints.GarmentParts.UpdateGarmentPart;
 internal static class UpdateGarmentPartEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:int}", HandleAsync);
+        group.MapPut("{id:int}", HandleAsync)
+            .WithName("updateGarmentPart")
+            .WithSummary("Update a garment part");
 
     private static async Task<IResult> HandleAsync(int id, UpdateGarmentPartRequest request,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.Staff.ImportWorkshopStaff;
 internal static class ImportWorkshopStaffEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("import", HandleAsync).WithName("importWorkshopStaff");
+        group.MapPost("import", HandleAsync).WithName("importWorkshopStaff")
+            .WithSummary("Add workers from a list (up to 500); a worker with the same active name gets the new position")
+            .Produces<WorkshopStaffImportResult>();
 
     private static async Task<IResult> HandleAsync([FromBody] IReadOnlyList<WorkshopEmployeeImportRow> rows,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = default,

@@ -10,7 +10,10 @@ namespace Production.Api.Endpoints.Orders.GetProductionModelSummary;
 internal static class GetProductionModelSummaryEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("model-summary", HandleAsync).WithName("getProductionModelSummary");
+        group.MapGet("model-summary", HandleAsync).WithName("getProductionModelSummary")
+            .WithSummary("«Зведення за моделями»: items of every order matching the list filters (all pages), grouped by model")
+            .WithDescription("Takes the same filters as getProductionOrders without paging. Quantity is the ordered pieces. Season comes from the Catalog model; category is read from the model name.")
+            .Produces<ProductionModelSummaryResponse>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, string? search = null,
         string? status = null, string? manager = null, DateOnly? dueTo = null, string? stage = null,

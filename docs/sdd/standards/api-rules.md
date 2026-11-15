@@ -4,7 +4,7 @@
 
 Public routes, action names, and response fields are stable by default. Prefer additive changes. Document a breaking change, affected clients, migration path, and rollout plan in the feature specification and contract.
 
-For new or changed HTTP behavior, link each operation to its `SC-*` acceptance scenarios. Where practical, agree on a human-readable contract and a versioned OpenAPI document before implementing the transport layer. Use the agreed contract to create focused Red tests, implement transport, and verify runtime behavior against OpenAPI before handing it to consumers.
+For new or changed HTTP behavior, link each operation to its `SC-*` acceptance scenarios. Agree on the readable decisions in the feature's `contracts/api-contract.md` before implementing the transport layer. Use them to create focused Red tests, then implement the endpoint with `WithName`, `WithSummary`, `Produces<T>` and `ProducesProblem`; the build regenerates [`openapi.json`](../contracts/openapi.json), which is reviewed and committed with the change ([ADR-0015](../architecture/decisions/0015-openapi-generated-from-code.md)).
 
 Use task-specific DTOs. Do not expose entities, persistence types, secrets, or internal exceptions. Decide what a repeat does for every write before implementing it, and take a `requestId` where the [idempotency rules](idempotency-rules.md) require one (money, stock, orders, numbered documents, messages, public forms).
 

@@ -6,7 +6,9 @@ namespace Reference.Api.Endpoints.Suppliers.DeleteSupplier;
 internal static class DeleteSupplierEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("{id:int}", HandleAsync);
+        group.MapDelete("{id:int}", HandleAsync)
+            .WithName("deleteSupplier")
+            .WithSummary("Delete a supplier");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

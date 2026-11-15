@@ -1,3 +1,4 @@
+using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
 using Crm.Application.Features.Embroidery.Shared.Access;
 using BuildingBlocks.Api.Errors;
@@ -8,7 +9,10 @@ namespace Crm.Api.Endpoints.Embroidery.GetCrmEmbroideryCalculation;
 internal static class GetCrmEmbroideryCalculationEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("calculations/{id:long}", HandleAsync).WithName("getCrmEmbroideryCalculation");
+        group.MapGet("calculations/{id:long}", HandleAsync).WithName("getCrmEmbroideryCalculation")
+            .WithSummary("One saved calculation as it was saved")
+            .WithDescription("One saved calculation as it was saved. `result.cost` and `rates` are null for a Manager.")
+            .Produces<EmbroiderySavedCalculationResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, long id, [FromServices] ISender sender,
         CancellationToken cancellationToken)

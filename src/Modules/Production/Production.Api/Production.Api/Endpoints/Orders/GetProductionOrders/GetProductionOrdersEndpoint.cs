@@ -1,3 +1,4 @@
+using Production.Application.Features.Orders.Queries.GetProductionOrders.Results;
 using Production.Application.Features.Orders.Queries.GetProductionOrders;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Filtering;
@@ -8,7 +9,9 @@ namespace Production.Api.Endpoints.Orders.GetProductionOrders;
 internal static class GetProductionOrdersEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).WithName("getProductionOrders");
+        group.MapGet("", HandleAsync).WithName("getProductionOrders")
+            .WithSummary("Not deleted orders, newest number first unless sorted; counts by status ignore the status filter, the stage conveyor and attention take «Нове» orders and ignore the status and stage filters")
+            .Produces<ProductionOrderPageResponse>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, string? search = null,
         string? status = null, string? manager = null, DateOnly? dueTo = null, string? stage = null, int page = 1,

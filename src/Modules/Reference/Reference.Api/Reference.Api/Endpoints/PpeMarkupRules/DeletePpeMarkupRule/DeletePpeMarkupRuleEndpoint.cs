@@ -7,6 +7,8 @@ internal static class DeletePpeMarkupRuleEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapDelete("{id:int}", HandleAsync)
+            .WithName("deletePpeMarkupRule")
+            .WithSummary("Delete a PPE markup rule")
             .RequireAuthorization("access:pricing-parameters");
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,

@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Counterparties.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Counterparties.Commands.SetFinanceCounterpartyActive;
 using Accounting.Api.Endpoints.Shared;
@@ -9,7 +10,9 @@ internal static class ArchiveFinanceCounterpartyEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{id:guid}/archive", HandleAsync).WithName("archiveFinanceCounterparty")
-            .RequireAccessAction(AccessActionAttribute.Edit);
+            .WithSummary("«Архівувати»: it cannot be chosen for new operations; operations keep the link")
+            .RequireAccessAction(AccessActionAttribute.Edit)
+            .Produces<FinanceCounterpartyResponse>();
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceVersionInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

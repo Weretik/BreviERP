@@ -6,7 +6,10 @@ namespace Reference.Api.Endpoints.GarmentParts.GetGarmentParts;
 internal static class GetGarmentPartsEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("", HandleAsync).Produces<List<GarmentPartRowDTO>>();
+        group.MapGet("", HandleAsync)
+            .WithName("getGarmentParts")
+            .WithSummary("List garment parts")
+            .Produces<List<GarmentPartRowDTO>>();
 
     private static async Task<IResult> HandleAsync([FromServices] ISender sender,
         CancellationToken cancellationToken) =>

@@ -7,7 +7,9 @@ namespace Production.Api.Endpoints.Orders.GetProductionQuoteSources;
 internal static class GetProductionQuoteSourcesEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("quote-sources", HandleAsync).WithName("getProductionQuoteSources");
+        group.MapGet("quote-sources", HandleAsync).WithName("getProductionQuoteSources")
+            .WithSummary("КП «під запит» (saved or sent) the person may pass to the workshop (Manager: own; Admin: all)")
+            .Produces<IReadOnlyList<ProductionQuoteSourceResponse>>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         string? search = null, CancellationToken cancellationToken = default) =>

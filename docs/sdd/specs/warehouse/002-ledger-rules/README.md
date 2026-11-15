@@ -33,7 +33,7 @@ In: the ledger rules every later stage builds on, and the three pages that use o
 
 ## Contract
 
-[warehouse/fabric-stock.openapi.yaml](../../../contracts/warehouse/fabric-stock.openapi.yaml). Breaking for the Admin, released with brevi-web:
+[OpenAPI](../../../contracts/openapi.json). Breaking for the Admin, released with brevi-web:
 
 - `GET /api/warehouse/fabric-stock` returns fabrics with colour pairs (no reservation or value; those return on «Бронь» and «Вартість складу» in stage 5); the `search` parameter is gone.
 - New: `GET …/movements`, `POST …/openings`, `POST …/receipts`, `POST …/issues`, `POST …/adjustments`, `DELETE …/{id}` (410).

@@ -8,7 +8,8 @@ namespace Ai.Api.Endpoints.Settings.RemoveAiKey;
 internal static class RemoveAiKeyEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapDelete("key", HandleAsync).WithName("removeAiKey").Produces<AiSettingsResponse>();
+        group.MapDelete("key", HandleAsync).WithName("removeAiKey")
+            .WithSummary("Removes the key and switches the AI off").Produces<AiSettingsResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>

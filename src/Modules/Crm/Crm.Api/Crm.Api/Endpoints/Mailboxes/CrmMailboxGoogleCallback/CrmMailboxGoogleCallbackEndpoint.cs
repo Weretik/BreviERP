@@ -8,6 +8,8 @@ internal static class CrmMailboxGoogleCallbackEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapGet("google-callback", HandleAsync).WithName("crmMailboxGoogleCallback")
+            .WithSummary("Google OAuth callback, anonymous; the signed state carries the staff member")
+            .WithDescription("Google OAuth callback, anonymous; the signed state carries the staff member. Stores the Gmail address and the encrypted refresh token, then redirects to the Admin. Not called by the Admin code.")
             .AllowAnonymous();
 
     private static async Task<IResult> HandleAsync(HttpResponse response, [FromServices] ISender sender,

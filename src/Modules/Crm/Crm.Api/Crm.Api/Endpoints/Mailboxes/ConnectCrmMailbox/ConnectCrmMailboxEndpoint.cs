@@ -9,7 +9,10 @@ namespace Crm.Api.Endpoints.Mailboxes.ConnectCrmMailbox;
 internal static class ConnectCrmMailboxEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("{userId:int}/connect", HandleAsync).WithName("connectCrmMailbox");
+        group.MapPost("{userId:int}/connect", HandleAsync).WithName("connectCrmMailbox")
+            .WithSummary("«Підключити Gmail»: the Google consent address (openid, email and gmail.send only)")
+            .WithDescription("«Підключити Gmail»: the Google consent address (openid, email and gmail.send only). Admin (Director) for any staff member, a Manager only for themselves. The Admin opens it in the same tab; Google returns to `google-callback`, which redirects to `returnPath` with `gmail=connected` or `gmail=error&reason=…`.")
+            .Produces<MailboxConnectResponse>();
 
     private static async Task<IResult> HandleAsync(int userId, MailboxConnectRequest request, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)

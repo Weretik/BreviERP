@@ -16,10 +16,13 @@ internal static class ImportPpeSupplierPricesEndpoint
 
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{key}/import", HandleAsync).WithName("importPpeSupplierPrices")
+            .WithSummary("Import PPE supplier prices")
+            .WithDescription("access:price-import. Reads the supplier's files (Insight: 3 XML; СЕМТО: 1 PDF; each may be gzipped) and returns every product of the supplier with old and new prices. dryRun=false saves changed prices as new approved offer versions; manual-price and inactive products are skipped. Request limit 30 MB.")
             .RequireAuthorization("access:price-import")
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(MaxRequestBytes))
-            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes });
+            .WithMetadata(new RequestFormLimitsAttribute { MultipartBodyLengthLimit = MaxRequestBytes })
+            .Produces<PpePriceImportResult>();
 
     private static async Task<IResult> HandleAsync(string key, IFormFileCollection files,
         ClaimsPrincipal user, [FromServices] ISender sender, bool dryRun = true,

@@ -34,7 +34,7 @@ src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Media/EmbroideryM
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Contracts/Embroidery/EmbroideryCalculationReader.cs  Crm.Contracts IEmbroideryCalculationReader: saved calculations for the workshop and «Медіа»
 ```
 
-[API contract](../../contracts/crm/embroidery.openapi.yaml), [database ownership](../../architecture/data-model/crm.md).
+[API contract](../../contracts/openapi.json), [database ownership](../../architecture/data-model/crm.md).
 
 ## Tests
 

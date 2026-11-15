@@ -1,3 +1,4 @@
+using Production.Application.Features.Work.Shared;
 using Production.Application.Features.Work.Queries.GetProductionItemWork;
 using BuildingBlocks.Api.Errors;
 
@@ -6,7 +7,9 @@ namespace Production.Api.Endpoints.Work.GetProductionItemWork;
 internal static class GetProductionItemWorkEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("orders/{id:int}/items/{itemId:int}/work", HandleAsync).WithName("getProductionItemWork");
+        group.MapGet("orders/{id:int}/items/{itemId:int}/work", HandleAsync).WithName("getProductionItemWork")
+            .WithSummary("«Робота» of an item")
+            .Produces<ProductionItemWorkResponse>();
 
     private static async Task<IResult> HandleAsync(int id, int itemId, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

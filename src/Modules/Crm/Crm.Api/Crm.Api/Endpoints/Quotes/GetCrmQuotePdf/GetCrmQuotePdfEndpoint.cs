@@ -8,7 +8,10 @@ namespace Crm.Api.Endpoints.Quotes.GetCrmQuotePdf;
 internal static class GetCrmQuotePdfEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapGet("{id:long}/pdf", HandleAsync).WithName("getCrmQuotePdf");
+        group.MapGet("{id:long}/pdf", HandleAsync).WithName("getCrmQuotePdf")
+            .WithSummary("«Сформувати КП»")
+            .WithDescription("«Сформувати КП». The PDF of the saved КП with the current settings; only shown items, variants and prices, client texts, the responsible manager's КП contact and the requisites (R-14).")
+            .Produces(StatusCodes.Status200OK, contentType: "application/pdf");
 
     private static async Task<IResult> HandleAsync(long id, ClaimsPrincipal user, HttpResponse response,
         [FromServices] ISender sender, CancellationToken cancellationToken)

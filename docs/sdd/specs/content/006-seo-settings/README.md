@@ -25,7 +25,7 @@ One row of settings in Content (table `content.SiteSeoSettings`, check `Id = 1`)
 
 ## Design
 
-Admin API `/api/content/seo-settings` ([contract](../../../contracts/content/content-seo-settings.openapi.yaml)): `getSiteSeoSettings`, `saveSiteSeoSettings`. Public API `/api/public/site-settings` ([contract](../../../contracts/content/content-public-site-settings.openapi.yaml)): `getPublicSiteSettings`. Migration `AddSiteSeoSettings`.
+Admin API `/api/content/seo-settings` ([contract](../../../contracts/openapi.json)): `getSiteSeoSettings`, `saveSiteSeoSettings`. Public API `/api/public/site-settings` ([contract](../../../contracts/openapi.json)): `getPublicSiteSettings`. Migration `AddSiteSeoSettings`.
 
 | Path | Responsibility | State |
 | --- | --- | --- |

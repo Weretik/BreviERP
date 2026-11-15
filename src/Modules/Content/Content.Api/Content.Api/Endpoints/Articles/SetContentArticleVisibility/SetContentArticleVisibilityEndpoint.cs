@@ -7,7 +7,9 @@ namespace Content.Api.Endpoints.Articles.SetContentArticleVisibility;
 internal static class SetContentArticleVisibilityEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPatch("{id:int}/visibility", HandleAsync).WithName("setContentArticleVisibility");
+        group.MapPatch("{id:int}/visibility", HandleAsync).WithName("setContentArticleVisibility")
+            .WithSummary("«Показувати на сайті» from the list")
+            .Produces<ArticleVisibilityResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, int id,
         ContentArticleVisibilityRequest request,

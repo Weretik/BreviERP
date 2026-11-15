@@ -1,3 +1,4 @@
+using Accounting.Application.Features.Transactions.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Transactions.Commands.ReviewFinanceTransaction;
 using BuildingBlocks.Api.Errors;
@@ -7,7 +8,10 @@ namespace Accounting.Api.Endpoints.Transactions.ReviewFinanceTransaction;
 internal static class ReviewFinanceTransactionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("{id:guid}/review", HandleAsync).WithName("reviewFinanceTransaction");
+        group.MapPut("{id:guid}/review", HandleAsync).WithName("reviewFinanceTransaction")
+            .WithSummary("Review finance transaction")
+            .WithDescription("«Перевірити» an operation of «Потребують перевірки»: sets the category and who it is with, nothing else (date, account and amount of a bank line stay). A finance counterparty must be confirmed first (400). The result is Verified.")
+            .Produces<FinanceTransactionResponse>();
 
     private static async Task<IResult> HandleAsync(Guid id, FinanceTransactionReviewInput input, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken) =>

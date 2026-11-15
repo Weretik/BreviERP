@@ -13,6 +13,8 @@ internal static class LinkPurchasePaymentEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPost("{messageId}/payments", HandleAsync).WithName("linkPurchasePayment")
+            .WithSummary("Links an active expense of «Бухгалтерія» as a payment of the invoice and adds 1 to reviewVersion")
+            .WithDescription("Links an active expense of «Бухгалтерія» as a payment of the invoice and adds 1 to reviewVersion. The same operation may pay several invoices; nothing is booked in «Бухгалтерія».")
             .Produces<PurchaseInvoicePaymentsResponse>();
 
     private static async Task<IResult> HandleAsync(string messageId, PurchasePaymentRequest request,

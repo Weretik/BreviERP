@@ -9,7 +9,9 @@ namespace Crm.Api.Endpoints.Embroidery.SetCrmEmbroideryMockup;
 internal static class SetCrmEmbroideryMockupEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPut("calculations/{id:long}/mockup", HandleAsync).WithName("setCrmEmbroideryMockup");
+        group.MapPut("calculations/{id:long}/mockup", HandleAsync).WithName("setCrmEmbroideryMockup")
+            .WithSummary("«Макет» — a Media library photo of the design for the workshop; `mediaFileId` null clears it")
+            .Produces<EmbroiderySavedCalculationResponse>();
 
     private static async Task<IResult> HandleAsync(ClaimsPrincipal user, long id, SetEmbroideryMockupInput input,
         [FromServices] ISender sender, CancellationToken cancellationToken)

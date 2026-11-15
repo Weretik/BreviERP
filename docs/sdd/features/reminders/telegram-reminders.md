@@ -1,6 +1,6 @@
 # Telegram reminders
 
-Admin keeps recurring deadline tasks (ПП «Бреві», ФОП Согоконь, personal). On working days at 09:00 Kyiv the `Host.Seed --reminders-dispatch=true` run posts one Telegram card per task whose reminder window is open. Buttons «✅ Виконано» and «⏰ Нагадати пізніше» come back through the Host.Api webhook; who pressed and when is stored per period. [SDD](../../specs/reminders/001-telegram-reminders/README.md), [contract](../../contracts/reminders/telegram-reminders.openapi.yaml), [runbook](../../operations/jobs/telegram-reminders.md), [tables](../../architecture/data-model/reminders.md).
+Admin keeps recurring deadline tasks (ПП «Бреві», ФОП Согоконь, personal). On working days at 09:00 Kyiv the `Host.Seed --reminders-dispatch=true` run posts one Telegram card per task whose reminder window is open. Buttons «✅ Виконано» and «⏰ Нагадати пізніше» come back through the Host.Api webhook; who pressed and when is stored per period. [SDD](../../specs/reminders/001-telegram-reminders/README.md), [contract](../../contracts/openapi.json), [runbook](../../operations/jobs/telegram-reminders.md), [tables](../../architecture/data-model/reminders.md).
 
 ## Code structure
 

@@ -1,3 +1,4 @@
+using Catalog.Application.Features.Product.Shared.Sewing;
 using Catalog.Application.Features.Product.Commands.ReplaceSewingComposition;
 using BuildingBlocks.Api.Errors;
 
@@ -7,7 +8,10 @@ internal static class ReplaceSewingCompositionEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
         group.MapPut("composition", HandleAsync).WithName("replaceSewingComposition")
-            .RequireAuthorization("access:products");
+            .WithSummary("Replace model-wide Sewing composition")
+            .WithDescription("Requires access:products. Replaces all model-wide materials and operations atomically. A stale expectedVersion returns 409; clients must not replay automatically and should retain the user's draft for resolution.")
+            .RequireAuthorization("access:products")
+            .Produces<SewingComposition>();
 
     private static async Task<IResult> HandleAsync(int productId, ReplaceSewingCompositionRequest request,
         ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken)

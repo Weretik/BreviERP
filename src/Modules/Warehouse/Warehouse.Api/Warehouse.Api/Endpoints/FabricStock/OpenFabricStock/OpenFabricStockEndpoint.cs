@@ -9,7 +9,8 @@ namespace Warehouse.Api.Endpoints.FabricStock.OpenFabricStock;
 internal static class OpenFabricStockEndpoint
 {
     public static void Map(RouteGroupBuilder group) =>
-        group.MapPost("openings", HandleAsync).WithName("openFabricStock").Produces<FabricStockOperationResponse>();
+        group.MapPost("openings", HandleAsync).WithName("openFabricStock")
+            .WithSummary("«Початковий залишок»: once per fabric and colour (any code of its group), zero allowed").Produces<FabricStockOperationResponse>();
 
     private static async Task<IResult> HandleAsync(OpenFabricStockInput input, ClaimsPrincipal user, [FromServices] ISender sender, CancellationToken cancellationToken) =>
         user.WarehouseActor() is { } actor
