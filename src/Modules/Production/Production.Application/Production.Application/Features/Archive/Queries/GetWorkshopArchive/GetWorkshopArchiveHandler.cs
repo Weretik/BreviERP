@@ -14,10 +14,8 @@ public sealed class GetWorkshopArchiveHandler(IProductionDbContext db)
         CancellationToken cancellationToken)
     {
         var kind = Enum.Parse<WorkshopArchiveKind>(query.Kind, ignoreCase: true);
-        var rows = db.Archive.AsNoTracking().Where(x => x.Kind == kind);
-        foreach (var word in (query.Search ?? string.Empty).ToLowerInvariant()
-                     .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
-            rows = rows.Where(x => x.SearchText.Contains(word));
+        var rows = db.Archive.AsNoTracking().Where(x => x.Kind == kind)
+            .WhereEveryWord(query.Search, pattern => x => EF.Functions.Like(x.SearchText, pattern, SearchWords.Escape));
         if (query.From is { } from) rows = rows.Where(x => x.Date >= from);
         if (query.To is { } to) rows = rows.Where(x => x.Date <= to);
 

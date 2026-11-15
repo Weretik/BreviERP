@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Accounting.Application.Abstractions;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Attachments;
@@ -33,6 +34,7 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);
+        builder.AddTrigramSearch();
         builder.ApplyConfigurationsFromAssembly(typeof(AccountingDbContext).Assembly);
     }
 }

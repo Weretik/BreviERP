@@ -28,5 +28,6 @@ internal sealed class WorkshopArchiveConfiguration : IEntityTypeConfiguration<Wo
         builder.Property<List<WorkshopArchiveLink>>("_links").HasColumnName("Links").AsJson();
         builder.HasIndex(x => x.SourceKey).IsUnique();
         builder.HasIndex(x => new { x.Kind, x.Date });
+        builder.HasIndex(x => x.SearchText).HasMethod("gin").HasOperators("gin_trgm_ops");
     }
 }

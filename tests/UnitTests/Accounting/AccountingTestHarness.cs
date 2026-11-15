@@ -1,3 +1,4 @@
+using UnitTests.TestSupport;
 using Accounting.Domain.Accounts;
 using Accounting.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
@@ -17,6 +18,7 @@ internal sealed class AccountingTestHarness : IDisposable
     {
         connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
+        connection.WithSearch();
         Db = new AccountingDbContext(new DbContextOptionsBuilder<AccountingDbContext>().UseSqlite(connection).Options);
         Db.Database.EnsureCreated();
     }

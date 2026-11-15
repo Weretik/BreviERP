@@ -153,6 +153,8 @@ public sealed class FinanceTransactionTests
         var withVoided = (await List(all with { IncludeVoided = true })).Value;
         var byRoot = (await List(all with { CategoryId = materials.Id })).Value;
         var bySearch = (await List(all with { Search = "  FABRIC " })).Value;
+        var byWords = (await List(all with { Search = "roll FABRIC" })).Value;
+        var byMissingWord = (await List(all with { Search = "fabric silk" })).Value;
         var byPeriod = (await List(all with { From = new DateOnly(2026, 10, 1), To = new DateOnly(2026, 10, 2) })).Value;
         var byAmount = (await List(all, sort: FinanceJournalSort.Amount)).Value;
 
@@ -170,6 +172,8 @@ public sealed class FinanceTransactionTests
             Assert.That(byRoot.Items[0].CategoryRootName, Is.EqualTo("Матеріали"));
             Assert.That(byRoot.Items[0].SubcategoryName, Is.EqualTo("Тканини"));
             Assert.That(bySearch.Total, Is.EqualTo(55));
+            Assert.That(byWords.Total, Is.EqualTo(55), "every word, in any order and case");
+            Assert.That(byMissingWord.Total, Is.Zero, "every word must match");
             Assert.That(byPeriod.Items.Single().AmountMinor, Is.EqualTo(5_000_00));
             Assert.That(byAmount.Items[0].AmountMinor, Is.EqualTo(10_000_00));
         });

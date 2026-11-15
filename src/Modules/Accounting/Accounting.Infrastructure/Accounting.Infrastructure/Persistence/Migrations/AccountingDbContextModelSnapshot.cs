@@ -21,6 +21,7 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Accounting.Domain.Accounts.FinanceAccount", b =>
@@ -328,6 +329,11 @@ namespace Accounting.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("MergedIntoId");
 
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
+
                     b.HasIndex("Active", "Name");
 
                     b.ToTable("Counterparties", "accounting");
@@ -631,6 +637,11 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"Description\", '') || ' ' || coalesce(\"Comment\", '') || ' ' || coalesce(\"OneoffName\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("Source")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -665,6 +676,11 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.HasIndex("ExternalId");
 
                     b.HasIndex("Fingerprint");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("CounterpartyKind", "CounterpartyId");
 
@@ -728,6 +744,11 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"Note\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("Source")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -755,6 +776,11 @@ namespace Accounting.Infrastructure.Persistence.Migrations
                     b.HasIndex("Fingerprint");
 
                     b.HasIndex("FromAccountId");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("ToAccountId");
 

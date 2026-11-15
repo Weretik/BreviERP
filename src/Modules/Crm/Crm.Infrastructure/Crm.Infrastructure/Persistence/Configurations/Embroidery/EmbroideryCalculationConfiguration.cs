@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Embroidery.Saved;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,6 +25,7 @@ public sealed class EmbroideryCalculationConfiguration : IEntityTypeConfiguratio
         JsonColumns.Map(b.Property(x => x.Snapshot));
         JsonColumns.Map(b.Property(x => x.Result));
         b.HasIndex(x => x.CreatedAt);
+        b.HasSearchText(nameof(EmbroiderySavedCalculation.Name), nameof(EmbroiderySavedCalculation.CustomerName));
         b.HasIndex(x => x.CustomerPublicId);
         b.Property(x => x.LegacyId).HasMaxLength(EmbroiderySavedCalculation.LegacyIdMaxLength);
         b.HasIndex(x => x.LegacyId).IsUnique().HasFilter("\"LegacyId\" IS NOT NULL");

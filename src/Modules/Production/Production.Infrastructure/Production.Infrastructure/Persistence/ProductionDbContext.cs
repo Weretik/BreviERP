@@ -1,4 +1,5 @@
 using BuildingBlocks.Application.Outbox;
+using BuildingBlocks.Infrastructure.Database;
 using BuildingBlocks.Infrastructure.Outbox;
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
@@ -40,6 +41,7 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);
+        builder.AddTrigramSearch();
         builder.ApplyConfigurationsFromAssembly(typeof(ProductionDbContext).Assembly);
         builder.AddOutbox();
     }

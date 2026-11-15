@@ -22,6 +22,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("BuildingBlocks.Application.Outbox.OutboxMessage", b =>
@@ -82,6 +83,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(254)
                         .HasColumnType("character varying(254)");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"NormalizedValue\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasMaxLength(254)
@@ -90,6 +96,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedValue");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("ContactId", "Kind", "NormalizedValue")
                         .IsUnique();
@@ -191,6 +202,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("bigint");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"NormalizedName\", '') || ' ' || coalesce(\"TaxIdentity\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("TaxIdentity")
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
@@ -206,6 +222,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PublicId")
                         .IsUnique();
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("TaxIdentity");
 
@@ -316,6 +337,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"Name\", '') || ' ' || coalesce(\"CustomerName\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("Snapshot")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -329,6 +355,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasIndex("LegacyId")
                         .IsUnique()
                         .HasFilter("\"LegacyId\" IS NOT NULL");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.ToTable("EmbroideryCalculations", "crm", t =>
                         {
@@ -454,6 +485,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"Company\", '') || ' ' || coalesce(\"Region\", '') || ' ' || coalesce(\"Industry\", '') || ' ' || coalesce(\"Contacts\", '') || ' ' || coalesce(\"OwnerName\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("SheetNotes")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
@@ -520,6 +556,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("NameKey")
                         .IsUnique();
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("SourceId");
 
@@ -792,6 +833,310 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("QuoteIntroTemplates", "crm");
                 });
 
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItem", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<long?>("EmbroideryCalculationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PhotoUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("QuoteId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Season")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SiteUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Subtitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("SupplierUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmbroideryCalculationId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("QuoteId", "Position");
+
+                    b.ToTable("QuoteItems", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteItems_Embroidery", "(\"Kind\" = 'Embroidery') = (\"EmbroideryCalculationId\" IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_QuoteItems_Position", "\"Position\" >= 0");
+
+                            t.HasCheckConstraint("CK_QuoteItems_Product", "(\"Kind\" IN ('OneOffPpe', 'Embroidery') AND \"ProductId\" IS NULL) OR \"Kind\" = 'CustomSewing' OR (\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing', 'Embroidery') AND \"ProductId\" IS NOT NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItemLine", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CostCode")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<long>("ItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal?>("ManualMinutes")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("numeric(12,4)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("numeric(12,4)");
+
+                    b.Property<int>("ReferenceId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId", "Position");
+
+                    b.ToTable("QuoteItemLines", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteItemLines_ManualMinutes", "\"ManualMinutes\" IS NULL OR (\"Kind\" = 'Operation' AND \"ManualMinutes\" > 0)");
+
+                            t.HasCheckConstraint("CK_QuoteItemLines_Position", "\"Position\" >= 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemLines_Quantity", "\"Quantity\" > 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemLines_Reference", "(\"Kind\" = 'Service' AND \"ReferenceId\" = 0 AND \"CostCode\" IS NOT NULL) OR (\"Kind\" <> 'Service' AND \"ReferenceId\" > 0 AND \"CostCode\" IS NULL)");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItemOption", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ArticleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<int?>("FabricId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("FabricMeters")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("numeric(12,4)");
+
+                    b.Property<bool>("IsRecommended")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("ItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("ManualAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ManualByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("ManualByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ManualReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("PricesTakenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Large", "Crm.Domain.Quotes.Items.QuoteItemOption.Large#QuotePrice", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal?>("Manual")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("numeric(12,2)")
+                                .HasColumnName("LargeManual");
+
+                            b1.Property<bool>("Shown")
+                                .HasColumnType("boolean")
+                                .HasColumnName("LargeShown");
+
+                            b1.Property<decimal?>("Source")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("numeric(12,2)")
+                                .HasColumnName("LargeSource");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Retail", "Crm.Domain.Quotes.Items.QuoteItemOption.Retail#QuotePrice", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal?>("Manual")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("numeric(12,2)")
+                                .HasColumnName("RetailManual");
+
+                            b1.Property<bool>("Shown")
+                                .HasColumnType("boolean")
+                                .HasColumnName("RetailShown");
+
+                            b1.Property<decimal?>("Source")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("numeric(12,2)")
+                                .HasColumnName("RetailSource");
+                        });
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Wholesale", "Crm.Domain.Quotes.Items.QuoteItemOption.Wholesale#QuotePrice", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<decimal?>("Manual")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("numeric(12,2)")
+                                .HasColumnName("WholesaleManual");
+
+                            b1.Property<bool>("Shown")
+                                .HasColumnType("boolean")
+                                .HasColumnName("WholesaleShown");
+
+                            b1.Property<decimal?>("Source")
+                                .HasPrecision(12, 2)
+                                .HasColumnType("numeric(12,2)")
+                                .HasColumnName("WholesaleSource");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.HasIndex("ItemId", "Position");
+
+                    b.ToTable("QuoteItemOptions", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteItemOptions_Large", "(\"LargeSource\" IS NULL OR \"LargeSource\" >= 0) AND (\"LargeManual\" IS NULL OR \"LargeManual\" >= 0)");
+
+                            t.HasCheckConstraint("CK_QuoteItemOptions_Position", "\"Position\" >= 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemOptions_Retail", "(\"RetailSource\" IS NULL OR \"RetailSource\" >= 0) AND (\"RetailManual\" IS NULL OR \"RetailManual\" >= 0)");
+
+                            t.HasCheckConstraint("CK_QuoteItemOptions_Wholesale", "(\"WholesaleSource\" IS NULL OR \"WholesaleSource\" >= 0) AND (\"WholesaleManual\" IS NULL OR \"WholesaleManual\" >= 0)");
+                        });
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItemOptionFabric", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("FabricId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Meters")
+                        .HasPrecision(12, 4)
+                        .HasColumnType("numeric(12,4)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<long>("OptionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OptionId", "Position");
+
+                    b.ToTable("QuoteItemOptionFabrics", "crm", t =>
+                        {
+                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Fabric", "\"FabricId\" > 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Meters", "\"Meters\" > 0");
+
+                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Position", "\"Position\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("Crm.Domain.Quotes.Quote", b =>
                 {
                     b.Property<long>("Id")
@@ -892,6 +1237,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<int>("ResponsibleUserId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"Number\", '') || ' ' || coalesce(\"InternalName\", '') || ' ' || coalesce(\"CompanyName\", '') || ' ' || coalesce(\"RecipientName\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -912,6 +1262,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Number")
                         .IsUnique();
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("UpdatedAt");
 
@@ -966,310 +1321,6 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasIndex("QuoteId", "At");
 
                     b.ToTable("QuoteEvents", "crm");
-                });
-
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItem", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
-
-                    b.Property<long?>("EmbroideryCalculationId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Kind")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("PhotoUrl")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("QuoteId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Season")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("SiteUrl")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("Subtitle")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("SupplierUrl")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmbroideryCalculationId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("QuoteId", "Position");
-
-                    b.ToTable("QuoteItems", "crm", t =>
-                        {
-                            t.HasCheckConstraint("CK_QuoteItems_Embroidery", "(\"Kind\" = 'Embroidery') = (\"EmbroideryCalculationId\" IS NOT NULL)");
-
-                            t.HasCheckConstraint("CK_QuoteItems_Position", "\"Position\" >= 0");
-
-                            t.HasCheckConstraint("CK_QuoteItems_Product", "(\"Kind\" IN ('OneOffPpe', 'Embroidery') AND \"ProductId\" IS NULL) OR \"Kind\" = 'CustomSewing' OR (\"Kind\" NOT IN ('OneOffPpe', 'CustomSewing', 'Embroidery') AND \"ProductId\" IS NOT NULL)");
-                        });
-                });
-
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemLine", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("CostCode")
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)");
-
-                    b.Property<long>("ItemId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Kind")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<decimal?>("ManualMinutes")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("numeric(12,4)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("numeric(12,4)");
-
-                    b.Property<int>("ReferenceId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Unit")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemId", "Position");
-
-                    b.ToTable("QuoteItemLines", "crm", t =>
-                        {
-                            t.HasCheckConstraint("CK_QuoteItemLines_ManualMinutes", "\"ManualMinutes\" IS NULL OR (\"Kind\" = 'Operation' AND \"ManualMinutes\" > 0)");
-
-                            t.HasCheckConstraint("CK_QuoteItemLines_Position", "\"Position\" >= 0");
-
-                            t.HasCheckConstraint("CK_QuoteItemLines_Quantity", "\"Quantity\" > 0");
-
-                            t.HasCheckConstraint("CK_QuoteItemLines_Reference", "(\"Kind\" = 'Service' AND \"ReferenceId\" = 0 AND \"CostCode\" IS NOT NULL) OR (\"Kind\" <> 'Service' AND \"ReferenceId\" > 0 AND \"CostCode\" IS NULL)");
-                        });
-                });
-
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOption", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("ArticleId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Details")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
-
-                    b.Property<int?>("FabricId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal?>("FabricMeters")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("numeric(12,4)");
-
-                    b.Property<bool>("IsRecommended")
-                        .HasColumnType("boolean");
-
-                    b.Property<long>("ItemId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset?>("ManualAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ManualByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<int?>("ManualByUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ManualReason")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset?>("PricesTakenAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Large", "Crm.Domain.Quotes.QuoteItemOption.Large#QuotePrice", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal?>("Manual")
-                                .HasPrecision(12, 2)
-                                .HasColumnType("numeric(12,2)")
-                                .HasColumnName("LargeManual");
-
-                            b1.Property<bool>("Shown")
-                                .HasColumnType("boolean")
-                                .HasColumnName("LargeShown");
-
-                            b1.Property<decimal?>("Source")
-                                .HasPrecision(12, 2)
-                                .HasColumnType("numeric(12,2)")
-                                .HasColumnName("LargeSource");
-                        });
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Retail", "Crm.Domain.Quotes.QuoteItemOption.Retail#QuotePrice", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal?>("Manual")
-                                .HasPrecision(12, 2)
-                                .HasColumnType("numeric(12,2)")
-                                .HasColumnName("RetailManual");
-
-                            b1.Property<bool>("Shown")
-                                .HasColumnType("boolean")
-                                .HasColumnName("RetailShown");
-
-                            b1.Property<decimal?>("Source")
-                                .HasPrecision(12, 2)
-                                .HasColumnType("numeric(12,2)")
-                                .HasColumnName("RetailSource");
-                        });
-
-                    b.ComplexProperty(typeof(Dictionary<string, object>), "Wholesale", "Crm.Domain.Quotes.QuoteItemOption.Wholesale#QuotePrice", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<decimal?>("Manual")
-                                .HasPrecision(12, 2)
-                                .HasColumnType("numeric(12,2)")
-                                .HasColumnName("WholesaleManual");
-
-                            b1.Property<bool>("Shown")
-                                .HasColumnType("boolean")
-                                .HasColumnName("WholesaleShown");
-
-                            b1.Property<decimal?>("Source")
-                                .HasPrecision(12, 2)
-                                .HasColumnType("numeric(12,2)")
-                                .HasColumnName("WholesaleSource");
-                        });
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArticleId");
-
-                    b.HasIndex("ItemId", "Position");
-
-                    b.ToTable("QuoteItemOptions", "crm", t =>
-                        {
-                            t.HasCheckConstraint("CK_QuoteItemOptions_Large", "(\"LargeSource\" IS NULL OR \"LargeSource\" >= 0) AND (\"LargeManual\" IS NULL OR \"LargeManual\" >= 0)");
-
-                            t.HasCheckConstraint("CK_QuoteItemOptions_Position", "\"Position\" >= 0");
-
-                            t.HasCheckConstraint("CK_QuoteItemOptions_Retail", "(\"RetailSource\" IS NULL OR \"RetailSource\" >= 0) AND (\"RetailManual\" IS NULL OR \"RetailManual\" >= 0)");
-
-                            t.HasCheckConstraint("CK_QuoteItemOptions_Wholesale", "(\"WholesaleSource\" IS NULL OR \"WholesaleSource\" >= 0) AND (\"WholesaleManual\" IS NULL OR \"WholesaleManual\" >= 0)");
-                        });
-                });
-
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOptionFabric", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("FabricId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Meters")
-                        .HasPrecision(12, 4)
-                        .HasColumnType("numeric(12,4)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<long>("OptionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OptionId", "Position");
-
-                    b.ToTable("QuoteItemOptionFabrics", "crm", t =>
-                        {
-                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Fabric", "\"FabricId\" > 0");
-
-                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Meters", "\"Meters\" > 0");
-
-                            t.HasCheckConstraint("CK_QuoteItemOptionFabrics_Position", "\"Position\" >= 0");
-                        });
                 });
 
             modelBuilder.Entity("Crm.Domain.Quotes.Sending.QuoteSending", b =>
@@ -1538,6 +1589,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Property<long?>("LeadId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"Title\", '') || ' ' || coalesce(\"CustomerName\", '') || ' ' || coalesce(\"AssigneeName\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1558,6 +1614,11 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CompletedAt");
+
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
 
                     b.HasIndex("LeadId", "Status");
 
@@ -1643,7 +1704,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Crm.Infrastructure.Persistence.Customers.CustomerMutationRecord", b =>
+            modelBuilder.Entity("Crm.Infrastructure.Persistence.Configurations.Customers.CustomerMutationRecord", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1735,16 +1796,7 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteEvent", b =>
-                {
-                    b.HasOne("Crm.Domain.Quotes.Quote", null)
-                        .WithMany("Events")
-                        .HasForeignKey("QuoteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItem", b =>
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItem", b =>
                 {
                     b.HasOne("Crm.Domain.Quotes.Quote", null)
                         .WithMany("Items")
@@ -1753,29 +1805,38 @@ namespace Crm.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemLine", b =>
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItemLine", b =>
                 {
-                    b.HasOne("Crm.Domain.Quotes.QuoteItem", null)
+                    b.HasOne("Crm.Domain.Quotes.Items.QuoteItem", null)
                         .WithMany("Lines")
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOption", b =>
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItemOption", b =>
                 {
-                    b.HasOne("Crm.Domain.Quotes.QuoteItem", null)
+                    b.HasOne("Crm.Domain.Quotes.Items.QuoteItem", null)
                         .WithMany("Options")
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOptionFabric", b =>
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItemOptionFabric", b =>
                 {
-                    b.HasOne("Crm.Domain.Quotes.QuoteItemOption", null)
+                    b.HasOne("Crm.Domain.Quotes.Items.QuoteItemOption", null)
                         .WithMany("Fabrics")
                         .HasForeignKey("OptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.QuoteEvent", b =>
+                {
+                    b.HasOne("Crm.Domain.Quotes.Quote", null)
+                        .WithMany("Events")
+                        .HasForeignKey("QuoteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1824,23 +1885,23 @@ namespace Crm.Infrastructure.Persistence.Migrations
                     b.Navigation("Calls");
                 });
 
-            modelBuilder.Entity("Crm.Domain.Quotes.Quote", b =>
-                {
-                    b.Navigation("Events");
-
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItem", b =>
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItem", b =>
                 {
                     b.Navigation("Lines");
 
                     b.Navigation("Options");
                 });
 
-            modelBuilder.Entity("Crm.Domain.Quotes.QuoteItemOption", b =>
+            modelBuilder.Entity("Crm.Domain.Quotes.Items.QuoteItemOption", b =>
                 {
                     b.Navigation("Fabrics");
+                });
+
+            modelBuilder.Entity("Crm.Domain.Quotes.Quote", b =>
+                {
+                    b.Navigation("Events");
+
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Crm.Domain.Tasks.ManagerTask", b =>

@@ -17,10 +17,8 @@ internal class CustomerLookupSpec : Specification<Customer>
         else
         {
             if (query.ActiveOnly) builder.Where(x => x.Active);
-            var term = string.IsNullOrWhiteSpace(query.Search) ? null : CustomerText.Normalize(query.Search);
-            if (term != null)
-                builder.Where(x => x.NormalizedName.Contains(term)
-                    || (x.TaxIdentity != null && x.TaxIdentity.ToUpper().Contains(term)));
+            foreach (var pattern in SearchWords.Patterns(query.Search))
+                builder.Where(x => EF.Functions.Like(EF.Property<string>(x, SearchWords.Column), pattern, SearchWords.Escape));
         }
 
         if (!paged) return;

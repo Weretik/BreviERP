@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
+using UnitTests.TestSupport;
 using Production.Application.Abstractions;
 using Production.Infrastructure.Persistence;
 using Production.Application.Features.Colors.Shared;
@@ -160,6 +161,7 @@ internal sealed class ProductionTestHarness : IDisposable
     {
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
+        _connection.WithSearch();
         Db = new ProductionDbContext(new DbContextOptionsBuilder<ProductionDbContext>().UseSqlite(_connection).Options);
         Db.Database.EnsureCreated();
     }

@@ -46,15 +46,12 @@ internal static class ProductionOrderFiltering
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
-            var search = query.Search.Trim().ToLower();
-            var number = int.TryParse(search.TrimStart('№', ' '), NumberStyles.None, CultureInfo.InvariantCulture, out var n)
-                ? n
-                : (int?)null;
-            orders = orders.Where(x => x.Number == number ||
-                x.ClientName.ToLower().Contains(search) ||
-                (x.QuoteNumber != null && x.QuoteNumber.ToLower().Contains(search)) ||
-                x.Items.Any(item => item.ModelName.ToLower().Contains(search) ||
-                    (item.ModelCode != null && item.ModelCode.ToLower().Contains(search))));
+            var number = int.TryParse(query.Search.Trim().TrimStart('№', ' '), NumberStyles.None,
+                CultureInfo.InvariantCulture, out var n) ? n : (int?)null;
+            orders = orders.WhereEveryWord(query.Search, pattern => x => x.Number == number ||
+                EF.Functions.Like(EF.Property<string>(x, SearchWords.Column), pattern, SearchWords.Escape) ||
+                x.Items.Any(item =>
+                    EF.Functions.Like(EF.Property<string>(item, SearchWords.Column), pattern, SearchWords.Escape)));
         }
 
         return orders;

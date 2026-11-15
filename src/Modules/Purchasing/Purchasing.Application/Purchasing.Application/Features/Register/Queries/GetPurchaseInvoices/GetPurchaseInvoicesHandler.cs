@@ -59,9 +59,9 @@ public sealed class GetPurchaseInvoicesHandler(IPurchasingDbContext db, IPurchas
         var search = query.Search?.Trim();
         if (!string.IsNullOrEmpty(search))
         {
-            var term = search.ToLower();
-            cards = cards.Where(x => x.Message.Text.ToLower().Contains(term)
-                                     || active.Any(r => r.MessageId == x.Message.Id && r.SourceUid == search));
+            cards = cards.WhereEveryWord(search, pattern => x =>
+                EF.Functions.Like(EF.Property<string>(x.Message, SearchWords.Column), pattern, SearchWords.Escape)
+                || active.Any(r => r.MessageId == x.Message.Id && r.SourceUid == search));
         }
 
         var total = await cards.CountAsync(cancellationToken);

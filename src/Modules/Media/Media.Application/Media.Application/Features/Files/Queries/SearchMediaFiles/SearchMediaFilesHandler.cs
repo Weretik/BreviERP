@@ -25,8 +25,7 @@ public sealed class SearchMediaFilesHandler(IMediaDbContext db)
             }
         }
 
-        var term = query.Search?.Trim().ToLower();
-        if (!string.IsNullOrEmpty(term)) files = files.Where(x => x.FileName.ToLower().Contains(term));
+        files = files.WhereSearchText(query.Search);
 
         var total = await files.CountAsync(cancellationToken);
         var items = await files

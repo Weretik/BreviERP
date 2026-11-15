@@ -17,14 +17,8 @@ public sealed class GetLeadsHandler(ILeadStore store, TimeProvider clock)
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
-            var term = $"%{query.Search.Trim().Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_")}%";
             var number = int.TryParse(query.Search.Trim().TrimStart('№', ' '), out var n) ? n : 0;
-            leads = leads.Where(x => x.SourceId == number
-                                     || EF.Functions.ILike(x.Company, term)
-                                     || (x.Region != null && EF.Functions.ILike(x.Region, term))
-                                     || (x.Industry != null && EF.Functions.ILike(x.Industry, term))
-                                     || (x.Contacts != null && EF.Functions.ILike(x.Contacts, term))
-                                     || (x.OwnerName != null && EF.Functions.ILike(x.OwnerName, term)));
+            leads = leads.WhereEveryWord(query.Search, pattern => x => x.SourceId == number || EF.Functions.Like(EF.Property<string>(x, SearchWords.Column), pattern, SearchWords.Escape));
         }
 
         if (!string.IsNullOrWhiteSpace(query.Category)) leads = leads.Where(x => x.Category == query.Category);

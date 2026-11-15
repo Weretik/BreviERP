@@ -1,3 +1,4 @@
+using UnitTests.TestSupport;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -161,6 +162,7 @@ internal sealed class PurchasingTestHarness : IDisposable
     {
         connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
+        connection.WithSearch();
         var context = new PurchasingDbContext(new DbContextOptionsBuilder<PurchasingDbContext>().UseSqlite(connection).Options);
         context.Database.EnsureCreated();
         Db = new SqlitePurchasingDb(context);

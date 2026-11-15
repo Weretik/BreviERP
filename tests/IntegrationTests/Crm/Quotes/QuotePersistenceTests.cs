@@ -86,6 +86,22 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     }
 
     [Test]
+    public async Task SearchNeedsEveryWordInAnyColumnOnTheTrigramIndex()
+    {
+        await Create(Olena);
+        var petros = await Create(Petro, "Будівельник");
+
+        await using var db = Context();
+        async Task<long[]> Find(string text) =>
+            [.. (await new GetQuotesHandler(db).Handle(new GetQuotesQuery(Director, text, null, null), default))
+                .Value.Items.Select(x => x.Id)];
+
+        Assert.That(await Find("БУДІВ 2-11"), Is.EqualTo(new[] { petros.Id }), "name and number, any case");
+        Assert.That(await Find("будів 1-11-2026"), Is.Empty, "every word must match the same КП");
+        Assert.That(await Find("100%"), Is.Empty, "a wildcard is a plain character");
+    }
+
+    [Test]
     public async Task ClientCardListsOnlyThatClientsQuotesWithinTheActorsAccess()
     {
         var olenas = await Create(Olena, customerId: 40);

@@ -281,6 +281,27 @@ public sealed class ProductionOrderHandlerTests
     }
 
     [Test]
+    public async Task Search_needs_every_word_in_the_order_or_its_items_in_any_case()
+    {
+        using var workshop = Workshop();
+        await Import(workshop, false, Row("a", 1, "New", "Геофізика"), Row("b", 2, "New", "School 5"));
+        var handler = new GetProductionOrdersHandler(workshop.Db, workshop.Models, workshop.Time);
+
+        async Task<int[]> Find(string text) =>
+            [.. (await handler.Handle(new(text, null, null, null), CancellationToken.None)).Value.Items.Select(x => x.Number)];
+
+        Assert.Multiple(async () =>
+        {
+            Assert.That(await Find("геофізика віол"), Is.EqualTo(new[] { 1 }), "client and item model, Cyrillic lowered");
+            Assert.That(await Find("school віол"), Is.EqualTo(new[] { 2 }));
+            Assert.That(await Find("school геофізика"), Is.Empty, "every word must match");
+            Assert.That(await Find("mod-052"), Has.Length.EqualTo(2), "item code");
+            Assert.That(await Find("№2"), Is.EqualTo(new[] { 2 }), "order number");
+            Assert.That(await Find("100%"), Is.Empty, "a wildcard is a plain character");
+        });
+    }
+
+    [Test]
     public async Task Import_preview_saves_nothing_and_a_repeat_keeps_moved_orders()
     {
         using var workshop = Workshop();

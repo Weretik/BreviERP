@@ -189,6 +189,14 @@ Each module owns its `DbContext`, schema and migration history ([module rules](m
 - Use the EF Core CLI as the repository-pinned local tool (`.config/dotnet-tools.json`, same version as `Microsoft.EntityFrameworkCore` in `Directory.Packages.props`): run `dotnet tool restore` once, then `dotnet ef ...`. Do not install `dotnet-ef` globally; when the EF Core package version is raised, raise the tool version with it.
 - Verify a new migration against an empty test database and write its rollback and deployment risks in the PR. Change reference and seed data through the existing seed mechanism, not hidden runtime writes. Runbooks: [data operations](../operations/data/migrations-and-seeding.md).
 
+### Search
+
+- `BuildingBlocks.Infrastructure/Database/SearchTextColumn`: `builder.HasSearchText(columns...)` adds a generated stored column `SearchText` = lower case of the columns joined by spaces, with `’` and `ʼ` as `'`, and its `gin_trgm_ops` index; `modelBuilder.AddTrigramSearch()` enables `pg_trgm` in the context. The database fills the column for old and new rows, so a new searched table needs no back-fill and no domain code.
+- `BuildingBlocks.Application/SearchWords`: `rows.WhereSearchText(text)` keeps rows whose `SearchText` holds every word; `WhereEveryWord(text, pattern => x => ...)` when a word may also match a number, an amount or a child row; `SearchWords.Matches<T>(pattern)` for a specification in a project without EF Core. Patterns are lower case and escaped.
+- A table whose domain already keeps a lower-case `SearchText` (`WorkshopArchiveRecord`, `FinanceCounterparty`) only gets the `gin_trgm_ops` index.
+- Unit tests on SQLite call `connection.WithSearch()` (`tests/UnitTests/TestSupport/SqliteSearch.cs`) so `lower` handles Cyrillic as PostgreSQL does.
+- A migration that adds a search column keeps `pg_trgm` in `Down`: other modules' indexes use it.
+
 ### Outbox and jobs
 
 - The transactional outbox (`BuildingBlocks.Infrastructure/Outbox`) claims messages with `FOR UPDATE SKIP LOCKED` and is dispatched by Cloud Scheduler through the protected outbox endpoint (3.4, 4).
@@ -205,7 +213,7 @@ From the database audit of 2026-11-15; each row is removed when its fix is merge
 
 | Rule | Where | Status | Plan |
 | --- | --- | --- | --- |
-| 2.1 | Crm, Production, Catalog, Content, Accounting, Purchasing, Media search handlers (`ToLower().Contains`, whole phrase, no trigram index) | open | Audit stage 2: `pg_trgm`, shared escape helper, every word ANDed |
+| 1.4, 2.1 | `ProductOverviewListing`, `GetContentProductsHandler`, `GetFabricPlanFactHandler` (search in C# over a model loaded whole) | open | Audit stage 7: filter in SQL or cache the model |
 | 1.3 | `Crm.Infrastructure/Adapters/Catalog/QuoteCatalogReader.cs` (one product query per КП line) | open | Audit stage 3: one batched read |
 | 1.3 | `ProductByIdWithDetailsSpec`, `ReplaceProduct/ProductByIdSpec` (several collection `Include`s) | open | Audit stage 3: `AsSplitQuery()` |
 | 4 | Money and КП create commands (no idempotency key) | open | Audit stage 4: `RequestId` with a unique index |

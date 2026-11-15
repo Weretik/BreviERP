@@ -16,13 +16,13 @@ public sealed class GetFinanceCounterpartyChoicesHandler(IAccountingDbContext db
         GetFinanceCounterpartyChoicesQuery query, CancellationToken cancellationToken)
     {
         var search = FinanceText.Name(query.Search);
-        var term = search.ToLowerInvariant();
-        var financialRows = db.Counterparties.AsNoTracking().Where(x => x.Active);
-        if (term.Length > 0) financialRows = financialRows.Where(x => x.SearchText.Contains(term));
+        var financialRows = db.Counterparties.AsNoTracking().Where(x => x.Active)
+            .WhereEveryWord(search, pattern => x => EF.Functions.Like(x.SearchText, pattern, SearchWords.Escape));
         var financial = await financialRows.OrderBy(x => x.Name).ThenBy(x => x.Id).Take(PerKind)
             .ToListAsync(cancellationToken);
         var clients = await customers.SearchAsync(search.Length > 0 ? search : null, true, 1, PerKind, cancellationToken);
-        var supplierRows = GetFinanceCounterpartiesHandler.Matching(await suppliers.ListAsync(cancellationToken), term,
+        var supplierRows = GetFinanceCounterpartiesHandler.Matching(await suppliers.ListAsync(cancellationToken),
+            search.ToLowerInvariant(),
             false).OrderBy(x => x.Name).Take(PerKind);
 
         IReadOnlyList<FinanceCounterpartyChoiceResponse> choices = financial
