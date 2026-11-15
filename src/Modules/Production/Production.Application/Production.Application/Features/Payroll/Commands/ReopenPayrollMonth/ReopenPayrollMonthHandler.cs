@@ -21,7 +21,8 @@ public sealed class ReopenPayrollMonthHandler(IProductionDbContext db, IProducti
         if (actorName is null) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotPay);
         var reopened = period.Reopen(actorName, clock.GetUtcNow());
         if (reopened.IsFailure) return reopened.Error!.ToResult<PayrollMonthResponse>();
-        await db.SaveChangesAsync(cancellationToken);
+        if (await PayrollMonths.SaveAsync(db, cancellationToken) is { IsSuccess: false } saved)
+            return Result<PayrollMonthResponse>.Conflict([.. saved.Errors]);
         return Result.Success(await changes.ReadAsync(command.Actor, month, cancellationToken));
     }
 }

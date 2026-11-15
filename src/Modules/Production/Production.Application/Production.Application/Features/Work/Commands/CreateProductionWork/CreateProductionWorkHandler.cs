@@ -42,8 +42,12 @@ public sealed class CreateProductionWorkHandler(IProductionDbContext db, IProduc
             new WorkFacts(kind, input.Quantity, input.WorkDate, input.OverPlan, input.Reason, input.Comment,
                 item.SewingRate.Value), actorName, clock.GetUtcNow());
         if (work.IsFailure) return work.Error!.ToResult<ProductionItemWorkResponse>();
+        var now = clock.GetUtcNow();
+        if (!await PayrollMonths.MarkChangedAsync(db, input.WorkDate, actorName, now, cancellationToken))
+            return Result<ProductionItemWorkResponse>.Conflict(PayrollMessages.Closed);
         db.Work.Add(work.Value);
-        await db.SaveChangesAsync(cancellationToken);
+        if (await PayrollMonths.SaveAsync(db, cancellationToken) is { IsSuccess: false } saved)
+            return Result<ProductionItemWorkResponse>.Conflict([.. saved.Errors]);
         return Result.Success(await cards.BuildAsync(order, item, command.Actor, cancellationToken));
     }
 

@@ -165,6 +165,10 @@ internal sealed class ProductionTestHarness : IDisposable
     }
 
     public ProductionDbContext Db { get; }
+
+    /// <summary>A second context on the same database: another request running at the same time.</summary>
+    public ProductionDbContext OtherRequest() =>
+        new(new DbContextOptionsBuilder<ProductionDbContext>().UseSqlite(_connection).Options);
     public FakeTimeProvider Time { get; } = new(new DateTimeOffset(2026, 11, 4, 10, 0, 0, TimeSpan.Zero));
     public FakeProductionModelReader Models { get; } = new();
     public FakeProductionQuoteReader Quotes { get; } = new();

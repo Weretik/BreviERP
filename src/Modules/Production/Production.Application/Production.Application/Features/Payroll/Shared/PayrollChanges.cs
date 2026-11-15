@@ -28,9 +28,13 @@ public sealed class PayrollChanges(IProductionDbContext db, IProductionStaffRead
         if (period.IsClosed) return PayrollErrors.MonthClosed().ToResult<PayrollMonthResponse>();
         var actorName = await OrderActors.NameAsync(staff, actor.UserId, cancellationToken);
         if (actorName is null) return Result<PayrollMonthResponse>.Forbidden(PayrollMessages.CannotSee);
-        var refused = await change(new PayrollChange(period, actorName, clock.GetUtcNow()));
+        var now = clock.GetUtcNow();
+        var refused = await change(new PayrollChange(period, actorName, now));
         if (refused is not null) return Map(refused);
-        await db.SaveChangesAsync(cancellationToken);
+        if (!period.IsClosed && period.RecordChange(actorName, now).IsFailure)
+            return PayrollErrors.MonthClosed().ToResult<PayrollMonthResponse>();
+        var saved = await PayrollMonths.SaveAsync(db, cancellationToken);
+        if (!saved.IsSuccess) return Map(saved);
         return Result.Success(await ReadAsync(actor, month, cancellationToken));
     }
 

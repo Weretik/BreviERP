@@ -38,4 +38,29 @@ public static class PayrollMonths
         db.PayrollMonths.Add(row);
         return row;
     }
+
+    /// <summary>
+    /// Marks a change of work or hours on <paramref name="day"/> in its month; false when the month is closed. The
+    /// month's version then guards the save against a request that closes it at the same moment.
+    /// </summary>
+    public static async Task<bool> MarkChangedAsync(IProductionDbContext db, DateOnly day, string actorName,
+        DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var month = await TrackAsync(db, Of(day), cancellationToken);
+        return month.RecordChange(actorName, now).IsSuccess;
+    }
+
+    /// <summary>Saves a change of «Зарплата»; a month changed (closed) by another request meanwhile gives 409.</summary>
+    public static async Task<Result> SaveAsync(IProductionDbContext db, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Result.Conflict(PayrollMessages.Changed);
+        }
+    }
 }

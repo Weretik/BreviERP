@@ -23,9 +23,13 @@ public sealed class VoidProductionWorkHandler(IProductionDbContext db, IProducti
             return Result<ProductionItemWorkResponse>.Conflict(PayrollMessages.Closed);
         var actorName = await OrderActors.NameAsync(staff, command.Actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
-        var voided = work.Void(command.Input.Reason, actorName, clock.GetUtcNow());
+        var now = clock.GetUtcNow();
+        var voided = work.Void(command.Input.Reason, actorName, now);
         if (voided.IsFailure) return voided.Error!.ToResult<ProductionItemWorkResponse>();
-        await db.SaveChangesAsync(cancellationToken);
+        if (!await PayrollMonths.MarkChangedAsync(db, work.WorkDate, actorName, now, cancellationToken))
+            return Result<ProductionItemWorkResponse>.Conflict(PayrollMessages.Closed);
+        if (await PayrollMonths.SaveAsync(db, cancellationToken) is { IsSuccess: false } saved)
+            return Result<ProductionItemWorkResponse>.Conflict([.. saved.Errors]);
         var item = order.Items.First(x => x.Id == work.ItemId);
         return Result.Success(await cards.BuildAsync(order, item, command.Actor, cancellationToken));
     }
