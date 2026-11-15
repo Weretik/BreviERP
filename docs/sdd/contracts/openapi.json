@@ -13048,10 +13048,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PpePriceSourceView"
-                  }
+                  "$ref": "#/components/schemas/PpePriceSourcesResponse"
                 }
               }
             }
@@ -30529,6 +30526,24 @@
           "SupplierCabinet",
           "File"
         ]
+      },
+      "PpePriceSourcesResponse": {
+        "required": [
+          "canChangeDiscounts",
+          "sources"
+        ],
+        "type": "object",
+        "properties": {
+          "canChangeDiscounts": {
+            "type": "boolean"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PpePriceSourceView"
+            }
+          }
+        }
       },
       "PpePriceSourceView": {
         "required": [
