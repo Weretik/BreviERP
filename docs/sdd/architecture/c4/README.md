@@ -1,0 +1,126 @@
+# C4 diagrams
+
+**Checked against code:** 2026-11-15 (`src/`, `.github/workflows/deploy-cloudrun.yml`, `Host.Api/appsettings.json`, project references, brevi-web `apps/`).
+
+Three levels of the [C4 model](https://c4model.com): who uses Brevi and what it talks to (context), which deployable parts it has (containers), and which modules are inside the API (components). The diagrams are Mermaid and render on GitHub. Why each part looks the way it does is in the [ADRs](../decisions/README.md).
+
+Update a diagram in the same change that adds or removes a module, a host, a deployable app, an external system, or a connection between them.
+
+## Level 1: System context
+
+```mermaid
+flowchart TB
+    client["<b>Client</b><br/>[Person]<br/>Company that orders workwear or PPE"]
+    staff["<b>Staff</b><br/>[Person]<br/>Director, managers, accountant,<br/>workshop chief, SEO"]
+
+    brevi["<b>Brevi ERP</b><br/>[Software system]<br/>Pricing, КП, CRM, production, warehouse,<br/>accounting, public site"]
+
+    keepin["<b>KeepinCRM</b><br/>[External]<br/>Clients and suppliers"]
+    sheets["<b>Google Sheets</b><br/>[External]<br/>«финансы», «Лиды Brevi»"]
+    suppliers["<b>Supplier sites</b><br/>[External]<br/>PPE price lists"]
+    telegram["<b>Telegram</b><br/>[External]<br/>Existing bot and staff group"]
+    gmail["<b>Gmail</b><br/>[External]<br/>Staff send КП (send-only)"]
+    openai["<b>OpenAI</b><br/>[External]<br/>Reads invoices"]
+    cdn["<b>CDN brevi-media.cdn.express</b><br/>[External, adm.tools]<br/>Photos"]
+
+    client -->|"Reads the site, sends a request, phones"| brevi
+    staff -->|"Works in the admin"| brevi
+    brevi -->|"Imports clients and suppliers"| keepin
+    brevi -->|"Imports invoices and leads"| sheets
+    brevi -->|"Imports prices"| suppliers
+    brevi -->|"Reminders, orders, site requests"| telegram
+    brevi -->|"Sends КП"| gmail
+    brevi -->|"Extracts invoice data"| openai
+    brevi -->|"Stores photos"| cdn
+```
+
+## Level 2: Containers
+
+```mermaid
+flowchart TB
+    client["<b>Client</b><br/>[Person]"]
+    staff["<b>Staff</b><br/>[Person]"]
+
+    subgraph cf["Cloudflare"]
+        site["<b>Public site «Строчка»</b><br/>[Next.js on Workers]<br/>brevi.com.ua, server-rendered, SEO"]
+        admin["<b>Admin «Цех»</b><br/>[React SPA on Cloudflare Pages]<br/>office.brevi.com.ua, noindex, cookie session"]
+        proxy["<b>API proxy</b><br/>[Cloudflare Worker]<br/>api.brevi.com.ua"]
+    end
+
+    subgraph gcp["Google Cloud, project brevistoreapi (europe-central2)"]
+        api["<b>Host.Api</b><br/>[ASP.NET Core, Cloud Run brevierp-api]<br/>Minimal API of all modules"]
+        seed["<b>Host.Seed</b><br/>[.NET console, Cloud Run Jobs]<br/>brevierp-seed: migrations;<br/>brevierp-tasks: background tasks"]
+        tick["<b>brevierp-tick</b><br/>[Cloud Scheduler]<br/>Every 5 minutes, OIDC"]
+        db[("<b>PostgreSQL</b><br/>[Database]<br/>One schema per module")]
+        bucket["<b>Cloud Storage</b><br/>Accounting files"]
+        secrets["<b>Secret Manager</b>"]
+    end
+
+    ext["<b>External systems</b><br/>KeepinCRM, Google Sheets, supplier sites,<br/>Telegram, Gmail, OpenAI, CDN"]
+
+    client --> site
+    staff --> admin
+    site -->|"Reads products, pages; sends requests (HTTPS, OpenAPI)"| proxy
+    admin -->|"JSON + cookie + CSRF"| proxy
+    proxy --> api
+    tick -->|"POST /internal/scheduler/tick"| api
+    api -->|"Starts brevierp-tasks execution"| seed
+    api --> db
+    seed --> db
+    api --> bucket
+    api --> ext
+    seed --> ext
+    api -.-> secrets
+    seed -.-> secrets
+```
+
+Deploy: changes land in `Weretik/BreviERP`; syncing the fork `pnevman-creator/brevi-api` starts GitHub Actions, which signs in without a key, runs `brevierp-seed` and then deploys `brevierp-api` ([ADR-0004](../decisions/0004-keyless-cloud-run-delivery.md)). The old OpenCart site keeps `brevi.com.ua` until the cutover; it is not drawn.
+
+## Level 3: Components of the backend
+
+```mermaid
+flowchart LR
+    host["<b>Host.Api / Host.Seed</b><br/>composition only:<br/>Add&lt;Module&gt;Module()"]
+
+    subgraph sales["Selling"]
+        catalog["<b>Catalog</b><br/>products, Sewing and PPE pricing"]
+        crm["<b>Crm</b><br/>clients, КП, leads, tasks,<br/>site requests"]
+        content["<b>Content</b><br/>site pages, categories, articles, SEO"]
+    end
+
+    subgraph make["Making"]
+        production["<b>Production</b><br/>workshop orders, work log, payroll"]
+        warehouse["<b>Warehouse</b><br/>fabric stock and issues"]
+        reference["<b>Reference</b><br/>fabrics, accessories, operations,<br/>suppliers, pricing parameters"]
+    end
+
+    subgraph money["Money"]
+        accounting["<b>Accounting</b><br/>accounts, operations, reports"]
+        purchasing["<b>Purchasing</b><br/>purchase invoices"]
+    end
+
+    subgraph platform["Platform"]
+        identity["<b>Identity</b><br/>staff, roles, «Права доступу»"]
+        media["<b>Media</b><br/>photo library on the CDN"]
+        ai["<b>Ai</b><br/>OpenAI settings and extraction"]
+        reminders["<b>Reminders</b><br/>Telegram reminders"]
+        scheduling["<b>Scheduling</b><br/>background tasks, tick"]
+    end
+
+    bb["<b>BuildingBlocks</b><br/>Result mapping, Mediator behaviors,<br/>outbox, shared primitives"]
+
+    host --> sales & make & money & platform
+    crm --> catalog & reference & media & reminders & production
+    production --> catalog & reference & media & warehouse & reminders & crm
+    warehouse --> production & reference
+    purchasing --> ai & accounting & reference
+    content --> catalog & reference & media
+    catalog --> reference & media
+    accounting --> reference & crm
+    reference --> catalog
+    media --> catalog & crm
+    identity --> media
+    sales & make & money & platform --> bb
+```
+
+An arrow from A to B means A's Infrastructure references `B.Contracts` (checked from the `.csproj` files on 2026-11-15); Crm, Production and Warehouse also use `Identity.Contracts` for staff names. No module references another module's Application, Domain or Infrastructure, and there are no foreign keys between schemas ([ADR-0001](../decisions/0001-modular-monolith.md), [ADR-0006](../decisions/0006-module-contracts.md)). The exact references are in the [module map](../overview/modules.md).

@@ -6,6 +6,7 @@ BreviERP is a modular ASP.NET Core backend on .NET 10. It uses Clean Architectur
 
 ### Need the big picture
 
+- [C4 diagrams](c4/README.md) — system context, containers, and backend components.
 - [System map](overview/system-map.md) — hosts, modules, and dependency direction.
 - [Project structure](overview/project-structure.md) — solution tree and layer visualization.
 - [Layer boundaries](overview/layers.md) — ownership and forbidden dependencies.
@@ -35,7 +36,7 @@ BreviERP is a modular ASP.NET Core backend on .NET 10. It uses Clean Architectur
 
 ### Need the reason for a long-term decision
 
-- [Architecture decisions](decisions/README.md)
+- [Architecture decisions](decisions/README.md) — ADRs and the list of key decisions every backend must record
 
 ### Need identity or access control
 
