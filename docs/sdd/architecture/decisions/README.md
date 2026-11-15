@@ -50,4 +50,4 @@ Every backend keeps an accepted ADR for each area below. A full architecture aud
 | Main external systems | 0014 |
 | Public site and how it reads the backend | 0005 |
 
-A new decision of this kind (a new module, a new external system, a new way to run work or to deploy) gets an ADR in the same change, and the C4 diagrams are updated with it. Frontend-only decisions live in brevi-web ([workspace ADRs](https://github.com/Weretik/brevi-web/blob/main/docs/architecture/adr/README.md)).
+A new decision of this kind (a new module, a new external system, a new way to run work or to deploy) gets an ADR in the same change, and the C4 diagrams are updated with it. Frontend-only decisions live in brevi-web ([workspace ADRs](https://github.com/Weretik/brevi-web/blob/master/docs/architecture/adr/README.md)).
