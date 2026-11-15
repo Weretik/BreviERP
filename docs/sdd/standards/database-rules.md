@@ -214,8 +214,6 @@ From the database audit of 2026-11-15; each row is removed when its fix is merge
 | Rule | Where | Status | Plan |
 | --- | --- | --- | --- |
 | 1.4, 2.1 | `ProductOverviewListing`, `GetContentProductsHandler`, `GetFabricPlanFactHandler` (search in C# over a model loaded whole) | open | Audit stage 7: filter in SQL or cache the model |
-| 1.3 | `Crm.Infrastructure/Adapters/Catalog/QuoteCatalogReader.cs` (one product query per КП line) | open | Audit stage 3: one batched read |
-| 1.3 | `ProductByIdWithDetailsSpec`, `ReplaceProduct/ProductByIdSpec` (several collection `Include`s) | open | Audit stage 3: `AsSplitQuery()` |
 | 4 | Money and КП create commands (no idempotency key) | open | Audit stage 4: `RequestId` with a unique index |
 | 1.4 | `GetFabricMovementsHandler` (whole ledger), `GetPayrollYearHandler` (per-month reads) | open | Audit stage 5: SQL aggregation |
 | 4 | `ReminderButtonHandler` (no version); `StockChanges` catches every `DbUpdateException` as stale | open | Audit stage 6: `xmin`, catch only concurrency and unique violations |

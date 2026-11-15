@@ -32,11 +32,14 @@ public sealed class ProductOverviewItemReader(
     public const string NoActiveVariant = "NoActiveArticle";
     public const string NotPublished = "Unpublished";
 
-    /// <summary>Every row of the type, or the one product, with prices; sewing problems are not filled yet.</summary>
+    /// <summary>
+    /// Every row of the type, or the products with <paramref name="ids"/>, with prices; sewing problems are not filled
+    /// yet.
+    /// </summary>
     public async Task<IReadOnlyList<ProductOverviewItem>> ReadAsync(
-        ProductType? type, int? id, CancellationToken cancellationToken)
+        ProductType? type, IReadOnlyCollection<int>? ids, CancellationToken cancellationToken)
     {
-        var rows = await products.ListAsync(new ProductOverviewSpec(type, id), cancellationToken);
+        var rows = await products.ListAsync(new ProductOverviewSpec(type, ids), cancellationToken);
         var sewingIds = rows.Where(x => x.Type == ProductType.Sewing).Select(x => x.Id).ToArray();
         var ppeIds = rows.Where(x => x.Type == ProductType.Ppe).Select(x => x.Id).ToArray();
 

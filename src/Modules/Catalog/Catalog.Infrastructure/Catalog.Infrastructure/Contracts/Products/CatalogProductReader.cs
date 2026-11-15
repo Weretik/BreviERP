@@ -2,6 +2,7 @@ using Catalog.Contracts.Products;
 using Catalog.Domain.Products;
 using Mediator;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewItem;
+using Catalog.Application.Features.Product.Queries.GetProductOverviewItems;
 using Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 using Catalog.Application.Features.Product.Queries.GetProductPhotos;
 using Catalog.Domain.Products.Enums;
@@ -42,6 +43,15 @@ internal sealed class CatalogProductReader(ISender sender) : ICatalogProductRead
     {
         var result = await sender.Send(new GetProductOverviewItemQuery(productId), cancellationToken);
         return result.IsSuccess ? Map(result.Value) : null;
+    }
+
+    public async Task<IReadOnlyDictionary<int, CatalogProduct>> FindManyAsync(IReadOnlyCollection<int> productIds,
+        CancellationToken cancellationToken)
+    {
+        if (productIds.Count == 0) return new Dictionary<int, CatalogProduct>();
+        var result = await sender.Send(new GetProductOverviewItemsQuery(productIds), cancellationToken);
+        if (!result.IsSuccess) throw new InvalidOperationException("Catalog products could not be read.");
+        return result.Value.Select(Map).ToDictionary(x => x.Id);
     }
 
     public async Task<IReadOnlyList<CatalogPhoto>> PhotosAsync(int productId, CancellationToken cancellationToken)
