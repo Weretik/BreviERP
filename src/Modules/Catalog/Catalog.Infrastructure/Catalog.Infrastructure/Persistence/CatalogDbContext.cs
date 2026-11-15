@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Catalog.Domain.ProductCategories;
 using Catalog.Domain.Products;
 
@@ -12,6 +13,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.AddTrigramSearch();
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(CatalogDbContext).Assembly,

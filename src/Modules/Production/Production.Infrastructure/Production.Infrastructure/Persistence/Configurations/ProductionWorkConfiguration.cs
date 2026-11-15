@@ -32,6 +32,7 @@ internal sealed class ProductionWorkConfiguration : IEntityTypeConfiguration<Pro
         builder.HasIndex(x => x.WorkDate);
         builder.HasIndex(x => x.EmployeeId);
         builder.HasIndex(x => x.LegacyId).IsUnique();
+        builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
     }
 }
 

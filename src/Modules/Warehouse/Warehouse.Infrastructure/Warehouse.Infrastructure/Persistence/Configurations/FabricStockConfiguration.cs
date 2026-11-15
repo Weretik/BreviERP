@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Warehouse.Domain.Stock;
@@ -57,6 +58,9 @@ internal sealed class FabricMovementConfiguration : IEntityTypeConfiguration<Fab
         builder.HasIndex(x => x.LegacyId).IsUnique();
         builder.HasIndex(x => x.OperationId);
         builder.HasIndex(x => x.IssueLineId);
+        builder.HasSearchText(nameof(FabricMovement.SupplierName), nameof(FabricMovement.Document),
+            nameof(FabricMovement.ModelName), nameof(FabricMovement.Destination), nameof(FabricMovement.Note),
+            nameof(FabricMovement.CreatedByName));
     }
 }
 

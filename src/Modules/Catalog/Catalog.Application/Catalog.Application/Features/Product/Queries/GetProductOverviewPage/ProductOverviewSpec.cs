@@ -9,14 +9,14 @@ namespace Catalog.Application.Features.Product.Queries.GetProductOverviewPage;
 /// <summary>The «Товари» fields of every product of a type, or of one product when <paramref name="id"/> is set.</summary>
 public sealed class ProductOverviewSpec : Specification<ProductEntity, ProductOverviewReadModel>
 {
-    public ProductOverviewSpec(ProductType? type, int? id = null)
+    public ProductOverviewSpec(ProductType? type, IReadOnlyCollection<int>? ids = null)
     {
         Query.AsNoTracking().Where(x => !x.IsDeleted);
         if (type is { } productType) Query.Where(x => x.Type == productType);
-        if (id is { } productId)
+        if (ids is not null)
         {
-            var key = ProductId.Create(productId);
-            Query.Where(x => x.Id == key);
+            var keys = ids.Distinct().Select(ProductId.Create).ToList();
+            Query.Where(x => keys.Contains(x.Id));
         }
         Query.Select(x => new ProductOverviewReadModel(
             x.Id.Value, x.Type, x.ModelCode, x.CatalogProfile != null ? x.CatalogProfile.SaleSku : null, x.Name,

@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Catalog.Domain.Products;
 using Catalog.Domain.Products.ValueObjects;
 
@@ -36,6 +37,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.ModelCode).HasMaxLength(80);
         builder.Property(x => x.CompositionVersion).HasDefaultValue(0L).IsConcurrencyToken();
         builder.HasIndex(x => x.ModelCode).IsUnique();
+        builder.HasSearchText(nameof(Product.Name), nameof(Product.RuName));
 
         builder.Property(x => x.DescriptionUk).HasMaxLength(20_000).IsRequired();
         builder.Property(x => x.DescriptionRu).HasMaxLength(20_000).IsRequired();

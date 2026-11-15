@@ -21,83 +21,48 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricIssue", b =>
+            modelBuilder.Entity("BuildingBlocks.Application.Outbox.OutboxMessage", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.Property<string>("LastError")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
-                    b.Property<DateOnly>("IssuedOn")
-                        .HasColumnType("date");
-
-                    b.Property<int?>("IssuedQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("LegacyId")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<string>("ModelName")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<Guid?>("OperationId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OrderNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("PlanVersion")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ReverseReason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<DateTimeOffset?>("ReversedAt")
+                    b.Property<DateTimeOffset>("NextAttemptAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ReversedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTimeOffset?>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ItemId");
+                    b.HasIndex("CreatedAt")
+                        .HasFilter("\"ProcessedAt\" IS NULL");
 
-                    b.HasIndex("LegacyId")
-                        .IsUnique();
-
-                    b.HasIndex("OperationId")
-                        .IsUnique();
-
-                    b.ToTable("FabricIssues", "warehouse");
+                    b.ToTable("OutboxMessages", "warehouse");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricIssueLine", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.FabricStock", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -110,92 +75,40 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
 
-                    b.Property<decimal>("CoveredMeters")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("numeric(12,2)");
+                    b.Property<string>("ColorKey")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("FabricCode")
                         .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
 
+                    b.Property<int?>("FabricId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("FabricName")
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
-                    b.Property<int>("IssueId")
-                        .HasColumnType("integer");
+                    b.Property<bool>("HasMovements")
+                        .HasColumnType("boolean");
 
-                    b.Property<string>("Layer")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                    b.Property<string>("LegacyId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<decimal>("Meters")
                         .HasPrecision(12, 2)
                         .HasColumnType("numeric(12,2)");
 
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("PlanColorKey")
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)");
-
-                    b.Property<decimal>("PlanCoverage")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("numeric(12,2)");
-
-                    b.Property<string>("PlanFabricCode")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<decimal?>("PlannedMeters")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("numeric(12,2)");
-
-                    b.Property<string>("Purpose")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<int>("StockId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IssueId");
-
-                    b.HasIndex("StockId");
-
-                    b.ToTable("FabricIssueLines", "warehouse");
-                });
-
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricItemPlan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("UpdatedByName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
@@ -203,13 +116,16 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ItemId")
+                    b.HasIndex("LegacyId")
                         .IsUnique();
 
-                    b.ToTable("FabricItemPlans", "warehouse");
+                    b.HasIndex("FabricCode", "ColorKey")
+                        .IsUnique();
+
+                    b.ToTable("FabricStocks", "warehouse");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricMovement", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.Movements.FabricMovement", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -297,6 +213,11 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
 
+                    b.Property<string>("SearchText")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("text")
+                        .HasComputedColumnSql("replace(replace(lower(coalesce(\"SupplierName\", '') || ' ' || coalesce(\"Document\", '') || ' ' || coalesce(\"ModelName\", '') || ' ' || coalesce(\"Destination\", '') || ' ' || coalesce(\"Note\", '') || ' ' || coalesce(\"CreatedByName\", '')), '’', ''''), 'ʼ', '''')", true);
+
                     b.Property<int>("StockId")
                         .HasColumnType("integer");
 
@@ -322,12 +243,17 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ReversesMovementId");
 
+                    b.HasIndex("SearchText");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
+
                     b.HasIndex("StockId", "Id");
 
                     b.ToTable("FabricMovements", "warehouse");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricMovementRevision", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.Movements.FabricMovementRevision", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -431,70 +357,7 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.ToTable("FabricMovementRevisions", "warehouse");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricStock", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)");
-
-                    b.Property<string>("ColorKey")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("character varying(80)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("FabricCode")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<int?>("FabricId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("FabricName")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)");
-
-                    b.Property<bool>("HasMovements")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("LegacyId")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
-                    b.Property<decimal>("Meters")
-                        .HasPrecision(12, 2)
-                        .HasColumnType("numeric(12,2)");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Version")
-                        .IsConcurrencyToken()
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LegacyId")
-                        .IsUnique();
-
-                    b.HasIndex("FabricCode", "ColorKey")
-                        .IsUnique();
-
-                    b.ToTable("FabricStocks", "warehouse");
-                });
-
-            modelBuilder.Entity("Warehouse.Domain.Stock.StockOperation", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.Movements.StockOperation", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -539,7 +402,7 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.ToTable("StockOperations", "warehouse");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.StockTransfer", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.Movements.StockTransfer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -585,9 +448,246 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.ToTable("StockTransfers", "warehouse");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricIssueLine", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.Plans.FabricIssue", b =>
                 {
-                    b.HasOne("Warehouse.Domain.Stock.FabricIssue", null)
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateOnly>("IssuedOn")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("IssuedQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LegacyId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ModelName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid?>("OperationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PlanVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReverseReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTimeOffset?>("ReversedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReversedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("LegacyId")
+                        .IsUnique();
+
+                    b.HasIndex("OperationId")
+                        .IsUnique();
+
+                    b.ToTable("FabricIssues", "warehouse");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.Plans.FabricIssueLine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<decimal>("CoveredMeters")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("FabricCode")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("FabricName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("IssueId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Layer")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<decimal>("Meters")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("PlanColorKey")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<decimal>("PlanCoverage")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("PlanFabricCode")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<decimal?>("PlannedMeters")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("StockId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IssueId");
+
+                    b.HasIndex("StockId");
+
+                    b.ToTable("FabricIssueLines", "warehouse");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.Plans.FabricItemPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId")
+                        .IsUnique();
+
+                    b.ToTable("FabricItemPlans", "warehouse");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.Movements.FabricMovement", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Stock.Plans.FabricIssueLine", null)
+                        .WithMany("Movements")
+                        .HasForeignKey("IssueLineId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Warehouse.Domain.Stock.Movements.FabricMovement", null)
+                        .WithMany()
+                        .HasForeignKey("ReversesMovementId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Warehouse.Domain.Stock.FabricStock", "Stock")
+                        .WithMany("Movements")
+                        .HasForeignKey("StockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Stock");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.Movements.FabricMovementRevision", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Stock.FabricStock", "AfterStock")
+                        .WithMany()
+                        .HasForeignKey("AfterStockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Stock.FabricStock", null)
+                        .WithMany()
+                        .HasForeignKey("BeforeStockId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Stock.Movements.FabricMovement", "Movement")
+                        .WithMany()
+                        .HasForeignKey("MovementId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Stock.Movements.FabricMovementRevision", null)
+                        .WithMany()
+                        .HasForeignKey("RestoresRevisionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AfterStock");
+
+                    b.Navigation("Movement");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.Plans.FabricIssueLine", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Stock.Plans.FabricIssue", null)
                         .WithMany("Lines")
                         .HasForeignKey("IssueId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -602,9 +702,9 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.Navigation("Stock");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricItemPlan", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.Plans.FabricItemPlan", b =>
                 {
-                    b.OwnsMany("Warehouse.Domain.Stock.FabricItemPlanPart", "Parts", b1 =>
+                    b.OwnsMany("Warehouse.Domain.Stock.Plans.FabricItemPlanPart", "Parts", b1 =>
                         {
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
@@ -652,68 +752,17 @@ namespace Warehouse.Infrastructure.Persistence.Migrations
                     b.Navigation("Parts");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricMovement", b =>
-                {
-                    b.HasOne("Warehouse.Domain.Stock.FabricIssueLine", null)
-                        .WithMany("Movements")
-                        .HasForeignKey("IssueLineId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Warehouse.Domain.Stock.FabricMovement", null)
-                        .WithMany()
-                        .HasForeignKey("ReversesMovementId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Warehouse.Domain.Stock.FabricStock", "Stock")
-                        .WithMany("Movements")
-                        .HasForeignKey("StockId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Stock");
-                });
-
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricMovementRevision", b =>
-                {
-                    b.HasOne("Warehouse.Domain.Stock.FabricStock", "AfterStock")
-                        .WithMany()
-                        .HasForeignKey("AfterStockId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Warehouse.Domain.Stock.FabricStock", null)
-                        .WithMany()
-                        .HasForeignKey("BeforeStockId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Warehouse.Domain.Stock.FabricMovement", "Movement")
-                        .WithMany()
-                        .HasForeignKey("MovementId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Warehouse.Domain.Stock.FabricMovementRevision", null)
-                        .WithMany()
-                        .HasForeignKey("RestoresRevisionId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("AfterStock");
-
-                    b.Navigation("Movement");
-                });
-
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricIssue", b =>
-                {
-                    b.Navigation("Lines");
-                });
-
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricIssueLine", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.FabricStock", b =>
                 {
                     b.Navigation("Movements");
                 });
 
-            modelBuilder.Entity("Warehouse.Domain.Stock.FabricStock", b =>
+            modelBuilder.Entity("Warehouse.Domain.Stock.Plans.FabricIssue", b =>
+                {
+                    b.Navigation("Lines");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Stock.Plans.FabricIssueLine", b =>
                 {
                     b.Navigation("Movements");
                 });

@@ -19,10 +19,12 @@ public sealed class Quote
 
     /// <summary>A new draft; the author is also responsible.</summary>
     public static DomainResult<Quote> Create(QuoteNumber number, QuoteKind kind, QuotePerson author, QuoteHeader header,
-        IEnumerable<QuoteItem> items, DateTimeOffset now)
+        IEnumerable<QuoteItem> items, DateTimeOffset now, Guid? requestId = null)
     {
         var valid = CheckHeader(header);
-        return valid.IsFailure ? valid.Error! : new Quote(number, kind, author, header, items, now);
+        return valid.IsFailure
+            ? valid.Error!
+            : new Quote(number, kind, author, header, items, now) { CreateRequestId = requestId };
     }
 
     private Quote(QuoteNumber number, QuoteKind kind, QuotePerson author, QuoteHeader header,
@@ -107,6 +109,9 @@ public sealed class Quote
 
     public int Version { get; private set; }
 
+    /// <summary>The create or copy attempt; a repeat with the same id returns this КП (unique).</summary>
+    public Guid? CreateRequestId { get; private init; }
+
     public IReadOnlyList<QuoteItem> Items => _items;
 
     /// <summary>History lines added in this change; saved ones are read by a separate query.</summary>
@@ -116,11 +121,11 @@ public sealed class Quote
     /// «Копіювати КП» (R-24): a new draft with the same header, introduction and items with their saved prices. The
     /// person who copies becomes its author and responsible.
     /// </summary>
-    public Quote CopyAs(QuoteNumber number, QuotePerson author, DateTimeOffset now)
+    public Quote CopyAs(QuoteNumber number, QuotePerson author, DateTimeOffset now, Guid? requestId = null)
     {
         var copy = new Quote(number, Kind, author,
             new QuoteHeader(InternalName, CustomerId, RecipientName, CompanyName, ClientComment, ManagerNote),
-            _items.OrderBy(x => x.Position).Select(x => x.Copy()), now);
+            _items.OrderBy(x => x.Position).Select(x => x.Copy()), now) { CreateRequestId = requestId };
         if (Introduction is { } introduction) copy.ApplyIntroduction(introduction);
         copy._events.Clear(); // the copy starts its history with «Копія КП N» instead of «Створено»
         copy.Record(QuoteEventKind.Copied, author, $"Копія КП {Number}", now);

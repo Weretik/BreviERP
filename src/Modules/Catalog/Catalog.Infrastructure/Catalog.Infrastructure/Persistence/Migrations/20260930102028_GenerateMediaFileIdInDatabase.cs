@@ -21,11 +21,16 @@ namespace Catalog.Infrastructure.Migrations
                 oldType: "integer")
                 .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+            // A DO block, so the same statement also runs inside the DO block of an idempotent script, where a bare
+            // SELECT has no destination. The effect is unchanged for databases that already applied it.
             migrationBuilder.Sql("""
-                SELECT setval(
-                    pg_get_serial_sequence('catalog."MediaFiles"', 'Id'),
-                    COALESCE((SELECT MAX("Id")::bigint FROM catalog."MediaFiles"), 0) + 1,
-                    false);
+                DO $setval$
+                BEGIN
+                    PERFORM setval(
+                        pg_get_serial_sequence('catalog."MediaFiles"', 'Id'),
+                        COALESCE((SELECT MAX("Id")::bigint FROM catalog."MediaFiles"), 0) + 1,
+                        false);
+                END $setval$;
                 """);
         }
 

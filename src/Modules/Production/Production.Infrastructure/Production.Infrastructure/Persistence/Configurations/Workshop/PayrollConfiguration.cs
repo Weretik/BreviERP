@@ -81,6 +81,7 @@ internal sealed class PayrollPaymentConfiguration : IEntityTypeConfiguration<Pay
         builder.Ignore(x => x.IsVoided);
         builder.HasOne<WorkshopEmployee>().WithMany().HasForeignKey(x => x.EmployeeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(x => x.Month);
+        builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
     }
 }
 
@@ -100,6 +101,7 @@ internal sealed class PayrollAdjustmentConfiguration : IEntityTypeConfiguration<
         builder.Ignore(x => x.IsVoided);
         builder.HasOne<WorkshopEmployee>().WithMany().HasForeignKey(x => x.EmployeeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(x => x.Month);
+        builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
     }
 }
 

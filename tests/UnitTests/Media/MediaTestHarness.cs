@@ -1,3 +1,4 @@
+using UnitTests.TestSupport;
 using Media.Application.Abstractions;
 using Media.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
@@ -65,6 +66,7 @@ internal sealed class MediaTestHarness : IDisposable
     {
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
+        _connection.WithSearch();
         Db = new MediaDbContext(new DbContextOptionsBuilder<MediaDbContext>().UseSqlite(_connection).Options);
         Db.Database.EnsureCreated();
     }

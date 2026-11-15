@@ -65,6 +65,10 @@ public interface IOrderFabricPlans
     Task<IReadOnlyList<LegacyOrder>> LegacyOrdersAsync(IReadOnlyCollection<string> legacyIds,
         CancellationToken cancellationToken);
 
-    /// <summary>Adds «Тканина» to the history of the item; nothing when the order is gone.</summary>
-    Task RecordFabricAsync(int orderId, int itemId, string text, string actorName, CancellationToken cancellationToken);
+    /// <summary>
+    /// Adds «Тканина» made at <paramref name="at"/> to the history of the item; nothing when the order is gone or the
+    /// same line is already there (the outbox may deliver it twice).
+    /// </summary>
+    Task RecordFabricAsync(int orderId, int itemId, string text, string actorName, DateTimeOffset at,
+        CancellationToken cancellationToken);
 }

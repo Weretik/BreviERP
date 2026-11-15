@@ -8,7 +8,7 @@ public sealed class ProductAdminDetailSpec : Specification<ProductEntity, Produc
 {
     public ProductAdminDetailSpec(int id)
     {
-        Query.AsNoTracking()
+        Query.AsNoTracking().AsSplitQuery()
             .Where(x => x.Id == Catalog.Domain.Products.ValueObjects.ProductId.Create(id))
             .Select(x => new ProductAdminDetailReadModel(
                 x.Id.Value,

@@ -11,9 +11,11 @@ public sealed class GetPayrollYearHandler(PayrollSheets sheets, TimeProvider clo
     {
         if (!query.Actor.SeesPayroll) return Result<PayrollYearResponse>.Forbidden(PayrollMessages.CannotSee);
         var current = PayrollMonths.Current(clock);
-        var months = new List<PayrollMonthResponse>();
-        for (var m = new DateOnly(query.Year, 1, 1); m <= current && m.Year == query.Year; m = m.AddMonths(1))
-            months.Add((await sheets.ReadAsync(m, cancellationToken)).Month);
+        var first = new DateOnly(query.Year, 1, 1);
+        var last = current.Year == query.Year ? current : new DateOnly(query.Year, 12, 1);
+        List<PayrollMonthResponse> months = first > current
+            ? []
+            : (await sheets.ReadRangeAsync(first, last, cancellationToken)).Select(x => x.Month).ToList();
 
         var rows = months.SelectMany((month, index) => month.Lines.Select(line => (index, line)))
             .Where(x => x.line.Accrued != 0)

@@ -27,6 +27,6 @@ internal static class SubmitPublicSiteRequestEndpoint
             ? new SiteRequestFile(content, attachment.FileName, attachment.ContentType, attachment.Length)
             : null;
         return (await sender.Send(new SubmitSiteRequestCommand(form.Phone, form.Workwear,
-            form.Quantity, form.Comment, form.Locale, file), cancellationToken)).ToHttpResult();
+            form.Quantity, form.Comment, form.Locale, file, form.RequestId), cancellationToken)).ToHttpResult();
     }
 }

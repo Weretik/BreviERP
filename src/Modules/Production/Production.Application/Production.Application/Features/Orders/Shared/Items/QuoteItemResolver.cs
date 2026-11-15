@@ -9,13 +9,14 @@ namespace Production.Application.Features.Orders.Shared.Items;
 
 /// <summary>
 /// Turns the КП items into what the workshop copies: model and fabric codes, the sewing rate of the fabric variant and
-/// the workshop norm. Catalog costs and norms are read once per model.
+/// the workshop norm. Catalog costs are read once per model; the fabrics and the workshop norms once per request.
 /// </summary>
 public sealed class QuoteItemResolver(IProductionDbContext db, IProductionModelReader models,
     IProductionFabricReader fabrics)
 {
     private readonly Dictionary<int, ProductionModelCosts?> _costs = [];
     private Dictionary<int, ProductionFabric>? _fabrics;
+    private Dictionary<string, ModelFabricNorm>? _norms;
 
     public async Task<ResolvedQuoteItem> ResolveAsync(ProductionQuoteItem item, CancellationToken cancellationToken)
     {
@@ -29,9 +30,8 @@ public sealed class QuoteItemResolver(IProductionDbContext db, IProductionModelR
         _fabrics ??= (await fabrics.ListAsync(cancellationToken)).ToDictionary(x => x.Id);
         var code = costs?.ModelCode ?? (item.ProductId is null ? null : item.Code);
         var normalized = string.IsNullOrWhiteSpace(code) ? null : ModelFabricNorm.NormalizeCode(code);
-        var norm = normalized is null
-            ? null
-            : await db.FabricNorms.AsNoTracking().FirstOrDefaultAsync(x => x.ModelCode == normalized, cancellationToken);
+        _norms ??= await db.FabricNorms.AsNoTracking().ToDictionaryAsync(x => x.ModelCode, cancellationToken);
+        var norm = normalized is null ? null : _norms.GetValueOrDefault(normalized);
         var options = item.Options.Select(option =>
         {
             var fabric = option.FabricId is { } id ? _fabrics.GetValueOrDefault(id) : null;

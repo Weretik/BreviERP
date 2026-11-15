@@ -31,9 +31,9 @@ internal sealed class WarehouseProductionReader(IOrderFabricPlans plans) : IWare
                 .ToArray()))
         .ToArray();
 
-    public Task RecordFabricAsync(int orderId, int itemId, string text, string actorName,
+    public Task RecordFabricAsync(int orderId, int itemId, string text, string actorName, DateTimeOffset at,
         CancellationToken cancellationToken) =>
-        plans.RecordFabricAsync(orderId, itemId, text, actorName, cancellationToken);
+        plans.RecordFabricAsync(orderId, itemId, text, actorName, at, cancellationToken);
 
     internal static WarehousePlanItem Map(OrderPlanItem x) => new(x.OrderId, x.OrderNumber, x.OrderVersion,
         x.IsOpen, x.ClientName, x.ItemId, x.ModelName, x.FabricCode, x.FabricName, x.Quantity, x.HasNorm,

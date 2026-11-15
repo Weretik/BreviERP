@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Media.Domain.Files;
 using Media.Domain.Folders;
 
@@ -25,5 +26,6 @@ internal sealed class MediaFileConfiguration : IEntityTypeConfiguration<MediaFil
         builder.HasIndex(x => x.FolderId);
         builder.HasIndex(x => x.SourceKey).IsUnique().HasFilter("\"SourceKey\" IS NOT NULL");
         builder.HasIndex(x => x.ImageProcessedAt).HasFilter("\"ImageProcessedAt\" IS NULL");
+        builder.HasSearchText(nameof(MediaFile.FileName));
     }
 }

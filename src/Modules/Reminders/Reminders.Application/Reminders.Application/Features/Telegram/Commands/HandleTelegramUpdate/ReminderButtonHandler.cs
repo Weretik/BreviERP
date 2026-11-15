@@ -9,15 +9,26 @@ using Reminders.Application.Abstractions.Telegram;
 
 namespace Reminders.Application.Features.Telegram.Commands.HandleTelegramUpdate;
 
-/// <summary>"Виконано" closes the period, "Нагадати пізніше" offers three snooze dates. The person who pressed is recorded.</summary>
+/// <summary>
+/// "Виконано" closes the period, "Нагадати пізніше" offers three snooze dates. The person who pressed is recorded. Two
+/// presses at once are guarded by the occurrence's version: the later one is answered from the saved state.
+/// </summary>
 public sealed class ReminderButtonHandler(IRemindersDbContext db, ITelegramGateway telegram, ReminderClock clock)
 {
     public async Task HandleAsync(TelegramCallbackQuery query, CancellationToken cancellationToken)
     {
+        if (await TryHandleAsync(query, cancellationToken)) return;
+        // Someone else changed the period between our read and our save: read it again and answer from it.
+        await TryHandleAsync(query, cancellationToken);
+    }
+
+    /// <returns>False when another press or the admin changed the period first and nothing was saved.</returns>
+    private async Task<bool> TryHandleAsync(TelegramCallbackQuery query, CancellationToken cancellationToken)
+    {
         if (query.Message is null || !ReminderCallbackData.TryParse(query.Data, out var data))
         {
             await telegram.AnswerCallbackAsync(query.Id, null, cancellationToken);
-            return;
+            return true;
         }
 
         var chatId = query.Message.Chat.Id;
@@ -30,7 +41,7 @@ public sealed class ReminderButtonHandler(IRemindersDbContext db, ITelegramGatew
         if (occurrence is null || task is null || !knownChat)
         {
             await telegram.AnswerCallbackAsync(query.Id, "Нагадування не знайдено", cancellationToken);
-            return;
+            return true;
         }
 
         var today = clock.Today;
@@ -41,11 +52,11 @@ public sealed class ReminderButtonHandler(IRemindersDbContext db, ITelegramGatew
             case ReminderCallbackAction.Later when occurrence.Status == ReminderOccurrenceStatus.Open:
                 await telegram.EditKeyboardAsync(chatId, messageId, ReminderMessageFormatter.SnoozeKeyboard(occurrence), cancellationToken);
                 await telegram.AnswerCallbackAsync(query.Id, "Коли нагадати?", cancellationToken);
-                return;
+                return true;
             case ReminderCallbackAction.Back when occurrence.Status == ReminderOccurrenceStatus.Open:
                 await telegram.EditKeyboardAsync(chatId, messageId, ReminderMessageFormatter.MainKeyboard(occurrence), cancellationToken);
                 await telegram.AnswerCallbackAsync(query.Id, null, cancellationToken);
-                return;
+                return true;
             case ReminderCallbackAction.Done:
                 answer = occurrence.Close(actor, clock.Now)
                     ? "Готово, задачу закрито ✅"
@@ -64,9 +75,19 @@ public sealed class ReminderButtonHandler(IRemindersDbContext db, ITelegramGatew
                 break;
         }
 
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            db.Occurrences.Entry(occurrence).Context.ChangeTracker.Clear();
+            return false;
+        }
+
         await RefreshCardsAsync(task, occurrence, today, chatId, messageId, cancellationToken);
         await telegram.AnswerCallbackAsync(query.Id, answer, cancellationToken);
+        return true;
     }
 
     /// <summary>The pressed card shows the new status without buttons; other live cards of the period lose their buttons.</summary>

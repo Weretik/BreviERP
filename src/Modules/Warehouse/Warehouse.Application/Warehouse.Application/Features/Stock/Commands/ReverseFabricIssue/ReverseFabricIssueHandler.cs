@@ -9,7 +9,7 @@ using Warehouse.Application.Features.Stock.Shared.Plans;
 namespace Warehouse.Application.Features.Stock.Commands.ReverseFabricIssue;
 
 public sealed class ReverseFabricIssueHandler(IWarehouseProductionReader production, IWarehouseDbContext db,
-    StockChanges changes, ItemFabricCards cards)
+    StockChanges changes, ItemFabricCards cards, FabricHistory history)
     : ICommandHandler<ReverseFabricIssueCommand, Result<ProductionItemFabricResponse>>
 {
     public async ValueTask<Result<ProductionItemFabricResponse>> Handle(ReverseFabricIssueCommand command,
@@ -34,11 +34,11 @@ public sealed class ReverseFabricIssueHandler(IWarehouseProductionReader product
         foreach (var movement in issue.Lines.SelectMany(x => x.Movements).Where(x => !x.IsReversed && !x.IsVoided))
             movement.Stock.Reverse(movement, details, actorName, now);
         issue.Reverse(command.Input.Reason, actorName, now);
+        var note = history.Note(issue.OrderId, issue.ItemId,
+            $"Сторно видачі {CreateFabricIssueHandler.Meters(issue.Lines.Sum(x => x.Meters))} м", actorName, now);
         var saved = await changes.SaveAsync(cancellationToken);
         if (!saved.IsSuccess) return Result<ProductionItemFabricResponse>.Conflict([.. saved.Errors]);
-        await production.RecordFabricAsync(issue.OrderId, issue.ItemId,
-            $"Сторно видачі {CreateFabricIssueHandler.Meters(issue.Lines.Sum(x => x.Meters))} м", actorName,
-            cancellationToken);
+        await history.SendAsync(note);
         return Result.Success(await cards.BuildAsync(item, command.Actor, cancellationToken));
     }
 }

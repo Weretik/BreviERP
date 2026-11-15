@@ -55,7 +55,8 @@ namespace Reference.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProcessedAt", "NextAttemptAt");
+                    b.HasIndex("CreatedAt")
+                        .HasFilter("\"ProcessedAt\" IS NULL");
 
                     b.ToTable("OutboxMessages", "reference");
                 });
@@ -84,7 +85,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("FabricColors", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Fabric", b =>
+            modelBuilder.Entity("Reference.Domain.Fabrics.Fabric", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("integer");
@@ -205,24 +206,6 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("GarmentAccessoriesReference", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentPartOperations.GarmentPart", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("GarmentParts", "reference");
-                });
-
             modelBuilder.Entity("Reference.Domain.GarmentPartOperations.GarmentPartOperation", b =>
                 {
                     b.Property<int>("Id")
@@ -276,6 +259,24 @@ namespace Reference.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("GarmentPartOperations", "reference");
+                });
+
+            modelBuilder.Entity("Reference.Domain.GarmentParts.GarmentPart", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("GarmentParts", "reference");
                 });
 
             modelBuilder.Entity("Reference.Domain.PpeMarkupRules.PpeMarkupRule", b =>
@@ -542,7 +543,7 @@ namespace Reference.Infrastructure.Migrations
                     b.ToTable("Suppliers", "reference");
                 });
 
-            modelBuilder.Entity("Reference.Domain.GarmentAccessories.Fabric", b =>
+            modelBuilder.Entity("Reference.Domain.Fabrics.Fabric", b =>
                 {
                     b.HasOne("Reference.Domain.Suppliers.Supplier", null)
                         .WithMany()
@@ -567,7 +568,7 @@ namespace Reference.Infrastructure.Migrations
                         .HasForeignKey("AccessoryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Reference.Domain.GarmentAccessories.Fabric", null)
+                    b.HasOne("Reference.Domain.Fabrics.Fabric", null)
                         .WithMany()
                         .HasForeignKey("FabricId")
                         .OnDelete(DeleteBehavior.Restrict);

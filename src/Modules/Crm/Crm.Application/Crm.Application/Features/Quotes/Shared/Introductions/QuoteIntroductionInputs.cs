@@ -22,7 +22,8 @@ public sealed record SaveQuoteIntroductionInput(
     string? LetterName,
     IReadOnlyList<QuoteIntroPageInput> Pages,
     string? LetterSubject = null,
-    string? LetterBody = null);
+    string? LetterBody = null,
+    Guid? RequestId = null);
 
 /// <param name="Season">`Summer` or `Winter`.</param>
 /// <param name="Models">The main model of the season first, then three more.</param>

@@ -49,7 +49,10 @@ public sealed class SaveTimesheetDayHandler(IProductionDbContext db, IProduction
                 return changed.Error!.ToResult<TimesheetDayResponse>();
         }
 
-        await db.SaveChangesAsync(cancellationToken);
+        if (!await PayrollMonths.MarkChangedAsync(db, input.Date, actorName, now, cancellationToken))
+            return Result<TimesheetDayResponse>.Conflict(PayrollMessages.Closed);
+        if (await PayrollMonths.SaveAsync(db, cancellationToken) is { IsSuccess: false } saved)
+            return Result<TimesheetDayResponse>.Conflict([.. saved.Errors]);
         return Result.Success(await days.BuildAsync(input.Date, cancellationToken));
     }
 }

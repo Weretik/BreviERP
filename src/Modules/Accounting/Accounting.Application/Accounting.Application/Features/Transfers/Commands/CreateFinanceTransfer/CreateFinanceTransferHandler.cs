@@ -16,6 +16,7 @@ public sealed class CreateFinanceTransferHandler(IAccountingDbContext db, TimePr
     public async ValueTask<Result<FinanceTransferResponse>> Handle(CreateFinanceTransferCommand command,
         CancellationToken cancellationToken)
     {
+        if (await RepeatAsync(command.RequestId, cancellationToken) is { } repeat) return repeat;
         var fields = command.Fields.ToDetails();
         if (fields.IsFailure) return fields.Error!.ToResult<FinanceTransferResponse>();
         var details = fields.Value;
@@ -23,14 +24,35 @@ public sealed class CreateFinanceTransferHandler(IAccountingDbContext db, TimePr
         if (missing is not null) return Result.NotFound(missing);
 
         var now = clock.GetUtcNow();
-        var created = FinanceTransfer.Create(FinanceTransferId.New(), command.Scope, details, from, to, command.By, now);
+        var created = FinanceTransfer.Create(FinanceTransferId.New(), command.Scope, details, from, to, command.By, now,
+            command.RequestId);
         if (created.IsFailure) return created.Error!.ToResult<FinanceTransferResponse>();
         var transfer = created.Value;
         db.Transfers.Add(transfer);
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         AuditTrail.Add(db, AuditEntity.Transfer, transfer.Id.Value, AuditAction.Create, command.By, now, null,
             AuditTrail.Snapshot(transfer, names));
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException) when (command.RequestId is not null)
+        {
+            // The same request saved meanwhile (a double click): answer with the saved transfer.
+            if (await RepeatAsync(command.RequestId, cancellationToken) is { } saved) return saved;
+            throw;
+        }
+
         return Result.Success(FinanceTransferResponse.From(transfer, names));
+    }
+
+    private async Task<Result<FinanceTransferResponse>?> RepeatAsync(Guid? requestId,
+        CancellationToken cancellationToken)
+    {
+        if (requestId is not { } id) return null;
+        var saved = await db.Transfers.AsNoTracking().SingleOrDefaultAsync(x => x.RequestId == id, cancellationToken);
+        return saved is null
+            ? null
+            : Result.Success(FinanceTransferResponse.From(saved, await FinanceNames.LoadAsync(db, cancellationToken)));
     }
 }

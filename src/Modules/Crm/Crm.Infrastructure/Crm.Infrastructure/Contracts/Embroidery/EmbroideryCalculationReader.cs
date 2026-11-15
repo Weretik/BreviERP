@@ -1,7 +1,7 @@
 using Crm.Contracts.Embroidery;
 using Mediator;
 using MockupUsagesQuery = Crm.Application.Features.Embroidery.Queries.GetEmbroideryMockupUsages.GetEmbroideryMockupUsagesQuery;
-using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculation;
+using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculationsById;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculations;
 using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Shared.Access;
@@ -21,17 +21,16 @@ internal sealed class EmbroideryCalculationReader(ISender sender) : IEmbroideryC
             x.Quantity, x.StitchesPerUnit, x.HoopLabel, Thumbnail(x.Mockup))).ToArray();
     }
 
-    public async Task<EmbroideryCalculationInfo?> FindAsync(int userId, long id, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<EmbroideryCalculationInfo>> FindManyAsync(int userId,
+        IReadOnlyCollection<long> ids, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetEmbroideryCalculationQuery(new EmbroideryActor(userId, false), id),
+        var result = await sender.Send(new GetEmbroideryCalculationsByIdQuery(new EmbroideryActor(userId, false), ids),
             cancellationToken);
-        if (!result.IsSuccess) return null;
-        var summary = result.Value.Summary;
-        var calculation = result.Value.Result;
-        return new EmbroideryCalculationInfo(summary.Id, summary.Number, summary.Name, summary.CustomerName,
-            summary.Mode, summary.Quantity, summary.StitchesPerUnit, summary.HoopLabel, calculation.Hoopings,
-            calculation.Stabilizer?.CutMetres, calculation.Fabric?.CutMetres, summary.Mockup?.Url,
-            Thumbnail(summary.Mockup));
+        if (!result.IsSuccess) throw new InvalidOperationException("Saved embroidery calculations could not be read.");
+        return result.Value.Select(x => new EmbroideryCalculationInfo(x.Summary.Id, x.Summary.Number, x.Summary.Name,
+            x.Summary.CustomerName, x.Summary.Mode, x.Summary.Quantity, x.Summary.StitchesPerUnit, x.Summary.HoopLabel,
+            x.Result.Hoopings, x.Result.Stabilizer?.CutMetres, x.Result.Fabric?.CutMetres, x.Summary.Mockup?.Url,
+            Thumbnail(x.Summary.Mockup))).ToArray();
     }
 
     public async Task<IReadOnlyList<EmbroideryMockupUsage>> MockupUsagesAsync(IReadOnlyCollection<int> mediaFileIds,

@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Accounting.Domain.Accounts;
 using Accounting.Domain.Categories;
 using Accounting.Domain.Counterparties;
@@ -56,5 +57,8 @@ internal sealed class FinanceTransactionConfiguration : IEntityTypeConfiguration
         // A later bank statement finds lines it already has by these.
         builder.HasIndex(x => x.Fingerprint);
         builder.HasIndex(x => x.ExternalId);
+        builder.HasIndex(x => x.RequestId).IsUnique().HasFilter("\"RequestId\" IS NOT NULL");
+        builder.HasSearchText(nameof(FinanceTransaction.Description), nameof(FinanceTransaction.Comment),
+            nameof(FinanceTransaction.OneoffName));
     }
 }

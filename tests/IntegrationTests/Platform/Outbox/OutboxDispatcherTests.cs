@@ -40,6 +40,7 @@ public sealed class OutboxDispatcherTests
         services.AddLogging();
         services.AddDbContext<TestOutboxContext>(x => x.UseNpgsql(_connectionString));
         services.AddOutbox<TestOutboxContext>();
+        services.Configure<OutboxOptions>(x => x.HandlerTimeout = TimeSpan.FromSeconds(1));
         services.AddOutboxHandler<RecordingHandler>();
         services.AddOutboxHandler<FailingHandler>();
         _services = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
@@ -158,6 +159,23 @@ public sealed class OutboxDispatcherTests
             Assert.That(message.Attempts, Is.EqualTo(OutboxMessage.MaxAttempts));
             Assert.That(message.ProcessedAt, Is.Null);
             Assert.That(after, Is.EqualTo(OutboxRun.Empty));
+        });
+    }
+
+    [Test]
+    public async Task A_handler_that_does_not_answer_in_time_fails_and_waits_for_the_next_try()
+    {
+        RecordingHandler.Delay = TimeSpan.FromSeconds(10);
+        var id = await SaveAsync(RecordingHandler.MessageType, "slow");
+
+        var run = await DispatchAsync(d => d.DispatchDueAsync(CancellationToken.None));
+
+        var message = await LoadAsync(id);
+        Assert.Multiple(() =>
+        {
+            Assert.That(run, Is.EqualTo(new OutboxRun(0, 1)));
+            Assert.That(message.ProcessedAt, Is.Null);
+            Assert.That(message.LastError, Is.EqualTo("No answer in 1 s."));
         });
     }
 

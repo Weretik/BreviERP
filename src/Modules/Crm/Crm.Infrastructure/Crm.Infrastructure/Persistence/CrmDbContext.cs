@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using BuildingBlocks.Application.Outbox;
 using BuildingBlocks.Infrastructure.Outbox;
 using Crm.Domain.Customers;
@@ -116,6 +117,7 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema("crm");
+        builder.AddTrigramSearch();
         builder.ApplyConfigurationsFromAssembly(typeof(CrmDbContext).Assembly);
         builder.AddOutbox();
     }

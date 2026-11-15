@@ -73,11 +73,12 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
     }
 
     private async Task<Ardalis.Result.Result<LeadDetailResponse>> Call(LeadActor actor, LeadDetailResponse lead,
-        string result, DateTimeOffset? next = null, string? comment = null)
+        string result, DateTimeOffset? next = null, string? comment = null, Guid? requestId = null)
     {
         await using var db = Context();
         return await new RecordLeadCallHandler(db, _staff, _clock).Handle(
-            new RecordLeadCallCommand(actor, lead.Id, new RecordLeadCallInput(await ResultId(result), comment, next, lead.Version)),
+            new RecordLeadCallCommand(actor, lead.Id,
+                new RecordLeadCallInput(await ResultId(result), comment, next, lead.Version, requestId)),
             default);
     }
 
@@ -171,6 +172,24 @@ public sealed class LeadPersistenceTests : CrmDatabaseFixture
         Assert.That(take.Status, Is.EqualTo(Ardalis.Result.ResultStatus.Conflict));
         Assert.That(take.Errors.Single(), Does.Contain("Анастасія"));
         Assert.That(call.Status, Is.EqualTo(Ardalis.Result.ResultStatus.Forbidden));
+    }
+
+    [Test]
+    public async Task ARepeatedCallWithTheSameRequestIdIsRecordedOnce()
+    {
+        await Sync();
+        var lead = (await Take(Anastasia, await IdOf(1))).Value;
+        var request = Guid.NewGuid();
+
+        var first = await Call(Anastasia, lead, "Не дозвонились", requestId: request);
+        var repeat = await Call(Anastasia, lead, "Не дозвонились", requestId: request);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(first.Value.CallCount, Is.EqualTo(1));
+            Assert.That(repeat.Status, Is.EqualTo(Ardalis.Result.ResultStatus.Ok), "not «stale»: it is the same press");
+            Assert.That(repeat.Value.CallCount, Is.EqualTo(1));
+        });
     }
 
     [Test]

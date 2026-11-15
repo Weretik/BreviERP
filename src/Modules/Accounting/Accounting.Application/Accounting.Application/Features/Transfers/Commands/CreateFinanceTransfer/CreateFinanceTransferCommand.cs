@@ -10,5 +10,7 @@ using Accounting.Application.Features.Transfers.Shared;
 namespace Accounting.Application.Features.Transfers.Commands.CreateFinanceTransfer;
 
 /// <summary>«Додати переказ» in the current books or in «Домашня бухгалтерія» (<paramref name="Scope"/>).</summary>
-public sealed record CreateFinanceTransferCommand(LedgerScope Scope, FinanceTransferFields Fields, string By)
+/// <summary><paramref name="RequestId"/> is made when the form opens: a repeated «Зберегти» returns the saved one.</summary>
+public sealed record CreateFinanceTransferCommand(LedgerScope Scope, FinanceTransferFields Fields, string By,
+    Guid? RequestId = null)
     : ICommand<Result<FinanceTransferResponse>>;

@@ -14,4 +14,7 @@ public sealed class PublicSiteRequestForm
     public string? Locale { get; init; }
 
     public IFormFile? Attachment { get; init; }
+
+    /// <summary>New for every filled form; the same form sent again returns the same request.</summary>
+    public Guid? RequestId { get; init; }
 }

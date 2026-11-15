@@ -86,6 +86,22 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
     }
 
     [Test]
+    public async Task SearchNeedsEveryWordInAnyColumnOnTheTrigramIndex()
+    {
+        await Create(Olena);
+        var petros = await Create(Petro, "Будівельник");
+
+        await using var db = Context();
+        async Task<long[]> Find(string text) =>
+            [.. (await new GetQuotesHandler(db).Handle(new GetQuotesQuery(Director, text, null, null), default))
+                .Value.Items.Select(x => x.Id)];
+
+        Assert.That(await Find("БУДІВ 2-11"), Is.EqualTo(new[] { petros.Id }), "name and number, any case");
+        Assert.That(await Find("будів 1-11-2026"), Is.Empty, "every word must match the same КП");
+        Assert.That(await Find("100%"), Is.Empty, "a wildcard is a plain character");
+    }
+
+    [Test]
     public async Task ClientCardListsOnlyThatClientsQuotesWithinTheActorsAccess()
     {
         var olenas = await Create(Olena, customerId: 40);
@@ -354,6 +370,40 @@ public sealed class QuotePersistenceTests : CrmDatabaseFixture
         var history = (await new GetQuoteHistoryHandler(db)
             .Handle(new GetQuoteHistoryQuery(Director, copy.Value.Id), default)).Value;
         Assert.That(history.Single().Details, Is.EqualTo($"Копія КП {created.Number}"));
+    }
+
+    [Test]
+    public async Task ARepeatedCreateOrCopyReturnsTheSameQuote()
+    {
+        var input = Input() with { RequestId = Guid.NewGuid() };
+        var copyRequest = new CopyQuoteInput(Guid.NewGuid());
+
+        var created = await CreateWith(input);
+        var repeated = await CreateWith(input);
+        await using var db = Context();
+        var copy = await new CopyQuoteHandler(db, _staff, new QuoteNumbering(db), _clock)
+            .Handle(new CopyQuoteCommand(Olena, created.Id, copyRequest), default);
+        await using var other = Context();
+        var copyAgain = await new CopyQuoteHandler(other, _staff, new QuoteNumbering(other), _clock)
+            .Handle(new CopyQuoteCommand(Olena, created.Id, copyRequest), default);
+
+        await using var check = Context();
+        Assert.Multiple(() =>
+        {
+            Assert.That(repeated.Id, Is.EqualTo(created.Id));
+            Assert.That(repeated.Items, Has.Count.EqualTo(1));
+            Assert.That(copyAgain.Value.Id, Is.EqualTo(copy.Value.Id));
+            Assert.That(check.Quotes.Count(), Is.EqualTo(2), "one КП and one copy");
+        });
+    }
+
+    private async Task<QuoteResponse> CreateWith(SaveQuoteInput input)
+    {
+        await using var db = Context();
+        var result = await new CreateQuoteHandler(_staff, new QuoteItemsBuilder(_catalog), new QuoteNumbering(db), _clock)
+            .Handle(new CreateQuoteCommand(Olena, input), default);
+        Assert.That(result.IsSuccess, Is.True, string.Join(",", result.Errors));
+        return result.Value;
     }
 
     private Task<Result<QuoteResponse>> Save(CrmDbContext db, long id, SaveQuoteInput input) =>

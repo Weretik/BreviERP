@@ -9,7 +9,8 @@ using Warehouse.Application.Features.Stock.Shared.Plans;
 namespace Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
 
 public sealed class CreateFabricIssueHandler(IWarehouseProductionReader production, IWarehouseDbContext db,
-    StockChanges changes, StockPairs pairs, StockOperations operations, ItemPlans plans, ItemFabricCards cards)
+    StockChanges changes, StockPairs pairs, StockOperations operations, ItemPlans plans, ItemFabricCards cards,
+    FabricHistory history)
     : ICommandHandler<CreateFabricIssueCommand, Result<ProductionItemFabricResponse>>
 {
     public const string Kind = "order-issue";
@@ -46,10 +47,12 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
 
         // Every pair is loaded and checked before anything is spent; lines of one pair spend it one after another.
         var forms = new List<(FabricIssueLineInput Row, StockPair Pair, FabricItemPlanPart? Part)>();
+        var loaded = await pairs.LoadManyAsync(input.Lines.Select(x => (x.FabricCode, x.Color)).ToList(),
+            cancellationToken);
         for (var i = 0; i < input.Lines.Count; i++)
         {
             var row = input.Lines[i];
-            var pair = await pairs.LoadAsync(row.FabricCode, row.Color, cancellationToken);
+            var pair = loaded[i];
             if (pair.Lines.Count == 0) return Invalid($"Lines[{i}]", StockMessages.NotHeld);
             if (row.ExpectedVersion is { Length: > 0 } version && version != pair.Version)
                 return Result<ProductionItemFabricResponse>.Conflict(StockMessages.PairStale);
@@ -100,10 +103,11 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
         }
 
         db.FabricIssues.Add(issue);
+        var note = history.Note(item.OrderId, item.ItemId,
+            $"Видано {Meters(issue.Lines.Sum(x => x.Meters))} м на {input.IssuedQuantity} шт.", actorName, now);
         var saved = await SaveAsync(command.Actor, input.OperationId, hash, touched, issue, forms[0].Pair, cancellationToken);
         if (saved is not null) return saved;
-        await production.RecordFabricAsync(item.OrderId, item.ItemId,
-            $"Видано {Meters(issue.Lines.Sum(x => x.Meters))} м на {input.IssuedQuantity} шт.", actorName, cancellationToken);
+        await history.SendAsync(note);
         return Result.Success(await cards.BuildAsync(item, command.Actor, cancellationToken));
     }
 
@@ -123,7 +127,7 @@ public sealed class CreateFabricIssueHandler(IWarehouseProductionReader producti
             await db.SaveChangesAsync(cancellationToken);
             return null;
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException exception) when (exception.IsRace())
         {
             if (await operations.ReplayAsync(operationId, hash, cancellationToken) is { IsSuccess: true })
                 return null;

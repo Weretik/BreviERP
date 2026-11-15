@@ -187,6 +187,10 @@ namespace Reminders.Infrastructure.Persistence.Migrations
                     b.Property<long>("TaskId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Status", "DueDate");

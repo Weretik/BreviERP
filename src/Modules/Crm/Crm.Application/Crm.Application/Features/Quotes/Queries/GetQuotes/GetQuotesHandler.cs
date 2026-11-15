@@ -24,14 +24,7 @@ public sealed class GetQuotesHandler(IQuoteStore store) : IQueryHandler<GetQuote
             quotes = quotes.Where(x => x.Status == status);
         }
 
-        if (!string.IsNullOrWhiteSpace(query.Search))
-        {
-            var search = query.Search.Trim().ToLower();
-            quotes = quotes.Where(x => x.Number.ToLower().Contains(search) ||
-                x.InternalName.ToLower().Contains(search) ||
-                (x.CompanyName != null && x.CompanyName.ToLower().Contains(search)) ||
-                (x.RecipientName != null && x.RecipientName.ToLower().Contains(search)));
-        }
+        quotes = quotes.WhereSearchText(query.Search);
 
         var total = await quotes.CountAsync(cancellationToken);
         var rows = await quotes

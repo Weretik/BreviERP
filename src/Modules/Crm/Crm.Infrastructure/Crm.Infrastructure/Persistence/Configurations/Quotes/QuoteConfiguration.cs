@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Quotes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -43,6 +44,9 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.HasIndex(x => x.UpdatedAt);
         b.HasIndex(x => x.ArchivedAt);
         b.HasIndex(x => x.CustomerId);
+        b.HasIndex(x => x.CreateRequestId).IsUnique().HasFilter("\"CreateRequestId\" IS NOT NULL");
+        b.HasSearchText(nameof(Quote.Number), nameof(Quote.InternalName), nameof(Quote.CompanyName),
+            nameof(Quote.RecipientName));
 
         // A Crm customer; the KeepinCRM sync keeps customers that a КП uses (CustomerKeepinSyncStore.ListInUseAsync).
         b.HasMany(x => x.Items).WithOne().HasForeignKey(x => x.QuoteId).OnDelete(DeleteBehavior.Cascade);

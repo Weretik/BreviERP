@@ -19,7 +19,9 @@ public interface IEmbroideryCalculationReader
     Task<IReadOnlyList<EmbroideryChoiceInfo>> SearchAsync(int userId, string? search, int max,
         CancellationToken cancellationToken);
 
-    Task<EmbroideryCalculationInfo?> FindAsync(int userId, long id, CancellationToken cancellationToken);
+    /// <summary>The calculations of <paramref name="ids"/> in one read; an id that is not found is left out.</summary>
+    Task<IReadOnlyList<EmbroideryCalculationInfo>> FindManyAsync(int userId, IReadOnlyCollection<long> ids,
+        CancellationToken cancellationToken);
 
     Task<IReadOnlyList<EmbroideryMockupUsage>> MockupUsagesAsync(IReadOnlyCollection<int> mediaFileIds,
         CancellationToken cancellationToken);

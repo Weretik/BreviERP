@@ -15,10 +15,8 @@ public sealed class GetEmbroideryCalculationsHandler(IEmbroideryStore store, IEm
         var rows = store.EmbroideryCalculations.AsNoTracking();
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
-            var search = query.Search.Trim().ToLower();
-            var number = EmbroideryNumberSearch.Parse(search);
-            rows = rows.Where(x => x.Id == number || x.Name.ToLower().Contains(search) ||
-                (x.CustomerName != null && x.CustomerName.ToLower().Contains(search)));
+            var number = EmbroideryNumberSearch.Parse(query.Search.Trim().ToLower());
+            rows = rows.WhereEveryWord(query.Search, pattern => x => x.Id == number || EF.Functions.Like(EF.Property<string>(x, SearchWords.Column), pattern, SearchWords.Escape));
         }
 
         var total = await rows.CountAsync(cancellationToken);

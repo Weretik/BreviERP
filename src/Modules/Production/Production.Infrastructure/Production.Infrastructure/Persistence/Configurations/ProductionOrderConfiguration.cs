@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Production.Domain.Orders;
 using Production.Infrastructure.Persistence;
 using Production.Domain.Orders.Enums;
@@ -27,6 +28,7 @@ internal sealed class ProductionOrderConfiguration : IEntityTypeConfiguration<Pr
         builder.HasIndex(x => x.CreateRequestId).IsUnique().HasFilter("\"CreateRequestId\" IS NOT NULL");
         builder.HasIndex(x => x.LegacyId).IsUnique().HasFilter("\"LegacyId\" IS NOT NULL");
         builder.HasIndex(x => x.QuoteId);
+        builder.HasSearchText(nameof(ProductionOrder.ClientName), nameof(ProductionOrder.QuoteNumber));
         builder.Ignore(x => x.IsDeleted);
         builder.Ignore(x => x.IsFullyShipped);
 
@@ -69,6 +71,7 @@ internal sealed class ProductionItemConfiguration : IEntityTypeConfiguration<Pro
         builder.Ignore(x => x.Details);
         builder.Ignore(x => x.Source);
         builder.HasIndex(x => x.ModelCode);
+        builder.HasSearchText(nameof(ProductionItem.ModelName), nameof(ProductionItem.ModelCode));
     }
 }
 

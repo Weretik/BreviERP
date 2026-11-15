@@ -11822,6 +11822,22 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CopyQuoteInput"
+                  }
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Created",
@@ -18121,6 +18137,21 @@
           }
         }
       },
+      "CopyQuoteInput": {
+        "required": [
+          "requestId"
+        ],
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
       "CounterpartyKind": {
         "enum": [
           "Financial",
@@ -18489,6 +18520,13 @@
           },
           "reason": {
             "type": "string"
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -18522,6 +18560,13 @@
               "null",
               "string"
             ]
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -18883,6 +18928,13 @@
               "null",
               "string"
             ]
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -24607,6 +24659,13 @@
               "null",
               "string"
             ]
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -24941,6 +25000,13 @@
               "null",
               "string"
             ]
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -35475,6 +35541,13 @@
                 "$ref": "#/components/schemas/IFormFile"
               }
             ]
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -38970,6 +39043,13 @@
           "version": {
             "type": "integer",
             "format": "int32"
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -40206,6 +40286,13 @@
             "items": {
               "$ref": "#/components/schemas/QuoteItemInput"
             }
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -40288,6 +40375,13 @@
               "null",
               "string"
             ]
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -40911,6 +41005,13 @@
           },
           "body": {
             "type": "string"
+          },
+          "requestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },

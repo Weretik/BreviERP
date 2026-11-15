@@ -19,7 +19,8 @@ public static class OutboxModelBuilderExtensions
             b.Property(x => x.Payload).HasColumnType("jsonb").IsRequired();
             b.Property(x => x.LastError).HasMaxLength(OutboxMessage.ErrorMaxLength);
             b.Ignore(x => x.GaveUp);
-            b.HasIndex(x => new { x.ProcessedAt, x.NextAttemptAt });
+            // Only unsent rows, in the order a run takes them: the index stays tiny however long the history grows.
+            b.HasIndex(x => x.CreatedAt).HasFilter("\"ProcessedAt\" IS NULL");
         });
         return builder;
     }

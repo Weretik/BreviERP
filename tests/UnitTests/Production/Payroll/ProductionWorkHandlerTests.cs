@@ -192,6 +192,28 @@ public sealed class ProductionWorkHandlerTests
         });
     }
 
+    [Test]
+    public async Task Work_repeated_with_the_same_request_id_is_recorded_once()
+    {
+        using var workshop = Workshop(out var employeeId);
+        var order = await Order(workshop);
+        var itemId = order.Items[0].Id;
+        var input = new CreateProductionWorkInput(employeeId, "Sewing", 2, Day, false, null, null, Guid.NewGuid());
+
+        var first = await Record(workshop, Chief, order.Id, itemId, input);
+        var repeat = await Record(workshop, Chief, order.Id, itemId, input);
+        var other = await Record(workshop, Chief, order.Id, itemId,
+            input with { RequestId = Guid.NewGuid(), OverPlan = true, Reason = "Запас" });
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(first.Value.Rows, Has.Count.EqualTo(1));
+            Assert.That(repeat.Status, Is.EqualTo(ResultStatus.Ok));
+            Assert.That(repeat.Value.Rows, Has.Count.EqualTo(1), "the repeat adds nothing");
+            Assert.That(other.Value.Rows, Has.Count.EqualTo(2), "a new request id is new work");
+        });
+    }
+
     private static ProductionTestHarness Workshop(out int employeeId)
     {
         var workshop = ProductionOrderHandlerTests.Workshop();

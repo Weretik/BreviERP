@@ -27,12 +27,27 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
     public static string Serialize(PayrollSnapshot snapshot) => JsonSerializer.Serialize(snapshot, Json);
 
     /// <summary>The month as it is now, or as it was closed.</summary>
-    public async Task<PayrollSnapshot> ReadAsync(DateOnly month, CancellationToken cancellationToken)
+    public async Task<PayrollSnapshot> ReadAsync(DateOnly month, CancellationToken cancellationToken) =>
+        (await ReadRangeAsync(month, month, cancellationToken)).Single();
+
+    /// <summary>
+    /// The months from <paramref name="first"/> to <paramref name="last"/> (first days), each as it is now or as it was
+    /// closed. The sources of the open months are read once for the whole range (database audit 2026-11-15, 1.4), so a
+    /// year costs the same handful of queries as one month.
+    /// </summary>
+    public async Task<IReadOnlyList<PayrollSnapshot>> ReadRangeAsync(DateOnly first, DateOnly last,
+        CancellationToken cancellationToken)
     {
-        var period = await db.PayrollMonths.AsNoTracking().SingleOrDefaultAsync(x => x.Month == month, cancellationToken);
-        if (period is { IsClosed: true, Snapshot: { } json })
-            return JsonSerializer.Deserialize<PayrollSnapshot>(json, Json)!;
-        return await CalculateAsync(month, period, cancellationToken);
+        var periods = await db.PayrollMonths.AsNoTracking().Where(x => x.Month >= first && x.Month <= last)
+            .ToDictionaryAsync(x => x.Month, cancellationToken);
+        var months = new List<DateOnly>();
+        for (var month = first; month <= last; month = month.AddMonths(1)) months.Add(month);
+        var open = months.Where(x => periods.GetValueOrDefault(x) is not { IsClosed: true, Snapshot: not null }).ToList();
+        var sources = open.Count == 0 ? null : await LoadAsync(open[0], open[^1].AddMonths(1), cancellationToken);
+        return months.Select(month => periods.GetValueOrDefault(month) is { IsClosed: true, Snapshot: { } json }
+                ? JsonSerializer.Deserialize<PayrollSnapshot>(json, Json)!
+                : Calculate(month, periods.GetValueOrDefault(month), sources!))
+            .ToList();
     }
 
     /// <summary>The month for this person: what they may do with it now.</summary>
@@ -50,33 +65,56 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
         };
     }
 
-    private async Task<PayrollSnapshot> CalculateAsync(DateOnly month, PayrollMonth? period,
-        CancellationToken cancellationToken)
+    /// <summary>Everything the open months of a range are built from.</summary>
+    private sealed record PayrollSources(
+        Dictionary<int, WorkshopEmployee> Employees,
+        List<ProductionWork> Work,
+        Dictionary<int, (int OrderNumber, string ModelName, decimal? SewingRate)> Items,
+        List<(DateOnly WorkDate, int EmployeeId, int Minutes)> Time,
+        List<PayrollPayment> Payments,
+        List<PayrollAdjustment> Adjustments,
+        List<PayrollIssued> Issued,
+        PayrollRates Rates,
+        Dictionary<PayrollRoleKind, int?> Roles);
+
+    private async Task<PayrollSources> LoadAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken)
     {
-        var next = month.AddMonths(1);
         var employees = await db.Employees.AsNoTracking().ToDictionaryAsync(x => x.Id, cancellationToken);
         var work = await db.Work.AsNoTracking()
-            .Where(x => x.WorkDate >= month && x.WorkDate < next && x.VoidedAt == null)
+            .Where(x => x.WorkDate >= from && x.WorkDate < to && x.VoidedAt == null)
             .OrderBy(x => x.WorkDate).ThenBy(x => x.Id)
             .ToListAsync(cancellationToken);
         var orderIds = work.Select(x => x.OrderId).Distinct().ToList();
-        var items = (await db.Orders.AsNoTracking().Include(x => x.Items).Where(x => orderIds.Contains(x.Id))
+        var items = (await db.Orders.AsNoTracking().Where(x => orderIds.Contains(x.Id))
+                .SelectMany(o => o.Items, (o, i) => new { i.Id, o.Number, i.ModelName, i.SewingRate })
                 .ToListAsync(cancellationToken))
-            .SelectMany(o => o.Items.Select(i => (OrderNumber: o.Number, Item: i)))
-            .ToDictionary(x => x.Item.Id, x => (x.OrderNumber, x.Item.ModelName, x.Item.SewingRate));
-        var minutes = (await db.TimeEntries.AsNoTracking()
-                .Where(x => x.WorkDate >= month && x.WorkDate < next)
-                .Select(x => new { x.EmployeeId, x.Minutes })
+            .ToDictionary(x => x.Id, x => (x.Number, x.ModelName, x.SewingRate));
+        var time = (await db.TimeEntries.AsNoTracking()
+                .Where(x => x.WorkDate >= from && x.WorkDate < to)
+                .Select(x => new { x.WorkDate, x.EmployeeId, x.Minutes })
                 .ToListAsync(cancellationToken))
-            .GroupBy(x => x.EmployeeId).ToDictionary(x => x.Key, x => x.Sum(m => m.Minutes));
-        var payments = await db.PayrollPayments.AsNoTracking().Where(x => x.Month == month)
+            .Select(x => (x.WorkDate, x.EmployeeId, x.Minutes)).ToList();
+        var payments = await db.PayrollPayments.AsNoTracking().Where(x => x.Month >= from && x.Month < to)
             .OrderBy(x => x.PaidOn).ThenBy(x => x.Id).ToListAsync(cancellationToken);
-        var adjustments = await db.PayrollAdjustments.AsNoTracking().Where(x => x.Month == month)
+        var adjustments = await db.PayrollAdjustments.AsNoTracking().Where(x => x.Month >= from && x.Month < to)
             .OrderBy(x => x.Id).ToListAsync(cancellationToken);
-        var issued = await db.PayrollIssued.AsNoTracking().Where(x => x.Month == month)
-            .ToDictionaryAsync(x => x.EmployeeId, x => x.Amount, cancellationToken);
+        var issued = await db.PayrollIssued.AsNoTracking().Where(x => x.Month >= from && x.Month < to)
+            .ToListAsync(cancellationToken);
         var rates = await ReadRatesAsync(cancellationToken);
         var roles = await db.PayrollRoles.AsNoTracking().ToDictionaryAsync(x => x.Role, x => x.EmployeeId, cancellationToken);
+        return new PayrollSources(employees, work, items, time, payments, adjustments, issued, rates, roles);
+    }
+
+    private static PayrollSnapshot Calculate(DateOnly month, PayrollMonth? period, PayrollSources sources)
+    {
+        var next = month.AddMonths(1);
+        var (employees, items, rates, roles) = (sources.Employees, sources.Items, sources.Rates, sources.Roles);
+        var work = sources.Work.Where(x => x.WorkDate >= month && x.WorkDate < next).ToList();
+        var minutes = sources.Time.Where(x => x.WorkDate >= month && x.WorkDate < next)
+            .GroupBy(x => x.EmployeeId).ToDictionary(x => x.Key, x => x.Sum(m => m.Minutes));
+        var payments = sources.Payments.Where(x => x.Month == month).ToList();
+        var adjustments = sources.Adjustments.Where(x => x.Month == month).ToList();
+        var issued = sources.Issued.Where(x => x.Month == month).ToDictionary(x => x.EmployeeId, x => x.Amount);
 
         var master = Person(roles.GetValueOrDefault(PayrollRoleKind.Master), employees, "майстер");
         var chief = Person(roles.GetValueOrDefault(PayrollRoleKind.Chief), employees, "начальник");

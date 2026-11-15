@@ -75,7 +75,7 @@ public sealed class ProductPhotoPersistenceTests
         await using (var db = CreateContext())
         {
             var row = await SpecificationEvaluator.Default
-                .GetQuery(db.Products.AsQueryable(), new ProductOverviewSpec(null, 901)).SingleAsync();
+                .GetQuery(db.Products.AsQueryable(), new ProductOverviewSpec(null, [901])).SingleAsync();
             var index = await SpecificationEvaluator.Default
                 .GetQuery(db.Products.AsQueryable(), new ProductSkuIndexSpec()).ToListAsync();
             var photos = await db.Set<ProductPhoto>().AsNoTracking().OrderBy(x => x.SortOrder).ToListAsync();

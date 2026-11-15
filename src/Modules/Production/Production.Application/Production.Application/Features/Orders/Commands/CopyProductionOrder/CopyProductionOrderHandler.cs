@@ -45,9 +45,8 @@ public sealed class CopyProductionOrderHandler(IProductionDbContext db, IProduct
         if (created.IsFailure) return created.Error!.ToResult<ProductionOrderResponse>();
         var copy = created.Value;
         copy.Record("Створено", $"Копія завдання № {source.Number}", person.Name, now);
-        db.Orders.Add(copy);
         // No delivery row yet: a missing row reads as «Не надіслано», and «Надіслати в цех» creates it.
-        await db.SaveChangesAsync(cancellationToken);
-        return Result.Success(await cards.BuildAsync(copy, actor, cancellationToken));
+        var saved = await OrderNumbers.SaveNewAsync(db, copy, cancellationToken);
+        return Result.Success(await cards.BuildAsync(saved, actor, cancellationToken));
     }
 }

@@ -79,11 +79,7 @@ public sealed class GetFinanceTransactionsHandler(IAccountingDbContext db, IAcco
         if (f.NeedsReview) rows = rows.Where(x => x.Verification != VerificationStatus.Verified);
         if (counterparty is { } link)
             rows = rows.Where(x => x.CounterpartyKind == link.Kind && x.CounterpartyId == link.Id);
-        var search = FinanceText.Clean(f.Search).ToLowerInvariant();
-        if (search.Length > 0)
-            rows = rows.Where(x => x.Description.ToLower().Contains(search) || x.Comment.ToLower().Contains(search)
-                || x.OneoffName.ToLower().Contains(search));
-        return rows;
+        return rows.WhereSearchText(f.Search);
     }
 
     private static IQueryable<FinanceTransaction> Order(IQueryable<FinanceTransaction> rows, FinanceJournalSort sort,
