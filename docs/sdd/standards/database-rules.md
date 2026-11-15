@@ -187,6 +187,8 @@ Each module owns its `DbContext`, schema and migration history ([module rules](m
 
 - Migrations and seed run in the `Host.Seed` Cloud Run Job. `deploy-cloudrun.yml` runs it with `--wait` (one task, no retries) **before** it deploys `Host.Api`; a failed job stops the deploy. `Host.Api` never migrates. This satisfies 5.1.
 - Use the EF Core CLI as the repository-pinned local tool (`.config/dotnet-tools.json`, same version as `Microsoft.EntityFrameworkCore` in `Directory.Packages.props`): run `dotnet tool restore` once, then `dotnet ef ...`. Do not install `dotnet-ef` globally; when the EF Core package version is raised, raise the tool version with it.
+- CI (`tools/ci/migrations.py`, the `verify` job) fails when a module's model has changes without a migration (`has-pending-model-changes`) and when a module's idempotent script does not apply twice to an empty database. The scripts are attached to the run as `migration-scripts`: read them for `DROP`, `ALTER COLUMN TYPE` and table rewrites before the deploy (5.1, 5.2).
+- `DbMigrator` sets `lock_timeout = '10s'` for the migration session (5.3): a migration that meets a busy table fails and the deploy stops; run it again when the site is quiet.
 - Verify a new migration against an empty test database and write its rollback and deployment risks in the PR. Change reference and seed data through the existing seed mechanism, not hidden runtime writes. Runbooks: [data operations](../operations/data/migrations-and-seeding.md).
 
 ### Search
@@ -221,4 +223,5 @@ From the database audit of 2026-11-15; each row is removed when its fix is merge
 
 | Rule | Where | Status | Plan |
 | --- | --- | --- | --- |
-| 5.2, 5.3 | CI has no idempotent script review or pending-model-changes check | open | Audit stage 8 |
+| 4 | Product card (only its composition has a version) and Reference fabrics, accessories and suppliers (no version): a second editor silently overwrites the first | deferred | The audit rated it low while one person edits: add a version (`xmin` and the version in the form) when a second editor appears |
+| 1 | No `EnableRetryOnFailure`: a dropped database connection fails the request | deferred | Turn it on only when the logs show dropped connections; every explicit transaction must then run inside the execution strategy |
