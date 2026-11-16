@@ -13,6 +13,7 @@ public sealed class DeleteFabricColorHandler(IReferenceRepository<FabricColorEnt
         if (entity is null)
             return Result.NotFound();
 
+        entity.MarkDeleted();
         await repository.DeleteAsync(entity, cancellationToken);
         return Result.Success();
     }

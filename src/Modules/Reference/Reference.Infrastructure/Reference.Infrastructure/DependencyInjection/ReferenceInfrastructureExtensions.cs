@@ -1,3 +1,6 @@
+using ActivityLog.Contracts.Activity;
+using BuildingBlocks.Infrastructure.DomainEvents;
+using Reference.Application.Features.Activity.EventHandlers;
 using BuildingBlocks.Infrastructure.Outbox;
 using Reference.Infrastructure.Adapters.Catalog;
 using Reference.Contracts.Fabrics;
@@ -45,9 +48,12 @@ public static class ReferenceInfrastructureExtensions
         services.AddScoped<ReferencePricingInputChangeInterceptor>();
         services.AddScoped<PricingSettingsOutboxInterceptor>();
         services.AddReferenceKeepinCrmSync(configuration);
+        services.AddDomainEvents();
+        services.AddScoped<IActivityDescriber, ReferenceActivity>();
         services.AddDbContext<ReferenceDbContext>((provider, options) => options.UseNpgsql(connectionString)
             .AddInterceptors(provider.GetRequiredService<ReferencePricingInputChangeInterceptor>(),
-                provider.GetRequiredService<PricingSettingsOutboxInterceptor>()));
+                provider.GetRequiredService<PricingSettingsOutboxInterceptor>())
+            .AddDomainEvents(provider));
         services.AddScoped<IReadReferenceDbContext>(sp => sp.GetRequiredService<ReferenceDbContext>());
 
         services.AddScoped(typeof(IReferenceRepository<>), typeof(ReferenceEfRepository<>));

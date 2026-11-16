@@ -40,7 +40,7 @@ public sealed class ProductSectionTests
 
     private static async Task<ProductSectionImportResult> Import(Mock<IReferenceRepository<ProductSection>> repository,
         IReadOnlyList<ProductSectionImportRow> rows, bool dryRun = false, bool deleteMissing = false) =>
-        (await new ImportProductSectionsHandler(repository.Object)
+        (await new ImportProductSectionsHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), repository.Object)
             .Handle(new ImportProductSectionsCommand(rows, dryRun, deleteMissing), CancellationToken.None)).Value;
 
     [Test]

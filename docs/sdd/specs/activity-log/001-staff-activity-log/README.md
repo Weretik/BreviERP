@@ -35,9 +35,9 @@ The describer of each module maps its events. Stage 3 wires them in this order; 
 | --- | --- | --- |
 | Crm | `quote` (КП), `quote-intro-template` (Шаблон КП для знайомства), `quote-settings` (Налаштування КП), `task` (Завдання менеджеру), `lead` (Лід), `lead-call-result`, `lead-category`, `customer` (Клієнт), `embroidery-calculation` (Розрахунок вишивки), `embroidery-settings` | done: see the feature card «Covered actions» (clients have no delete command; syncs and imports are not listed) |
 | Production | `production-order`, `production-work`, `workshop-employee`, `workshop-settings`, `fabric-norm`, `payroll-payment`, `payroll-adjustment` | done: see the feature card «Covered actions» |
-| Warehouse | `fabric-movement` (Рух тканини), `fabric-stock-line` (Позиція складу) | openings, receipts, issues, adjustments, edit, void, restore, delete |
+| Warehouse | `fabric-movement` (Рух тканини) | done: openings, receipts, issues, adjustments, «Сторно», edit, void, restore (stock lines are made by these movements and have no delete; the transfer from the old «Цех» is not listed) |
 | Catalog | `product` (Товар) | create, change, photos, active switch, delete; price import (R-08) |
-| Reference | `product-section` (Розділ товарів), `fabric` (Тканина), `accessory` (Фурнітура), `color` (Колір), `operation` (Операція), `pricing-parameter` (Параметр ціни), `counterparty` (Контрагент) | create, change, delete; sheet imports (R-08) |
+| Reference | `product-section` (Розділ товарів), `fabric` (Тканина), `accessory` (Фурнітура), `color` (Колір), `garment-part` (Деталь виробу), `operation` (Операція), `ppe-markup-rule` (Правило націнки ЗІЗ), `pricing-parameter` (Параметр ціни), `supplier` (Постачальник) | done: create, change (name and price as fields), delete; sheet imports and the KeepinCRM supplier sync are not listed (R-08) |
 | Media | `media-file` (Фото), `media-folder` (Папка фото) | upload, rename, move, delete |
 
 The exact command list per module is decided while wiring it (each command that creates, changes or deletes on a covered page raises an event); the feature card lists the result.

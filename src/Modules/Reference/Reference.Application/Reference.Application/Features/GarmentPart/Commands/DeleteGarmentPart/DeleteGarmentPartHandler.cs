@@ -22,6 +22,7 @@ public sealed class DeleteGarmentPartHandler(
         if (await operationRepository.AnyAsync(new GarmentPartOperationsOfPartSpec(command.Id), cancellationToken))
             return Result.Conflict("У групі є операції. Спершу перенесіть або видаліть їх.");
 
+        entity.MarkDeleted();
         await repository.DeleteAsync(entity, cancellationToken);
 
         return Result.Success();

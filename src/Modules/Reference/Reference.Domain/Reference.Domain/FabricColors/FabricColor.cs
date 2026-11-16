@@ -8,7 +8,7 @@ namespace Reference.Domain.FabricColors;
 /// The workshop picks colours from this list for an item, a fabric receipt and the stock, where the stock line and its
 /// reservations are keyed by fabric and colour. Records keep the colour as text, so a rename does not change them.
 /// </summary>
-public class FabricColor : BaseEntity<FabricColorId>, IAggregateRoot
+public class FabricColor : ReferenceEntity<FabricColorId>, IAggregateRoot
 {
     /// <summary>The same limit as a colour of a stock line in «Склад тканин».</summary>
     public const int NameMaxLength = 80;
@@ -29,11 +29,14 @@ public class FabricColor : BaseEntity<FabricColorId>, IAggregateRoot
         if (id.Value == default) throw new ArgumentException("Fabric colour id is required.", nameof(id));
         var color = new FabricColor { Id = id };
         var applied = color.ApplyDetails(details);
-        return applied.IsFailure ? applied.Error! : color;
+        if (applied.IsFailure) return applied.Error!;
+        color.RecordCreated();
+        return color;
     }
 
     public DomainResult ApplyDetails(FabricColorDetails details)
     {
+        var nameBefore = Name;
         if (string.IsNullOrWhiteSpace(details.Name)) return FabricColorErrors.NameIsRequired();
         var name = details.Name.Trim();
         if (name.Length > NameMaxLength) return FabricColorErrors.NameIsTooLong(NameMaxLength);
@@ -41,6 +44,7 @@ public class FabricColor : BaseEntity<FabricColorId>, IAggregateRoot
         Name = name;
         IsActive = details.IsActive;
         SortOrder = details.SortOrder;
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
     #endregion

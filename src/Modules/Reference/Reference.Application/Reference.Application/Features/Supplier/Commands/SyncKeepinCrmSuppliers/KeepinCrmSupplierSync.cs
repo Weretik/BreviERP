@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Reference.Domain.Suppliers;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
 using Reference.Application.Abstractions;
@@ -10,7 +11,7 @@ namespace Reference.Application.Features.Supplier.Commands.SyncKeepinCrmSupplier
 /// a linked supplier is refreshed by KeepinCRM ID; an unlinked one with the same name is linked; the rest
 /// are created. Activity and notes stay as set in Brevi. Nothing is deleted. One save for the whole run.
 /// </summary>
-public sealed class KeepinCrmSupplierSync(
+public sealed class KeepinCrmSupplierSync(IDomainEventSuppression domainEvents,
     IKeepinCrmSupplierSource source,
     IReferenceRepository<SupplierEntity> repository,
     TimeProvider timeProvider,
@@ -18,6 +19,7 @@ public sealed class KeepinCrmSupplierSync(
 {
     public async Task<KeepinCrmSupplierSyncResult> RunAsync(CancellationToken cancellationToken)
     {
+        domainEvents.Suppress(); // an import or sync is one job, not one action per entry (ACT-001 R-08)
         var snapshots = await source.GetAllAsync(cancellationToken);
         if (snapshots.Count == 0)
             throw new KeepinCrmUnavailableException("KeepinCRM не повернув постачальників. Дані в Brevi не змінено.");

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Events;
 namespace Warehouse.Domain.Stock.Movements;
 
 /// <summary>What a revision of a movement did.</summary>
@@ -21,7 +22,7 @@ public sealed record FabricMovementState(int StockId, DateOnly OperationDate, de
 /// One change of a movement: who, when, why and the values before and after. A movement is never edited without one,
 /// so the history shows every edit, void and restore and the last one can be taken back.
 /// </summary>
-public sealed class FabricMovementRevision
+public sealed class FabricMovementRevision : DomainEventSource
 {
     public const int ReasonMaxLength = 500;
 
@@ -54,6 +55,7 @@ public sealed class FabricMovementRevision
         CreatedAt = now;
         OperationId = operationId;
         RestoresRevisionId = restoresRevisionId;
+        Raise(new FabricMovementRevised(this));
     }
 
     public int Id { get; private set; }

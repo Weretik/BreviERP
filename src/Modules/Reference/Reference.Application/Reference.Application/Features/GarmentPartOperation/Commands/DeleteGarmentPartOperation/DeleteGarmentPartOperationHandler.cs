@@ -19,6 +19,7 @@ public sealed class DeleteGarmentPartOperationHandler(IReferenceRepository<Garme
         if (await productUsageReader.IsGarmentPartOperationUsedAsync(command.Id, cancellationToken))
             return Result.Conflict("Операцію використовують товари, тому її не можна видалити.");
 
+        entity.MarkDeleted();
         await repository.DeleteAsync(entity, cancellationToken);
 
         return Result.Success();

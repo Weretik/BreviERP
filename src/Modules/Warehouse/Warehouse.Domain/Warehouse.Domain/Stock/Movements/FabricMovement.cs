@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Events;
 namespace Warehouse.Domain.Stock.Movements;
 
 /// <summary>Why the balance of a stock line changed.</summary>
@@ -38,7 +39,7 @@ public sealed record FabricMovementTarget(int OrderId, int ItemId, int OrderNumb
 /// record time, then id, so a back-dated movement restates the ones after it. A wrong one is taken back by a «Сторно»
 /// movement that points to it.
 /// </summary>
-public sealed class FabricMovement
+public sealed class FabricMovement : DomainEventSource
 {
     public const int NoteMaxLength = 1000;
     public const int DocumentMaxLength = 200;
@@ -79,6 +80,7 @@ public sealed class FabricMovement
         CreatedByName = WarehouseText.Clean(actorName, PersonMaxLength);
         CreatedAt = now;
         LegacyId = Optional(legacyId, LegacyIdMaxLength);
+        if (LegacyId is null) Raise(new FabricMovementRecorded(this));
     }
 
     public int Id { get; private set; }

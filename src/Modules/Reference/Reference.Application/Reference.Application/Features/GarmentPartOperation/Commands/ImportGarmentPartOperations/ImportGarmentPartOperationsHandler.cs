@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Reference.Domain.GarmentPartOperations;
 using GarmentPartEntity = Reference.Domain.GarmentParts.GarmentPart;
 using GarmentPartOperationEntity = Reference.Domain.GarmentPartOperations.GarmentPartOperation;
@@ -14,7 +15,7 @@ namespace Reference.Application.Features.GarmentPartOperation.Commands.ImportGar
 /// that are not in the sheet are deleted (an operation still in use is hidden instead). A preview changes nothing;
 /// a row with an error stops the whole import. Repeating the same file changes nothing.
 /// </summary>
-public sealed class ImportGarmentPartOperationsHandler(
+public sealed class ImportGarmentPartOperationsHandler(IDomainEventSuppression domainEvents,
     IReferenceRepository<GarmentPartOperationEntity> repository,
     IReferenceRepository<GarmentPartEntity> groupRepository,
     IProductUsageReader usageReader)
@@ -24,6 +25,7 @@ public sealed class ImportGarmentPartOperationsHandler(
         ImportGarmentPartOperationsCommand command,
         CancellationToken cancellationToken)
     {
+        domainEvents.Suppress(); // an import or sync is one job, not one action per entry (ACT-001 R-08)
         var operations = await repository.ListAsync(cancellationToken);
         var groups = await groupRepository.ListAsync(cancellationToken);
         var groupsByKey = groups.GroupBy(x => ReferenceNameKey.From(x.Name))

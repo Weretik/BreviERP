@@ -5,7 +5,7 @@ using Reference.Domain.GarmentPartOperations;
 
 namespace Reference.Domain.GarmentParts;
 
-public class GarmentPart : BaseEntity<GarmentPartId>, IAggregateRoot
+public class GarmentPart : ReferenceEntity<GarmentPartId>, IAggregateRoot
 {
     #region Properties
     public string Name { get; private set; } = null!;
@@ -20,14 +20,19 @@ public class GarmentPart : BaseEntity<GarmentPartId>, IAggregateRoot
     {
         if (id.Value == default) throw new ArgumentException("Garment part id is required.", nameof(id));
         var check = CheckName(name);
-        return check.IsFailure ? check.Error! : new GarmentPart { Id = id, Name = name.Trim() };
+        if (check.IsFailure) return check.Error!;
+        var part = new GarmentPart { Id = id, Name = name.Trim() };
+        part.RecordCreated();
+        return part;
     }
 
     public DomainResult Update(string name)
     {
+        var nameBefore = Name;
         var check = CheckName(name);
         if (check.IsFailure) return check;
         Name = name.Trim();
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
     #endregion

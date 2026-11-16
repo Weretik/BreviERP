@@ -8,7 +8,7 @@ namespace Reference.Domain.ProductSections;
 /// belongs to one product type. Products refer to a section by ID, so its name can be corrected later; the public
 /// site builds its categories from these sections.
 /// </summary>
-public class ProductSection : BaseEntity<ProductSectionId>, IAggregateRoot
+public class ProductSection : ReferenceEntity<ProductSectionId>, IAggregateRoot
 {
     public const int NameMaxLength = 200;
     public const int CommentMaxLength = 1000;
@@ -31,11 +31,14 @@ public class ProductSection : BaseEntity<ProductSectionId>, IAggregateRoot
         if (id.Value == default) throw new ArgumentException("Product section id is required.", nameof(id));
         var section = new ProductSection { Id = id };
         var applied = section.ApplyDetails(details);
-        return applied.IsFailure ? applied.Error! : section;
+        if (applied.IsFailure) return applied.Error!;
+        section.RecordCreated();
+        return section;
     }
 
     public DomainResult ApplyDetails(ProductSectionDetails details)
     {
+        var nameBefore = Name;
         var check = DomainResult.Combine(
             Enum.IsDefined(details.Type) ? DomainResult.Success() : ProductSectionErrors.TypeIsInvalid(),
             string.IsNullOrWhiteSpace(details.Name)
@@ -49,6 +52,7 @@ public class ProductSection : BaseEntity<ProductSectionId>, IAggregateRoot
         IsActive = details.IsActive;
         Comment = string.IsNullOrWhiteSpace(details.Comment) ? null : details.Comment.Trim();
         SortOrder = details.SortOrder;
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
     #endregion

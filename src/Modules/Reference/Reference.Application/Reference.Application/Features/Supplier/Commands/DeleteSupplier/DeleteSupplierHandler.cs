@@ -15,6 +15,7 @@ public sealed class DeleteSupplierHandler(IReferenceRepository<SupplierEntity> r
         if (entity is null)
             return Result.NotFound();
 
+        entity.MarkDeleted();
         await repository.DeleteAsync(entity, cancellationToken);
 
         return Result.Success();
