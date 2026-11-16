@@ -27,14 +27,14 @@ internal sealed class OutboxModule<TContext>(
     {
         await using var scope = scopes.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<TContext>();
-        var schema = db.Model.GetDefaultSchema() ?? "public";
+        var table = OutboxModelBuilderExtensions.QuotedTable(db.Model);
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var now = clock.GetUtcNow();
         var filter = ids is null ? "" : """ AND "Id" = ANY({1})""";
         var messages = await db.Set<OutboxMessage>()
             .FromSqlRaw(
                 $$"""
-                  SELECT * FROM "{{schema}}"."{{OutboxModelBuilderExtensions.Table}}"
+                  SELECT * FROM {{table}}
                   WHERE "ProcessedAt" IS NULL AND "Attempts" < {{OutboxMessage.MaxAttempts}} AND "NextAttemptAt" <= {0}{{filter}}
                   ORDER BY "CreatedAt" LIMIT {{BatchSize}} FOR UPDATE SKIP LOCKED
                   """,
