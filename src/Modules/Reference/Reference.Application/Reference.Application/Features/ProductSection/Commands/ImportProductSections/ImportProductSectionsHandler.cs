@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Reference.Application.Features.ProductSection.Shared;
 using Reference.Domain.ProductSections;
 using ProductSectionEntity = Reference.Domain.ProductSections.ProductSection;
@@ -12,12 +13,13 @@ namespace Reference.Application.Features.ProductSection.Commands.ImportProductSe
 /// With <c>DeleteMissing</c>, Brevi sections that are not in the sheet are deleted. Repeating the same file changes
 /// nothing.
 /// </summary>
-public sealed class ImportProductSectionsHandler(IReferenceRepository<ProductSectionEntity> repository)
+public sealed class ImportProductSectionsHandler(IDomainEventSuppression domainEvents, IReferenceRepository<ProductSectionEntity> repository)
     : ICommandHandler<ImportProductSectionsCommand, Result<ProductSectionImportResult>>
 {
     public async ValueTask<Result<ProductSectionImportResult>> Handle(
         ImportProductSectionsCommand command, CancellationToken cancellationToken)
     {
+        domainEvents.Suppress(); // an import or sync is one job, not one action per entry (ACT-001 R-08)
         var existing = await repository.ListAsync(cancellationToken);
         var byName = existing
             .GroupBy(x => ReferenceNameKey.From(x.Name))

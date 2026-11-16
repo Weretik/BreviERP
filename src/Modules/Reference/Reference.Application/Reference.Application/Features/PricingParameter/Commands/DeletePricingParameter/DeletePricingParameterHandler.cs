@@ -19,6 +19,7 @@ public sealed class DeletePricingParameterHandler(
         if (entity is null)
             return Result.NotFound();
 
+        entity.MarkDeleted();
         await repository.DeleteAsync(entity, cancellationToken);
         await pricingSettingsChanged.PricingSettingsChangedAsync(cancellationToken);
 

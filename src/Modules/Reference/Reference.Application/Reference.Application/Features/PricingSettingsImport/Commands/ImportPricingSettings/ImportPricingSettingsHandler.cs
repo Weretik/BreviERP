@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using PpeMarkupRuleEntity = Reference.Domain.PpeMarkupRules.PpeMarkupRule;
 using PricingParameterEntity = Reference.Domain.PricingParameters.PricingParameter;
 using Reference.Application.Abstractions;
@@ -10,7 +11,7 @@ namespace Reference.Application.Features.PricingSettingsImport.Commands.ImportPr
 /// Row order in the file becomes the display order. A preview changes nothing; an error in any row stops the
 /// whole import. With <c>DeleteMissing</c>, Brevi rows that are not in the sheet are deleted.
 /// </summary>
-public sealed class ImportPricingSettingsHandler(
+public sealed class ImportPricingSettingsHandler(IDomainEventSuppression domainEvents,
     IReferenceRepository<PricingParameterEntity> parameterRepository,
     IReferenceRepository<PpeMarkupRuleEntity> ruleRepository,
     IPricingSettingsChangeNotifier pricingSettingsChanged)
@@ -20,6 +21,7 @@ public sealed class ImportPricingSettingsHandler(
         ImportPricingSettingsCommand command,
         CancellationToken cancellationToken)
     {
+        domainEvents.Suppress(); // an import or sync is one job, not one action per entry (ACT-001 R-08)
         var parameters = PricingParameterImportPlanner.Plan(command.Parameters, await parameterRepository.ListAsync(cancellationToken),
             command.DeleteMissing);
         var rules = PpeMarkupRuleImportPlanner.Plan(command.PpeMarkupRules, await ruleRepository.ListAsync(cancellationToken),

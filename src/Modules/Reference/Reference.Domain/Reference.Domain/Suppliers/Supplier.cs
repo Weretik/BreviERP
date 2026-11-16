@@ -8,7 +8,7 @@ namespace Reference.Domain.Suppliers;
 /// (name, purchase categories, contacts, site, tags) are owned by KeepinCRM and change only through
 /// synchronization; activity («Використовувати в проєкті») and notes are always owned by Brevi.
 /// </summary>
-public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
+public class Supplier : ReferenceEntity<SupplierId>, IAggregateRoot
 {
     public const int NameMaxLength = 200;
     public const int LinkMaxLength = 2048;
@@ -55,6 +55,7 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         var supplier = new Supplier { Id = id };
         supplier.SetCard(name, null, link, contactPerson, phoneNumber, null);
         supplier.Notes = Normalize(notes, NotesMaxLength);
+        supplier.RecordCreated();
         return supplier;
     }
 
@@ -80,6 +81,7 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         string? email = null,
         string? purchaseCategories = null)
     {
+        var nameBefore = Name;
         if (IsManagedByKeepinCrm && CardDiffers(name, purchaseCategories, link, contactPerson, phoneNumber, email))
             return SupplierErrors.ContactsManagedByKeepinCrm();
         var check = DomainResult.Combine(CheckName(name), CheckNotes(notes));
@@ -87,11 +89,17 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
 
         SetCard(name, purchaseCategories, link, contactPerson, phoneNumber, email);
         Notes = Normalize(notes, NotesMaxLength);
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
 
     /// <summary>«Використовувати в проєкті»: always owned by Brevi.</summary>
-    public void SetActive(bool isActive) => IsActive = isActive;
+    public void SetActive(bool isActive)
+    {
+        if (IsActive == isActive) return;
+        IsActive = isActive;
+        RecordChanged(Name);
+    }
 
     /// <summary>Overwrites KeepinCRM-owned fields with the current KeepinCRM state. Activity and notes stay.</summary>
     public DomainResult ApplyKeepinCrmSnapshot(KeepinCrmSupplierSnapshot snapshot, DateTimeOffset syncedAt)
@@ -119,6 +127,7 @@ public class Supplier : BaseEntity<SupplierId>, IAggregateRoot
         var check = CheckNotes(notes);
         if (check.IsFailure) return check;
         Notes = Normalize(notes, NotesMaxLength);
+        RecordChanged(Name);
         return DomainResult.Success();
     }
     #endregion

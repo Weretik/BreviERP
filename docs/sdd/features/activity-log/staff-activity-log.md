@@ -37,7 +37,7 @@ src/Modules/<Source>/…                             # events in Domain (<Aggreg
 
 ## Covered actions
 
-Filled in as each source module is wired (ACT-001 «Coverage»). Actions of the scheduler have no person and are not listed. Imports and syncs started from the admin (KeepinCRM clients, the leads sheet, the old «Цех» transfers, norm and staff lists) call `IDomainEventSuppression.Suppress()` before saving, so their rows are not listed one by one (R-08). Not listed yet: the timesheet, the forecast queue, payroll roles, embroidery stitches and «видано».
+Filled in as each source module is wired (ACT-001 «Coverage»). Actions of the scheduler have no person and are not listed. Imports and syncs started from the admin (KeepinCRM clients and suppliers, the leads sheet, the old «Цех» orders, stages and stock, norm and staff lists, the «Довідники» sheets) call `IDomainEventSuppression.Suppress()` before saving, so their rows are not listed one by one (R-08). Not listed yet: the timesheet, the forecast queue, payroll roles, embroidery stitches and «видано».
 
 | Module | Subject (key) | Actions | Describer |
 | --- | --- | --- | --- |
@@ -52,7 +52,9 @@ Filled in as each source module is wired (ACT-001 «Coverage»). Actions of the 
 | Production | Працівник цеху (`workshop-employee`), Налаштування цеху (`workshop-settings`) | added, renamed or moved, switched on or off; Telegram settings saved | `WorkshopActivity.cs` |
 | Production | Норма тканини (`fabric-norm`) | added, meters changed, deleted | `FabricNormActivity.cs` |
 | Production | Виплата / Коригування зарплати (`payroll-payment`, `payroll-adjustment`) | recorded, voided | `PayrollActivity.cs` |
+| Warehouse | Рух тканини (`fabric-movement`) | opening, receipt, issue (to an order item or elsewhere), adjustment, «Сторно» with the line and metres; edit with changed fields, void and restore with the reason | `Warehouse.Application/Features/Activity/EventHandlers/FabricMovementActivity.cs`, `FabricRevisionActivity.cs` |
+| Reference | Тканина, Фурнітура, Колір, Деталь виробу, Операція, Правило націнки ЗІЗ, Параметр ціни, Розділ товарів, Постачальник | created, changed (name and price as fields), deleted | `Reference.Application/Features/Activity/EventHandlers/ReferenceActivity.cs` (keys in `ReferenceSubject.cs`) |
 
 ## Tests
 
-`dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.ActivityLog|FullyQualifiedName~UnitTests.Platform.DomainEvents|FullyQualifiedName~Activity"` (the module describers are in `tests/UnitTests/<Module>/Activity/`); `tests/ArchitectureTests` `ActivityLogDependencyTests`; `tests/HostApiTests` endpoint snapshot.
+`dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.ActivityLog|FullyQualifiedName~UnitTests.Platform.DomainEvents|FullyQualifiedName~Activity"` (the describers are in `tests/UnitTests/<Module>/Activity/` and `WarehouseActivityTests`, `ReferenceActivityTests`); `tests/ArchitectureTests` `ActivityLogDependencyTests`; `tests/HostApiTests` endpoint snapshot.

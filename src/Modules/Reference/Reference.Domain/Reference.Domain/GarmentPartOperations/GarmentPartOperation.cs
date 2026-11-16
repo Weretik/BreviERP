@@ -10,7 +10,7 @@ namespace Reference.Domain.GarmentPartOperations;
 /// and the time norm. <see cref="Code"/> (OP-001…) is the stable key for the sheet import. Labour cost is not
 /// stored: it is the norm times the minute cost from the sewing pricing settings.
 /// </summary>
-public class GarmentPartOperation : BaseEntity<GarmentPartOperationId>, IAggregateRoot
+public class GarmentPartOperation : ReferenceEntity<GarmentPartOperationId>, IAggregateRoot
 {
     public const int CodeMaxLength = 20;
     public const int ElementMaxLength = 150;
@@ -47,6 +47,7 @@ public class GarmentPartOperation : BaseEntity<GarmentPartOperationId>, IAggrega
         if (check.IsFailure) return check.Error!;
         var operation = new GarmentPartOperation { Id = id };
         operation.SetMain(garmentPartId, name, min);
+        operation.RecordCreated();
         return operation;
     }
 
@@ -58,23 +59,28 @@ public class GarmentPartOperation : BaseEntity<GarmentPartOperationId>, IAggrega
         if (check.IsFailure) return check.Error!;
         var operation = new GarmentPartOperation { Id = id };
         operation.SetDetails(details);
+        operation.RecordCreated();
         return operation;
     }
 
     public DomainResult Update(GarmentPartId garmentPartId, string name, decimal min)
     {
+        var nameBefore = Name;
         var check = DomainResult.Combine(CheckPart(garmentPartId), CheckName(name), CheckMin(min));
         if (check.IsFailure) return check;
         SetMain(garmentPartId, name, min);
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
 
     /// <summary>Replaces every card field. «Time per product» operations keep a zero norm.</summary>
     public DomainResult ApplyDetails(GarmentPartOperationDetails details)
     {
+        var nameBefore = Name;
         var check = CheckDetails(details);
         if (check.IsFailure) return check;
         SetDetails(details);
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
 

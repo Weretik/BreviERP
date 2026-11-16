@@ -27,7 +27,7 @@ public sealed class KeepinCrmSupplierSyncTests
             .Callback<IEnumerable<Supplier>, CancellationToken>((rows, _) => added.AddRange(rows))
             .ReturnsAsync((IEnumerable<Supplier> rows, CancellationToken _) => rows);
         var sync = new KeepinCrmSupplierSync(
-            source.Object, repository.Object, new FakeTimeProvider(Now), NullLogger<KeepinCrmSupplierSync>.Instance);
+            new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), source.Object, repository.Object, new FakeTimeProvider(Now), NullLogger<KeepinCrmSupplierSync>.Instance);
         return (sync, added, repository);
     }
 

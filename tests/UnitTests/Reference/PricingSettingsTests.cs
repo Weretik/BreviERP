@@ -94,7 +94,7 @@ public sealed class PricingSettingsTests
             new List<PricingParameter>(), new List<PpeMarkupRule>(), new List<PpeMarkupRule>());
         var parameters = Repository([assembly, legacy], addedParameters, deletedParameters);
         var rules = Repository([oldRule], addedRules, deletedRules);
-        var handler = new ImportPricingSettingsHandler(parameters.Object, rules.Object, notifier.Object);
+        var handler = new ImportPricingSettingsHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), parameters.Object, rules.Object, notifier.Object);
 
         var result = (await handler.Handle(new ImportPricingSettingsCommand(
             [
@@ -128,7 +128,7 @@ public sealed class PricingSettingsTests
         var assembly = Stored(5, "ASSEMBLY_RATE", 0.2m);
         var parameters = Repository([assembly], [], []);
         var rules = Repository(new List<PpeMarkupRule>(), [], []);
-        var handler = new ImportPricingSettingsHandler(parameters.Object, rules.Object, notifier.Object);
+        var handler = new ImportPricingSettingsHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), parameters.Object, rules.Object, notifier.Object);
         var rows = new[] { Parameter(7, "ASSEMBLY_RATE", 0.25m) };
 
         var preview = (await handler.Handle(new ImportPricingSettingsCommand(rows, [], DryRun: true, DeleteMissing: true),

@@ -210,7 +210,7 @@ public sealed class WarehouseTransferTests
         StockTransferInput input, bool dryRun = false, bool confirm = false, WarehouseActor? actor = null)
     {
         var result = await new TransferStockHandler(workshop.Db, workshop.Reference, workshop.Production,
-                workshop.Staff, workshop.Workshop.Time)
+                workshop.Staff, workshop.Workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression())
             .Handle(new(actor ?? Admin, input, dryRun, confirm), CancellationToken.None);
         workshop.Db.ChangeTracker.Clear();
         return result;

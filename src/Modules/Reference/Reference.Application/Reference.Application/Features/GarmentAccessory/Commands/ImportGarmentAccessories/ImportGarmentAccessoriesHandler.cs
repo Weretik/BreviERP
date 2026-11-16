@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Reference.Domain.GarmentAccessories;
 using GarmentAccessoryEntity = Reference.Domain.GarmentAccessories.GarmentAccessory;
 using SupplierEntity = Reference.Domain.Suppliers.Supplier;
@@ -13,7 +14,7 @@ namespace Reference.Application.Features.GarmentAccessory.Commands.ImportGarment
 /// a code is linked when its name matches. Anything else is created with the next ID. A preview changes
 /// nothing; a row with an error stops the whole import. Repeating the same file changes nothing.
 /// </summary>
-public sealed class ImportGarmentAccessoriesHandler(
+public sealed class ImportGarmentAccessoriesHandler(IDomainEventSuppression domainEvents,
     IReferenceRepository<GarmentAccessoryEntity> repository,
     IReferenceRepository<SupplierEntity> supplierRepository)
     : ICommandHandler<ImportGarmentAccessoriesCommand, Result<ReferenceImportResult>>
@@ -22,6 +23,7 @@ public sealed class ImportGarmentAccessoriesHandler(
         ImportGarmentAccessoriesCommand command,
         CancellationToken cancellationToken)
     {
+        domainEvents.Suppress(); // an import or sync is one job, not one action per entry (ACT-001 R-08)
         var accessories = await repository.ListAsync(cancellationToken);
         var suppliers = new ImportSupplierResolver(await supplierRepository.ListAsync(cancellationToken));
         var byCode = accessories.Where(x => x.Code is not null).ToDictionary(x => x.Code!);

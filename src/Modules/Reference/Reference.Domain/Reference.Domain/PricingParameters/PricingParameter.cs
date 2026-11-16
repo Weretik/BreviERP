@@ -8,7 +8,7 @@ namespace Reference.Domain.PricingParameters;
 /// overhead and price multipliers. <see cref="Code"/> (SALARY_SEAMSTRESS…) is the stable key that pricing and
 /// the sheet import use; it never changes after creation. Percentages are stored as fractions (0.25 = 25 %).
 /// </summary>
-public class PricingParameter : BaseEntity<PricingParameterId>, IAggregateRoot
+public class PricingParameter : ReferenceEntity<PricingParameterId>, IAggregateRoot
 {
     public const int CodeMaxLength = 64;
     public const int GroupMaxLength = 100;
@@ -44,7 +44,9 @@ public class PricingParameter : BaseEntity<PricingParameterId>, IAggregateRoot
 
         var parameter = new PricingParameter { Id = id, Code = normalized! };
         var applied = parameter.ApplyDetails(details, updatedOn);
-        return applied.IsFailure ? applied.Error! : parameter;
+        if (applied.IsFailure) return applied.Error!;
+        parameter.RecordCreated();
+        return parameter;
     }
 
     /// <summary>Upper-cases and trims a code; returns null for an empty one.</summary>
@@ -60,6 +62,7 @@ public class PricingParameter : BaseEntity<PricingParameterId>, IAggregateRoot
     /// </summary>
     public DomainResult ApplyDetails(PricingParameterDetails details, DateOnly? updatedOn)
     {
+        var nameBefore = Name;
         var check = DomainResult.Combine(
             Required(details.Group, GroupMaxLength, "Група", PricingParameterErrors.GroupIsRequired()),
             Required(details.Name, NameMaxLength, "Назва", PricingParameterErrors.NameIsRequired()),
@@ -76,6 +79,7 @@ public class PricingParameter : BaseEntity<PricingParameterId>, IAggregateRoot
         Value = details.Value;
         SortOrder = details.SortOrder;
         UpdatedOn = updatedOn;
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
     #endregion

@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using System.Security.Cryptography;
 using System.Text.Json;
 using Warehouse.Application.Abstractions;
@@ -10,7 +11,8 @@ using Warehouse.Application.Features.Stock.Commands.TransferStock.V133;
 namespace Warehouse.Application.Features.Stock.Commands.TransferStock;
 
 public sealed class TransferStockHandler(IWarehouseDbContext db, IWarehouseReferenceReader reference,
-    IWarehouseProductionReader production, IWarehouseStaffReader staff, TimeProvider clock)
+    IWarehouseProductionReader production, IWarehouseStaffReader staff, TimeProvider clock,
+    IDomainEventSuppression domainEvents)
     : ICommandHandler<TransferStockCommand, Result<StockTransferResult>>
 {
     private const string Transfer = "Перенесення зі старого «Цеху»";
@@ -19,6 +21,7 @@ public sealed class TransferStockHandler(IWarehouseDbContext db, IWarehouseRefer
         CancellationToken cancellationToken)
     {
         if (!command.Actor.CanImport) return Result<StockTransferResult>.Forbidden(StockMessages.CannotImport);
+        domainEvents.Suppress(); // the transfer is one job, not one action per movement (ACT-001 R-08)
         var input = command.Input;
         var hash = Convert.ToHexStringLower(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(input with
         {

@@ -9,7 +9,7 @@ namespace Reference.Domain.GarmentAccessories;
 /// An accessory from the Calculator sheet «Фурнітура». <see cref="Code"/> (FUR-001…) is the stable key for the
 /// sheet import; <see cref="Unit"/> is one of <see cref="Units"/>.
 /// </summary>
-public class GarmentAccessory : BaseEntity<GarmentAccessoryId>, IAggregateRoot
+public class GarmentAccessory : ReferenceEntity<GarmentAccessoryId>, IAggregateRoot
 {
     public const int CodeMaxLength = 20;
     public const int NameMaxLength = 500;
@@ -44,6 +44,7 @@ public class GarmentAccessory : BaseEntity<GarmentAccessoryId>, IAggregateRoot
         if (check.IsFailure) return check.Error!;
         var accessory = new GarmentAccessory { Id = id };
         accessory.SetMain(name, price, supplierId);
+        accessory.RecordCreated();
         return accessory;
     }
 
@@ -60,35 +61,42 @@ public class GarmentAccessory : BaseEntity<GarmentAccessoryId>, IAggregateRoot
         accessory.SetMain(details.Name, price, details.SupplierId.Value);
         accessory.SetDetails(details);
         accessory.PriceUpdatedAt = priceUpdatedAt;
+        accessory.RecordCreated();
         return accessory;
     }
 
     public DomainResult Update(string name, MoneyAmount price, int supplierId = 1)
     {
+        var nameBefore = Name;
         var check = DomainResult.Combine(CheckName(name), CheckPrice(price), CheckSupplier(supplierId));
         if (check.IsFailure) return check;
         SetMain(name, price, supplierId);
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
 
     /// <summary>Replaces every card field except price.</summary>
     public DomainResult ApplyDetails(GarmentAccessoryDetails details)
     {
+        var nameBefore = Name;
         var check = CheckDetails(details);
         if (check.IsFailure) return check;
         Name = ReferenceText.Optional(details.Name)!;
         SupplierId = details.SupplierId;
         SetDetails(details);
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
 
     /// <summary>Sets the price and the date it was confirmed (the sheet's «Дата оновлення ціни»).</summary>
     public DomainResult SetPrice(MoneyAmount price, DateOnly? priceUpdatedAt)
     {
+        var priceBefore = Price.Value;
         var check = CheckPrice(price);
         if (check.IsFailure) return check;
         Price = price;
         PriceUpdatedAt = priceUpdatedAt;
+        RecordChanged(null, priceBefore);
         return DomainResult.Success();
     }
 

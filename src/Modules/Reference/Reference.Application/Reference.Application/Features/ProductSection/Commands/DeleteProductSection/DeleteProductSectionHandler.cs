@@ -13,6 +13,7 @@ public sealed class DeleteProductSectionHandler(IReferenceRepository<ProductSect
         if (entity is null)
             return Result.NotFound();
 
+        entity.MarkDeleted();
         await repository.DeleteAsync(entity, cancellationToken);
         return Result.Success();
     }

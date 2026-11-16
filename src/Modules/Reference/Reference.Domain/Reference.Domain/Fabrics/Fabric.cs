@@ -11,7 +11,7 @@ namespace Reference.Domain.Fabrics;
 /// A fabric from the Calculator sheet «Тканини». <see cref="Code"/> (FAB-001…) is the stable key for the sheet
 /// import; older Brevi rows may have none until the import links them.
 /// </summary>
-public class Fabric : BaseEntity<FabricId>, IAggregateRoot
+public class Fabric : ReferenceEntity<FabricId>, IAggregateRoot
 {
     public const int CodeMaxLength = 20;
     public const int NameMaxLength = 500;
@@ -47,6 +47,7 @@ public class Fabric : BaseEntity<FabricId>, IAggregateRoot
         if (check.IsFailure) return check.Error!;
         var fabric = new Fabric { Id = id };
         fabric.SetMain(name, price, providerId);
+        fabric.RecordCreated();
         return fabric;
     }
 
@@ -60,35 +61,42 @@ public class Fabric : BaseEntity<FabricId>, IAggregateRoot
         fabric.SetMain(details.Name, price, details.ProviderId);
         fabric.SetDetails(details);
         fabric.PriceUpdatedAt = priceUpdatedAt;
+        fabric.RecordCreated();
         return fabric;
     }
 
     public DomainResult Update(string name, MoneyAmount price, SupplierId providerId)
     {
+        var nameBefore = Name;
         var check = DomainResult.Combine(CheckName(name), CheckPrice(price), CheckProvider(providerId));
         if (check.IsFailure) return check;
         SetMain(name, price, providerId);
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
 
     /// <summary>Replaces every card field except price.</summary>
     public DomainResult ApplyDetails(FabricDetails details)
     {
+        var nameBefore = Name;
         var check = CheckDetails(details);
         if (check.IsFailure) return check;
         Name = ReferenceText.Optional(details.Name)!;
         ProviderId = details.ProviderId;
         SetDetails(details);
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
 
     /// <summary>Sets the price and the date it was confirmed (the sheet's «Дата оновлення ціни»).</summary>
     public DomainResult SetPrice(MoneyAmount price, DateOnly? priceUpdatedAt)
     {
+        var priceBefore = Price.Value;
         var check = CheckPrice(price);
         if (check.IsFailure) return check;
         Price = price;
         PriceUpdatedAt = priceUpdatedAt;
+        RecordChanged(null, priceBefore);
         return DomainResult.Success();
     }
 

@@ -7,7 +7,7 @@ namespace Reference.Domain.PpeMarkupRules;
 /// A PPE markup rule from «Налаштування цін» («Взуття», «Рукавички»…): price = supplier price × (1 + markup).
 /// <see cref="Name"/> is the rule code that PPE supplier offers refer to, so it never changes after creation.
 /// </summary>
-public class PpeMarkupRule : BaseEntity<PpeMarkupRuleId>, IAggregateRoot
+public class PpeMarkupRule : ReferenceEntity<PpeMarkupRuleId>, IAggregateRoot
 {
     public const int NameMaxLength = 200;
     public const int PriceNoteMaxLength = 500;
@@ -41,14 +41,17 @@ public class PpeMarkupRule : BaseEntity<PpeMarkupRuleId>, IAggregateRoot
 
         var rule = new PpeMarkupRule { Id = id, Name = name.Trim() };
         rule.SetDetails(details);
+        rule.RecordCreated();
         return rule;
     }
 
     public DomainResult ApplyDetails(PpeMarkupRuleDetails details)
     {
+        var nameBefore = Name;
         var check = CheckDetails(details);
         if (check.IsFailure) return check;
         SetDetails(details);
+        RecordChanged(nameBefore);
         return DomainResult.Success();
     }
     #endregion

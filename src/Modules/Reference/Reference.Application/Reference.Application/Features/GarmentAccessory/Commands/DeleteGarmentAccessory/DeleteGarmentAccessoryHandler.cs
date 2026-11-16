@@ -18,6 +18,7 @@ public sealed class DeleteGarmentAccessoryHandler(IReferenceRepository<GarmentAc
         if (await productUsageReader.IsGarmentAccessoryUsedAsync(command.Id, cancellationToken))
             return Result.Conflict("Фурнітуру використовують товари, тому її не можна видалити.");
 
+        entity.MarkDeleted();
         await repository.DeleteAsync(entity, cancellationToken);
 
         return Result.Success();

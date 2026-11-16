@@ -49,7 +49,7 @@ public sealed class ReferenceSheetImportTests
         var addedSuppliers = new List<Supplier>();
         var fabrics = Repository([coded, legacy, stale], added);
         var suppliers = Repository(Suppliers(), addedSuppliers);
-        var handler = new ImportFabricsHandler(fabrics.Object, suppliers.Object);
+        var handler = new ImportFabricsHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), fabrics.Object, suppliers.Object);
 
         var result = await handler.Handle(new ImportFabricsCommand(
         [
@@ -84,7 +84,7 @@ public sealed class ReferenceSheetImportTests
             "100% бавовна", null, "260", true, null, null), MoneyAmount.From(147), SheetDate).Value;
         var added = new List<Fabric>();
         var fabrics = Repository([fabric], added);
-        var handler = new ImportFabricsHandler(fabrics.Object, Repository(Suppliers(), []).Object);
+        var handler = new ImportFabricsHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), fabrics.Object, Repository(Suppliers(), []).Object);
 
         var result = await handler.Handle(new ImportFabricsCommand(
             [FabricRow("FAB-001", "МВО", "Спецтекстиль", 147m), FabricRow("FAB-002", "Бріз", "Спецтекстиль", 68m, 3)],
@@ -105,7 +105,7 @@ public sealed class ReferenceSheetImportTests
     {
         var added = new List<GarmentAccessory>();
         var accessories = Repository(new List<GarmentAccessory>(), added);
-        var handler = new ImportGarmentAccessoriesHandler(accessories.Object, Repository(Suppliers(), []).Object);
+        var handler = new ImportGarmentAccessoriesHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), accessories.Object, Repository(Suppliers(), []).Object);
 
         var result = await handler.Handle(new ImportGarmentAccessoriesCommand(
             [AccessoryRow("FUR-001", "Нитки", "шт"), AccessoryRow("FUR-002", "Тасьма", "кг", 3)],
@@ -125,7 +125,7 @@ public sealed class ReferenceSheetImportTests
     public async Task Accessory_import_keeps_sheet_unit_and_price_date()
     {
         var added = new List<GarmentAccessory>();
-        var handler = new ImportGarmentAccessoriesHandler(
+        var handler = new ImportGarmentAccessoriesHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(),
             Repository(new List<GarmentAccessory>(), added).Object, Repository(Suppliers(), []).Object);
 
         await handler.Handle(new ImportGarmentAccessoriesCommand(
