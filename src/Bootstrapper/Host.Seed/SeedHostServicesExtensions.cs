@@ -13,6 +13,7 @@ using Purchasing.Infrastructure.DependencyInjection;
 using Content.Infrastructure.DependencyInjection;
 using Warehouse.Infrastructure.DependencyInjection;
 using Ai.Infrastructure.DependencyInjection;
+using ActivityLog.Infrastructure.DependencyInjection;
 using CatalogImport.Persistence;
 using Microsoft.EntityFrameworkCore;
 using SewingPricing.Jobs.Activation;
@@ -71,6 +72,7 @@ public static class SeedHostServicesExtensions
         services.AddPurchasingInfrastructure(configuration);
         services.AddContentInfrastructure(configuration);
         services.AddAiInfrastructure(configuration);
+        services.AddActivityLogInfrastructure(configuration);
         services.AddDbContext<CatalogImportDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Default")));
         services.AddScoped<IDatabaseMigrator, DbMigrator<CatalogImportDbContext>>();

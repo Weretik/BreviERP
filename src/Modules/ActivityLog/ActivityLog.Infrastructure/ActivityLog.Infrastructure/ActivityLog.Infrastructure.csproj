@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\ActivityLog.Application\ActivityLog.Application\ActivityLog.Application.csproj" />
+    <ProjectReference Include="..\..\ActivityLog.Domain\ActivityLog.Domain\ActivityLog.Domain.csproj" />
+    <ProjectReference Include="..\..\ActivityLog.Contracts\ActivityLog.Contracts\ActivityLog.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Identity\Identity.Contracts\Identity.Contracts\Identity.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="UnitTests" />
+  </ItemGroup>
+
+</Project>

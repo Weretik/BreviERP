@@ -54,6 +54,9 @@
       <ProjectReference Include="..\..\Modules\Scheduling\Scheduling.Api\Scheduling.Api\Scheduling.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Scheduling\Scheduling.Application\Scheduling.Application\Scheduling.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Scheduling\Scheduling.Infrastructure\Scheduling.Infrastructure\Scheduling.Infrastructure.csproj" />
+      <ProjectReference Include="..\..\Modules\ActivityLog\ActivityLog.Api\ActivityLog.Api\ActivityLog.Api.csproj" />
+      <ProjectReference Include="..\..\Modules\ActivityLog\ActivityLog.Application\ActivityLog.Application\ActivityLog.Application.csproj" />
+      <ProjectReference Include="..\..\Modules\ActivityLog\ActivityLog.Infrastructure\ActivityLog.Infrastructure\ActivityLog.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Api\Media.Api\Media.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Application\Media.Application\Media.Application.csproj" />
       <ProjectReference Include="..\..\Modules\Media\Media.Infrastructure\Media.Infrastructure\Media.Infrastructure.csproj" />

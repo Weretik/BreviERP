@@ -19,6 +19,7 @@ Keep accepted decisions that change long-term boundaries, contracts, or approach
 | [0013](0013-folder-axiom.md) | A code folder holds at most six files | Accepted |
 | [0014](0014-external-data-through-integrations.md) | Data from outside systems comes in through scheduled imports behind module ports | Accepted |
 | [0015](0015-openapi-generated-from-code.md) | The OpenAPI contract is generated from the code at build | Accepted |
+| [0016](0016-domain-events-to-activity-log.md) | Domain events reach the activity log through each module's outbox | Accepted |
 
 For a new decision, create `NNNN-short-name.md` and record:
 
@@ -41,7 +42,8 @@ Every backend keeps an accepted ADR for each area below. A full architecture aud
 | Use-case shape (CQRS, mediator, endpoints) | 0007 |
 | Errors and validation | 0008 |
 | Authentication and authorization | 0003, 0011 |
-| Side effects and integration messages | 0009 |
+| Side effects and integration messages | 0009, 0016 |
+| Domain events and the activity history | 0016 |
 | Background work and scheduling | 0010 |
 | Database migrations and their order in a release | 0004 |
 | Deployment, hosting and secrets | 0004 |

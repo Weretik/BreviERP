@@ -57,6 +57,8 @@ GET api/accounting/transactions/{id:guid}/attachments | getFinanceAttachments | 
 GET api/accounting/transactions/{id:guid}/history | getFinanceTransactionHistory | policy:access:accounting
 GET api/accounting/transfers | getFinanceTransfers | policy:access:accounting
 GET api/accounting/transfers/{id:guid}/history | getFinanceTransferHistory | policy:access:accounting
+GET api/activity-log/entries | getActivityEntries | policy:access:activity-log
+GET api/activity-log/filters | getActivityFilters | policy:access:activity-log
 GET api/admin/access | getAccessRights | policy:CanManageUsers
 GET api/admin/users | getStaffAccounts | policy:CanManageUsers
 GET api/ai/settings | getAiSettings | policy:RequireAdminRole

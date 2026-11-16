@@ -5,6 +5,122 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/activity-log/entries": {
+      "get": {
+        "tags": [
+          "ActivityLog"
+        ],
+        "summary": "A page of «Журнал дій», newest first",
+        "description": "Who created, changed or deleted what and when (ACT-001). Filters combine: person, role, object type, action, Kyiv period (from/to days, inclusive) and words of the object title.",
+        "operationId": "getActivityEntries",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "actorId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subjectType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityEntriesPageDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/activity-log/filters": {
+      "get": {
+        "tags": [
+          "ActivityLog"
+        ],
+        "summary": "The choices of the «Журнал дій» filters",
+        "description": "People and object types found in the journal, and every action.",
+        "operationId": "getActivityFilters",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityFiltersDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ai/settings": {
       "get": {
         "tags": [
@@ -15953,6 +16069,186 @@
           "today": {
             "type": "string",
             "format": "date"
+          }
+        }
+      },
+      "ActivityActorDto": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ActivityChangeDto": {
+        "required": [
+          "field",
+          "from",
+          "to"
+        ],
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "from": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "to": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ActivityEntriesPageDto": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityEntryDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ActivityEntryDto": {
+        "required": [
+          "id",
+          "occurredAt",
+          "actorId",
+          "actorName",
+          "actorRoles",
+          "action",
+          "subjectType",
+          "subjectTypeTitle",
+          "subjectId",
+          "subjectTitle",
+          "summary",
+          "changes"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actorId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "actorName": {
+            "type": "string"
+          },
+          "actorRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "action": {
+            "type": "string"
+          },
+          "subjectType": {
+            "type": "string"
+          },
+          "subjectTypeTitle": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "subjectTitle": {
+            "type": "string"
+          },
+          "summary": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityChangeDto"
+            }
+          }
+        }
+      },
+      "ActivityFiltersDto": {
+        "required": [
+          "actors",
+          "subjectTypes",
+          "actions"
+        ],
+        "type": "object",
+        "properties": {
+          "actors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityActorDto"
+            }
+          },
+          "subjectTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivitySubjectTypeDto"
+            }
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ActivitySubjectTypeDto": {
+        "required": [
+          "key",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
           }
         }
       },
@@ -47281,6 +47577,9 @@
     }
   },
   "tags": [
+    {
+      "name": "ActivityLog"
+    },
     {
       "name": "AiSettings"
     },

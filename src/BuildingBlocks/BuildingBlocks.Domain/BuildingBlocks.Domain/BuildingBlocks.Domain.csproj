@@ -2,10 +2,6 @@
 
 
     <ItemGroup>
-      <Folder Include="Events\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Ardalis.SmartEnum" />
       <PackageReference Include="Vogen" />
     </ItemGroup>

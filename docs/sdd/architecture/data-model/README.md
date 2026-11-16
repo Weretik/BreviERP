@@ -54,6 +54,8 @@ BreviERP PostgreSQL
 │   ├── BankStatements                 # «Виписки банку»: uploaded statements
 │   ├── BankStatementLines             # their lines with what was recognised and chosen
 │   └── AuditEntries                   # change log with JSON snapshots
+├── activity_log / ActivityLogDbContext — 1 table + own history
+│   └── ActivityEntries                # «Журнал дій»: who created, changed or deleted what, from every module
 ├── scheduling / SchedulingDbContext — 2 tables + own history
 │   ├── ScheduledTasks                 # «Фонові задачі»: schedule, next run, last success and failure
 │   └── ScheduledTaskRuns              # run history, kept 90 days

@@ -7,7 +7,7 @@ namespace ArchitectureTests.Modules;
 /// </summary>
 public sealed class ModuleCompositionTests
 {
-    private static readonly string[] Modules = ["Accounting", "Ai", "Catalog", "Content", "Crm", "Identity", "Media", "Production", "Purchasing", "Reference", "Reminders", "Scheduling", "Warehouse"];
+    private static readonly string[] Modules = ["Accounting", "ActivityLog", "Ai", "Catalog", "Content", "Crm", "Identity", "Media", "Production", "Purchasing", "Reference", "Reminders", "Scheduling", "Warehouse"];
 
     [TestCaseSource(nameof(Modules))]
     public void Api_registers_the_module_with_one_entry_point(string module)

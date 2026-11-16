@@ -1,4 +1,5 @@
 using Accounting.Application;
+using ActivityLog.Application;
 using BuildingBlocks.Application;
 using Catalog.Application;
 using Crm.Application;
@@ -40,12 +41,14 @@ public static class MediatorRegistrationExtensions
                 typeof(WarehouseApplicationAssemblyMarker).Assembly,
                 typeof(AccountingApplicationAssemblyMarker).Assembly,
                 typeof(AiApplicationAssemblyMarker).Assembly,
+                typeof(ActivityLogApplicationAssemblyMarker).Assembly,
                 typeof(ApplicationAssemblyMarker).Assembly
             ];
 
             options.PipelineBehaviors =
             [
                 typeof(RequestLoggingBehavior<,>),
+                typeof(OutboxAfterCommandBehavior<,>),
                 typeof(PerformanceBehavior<,>),
                 typeof(ValidationBehavior<,>),
                 typeof(ExceptionBehavior<,>)

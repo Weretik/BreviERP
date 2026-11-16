@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Application\BuildingBlocks.Application\BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\ActivityLog.Domain\ActivityLog.Domain\ActivityLog.Domain.csproj" />
+    <ProjectReference Include="..\..\ActivityLog.Contracts\ActivityLog.Contracts\ActivityLog.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
