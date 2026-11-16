@@ -2,6 +2,7 @@ using ActivityLog.Application.Abstractions;
 using ActivityLog.Application.Features.Entries.EventHandlers;
 using ActivityLog.Infrastructure.Adapters.Identity;
 using ActivityLog.Infrastructure.Persistence;
+using BuildingBlocks.Application.DomainEvents;
 using BuildingBlocks.Infrastructure.Database;
 using BuildingBlocks.Infrastructure.DomainEvents;
 using BuildingBlocks.Infrastructure.Outbox;
@@ -14,7 +15,10 @@ namespace ActivityLog.Infrastructure.DependencyInjection;
 
 public static class ActivityLogInfrastructureExtensions
 {
-    /// <summary>DbContext, migrator, the handler of <c>activity.recorded</c> and the shared domain-event parts.</summary>
+    /// <summary>
+    /// DbContext, migrator, the translation of every module's domain events into <c>activity.recorded</c>, its handler
+    /// and the shared domain-event parts.
+    /// </summary>
     public static IServiceCollection AddActivityLogInfrastructure(this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -28,6 +32,7 @@ public static class ActivityLogInfrastructureExtensions
 
         services.AddDomainEvents();
         services.AddOutboxHandler<RecordActivityOutboxHandler>();
+        services.AddScoped<IDomainEventOutbox, ActivityDomainEventOutbox>();
         services.AddScoped<IActorNames, StaffActorNames>();
         return services;
     }

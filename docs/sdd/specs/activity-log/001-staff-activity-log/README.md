@@ -8,7 +8,7 @@ The owner cannot see which manager created, changed or deleted a КП, a product
 
 ## Decision
 
-An aggregate raises a **domain event** when a person creates, changes or deletes it (`QuoteCreated`, `ProductionOrderChanged`, …). When the module saves, a shared EF interceptor takes the events, asks the module's **activity describer** to turn each into an `ActivityRecorded` message of `ActivityLog.Contracts` (subject, title, action, changed fields), adds who did it and when, and writes it to the module's own `OutboxMessages` in the same `SaveChanges` ([ADR-0009](../../../architecture/decisions/0009-transactional-outbox.md)). After the command the request tries the message once; the scheduler tick retries the rest. The handler of the new module ActivityLog stores the entry under the event id, so a repeat does nothing. The admin page «Адміністрування → Журнал дій» lists the entries with filters.
+An aggregate raises a **domain event** when a person creates, changes or deletes it (`QuoteCreated`, `ProductionOrderChanged`, …). When the module saves, a shared EF interceptor takes the events; the module's **activity describer** (`IActivityDescriber` of `ActivityLog.Contracts`) says what each means (subject, title, action, changed fields), ActivityLog adds who did it and when, and the `activity.recorded` message is written to the module's own `OutboxMessages` in the same transaction ([ADR-0009](../../../architecture/decisions/0009-transactional-outbox.md)). After the command the request tries the message once; the scheduler tick retries the rest. The handler of the new module ActivityLog stores the entry under the event id, so a repeat does nothing. The admin page «Адміністрування → Журнал дій» lists the entries with filters.
 
 Why a new module: no module owns a history of other modules' actions; putting it in Identity or each source module would mix responsibilities. Why domain events and not an EF change interceptor that logs every changed column: the journal must show business actions in the owner's words («Змінив КП №125: Сума 1 200 → 1 500»), not table rows; columns such as `UpdatedAt`, sort orders or cached totals would drown it. Why through the outbox and not an in-process event after the command (the unused KedrStore pattern): an entry must never be lost for a saved action nor written for an action that rolled back.
 
@@ -84,8 +84,8 @@ No write endpoints: entries come only from the outbox.
 ```
 endpoint → command handler → aggregate.Method() raises IDomainEvent
         → SaveChanges → DomainEventOutboxInterceptor (BuildingBlocks.Infrastructure)
-             → IActivityDescriber of the module → ActivityRecorded (ActivityLog.Contracts) + ICurrentActor
-             → OutboxMessage "activity.recorded" in the module schema, same transaction
+             → (after the insert, ids known) ActivityDomainEventOutbox (ActivityLog) → the module's IActivityDescriber
+               + ICurrentActor → ActivityRecorded → OutboxMessage "activity.recorded" in the module schema, same transaction
         → OutboxAfterCommandBehavior tries the saved ids at once
         → (else) scheduler tick → outbox dispatcher
         → RecordActivityOutboxHandler (ActivityLog.Application) → insert once by event id
@@ -102,19 +102,19 @@ admin page → GET /api/activity-log/entries → GetActivityEntries query → As
 | BuildingBlocks.Application | `DomainEvents/IDomainEventOutbox.cs` | a module's translation of its events into outbox messages (port the interceptor calls) | done |
 | BuildingBlocks.Infrastructure | `DomainEvents/DomainEventOutboxInterceptor.cs`, `DomainEventRegistrationExtensions.cs`, `SavedOutboxMessages.cs`, `NoCurrentActor.cs` | collect events of tracked entities on save, write messages, remember saved ids; nobody outside a request | done |
 | BuildingBlocks.Api | `Authorization/HttpCurrentActor.cs`, `CurrentActorRegistrationExtensions.cs` | `ICurrentActor` from the request's claims | done |
-| ActivityLog.Contracts | `Activity/ActivityRecorded.cs`, `ActivityActions.cs`, `ActivityMessage.cs` | the message other modules write (type `activity.recorded`), action names | done |
+| ActivityLog.Contracts | `Activity/IActivityDescriber.cs`, `ActivityDescription.cs`, `ActivityChanges.cs`, `ActivityRecorded.cs`, `ActivityActions.cs`, `ActivityMessage.cs` | what a module implements to describe its events; the diff builder; the message (type `activity.recorded`); action names | done |
 | ActivityLog.Domain | `Entries/ActivityEntry.cs`, `ActivityChange.cs`, `ActivityText.cs` | the stored entry and its limits (R-02) | done |
-| ActivityLog.Application | `Features/Entries/EventHandlers/RecordActivityOutboxHandler.cs`, `Features/Entries/Queries/{GetActivityEntries,GetActivityFilters}/`, `Abstractions/{IActivityLogDbContext,IActorNames}.cs` | store an entry; list and filters | done |
+| ActivityLog.Application | `Features/Entries/EventHandlers/ActivityDomainEventOutbox.cs` (description + actor → message), `RecordActivityOutboxHandler.cs`, `Features/Entries/Queries/{GetActivityEntries,GetActivityFilters}/`, `Abstractions/{IActivityLogDbContext,IActorNames}.cs` | store an entry; list and filters | done |
 | ActivityLog.Infrastructure | `Persistence/ActivityLogDbContext.cs`, `Configurations/`, `Migrations/`; `Adapters/Identity/StaffActorNames.cs`; `DependencyInjection/` | schema `activity_log`; full names over Identity.Contracts | done |
 | ActivityLog.Api | `Endpoints/Entries/{GetActivityEntries,GetActivityFilters}/`, `Access/ActivityLogAccess.cs`, `DependencyInjection/` | HTTP | done |
 | Source modules | `<Module>.Domain/<Aggregate>/Events/*` | the events of each aggregate | planned (stage 3) |
-| Source modules | `<Module>.Application/Features/<Feature>/EventHandlers/<Feature>ActivityOutbox.cs` | event → `ActivityRecorded` (`IDomainEventOutbox`) | planned (stage 3) |
+| Source modules | `<Module>.Application/Features/<Feature>/EventHandlers/<Feature>Activity.cs` | event → `ActivityDescription` (`IActivityDescriber`) | planned (stage 3) |
 | Identity | `AccessCatalog`: `activity-log` | R-10 | done |
 | Host.Api, Host.Seed | register the module, the behavior, the actor | composition; Host.Seed gets the «nobody» actor (R-01) | done |
 
 ### Why the describer sits in the module's Application
 
-The domain event says what happened in the module's terms (ids, values). How it reads in the journal (Ukrainian labels, money and date format, subject titles) is presentation of the module's own data, and only the module knows it; the shared interceptor stays free of module knowledge and ActivityLog stays free of every module's model.
+The domain event says what happened in the module's terms (ids, values). How it reads in the journal (Ukrainian labels, money and date format, subject titles) is presentation of the module's own data, and only the module knows it; the shared interceptor stays free of module knowledge and ActivityLog stays free of every module's model. Who and when are added once, in ActivityLog, so no module repeats them.
 
 ## Prerequisites
 

@@ -5,7 +5,7 @@
 ## How an entry is made
 
 1. A command handler calls an aggregate method; the aggregate raises a domain event (`Raise(new QuoteChanged(...))`, base class `DomainEventSource` or `BaseEntity`).
-2. On `SaveChanges` the shared `DomainEventOutboxInterceptor` takes the events and opens a transaction if the caller has none; after the insert (ids known) it asks every `IDomainEventOutbox` to translate them; the module's activity describer returns an `activity.recorded` outbox message with `ActivityRecorded` (actor from `ICurrentActor`, subject, action, changed fields). A second save writes the messages and the transaction commits; a failure rolls both back. Without a signed-in person nothing is written.
+2. On `SaveChanges` the shared `DomainEventOutboxInterceptor` takes the events and opens a transaction if the caller has none; after the insert (ids known) it asks every `IDomainEventOutbox` to translate them: ActivityLog's `ActivityDomainEventOutbox` asks the module's `IActivityDescriber` what happened (subject, action, changed fields) and returns an `activity.recorded` outbox message with `ActivityRecorded` and the actor from `ICurrentActor`. A second save writes the messages and the transaction commits; a failure rolls both back. Without a signed-in person nothing is written.
 3. `OutboxAfterCommandBehavior` tries the message right after the command; the outbox task of the scheduler tick retries failures.
 4. `RecordActivityOutboxHandler` stores the entry under the event id (a repeat does nothing) with the staff member's full name from `Identity.Contracts`.
 
@@ -21,18 +21,18 @@ src/BuildingBlocks/
   BuildingBlocks.Infrastructure/…/DomainEvents/    # DomainEventOutboxInterceptor, SavedOutboxMessages, NoCurrentActor, AddDomainEvents()
   BuildingBlocks.Api/Authorization/HttpCurrentActor.cs   # the signed-in user from the cookie claims
 src/Modules/ActivityLog/
-  ActivityLog.Contracts/…/Activity/                # ActivityRecorded (+ ActivityChangeItem), ActivityActions, ActivityMessage.Type
+  ActivityLog.Contracts/…/Activity/                # IActivityDescriber + ActivityDescription (what a module implements), ActivityChanges (diff builder), ActivityRecorded, ActivityActions, ActivityMessage.Type
   ActivityLog.Domain/…/Entries/                    # ActivityEntry (limits, roles as |A|B|), ActivityChange, ActivityText
   ActivityLog.Application/…/
     Abstractions/                                  # IActivityLogDbContext, IActorNames
-    Features/Entries/EventHandlers/                # RecordActivityOutboxHandler (idempotent by event id)
+    Features/Entries/EventHandlers/                # ActivityDomainEventOutbox (description + actor → message), RecordActivityOutboxHandler (idempotent by event id)
     Features/Entries/Queries/GetActivityEntries/   # page, filters, Kyiv period, word search; validator
     Features/Entries/Queries/GetActivityFilters/   # people and object types found in the journal
   ActivityLog.Infrastructure/…/
     Persistence/                                   # ActivityLogDbContext (schema activity_log), configuration, migrations
     Adapters/Identity/StaffActorNames.cs           # full name over Identity.Contracts
   ActivityLog.Api/…/Endpoints/Entries/             # GET /api/activity-log/entries, /filters
-src/Modules/<Source>/…                             # events in Domain, describers in Application Features/<Feature>/EventHandlers/
+src/Modules/<Source>/…                             # events in Domain (<Aggregate>/Events/), IActivityDescriber in Application Features/<Feature>/EventHandlers/
 ```
 
 ## Covered actions
