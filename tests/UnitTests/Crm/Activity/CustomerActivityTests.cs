@@ -1,6 +1,6 @@
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
-using Crm.Application.Features.Customers.EventHandlers;
+using Crm.Application.Features.Activity.EventHandlers;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Identifiers;
 

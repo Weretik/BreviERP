@@ -1,4 +1,5 @@
 using BuildingBlocks.Application.Actors;
+using BuildingBlocks.Application.DomainEvents;
 using BuildingBlocks.Application.Outbox;
 using BuildingBlocks.Infrastructure.Outbox;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ public static class DomainEventRegistrationExtensions
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddScoped<ICurrentActor, NoCurrentActor>();
         services.TryAddScoped<ISavedOutboxMessages, SavedOutboxMessages>();
+        services.TryAddScoped<IDomainEventSuppression, DomainEventSuppression>();
         services.TryAddScoped<DomainEventOutboxInterceptor>();
         services.TryAddScoped<IOutboxDispatcher, OutboxDispatcher>();
         return services;

@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Domain.Orders;
@@ -11,7 +12,8 @@ using Production.Application.Features.Orders.Shared.Rules;
 namespace Production.Application.Features.Orders.Commands.ImportProductionOrders;
 
 public sealed class ImportProductionOrdersHandler(IProductionDbContext db, IProductionStaffReader staff,
-    TimeProvider clock) : ICommandHandler<ImportProductionOrdersCommand, Result<ProductionOrderImportResult>>
+    TimeProvider clock, IDomainEventSuppression domainEvents)
+    : ICommandHandler<ImportProductionOrdersCommand, Result<ProductionOrderImportResult>>
 {
     public async ValueTask<Result<ProductionOrderImportResult>> Handle(ImportProductionOrdersCommand command,
         CancellationToken cancellationToken)
@@ -86,6 +88,8 @@ public sealed class ImportProductionOrdersHandler(IProductionDbContext db, IProd
         if (apply)
         {
             db.Orders.AddRange(orders);
+            // An import is not recorded order by order in «Журнал дій» (ACT-001 R-08).
+            domainEvents.Suppress();
             await db.SaveChangesAsync(cancellationToken);
         }
 

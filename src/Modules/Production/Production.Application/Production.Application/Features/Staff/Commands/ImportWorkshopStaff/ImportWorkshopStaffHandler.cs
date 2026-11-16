@@ -1,10 +1,12 @@
+using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.Staff;
 using BuildingBlocks.Application;
 
 namespace Production.Application.Features.Staff.Commands.ImportWorkshopStaff;
 
-public sealed class ImportWorkshopStaffHandler(IProductionDbContext db, TimeProvider clock)
+public sealed class ImportWorkshopStaffHandler(IProductionDbContext db, TimeProvider clock,
+    IDomainEventSuppression domainEvents)
     : ICommandHandler<ImportWorkshopStaffCommand, Result<WorkshopStaffImportResult>>
 {
     public async ValueTask<Result<WorkshopStaffImportResult>> Handle(ImportWorkshopStaffCommand command,
@@ -34,7 +36,11 @@ public sealed class ImportWorkshopStaffHandler(IProductionDbContext db, TimeProv
             else lines.Add(new(employee.FullName, created.Position, "unchanged"));
         }
 
-        if (!command.DryRun) await db.SaveChangesAsync(cancellationToken);
+        if (!command.DryRun)
+        {
+            domainEvents.Suppress(); // an import is one action, not one per row (ACT-001 R-08)
+            await db.SaveChangesAsync(cancellationToken);
+        }
         return Result.Success(new WorkshopStaffImportResult(command.DryRun, lines.Count(x => x.Action == "created"),
             lines.Count(x => x.Action == "updated"), lines.Count(x => x.Action == "unchanged"), lines));
     }

@@ -1,3 +1,6 @@
+using ActivityLog.Contracts.Activity;
+using BuildingBlocks.Infrastructure.DomainEvents;
+using Production.Application.Features.Activity.EventHandlers;
 using BuildingBlocks.Infrastructure.Outbox;
 using Production.Infrastructure.Adapters.Catalog;
 using Production.Infrastructure.Adapters.Crm;
@@ -32,8 +35,15 @@ public static class ProductionInfrastructureExtensions
     public static IServiceCollection AddProductionInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
-        services.AddDbContext<ProductionDbContext>(options => options.UseNpgsql(connection,
-            x => x.MigrationsHistoryTable("__EFMigrationsHistory", ProductionDbContext.Schema)));
+        services.AddDomainEvents();
+        services.AddScoped<IActivityDescriber, ProductionOrderActivityDescriber>();
+        services.AddScoped<IActivityDescriber, ProductionWorkActivity>();
+        services.AddScoped<IActivityDescriber, WorkshopActivity>();
+        services.AddScoped<IActivityDescriber, FabricNormActivity>();
+        services.AddScoped<IActivityDescriber, PayrollActivity>();
+        services.AddDbContext<ProductionDbContext>((provider, options) => options
+            .UseNpgsql(connection, x => x.MigrationsHistoryTable("__EFMigrationsHistory", ProductionDbContext.Schema))
+            .AddDomainEvents(provider));
         services.AddScoped<IProductionDbContext>(sp => sp.GetRequiredService<ProductionDbContext>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<ProductionDbContext>>();
         services.AddOutbox<ProductionDbContext>();

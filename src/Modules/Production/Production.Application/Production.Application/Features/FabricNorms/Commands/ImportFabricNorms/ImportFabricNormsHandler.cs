@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.FabricNorms;
 using Production.Application.Features.FabricNorms.Shared;
@@ -5,7 +6,8 @@ using Production.Application.Abstractions.Sales;
 
 namespace Production.Application.Features.FabricNorms.Commands.ImportFabricNorms;
 
-public sealed class ImportFabricNormsHandler(IProductionDbContext db, IProductionModelReader models, TimeProvider clock)
+public sealed class ImportFabricNormsHandler(IProductionDbContext db, IProductionModelReader models, TimeProvider clock,
+    IDomainEventSuppression domainEvents)
     : ICommandHandler<ImportFabricNormsCommand, Result<FabricNormImportResult>>
 {
     public async ValueTask<Result<FabricNormImportResult>> Handle(ImportFabricNormsCommand command,
@@ -62,6 +64,7 @@ public sealed class ImportFabricNormsHandler(IProductionDbContext db, IProductio
         if (!command.DryRun && errors == 0)
         {
             changes.ForEach(x => x());
+            domainEvents.Suppress(); // an import is one action, not one per row (ACT-001 R-08)
             await db.SaveChangesAsync(cancellationToken);
         }
 

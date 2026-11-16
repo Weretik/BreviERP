@@ -1,6 +1,6 @@
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
-using Crm.Application.Features.Tasks.EventHandlers;
+using Crm.Application.Features.Activity.EventHandlers;
 using Crm.Domain.Tasks;
 using Crm.Domain.Tasks.Enums;
 using Crm.Domain.Tasks.ValueObjects;

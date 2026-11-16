@@ -13,6 +13,7 @@ public sealed class DeleteFabricNormHandler(IProductionDbContext db) : ICommandH
         var code = ModelFabricNorm.NormalizeCode(command.ModelCode);
         var norm = await db.FabricNorms.FirstOrDefaultAsync(x => x.ModelCode == code, cancellationToken);
         if (norm is null) return Result.NotFound(FabricNormMessages.NormNotFound);
+        norm.MarkDeleted();
         db.FabricNorms.Remove(norm);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success();

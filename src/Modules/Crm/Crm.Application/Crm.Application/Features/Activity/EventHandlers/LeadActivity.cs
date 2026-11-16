@@ -2,7 +2,7 @@ using ActivityLog.Contracts.Activity;
 using Crm.Domain.Leads;
 using Crm.Domain.Leads.Events;
 
-namespace Crm.Application.Features.Leads.EventHandlers;
+namespace Crm.Application.Features.Activity.EventHandlers;
 
 /// <summary>
 /// How lead actions read in «Журнал дій» (ACT-001): taking and giving back a lead, recorded calls, and the

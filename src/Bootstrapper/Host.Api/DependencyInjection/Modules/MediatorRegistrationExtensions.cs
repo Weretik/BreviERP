@@ -4,7 +4,6 @@ using BuildingBlocks.Application;
 using Catalog.Application;
 using Crm.Application;
 using BuildingBlocks.Application.Behaviors;
-using BuildingBlocks.Infrastructure.DomainEvents;
 using Identity.Application;
 using Reference.Application;
 using Reminders.Application;

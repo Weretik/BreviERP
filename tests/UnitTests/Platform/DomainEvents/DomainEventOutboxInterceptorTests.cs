@@ -30,6 +30,23 @@ public sealed class DomainEventOutboxInterceptorTests
     }
 
     [Test]
+    public async Task An_import_that_suppresses_events_saves_its_rows_without_messages()
+    {
+        using var harness = DomainEventTestDb.Create(Manager);
+        harness.Suppression.Suppress();
+        await using (var db = harness.Open())
+        {
+            db.Notes.AddRange(Note.Create("row 1"), Note.Create("row 2"));
+            await db.SaveChangesAsync();
+        }
+
+        await using var check = harness.Open();
+        Assert.That(await check.Notes.CountAsync(), Is.EqualTo(2));
+        Assert.That(await check.OutboxMessages.AnyAsync(), Is.False);
+        Assert.That(harness.Saved.Take(), Is.Empty);
+    }
+
+    [Test]
     public async Task Events_are_cleared_after_the_save_so_a_second_save_writes_nothing_more()
     {
         using var harness = DomainEventTestDb.Create(Manager);

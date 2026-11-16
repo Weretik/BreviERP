@@ -1,5 +1,5 @@
 using ActivityLog.Contracts.Activity;
-using Crm.Application.Features.Embroidery.EventHandlers;
+using Crm.Application.Features.Activity.EventHandlers;
 using Crm.Domain.Embroidery;
 
 namespace UnitTests.Crm.Activity;

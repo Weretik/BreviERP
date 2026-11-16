@@ -37,16 +37,21 @@ src/Modules/<Source>/…                             # events in Domain (<Aggreg
 
 ## Covered actions
 
-Filled in as each source module is wired (ACT-001 «Coverage»). Actions of the scheduler, imports and syncs (KeepinCRM clients, the leads sheet, the old archives) have no person and are not listed.
+Filled in as each source module is wired (ACT-001 «Coverage»). Actions of the scheduler have no person and are not listed. Imports and syncs started from the admin (KeepinCRM clients, the leads sheet, the old «Цех» transfers, norm and staff lists) call `IDomainEventSuppression.Suppress()` before saving, so their rows are not listed one by one (R-08). Not listed yet: the timesheet, the forecast queue, payroll roles, embroidery stitches and «видано».
 
 | Module | Subject (key) | Actions | Describer |
 | --- | --- | --- | --- |
-| Crm | КП (`quote`) | created, copied, saved with changed fields (name, client, recipient, comments, items, pages, letter), sent, repriced, embroidery added, responsible changed, returned from the archive, deleted | `Crm.Application/Features/Quotes/EventHandlers/QuoteActivity.cs` |
+| Crm | КП (`quote`) | created, copied, saved with changed fields (name, client, recipient, comments, items, pages, letter), sent, repriced, embroidery added, responsible changed, returned from the archive, deleted | `Crm.Application/Features/Activity/EventHandlers/QuoteActivity.cs` |
 | Crm | Шаблон КП для знайомства (`quote-intro-template`), Налаштування КП (`quote-settings`) | template created or deleted; settings saved | same |
-| Crm | Завдання менеджеру (`task`) | created, edited with changed fields, status, urgent flag, step ticked or unticked, deleted | `Features/Tasks/EventHandlers/TaskActivity.cs` |
-| Crm | Лід (`lead`), Результат дзвінка (`lead-call-result`), Категорія ліда (`lead-category`) | taken, given back, call recorded; call result added or changed; category description | `Features/Leads/EventHandlers/LeadActivity.cs` |
-| Crm | Клієнт (`customer`) | created, details changed, contact added or changed, merged | `Features/Customers/EventHandlers/CustomerActivity.cs` |
-| Crm | Розрахунок вишивки (`embroidery-calculation`), Налаштування вишивки (`embroidery-settings`) | calculation saved, mockup set, deleted; rates saved | `Features/Embroidery/EventHandlers/EmbroideryActivity.cs` |
+| Crm | Завдання менеджеру (`task`) | created, edited with changed fields, status, urgent flag, step ticked or unticked, deleted | `TaskActivity.cs` (same folder) |
+| Crm | Лід (`lead`), Результат дзвінка (`lead-call-result`), Категорія ліда (`lead-category`) | taken, given back, call recorded; call result added or changed; category description | `LeadActivity.cs` |
+| Crm | Клієнт (`customer`) | created, details changed, contact added or changed, merged | `CustomerActivity.cs` |
+| Crm | Розрахунок вишивки (`embroidery-calculation`), Налаштування вишивки (`embroidery-settings`) | calculation saved, mockup set, deleted; rates saved | `EmbroideryActivity.cs` |
+| Production | Виробниче завдання (`production-order`) | created (from КП or a copy), edited (the order's own «Історія змін» lines become the fields), stages, shipment and its cancel, files and fabric plan notes, closed, cancelled with the reason, reopened, deleted | `Production.Application/Features/Activity/EventHandlers/ProductionOrderActivityDescriber.cs` |
+| Production | Робота цеху (`production-work`) | recorded, voided | `ProductionWorkActivity.cs` |
+| Production | Працівник цеху (`workshop-employee`), Налаштування цеху (`workshop-settings`) | added, renamed or moved, switched on or off; Telegram settings saved | `WorkshopActivity.cs` |
+| Production | Норма тканини (`fabric-norm`) | added, meters changed, deleted | `FabricNormActivity.cs` |
+| Production | Виплата / Коригування зарплати (`payroll-payment`, `payroll-adjustment`) | recorded, voided | `PayrollActivity.cs` |
 
 ## Tests
 

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 
 namespace Production.Domain.FabricNorms;
@@ -6,7 +7,7 @@ namespace Production.Domain.FabricNorms;
 /// «Норми витрати тканини»: how much fabric one item of a Catalog sewing model needs. Owned by the workshop and keyed by
 /// the model code (MOD-…); the model itself stays in Catalog. Orders of later stages plan and book fabric from it.
 /// </summary>
-public sealed class ModelFabricNorm
+public sealed class ModelFabricNorm : DomainEventSource
 {
     public const int ModelCodeMaxLength = 32;
 
@@ -42,6 +43,7 @@ public sealed class ModelFabricNorm
         var check = CheckValues(values);
         if (check.IsFailure) return check.Error!;
         if (UpdatedAt != default && Values == values) return false;
+        var before = UpdatedAt == default ? null : Values;
 
         OneColor = values.OneColor;
         TwoColorsMain = values.TwoColorsMain;
@@ -51,8 +53,12 @@ public sealed class ModelFabricNorm
         ThreeColorsAdditional2 = values.ThreeColorsAdditional2;
         UpdatedAt = now;
         UpdatedByUserId = userId;
+        Raise(new FabricNormSaved(this, before));
         return true;
     }
+
+    /// <summary>Tells «Журнал дій» (ACT-001) that the norm is being deleted; call it before removing it.</summary>
+    public void MarkDeleted() => Raise(new FabricNormDeleted(Id, ModelCode));
 
     /// <summary>Meters above zero with at most three decimals, and a main fabric for every additional one.</summary>
     public static DomainResult CheckValues(FabricNormValues values)

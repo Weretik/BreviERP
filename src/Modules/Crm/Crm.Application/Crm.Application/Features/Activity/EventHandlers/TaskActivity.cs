@@ -3,7 +3,7 @@ using Crm.Domain.Tasks;
 using Crm.Domain.Tasks.Enums;
 using Crm.Domain.Tasks.ValueObjects;
 
-namespace Crm.Application.Features.Tasks.EventHandlers;
+namespace Crm.Application.Features.Activity.EventHandlers;
 
 /// <summary>How manager-task actions read in «Журнал дій» (ACT-001).</summary>
 public sealed class TaskActivity : IActivityDescriber

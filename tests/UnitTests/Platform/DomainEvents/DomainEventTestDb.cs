@@ -87,15 +87,16 @@ internal sealed class DomainEventTestDb(DbContextOptions<DomainEventTestDb> opti
         var currentActor = new FixedActor(actor);
         var clock = new FakeTimeProvider(new DateTimeOffset(2026, 11, 16, 10, 0, 0, TimeSpan.Zero));
         IDomainEventOutbox outbox = failMessages ? new BrokenOutbox() : new NoteOutbox();
-        var interceptor = new DomainEventOutboxInterceptor([outbox], currentActor, saved, clock);
+        var suppression = new DomainEventSuppression();
+        var interceptor = new DomainEventOutboxInterceptor([outbox], currentActor, saved, suppression, clock);
         var options = new DbContextOptionsBuilder<DomainEventTestDb>().UseSqlite(connection)
             .AddInterceptors(interceptor).Options;
         using (var db = new DomainEventTestDb(options)) db.Database.EnsureCreated();
-        return new Harness(connection, () => new DomainEventTestDb(options), saved, currentActor);
+        return new Harness(connection, () => new DomainEventTestDb(options), saved, currentActor, suppression);
     }
 
     internal sealed record Harness(SqliteConnection Connection, Func<DomainEventTestDb> Open,
-        SavedOutboxMessages Saved, FixedActor Actor) : IDisposable
+        SavedOutboxMessages Saved, FixedActor Actor, DomainEventSuppression Suppression) : IDisposable
     {
         public void Dispose() => Connection.Dispose();
     }

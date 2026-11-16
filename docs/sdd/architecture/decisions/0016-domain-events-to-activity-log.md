@@ -18,6 +18,7 @@ The owner wants to see who created, changed or deleted what across the admin (К
 - `BuildingBlocks.Domain` gives every entity `Raise(IDomainEvent)` and the list of raised events. Events are records in the module's Domain, named in the past tense (`QuoteCreated`), carrying ids and the changed values.
 - A shared `SaveChangesInterceptor` (`BuildingBlocks.Infrastructure/DomainEvents`) takes the events of tracked entities before the save and opens a transaction when the caller has none. After the save, when database-generated ids are known, the module's `IDomainEventOutbox` implementations turn the events into outbox messages, a second save in the same transaction writes them, and the transaction commits. A failure of either save rolls both back. Events of new rows with generated ids carry the aggregate, so the translation reads the id after the insert.
 - Each source module registers an `IActivityDescriber` (`ActivityLog.Contracts`) that says how its events read: subject, action, changed fields. ActivityLog's one `IDomainEventOutbox` (`ActivityDomainEventOutbox`) adds the signed-in actor (`ICurrentActor`) and the time and returns the `activity.recorded` message with the `ActivityRecorded` payload; the interceptor writes it into the saving module's outbox. No actor (background work) means no entry.
+- Each module groups its describers in `Application/Features/Activity/EventHandlers/`.
 - After the command a Mediator behavior tries the saved messages once; the outbox task of the scheduler tick retries the rest.
 - ActivityLog (schema `activity_log`) handles `activity.recorded` by inserting under the event id with `ON CONFLICT DO NOTHING`; its admin API lists entries.
 
@@ -27,7 +28,7 @@ The owner wants to see who created, changed or deleted what across the admin (К
 - Every module that raises events needs an outbox table (Catalog and Media gain one).
 - Entries can appear up to one tick late when the first try fails.
 - Future reactions to the same events (notifications, statistics) add another `IDomainEventOutbox` translation without touching the aggregates.
-- Bulk commands raise one summary event, not one per row, so the journal and the outbox stay small.
+- Imports and syncs call `IDomainEventSuppression.Suppress()` before saving, so their rows write no events and the journal and the outbox stay small; a summary entry per import can come later (ACT-001 R-08).
 
 ## Sources
 

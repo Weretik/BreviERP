@@ -1,10 +1,6 @@
+using Crm.Application.Features.Activity.EventHandlers;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Infrastructure.DomainEvents;
-using Crm.Application.Features.Customers.EventHandlers;
-using Crm.Application.Features.Embroidery.EventHandlers;
-using Crm.Application.Features.Leads.EventHandlers;
-using Crm.Application.Features.Quotes.EventHandlers;
-using Crm.Application.Features.Tasks.EventHandlers;
 using BuildingBlocks.Infrastructure.Outbox;
 using Crm.Contracts.Customers;
 using Crm.Contracts.Embroidery;

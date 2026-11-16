@@ -2,6 +2,8 @@ using BuildingBlocks.Domain.Results;
 using System.Globalization;
 using Production.Domain.Orders.Enums;
 using Production.Domain.Orders.Errors;
+using Production.Domain.Orders.Events;
+using BuildingBlocks.Domain.Events;
 using Production.Domain.Orders.Rules;
 using Production.Domain.Orders.ValueObjects;
 
@@ -12,7 +14,7 @@ namespace Production.Domain.Orders;
 /// цех»); the client, manager and every item are copied then. <see cref="CreateRequestId"/> makes a repeated press of
 /// the button return the same order instead of a duplicate.
 /// </summary>
-public sealed class ProductionOrder
+public sealed class ProductionOrder : DomainEventSource
 {
     public const int ClientMaxLength = 300;
     public const int PersonMaxLength = 200;
@@ -58,6 +60,7 @@ public sealed class ProductionOrder
         CreatedByName = OrderText.Required(actorName, PersonMaxLength);
         UpdatedAt = now;
         Version = 1;
+        Raise(new ProductionOrderRecorded(this, ProductionOrderActivity.Created, []));
     }
 
     public int Id { get; private set; }
@@ -167,6 +170,7 @@ public sealed class ProductionOrder
         }
 
         if (_changes.Count == before) return false;
+        Publish(ProductionOrderActivity.Changed, before);
         Touch(now);
         return true;
     }
@@ -177,11 +181,21 @@ public sealed class ProductionOrder
         if (IsDeleted) return;
         DeletedAt = now;
         _changes.Add(new ProductionOrderChange(null, null, "Видалено", null, "Так", actorName, now));
+        Raise(new ProductionOrderRecorded(this, ProductionOrderActivity.Deleted, []));
         Touch(now);
     }
 
     /// <returns>False when the stages did not change.</returns>
     public DomainResult<bool> SetItemStages(int itemId, IEnumerable<ProductionStage> stages, string actorName,
+        DateTimeOffset now)
+    {
+        var from = _changes.Count;
+        var changed = Stages(itemId, stages, actorName, now);
+        if (changed.IsSuccess && changed.Value) Publish(ProductionOrderActivity.StagesChanged, from);
+        return changed;
+    }
+
+    private DomainResult<bool> Stages(int itemId, IEnumerable<ProductionStage> stages, string actorName,
         DateTimeOffset now)
     {
         if (FindItem(itemId) is not { } item) return ProductionOrderErrors.ItemNotInOrder();
@@ -208,13 +222,15 @@ public sealed class ProductionOrder
         if (quantity > RemainingToShip(itemId)) return ProductionOrderErrors.TooMuchShipped();
         var text = OrderText.Check(comment, ProductionShipment.CommentMaxLength, "comment");
         if (text.IsFailure) return text.Error!;
+        var from = _changes.Count;
         var shipment = new ProductionShipment(item.Id, quantity, shippedOn, comment, actorName, now);
         _shipments.Add(shipment);
         _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження", null,
             $"{quantity} шт., {Format(shippedOn)}{(shipment.Comment is null ? "" : $", {shipment.Comment}")}",
             actorName, now));
         if (RemainingToShip(itemId) == 0 && !item.Stages.Contains(ProductionStage.Shipped))
-            SetItemStages(itemId, [.. item.Stages, ProductionStage.Shipped], actorName, now);
+            Stages(itemId, [.. item.Stages, ProductionStage.Shipped], actorName, now);
+        Publish(ProductionOrderActivity.Shipped, from);
         Touch(now);
         return shipment;
     }
@@ -227,6 +243,7 @@ public sealed class ProductionOrder
         var item = Item(shipment.ItemId);
         _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження скасовано",
             $"{shipment.Quantity} шт., {Format(shipment.ShippedOn)}", null, actorName, now));
+        Publish(ProductionOrderActivity.ShipmentCancelled, _changes.Count - 1);
         Touch(now);
         return DomainResult.Success();
     }
@@ -237,6 +254,7 @@ public sealed class ProductionOrder
         if (Status != ProductionOrderStatus.New) return ProductionOrderErrors.NotNew();
         if (!IsFullyShipped) return ProductionOrderErrors.NotFullyShipped();
         ChangeStatus(ProductionOrderStatus.Closed, null, actorName, now);
+        Publish(ProductionOrderActivity.Closed, _changes.Count - 1);
         return DomainResult.Success();
     }
 
@@ -247,6 +265,7 @@ public sealed class ProductionOrder
         var text = OrderText.Check(reason, CancelReasonMaxLength, "reason", required: true);
         if (text.IsFailure) return text;
         ChangeStatus(ProductionOrderStatus.Cancelled, OrderText.Required(reason, CancelReasonMaxLength), actorName, now);
+        Publish(ProductionOrderActivity.Cancelled, _changes.Count - 1);
         return DomainResult.Success();
     }
 
@@ -255,18 +274,29 @@ public sealed class ProductionOrder
     {
         if (Status == ProductionOrderStatus.New) return ProductionOrderErrors.AlreadyOpen();
         ChangeStatus(ProductionOrderStatus.New, null, actorName, now);
+        Publish(ProductionOrderActivity.Reopened, _changes.Count - 1);
         return DomainResult.Success();
     }
 
-    /// <summary>A history line about an item (or the whole order when <paramref name="itemId"/> is null), such as a file.</summary>
+    /// <summary>
+    /// A history line about an item (or the whole order when <paramref name="itemId"/> is null), such as a file; a
+    /// person's line also goes to «Журнал дій».
+    /// </summary>
     public void RecordAbout(int? itemId, string field, string? before, string? after, string actorName,
-        DateTimeOffset now) =>
+        DateTimeOffset now)
+    {
         _changes.Add(new ProductionOrderChange(itemId,
             itemId is null ? null : _items.FirstOrDefault(x => x.Id == itemId)?.ModelName, field, before, after,
             actorName, now));
+        Publish(ProductionOrderActivity.Noted, _changes.Count - 1);
+    }
 
+    /// <summary>A history line only, such as «Створено» or «Перенесено»; «Журнал дій» already has the action.</summary>
     public void Record(string field, string? after, string actorName, DateTimeOffset now) =>
         _changes.Add(new ProductionOrderChange(null, null, field, null, after, actorName, now));
+
+    private void Publish(ProductionOrderActivity kind, int from) =>
+        Raise(new ProductionOrderRecorded(this, kind, _changes.Skip(from).ToList()));
 
     private ProductionItem? FindItem(int itemId) => _items.FirstOrDefault(x => x.Id == itemId);
 

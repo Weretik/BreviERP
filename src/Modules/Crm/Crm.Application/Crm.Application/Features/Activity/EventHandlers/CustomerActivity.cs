@@ -1,7 +1,7 @@
 using ActivityLog.Contracts.Activity;
 using Crm.Domain.Customers;
 
-namespace Crm.Application.Features.Customers.EventHandlers;
+namespace Crm.Application.Features.Activity.EventHandlers;
 
 /// <summary>How client actions read in «Журнал дій» (ACT-001); the KeepinCRM sync is not listed.</summary>
 public sealed class CustomerActivity : IActivityDescriber

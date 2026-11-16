@@ -1,6 +1,6 @@
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
-using Crm.Application.Features.Leads.EventHandlers;
+using Crm.Application.Features.Activity.EventHandlers;
 using Crm.Application.Features.Leads.Shared.Sheet;
 using Crm.Domain.Leads;
 using Crm.Domain.Leads.Enums;

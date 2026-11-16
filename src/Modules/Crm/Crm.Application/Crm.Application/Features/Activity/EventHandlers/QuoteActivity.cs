@@ -3,7 +3,7 @@ using Crm.Domain.Quotes;
 using Crm.Domain.Quotes.Enums;
 using Crm.Domain.Quotes.ValueObjects;
 
-namespace Crm.Application.Features.Quotes.EventHandlers;
+namespace Crm.Application.Features.Activity.EventHandlers;
 
 /// <summary>How КП actions read in «Журнал дій» (ACT-001): created, copied, changed fields, sent, deleted.</summary>
 public sealed class QuoteActivity : IActivityDescriber

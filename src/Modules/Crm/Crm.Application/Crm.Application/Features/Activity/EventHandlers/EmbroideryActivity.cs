@@ -2,7 +2,7 @@ using ActivityLog.Contracts.Activity;
 using Crm.Domain.Embroidery;
 using Crm.Domain.Embroidery.Saved;
 
-namespace Crm.Application.Features.Embroidery.EventHandlers;
+namespace Crm.Application.Features.Activity.EventHandlers;
 
 /// <summary>How «Ціна вишивки» actions read in «Журнал дій» (ACT-001): saved calculations and the rates.</summary>
 public sealed class EmbroideryActivity : IActivityDescriber

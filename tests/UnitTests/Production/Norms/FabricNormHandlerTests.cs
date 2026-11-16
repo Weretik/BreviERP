@@ -66,7 +66,7 @@ public sealed class FabricNormHandlerTests
     {
         using var workshop = new ProductionTestHarness();
         workshop.Models.Models.Add(new("MOD-025", "Куртка", true));
-        var handler = new ImportFabricNormsHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new ImportFabricNormsHandler(workshop.Db, workshop.Models, workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression());
 
         var result = await handler.Handle(new([new("MOD-025", TwoColors), new("MOD-404", TwoColors)], false, 7), CancellationToken.None);
 
@@ -83,7 +83,7 @@ public sealed class FabricNormHandlerTests
     {
         using var workshop = new ProductionTestHarness();
         workshop.Models.Models.Add(new("MOD-025", "Куртка", true));
-        var handler = new ImportFabricNormsHandler(workshop.Db, workshop.Models, workshop.Time);
+        var handler = new ImportFabricNormsHandler(workshop.Db, workshop.Models, workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression());
 
         var first = await handler.Handle(new([new("MOD-025", TwoColors)], false, 7), CancellationToken.None);
         var second = await handler.Handle(new([new("MOD-025", TwoColors)], false, 7), CancellationToken.None);

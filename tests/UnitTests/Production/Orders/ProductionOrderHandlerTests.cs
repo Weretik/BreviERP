@@ -458,6 +458,6 @@ public sealed class ProductionOrderHandlerTests
 
     private static Task<Result<ProductionOrderImportResult>> Import(ProductionTestHarness workshop, bool dryRun,
         params ProductionOrderImportRow[] rows) =>
-        new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time)
+        new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression())
             .Handle(new(Admin, rows, dryRun), CancellationToken.None).AsTask();
 }

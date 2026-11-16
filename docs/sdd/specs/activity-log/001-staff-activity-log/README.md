@@ -23,7 +23,7 @@ Not in scope: reads (who opened what), sign-in history, bulk imports and syncs d
 - **R-05 Delivery and repeats.** After the command succeeds its activity messages are tried at once; failures are retried by the outbox task (ADR-0009). The ActivityLog handler looks the event id up and stores the entry under it as the primary key; a repeat (same id) is a success that writes nothing, and a racing copy refused by the key counts as done.
 - **R-06 Actor.** Taken from the request's signed-in user (`ICurrentActor`): account id, login (e-mail, else user name) and role claims. The ActivityLog handler adds the full name from `Identity.Contracts` when it stores the entry (seconds later), else keeps the login. Stored as a snapshot; renaming or deleting the account later does not change old entries.
 - **R-07 Kept.** Entries are never edited or deleted from the admin. No automatic clean-up in this version (expected ≤ 500 entries a day).
-- **R-08 Bulk.** A command that changes many rows at once (import, «Синхронізувати зараз», bulk reprice) raises one event for the whole command with a summary («Імпортовано 120, оновлено 30»), not one per row.
+- **R-08 Bulk.** A command that changes many rows at once (import, «Синхронізувати зараз») records nothing row by row: it calls `IDomainEventSuppression.Suppress()` before its save, and the save drops the events. One summary entry per import («Імпортовано 120, оновлено 30») is left for a later version (2026-11-16: imports are rare admin jobs; the owner asked for manager actions).
 - **R-09 Page.** «Журнал дій», group «Адміністрування»: a table newest first — «Коли», «Хто», «Дія», «Об'єкт» (type and title; a link to the object when the admin has a page for it and it was not deleted), «Що змінилось». Filters: «Хто» (people seen in the journal), «Роль» (default «Менеджер»; «Усі ролі» shows everyone), period (from/to, Kyiv dates), «Тип об'єкта», «Дія», and a search in the object title. Pages of 50. No «all OK» marks.
 - **R-10 Access.** Page `activity-log` in «Права доступу», group «Адміністрування», view only. Default: Admin; the Director always passes.
 
@@ -34,7 +34,7 @@ The describer of each module maps its events. Stage 3 wires them in this order; 
 | Module | Subject keys (Ukrainian title) | Commands |
 | --- | --- | --- |
 | Crm | `quote` (КП), `quote-intro-template` (Шаблон КП для знайомства), `quote-settings` (Налаштування КП), `task` (Завдання менеджеру), `lead` (Лід), `lead-call-result`, `lead-category`, `customer` (Клієнт), `embroidery-calculation` (Розрахунок вишивки), `embroidery-settings` | done: see the feature card «Covered actions» (clients have no delete command; syncs and imports are not listed) |
-| Production | `production-order` (Виробниче завдання) | create from КП, change, close, cancel, reopen, stage moves, shipments, files, «Надіслати в цех» |
+| Production | `production-order`, `production-work`, `workshop-employee`, `workshop-settings`, `fabric-norm`, `payroll-payment`, `payroll-adjustment` | done: see the feature card «Covered actions» |
 | Warehouse | `fabric-movement` (Рух тканини), `fabric-stock-line` (Позиція складу) | openings, receipts, issues, adjustments, edit, void, restore, delete |
 | Catalog | `product` (Товар) | create, change, photos, active switch, delete; price import (R-08) |
 | Reference | `product-section` (Розділ товарів), `fabric` (Тканина), `accessory` (Фурнітура), `color` (Колір), `operation` (Операція), `pricing-parameter` (Параметр ціни), `counterparty` (Контрагент) | create, change, delete; sheet imports (R-08) |

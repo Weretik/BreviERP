@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
@@ -9,7 +10,8 @@ using Production.Application.Features.Orders.Commands.ImportProductionProgress.R
 
 namespace Production.Application.Features.Orders.Commands.ImportProductionProgress;
 
-public sealed class ImportProductionProgressHandler(IProductionDbContext db, TimeProvider clock)
+public sealed class ImportProductionProgressHandler(IProductionDbContext db, TimeProvider clock,
+    IDomainEventSuppression domainEvents)
     : ICommandHandler<ImportProductionProgressCommand, Result<ProductionProgressImportResult>>
 {
     private const string Transfer = "Перенесення зі старого «Цеху»";
@@ -102,6 +104,8 @@ public sealed class ImportProductionProgressHandler(IProductionDbContext db, Tim
         {
             // Nothing is changed until every row is known to be fine, so an error leaves the orders as they were.
             foreach (var change in changes) change();
+            // An import is not recorded order by order in «Журнал дій» (ACT-001 R-08).
+            domainEvents.Suppress();
             await db.SaveChangesAsync(cancellationToken);
         }
 

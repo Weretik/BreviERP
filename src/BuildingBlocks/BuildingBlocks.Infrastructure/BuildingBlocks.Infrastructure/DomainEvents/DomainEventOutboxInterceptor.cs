@@ -23,6 +23,7 @@ public sealed class DomainEventOutboxInterceptor(
     IEnumerable<IDomainEventOutbox> outboxes,
     ICurrentActor actor,
     ISavedOutboxMessages saved,
+    IDomainEventSuppression suppression,
     TimeProvider clock) : SaveChangesInterceptor
 {
     private readonly IDomainEventOutbox[] _outboxes = outboxes.ToArray();
@@ -128,7 +129,7 @@ public sealed class DomainEventOutboxInterceptor(
         foreach (var source in context.ChangeTracker.Entries<IHasDomainEvents>().Select(x => x.Entity).ToArray())
         {
             if (source.DomainEvents.Count == 0) continue;
-            _events.AddRange(source.DomainEvents);
+            if (!suppression.IsSuppressed) _events.AddRange(source.DomainEvents);
             source.ClearDomainEvents();
         }
 

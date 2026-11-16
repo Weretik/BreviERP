@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 using Production.Domain.Orders.Rules;
@@ -19,7 +20,7 @@ public sealed record PayrollEntryTarget(DateOnly Month, int EmployeeId, string E
 /// «Виплата» of a month: an advance, a card or cash payment (PRD-D45). Never edited or deleted: a wrong one is
 /// cancelled with a reason and stays in the list.
 /// </summary>
-public sealed class PayrollPayment
+public sealed class PayrollPayment : DomainEventSource
 {
     public const decimal MaxAmount = 10_000_000m;
     public const int CommentMaxLength = 1000;
@@ -50,6 +51,7 @@ public sealed class PayrollPayment
         Comment = OrderText.Optional(comment, CommentMaxLength);
         CreatedAt = now;
         CreatedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
+        Raise(new PayrollPaymentRecorded(this, false));
     }
 
     public int Id { get; private set; }
@@ -80,6 +82,7 @@ public sealed class PayrollPayment
         VoidReason = OrderText.Required(reason, ReasonMaxLength);
         VoidedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         VoidedAt = now;
+        Raise(new PayrollPaymentRecorded(this, true));
         return DomainResult.Success();
     }
 }
@@ -88,7 +91,7 @@ public sealed class PayrollPayment
 /// «Інше нарахування / утримання»: an extra accrual (positive) or a deduction (negative) with a reason (PRD-D45).
 /// Cancelled like a payment.
 /// </summary>
-public sealed class PayrollAdjustment
+public sealed class PayrollAdjustment : DomainEventSource
 {
     private PayrollAdjustment() { }
 
@@ -112,6 +115,7 @@ public sealed class PayrollAdjustment
         Reason = OrderText.Required(reason, PayrollPayment.ReasonMaxLength);
         CreatedAt = now;
         CreatedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
+        Raise(new PayrollAdjustmentRecorded(this, false));
     }
 
     public int Id { get; private set; }
@@ -140,6 +144,7 @@ public sealed class PayrollAdjustment
         VoidReason = OrderText.Required(reason, PayrollPayment.ReasonMaxLength);
         VoidedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         VoidedAt = now;
+        Raise(new PayrollAdjustmentRecorded(this, true));
         return DomainResult.Success();
     }
 }

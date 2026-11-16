@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
 using Production.Domain.Orders.Rules;
@@ -31,7 +32,7 @@ public sealed record WorkFacts(ProductionWorkKind Kind, int Quantity, DateOnly W
 /// as it was, so a later rate change does not change the pay of past work. A record is never edited or deleted: a wrong
 /// one is cancelled by «Сторно» with a reason (PRD-D36).
 /// </summary>
-public sealed class ProductionWork
+public sealed class ProductionWork : DomainEventSource
 {
     public const int MaxQuantity = 100_000;
     public const int CommentMaxLength = 1000;
@@ -71,6 +72,7 @@ public sealed class ProductionWork
         CreatedAt = now;
         CreatedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         LegacyId = OrderText.Optional(legacyId, LegacyIdMaxLength);
+        if (LegacyId is null) Raise(new ProductionWorkRecorded(this, false));
     }
 
     public int Id { get; private set; }
@@ -114,6 +116,7 @@ public sealed class ProductionWork
         VoidReason = OrderText.Required(reason, ReasonMaxLength);
         VoidedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
         VoidedAt = now;
+        Raise(new ProductionWorkRecorded(this, true));
         return DomainResult.Success();
     }
 }

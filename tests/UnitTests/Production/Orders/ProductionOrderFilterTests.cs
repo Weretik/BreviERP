@@ -186,7 +186,7 @@ public sealed class ProductionOrderFilterTests
             new("MOD-060", "Костюм «Літо» куртка + брюки", true, 6, "Літо"),
         ]);
         var details = ProductionOrderHandlerTests.Details(3);
-        var result = await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time)
+        var result = await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression())
             .Handle(new(Admin,
             [
                 Row("a", 1, "New", "Геофізика", new DateOnly(2026, 10, 1),

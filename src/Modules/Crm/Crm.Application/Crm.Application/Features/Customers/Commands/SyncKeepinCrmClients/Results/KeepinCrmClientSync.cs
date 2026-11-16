@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain.Events;
+using BuildingBlocks.Application.DomainEvents;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.Identifiers;
@@ -19,6 +19,7 @@ public sealed class KeepinCrmClientSync(
     ICustomerKeepinSyncStore store,
     KeepinCrmClientSyncSettings settings,
     TimeProvider timeProvider,
+    IDomainEventSuppression domainEvents,
     ILogger<KeepinCrmClientSync> logger)
 {
     public async Task<KeepinCrmClientSyncResult> RunAsync(bool dryRun, bool removeUnlinked, CancellationToken cancellationToken)
@@ -37,7 +38,6 @@ public sealed class KeepinCrmClientSync(
             else linked.TryAdd(id, customer);
         }
 
-        var fresh = new List<Customer>();
         var seen = new HashSet<string>();
         int created = 0, updated = 0, unchanged = 0;
         foreach (var snapshot in snapshots.Where(x => seen.Add(x.KeepinCrmId)))
@@ -60,7 +60,6 @@ public sealed class KeepinCrmClientSync(
             }
 
             store.Add(customer.Value);
-            fresh.Add(customer.Value);
             created++;
         }
 
@@ -92,8 +91,8 @@ public sealed class KeepinCrmClientSync(
             }
         }
 
-        // A sync is not an action of a person: «Журнал дій» (ACT-001) does not list the clients it changes.
-        foreach (IHasDomainEvents customer in customers.Concat(fresh)) customer.ClearDomainEvents();
+        // A sync is not an action of a person: «Журнал дій» does not list the clients it changes (ACT-001 R-08).
+        domainEvents.Suppress();
 
         var syncedAt = timeProvider.GetUtcNow();
         if (!dryRun)
