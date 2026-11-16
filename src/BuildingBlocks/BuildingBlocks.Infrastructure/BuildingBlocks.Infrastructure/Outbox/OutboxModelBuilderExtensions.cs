@@ -1,5 +1,6 @@
 using BuildingBlocks.Application.Outbox;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BuildingBlocks.Infrastructure.Outbox;
 
@@ -23,5 +24,17 @@ public static class OutboxModelBuilderExtensions
             b.HasIndex(x => x.CreatedAt).HasFilter("\"ProcessedAt\" IS NULL");
         });
         return builder;
+    }
+
+    /// <summary>
+    /// The quoted <c>"schema"."table"</c> the outbox is mapped to. Read from the entity, not the context's default
+    /// schema: Catalog has no default schema and maps its outbox to <c>catalog</c> by hand.
+    /// </summary>
+    public static string QuotedTable(IModel model)
+    {
+        var entity = model.FindEntityType(typeof(OutboxMessage))
+            ?? throw new InvalidOperationException("The DbContext does not map the outbox; call AddOutbox().");
+        var schema = entity.GetSchema() ?? "public";
+        return $"\"{schema}\".\"{entity.GetTableName() ?? Table}\"";
     }
 }
