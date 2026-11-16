@@ -7,7 +7,7 @@ namespace Crm.Domain.Quotes.Settings;
 /// «Налаштування КП» (R-13): one record for the company, edited only by Director and Admin.
 /// <see cref="Version"/> guards against two people saving at once.
 /// </summary>
-public sealed class QuoteSettings
+public sealed class QuoteSettings : DomainEventSource
 {
     public const int SingletonId = 1;
 
@@ -50,6 +50,7 @@ public sealed class QuoteSettings
         UpdatedByName = updatedByName;
         UpdatedAt = now;
         Version++;
+        Raise(new QuoteSettingsChanged(Version));
         return DomainResult.Success();
     }
 

@@ -72,7 +72,7 @@ public sealed class KeepinCrmClientSyncTests
         var source = new Mock<IKeepinCrmClientSource>();
         source.Setup(x => x.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(clients);
         return new KeepinCrmClientSync(source.Object, store, new KeepinCrmClientSyncSettings(Owner), new FixedTime(),
-            NullLogger<KeepinCrmClientSync>.Instance);
+            new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), NullLogger<KeepinCrmClientSync>.Instance);
     }
 
     [Test]

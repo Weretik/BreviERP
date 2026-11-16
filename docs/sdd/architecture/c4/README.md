@@ -1,6 +1,6 @@
 # C4 diagrams
 
-**Checked against code:** 2026-11-15 (`src/`, `.github/workflows/deploy-cloudrun.yml`, `Host.Api/appsettings.json`, project references, brevi-web `apps/`).
+**Checked against code:** 2026-11-16 (`src/`, `.github/workflows/deploy-cloudrun.yml`, `Host.Api/appsettings.json`, project references, brevi-web `apps/`).
 
 Three levels of the [C4 model](https://c4model.com): who uses Brevi and what it talks to (context), which deployable parts it has (containers), and which modules are inside the API (components). The diagrams are Mermaid and render on GitHub. Why each part looks the way it does is in the [ADRs](../decisions/README.md).
 
@@ -105,6 +105,7 @@ flowchart LR
         ai["<b>Ai</b><br/>OpenAI settings and extraction"]
         reminders["<b>Reminders</b><br/>Telegram reminders"]
         scheduling["<b>Scheduling</b><br/>background tasks, tick"]
+        activitylog["<b>ActivityLog</b><br/>«Журнал дій»: who did what"]
     end
 
     bb["<b>BuildingBlocks</b><br/>Result mapping, Mediator behaviors,<br/>outbox, shared primitives"]
@@ -120,7 +121,39 @@ flowchart LR
     reference --> catalog
     media --> catalog & crm
     identity --> media
+    activitylog --> identity
+    crm & production -. "activity.recorded (outbox)" .-> activitylog
     sales & make & money & platform --> bb
 ```
 
-An arrow from A to B means A's Infrastructure references `B.Contracts` (checked from the `.csproj` files on 2026-11-15); Crm, Production and Warehouse also use `Identity.Contracts` for staff names. No module references another module's Application, Domain or Infrastructure, and there are no foreign keys between schemas ([ADR-0001](../decisions/0001-modular-monolith.md), [ADR-0006](../decisions/0006-module-contracts.md)). The exact references are in the [module map](../overview/modules.md).
+An arrow from A to B means A's Infrastructure references `B.Contracts` (checked from the `.csproj` files on 2026-11-15); Crm, Production and Warehouse also use `Identity.Contracts` for staff names; ActivityLog uses it for the names in «Журнал дій». No module references another module's Application, Domain or Infrastructure, and there are no foreign keys between schemas ([ADR-0001](../decisions/0001-modular-monolith.md), [ADR-0006](../decisions/0006-module-contracts.md)). The exact references are in the [module map](../overview/modules.md).
+
+## Dynamic: an action reaches «Журнал дій»
+
+How a staff member's change becomes an entry ([ADR-0016](../decisions/0016-domain-events-to-activity-log.md), [ACT-001](../../specs/activity-log/001-staff-activity-log/README.md)).
+
+```mermaid
+sequenceDiagram
+    actor M as Manager
+    participant A as Admin «Цех»
+    participant E as Endpoint + handler (source module)
+    participant G as Aggregate (Domain)
+    participant S as SaveChanges + DomainEventOutboxInterceptor
+    participant O as OutboxMessages (source schema)
+    participant D as Outbox dispatcher (after the command, then the tick)
+    participant H as RecordActivityOutboxHandler (ActivityLog)
+    participant L as activity_log.ActivityEntries
+
+    M->>A: changes КП №125
+    A->>E: PUT /api/crm/quotes/{id}
+    E->>G: quote.Save(...)
+    G-->>G: Raise(QuoteChanged)
+    E->>S: SaveChangesAsync
+    S->>S: module describer → ActivityRecorded + actor
+    S->>O: INSERT data + activity.recorded (one transaction)
+    E-->>A: 200
+    D->>O: takes the unsent message
+    D->>H: payload
+    H->>L: INSERT once by EventId
+    A->>L: «Адміністрування → Журнал дій» (GET /api/activity-log/entries)
+```

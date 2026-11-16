@@ -9,7 +9,7 @@ namespace Crm.Domain.Quotes.Introductions;
 /// «Готовий шаблон» of a «КП для знайомства» (R-19): the layout, the models with their fabrics and the letter variant.
 /// It keeps no prices; applying it reads the current Catalog. All staff see every template.
 /// </summary>
-public sealed class QuoteIntroTemplate
+public sealed class QuoteIntroTemplate : DomainEventSource
 {
     private QuoteIntroTemplate() { }
 
@@ -30,6 +30,7 @@ public sealed class QuoteIntroTemplate
         AuthorUserId = author.UserId;
         AuthorName = author.Name;
         CreatedAt = now;
+        Raise(new QuoteIntroTemplateSaved(this));
     }
 
     public long Id { get; private set; }
@@ -44,6 +45,9 @@ public sealed class QuoteIntroTemplate
     public int AuthorUserId { get; private set; }
     public string AuthorName { get; private set; } = null!;
     public DateTimeOffset CreatedAt { get; private set; }
+
+    /// <summary>Tells «Журнал дій» (ACT-001) that the template is being deleted; call it before removing it.</summary>
+    public void MarkDeleted() => Raise(new QuoteIntroTemplateDeleted(Id, Name));
 }
 
 /// <summary>One page: the main model first, then the three chosen ones.</summary>

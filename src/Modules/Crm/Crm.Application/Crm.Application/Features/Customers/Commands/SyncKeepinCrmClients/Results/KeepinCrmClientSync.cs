@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Crm.Domain.Customers;
 using Crm.Domain.Customers.Contacts;
 using Crm.Domain.Customers.Identifiers;
@@ -18,6 +19,7 @@ public sealed class KeepinCrmClientSync(
     ICustomerKeepinSyncStore store,
     KeepinCrmClientSyncSettings settings,
     TimeProvider timeProvider,
+    IDomainEventSuppression domainEvents,
     ILogger<KeepinCrmClientSync> logger)
 {
     public async Task<KeepinCrmClientSyncResult> RunAsync(bool dryRun, bool removeUnlinked, CancellationToken cancellationToken)
@@ -88,6 +90,9 @@ public sealed class KeepinCrmClientSync(
                 }
             }
         }
+
+        // A sync is not an action of a person: «Журнал дій» does not list the clients it changes (ACT-001 R-08).
+        domainEvents.Suppress();
 
         var syncedAt = timeProvider.GetUtcNow();
         if (!dryRun)

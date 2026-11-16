@@ -1,0 +1,13 @@
+global using System;
+global using System.Collections.Generic;
+global using System.Globalization;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using Microsoft.EntityFrameworkCore;
+global using Mediator;
+global using FluentValidation;
+global using Ardalis.Result;
+global using BuildingBlocks.Application;
+global using ActivityLog.Application.Abstractions;
+global using ActivityLog.Domain.Entries;

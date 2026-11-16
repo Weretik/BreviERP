@@ -225,7 +225,7 @@ public sealed class ProductionTrackingHandlerTests
     public async Task Progress_of_old_orders_moves_stages_file_links_and_the_telegram_mark_once()
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
-        await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time).Handle(new(Admin,
+        await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression()).Handle(new(Admin,
         [
             new ProductionOrderImportRow("old-1", 7, "27-10-2026", "Геофізика", "anastasia@brevi.ua", "Анастасія", "New",
                 new DateOnly(2026, 10, 9), null,
@@ -240,7 +240,7 @@ public sealed class ProductionTrackingHandlerTests
                 true, new DateTimeOffset(2026, 10, 10, 9, 5, 0, TimeSpan.Zero)),
             new("missing", [], [], false, null)
         ];
-        var import = new ImportProductionProgressHandler(workshop.Db, workshop.Time);
+        var import = new ImportProductionProgressHandler(workshop.Db, workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression());
 
         var withError = await import.Handle(new(Admin, rows, false), CancellationToken.None);
         var preview = await import.Handle(new(Admin, rows[..1], true), CancellationToken.None);
@@ -267,7 +267,7 @@ public sealed class ProductionTrackingHandlerTests
     public async Task Old_orders_take_the_kp_price_once_and_an_item_with_a_price_keeps_it()
     {
         using var workshop = ProductionOrderHandlerTests.Workshop();
-        await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time).Handle(new(Admin,
+        await new ImportProductionOrdersHandler(workshop.Db, workshop.Staff, workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression()).Handle(new(Admin,
         [
             new ProductionOrderImportRow("old-1", 7, "27-10-2026", "Геофізика", "anastasia@brevi.ua", "Анастасія", "New",
                 new DateOnly(2026, 10, 9), null,

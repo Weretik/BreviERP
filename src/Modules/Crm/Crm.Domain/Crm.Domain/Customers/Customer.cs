@@ -35,7 +35,9 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(owner.Value);
         var customer = new Customer { OwnerId = owner };
         var details = customer.SetDetails(kind, displayName, legalName, taxIdentity, true);
-        return details.IsFailure ? details.Error! : customer;
+        if (details.IsFailure) return details.Error!;
+        customer.Raise(new CustomerSaved(customer, null));
+        return customer;
     }
 
     public DomainResult Revise(long expectedRevision, string kind, string displayName, string? legalName,
@@ -43,8 +45,10 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
     {
         var current = CheckRevision(expectedRevision);
         if (current.IsFailure) return current;
+        var before = Snapshot();
         var details = SetDetails(kind, displayName, legalName, taxIdentity, active);
         if (details.IsFailure) return details;
+        Raise(new CustomerSaved(this, before));
         Touch();
         return DomainResult.Success();
     }
@@ -60,6 +64,7 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
         if (current.IsFailure) return current.Error!;
         var contact = publicId is null ? null : Contacts.SingleOrDefault(x => x.PublicId == publicId);
         if (publicId is not null && contact is null) return CustomerErrors.ContactNotFound();
+        var isNew = contact is null;
         if (contact is null)
         {
             if (Contacts.Count >= CustomerErrors.MaxContacts) return CustomerErrors.TooManyContacts();
@@ -76,6 +81,7 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
 
         if (contact.IsPrimary)
             foreach (var other in Contacts.Where(x => x.PublicId != contact.PublicId)) other.ClearPrimary();
+        Raise(new CustomerContactSaved(this, contact.Name, isNew));
         Touch();
         return contact;
     }
@@ -109,9 +115,12 @@ public sealed class Customer : BaseEntity<CustomerId>, IAggregateRoot
         victim.MergedIntoId = Id;
         victim.Active = false;
         victim.Touch();
+        Raise(new CustomersMerged(this, victim.DisplayName));
         Touch();
         return DomainResult.Success();
     }
+
+    public CustomerSnapshot Snapshot() => new(Kind, DisplayName, LegalName, TaxIdentity, Active);
 
     private DomainResult SetDetails(string kind, string name, string? legalName, string? taxIdentity, bool active)
     {

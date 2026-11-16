@@ -16,6 +16,7 @@ public sealed class DeleteQuoteHandler(IQuoteStore store, IQuoteProductionOrders
         var withOrders = await production.WithOrdersAsync([quote.Id], cancellationToken);
         if (withOrders.Contains(quote.Id)) return Result.Conflict(QuoteMessages.HasProductionOrder);
 
+        quote.MarkDeleted();
         store.Quotes.Remove(quote);
         try
         {

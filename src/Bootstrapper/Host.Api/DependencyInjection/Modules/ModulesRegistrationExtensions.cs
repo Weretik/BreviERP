@@ -1,4 +1,6 @@
 using Accounting.Api.DependencyInjection;
+using ActivityLog.Api.DependencyInjection;
+using BuildingBlocks.Api.Authorization;
 using Ai.Api.DependencyInjection;
 using Catalog.Api.DependencyInjection;
 using Content.Api.DependencyInjection;
@@ -22,6 +24,9 @@ public static class ModuleRegistrationsExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // The signed-in user for «Журнал дій» (ACT-001); before the modules, which fall back to «nobody».
+        services.AddHttpCurrentActor();
+        services.AddActivityLogModule(configuration);
         services.AddIdentityModule(configuration);
         services.AddReferenceModule(configuration);
         services.AddAccountingModule(configuration);
@@ -43,6 +48,7 @@ public static class ModuleRegistrationsExtensions
     /// <summary>One call per module that has moved from controllers to Minimal API endpoints.</summary>
     public static IEndpointRouteBuilder MapModuleEndpoints(this IEndpointRouteBuilder app)
     {
+        app.MapActivityLogEndpoints();
         app.MapAiEndpoints();
         app.MapPurchasingEndpoints();
         app.MapWarehouseEndpoints();

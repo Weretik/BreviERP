@@ -9,7 +9,7 @@ namespace Crm.Domain.Embroidery.Saved;
 /// One saved «Розрахунок» (EMB-001 stage 2): the form, the frozen rates and the result as they were. It is never
 /// recalculated; saving again makes a new record.
 /// </summary>
-public sealed class EmbroiderySavedCalculation
+public sealed class EmbroiderySavedCalculation : DomainEventSource
 {
     public const int NameMaxLength = 120;
     public const int CustomerNameMaxLength = 300;
@@ -24,8 +24,14 @@ public sealed class EmbroiderySavedCalculation
         int createdByUserId, string createdByName, DateTimeOffset now, string? category = null) =>
         category is not null && result.Prices.All(x => x.Name != category)
             ? Settings.EmbroiderySettingsErrors.CategoryNotInResult()
-            : new EmbroiderySavedCalculation(name, customerPublicId, customerName, input, snapshot, result,
-                createdByUserId, createdByName, now, category);
+            : Saved(new EmbroiderySavedCalculation(name, customerPublicId, customerName, input, snapshot, result,
+                createdByUserId, createdByName, now, category));
+
+    private static EmbroiderySavedCalculation Saved(EmbroiderySavedCalculation calculation)
+    {
+        calculation.Raise(new EmbroideryCalculationSaved(calculation));
+        return calculation;
+    }
 
     private EmbroiderySavedCalculation(string? name, Guid? customerPublicId, string? customerName, EmbroideryInput input,
         EmbroideryRateSnapshot snapshot, EmbroideryResult result, int createdByUserId, string createdByName,
@@ -96,7 +102,15 @@ public sealed class EmbroiderySavedCalculation
         };
 
     /// <summary>Sets or clears the mockup; the only thing that changes after saving.</summary>
-    public void SetMockup(int? mediaFileId) => MockupMediaFileId = mediaFileId;
+    public void SetMockup(int? mediaFileId)
+    {
+        if (mediaFileId == MockupMediaFileId) return;
+        MockupMediaFileId = mediaFileId;
+        Raise(new EmbroideryMockupSet(this));
+    }
+
+    /// <summary>Tells «Журнал дій» (ACT-001) that the calculation is being deleted; call it before removing it.</summary>
+    public void MarkDeleted() => Raise(new EmbroideryCalculationDeleted(Id, Name));
 
     /// <summary>«ВШ-0042»: the id with the prefix, never stored.</summary>
     public static string NumberOf(long id) => "ВШ-" + id.ToString("D4", CultureInfo.InvariantCulture);

@@ -1,7 +1,9 @@
 ﻿
+using BuildingBlocks.Domain.Events;
+
 namespace BuildingBlocks.Domain.Entity;
 
-public abstract class BaseEntity<TId> : IEntity<TId>
+public abstract class BaseEntity<TId> : DomainEventSource, IEntity<TId>
 {
     public TId Id { get; protected set; } = default!;
 

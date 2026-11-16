@@ -1,4 +1,5 @@
 using Accounting.Application;
+using ActivityLog.Application;
 using BuildingBlocks.Application;
 using Catalog.Application;
 using Crm.Application;
@@ -21,6 +22,8 @@ public static class MediatorRegistrationExtensions
 {
     public static IServiceCollection AddMediatorPipeline(this IServiceCollection services)
     {
+        // OutboxAfterCommandBehavior needs the saved-ids list and the dispatcher, even in a host with few modules.
+        services.AddDomainEvents();
         services.AddMediator(options =>
         {
             options.ServiceLifetime = ServiceLifetime.Scoped;
@@ -40,12 +43,14 @@ public static class MediatorRegistrationExtensions
                 typeof(WarehouseApplicationAssemblyMarker).Assembly,
                 typeof(AccountingApplicationAssemblyMarker).Assembly,
                 typeof(AiApplicationAssemblyMarker).Assembly,
+                typeof(ActivityLogApplicationAssemblyMarker).Assembly,
                 typeof(ApplicationAssemblyMarker).Assembly
             ];
 
             options.PipelineBehaviors =
             [
                 typeof(RequestLoggingBehavior<,>),
+                typeof(OutboxAfterCommandBehavior<,>),
                 typeof(PerformanceBehavior<,>),
                 typeof(ValidationBehavior<,>),
                 typeof(ExceptionBehavior<,>)

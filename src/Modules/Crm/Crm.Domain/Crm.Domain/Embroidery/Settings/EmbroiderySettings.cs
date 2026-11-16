@@ -6,7 +6,7 @@ namespace Crm.Domain.Embroidery.Settings;
 /// «Ціна вишивки › Налаштування» (EMB-001): one record for the company, edited only by Director and Admin.
 /// <see cref="Version"/> guards against two people saving at once.
 /// </summary>
-public sealed class EmbroiderySettings
+public sealed class EmbroiderySettings : DomainEventSource
 {
     public const int SingletonId = 1;
 
@@ -33,6 +33,7 @@ public sealed class EmbroiderySettings
         UpdatedByName = updatedByName;
         UpdatedAt = now;
         Version++;
+        Raise(new EmbroiderySettingsChanged(Version));
         return DomainResult.Success();
     }
 }

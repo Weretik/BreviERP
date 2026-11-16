@@ -68,7 +68,7 @@ public sealed class WorkshopStaffHandlerTests
         using var workshop = new ProductionTestHarness();
         await new CreateWorkshopEmployeeHandler(workshop.Db, workshop.Time)
             .Handle(new(new WorkshopEmployeeInput("Олена Коваль", "Швачка"), 7), CancellationToken.None);
-        var handler = new ImportWorkshopStaffHandler(workshop.Db, workshop.Time);
+        var handler = new ImportWorkshopStaffHandler(workshop.Db, workshop.Time, new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression());
         WorkshopEmployeeImportRow[] rows = [new("олена коваль", "Майстер цеху"), new("Ірина Бондар", "Швачка")];
 
         var preview = await handler.Handle(new(rows, true, 7), CancellationToken.None);

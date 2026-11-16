@@ -15,6 +15,7 @@ public sealed class DeleteEmbroideryCalculationHandler(IEmbroideryStore store)
             cancellationToken);
         if (saved is null) return Result.NotFound(EmbroideryMessages.CalculationNotFound);
 
+        saved.MarkDeleted();
         store.EmbroideryCalculations.Remove(saved);
         await store.SaveChangesAsync(cancellationToken);
         return Result.Success();

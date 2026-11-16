@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\BuildingBlocks.Api\BuildingBlocks.Api.csproj" />
+    <ProjectReference Include="..\..\ActivityLog.Application\ActivityLog.Application\ActivityLog.Application.csproj" />
+    <ProjectReference Include="..\..\ActivityLog.Infrastructure\ActivityLog.Infrastructure\ActivityLog.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 
 namespace Production.Domain.Staff;
@@ -6,7 +7,7 @@ namespace Production.Domain.Staff;
 /// A worker of the sewing workshop («Працівники цеху»). Workers do not sign in: the head of the workshop records their
 /// work, hours and pay. An employee who left is archived, not deleted, so old work and pay keep their name.
 /// </summary>
-public sealed class WorkshopEmployee
+public sealed class WorkshopEmployee : DomainEventSource
 {
     public const int FullNameMaxLength = 120;
     public const int PositionMaxLength = 80;
@@ -25,6 +26,7 @@ public sealed class WorkshopEmployee
         IsActive = true;
         CreatedAt = now;
         Touch(userId, now);
+        Raise(new WorkshopEmployeeSaved(this, null));
     }
 
     public int Id { get; private set; }
@@ -43,7 +45,9 @@ public sealed class WorkshopEmployee
     {
         var valid = Check(fullName, position);
         if (valid.IsFailure) return valid;
+        var before = (FullName, Position);
         SetDetails(fullName, position);
+        Raise(new WorkshopEmployeeSaved(this, before));
         Touch(userId, now);
         return DomainResult.Success();
     }
@@ -57,6 +61,7 @@ public sealed class WorkshopEmployee
         if (IsActive == isActive) return;
         IsActive = isActive;
         Touch(userId, now);
+        Raise(new WorkshopEmployeeActivated(this));
     }
 
     private void SetDetails(string fullName, string position)

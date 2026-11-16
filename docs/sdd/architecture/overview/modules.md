@@ -1,5 +1,9 @@
 # Modules
 
+## ActivityLog module
+
+Owns «Журнал дій» in schema `activity_log`: who created, changed or deleted what and when, for every staff member. It references no source module: Crm, Production, Warehouse, Catalog, Reference and Media raise domain events, describe them as `ActivityRecorded` of `ActivityLog.Contracts` and write them to their own outbox in the same save; ActivityLog's outbox handler stores each once. Staff names come from `Identity.Contracts`. Admin APIs live under `/api/activity-log` (`access:activity-log`, view only) ([ACT-001](../../specs/activity-log/001-staff-activity-log/README.md), [ADR-0016](../decisions/0016-domain-events-to-activity-log.md)).
+
 ## Identity module
 
 Owns users, roles, refresh sessions, authentication, and access policies. The `api/auth/session` routes for login, refresh, logout, and the current user are implemented.

@@ -70,6 +70,7 @@ public static class AccessCatalog
     public const string PurchaseInvoices = "purchase-invoices";
     public const string Reminders = "reminders";
     public const string BackgroundTasks = "background-tasks";
+    public const string ActivityLog = "activity-log";
     public const string Products = "products";
     public const string ProductSections = "product-sections";
     public const string Materials = "materials";
@@ -201,7 +202,9 @@ public static class AccessCatalog
         new(WorkshopSettings, Administration, "Налаштування цеху", VE,
             Grant((RoleNames.Admin, VE), (RoleNames.WorkshopChief, VE))),
         // SCH-001 R-11: Create = «Запустити зараз», Edit = schedule and on/off.
-        new(BackgroundTasks, Administration, "Фонові задачі", VCE, Grant((RoleNames.Admin, VCE)))
+        new(BackgroundTasks, Administration, "Фонові задачі", VCE, Grant((RoleNames.Admin, VCE))),
+        // ACT-001 R-10: view only; entries come from the outbox, nobody edits them.
+        new(ActivityLog, Administration, "Журнал дій", V, Grant((RoleNames.Admin, V)))
     ];
 
     private static readonly Dictionary<string, AccessArea> ByKey = Areas.ToDictionary(x => x.Key, StringComparer.Ordinal);

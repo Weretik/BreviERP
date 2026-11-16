@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Events;
 using Crm.Domain.Leads.Enums;
 using Crm.Domain.Leads.ValueObjects;
 
@@ -8,7 +9,7 @@ namespace Crm.Domain.Leads;
 /// company; the admin owns the calling work: who took it, the stage, the calls and the next contact.
 /// <see cref="Version"/> grows with every change of the work and guards against two managers at once.
 /// </summary>
-public sealed class Lead
+public sealed class Lead : DomainEventSource
 {
     private readonly List<LeadCall> _calls = [];
 
@@ -155,6 +156,14 @@ public sealed class Lead
     public bool Take(LeadPerson by, DateTimeOffset now)
     {
         if (OwnerUserId == by.UserId) return true;
+        if (!TakeFor(by, now)) return false;
+        Raise(new LeadTaken(this));
+        return true;
+    }
+
+    private bool TakeFor(LeadPerson by, DateTimeOffset now)
+    {
+        if (OwnerUserId == by.UserId) return true;
         if (OwnerUserId is not null) return false;
         OwnerUserId = by.UserId;
         OwnerName = by.Name;
@@ -175,7 +184,7 @@ public sealed class Lead
         if (owner == SheetOwner) return false;
         if (owner is not null && manager is null) return false;
         SheetOwner = owner;
-        return manager is not null && OwnerUserId is null && IsOpen && Take(manager, now);
+        return manager is not null && OwnerUserId is null && IsOpen && TakeFor(manager, now);
     }
 
     /// <summary>
@@ -190,13 +199,14 @@ public sealed class Lead
         if (value is null || value == SheetResult) return null;
         SheetResult = value;
         return result is not null && IsOpen && IsOwnedBy(by.UserId)
-            ? RecordCall(by, result, comment, nextContactAt, at)
+            ? Call(by, result, comment, nextContactAt, at, null)
             : null;
     }
 
     /// <summary>Gives the lead back to «Вільні»; calls stay, the next contact is cleared (R-04).</summary>
     public void Release(DateTimeOffset now)
     {
+        if (OwnerName is { } owner) Raise(new LeadReleased(this, owner));
         OwnerUserId = null;
         OwnerName = null;
         TakenAt = null;
@@ -211,6 +221,14 @@ public sealed class Lead
     /// </summary>
     public LeadCall RecordCall(LeadPerson by, LeadCallResult result, string? comment, DateTimeOffset? nextContactAt,
         DateTimeOffset now, Guid? requestId = null)
+    {
+        var call = Call(by, result, comment, nextContactAt, now, requestId);
+        Raise(new LeadCallRecorded(this, result.Name, call.Comment, call.NextContactAt));
+        return call;
+    }
+
+    private LeadCall Call(LeadPerson by, LeadCallResult result, string? comment, DateTimeOffset? nextContactAt,
+        DateTimeOffset now, Guid? requestId)
     {
         var next = result.Outcome.Closes() ? null : nextContactAt;
         var call = new LeadCall(by, result, comment, next, now, requestId);
