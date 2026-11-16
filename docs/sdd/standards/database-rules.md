@@ -204,7 +204,7 @@ Each module owns its `DbContext`, schema and migration history ([module rules](m
 ### Outbox and jobs
 
 - The transactional outbox (`BuildingBlocks.Infrastructure/Outbox`) claims messages with `FOR UPDATE SKIP LOCKED` and is dispatched by Cloud Scheduler through the protected outbox endpoint (3.4, 4). A partial index on `CreatedAt` where `ProcessedAt IS NULL` serves the claim. Each handler has `OutboxOptions.HandlerTimeout` (20 s); a handler may run twice, so it checks its own record first.
-- Crm, Production, Reference and Warehouse have outboxes. The warehouse writes «Тканина» lines of the order history through it (`FabricHistory`): the note is saved with the stock change, and Production skips a line it already has.
+- Crm, Production, Reference, Warehouse, Catalog and Media have outboxes; all six carry `activity.recorded` for «Журнал дій» (ACT-001), written by `DomainEventOutboxInterceptor` in the same transaction as the change. The warehouse writes «Тканина» lines of the order history through it (`FabricHistory`): the note is saved with the stock change, and Production skips a line it already has.
 - The scheduler tick runs alone: `SchedulingDbContext.TryLockTickAsync` takes a session `pg_try_advisory_lock`; a tick that finds it taken does nothing.
 - Background tasks run through the tasks job of `Host.Seed`, launched by Cloud Scheduler; sync jobs (KeepinCRM, 1C) are steps that are safe to re-run (3.3).
 
@@ -224,4 +224,5 @@ From the database audit of 2026-11-15; each row is removed when its fix is merge
 | Rule | Where | Status | Plan |
 | --- | --- | --- | --- |
 | 4 | Product card (only its composition has a version) and Reference fabrics, accessories and suppliers (no version): a second editor silently overwrites the first | deferred | The audit rated it low while one person edits: add a version (`xmin` and the version in the form) when a second editor appears |
+| 2.2 | `activity_log.ActivityEntries`: the «Роль» filter (`ActorRoles LIKE '%|Manager|%'`, on by default) and the page count have no index, and «Журнал дій» filters group the whole table | deferred | Fine for the expected thousands of rows a month. Above about 500 000 rows or a slow page: store roles in a `text[]` with a GIN index (or a trigram index on `ActorRoles`) and keep the filter options in a small table updated by the outbox handler; with a retention period the table stays small (owner decision) |
 | 1 | No `EnableRetryOnFailure`: a dropped database connection fails the request | deferred | Turn it on only when the logs show dropped connections; every explicit transaction must then run inside the execution strategy |

@@ -1,6 +1,6 @@
 # ACT-001 — «Журнал дій»: who created, changed or deleted what, and when
 
-**Status:** in progress (2026-11-16): stage 2 (foundation and module) implemented. **Date:** 2026-11-16. **Module:** ActivityLog (new, schema `activity_log`); domain events in BuildingBlocks; the source modules Crm, Production, Warehouse, Catalog, Reference, Media raise them. **Owner decision:** 2026-11-16, thread «Вести журнал действий менеджеров в Brevi»: plan accepted; record every staff member, the page shows managers by default through a filter; build every stage to the end. ADR: [ADR-0016](../../../architecture/decisions/0016-domain-events-to-activity-log.md).
+**Status:** implemented (2026-11-16): backend #184, #185, #186; brevi-web page; final audit in [audit.md](audit.md). **Date:** 2026-11-16. **Module:** ActivityLog (new, schema `activity_log`); domain events in BuildingBlocks; the source modules Crm, Production, Warehouse, Catalog, Reference, Media raise them. **Owner decision:** 2026-11-16, thread «Вести журнал действий менеджеров в Brevi»: plan accepted; record every staff member, the page shows managers by default through a filter; build every stage to the end. ADR: [ADR-0016](../../../architecture/decisions/0016-domain-events-to-activity-log.md).
 
 ## Why
 
@@ -129,3 +129,4 @@ The domain event says what happened in the module's terms (ids, values). How it 
 - **Evidence 2026-11-16 (TS-02, TS-03):** `dotnet test tests/UnitTests --filter "UnitTests.ActivityLog|UnitTests.Platform.DomainEvents"` 22 passed (interceptor: same save, cleared, failed save, no actor, no change; behavior; entry limits; handler idempotency and names; list, role, period, search, paging, filters, validator; contract and access); `tests/ArchitectureTests` 119 passed; `tests/HostApiTests` endpoint snapshot updated.
 - **TS-05** brevi-web page (separate spec in brevi-web).
 - **TS-06** Full audit (backend and frontend separately), feature card, access docs, outbox runbook note, spec status.
+- **Evidence 2026-11-16 (TS-04 to TS-06):** Crm and Production #184, Warehouse and Reference #185, Catalog and Media #186 (outbox tables), and the brevi-web page are merged. Unit 1256, architecture 119, HostApi 64 and integration 218 tests pass. Audit: [audit.md](audit.md), no blockers; AF-02 (retention) waits for the owner.
