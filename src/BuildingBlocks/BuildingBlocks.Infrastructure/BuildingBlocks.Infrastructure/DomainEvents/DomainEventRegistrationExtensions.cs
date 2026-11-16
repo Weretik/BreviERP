@@ -1,5 +1,6 @@
 using BuildingBlocks.Application.Actors;
 using BuildingBlocks.Application.Outbox;
+using BuildingBlocks.Infrastructure.Outbox;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -9,8 +10,9 @@ namespace BuildingBlocks.Infrastructure.DomainEvents;
 public static class DomainEventRegistrationExtensions
 {
     /// <summary>
-    /// The shared parts of domain events: the save interceptor, the saved-ids list of the scope and, unless the host
-    /// registered a real one first, an actor that is nobody.
+    /// The shared parts of domain events: the save interceptor, the saved-ids list of the scope, the outbox dispatcher
+    /// that <see cref="BuildingBlocks.Application.Behaviors.OutboxAfterCommandBehavior{TMessage,TResponse}"/> uses and,
+    /// unless the host registers a real one, an actor that is nobody.
     /// </summary>
     public static IServiceCollection AddDomainEvents(this IServiceCollection services)
     {
@@ -18,6 +20,7 @@ public static class DomainEventRegistrationExtensions
         services.TryAddScoped<ICurrentActor, NoCurrentActor>();
         services.TryAddScoped<ISavedOutboxMessages, SavedOutboxMessages>();
         services.TryAddScoped<DomainEventOutboxInterceptor>();
+        services.TryAddScoped<IOutboxDispatcher, OutboxDispatcher>();
         return services;
     }
 

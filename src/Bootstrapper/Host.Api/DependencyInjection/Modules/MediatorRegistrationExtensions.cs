@@ -4,6 +4,7 @@ using BuildingBlocks.Application;
 using Catalog.Application;
 using Crm.Application;
 using BuildingBlocks.Application.Behaviors;
+using BuildingBlocks.Infrastructure.DomainEvents;
 using Identity.Application;
 using Reference.Application;
 using Reminders.Application;
@@ -22,6 +23,8 @@ public static class MediatorRegistrationExtensions
 {
     public static IServiceCollection AddMediatorPipeline(this IServiceCollection services)
     {
+        // OutboxAfterCommandBehavior needs the saved-ids list and the dispatcher, even in a host with few modules.
+        services.AddDomainEvents();
         services.AddMediator(options =>
         {
             options.ServiceLifetime = ServiceLifetime.Scoped;
