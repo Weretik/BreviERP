@@ -9,7 +9,7 @@ namespace Crm.Domain.Tasks;
 /// <see cref="ManagerTaskStatus"/> and ticks its steps; everything else only Director and Admin change.
 /// <see cref="Version"/> grows with every change and guards against stale saves (R-12).
 /// </summary>
-public sealed class ManagerTask
+public sealed class ManagerTask : DomainEventSource
 {
     private readonly List<ManagerTaskStep> _steps = [];
     private readonly List<ManagerTaskEvent> _events = [];
@@ -26,6 +26,7 @@ public sealed class ManagerTask
         Version = 1;
         Apply(draft);
         _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.Created, author, now, null));
+        Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.Created, null, null));
     }
 
     public long Id { get; private set; }
@@ -73,7 +74,9 @@ public sealed class ManagerTask
         var reassigned = draft.Assignee.UserId != AssigneeUserId;
         var dueChanged = draft.DueAt != DueAt;
         var urgentChanged = draft.IsUrgent != IsUrgent;
+        var before = Snapshot();
         Apply(draft);
+        Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.Edited, null, before));
 
         _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.Edited, by, now, null));
         if (reassigned) _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.Reassigned, by, now, AssigneeName));
@@ -91,6 +94,7 @@ public sealed class ManagerTask
         Status = status;
         CompletedAt = status == ManagerTaskStatus.Done ? now : null;
         _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.StatusChanged, by, now, status.ToString()));
+        Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.StatusChanged, status.ToString(), null));
         Touch(now);
         return true;
     }
@@ -100,6 +104,7 @@ public sealed class ManagerTask
         if (isUrgent == IsUrgent) return false;
         IsUrgent = isUrgent;
         _events.Add(UrgentEvent(by, now));
+        Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.UrgentChanged, null, null));
         Touch(now);
         return true;
     }
@@ -113,9 +118,17 @@ public sealed class ManagerTask
         step.Mark(isDone);
         _events.Add(new ManagerTaskEvent(
             isDone ? ManagerTaskEventKind.StepChecked : ManagerTaskEventKind.StepUnchecked, by, now, step.Text));
+        Raise(new ManagerTaskRecorded(this,
+            isDone ? ManagerTaskEventKind.StepChecked : ManagerTaskEventKind.StepUnchecked, step.Text, null));
         Touch(now);
         return true;
     }
+
+    /// <summary>Tells «Журнал дій» (ACT-001) that the task is being deleted; call it before removing the task.</summary>
+    public void MarkDeleted() => Raise(new ManagerTaskDeleted(Id, Title));
+
+    public ManagerTaskSnapshot Snapshot() => new(Title, Description, AssigneeName, DueAt, IsUrgent, CustomerName,
+        _steps.Count);
 
     private ManagerTaskEvent UrgentEvent(ManagerTaskPerson by, DateTimeOffset now) =>
         new(ManagerTaskEventKind.UrgentChanged, by, now, IsUrgent ? "true" : "false");

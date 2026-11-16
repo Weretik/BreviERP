@@ -122,6 +122,7 @@ flowchart LR
     media --> catalog & crm
     identity --> media
     activitylog --> identity
+    crm -. "activity.recorded (outbox)" .-> activitylog
     sales & make & money & platform --> bb
 ```
 

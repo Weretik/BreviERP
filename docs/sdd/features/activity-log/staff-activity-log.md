@@ -37,8 +37,17 @@ src/Modules/<Source>/…                             # events in Domain (<Aggreg
 
 ## Covered actions
 
-Filled in as each source module is wired (ACT-001 «Coverage»).
+Filled in as each source module is wired (ACT-001 «Coverage»). Actions of the scheduler, imports and syncs (KeepinCRM clients, the leads sheet, the old archives) have no person and are not listed.
+
+| Module | Subject (key) | Actions | Describer |
+| --- | --- | --- | --- |
+| Crm | КП (`quote`) | created, copied, saved with changed fields (name, client, recipient, comments, items, pages, letter), sent, repriced, embroidery added, responsible changed, returned from the archive, deleted | `Crm.Application/Features/Quotes/EventHandlers/QuoteActivity.cs` |
+| Crm | Шаблон КП для знайомства (`quote-intro-template`), Налаштування КП (`quote-settings`) | template created or deleted; settings saved | same |
+| Crm | Завдання менеджеру (`task`) | created, edited with changed fields, status, urgent flag, step ticked or unticked, deleted | `Features/Tasks/EventHandlers/TaskActivity.cs` |
+| Crm | Лід (`lead`), Результат дзвінка (`lead-call-result`), Категорія ліда (`lead-category`) | taken, given back, call recorded; call result added or changed; category description | `Features/Leads/EventHandlers/LeadActivity.cs` |
+| Crm | Клієнт (`customer`) | created, details changed, contact added or changed, merged | `Features/Customers/EventHandlers/CustomerActivity.cs` |
+| Crm | Розрахунок вишивки (`embroidery-calculation`), Налаштування вишивки (`embroidery-settings`) | calculation saved, mockup set, deleted; rates saved | `Features/Embroidery/EventHandlers/EmbroideryActivity.cs` |
 
 ## Tests
 
-`dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.ActivityLog|FullyQualifiedName~UnitTests.Platform.DomainEvents"`; `tests/ArchitectureTests` `ActivityLogDependencyTests`; `tests/HostApiTests` endpoint snapshot.
+`dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.ActivityLog|FullyQualifiedName~UnitTests.Platform.DomainEvents|FullyQualifiedName~Activity"` (the module describers are in `tests/UnitTests/<Module>/Activity/`); `tests/ArchitectureTests` `ActivityLogDependencyTests`; `tests/HostApiTests` endpoint snapshot.

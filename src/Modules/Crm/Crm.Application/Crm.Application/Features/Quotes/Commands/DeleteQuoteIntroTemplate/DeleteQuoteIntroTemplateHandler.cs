@@ -13,6 +13,7 @@ public sealed class DeleteQuoteIntroTemplateHandler(IQuoteStore store)
         if (template is null) return Result.NotFound(QuoteIntroTemplateMessages.NotFound);
         if (!command.Actor.CanDeleteTemplate(template)) return Result.Forbidden(QuoteIntroTemplateMessages.DeleteForbidden);
 
+        template.MarkDeleted();
         store.QuoteIntroTemplates.Remove(template);
         await store.SaveChangesAsync(cancellationToken);
         return Result.Success();

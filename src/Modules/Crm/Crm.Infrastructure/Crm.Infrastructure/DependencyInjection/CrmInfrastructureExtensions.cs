@@ -1,3 +1,10 @@
+using ActivityLog.Contracts.Activity;
+using BuildingBlocks.Infrastructure.DomainEvents;
+using Crm.Application.Features.Customers.EventHandlers;
+using Crm.Application.Features.Embroidery.EventHandlers;
+using Crm.Application.Features.Leads.EventHandlers;
+using Crm.Application.Features.Quotes.EventHandlers;
+using Crm.Application.Features.Tasks.EventHandlers;
 using BuildingBlocks.Infrastructure.Outbox;
 using Crm.Contracts.Customers;
 using Crm.Contracts.Embroidery;
@@ -54,7 +61,15 @@ public static class CrmInfrastructureExtensions
     public static IServiceCollection AddCrmInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
-        services.AddDbContext<CrmDbContext>(options => options.UseNpgsql(connection, x => x.MigrationsHistoryTable("__EFMigrationsHistory", "crm")));
+        services.AddDomainEvents();
+        services.AddScoped<IActivityDescriber, QuoteActivity>();
+        services.AddScoped<IActivityDescriber, TaskActivity>();
+        services.AddScoped<IActivityDescriber, LeadActivity>();
+        services.AddScoped<IActivityDescriber, CustomerActivity>();
+        services.AddScoped<IActivityDescriber, EmbroideryActivity>();
+        services.AddDbContext<CrmDbContext>((provider, options) => options
+            .UseNpgsql(connection, x => x.MigrationsHistoryTable("__EFMigrationsHistory", "crm"))
+            .AddDomainEvents(provider));
         services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
         services.AddScoped<ICustomerMutationStore, CustomerMutationStore>();
         services.AddScoped<IQuoteStore>(provider => provider.GetRequiredService<CrmDbContext>());

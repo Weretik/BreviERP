@@ -33,7 +33,7 @@ The describer of each module maps its events. Stage 3 wires them in this order; 
 
 | Module | Subject keys (Ukrainian title) | Commands |
 | --- | --- | --- |
-| Crm | `quote` (КП), `quote-intro-template` (Шаблон вступу), `task` (Завдання), `lead` (Лід), `embroidery-calculation` (Розрахунок вишивки), `customer` (Клієнт) | create, save, copy, delete, send, reprice, set responsible; template create/delete; task create/change/move/delete; lead create/change/delete; saved calculation create/delete; customer delete |
+| Crm | `quote` (КП), `quote-intro-template` (Шаблон КП для знайомства), `quote-settings` (Налаштування КП), `task` (Завдання менеджеру), `lead` (Лід), `lead-call-result`, `lead-category`, `customer` (Клієнт), `embroidery-calculation` (Розрахунок вишивки), `embroidery-settings` | done: see the feature card «Covered actions» (clients have no delete command; syncs and imports are not listed) |
 | Production | `production-order` (Виробниче завдання) | create from КП, change, close, cancel, reopen, stage moves, shipments, files, «Надіслати в цех» |
 | Warehouse | `fabric-movement` (Рух тканини), `fabric-stock-line` (Позиція складу) | openings, receipts, issues, adjustments, edit, void, restore, delete |
 | Catalog | `product` (Товар) | create, change, photos, active switch, delete; price import (R-08) |

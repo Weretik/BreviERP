@@ -13,6 +13,7 @@ public sealed class DeleteTaskHandler(ITaskStore store) : ICommandHandler<Delete
         if (task is null) return Result.NotFound(TaskMessages.NotFound);
         if (task.Version != command.Version) return Result.Conflict(TaskMessages.Stale);
 
+        task.MarkDeleted();
         store.ManagerTasks.Remove(task);
         return await store.TrySaveAsync(cancellationToken) ? Result.NoContent() : Result.Conflict(TaskMessages.Stale);
     }
