@@ -98,7 +98,7 @@ public sealed class PpeScheduledPriceRefreshTests : SewingPricingDatabaseFixture
                 [new SupplierFilePrice("20", null, null, 200m, null, null, null)]));
         var time = new FixedTime(now);
         var store = new PpePriceSourceStore(db);
-        return new PpeScheduledPriceRefresh(reader.Object, new PpePriceImportRunner(store, references.Object,
+        return new PpeScheduledPriceRefresh(reader.Object, new PpePriceImportRunner(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), store, references.Object,
             new CatalogEfRepository<Product>(db), new PpePricingInputReader(db), new PpeOfferVersionWriter(db), time),
             store, time);
     }

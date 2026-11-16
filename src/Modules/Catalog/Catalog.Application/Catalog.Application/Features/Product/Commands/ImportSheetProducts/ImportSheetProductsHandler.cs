@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Catalog.Domain.Products;
 using Catalog.Application.Abstractions;
 using Catalog.Application.Abstractions.Pricing;
@@ -15,6 +16,7 @@ namespace Catalog.Application.Features.Product.Commands.ImportSheetProducts;
 /// is not a preview and has no problem, writes it in one transaction. A preview never writes.
 /// </summary>
 public sealed class ImportSheetProductsHandler(
+    IDomainEventSuppression domainEvents,
     ISheetProductImportStore store,
     IProductReferenceCodeReader referenceCodes,
     IPpePricingInputReader pricingInputs,
@@ -24,6 +26,7 @@ public sealed class ImportSheetProductsHandler(
     public async ValueTask<Result<SheetImportReport>> Handle(
         ImportSheetProductsCommand command, CancellationToken cancellationToken)
     {
+        domainEvents.Suppress();
         var stored = await store.LoadAsync(cancellationToken);
         var references = await referenceCodes.ReadAsync(cancellationToken);
 

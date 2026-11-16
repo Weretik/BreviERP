@@ -72,7 +72,7 @@ public sealed class PpeSupplierFileImportTests : SewingPricingDatabaseFixture
             new Dictionary<int, ReferenceItem> { [1] = new(1, "СЕМТО") }, new Dictionary<int, PricedReferenceItem>(),
             new Dictionary<int, PricedReferenceItem>(), new Dictionary<int, OperationReferenceItem>(),
             new Dictionary<int, AdditionalReferenceItem>()));
-        var handler = new ImportPpeSupplierFilesHandler(new PpeSupplierFileReader(), new PpePriceImportRunner(
+        var handler = new ImportPpeSupplierFilesHandler(new PpeSupplierFileReader(), new PpePriceImportRunner(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(),
             new PpePriceSourceStore(db), references.Object, new CatalogEfRepository<Product>(db),
             new PpePricingInputReader(db), new PpeOfferVersionWriter(db), TimeProvider.System));
         return await handler.Handle(new ImportPpeSupplierFilesCommand("cemto", [CemtoPdf()], dryRun, "manager-id", "manager@brevi"),

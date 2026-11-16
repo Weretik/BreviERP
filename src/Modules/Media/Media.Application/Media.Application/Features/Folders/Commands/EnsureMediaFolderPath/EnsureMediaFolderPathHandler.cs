@@ -21,7 +21,7 @@ public sealed class EnsureMediaFolderPathHandler(IMediaDbContext db, TimeProvide
             var existing = siblings.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
             if (existing is null)
             {
-                existing = MediaFolder.Create(name, parentId, clock.GetUtcNow()).Value;
+                existing = MediaFolder.CreateForPath(name, parentId, clock.GetUtcNow()).Value;
                 db.Folders.Add(existing);
                 await db.SaveChangesAsync(cancellationToken);
             }

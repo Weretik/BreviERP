@@ -172,7 +172,7 @@ public sealed class OldSitePhotoImportTests
         public SetProductPhotosCommand? Saved { get; private set; }
 
         public async Task<Result<OldSitePhotoImportReport>> Run(bool dryRun, params OldSiteProduct[] products)
-            => await new ImportOldSitePhotosHandler(Sender.Object, Products.Object, Sections.Object, Source.Object)
+            => await new ImportOldSitePhotosHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), Sender.Object, Products.Object, Sections.Object, Source.Object)
                 .Handle(new ImportOldSitePhotosCommand(dryRun, BaseUrl, products, "user-1"), CancellationToken.None);
 
         private Product Build(int id)

@@ -1,9 +1,10 @@
+using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 
 namespace Media.Domain.Files;
 
 /// <summary>A photo stored on the CDN. It is created only after the CDN accepted the file, so every row has a working URL.</summary>
-public sealed class MediaFile
+public sealed class MediaFile : DomainEventSource
 {
     public const int FileNameMaxLength = 255;
     public const int AltMaxLength = 300;
@@ -53,6 +54,7 @@ public sealed class MediaFile
         SourceKey = NormalizeSourceKey(sourceKey);
         CreatedAt = now;
         UpdatedAt = now;
+        if (SourceKey is null) Raise(new MediaFileRecorded(this, MediaFileAction.Uploaded));
     }
 
     public int Id { get; private set; }
@@ -93,6 +95,8 @@ public sealed class MediaFile
         if (name.IsFailure) return name.Error!;
         var trimmedAlt = string.IsNullOrWhiteSpace(alt) ? null : alt.Trim();
         if (trimmedAlt?.Length > AltMaxLength) return MediaErrors.AltTooLong(AltMaxLength);
+        Raise(new MediaFileRecorded(this, folderId == FolderId ? MediaFileAction.Changed : MediaFileAction.Moved,
+            FileName, Alt));
         FileName = name.Value;
         Alt = trimmedAlt;
         FolderId = folderId;
@@ -102,9 +106,13 @@ public sealed class MediaFile
 
     public void MoveTo(int? folderId, DateTimeOffset now)
     {
+        if (folderId != FolderId) Raise(new MediaFileRecorded(this, MediaFileAction.Moved));
         FolderId = folderId;
         UpdatedAt = now;
     }
+
+    /// <summary>Tells «Журнал дій» that the photo is being deleted; call it before removing it.</summary>
+    public void MarkDeleted() => Raise(new MediaFileRecorded(this, MediaFileAction.Deleted));
 
     /// <summary>Records the image size and preview. Unreadable images keep null values but count as processed.</summary>
     public void SetImage(int? width, int? height, string? thumbnailStorageKey, string? thumbnailUrl, DateTimeOffset now)

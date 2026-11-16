@@ -13,6 +13,7 @@ public partial class Product
         ArgumentNullException.ThrowIfNull(profile);
         if (profile.ProductId != Id || (Type == ProductType.Ppe && string.IsNullOrWhiteSpace(profile.SaleSku)))
             return ProductErrors.DetailsBelongToAnotherProduct();
+        Pending();
         CatalogProfile = profile;
         MarkAsUpdated(updatedAt);
         return DomainResult.Success();

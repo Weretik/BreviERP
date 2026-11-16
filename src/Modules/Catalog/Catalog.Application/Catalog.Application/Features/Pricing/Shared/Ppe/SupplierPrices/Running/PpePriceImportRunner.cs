@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using System.Globalization;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
@@ -31,6 +32,7 @@ public delegate Task<Result<IReadOnlyList<SupplierFilePrice>>> PpeSupplierPriceR
 /// approved offer version, then records the run (CAT-017 R-07).
 /// </summary>
 public sealed class PpePriceImportRunner(
+    IDomainEventSuppression domainEvents,
     IPpePriceSourceStore store,
     IProductReferenceReader references,
     ICatalogRepository<ProductEntity> products,
@@ -43,6 +45,7 @@ public sealed class PpePriceImportRunner(
     public async Task<Result<PpePriceImportResult>> RunAsync(
         PpePriceSource source, PpeSupplierPriceRead read, PpePriceImportRequest request, CancellationToken cancellationToken)
     {
+        domainEvents.Suppress();
         var settings = (await store.ReadSettingsAsync(cancellationToken)).FirstOrDefault(x => x.Key == source.Key);
         var supplier = PpePriceSourceSupplier.Resolve(source, settings,
             (await references.GetSnapshotAsync(cancellationToken)).Suppliers);

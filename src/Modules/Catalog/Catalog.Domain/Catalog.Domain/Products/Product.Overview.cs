@@ -44,6 +44,7 @@ public partial class Product
         if (quoteDescription?.Length > QuoteDescriptionMaxLength)
             return ProductErrors.OverviewInvalid("Опис для КП — не більше 2000 символів.");
 
+        Pending();
         EnsureCatalogProfile().SetOverview(details.SectionId, season, details.IsActive, url, quoteDescription);
         MarkAsUpdated(updatedAt);
         return DomainResult.Success();

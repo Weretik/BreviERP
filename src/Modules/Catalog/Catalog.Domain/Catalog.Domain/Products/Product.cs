@@ -48,6 +48,7 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         var applied = product.ApplyIdentity(name, ruName, slug, type);
         if (applied.IsFailure) return applied.Error!;
         product.MarkAsCreated(createdAt);
+        product.RecordCreated();
         return product;
     }
 
@@ -56,6 +57,7 @@ public partial class Product : BaseAuditableEntity<ProductId>, IAggregateRoot
         if (type == ProductType.Ppe && Type == ProductType.Sewing &&
             (_articles.Count != 0 || _materialLines.Count != 0 || _operationLines.Count != 0))
             return ProductErrors.TypeSpecificDataInvalid();
+        Pending();
         var applied = ApplyIdentity(name, ruName, slug, type);
         if (applied.IsFailure) return applied;
         ClearDetailsForOtherType();

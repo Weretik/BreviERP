@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.DomainEvents;
 using Catalog.Domain.Products;
 using ProductEntity = Catalog.Domain.Products.Product;
 using Catalog.Application.Abstractions;
@@ -13,6 +14,7 @@ using Catalog.Domain.Products.Enums;
 namespace Catalog.Application.Features.Product.Commands.ImportOldSitePhotos;
 
 public sealed class ImportOldSitePhotosHandler(
+    IDomainEventSuppression domainEvents,
     ISender sender,
     ICatalogReadRepository<ProductEntity> products,
     IProductSectionReader sections,
@@ -26,6 +28,7 @@ public sealed class ImportOldSitePhotosHandler(
     public async ValueTask<Result<OldSitePhotoImportReport>> Handle(
         ImportOldSitePhotosCommand command, CancellationToken cancellationToken)
     {
+        domainEvents.Suppress();
         var index = (await sender.Send(new GetProductSkuIndexQuery(), cancellationToken)).Value;
         var bySku = new Dictionary<string, ProductSkuIndexItem>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in index)

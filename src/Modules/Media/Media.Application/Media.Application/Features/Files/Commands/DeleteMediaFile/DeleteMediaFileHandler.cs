@@ -16,6 +16,7 @@ public sealed class DeleteMediaFileHandler(IMediaDbContext db, IMediaStorage sto
 
         await storage.DeleteAsync(file.StorageKey, cancellationToken);
         if (file.ThumbnailStorageKey is { } thumbnailKey) await storage.DeleteAsync(thumbnailKey, cancellationToken);
+        file.MarkDeleted();
         db.Files.Remove(file);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success();

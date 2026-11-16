@@ -31,6 +31,7 @@ public sealed class DeleteProductCategoryHandler(
         if (isUsedByProduct)
             return Result.Conflict("Категорію, до якої прив'язані товари, видалити не можна.");
 
+        entity.MarkDeleted();
         await repository.DeleteAsync(entity, cancellationToken);
 
         return Result.Success();
