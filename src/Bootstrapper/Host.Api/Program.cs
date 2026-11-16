@@ -9,7 +9,7 @@ using Host.Api.DependencyInjection.Http.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseDefaultServiceProvider(ServiceProviderValidation.Apply);
 
-builder.AddSerilog();
+builder.AddObservability();
 builder.Services.AddHostServices(builder.Configuration);
 builder.Services.WithoutBackgroundWorkForBuildTimeDocument();
 builder.Services.Configure<RequestLocalizationOptions>(options =>

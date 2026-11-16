@@ -25,14 +25,10 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Serilog" />
-        <PackageReference Include="Serilog.AspNetCore" />
-        <PackageReference Include="Serilog.Enrichers.Environment" />
-        <PackageReference Include="Serilog.Enrichers.Process" />
-        <PackageReference Include="Serilog.Settings.Configuration" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Observability\BuildingBlocks.Observability.csproj" />
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
       <ProjectReference Include="..\..\Modules\Accounting\Accounting.Api\Accounting.Api\Accounting.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Accounting\Accounting.Application\Accounting.Application\Accounting.Application.csproj" />

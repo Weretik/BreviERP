@@ -20,6 +20,7 @@ Keep accepted decisions that change long-term boundaries, contracts, or approach
 | [0014](0014-external-data-through-integrations.md) | Data from outside systems comes in through scheduled imports behind module ports | Accepted |
 | [0015](0015-openapi-generated-from-code.md) | The OpenAPI contract is generated from the code at build | Accepted |
 | [0016](0016-domain-events-to-activity-log.md) | Domain events reach the activity log through each module's outbox | Accepted |
+| [0017](0017-opentelemetry-traces-to-cloud-trace.md) | Requests are traced with OpenTelemetry straight to Google Cloud Trace; logs are Cloud Logging JSON with the trace id | Accepted |
 
 For a new decision, create `NNNN-short-name.md` and record:
 
@@ -53,5 +54,6 @@ Every backend keeps an accepted ADR for each area below. A full architecture aud
 | Main external systems | 0014 |
 | Public site and how it reads the backend | 0005 |
 | Public API contract (OpenAPI) | 0015 |
+| Observability (traces, structured logs) | 0017 |
 
 A new decision of this kind (a new module, a new external system, a new way to run work or to deploy) gets an ADR in the same change, and the C4 diagrams are updated with it. Frontend-only decisions live in brevi-web ([workspace ADRs](https://github.com/Weretik/brevi-web/blob/master/docs/architecture/adr/README.md)).
