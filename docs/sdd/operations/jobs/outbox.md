@@ -11,6 +11,7 @@ A use case with an outside side effect saves an `OutboxMessages` row in its modu
 | `crm.site-request.notify` | Crm (`crm.OutboxMessages`) | Posts a site request to the bot's groups | The reason stays on the request («Заявки з сайту»); retried |
 | `production.order.telegram` | Production | Sends «Надіслати в цех» while the delivery is «Надсилається» | A Telegram refusal is shown on the order and the person presses again; only a stop between the saves is retried |
 | `reference.pricing-settings.changed` | Reference | Hands «Параметри ціноутворення» and PPE markup rules to Catalog, then publishes the Sewing prices | Retried; a publication failure waits for `brevierp-sync` |
+| `activity.recorded` | Crm, Production, Warehouse, Reference, Catalog, Media | Hands a staff action to «Журнал дій» (ActivityLog), which saves it once by its id (ACT-001) | Retried; the action itself is already saved, only its log line waits |
 
 Retries: 1, 2, 4 … minutes, at most 60, ten attempts. After the tenth failure the row stays with `LastError` and the API logs `Outbox message {Type} {Id} failed 10 times`.
 

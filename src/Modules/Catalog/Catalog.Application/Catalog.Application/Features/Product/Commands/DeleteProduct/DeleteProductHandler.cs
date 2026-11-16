@@ -10,6 +10,7 @@ public sealed class DeleteProductHandler(ICatalogRepository<ProductEntity> repos
     {
         var product = await repository.FirstOrDefaultAsync(new ProductByIdSpec(command.Id), cancellationToken);
         if (product is null) return Result.NotFound();
+        product.MarkDeleted();
         await repository.DeleteAsync(product, cancellationToken);
         return Result.Success();
     }

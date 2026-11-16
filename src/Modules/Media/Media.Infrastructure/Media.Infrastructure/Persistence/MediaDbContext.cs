@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Outbox;
 using BuildingBlocks.Infrastructure.Database;
 using Media.Application.Abstractions;
 using Media.Domain.Files;
@@ -16,6 +17,7 @@ public sealed class MediaDbContext(DbContextOptions<MediaDbContext> options) : D
     {
         builder.HasDefaultSchema(Schema);
         builder.AddTrigramSearch();
+        builder.AddOutbox();
         builder.ApplyConfigurationsFromAssembly(typeof(MediaDbContext).Assembly);
     }
 }

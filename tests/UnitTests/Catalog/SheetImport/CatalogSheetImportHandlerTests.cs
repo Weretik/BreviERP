@@ -157,7 +157,7 @@ public sealed class CatalogSheetImportHandlerTests
                 true, "x", Now, Now));
             var slugs = new Mock<IProductSlugGenerator>();
             slugs.Setup(x => x.GenerateFromUkrainianName(It.IsAny<string>())).Returns("tovar");
-            Handler = new ImportSheetProductsHandler(Store.Object, codes.Object, inputs.Object, slugs.Object,
+            Handler = new ImportSheetProductsHandler(new BuildingBlocks.Infrastructure.DomainEvents.DomainEventSuppression(), Store.Object, codes.Object, inputs.Object, slugs.Object,
                 new FakeTimeProvider(Now));
         }
     }

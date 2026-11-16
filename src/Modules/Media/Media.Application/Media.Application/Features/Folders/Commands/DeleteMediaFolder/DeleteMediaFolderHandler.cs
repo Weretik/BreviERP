@@ -13,6 +13,7 @@ public sealed class DeleteMediaFolderHandler(IMediaDbContext db) : ICommandHandl
                          || await db.Files.AnyAsync(x => x.FolderId == folder.Id, cancellationToken);
         if (hasContent) return Result.Conflict(FolderMessages.NotEmpty);
 
+        folder.MarkDeleted();
         db.Folders.Remove(folder);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success();

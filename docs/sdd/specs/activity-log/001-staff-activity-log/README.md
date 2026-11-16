@@ -36,9 +36,9 @@ The describer of each module maps its events. Stage 3 wires them in this order; 
 | Crm | `quote` (КП), `quote-intro-template` (Шаблон КП для знайомства), `quote-settings` (Налаштування КП), `task` (Завдання менеджеру), `lead` (Лід), `lead-call-result`, `lead-category`, `customer` (Клієнт), `embroidery-calculation` (Розрахунок вишивки), `embroidery-settings` | done: see the feature card «Covered actions» (clients have no delete command; syncs and imports are not listed) |
 | Production | `production-order`, `production-work`, `workshop-employee`, `workshop-settings`, `fabric-norm`, `payroll-payment`, `payroll-adjustment` | done: see the feature card «Covered actions» |
 | Warehouse | `fabric-movement` (Рух тканини) | done: openings, receipts, issues, adjustments, «Сторно», edit, void, restore (stock lines are made by these movements and have no delete; the transfer from the old «Цех» is not listed) |
-| Catalog | `product` (Товар) | create, change, photos, active switch, delete; price import (R-08) |
+| Catalog | `product` (Товар), `product-category` (Категорія товарів) | done: product created, deleted, or changed as one entry per command (name and «Активний» as fields, the touched parts such as «фото», «склад», «артикули» in the summary); category created, changed (name, «Активна»), moved, deleted; the sheet import, old-site photos and PPE supplier price runs are not listed (R-08) |
 | Reference | `product-section` (Розділ товарів), `fabric` (Тканина), `accessory` (Фурнітура), `color` (Колір), `garment-part` (Деталь виробу), `operation` (Операція), `ppe-markup-rule` (Правило націнки ЗІЗ), `pricing-parameter` (Параметр ціни), `supplier` (Постачальник) | done: create, change (name and price as fields), delete; sheet imports and the KeepinCRM supplier sync are not listed (R-08) |
-| Media | `media-file` (Фото), `media-folder` (Папка фото) | upload, rename, move, delete |
+| Media | `media-file` (Фото), `media-folder` (Папка фото) | done: upload, rename or alt text, move, delete; imported photos (with a source key) and folders made for an upload path are not listed |
 
 The exact command list per module is decided while wiring it (each command that creates, changes or deletes on a covered page raises an event); the feature card lists the result.
 
@@ -74,7 +74,7 @@ No write endpoints: entries come only from the outbox.
 - `ActivityEntries`: `Id uuid` PK (the event id, Guid v7 by the ID strategy); `OccurredAt timestamptz`; `ActorId int`; `ActorName varchar(200)`; `ActorRoles varchar(500)` (`|Manager|Admin|`); `Action varchar(32)`; `SubjectType varchar(64)`; `SubjectId varchar(64)`; `SubjectTitle varchar(200)`; `Summary varchar(500) null`; `Changes jsonb` (array of `{field, from, to}`); `SourceModule varchar(32)`; `RecordedAt timestamptz`.
 - Indexes: (`OccurredAt` desc, `Id`) for the default list; (`ActorId`, `OccurredAt` desc); (`SubjectType`, `OccurredAt` desc); `gin_trgm_ops` on `SubjectTitle` for the search (each word an escaped `ILIKE`, database rules).
 - Insert: look up the id, then one `SaveChanges`; a unique violation on the key is a repeat (idempotent handler, R-05, `SaveRaces.IsUniqueViolation`).
-- Outbox: Catalog and Media get their `OutboxMessages` table (migration `AddOutbox`); Crm, Production, Warehouse, Reference already have it.
+- Outbox: Catalog and Media get their `OutboxMessages` table (migration `AddOutbox`, done: `catalog.OutboxMessages`, `media.OutboxMessages`); Crm, Production, Warehouse, Reference already have it.
 - No foreign keys to other schemas. Migrations are additive (new schema, new tables), compatible with the previous release. Rollback: revert the code; the schema and the extra outbox tables stay and are ignored; unhandled `activity.recorded` rows stay in the outbox with «No handler» errors and are harmless.
 
 ## Design

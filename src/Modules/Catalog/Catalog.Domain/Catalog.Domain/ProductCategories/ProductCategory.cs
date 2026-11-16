@@ -39,6 +39,7 @@ public class ProductCategory : BaseEntity<ProductCategoryId>, IAggregateRoot
         if (applied.IsFailure) return applied.Error!;
         var placed = category.SetParent(parentId, parentPath);
         if (placed.IsFailure) return placed.Error!;
+        category.Raise(new ProductCategoryRecorded(category, ProductCategoryAction.Created));
         return category;
     }
 
@@ -48,10 +49,24 @@ public class ProductCategory : BaseEntity<ProductCategoryId>, IAggregateRoot
         string slug,
         int sortOrder,
         bool isActive,
-        string? description = null) =>
-        Apply(name, ruName, slug, sortOrder, isActive, description);
+        string? description = null)
+    {
+        var (nameBefore, activeBefore) = (Name, IsActive);
+        var applied = Apply(name, ruName, slug, sortOrder, isActive, description);
+        if (applied.IsSuccess)
+            Raise(new ProductCategoryRecorded(this, ProductCategoryAction.Changed, nameBefore, activeBefore));
+        return applied;
+    }
 
-    public DomainResult MoveTo(ProductCategoryId? parentId, string? parentPath) => SetParent(parentId, parentPath);
+    public DomainResult MoveTo(ProductCategoryId? parentId, string? parentPath)
+    {
+        var placed = SetParent(parentId, parentPath);
+        if (placed.IsSuccess) Raise(new ProductCategoryRecorded(this, ProductCategoryAction.Moved));
+        return placed;
+    }
+
+    /// <summary>Tells «Журнал дій» that the category is being deleted; call it before removing it.</summary>
+    public void MarkDeleted() => Raise(new ProductCategoryRecorded(this, ProductCategoryAction.Deleted));
 
     public DomainResult RebasePath(string oldAncestorPath, string newAncestorPath)
     {

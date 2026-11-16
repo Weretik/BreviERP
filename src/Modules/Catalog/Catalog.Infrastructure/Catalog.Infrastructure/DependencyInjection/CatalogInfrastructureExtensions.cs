@@ -1,3 +1,7 @@
+using ActivityLog.Contracts.Activity;
+using BuildingBlocks.Infrastructure.DomainEvents;
+using BuildingBlocks.Infrastructure.Outbox;
+using Catalog.Application.Features.Activity.EventHandlers;
 using Catalog.Contracts.Pricing;
 using Catalog.Contracts.Products;
 using Catalog.Contracts.Sewing;
@@ -34,8 +38,13 @@ public static class CatalogInfrastructureExtensions
         services.TryAddScoped<PricingInputChanges>();
         services.AddScoped<SewingPricingInputChangeInterceptor>();
         services.TryAddSingleton(TimeProvider.System);
+        services.AddDomainEvents();
+        services.AddScoped<IActivityDescriber, ProductActivity>();
+        services.AddScoped<IActivityDescriber, ProductCategoryActivity>();
         services.AddDbContext<CatalogDbContext>((provider, options) => options.UseNpgsql(connectionString)
-            .AddInterceptors(provider.GetRequiredService<SewingPricingInputChangeInterceptor>()));
+            .AddInterceptors(provider.GetRequiredService<SewingPricingInputChangeInterceptor>())
+            .AddDomainEvents(provider));
+        services.AddOutbox<CatalogDbContext>();
 
         services.AddScoped(typeof(ICatalogRepository<>), typeof(CatalogEfRepository<>));
         services.AddScoped(typeof(ICatalogReadRepository<>), typeof(CatalogReadEfRepository<>));

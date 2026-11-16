@@ -1,3 +1,7 @@
+using ActivityLog.Contracts.Activity;
+using BuildingBlocks.Infrastructure.DomainEvents;
+using BuildingBlocks.Infrastructure.Outbox;
+using Media.Application.Features.Activity.EventHandlers;
 using Media.Contracts.Files;
 using Media.Contracts.Imports;
 using Media.Contracts.Storage;
@@ -20,8 +24,13 @@ public static class MediaInfrastructureExtensions
     public static IServiceCollection AddMediaInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
-        services.AddDbContext<MediaDbContext>(options => options.UseNpgsql(connection,
-            x => x.MigrationsHistoryTable("__EFMigrationsHistory", MediaDbContext.Schema)));
+        services.AddDomainEvents();
+        services.AddScoped<IActivityDescriber, MediaFileActivity>();
+        services.AddScoped<IActivityDescriber, MediaFolderActivity>();
+        services.AddDbContext<MediaDbContext>((provider, options) => options.UseNpgsql(connection,
+                x => x.MigrationsHistoryTable("__EFMigrationsHistory", MediaDbContext.Schema))
+            .AddDomainEvents(provider));
+        services.AddOutbox<MediaDbContext>();
         services.AddScoped<IMediaDbContext>(sp => sp.GetRequiredService<MediaDbContext>());
         services.AddScoped<IDatabaseMigrator, DbMigrator<MediaDbContext>>();
 
