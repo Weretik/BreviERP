@@ -22,8 +22,10 @@ public sealed class DomainEventOutboxInterceptorTests
         await using var check = harness.Open();
         var message = await check.OutboxMessages.SingleAsync();
         Assert.That(message.Type, Is.EqualTo("test.note"));
-        Assert.That(message.Payload, Does.Contain("NoteCreated").And.Contain("\"userId\":7"));
-        Assert.That(await check.Notes.CountAsync(), Is.EqualTo(1));
+        var note = await check.Notes.SingleAsync();
+        Assert.That(message.Payload, Does.Contain("NoteCreated").And.Contain("\"userId\":7")
+            .And.Contain($"\"noteId\":{note.Id}"), "the database id of the new row is in the message");
+        Assert.That(note.Id, Is.GreaterThan(0));
         Assert.That(harness.Saved.Take(), Is.EqualTo(new[] { message.Id }));
     }
 
@@ -94,5 +96,51 @@ public sealed class DomainEventOutboxInterceptorTests
         await db.SaveChangesAsync();
 
         Assert.That(await db.OutboxMessages.CountAsync(), Is.EqualTo(1));
+    }
+}
+
+/// <summary>The messages are written by a second save; when it fails the change rolls back with them.</summary>
+public sealed class DomainEventOutboxRollbackTests
+{
+    [Test]
+    public async Task A_failing_message_save_rolls_the_change_back()
+    {
+        using var harness = DomainEventTestDb.Create(new Actor(7, "m", ["Manager"]), failMessages: true);
+        await using (var db = harness.Open())
+        {
+            db.Notes.Add(Note.Create("A"));
+            await Assert.ThatAsync(() => db.SaveChangesAsync(), Throws.InvalidOperationException);
+        }
+
+        await using var check = harness.Open();
+        Assert.That(await check.Notes.CountAsync(), Is.Zero);
+        Assert.That(harness.Saved.Take(), Is.Empty);
+    }
+
+    [Test]
+    public async Task Inside_the_callers_transaction_the_caller_decides()
+    {
+        using var harness = DomainEventTestDb.Create(new Actor(7, "m", ["Manager"]));
+        await using (var db = harness.Open())
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync();
+            db.Notes.Add(Note.Create("A"));
+            await db.SaveChangesAsync();
+            await transaction.RollbackAsync();
+        }
+
+        await using var check = harness.Open();
+        Assert.That(await check.Notes.CountAsync(), Is.Zero);
+        Assert.That(await check.OutboxMessages.CountAsync(), Is.Zero);
+    }
+
+    [Test]
+    public void The_sync_save_writes_the_message_too()
+    {
+        using var harness = DomainEventTestDb.Create(new Actor(7, "m", ["Manager"]));
+        using var db = harness.Open();
+        db.Notes.Add(Note.Create("A"));
+        db.SaveChanges();
+        Assert.That(db.OutboxMessages.Count(), Is.EqualTo(1));
     }
 }

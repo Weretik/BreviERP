@@ -10,22 +10,23 @@ using Microsoft.Extensions.Time.Testing;
 
 namespace UnitTests.Platform.DomainEvents;
 
-internal sealed record NoteCreated(Guid NoteId, string Title) : IDomainEvent;
+/// <summary>Carries the note: its database id is known only after the insert.</summary>
+internal sealed record NoteCreated(Note Note) : IDomainEvent;
 
-internal sealed record NoteRenamed(Guid NoteId, string From, string To) : IDomainEvent;
+internal sealed record NoteRenamed(int NoteId, string From, string To) : IDomainEvent;
 
 /// <summary>A tiny aggregate that raises events like the real ones do.</summary>
 internal sealed class Note : DomainEventSource
 {
     private Note() { }
 
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
     public string Title { get; private set; } = null!;
 
     public static Note Create(string title)
     {
-        var note = new Note { Id = Guid.CreateVersion7(), Title = title };
-        note.Raise(new NoteCreated(note.Id, title));
+        var note = new Note { Title = title };
+        note.Raise(new NoteCreated(note));
         return note;
     }
 
@@ -43,7 +44,19 @@ internal sealed class NoteOutbox : IDomainEventOutbox
     public IReadOnlyList<OutboxMessage> Write(IDomainEvent domainEvent, Actor? actor, DateTimeOffset now) =>
         actor is null || domainEvent is not (NoteCreated or NoteRenamed)
             ? []
-            : [OutboxMessage.Create("test.note", new { Event = domainEvent.GetType().Name, actor.UserId }, now)];
+            : [OutboxMessage.Create("test.note", new
+            {
+                Event = domainEvent.GetType().Name,
+                actor.UserId,
+                NoteId = domainEvent is NoteCreated created ? created.Note.Id : ((NoteRenamed)domainEvent).NoteId,
+            }, now)];
+}
+
+/// <summary>Fails while the messages are written, after the change itself was saved.</summary>
+internal sealed class BrokenOutbox : IDomainEventOutbox
+{
+    public IReadOnlyList<OutboxMessage> Write(IDomainEvent domainEvent, Actor? actor, DateTimeOffset now) =>
+        throw new InvalidOperationException("describer failed");
 }
 
 internal sealed class FixedActor(Actor? actor) : ICurrentActor
@@ -66,14 +79,15 @@ internal sealed class DomainEventTestDb(DbContextOptions<DomainEventTestDb> opti
         builder.AddOutbox();
     }
 
-    public static Harness Create(Actor? actor)
+    public static Harness Create(Actor? actor, bool failMessages = false)
     {
         var connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
         var saved = new SavedOutboxMessages();
         var currentActor = new FixedActor(actor);
         var clock = new FakeTimeProvider(new DateTimeOffset(2026, 11, 16, 10, 0, 0, TimeSpan.Zero));
-        var interceptor = new DomainEventOutboxInterceptor([new NoteOutbox()], currentActor, saved, clock);
+        IDomainEventOutbox outbox = failMessages ? new BrokenOutbox() : new NoteOutbox();
+        var interceptor = new DomainEventOutboxInterceptor([outbox], currentActor, saved, clock);
         var options = new DbContextOptionsBuilder<DomainEventTestDb>().UseSqlite(connection)
             .AddInterceptors(interceptor).Options;
         using (var db = new DomainEventTestDb(options)) db.Database.EnsureCreated();

@@ -16,7 +16,7 @@ The owner wants to see who created, changed or deleted what across the admin (К
 ## Decision
 
 - `BuildingBlocks.Domain` gives every entity `Raise(IDomainEvent)` and the list of raised events. Events are records in the module's Domain, named in the past tense (`QuoteCreated`), carrying ids and the changed values.
-- A shared `SaveChangesInterceptor` (`BuildingBlocks.Infrastructure/DomainEvents`) collects the events of tracked entities on save, asks the module's `IDomainEventOutbox` implementations to turn them into outbox messages, adds them to the same save and clears the events. A failed save writes nothing.
+- A shared `SaveChangesInterceptor` (`BuildingBlocks.Infrastructure/DomainEvents`) takes the events of tracked entities before the save and opens a transaction when the caller has none. After the save, when database-generated ids are known, the module's `IDomainEventOutbox` implementations turn the events into outbox messages, a second save in the same transaction writes them, and the transaction commits. A failure of either save rolls both back. Events of new rows with generated ids carry the aggregate, so the translation reads the id after the insert.
 - The activity translation (the module's `ActivityDescriber` in its Application) writes message type `activity.recorded` with the `ActivityRecorded` payload of `ActivityLog.Contracts`, stamped with the signed-in actor (`ICurrentActor`). No actor (background work) means no entry.
 - After the command a Mediator behavior tries the saved messages once; the outbox task of the scheduler tick retries the rest.
 - ActivityLog (schema `activity_log`) handles `activity.recorded` by inserting under the event id with `ON CONFLICT DO NOTHING`; its admin API lists entries.

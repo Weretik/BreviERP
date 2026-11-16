@@ -5,7 +5,7 @@
 ## How an entry is made
 
 1. A command handler calls an aggregate method; the aggregate raises a domain event (`Raise(new QuoteChanged(...))`, base class `DomainEventSource` or `BaseEntity`).
-2. On `SaveChanges` the shared `DomainEventOutboxInterceptor` asks every `IDomainEventOutbox` to translate the event; the module's activity describer returns an `activity.recorded` outbox message with `ActivityRecorded` (actor from `ICurrentActor`, subject, action, changed fields). It is saved in the same transaction; without a signed-in person nothing is written.
+2. On `SaveChanges` the shared `DomainEventOutboxInterceptor` takes the events and opens a transaction if the caller has none; after the insert (ids known) it asks every `IDomainEventOutbox` to translate them; the module's activity describer returns an `activity.recorded` outbox message with `ActivityRecorded` (actor from `ICurrentActor`, subject, action, changed fields). A second save writes the messages and the transaction commits; a failure rolls both back. Without a signed-in person nothing is written.
 3. `OutboxAfterCommandBehavior` tries the message right after the command; the outbox task of the scheduler tick retries failures.
 4. `RecordActivityOutboxHandler` stores the entry under the event id (a repeat does nothing) with the staff member's full name from `Identity.Contracts`.
 
