@@ -113,6 +113,7 @@ The [module map](../architecture/overview/modules.md) describes module boundarie
 
 ## Platform access
 
+- Diagnostics: [request tracing and log correlation](platform/request-tracing.md) (PLT-004, ADR-0017) — production requests as traces in Google Cloud Trace, JSON logs linked to them.
 - Side effects: the [transactional outbox](../operations/jobs/outbox.md) retries Telegram posts and the pricing settings hand-off through `POST /internal/outbox/dispatch` (Cloud Scheduler, every minute).
 
 - API address: the [Cloudflare API proxy](../operations/deployment/cloudflare-api-proxy.md) serves `api.brevi.com.ua`; only sign-in, the Telegram webhook and public storefront categories are anonymous ([roles and policies](../architecture/security/authorization/roles-and-policies.md#current-anonymous-exceptions)).

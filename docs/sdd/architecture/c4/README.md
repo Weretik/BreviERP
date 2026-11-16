@@ -54,6 +54,7 @@ flowchart TB
         db[("<b>PostgreSQL</b><br/>[Database]<br/>One schema per module")]
         bucket["<b>Cloud Storage</b><br/>Accounting files"]
         secrets["<b>Secret Manager</b>"]
+        observability["<b>Cloud Logging + Cloud Trace</b><br/>JSON logs with trace id, OTLP traces"]
     end
 
     ext["<b>External systems</b><br/>KeepinCRM, Google Sheets, supplier sites,<br/>Telegram, Gmail, OpenAI, CDN"]
@@ -71,6 +72,7 @@ flowchart TB
     api --> ext
     seed --> ext
     api -.-> secrets
+    api -.->|"Console JSON logs; traces (OTLP/HTTP, ADR-0017)"| observability
     seed -.-> secrets
 ```
 
