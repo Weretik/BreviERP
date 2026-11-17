@@ -56,6 +56,7 @@ Not in scope: catalogue import and the pricing modes of `Host.Seed` (one-off dev
 | `purchase-invoices` | Рахунки на закупку | Переносить рахунки з таблиці «финансы» | weekdays 09:00 | job |
 | `leads` | Ліди | Переносить ліди з таблиці «Лиды Brevi» | weekdays 09:00 | job |
 | `ppe-supplier-prices` | Ціни постачальників ЗІЗ | Оновлює ціни постачальників за розкладом «Імпорт цін» (який день — вирішує «Імпорт цін») | weekdays 09:00 | job |
+| `activity-log-cleanup` | Очищення журналу дій | Видаляє записи «Журналу дій», старші за рік (ACT-001 R-12, added 2026-11-17; no old job ran it, so it starts on) | every day 03:00 | job |
 
 ## HTTP
 

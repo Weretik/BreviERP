@@ -3,7 +3,7 @@ using ActivityLog.Application.Features.Entries.Queries.GetActivityEntries;
 using ActivityLog.Application.Features.Entries.Queries.GetActivityFilters;
 using ActivityLog.Contracts.Activity;
 
-namespace UnitTests.ActivityLog;
+namespace UnitTests.ActivityLog.Journal;
 
 /// <summary>ACT-001 R-09, SC-09: list newest first, filters combine, paging, filter choices.</summary>
 public sealed class GetActivityEntriesTests

@@ -29,7 +29,9 @@ public sealed class SchedulerTickTests
 
         var tasks = await harness.Db.Tasks.AsNoTracking().ToListAsync();
         Assert.That(tasks.Select(x => x.Key), Is.EquivalentTo(ScheduledTaskCatalog.Tasks.Select(x => x.Key)));
-        Assert.That(tasks.Where(x => x.Key != ScheduledTaskKeys.Outbox).All(x => !x.Enabled), Is.True, "R-12: old jobs first");
+        string[] newTasks = [ScheduledTaskKeys.Outbox, ScheduledTaskKeys.ActivityLogCleanup];
+        Assert.That(tasks.Where(x => !newTasks.Contains(x.Key)).All(x => !x.Enabled), Is.True, "R-12: old jobs first");
+        Assert.That(tasks.Where(x => newTasks.Contains(x.Key)).All(x => x.Enabled), Is.True, "tasks no old job ran start on");
         Assert.That(harness.Launcher.Launches, Is.Empty);
     }
 

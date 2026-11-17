@@ -29,10 +29,10 @@ The frontend audit is in brevi-web, `docs/specs/admin/activity-log/001-staff-act
 | ID | Severity | Status | Where | Finding | Target change / plan |
 | --- | --- | --- | --- | --- | --- |
 | AF-01 | Low | Deferred (known deviation in database rules) | `GetActivityEntriesHandler`, `GetActivityFiltersHandler` | The default «Роль = Менеджер» filter is a `LIKE '%\|Manager\|%'` on `ActorRoles` with no index, the total is a filtered `COUNT(*)`, and the filter options group the whole table. | Fine at the expected thousands of rows a month. Above about 500 000 rows: roles as `text[]` with a GIN index, or a trigram index, and the filter options kept in a small table. |
-| AF-02 | Medium | Open, owner decision | `activity_log.ActivityEntries` | There is no retention: the journal grows forever. | Ask the owner for a period (for example 2 years). Then a «Фонові задачі» task deletes older rows in batches. |
+| AF-02 | Medium | Fixed 2026-11-17 | `activity_log.ActivityEntries` | There was no retention: the journal grew forever. | The owner chose one year (R-12): the daily task `activity-log-cleanup` deletes older rows. |
 | AF-03 | Low | Fixed in this audit | `docs/sdd/standards/idempotency-rules.md`, `database-rules.md` | The idempotency audit table did not list the `activity.recorded` handler, and the database rules listed four outboxes instead of six. | Rows added. |
 | AF-04 | Low | Accepted | Describers | An event carries its aggregate, and the describer reads it after the save, because database ids exist only then. Two changes of one object in one save therefore both show the final values. Products avoid this by making one event per command; Media and Reference commands change an object once. | Kept. A new command that changes the same object twice in one save makes one event, like `Product`. |
 | AF-05 | Low | Accepted | `UpdateProductCategoryHandler` | A category saved with a new name and a new parent gives two entries: «Змінено» and «Перенесено в інший розділ». | Kept: both are true and rare. |
 | AF-06 | Info | Deferred (R-08) | Imports | Imports record nothing: no single summary entry such as «Імпорт: 120 рядків». The action `Imported` is reserved for it. | Add it when the owner asks. |
 
-There are no blockers. AF-02 needs the owner's answer and is listed in the handoff.
+There are no blockers. AF-02 was answered by the owner on 2026-11-17 and fixed (R-12).

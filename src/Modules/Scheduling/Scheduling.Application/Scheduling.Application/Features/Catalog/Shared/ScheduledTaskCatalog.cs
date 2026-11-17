@@ -33,6 +33,8 @@ public static class ScheduledTaskCatalog
         new(K.PpeSupplierPrices, "Ціни постачальників ЗІЗ",
             "Оновлює ціни постачальників за розкладом «Імпорт цін»: який день для якого постачальника, вирішує «Імпорт цін».",
             WeekdaysAtNine, 60, EnabledByDefault: false),
+        new(K.ActivityLogCleanup, "Очищення журналу дій", "Видаляє записи «Журналу дій», старші за рік.",
+            TaskSchedule.DailyAt(TaskSchedule.EveryDay, new TimeOnly(3, 0)), 10),
     ];
 
     private static readonly Dictionary<string, ScheduledTaskDefinition> ByKey =
