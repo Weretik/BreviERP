@@ -27,7 +27,7 @@ src/Modules/Media/
   Media.Infrastructure/Media.Infrastructure/Contracts/       # their implementations
 src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Media/ProductMediaReader.cs  # Catalog IProductMediaReader → Media.Contracts
 src/Modules/Media/Media.Infrastructure/Media.Infrastructure/Adapters/Catalog/MediaUsageReader.cs  # Media IMediaUsageReader → Catalog.Contracts ICatalogUsage + Crm.Contracts IEmbroideryCalculationReader
-src/Bootstrapper/Host.Seed/Jobs/Tasks/Media/MediaThumbnailsTaskRunner.cs # task media-thumbnails
+src/Bootstrapper/Host.Seed/Jobs/Tasks/Maintenance/MediaThumbnailsTaskRunner.cs # task media-thumbnails
 ```
 
 ## Structure diagram

@@ -2,7 +2,7 @@ using ActivityLog.Api.DependencyInjection;
 using Identity.Domain.Authorization;
 using UnitTests.TestSupport;
 
-namespace UnitTests.ActivityLog;
+namespace UnitTests.ActivityLog.Recording;
 
 /// <summary>«Журнал дій» operations are read-only, need the activity-log page and are in the contract (ACT-001 SC-10).</summary>
 public sealed class ActivityLogContractTests

@@ -1,5 +1,5 @@
 using Host.Seed.Jobs.Tasks.Keepin;
-using Host.Seed.Jobs.Tasks.Media;
+using Host.Seed.Jobs.Tasks.Maintenance;
 using Host.Seed.Jobs.Tasks.Office;
 using Host.Seed.Jobs.Tasks.Pricing;
 
@@ -22,7 +22,8 @@ internal static class ScheduledTaskRunners
         new LeadsTaskRunner(),
     ];
 
-    public static IReadOnlyList<IScheduledTaskRunner> All { get; } = [.. Sync, new RemindersTaskRunner()];
+    public static IReadOnlyList<IScheduledTaskRunner> All { get; } =
+        [.. Sync, new RemindersTaskRunner(), new ActivityLogCleanupTaskRunner()];
 
     public static IScheduledTaskRunner? Find(string key) => All.FirstOrDefault(runner => runner.Key == key);
 }

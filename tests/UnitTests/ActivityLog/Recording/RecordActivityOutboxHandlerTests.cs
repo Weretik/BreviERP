@@ -2,7 +2,7 @@ using ActivityLog.Application.Features.Entries.EventHandlers;
 using ActivityLog.Contracts.Activity;
 using Microsoft.EntityFrameworkCore;
 
-namespace UnitTests.ActivityLog;
+namespace UnitTests.ActivityLog.Recording;
 
 /// <summary>ACT-001 R-05, R-06, SC-06, SC-07, SC-11.</summary>
 public sealed class RecordActivityOutboxHandlerTests

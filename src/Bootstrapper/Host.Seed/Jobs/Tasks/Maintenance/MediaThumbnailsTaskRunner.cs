@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Media.Application.Features.Files.Commands.BackfillMediaPreviews;
 
-namespace Host.Seed.Jobs.Tasks.Media;
+namespace Host.Seed.Jobs.Tasks.Maintenance;
 
 /// <summary>
 /// Photo previews (MED-001 stage 3): makes dimensions and WebP previews for library photos that have none yet,

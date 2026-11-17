@@ -1,6 +1,6 @@
 using ActivityLog.Domain.Entries;
 
-namespace UnitTests.ActivityLog;
+namespace UnitTests.ActivityLog.Recording;
 
 /// <summary>ACT-001 R-02: limits of an entry.</summary>
 public sealed class ActivityEntryTests

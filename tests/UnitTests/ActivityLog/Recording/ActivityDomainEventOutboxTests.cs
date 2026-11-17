@@ -4,7 +4,7 @@ using BuildingBlocks.Application.Actors;
 using BuildingBlocks.Application.Outbox;
 using BuildingBlocks.Domain.Events;
 
-namespace UnitTests.ActivityLog;
+namespace UnitTests.ActivityLog.Recording;
 
 /// <summary>ACT-001 R-01, R-02, R-03, ADR-0016: a module's description + the actor = one activity message.</summary>
 public sealed class ActivityDomainEventOutboxTests

@@ -8,6 +8,7 @@
 2. On `SaveChanges` the shared `DomainEventOutboxInterceptor` takes the events and opens a transaction if the caller has none; after the insert (ids known) it asks every `IDomainEventOutbox` to translate them: ActivityLog's `ActivityDomainEventOutbox` asks the module's `IActivityDescriber` what happened (subject, action, changed fields) and returns an `activity.recorded` outbox message with `ActivityRecorded` and the actor from `ICurrentActor`. A second save writes the messages and the transaction commits; a failure rolls both back. Without a signed-in person nothing is written.
 3. `OutboxAfterCommandBehavior` tries the message right after the command; the outbox task of the scheduler tick retries failures.
 4. `RecordActivityOutboxHandler` stores the entry under the event id (a repeat does nothing) with the staff member's full name from `Identity.Contracts`.
+5. Entries are kept one year: the «Фонові задачі» task `activity-log-cleanup` (every day 03:00) deletes older ones.
 
 ## Code structure
 
@@ -28,10 +29,12 @@ src/Modules/ActivityLog/
     Features/Entries/EventHandlers/                # ActivityDomainEventOutbox (description + actor → message), RecordActivityOutboxHandler (idempotent by event id)
     Features/Entries/Queries/GetActivityEntries/   # page, filters, Kyiv period, word search; validator
     Features/Entries/Queries/GetActivityFilters/   # people and object types found in the journal
+    Features/Entries/Commands/DeleteOldActivityEntries/  # one-year retention: one SQL DELETE (R-12)
   ActivityLog.Infrastructure/…/
     Persistence/                                   # ActivityLogDbContext (schema activity_log), configuration, migrations
     Adapters/Identity/StaffActorNames.cs           # full name over Identity.Contracts
   ActivityLog.Api/…/Endpoints/Entries/             # GET /api/activity-log/entries, /filters
+src/Bootstrapper/Host.Seed/Jobs/Tasks/Maintenance/ActivityLogCleanupTaskRunner.cs  # task activity-log-cleanup
 src/Modules/<Source>/…                             # events in Domain (<Aggregate>/Events/), IActivityDescriber in Application Features/<Feature>/EventHandlers/
 ```
 
