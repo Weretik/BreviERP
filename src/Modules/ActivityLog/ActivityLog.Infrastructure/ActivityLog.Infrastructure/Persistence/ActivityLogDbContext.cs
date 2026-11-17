@@ -15,6 +15,9 @@ public sealed class ActivityLogDbContext(DbContextOptions<ActivityLogDbContext> 
     public DbSet<ActivityActor> Actors => Set<ActivityActor>();
     public DbSet<ActivitySubjectType> SubjectTypes => Set<ActivitySubjectType>();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(ActivityEntry).Assembly);
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);

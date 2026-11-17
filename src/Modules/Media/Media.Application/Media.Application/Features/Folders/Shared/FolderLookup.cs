@@ -12,11 +12,11 @@ internal static class FolderLookup
         return new MediaFolderTree(links.Select(x => (x.Id, x.ParentId)));
     }
 
-    public static Task<bool> NameTakenAsync(IMediaDbContext db, string name, int? parentId, int? exceptId, CancellationToken cancellationToken)
+    public static Task<bool> NameTakenAsync(IMediaDbContext db, string name, MediaFolderId? parentId, MediaFolderId? exceptId, CancellationToken cancellationToken)
     {
         var lowered = name.ToLower();
         return db.Folders.AnyAsync(
-            x => x.ParentId == parentId && x.Name.ToLower() == lowered && (exceptId == null || x.Id != exceptId),
+            x => x.ParentId == parentId && x.Name.ToLower() == lowered && (exceptId == null || x.Id != exceptId.Value),
             cancellationToken);
     }
 }

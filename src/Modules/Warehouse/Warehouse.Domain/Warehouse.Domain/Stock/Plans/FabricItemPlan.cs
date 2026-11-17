@@ -69,7 +69,7 @@ public sealed class FabricItemPlan : IAggregateRoot
         string actorName, DateTimeOffset now) =>
         new(orderId, itemId, quantity, parts, actorName, now);
 
-    public int Id { get; private set; }
+    public FabricItemPlanId Id { get; private set; }
     public int OrderId { get; private set; }
 
     /// <summary>One plan per item; the item is Production's, kept by value.</summary>

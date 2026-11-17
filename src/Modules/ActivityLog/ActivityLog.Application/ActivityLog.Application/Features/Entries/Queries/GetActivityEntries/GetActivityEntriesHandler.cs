@@ -1,3 +1,4 @@
+using ActivityLog.Domain.Filters;
 namespace ActivityLog.Application.Features.Entries.Queries.GetActivityEntries;
 
 /// <summary>
@@ -13,7 +14,7 @@ public sealed class GetActivityEntriesHandler(IActivityLogDbContext db)
         CancellationToken cancellationToken)
     {
         var rows = db.Entries.AsNoTracking();
-        if (query.ActorId is { } actorId) rows = rows.Where(x => x.ActorId == actorId);
+        if (query.ActorId is { } actorId) rows = rows.Where(x => x.ActorId == new ActivityActorId(actorId));
         if (!string.IsNullOrWhiteSpace(query.Role))
         {
             var token = ActivityEntry.RoleToken(query.Role);
@@ -40,7 +41,7 @@ public sealed class GetActivityEntriesHandler(IActivityLogDbContext db)
         var page = await rows.OrderByDescending(x => x.OccurredAt).ThenByDescending(x => x.Id)
             .Skip((query.Page - 1) * query.PageSize).Take(query.PageSize)
             .ToListAsync(cancellationToken);
-        var items = page.Select(x => new ActivityEntryDto(x.Id, x.OccurredAt, x.ActorId, x.ActorName, x.RoleNames,
+        var items = page.Select(x => new ActivityEntryDto(x.Id.Value, x.OccurredAt, x.ActorId.Value, x.ActorName, x.RoleNames,
                 x.Action, x.SubjectType, x.SubjectTypeTitle, x.SubjectId, x.SubjectTitle, x.Summary,
                 x.Changes.Select(c => new ActivityChangeDto(c.Field, c.From, c.To)).ToArray()))
             .ToArray();

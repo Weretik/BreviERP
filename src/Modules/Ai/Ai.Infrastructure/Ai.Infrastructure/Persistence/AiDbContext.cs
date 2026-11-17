@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Ai.Application.Abstractions;
 using Ai.Domain.Prompts;
 using Ai.Domain.Settings;
@@ -13,6 +14,9 @@ public sealed class AiDbContext(DbContextOptions<AiDbContext> options) : DbConte
     public DbSet<AiSettings> Settings => Set<AiSettings>();
     public DbSet<AiUsageMonth> UsageMonths => Set<AiUsageMonth>();
     public DbSet<AiPrompt> Prompts => Set<AiPrompt>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(AiPrompt).Assembly);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

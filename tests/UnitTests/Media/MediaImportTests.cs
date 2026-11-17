@@ -1,3 +1,4 @@
+using Media.Domain.Folders;
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Media.Application.Features.Files.Commands.UploadMediaFile;
@@ -43,8 +44,8 @@ public sealed class MediaImportTests
         {
             Assert.That(again.Value, Is.EqualTo(first.Value));
             Assert.That(folders, Has.Count.EqualTo(3));
-            Assert.That(folders.Single(x => x.Name == "costum_leto").ParentId, Is.EqualTo(root));
-            Assert.That(folders.Single(x => x.Id == first.Value).Name, Is.EqualTo("agier"));
+            Assert.That(folders.Single(x => x.Name == "costum_leto").ParentId?.Value, Is.EqualTo(root));
+            Assert.That(folders.Single(x => x.Id == new MediaFolderId(first.Value)).Name, Is.EqualTo("agier"));
         });
     }
 

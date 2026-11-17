@@ -15,7 +15,7 @@ public sealed class GetMediaFoldersHandler(IMediaDbContext db)
             .ToDictionaryAsync(x => x.FolderId, x => x.Count, cancellationToken);
         var folders = await db.Folders.AsNoTracking().OrderBy(x => x.Name).ToListAsync(cancellationToken);
         IReadOnlyList<MediaFolderResponse> result = folders
-            .Select(x => new MediaFolderResponse(x.Id, x.Name, x.ParentId, counts.GetValueOrDefault(x.Id)))
+            .Select(x => new MediaFolderResponse(x.Id.Value, x.Name, x.ParentId?.Value, counts.GetValueOrDefault(x.Id)))
             .ToList();
         return Result.Success(result);
     }

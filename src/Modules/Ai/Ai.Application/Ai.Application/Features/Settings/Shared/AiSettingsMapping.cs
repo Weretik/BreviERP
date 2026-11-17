@@ -21,7 +21,7 @@ internal static class AiSettingsMapping
         AiPromptKeys.All.Select(kind =>
             {
                 var baseText = fixedTexts.GetValueOrDefault(kind.Key, string.Empty);
-                return prompts.FirstOrDefault(x => x.Id == kind.Key) is { } prompt
+                return prompts.FirstOrDefault(x => x.Id == new AiPromptId(kind.Key)) is { } prompt
                     ? new AiPromptResponse(kind.Key, kind.Title, baseText, prompt.Text, prompt.UpdatedBy, prompt.UpdatedAt)
                     : new AiPromptResponse(kind.Key, kind.Title, baseText, string.Empty, null, null);
             })

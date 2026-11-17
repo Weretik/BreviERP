@@ -1,3 +1,4 @@
+using Content.Domain.SiteCategories;
 using Content.Application.Abstractions;
 using Content.Application.Features.SiteCategories.Shared;
 
@@ -9,7 +10,7 @@ public sealed class SetSiteCategoryVisibilityHandler(IContentDbContext db, TimeP
     public async ValueTask<Result<SiteCategoryVisibilityResponse>> Handle(SetSiteCategoryVisibilityCommand command,
         CancellationToken cancellationToken)
     {
-        var category = await db.SiteCategories.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var category = await db.SiteCategories.FirstOrDefaultAsync(x => x.Id == new SiteCategoryId(command.Id), cancellationToken);
         if (category is null) return Result.NotFound(SiteCategoryMessages.NotFound);
 
         category.SetVisibility(command.ShowOnSite, command.UpdatedBy, clock.GetUtcNow());
@@ -25,7 +26,7 @@ public sealed class SetSiteCategoryVisibilityHandler(IContentDbContext db, TimeP
         var parent = category.ParentId is { } parentId
             ? await db.SiteCategories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == parentId, cancellationToken)
             : null;
-        return new SiteCategoryVisibilityResponse(category.Id, category.ShowOnSite,
+        return new SiteCategoryVisibilityResponse(category.Id.Value, category.ShowOnSite,
             SiteCategoryMapping.OnSite(category, parent), category.Revision);
     }
 }

@@ -22,7 +22,7 @@ public sealed class ArticleText
         Body = ArticleBlocks.Clean(input.Body);
     }
 
-    public int ArticleId { get; private set; }
+    public ArticleId ArticleId { get; private set; }
 
     public string Language { get; private set; } = null!;
 

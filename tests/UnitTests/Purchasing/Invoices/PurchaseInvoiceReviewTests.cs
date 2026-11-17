@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 using Ardalis.Result;
 using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
 using Purchasing.Application.Features.Register.Queries.GetPurchaseInvoices;
@@ -18,7 +19,7 @@ public sealed class PurchaseInvoiceReviewTests
         harness = new PurchasingTestHarness();
         harness.Sheet.Rows = [SheetRow.Of("100", messageId: "1"), SheetRow.Of("200", messageId: "2")];
         await harness.Sync().RunAsync(CancellationToken.None);
-        messageId = harness.Fresh().Messages.OrderBy(x => x.TelegramKey).First().Id;
+        messageId = harness.Fresh().Messages.OrderBy(x => x.TelegramKey).First().Id.Value;
     }
 
     [TearDown]
@@ -58,7 +59,7 @@ public sealed class PurchaseInvoiceReviewTests
 
         using var db = harness.Fresh();
         var change = db.ReviewChanges.Single();
-        Assert.That((change.MessageId, change.Reviewer), Is.EqualTo((messageId, "buh@brevi.com.ua")));
+        Assert.That((change.MessageId.Value, change.Reviewer), Is.EqualTo((messageId, "buh@brevi.com.ua")));
         Assert.That(change.Before, Is.EqualTo(new global::Purchasing.Domain.Messages.PurchaseReview(null, null, 0)));
         Assert.That(change.After, Is.EqualTo(new global::Purchasing.Domain.Messages.PurchaseReview(7, "Тканина на березень", 1)));
     }
@@ -73,7 +74,7 @@ public sealed class PurchaseInvoiceReviewTests
         Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
         Assert.That(stale.Errors, Is.EqualTo(new[] { ReviewPurchaseInvoiceHandler.Stale }));
         using var db = harness.Fresh();
-        Assert.That(db.Messages.Single(x => x.Id == messageId).ReviewNote, Is.EqualTo("перша"));
+        Assert.That(db.Messages.Single(x => x.Id == new PurchaseMessageId(messageId)).ReviewNote, Is.EqualTo("перша"));
         Assert.That(db.ReviewChanges.Count(), Is.EqualTo(1));
     }
 

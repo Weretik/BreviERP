@@ -6,13 +6,13 @@ public sealed class AiUsageMonth : IAggregateRoot
 {
     private AiUsageMonth() { }
 
-    private AiUsageMonth(string id) => Id = id;
+    private AiUsageMonth(string id) => Id = new AiUsageMonthId(id);
 
     public static AiUsageMonth Create(string id) =>
         new(id);
 
     /// <summary><c>yyyy-MM</c> in UTC.</summary>
-    public string Id { get; private set; } = null!;
+    public AiUsageMonthId Id { get; private set; }
 
     public int Requests { get; private set; }
     public long InputTokens { get; private set; }

@@ -1,3 +1,4 @@
+using Media.Domain.Files;
 using Catalog.Contracts.Products;
 using Crm.Contracts.Embroidery;
 using Media.Application.Abstractions;

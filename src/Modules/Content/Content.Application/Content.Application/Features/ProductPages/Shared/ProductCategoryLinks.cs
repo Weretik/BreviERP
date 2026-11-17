@@ -9,7 +9,7 @@ internal static class ProductCategoryLinks
     public static async Task<IReadOnlyList<int>> IdsAsync(IContentDbContext db, int productId,
         CancellationToken cancellationToken) =>
         await db.SiteCategoryProducts.Where(x => x.ProductId == productId).OrderBy(x => x.CategoryId)
-            .Select(x => x.CategoryId).ToListAsync(cancellationToken);
+            .Select(x => x.CategoryId.Value).ToListAsync(cancellationToken);
 
     /// <summary>
     /// Makes the product belong to exactly these categories; a new link goes to the end of its category. Nothing is
@@ -18,13 +18,14 @@ internal static class ProductCategoryLinks
     public static async Task<bool> ReplaceAsync(IContentDbContext db, int productId, IReadOnlyList<int> categoryIds,
         CancellationToken cancellationToken)
     {
-        var existing = await db.SiteCategories.Where(x => categoryIds.Contains(x.Id)).Select(x => x.Id)
+        var ids = categoryIds.Select(x => new SiteCategoryId(x)).ToList();
+        var existing = await db.SiteCategories.Where(x => ids.Contains(x.Id)).Select(x => x.Id)
             .ToListAsync(cancellationToken);
         if (existing.Count != categoryIds.Count) return false;
 
         var links = await db.SiteCategoryProducts.Where(x => x.ProductId == productId).ToListAsync(cancellationToken);
-        db.SiteCategoryProducts.RemoveRange(links.Where(x => !categoryIds.Contains(x.CategoryId)));
-        foreach (var categoryId in categoryIds.Where(id => links.All(x => x.CategoryId != id)))
+        db.SiteCategoryProducts.RemoveRange(links.Where(x => !ids.Contains(x.CategoryId)));
+        foreach (var categoryId in ids.Where(id => links.All(x => x.CategoryId != id)))
         {
             var last = await db.SiteCategoryProducts.Where(x => x.CategoryId == categoryId)
                 .Select(x => (int?)x.SortOrder).MaxAsync(cancellationToken) ?? 0;

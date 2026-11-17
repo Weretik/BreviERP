@@ -1,3 +1,4 @@
+using Media.Domain.Files;
 using Media.Application.Abstractions;
 using Media.Application.Features.Files.Shared;
 
@@ -8,7 +9,7 @@ public sealed class GetMediaFileHandler(IMediaDbContext db, IMediaUsageReader us
 {
     public async ValueTask<Result<MediaFileDetailResponse>> Handle(GetMediaFileQuery query, CancellationToken cancellationToken)
     {
-        var file = await db.Files.AsNoTracking().Where(x => x.Id == query.Id)
+        var file = await db.Files.AsNoTracking().Where(x => x.Id == new MediaFileId(query.Id))
             .Select(MediaFileResponse.Projection).FirstOrDefaultAsync(cancellationToken);
         if (file is null) return Result<MediaFileDetailResponse>.NotFound(FileMessages.NotFound);
         var used = await usages.FindAsync([file.Id], cancellationToken);

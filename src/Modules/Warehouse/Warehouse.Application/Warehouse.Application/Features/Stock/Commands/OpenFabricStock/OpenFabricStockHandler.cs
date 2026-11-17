@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Domain.Stock.Movements;
@@ -26,7 +27,7 @@ public sealed class OpenFabricStockHandler(StockChanges changes, StockPairs pair
 
         var pair = await pairs.LoadAsync(fabric.Value.Code, input.Color, cancellationToken);
         var result = pair.Open(fabric.Value, input.Color, input.Meters,
-            new FabricMovementDetails(input.OperationDate, "Початковий залишок", OperationId: input.OperationId),
+            new FabricMovementDetails(input.OperationDate, "Початковий залишок", OperationId: new StockOperationId(input.OperationId)),
             actorName, pairs.Now);
         if (!result.IsDone) return StockPairs.Refused(result.Refusal!.Value);
         return await pairs.SaveAsync(command.Actor, input.OperationId, Kind, hash, pair, result, cancellationToken);

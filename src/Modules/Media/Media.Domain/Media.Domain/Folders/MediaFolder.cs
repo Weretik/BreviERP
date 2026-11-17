@@ -11,7 +11,7 @@ public sealed class MediaFolder : DomainEventSource, IAggregateRoot
 
     private MediaFolder() { }
 
-    private MediaFolder(string name, int? parentId, DateTimeOffset now)
+    private MediaFolder(string name, MediaFolderId? parentId, DateTimeOffset now)
     {
         Name = name;
         ParentId = parentId;
@@ -20,7 +20,7 @@ public sealed class MediaFolder : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>A folder a staff member made; «Журнал дій» lists it.</summary>
-    public static DomainResult<MediaFolder> Create(string name, int? parentId, DateTimeOffset now)
+    public static DomainResult<MediaFolder> Create(string name, MediaFolderId? parentId, DateTimeOffset now)
     {
         var folder = CreateForPath(name, parentId, now);
         if (folder.IsSuccess) folder.Value.Raise(new MediaFolderRecorded(folder.Value, MediaFolderAction.Created));
@@ -28,17 +28,17 @@ public sealed class MediaFolder : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>A folder of an upload path (such as a product's photos), made on the way; not listed.</summary>
-    public static DomainResult<MediaFolder> CreateForPath(string name, int? parentId, DateTimeOffset now)
+    public static DomainResult<MediaFolder> CreateForPath(string name, MediaFolderId? parentId, DateTimeOffset now)
     {
         var normalized = MediaNames.Normalize(name, NameMaxLength);
         return normalized.IsFailure ? normalized.Error! : new MediaFolder(normalized.Value, parentId, now);
     }
 
-    public int Id { get; private set; }
+    public MediaFolderId Id { get; private set; }
     public string Name { get; private set; } = null!;
 
     /// <summary>Null for a top-level folder.</summary>
-    public int? ParentId { get; private set; }
+    public MediaFolderId? ParentId { get; private set; }
 
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
@@ -54,7 +54,7 @@ public sealed class MediaFolder : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>The caller checks the target with <see cref="MediaFolderTree.CanMove"/> first.</summary>
-    public DomainResult MoveTo(int? parentId, DateTimeOffset now)
+    public DomainResult MoveTo(MediaFolderId? parentId, DateTimeOffset now)
     {
         if (parentId == Id) return MediaErrors.FolderOwnParent();
         if (parentId != ParentId) Raise(new MediaFolderRecorded(this, MediaFolderAction.Moved));

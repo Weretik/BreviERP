@@ -38,6 +38,9 @@ public sealed class PurchasingDbContext(DbContextOptions<PurchasingDbContext> op
         return null;
     }
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(PurchaseMessage).Assembly);
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);

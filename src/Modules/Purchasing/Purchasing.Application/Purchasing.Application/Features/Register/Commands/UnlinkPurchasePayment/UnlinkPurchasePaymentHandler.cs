@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 using Purchasing.Application.Abstractions;
 using Purchasing.Application.Features.Register.Commands.ReviewPurchaseInvoice;
 using Purchasing.Application.Features.Register.Commands.SyncPurchaseRegister;
@@ -18,7 +19,7 @@ public sealed class UnlinkPurchasePaymentHandler(
         await using var scope = await db.TryBeginWriteAsync(cancellationToken);
         if (scope is null) return Result<PurchaseInvoicePaymentsResponse>.Conflict(PurchaseRegisterSync.AlreadyRunning);
         var message = await db.Messages.Include(x => x.Payments.Where(payment => payment.UnlinkedAt == null))
-            .FirstOrDefaultAsync(x => x.Id == command.MessageId, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == new PurchaseMessageId(command.MessageId), cancellationToken);
         if (message is null) return Result<PurchaseInvoicePaymentsResponse>.NotFound(ReviewPurchaseInvoiceHandler.NotFound);
         if (message.ReviewVersion != command.Version)
             return Result<PurchaseInvoicePaymentsResponse>.Conflict(ReviewPurchaseInvoiceHandler.Stale);

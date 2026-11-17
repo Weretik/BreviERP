@@ -1,3 +1,4 @@
+using Content.Domain.SiteCategories;
 using Content.Application.Abstractions;
 using Content.Application.Features.SiteCategories.Shared;
 
@@ -10,7 +11,7 @@ public sealed class GetSiteCategoryHandler(IContentDbContext db)
         CancellationToken cancellationToken)
     {
         var category = await db.SiteCategories.AsNoTracking().Include(x => x.Texts)
-            .FirstOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == new SiteCategoryId(query.Id), cancellationToken);
         if (category is null) return Result.NotFound(SiteCategoryMessages.NotFound);
         return await SiteCategoryReads.DetailAsync(db, category, cancellationToken);
     }

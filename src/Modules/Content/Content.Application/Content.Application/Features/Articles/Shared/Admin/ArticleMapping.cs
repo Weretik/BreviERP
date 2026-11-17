@@ -11,7 +11,7 @@ internal static class ArticleMapping
         var uk = article.TextIn(ProductPageRules.Ukrainian);
         var ru = article.TextIn(ProductPageRules.Russian);
         var cover = article.CoverPhotoId is { } id ? photos.GetValueOrDefault(id) : null;
-        return new ArticleRow(article.Id, article.Slug, article.PublishedOn, article.ShowOnSite, uk?.Title, ru?.Title,
+        return new ArticleRow(article.Id.Value, article.Slug, article.PublishedOn, article.ShowOnSite, uk?.Title, ru?.Title,
             uk is { Body.Count: > 0 }, ru is { Body.Count: > 0 }, uk is { HasSeo: true } && ru is { HasSeo: true },
             cover?.ThumbnailUrl ?? cover?.Url, article.UpdatedAtUtc);
     }

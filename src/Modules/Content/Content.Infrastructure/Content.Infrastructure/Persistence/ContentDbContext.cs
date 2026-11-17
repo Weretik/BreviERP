@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Content.Application.Abstractions;
 using Content.Domain.Articles;
 using Content.Domain.ProductPages;
@@ -28,6 +29,9 @@ public sealed class ContentDbContext(DbContextOptions<ContentDbContext> options)
 
     public async Task<IContentTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
         new Transaction(await Database.BeginTransactionAsync(cancellationToken));
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(Article).Assembly);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

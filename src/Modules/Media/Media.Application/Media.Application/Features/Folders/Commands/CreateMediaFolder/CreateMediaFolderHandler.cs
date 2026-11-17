@@ -14,7 +14,7 @@ public sealed class CreateMediaFolderHandler(IMediaDbContext db, TimeProvider cl
         var normalized = MediaNames.Normalize(command.Input.Name, MediaFolder.NameMaxLength);
         if (normalized.IsFailure) return normalized.Error!.ToResult<MediaFolderResponse>();
         var name = normalized.Value;
-        var parentId = command.Input.ParentId;
+        var parentId = command.Input.ParentId is { } value ? new MediaFolderId(value) : (MediaFolderId?)null;
         var tree = await FolderLookup.LoadTreeAsync(db, cancellationToken);
         if (parentId is { } parent && !tree.Contains(parent))
             return Result<MediaFolderResponse>.NotFound(FolderMessages.ParentNotFound);
@@ -26,6 +26,6 @@ public sealed class CreateMediaFolderHandler(IMediaDbContext db, TimeProvider cl
         var folder = MediaFolder.Create(name, parentId, clock.GetUtcNow()).Value;
         db.Folders.Add(folder);
         await db.SaveChangesAsync(cancellationToken);
-        return Result.Success(new MediaFolderResponse(folder.Id, folder.Name, folder.ParentId, 0));
+        return Result.Success(new MediaFolderResponse(folder.Id.Value, folder.Name, folder.ParentId?.Value, 0));
     }
 }

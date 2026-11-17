@@ -124,10 +124,10 @@ public sealed class SiteCategoriesTests
         await using (var db = h.Open())
         {
             db.SiteCategoryProducts.AddRange(
-                SiteCategoryProduct.Create(clothes.Category.Id, 1, 1),
-                SiteCategoryProduct.Create(suits.Category.Id, 1, 1),
-                SiteCategoryProduct.Create(suits.Category.Id, 2, 2),
-                SiteCategoryProduct.Create(jackets.Category.Id, 3, 1));
+                SiteCategoryProduct.Create(new SiteCategoryId(clothes.Category.Id), 1, 1),
+                SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), 1, 1),
+                SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), 2, 2),
+                SiteCategoryProduct.Create(new SiteCategoryId(jackets.Category.Id), 3, 1));
             await db.SaveChangesAsync();
         }
 
@@ -250,7 +250,7 @@ public sealed class SiteCategoriesTests
         var suits = await Add(h, "Костюми", clothes.Category.Id);
         await using (var seed = h.Open())
         {
-            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(suits.Category.Id, 1, 1));
+            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(new SiteCategoryId(suits.Category.Id), 1, 1));
             await seed.SaveChangesAsync();
         }
 

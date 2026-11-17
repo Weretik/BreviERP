@@ -1,3 +1,4 @@
+using Media.Domain.Files;
 using Media.Application.Abstractions;
 using Media.Application.Features.Files.Shared;
 
@@ -8,9 +9,9 @@ public sealed class DeleteMediaFileHandler(IMediaDbContext db, IMediaStorage sto
 {
     public async ValueTask<Result> Handle(DeleteMediaFileCommand command, CancellationToken cancellationToken)
     {
-        var file = await db.Files.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var file = await db.Files.FirstOrDefaultAsync(x => x.Id == new MediaFileId(command.Id), cancellationToken);
         if (file is null) return Result.NotFound(FileMessages.NotFound);
-        var used = await usages.FindAsync([file.Id], cancellationToken);
+        var used = await usages.FindAsync([file.Id.Value], cancellationToken);
         if (used.Count > 0)
             return Result.Conflict($"{FileMessages.InUse}: {string.Join(", ", used.Select(x => $"{x.Area} «{x.Title}»"))}.");
 

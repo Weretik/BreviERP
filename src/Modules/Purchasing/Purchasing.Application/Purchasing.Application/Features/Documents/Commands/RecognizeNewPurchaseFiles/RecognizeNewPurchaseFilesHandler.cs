@@ -18,7 +18,7 @@ public sealed class RecognizeNewPurchaseFilesHandler(IPurchasingDbContext db, Pu
         string? stop = null;
         foreach (var fileId in candidates.Take(command.BatchSize))
         {
-            var result = await recognition.RecognizeAsync(fileId, command.By, cancellationToken);
+            var result = await recognition.RecognizeAsync(fileId.Value, command.By, cancellationToken);
             if (result.Status is ResultStatus.Unavailable or ResultStatus.Conflict)
             {
                 stop = string.Join(" ", result.Errors);

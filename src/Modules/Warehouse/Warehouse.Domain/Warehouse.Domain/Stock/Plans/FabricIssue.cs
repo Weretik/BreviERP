@@ -1,3 +1,5 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
+using Warehouse.Domain.Stock;
 using BuildingBlocks.Domain.Entity;
 using Warehouse.Domain.Stock.Movements;
 
@@ -34,7 +36,7 @@ public sealed class FabricIssue : IAggregateRoot
     private FabricIssue() { }
 
     private FabricIssue(FabricMovementTarget target, DateOnly issuedOn, string? note, string actorName,
-        DateTimeOffset now, string? legacyId = null, int? issuedQuantity = null, Guid? operationId = null,
+        DateTimeOffset now, string? legacyId = null, int? issuedQuantity = null, StockOperationId? operationId = null,
         int? planVersion = null)
     {
         if (issuedQuantity is <= 0) throw new ArgumentOutOfRangeException(nameof(issuedQuantity));
@@ -53,11 +55,11 @@ public sealed class FabricIssue : IAggregateRoot
     }
 
     public static FabricIssue Create(FabricMovementTarget target, DateOnly issuedOn, string? note, string actorName,
-        DateTimeOffset now, string? legacyId = null, int? issuedQuantity = null, Guid? operationId = null,
+        DateTimeOffset now, string? legacyId = null, int? issuedQuantity = null, StockOperationId? operationId = null,
         int? planVersion = null) =>
         new(target, issuedOn, note, actorName, now, legacyId, issuedQuantity, operationId, planVersion);
 
-    public int Id { get; private set; }
+    public FabricIssueId Id { get; private set; }
     public int OrderId { get; private set; }
     public int ItemId { get; private set; }
     public int OrderNumber { get; private set; }
@@ -75,7 +77,7 @@ public sealed class FabricIssue : IAggregateRoot
     public int? IssuedQuantity { get; private set; }
 
     /// <summary>The form submission; a repeat returns the saved issue.</summary>
-    public Guid? OperationId { get; private set; }
+    public StockOperationId? OperationId { get; private set; }
 
     /// <summary>Version of the saved item plan the issue was compared with.</summary>
     public int? PlanVersion { get; private set; }
@@ -137,7 +139,7 @@ public sealed class FabricIssueLine
     }
 
     public int Id { get; private set; }
-    public int IssueId { get; private set; }
+    public FabricIssueId IssueId { get; private set; }
     public FabricIssuePurpose Purpose { get; private set; }
     public string? PlanFabricCode { get; private set; }
     public string? PlanColorKey { get; private set; }
@@ -146,7 +148,7 @@ public sealed class FabricIssueLine
     public decimal? PlannedMeters { get; private set; }
 
     /// <summary>The first stock line the metres came from; the pair is its fabric group and colour.</summary>
-    public int StockId { get; private set; }
+    public FabricStockId StockId { get; private set; }
 
     public FabricStock Stock { get; private set; } = null!;
     public string FabricCode { get; private set; } = null!;

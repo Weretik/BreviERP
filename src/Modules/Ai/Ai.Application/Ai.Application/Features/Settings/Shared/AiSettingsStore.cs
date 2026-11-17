@@ -10,8 +10,8 @@ public sealed class AiSettingsStore(IAiDbContext db, TimeProvider clock, IEnumer
 {
     public async Task<AiSettings> LoadForUpdateAsync(CancellationToken cancellationToken)
     {
-        var settings = db.Settings.Local.FirstOrDefault(x => x.Id == AiSettings.OpenAi)
-            ?? await db.Settings.FirstOrDefaultAsync(x => x.Id == AiSettings.OpenAi, cancellationToken);
+        var settings = db.Settings.Local.FirstOrDefault(x => x.Id == new AiSettingsId(AiSettings.OpenAi))
+            ?? await db.Settings.FirstOrDefaultAsync(x => x.Id == new AiSettingsId(AiSettings.OpenAi), cancellationToken);
         if (settings is not null) return settings;
         settings = AiSettings.CreateDefault();
         db.Settings.Add(settings);
@@ -21,7 +21,7 @@ public sealed class AiSettingsStore(IAiDbContext db, TimeProvider clock, IEnumer
     public async Task<AiSettingsResponse> ResponseAsync(AiSettings settings, CancellationToken cancellationToken)
     {
         var month = AiUsageMonth.IdOf(clock.GetUtcNow());
-        var usage = await db.UsageMonths.AsNoTracking().FirstOrDefaultAsync(x => x.Id == month, cancellationToken);
+        var usage = await db.UsageMonths.AsNoTracking().FirstOrDefaultAsync(x => x.Id == new AiUsageMonthId(month), cancellationToken);
         var prompts = await db.Prompts.AsNoTracking().ToListAsync(cancellationToken);
         return settings.ToResponse(usage, month, prompts, basePrompts);
     }

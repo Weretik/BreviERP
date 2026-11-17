@@ -22,7 +22,7 @@ public sealed class RecordActivityOutboxHandlerTests
 
         await using var check = harness.Open();
         var entry = await check.Entries.SingleAsync();
-        Assert.That(entry.Id, Is.EqualTo(activity.EventId));
+        Assert.That(entry.Id.Value, Is.EqualTo(activity.EventId));
         Assert.That(entry.ActorName, Is.EqualTo("Олена Менеджер"));
         Assert.That(entry.RoleNames, Is.EqualTo(new[] { "Manager" }));
         Assert.That(entry.SubjectTitle, Is.EqualTo("КП №125"));

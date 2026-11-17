@@ -32,7 +32,7 @@ public sealed class FabricRevisionActivity : IActivityDescriber
                 .Items
             : [];
         return new ActivityDescription(action, FabricMovementActivity.Subject, FabricMovementActivity.SubjectTitle,
-            revision.Movement.Id.ToString(CultureInfo.InvariantCulture), FabricMovementActivity.Line(revision.Movement),
+            revision.Movement.Id.Value.ToString(CultureInfo.InvariantCulture), FabricMovementActivity.Line(revision.Movement),
             summary, changes, "Warehouse");
     }
 }

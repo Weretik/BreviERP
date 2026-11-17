@@ -16,7 +16,7 @@ public sealed record MediaFileResponse(
     DateTimeOffset CreatedAt)
 {
     public static Expression<Func<MediaFile, MediaFileResponse>> Projection { get; } = x => new MediaFileResponse(
-        x.Id, x.FileName, x.Alt, x.FolderId, x.PublicUrl, x.ThumbnailUrl, x.ContentType, x.SizeInBytes, x.Width, x.Height, x.CreatedAt);
+        x.Id.Value, x.FileName, x.Alt, x.FolderId == null ? null : x.FolderId.Value.Value, x.PublicUrl, x.ThumbnailUrl, x.ContentType, x.SizeInBytes, x.Width, x.Height, x.CreatedAt);
 
     private static readonly Func<MediaFile, MediaFileResponse> Map = Projection.Compile();
 

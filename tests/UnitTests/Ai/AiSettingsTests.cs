@@ -115,7 +115,7 @@ public sealed class AiSettingsTests
         Assert.That(first.CostUsd, Is.EqualTo(0.15m), "1M input × 0.10 + 0.1M output × 0.50");
         using var db = harness.Fresh();
         var usage = db.UsageMonths.Single();
-        Assert.That((usage.Id, usage.Requests, usage.InputTokens, usage.CostUsd), Is.EqualTo(("2026-11", 2, 2_000_000L, 0.30m)));
+        Assert.That((usage.Id.Value, usage.Requests, usage.InputTokens, usage.CostUsd), Is.EqualTo(("2026-11", 2, 2_000_000L, 0.30m)));
     }
 
     [Test]

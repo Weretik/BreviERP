@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 using System.Globalization;
 using Purchasing.Application.Abstractions;
 using Purchasing.Domain.Messages;
@@ -22,8 +23,8 @@ internal static class PurchasePayments
     }
 
     /// <summary>The active links of the messages, oldest first.</summary>
-    public static async Task<ILookup<string, PurchasePayment>> ActiveLinksAsync(IPurchasingDbContext db,
-        IReadOnlyCollection<string> messageIds, CancellationToken cancellationToken) =>
+    public static async Task<ILookup<PurchaseMessageId, PurchasePayment>> ActiveLinksAsync(IPurchasingDbContext db,
+        IReadOnlyCollection<PurchaseMessageId> messageIds, CancellationToken cancellationToken) =>
         (await db.Payments.AsNoTracking()
             .Where(x => messageIds.Contains(x.MessageId) && x.UnlinkedAt == null)
             .OrderBy(x => x.Id)
@@ -79,7 +80,7 @@ internal static class PurchasePayments
     public static async Task<IReadOnlyList<PurchaseDocumentResponse>> DocumentsAsync(IPurchasingDbContext db,
         string messageId, CancellationToken cancellationToken) =>
         (await db.CheckedDocuments.AsNoTracking()
-            .Where(d => d.MessageId == messageId && db.Files.Any(f => f.Id == d.Id && f.Active))
+            .Where(d => d.MessageId == new PurchaseMessageId(messageId) && db.Files.Any(f => f.Id == d.Id && f.Active))
             .ToListAsync(cancellationToken))
         .Select(d => PurchaseDocumentMapping.ToResponse(d)).OfType<PurchaseDocumentResponse>().ToList();
 
@@ -89,8 +90,8 @@ internal static class PurchasePayments
     {
         var links = (await ActiveLinksAsync(db, [message.Id], cancellationToken))[message.Id].ToList();
         var payments = Respond(links, await OperationsAsync(reader, links, cancellationToken));
-        var total = TotalMinor(await DocumentsAsync(db, message.Id, cancellationToken));
-        return new PurchaseInvoicePaymentsResponse(message.Id, message.ReviewVersion, total, payments,
+        var total = TotalMinor(await DocumentsAsync(db, message.Id.Value, cancellationToken));
+        return new PurchaseInvoicePaymentsResponse(message.Id.Value, message.ReviewVersion, total, payments,
             Issues(payments, total));
     }
 }

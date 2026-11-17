@@ -1,3 +1,5 @@
+using ActivityLog.Domain.Filters;
+using ActivityLog.Domain.Entries;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Application.Outbox;
 
@@ -17,7 +19,7 @@ public sealed class RecordActivityOutboxHandler(IActivityLogDbContext db, IActor
     public async Task<string?> HandleAsync(string payload, CancellationToken cancellationToken)
     {
         var activity = OutboxMessage.Read<ActivityRecorded>(payload);
-        if (await db.Entries.AsNoTracking().AnyAsync(x => x.Id == activity.EventId, cancellationToken)) return null;
+        if (await db.Entries.AsNoTracking().AnyAsync(x => x.Id == new ActivityEntryId(activity.EventId), cancellationToken)) return null;
 
         var name = await names.FindAsync(activity.ActorId, cancellationToken);
         var entry = ActivityEntry.Create(activity.EventId, activity.OccurredAt, activity.ActorId,
@@ -34,7 +36,7 @@ public sealed class RecordActivityOutboxHandler(IActivityLogDbContext db, IActor
         catch (DbUpdateException exception) when (exception.IsUniqueViolation())
         {
             // Another run stored the same event first: done. Otherwise a filter row raced: the outbox retries.
-            if (!await db.Entries.AsNoTracking().AnyAsync(x => x.Id == activity.EventId, cancellationToken)) throw;
+            if (!await db.Entries.AsNoTracking().AnyAsync(x => x.Id == new ActivityEntryId(activity.EventId), cancellationToken)) throw;
         }
 
         return null;
@@ -43,7 +45,7 @@ public sealed class RecordActivityOutboxHandler(IActivityLogDbContext db, IActor
     private async Task NoteFiltersAsync(ActivityEntry entry, CancellationToken cancellationToken)
     {
         var actor = await db.Actors.FirstOrDefaultAsync(x => x.Id == entry.ActorId, cancellationToken);
-        if (actor is null) db.Actors.Add(ActivityActor.Create(entry.ActorId, entry.ActorName, entry.OccurredAt));
+        if (actor is null) db.Actors.Add(ActivityActor.Create(entry.ActorId.Value, entry.ActorName, entry.OccurredAt));
         else actor.Seen(entry.ActorName, entry.OccurredAt);
 
         var type = await db.SubjectTypes.FirstOrDefaultAsync(x => x.Key == entry.SubjectType, cancellationToken);

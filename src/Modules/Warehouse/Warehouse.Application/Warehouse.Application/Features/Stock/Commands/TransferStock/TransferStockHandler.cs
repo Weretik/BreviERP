@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using BuildingBlocks.Application.DomainEvents;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -119,7 +120,7 @@ public sealed class TransferStockHandler(IWarehouseDbContext db, IWarehouseRefer
     {
         await db.FabricMovementRevisions.ExecuteDeleteAsync(cancellationToken);
         await db.FabricMovements.Where(x => x.ReversesMovementId != null)
-            .ExecuteUpdateAsync(x => x.SetProperty(m => m.ReversesMovementId, (int?)null), cancellationToken);
+            .ExecuteUpdateAsync(x => x.SetProperty(m => m.ReversesMovementId, (FabricMovementId?)null), cancellationToken);
         await db.FabricMovements.ExecuteDeleteAsync(cancellationToken);
         await db.FabricIssues.ExecuteDeleteAsync(cancellationToken);
         db.FabricItemPlans.RemoveRange(await db.FabricItemPlans.ToListAsync(cancellationToken));

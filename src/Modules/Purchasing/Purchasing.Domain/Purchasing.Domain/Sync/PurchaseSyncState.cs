@@ -9,12 +9,12 @@ public sealed class PurchaseSyncState : IAggregateRoot
 
     private PurchaseSyncState() { }
 
-    private PurchaseSyncState(string id) => Id = id;
+    private PurchaseSyncState(string id) => Id = new PurchaseSyncStateId(id);
 
     public static PurchaseSyncState Create(string id) =>
         new(id);
 
-    public string Id { get; private set; } = null!;
+    public PurchaseSyncStateId Id { get; private set; }
     public DateTimeOffset? LastAttemptAt { get; private set; }
     public DateTimeOffset? LastSuccessAt { get; private set; }
     public string? Error { get; private set; }

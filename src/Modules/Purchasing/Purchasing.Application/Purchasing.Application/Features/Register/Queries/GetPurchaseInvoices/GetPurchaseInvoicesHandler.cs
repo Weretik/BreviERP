@@ -107,7 +107,7 @@ public sealed class GetPurchaseInvoicesHandler(IPurchasingDbContext db, IPurchas
             {
                 var document = documents.TryGetValue(l.Id, out var stored) ? PurchaseDocumentMapping.ToResponse(stored) : null;
                 var attempt = document is null && attempts.TryGetValue(l.Id, out var last) ? PurchaseDocumentMapping.ToResponse(last) : null;
-                return new PurchaseInvoiceLinkResponse(l.Id, l.Url, FileLinkRules.IsSafeDropbox(l.Url), document, attempt);
+                return new PurchaseInvoiceLinkResponse(l.Id.Value, l.Url, FileLinkRules.IsSafeDropbox(l.Url), document, attempt);
             }).ToList();
             var issues = x.Row.Issues.Concat(cardLinks.SelectMany(LinkIssues)).ToList();
             var state = issues.Count > 0 ? PurchaseInvoiceState.NeedsReview
@@ -117,7 +117,7 @@ public sealed class GetPurchaseInvoicesHandler(IPurchasingDbContext db, IPurchas
             var totalMinor = PurchasePayments.TotalMinor(cardLinks.Select(l => l.Document).OfType<PurchaseDocumentResponse>());
             var payments = PurchasePayments.Respond(paymentLinks[x.Message.Id], operations);
             return new PurchaseInvoiceResponse(
-                x.Message.Id, x.Message.TelegramKey, x.Row.SourceUid, x.Row.RowNumber, x.RowCount,
+                x.Message.Id.Value, x.Message.TelegramKey, x.Row.SourceUid, x.Row.RowNumber, x.RowCount,
                 raw.ChatName, raw.FromUser, x.Message.MessageAt, x.Message.Text, x.Message.StatusOriginal,
                 x.Message.MarkAt, x.Message.MarkBy, x.Message.PaymentState == PaymentState.MarkedPaid,
                 x.Message.SupplierId,

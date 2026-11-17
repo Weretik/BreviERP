@@ -1,3 +1,4 @@
+using Media.Domain.Files;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using SkiaSharp;
@@ -89,7 +90,7 @@ public sealed class MediaImageTests
         media.Storage.FailUploadsUnder = null;
         var backfill = new MediaImageBackfill(media.Db, media.Storage, media.Images, media.Time, NullLogger<MediaImageBackfill>.Instance);
         var report = await backfill.RunAsync(10, CancellationToken.None);
-        var stored = await media.Db.Files.AsNoTracking().SingleAsync(x => x.Id == file.Id);
+        var stored = await media.Db.Files.AsNoTracking().SingleAsync(x => x.Id == new MediaFileId(file.Id));
 
         Assert.Multiple(() =>
         {

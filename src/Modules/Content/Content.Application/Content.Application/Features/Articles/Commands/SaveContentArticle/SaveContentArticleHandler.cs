@@ -17,7 +17,7 @@ public sealed class SaveContentArticleHandler(IContentDbContext db, IContentMedi
         Article? article = null;
         if (command.Id is { } id)
         {
-            article = await db.Articles.Include(x => x.Texts).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+            article = await db.Articles.Include(x => x.Texts).FirstOrDefaultAsync(x => x.Id == new ArticleId(id), cancellationToken);
             if (article is null) return Result.NotFound(ArticleMessages.NotFound);
             if (article.Revision != command.Revision) return Result.Conflict(ArticleMessages.Stale);
         }

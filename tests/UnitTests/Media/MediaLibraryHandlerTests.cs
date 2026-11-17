@@ -144,7 +144,7 @@ public sealed class MediaLibraryHandlerTests
         Assert.Multiple(() =>
         {
             Assert.That(result.IsSuccess, Is.True);
-            Assert.That(moved.FolderId, Is.EqualTo(site));
+            Assert.That(moved.FolderId?.Value, Is.EqualTo(site));
             Assert.That(moved.PublicUrl, Is.EqualTo(file.PublicUrl));
         });
     }
@@ -167,7 +167,7 @@ public sealed class MediaLibraryHandlerTests
             Assert.That(blocked.Errors.Single(), Does.Contain("Куртка"));
             Assert.That(deleted.IsSuccess, Is.True);
             Assert.That(media.Storage.Deleted, Has.Count.EqualTo(1));
-            Assert.That(media.Db.Files.Select(x => x.Id), Is.EqualTo(new[] { used.Id }));
+            Assert.That(media.Db.Files.Select(x => x.Id).AsEnumerable().Select(x => x.Value), Is.EqualTo(new[] { used.Id }));
         });
     }
 

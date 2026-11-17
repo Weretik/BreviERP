@@ -1,3 +1,4 @@
+using BuildingBlocks.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Reminders.Application.Abstractions;
 using Reminders.Domain.Calendar;
@@ -17,6 +18,9 @@ public sealed class RemindersDbContext(DbContextOptions<RemindersDbContext> opti
     public DbSet<ReminderChat> Chats => Set<ReminderChat>();
     public DbSet<SentReminderMessage> SentMessages => Set<SentReminderMessage>();
     public DbSet<NonWorkingDay> NonWorkingDays => Set<NonWorkingDay>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(SentReminderMessage).Assembly);
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

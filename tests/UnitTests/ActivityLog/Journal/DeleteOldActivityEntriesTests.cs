@@ -55,7 +55,7 @@ public sealed class DeleteOldActivityEntriesTests
         await DeleteAsync(harness);
 
         await using var db = harness.Open();
-        Assert.That(await db.Actors.Select(x => x.Id).ToListAsync(), Is.EqualTo(new[] { 8 }));
+        Assert.That((await db.Actors.Select(x => x.Id).ToListAsync()).Select(x => x.Value), Is.EqualTo(new[] { 8 }));
         Assert.That(await db.SubjectTypes.Select(x => x.Key).ToListAsync(), Is.EqualTo(new[] { "lead" }));
     }
 

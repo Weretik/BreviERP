@@ -54,7 +54,7 @@ public sealed class PurchaseRecognitionStartTests
     {
         var fileId = harness.Fresh().Files.Single(x => x.Url == SheetRow.Dropbox).Id;
         harness.Recognizer.Answers.Enqueue(FakeRecognizer.Json(PurchaseDocumentRulesTests.VatOnTop));
-        await harness.Recognition().RecognizeAsync(fileId, By, CancellationToken.None);
+        await harness.Recognition().RecognizeAsync(fileId.Value, By, CancellationToken.None);
 
         var result = await StartAsync();
 
@@ -94,7 +94,7 @@ public sealed class PurchaseRecognitionStartTests
         };
 
         var result = await new RecognizePurchaseFileHandler(harness.Recognition())
-            .Handle(new RecognizePurchaseFileCommand(fileId, By), CancellationToken.None);
+            .Handle(new RecognizePurchaseFileCommand(fileId.Value, By), CancellationToken.None);
 
         Assert.That((result.Value.Result, result.Value.CostUsd), Is.EqualTo((PurchaseRecognitionResult.Failed, 0.002m)));
         Assert.That(result.Value.Problems[^1], Is.EqualTo(PurchaseFileRecognition.TooSlow));

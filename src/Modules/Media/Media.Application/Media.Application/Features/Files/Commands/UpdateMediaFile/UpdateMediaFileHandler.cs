@@ -1,3 +1,5 @@
+using Media.Domain.Folders;
+using Media.Domain.Files;
 using Media.Application.Abstractions;
 using Media.Application.Features.Files.Shared;
 using BuildingBlocks.Application;
@@ -9,9 +11,9 @@ public sealed class UpdateMediaFileHandler(IMediaDbContext db, TimeProvider cloc
 {
     public async ValueTask<Result<MediaFileResponse>> Handle(UpdateMediaFileCommand command, CancellationToken cancellationToken)
     {
-        var file = await db.Files.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var file = await db.Files.FirstOrDefaultAsync(x => x.Id == new MediaFileId(command.Id), cancellationToken);
         if (file is null) return Result<MediaFileResponse>.NotFound(FileMessages.NotFound);
-        var folderId = command.Input.FolderId;
+        var folderId = command.Input.FolderId is { } value ? new MediaFolderId(value) : (MediaFolderId?)null;
         if (folderId is { } id && !await db.Folders.AnyAsync(x => x.Id == id, cancellationToken))
             return Result<MediaFileResponse>.NotFound(FileMessages.FolderNotFound);
 

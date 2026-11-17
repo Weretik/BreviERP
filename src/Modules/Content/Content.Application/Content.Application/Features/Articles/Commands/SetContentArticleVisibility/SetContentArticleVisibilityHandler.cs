@@ -1,3 +1,4 @@
+using Content.Domain.Articles;
 using Content.Application.Abstractions;
 using Content.Application.Features.Articles.Shared;
 
@@ -9,7 +10,7 @@ public sealed class SetContentArticleVisibilityHandler(IContentDbContext db, Tim
     public async ValueTask<Result<ArticleVisibilityResponse>> Handle(SetContentArticleVisibilityCommand command,
         CancellationToken cancellationToken)
     {
-        var article = await db.Articles.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var article = await db.Articles.FirstOrDefaultAsync(x => x.Id == new ArticleId(command.Id), cancellationToken);
         if (article is null) return Result.NotFound(ArticleMessages.NotFound);
 
         article.SetVisibility(command.ShowOnSite, command.UpdatedBy, clock.GetUtcNow());
@@ -22,6 +23,6 @@ public sealed class SetContentArticleVisibilityHandler(IContentDbContext db, Tim
             return Result.Conflict(ArticleMessages.Stale);
         }
 
-        return new ArticleVisibilityResponse(article.Id, article.ShowOnSite, article.Revision);
+        return new ArticleVisibilityResponse(article.Id.Value, article.ShowOnSite, article.Revision);
     }
 }

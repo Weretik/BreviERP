@@ -1,3 +1,4 @@
+using Scheduling.Domain.Runs;
 namespace Scheduling.Application.Features.Runs.Shared;
 
 /// <summary>Loads a task with one of its runs, as the job addresses them.</summary>
@@ -7,7 +8,7 @@ public static class ClaimedRuns
         Guid runId, CancellationToken cancellationToken)
     {
         var task = await db.Tasks.FirstOrDefaultAsync(x => x.Key == key, cancellationToken);
-        var run = await db.Runs.FirstOrDefaultAsync(x => x.Id == runId && x.TaskKey == key, cancellationToken);
+        var run = await db.Runs.FirstOrDefaultAsync(x => x.Id == new ScheduledTaskRunId(runId) && x.TaskKey == key, cancellationToken);
         return task is null || run is null ? null : (task, run);
     }
 }

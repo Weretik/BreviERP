@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
 using Warehouse.Domain.Stock.Movements;
@@ -24,7 +25,7 @@ public sealed class AdjustFabricStockHandler(StockChanges changes, StockPairs pa
         if (pair.Lines.Count == 0) return StockPairs.Refused(StockPairRefusal.NotHeld);
         if (input.ExpectedVersion != pair.Version) return Result<FabricStockOperationResponse>.Conflict(StockMessages.Stale);
         var result = pair.Adjust(input.TargetMeters,
-            new FabricMovementDetails(input.OperationDate, input.Reason.Trim(), OperationId: input.OperationId),
+            new FabricMovementDetails(input.OperationDate, input.Reason.Trim(), OperationId: new StockOperationId(input.OperationId)),
             actorName, pairs.Now);
         if (!result.IsDone) return StockPairs.Refused(result.Refusal!.Value);
         return await pairs.SaveAsync(command.Actor, input.OperationId, Kind, hash, pair, result, cancellationToken);

@@ -22,9 +22,9 @@ internal static class SiteCategoryReads
         return SiteCategoryMapping.Detail(category, parent, count);
     }
 
-    public static Task<bool> SlugTakenAsync(IContentDbContext db, string slug, int? categoryId,
+    public static Task<bool> SlugTakenAsync(IContentDbContext db, string slug, SiteCategoryId? categoryId,
         CancellationToken cancellationToken) =>
-        db.SiteCategories.AnyAsync(x => x.Slug == slug && x.Id != (categoryId ?? 0), cancellationToken);
+        db.SiteCategories.AnyAsync(x => x.Slug == slug && (categoryId == null || x.Id != categoryId.Value), cancellationToken);
 
     /// <summary>The slug of the name; when it is taken or too short, the same with a number at the end.</summary>
     public static async Task<string> FreeSlugAsync(IContentDbContext db, string? name, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ internal static class SiteCategoryReads
         }
     }
 
-    public static async Task<int> NextSortOrderAsync(IContentDbContext db, int? parentId, CancellationToken cancellationToken) =>
+    public static async Task<int> NextSortOrderAsync(IContentDbContext db, SiteCategoryId? parentId, CancellationToken cancellationToken) =>
         (await db.SiteCategories.Where(x => x.ParentId == parentId).Select(x => (int?)x.SortOrder)
             .MaxAsync(cancellationToken) ?? 0) + 1;
 }

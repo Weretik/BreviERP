@@ -138,7 +138,7 @@ public sealed class PurchaseRegisterSyncTests
         Assert.That(result.Status, Is.EqualTo(ResultStatus.Unavailable));
         await using var db = harness.Fresh();
         Assert.That(await db.SourceRows.CountAsync(x => x.Active), Is.EqualTo(1));
-        var state = await db.SyncStates.SingleAsync(x => x.Id == PurchaseSyncState.GoogleFinance);
+        var state = await db.SyncStates.SingleAsync(x => x.Id == new PurchaseSyncStateId(PurchaseSyncState.GoogleFinance));
         Assert.That(state.Error, Is.EqualTo("Google не дає доступу"));
         Assert.That(state.RecordCount, Is.EqualTo(1), "the last successful counts stay");
     }

@@ -12,11 +12,11 @@ public sealed class UpdateAiPromptHandler(IAiDbContext db, AiSettingsStore store
     public async ValueTask<Result<AiSettingsResponse>> Handle(UpdateAiPromptCommand command, CancellationToken cancellationToken)
     {
         if (!AiPromptKeys.IsKnown(command.Key)) return Result<AiSettingsResponse>.NotFound("Таких умов немає.");
-        var prompt = await db.Prompts.FirstOrDefaultAsync(x => x.Id == command.Key, cancellationToken);
+        var prompt = await db.Prompts.FirstOrDefaultAsync(x => x.Id == new AiPromptId(command.Key), cancellationToken);
         if (prompt is null) db.Prompts.Add(prompt = AiPrompt.Create(command.Key));
         if (prompt.Update(command.Text ?? string.Empty, command.By, clock.GetUtcNow())) await db.SaveChangesAsync(cancellationToken);
 
-        var settings = await db.Settings.AsNoTracking().FirstOrDefaultAsync(x => x.Id == AiSettings.OpenAi, cancellationToken)
+        var settings = await db.Settings.AsNoTracking().FirstOrDefaultAsync(x => x.Id == new AiSettingsId(AiSettings.OpenAi), cancellationToken)
             ?? AiSettings.CreateDefault();
         return Result.Success(await store.ResponseAsync(settings, cancellationToken));
     }

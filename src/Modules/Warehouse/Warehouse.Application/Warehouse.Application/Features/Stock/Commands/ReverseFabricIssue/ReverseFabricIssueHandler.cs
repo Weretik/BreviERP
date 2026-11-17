@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Plans;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Commands.CreateFabricIssue;
@@ -16,7 +17,7 @@ public sealed class ReverseFabricIssueHandler(IWarehouseProductionReader product
         CancellationToken cancellationToken)
     {
         var issue = await db.FabricIssues.Include(x => x.Lines).ThenInclude(x => x.Movements).ThenInclude(x => x.Stock)
-            .SingleOrDefaultAsync(x => x.Id == command.IssueId && x.OrderId == command.OrderId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new FabricIssueId(command.IssueId) && x.OrderId == command.OrderId, cancellationToken);
         if (issue is null) return Result<ProductionItemFabricResponse>.NotFound(StockMessages.IssueNotFound);
         var item = await production.ItemAsync(issue.OrderId, issue.ItemId, cancellationToken);
         if (item is null) return Result<ProductionItemFabricResponse>.NotFound(StockMessages.ItemNotFound);

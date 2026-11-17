@@ -21,7 +21,7 @@ public sealed class FabricMovementActivity : IActivityDescriber
         if (movement.Destination is { } destination) parts.Add(destination);
         if (movement.Note is { } note) parts.Add(note);
         return new ActivityDescription(ActivityActions.Created, Subject, SubjectTitle,
-            movement.Id.ToString(CultureInfo.InvariantCulture), Line(movement), string.Join("; ", parts), [], "Warehouse");
+            movement.Id.Value.ToString(CultureInfo.InvariantCulture), Line(movement), string.Join("; ", parts), [], "Warehouse");
     }
 
     /// <summary>«TK-12 Грета · Синій»: the stock line of the movement.</summary>

@@ -6,7 +6,7 @@ public sealed class SiteCategoryProduct : IAggregateRoot
 {
     private SiteCategoryProduct() { }
 
-    private SiteCategoryProduct(int categoryId, int productId, int sortOrder)
+    private SiteCategoryProduct(SiteCategoryId categoryId, int productId, int sortOrder)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(productId);
         CategoryId = categoryId;
@@ -14,10 +14,10 @@ public sealed class SiteCategoryProduct : IAggregateRoot
         SortOrder = sortOrder;
     }
 
-    public static SiteCategoryProduct Create(int categoryId, int productId, int sortOrder) =>
+    public static SiteCategoryProduct Create(SiteCategoryId categoryId, int productId, int sortOrder) =>
         new(categoryId, productId, sortOrder);
 
-    public int CategoryId { get; private set; }
+    public SiteCategoryId CategoryId { get; private set; }
     public int ProductId { get; private set; }
 
     /// <summary>Place of the product inside the category.</summary>

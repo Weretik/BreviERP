@@ -1,3 +1,4 @@
+using Media.Domain.Folders;
 using Media.Application.Abstractions;
 using Media.Application.Features.Folders.Shared;
 
@@ -7,7 +8,7 @@ public sealed class DeleteMediaFolderHandler(IMediaDbContext db) : ICommandHandl
 {
     public async ValueTask<Result> Handle(DeleteMediaFolderCommand command, CancellationToken cancellationToken)
     {
-        var folder = await db.Folders.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var folder = await db.Folders.FirstOrDefaultAsync(x => x.Id == new MediaFolderId(command.Id), cancellationToken);
         if (folder is null) return Result.NotFound(FolderMessages.NotFound);
         var hasContent = await db.Folders.AnyAsync(x => x.ParentId == folder.Id, cancellationToken)
                          || await db.Files.AnyAsync(x => x.FolderId == folder.Id, cancellationToken);

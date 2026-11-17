@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages.Identifiers;
 using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Sources;
 
@@ -9,10 +10,10 @@ public sealed class PurchaseSourceRow : IAggregateRoot
 {
     private PurchaseSourceRow() { }
 
-    private PurchaseSourceRow(string id, string messageId, string sourceUid, int rowNumber, string rawJson,
+    private PurchaseSourceRow(string id, PurchaseMessageId messageId, string sourceUid, int rowNumber, string rawJson,
         IReadOnlyList<string> issues, Guid run, DateTimeOffset now)
     {
-        Id = id;
+        Id = new PurchaseSourceRowId(id);
         MessageId = messageId;
         SourceUid = sourceUid;
         RowNumber = rowNumber;
@@ -23,14 +24,14 @@ public sealed class PurchaseSourceRow : IAggregateRoot
         UpdatedAt = now;
     }
 
-    public static PurchaseSourceRow Create(string id, string messageId, string sourceUid, int rowNumber, string rawJson,
+    public static PurchaseSourceRow Create(string id, PurchaseMessageId messageId, string sourceUid, int rowNumber, string rawJson,
         IReadOnlyList<string> issues, Guid run, DateTimeOffset now) =>
         new(id, messageId, sourceUid, rowNumber, rawJson, issues, run, now);
 
     /// <summary>SHA-256 of spreadsheetId:sheetId:trim(UID), lower-case hex.</summary>
-    public string Id { get; private set; } = null!;
+    public PurchaseSourceRowId Id { get; private set; }
 
-    public string MessageId { get; private set; } = null!;
+    public PurchaseMessageId MessageId { get; private set; }
 
     /// <summary>The UID cell as a string; never converted to a number.</summary>
     public string SourceUid { get; private set; } = null!;

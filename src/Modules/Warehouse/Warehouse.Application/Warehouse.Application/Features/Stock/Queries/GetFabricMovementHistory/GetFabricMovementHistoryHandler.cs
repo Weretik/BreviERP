@@ -1,3 +1,4 @@
+using Warehouse.Domain.Stock.Movements.Identifiers;
 using Warehouse.Application.Abstractions;
 using Warehouse.Domain.Stock;
 using Warehouse.Application.Features.Stock.Shared;
@@ -12,7 +13,7 @@ public sealed class GetFabricMovementHistoryHandler(IWarehouseDbContext db)
         CancellationToken cancellationToken)
     {
         var movement = await db.FabricMovements.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == query.MovementId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new FabricMovementId(query.MovementId), cancellationToken);
         if (movement is null) return Result<FabricMovementHistoryResponse>.NotFound(StockMessages.MovementNotFound);
         var revisions = await db.FabricMovementRevisions.AsNoTracking().Where(x => x.MovementId == movement.Id)
             .ToListAsync(cancellationToken);
@@ -31,9 +32,9 @@ public sealed class GetFabricMovementHistoryHandler(IWarehouseDbContext db)
             .MaxBy(x => x.Number);
         var canRestore = query.Actor.CanMoveStock && movement.CanRevise && last is not null &&
                          last.After == movement.State;
-        var rows = revisions.OrderByDescending(x => x.Number).Select(x => new FabricMovementRevisionResponse(x.Id,
+        var rows = revisions.OrderByDescending(x => x.Number).Select(x => new FabricMovementRevisionResponse(x.Id.Value,
             x.Number, x.Action.ToString(), State(x.Before), State(x.After), x.Reason, x.CreatedByName, x.CreatedAt,
             x.IsUndone)).ToList();
-        return Result.Success(new FabricMovementHistoryResponse(movement.Id, movement.Revision, canRestore, rows));
+        return Result.Success(new FabricMovementHistoryResponse(movement.Id.Value, movement.Revision, canRestore, rows));
     }
 }

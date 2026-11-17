@@ -1,3 +1,4 @@
+using Content.Domain.Articles;
 namespace Content.Application.Abstractions;
 
 /// <summary>

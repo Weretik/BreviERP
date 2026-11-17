@@ -190,19 +190,19 @@ public sealed class SiteCategoryProductsTests
             new SiteCategoryTextInput("Наш спецодяг", null, null, null), null, ContentTestHarness.Editor), None)).Value.Category.Id;
         await using (var seed = h.Open())
         {
-            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(id, 2, 1));
+            seed.SiteCategoryProducts.Add(SiteCategoryProduct.Create(new SiteCategoryId(id), 2, 1));
             await seed.SaveChangesAsync();
         }
 
         var kept = (await h.ImportCategories().Handle(
             new ImportOldSiteCategoriesCommand(false, false, false, File, ContentTestHarness.Editor), None)).Value;
         await using var afterKept = h.Open();
-        var keptName = (await afterKept.SiteCategories.Include(x => x.Texts).SingleAsync(x => x.Id == id)).TextIn("uk")!.Name;
+        var keptName = (await afterKept.SiteCategories.Include(x => x.Texts).SingleAsync(x => x.Id == new SiteCategoryId(id))).TextIn("uk")!.Name;
         var replaced = (await h.ImportCategories().Handle(
             new ImportOldSiteCategoriesCommand(false, false, true, File, ContentTestHarness.Editor), None)).Value;
 
         await using var db = h.Open();
-        var category = await db.SiteCategories.Include(x => x.Texts).SingleAsync(x => x.Id == id);
+        var category = await db.SiteCategories.Include(x => x.Texts).SingleAsync(x => x.Id == new SiteCategoryId(id));
         Assert.Multiple(() =>
         {
             Assert.That((kept.Created, kept.Kept, kept.ProductLinks), Is.EqualTo((1, 1, 3)));
@@ -211,7 +211,7 @@ public sealed class SiteCategoryProductsTests
             Assert.That(category.TextIn("uk")!.Name, Is.EqualTo("Спецодяг"));
             Assert.That(category.TextIn("uk")!.SeoTitle, Is.EqualTo("Купити спецодяг"));
             Assert.That(category.ShowOnSite, Is.True);
-            Assert.That(db.SiteCategoryProducts.Count(x => x.CategoryId == id), Is.EqualTo(2));
+            Assert.That(db.SiteCategoryProducts.Count(x => x.CategoryId == new SiteCategoryId(id)), Is.EqualTo(2));
         });
     }
 

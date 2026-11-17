@@ -22,7 +22,7 @@ public sealed class SiteCategoryText
         Text = ProductTextBlocks.Clean(input.Text);
     }
 
-    public int CategoryId { get; private set; }
+    public SiteCategoryId CategoryId { get; private set; }
 
     /// <summary><c>uk</c> or <c>ru</c>.</summary>
     public string Language { get; private set; } = null!;
