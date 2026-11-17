@@ -13,7 +13,7 @@ public sealed class ManagerTaskStep
     }
 
     public long Id { get; private set; }
-    public long TaskId { get; private set; }
+    public ManagerTaskId TaskId { get; private set; }
     public int Position { get; private set; }
     public string Text { get; private set; } = null!;
     public bool IsDone { get; private set; }

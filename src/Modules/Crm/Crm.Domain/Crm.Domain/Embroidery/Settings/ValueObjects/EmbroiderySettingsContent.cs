@@ -1,4 +1,4 @@
-namespace Crm.Domain.Embroidery.Settings;
+namespace Crm.Domain.Embroidery.Settings.ValueObjects;
 
 /// <summary>
 /// Everything «Ціна вишивки › Налаштування» edits (EMB-001). The embroiderer's rate is not here: it is the pricing

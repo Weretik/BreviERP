@@ -46,7 +46,7 @@ public sealed class SiteRequest : IAggregateRoot
         Version = 1;
     }
 
-    public long Id { get; private set; }
+    public SiteRequestId Id { get; private set; }
 
     /// <summary>The form the site sent; the same form sent again adds nothing (unique).</summary>
     public Guid? RequestId { get; private init; }

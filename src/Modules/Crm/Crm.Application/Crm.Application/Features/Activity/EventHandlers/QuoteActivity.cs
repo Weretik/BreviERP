@@ -17,7 +17,7 @@ public sealed class QuoteActivity : IActivityDescriber
     {
         QuoteRecorded recorded => Recorded(recorded),
         QuoteDeleted deleted => Of(ActivityActions.Deleted, deleted.QuoteId, deleted.Number, deleted.InternalName, null, []),
-        QuoteIntroTemplateSaved saved => Template(ActivityActions.Created, saved.Template.Id, saved.Template.Name),
+        QuoteIntroTemplateSaved saved => Template(ActivityActions.Created, saved.Template.Id.Value, saved.Template.Name),
         QuoteIntroTemplateDeleted deleted => Template(ActivityActions.Deleted, deleted.TemplateId, deleted.Name),
         QuoteSettingsChanged changed => new ActivityDescription(ActivityActions.Changed, SettingsSubject,
             "Налаштування КП", "settings", "Налаштування КП",
@@ -30,18 +30,18 @@ public sealed class QuoteActivity : IActivityDescriber
         var quote = e.Quote;
         return e.Kind switch
         {
-            QuoteEventKind.Created => Of(ActivityActions.Created, quote.Id, quote.Number, quote.InternalName,
+            QuoteEventKind.Created => Of(ActivityActions.Created, quote.Id.Value, quote.Number, quote.InternalName,
                 quote.Kind == QuoteKind.Introduction ? "КП для знайомства" : null, []),
-            QuoteEventKind.Copied => Of(ActivityActions.Created, quote.Id, quote.Number, quote.InternalName, e.Details, []),
+            QuoteEventKind.Copied => Of(ActivityActions.Created, quote.Id.Value, quote.Number, quote.InternalName, e.Details, []),
             QuoteEventKind.Saved => Changes(e.Before, e.After) is { Any: true } changes
-                ? Of(ActivityActions.Changed, quote.Id, quote.Number, quote.InternalName, null, changes.Items)
+                ? Of(ActivityActions.Changed, quote.Id.Value, quote.Number, quote.InternalName, null, changes.Items)
                 : null,
-            QuoteEventKind.Sent => Of(ActivityActions.Sent, quote.Id, quote.Number, quote.InternalName, e.Details, []),
-            QuoteEventKind.Repriced or QuoteEventKind.EmbroideryAdded => Of(ActivityActions.Changed, quote.Id,
+            QuoteEventKind.Sent => Of(ActivityActions.Sent, quote.Id.Value, quote.Number, quote.InternalName, e.Details, []),
+            QuoteEventKind.Repriced or QuoteEventKind.EmbroideryAdded => Of(ActivityActions.Changed, quote.Id.Value,
                 quote.Number, quote.InternalName, Note(e), Changes(e.Before, e.After).Items),
-            QuoteEventKind.ResponsibleChanged => Of(ActivityActions.Changed, quote.Id, quote.Number, quote.InternalName,
+            QuoteEventKind.ResponsibleChanged => Of(ActivityActions.Changed, quote.Id.Value, quote.Number, quote.InternalName,
                 "Відповідальний: " + e.Details, []),
-            QuoteEventKind.Restored => Of(ActivityActions.Restored, quote.Id, quote.Number, quote.InternalName,
+            QuoteEventKind.Restored => Of(ActivityActions.Restored, quote.Id.Value, quote.Number, quote.InternalName,
                 "Повернуто з архіву", []),
             _ => null,
         };

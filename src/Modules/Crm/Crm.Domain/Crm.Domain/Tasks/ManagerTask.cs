@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using System.Globalization;
 using Crm.Domain.Tasks.Enums;
@@ -33,7 +34,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
     public static ManagerTask Create(ManagerTaskDraft draft, ManagerTaskPerson author, DateTimeOffset now) =>
         new(draft, author, now);
 
-    public long Id { get; private set; }
+    public ManagerTaskId Id { get; private set; }
     public string Title { get; private set; } = null!;
     public string? Description { get; private set; }
     public int AssigneeUserId { get; private set; }
@@ -48,7 +49,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
     public DateTimeOffset? CompletedAt { get; private set; }
 
     /// <summary>The lead whose next call this task is (LEAD-001 R-08); null for tasks the director gives.</summary>
-    public long? LeadId { get; private set; }
+    public LeadId? LeadId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
     public int Version { get; private set; }
@@ -73,7 +74,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
     public ManagerTaskLane LaneAt(DateTimeOffset now) => LaneOf(Status, DueAt, IsUrgent, now);
 
     /// <summary>A «Подзвонити» task made by a recorded lead call (LEAD-001 R-08).</summary>
-    public static ManagerTask ForLeadCall(long leadId, ManagerTaskDraft draft, ManagerTaskPerson author,
+    public static ManagerTask ForLeadCall(LeadId leadId, ManagerTaskDraft draft, ManagerTaskPerson author,
         DateTimeOffset now) => new(draft, author, now) { LeadId = leadId };
 
     /// <summary>Director or Admin saves the side panel; history records reassignment and a new due time.</summary>
@@ -133,7 +134,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>Tells «Журнал дій» (ACT-001) that the task is being deleted; call it before removing the task.</summary>
-    public void MarkDeleted() => Raise(new ManagerTaskDeleted(Id, Title));
+    public void MarkDeleted() => Raise(new ManagerTaskDeleted(Id.Value, Title));
 
     public ManagerTaskSnapshot Snapshot() => new(Title, Description, AssigneeName, DueAt, IsUrgent, CustomerName,
         _steps.Count);

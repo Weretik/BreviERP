@@ -22,7 +22,7 @@ public sealed class ReleaseLeadHandler(ILeadStore store, TimeProvider clock)
             return Result.Forbidden(LeadMessages.ReleaseForbidden);
 
         lead.Release(now);
-        store.ManagerTasks.RemoveRange(await store.OpenTasksAsync(lead.Id, cancellationToken));
+        store.ManagerTasks.RemoveRange(await store.OpenTasksAsync(lead.Id.Value, cancellationToken));
         return await store.TrySaveAsync(cancellationToken)
             ? Result.Success(await store.DetailAsync(lead, now, cancellationToken))
             : Result.Conflict(LeadMessages.Stale);

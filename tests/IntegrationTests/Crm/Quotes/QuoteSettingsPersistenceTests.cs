@@ -93,7 +93,7 @@ public sealed class QuoteSettingsPersistenceTests : CrmDatabaseFixture
                 _clock.GetUtcNow()).Value;
             db.Quotes.Add(quote);
             await db.SaveChangesAsync();
-            quoteId = quote.Id;
+            quoteId = quote.Id.Value;
         }
 
         var renderer = new QuoteTestRenderer();

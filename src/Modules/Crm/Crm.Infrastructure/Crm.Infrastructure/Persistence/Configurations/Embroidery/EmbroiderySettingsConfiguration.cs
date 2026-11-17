@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Settings.ValueObjects;
 using Crm.Domain.Embroidery.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -16,7 +17,7 @@ public sealed class EmbroiderySettingsConfiguration : IEntityTypeConfiguration<E
             t.HasCheckConstraint("CK_EmbroiderySettings_Version", "\"Version\" > 0");
         });
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new EmbroiderySettingsId(x)).ValueGeneratedNever();
         JsonColumns.Map(b.Property(x => x.Content));
         b.Property(x => x.UpdatedByName).HasMaxLength(EmbroiderySettingsRules.NameMaxLength);
         b.Property(x => x.Version).IsConcurrencyToken();

@@ -54,7 +54,7 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
         AddHistory(QuoteEventKind.Created, author, null, now);
     }
 
-    public long Id { get; private set; }
+    public QuoteId Id { get; private set; }
     public string Number { get; private set; } = null!;
     public int NumberYear { get; private set; }
     public int NumberMonth { get; private set; }
@@ -178,7 +178,7 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>«Видалити КП»: the last event of the КП, raised before the handler removes it.</summary>
-    public void MarkDeleted() => Raise(new QuoteDeleted(Id, Number, InternalName));
+    public void MarkDeleted() => Raise(new QuoteDeleted(Id.Value, Number, InternalName));
 
     /// <summary>The fields «Журнал дій» compares.</summary>
     public QuoteSnapshot Snapshot() => new(InternalName, CustomerId, RecipientName, CompanyName, ClientComment,

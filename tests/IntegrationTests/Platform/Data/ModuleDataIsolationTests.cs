@@ -11,7 +11,9 @@ namespace IntegrationTests.Platform.Data;
 /// A module's data model links to another module only by an id value (module rules «Database schema per module»): no
 /// entity of another module in its <c>DbContext</c>, no navigation property to one, and no foreign key into another
 /// module's table or schema. What the aggregate needs from the other module (a name, a price at that moment) is kept as
-/// a snapshot in its own columns. Builds every module <c>DbContext</c> of the API container; needs no database.
+/// a snapshot in its own columns. Also, every module model matches its latest migration snapshot, so a mapping change
+/// (a typed id, a value converter, a moved configuration) cannot change the schema unnoticed. Builds every module
+/// <c>DbContext</c> of the API container; needs no database.
 /// </summary>
 public sealed class ModuleDataIsolationTests
 {
@@ -34,6 +36,20 @@ public sealed class ModuleDataIsolationTests
 
         TestContext.Out.WriteLine(string.Join(Environment.NewLine, violations));
         Assert.That(violations, Is.Empty);
+    }
+
+    [Test]
+    public void Each_module_model_matches_its_latest_migration_snapshot()
+    {
+        using var services = Services();
+        using var scope = services.CreateScope();
+
+        var changed = ContextTypes(services)
+            .Where(type => ((DbContext)scope.ServiceProvider.GetRequiredService(type)).Database.HasPendingModelChanges())
+            .Select(type => type.Name)
+            .ToArray();
+
+        Assert.That(changed, Is.Empty, "add a migration or undo the mapping change");
     }
 
     internal static IEnumerable<string> Violations(DbContext context, string module)

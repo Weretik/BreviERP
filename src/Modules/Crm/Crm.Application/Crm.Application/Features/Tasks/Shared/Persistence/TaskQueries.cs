@@ -9,7 +9,7 @@ internal static class TaskQueries
     public static Task<ManagerTask?> LoadAsync(this ITaskStore store, long id, CancellationToken cancellationToken) =>
         store.ManagerTasks
             .Include(x => x.Steps)
-            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new ManagerTaskId(id), cancellationToken);
 
     /// <summary>Tasks the actor may see; Director/Admin may narrow to one manager.</summary>
     public static IQueryable<ManagerTask> Visible(this ITaskStore store, TaskActor actor, int? assigneeUserId)

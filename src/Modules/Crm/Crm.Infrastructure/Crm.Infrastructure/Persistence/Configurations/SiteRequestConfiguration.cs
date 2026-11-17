@@ -12,7 +12,7 @@ public sealed class SiteRequestConfiguration : IEntityTypeConfiguration<SiteRequ
     {
         b.ToTable("SiteRequests");
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedOnAdd();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new SiteRequestId(x)).ValueGeneratedOnAdd();
         b.Property(x => x.Phone).HasMaxLength(SiteRequest.PhoneMaxLength).IsRequired();
         b.Property(x => x.Workwear).HasMaxLength(SiteRequest.WorkwearMaxLength);
         b.Property(x => x.Quantity).HasMaxLength(SiteRequest.QuantityMaxLength);

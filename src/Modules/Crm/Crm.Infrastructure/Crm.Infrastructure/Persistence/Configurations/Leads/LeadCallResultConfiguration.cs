@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,7 +16,7 @@ public sealed class LeadCallResultConfiguration : IEntityTypeConfiguration<LeadC
             t.HasCheckConstraint("CK_LeadCallResults_RetryDays",
                 "(\"Outcome\" = 'Retry' AND \"RetryDays\" BETWEEN 1 AND 60) OR (\"Outcome\" <> 'Retry' AND \"RetryDays\" IS NULL)"));
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedOnAdd();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new LeadCallResultId(x)).ValueGeneratedOnAdd();
         b.Property(x => x.Name).HasMaxLength(LeadLimits.ResultNameMaxLength);
         b.Property(x => x.Outcome).HasConversion<string>().HasMaxLength(20);
 
@@ -31,5 +32,5 @@ public sealed class LeadCallResultConfiguration : IEntityTypeConfiguration<LeadC
     }
 
     private static object Seed(long id, string name, LeadOutcome outcome, int? retryDays, int position) =>
-        new { Id = id, Name = name, Outcome = outcome, RetryDays = retryDays, IsActive = true, Position = position };
+        new { Id = new LeadCallResultId(id), Name = name, Outcome = outcome, RetryDays = retryDays, IsActive = true, Position = position };
 }

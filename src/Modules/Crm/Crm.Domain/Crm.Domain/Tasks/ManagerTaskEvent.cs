@@ -18,7 +18,7 @@ public sealed class ManagerTaskEvent
     }
 
     public long Id { get; private set; }
-    public long TaskId { get; private set; }
+    public ManagerTaskId TaskId { get; private set; }
     public ManagerTaskEventKind Kind { get; private set; }
     public int ByUserId { get; private set; }
     public string ByName { get; private set; } = null!;

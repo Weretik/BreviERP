@@ -1,3 +1,4 @@
+using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Building;
@@ -18,7 +19,7 @@ public sealed class CopyQuoteHandler(
             .Include(x => x.Items).ThenInclude(x => x.Options).ThenInclude(x => x.Fabrics)
             .Include(x => x.Items).ThenInclude(x => x.Lines)
             .AsSplitQuery()
-            .SingleOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new QuoteId(command.Id), cancellationToken);
         if (source is null || !command.Actor.CanAccess(source)) return Result.NotFound(QuoteMessages.NotFound);
 
         var author = await staff.PersonAsync(command.Actor, cancellationToken);

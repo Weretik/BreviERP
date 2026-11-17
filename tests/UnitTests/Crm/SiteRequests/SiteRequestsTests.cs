@@ -43,7 +43,7 @@ public sealed class SiteRequestsTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(saved.Value.Id, Is.EqualTo(request.Id));
+            Assert.That(saved.Value.Id, Is.EqualTo(request.Id.Value));
             Assert.That(request.Workwear, Is.EqualTo("Костюми <для> кухні"));
             Assert.That(request.Locale, Is.EqualTo("ru"));
             Assert.That(files.Uploads.Single().Key, Does.Match(@"^/site-requests/2026-11/[0-9a-f]{32}\.pdf$"));

@@ -17,11 +17,11 @@ public sealed class PurgeLegacyArchivedQuotesHandler(
         if (person is null) return Result<LegacyArchivePurgeResponse>.Conflict(QuoteMessages.ActorUnknown);
 
         var quotes = await store.Quotes.Where(x => x.ArchivedAt != null).ToListAsync(cancellationToken);
-        var kept = await production.WithOrdersAsync(quotes.Select(x => x.Id).ToArray(), cancellationToken);
+        var kept = await production.WithOrdersAsync(quotes.Select(x => x.Id.Value).ToArray(), cancellationToken);
         var now = clock.GetUtcNow();
         foreach (var quote in quotes)
         {
-            if (kept.Contains(quote.Id)) quote.ReturnFromLegacyArchive(person, now);
+            if (kept.Contains(quote.Id.Value)) quote.ReturnFromLegacyArchive(person, now);
             else store.Quotes.Remove(quote);
         }
 
@@ -34,7 +34,7 @@ public sealed class PurgeLegacyArchivedQuotesHandler(
             return Result<LegacyArchivePurgeResponse>.Conflict(QuoteMessages.Stale);
         }
 
-        var returned = quotes.Count(x => kept.Contains(x.Id));
+        var returned = quotes.Count(x => kept.Contains(x.Id.Value));
         return Result.Success(new LegacyArchivePurgeResponse(quotes.Count - returned, returned));
     }
 }

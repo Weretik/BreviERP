@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Infrastructure.Database;
 using Crm.Domain.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ public sealed class ManagerTaskConfiguration : IEntityTypeConfiguration<ManagerT
                 "(\"Status\" = 'Done' AND \"CompletedAt\" IS NOT NULL) OR (\"Status\" <> 'Done' AND \"CompletedAt\" IS NULL)");
         });
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedOnAdd();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new ManagerTaskId(x)).ValueGeneratedOnAdd();
         b.Property(x => x.Title).HasMaxLength(ManagerTaskLimits.TitleMaxLength);
         b.Property(x => x.Description).HasMaxLength(ManagerTaskLimits.DescriptionMaxLength);
         b.Property(x => x.AssigneeName).HasMaxLength(ManagerTaskLimits.NameMaxLength);

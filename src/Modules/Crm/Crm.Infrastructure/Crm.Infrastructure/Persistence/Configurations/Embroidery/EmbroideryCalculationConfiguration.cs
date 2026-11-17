@@ -14,7 +14,7 @@ public sealed class EmbroideryCalculationConfiguration : IEntityTypeConfiguratio
         b.ToTable("EmbroideryCalculations", t =>
             t.HasCheckConstraint("CK_EmbroideryCalculations_Quantity", "\"Quantity\" > 0"));
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedOnAdd();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new EmbroiderySavedCalculationId(x)).ValueGeneratedOnAdd();
         b.Property(x => x.Name).HasMaxLength(EmbroiderySavedCalculation.NameMaxLength);
         b.Property(x => x.CustomerName).HasMaxLength(EmbroiderySavedCalculation.CustomerNameMaxLength);
         b.Property(x => x.CreatedByName).HasMaxLength(EmbroiderySavedCalculation.PersonNameMaxLength);

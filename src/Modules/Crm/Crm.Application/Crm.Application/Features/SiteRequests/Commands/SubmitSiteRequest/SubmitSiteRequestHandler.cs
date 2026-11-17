@@ -50,18 +50,18 @@ public sealed class SubmitSiteRequestHandler(
         }
 
         var message = OutboxMessage.Create(NotifySiteRequestOutboxHandler.MessageType,
-            new NotifySiteRequestPayload(request.Id), now);
+            new NotifySiteRequestPayload(request.Id.Value), now);
         store.OutboxMessages.Add(message);
         await store.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         await outbox.DispatchAsync([message.Id], CancellationToken.None);
-        return Result.Success(new SiteRequestReceivedResponse(request.Id));
+        return Result.Success(new SiteRequestReceivedResponse(request.Id.Value));
     }
 
     private async Task<long?> SavedAsync(Guid? requestId, CancellationToken cancellationToken) =>
         requestId is { } id
-            ? await store.SiteRequests.AsNoTracking().Where(x => x.RequestId == id).Select(x => (long?)x.Id)
+            ? await store.SiteRequests.AsNoTracking().Where(x => x.RequestId == id).Select(x => (long?)x.Id.Value)
                 .SingleOrDefaultAsync(cancellationToken)
             : null;
 

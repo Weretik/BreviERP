@@ -12,7 +12,7 @@ public sealed class ChangeSiteRequestHandler(ISiteRequestStore store, ITaskStaff
     public async ValueTask<Result<SiteRequestResponse>> Handle(ChangeSiteRequestCommand command,
         CancellationToken cancellationToken)
     {
-        var request = await store.SiteRequests.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var request = await store.SiteRequests.FirstOrDefaultAsync(x => x.Id == new SiteRequestId(command.Id), cancellationToken);
         if (request is null) return Result.NotFound(SiteRequestMessages.NotFound);
         if (request.Version != command.Input.Version) return Result.Conflict(SiteRequestMessages.Stale);
         var member = await staff.FindAsync(command.UserId, cancellationToken);

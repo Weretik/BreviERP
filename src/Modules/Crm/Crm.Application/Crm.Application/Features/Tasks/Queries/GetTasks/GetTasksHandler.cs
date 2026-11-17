@@ -19,7 +19,7 @@ public sealed class GetTasksHandler(ITaskStore store, TimeProvider clock)
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
             var number = TaskNumberSearch.Parse(query.Search.Trim().ToLower());
-            tasks = tasks.WhereEveryWord(query.Search, pattern => x => x.Id == number || EF.Functions.Like(EF.Property<string>(x, SearchWords.Column), pattern, SearchWords.Escape));
+            tasks = tasks.WhereEveryWord(query.Search, pattern => x => x.Id == new ManagerTaskId(number) || EF.Functions.Like(EF.Property<string>(x, SearchWords.Column), pattern, SearchWords.Escape));
         }
 
         var total = await tasks.CountAsync(cancellationToken);

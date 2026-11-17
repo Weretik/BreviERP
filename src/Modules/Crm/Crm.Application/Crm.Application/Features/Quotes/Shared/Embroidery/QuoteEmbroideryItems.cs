@@ -34,7 +34,7 @@ public static class QuoteEmbroideryItems
         var kind = chevron ? ChevronName : GarmentName;
         var name = string.IsNullOrWhiteSpace(saved.Name) ? kind : saved.Name;
         return new QuoteItemTexts(null, Cut(name, QuoteLimits.NameMaxLength),
-            $"{kind} · {EmbroiderySavedCalculation.NumberOf(saved.Id)}", null, null, null,
+            $"{kind} · {EmbroiderySavedCalculation.NumberOf(saved.Id.Value)}", null, null, null,
             null, null);
     }
 

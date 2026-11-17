@@ -13,8 +13,8 @@ public sealed class DeleteQuoteHandler(IQuoteStore store, IQuoteProductionOrders
         var quote = await store.LoadAsync(command.Id, cancellationToken);
         if (quote is null || !command.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
         if (quote.Version != command.Version) return Result.Conflict(QuoteMessages.Stale);
-        var withOrders = await production.WithOrdersAsync([quote.Id], cancellationToken);
-        if (withOrders.Contains(quote.Id)) return Result.Conflict(QuoteMessages.HasProductionOrder);
+        var withOrders = await production.WithOrdersAsync([quote.Id.Value], cancellationToken);
+        if (withOrders.Contains(quote.Id.Value)) return Result.Conflict(QuoteMessages.HasProductionOrder);
 
         quote.MarkDeleted();
         store.Quotes.Remove(quote);

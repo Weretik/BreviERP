@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Saved;
 using Crm.Application.Features.Embroidery.Shared.Access;
 using Crm.Application.Abstractions.Embroidery;
 
@@ -11,7 +12,7 @@ public sealed class DeleteEmbroideryCalculationHandler(IEmbroideryStore store)
     {
         if (!command.Actor.SeesCost) return Result.Forbidden(EmbroideryMessages.DeleteForbidden);
 
-        var saved = await store.EmbroideryCalculations.SingleOrDefaultAsync(x => x.Id == command.Id,
+        var saved = await store.EmbroideryCalculations.SingleOrDefaultAsync(x => x.Id == new EmbroiderySavedCalculationId(command.Id),
             cancellationToken);
         if (saved is null) return Result.NotFound(EmbroideryMessages.CalculationNotFound);
 

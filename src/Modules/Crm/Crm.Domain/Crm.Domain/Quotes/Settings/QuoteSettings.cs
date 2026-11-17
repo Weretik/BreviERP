@@ -16,12 +16,12 @@ public sealed class QuoteSettings : DomainEventSource, IAggregateRoot
 
     public static DomainResult<QuoteSettings> Create(QuoteSettingsContent content, string updatedByName, DateTimeOffset now)
     {
-        var settings = new QuoteSettings { Id = SingletonId, Version = 0 };
+        var settings = new QuoteSettings { Id = new QuoteSettingsId(SingletonId), Version = 0 };
         var applied = settings.Apply(content, updatedByName, now);
         return applied.IsFailure ? applied.Error! : settings;
     }
 
-    public int Id { get; private set; }
+    public QuoteSettingsId Id { get; private set; }
     public QuoteCompanyDetails Company { get; private set; } = null!;
     public QuoteEmailTemplate Email { get; private set; } = null!;
     public QuotePdfTexts Pdf { get; private set; } = null!;

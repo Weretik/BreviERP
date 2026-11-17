@@ -1,3 +1,4 @@
+using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared;
 using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Persistence;
@@ -13,12 +14,12 @@ public sealed class GetQuoteHistoryHandler(IQuoteStore store)
     public async ValueTask<Result<IReadOnlyList<QuoteEventResponse>>> Handle(GetQuoteHistoryQuery query,
         CancellationToken cancellationToken)
     {
-        var responsible = await store.Quotes.AsNoTracking().Where(x => x.Id == query.Id)
+        var responsible = await store.Quotes.AsNoTracking().Where(x => x.Id == new QuoteId(query.Id))
             .Select(x => (int?)x.ResponsibleUserId).SingleOrDefaultAsync(cancellationToken);
         if (responsible is null || !(query.Actor.CanSeeAll || responsible == query.Actor.UserId))
             return Result.NotFound(QuoteMessages.NotFound);
 
-        var events = await store.QuoteEvents.AsNoTracking().Where(x => x.QuoteId == query.Id)
+        var events = await store.QuoteEvents.AsNoTracking().Where(x => x.QuoteId == new QuoteId(query.Id))
             .OrderByDescending(x => x.At).ThenByDescending(x => x.Id).Take(MaxEvents)
             .Select(x => new QuoteEventResponse(x.Id, x.Kind.ToString(), x.At,
                 new QuotePersonResponse(x.ActorUserId, x.ActorName), x.Details))

@@ -1,3 +1,4 @@
+using Crm.Domain.Embroidery.Saved;
 using Crm.Application.Features.Embroidery.Shared;
 using Crm.Application.Features.Embroidery.Shared.Access;
 using Crm.Application.Features.Embroidery.Shared.Mapping;
@@ -11,7 +12,7 @@ public sealed class SetEmbroideryMockupHandler(IEmbroideryStore store, IEmbroide
     public async ValueTask<Result<EmbroiderySavedCalculationResponse>> Handle(SetEmbroideryMockupCommand command,
         CancellationToken cancellationToken)
     {
-        var saved = await store.EmbroideryCalculations.SingleOrDefaultAsync(x => x.Id == command.Id,
+        var saved = await store.EmbroideryCalculations.SingleOrDefaultAsync(x => x.Id == new EmbroiderySavedCalculationId(command.Id),
             cancellationToken);
         if (saved is null) return Result.NotFound(EmbroideryMessages.CalculationNotFound);
 

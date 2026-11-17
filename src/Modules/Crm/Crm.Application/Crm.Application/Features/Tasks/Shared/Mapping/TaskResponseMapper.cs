@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Application.Abstractions.Tasks;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Shared;
@@ -10,7 +11,7 @@ internal static class TaskResponseMapper
     /// <summary>SQL-translatable projection for lists and the board.</summary>
     public static IQueryable<TaskSummaryResponse> ToSummaries(this IQueryable<ManagerTask> tasks, DateTimeOffset now) =>
         tasks.Select(x => new TaskSummaryResponse(
-            x.Id,
+            x.Id.Value,
             "",
             x.Title,
             x.Status.ToString(),
@@ -47,8 +48,8 @@ internal static class TaskResponseMapper
 
     private static TaskDetailResponse ToDetail(this ManagerTask task, IReadOnlyList<ManagerTaskEvent> events,
         DateTimeOffset now) =>
-        new(task.Id,
-            ManagerTask.NumberOf(task.Id),
+        new(task.Id.Value,
+            ManagerTask.NumberOf(task.Id.Value),
             task.Title,
             task.Description,
             task.Status.ToString(),
@@ -69,5 +70,5 @@ internal static class TaskResponseMapper
             task.CreatedAt,
             task.UpdatedAt,
             task.Version,
-            task.LeadId);
+            task.LeadId?.Value);
 }

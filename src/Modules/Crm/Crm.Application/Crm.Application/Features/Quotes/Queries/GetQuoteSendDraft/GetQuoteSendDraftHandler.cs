@@ -1,3 +1,4 @@
+using Crm.Domain.Quotes;
 using Crm.Application.Features.Quotes.Shared.Access;
 using Crm.Application.Features.Quotes.Shared.Pdf.Composing;
 using Crm.Application.Features.Quotes.Shared.Persistence;
@@ -17,7 +18,7 @@ public sealed class GetQuoteSendDraftHandler(IQuoteStore store, QuotePdfComposer
     public async ValueTask<Result<QuoteSendDraftResponse>> Handle(GetQuoteSendDraftQuery query,
         CancellationToken cancellationToken)
     {
-        var quote = await store.Quotes.AsNoTracking().SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
+        var quote = await store.Quotes.AsNoTracking().SingleOrDefaultAsync(x => x.Id == new QuoteId(query.Id), cancellationToken);
         if (quote is null || !query.Actor.CanAccess(quote)) return Result.NotFound(QuoteMessages.NotFound);
 
         var context = await composer.LoadContextAsync(cancellationToken);

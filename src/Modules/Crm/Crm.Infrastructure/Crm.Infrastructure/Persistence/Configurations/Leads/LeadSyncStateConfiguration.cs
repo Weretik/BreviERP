@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using Crm.Domain.Leads;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,7 +12,7 @@ public sealed class LeadSyncStateConfiguration : IEntityTypeConfiguration<LeadSy
     {
         b.ToTable("LeadSyncStates");
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).HasMaxLength(40);
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new LeadSyncStateId(x)).HasMaxLength(40);
         b.Property(x => x.Error).HasMaxLength(LeadLimits.LongText);
         b.Property(x => x.Warning).HasMaxLength(LeadLimits.LongText);
     }

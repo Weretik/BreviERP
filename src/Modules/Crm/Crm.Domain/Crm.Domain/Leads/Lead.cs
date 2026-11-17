@@ -1,3 +1,4 @@
+using Crm.Domain.Leads.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Leads.Events;
 using Crm.Domain.Leads.Enums;
@@ -29,7 +30,7 @@ public sealed class Lead : DomainEventSource, IAggregateRoot
     public static Lead Create(LeadSheetRow row, DateTimeOffset now) =>
         new(row, now);
 
-    public long Id { get; private set; }
+    public LeadId Id { get; private set; }
 
     /// <summary>The «ID» column of the sheet: the number managers search by. The AI may repeat it, so it is not a key.</summary>
     public int SourceId { get; private set; }

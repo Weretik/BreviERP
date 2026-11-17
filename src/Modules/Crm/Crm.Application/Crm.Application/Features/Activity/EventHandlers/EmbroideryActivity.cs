@@ -12,9 +12,9 @@ public sealed class EmbroideryActivity : IActivityDescriber
 
     public ActivityDescription? Describe(object domainEvent) => domainEvent switch
     {
-        EmbroideryCalculationSaved e => Of(ActivityActions.Created, e.Calculation.Id, e.Calculation.Name,
+        EmbroideryCalculationSaved e => Of(ActivityActions.Created, e.Calculation.Id.Value, e.Calculation.Name,
             e.Calculation.CustomerName is { } customer ? "Клієнт: " + customer : null),
-        EmbroideryMockupSet e => Of(ActivityActions.Changed, e.Calculation.Id, e.Calculation.Name,
+        EmbroideryMockupSet e => Of(ActivityActions.Changed, e.Calculation.Id.Value, e.Calculation.Name,
             e.Calculation.MockupMediaFileId is null ? "Макет прибрано" : "Додано макет"),
         EmbroideryCalculationDeleted e => Of(ActivityActions.Deleted, e.CalculationId, e.Name, null),
         EmbroiderySettingsChanged e => new ActivityDescription(ActivityActions.Changed, SettingsSubject,

@@ -16,7 +16,7 @@ public sealed class QuoteSettingsConfiguration : IEntityTypeConfiguration<QuoteS
             t.HasCheckConstraint("CK_QuoteSettings_Version", "\"Version\" > 0");
         });
         b.HasKey(x => x.Id);
-        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Id).HasConversion(x => x.Value, x => new QuoteSettingsId(x)).ValueGeneratedNever();
         JsonColumns.Map(b.Property(x => x.Company));
         JsonColumns.Map(b.Property(x => x.Email));
         JsonColumns.Map(b.Property(x => x.Pdf));

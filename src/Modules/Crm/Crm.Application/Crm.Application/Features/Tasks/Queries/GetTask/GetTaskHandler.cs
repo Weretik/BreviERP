@@ -1,3 +1,4 @@
+using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Shared;
 using Crm.Application.Features.Tasks.Shared.Access;
 using Crm.Application.Features.Tasks.Shared.Mapping;
@@ -13,7 +14,7 @@ public sealed class GetTaskHandler(ITaskStore store, TimeProvider clock)
     {
         var task = await store.ManagerTasks.AsNoTracking()
             .Include(x => x.Steps)
-            .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new ManagerTaskId(query.Id), cancellationToken);
         return task is null || !query.Actor.CanAccess(task)
             ? Result.NotFound(TaskMessages.NotFound)
             : Result.Success(await store.DetailAsync(task, clock.GetUtcNow(), cancellationToken));
