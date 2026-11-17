@@ -12,7 +12,7 @@ public static class ApiRegistrationsExtensions
         services.AddEndpointsApiExplorer();
         services.AddApiDocument();
 
-        services.AddHealthChecks();
+        services.AddHealthEndpoints();
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddSingleton(TimeProvider.System);

@@ -43,6 +43,7 @@ internal sealed class OutboxModule<TContext>(
         if (messages.Count == 0) return OutboxRun.Empty;
 
         var run = OutboxRun.Empty;
+        var gaveUp = new List<OutboxFailure>();
         foreach (var message in messages)
         {
             var error = await HandleAsync(message, cancellationToken);
@@ -57,8 +58,11 @@ internal sealed class OutboxModule<TContext>(
             message.Fail(error, at);
             run = run.Add(new OutboxRun(0, 1));
             if (message.GaveUp)
+            {
                 logger.LogError("Outbox message {Type} {Id} failed {Attempts} times: {Error}", message.Type, message.Id,
                     message.Attempts, message.LastError);
+                gaveUp.Add(new OutboxFailure(message.Id, message.Type, message.Attempts, message.LastError, message.CreatedAt));
+            }
             else
                 logger.LogWarning("Outbox message {Type} {Id} failed, next try at {NextAttemptAt}: {Error}",
                     message.Type, message.Id, message.NextAttemptAt, message.LastError);
@@ -66,7 +70,33 @@ internal sealed class OutboxModule<TContext>(
 
         await db.SaveChangesAsync(CancellationToken.None);
         await transaction.CommitAsync(CancellationToken.None);
+        await NotifyGaveUpAsync(gaveUp);
         return run;
+    }
+
+    /// <summary>
+    /// Runs after the commit, so a message is reported once: the next run no longer takes it. A notifier failure is only
+    /// logged; the error stays on the row either way.
+    /// </summary>
+    private async Task NotifyGaveUpAsync(IReadOnlyList<OutboxFailure> failures)
+    {
+        if (failures.Count == 0) return;
+        await using var scope = scopes.CreateAsyncScope();
+        var notifiers = scope.ServiceProvider.GetServices<IOutboxFailureNotifier>().ToList();
+        foreach (var failure in failures)
+        foreach (var notifier in notifiers)
+        {
+            try
+            {
+                using var limit = new CancellationTokenSource(options.Value.HandlerTimeout);
+                await notifier.NotifyGaveUpAsync(failure, limit.Token);
+            }
+            catch (Exception exception)
+            {
+                logger.LogWarning(exception, "Could not report outbox message {Type} {Id} that gave up",
+                    failure.Type, failure.Id);
+            }
+        }
     }
 
     private async Task<string?> HandleAsync(OutboxMessage message, CancellationToken cancellationToken)

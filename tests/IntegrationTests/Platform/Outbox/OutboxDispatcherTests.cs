@@ -43,6 +43,7 @@ public sealed class OutboxDispatcherTests
         services.Configure<OutboxOptions>(x => x.HandlerTimeout = TimeSpan.FromSeconds(1));
         services.AddOutboxHandler<RecordingHandler>();
         services.AddOutboxHandler<FailingHandler>();
+        services.AddScoped<IOutboxFailureNotifier, RecordingFailureNotifier>();
         _services = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
         await using var scope = _services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<TestOutboxContext>().Database.EnsureCreatedAsync();
@@ -64,6 +65,7 @@ public sealed class OutboxDispatcherTests
     public async Task Clear()
     {
         RecordingHandler.Calls.Clear();
+        RecordingFailureNotifier.Failures.Clear();
         RecordingHandler.Delay = TimeSpan.Zero;
         await using var scope = _services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<TestOutboxContext>().Database
@@ -159,7 +161,19 @@ public sealed class OutboxDispatcherTests
             Assert.That(message.Attempts, Is.EqualTo(OutboxMessage.MaxAttempts));
             Assert.That(message.ProcessedAt, Is.Null);
             Assert.That(after, Is.EqualTo(OutboxRun.Empty));
+            Assert.That(RecordingFailureNotifier.Failures.Select(x => (x.Id, x.Type, x.Attempts, x.LastError)),
+                Is.EqualTo(new[] { (id, FailingHandler.MessageType, OutboxMessage.MaxAttempts, (string?)FailingHandler.Reason) }));
         });
+    }
+
+    [Test]
+    public async Task A_failure_that_will_be_retried_is_not_reported()
+    {
+        await SaveAsync(FailingHandler.MessageType, "x");
+
+        await DispatchAsync(d => d.DispatchDueAsync(CancellationToken.None));
+
+        Assert.That(RecordingFailureNotifier.Failures, Is.Empty);
     }
 
     [Test]
@@ -248,6 +262,17 @@ public sealed class OutboxDispatcherTests
             await Task.Delay(Delay, cancellationToken);
             Calls.Enqueue(OutboxMessage.Read<Payload>(payload).Text);
             return null;
+        }
+    }
+
+    private sealed class RecordingFailureNotifier : IOutboxFailureNotifier
+    {
+        public static readonly ConcurrentQueue<OutboxFailure> Failures = new();
+
+        public Task NotifyGaveUpAsync(OutboxFailure failure, CancellationToken cancellationToken)
+        {
+            Failures.Enqueue(failure);
+            return Task.CompletedTask;
         }
     }
 
