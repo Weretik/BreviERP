@@ -20,6 +20,7 @@ operations/
 - Prepare a separate `Host.Seed` run that changes the database: [migrations and seeding](data/migrations-and-seeding.md)
 - Know who backs up the database and how to restore it: [backups and restore](data/backups-and-restore.md)
 - Check a running API or reproduce an endpoint: [diagnostics](diagnostics/health-logs-swagger.md)
+- Know what breaks when PostgreSQL, Telegram, Gmail, Google Sheets, the CDN or a Google Cloud part fails, and what to do: [dependency failures](diagnostics/dependency-failures.md)
 - Understand the configured container and deployment pipeline: [Cloud Run deployment](deployment/cloud-run-deploy.md)
 - Check background job support: [jobs and runbooks](jobs/README.md)
 - Configure the Telegram bot and the daily reminder run: [Telegram reminders](jobs/telegram-reminders.md)
