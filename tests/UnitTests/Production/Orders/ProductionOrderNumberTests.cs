@@ -49,7 +49,7 @@ public sealed class ProductionOrderNumberTests
         var saved = await workshop.Db.Orders.AsNoTracking().SingleAsync();
         Assert.Multiple(() =>
         {
-            Assert.That(result.Value.Id, Is.EqualTo(saved.Id));
+            Assert.That(result.Value.Id, Is.EqualTo(saved.Id.Value));
             Assert.That(result.Value.Items, Has.Count.EqualTo(1), "the card of the saved order");
         });
     }

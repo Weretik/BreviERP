@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
@@ -23,7 +24,7 @@ public sealed class CopyProductionOrderHandler(IProductionDbContext db, IProduct
         if (existing is not null) return Result.Success(await cards.BuildAsync(existing, actor, cancellationToken));
 
         var source = await db.Orders.AsNoTracking().Include(x => x.Items)
-            .SingleOrDefaultAsync(x => x.Id == command.Id && x.DeletedAt == null, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(command.Id) && x.DeletedAt == null, cancellationToken);
         if (source is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.NotFound);
         var person = await staff.FindAsync(actor.UserId, cancellationToken);
         if (person is null) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.ActorUnknown);

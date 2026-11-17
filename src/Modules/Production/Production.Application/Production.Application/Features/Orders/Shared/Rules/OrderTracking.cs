@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared.Access;
@@ -17,7 +18,7 @@ public sealed class OrderTracking(IProductionDbContext db, IProductionStaffReade
         Func<ProductionOrder, string?> check, Func<ProductionOrder, string, DateTimeOffset, DomainResult> apply,
         CancellationToken cancellationToken)
     {
-        var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == orderId, cancellationToken);
+        var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(orderId), cancellationToken);
         if (order is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.NotFound);
         if (check(order) is { } forbidden) return Result<ProductionOrderResponse>.Forbidden(forbidden);
         if (order.Version != version) return Result<ProductionOrderResponse>.Conflict(OrderMessages.Stale);

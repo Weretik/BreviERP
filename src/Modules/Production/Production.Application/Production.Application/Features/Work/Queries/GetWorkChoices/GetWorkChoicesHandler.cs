@@ -15,12 +15,12 @@ public sealed class GetWorkChoicesHandler(IProductionDbContext db, WorkCards car
     {
         if (!query.Actor.SeesWork) return Result<WorkChoicesResponse>.Forbidden(WorkMessages.CannotSee);
         var employees = await db.Employees.AsNoTracking().Where(x => x.IsActive).OrderBy(x => x.FullName)
-            .Select(x => new WorkEmployeeChoice(x.Id, x.FullName, x.Position)).ToListAsync(cancellationToken);
+            .Select(x => new WorkEmployeeChoice(x.Id.Value, x.FullName, x.Position)).ToListAsync(cancellationToken);
         var orders = await db.Orders.AsNoTracking().Include(x => x.Items)
             .Where(x => x.DeletedAt == null && x.Status == ProductionOrderStatus.New)
             .OrderBy(x => x.Number).ToListAsync(cancellationToken);
         var done = await cards.DoneAsync([.. orders.SelectMany(x => x.Items).Select(x => x.Id)], cancellationToken);
-        var items = orders.SelectMany(o => o.Items.OrderBy(x => x.Position).Select(i => new WorkItemChoice(o.Id, o.Number,
+        var items = orders.SelectMany(o => o.Items.OrderBy(x => x.Position).Select(i => new WorkItemChoice(o.Id.Value, o.Number,
             o.ClientName, i.Id, i.ModelName, i.Quantity, done[i.Id].Sewn, done[i.Id].Cut, i.SewingRate))).ToList();
         return Result.Success(new WorkChoicesResponse(employees, items, OverPlanReasons.All));
     }

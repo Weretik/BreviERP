@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using Production.Application.Abstractions;
 using Production.Domain.Payroll;
 using Production.Application.Features.Payroll.Shared;
@@ -16,7 +17,7 @@ public sealed class CreatePayrollAdjustmentHandler(IProductionDbContext db, Payr
         {
             var input = command.Input;
             var employee = await db.Employees.AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == input.EmployeeId, cancellationToken);
+                .SingleOrDefaultAsync(x => x.Id == new WorkshopEmployeeId(input.EmployeeId), cancellationToken);
             if (employee is null) return Result.Invalid(new ValidationError("Input.EmployeeId", PayrollMessages.EmployeeNotFound));
             var adjustment = PayrollAdjustment.Create(
                 new PayrollEntryTarget(change.Period.Month, employee.Id, employee.FullName), input.Amount, input.Reason,

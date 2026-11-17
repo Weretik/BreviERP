@@ -7,7 +7,7 @@ namespace Production.Application.Features.Settings.Shared;
 internal static class WorkshopSettingsReading
 {
     public static Task<WorkshopSettings?> ReadAsync(IProductionDbContext db, CancellationToken cancellationToken) =>
-        db.Settings.AsNoTracking().SingleOrDefaultAsync(x => x.Id == WorkshopSettings.SingletonId, cancellationToken);
+        db.Settings.AsNoTracking().SingleOrDefaultAsync(x => x.Id == new WorkshopSettingsId(WorkshopSettings.SingletonId), cancellationToken);
 
     public static async Task<WorkshopSettingsResponse> ResponseAsync(IProductionTelegram telegram, WorkshopSettings? settings,
         CancellationToken cancellationToken)

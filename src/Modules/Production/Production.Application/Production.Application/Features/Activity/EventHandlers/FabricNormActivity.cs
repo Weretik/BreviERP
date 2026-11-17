@@ -10,9 +10,9 @@ public sealed class FabricNormActivity : IActivityDescriber
 
     public ActivityDescription? Describe(object domainEvent) => domainEvent switch
     {
-        FabricNormSaved { Before: null } e => Of(ActivityActions.Created, e.Norm.Id, e.Norm.ModelCode,
+        FabricNormSaved { Before: null } e => Of(ActivityActions.Created, e.Norm.Id.Value, e.Norm.ModelCode,
             Changes(new FabricNormValues(null, null, null, null, null, null), e.Norm.Values).Items),
-        FabricNormSaved e => Of(ActivityActions.Changed, e.Norm.Id, e.Norm.ModelCode, Changes(e.Before!, e.Norm.Values).Items),
+        FabricNormSaved e => Of(ActivityActions.Changed, e.Norm.Id.Value, e.Norm.ModelCode, Changes(e.Before!, e.Norm.Values).Items),
         FabricNormDeleted e => Of(ActivityActions.Deleted, e.NormId, e.ModelCode, []),
         _ => null,
     };

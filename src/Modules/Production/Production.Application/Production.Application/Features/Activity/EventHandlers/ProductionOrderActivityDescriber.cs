@@ -50,7 +50,7 @@ public sealed class ProductionOrderActivityDescriber : IActivityDescriber
 
     private static ActivityDescription Of(ProductionOrder order, string action, string? summary,
         IReadOnlyList<ActivityChangeItem> changes) =>
-        new(action, Subject, "Виробниче завдання", order.Id.ToString(CultureInfo.InvariantCulture),
+        new(action, Subject, "Виробниче завдання", order.Id.Value.ToString(CultureInfo.InvariantCulture),
             $"№ {order.Number.ToString(CultureInfo.InvariantCulture)} · {order.ClientName}", summary, changes,
             "Production");
 }

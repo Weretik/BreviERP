@@ -29,7 +29,7 @@ public sealed class OrderCards(IProductionDbContext db, IProductionTelegram tele
     public async Task<bool> TelegramReadyAsync(CancellationToken cancellationToken)
     {
         var settings = await db.Settings.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == WorkshopSettings.SingletonId, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new WorkshopSettingsId(WorkshopSettings.SingletonId), cancellationToken);
         return telegram.IsConfigured && settings is { CanSendTelegram: true };
     }
 }

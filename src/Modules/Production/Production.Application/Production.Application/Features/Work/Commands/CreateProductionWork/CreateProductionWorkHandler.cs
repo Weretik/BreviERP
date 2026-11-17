@@ -1,3 +1,5 @@
+using Production.Domain.Staff;
+using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.Work;
 using Production.Application.Features.Orders.Shared;
@@ -15,7 +17,7 @@ public sealed class CreateProductionWorkHandler(IProductionDbContext db, IProduc
     {
         var input = command.Input;
         var order = await db.Orders.Include(x => x.Items)
-            .SingleOrDefaultAsync(x => x.Id == command.OrderId && x.DeletedAt == null, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(command.OrderId) && x.DeletedAt == null, cancellationToken);
         var item = order?.Items.FirstOrDefault(x => x.Id == command.ItemId);
         if (order is null || item is null) return Result<ProductionItemWorkResponse>.NotFound(OrderMessages.NotFound);
         if (!command.Actor.CanRecordWork(order)) return Result<ProductionItemWorkResponse>.Forbidden(WorkMessages.CannotRecord);
@@ -26,7 +28,7 @@ public sealed class CreateProductionWorkHandler(IProductionDbContext db, IProduc
         if (await PayrollMonths.IsClosedAsync(db, input.WorkDate, cancellationToken))
             return Result<ProductionItemWorkResponse>.Conflict(PayrollMessages.Closed);
         var employee = await db.Employees.AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == input.EmployeeId && x.IsActive, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new WorkshopEmployeeId(input.EmployeeId) && x.IsActive, cancellationToken);
         if (employee is null) return Invalid(nameof(input.EmployeeId), WorkMessages.EmployeeNotFound);
         var kind = Enum.Parse<ProductionWorkKind>(input.Kind);
         if (!input.OverPlan)

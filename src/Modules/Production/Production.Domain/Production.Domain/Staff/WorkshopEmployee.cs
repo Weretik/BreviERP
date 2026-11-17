@@ -30,7 +30,7 @@ public sealed class WorkshopEmployee : DomainEventSource, IAggregateRoot
         Raise(new WorkshopEmployeeSaved(this, null));
     }
 
-    public int Id { get; private set; }
+    public WorkshopEmployeeId Id { get; private set; }
     public string FullName { get; private set; } = null!;
 
     /// <summary>Lower-case <see cref="FullName"/>; unique among active employees.</summary>

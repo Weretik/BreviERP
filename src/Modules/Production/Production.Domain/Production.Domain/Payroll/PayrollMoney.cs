@@ -1,3 +1,5 @@
+using Production.Domain.Staff;
+using Production.Domain.Payroll.Identifiers;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
@@ -15,7 +17,7 @@ public enum PayrollPaymentKind
 }
 
 /// <summary>Who and when for a payment or an adjustment of a worker in a month.</summary>
-public sealed record PayrollEntryTarget(DateOnly Month, int EmployeeId, string EmployeeName);
+public sealed record PayrollEntryTarget(DateOnly Month, WorkshopEmployeeId EmployeeId, string EmployeeName);
 
 /// <summary>
 /// «Виплата» of a month: an advance, a card or cash payment (PRD-D45). Never edited or deleted: a wrong one is
@@ -55,13 +57,13 @@ public sealed class PayrollPayment : DomainEventSource, IAggregateRoot
         Raise(new PayrollPaymentRecorded(this, false));
     }
 
-    public int Id { get; private set; }
+    public PayrollPaymentId Id { get; private set; }
 
     /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
     public Guid? RequestId { get; private init; }
 
     public DateOnly Month { get; private set; }
-    public int EmployeeId { get; private set; }
+    public WorkshopEmployeeId EmployeeId { get; private set; }
     public string EmployeeName { get; private set; } = null!;
     public DateOnly PaidOn { get; private set; }
     public PayrollPaymentKind Kind { get; private set; }
@@ -119,13 +121,13 @@ public sealed class PayrollAdjustment : DomainEventSource, IAggregateRoot
         Raise(new PayrollAdjustmentRecorded(this, false));
     }
 
-    public int Id { get; private set; }
+    public PayrollAdjustmentId Id { get; private set; }
 
     /// <summary>The id the form sent with «Зберегти»: a repeat of the same request adds nothing.</summary>
     public Guid? RequestId { get; private init; }
 
     public DateOnly Month { get; private set; }
-    public int EmployeeId { get; private set; }
+    public WorkshopEmployeeId EmployeeId { get; private set; }
     public string EmployeeName { get; private set; } = null!;
     public decimal Amount { get; private set; }
     public string Reason { get; private set; } = null!;
@@ -155,13 +157,13 @@ public sealed class PayrollIssued : IAggregateRoot
 {
     private PayrollIssued() { }
 
-    private PayrollIssued(DateOnly month, int employeeId) => (Month, EmployeeId) = (month, employeeId);
+    private PayrollIssued(DateOnly month, WorkshopEmployeeId employeeId) => (Month, EmployeeId) = (month, employeeId);
 
-    public static PayrollIssued Create(DateOnly month, int employeeId) =>
+    public static PayrollIssued Create(DateOnly month, WorkshopEmployeeId employeeId) =>
         new(month, employeeId);
 
     public DateOnly Month { get; private set; }
-    public int EmployeeId { get; private set; }
+    public WorkshopEmployeeId EmployeeId { get; private set; }
     public decimal Amount { get; private set; }
     public DateTimeOffset UpdatedAt { get; private set; }
     public string UpdatedByName { get; private set; } = null!;

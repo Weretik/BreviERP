@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Domain.Events;
 using Production.Application.Features.Activity.EventHandlers;
@@ -20,7 +21,7 @@ public sealed class WorkshopActivityTests
     [Test]
     public void Recorded_and_voided_work_is_listed_but_moved_work_is_not()
     {
-        var target = new WorkTarget(1, 2, 3, "Ірина Бондар");
+        var target = new WorkTarget(new ProductionOrderId(1), 2, new WorkshopEmployeeId(3), "Ірина Бондар");
         var facts = new WorkFacts(ProductionWorkKind.Sewing, 15, Today, false, null, null, 120m);
         var work = ProductionWork.Create(target, facts, "Майстер", Now).Value;
         var describer = new ProductionWorkActivity();
@@ -61,7 +62,7 @@ public sealed class WorkshopActivityTests
     [Test]
     public void A_payment_shows_kind_and_amount()
     {
-        var payment = PayrollPayment.Create(new PayrollEntryTarget(new DateOnly(2026, 11, 1), 3, "Ірина Бондар"), Today,
+        var payment = PayrollPayment.Create(new PayrollEntryTarget(new DateOnly(2026, 11, 1), new WorkshopEmployeeId(3), "Ірина Бондар"), Today,
             PayrollPaymentKind.Card, 12000m, null, "Директор", Now).Value;
 
         var entry = Last(new PayrollActivity(), payment);

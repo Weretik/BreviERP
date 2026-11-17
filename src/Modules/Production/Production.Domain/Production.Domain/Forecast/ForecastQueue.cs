@@ -18,14 +18,14 @@ public sealed class ForecastQueue : IAggregateRoot
 
     private ForecastQueue(DateTimeOffset now)
     {
-        Id = SingletonId;
+        Id = new ForecastQueueId(SingletonId);
         UpdatedAt = now;
     }
 
     public static ForecastQueue Create(DateTimeOffset now) =>
         new(now);
 
-    public int Id { get; private set; }
+    public ForecastQueueId Id { get; private set; }
     public List<int> OrderIds { get; private set; } = [];
     public int Version { get; private set; }
     public string? UpdatedByName { get; private set; }

@@ -54,7 +54,7 @@ public sealed class GetWorkshopDashboardHandler(IProductionDbContext db, WorkCar
             var sewn = order.Items.Sum(x => Math.Min(x.Quantity, done.GetValueOrDefault(x.Id).Sewn));
             var first = order.Items.OrderBy(x => x.Position).First();
             if (!cardsByStage.TryGetValue(stage, out var list)) cardsByStage[stage] = list = [];
-            list.Add(new DashboardOrderResponse(order.Id, order.Number, order.ClientName, first.ModelName,
+            list.Add(new DashboardOrderResponse(order.Id.Value, order.Number, order.ClientName, first.ModelName,
                 order.Items.Count, quantity, quantity > 0 ? sewn * 100 / quantity : 0, dueDate, isLate));
         }
 
@@ -76,7 +76,7 @@ public sealed class GetWorkshopDashboardHandler(IProductionDbContext db, WorkCar
             .GroupBy(x => x.EmployeeId).ToDictionary(x => x.Key, x => x.Sum(m => m.Minutes));
         var employees = await db.Employees.AsNoTracking().Where(x => x.IsActive).ToListAsync(cancellationToken);
         return [.. employees
-            .Select(x => new DashboardHoursResponse(x.Id, x.FullName, minutes.GetValueOrDefault(x.Id)))
+            .Select(x => new DashboardHoursResponse(x.Id.Value, x.FullName, minutes.GetValueOrDefault(x.Id)))
             .OrderByDescending(x => x.Minutes).ThenBy(x => x.Name, StringComparer.CurrentCultureIgnoreCase)];
     }
 }

@@ -11,10 +11,10 @@ public sealed class PayrollActivity : IActivityDescriber
 
     public ActivityDescription? Describe(object domainEvent) => domainEvent switch
     {
-        PayrollPaymentRecorded e => Of(PaymentSubject, "Виплата зарплати", e.Voided, e.Payment.Id, e.Payment.EmployeeName,
+        PayrollPaymentRecorded e => Of(PaymentSubject, "Виплата зарплати", e.Voided, e.Payment.Id.Value, e.Payment.EmployeeName,
             e.Payment.Month, e.Voided ? e.Payment.VoidReason : Kind(e.Payment.Kind) + ": "
                 + ActivityChanges.Number(e.Payment.Amount, "грн")),
-        PayrollAdjustmentRecorded e => Of(AdjustmentSubject, "Коригування зарплати", e.Voided, e.Adjustment.Id,
+        PayrollAdjustmentRecorded e => Of(AdjustmentSubject, "Коригування зарплати", e.Voided, e.Adjustment.Id.Value,
             e.Adjustment.EmployeeName, e.Adjustment.Month, e.Voided ? e.Adjustment.VoidReason
                 : ActivityChanges.Number(e.Adjustment.Amount, "грн") + ", " + e.Adjustment.Reason),
         _ => null,

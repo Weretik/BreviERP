@@ -38,6 +38,9 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<WorkshopArchiveRecord> Archive => Set<WorkshopArchiveRecord>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+        configurationBuilder.AddTypedIds(typeof(ProductionOrder).Assembly);
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasDefaultSchema(Schema);

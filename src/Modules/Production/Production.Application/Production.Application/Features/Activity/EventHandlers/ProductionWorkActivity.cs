@@ -10,7 +10,7 @@ public sealed class ProductionWorkActivity : IActivityDescriber
 
     public ActivityDescription? Describe(object domainEvent) => domainEvent is ProductionWorkRecorded e
         ? new ActivityDescription(e.Voided ? ActivityActions.Voided : ActivityActions.Created, Subject, "Робота цеху",
-            e.Work.Id.ToString(CultureInfo.InvariantCulture),
+            e.Work.Id.Value.ToString(CultureInfo.InvariantCulture),
             $"{e.Work.EmployeeName} · {e.Work.WorkDate.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture)}",
             e.Voided ? "Причина: " + e.Work.VoidReason : Summary(e.Work), [], "Production")
         : null;

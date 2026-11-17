@@ -7,7 +7,7 @@ namespace Production.Application.Features.Staff.Shared;
 
 internal static class EmployeeLookup
 {
-    public static Task<bool> ActiveNameTakenAsync(IProductionDbContext db, string fullName, int? exceptId,
+    public static Task<bool> ActiveNameTakenAsync(IProductionDbContext db, string fullName, WorkshopEmployeeId? exceptId,
         CancellationToken cancellationToken)
     {
         var key = ProductionText.Key(fullName);
@@ -15,5 +15,5 @@ internal static class EmployeeLookup
     }
 
     public static WorkshopEmployeeResponse ToResponse(this WorkshopEmployee x) =>
-        new(x.Id, x.FullName, x.Position, x.IsActive, x.UpdatedAt);
+        new(x.Id.Value, x.FullName, x.Position, x.IsActive, x.UpdatedAt);
 }

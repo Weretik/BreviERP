@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using Production.Application.Abstractions;
 using Production.Domain.Payroll;
 using Production.Application.Features.Payroll.Shared;
@@ -14,10 +15,10 @@ public sealed class SetPayrollIssuedHandler(IProductionDbContext db, PayrollChan
         await changes.ApplyAsync(command.Actor, command.Month, adminOnly: true, async change =>
         {
             var input = command.Input;
-            if (!await db.Employees.AnyAsync(x => x.Id == input.EmployeeId, cancellationToken))
+            if (!await db.Employees.AnyAsync(x => x.Id == new WorkshopEmployeeId(input.EmployeeId), cancellationToken))
                 return Result.Invalid(new ValidationError("Input.EmployeeId", PayrollMessages.EmployeeNotFound));
             var month = change.Period.Month;
-            var row = await db.PayrollIssued.SingleOrDefaultAsync(x => x.Month == month && x.EmployeeId == input.EmployeeId,
+            var row = await db.PayrollIssued.SingleOrDefaultAsync(x => x.Month == month && x.EmployeeId == new WorkshopEmployeeId(input.EmployeeId),
                 cancellationToken);
             if (input.Amount is not { } amount)
             {
@@ -27,7 +28,7 @@ public sealed class SetPayrollIssuedHandler(IProductionDbContext db, PayrollChan
 
             if (row is null)
             {
-                row = PayrollIssued.Create(month, input.EmployeeId);
+                row = PayrollIssued.Create(month, new WorkshopEmployeeId(input.EmployeeId));
                 db.PayrollIssued.Add(row);
             }
 

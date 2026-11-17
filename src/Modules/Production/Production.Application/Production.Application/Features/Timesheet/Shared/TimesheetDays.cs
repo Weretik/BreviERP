@@ -23,7 +23,7 @@ public sealed class TimesheetDays(IProductionDbContext db, TimeProvider clock)
 
         var rows = employees.Values.Where(x => x.IsActive || today.ContainsKey(x.Id))
             .OrderByDescending(x => x.IsActive).ThenBy(x => x.FullName, StringComparer.CurrentCultureIgnoreCase)
-            .Select(x => new TimesheetRowResponse(x.Id, x.FullName, x.Position, x.IsActive,
+            .Select(x => new TimesheetRowResponse(x.Id.Value, x.FullName, x.Position, x.IsActive,
                 today.GetValueOrDefault(x.Id)?.Minutes, today.GetValueOrDefault(x.Id)?.Version))
             .ToList();
         var byDay = entries.GroupBy(x => x.WorkDate).OrderBy(x => x.Key)
@@ -32,13 +32,13 @@ public sealed class TimesheetDays(IProductionDbContext db, TimeProvider clock)
             .Select(x =>
             {
                 var employee = employees.GetValueOrDefault(x.Key);
-                return new TimesheetMonthEmployeeResponse(x.Key, employee?.FullName ?? $"#{x.Key}",
+                return new TimesheetMonthEmployeeResponse(x.Key.Value, employee?.FullName ?? $"#{x.Key.Value}",
                     employee?.Position ?? "", x.Count(), x.Sum(e => e.Minutes));
             })
             .OrderBy(x => x.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
 
         return new TimesheetDayResponse(date, !closed && date <= WorkshopDay.Today(clock), closed, rows,
-            [.. changes.Select(x => new TimesheetChangeResponse(x.Id, x.EmployeeId, x.EmployeeName, x.BeforeMinutes,
+            [.. changes.Select(x => new TimesheetChangeResponse(x.Id.Value, x.EmployeeId.Value, x.EmployeeName, x.BeforeMinutes,
                 x.AfterMinutes, x.ChangedAt, x.ChangedByName))],
             new TimesheetMonthResponse(PayrollMonths.Format(month), byDay, byEmployee));
     }

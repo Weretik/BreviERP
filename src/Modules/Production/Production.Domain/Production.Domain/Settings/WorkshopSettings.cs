@@ -18,7 +18,7 @@ public sealed class WorkshopSettings : DomainEventSource, IAggregateRoot
 
     private WorkshopSettings(long? chatId, int? threadId)
     {
-        Id = SingletonId;
+        Id = new WorkshopSettingsId(SingletonId);
         TelegramChatId = chatId;
         TelegramThreadId = threadId;
     }
@@ -26,7 +26,7 @@ public sealed class WorkshopSettings : DomainEventSource, IAggregateRoot
     public static WorkshopSettings Create(long? chatId, int? threadId) =>
         new(chatId, threadId);
 
-    public int Id { get; private set; }
+    public WorkshopSettingsId Id { get; private set; }
     public bool TelegramEnabled { get; private set; }
     public long? TelegramChatId { get; private set; }
     public int? TelegramThreadId { get; private set; }

@@ -15,15 +15,15 @@ public sealed class ForecastQueueReader(IProductionDbContext db)
         CancellationToken cancellationToken)
     {
         var queue = track
-            ? await db.ForecastQueues.SingleOrDefaultAsync(x => x.Id == ForecastQueue.SingletonId, cancellationToken)
+            ? await db.ForecastQueues.SingleOrDefaultAsync(x => x.Id == new ForecastQueueId(ForecastQueue.SingletonId), cancellationToken)
             : await db.ForecastQueues.AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == ForecastQueue.SingletonId, cancellationToken);
+                .SingleOrDefaultAsync(x => x.Id == new ForecastQueueId(ForecastQueue.SingletonId), cancellationToken);
         var orders = await db.Orders.AsNoTracking().Include(x => x.Items)
             .Where(x => x.DeletedAt == null && x.Status == ProductionOrderStatus.New)
             .ToListAsync(cancellationToken);
         var rank = (queue?.OrderIds ?? []).Select((id, index) => (id, index)).ToDictionary(x => x.id, x => x.index);
         var sorted = orders
-            .OrderBy(x => rank.TryGetValue(x.Id, out var index) ? index : int.MaxValue)
+            .OrderBy(x => rank.TryGetValue(x.Id.Value, out var index) ? index : int.MaxValue)
             .ThenBy(x => x.OrderDate).ThenBy(x => x.Number).ToList();
         return (queue, sorted);
     }

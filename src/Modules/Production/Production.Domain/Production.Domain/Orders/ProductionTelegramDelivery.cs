@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders.Rules;
@@ -23,16 +24,16 @@ public sealed class ProductionTelegramDelivery : IAggregateRoot
 
     private ProductionTelegramDelivery() { }
 
-    private ProductionTelegramDelivery(int orderId)
+    private ProductionTelegramDelivery(ProductionOrderId orderId)
     {
         OrderId = orderId;
         Status = TelegramDeliveryStatus.NotSent;
     }
 
-    public static ProductionTelegramDelivery Create(int orderId) =>
+    public static ProductionTelegramDelivery Create(ProductionOrderId orderId) =>
         new(orderId);
 
-    public int OrderId { get; private set; }
+    public ProductionOrderId OrderId { get; private set; }
     public TelegramDeliveryStatus Status { get; private set; }
     public long? ChatId { get; private set; }
     public int? ThreadId { get; private set; }

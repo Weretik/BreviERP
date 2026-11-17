@@ -155,7 +155,7 @@ public sealed class WorkshopReportHandlerTests
         var b = WorkshopEmployee.Create("Витковська", "Майстер цеху", 1, workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.AddRange(a, b);
         workshop.Db.SaveChanges();
-        seamstress = a.Id;
+        seamstress = a.Id.Value;
         return workshop;
     }
 

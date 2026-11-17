@@ -32,7 +32,7 @@ public sealed class WorkCards(IProductionDbContext db)
         var canRecord = actor.CanRecordWork(order) && item.SewingRate is > 0;
         var cannot = !actor.CanRecordWork(order) ? (actor.SeesWork && !order.IsDeleted ? WorkMessages.NotNew : null)
             : item.SewingRate is > 0 ? null : WorkMessages.NoRate;
-        return new ProductionItemWorkResponse(order.Id, item.Id, order.Number, item.ModelName, item.Quantity,
+        return new ProductionItemWorkResponse(order.Id.Value, item.Id, order.Number, item.ModelName, item.Quantity,
             item.SewingRate,
             counted.Where(x => x.Kind == ProductionWorkKind.Sewing).Sum(x => x.Quantity),
             counted.Where(x => x.Kind == ProductionWorkKind.Cutting).Sum(x => x.Quantity),
@@ -41,7 +41,7 @@ public sealed class WorkCards(IProductionDbContext db)
     }
 
     public static ProductionWorkResponse Map(ProductionWork x, int orderNumber, string clientName, string modelName) =>
-        new(x.Id, x.OrderId, orderNumber, clientName, x.ItemId, modelName, x.EmployeeId, x.EmployeeName,
+        new(x.Id.Value, x.OrderId.Value, orderNumber, clientName, x.ItemId, modelName, x.EmployeeId.Value, x.EmployeeName,
             x.Kind.ToString(), x.Quantity, x.WorkDate, x.OverPlan, x.Reason, x.Comment, x.Rate, x.IsVoided, x.VoidedAt,
             x.VoidedByName, x.VoidReason, x.CreatedByName, x.CreatedAt);
 }

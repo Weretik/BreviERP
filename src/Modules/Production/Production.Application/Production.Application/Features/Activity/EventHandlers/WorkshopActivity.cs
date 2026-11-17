@@ -28,6 +28,6 @@ public sealed class WorkshopActivity : IActivityDescriber
 
     private static ActivityDescription Employee(WorkshopEmployee employee, string action, string? summary,
         IReadOnlyList<ActivityChangeItem> changes) =>
-        new(action, EmployeeSubject, "Працівник цеху", employee.Id.ToString(CultureInfo.InvariantCulture),
+        new(action, EmployeeSubject, "Працівник цеху", employee.Id.Value.ToString(CultureInfo.InvariantCulture),
             employee.FullName, summary, changes, "Production");
 }

@@ -65,7 +65,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         Raise(new ProductionOrderRecorded(this, ProductionOrderActivity.Created, []));
     }
 
-    public int Id { get; private set; }
+    public ProductionOrderId Id { get; private set; }
 
     /// <summary>Order number shown to people; the old app's numbers are kept on transfer.</summary>
     public int Number { get; private set; }
@@ -73,7 +73,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     /// <summary>A new order that lost its number to another order saved first takes the next one.</summary>
     public void TakeNumber(int number)
     {
-        if (Id != 0) throw new InvalidOperationException("A saved order keeps its number.");
+        if (Id != new ProductionOrderId(0)) throw new InvalidOperationException("A saved order keeps its number.");
         Number = number;
     }
 
@@ -100,7 +100,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     /// <summary>Id of the order in the old «Цех»; null for orders made in Brevi.</summary>
     public string? LegacyId { get; private set; }
 
-    public int? CopiedFromOrderId { get; private set; }
+    public ProductionOrderId? CopiedFromOrderId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public string CreatedByName { get; private set; } = null!;
     public DateTimeOffset UpdatedAt { get; private set; }
@@ -414,7 +414,7 @@ public sealed record OrderOrigin(
     string ManagerName,
     Guid? RequestId,
     string? LegacyId = null,
-    int? CopiedFromOrderId = null);
+    ProductionOrderId? CopiedFromOrderId = null);
 
 /// <summary>The fields above the items.</summary>
 public sealed record OrderHeader(string ClientName, DateOnly OrderDate, string? Comment);

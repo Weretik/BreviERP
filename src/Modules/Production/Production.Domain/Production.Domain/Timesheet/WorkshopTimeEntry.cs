@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
@@ -17,7 +18,7 @@ public sealed class WorkshopTimeEntry : IAggregateRoot
 
     private WorkshopTimeEntry() { }
 
-    public static DomainResult<WorkshopTimeEntry> Create(int employeeId, DateOnly workDate, int minutes,
+    public static DomainResult<WorkshopTimeEntry> Create(WorkshopEmployeeId employeeId, DateOnly workDate, int minutes,
         string actorName, DateTimeOffset now)
     {
         if (!IsValid(minutes)) return MinutesInvalid();
@@ -26,8 +27,8 @@ public sealed class WorkshopTimeEntry : IAggregateRoot
         return entry;
     }
 
-    public int Id { get; private set; }
-    public int EmployeeId { get; private set; }
+    public WorkshopTimeEntryId Id { get; private set; }
+    public WorkshopEmployeeId EmployeeId { get; private set; }
     public DateOnly WorkDate { get; private set; }
     public int Minutes { get; private set; }
 
@@ -64,7 +65,7 @@ public sealed class WorkshopTimeChange : IAggregateRoot
 {
     private WorkshopTimeChange() { }
 
-    private WorkshopTimeChange(int employeeId, string employeeName, DateOnly workDate, int? beforeMinutes,
+    private WorkshopTimeChange(WorkshopEmployeeId employeeId, string employeeName, DateOnly workDate, int? beforeMinutes,
         int afterMinutes, string actorName, DateTimeOffset now)
     {
         EmployeeId = employeeId;
@@ -76,12 +77,12 @@ public sealed class WorkshopTimeChange : IAggregateRoot
         ChangedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
     }
 
-    public static WorkshopTimeChange Create(int employeeId, string employeeName, DateOnly workDate, int? beforeMinutes,
+    public static WorkshopTimeChange Create(WorkshopEmployeeId employeeId, string employeeName, DateOnly workDate, int? beforeMinutes,
         int afterMinutes, string actorName, DateTimeOffset now) =>
         new(employeeId, employeeName, workDate, beforeMinutes, afterMinutes, actorName, now);
 
-    public int Id { get; private set; }
-    public int EmployeeId { get; private set; }
+    public WorkshopTimeChangeId Id { get; private set; }
+    public WorkshopEmployeeId EmployeeId { get; private set; }
     public string EmployeeName { get; private set; } = null!;
     public DateOnly WorkDate { get; private set; }
 
