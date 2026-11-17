@@ -93,6 +93,11 @@ namespace ActivityLog.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ActorRoles");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("ActorRoles"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("ActorRoles"), new[] { "gin_trgm_ops" });
+
                     b.HasIndex("SearchText");
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
@@ -108,6 +113,43 @@ namespace ActivityLog.Infrastructure.Persistence.Migrations
                         .IsDescending(false, true);
 
                     b.ToTable("ActivityEntries", "activity_log");
+                });
+
+            modelBuilder.Entity("ActivityLog.Domain.Filters.ActivityActor", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ActivityActors", "activity_log");
+                });
+
+            modelBuilder.Entity("ActivityLog.Domain.Filters.ActivitySubjectType", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("ActivitySubjectTypes", "activity_log");
                 });
 #pragma warning restore 612, 618
         }

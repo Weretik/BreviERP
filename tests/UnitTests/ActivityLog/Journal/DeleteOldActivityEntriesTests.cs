@@ -42,6 +42,24 @@ public sealed class DeleteOldActivityEntriesTests
     }
 
     [Test]
+    public async Task People_and_types_without_entries_leave_the_filters()
+    {
+        using var harness = new ActivityLogTestHarness();
+        var now = harness.Clock.GetUtcNow();
+        await RecordAsync(harness, now.AddYears(-2), "КП №1");
+        await using (var write = harness.Open())
+            await new RecordActivityOutboxHandler(write, harness.Names, harness.Clock).HandleAsync(
+                ActivityLogTestHarness.Payload(ActivityLogTestHarness.Activity(actorId: 8, subjectType: "lead", at: now)),
+                CancellationToken.None);
+
+        await DeleteAsync(harness);
+
+        await using var db = harness.Open();
+        Assert.That(await db.Actors.Select(x => x.Id).ToListAsync(), Is.EqualTo(new[] { 8 }));
+        Assert.That(await db.SubjectTypes.Select(x => x.Key).ToListAsync(), Is.EqualTo(new[] { "lead" }));
+    }
+
+    [Test]
     public async Task A_repeated_run_deletes_nothing()
     {
         using var harness = new ActivityLogTestHarness();

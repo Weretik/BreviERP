@@ -1,6 +1,7 @@
 using ActivityLog.Application.Abstractions;
 using ActivityLog.Contracts.Activity;
 using ActivityLog.Domain.Entries;
+using ActivityLog.Domain.Filters;
 using ActivityLog.Infrastructure.Persistence.Configurations;
 using BuildingBlocks.Application.Outbox;
 using Microsoft.Data.Sqlite;
@@ -15,9 +16,15 @@ namespace UnitTests.ActivityLog;
 internal sealed class ActivityTestDb(DbContextOptions<ActivityTestDb> options) : DbContext(options), IActivityLogDbContext
 {
     public DbSet<ActivityEntry> Entries => Set<ActivityEntry>();
+    public DbSet<ActivityActor> Actors => Set<ActivityActor>();
+    public DbSet<ActivitySubjectType> SubjectTypes => Set<ActivitySubjectType>();
 
-    protected override void OnModelCreating(ModelBuilder builder) =>
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
         builder.ApplyConfiguration(new ActivityEntryConfiguration());
+        builder.ApplyConfiguration(new ActivityActorConfiguration());
+        builder.ApplyConfiguration(new ActivitySubjectTypeConfiguration());
+    }
 }
 
 internal sealed class FakeActorNames : IActorNames

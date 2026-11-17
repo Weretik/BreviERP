@@ -11,3 +11,4 @@ global using Ardalis.Result;
 global using BuildingBlocks.Application;
 global using ActivityLog.Application.Abstractions;
 global using ActivityLog.Domain.Entries;
+global using ActivityLog.Domain.Filters;
