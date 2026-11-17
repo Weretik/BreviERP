@@ -111,6 +111,7 @@ flowchart LR
     end
 
     bb["<b>BuildingBlocks</b><br/>Result mapping, Mediator behaviors,<br/>outbox, shared primitives"]
+    ext["<b>Outside systems</b><br/>KeepinCRM, Google Sheets, Gmail,<br/>OpenAI, Telegram, CDN adm.tools,<br/>Dropbox, supplier sites, Cloud Run"]
 
     host --> sales & make & money & platform
     crm --> catalog & reference & media & reminders & production
@@ -125,10 +126,19 @@ flowchart LR
     identity --> media
     activitylog --> identity
     crm & production & warehouse & reference & catalog & media -. "activity.recorded (outbox)" .-> activitylog
+    ext ==>|"ACL Integrations/KeepinCrm, GoogleSheets"| crm
+    crm ==>|"ACL Integrations/Gmail, Pdf"| ext
+    ext ==>|"ACL Integrations/KeepinCrm"| reference
+    ext ==>|"ACL Integrations/PpeSupplierSites, PpeSupplierFiles"| catalog
+    ext ==>|"ACL Integrations/GoogleSheets, Dropbox"| purchasing
+    ai ==>|"ACL Integrations/OpenAi"| ext
+    media ==>|"ACL Integrations/AdmTools"| ext
+    reminders ==>|"ACL Integrations/Telegram; Crm and Production post through ITelegramBot"| ext
+    scheduling ==>|"Outbox run; ACL Integrations/CloudRun starts brevierp-tasks"| ext
     sales & make & money & platform --> bb
 ```
 
-An arrow from A to B means A's Infrastructure references `B.Contracts` (checked from the `.csproj` files on 2026-11-15); Crm, Production and Warehouse also use `Identity.Contracts` for staff names; ActivityLog uses it for the names in «Журнал дій». No module references another module's Application, Domain or Infrastructure, and there are no foreign keys between schemas ([ADR-0001](../decisions/0001-modular-monolith.md), [ADR-0006](../decisions/0006-module-contracts.md)). The exact references are in the [module map](../overview/modules.md).
+This diagram is the context map. A thin arrow from A to B means A's Infrastructure references `B.Contracts` (checked from the `.csproj` files on 2026-11-15); Crm, Production and Warehouse also use `Identity.Contracts` for staff names; ActivityLog uses it for the names in «Журнал дій». No module references another module's Application, Domain or Infrastructure, and there are no foreign keys between schemas ([ADR-0001](../decisions/0001-modular-monolith.md), [ADR-0006](../decisions/0006-module-contracts.md)). The exact references are in the [module map](../overview/modules.md). Thick arrows cross the system edge: an anti-corruption layer in the module's `Infrastructure/Integrations/<System>` translates the outside model, and messages out go through the outbox, sent by the scheduler tick. Five pairs still point both ways (Crm ↔ Production, Production ↔ Warehouse, Catalog ↔ Reference, Catalog ↔ Media, Crm ↔ Media); they are a [known deviation](../../standards/module-rules.md#known-deviations) being removed.
 
 ## Dynamic: an action reaches «Журнал дій»
 

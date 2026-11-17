@@ -9,6 +9,13 @@ public sealed class ModuleCompositionTests
 {
     private static readonly string[] Modules = ["Accounting", "ActivityLog", "Ai", "Catalog", "Content", "Crm", "Identity", "Media", "Production", "Purchasing", "Reference", "Reminders", "Scheduling", "Warehouse"];
 
+    [Test]
+    public void Module_list_names_every_folder_under_src_modules()
+    {
+        var onDisk = Directory.GetDirectories(Path.Combine(Root(), "src", "Modules")).Select(Path.GetFileName).Order(StringComparer.Ordinal);
+        Assert.That(Modules.Order(StringComparer.Ordinal), Is.EqualTo(onDisk));
+    }
+
     [TestCaseSource(nameof(Modules))]
     public void Api_registers_the_module_with_one_entry_point(string module)
     {
