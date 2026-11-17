@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 
 namespace Catalog.Api.Endpoints.Product.GetProducts;
 
@@ -15,7 +16,7 @@ internal static class GetProductsEndpoint
     {
         var mappingResult = GetProductListRequestMapper.Map(request);
         if (mappingResult.Status != Ardalis.Result.ResultStatus.Ok)
-            return Results.BadRequest(mappingResult.ValidationErrors);
+            return ApiProblems.Invalid(mappingResult.ValidationErrors);
 
         var result = await sender.Send(mappingResult.Value, cancellationToken);
 

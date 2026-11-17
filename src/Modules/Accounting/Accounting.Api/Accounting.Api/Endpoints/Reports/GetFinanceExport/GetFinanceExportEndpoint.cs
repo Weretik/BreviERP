@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Accounting.Application.Features.Export.Queries.GetFinanceExport;
 using Accounting.Api.Endpoints.Shared;
 
@@ -15,7 +16,7 @@ internal static class GetFinanceExportEndpoint
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetFinanceExportQuery(), cancellationToken);
-        if (!result.IsSuccess) return result.ToFileHttpResult();
+        if (!result.IsSuccess) return result.ToHttpResult();
         response.Headers.CacheControl = "private, no-store";
         return Results.File(result.Value.Content, "application/json", result.Value.FileName);
     }

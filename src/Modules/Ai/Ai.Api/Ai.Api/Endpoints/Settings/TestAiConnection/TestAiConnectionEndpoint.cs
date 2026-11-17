@@ -17,13 +17,7 @@ internal static class TestAiConnectionEndpoint
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new TestAiConnectionCommand(request.Tier), cancellationToken);
-        return result.Status switch
-        {
-            ResultStatus.Unavailable => Results.Json(new { errors = result.Errors },
-                statusCode: StatusCodes.Status503ServiceUnavailable),
-            ResultStatus.Error => Results.UnprocessableEntity(new { errors = result.Errors }),
-            _ => result.ToHttpResult(),
-        };
+        return result.ToHttpResultWithRefusal();
     }
 }
 

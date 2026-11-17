@@ -88,8 +88,7 @@ public sealed class ProductsApiTests
         Assert.Multiple(() =>
         {
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(body.GetArrayLength(), Is.EqualTo(2));
-            Assert.That(body.EnumerateArray().Select(x => x.GetProperty("identifier").GetString()), Is.EquivalentTo(["type", "sortDirection"]));
+            Assert.That(body.GetProperty("errors").EnumerateObject().Select(x => x.Name), Is.EquivalentTo(["type", "sortDirection"]));
         });
         host.Sender.Verify(x => x.Send(It.IsAny<GetAdminProductsQuery>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -132,8 +131,8 @@ public sealed class ProductsApiTests
         {
             Assert.That(create.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
             Assert.That(replace.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(createBody.ValueKind, Is.EqualTo(JsonValueKind.Array));
-            Assert.That(replaceBody.ValueKind, Is.EqualTo(JsonValueKind.Array));
+            Assert.That(createBody.GetProperty("errors").EnumerateObject().Count(), Is.GreaterThan(0));
+            Assert.That(replaceBody.GetProperty("errors").EnumerateObject().Count(), Is.GreaterThan(0));
         });
         host.Sender.Verify(x => x.Send(It.IsAny<CreateProductCommand>(), It.IsAny<CancellationToken>()), Times.Never);
         host.Sender.Verify(x => x.Send(It.IsAny<ReplaceProductCommand>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -150,8 +149,7 @@ public sealed class ProductsApiTests
         Assert.Multiple(() =>
         {
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(body.ValueKind, Is.EqualTo(JsonValueKind.Array));
-            Assert.That(body[0].GetProperty("identifier").GetString(), Is.EqualTo("type"));
+            Assert.That(body.GetProperty("errors").TryGetProperty("type", out _), Is.True);
         });
         host.Sender.Verify(x => x.Send(It.IsAny<CreateProductCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }

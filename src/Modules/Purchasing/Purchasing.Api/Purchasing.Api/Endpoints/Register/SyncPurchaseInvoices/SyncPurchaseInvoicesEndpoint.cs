@@ -15,12 +15,6 @@ internal static class SyncPurchaseInvoicesEndpoint
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new SyncPurchaseRegisterCommand(), cancellationToken);
-        return result.Status switch
-        {
-            ResultStatus.Unavailable => Results.Json(new { errors = result.Errors },
-                statusCode: StatusCodes.Status503ServiceUnavailable),
-            ResultStatus.Error => Results.UnprocessableEntity(new { errors = result.Errors }),
-            _ => result.ToHttpResult(),
-        };
+        return result.ToHttpResultWithRefusal();
     }
 }

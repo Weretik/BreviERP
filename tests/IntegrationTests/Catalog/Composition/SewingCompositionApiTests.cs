@@ -127,10 +127,9 @@ public sealed class SewingCompositionApiTests
         {
             Assert.That(missing.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
             Assert.That(conflict.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
-            Assert.That(conflictBody.ValueKind, Is.EqualTo(JsonValueKind.Array));
+            Assert.That(conflictBody.GetProperty("errors").ValueKind, Is.EqualTo(JsonValueKind.Array));
             Assert.That(invalid.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(invalidBody.ValueKind, Is.EqualTo(JsonValueKind.Array));
-            Assert.That(invalidBody[0].GetProperty("identifier").GetString(), Is.EqualTo("materials[0].quantity"));
+            Assert.That(invalidBody.GetProperty("errors").TryGetProperty("materials[0].quantity", out _), Is.True);
             Assert.That(stale.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
         });
     }

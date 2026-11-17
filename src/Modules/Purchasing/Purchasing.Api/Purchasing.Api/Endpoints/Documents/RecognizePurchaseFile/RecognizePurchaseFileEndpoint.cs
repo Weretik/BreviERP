@@ -21,8 +21,6 @@ internal static class RecognizePurchaseFileEndpoint
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new RecognizePurchaseFileCommand(fileId, user.ActorName()), cancellationToken);
-        return result.Status == ResultStatus.Unavailable
-            ? Results.Json(new { errors = result.Errors }, statusCode: StatusCodes.Status503ServiceUnavailable)
-            : result.ToHttpResult();
+        return result.ToHttpResult();
     }
 }

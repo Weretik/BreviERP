@@ -24,7 +24,7 @@ internal static class UploadBankStatementEndpoint
     private static async Task<IResult> HandleAsync([FromForm] Guid accountId, IFormFile? file, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)
     {
-        if (file is null || file.Length == 0) return Results.BadRequest(new { error = "Оберіть файл виписки." });
+        if (file is null || file.Length == 0) return ApiProblems.BadRequest("Оберіть файл виписки.");
         await using var content = file.OpenReadStream();
         return (await sender.Send(new UploadBankStatementCommand(accountId, content, file.FileName,
             AccountingAccess.By(user)), cancellationToken)).ToHttpResult();

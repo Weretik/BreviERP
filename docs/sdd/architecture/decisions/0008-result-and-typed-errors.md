@@ -16,7 +16,7 @@ Most failures in Brevi are normal business answers: a fabric is used by a model,
 
 - Domain and Application return `Ardalis.Result` with a typed error from `<Aggregate>Errors` (stable code plus Ukrainian message). They never reference HTTP.
 - Every input has a FluentValidation validator beside its use case, with Ukrainian messages; the validation behavior stops invalid input before the handler.
-- One mapper in `BuildingBlocks.Api/Errors/ResultToHttpResult.cs` turns results into responses: validation 400, not found 404, conflict 409, forbidden 403, else 500, body `ProblemDetails`.
+- One mapper in `BuildingBlocks.Api/Errors/ResultToHttpResult.cs` turns results into responses: validation 400, not found 404, conflict 409, forbidden 403, unavailable 503, else 500, body `ProblemDetails` built by `ApiProblems` (every endpoint, since 2026-11-17).
 - Exceptions are only for programmer errors and the unexpected. One `GlobalExceptionHandler` logs them and answers without exception text.
 
 ## Consequences

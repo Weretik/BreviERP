@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Content.Application.Features.Articles.Commands.DeleteContentArticle;
 
 namespace Content.Api.Endpoints.Articles.DeleteContentArticle;
@@ -14,12 +15,6 @@ internal static class DeleteContentArticleEndpoint
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new DeleteContentArticleCommand(id), cancellationToken);
-        return result.Status switch
-        {
-            ResultStatus.Ok or ResultStatus.NoContent => Results.NoContent(),
-            ResultStatus.NotFound => Results.NotFound(),
-            ResultStatus.Invalid => Results.BadRequest(result.ValidationErrors),
-            _ => Results.StatusCode(StatusCodes.Status500InternalServerError),
-        };
+        return result.ToNoContentResult();
     }
 }

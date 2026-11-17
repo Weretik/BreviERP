@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Crm.Application.Features.Quotes.Commands.CompleteMailboxConnect;
 
 
@@ -17,6 +18,6 @@ internal static class CrmMailboxGoogleCallbackEndpoint
     {
         var result = await sender.Send(new CompleteMailboxConnectCommand(code, state, error), cancellationToken);
         response.Headers.CacheControl = "no-store";
-        return result.IsSuccess ? Results.Redirect(result.Value) : Results.BadRequest();
+        return result.IsSuccess ? Results.Redirect(result.Value) : ApiProblems.BadRequest("Не вдалося підключити пошту. Спробуйте ще раз зі сторінки «Пошта».");
     }
 }

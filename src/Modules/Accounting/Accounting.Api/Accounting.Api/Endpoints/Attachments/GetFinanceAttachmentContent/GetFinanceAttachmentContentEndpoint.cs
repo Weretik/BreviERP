@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Accounting.Application.Features.Attachments.Queries.GetFinanceAttachmentContent;
 using Accounting.Api.Endpoints.Shared;
 
@@ -17,7 +18,7 @@ internal static class GetFinanceAttachmentContentEndpoint
         CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetFinanceAttachmentContentQuery(id), cancellationToken);
-        if (!result.IsSuccess) return result.ToFileHttpResult();
+        if (!result.IsSuccess) return result.ToHttpResult();
         response.Headers.CacheControl = "private, no-store";
         response.Headers.XContentTypeOptions = "nosniff";
         response.Headers.ContentDisposition = new System.Net.Mime.ContentDisposition
