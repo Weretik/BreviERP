@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Scheduling.Application.Abstractions;
+using Scheduling.Contracts.Tasks;
+using Scheduling.Infrastructure.Contracts.Tasks;
 using Scheduling.Infrastructure.Integrations.CloudRun;
 using Scheduling.Infrastructure.Integrations.Outbox;
 using Scheduling.Infrastructure.Persistence;
@@ -12,7 +14,7 @@ namespace Scheduling.Infrastructure.DependencyInjection;
 
 public static class SchedulingInfrastructureExtensions
 {
-    /// <summary>DbContext, migrator, the Cloud Run launcher and the tick's outbox work.</summary>
+    /// <summary>DbContext, migrator, the Cloud Run launcher, the tick's outbox work and the Contracts for other modules.</summary>
     public static IServiceCollection AddSchedulingInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Missing ConnectionStrings:Default");
@@ -25,6 +27,7 @@ public static class SchedulingInfrastructureExtensions
         services.Configure<CloudRunJobOptions>(configuration.GetSection(CloudRunJobOptions.Section));
         services.AddHttpClient<ITaskJobLauncher, CloudRunTaskJobLauncher>(client => client.Timeout = TimeSpan.FromSeconds(30));
         services.AddScoped<ITickWork, OutboxTickWork>();
+        services.AddScoped<IBackgroundTaskRequests, BackgroundTaskRequests>();
         return services;
     }
 }

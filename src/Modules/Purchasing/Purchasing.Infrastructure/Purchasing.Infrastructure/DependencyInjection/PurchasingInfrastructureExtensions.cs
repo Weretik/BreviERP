@@ -2,6 +2,7 @@ using Ai.Contracts.Prompts;
 using Purchasing.Infrastructure.Adapters.Accounting;
 using Purchasing.Infrastructure.Adapters.Ai;
 using Purchasing.Infrastructure.Adapters.Reference;
+using Purchasing.Infrastructure.Adapters.Scheduling;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,7 @@ public static class PurchasingInfrastructureExtensions
         // Adapters from other modules' Contracts to this module's ports.
         services.AddScoped<IPurchasingSupplierReader, PurchasingSupplierReader>();
         services.AddScoped<IPurchasingPaymentReader, PurchasingPaymentReader>();
+        services.AddScoped<IPurchaseRecognitionLauncher, PurchaseRecognitionLauncher>();
         services.AddScoped<IPurchaseDocumentRecognizer, PurchaseDocumentRecognizer>();
         services.AddSingleton<IAiBasePrompt, PurchaseInvoiceBasePrompt>();
         services.AddScoped<PurchaseFileRecognition>();

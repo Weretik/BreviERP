@@ -657,16 +657,26 @@
         "tags": [
           "PurchaseInvoices"
         ],
-        "summary": "One batch (5 files) of «Розпізнати всі нові»: active safe links never tried before, newest messages first",
-        "description": "One batch (5 files) of «Розпізнати всі нові»: active safe links never tried before, newest messages first. Repeat while remaining is above 0 and stopReason is null. Failed files are not retried here; use recognizePurchaseFile.",
-        "operationId": "recognizeNewPurchaseFiles",
+        "summary": "Start the background recognition of new purchase originals",
+        "description": "«Розпізнати всі нові»: counts the active safe originals never tried before and, when there are any, asks «Фонові задачі» to start the «Розпізнавання оригіналів закупки» task; the next scheduler tick, within a minute, runs it in the tasks job. started is false when nothing waits. 409 when the task already runs or waits to start. The result shows on the «Фонові задачі» page and the recognised documents in the list.",
+        "operationId": "startNewPurchaseFilesRecognition",
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PurchaseRecognitionBatchResponse"
+                  "$ref": "#/components/schemas/PurchaseRecognitionStartResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -36639,50 +36649,6 @@
           }
         }
       },
-      "PurchaseRecognitionBatchResponse": {
-        "required": [
-          "recognized",
-          "needsReview",
-          "failed",
-          "skipped",
-          "remaining",
-          "costUsd",
-          "stopReason"
-        ],
-        "type": "object",
-        "properties": {
-          "recognized": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "needsReview": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "failed": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "skipped": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "remaining": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "costUsd": {
-            "type": "number",
-            "format": "double"
-          },
-          "stopReason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        }
-      },
       "PurchaseRecognitionResponse": {
         "required": [
           "fileId",
@@ -36724,6 +36690,22 @@
           "Failed",
           "Skipped"
         ]
+      },
+      "PurchaseRecognitionStartResponse": {
+        "required": [
+          "waiting",
+          "started"
+        ],
+        "type": "object",
+        "properties": {
+          "waiting": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "started": {
+            "type": "boolean"
+          }
+        }
       },
       "PurchaseSupplierOption": {
         "required": [

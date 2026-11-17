@@ -105,6 +105,9 @@ internal sealed class FakeRecognizer : IPurchaseDocumentRecognizer
     public Queue<PurchaseRecognitionAnswer> Answers { get; } = new();
     public List<PurchaseRecognitionRequest> Requests { get; } = [];
 
+    /// <summary>Runs before the answer of the call with this index, e.g. to let the time limit run out.</summary>
+    public Dictionary<int, Action<CancellationToken>> Before { get; } = [];
+
     public static PurchaseRecognitionAnswer Json(string json, string model = "gpt-6-luna") =>
         new(PurchaseRecognitionStatus.Answered, json, model, 0.002m, null);
 
@@ -114,6 +117,7 @@ internal sealed class FakeRecognizer : IPurchaseDocumentRecognizer
     public Task<PurchaseRecognitionAnswer> RecognizeAsync(PurchaseRecognitionRequest request, CancellationToken cancellationToken)
     {
         Requests.Add(request);
+        if (Before.TryGetValue(Requests.Count - 1, out var before)) before(cancellationToken);
         return Task.FromResult(Answers.Count > 0 ? Answers.Dequeue() : Off());
     }
 }
