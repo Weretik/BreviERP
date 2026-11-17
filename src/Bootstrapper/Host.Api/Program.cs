@@ -59,7 +59,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapModuleEndpoints();
-app.MapHealthChecks("/health").AllowAnonymous();
+app.MapHealthEndpoints();
 app.MapOutboxDispatch();
 
 app.Run();
