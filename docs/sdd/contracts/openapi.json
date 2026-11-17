@@ -12999,7 +12999,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PpePriceCalculation"
+                  "$ref": "#/components/schemas/PpePricePreview"
                 }
               }
             }
@@ -30880,6 +30880,35 @@
           "NotInFile",
           "Invalid"
         ]
+      },
+      "PpePricePreview": {
+        "required": [
+          "prices",
+          "blockers",
+          "isCalculated"
+        ],
+        "type": "object",
+        "properties": {
+          "prices": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PpePriceTiers"
+              }
+            ]
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PpePricingBlocker"
+            }
+          },
+          "isCalculated": {
+            "type": "boolean"
+          }
+        }
       },
       "PpePriceSourceMethod": {
         "enum": [

@@ -5,27 +5,16 @@ namespace ArchitectureTests.Layers;
 /// <summary>
 /// Api code holds no domain type (module rules «Handlers and endpoints»): requests, responses and controllers use the
 /// Application's commands, queries and DTOs. Domain enums are the one exception: they are the plain value lists that the
-/// OpenAPI contract shows by name. The files listed below still take a domain text type as
-/// part of the request and wait for their own request types; the PPE price preview still answers with the domain
-/// calculation (its OpenAPI <c>Produces</c> names it) and waits for its own response type.
+/// OpenAPI contract shows by name.
 /// </summary>
 public sealed partial class ApiDomainTypesTests
 {
-    private static readonly string[] Waiting =
-    [
-        "Content.Api/Endpoints/Articles/Shared/SaveContentArticleRequest.cs",
-        "Content.Api/Endpoints/ProductPages/SaveContentProduct/SaveContentProductRequest.cs",
-        "Content.Api/Endpoints/SiteCategories/Shared/SaveSiteCategoryRequest.cs",
-        "Catalog.Api/Endpoints/Ppe/PreviewPpePrices/PreviewPpePricesEndpoint.cs",
-    ];
-
     [Test]
     public void Api_code_uses_only_domain_enums()
     {
         var types = DomainTypes();
         var offending = Directory.GetFiles(Path.Combine(Root(), "src", "Modules"), "*.cs", SearchOption.AllDirectories)
             .Where(f => f.Contains(".Api" + Path.DirectorySeparatorChar) && NotBuildOutput(f))
-            .Where(f => !Waiting.Any(w => f.Replace('\\', '/').EndsWith(w, StringComparison.Ordinal)))
             .SelectMany(f =>
             {
                 var text = File.ReadAllText(f);

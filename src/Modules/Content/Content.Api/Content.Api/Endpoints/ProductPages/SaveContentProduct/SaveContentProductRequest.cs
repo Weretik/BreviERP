@@ -1,4 +1,4 @@
-using Content.Domain.ProductPages;
+using Content.Application.Features.ProductPages.Commands.SaveContentProduct;
 using Content.Application.Features.ProductPages.Commands.ImportOldSiteProductPages;
 
 namespace Content.Api.Endpoints.ProductPages.SaveContentProduct;

@@ -55,7 +55,7 @@ public sealed class ProductPage
     }
 
     /// <summary>Replaces the address, the mark and all texts. A language without any text is not kept.</summary>
-    public DomainResult Replace(string slug, bool showOnSite, IReadOnlyDictionary<string, ProductPageTextInput> texts,
+    public DomainResult Replace(string slug, bool showOnSite, IReadOnlyDictionary<string, ProductPageTextValues> texts,
         string updatedBy, DateTimeOffset now)
     {
         if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();

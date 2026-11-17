@@ -1,4 +1,3 @@
-using Catalog.Domain.Pricing.Ppe;
 using Catalog.Application.Features.Pricing.Queries.PreviewPpePrices;
 using BuildingBlocks.Api.Errors;
 
@@ -12,7 +11,7 @@ internal static class PreviewPpePricesEndpoint
             .WithSummary("Preview PPE prices")
             .WithDescription("CatalogRead. Three prices for a supplier price and rule before anything is saved (page «Новий ЗІЗ», CAT-009). Same calculator as the saved card; a draft rule gives the MissingRule blocker.")
             .RequireAuthorization("CatalogRead")
-            .Produces<PpePriceCalculation>();
+            .Produces<PpePricePreview>();
 
     private static async Task<IResult> HandleAsync(string ruleCode, [FromServices] ISender sender,
         decimal? supplierPrice = null, CancellationToken cancellationToken = default) =>

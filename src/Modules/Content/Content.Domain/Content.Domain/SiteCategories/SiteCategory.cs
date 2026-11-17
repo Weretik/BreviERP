@@ -66,7 +66,7 @@ public sealed class SiteCategory
 
     /// <summary>Replaces the place in the tree, the address, the mark and all texts. A language without any text is not kept.</summary>
     public DomainResult Replace(int? parentId, int sortOrder, string slug, bool showOnSite,
-        IReadOnlyDictionary<string, SiteCategoryTextInput> texts, string updatedBy, DateTimeOffset now)
+        IReadOnlyDictionary<string, SiteCategoryTextValues> texts, string updatedBy, DateTimeOffset now)
     {
         if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
         ParentId = parentId;

@@ -26,7 +26,7 @@ public sealed record ArticleBlock(
     string? Alt = null);
 
 /// <summary>What staff type for one language of an article.</summary>
-public sealed record ArticleTextInput(
+public sealed record ArticleTextValues(
     string? Title,
     string? Excerpt,
     string? SeoTitle,

@@ -48,10 +48,10 @@ public sealed class ProductPageRulesTests
     public void Replace_cleans_texts_drops_empty_rows_and_empty_languages()
     {
         var page = ProductPage.Create(7, "kostyum-lider", "a@b.c", DateTimeOffset.UnixEpoch).Value;
-        page.Replace("kostyum-lider", true, new Dictionary<string, ProductPageTextInput>
+        page.Replace("kostyum-lider", true, new Dictionary<string, ProductPageTextValues>
         {
-            ["uk"] = ContentTestHarness.Text(),
-            ["ru"] = new ProductPageTextInput(" ", null, null, [], null, null),
+            ["uk"] = ContentTestHarness.Text().ToValues(),
+            ["ru"] = new ProductPageTextValues(" ", null, null, [], null, null),
         }, "a@b.c", DateTimeOffset.UnixEpoch);
 
         var uk = page.TextIn("uk")!;

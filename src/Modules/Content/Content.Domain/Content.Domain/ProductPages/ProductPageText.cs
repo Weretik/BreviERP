@@ -5,7 +5,7 @@ public sealed class ProductPageText
 {
     private ProductPageText() { }
 
-    internal ProductPageText(int productId, string language, ProductPageTextInput input)
+    internal ProductPageText(int productId, string language, ProductPageTextValues input)
     {
         ProductId = productId;
         Language = language;
@@ -13,7 +13,7 @@ public sealed class ProductPageText
     }
 
     /// <summary>Takes new texts in place, so the saved row is updated instead of being replaced.</summary>
-    internal void Apply(ProductPageTextInput input)
+    internal void Apply(ProductPageTextValues input)
     {
         Name = ProductPageRules.Clean(input.Name);
         SeoTitle = ProductPageRules.Clean(input.SeoTitle);

@@ -7,14 +7,14 @@ public sealed class SiteCategoryText
 {
     private SiteCategoryText() { }
 
-    internal SiteCategoryText(string language, SiteCategoryTextInput input)
+    internal SiteCategoryText(string language, SiteCategoryTextValues input)
     {
         Language = language;
         Apply(input);
     }
 
     /// <summary>Takes new texts in place, so the saved row is updated instead of being replaced.</summary>
-    internal void Apply(SiteCategoryTextInput input)
+    internal void Apply(SiteCategoryTextValues input)
     {
         Name = ProductPageRules.Clean(input.Name);
         SeoTitle = ProductPageRules.Clean(input.SeoTitle);
