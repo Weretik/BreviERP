@@ -1,3 +1,4 @@
+using BuildingBlocks.Application.Outbox;
 using Reminders.Contracts.Telegram;
 using Reminders.Infrastructure.Contracts.Telegram;
 using BuildingBlocks.Infrastructure.Seeding;
@@ -35,6 +36,9 @@ public static class RemindersInfrastructureExtensions
 
         // Contracts other modules use (ADR-0006).
         services.AddScoped<ITelegramBot, TelegramBot>();
+
+        // Outbox messages that gave up are posted to the «Заявки з сайту» groups (EVT-07).
+        services.AddScoped<IOutboxFailureNotifier, OutboxFailureTelegramNotifier>();
 
         // Seeders run only in Host.Seed.
         services.AddScoped<ISeeder, DefaultReminderTaskSeeder>();
