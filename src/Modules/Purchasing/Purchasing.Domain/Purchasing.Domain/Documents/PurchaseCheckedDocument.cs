@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using System.Globalization;
 
 namespace Purchasing.Domain.Documents;
@@ -6,7 +7,7 @@ namespace Purchasing.Domain.Documents;
 /// Checked facts of one original file (one per file id): read by AI and passed the arithmetic check, or uploaded by hand.
 /// A different version replaces it only on explicit request; the old one goes to <see cref="PurchaseCheckedDocumentHistory"/>.
 /// </summary>
-public sealed class PurchaseCheckedDocument
+public sealed class PurchaseCheckedDocument : IAggregateRoot
 {
     public const int ByMaxLength = 256;
 
@@ -85,7 +86,7 @@ public enum PurchaseDocumentOrigin
 }
 
 /// <summary>A replaced version of a checked document; append-only.</summary>
-public sealed class PurchaseCheckedDocumentHistory
+public sealed class PurchaseCheckedDocumentHistory : IAggregateRoot
 {
     private PurchaseCheckedDocumentHistory() { }
 

@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using Crm.Domain.Leads.Events;
 using Crm.Domain.Leads.Enums;
 
@@ -7,7 +8,7 @@ namespace Crm.Domain.Leads;
 /// A call result button of «Мій день» («Довідники» of the leads statistics page, LEAD-001 R-06). An inactive result
 /// stays on the calls already recorded with it but is no longer offered.
 /// </summary>
-public sealed class LeadCallResult : DomainEventSource
+public sealed class LeadCallResult : DomainEventSource, IAggregateRoot
 {
     private LeadCallResult() { }
 

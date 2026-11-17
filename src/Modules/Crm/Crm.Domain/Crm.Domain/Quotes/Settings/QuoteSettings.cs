@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Crm.Domain.Quotes.Errors;
 
@@ -7,7 +8,7 @@ namespace Crm.Domain.Quotes.Settings;
 /// «Налаштування КП» (R-13): one record for the company, edited only by Director and Admin.
 /// <see cref="Version"/> guards against two people saving at once.
 /// </summary>
-public sealed class QuoteSettings : DomainEventSource
+public sealed class QuoteSettings : DomainEventSource, IAggregateRoot
 {
     public const int SingletonId = 1;
 

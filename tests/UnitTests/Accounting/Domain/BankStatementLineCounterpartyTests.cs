@@ -1,3 +1,4 @@
+using Accounting.Domain.Accounts;
 using Accounting.Domain.Counterparties;
 using Accounting.Domain.Statements;
 using Accounting.Domain.Statements.ValueObjects;
@@ -35,7 +36,13 @@ public sealed class BankStatementLineCounterpartyTests
         Assert.That(Line("ТОВ Ромашка", "", "").NeedsNewCounterparty, Is.True);
     }
 
-    private static BankStatementLine Line(string bank, string edrpou, string iban) =>
-        BankStatementLine.Create(BankStatementId.New(), new BankLineData(1, new DateOnly(2026, 11, 1), null, null, 1000,
-            "UAH", bank, edrpou, iban, "Оплата", "", null, null, "", "{}"));
+    private static BankStatementLine Line(string bank, string edrpou, string iban)
+    {
+        var account = FinanceAccount.Create(FinanceAccountId.New(), FinanceAccountDetails.Of("Банк",
+            FinanceAccountType.Bank, "UAH", "UA11", 0, new DateOnly(2024, 1, 1), null, 1).Value, Now);
+        var line = new BankLineData(1, new DateOnly(2026, 11, 1), null, null, 1000, "UAH", bank, edrpou, iban, "Оплата",
+            "", null, null, "", "{}");
+        return BankStatement.Create(BankStatementId.New(), account, "виписка.xlsx", new string('a', 64), [line], "Тест",
+            Now).Value.Lines.Single();
+    }
 }

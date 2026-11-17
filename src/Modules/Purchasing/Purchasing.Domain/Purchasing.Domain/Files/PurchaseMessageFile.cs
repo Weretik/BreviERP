@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Files;
 
 /// <summary>
 /// A link from a message to an original document (usually Dropbox). Only the link is stored, not the file. A changed URL
 /// is a different file; a link removed from the sheet becomes inactive and is kept.
 /// </summary>
-public sealed class PurchaseMessageFile
+public sealed class PurchaseMessageFile : IAggregateRoot
 {
     public const string AwaitingRecognition = "awaiting_recognition";
 

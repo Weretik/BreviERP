@@ -22,5 +22,7 @@ public sealed class PurchaseMessageConfiguration : IEntityTypeConfiguration<Purc
         b.HasIndex(x => x.SupplierId);
         b.HasIndex(x => x.MessageDate);
         b.HasSearchText(nameof(PurchaseMessage.Text));
+        b.HasMany(x => x.Payments).WithOne().HasForeignKey(x => x.MessageId).OnDelete(DeleteBehavior.Restrict);
+        b.Navigation(x => x.Payments).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

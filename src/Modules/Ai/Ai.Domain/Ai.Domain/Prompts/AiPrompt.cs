@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace Ai.Domain.Prompts;
 
 /// <summary>
 /// Extra rules the admin writes for one kind of request (e.g. «Умови розпізнавання рахунків»). They are added after the
 /// fixed instruction of the module, which keeps the answer format.
 /// </summary>
-public sealed class AiPrompt
+public sealed class AiPrompt : IAggregateRoot
 {
     public const int KeyMaxLength = 60;
     public const int TextMaxLength = 4_000;

@@ -25,6 +25,9 @@ public static class ProductionOrderErrors
     public static Error ItemNotInOrder() =>
         Error.NotFound("production.item_not_in_order", "Позиції немає в цьому завданні.");
 
+    public static Error FileNotFound() =>
+        Error.NotFound("production.file_not_found", "Файл не знайдено.");
+
     public static Error ShipmentNotFound() =>
         Error.NotFound("production.shipment_not_found", "Відвантаження не знайдено.");
 

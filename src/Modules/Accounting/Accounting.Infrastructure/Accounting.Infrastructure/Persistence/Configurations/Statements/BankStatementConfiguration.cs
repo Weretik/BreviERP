@@ -25,6 +25,8 @@ internal sealed class BankStatementConfiguration : IEntityTypeConfiguration<Bank
         builder.HasOne<FinanceAccount>().WithMany().HasForeignKey(x => x.AccountId).OnDelete(DeleteBehavior.Restrict);
         // The same file of the same account opens the statement uploaded before.
         builder.HasIndex(x => new { x.AccountId, x.FileHash }).IsUnique();
+        builder.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.StatementId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(x => x.Lines).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.HasIndex(x => x.CreatedAt);
     }
 }

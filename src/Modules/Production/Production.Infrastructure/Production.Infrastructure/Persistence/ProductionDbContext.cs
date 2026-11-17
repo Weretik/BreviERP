@@ -22,8 +22,8 @@ public sealed class ProductionDbContext(DbContextOptions<ProductionDbContext> op
     public DbSet<WorkshopEmployee> Employees => Set<WorkshopEmployee>();
     public DbSet<ModelFabricNorm> FabricNorms => Set<ModelFabricNorm>();
     public DbSet<ProductionOrder> Orders => Set<ProductionOrder>();
-    public DbSet<ProductionOrderChange> OrderChanges => Set<ProductionOrderChange>();
-    public DbSet<ProductionOrderFile> OrderFiles => Set<ProductionOrderFile>();
+    public IQueryable<ProductionOrderChange> OrderChanges => Set<ProductionOrderChange>().AsNoTracking();
+    public IQueryable<ProductionOrderFile> OrderFiles => Set<ProductionOrderFile>().AsNoTracking();
     public DbSet<ProductionTelegramDelivery> TelegramDeliveries => Set<ProductionTelegramDelivery>();
     public DbSet<WorkshopSettings> Settings => Set<WorkshopSettings>();
     public DbSet<ProductionWork> Work => Set<ProductionWork>();

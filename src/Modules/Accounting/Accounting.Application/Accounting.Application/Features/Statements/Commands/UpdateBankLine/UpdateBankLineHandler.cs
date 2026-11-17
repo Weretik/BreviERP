@@ -20,13 +20,10 @@ public sealed class UpdateBankLineHandler(IAccountingDbContext db, IAccountingCu
         CancellationToken cancellationToken)
     {
         var statementId = BankStatementId.From(command.StatementId);
-        var statement = await db.BankStatements.AsNoTracking()
+        var lineId = BankStatementLineId.From(command.LineId);
+        var statement = await db.BankStatements.Include(x => x.Lines.Where(line => line.Id == lineId))
             .FirstOrDefaultAsync(x => x.Id == statementId, cancellationToken);
         if (statement is null) return Result.NotFound(StatementMessages.NotFound);
-        var lineId = BankStatementLineId.From(command.LineId);
-        var line = await db.BankStatementLines
-            .FirstOrDefaultAsync(x => x.Id == lineId && x.StatementId == statementId, cancellationToken);
-        if (line is null) return Result.NotFound(StatementMessages.LineNotFound);
         if (statement.CheckPreview() is { IsFailure: true } booked) return booked.Error!.ToResult<BankStatementLineResponse>();
 
         FinanceCategory? category = null;
@@ -43,9 +40,10 @@ public sealed class UpdateBankLineHandler(IAccountingDbContext db, IAccountingCu
         var (counterparty, gone) = await CounterpartyStates.ResolveAsync(readers, link.Value, cancellationToken);
         if (gone is not null) return Result.NotFound(gone);
 
-        var edited = line.Edit(category, counterparty, command.OneoffName, command.Description, command.Comment,
-            command.Excluded);
+        var edited = statement.EditLine(lineId, category, counterparty, command.OneoffName, command.Description,
+            command.Comment, command.Excluded);
         if (edited.IsFailure) return edited.Error!.ToResult<BankStatementLineResponse>();
+        var line = edited.Value;
         await db.SaveChangesAsync(cancellationToken);
         var names = await FinanceNames.LoadAsync(db, cancellationToken);
         return Result.Success(BankStatementLineResponse.From(line, names));

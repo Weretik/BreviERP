@@ -1,9 +1,10 @@
+using BuildingBlocks.Domain.Entity;
 using Reminders.Domain.Identifiers;
 
 namespace Reminders.Domain.Dispatching;
 
 /// <summary>One reminder posted to one chat on one day. Unique per occurrence and day so a rerun sends nothing twice.</summary>
-public sealed class SentReminderMessage
+public sealed class SentReminderMessage : IAggregateRoot
 {
     private SentReminderMessage() { }
 

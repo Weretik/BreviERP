@@ -16,8 +16,8 @@ public sealed class UploadProductionOrderFileHandler(
         var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == command.OrderId, cancellationToken);
         if (order is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.NotFound);
         if (!command.Actor.CanEdit(order)) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotEdit);
-        if (command.ItemId is { } itemId && order.Items.All(x => x.Id != itemId))
-            return Result<ProductionOrderResponse>.NotFound(OrderMessages.ItemNotInOrder);
+        var allowed = order.CanAddFile(command.ItemId);
+        if (allowed.IsFailure) return allowed.ToResult<ProductionOrderResponse>();
         var actorName = await OrderActors.NameAsync(staff, command.Actor.UserId, cancellationToken);
         if (actorName is null) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.ActorUnknown);
 
@@ -25,11 +25,9 @@ public sealed class UploadProductionOrderFileHandler(
         var key = $"/production/orders/{order.Number}/{Guid.NewGuid():N}{SafeExtension(name)}";
         var url = await storage.UploadAsync(command.Content, key, command.ContentType, cancellationToken);
         var now = clock.GetUtcNow();
-        var file = new ProductionOrderFile(order.Id, command.ItemId,
-            Enum.Parse<ProductionFileKind>(command.Kind, ignoreCase: true), name, command.ContentType,
-            command.SizeInBytes, url, key, actorName, now);
-        db.OrderFiles.Add(file);
-        order.RecordAbout(command.ItemId, "Файл додано", null, name, actorName, now);
+        // CanAddFile was checked before the upload, so adding cannot fail here.
+        _ = order.AddFile(command.ItemId, Enum.Parse<ProductionFileKind>(command.Kind, ignoreCase: true), name,
+            command.ContentType, command.SizeInBytes, url, key, actorName, now).Value;
         try
         {
             await db.SaveChangesAsync(cancellationToken);

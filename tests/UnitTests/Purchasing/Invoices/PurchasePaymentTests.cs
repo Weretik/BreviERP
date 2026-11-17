@@ -1,3 +1,4 @@
+using Purchasing.Domain.Messages;
 using System.Text.Json;
 using Ardalis.Result;
 using Purchasing.Application.Abstractions;
@@ -118,7 +119,7 @@ public sealed class PurchasePaymentTests
         Assert.That(stale.Status, Is.EqualTo(ResultStatus.Conflict));
         Assert.That(stale.Errors.Single(), Is.EqualTo(ReviewPurchaseInvoiceHandler.Stale));
         var twice = await LinkAsync(Paid, 1);
-        Assert.That(twice.Errors.Single(), Is.EqualTo(LinkPurchasePaymentHandler.AlreadyLinked));
+        Assert.That(twice.Errors.Single(), Is.EqualTo(PurchaseMessageErrors.PaymentAlreadyLinked().Message));
     }
 
     [Test]
@@ -130,7 +131,7 @@ public sealed class PurchasePaymentTests
 
         Assert.That(removed.IsSuccess, Is.True);
         Assert.That(removed.Value.Payments, Is.Empty);
-        Assert.That((await UnlinkAsync(Paid, 2)).Errors.Single(), Is.EqualTo(UnlinkPurchasePaymentHandler.NotLinked));
+        Assert.That((await UnlinkAsync(Paid, 2)).Errors.Single(), Is.EqualTo(PurchaseMessageErrors.PaymentNotLinked().Message));
         using (var db = harness.Fresh())
         {
             var history = db.Payments.Single();

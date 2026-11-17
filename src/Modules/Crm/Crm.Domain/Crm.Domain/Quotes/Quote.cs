@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Crm.Domain.Quotes.Enums;
 using Crm.Domain.Quotes.Errors;
@@ -11,7 +12,7 @@ namespace Crm.Domain.Quotes;
 /// <see cref="Version"/> grows with every change and guards against stale saves (R-12). Every history line a person
 /// adds is also raised as <see cref="QuoteRecorded"/> for «Журнал дій» (ACT-001).
 /// </summary>
-public sealed class Quote : DomainEventSource
+public sealed class Quote : DomainEventSource, IAggregateRoot
 {
     private readonly List<QuoteItem> _items = [];
     private readonly List<QuoteEvent> _events = [];

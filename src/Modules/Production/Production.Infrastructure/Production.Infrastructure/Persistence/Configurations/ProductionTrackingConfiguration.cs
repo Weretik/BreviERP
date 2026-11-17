@@ -17,7 +17,6 @@ internal sealed class ProductionOrderFileConfiguration : IEntityTypeConfiguratio
         builder.Property(x => x.Url).HasMaxLength(ProductionOrderFile.UrlMaxLength).IsRequired();
         builder.Property(x => x.StorageKey).HasMaxLength(ProductionOrderFile.StorageKeyMaxLength);
         builder.Property(x => x.CreatedByName).HasMaxLength(ProductionOrder.PersonMaxLength).IsRequired();
-        builder.HasOne<ProductionOrder>().WithMany().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne<ProductionItem>().WithMany().HasForeignKey(x => x.ItemId).OnDelete(DeleteBehavior.SetNull);
         builder.HasIndex(x => x.OrderId);
     }

@@ -4,6 +4,7 @@ using Production.Domain.Orders.Enums;
 using Production.Domain.Orders.Errors;
 using Production.Domain.Orders.Events;
 using BuildingBlocks.Domain.Events;
+using BuildingBlocks.Domain.Entity;
 using Production.Domain.Orders.Rules;
 using Production.Domain.Orders.ValueObjects;
 
@@ -14,7 +15,7 @@ namespace Production.Domain.Orders;
 /// цех»); the client, manager and every item are copied then. <see cref="CreateRequestId"/> makes a repeated press of
 /// the button return the same order instead of a duplicate.
 /// </summary>
-public sealed class ProductionOrder : DomainEventSource
+public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
 {
     public const int ClientMaxLength = 300;
     public const int PersonMaxLength = 200;
@@ -27,6 +28,7 @@ public sealed class ProductionOrder : DomainEventSource
     private readonly List<ProductionItem> _items = [];
     private readonly List<ProductionOrderChange> _changes = [];
     private readonly List<ProductionShipment> _shipments = [];
+    private readonly List<ProductionOrderFile> _files = [];
 
     private ProductionOrder() { }
 
@@ -276,6 +278,44 @@ public sealed class ProductionOrder : DomainEventSource
         ChangeStatus(ProductionOrderStatus.New, null, actorName, now);
         Publish(ProductionOrderActivity.Reopened, _changes.Count - 1);
         return DomainResult.Success();
+    }
+
+    /// <summary>The files of the order; only the commands that add or remove a file load them.</summary>
+    public IReadOnlyList<ProductionOrderFile> Files => _files;
+
+    /// <summary>A file may belong to the whole order (no item) or to one of its own items.</summary>
+    public DomainResult CanAddFile(int? itemId) =>
+        itemId is { } id && FindItem(id) is null ? ProductionOrderErrors.ItemNotInOrder() : DomainResult.Success();
+
+    /// <summary>«Додати файл»: the file joins the order or one of its items with a history line.</summary>
+    public DomainResult<ProductionOrderFile> AddFile(int? itemId, ProductionFileKind kind, string name,
+        string contentType, long bytes, string url, string? storageKey, string actorName, DateTimeOffset now)
+    {
+        var added = AddMovedFile(itemId, kind, name, contentType, bytes, url, storageKey, actorName, now);
+        if (added.IsSuccess) RecordAbout(itemId, "Файл додано", null, added.Value.Name, actorName, now);
+        return added;
+    }
+
+    /// <summary>A file moved from the old «Цех»: it keeps who added it there and when, with no history line.</summary>
+    public DomainResult<ProductionOrderFile> AddMovedFile(int? itemId, ProductionFileKind kind, string name,
+        string contentType, long bytes, string url, string? storageKey, string createdByName, DateTimeOffset createdAt)
+    {
+        var allowed = CanAddFile(itemId);
+        if (allowed.IsFailure) return allowed.Error!;
+        var file = new ProductionOrderFile(Id, itemId, kind, name, contentType, bytes, url, storageKey, createdByName,
+            createdAt);
+        _files.Add(file);
+        return file;
+    }
+
+    /// <summary>«Видалити файл»: the file is marked deleted (its CDN copy is removed after the save).</summary>
+    public DomainResult<ProductionOrderFile> RemoveFile(int fileId, string actorName, DateTimeOffset now)
+    {
+        var file = _files.FirstOrDefault(x => x.Id == fileId && x.DeletedAt == null);
+        if (file is null) return ProductionOrderErrors.FileNotFound();
+        file.Delete(now);
+        RecordAbout(file.ItemId, "Файл видалено", file.Name, null, actorName, now);
+        return file;
     }
 
     /// <summary>

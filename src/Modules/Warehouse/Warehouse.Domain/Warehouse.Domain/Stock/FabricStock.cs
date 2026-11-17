@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Warehouse.Domain.Stock.Errors;
 using Warehouse.Domain.Stock.Movements;
@@ -11,7 +12,7 @@ public sealed record StockFabric(int? FabricId, string Code, string Name);
 /// «Склад тканин»: metres of one fabric (by FAB- code) in one colour. The balance changes only through
 /// <see cref="FabricMovement"/>s; <see cref="Version"/> stops two people from moving it at once.
 /// </summary>
-public sealed class FabricStock
+public sealed class FabricStock : IAggregateRoot
 {
     public const int CodeMaxLength = 32;
     public const int NameMaxLength = 300;

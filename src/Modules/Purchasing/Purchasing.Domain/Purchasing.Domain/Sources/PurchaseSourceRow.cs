@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Sources;
 
 /// <summary>
 /// One row (UID) of the source sheet. The row keeps its id when it moves; an inactive row is a row that disappeared from
 /// the sheet and is kept for history.
 /// </summary>
-public sealed class PurchaseSourceRow
+public sealed class PurchaseSourceRow : IAggregateRoot
 {
     private PurchaseSourceRow() { }
 

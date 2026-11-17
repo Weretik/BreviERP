@@ -24,7 +24,7 @@ public sealed class AccountingDbContext(DbContextOptions<AccountingDbContext> op
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
     public DbSet<FinanceAttachment> Attachments => Set<FinanceAttachment>();
     public DbSet<BankStatement> BankStatements => Set<BankStatement>();
-    public DbSet<BankStatementLine> BankStatementLines => Set<BankStatementLine>();
+    public IQueryable<BankStatementLine> BankStatementLines => Set<BankStatementLine>().AsNoTracking();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken) =>
         Database.BeginTransactionAsync(cancellationToken);

@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace Purchasing.Domain.Documents;
 
 /// <summary>
 /// One press of «Розпізнати» for a file (fast model, then the strong one if needed). Its problems show on the card until a
 /// checked document exists. Append-only.
 /// </summary>
-public sealed class PurchaseRecognitionAttempt
+public sealed class PurchaseRecognitionAttempt : IAggregateRoot
 {
     public const int ProblemMaxLength = 500;
     public const int MaxProblems = 20;

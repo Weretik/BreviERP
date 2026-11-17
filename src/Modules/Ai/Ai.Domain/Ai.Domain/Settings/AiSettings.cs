@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace Ai.Domain.Settings;
 
 /// <summary>
 /// «Налаштування ШІ»: the one OpenAI account of Brevi. The API key is stored only encrypted (<see cref="ProtectedApiKey"/>)
 /// and never shown again; <see cref="KeyHint"/> keeps its last four characters so the admin can tell which key is set.
 /// </summary>
-public sealed class AiSettings
+public sealed class AiSettings : IAggregateRoot
 {
     public const string OpenAi = "openai";
     public const int ModelMaxLength = 80;

@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace ActivityLog.Domain.Entries;
 
 /// <summary>
 /// One action of a staff member in «Журнал дій» (ACT-001 R-02): who, what, with which object and when. Entries are
 /// written once and never changed.
 /// </summary>
-public sealed class ActivityEntry
+public sealed class ActivityEntry : IAggregateRoot
 {
     public const int ActorNameMaxLength = 200;
     public const int RolesMaxLength = 500;

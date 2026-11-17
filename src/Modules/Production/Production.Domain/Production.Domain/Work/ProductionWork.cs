@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
@@ -32,7 +33,7 @@ public sealed record WorkFacts(ProductionWorkKind Kind, int Quantity, DateOnly W
 /// as it was, so a later rate change does not change the pay of past work. A record is never edited or deleted: a wrong
 /// one is cancelled by «Сторно» with a reason (PRD-D36).
 /// </summary>
-public sealed class ProductionWork : DomainEventSource
+public sealed class ProductionWork : DomainEventSource, IAggregateRoot
 {
     public const int MaxQuantity = 100_000;
     public const int CommentMaxLength = 1000;

@@ -47,7 +47,6 @@ internal sealed class BankStatementLineConfiguration : IEntityTypeConfiguration<
 
         // The line belongs to its statement. The suggested category and the other account of a transfer are not linked:
         // they are only a draft until booking, which checks them again.
-        builder.HasOne<BankStatement>().WithMany().HasForeignKey(x => x.StatementId).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(x => new { x.StatementId, x.RowNumber });
         builder.HasIndex(x => new { x.StatementId, x.State });

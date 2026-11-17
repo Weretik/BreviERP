@@ -1,10 +1,11 @@
+using BuildingBlocks.Domain.Entity;
 namespace Warehouse.Domain.Stock.Movements;
 
 /// <summary>
 /// A form submission of «Склад тканин» by its operation id. The same id with the same data returns the saved result
 /// instead of moving the fabric again; the same id with other data is refused.
 /// </summary>
-public sealed class StockOperation
+public sealed class StockOperation : IAggregateRoot
 {
     public const int KindMaxLength = 32;
     public const int HashLength = 64;

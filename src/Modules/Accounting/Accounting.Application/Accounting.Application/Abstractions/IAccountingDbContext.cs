@@ -21,7 +21,8 @@ public interface IAccountingDbContext
     DbSet<AuditEntry> AuditEntries { get; }
     DbSet<FinanceAttachment> Attachments { get; }
     DbSet<BankStatement> BankStatements { get; }
-    DbSet<BankStatementLine> BankStatementLines { get; }
+    /// <summary>Statement lines for reading; a line is added or changed only through its statement.</summary>
+    IQueryable<BankStatementLine> BankStatementLines { get; }
 
     /// <summary>Saves; a concurrent change of the same version throws <see cref="DbUpdateConcurrencyException"/>.</summary>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

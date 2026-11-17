@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Content.Domain.ProductPages;
 
@@ -7,7 +8,7 @@ namespace Content.Domain.SiteCategories;
 /// A category or subcategory of the public site catalog (CNT-003): its place in the two-level tree, whether the site
 /// shows it, its address and its texts in Ukrainian and Russian. The tree belongs to the site, not to admin sections.
 /// </summary>
-public sealed class SiteCategory
+public sealed class SiteCategory : IAggregateRoot
 {
     private readonly List<SiteCategoryText> _texts = [];
 

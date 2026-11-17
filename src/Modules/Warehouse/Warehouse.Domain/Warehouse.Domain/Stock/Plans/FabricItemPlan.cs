@@ -1,3 +1,4 @@
+using BuildingBlocks.Domain.Entity;
 using Warehouse.Domain.Stock.Movements;
 
 namespace Warehouse.Domain.Stock.Plans;
@@ -46,7 +47,7 @@ public sealed class FabricItemPlanPart
 /// today's norm of the model. «Оновити план» replaces it explicitly and raises the version; issues already made keep
 /// the plan they were compared with.
 /// </summary>
-public sealed class FabricItemPlan
+public sealed class FabricItemPlan : IAggregateRoot
 {
     private readonly List<FabricItemPlanPart> _parts = [];
 
