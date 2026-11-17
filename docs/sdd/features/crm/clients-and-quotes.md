@@ -35,6 +35,8 @@ src/Modules/Crm/
     CustomerContactsEndpoints.cs      group /api/crm/customers/{customerId}/contacts: contact writes
     <UseCase>/                        one folder per use case: <UseCase>Endpoint.cs and its request
     Shared/                           SaveCustomerContactRequest (create and update contact)
+  Crm.Api/Crm.Api/Endpoints/Mailboxes/
+    MailboxesEndpoints.cs             group /api/crm/mailboxes: ConnectCrmMailbox, CrmMailboxGoogleCallback, DisconnectCrmMailbox (Gmail for КП)
   Crm.Api/Crm.Api/Access/
     CrmActorClaims.cs                 actor binding shared by CRM endpoints
 ```

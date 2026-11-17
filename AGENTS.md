@@ -39,6 +39,7 @@ For a new or substantially changed feature, update the [feature map](docs/sdd/fe
 | Focused integration test | `dotnet test tests/IntegrationTests/IntegrationTests.csproj --filter <ClassOrName>` | slow; needs a separate PostgreSQL through `BREVIERP_CATALOG_TEST_CONNECTION` |
 | OpenAPI contract | `dotnet build src/Bootstrapper/Host.Api/Host.Api.csproj` regenerates `docs/sdd/contracts/openapi.json`; commit it with the endpoint change | fast |
 | Documentation change | `git diff --check` and check the changed links | fast |
+| Module and feature maps | `python3 tools/docs/check_module_maps.py`: every module, host, endpoint folder and feature card is on the [system map](docs/sdd/architecture/overview/system-map.md), [module map](docs/sdd/architecture/overview/modules.md) and [feature map](docs/sdd/features/README.md); a change that adds or renames one updates them in the same PR | fast |
 
 Do not run a full `dotnet build`/`dotnet test BreviERP.sln`, all integration tests, or `Host.Seed` data commands unless the user asks; CI runs the full suite. A small fix that restores documented behavior needs no SDD, file-role map, or audit: fix it, run the focused test, and describe the change briefly.
 

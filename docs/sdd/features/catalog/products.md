@@ -31,6 +31,7 @@ src/
 └── Modules/Catalog/
     ├── Catalog.Api/Catalog.Api/Endpoints/Product/ProductsEndpoints.cs  # HTTP entry point (Minimal API group, one <UseCase>/ folder per use case)
     ├── Catalog.Api/Catalog.Api/Endpoints/Overview/ProductOverviewEndpoints.cs  # «Товари» page API
+    ├── Catalog.Api/Catalog.Api/Endpoints/Shared/PagedInfoResponse.cs  # page numbers of the product list response
     ├── Catalog.Application/Catalog.Application/Features/Product/
     │   ├── Commands/CreateProduct/CreateProductHandler.cs  # use case handler
     │   ├── Commands/DeleteProduct/DeleteProductHandler.cs  # use case handler

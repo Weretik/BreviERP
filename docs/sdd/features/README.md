@@ -1,6 +1,6 @@
 # BreviERP backend feature map
 
-**Static code check completed:** 2026-10-16. This map covers current HTTP scenarios by module. Each description explains the entry point, components, data, and cross-module relationships; [SDD](../specs/README.md) holds decisions and delivery history. When adding a feature or changing its structure, update its description and this index in the same change.
+**Static code check completed:** 2026-10-16. This map covers current HTTP scenarios by module; the [system map](../architecture/overview/system-map.md) says which module owns what. Each description explains the entry point, components, data, and cross-module relationships; [SDD](../specs/README.md) holds decisions and delivery history. When adding a feature or changing its structure, update its description and this index in the same change.
 
 See the feature card's “Code structure” section for actual file paths and roles, “Structure diagram” for the flow between parts, and “Tests” for test files and the focused run command.
 
@@ -45,10 +45,6 @@ Pricing data operations (local `Host.Seed` jobs, not HTTP), in run order:
 - [Staff accounts](identity/staff-accounts.md) — «Користувачі»: administrators and the director create, re-role, block, reset and delete staff accounts.
 - [Access rights](identity/access-rights.md) — «Права доступу»: per-role pages and actions, new roles; every work page's API checks them.
 - [Own profile](identity/own-profile.md) — «Мій кабінет»: own name and photo for every staff member; phone, email and password for administrators.
-
-## Other modules
-
-The [module map](../architecture/overview/modules.md) describes module boundaries; implemented workflows are listed below.
 
 ## Accounting
 

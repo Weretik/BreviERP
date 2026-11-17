@@ -17,6 +17,7 @@ src/
     ├── Identity.Api/Identity.Api/
     │   ├── Endpoints/CookieAuth/                    # LoginCookieSession/, LogoutCookieSession/: one folder per use case
     │   ├── Endpoints/CookieAuth/Shared/             # SessionCookieWriter (CSRF cookie), SessionCookieOptions
+    │   ├── Endpoints/Shared/                        # SessionMeResponse: the user the login and `me` both return
     │   ├── Endpoints/Session/                       # GetSessionMe/, access
     │   └── Middleware/CookieCsrfMiddleware.cs       # CSRF header check for cookie sessions
     ├── Identity.Application/Identity.Application/Features/Auth/
