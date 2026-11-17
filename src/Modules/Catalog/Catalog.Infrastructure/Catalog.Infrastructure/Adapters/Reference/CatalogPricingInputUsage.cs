@@ -1,25 +1,15 @@
-using Catalog.Contracts.Products;
+using Reference.Contracts.Pricing;
 using Catalog.Domain.Products;
-using Mediator;
 using Microsoft.EntityFrameworkCore;
-using Catalog.Application.Features.Product.Queries.GetProductMediaUsages;
 using Catalog.Infrastructure.Persistence;
 using Catalog.Domain.Products.Sewing.Enums;
 using Catalog.Domain.Products.Sewing.ValueObjects;
 
-namespace Catalog.Infrastructure.Contracts.Products;
+namespace Catalog.Infrastructure.Adapters.Reference;
 
-/// <summary>Library photos and Reference rows that product cards use.</summary>
-internal sealed class CatalogUsage(ISender sender, CatalogDbContext dbContext) : ICatalogUsage
+/// <summary>Tells Reference which fabrics, accessories and operations a product composition holds (ADR-0019).</summary>
+internal sealed class CatalogPricingInputUsage(CatalogDbContext dbContext) : IPricingInputUsageSource
 {
-    public async Task<IReadOnlyList<CatalogMediaUsage>> MediaUsagesAsync(IReadOnlyCollection<int> mediaFileIds,
-        CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetProductMediaUsagesQuery(mediaFileIds), cancellationToken);
-        if (!result.IsSuccess) throw new InvalidOperationException("Catalog photo usages could not be read.");
-        return result.Value.Select(x => new CatalogMediaUsage(x.MediaFileId, x.ProductId, x.ProductName)).ToArray();
-    }
-
     public Task<bool> IsFabricUsedAsync(int fabricId, CancellationToken cancellationToken) =>
         dbContext.Products.AnyAsync(x =>
             x.SewingDetails != null && x.SewingDetails.Fabrics.Any(y => y.FabricId == fabricId) ||

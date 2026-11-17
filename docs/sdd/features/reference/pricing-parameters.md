@@ -30,8 +30,8 @@ src/Modules/Reference/
     └── Persistence/Migrations/*_PricingSettingsFromSheet.cs     # renames AdditionalReferences, keeps old rows
 
 src/Modules/Reference/.../Abstractions/IPricingSettingsChangeNotifier.cs        # port called after each save
-src/Modules/Reference/.../Adapters/Catalog/PricingSettingsChangeNotifier.cs  # port → Catalog.Contracts IPricingSettingsSync
-src/Modules/Catalog/.../Contracts/Pricing/PricingSettingsSync.cs               # reads both Reference.Contracts lists, sends Catalog sync
+src/Modules/Reference/.../Contracts/Pricing/PricingSettingsChangeNotifier.cs  # outbox → every IPricingSettingsSubscriber (Reference.Contracts, ADR-0019)
+src/Modules/Catalog/.../Adapters/Reference/PricingSettingsSync.cs              # Catalog's IPricingSettingsSubscriber: reads both Reference.Contracts lists, sends Catalog sync
 src/Modules/Catalog/.../Features/Pricing/Commands/SyncPricingSettings/           # sheet codes → sewing settings, PPE rule versions
 ```
 

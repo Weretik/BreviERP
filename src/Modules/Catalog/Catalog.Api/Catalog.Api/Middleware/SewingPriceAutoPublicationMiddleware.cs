@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Catalog.Contracts.Pricing;
+using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

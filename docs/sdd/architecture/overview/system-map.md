@@ -28,7 +28,7 @@ The first page to open for "where does this live": every host and every module w
 
 ## Context map
 
-The context map is the [C4 component diagram](../c4/README.md#level-3-components-of-the-backend): every module and outside system, and on every arrow how they talk. A `Contracts` interface is a synchronous call inside one process; the outbox is a message sent after the commit and repeated until it succeeds; an adapter in `Infrastructure/Integrations` translates an outside system into the module's own model (anti-corruption layer). Five module pairs still reference each other both ways; they are open in the [module rules](../../standards/module-rules.md#known-deviations).
+The context map is the [C4 component diagram](../c4/README.md#level-3-components-of-the-backend): every module and outside system, and on every arrow how they talk. A `Contracts` interface is a synchronous call inside one process; the outbox is a message sent after the commit and repeated until it succeeds; an adapter in `Infrastructure/Integrations` translates an outside system into the module's own model (anti-corruption layer). The module graph has no cycle: an upstream module that needs a downstream one declares a port in its own `Contracts` and the downstream module implements it ([ADR-0019](../decisions/0019-module-graph-without-cycles.md)); an architecture test fails on a new cycle.
 
 ## Dependency direction
 

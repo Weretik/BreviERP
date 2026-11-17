@@ -1,13 +1,13 @@
 using Warehouse.Application.Abstractions;
-using Warehouse.Contracts.Stock;
+using Production.Contracts.FabricPlans;
 using Warehouse.Domain.Stock;
 using Warehouse.Domain.Stock.Movements;
 
 namespace Warehouse.Application.Features.Stock.Shared.Facts;
 
 /// <summary>
-/// Facts of the stock for other modules («Звіти цеху» of Production): issues over a period and balances at a date,
-/// both by operation date.
+/// Facts of the stock for «Звіти цеху» of Production (its <see cref="IStockFacts"/>, ADR-0019): issues over a period
+/// and balances at a date, both by operation date.
 /// </summary>
 public sealed class StockFacts(IWarehouseDbContext db) : IStockFacts
 {

@@ -1,3 +1,5 @@
+using ActivityLog.Contracts.Actors;
+using Identity.Infrastructure.Adapters.ActivityLog;
 using Identity.Application.Security.Access;
 using Identity.Contracts.Staff;
 using Identity.Infrastructure.Adapters.Media;
@@ -40,6 +42,8 @@ public static class IdentityInfrastructureExtensions
 
         // Contracts other modules use (ADR-0006).
         services.AddScoped<IStaffDirectory, StaffDirectory>();
+        // A port that ActivityLog declares in its Contracts and Identity implements (ADR-0019).
+        services.AddScoped<IActivityActorNames, StaffActivityActorNames>();
         return services;
     }
 }

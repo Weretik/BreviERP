@@ -5,7 +5,6 @@
     <ProjectReference Include="..\..\ActivityLog.Application\ActivityLog.Application\ActivityLog.Application.csproj" />
     <ProjectReference Include="..\..\ActivityLog.Domain\ActivityLog.Domain\ActivityLog.Domain.csproj" />
     <ProjectReference Include="..\..\ActivityLog.Contracts\ActivityLog.Contracts\ActivityLog.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\Identity\Identity.Contracts\Identity.Contracts\Identity.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

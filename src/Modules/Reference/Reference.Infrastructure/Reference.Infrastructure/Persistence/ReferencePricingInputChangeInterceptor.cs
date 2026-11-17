@@ -1,19 +1,18 @@
-using Catalog.Contracts.Pricing;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Reference.Domain.GarmentAccessories;
 using Reference.Domain.GarmentPartOperations;
 using Reference.Domain.Pricing;
 using Reference.Domain.Fabrics;
-
+using Reference.Contracts.Pricing;
 
 namespace Reference.Infrastructure.Persistence;
 
 /// <summary>
-/// Marks <see cref="PricingInputChanges"/> for every Sewing model when a save adds a pricing input version (a new or
-/// changed fabric, accessory or operation price) or deletes one of those rows, so the host publishes the new prices
-/// (CAT-012). A rename or another change without a new version marks nothing.
+/// Tells every <see cref="IPricingInputSubscriber"/> when a save adds a pricing input version (a new or changed fabric,
+/// accessory or operation price) or deletes one of those rows, so Catalog publishes the new prices (CAT-012,
+/// ADR-0019). A rename or another change without a new version tells nothing.
 /// </summary>
-internal sealed class ReferencePricingInputChangeInterceptor(PricingInputChanges changes) : SaveChangesInterceptor
+internal sealed class ReferencePricingInputChangeInterceptor(IEnumerable<IPricingInputSubscriber> subscribers) : SaveChangesInterceptor
 {
     private bool _changed;
 
@@ -50,7 +49,8 @@ internal sealed class ReferencePricingInputChangeInterceptor(PricingInputChanges
     private void Flush()
     {
         if (_changed)
-            changes.MarkAll();
+            foreach (var subscriber in subscribers)
+                subscriber.PricingInputsChanged();
         _changed = false;
     }
 }

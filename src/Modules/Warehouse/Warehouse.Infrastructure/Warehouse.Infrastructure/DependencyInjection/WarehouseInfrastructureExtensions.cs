@@ -4,7 +4,7 @@ using Warehouse.Application.Features.Activity.EventHandlers;
 using Warehouse.Infrastructure.Adapters.Identity;
 using Warehouse.Infrastructure.Adapters.Production;
 using Warehouse.Infrastructure.Adapters.Reference;
-using Warehouse.Contracts.Stock;
+using Production.Contracts.FabricPlans;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,7 +52,7 @@ public static class WarehouseInfrastructureExtensions
         services.AddOutbox<WarehouseDbContext>();
         services.AddOutboxHandler<RecordFabricHistoryOutboxHandler>();
 
-        // Contracts other modules use (ADR-0006).
+        // Ports that Production declares in its Contracts and Warehouse implements (ADR-0019).
         services.AddScoped<IStockFacts>(sp => sp.GetRequiredService<StockFacts>());
         services.TryAddSingleton(TimeProvider.System);
 

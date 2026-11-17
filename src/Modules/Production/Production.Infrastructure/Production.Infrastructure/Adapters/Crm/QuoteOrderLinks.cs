@@ -1,10 +1,10 @@
 using Mediator;
-using Production.Contracts.Orders;
+using Crm.Contracts.Quotes;
 using Production.Application.Features.Orders.Queries.GetQuotesWithOrders;
 
-namespace Production.Infrastructure.Contracts.Orders;
+namespace Production.Infrastructure.Adapters.Crm;
 
-/// <summary>Production orders of a КП, read through the Production query (R-33).</summary>
+/// <summary>Production orders of a КП, read through the Production query (R-33, ADR-0019).</summary>
 internal sealed class QuoteOrderLinks(ISender sender) : IQuoteOrderLinks
 {
     public async Task<IReadOnlySet<long>> QuotesWithOrdersAsync(IReadOnlyCollection<long> quoteIds,

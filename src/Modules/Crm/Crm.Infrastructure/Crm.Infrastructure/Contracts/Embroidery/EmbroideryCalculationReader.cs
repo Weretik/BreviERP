@@ -1,6 +1,5 @@
 using Crm.Contracts.Embroidery;
 using Mediator;
-using MockupUsagesQuery = Crm.Application.Features.Embroidery.Queries.GetEmbroideryMockupUsages.GetEmbroideryMockupUsagesQuery;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculationsById;
 using Crm.Application.Features.Embroidery.Queries.GetEmbroideryCalculations;
 using Crm.Application.Features.Embroidery.Shared;
@@ -31,14 +30,6 @@ internal sealed class EmbroideryCalculationReader(ISender sender) : IEmbroideryC
             x.Summary.CustomerName, x.Summary.Mode, x.Summary.Quantity, x.Summary.StitchesPerUnit, x.Summary.HoopLabel,
             x.Result.Hoopings, x.Result.Stabilizer?.CutMetres, x.Result.Fabric?.CutMetres, x.Summary.Mockup?.Url,
             Thumbnail(x.Summary.Mockup))).ToArray();
-    }
-
-    public async Task<IReadOnlyList<EmbroideryMockupUsage>> MockupUsagesAsync(IReadOnlyCollection<int> mediaFileIds,
-        CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new MockupUsagesQuery(mediaFileIds), cancellationToken);
-        if (!result.IsSuccess) throw new InvalidOperationException("Embroidery mockup usages could not be read.");
-        return result.Value.Select(x => new EmbroideryMockupUsage(x.MediaFileId, x.CalculationId, x.Title)).ToArray();
     }
 
     private static string? Thumbnail(EmbroideryMockupResponse? mockup) => mockup?.ThumbnailUrl ?? mockup?.Url;

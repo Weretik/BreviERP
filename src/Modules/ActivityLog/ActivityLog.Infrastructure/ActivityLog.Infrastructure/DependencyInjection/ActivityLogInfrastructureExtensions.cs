@@ -1,6 +1,6 @@
 using ActivityLog.Application.Abstractions;
 using ActivityLog.Application.Features.Entries.EventHandlers;
-using ActivityLog.Infrastructure.Adapters.Identity;
+using ActivityLog.Infrastructure.Contracts.Actors;
 using ActivityLog.Infrastructure.Persistence;
 using BuildingBlocks.Application.DomainEvents;
 using BuildingBlocks.Infrastructure.Database;
@@ -33,7 +33,7 @@ public static class ActivityLogInfrastructureExtensions
         services.AddDomainEvents();
         services.AddOutboxHandler<RecordActivityOutboxHandler>();
         services.AddScoped<IDomainEventOutbox, ActivityDomainEventOutbox>();
-        services.AddScoped<IActorNames, StaffActorNames>();
+        services.AddScoped<IActorNames, ActorNames>();
         return services;
     }
 }

@@ -43,11 +43,12 @@ src/Modules/Warehouse/
     Reports/          # /api/warehouse/reports/… (a policy per report: access:fabric-plan-fact, access:fabric-booking, access:fabric-valuation, access:hardware-order)
 src/Modules/Production/Production.Domain/Production.Domain/FabricPlans/  # FabricPlanParts, PlanColor
 src/Modules/Production/Production.Application/Production.Application/Features/FabricPlans/Shared/  # ProductionFabricPlans and ProductionAssemblies for the stock
-src/Modules/Warehouse/Warehouse.Contracts/Warehouse.Contracts/Stock/IStockFacts.cs  # issues and balances for other modules
+src/Modules/Production/Production.Contracts/Production.Contracts/FabricPlans/IStockFacts.cs  # issues and balances: port Production declares, Warehouse implements (ADR-0019)
+src/Modules/Warehouse/Warehouse.Application/Warehouse.Application/Features/Stock/Shared/Facts/StockFacts.cs  # its implementation
 src/Modules/Warehouse/Warehouse.Infrastructure/Warehouse.Infrastructure/Adapters/
   Reference/WarehouseReferenceReader.cs    # Reference.Contracts fabrics with price, suppliers, colours
   Identity/WarehouseStaffReader.cs         # Identity.Contracts IStaffDirectory
-src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Warehouse/ProductionStockReader.cs  # Warehouse.Contracts IStockFacts for «Звіти цеху»
+src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Contracts/FabricPlans/ProductionStockReader.cs  # IStockFacts for «Звіти цеху»
 src/Modules/Warehouse/Warehouse.Infrastructure/Warehouse.Infrastructure/Adapters/Production/WarehouseProductionReader.cs  # Production.Contracts IOrderFabricPlans (ProductionFabricPlans, ProductionAssemblies)
 ```
 
@@ -58,9 +59,9 @@ flowchart LR
   Admin[Brevi Admin «Склад тканин» and tab «Тканина»] --> Endpoints[Warehouse endpoints]
   Endpoints --> UseCases[Stock use cases]
   UseCases --> Db[(warehouse.FabricStocks / FabricMovements / FabricIssues / FabricIssueLines / FabricItemPlans)]
-  UseCases --> Plan[IWarehouseProductionReader] -.host.-> Production[Production plans, orders, history]
+  UseCases --> Plan[IWarehouseProductionReader] -.Production.Contracts.-> Production[Production plans, orders, history]
   UseCases --> Reference[IWarehouseReferenceReader] -.Reference.Contracts.-> Ref[Reference fabrics, suppliers, colours]
-  Reports[Production «Звіти цеху»] --> Port[IProductionStockReader] -.Warehouse.Contracts.-> Facts[IStockFacts]
+  Reports[Production «Звіти цеху»] --> Port[IProductionStockReader] --> Facts[IStockFacts port] -.implemented by.-> StockFacts[Warehouse StockFacts]
 ```
 
 ## Tests

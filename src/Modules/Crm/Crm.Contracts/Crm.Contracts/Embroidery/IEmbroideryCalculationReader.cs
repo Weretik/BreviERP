@@ -10,9 +10,6 @@ public sealed record EmbroideryCalculationInfo(
 public sealed record EmbroideryChoiceInfo(long Id, string Number, string Name, string? CustomerName, int Quantity,
     int StitchesPerUnit, string HoopLabel, string? MockupThumbnailUrl);
 
-/// <summary>A library photo used as the «Макет» of a calculation.</summary>
-public sealed record EmbroideryMockupUsage(int MediaFileId, long CalculationId, string Title);
-
 /// <summary>Saved embroidery calculations of Crm for other modules; <paramref name="userId"/> reads as a non-admin.</summary>
 public interface IEmbroideryCalculationReader
 {
@@ -21,8 +18,5 @@ public interface IEmbroideryCalculationReader
 
     /// <summary>The calculations of <paramref name="ids"/> in one read; an id that is not found is left out.</summary>
     Task<IReadOnlyList<EmbroideryCalculationInfo>> FindManyAsync(int userId, IReadOnlyCollection<long> ids,
-        CancellationToken cancellationToken);
-
-    Task<IReadOnlyList<EmbroideryMockupUsage>> MockupUsagesAsync(IReadOnlyCollection<int> mediaFileIds,
         CancellationToken cancellationToken);
 }

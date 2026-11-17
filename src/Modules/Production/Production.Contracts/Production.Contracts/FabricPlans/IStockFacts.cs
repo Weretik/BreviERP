@@ -1,8 +1,9 @@
-namespace Warehouse.Contracts.Stock;
+namespace Production.Contracts.FabricPlans;
 
 /// <summary>
-/// Facts of «Склад тканин» for other modules («Звіти цеху» of Production): issues over a period and balances at a
-/// date, both by operation date.
+/// What «Звіти цеху» need of the fabric stock: issues over a period and balances at a date, both by operation date.
+/// Production declares it and Warehouse («Склад тканин») implements it, so Production does not depend on Warehouse
+/// (ADR-0019).
 /// </summary>
 public interface IStockFacts
 {

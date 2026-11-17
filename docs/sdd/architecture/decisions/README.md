@@ -22,6 +22,7 @@ Keep accepted decisions that change long-term boundaries, contracts, or approach
 | [0016](0016-domain-events-to-activity-log.md) | Domain events reach the activity log through each module's outbox | Accepted |
 | [0017](0017-opentelemetry-traces-to-cloud-trace.md) | Requests are traced with OpenTelemetry straight to Google Cloud Trace; logs are Cloud Logging JSON with the trace id | Accepted |
 | [0018](0018-deploy-on-merge-from-main-repository.md) | Production deploys on every merge to `master` of Weretik/BreviERP | Accepted |
+| [0019](0019-module-graph-without-cycles.md) | The module graph has no cycle: an upstream module declares a port that a downstream module implements | Accepted |
 
 For a new decision, create `NNNN-short-name.md` and record:
 
@@ -40,7 +41,7 @@ Every backend keeps an accepted ADR for each area below. A full architecture aud
 | Area | ADR here |
 | --- | --- |
 | Architecture style and module boundaries, data ownership (schema per module) | 0001 |
-| Communication between modules | 0006 (supersedes 0002) |
+| Communication between modules | 0006 (supersedes 0002), 0019 |
 | Use-case shape (CQRS, mediator, endpoints) | 0007 |
 | Errors and validation | 0008 |
 | Authentication and authorization | 0003, 0011 |

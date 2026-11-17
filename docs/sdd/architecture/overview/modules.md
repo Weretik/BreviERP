@@ -8,7 +8,7 @@ Layers: ActivityLog.Api, ActivityLog.Application, ActivityLog.Contracts, Activit
 
 Aggregates (root → children): `ActivityEntry`.
 
-Uses the `Contracts` of: Identity. `ActivityLog.Contracts` offers: `ActivityRecorded`, `IActivityDescriber`.
+Uses the `Contracts` of: —. `ActivityLog.Contracts` offers: `ActivityRecorded`, `IActivityDescriber`; it declares `IActivityActorNames`, which Identity implements ([ADR-0019](../decisions/0019-module-graph-without-cycles.md)).
 
 Owns «Журнал дій» in schema `activity_log`: who created, changed or deleted what and when, for every staff member. It references no source module: Crm, Production, Warehouse, Catalog, Reference and Media raise domain events, describe them as `ActivityRecorded` of `ActivityLog.Contracts` and write them to their own outbox in the same save; ActivityLog's outbox handler stores each once. Staff names come from `Identity.Contracts`. Admin APIs live under `/api/activity-log` (`access:activity-log`, view only) ([ACT-001](../../specs/activity-log/001-staff-activity-log/README.md), [ADR-0016](../decisions/0016-domain-events-to-activity-log.md)).
 
@@ -18,7 +18,7 @@ Layers: Identity.Api, Identity.Application, Identity.Contracts, Identity.Domain,
 
 Aggregates: none of its own; users and roles are ASP.NET Identity tables.
 
-Uses the `Contracts` of: Media. `Identity.Contracts` offers: `IStaffDirectory`, `StaffRoles`.
+Uses the `Contracts` of: ActivityLog, Media. `Identity.Contracts` offers: `IStaffDirectory`, `StaffRoles`. Implements ActivityLog's `IActivityActorNames`.
 
 Owns users, roles, refresh sessions, authentication, and access policies. The `api/auth/session` routes for login, refresh, logout, and the current user are implemented.
 
@@ -28,9 +28,9 @@ Layers: Catalog.Api, Catalog.Application, Catalog.Contracts, Catalog.Domain, Cat
 
 Aggregates (root → children): `Product` → `ProductCategoryReference`, `ProductCharacteristicTable`, `ProductInformationBlock`, `ProductPhoto`, `SewingArticle`, `SewingMaterialLine`, `SewingOperationLine`; `ProductCategory`.
 
-Uses the `Contracts` of: ActivityLog, Media, Reference. `Catalog.Contracts` offers: `ICatalogProductReader`, `ICatalogUsage`, `ISewingModelReader`, `ISewingPriceCalculator`, `IPricingSettingsSync`.
+Uses the `Contracts` of: ActivityLog, Media, Reference. `Catalog.Contracts` offers: `ICatalogProductReader`, `ISewingModelReader`, `ISewingPriceCalculator`. Implements Reference's `IPricingInputUsageSource`, `IPricingInputSubscriber`, `IPricingSettingsSubscriber` and Media's `IMediaFileUsageSource`.
 
-Owns products and product categories. Product photos keep a Media library photo id and read URLs through `IProductMediaReader` (adapter over `Media.Contracts`); Catalog answers which products use a photo through `Catalog.Contracts` `ICatalogUsage`.
+Owns products and product categories. Product photos keep a Media library photo id and read URLs through `IProductMediaReader` (adapter over `Media.Contracts`); Catalog tells the library which products use a photo through the `IMediaFileUsageSource` port Media declares.
 
 ## Reference
 
@@ -38,7 +38,7 @@ Layers: Reference.Api, Reference.Application, Reference.Contracts, Reference.Dom
 
 Aggregates (root → children): `Fabric`; `FabricColor`; `GarmentAccessory`; `GarmentPart`; `GarmentPartOperation`; `PpeMarkupRule`; `PricingParameter`; `ProductSection`; `Supplier`.
 
-Uses the `Contracts` of: ActivityLog, Catalog. `Reference.Contracts` offers: directories (`IFabricDirectory`, `IFabricColorDirectory`, `ISupplierDirectory`, `IPricingParameterDirectory` and others), `IPricingInputVersionReader`.
+Uses the `Contracts` of: ActivityLog. `Reference.Contracts` offers: directories (`IFabricDirectory`, `IFabricColorDirectory`, `ISupplierDirectory`, `IPricingParameterDirectory` and others), `IPricingInputVersionReader`; it declares `IPricingInputUsageSource`, `IPricingInputSubscriber` and `IPricingSettingsSubscriber`, which Catalog implements.
 
 Owns reference data for suppliers, fabrics, accessories, garment parts, operations on parts, and additional reference data.
 
@@ -58,7 +58,7 @@ Layers: Crm.Api, Crm.Application, Crm.Contracts, Crm.Domain, Crm.Infrastructure.
 
 Aggregates (root → children): `Customer` → `CustomerContact`, `CustomerExternalIdentity`; `EmbroiderySavedCalculation`; `EmbroiderySettings`; `Lead` → `LeadCall`; `LeadCallResult`; `LeadCategory`; `LeadSyncState`; `ManagerTask` → `ManagerTaskEvent`, `ManagerTaskStep`; `Quote` → `QuoteEvent`, `QuoteItem`; `QuoteIntroTemplate`; `QuoteSending`; `QuoteSettings`; `SiteRequest`; `StaffMailbox`.
 
-Uses the `Contracts` of: ActivityLog, Catalog, Identity, Media, Production, Reference, Reminders. `Crm.Contracts` offers: `ICustomerDirectory`, `IQuoteReader`, `IEmbroideryCalculationReader`.
+Uses the `Contracts` of: ActivityLog, Catalog, Identity, Media, Reference, Reminders. `Crm.Contracts` offers: `ICustomerDirectory`, `IQuoteReader`, `IEmbroideryCalculationReader`; it declares `IQuoteOrderLinks`, which Production implements. Implements Media's `IMediaFileUsageSource`.
 
 The client/contact slice implements scoped customer APIs, exact source identity, revision/idempotency and Admin merge in the existing four layers. See the [feature map](../../features/crm/clients-and-quotes.md). Crm is the «Менеджер сервісу» block: clients from KeepinCRM and КП ([QTE-001](../../specs/crm/003-quotes/README.md)); leads, deals and tasks will be added here.
 
@@ -68,7 +68,7 @@ Layers: Media.Api, Media.Application, Media.Contracts, Media.Domain, Media.Infra
 
 Aggregates (root → children): `MediaFile`; `MediaFolder`.
 
-Uses the `Contracts` of: ActivityLog, Catalog, Crm. `Media.Contracts` offers: `IMediaFileReader`, `IMediaFileUploader`, `IMediaUrlImporter`, `ICdnStorage`.
+Uses the `Contracts` of: ActivityLog. `Media.Contracts` offers: `IMediaFileReader`, `IMediaFileUploader`, `IMediaUrlImporter`, `ICdnStorage`; it declares `IMediaFileUsageSource`, which Catalog and Crm implement.
 
 Owns the photo library in schema `media`: folders and photos on the Brevi CDN (adm.tools adapter in Infrastructure). Admin APIs live under `/api/media` for Manager and Admin. Other modules store only the photo id ([MED-001](../../specs/media/001-media-library/README.md)).
 
@@ -78,7 +78,7 @@ Layers: Production.Api, Production.Application, Production.Contracts, Production
 
 Aggregates (root → children): `ForecastQueue`; `ModelFabricNorm`; `PayrollAdjustment`; `PayrollIssued`; `PayrollMonth`; `PayrollPayment`; `PayrollRole`; `ProductionOrder` → `ProductionItem`, `ProductionOrderChange`, `ProductionOrderFile`, `ProductionShipment`; `ProductionTelegramDelivery`; `ProductionWork`; `WorkshopArchiveRecord`; `WorkshopEmployee`; `WorkshopSettings`; `WorkshopTimeChange`; `WorkshopTimeEntry`.
 
-Uses the `Contracts` of: ActivityLog, Catalog, Crm, Identity, Media, Reference, Reminders, Warehouse. `Production.Contracts` offers: `IOrderFabricPlans`, `IQuoteOrderLinks`.
+Uses the `Contracts` of: ActivityLog, Catalog, Crm, Identity, Media, Reference, Reminders. `Production.Contracts` offers: `IOrderFabricPlans`; it declares `IStockFacts`, which Warehouse implements. Implements Crm's `IQuoteOrderLinks`.
 
 Owns the sewing workshop «Швейний цех» in schema `production`: workers (no sign-in), fabric norms per Catalog model code, orders, work log, payroll and reports. The fabric stock moved to the Warehouse module; Production gives it the plan of items by colour and reads issues and balances for «Звіти цеху» through its port `IProductionStockReader` over `Warehouse.Contracts`. Admin APIs live under `/api/production` for WorkshopChief and Admin. Catalog models and payroll coefficients from «Параметри ціноутворення» are read through ports adapted over `Catalog.Contracts` and `Reference.Contracts` ([PRD-001](../../specs/production/001-workshop-references/README.md)).
 
@@ -88,7 +88,7 @@ Layers: Warehouse.Api, Warehouse.Application, Warehouse.Contracts, Warehouse.Dom
 
 Aggregates (root → children): `FabricIssue` → `FabricIssueLine`; `FabricItemPlan` → `FabricItemPlanPart`; `FabricStock` (creates its `FabricMovement` records); `FabricMovement`; `FabricMovementRevision`; `StockOperation`; `StockTransfer`.
 
-Uses the `Contracts` of: ActivityLog, Identity, Production, Reference. `Warehouse.Contracts` offers: `IStockFacts`.
+Uses the `Contracts` of: ActivityLog, Identity, Production, Reference. `Warehouse.Contracts` offers: nothing yet. Implements Production's `IStockFacts`.
 
 Owns «Склад тканин» in schema `warehouse`: stock lines by fabric and colour, their movements and the «Видача» packages to order items. Admin APIs live under `/api/warehouse` (policies `access:fabric-stock`, and `access:production-orders` for the «Тканина» tab of an order item). Orders, items and their fabric plan stay in Production, fabrics, suppliers and colours in Reference; Warehouse keeps their ids as values and reads them through ports adapted over `Production.Contracts` and `Reference.Contracts` ([WH-001](../../specs/warehouse/001-warehouse-module/README.md)).
 

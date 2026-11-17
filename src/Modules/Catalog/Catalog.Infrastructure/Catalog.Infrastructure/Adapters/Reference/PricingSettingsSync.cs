@@ -1,17 +1,17 @@
-using Catalog.Contracts.Pricing;
+using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 using Catalog.Domain.Pricing.Ppe;
 using Mediator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Reference.Contracts.PpeMarkupRules;
 using Reference.Contracts.PricingParameters;
+using Reference.Contracts.Pricing;
 using Catalog.Application.Features.Pricing.Commands.SyncPricingSettings;
-using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 
-namespace Catalog.Infrastructure.Contracts.Pricing;
+namespace Catalog.Infrastructure.Adapters.Reference;
 
 /// <summary>
-/// Hands the saved «Параметри ціноутворення» to Catalog sewing settings and PPE rule versions, then publishes the new
+/// Reference saved «Параметри ціноутворення» (ADR-0019): copies them to Catalog sewing settings and PPE rule versions, then publishes the new
 /// Sewing prices (CAT-012). It runs from the outbox, outside the request, so it publishes itself; a publication
 /// failure is only logged and the nightly brevierp-sync step publishes the prices.
 /// </summary>
@@ -21,7 +21,7 @@ internal sealed class PricingSettingsSync(
     IPpeMarkupRuleDirectory ruleDirectory,
     PricingInputChanges changes,
     IServiceScopeFactory scopes,
-    ILogger<PricingSettingsSync> logger) : IPricingSettingsSync
+    ILogger<PricingSettingsSync> logger) : IPricingSettingsSubscriber
 {
     public const string Actor = "pricing-parameters";
     public const string PublicationActor = "auto";
