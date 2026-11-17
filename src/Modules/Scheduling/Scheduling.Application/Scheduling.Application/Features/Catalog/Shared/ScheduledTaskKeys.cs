@@ -13,4 +13,5 @@ public static class ScheduledTaskKeys
     public const string Leads = "leads";
     public const string PpeSupplierPrices = "ppe-supplier-prices";
     public const string ActivityLogCleanup = "activity-log-cleanup";
+    public const string PurchaseRecognition = "purchase-recognition";
 }

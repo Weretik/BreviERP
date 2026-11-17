@@ -28,9 +28,10 @@ The task list is code: `ScheduledTaskCatalog` (keys, Ukrainian names and descrip
 | `purchase-invoices` | Рахунки на закупку | Mon–Fri 09:00, **off** | 30 min | none (sheet shared with the runtime account) |
 | `leads` | Ліди | Mon–Fri 09:00, **off** | 30 min | none (sheet shared with the runtime account) |
 | `ppe-supplier-prices` | Ціни постачальників ЗІЗ («Імпорт цін» decides which supplier is due) | Mon–Fri 09:00, **off** | 60 min | `trele-login`, `trele-password` (optional) |
+| `purchase-recognition` | Розпізнавання оригіналів закупки: reads the new originals of «Рахунки на закупку» with the AI in batches of 5 until none are left (50-minute budget); started by «Розпізнати всі нові» | Mon–Fri 09:00, **off** | 60 min | none (the OpenAI key is in «Налаштування ШІ») |
 | `activity-log-cleanup` | Очищення журналу дій: deletes «Журнал дій» entries older than one year | every day 03:00, on | 10 min | none |
 
-The tasks of the old jobs start **off** so that they never run both from the old jobs and from the tick (R-12); `activity-log-cleanup` never ran in an old job and starts on; step 3 below turns them on. Tasks claimed in the same tick run one after another in one execution; a run that has not started within 240 minutes is failed («Задача не почалася…»), and the job itself stops after 4 hours.
+The tasks of the old jobs start **off** so that they never run both from the old jobs and from the tick (R-12); `activity-log-cleanup` never ran in an old job and starts on; `purchase-recognition` stays off and runs when the accountant presses «Розпізнати всі нові» (another module starts a task through `Scheduling.Contracts` `IBackgroundTaskRequests`, the same «Запустити зараз»); step 3 below turns them on. Tasks claimed in the same tick run one after another in one execution; a run that has not started within 240 minutes is failed («Задача не почалася…»), and the job itself stops after 4 hours.
 
 ## Configuration
 

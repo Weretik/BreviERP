@@ -23,7 +23,7 @@ internal static class ScheduledTaskRunners
     ];
 
     public static IReadOnlyList<IScheduledTaskRunner> All { get; } =
-        [.. Sync, new RemindersTaskRunner(), new ActivityLogCleanupTaskRunner()];
+        [.. Sync, new RemindersTaskRunner(), new ActivityLogCleanupTaskRunner(), new PurchaseRecognitionTaskRunner()];
 
     public static IScheduledTaskRunner? Find(string key) => All.FirstOrDefault(runner => runner.Key == key);
 }

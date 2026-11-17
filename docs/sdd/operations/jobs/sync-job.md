@@ -100,7 +100,7 @@ Locally: `gcloud auth application-default login --scopes=https://www.googleapis.
 
 The whole sheet is read and checked first, then applied in one transaction under a lock; a failure changes nothing and is saved as the last error. Step log: `Rows N, files N; messages added N, updated N; rows added N, updated N, gone N; files added N, gone N`.
 
-Invoice facts are not read by this step: recognition runs only from the admin («Розпізнати», «Розпізнати всі нові») with the OpenAI key from «Налаштування ШІ» ([AI-001](../../specs/ai/001-ai-settings/README.md)).
+Invoice facts are not read by this step: recognition runs only from the admin («Розпізнати») and from the «Фонові задачі» task `purchase-recognition` started by «Розпізнати всі нові» with the OpenAI key from «Налаштування ШІ» ([AI-001](../../specs/ai/001-ai-settings/README.md)).
 
 ## leads
 

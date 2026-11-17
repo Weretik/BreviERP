@@ -7,6 +7,7 @@
     <ProjectReference Include="..\..\..\Ai\Ai.Contracts\Ai.Contracts\Ai.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Accounting\Accounting.Contracts\Accounting.Contracts\Accounting.Contracts.csproj" />
     <ProjectReference Include="..\..\..\Reference\Reference.Contracts\Reference.Contracts\Reference.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\Scheduling\Scheduling.Contracts\Scheduling.Contracts\Scheduling.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

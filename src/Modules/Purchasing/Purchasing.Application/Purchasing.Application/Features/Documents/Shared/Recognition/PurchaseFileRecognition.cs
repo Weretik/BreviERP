@@ -12,6 +12,8 @@ namespace Purchasing.Application.Features.Documents.Shared.Recognition;
 /// <summary>
 /// «Розпізнати» of one file: download the original, read it with the fast model, check the facts, retry once with the
 /// strong model, then save the checked document (a recognised one goes to history) and the attempt under the write lock.
+/// A <c>timeLimit</c> bounds the reading for a call inside an HTTP request: when it runs out, the attempt is recorded as
+/// failed with <see cref="TooSlow"/> instead of the proxy cutting the request.
 /// </summary>
 public sealed class PurchaseFileRecognition(
     IPurchasingDbContext db,
@@ -23,8 +25,16 @@ public sealed class PurchaseFileRecognition(
     public const string FileNotFound = "Файл не знайдено. Оновіть реєстр.";
     public const string UnsafeLink = "Посилання не з Dropbox — розпізнати не можна.";
     public const string NoSourceRow = "Повідомлення файлу більше не має активних рядків у таблиці.";
+    public const string TooSlow = "ШІ не встиг прочитати файл за відведений час. Спробуйте ще раз.";
 
-    public async Task<Result<PurchaseRecognitionResponse>> RecognizeAsync(string fileId, string by, CancellationToken cancellationToken)
+    /// <summary>
+    /// The longest reading inside one HTTP request: Cloudflare cuts a proxied request after 100 seconds, and the
+    /// download, two model calls and the save must fit before that.
+    /// </summary>
+    public static TimeSpan RequestTimeLimit { get; } = TimeSpan.FromSeconds(85);
+
+    public async Task<Result<PurchaseRecognitionResponse>> RecognizeAsync(string fileId, string by,
+        CancellationToken cancellationToken, TimeSpan? timeLimit = null)
     {
         var file = await db.Files.AsNoTracking().FirstOrDefaultAsync(x => x.Id == fileId && x.Active, cancellationToken);
         if (file is null) return Result<PurchaseRecognitionResponse>.NotFound(FileNotFound);
@@ -33,49 +43,76 @@ public sealed class PurchaseFileRecognition(
             .OrderBy(x => x.RowNumber).ThenBy(x => x.Id).Select(x => x.SourceUid).FirstOrDefaultAsync(cancellationToken);
         if (uid is null) return Result<PurchaseRecognitionResponse>.NotFound(NoSourceRow);
 
-        PurchaseFileContent content;
+        using var limit = timeLimit is { } span ? new CancellationTokenSource(span, clock) : new CancellationTokenSource();
+        using var reading = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, limit.Token);
+        var spent = new Spent();
         try
         {
-            content = await downloader.DownloadAsync(file.Url, cancellationToken);
-        }
-        catch (PurchaseFileUnavailableException error)
-        {
-            var outcome = error.Unsupported ? PurchaseRecognitionOutcome.Skipped : PurchaseRecognitionOutcome.Failed;
-            return await RecordAsync(file, outcome, [error.Message], null, 0m, null, null, by, cancellationToken);
-        }
+            PurchaseFileContent content;
+            try
+            {
+                content = await downloader.DownloadAsync(file.Url, reading.Token);
+            }
+            catch (PurchaseFileUnavailableException error)
+            {
+                var outcome = error.Unsupported ? PurchaseRecognitionOutcome.Skipped : PurchaseRecognitionOutcome.Failed;
+                return await RecordAsync(file, outcome, [error.Message], null, 0m, null, null, by, cancellationToken);
+            }
 
-        decimal cost = 0;
-        string? model = null, output = null;
-        IReadOnlyList<string> problems = [];
+            return await ReadAsync(file, uid, content, by, spent, reading.Token, cancellationToken);
+        }
+        catch (OperationCanceledException) when (limit.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            logger.LogWarning("Purchase file {FileId} was not read within {Limit}", file.Id, timeLimit);
+            return await RecordAsync(file, PurchaseRecognitionOutcome.Failed, [.. spent.Problems, TooSlow], spent.Model,
+                spent.Cost, spent.Output, null, by, cancellationToken);
+        }
+    }
+
+    /// <summary>What the answers so far cost and said, kept for the attempt when the time limit runs out.</summary>
+    private sealed class Spent
+    {
+        public decimal Cost { get; set; }
+        public string? Model { get; set; }
+        public string? Output { get; set; }
+        public IReadOnlyList<string> Problems { get; set; } = [];
+    }
+
+    /// <summary>The fast model, then the strong one, with the time-limited token; saves with the request's token.</summary>
+    private async Task<Result<PurchaseRecognitionResponse>> ReadAsync(PurchaseMessageFile file, string uid,
+        PurchaseFileContent content, string by, Spent spent, CancellationToken readingToken,
+        CancellationToken cancellationToken)
+    {
         foreach (var strong in new[] { false, true })
         {
             var answer = await recognizer.RecognizeAsync(new PurchaseRecognitionRequest(content, strong,
                 PurchaseRecognitionPrompt.Instructions, $"File name: {content.FileName}", PurchaseRecognitionPrompt.SchemaName,
-                PurchaseRecognitionPrompt.SchemaJson), cancellationToken);
-            cost += answer.CostUsd;
+                PurchaseRecognitionPrompt.SchemaJson), readingToken);
+            spent.Cost += answer.CostUsd;
             switch (answer.Status)
             {
-                case PurchaseRecognitionStatus.Unavailable when cost == 0:
+                case PurchaseRecognitionStatus.Unavailable when spent.Cost == 0:
                     return Result<PurchaseRecognitionResponse>.Unavailable(answer.Message ?? "ШІ недоступний.");
                 case PurchaseRecognitionStatus.Unavailable:
                 case PurchaseRecognitionStatus.Failed:
-                    problems = [.. problems, answer.Message ?? "OpenAI не відповів."];
-                    return await RecordAsync(file, PurchaseRecognitionOutcome.Failed, problems, model ?? answer.Model, cost,
-                        output, null, by, cancellationToken);
+                    return await RecordAsync(file, PurchaseRecognitionOutcome.Failed,
+                        [.. spent.Problems, answer.Message ?? "OpenAI не відповів."], spent.Model ?? answer.Model, spent.Cost,
+                        spent.Output, null, by, cancellationToken);
             }
 
-            model = answer.Model;
-            output = answer.Json;
+            spent.Model = answer.Model;
+            spent.Output = answer.Json;
             var (document, found) = Read(answer.Json!, uid, file.Url);
             if (document is not null)
-                return await RecordAsync(file, PurchaseRecognitionOutcome.Recognized, [], model, cost, null, document, by,
-                    cancellationToken);
-            problems = found;
-            logger.LogInformation("Purchase file {FileId} read by {Model} failed {Count} checks", file.Id, model, found.Count);
+                return await RecordAsync(file, PurchaseRecognitionOutcome.Recognized, [], spent.Model, spent.Cost, null,
+                    document, by, cancellationToken);
+            spent.Problems = found;
+            logger.LogInformation("Purchase file {FileId} read by {Model} failed {Count} checks", file.Id, spent.Model,
+                found.Count);
         }
 
-        return await RecordAsync(file, PurchaseRecognitionOutcome.NeedsReview, problems, model, cost, output, null, by,
-            cancellationToken);
+        return await RecordAsync(file, PurchaseRecognitionOutcome.NeedsReview, spent.Problems, spent.Model, spent.Cost,
+            spent.Output, null, by, cancellationToken);
     }
 
     private static (PurchaseDocument? Document, IReadOnlyList<string> Problems) Read(string json, string uid, string url)

@@ -108,7 +108,7 @@ Layers: Purchasing.Api, Purchasing.Application, Purchasing.Contracts, Purchasing
 
 Aggregates (root → children): `PurchaseCheckedDocument`; `PurchaseCheckedDocumentHistory`; `PurchaseMessage` → `PurchasePayment`; `PurchaseMessageFile`; `PurchaseRecognitionAttempt`; `PurchaseReviewChange`; `PurchaseSourceRevision`; `PurchaseSourceRow`; `PurchaseSyncState`.
 
-Uses the `Contracts` of: Accounting, Ai, Reference. `Purchasing.Contracts` offers: nothing yet.
+Uses the `Contracts` of: Accounting, Ai, Reference, Scheduling. `Purchasing.Contracts` offers: nothing yet.
 
 Owns the purchase invoice register «Рахунки на закупку» in schema `purchasing`: Telegram messages read from the Google Sheet «финансы», their sheet rows, raw history, document links, the manual supplier link and note, and the checked facts of each original (read by the Ai module or uploaded by hand). Admin APIs live under `/api/purchasing` for the Director only. Suppliers are referenced by Reference supplier id without a database link ([PUR-001](../../specs/purchasing/001-purchase-invoices/README.md)).
 
@@ -138,7 +138,7 @@ Layers: Scheduling.Api, Scheduling.Application, Scheduling.Contracts, Scheduling
 
 Aggregates (root → children): `ScheduledTask`; `ScheduledTaskRun`.
 
-Uses the `Contracts` of: —. `Scheduling.Contracts` offers: nothing yet.
+Uses the `Contracts` of: —. `Scheduling.Contracts` offers: `IBackgroundTaskRequests` (start a «Фонові задачі» task, used by Purchasing for `purchase-recognition`).
 
 Owns the background tasks «Фонові задачі» in schema `scheduling`: the code list of tasks, their schedules in Kyiv time, the scheduler tick that sends the outbox and starts the `brevierp-tasks` job for due tasks, the run history and «Запустити зараз». Admin APIs live under `/api/scheduling` ([SCH-001](../../specs/scheduling/001-background-tasks/README.md)).
 
