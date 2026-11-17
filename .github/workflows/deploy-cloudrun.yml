@@ -65,14 +65,14 @@ jobs:
       BREVIERP_CATALOG_TEST_CONNECTION: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
       BREVIERP_CRM_TEST_CONNECTION: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Check the module and feature maps
         run: python3 tools/docs/check_module_maps.py
       - name: Test the agent guard hook
         run: node --test .claude/hooks/guard.test.mjs
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - run: dotnet restore BreviERP.sln
@@ -105,7 +105,7 @@ jobs:
       # to an empty database. The scripts are attached to the run, to read what the deploy will change.
       - run: dotnet tool restore
       - run: python3 tools/ci/migrations.py --configuration Release --no-build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: migration-scripts
@@ -149,7 +149,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Auth to Google Cloud
         uses: google-github-actions/auth@v3
