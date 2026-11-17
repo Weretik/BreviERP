@@ -6,8 +6,8 @@ using IResult = Microsoft.AspNetCore.Http.IResult;
 namespace BuildingBlocks.Api.Errors;
 
 /// <summary>
-/// The shared Result-to-HTTP mapping of Minimal API endpoints; the same status codes and bodies as the MVC
-/// controllers they replaced answered.
+/// The one Result-to-HTTP mapping of Minimal API endpoints: success bodies as the MVC controllers answered, every
+/// failure a <see cref="ApiProblems"/> ProblemDetails.
 /// </summary>
 public static class ResultToHttpResult
 {
@@ -16,12 +16,13 @@ public static class ResultToHttpResult
     public static IResult ToHttpResult<T>(this Result<T> result) => result.Status switch
     {
         ResultStatus.Ok => result.Value is null ? Results.NoContent() : Results.Ok(result.Value),
-        ResultStatus.NotFound => Results.NotFound(),
-        ResultStatus.Invalid => Results.BadRequest(result.ValidationErrors),
-        ResultStatus.Conflict => Results.Conflict(result.Errors),
+        ResultStatus.NotFound => ApiProblems.NotFound(),
+        ResultStatus.Invalid => ApiProblems.Invalid(result.ValidationErrors),
+        ResultStatus.Conflict => ApiProblems.Conflict(result.Errors),
         ResultStatus.Forbidden => Results.Forbid(),
         ResultStatus.Unauthorized => Results.Unauthorized(),
-        _ => Results.StatusCode(StatusCodes.Status500InternalServerError)
+        ResultStatus.Unavailable => ApiProblems.Unavailable(result.Errors),
+        _ => ApiProblems.Error()
     };
 
     /// <summary>200 with the mapped value on success, otherwise the shared status mapping.</summary>
@@ -37,4 +38,14 @@ public static class ResultToHttpResult
     /// <summary>204 on success, otherwise the shared status mapping.</summary>
     public static IResult ToNoContentHttpResult(this Ardalis.Result.Result result) =>
         result.IsSuccess ? Results.NoContent() : result.ToHttpResult();
+
+    /// <summary>204 on any success (also a <c>Result&lt;T&gt;</c> whose value the client does not need), otherwise
+    /// the shared mapping.</summary>
+    public static IResult ToNoContentResult<T>(this Result<T> result) =>
+        result.IsSuccess ? Results.NoContent() : result.ToHttpResult();
+
+    /// <summary>As <see cref="ToHttpResult{T}(Result{T})"/>, but an <c>Error</c> is 422: an outside service refused
+    /// the work (a sync or a connection test), not a fault of this API.</summary>
+    public static IResult ToHttpResultWithRefusal<T>(this Result<T> result) =>
+        result.Status == ResultStatus.Error ? ApiProblems.Refused(result.Errors) : result.ToHttpResult();
 }

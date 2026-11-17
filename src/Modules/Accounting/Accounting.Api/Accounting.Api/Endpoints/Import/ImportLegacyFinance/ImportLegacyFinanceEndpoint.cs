@@ -21,7 +21,7 @@ internal static class ImportLegacyFinanceEndpoint
     private static async Task<IResult> HandleAsync(IFormFile? file, [FromServices] ISender sender, bool dryRun = true,
         CancellationToken cancellationToken = default)
     {
-        if (file is null || file.Length == 0) return Results.BadRequest(new { error = "Оберіть файл finance.json." });
+        if (file is null || file.Length == 0) return ApiProblems.BadRequest("Оберіть файл finance.json.");
         await using var content = file.OpenReadStream();
         return (await sender.Send(new ImportLegacyFinanceCommand(content, dryRun), cancellationToken)).ToHttpResult();
     }

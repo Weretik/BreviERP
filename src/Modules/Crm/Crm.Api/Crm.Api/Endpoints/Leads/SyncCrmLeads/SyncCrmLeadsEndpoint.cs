@@ -19,12 +19,6 @@ internal static class SyncCrmLeadsEndpoint
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new SyncLeadsCommand(), cancellationToken);
-        return result.Status switch
-        {
-            ResultStatus.Unavailable => Results.Json(statusCode: StatusCodes.Status503ServiceUnavailable,
-                data: new { errors = result.Errors }),
-            ResultStatus.Error => Results.UnprocessableEntity(new { errors = result.Errors }),
-            _ => result.ToHttpResult(),
-        };
+        return result.ToHttpResultWithRefusal();
     }
 }

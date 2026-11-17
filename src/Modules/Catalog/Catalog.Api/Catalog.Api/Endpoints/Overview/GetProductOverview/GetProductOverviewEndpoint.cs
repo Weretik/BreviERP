@@ -24,21 +24,21 @@ internal static class GetProductOverviewEndpoint
         CancellationToken cancellationToken = default)
     {
         if (!ProductOverviewTypes.TryParse(type, out var productType))
-            return Results.BadRequest("type must be Sewing or Ppe.");
+            return ApiProblems.BadRequest("Тип: Sewing або Ppe.");
         int? sectionId = null;
         var withoutSection = string.Equals(section, "none", StringComparison.OrdinalIgnoreCase);
         if (!string.IsNullOrEmpty(section) && !withoutSection)
         {
             if (!int.TryParse(section, out var parsedSection))
-                return Results.BadRequest("section must be a section ID or none.");
+                return ApiProblems.BadRequest("Розділ: його номер або none.");
             sectionId = parsedSection;
         }
 
         if (!Enum.TryParse<ProductOverviewSort>(sort ?? nameof(ProductOverviewSort.Code), true, out var order)
             || !Enum.IsDefined(order) || int.TryParse(sort, out _))
-            return Results.BadRequest("sort must be code, name, price or updated.");
+            return ApiProblems.BadRequest("Сортування: code, name, price або updated.");
         if (direction is not (null or "asc" or "desc"))
-            return Results.BadRequest("direction must be asc or desc.");
+            return ApiProblems.BadRequest("Напрям: asc або desc.");
 
         return (await sender.Send(new GetProductOverviewPageQuery(productType, search, sectionId,
             withoutSection, withoutPrice, order, direction == "desc", page, pageSize, active),

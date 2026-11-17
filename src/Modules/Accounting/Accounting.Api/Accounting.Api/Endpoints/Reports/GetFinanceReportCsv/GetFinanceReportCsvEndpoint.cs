@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Accounting.Application.Features.Reports.Queries.GetFinanceReport;
 using Accounting.Application.Features.Reports.Shared;
 using Accounting.Domain.Categories;
@@ -28,7 +29,7 @@ internal static class GetFinanceReportCsvEndpoint
         var filter = FinanceReportFilters.Of(kind?.Value ?? default, from ?? default, to ?? default, scope?.Value,
             accountId, type?.Value, categoryId, counterpartyKind?.Value, counterpartyId);
         var result = await sender.Send(new GetFinanceReportQuery(filter, FinanceReports.CsvRows), cancellationToken);
-        if (!result.IsSuccess) return result.ToFileHttpResult();
+        if (!result.IsSuccess) return result.ToHttpResult();
         response.Headers.CacheControl = "private, no-store";
         return Results.File(FinanceReportCsv.Write(result.Value), "text/csv; charset=utf-8",
             FinanceReportCsv.FileName(result.Value));

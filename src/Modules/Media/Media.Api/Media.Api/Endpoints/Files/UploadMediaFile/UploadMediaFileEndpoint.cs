@@ -21,7 +21,7 @@ internal static class UploadMediaFileEndpoint
     private static async Task<IResult> HandleAsync(IFormFile? file, [FromForm] int? folderId,
         [FromServices] ISender sender, CancellationToken cancellationToken)
     {
-        if (file is null) return Results.BadRequest(new { error = "File is required." });
+        if (file is null) return ApiProblems.BadRequest("Оберіть файл.");
         await using var content = file.OpenReadStream();
         return (await sender.Send(new UploadMediaFileCommand(content, file.FileName, file.ContentType, file.Length,
             folderId), cancellationToken)).ToHttpResult();

@@ -21,7 +21,7 @@ internal static class CreateSewingSettingsVersionEndpoint
         if (string.IsNullOrWhiteSpace(actor))
             return Results.Forbid();
         if (request.Settings is null)
-            return Results.BadRequest();
+            return ApiProblems.BadRequest("Додайте параметри пошиву.");
         var result = await sender.Send(new CreateSewingSettingsVersionCommand(
             request.ExpectedVersionId, request.RequestId, request.Settings.ToSettings(), actor), cancellationToken);
         return result.ToHttpResult();

@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Content.Application.Features.Redirects.Commands.DeleteSiteRedirect;
 
 namespace Content.Api.Endpoints.Redirects.DeleteSiteRedirect;
@@ -10,11 +11,5 @@ internal static class DeleteSiteRedirectEndpoint
 
     private static async Task<IResult> HandleAsync(int id, [FromServices] ISender sender,
         CancellationToken cancellationToken) =>
-        (await sender.Send(new DeleteSiteRedirectCommand(id), cancellationToken)).Status switch
-        {
-            ResultStatus.Ok or ResultStatus.NoContent => Results.NoContent(),
-            ResultStatus.NotFound => Results.NotFound(),
-            ResultStatus.Invalid => Results.BadRequest(),
-            _ => Results.StatusCode(StatusCodes.Status500InternalServerError),
-        };
+        (await sender.Send(new DeleteSiteRedirectCommand(id), cancellationToken)).ToNoContentResult();
 }

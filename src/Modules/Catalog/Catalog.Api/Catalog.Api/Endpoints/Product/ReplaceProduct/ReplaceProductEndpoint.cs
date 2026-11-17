@@ -19,7 +19,7 @@ internal static class ReplaceProductEndpoint
     {
         var mappingResult = ProductWriteRequestMapper.Map(request);
         if (mappingResult.Status != Ardalis.Result.ResultStatus.Ok)
-            return Results.BadRequest(mappingResult.ValidationErrors);
+            return ApiProblems.Invalid(mappingResult.ValidationErrors);
 
         var result = await sender.Send(new ReplaceProductCommand(id, mappingResult.Value), cancellationToken);
 

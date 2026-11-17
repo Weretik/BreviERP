@@ -17,8 +17,6 @@ internal static class SyncKeepinCrmSuppliersEndpoint
     private static async Task<IResult> HandleAsync([FromServices] ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new SyncKeepinCrmSuppliersCommand(), cancellationToken);
-        return result.Status == ResultStatus.Unavailable
-            ? Results.Json(new { errors = result.Errors }, statusCode: StatusCodes.Status503ServiceUnavailable)
-            : result.ToHttpResult();
+        return result.ToHttpResult();
     }
 }

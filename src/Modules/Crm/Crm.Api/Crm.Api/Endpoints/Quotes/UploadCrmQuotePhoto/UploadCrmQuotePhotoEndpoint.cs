@@ -22,7 +22,7 @@ internal static class UploadCrmQuotePhotoEndpoint
     private static async Task<IResult> HandleAsync(IFormFile? file, [FromServices] ISender sender,
         CancellationToken cancellationToken)
     {
-        if (file is null) return Results.BadRequest(new { error = "Оберіть фото." });
+        if (file is null) return ApiProblems.BadRequest("Оберіть фото.");
         await using var content = file.OpenReadStream();
         return (await sender.Send(new UploadQuotePhotoCommand(content, file.FileName,
             file.ContentType, file.Length), cancellationToken)).ToHttpResult();

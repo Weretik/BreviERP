@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Crm.Api.Access;
 using Crm.Application.Features.Customers.Queries.GetCustomers;
 
@@ -17,7 +18,7 @@ internal static class GetCrmCustomersEndpoint
     {
         var actor = CrmActorClaims.Read(user);
         if (actor is null) return Results.Forbid();
-        if (page is < 1 or > 1_000_000 || pageSize is < 1 or > 100 || search?.Length > 300) return Results.BadRequest("invalid_pagination");
+        if (page is < 1 or > 1_000_000 || pageSize is < 1 or > 100 || search?.Length > 300) return ApiProblems.BadRequest("Сторінка від 1, розмір сторінки від 1 до 100, пошук до 300 символів.");
         var result = await sender.Send(new GetCustomersQuery(actor, search, active, page, pageSize), cancellationToken);
         return Results.Ok(new CrmCustomerPageResponse(result.Value, result.PagedInfo));
     }

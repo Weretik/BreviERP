@@ -53,7 +53,8 @@ public sealed class FormUploadBindingTests
         Assert.Multiple(async () =>
         {
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
-            Assert.That(await response.Content.ReadAsStringAsync(), Does.Contain("File is required."));
+            Assert.That(System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement
+                .GetProperty("detail").GetString(), Is.EqualTo("Оберіть файл."));
             Assert.That(recorder.Messages, Is.Empty);
         });
     }

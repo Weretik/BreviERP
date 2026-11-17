@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Catalog.Application.Features.Pricing.Commands.UpdatePpePriceSource;
 
 namespace Catalog.Api.Endpoints.Ppe.UpdatePpePriceSource;
@@ -18,12 +19,6 @@ internal static class UpdatePpePriceSourceEndpoint
         if (string.IsNullOrWhiteSpace(actor)) return Results.Forbid();
         var result = await sender.Send(new UpdatePpePriceSourceCommand(
             key, request.DiscountPercent, request.SupplierId, user.Identity?.Name ?? actor), cancellationToken);
-        return result.Status switch
-        {
-            ResultStatus.Ok => Results.NoContent(),
-            ResultStatus.NotFound => Results.NotFound(),
-            ResultStatus.Invalid => Results.BadRequest(result.ValidationErrors),
-            _ => Results.StatusCode(StatusCodes.Status500InternalServerError)
-        };
+        return result.ToNoContentResult();
     }
 }

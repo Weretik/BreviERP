@@ -26,7 +26,7 @@ internal static class UploadProductionOrderFileEndpoint
             CancellationToken cancellationToken)
     {
         if (user.Actor() is not { } actor) return Results.Forbid();
-        if (file is null) return Results.BadRequest(new { error = "Оберіть файл." });
+        if (file is null) return ApiProblems.BadRequest("Оберіть файл.");
         await using var content = file.OpenReadStream();
         return (await sender.Send(new UploadProductionOrderFileCommand(actor, id, itemId, kind, content, file.FileName,
             file.ContentType, file.Length), cancellationToken)).ToHttpResult();

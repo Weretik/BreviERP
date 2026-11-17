@@ -24,8 +24,6 @@ internal static class SyncCrmCustomersFromKeepinCrmEndpoint
         if (request.RemoveUnlinked && !actor.IsAdmin) return Results.Forbid();
         var result = await sender.Send(new SyncKeepinCrmClientsCommand(request.DryRun, request.RemoveUnlinked),
             cancellationToken);
-        return result.Status == ResultStatus.Unavailable
-            ? Results.Json(statusCode: StatusCodes.Status503ServiceUnavailable, data: new { errors = result.Errors })
-            : result.ToHttpResult();
+        return result.ToHttpResult();
     }
 }

@@ -1,3 +1,4 @@
+using BuildingBlocks.Api.Errors;
 using Accounting.Application.Features.Attachments.Shared;
 using Accounting.Api.Access;
 using Accounting.Application.Features.Attachments.Commands.UploadFinanceAttachment;
@@ -24,10 +25,10 @@ internal static class UploadFinanceAttachmentEndpoint
     private static async Task<IResult> HandleAsync(Guid id, IFormFile? file, ClaimsPrincipal user,
         [FromServices] ISender sender, CancellationToken cancellationToken)
     {
-        if (file is null) return Results.BadRequest(new { error = "Оберіть файл." });
+        if (file is null) return ApiProblems.BadRequest("Оберіть файл.");
         await using var content = file.OpenReadStream();
         return (await sender.Send(new UploadFinanceAttachmentCommand(id, content, file.FileName,
             AccountingAccess.By(user)),
-            cancellationToken)).ToFileHttpResult();
+            cancellationToken)).ToHttpResult();
     }
 }
