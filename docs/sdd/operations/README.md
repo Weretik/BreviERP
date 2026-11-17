@@ -18,6 +18,7 @@ operations/
 - Configure a machine or fix missing settings: [configuration and secrets](configuration/configuration-and-secrets.md)
 - Turn on Gmail sending of КП: [Gmail for КП](configuration/crm-gmail.md)
 - Prepare a separate `Host.Seed` run that changes the database: [migrations and seeding](data/migrations-and-seeding.md)
+- Know who backs up the database and how to restore it: [backups and restore](data/backups-and-restore.md)
 - Check a running API or reproduce an endpoint: [diagnostics](diagnostics/health-logs-swagger.md)
 - Understand the configured container and deployment pipeline: [Cloud Run deployment](deployment/cloud-run-deploy.md)
 - Check background job support: [jobs and runbooks](jobs/README.md)
