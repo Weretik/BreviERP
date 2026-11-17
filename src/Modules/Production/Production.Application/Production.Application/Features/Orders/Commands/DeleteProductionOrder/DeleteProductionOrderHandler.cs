@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Orders.Shared.Access;
@@ -10,7 +11,7 @@ public sealed class DeleteProductionOrderHandler(IProductionDbContext db, IProdu
     public async ValueTask<Result> Handle(DeleteProductionOrderCommand command, CancellationToken cancellationToken)
     {
         if (!command.Actor.CanDelete) return Result.Forbidden(OrderMessages.CannotDelete);
-        var order = await db.Orders.SingleOrDefaultAsync(x => x.Id == command.Id && x.DeletedAt == null,
+        var order = await db.Orders.SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(command.Id) && x.DeletedAt == null,
             cancellationToken);
         if (order is null) return Result.NotFound(OrderMessages.NotFound);
         if (order.Version != command.Version) return Result.Conflict(OrderMessages.Stale);

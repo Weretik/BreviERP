@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using Production.Application.Abstractions;
 using Production.Domain.Timesheet;
 using Production.Application.Features.Orders.Shared;
@@ -20,7 +21,7 @@ public sealed class SaveTimesheetDayHandler(IProductionDbContext db, IProduction
             return Result<TimesheetDayResponse>.Invalid(new ValidationError("Input.Date", TimesheetMessages.FutureDate));
         if (await PayrollMonths.IsClosedAsync(db, input.Date, cancellationToken))
             return Result<TimesheetDayResponse>.Conflict(PayrollMessages.Closed);
-        var ids = input.Entries.Select(x => x.EmployeeId).ToList();
+        var ids = input.Entries.Select(x => new WorkshopEmployeeId(x.EmployeeId)).ToList();
         var employees = await db.Employees.AsNoTracking().Where(x => ids.Contains(x.Id))
             .ToDictionaryAsync(x => x.Id, cancellationToken);
         if (employees.Count != ids.Count)
@@ -33,15 +34,15 @@ public sealed class SaveTimesheetDayHandler(IProductionDbContext db, IProduction
         var now = clock.GetUtcNow();
         foreach (var entry in input.Entries)
         {
-            var row = existing.GetValueOrDefault(entry.EmployeeId);
+            var row = existing.GetValueOrDefault(new WorkshopEmployeeId(entry.EmployeeId));
             if (row?.Version != entry.Version) return Result<TimesheetDayResponse>.Conflict(TimesheetMessages.Stale);
             if (row?.Minutes == entry.Minutes) continue;
-            var name = employees[entry.EmployeeId].FullName;
-            db.TimeChanges.Add(WorkshopTimeChange.Create(entry.EmployeeId, name, input.Date, row?.Minutes, entry.Minutes,
+            var name = employees[new WorkshopEmployeeId(entry.EmployeeId)].FullName;
+            db.TimeChanges.Add(WorkshopTimeChange.Create(new WorkshopEmployeeId(entry.EmployeeId), name, input.Date, row?.Minutes, entry.Minutes,
                 actorName, now));
             if (row is null)
             {
-                var created = WorkshopTimeEntry.Create(entry.EmployeeId, input.Date, entry.Minutes, actorName, now);
+                var created = WorkshopTimeEntry.Create(new WorkshopEmployeeId(entry.EmployeeId), input.Date, entry.Minutes, actorName, now);
                 if (created.IsFailure) return created.Error!.ToResult<TimesheetDayResponse>();
                 db.TimeEntries.Add(created.Value);
             }

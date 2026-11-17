@@ -69,7 +69,7 @@ public sealed class ProductionItem
     }
 
     public int Id { get; private set; }
-    public int OrderId { get; private set; }
+    public ProductionOrderId OrderId { get; private set; }
     public int Position { get; private set; }
     public long? QuoteItemId { get; private set; }
     public long? QuoteOptionId { get; private set; }

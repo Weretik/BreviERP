@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Ardalis.Result;
 using Production.Application.Abstractions;
 using Production.Domain.Forecast;
@@ -88,7 +89,7 @@ public sealed class ProductionWorkHandlerTests
         using var workshop = Workshop(out _);
         var order = await Order(workshop);
         workshop.Db.ChangeTracker.Clear();
-        var tracked = workshop.Db.Orders.Single(x => x.Id == order.Id);
+        var tracked = workshop.Db.Orders.Single(x => x.Id == new ProductionOrderId(order.Id));
         typeof(global::Production.Domain.Orders.ProductionOrder).GetProperty("LegacyId")!.SetValue(tracked, "old-1");
         await workshop.Db.SaveChangesAsync();
         ProductionWorkImportRow Row(string id, string name, DateTimeOffset? voidedAt = null) => new(id, "old-1", 1, name,
@@ -126,11 +127,11 @@ public sealed class ProductionWorkHandlerTests
         var settings = new ForecastSettings(2, 480m, 1m); // 960 UAH of rate a day
         var start = SewingForecast.NextWorkingDay(new DateOnly(2026, 11, 6)); // Friday → Monday 9th
         var lines = SewingForecast.Calculate([
-            new(1, [new(10, 50m)]), // 500
-            new(2, [new(10, 100m)]), // 1500 total → 2 days
-            new(3, []),
-            new(4, [new(5, null)]),
-            new(5, [new(1, 10m)])
+            new(new ProductionOrderId(1), [new(10, 50m)]), // 500
+            new(new ProductionOrderId(2), [new(10, 100m)]), // 1500 total → 2 days
+            new(new ProductionOrderId(3), []),
+            new(new ProductionOrderId(4), [new(5, null)]),
+            new(new ProductionOrderId(5), [new(1, 10m)])
         ], settings, start);
 
         Assert.Multiple(() =>
@@ -220,7 +221,7 @@ public sealed class ProductionWorkHandlerTests
         var employee = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.Add(employee);
         workshop.Db.SaveChanges();
-        employeeId = employee.Id;
+        employeeId = employee.Id.Value;
         return workshop;
     }
 

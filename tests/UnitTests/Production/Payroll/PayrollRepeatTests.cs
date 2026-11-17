@@ -79,7 +79,7 @@ public sealed class PayrollRepeatTests
         var employee = WorkshopEmployee.Create("Андреева", "Швачка", 1, workshop.Time.GetUtcNow()).Value;
         workshop.Db.Employees.Add(employee);
         workshop.Db.SaveChanges();
-        return employee.Id;
+        return employee.Id.Value;
     }
 
     private static PayrollChanges Changes(ProductionTestHarness workshop) =>

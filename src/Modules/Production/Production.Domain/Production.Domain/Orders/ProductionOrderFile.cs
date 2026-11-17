@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Production.Domain.Orders.Enums;
 using Production.Domain.Orders.Rules;
 
@@ -17,7 +18,7 @@ public sealed class ProductionOrderFile
 
     private ProductionOrderFile() { }
 
-    internal ProductionOrderFile(int orderId, int? itemId, ProductionFileKind kind, string name, string contentType,
+    internal ProductionOrderFile(ProductionOrderId orderId, int? itemId, ProductionFileKind kind, string name, string contentType,
         long bytes, string url, string? storageKey, string actorName, DateTimeOffset createdAt)
     {
         OrderId = orderId;
@@ -33,7 +34,7 @@ public sealed class ProductionOrderFile
     }
 
     public int Id { get; private set; }
-    public int OrderId { get; private set; }
+    public ProductionOrderId OrderId { get; private set; }
 
     /// <summary>Null for a file of the whole order.</summary>
     public int? ItemId { get; private set; }

@@ -67,15 +67,15 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
 
     /// <summary>Everything the open months of a range are built from.</summary>
     private sealed record PayrollSources(
-        Dictionary<int, WorkshopEmployee> Employees,
+        Dictionary<WorkshopEmployeeId, WorkshopEmployee> Employees,
         List<ProductionWork> Work,
         Dictionary<int, (int OrderNumber, string ModelName, decimal? SewingRate)> Items,
-        List<(DateOnly WorkDate, int EmployeeId, int Minutes)> Time,
+        List<(DateOnly WorkDate, WorkshopEmployeeId EmployeeId, int Minutes)> Time,
         List<PayrollPayment> Payments,
         List<PayrollAdjustment> Adjustments,
         List<PayrollIssued> Issued,
         PayrollRates Rates,
-        Dictionary<PayrollRoleKind, int?> Roles);
+        Dictionary<PayrollRoleKind, WorkshopEmployeeId?> Roles);
 
     private async Task<PayrollSources> LoadAsync(DateOnly from, DateOnly to, CancellationToken cancellationToken)
     {
@@ -120,7 +120,7 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
         var chief = Person(roles.GetValueOrDefault(PayrollRoleKind.Chief), employees, "начальник");
         var stitches = period?.Stitches ?? 0;
         var embroidery = period?.EmbroideryEmployeeId is { } embroideryId && employees.TryGetValue(embroideryId, out var e)
-            ? new PayrollPersonResponse(e.Id, e.FullName, true)
+            ? new PayrollPersonResponse(e.Id.Value, e.FullName, true)
             : stitches > 0 && chief is not null ? chief with { IsAssigned = false } : null;
 
         decimal RateOf(ProductionWork x) =>
@@ -131,13 +131,13 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
             [.. work.Select(x => new PayrollWorkLine(x.EmployeeId, x.Kind, x.Quantity, RateOf(x)))],
             adjustments.Where(x => !x.IsVoided).GroupBy(x => x.EmployeeId).ToDictionary(x => x.Key, x => x.Sum(a => a.Amount)),
             payments.Where(x => !x.IsVoided).GroupBy(x => x.EmployeeId).ToDictionary(x => x.Key, x => x.Sum(p => p.Amount)),
-            new PayrollPeople(master?.EmployeeId, chief?.EmployeeId, embroidery?.EmployeeId),
+            new PayrollPeople(IdOf(master), IdOf(chief), IdOf(embroidery)),
             stitches, rates));
 
         var lines = result.Lines.Select(x =>
             {
                 var employee = employees.GetValueOrDefault(x.EmployeeId);
-                return new PayrollLineResponse(x.EmployeeId, employee?.FullName ?? $"#{x.EmployeeId}",
+                return new PayrollLineResponse(x.EmployeeId.Value, employee?.FullName ?? $"#{x.EmployeeId.Value}",
                     employee?.Position ?? "", employee?.IsActive ?? false, minutes.GetValueOrDefault(x.EmployeeId),
                     x.Sewn, x.Sewing, x.Cut, x.Cutting, x.Bonus, x.Master, x.Chief, x.Embroidery, x.Other, x.Accrued,
                     x.Paid, x.Due, issued.TryGetValue(x.EmployeeId, out var amount) ? amount : null);
@@ -151,7 +151,7 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
                 ? Money(x.Quantity * rate)
                 : Money(x.Quantity * rate * (rates.Cutting ?? 0));
             var found = items.TryGetValue(x.ItemId, out var item);
-            return new PayrollWorkRowResponse(x.Id, x.EmployeeId, x.WorkDate, x.OrderId, found ? item.OrderNumber : 0,
+            return new PayrollWorkRowResponse(x.Id.Value, x.EmployeeId.Value, x.WorkDate, x.OrderId.Value, found ? item.OrderNumber : 0,
                 found ? item.ModelName : "", x.Kind.ToString(), x.Quantity, rate, amount, x.OverPlan);
         }).ToList();
 
@@ -164,10 +164,10 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
         return new PayrollSnapshot(response, workRows);
     }
 
-    public static PayrollPaymentResponse Map(PayrollPayment x) => new(x.Id, x.EmployeeId, x.EmployeeName, x.PaidOn,
+    public static PayrollPaymentResponse Map(PayrollPayment x) => new(x.Id.Value, x.EmployeeId.Value, x.EmployeeName, x.PaidOn,
         x.Kind.ToString(), x.Amount, x.Comment, x.CreatedAt, x.CreatedByName, x.VoidedAt, x.VoidedByName, x.VoidReason);
 
-    public static PayrollAdjustmentResponse Map(PayrollAdjustment x) => new(x.Id, x.EmployeeId, x.EmployeeName,
+    public static PayrollAdjustmentResponse Map(PayrollAdjustment x) => new(x.Id.Value, x.EmployeeId.Value, x.EmployeeName,
         x.Amount, x.Reason, x.CreatedAt, x.CreatedByName, x.VoidedAt, x.VoidedByName, x.VoidReason);
 
     private static PayrollTotalsResponse Totals(IReadOnlyList<PayrollLineResponse> lines) => new(
@@ -176,16 +176,20 @@ public sealed class PayrollSheets(IProductionDbContext db, IPayrollParameterRead
         lines.Sum(x => x.Accrued), lines.Sum(x => x.Paid), lines.Sum(x => x.Due), lines.Sum(x => x.Issued ?? 0));
 
     /// <summary>The chosen person, or the only active worker whose position names the role.</summary>
-    private static PayrollPersonResponse? Person(int? chosen, IReadOnlyDictionary<int, WorkshopEmployee> employees,
+    private static PayrollPersonResponse? Person(WorkshopEmployeeId? chosen,
+        IReadOnlyDictionary<WorkshopEmployeeId, WorkshopEmployee> employees,
         string position)
     {
         if (chosen is { } id && employees.TryGetValue(id, out var employee))
-            return new PayrollPersonResponse(employee.Id, employee.FullName, true);
+            return new PayrollPersonResponse(employee.Id.Value, employee.FullName, true);
         var found = employees.Values
             .Where(x => x.IsActive && x.Position.Contains(position, StringComparison.CurrentCultureIgnoreCase))
             .Take(2).ToList();
-        return found.Count == 1 ? new PayrollPersonResponse(found[0].Id, found[0].FullName, false) : null;
+        return found.Count == 1 ? new PayrollPersonResponse(found[0].Id.Value, found[0].FullName, false) : null;
     }
+
+    private static WorkshopEmployeeId? IdOf(PayrollPersonResponse? person) =>
+        person is null ? null : new WorkshopEmployeeId(person.EmployeeId);
 
     private async Task<PayrollRates> ReadRatesAsync(CancellationToken cancellationToken)
     {

@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using BuildingBlocks.Domain.Entity;
 using Production.Domain.Orders;
 using Production.Domain.Orders.Rules;
@@ -24,11 +25,11 @@ public sealed class PayrollRole : IAggregateRoot
         new(role);
 
     public PayrollRoleKind Role { get; private set; }
-    public int? EmployeeId { get; private set; }
+    public WorkshopEmployeeId? EmployeeId { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
     public string? UpdatedByName { get; private set; }
 
-    public void Assign(int? employeeId, string actorName, DateTimeOffset now)
+    public void Assign(WorkshopEmployeeId? employeeId, string actorName, DateTimeOffset now)
     {
         EmployeeId = employeeId;
         UpdatedAt = now;

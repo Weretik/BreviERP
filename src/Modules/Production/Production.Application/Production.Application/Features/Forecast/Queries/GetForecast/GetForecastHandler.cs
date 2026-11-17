@@ -36,7 +36,7 @@ public sealed class GetForecastHandler(ForecastQueueReader reader, WorkCards car
             var remaining = loads.First(x => x.OrderId == order.Id).Items.Sum(x => x.Remaining);
             var line = lines?[order.Id];
             var dueDate = order.Items.Count > 0 ? order.Items.Min(x => x.DueDate) : order.OrderDate;
-            return new ForecastRowResponse(order.Id, order.Number, order.ClientName, order.ManagerName, remaining,
+            return new ForecastRowResponse(order.Id.Value, order.Number, order.ClientName, order.ManagerName, remaining,
                 actor.SeesSewingRate ? line?.Minutes : null, line?.FinishOn,
                 (line?.Status ?? (remaining == 0 ? ForecastStatus.Complete : ForecastStatus.Unknown)).ToString(),
                 line?.Reason?.ToString(), dueDate, line?.FinishOn is { } finish && finish > dueDate);

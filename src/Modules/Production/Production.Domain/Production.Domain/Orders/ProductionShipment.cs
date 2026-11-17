@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Production.Domain.Orders.Rules;
 
 namespace Production.Domain.Orders;
@@ -23,7 +24,7 @@ public sealed class ProductionShipment
     }
 
     public int Id { get; private set; }
-    public int OrderId { get; private set; }
+    public ProductionOrderId OrderId { get; private set; }
     public int ItemId { get; private set; }
     public int Quantity { get; private set; }
     public DateOnly ShippedOn { get; private set; }

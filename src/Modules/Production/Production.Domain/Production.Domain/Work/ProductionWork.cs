@@ -1,3 +1,5 @@
+using Production.Domain.Staff;
+using Production.Domain.Orders.ValueObjects;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Events;
 using BuildingBlocks.Domain.Results;
@@ -22,7 +24,7 @@ public static class OverPlanReasons
 }
 
 /// <summary>Who did the work and for which item, as it was when the work was recorded.</summary>
-public sealed record WorkTarget(int OrderId, int ItemId, int EmployeeId, string EmployeeName);
+public sealed record WorkTarget(ProductionOrderId OrderId, int ItemId, WorkshopEmployeeId EmployeeId, string EmployeeName);
 
 /// <summary>What was done.</summary>
 public sealed record WorkFacts(ProductionWorkKind Kind, int Quantity, DateOnly WorkDate, bool OverPlan, string? Reason,
@@ -76,10 +78,10 @@ public sealed class ProductionWork : DomainEventSource, IAggregateRoot
         if (LegacyId is null) Raise(new ProductionWorkRecorded(this, false));
     }
 
-    public int Id { get; private set; }
-    public int OrderId { get; private set; }
+    public ProductionWorkId Id { get; private set; }
+    public ProductionOrderId OrderId { get; private set; }
     public int ItemId { get; private set; }
-    public int EmployeeId { get; private set; }
+    public WorkshopEmployeeId EmployeeId { get; private set; }
     public string EmployeeName { get; private set; } = null!;
     public ProductionWorkKind Kind { get; private set; }
     public int Quantity { get; private set; }

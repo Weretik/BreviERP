@@ -57,7 +57,7 @@ public sealed class WorkshopArchiveRecord : IAggregateRoot
     public static WorkshopArchiveRecord Create(WorkshopArchiveKind kind, string sourceKey, int sourceRow, WorkshopArchiveEntry entry) =>
         new(kind, sourceKey, sourceRow, entry);
 
-    public int Id { get; private set; }
+    public WorkshopArchiveRecordId Id { get; private set; }
     public WorkshopArchiveKind Kind { get; private set; }
 
     /// <summary>«schedule:12» for a sheet row, the old id for a request.</summary>

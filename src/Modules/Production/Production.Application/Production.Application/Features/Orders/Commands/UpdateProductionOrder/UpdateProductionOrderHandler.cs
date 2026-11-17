@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Colors.Shared;
@@ -20,7 +21,7 @@ public sealed class UpdateProductionOrderHandler(IProductionDbContext db, IProdu
     {
         var actor = command.Actor;
         var input = command.Input;
-        var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(command.Id), cancellationToken);
         if (order is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.NotFound);
         if (!actor.CanEdit(order)) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotEdit);
         if (order.Version != input.Version) return Result<ProductionOrderResponse>.Conflict(OrderMessages.Stale);

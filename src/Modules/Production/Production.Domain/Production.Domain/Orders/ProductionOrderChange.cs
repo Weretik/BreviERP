@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Production.Domain.Orders.Rules;
 
 namespace Production.Domain.Orders;
@@ -26,7 +27,7 @@ public sealed class ProductionOrderChange
     }
 
     public long Id { get; private set; }
-    public int OrderId { get; private set; }
+    public ProductionOrderId OrderId { get; private set; }
     public int? ItemId { get; private set; }
     public string? ItemName { get; private set; }
     public string Field { get; private set; } = null!;

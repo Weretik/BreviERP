@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using Production.Domain.Work;
 
 namespace Production.Domain.Payroll;
@@ -9,21 +10,21 @@ public sealed record PayrollRates(decimal? Bonus, decimal? BonusThreshold, decim
     decimal? Chief, decimal? Embroidery);
 
 /// <summary>Not cancelled work of the month with the rate it is paid by.</summary>
-public sealed record PayrollWorkLine(int EmployeeId, ProductionWorkKind Kind, int Quantity, decimal Rate);
+public sealed record PayrollWorkLine(WorkshopEmployeeId EmployeeId, ProductionWorkKind Kind, int Quantity, decimal Rate);
 
-public sealed record PayrollPeople(int? MasterId, int? ChiefId, int? EmbroideryId);
+public sealed record PayrollPeople(WorkshopEmployeeId? MasterId, WorkshopEmployeeId? ChiefId, WorkshopEmployeeId? EmbroideryId);
 
 /// <summary>Everything the month is paid from.</summary>
 public sealed record PayrollInputs(
-    IReadOnlyCollection<int> EmployeeIds,
+    IReadOnlyCollection<WorkshopEmployeeId> EmployeeIds,
     IReadOnlyList<PayrollWorkLine> Work,
-    IReadOnlyDictionary<int, decimal> Adjustments,
-    IReadOnlyDictionary<int, decimal> Payments,
+    IReadOnlyDictionary<WorkshopEmployeeId, decimal> Adjustments,
+    IReadOnlyDictionary<WorkshopEmployeeId, decimal> Payments,
     PayrollPeople People,
     int Stitches,
     PayrollRates Rates);
 
-public sealed record PayrollAmounts(int EmployeeId, int Sewn, decimal Sewing, int Cut, decimal Cutting, decimal Bonus,
+public sealed record PayrollAmounts(WorkshopEmployeeId EmployeeId, int Sewn, decimal Sewing, int Cut, decimal Cutting, decimal Bonus,
     decimal Master, decimal Chief, decimal Embroidery, decimal Other, decimal Paid)
 {
     public decimal Accrued => Sewing + Cutting + Bonus + Master + Chief + Embroidery + Other;
@@ -67,7 +68,7 @@ public static class PayrollCalculation
             .Concat(inputs.Adjustments.Keys)
             .Concat(inputs.Payments.Keys)
             .Concat(new[] { people.MasterId, people.ChiefId, inputs.Stitches > 0 ? people.EmbroideryId : null }
-                .OfType<int>())
+                .OfType<WorkshopEmployeeId>())
             .Distinct();
 
         var lines = ids.Select(id =>

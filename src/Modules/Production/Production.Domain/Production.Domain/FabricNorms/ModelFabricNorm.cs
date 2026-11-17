@@ -24,7 +24,7 @@ public sealed class ModelFabricNorm : DomainEventSource, IAggregateRoot
         return set.IsFailure ? set.Error! : norm;
     }
 
-    public int Id { get; private set; }
+    public ModelFabricNormId Id { get; private set; }
     public string ModelCode { get; private set; } = null!;
     public decimal? OneColor { get; private set; }
     public decimal? TwoColorsMain { get; private set; }
@@ -59,7 +59,7 @@ public sealed class ModelFabricNorm : DomainEventSource, IAggregateRoot
     }
 
     /// <summary>Tells «Журнал дій» (ACT-001) that the norm is being deleted; call it before removing it.</summary>
-    public void MarkDeleted() => Raise(new FabricNormDeleted(Id, ModelCode));
+    public void MarkDeleted() => Raise(new FabricNormDeleted(Id.Value, ModelCode));
 
     /// <summary>Meters above zero with at most three decimals, and a main fabric for every additional one.</summary>
     public static DomainResult CheckValues(FabricNormValues values)

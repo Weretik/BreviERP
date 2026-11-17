@@ -1,3 +1,5 @@
+using Production.Domain.Staff;
+using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.Work;
 using Production.Application.Features.Orders.Shared.Access;
@@ -14,8 +16,8 @@ public sealed class GetWorkLogHandler(IProductionDbContext db) : IQueryHandler<G
         WorkMonth.TryParse(query.Month, out var first);
         var next = first.AddMonths(1);
         var work = db.Work.AsNoTracking().Where(x => x.WorkDate >= first && x.WorkDate < next);
-        if (query.EmployeeId is { } employee) work = work.Where(x => x.EmployeeId == employee);
-        if (query.OrderId is { } order) work = work.Where(x => x.OrderId == order);
+        if (query.EmployeeId is { } employee) work = work.Where(x => x.EmployeeId == new WorkshopEmployeeId(employee));
+        if (query.OrderId is { } order) work = work.Where(x => x.OrderId == new ProductionOrderId(order));
         var rows = await work.OrderByDescending(x => x.WorkDate).ThenByDescending(x => x.Id).ToListAsync(cancellationToken);
         var orderIds = rows.Select(x => x.OrderId).Distinct().ToList();
         var orders = await db.Orders.AsNoTracking().Include(x => x.Items).Where(x => orderIds.Contains(x.Id))

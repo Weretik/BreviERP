@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 namespace Production.Domain.Forecast;
 
 /// <summary>«Прогноз пошиття» capacity: SEAMSTRESS_COUNT, MINUTES_SHIFT and MINUTE_COST_SEAMSTRESS.</summary>
@@ -12,7 +13,7 @@ public sealed record ForecastSettings(int SeamstressCount, decimal ShiftMinutes,
 /// <summary>An item still to sew: pieces left and the rate per piece (null when the item has none).</summary>
 public sealed record ForecastItemLoad(int Remaining, decimal? Rate);
 
-public sealed record ForecastOrderLoad(int OrderId, IReadOnlyList<ForecastItemLoad> Items);
+public sealed record ForecastOrderLoad(ProductionOrderId OrderId, IReadOnlyList<ForecastItemLoad> Items);
 
 public enum ForecastStatus
 {
@@ -28,7 +29,7 @@ public enum ForecastReason
     BeyondHorizon = 3
 }
 
-public sealed record ForecastLine(int OrderId, int Remaining, decimal? Minutes, DateOnly? FinishOn, ForecastStatus Status,
+public sealed record ForecastLine(ProductionOrderId OrderId, int Remaining, decimal? Minutes, DateOnly? FinishOn, ForecastStatus Status,
     ForecastReason? Reason);
 
 /// <summary>

@@ -1,3 +1,4 @@
+using Production.Domain.Payroll.Identifiers;
 using Production.Application.Abstractions;
 using Production.Domain.Payroll;
 using Production.Application.Features.Payroll.Shared;
@@ -12,7 +13,7 @@ public sealed class VoidPayrollAdjustmentHandler(IProductionDbContext db, Payrol
     public async ValueTask<Result<PayrollMonthResponse>> Handle(VoidPayrollAdjustmentCommand command,
         CancellationToken cancellationToken)
     {
-        var adjustment = await db.PayrollAdjustments.SingleOrDefaultAsync(x => x.Id == command.AdjustmentId,
+        var adjustment = await db.PayrollAdjustments.SingleOrDefaultAsync(x => x.Id == new PayrollAdjustmentId(command.AdjustmentId),
             cancellationToken);
         if (adjustment is null) return Result<PayrollMonthResponse>.NotFound(PayrollMessages.AdjustmentNotFound);
         return await changes.ApplyAsync(command.Actor, PayrollMonths.Format(adjustment.Month), adminOnly: true, change =>

@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using Production.Application.Abstractions;
 using Production.Domain.Payroll;
 using Production.Application.Features.Payroll.Shared;
@@ -12,7 +13,8 @@ public sealed class SetPayrollRolesHandler(IProductionDbContext db, PayrollChang
         CancellationToken cancellationToken) =>
         await changes.ApplyAsync(command.Actor, command.Month, adminOnly: false, async change =>
         {
-            var ids = new[] { command.Input.MasterEmployeeId, command.Input.ChiefEmployeeId }.OfType<int>().ToList();
+            var ids = new[] { command.Input.MasterEmployeeId, command.Input.ChiefEmployeeId }.OfType<int>()
+                .Select(x => new WorkshopEmployeeId(x)).ToList();
             var active = await db.Employees.Where(x => ids.Contains(x.Id) && x.IsActive).Select(x => x.Id)
                 .ToListAsync(cancellationToken);
             if (ids.Except(active).Any())
@@ -30,7 +32,7 @@ public sealed class SetPayrollRolesHandler(IProductionDbContext db, PayrollChang
                     db.PayrollRoles.Add(role);
                 }
 
-                role.Assign(employeeId, change.ActorName, change.Now);
+                role.Assign(employeeId is { } id ? new WorkshopEmployeeId(id) : null, change.ActorName, change.Now);
             }
 
             return null;

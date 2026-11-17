@@ -16,7 +16,7 @@ public sealed class SaveForecastQueueHandler(IProductionDbContext db, ForecastQu
         if (!command.Actor.CanReorderForecast) return Result.Forbidden(ForecastMessages.CannotReorder);
         var (queue, orders) = await reader.ReadAsync(track: true, cancellationToken);
         if ((queue?.Version ?? 0) != command.Input.Version) return Result.Conflict(ForecastMessages.Stale);
-        var inQueue = orders.Select(x => x.Id).ToHashSet();
+        var inQueue = orders.Select(x => x.Id.Value).ToHashSet();
         if (!command.Input.OrderIds.All(inQueue.Contains)) return Result.Conflict(ForecastMessages.NotInQueue);
         var actorName = await OrderActors.NameAsync(staff, command.Actor.UserId, cancellationToken);
         if (actorName is null) return Result.Forbidden(ForecastMessages.CannotReorder);

@@ -38,10 +38,10 @@ internal static class OrderMapping
         var canEdit = actor.CanEdit(order);
         var canTrack = actor.CanTrack(order);
         return new ProductionOrderResponse(
-            order.Id, order.Number, order.Status.ToString(), order.ClientName, order.QuoteId, order.QuoteNumber,
+            order.Id.Value, order.Number, order.Status.ToString(), order.ClientName, order.QuoteId, order.QuoteNumber,
             order.ManagerName, order.OrderDate, order.Comment,
             actor.SeesReportPrice ? order.PriceTier?.ToString() : null,
-            order.LegacyId is not null, order.CopiedFromOrderId, order.CreatedAt, order.CreatedByName,
+            order.LegacyId is not null, order.CopiedFromOrderId?.Value, order.CreatedAt, order.CreatedByName,
             order.UpdatedAt, order.Version, order.CancelReason,
             new ProductionOrderPermissions(canEdit, actor.CanCreate && !order.IsDeleted, actor.CanDelete,
                 actor.SeesSewingRate, actor.SeesReportPrice, canTrack, canTrack && order.IsFullyShipped, canEdit,

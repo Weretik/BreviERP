@@ -26,7 +26,7 @@ public sealed class GetWorkshopArchiveHandler(IProductionDbContext db)
             [.. page.Select(Map)]));
     }
 
-    private static WorkshopArchiveRowResponse Map(WorkshopArchiveRecord x) => new(x.Id, x.SourceRow, x.Date,
+    private static WorkshopArchiveRowResponse Map(WorkshopArchiveRecord x) => new(x.Id.Value, x.SourceRow, x.Date,
         x.DateText, x.Number, x.Client, x.Product, x.Quantity, x.Fabric, x.Status, x.Notes,
         [.. x.Fields.Select(f => new WorkshopArchiveFieldResponse(f.Label, f.Value))],
         [.. x.Links.Select(l => new WorkshopArchiveLinkResponse(l.Label, l.Url))]);

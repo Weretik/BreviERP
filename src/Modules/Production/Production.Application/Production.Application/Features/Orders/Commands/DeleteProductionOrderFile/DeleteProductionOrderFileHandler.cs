@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
 using Production.Application.Features.Orders.Shared;
@@ -13,7 +14,7 @@ public sealed class DeleteProductionOrderFileHandler(
     public async ValueTask<Result<ProductionOrderResponse>> Handle(DeleteProductionOrderFileCommand command,
         CancellationToken cancellationToken)
     {
-        var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == command.OrderId, cancellationToken);
+        var order = await cards.Orders.SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(command.OrderId), cancellationToken);
         if (order is null) return Result<ProductionOrderResponse>.NotFound(OrderMessages.NotFound);
         if (!command.Actor.CanEdit(order)) return Result<ProductionOrderResponse>.Forbidden(OrderMessages.CannotEdit);
         await db.Orders.Entry(order).Collection(x => x.Files).Query()

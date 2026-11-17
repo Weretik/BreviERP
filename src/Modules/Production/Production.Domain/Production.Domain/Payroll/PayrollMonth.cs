@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using BuildingBlocks.Domain.Entity;
 using BuildingBlocks.Domain.Results;
 using Production.Domain.Orders;
@@ -26,7 +27,7 @@ public sealed class PayrollMonth : IAggregateRoot
     /// <summary>Stitches embroidered in the month; paid to <see cref="EmbroideryEmployeeId"/>.</summary>
     public int Stitches { get; private set; }
 
-    public int? EmbroideryEmployeeId { get; private set; }
+    public WorkshopEmployeeId? EmbroideryEmployeeId { get; private set; }
 
     public DateTimeOffset? ClosedAt { get; private set; }
     public string? ClosedByName { get; private set; }
@@ -43,7 +44,7 @@ public sealed class PayrollMonth : IAggregateRoot
 
     public bool IsClosed => ClosedAt is not null;
 
-    public DomainResult SetEmbroidery(int stitches, int? employeeId, string actorName, DateTimeOffset now)
+    public DomainResult SetEmbroidery(int stitches, WorkshopEmployeeId? employeeId, string actorName, DateTimeOffset now)
     {
         if (IsClosed) return PayrollErrors.MonthClosed();
         if (stitches is < 0 or > MaxStitches) return PayrollErrors.StitchesOutOfRange();

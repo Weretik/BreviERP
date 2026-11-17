@@ -16,7 +16,7 @@ public sealed class UpdateWorkshopSettingsHandler(
             return Result<WorkshopSettingsResponse>.Forbidden(SettingsMessages.CannotManage);
         var actorName = (await staff.FindAsync(command.Actor.UserId, cancellationToken))?.Name;
         if (actorName is null) return Result<WorkshopSettingsResponse>.Forbidden("Не вдалося визначити користувача.");
-        var settings = await db.Settings.SingleOrDefaultAsync(x => x.Id == WorkshopSettings.SingletonId,
+        var settings = await db.Settings.SingleOrDefaultAsync(x => x.Id == new WorkshopSettingsId(WorkshopSettings.SingletonId),
             cancellationToken);
         if (settings is null)
         {

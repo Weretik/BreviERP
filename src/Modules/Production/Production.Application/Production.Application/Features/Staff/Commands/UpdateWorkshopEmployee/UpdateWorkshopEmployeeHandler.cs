@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using Production.Application.Abstractions;
 using Production.Application.Features.Orders.Shared;
 using Production.Application.Features.Staff.Shared;
@@ -11,7 +12,7 @@ public sealed class UpdateWorkshopEmployeeHandler(IProductionDbContext db, TimeP
     public async ValueTask<Result<WorkshopEmployeeResponse>> Handle(UpdateWorkshopEmployeeCommand command,
         CancellationToken cancellationToken)
     {
-        var employee = await db.Employees.FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+        var employee = await db.Employees.FirstOrDefaultAsync(x => x.Id == new WorkshopEmployeeId(command.Id), cancellationToken);
         if (employee is null) return Result<WorkshopEmployeeResponse>.NotFound(StaffMessages.NotFound);
         if (employee.IsActive
             && await EmployeeLookup.ActiveNameTakenAsync(db, command.Input.FullName, employee.Id, cancellationToken))

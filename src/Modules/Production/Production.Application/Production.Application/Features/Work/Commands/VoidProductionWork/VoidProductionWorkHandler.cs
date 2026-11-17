@@ -13,7 +13,7 @@ public sealed class VoidProductionWorkHandler(IProductionDbContext db, IProducti
     public async ValueTask<Result<ProductionItemWorkResponse>> Handle(VoidProductionWorkCommand command,
         CancellationToken cancellationToken)
     {
-        var work = await db.Work.SingleOrDefaultAsync(x => x.Id == command.WorkId, cancellationToken);
+        var work = await db.Work.SingleOrDefaultAsync(x => x.Id == new ProductionWorkId(command.WorkId), cancellationToken);
         if (work is null) return Result<ProductionItemWorkResponse>.NotFound(WorkMessages.WorkNotFound);
         var order = await db.Orders.Include(x => x.Items)
             .SingleOrDefaultAsync(x => x.Id == work.OrderId && x.DeletedAt == null, cancellationToken);

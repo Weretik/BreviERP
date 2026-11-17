@@ -1,3 +1,4 @@
+using Production.Domain.Orders.ValueObjects;
 using BuildingBlocks.Application.Outbox;
 using Production.Application.Abstractions;
 using Production.Domain.Orders;
@@ -22,10 +23,10 @@ public sealed class SendProductionOrderTelegramOutboxHandler(
     public async Task<string?> HandleAsync(string payload, CancellationToken cancellationToken)
     {
         var orderId = OutboxMessage.Read<SendProductionOrderTelegramPayload>(payload).OrderId;
-        var delivery = await db.TelegramDeliveries.SingleOrDefaultAsync(x => x.OrderId == orderId, cancellationToken);
+        var delivery = await db.TelegramDeliveries.SingleOrDefaultAsync(x => x.OrderId == new ProductionOrderId(orderId), cancellationToken);
         if (delivery is not { Status: TelegramDeliveryStatus.Sending, ChatId: { } chatId }) return null;
         var order = await db.Orders.Include(x => x.Items)
-            .SingleOrDefaultAsync(x => x.Id == orderId && x.DeletedAt == null, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new ProductionOrderId(orderId) && x.DeletedAt == null, cancellationToken);
         if (order is null)
         {
             delivery.Fail("Замовлення видалено.");
@@ -36,7 +37,7 @@ public sealed class SendProductionOrderTelegramOutboxHandler(
         var files = await db.OrderFiles.AsNoTracking()
             .Where(x => x.OrderId == order.Id && x.DeletedAt == null)
             .OrderBy(x => x.Id).ToListAsync(cancellationToken);
-        var text = ProductionTelegramMessage.Build(order, files, links.Order(order.Id));
+        var text = ProductionTelegramMessage.Build(order, files, links.Order(order.Id.Value));
         try
         {
             var messageId = await telegram.SendAsync(chatId, delivery.ThreadId, text, CancellationToken.None);

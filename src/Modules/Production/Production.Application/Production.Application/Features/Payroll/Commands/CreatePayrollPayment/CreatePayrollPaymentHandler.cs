@@ -1,3 +1,4 @@
+using Production.Domain.Staff;
 using Production.Application.Abstractions;
 using Production.Domain.Payroll;
 using Production.Application.Features.Payroll.Shared;
@@ -19,7 +20,7 @@ public sealed class CreatePayrollPaymentHandler(IProductionDbContext db, Payroll
             if (input.PaidOn > WorkshopDay.Today(clock))
                 return Result.Invalid(new ValidationError("Input.PaidOn", PayrollMessages.FuturePayment));
             var employee = await db.Employees.AsNoTracking()
-                .SingleOrDefaultAsync(x => x.Id == input.EmployeeId, cancellationToken);
+                .SingleOrDefaultAsync(x => x.Id == new WorkshopEmployeeId(input.EmployeeId), cancellationToken);
             if (employee is null) return Result.Invalid(new ValidationError("Input.EmployeeId", PayrollMessages.EmployeeNotFound));
             var payment = PayrollPayment.Create(
                 new PayrollEntryTarget(change.Period.Month, employee.Id, employee.FullName), input.PaidOn,
