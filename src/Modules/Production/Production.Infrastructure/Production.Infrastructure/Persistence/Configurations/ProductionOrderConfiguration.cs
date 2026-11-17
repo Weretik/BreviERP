@@ -34,8 +34,8 @@ internal sealed class ProductionOrderConfiguration : IEntityTypeConfiguration<Pr
 
         builder.HasMany(x => x.Items).WithOne().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
         builder.Navigation(x => x.Items).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.HasMany(x => x.Changes).WithOne().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
-        builder.Navigation(x => x.Changes).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.HasMany(x => x.NewChanges).WithOne().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
+        builder.Navigation(x => x.NewChanges).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.HasMany(x => x.Shipments).WithOne().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
         builder.Navigation(x => x.Shipments).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.HasMany(x => x.Files).WithOne().HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);

@@ -53,7 +53,7 @@ public sealed class QuoteConfiguration : IEntityTypeConfiguration<Quote>
         b.Navigation(x => x.Items).HasField("_items").UsePropertyAccessMode(PropertyAccessMode.Field);
 
         // History lines are only added through the КП and read by GetQuoteHistory; the КП never loads them.
-        b.HasMany(x => x.Events).WithOne().HasForeignKey(x => x.QuoteId).OnDelete(DeleteBehavior.Cascade);
-        b.Navigation(x => x.Events).HasField("_events").UsePropertyAccessMode(PropertyAccessMode.Field);
+        b.HasMany(x => x.NewEvents).WithOne().HasForeignKey(x => x.QuoteId).OnDelete(DeleteBehavior.Cascade);
+        b.Navigation(x => x.NewEvents).HasField("_newEvents").UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

@@ -15,7 +15,7 @@ namespace Crm.Domain.Quotes;
 public sealed class Quote : DomainEventSource, IAggregateRoot
 {
     private readonly List<QuoteItem> _items = [];
-    private readonly List<QuoteEvent> _events = [];
+    private readonly List<QuoteEvent> _newEvents = [];
 
     /// <summary>The fields before the first change of this command, for the changed fields of «Журнал дій».</summary>
     private QuoteSnapshot? _before;
@@ -121,7 +121,11 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
     public IReadOnlyList<QuoteItem> Items => _items;
 
     /// <summary>History lines added in this change; saved ones are read by a separate query.</summary>
-    public IReadOnlyList<QuoteEvent> Events => _events;
+    /// <summary>
+    /// History lines this change adds. The saved «Історія змін» is its own records (read through <c>QuoteEvents</c>)
+    /// and is never loaded with the КП, because it grows with every edit.
+    /// </summary>
+    public IReadOnlyList<QuoteEvent> NewEvents => _newEvents;
 
     /// <summary>
     /// «Копіювати КП» (R-24): a new draft with the same header, introduction and items with their saved prices. The
@@ -133,7 +137,7 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
             new QuoteHeader(InternalName, CustomerId, RecipientName, CompanyName, ClientComment, ManagerNote),
             _items.OrderBy(x => x.Position).Select(x => x.Copy()), now) { CreateRequestId = requestId };
         if (Introduction is { } introduction) copy.ApplyIntroduction(introduction);
-        copy._events.Clear(); // the copy starts its history with «Копія КП N» instead of «Створено»
+        copy._newEvents.Clear(); // the copy starts its history with «Копія КП N» instead of «Створено»
         copy.Record(QuoteEventKind.Copied, author, $"Копія КП {Number}", now);
         return copy;
     }
@@ -181,7 +185,7 @@ public sealed class Quote : DomainEventSource, IAggregateRoot
         ManagerNote, _items.Count, IntroLayout, RecipientEmail, LetterName, LetterSubject, LetterBody);
 
     private void AddHistory(QuoteEventKind kind, QuotePerson actor, string? details, DateTimeOffset at) =>
-        _events.Add(new QuoteEvent(kind, actor, details, at));
+        _newEvents.Add(new QuoteEvent(kind, actor, details, at));
 
     private void RaiseRecorded(QuoteEventKind kind, string? details)
     {

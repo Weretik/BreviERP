@@ -12,10 +12,10 @@ public sealed class GetTaskHandler(ITaskStore store, TimeProvider clock)
     public async ValueTask<Result<TaskDetailResponse>> Handle(GetTaskQuery query, CancellationToken cancellationToken)
     {
         var task = await store.ManagerTasks.AsNoTracking()
-            .Include(x => x.Steps).Include(x => x.Events).AsSplitQuery()
+            .Include(x => x.Steps)
             .SingleOrDefaultAsync(x => x.Id == query.Id, cancellationToken);
         return task is null || !query.Actor.CanAccess(task)
             ? Result.NotFound(TaskMessages.NotFound)
-            : Result.Success(task.ToDetail(clock.GetUtcNow()));
+            : Result.Success(await store.DetailAsync(task, clock.GetUtcNow(), cancellationToken));
     }
 }

@@ -26,7 +26,7 @@ public sealed class EditTaskHandler(ITaskStore store, ITaskStaffReader staff, Ti
         var now = clock.GetUtcNow();
         task.Edit(draft.Value, by, now);
         return await store.TrySaveAsync(cancellationToken)
-            ? Result.Success(task.ToDetail(now))
+            ? Result.Success(await store.DetailAsync(task, now, cancellationToken))
             : Result.Conflict(TaskMessages.Stale);
     }
 }

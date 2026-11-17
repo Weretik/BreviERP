@@ -26,7 +26,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     public const int CancelReasonMaxLength = 1000;
 
     private readonly List<ProductionItem> _items = [];
-    private readonly List<ProductionOrderChange> _changes = [];
+    private readonly List<ProductionOrderChange> _newChanges = [];
     private readonly List<ProductionShipment> _shipments = [];
     private readonly List<ProductionOrderFile> _files = [];
 
@@ -120,7 +120,11 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     public bool IsFullyShipped => _items.All(x => ShippedQuantity(x.Id) >= x.Quantity);
 
     /// <summary>History lines added in this change; saved ones are read by a separate query.</summary>
-    public IReadOnlyList<ProductionOrderChange> Changes => _changes;
+    /// <summary>
+    /// History lines this change adds. The saved history is its own records (read through <c>OrderChanges</c>) and is
+    /// never loaded with the order, because it grows with every edit.
+    /// </summary>
+    public IReadOnlyList<ProductionOrderChange> NewChanges => _newChanges;
 
     public bool IsDeleted => DeletedAt is not null;
 
@@ -138,7 +142,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         var valid = DomainResult.Combine([CheckHeader(header),
             .. _items.Where(x => items.ContainsKey(x.Id)).Select(x => ProductionItem.Check(items[x.Id].Details))]);
         if (valid.IsFailure) return valid.Error!;
-        var before = _changes.Count;
+        var before = _newChanges.Count;
         Track(null, null, "Клієнт", ClientName, OrderText.Required(header.ClientName, ClientMaxLength), actorName, now);
         Track(null, null, "Дата створення", Format(OrderDate), Format(header.OrderDate), actorName, now);
         Track(null, null, "Коментар", Comment, OrderText.Optional(header.Comment, CommentMaxLength), actorName, now);
@@ -171,7 +175,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
             }
         }
 
-        if (_changes.Count == before) return false;
+        if (_newChanges.Count == before) return false;
         Publish(ProductionOrderActivity.Changed, before);
         Touch(now);
         return true;
@@ -182,7 +186,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     {
         if (IsDeleted) return;
         DeletedAt = now;
-        _changes.Add(new ProductionOrderChange(null, null, "Видалено", null, "Так", actorName, now));
+        _newChanges.Add(new ProductionOrderChange(null, null, "Видалено", null, "Так", actorName, now));
         Raise(new ProductionOrderRecorded(this, ProductionOrderActivity.Deleted, []));
         Touch(now);
     }
@@ -191,7 +195,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     public DomainResult<bool> SetItemStages(int itemId, IEnumerable<ProductionStage> stages, string actorName,
         DateTimeOffset now)
     {
-        var from = _changes.Count;
+        var from = _newChanges.Count;
         var changed = Stages(itemId, stages, actorName, now);
         if (changed.IsSuccess && changed.Value) Publish(ProductionOrderActivity.StagesChanged, from);
         return changed;
@@ -203,7 +207,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         if (FindItem(itemId) is not { } item) return ProductionOrderErrors.ItemNotInOrder();
         var before = ProductionStages.Describe(item.Stages);
         if (!item.SetStages(stages)) return false;
-        _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Етапи", before,
+        _newChanges.Add(new ProductionOrderChange(item.Id, item.ModelName, "Етапи", before,
             ProductionStages.Describe(item.Stages), actorName, now));
         Touch(now);
         return true;
@@ -224,10 +228,10 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         if (quantity > RemainingToShip(itemId)) return ProductionOrderErrors.TooMuchShipped();
         var text = OrderText.Check(comment, ProductionShipment.CommentMaxLength, "comment");
         if (text.IsFailure) return text.Error!;
-        var from = _changes.Count;
+        var from = _newChanges.Count;
         var shipment = new ProductionShipment(item.Id, quantity, shippedOn, comment, actorName, now);
         _shipments.Add(shipment);
-        _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження", null,
+        _newChanges.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження", null,
             $"{quantity} шт., {Format(shippedOn)}{(shipment.Comment is null ? "" : $", {shipment.Comment}")}",
             actorName, now));
         if (RemainingToShip(itemId) == 0 && !item.Stages.Contains(ProductionStage.Shipped))
@@ -243,9 +247,9 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         if (shipment is null) return ProductionOrderErrors.ShipmentNotFound();
         _shipments.Remove(shipment);
         var item = Item(shipment.ItemId);
-        _changes.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження скасовано",
+        _newChanges.Add(new ProductionOrderChange(item.Id, item.ModelName, "Відвантаження скасовано",
             $"{shipment.Quantity} шт., {Format(shipment.ShippedOn)}", null, actorName, now));
-        Publish(ProductionOrderActivity.ShipmentCancelled, _changes.Count - 1);
+        Publish(ProductionOrderActivity.ShipmentCancelled, _newChanges.Count - 1);
         Touch(now);
         return DomainResult.Success();
     }
@@ -256,7 +260,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         if (Status != ProductionOrderStatus.New) return ProductionOrderErrors.NotNew();
         if (!IsFullyShipped) return ProductionOrderErrors.NotFullyShipped();
         ChangeStatus(ProductionOrderStatus.Closed, null, actorName, now);
-        Publish(ProductionOrderActivity.Closed, _changes.Count - 1);
+        Publish(ProductionOrderActivity.Closed, _newChanges.Count - 1);
         return DomainResult.Success();
     }
 
@@ -267,7 +271,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         var text = OrderText.Check(reason, CancelReasonMaxLength, "reason", required: true);
         if (text.IsFailure) return text;
         ChangeStatus(ProductionOrderStatus.Cancelled, OrderText.Required(reason, CancelReasonMaxLength), actorName, now);
-        Publish(ProductionOrderActivity.Cancelled, _changes.Count - 1);
+        Publish(ProductionOrderActivity.Cancelled, _newChanges.Count - 1);
         return DomainResult.Success();
     }
 
@@ -276,7 +280,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     {
         if (Status == ProductionOrderStatus.New) return ProductionOrderErrors.AlreadyOpen();
         ChangeStatus(ProductionOrderStatus.New, null, actorName, now);
-        Publish(ProductionOrderActivity.Reopened, _changes.Count - 1);
+        Publish(ProductionOrderActivity.Reopened, _newChanges.Count - 1);
         return DomainResult.Success();
     }
 
@@ -325,18 +329,18 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
     public void RecordAbout(int? itemId, string field, string? before, string? after, string actorName,
         DateTimeOffset now)
     {
-        _changes.Add(new ProductionOrderChange(itemId,
+        _newChanges.Add(new ProductionOrderChange(itemId,
             itemId is null ? null : _items.FirstOrDefault(x => x.Id == itemId)?.ModelName, field, before, after,
             actorName, now));
-        Publish(ProductionOrderActivity.Noted, _changes.Count - 1);
+        Publish(ProductionOrderActivity.Noted, _newChanges.Count - 1);
     }
 
     /// <summary>A history line only, such as «Створено» or «Перенесено»; «Журнал дій» already has the action.</summary>
     public void Record(string field, string? after, string actorName, DateTimeOffset now) =>
-        _changes.Add(new ProductionOrderChange(null, null, field, null, after, actorName, now));
+        _newChanges.Add(new ProductionOrderChange(null, null, field, null, after, actorName, now));
 
     private void Publish(ProductionOrderActivity kind, int from) =>
-        Raise(new ProductionOrderRecorded(this, kind, _changes.Skip(from).ToList()));
+        Raise(new ProductionOrderRecorded(this, kind, _newChanges.Skip(from).ToList()));
 
     private ProductionItem? FindItem(int itemId) => _items.FirstOrDefault(x => x.Id == itemId);
 
@@ -352,7 +356,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         var before = StatusLabel(Status);
         Status = status;
         CancelReason = reason;
-        _changes.Add(new ProductionOrderChange(null, null, "Статус", before,
+        _newChanges.Add(new ProductionOrderChange(null, null, "Статус", before,
             reason is null ? StatusLabel(status) : $"{StatusLabel(status)}: {reason}", actorName, now));
         Touch(now);
     }
@@ -381,7 +385,7 @@ public sealed class ProductionOrder : DomainEventSource, IAggregateRoot
         DateTimeOffset now)
     {
         if (string.Equals(before ?? string.Empty, after ?? string.Empty, StringComparison.Ordinal)) return;
-        _changes.Add(new ProductionOrderChange(itemId, itemName, field, before, after, actorName, now));
+        _newChanges.Add(new ProductionOrderChange(itemId, itemName, field, before, after, actorName, now));
     }
 
     private static IEnumerable<string> Clean(IEnumerable<string> colors) =>

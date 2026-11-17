@@ -13,7 +13,7 @@ namespace Crm.Domain.Tasks;
 public sealed class ManagerTask : DomainEventSource, IAggregateRoot
 {
     private readonly List<ManagerTaskStep> _steps = [];
-    private readonly List<ManagerTaskEvent> _events = [];
+    private readonly List<ManagerTaskEvent> _newEvents = [];
 
     private ManagerTask() { }
 
@@ -26,7 +26,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
         UpdatedAt = now;
         Version = 1;
         Apply(draft);
-        _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.Created, author, now, null));
+        _newEvents.Add(new ManagerTaskEvent(ManagerTaskEventKind.Created, author, now, null));
         Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.Created, null, null));
     }
 
@@ -54,7 +54,11 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
     public int Version { get; private set; }
 
     public IReadOnlyList<ManagerTaskStep> Steps => _steps;
-    public IReadOnlyList<ManagerTaskEvent> Events => _events;
+    /// <summary>
+    /// History lines this change adds. The saved history is its own records, read by a query and never loaded with the
+    /// task, because it grows with every edit.
+    /// </summary>
+    public IReadOnlyList<ManagerTaskEvent> NewEvents => _newEvents;
 
     /// <summary>«ЗД-0142»: the id with the prefix, never stored.</summary>
     public static string NumberOf(long id) => "ЗД-" + id.ToString("D4", CultureInfo.InvariantCulture);
@@ -82,12 +86,12 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
         Apply(draft);
         Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.Edited, null, before));
 
-        _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.Edited, by, now, null));
-        if (reassigned) _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.Reassigned, by, now, AssigneeName));
+        _newEvents.Add(new ManagerTaskEvent(ManagerTaskEventKind.Edited, by, now, null));
+        if (reassigned) _newEvents.Add(new ManagerTaskEvent(ManagerTaskEventKind.Reassigned, by, now, AssigneeName));
         if (dueChanged)
-            _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.DueChanged, by, now,
+            _newEvents.Add(new ManagerTaskEvent(ManagerTaskEventKind.DueChanged, by, now,
                 DueAt.ToString("O", CultureInfo.InvariantCulture)));
-        if (urgentChanged) _events.Add(UrgentEvent(by, now));
+        if (urgentChanged) _newEvents.Add(UrgentEvent(by, now));
         Touch(now);
     }
 
@@ -97,7 +101,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
         if (status == Status) return false;
         Status = status;
         CompletedAt = status == ManagerTaskStatus.Done ? now : null;
-        _events.Add(new ManagerTaskEvent(ManagerTaskEventKind.StatusChanged, by, now, status.ToString()));
+        _newEvents.Add(new ManagerTaskEvent(ManagerTaskEventKind.StatusChanged, by, now, status.ToString()));
         Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.StatusChanged, status.ToString(), null));
         Touch(now);
         return true;
@@ -107,7 +111,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
     {
         if (isUrgent == IsUrgent) return false;
         IsUrgent = isUrgent;
-        _events.Add(UrgentEvent(by, now));
+        _newEvents.Add(UrgentEvent(by, now));
         Raise(new ManagerTaskRecorded(this, ManagerTaskEventKind.UrgentChanged, null, null));
         Touch(now);
         return true;
@@ -120,7 +124,7 @@ public sealed class ManagerTask : DomainEventSource, IAggregateRoot
         if (step is null) return false;
         if (step.IsDone == isDone) return true;
         step.Mark(isDone);
-        _events.Add(new ManagerTaskEvent(
+        _newEvents.Add(new ManagerTaskEvent(
             isDone ? ManagerTaskEventKind.StepChecked : ManagerTaskEventKind.StepUnchecked, by, now, step.Text));
         Raise(new ManagerTaskRecorded(this,
             isDone ? ManagerTaskEventKind.StepChecked : ManagerTaskEventKind.StepUnchecked, step.Text, null));

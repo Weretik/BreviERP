@@ -24,9 +24,9 @@ public sealed class ChangeTaskStatusHandler(ITaskStore store, ITaskStaffReader s
 
         var now = clock.GetUtcNow();
         if (!task.ChangeStatus(Enum.Parse<ManagerTaskStatus>(command.Status), by, now))
-            return Result.Success(task.ToDetail(now));
+            return Result.Success(await store.DetailAsync(task, now, cancellationToken));
         return await store.TrySaveAsync(cancellationToken)
-            ? Result.Success(task.ToDetail(now))
+            ? Result.Success(await store.DetailAsync(task, now, cancellationToken))
             : Result.Conflict(TaskMessages.Stale);
     }
 }

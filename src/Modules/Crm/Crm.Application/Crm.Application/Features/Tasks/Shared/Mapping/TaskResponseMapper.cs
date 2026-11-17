@@ -1,3 +1,4 @@
+using Crm.Application.Abstractions.Tasks;
 using Crm.Domain.Tasks;
 using Crm.Application.Features.Tasks.Shared;
 using Crm.Domain.Tasks.Enums;
@@ -35,7 +36,17 @@ internal static class TaskResponseMapper
                 .ToString(),
         };
 
-    public static TaskDetailResponse ToDetail(this ManagerTask task, DateTimeOffset now) =>
+    /// <summary>The card of a task with its saved history, read by a query after the change is saved.</summary>
+    public static async Task<TaskDetailResponse> DetailAsync(this ITaskStore store, ManagerTask task, DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        var events = await store.ManagerTaskEvents.Where(x => x.TaskId == task.Id)
+            .OrderByDescending(x => x.At).ThenByDescending(x => x.Id).ToListAsync(cancellationToken);
+        return task.ToDetail(events, now);
+    }
+
+    private static TaskDetailResponse ToDetail(this ManagerTask task, IReadOnlyList<ManagerTaskEvent> events,
+        DateTimeOffset now) =>
         new(task.Id,
             ManagerTask.NumberOf(task.Id),
             task.Title,
@@ -51,8 +62,7 @@ internal static class TaskResponseMapper
             task.CustomerName,
             task.Steps.OrderBy(x => x.Position).Select(x => new TaskStepResponse(x.Id, x.Position, x.Text, x.IsDone))
                 .ToArray(),
-            task.Events.OrderByDescending(x => x.At).ThenByDescending(x => x.Id)
-                .Select(x => new TaskEventResponse(x.Kind.ToString(), new TaskPersonResponse(x.ByUserId, x.ByName),
+            events.Select(x => new TaskEventResponse(x.Kind.ToString(), new TaskPersonResponse(x.ByUserId, x.ByName),
                     x.At, x.Details))
                 .ToArray(),
             task.CompletedAt,

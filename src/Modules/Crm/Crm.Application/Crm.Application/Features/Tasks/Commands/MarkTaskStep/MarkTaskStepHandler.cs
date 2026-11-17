@@ -23,9 +23,9 @@ public sealed class MarkTaskStepHandler(ITaskStore store, ITaskStaffReader staff
         var now = clock.GetUtcNow();
         var version = task.Version;
         if (!task.MarkStep(command.StepId, command.IsDone, by, now)) return Result.NotFound(TaskMessages.StepNotFound);
-        if (task.Version == version) return Result.Success(task.ToDetail(now));
+        if (task.Version == version) return Result.Success(await store.DetailAsync(task, now, cancellationToken));
         return await store.TrySaveAsync(cancellationToken)
-            ? Result.Success(task.ToDetail(now))
+            ? Result.Success(await store.DetailAsync(task, now, cancellationToken))
             : Result.Conflict(TaskMessages.Stale);
     }
 }
