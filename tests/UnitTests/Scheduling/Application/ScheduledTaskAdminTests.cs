@@ -1,3 +1,4 @@
+using Scheduling.Application.Features.Tick.Commands.RunSchedulerTick;
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
 using Scheduling.Application.Features.Catalog.Shared;
@@ -43,6 +44,7 @@ public sealed class ScheduledTaskAdminTests
         Assert.That(tasks.All(x => !string.IsNullOrWhiteSpace(x.Name) && !string.IsNullOrWhiteSpace(x.Description)), Is.True);
         Assert.That(tasks.Single(x => x.Key == ScheduledTaskKeys.Outbox).Editable, Is.False);
         Assert.That(tasks.Any(x => x.LastRunFailed || x.Overdue), Is.False);
+        Assert.That(await harness.NewContext().Tasks.ToListAsync(), Is.Empty);
     }
 
     [Test]
@@ -133,6 +135,12 @@ public sealed class ScheduledTaskAdminTests
         var outbox = tasks.Single(x => x.Key == ScheduledTaskKeys.Outbox);
         Assert.That(outbox.Schedule.EveryMinutes, Is.EqualTo(5));
         Assert.That(outbox.Enabled, Is.True);
+        var unchanged = await harness.NewContext().Tasks.SingleAsync(x => x.Key == ScheduledTaskKeys.Outbox);
+        Assert.That(unchanged.Schedule, Is.EqualTo(TaskSchedule.Interval(1).Value));
+
+        await using (var tickDb = harness.NewContext())
+            Assert.That((await harness.Tick(tickDb).Handle(new RunSchedulerTickCommand(), CancellationToken.None)).IsSuccess, Is.True);
+
         var saved = await harness.NewContext().Tasks.SingleAsync(x => x.Key == ScheduledTaskKeys.Outbox);
         Assert.That(saved.Schedule, Is.EqualTo(TaskSchedule.Interval(5).Value));
     }
