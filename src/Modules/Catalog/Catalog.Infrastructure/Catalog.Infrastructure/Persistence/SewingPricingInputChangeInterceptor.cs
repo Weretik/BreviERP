@@ -1,4 +1,4 @@
-using Catalog.Contracts.Pricing;
+using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 using Catalog.Domain.Pricing.Sewing;
 using Catalog.Domain.Products;
 using Microsoft.EntityFrameworkCore.Diagnostics;

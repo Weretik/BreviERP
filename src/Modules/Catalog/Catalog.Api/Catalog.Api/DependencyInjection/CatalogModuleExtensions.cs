@@ -7,7 +7,7 @@ using Catalog.Api.Endpoints.Sewing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Catalog.Application;
-using Catalog.Contracts.Pricing;
+using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 using Catalog.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;

@@ -9,7 +9,6 @@
         <ProjectReference Include="..\..\..\Reminders\Reminders.Contracts\Reminders.Contracts\Reminders.Contracts.csproj" />
         <ProjectReference Include="..\..\Crm.Contracts\Crm.Contracts\Crm.Contracts.csproj" />
         <ProjectReference Include="..\..\..\Catalog\Catalog.Contracts\Catalog.Contracts\Catalog.Contracts.csproj" />
-        <ProjectReference Include="..\..\..\Production\Production.Contracts\Production.Contracts\Production.Contracts.csproj" />
         <ProjectReference Include="..\..\..\ActivityLog\ActivityLog.Contracts\ActivityLog.Contracts\ActivityLog.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>

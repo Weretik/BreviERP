@@ -1,12 +1,13 @@
+using Media.Contracts.Files;
+using Reference.Contracts.Pricing;
 using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Infrastructure.DomainEvents;
 using BuildingBlocks.Infrastructure.Outbox;
 using Catalog.Application.Features.Activity.EventHandlers;
-using Catalog.Contracts.Pricing;
+using Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 using Catalog.Contracts.Products;
 using Catalog.Contracts.Sewing;
 using Catalog.Infrastructure.Adapters.Media;
-using Catalog.Infrastructure.Contracts.Pricing;
 using Catalog.Infrastructure.Contracts.Products;
 using Catalog.Infrastructure.Contracts.Sewing;
 using Catalog.Infrastructure.Adapters.Reference;
@@ -95,10 +96,14 @@ public static class CatalogInfrastructureExtensions
 
         // Catalog.Contracts for other modules.
         services.AddScoped<ICatalogProductReader, CatalogProductReader>();
-        services.AddScoped<ICatalogUsage, CatalogUsage>();
         services.AddScoped<ISewingModelReader, SewingModelReader>();
         services.AddScoped<ISewingPriceCalculator, SewingPriceCalculator>();
-        services.AddScoped<IPricingSettingsSync, PricingSettingsSync>();
+
+        // Ports that Reference and Media declare in their Contracts and Catalog implements (ADR-0019).
+        services.AddScoped<IPricingInputUsageSource, CatalogPricingInputUsage>();
+        services.AddScoped<IPricingInputSubscriber, CatalogPricingInputSubscriber>();
+        services.AddScoped<IPricingSettingsSubscriber, PricingSettingsSync>();
+        services.AddScoped<IMediaFileUsageSource, CatalogMediaUsage>();
         return services;
     }
 }

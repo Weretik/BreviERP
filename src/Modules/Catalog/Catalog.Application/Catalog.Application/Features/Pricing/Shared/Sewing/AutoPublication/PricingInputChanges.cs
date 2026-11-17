@@ -1,9 +1,10 @@
-namespace Catalog.Contracts.Pricing;
+namespace Catalog.Application.Features.Pricing.Shared.Sewing.AutoPublication;
 
 /// <summary>
 /// Scoped (one per request or job step) record of saved changes to Sewing pricing inputs: Reference fabrics,
-/// accessories and operations, a model's composition and the sewing settings. Modules mark it when they save; the host
-/// publishes the affected prices once the request has finished (CAT-012).
+/// accessories and operations, a model's composition and the sewing settings. Catalog marks it when it saves, and Reference
+/// tells it through <c>IPricingInputSubscriber</c> (ADR-0019); the prices are published once the request has finished
+/// (CAT-012).
 /// </summary>
 public sealed class PricingInputChanges
 {

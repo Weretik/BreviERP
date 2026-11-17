@@ -7,11 +7,11 @@ using Crm.Contracts.Embroidery;
 using Crm.Contracts.Quotes;
 using Crm.Infrastructure.Adapters.Catalog;
 using Crm.Infrastructure.Adapters.Identity;
-using Crm.Infrastructure.Adapters.Production;
 using Crm.Infrastructure.Contracts.Customers;
 using Crm.Infrastructure.Contracts.Embroidery;
 using Crm.Infrastructure.Contracts.Quotes;
 using Crm.Infrastructure.Adapters.Media;
+using Media.Contracts.Files;
 using Crm.Infrastructure.Adapters.Reference;
 using Crm.Infrastructure.Adapters.Reminders;
 using Crm.Infrastructure.Persistence;
@@ -110,6 +110,9 @@ public static class CrmInfrastructureExtensions
         services.AddScoped<ICustomerDirectory, CustomerDirectory>();
         services.AddScoped<IQuoteReader, QuoteDirectory>();
         services.AddScoped<IEmbroideryCalculationReader, EmbroideryCalculationReader>();
+
+        // Ports that Media declares in its Contracts and Crm implements (ADR-0019).
+        services.AddScoped<IMediaFileUsageSource, EmbroideryMediaUsage>();
         return services;
     }
 

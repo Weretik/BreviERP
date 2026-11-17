@@ -37,7 +37,8 @@ src/Modules/Production/
   Production.Infrastructure/.../Persistence/Configurations/ProductionOrderConfiguration.cs, ProductionTrackingConfiguration.cs, JsonColumn.cs
   Production.Api/Production.Api/Endpoints/Orders/     # /api/production/orders: ProductionOrdersEndpoints (list, card, create…) and ProductionOrderTrackingEndpoints (stages, shipments, status, files, telegram, imports); one <UseCase>/ folder each
   Production.Api/Production.Api/Endpoints/Settings/   # /api/production/settings
-src/Modules/Production/Production.Contracts/Production.Contracts/{Orders,FabricPlans}/  # IQuoteOrderLinks, IOrderFabricPlans for other modules
+src/Modules/Production/Production.Contracts/Production.Contracts/FabricPlans/  # IOrderFabricPlans for other modules; port IStockFacts that Warehouse implements (ADR-0019)
+src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/Crm/QuoteOrderLinks.cs  # Crm's IQuoteOrderLinks: which КП have an order
 src/Modules/Production/Production.Infrastructure/Production.Infrastructure/Adapters/
   Crm/ProductionQuoteReader.cs       # Crm.Contracts IQuoteReader, sewn items and «Вишивка» rows
   Crm/ProductionEmbroideryReader.cs  # Crm.Contracts IEmbroideryCalculationReader, without prices

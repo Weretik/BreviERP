@@ -5,12 +5,11 @@ using BuildingBlocks.Infrastructure.Outbox;
 using Production.Infrastructure.Adapters.Catalog;
 using Production.Infrastructure.Adapters.Crm;
 using Production.Infrastructure.Adapters.Identity;
-using Production.Infrastructure.Contracts.Orders;
-using Production.Contracts.Orders;
+using Production.Infrastructure.Contracts.FabricPlans;
+using Crm.Contracts.Quotes;
 using Production.Infrastructure.Adapters.Media;
 using Production.Infrastructure.Adapters.Reference;
 using Production.Infrastructure.Adapters.Reminders;
-using Production.Infrastructure.Adapters.Warehouse;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Production.Application.Abstractions;
 using Production.Infrastructure.Persistence;
@@ -80,7 +79,7 @@ public static class ProductionInfrastructureExtensions
         services.AddScoped<IProductionQuoteReader, ProductionQuoteReader>();
         services.AddScoped<IProductionEmbroideryReader, ProductionEmbroideryReader>();
 
-        // Production.Contracts for other modules.
+        // Ports that Crm declares in its Contracts and Production implements (ADR-0019).
         services.AddScoped<IQuoteOrderLinks, QuoteOrderLinks>();
         return services;
     }

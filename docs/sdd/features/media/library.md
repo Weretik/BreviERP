@@ -23,10 +23,12 @@ src/Modules/Media/
   Media.Api/Media.Api/
     Endpoints/Folders/  # /api/media/folders, one <UseCase>/ folder each
     Endpoints/Files/    # /api/media/files; UploadMediaFileEndpoint binds multipart file + folderId
-  Media.Contracts/Media.Contracts/{Files,Imports,Storage}/   # IMediaFileReader, IMediaFileUploader, IMediaUrlImporter, ICdnStorage
+  Media.Contracts/Media.Contracts/{Files,Imports,Storage}/   # IMediaFileReader, IMediaFileUploader, IMediaUrlImporter, ICdnStorage; port IMediaFileUsageSource (ADR-0019)
   Media.Infrastructure/Media.Infrastructure/Contracts/       # their implementations
 src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Media/ProductMediaReader.cs  # Catalog IProductMediaReader → Media.Contracts
-src/Modules/Media/Media.Infrastructure/Media.Infrastructure/Adapters/Catalog/MediaUsageReader.cs  # Media IMediaUsageReader → Catalog.Contracts ICatalogUsage + Crm.Contracts IEmbroideryCalculationReader
+src/Modules/Media/Media.Infrastructure/Media.Infrastructure/Contracts/Files/MediaUsageReader.cs  # Media IMediaUsageReader → every IMediaFileUsageSource
+src/Modules/Catalog/Catalog.Infrastructure/Catalog.Infrastructure/Adapters/Media/CatalogMediaUsage.cs  # products that use a photo
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Media/EmbroideryMediaUsage.cs  # embroidery «Макет» that use a photo
 src/Bootstrapper/Host.Seed/Jobs/Tasks/Maintenance/MediaThumbnailsTaskRunner.cs # task media-thumbnails
 ```
 
@@ -39,7 +41,7 @@ flowchart LR
   UseCases --> Db[(media schema)]
   UseCases --> Cdn[AdmToolsMediaStorage → CDN]
   UseCases --> Usage[IMediaUsageReader]
-  Usage -.adapter.-> CatalogQuery[Catalog.Contracts ICatalogUsage]
+  Usage --> Source[IMediaFileUsageSource port] -.implemented by.-> Users[Catalog products, Crm embroidery]
   CatalogHandlers[Catalog product handlers] --> Reader[IProductMediaReader]
   Reader -.Media.Contracts.-> MediaQuery[Media GetMediaFilesByIdsQuery]
 ```

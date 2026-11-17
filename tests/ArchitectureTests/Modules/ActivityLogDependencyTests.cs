@@ -2,15 +2,16 @@ using System.Xml.Linq;
 namespace ArchitectureTests.Modules;
 
 /// <summary>
-/// «Журнал дій» (ACT-001, ADR-0016) knows no source module: they write to it through ActivityLog.Contracts. It uses only
-/// Identity.Contracts for staff names, and owns schema activity_log with its own migration history.
+/// «Журнал дій» (ACT-001, ADR-0016) knows no other module: they write to it through ActivityLog.Contracts, and Identity
+/// gives it staff names through the port it declares there (ADR-0019). It owns schema activity_log with its own migration
+/// history.
 /// </summary>
 public sealed class ActivityLogDependencyTests
 {
-    private static readonly string[] OtherModules = ["Catalog", "Reference", "Crm", "Accounting", "Media", "Purchasing", "Warehouse", "Reminders", "Production", "Ai", "Content", "Scheduling"];
+    private static readonly string[] OtherModules = ["Catalog", "Reference", "Crm", "Accounting", "Media", "Purchasing", "Warehouse", "Reminders", "Production", "Ai", "Content", "Scheduling", "Identity"];
 
     [Test]
-    public void ActivityLog_references_no_source_module()
+    public void ActivityLog_references_no_other_module()
     {
         foreach (var layer in new[] { "Domain", "Application", "Infrastructure", "Api", "Contracts" })
         {
@@ -19,7 +20,6 @@ public sealed class ActivityLogDependencyTests
             Assert.That(references.Any(x => OtherModules.Any(m => x.Contains($"{m}."))), Is.False, layer);
             if (layer == "Contracts") Assert.That(references, Is.Empty);
             if (layer == "Domain") Assert.That(references.All(x => x.Contains("BuildingBlocks.Domain")), Is.True);
-            if (layer != "Infrastructure") Assert.That(references.Any(x => x.Contains("Identity.")), Is.False, layer);
         }
     }
 

@@ -26,6 +26,45 @@ public sealed class ContractsDependencyTests
         Assert.That(offending, Is.Empty);
     }
 
+    /// <summary>
+    /// The module graph has no cycle (ADR-0019): when two modules need each other, the upstream module declares a port
+    /// in its own Contracts and the downstream module implements it, so the reference goes one way only.
+    /// </summary>
+    [Test]
+    public void Modules_do_not_depend_on_each_other_in_a_cycle()
+    {
+        var modulesPath = Path.Combine(Root(), "src", "Modules");
+        var all = Directory.GetDirectories(modulesPath).Select(Path.GetFileName).OfType<string>().ToArray();
+        var graph = all.ToDictionary(module => module, module => Directory
+            .GetFiles(Path.Combine(modulesPath, module), "*.csproj", SearchOption.AllDirectories)
+            .SelectMany(project => XDocument.Load(project).Descendants("ProjectReference")
+                .Select(x => x.Attribute("Include")!.Value.Replace('\\', '/')))
+            .SelectMany(reference => all.Where(other => other != module && reference.Contains($"/{other}/")))
+            .Distinct()
+            .Order()
+            .ToArray());
+
+        var cycles = new List<string>();
+        var done = new HashSet<string>();
+        foreach (var module in all.Order())
+            Visit(module, []);
+
+        Assert.That(cycles, Is.Empty, "turn one direction into a port the upstream module declares (ADR-0019)");
+
+        void Visit(string module, List<string> path)
+        {
+            if (path.Contains(module))
+            {
+                cycles.Add(string.Join(" → ", path.Skip(path.IndexOf(module)).Append(module)));
+                return;
+            }
+            if (!done.Add(module)) return;
+            path.Add(module);
+            foreach (var next in graph[module]) Visit(next, path);
+            path.RemoveAt(path.Count - 1);
+        }
+    }
+
     private static string Root()
     {
         var root = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);

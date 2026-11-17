@@ -2,7 +2,6 @@ using ActivityLog.Contracts.Activity;
 using BuildingBlocks.Infrastructure.DomainEvents;
 using Reference.Application.Features.Activity.EventHandlers;
 using BuildingBlocks.Infrastructure.Outbox;
-using Reference.Infrastructure.Adapters.Catalog;
 using Reference.Contracts.Fabrics;
 using Reference.Infrastructure.Contracts.Fabrics;
 using Reference.Contracts.GarmentAccessories;
@@ -21,7 +20,6 @@ using Reference.Contracts.ProductSections;
 using Reference.Infrastructure.Contracts.ProductSections;
 using Reference.Contracts.Pricing;
 using Reference.Infrastructure.Contracts.Pricing;
-using Catalog.Contracts.Pricing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BuildingBlocks.Infrastructure.Seeding;
 using Reference.Application.Abstractions;
@@ -44,7 +42,6 @@ public static class ReferenceInfrastructureExtensions
         var connectionString = configuration.GetConnectionString("Default")
                                ?? throw new InvalidOperationException("Missing ConnectionStrings:Default"); ;
 
-        services.TryAddScoped<PricingInputChanges>();
         services.AddScoped<ReferencePricingInputChangeInterceptor>();
         services.AddScoped<PricingSettingsOutboxInterceptor>();
         services.AddReferenceKeepinCrmSync(configuration);
@@ -76,7 +73,7 @@ public static class ReferenceInfrastructureExtensions
         services.AddScoped<IProductSectionDirectory, ProductSectionDirectory>();
         services.AddScoped<IPricingInputVersionReader, PricingInputVersionReader>();
 
-        // Adapters from other modules' Contracts to this module's ports.
+        // Ports that ask the modules subscribed to this module's Contracts (ADR-0019).
         services.AddScoped<IProductUsageReader, ProductUsageReader>();
         services.AddScoped<IPricingSettingsChangeNotifier, PricingSettingsChangeNotifier>();
         services.AddScoped<ISeeder, SupplierSeeder>();

@@ -1,11 +1,13 @@
 using Production.Application.Abstractions;
-
-using Warehouse.Contracts.Stock;
+using Production.Contracts.FabricPlans;
 using Production.Application.Abstractions.Materials;
 
-namespace Production.Infrastructure.Adapters.Warehouse;
+namespace Production.Infrastructure.Contracts.FabricPlans;
 
-/// <summary>«Склад тканин» (Warehouse) for «Звіти цеху»: issued fabric and the stock balance at a date.</summary>
+/// <summary>
+/// «Склад тканин» for «Звіти цеху»: issued fabric and the stock balance at a date, through the
+/// <see cref="IStockFacts"/> Warehouse implements (ADR-0019).
+/// </summary>
 internal sealed class ProductionStockReader(IStockFacts facts) : IProductionStockReader
 {
     public async Task<IReadOnlyList<ProductionStockIssue>> IssuesAsync(DateOnly from, DateOnly to,

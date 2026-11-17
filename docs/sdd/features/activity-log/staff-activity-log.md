@@ -33,7 +33,8 @@ src/Modules/ActivityLog/
     Features/Entries/Commands/DeleteOldActivityEntries/  # one-year retention: one SQL DELETE (R-12), then filter rows without entries
   ActivityLog.Infrastructure/…/
     Persistence/                                   # ActivityLogDbContext (schema activity_log), configuration, migrations
-    Adapters/Identity/StaffActorNames.cs           # full name over Identity.Contracts
+    Contracts/Actors/ActorNames.cs                 # IActorNames → every IActivityActorNames (ActivityLog.Contracts port, ADR-0019)
+  Identity.Infrastructure/…/Adapters/ActivityLog/StaffActivityActorNames.cs  # Identity implements it: the full name
   ActivityLog.Api/…/Endpoints/Entries/             # GET /api/activity-log/entries, /filters
 src/Bootstrapper/Host.Seed/Jobs/Tasks/Maintenance/ActivityLogCleanupTaskRunner.cs  # task activity-log-cleanup
 src/Modules/<Source>/…                             # events in Domain (<Aggregate>/Events/), IActivityDescriber in Application Features/<Feature>/EventHandlers/

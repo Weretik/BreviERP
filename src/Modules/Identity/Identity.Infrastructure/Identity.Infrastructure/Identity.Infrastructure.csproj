@@ -11,6 +11,7 @@
       <ProjectReference Include="..\..\Identity.Domain\Identity.Domain\Identity.Domain.csproj" />
       <ProjectReference Include="..\..\Identity.Contracts\Identity.Contracts\Identity.Contracts.csproj" />
       <ProjectReference Include="..\..\..\Media\Media.Contracts\Media.Contracts\Media.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\ActivityLog\ActivityLog.Contracts\ActivityLog.Contracts\ActivityLog.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>

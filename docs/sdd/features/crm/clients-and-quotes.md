@@ -118,14 +118,14 @@ src/Modules/Crm/
     Integrations/Gmail/                  GmailClient (OAuth + upload send), MIME letter, Data Protection token store, options
   Crm.Api/Crm.Api/Endpoints/Quotes/      groups Quotes, QuoteIntroductions, QuoteIntroTemplates, QuoteLookups, QuoteSettings,
                                          Mailboxes, QuoteImport; <UseCase>/ folder per use case with its request
-src/Modules/Crm/Crm.Contracts/Crm.Contracts/{Customers,Quotes,Embroidery}/  ICustomerDirectory, IQuoteReader, IEmbroideryCalculationReader for other modules
+src/Modules/Crm/Crm.Contracts/Crm.Contracts/{Customers,Quotes,Embroidery}/  ICustomerDirectory, IQuoteReader, IEmbroideryCalculationReader for other modules; port IQuoteOrderLinks that Production implements (ADR-0019)
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Contracts/          their implementations (Mediator queries)
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Catalog/
   QuoteCatalogReader.cs                  Catalog.Contracts ICatalogProductReader + Reference.Contracts fabrics
   QuoteSewingCalculator.cs               «Виріб з нуля» through Catalog.Contracts ISewingPriceCalculator, names from Reference.Contracts
   QuoteModelCompositionReader.cs         model composition for «Змінити склад» through Catalog.Contracts ISewingModelReader
   QuoteImportLookup.cs                   Catalog products and Reference rows by code for the old КП transfer
-src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Production/QuoteProductionOrders.cs  orders linked to КП (Production.Contracts IQuoteOrderLinks)
+src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Contracts/Quotes/QuoteProductionOrders.cs  orders linked to КП (every IQuoteOrderLinks: Production)
 src/Modules/Crm/Crm.Infrastructure/Crm.Infrastructure/Adapters/Identity/QuoteStaffReader.cs  active Manager/Admin users (Identity.Contracts)
 ```
 

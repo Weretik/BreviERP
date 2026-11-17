@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Reference.Domain.PpeMarkupRules;
 using Reference.Domain.PricingParameters;
 
-namespace Reference.Infrastructure.Adapters.Catalog;
+namespace Reference.Infrastructure.Contracts.Pricing;
 
 /// <summary>
 /// Adds the <c>reference.pricing-settings.changed</c> outbox message to every save that adds, changes or deletes a
-/// pricing parameter or a PPE markup rule, so Catalog learns about it even if the request stops (PLT-003 R-09).
+/// pricing parameter or a PPE markup rule, so every subscriber learns about it even if the request stops (PLT-003 R-09).
 /// </summary>
 internal sealed class PricingSettingsOutboxInterceptor(TimeProvider clock) : SaveChangesInterceptor
 {

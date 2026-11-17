@@ -1,10 +1,10 @@
-using ActivityLog.Application.Abstractions;
+using ActivityLog.Contracts.Actors;
 using Identity.Contracts.Staff;
 
-namespace ActivityLog.Infrastructure.Adapters.Identity;
+namespace Identity.Infrastructure.Adapters.ActivityLog;
 
-/// <summary>The staff member's full name from Identity (ADR-0006), else null.</summary>
-internal sealed class StaffActorNames(IStaffDirectory staff) : IActorNames
+/// <summary>The staff member's full name for «Журнал дій», else null (ADR-0019).</summary>
+internal sealed class StaffActivityActorNames(IStaffDirectory staff) : IActivityActorNames
 {
     public async Task<string?> FindAsync(int userId, CancellationToken cancellationToken)
     {
