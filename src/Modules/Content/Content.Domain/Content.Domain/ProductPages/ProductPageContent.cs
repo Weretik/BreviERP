@@ -26,7 +26,7 @@ public sealed record ProductSpecRow(string Name, string Value);
 public sealed record ProductSpecGroup(string? Title, IReadOnlyList<ProductSpecRow> Rows);
 
 /// <summary>What staff type for one language of a product page.</summary>
-public sealed record ProductPageTextInput(
+public sealed record ProductPageTextValues(
     string? Name,
     string? SeoTitle,
     string? SeoDescription,

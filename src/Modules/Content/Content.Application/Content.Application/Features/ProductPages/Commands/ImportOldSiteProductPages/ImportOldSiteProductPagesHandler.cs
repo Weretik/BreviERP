@@ -52,9 +52,9 @@ public sealed class ImportOldSiteProductPagesHandler(
                 continue;
             }
 
-            var texts = new Dictionary<string, ProductPageTextInput>();
-            if (item.Uk is not null) texts[ProductPageRules.Ukrainian] = item.Uk;
-            if (item.Ru is not null) texts[ProductPageRules.Russian] = item.Ru;
+            var texts = new Dictionary<string, ProductPageTextValues>();
+            if (item.Uk is not null) texts[ProductPageRules.Ukrainian] = item.Uk.ToValues();
+            if (item.Ru is not null) texts[ProductPageRules.Russian] = item.Ru.ToValues();
             if (texts.Count == 0)
             {
                 problems.Add(new OldSiteImportNote(item.Url, name, Empty));

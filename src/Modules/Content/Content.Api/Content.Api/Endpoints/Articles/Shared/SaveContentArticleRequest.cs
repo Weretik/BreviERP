@@ -1,4 +1,4 @@
-using Content.Domain.Articles;
+using Content.Application.Features.Articles.Commands.SaveContentArticle;
 using Content.Application.Features.Articles.Commands.ImportOldSiteArticles;
 
 namespace Content.Api.Endpoints.Articles.Shared;

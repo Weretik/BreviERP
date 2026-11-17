@@ -62,7 +62,7 @@ public sealed class Article
 
     /// <summary>Replaces the article as a whole; a language without any text loses its row.</summary>
     public DomainResult Replace(string slug, DateOnly publishedOn, bool showOnSite, int? coverPhotoId,
-        IReadOnlyDictionary<string, ArticleTextInput> texts, string updatedBy, DateTimeOffset now)
+        IReadOnlyDictionary<string, ArticleTextValues> texts, string updatedBy, DateTimeOffset now)
     {
         if (!ProductPageRules.IsValidSlug(slug)) return ProductPageErrors.InvalidSlug();
         Slug = slug;

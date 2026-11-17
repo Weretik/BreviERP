@@ -42,9 +42,9 @@ public sealed class SaveContentArticleHandler(IContentDbContext db, IContentMedi
             db.Articles.Add(article);
         }
 
-        var texts = new Dictionary<string, ArticleTextInput>();
-        if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
-        if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
+        var texts = new Dictionary<string, ArticleTextValues>();
+        if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk.ToValues();
+        if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru.ToValues();
         var replaced = article.Replace(slug, command.PublishedOn, command.ShowOnSite, command.CoverPhotoId, texts,
             command.UpdatedBy, now);
         if (replaced.IsFailure) return replaced.Error!.ToResult<ArticleResponse>();

@@ -40,9 +40,9 @@ public sealed class SaveContentProductHandler(IContentDbContext db, IContentCata
             db.ProductPages.Add(page);
         }
 
-        var texts = new Dictionary<string, ProductPageTextInput>();
-        if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
-        if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
+        var texts = new Dictionary<string, ProductPageTextValues>();
+        if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk.ToValues();
+        if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru.ToValues();
         var replaced = page.Replace(slug, command.ShowOnSite, texts, command.UpdatedBy, now);
         if (replaced.IsFailure) return replaced.Error!.ToResult<ContentProductResponse>();
 

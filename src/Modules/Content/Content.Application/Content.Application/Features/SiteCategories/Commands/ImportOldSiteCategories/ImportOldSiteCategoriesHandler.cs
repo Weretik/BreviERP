@@ -92,8 +92,8 @@ public sealed class ImportOldSiteCategoriesHandler(
                     bySlug[item.Slug] = category;
                 }
 
-                var texts = new Dictionary<string, SiteCategoryTextInput> { [ProductPageRules.Ukrainian] = item.Uk! };
-                if (item.Ru is not null) texts[ProductPageRules.Russian] = item.Ru;
+                var texts = new Dictionary<string, SiteCategoryTextValues> { [ProductPageRules.Ukrainian] = item.Uk!.ToValues() };
+                if (item.Ru is not null) texts[ProductPageRules.Russian] = item.Ru.ToValues();
                 var replaced = category.Replace(parentId, place, item.Slug, command.ShowOnSite || category.ShowOnSite,
                     texts, command.UpdatedBy, now);
                 if (replaced.IsFailure) return replaced.Error!.ToResult<OldSiteCategoryImportResponse>();

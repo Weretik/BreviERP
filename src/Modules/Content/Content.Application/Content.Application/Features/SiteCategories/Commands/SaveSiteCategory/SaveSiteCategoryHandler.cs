@@ -53,9 +53,9 @@ public sealed class SaveSiteCategoryHandler(IContentDbContext db, TimeProvider c
             db.SiteCategories.Add(category);
         }
 
-        var texts = new Dictionary<string, SiteCategoryTextInput>();
-        if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk;
-        if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru;
+        var texts = new Dictionary<string, SiteCategoryTextValues>();
+        if (command.Uk is not null) texts[ProductPageRules.Ukrainian] = command.Uk.ToValues();
+        if (command.Ru is not null) texts[ProductPageRules.Russian] = command.Ru.ToValues();
         var replaced = category.Replace(command.ParentId, sortOrder, slug, command.ShowOnSite, texts, command.UpdatedBy, now);
         if (replaced.IsFailure) return replaced.Error!.ToResult<SiteCategoryResponse>();
 

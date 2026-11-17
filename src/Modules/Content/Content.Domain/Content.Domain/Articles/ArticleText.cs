@@ -7,13 +7,13 @@ public sealed class ArticleText
 {
     private ArticleText() { }
 
-    internal ArticleText(string language, ArticleTextInput input)
+    internal ArticleText(string language, ArticleTextValues input)
     {
         Language = language;
         Apply(input);
     }
 
-    internal void Apply(ArticleTextInput input)
+    internal void Apply(ArticleTextValues input)
     {
         Title = ProductPageRules.Clean(input.Title);
         Excerpt = ProductPageRules.Clean(input.Excerpt);

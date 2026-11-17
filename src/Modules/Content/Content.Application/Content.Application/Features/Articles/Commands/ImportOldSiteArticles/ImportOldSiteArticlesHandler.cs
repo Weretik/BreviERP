@@ -59,9 +59,9 @@ public sealed class ImportOldSiteArticlesHandler(
         {
             var lost = new List<string>();
             var cover = item.CoverUrl is null ? null : await PhotoAsync(item.CoverUrl);
-            var texts = new Dictionary<string, ArticleTextInput>();
-            if (item.Uk is not null) texts[ProductPageRules.Ukrainian] = await TextAsync(item.Uk);
-            if (item.Ru is not null) texts[ProductPageRules.Russian] = await TextAsync(item.Ru);
+            var texts = new Dictionary<string, ArticleTextValues>();
+            if (item.Uk is not null) texts[ProductPageRules.Ukrainian] = (await TextAsync(item.Uk)).ToValues();
+            if (item.Ru is not null) texts[ProductPageRules.Russian] = (await TextAsync(item.Ru)).ToValues();
 
             if (!existing.TryGetValue(item.Slug, out var article))
             {
