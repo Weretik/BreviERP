@@ -1,6 +1,6 @@
 # Purchase invoices «Рахунки на закупку»
 
-Register of purchase invoices for «Бухгалтерія → Рахунки на закупку». Each card is one Telegram message from the Google Sheet «БРЕВІ команда» / «финансы» with its Dropbox links, payment mark from the sheet and the problems that need a manual check. The accountant links a Brevi supplier and writes a note (optimistic version, history in ReviewChanges); the sync never changes them. Each original can be read by AI («Розпізнати», «Розпізнати всі нові») or filled by hand as JSON: number, date, supplier, «З ПДВ»/«Без ПДВ», positions and totals, checked in kopecks. «Оплата» links expenses of «Бухгалтерія» by hand and marks a voided payment or another amount as a problem. Only the Director sees it (client corrections item 10, 2026-11-08). [SDD](../../specs/purchasing/001-purchase-invoices/README.md), [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/purchasing.md), [runbook](../../operations/jobs/sync-job.md#purchase-invoices).
+Register of purchase invoices for «Бухгалтерія → Рахунки на закупку». Each card is one Telegram message from the Google Sheet «БРЕВІ команда» / «финансы» with its Dropbox links, payment mark from the sheet and the problems that need a manual check. The accountant links a Brevi supplier and writes a note (optimistic version, history in ReviewChanges); the sync never changes them. Each original can be read by AI or filled by hand as JSON. «Розпізнати» reads one file inside the request, bounded by 85 seconds so the proxy never cuts it (a slower answer is recorded as failed with «ШІ не встиг…»); «Розпізнати всі нові» only starts the «Фонові задачі» task `purchase-recognition`, which reads all new originals in the tasks job. The facts are: number, date, supplier, «З ПДВ»/«Без ПДВ», positions and totals, checked in kopecks. «Оплата» links expenses of «Бухгалтерія» by hand and marks a voided payment or another amount as a problem. Only the Director sees it (client corrections item 10, 2026-11-08). [SDD](../../specs/purchasing/001-purchase-invoices/README.md), [contract](../../contracts/openapi.json), [tables](../../architecture/data-model/purchasing.md), [runbook](../../operations/jobs/sync-job.md#purchase-invoices).
 
 ## Code structure
 
@@ -20,12 +20,16 @@ src/Modules/Purchasing/
   Purchasing.Application/Purchasing.Application/
     Abstractions/      # IPurchasingDbContext (+ write lock scope), IPurchaseSheetReader, IPurchasingSupplierReader,
                        # IPurchasingPaymentReader (Accounting expenses),
-                       # IPurchaseFileDownloader, IPurchaseDocumentRecognizer
+                       # IPurchaseFileDownloader, IPurchaseDocumentRecognizer,
+                       # IPurchaseRecognitionLauncher (starts the background task)
     Features/Documents/
-      Commands/RecognizePurchaseFile, RecognizeNewPurchaseFiles   # one file, new batch
+      Commands/RecognizePurchaseFile   # one file, request time limit
+      Commands/StartNewPurchaseFilesRecognition   # «Розпізнати всі нові»: start the background task
+      Commands/RecognizeNewPurchaseFiles   # one batch of the background task
       Commands/SaveCheckedPurchaseDocument   # manual JSON, replace
       Queries/GetPurchaseDocumentTemplate
-      Shared/          # PurchaseRecognitionPrompt (fixed instruction + schema), PurchaseFileRecognition, document responses
+      Shared/          # NewPurchaseFiles (files never tried), PurchaseRecognitionPrompt (fixed instruction + schema),
+                       # PurchaseFileRecognition (time limit), document responses
     Features/Register/
       Commands/SyncPurchaseRegister   # PurchaseRegisterSync (read → check → one transaction)
       Commands/ReviewPurchaseInvoice  # version check under the write lock
@@ -43,10 +47,12 @@ src/Modules/Purchasing/
     Endpoints/Register/   # RegisterEndpoints (/api/purchasing/invoices, policy access:purchase-invoices) + one <UseCase>Endpoint per operation
     Endpoints/Documents/  # DocumentsEndpoints: recognize, save checked document, template
 src/Bootstrapper/Host.Seed/Jobs/Tasks/Office/PurchaseInvoicesTaskRunner.cs   # task purchase-invoices
+src/Bootstrapper/Host.Seed/Jobs/Tasks/Office/PurchaseRecognitionTaskRunner.cs # task purchase-recognition: batches until none left
 src/Modules/Purchasing/Purchasing.Infrastructure/Purchasing.Infrastructure/Adapters/
   Reference/PurchasingSupplierReader.cs     # Reference.Contracts suppliers for the link
   Accounting/PurchasingPaymentReader.cs     # Accounting.Contracts expenses for the payment links
   Ai/PurchaseDocumentRecognizer.cs          # reading originals through Ai.Contracts
+  Scheduling/PurchaseRecognitionLauncher.cs # Scheduling.Contracts: start the purchase-recognition task
 ```
 
 ## Structure diagram
@@ -69,8 +75,12 @@ flowchart LR
   Recognize --> Dropbox[(Dropbox original)]
   Recognize --> Ai[Ai module via host: OpenAI]
   Recognize --> Db
+  Endpoints --> Start[StartNewPurchaseFilesRecognition]
+  Start --> Tasks[«Фонові задачі» via Scheduling.Contracts]
+  Tasks --> TaskJob[brevierp-tasks: purchase-recognition]
+  TaskJob --> Recognize
 ```
 
 ## Tests
 
-`tests/UnitTests/Purchasing/`: source rules (ids, raw JSON, links, problems, payment mark, dates, whole-sheet checks), sync on SQLite in memory with a fake sheet (first run, repeat, moved rows, missing rows, manual fields kept, UID moved, Google unavailable, parallel run), list query, supplier link and note (version, history, lock, inactive supplier), facts rules (kopecks, VAT modes, misread lines, line discounts), recognition (fast, strong retry, needs review, AI off, Excel, again, batch), manual JSON (same, replace, foreign UID), template, payment links (`PurchasePaymentTests`: link with version, another amount and voided payment as problems, income/stale/twice refused, unlink kept as history, candidates), contract. Command: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Purchasing"`. Module references and schema: `tests/ArchitectureTests/Modules/Workshop/PurchasingDependencyTests.cs`.
+`tests/UnitTests/Purchasing/`: source rules (ids, raw JSON, links, problems, payment mark, dates, whole-sheet checks), sync on SQLite in memory with a fake sheet (first run, repeat, moved rows, missing rows, manual fields kept, UID moved, Google unavailable, parallel run), list query, supplier link and note (version, history, lock, inactive supplier), facts rules (kopecks, VAT modes, misread lines, line discounts), recognition (fast, strong retry, needs review, AI off, Excel, again, batch, request time limit), «Розпізнати всі нові» only starts the background task (`PurchaseRecognitionStartTests`), manual JSON (same, replace, foreign UID), template, payment links (`PurchasePaymentTests`: link with version, another amount and voided payment as problems, income/stale/twice refused, unlink kept as history, candidates), contract. Command: `dotnet test tests/UnitTests/UnitTests.csproj --filter "FullyQualifiedName~UnitTests.Purchasing"`. Module references and schema: `tests/ArchitectureTests/Modules/Workshop/PurchasingDependencyTests.cs`.

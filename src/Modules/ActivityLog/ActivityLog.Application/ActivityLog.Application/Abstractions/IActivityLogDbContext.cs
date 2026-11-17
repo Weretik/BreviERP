@@ -4,6 +4,8 @@ namespace ActivityLog.Application.Abstractions;
 public interface IActivityLogDbContext
 {
     DbSet<ActivityEntry> Entries { get; }
+    DbSet<ActivityActor> Actors { get; }
+    DbSet<ActivitySubjectType> SubjectTypes { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

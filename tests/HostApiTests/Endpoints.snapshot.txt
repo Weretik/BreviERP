@@ -297,7 +297,7 @@ POST api/production/work/import | importProductionWork | policy:access:work-log
 POST api/production/work/{workId:int}/void | voidProductionWork | policy:access:work-log,action:edit
 POST api/public/site-requests | submitPublicSiteRequest | anonymous,body-limit:11534336,form-limit:11534336,rate-limit:SiteRequest
 POST api/purchasing/invoices/files/{fileId}/recognize | recognizePurchaseFile | policy:access:purchase-invoices
-POST api/purchasing/invoices/recognize-new | recognizeNewPurchaseFiles | policy:access:purchase-invoices
+POST api/purchasing/invoices/recognize-new | startNewPurchaseFilesRecognition | policy:access:purchase-invoices
 POST api/purchasing/invoices/sync | syncPurchaseInvoices | policy:access:purchase-invoices
 POST api/purchasing/invoices/{messageId}/payments | linkPurchasePayment | policy:access:purchase-invoices
 POST api/purchasing/invoices/{messageId}/payments/unlink | unlinkPurchasePayment | policy:access:purchase-invoices

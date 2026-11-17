@@ -5,6 +5,6 @@ public sealed class CreatePpeRuleVersionHandler(IPpeRuleVersionWriter writer) : 
 {
  public async ValueTask<Result<PpeRuleVersion>> Handle(CreatePpeRuleVersionCommand command, CancellationToken cancellationToken)
  {
- return await writer.AppendAsync(command.ExpectedVersionId, command.RequestId, command.Values, command.Actor, cancellationToken);
+ return await writer.AppendAsync(command.ExpectedVersionId, command.RequestId, command.Values!, command.Actor, cancellationToken);
  }
 }

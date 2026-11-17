@@ -42,6 +42,8 @@ public sealed class ActivityEntryConfiguration : IEntityTypeConfiguration<Activi
         builder.HasIndex(x => new { x.OccurredAt, x.Id }).IsDescending(true, true);
         builder.HasIndex(x => new { x.ActorId, x.OccurredAt }).IsDescending(false, true);
         builder.HasIndex(x => new { x.SubjectType, x.OccurredAt }).IsDescending(false, true);
+        // Database rules 2.2: the «Роль» filter is LIKE '%|Manager|%', which a trigram index serves.
+        builder.HasIndex(x => x.ActorRoles).HasMethod("gin").HasOperators("gin_trgm_ops");
         builder.HasSearchText(nameof(ActivityEntry.SubjectTitle), nameof(ActivityEntry.Summary));
     }
 }

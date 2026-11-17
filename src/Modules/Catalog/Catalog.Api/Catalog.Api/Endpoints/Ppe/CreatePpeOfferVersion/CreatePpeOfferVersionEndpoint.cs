@@ -20,7 +20,7 @@ internal static class CreatePpeOfferVersionEndpoint
         var actor = user.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(actor)) return Results.Forbid();
         return (await sender.Send(new CreatePpeOfferVersionCommand(productId,
-            request.ExpectedVersionId, request.RequestId, request.Values.ToValues(), actor),
+            request.ExpectedVersionId, request.RequestId, request.Values?.ToValues(), actor),
                 cancellationToken)).ToHttpResult();
     }
 }

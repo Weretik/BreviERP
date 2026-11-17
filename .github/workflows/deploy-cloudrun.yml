@@ -70,6 +70,8 @@ jobs:
           fetch-depth: 0
       - name: Check the module and feature maps
         run: python3 tools/docs/check_module_maps.py
+      - name: Test the agent guard hook
+        run: node --test .claude/hooks/guard.test.mjs
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
