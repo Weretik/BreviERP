@@ -12,7 +12,7 @@ public sealed class QuoteItemOption
 
     private QuoteItemOption() { }
 
-    public QuoteItemOption(
+    private QuoteItemOption(
         int position, long? articleId, int? fabricId, string title, string? details, bool isRecommended,
         QuotePrice retail, QuotePrice wholesale, QuotePrice large, DateTimeOffset? pricesTakenAt)
     {
@@ -27,6 +27,11 @@ public sealed class QuoteItemOption
         Large = large;
         PricesTakenAt = pricesTakenAt;
     }
+
+    public static QuoteItemOption Create(
+        int position, long? articleId, int? fabricId, string title, string? details, bool isRecommended,
+        QuotePrice retail, QuotePrice wholesale, QuotePrice large, DateTimeOffset? pricesTakenAt) =>
+        new(position, articleId, fabricId, title, details, isRecommended, retail, wholesale, large, pricesTakenAt);
 
     public long Id { get; private set; }
     public long ItemId { get; private set; }

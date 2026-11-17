@@ -24,7 +24,7 @@ public sealed class FabricItemPlanPart
 {
     private FabricItemPlanPart() { }
 
-    public FabricItemPlanPart(string fabricCode, string color, string colorKey, FabricLayer layer, decimal meters)
+    private FabricItemPlanPart(string fabricCode, string color, string colorKey, FabricLayer layer, decimal meters)
     {
         FabricCode = fabricCode;
         Color = color;
@@ -32,6 +32,9 @@ public sealed class FabricItemPlanPart
         Layer = layer;
         Meters = meters;
     }
+
+    public static FabricItemPlanPart Create(string fabricCode, string color, string colorKey, FabricLayer layer, decimal meters) =>
+        new(fabricCode, color, colorKey, layer, meters);
 
     public string FabricCode { get; private set; } = null!;
     public string Color { get; private set; } = null!;
@@ -53,7 +56,7 @@ public sealed class FabricItemPlan : IAggregateRoot
 
     private FabricItemPlan() { }
 
-    public FabricItemPlan(int orderId, int itemId, int quantity, IEnumerable<FabricItemPlanPart> parts,
+    private FabricItemPlan(int orderId, int itemId, int quantity, IEnumerable<FabricItemPlanPart> parts,
         string actorName, DateTimeOffset now)
     {
         OrderId = orderId;
@@ -61,6 +64,10 @@ public sealed class FabricItemPlan : IAggregateRoot
         Replace(quantity, parts, actorName, now);
         Version = 1;
     }
+
+    public static FabricItemPlan Create(int orderId, int itemId, int quantity, IEnumerable<FabricItemPlanPart> parts,
+        string actorName, DateTimeOffset now) =>
+        new(orderId, itemId, quantity, parts, actorName, now);
 
     public int Id { get; private set; }
     public int OrderId { get; private set; }

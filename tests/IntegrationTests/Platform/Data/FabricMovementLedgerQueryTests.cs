@@ -49,8 +49,8 @@ public sealed class FabricMovementLedgerQueryTests
         await using (var db = Context())
         {
             await db.Database.MigrateAsync();
-            var grey = new FabricStock(new StockFabric(23, "FAB-023", "Грета"), "Темно-сірий", Now);
-            var red = new FabricStock(new StockFabric(24, "FAB-024", "Саржа"), "Червоний", Now);
+            var grey = FabricStock.Create(new StockFabric(23, "FAB-023", "Грета"), "Темно-сірий", Now);
+            var red = FabricStock.Create(new StockFabric(24, "FAB-024", "Саржа"), "Червоний", Now);
             db.FabricStocks.AddRange(grey, red);
             grey.Move(FabricMovementKind.Opening, 10m, new(new DateOnly(2026, 11, 1), null), "Начальник", Now);
             grey.Move(FabricMovementKind.Receipt, 5m, new(new DateOnly(2026, 11, 2), null, null, "Черкаси ВВ", "ТН-7"),

@@ -37,7 +37,7 @@ internal sealed class V133Writer(
                     $"Тканини {code} немає в «Тканини»: її рядки перенесено з назвою старого «Цеху», без ціни.");
             var first = source.Movements.Where(x => x.Original.StockId == row.Id).Select(x => (DateTimeOffset?)x.At)
                 .Min();
-            var line = new FabricStock(new StockFabric(fabric?.Id, code, fabric?.Name ?? row.FabricName ?? code),
+            var line = FabricStock.Create(new StockFabric(fabric?.Id, code, fabric?.Name ?? row.FabricName ?? code),
                 row.Color, first ?? now, row.Id);
             _lines[row.Id] = line;
             db.FabricStocks.Add(line);
@@ -188,7 +188,7 @@ internal sealed class V133Writer(
                     $"Кількість виробів пакета {quantity}, а в його русі {counted}: взято {quantity}.");
             V133Source.Time(batch.CreatedAt, out var at);
             var issuedOn = movements.Values.SelectMany(x => x).Select(x => x.OperationDate).Min();
-            var issue = new FabricIssue(target.Target, issuedOn, null, await nameOf(batch.ActorEmail, cancellationToken),
+            var issue = FabricIssue.Create(target.Target, issuedOn, null, await nameOf(batch.ActorEmail, cancellationToken),
                 at, batch.Id, quantity, null, version);
             foreach (var row in rows)
             {
@@ -236,7 +236,7 @@ internal sealed class V133Writer(
             var normalized = FabricAliases.Normalize(code);
             var key = StockColor.Key(color);
             if (parts.Any(x => x.FabricCode == normalized && x.ColorKey == key && x.Layer == layer)) return;
-            parts.Add(new FabricItemPlanPart(normalized, StockColor.Clean(color), key, layer, hundredths.Value / 100m));
+            parts.Add(FabricItemPlanPart.Create(normalized, StockColor.Clean(color), key, layer, hundredths.Value / 100m));
         }
 
         foreach (var row in source.Input.FabricReservations.Where(x => x.ItemId == itemId))
@@ -253,7 +253,7 @@ internal sealed class V133Writer(
 
         var first = source.Batches.Values.Where(x => x.ItemId == itemId).Min(x => x.CreatedAt);
         V133Source.Time(first, out var at);
-        return new FabricItemPlan(target.Target.OrderId, target.Target.ItemId, target.Quantity, parts,
+        return FabricItemPlan.Create(target.Target.OrderId, target.Target.ItemId, target.Quantity, parts,
             "Перенесення зі старого «Цеху»", at);
     }
 

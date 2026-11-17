@@ -12,11 +12,14 @@ public sealed class LeadCallResult : DomainEventSource, IAggregateRoot
 {
     private LeadCallResult() { }
 
-    public LeadCallResult(string name, LeadOutcome outcome, int? retryDays, int position)
+    private LeadCallResult(string name, LeadOutcome outcome, int? retryDays, int position)
     {
         Apply(name, outcome, retryDays, true, position);
         Raise(new LeadCallResultSaved(this, null, null));
     }
+
+    public static LeadCallResult Create(string name, LeadOutcome outcome, int? retryDays, int position) =>
+        new(name, outcome, retryDays, position);
 
     public long Id { get; private set; }
     public string Name { get; private set; } = null!;

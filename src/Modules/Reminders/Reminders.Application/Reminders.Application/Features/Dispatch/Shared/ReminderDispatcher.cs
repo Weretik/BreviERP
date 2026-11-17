@@ -78,7 +78,7 @@ public sealed class ReminderDispatcher(
                 var messageId = await telegram.SendMessageAsync(chat.TelegramChatId,
                     ReminderMessageFormatter.Text(task, occurrence, notice, today),
                     ReminderMessageFormatter.MainKeyboard(occurrence), cancellationToken);
-                db.SentMessages.Add(new SentReminderMessage(occurrence.Id, chat.Id, chat.TelegramChatId, messageId, today, clock.Now));
+                db.SentMessages.Add(SentReminderMessage.Create(occurrence.Id, chat.Id, chat.TelegramChatId, messageId, today, clock.Now));
                 await db.SaveChangesAsync(cancellationToken);
                 sent++;
                 ReminderDispatchLog.Sent(logger, task.Title, occurrence.DueDate, chatName);

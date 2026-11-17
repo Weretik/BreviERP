@@ -19,7 +19,7 @@ public sealed class TaskActivityTests
 
     private static ManagerTask CleanTask()
     {
-        var task = new ManagerTask(Draft(), Director, Now);
+        var task = ManagerTask.Create(Draft(), Director, Now);
         ((IHasDomainEvents)task).ClearDomainEvents();
         return task;
     }
@@ -30,7 +30,7 @@ public sealed class TaskActivityTests
     [Test]
     public void Creating_names_the_assignee()
     {
-        var task = new ManagerTask(Draft(), Director, Now);
+        var task = ManagerTask.Create(Draft(), Director, Now);
 
         var entry = Last(task);
         Assert.That(entry!.Action, Is.EqualTo(ActivityActions.Created));

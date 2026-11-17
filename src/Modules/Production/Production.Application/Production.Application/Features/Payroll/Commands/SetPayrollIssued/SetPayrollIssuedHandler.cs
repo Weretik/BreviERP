@@ -27,7 +27,7 @@ public sealed class SetPayrollIssuedHandler(IProductionDbContext db, PayrollChan
 
             if (row is null)
             {
-                row = new PayrollIssued(month, input.EmployeeId);
+                row = PayrollIssued.Create(month, input.EmployeeId);
                 db.PayrollIssued.Add(row);
             }
 

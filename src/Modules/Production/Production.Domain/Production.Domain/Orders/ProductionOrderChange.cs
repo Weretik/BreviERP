@@ -13,7 +13,7 @@ public sealed class ProductionOrderChange
 
     private ProductionOrderChange() { }
 
-    public ProductionOrderChange(int? itemId, string? itemName, string field, string? before, string? after,
+    internal ProductionOrderChange(int? itemId, string? itemName, string field, string? before, string? after,
         string actorName, DateTimeOffset at)
     {
         ItemId = itemId;

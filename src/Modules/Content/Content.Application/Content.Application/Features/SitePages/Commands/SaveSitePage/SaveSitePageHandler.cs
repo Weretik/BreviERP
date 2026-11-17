@@ -19,7 +19,7 @@ public sealed class SaveSitePageHandler(IContentDbContext db, TimeProvider clock
         var now = clock.GetUtcNow();
         if (page is null)
         {
-            page = new SitePage(entry.Key, command.UpdatedBy, now);
+            page = SitePage.Create(entry.Key, command.UpdatedBy, now);
             db.SitePages.Add(page);
         }
 

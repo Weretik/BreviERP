@@ -36,7 +36,7 @@ public sealed class ImportWorkshopArchiveHandler(IProductionDbContext db)
                 continue;
             }
 
-            created.Add(new WorkshopArchiveRecord(Enum.Parse<WorkshopArchiveKind>(row.Kind, ignoreCase: true), key,
+            created.Add(WorkshopArchiveRecord.Create(Enum.Parse<WorkshopArchiveKind>(row.Kind, ignoreCase: true), key,
                 row.SourceRow, new WorkshopArchiveEntry(row.Date, row.DateText, row.Number, row.Client, row.Product,
                     row.Quantity, row.Fabric, row.Status, row.Notes,
                     [.. (row.Fields ?? []).Select(x => new WorkshopArchiveField(x.Label ?? "", x.Value ?? ""))],

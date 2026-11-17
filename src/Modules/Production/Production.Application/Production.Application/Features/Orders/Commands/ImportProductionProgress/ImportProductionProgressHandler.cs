@@ -87,7 +87,7 @@ public sealed class ImportProductionProgressHandler(IProductionDbContext db, Tim
                 {
                     if (delivery is null)
                     {
-                        delivery = new ProductionTelegramDelivery(order.Id);
+                        delivery = ProductionTelegramDelivery.Create(order.Id);
                         db.TelegramDeliveries.Add(delivery);
                         deliveries[order.Id] = delivery;
                     }

@@ -53,7 +53,7 @@ public sealed class PayrollMonthRaceTests
         using var workshop = ProductionOrderHandlerTests.Workshop();
         await using (var first = workshop.OtherRequest())
         {
-            first.PayrollMonths.Add(new PayrollMonth(Day));
+            first.PayrollMonths.Add(PayrollMonth.Create(Day));
             await first.SaveChangesAsync();
         }
 
@@ -96,7 +96,7 @@ public sealed class PayrollMonthRaceTests
         var month = await other.PayrollMonths.SingleOrDefaultAsync(x => x.Month == new DateOnly(2026, 11, 1));
         if (month is null)
         {
-            month = new PayrollMonth(Day);
+            month = PayrollMonth.Create(Day);
             other.PayrollMonths.Add(month);
         }
 

@@ -22,7 +22,7 @@ public sealed class CreateTaskHandler(ITaskStore store, ITaskStaffReader staff, 
         if (!draft.IsSuccess) return draft.Map(_ => default(TaskDetailResponse)!);
 
         var now = clock.GetUtcNow();
-        var task = new ManagerTask(draft.Value, author, now);
+        var task = ManagerTask.Create(draft.Value, author, now);
         store.ManagerTasks.Add(task);
         await store.SaveChangesAsync(cancellationToken);
         return Result.Created(task.ToDetail(now));

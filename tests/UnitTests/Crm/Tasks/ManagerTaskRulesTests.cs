@@ -18,7 +18,7 @@ public sealed class ManagerTaskRulesTests
     private static readonly TaskActor Admin = new(1, true);
 
     private static ManagerTask Task(int dueInHours = 24, bool urgent = false) =>
-        new(new ManagerTaskDraft(" Передзвонити ", "  ", new ManagerTaskPerson(17, "Ольга"), Now.AddHours(dueInHours),
+        ManagerTask.Create(new ManagerTaskDraft(" Передзвонити ", "  ", new ManagerTaskPerson(17, "Ольга"), Now.AddHours(dueInHours),
             urgent, null, "ignored", [new ManagerTaskStepDraft(" Крок ", false)]), Director, Now);
 
     private static SaveTaskInput Input(string title = "Передзвонити", int assignee = 17, int steps = 1) =>

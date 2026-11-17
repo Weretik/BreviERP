@@ -77,7 +77,7 @@ public sealed class AiCaller(
                 .SetProperty(x => x.CostUsd, x => x.CostUsd + cost), cancellationToken);
             if (updated > 0) return;
 
-            var row = new AiUsageMonth(month);
+            var row = AiUsageMonth.Create(month);
             db.UsageMonths.Add(row);
             try
             {

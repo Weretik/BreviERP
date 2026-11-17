@@ -16,7 +16,10 @@ public sealed class PayrollMonth : IAggregateRoot
 
     private PayrollMonth() { }
 
-    public PayrollMonth(DateOnly month) => Month = new DateOnly(month.Year, month.Month, 1);
+    private PayrollMonth(DateOnly month) => Month = new DateOnly(month.Year, month.Month, 1);
+
+    public static PayrollMonth Create(DateOnly month) =>
+        new(month);
 
     public DateOnly Month { get; private set; }
 

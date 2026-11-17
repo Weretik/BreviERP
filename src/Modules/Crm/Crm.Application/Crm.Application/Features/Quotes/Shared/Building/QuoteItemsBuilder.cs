@@ -137,7 +137,7 @@ public sealed class QuoteItemsBuilder(
             options.Add(option.Value);
         }
 
-        return Result.Success(new QuoteItem(position, kind, input.ProductId, texts, options));
+        return Result.Success(QuoteItem.Create(position, kind, input.ProductId, texts, options));
     }
 
     private static Result<QuoteItemOption> BuildVariant(
@@ -148,7 +148,7 @@ public sealed class QuoteItemsBuilder(
             ? SavedOtherFabric(previous, input)
             : previous?.Options.FirstOrDefault(x => x.Id == input.Id && x.ArticleId == input.ArticleId);
         if (saved is not null)
-            return Result.Success(new QuoteItemOption(position, saved.ArticleId, saved.FabricId, saved.Title,
+            return Result.Success(QuoteItemOption.Create(position, saved.ArticleId, saved.FabricId, saved.Title,
                     saved.Details, input.IsRecommended, saved.Retail with { Shown = input.Retail.Shown },
                     saved.Wholesale with { Shown = input.Wholesale.Shown }, saved.Large with { Shown = input.Large.Shown },
                     saved.PricesTakenAt)
@@ -161,7 +161,7 @@ public sealed class QuoteItemsBuilder(
         if (variant.Prices is not { } prices)
             return Result.Conflict($"«{itemName}», «{variant.Title}»: немає опублікованої ціни ({string.Join(", ", variant.Problems)}).");
 
-        return Result.Success(new QuoteItemOption(position, variant.ArticleId, variant.FabricId, variant.Title,
+        return Result.Success(QuoteItemOption.Create(position, variant.ArticleId, variant.FabricId, variant.Title,
             variant.Details, input.IsRecommended,
             new QuotePrice(prices.Retail, null, input.Retail.Shown),
             new QuotePrice(prices.Wholesale, null, input.Wholesale.Shown),
@@ -180,7 +180,7 @@ public sealed class QuoteItemsBuilder(
         if (source is null)
             return Result.Conflict($"«{itemName}»: немає ціни в каталозі ({string.Join(", ", product?.Problems ?? [])}).");
 
-        var option = new QuoteItemOption(position, null, null, "Ціна", null, false,
+        var option = QuoteItemOption.Create(position, null, null, "Ціна", null, false,
             Price(source.Retail, input.Retail), Price(source.Wholesale, input.Wholesale), Price(source.Large, input.Large),
             saved?.PricesTakenAt ?? now);
         return WithManualAudit(option, input, saved, itemName, actor, now);
@@ -202,7 +202,7 @@ public sealed class QuoteItemsBuilder(
         var optionInput = input.Options[0];
         var saved = previous?.Options.FirstOrDefault(x => x.Id == optionInput.Id);
         var name = input.Name!.Trim();
-        var option = new QuoteItemOption(0, null, null, "Ціна", null, false,
+        var option = QuoteItemOption.Create(0, null, null, "Ціна", null, false,
             new QuotePrice(null, optionInput.Retail.Manual, optionInput.Retail.Shown),
             new QuotePrice(null, optionInput.Wholesale.Manual, optionInput.Wholesale.Shown),
             new QuotePrice(null, optionInput.Large.Manual, optionInput.Large.Shown),
@@ -212,7 +212,7 @@ public sealed class QuoteItemsBuilder(
 
         var texts = new QuoteItemTexts(null, name, OneOffSubtitle, input.Description, null, input.PhotoUrl, null,
             input.SupplierUrl);
-        return Result.Success(new QuoteItem(position, QuoteItemKind.OneOffPpe, null, texts, [audited.Value]));
+        return Result.Success(QuoteItem.Create(position, QuoteItemKind.OneOffPpe, null, texts, [audited.Value]));
     }
 
     /// <summary>

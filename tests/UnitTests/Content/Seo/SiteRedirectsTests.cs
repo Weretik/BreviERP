@@ -184,7 +184,7 @@ public sealed class SiteRedirectsTests
         using (var db = h.Open())
         {
             // A product in a site category without a page of its own.
-            db.SiteCategoryProducts.Add(new SiteCategoryProduct(summer, 2, 1));
+            db.SiteCategoryProducts.Add(SiteCategoryProduct.Create(summer, 2, 1));
             await db.SaveChangesAsync(None);
         }
 

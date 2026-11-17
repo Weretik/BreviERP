@@ -56,7 +56,7 @@ public sealed class StockPairs(IWarehouseDbContext db, StockOperations operation
         foreach (var line in result.Lines) line.Restate(saved.Where(x => x.StockId == line.Id).Concat(line.Movements));
 
         var color = pair.Lines.FirstOrDefault()?.Color ?? result.Lines[0].Color;
-        db.StockOperations.Add(new StockOperation(operationId, kind, hash, actor.UserId, pair.Code, pair.ColorKey, color,
+        db.StockOperations.Add(StockOperation.Create(operationId, kind, hash, actor.UserId, pair.Code, pair.ColorKey, color,
             pair.Meters, Now));
         try
         {

@@ -10,11 +10,14 @@ public sealed class LeadCategory : DomainEventSource, IAggregateRoot
 {
     private LeadCategory() { }
 
-    public LeadCategory(string code, string? description)
+    private LeadCategory(string code, string? description)
     {
         Code = code;
         Description = LeadLimits.Cut(description, LeadLimits.CategoryDescriptionMaxLength);
     }
+
+    public static LeadCategory Create(string code, string? description) =>
+        new(code, description);
 
     public string Code { get; private set; } = null!;
     public string? Description { get; private set; }

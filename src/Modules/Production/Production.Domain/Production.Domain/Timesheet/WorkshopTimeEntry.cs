@@ -64,7 +64,7 @@ public sealed class WorkshopTimeChange : IAggregateRoot
 {
     private WorkshopTimeChange() { }
 
-    public WorkshopTimeChange(int employeeId, string employeeName, DateOnly workDate, int? beforeMinutes,
+    private WorkshopTimeChange(int employeeId, string employeeName, DateOnly workDate, int? beforeMinutes,
         int afterMinutes, string actorName, DateTimeOffset now)
     {
         EmployeeId = employeeId;
@@ -75,6 +75,10 @@ public sealed class WorkshopTimeChange : IAggregateRoot
         ChangedAt = now;
         ChangedByName = OrderText.Required(actorName, ProductionOrder.PersonMaxLength);
     }
+
+    public static WorkshopTimeChange Create(int employeeId, string employeeName, DateOnly workDate, int? beforeMinutes,
+        int afterMinutes, string actorName, DateTimeOffset now) =>
+        new(employeeId, employeeName, workDate, beforeMinutes, afterMinutes, actorName, now);
 
     public int Id { get; private set; }
     public int EmployeeId { get; private set; }

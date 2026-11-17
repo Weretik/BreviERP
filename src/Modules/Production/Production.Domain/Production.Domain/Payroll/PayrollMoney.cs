@@ -155,7 +155,10 @@ public sealed class PayrollIssued : IAggregateRoot
 {
     private PayrollIssued() { }
 
-    public PayrollIssued(DateOnly month, int employeeId) => (Month, EmployeeId) = (month, employeeId);
+    private PayrollIssued(DateOnly month, int employeeId) => (Month, EmployeeId) = (month, employeeId);
+
+    public static PayrollIssued Create(DateOnly month, int employeeId) =>
+        new(month, employeeId);
 
     public DateOnly Month { get; private set; }
     public int EmployeeId { get; private set; }

@@ -22,12 +22,15 @@ public sealed class SitePage : IAggregateRoot
 
     private SitePage() { }
 
-    public SitePage(string key, string updatedBy, DateTimeOffset now)
+    private SitePage(string key, string updatedBy, DateTimeOffset now)
     {
         Key = key;
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
     }
+
+    public static SitePage Create(string key, string updatedBy, DateTimeOffset now) =>
+        new(key, updatedBy, now);
 
     public string Key { get; private set; } = null!;
 

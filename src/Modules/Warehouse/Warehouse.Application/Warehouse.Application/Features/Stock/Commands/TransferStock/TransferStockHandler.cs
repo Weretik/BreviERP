@@ -50,7 +50,7 @@ public sealed class TransferStockHandler(IWarehouseDbContext db, IWarehouseRefer
         var target = await writer.WriteAsync(db, cancellationToken);
         if (target is null || source.Errors.Count > 0) return Result(false, false, null);
 
-        db.StockTransfers.Add(new StockTransfer(hash, input.Snapshot, target.Lines, target.Movements, target.Issues,
+        db.StockTransfers.Add(StockTransfer.Create(hash, input.Snapshot, target.Lines, target.Movements, target.Issues,
             target.Meters, await ActorAsync(command.Actor, cancellationToken), clock.GetUtcNow()));
         await db.SaveChangesAsync(cancellationToken);
         if (apply) await transaction.CommitAsync(cancellationToken);

@@ -17,7 +17,7 @@ public sealed class SaveSiteCompanyHandler(IContentDbContext db, TimeProvider cl
         var now = clock.GetUtcNow();
         if (info is null)
         {
-            info = new SiteCompanyInfo(command.UpdatedBy, now);
+            info = SiteCompanyInfo.Create(command.UpdatedBy, now);
             db.CompanyInfo.Add(info);
         }
 

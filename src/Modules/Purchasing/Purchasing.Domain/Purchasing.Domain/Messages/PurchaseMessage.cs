@@ -16,13 +16,16 @@ public sealed class PurchaseMessage : IAggregateRoot
 
     private PurchaseMessage() { }
 
-    public PurchaseMessage(string id, string telegramKey, MessageSource source, DateTimeOffset now)
+    private PurchaseMessage(string id, string telegramKey, MessageSource source, DateTimeOffset now)
     {
         Id = id;
         TelegramKey = telegramKey;
         ReviewVersion = 0;
         Apply(source, now);
     }
+
+    public static PurchaseMessage Create(string id, string telegramKey, MessageSource source, DateTimeOffset now) =>
+        new(id, telegramKey, source, now);
 
     /// <summary>SHA-256 of «telegram:» + <see cref="TelegramKey"/>, lower-case hex.</summary>
     public string Id { get; private set; } = null!;

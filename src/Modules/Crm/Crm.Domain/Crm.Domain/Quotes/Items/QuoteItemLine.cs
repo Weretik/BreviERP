@@ -10,7 +10,7 @@ public sealed class QuoteItemLine
 {
     private QuoteItemLine() { }
 
-    public QuoteItemLine(
+    private QuoteItemLine(
         int position, QuoteItemLineKind kind, int referenceId, string name, string unit, decimal quantity,
         decimal? manualMinutes, string? costCode = null)
     {
@@ -24,6 +24,11 @@ public sealed class QuoteItemLine
         CostCode = kind == QuoteItemLineKind.Service ? costCode?.Trim() : null;
         if (kind == QuoteItemLineKind.Service) ReferenceId = 0;
     }
+
+    public static QuoteItemLine Create(
+        int position, QuoteItemLineKind kind, int referenceId, string name, string unit, decimal quantity,
+        decimal? manualMinutes, string? costCode = null) =>
+        new(position, kind, referenceId, name, unit, quantity, manualMinutes, costCode);
 
     public long Id { get; private set; }
     public long ItemId { get; private set; }

@@ -20,7 +20,7 @@ public sealed class UpdateWorkshopSettingsHandler(
             cancellationToken);
         if (settings is null)
         {
-            settings = new WorkshopSettings(null, null);
+            settings = WorkshopSettings.Create(null, null);
             db.Settings.Add(settings);
         }
 

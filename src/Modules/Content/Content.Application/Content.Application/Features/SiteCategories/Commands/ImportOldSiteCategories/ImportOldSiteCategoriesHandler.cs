@@ -120,7 +120,7 @@ public sealed class ImportOldSiteCategoriesHandler(
 
                 if (!inCategory.Add(productId.Value)) continue;
                 productLinks++;
-                if (!command.DryRun) db.SiteCategoryProducts.Add(new SiteCategoryProduct(categoryId, productId.Value, ++place));
+                if (!command.DryRun) db.SiteCategoryProducts.Add(SiteCategoryProduct.Create(categoryId, productId.Value, ++place));
             }
         }
 

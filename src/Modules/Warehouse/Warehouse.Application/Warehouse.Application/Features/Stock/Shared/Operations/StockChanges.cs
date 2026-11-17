@@ -55,7 +55,7 @@ public sealed class StockChanges(IWarehouseDbContext db, IWarehouseStaffReader s
             return line;
         }
 
-        line = new FabricStock(fabric, color, Now);
+        line = FabricStock.Create(fabric, color, Now);
         db.FabricStocks.Add(line);
         return line;
     }

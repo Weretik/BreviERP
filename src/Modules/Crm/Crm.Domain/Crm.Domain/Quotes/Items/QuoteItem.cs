@@ -10,7 +10,7 @@ public sealed class QuoteItem
 
     private QuoteItem() { }
 
-    public QuoteItem(
+    private QuoteItem(
         int position, QuoteItemKind kind, int? productId, QuoteItemTexts texts, IEnumerable<QuoteItemOption> options,
         IEnumerable<QuoteItemLine>? lines = null)
     {
@@ -28,6 +28,11 @@ public sealed class QuoteItem
         _options.AddRange(options);
         if (lines is not null) _lines.AddRange(lines);
     }
+
+    public static QuoteItem Create(
+        int position, QuoteItemKind kind, int? productId, QuoteItemTexts texts, IEnumerable<QuoteItemOption> options,
+        IEnumerable<QuoteItemLine>? lines = null) =>
+        new(position, kind, productId, texts, options, lines);
 
     public long Id { get; private set; }
     public long QuoteId { get; private set; }

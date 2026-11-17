@@ -16,12 +16,15 @@ public sealed partial class SiteSeoSettings : IAggregateRoot
 
     private SiteSeoSettings() { }
 
-    public SiteSeoSettings(string updatedBy, DateTimeOffset now)
+    private SiteSeoSettings(string updatedBy, DateTimeOffset now)
     {
         Id = SingletonId;
         UpdatedBy = updatedBy;
         UpdatedAtUtc = now;
     }
+
+    public static SiteSeoSettings Create(string updatedBy, DateTimeOffset now) =>
+        new(updatedBy, now);
 
     public int Id { get; private set; }
 

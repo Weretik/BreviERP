@@ -72,7 +72,7 @@ public sealed class StockPair
     {
         if (_lines.Count > 0) return StockPairResult.Refused(StockPairRefusal.AlreadyOpened);
         if (!FabricStock.IsValidMeters(meters) || meters < 0) return StockPairResult.Refused(StockPairRefusal.OutOfRange);
-        var line = new FabricStock(fabric, color, now);
+        var line = FabricStock.Create(fabric, color, now);
         _lines.Add(line);
         return StockPairResult.Done(line, line.Move(FabricMovementKind.Opening, meters, details, actorName, now));
     }
@@ -87,7 +87,7 @@ public sealed class StockPair
             return StockPairResult.Refused(StockPairRefusal.OutOfRange);
         if (line is null)
         {
-            line = new FabricStock(fabric, color, now);
+            line = FabricStock.Create(fabric, color, now);
             _lines.Add(line);
         }
 

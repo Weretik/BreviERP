@@ -20,7 +20,7 @@ public sealed class SaveSiteSeoSettingsHandler(IContentDbContext db, IContentMed
         var now = clock.GetUtcNow();
         if (settings is null)
         {
-            settings = new SiteSeoSettings(command.UpdatedBy, now);
+            settings = SiteSeoSettings.Create(command.UpdatedBy, now);
             db.SiteSeoSettings.Add(settings);
         }
 

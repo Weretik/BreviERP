@@ -28,7 +28,7 @@ public sealed class SaveLeadCallResultHandler(ILeadStore store)
         {
             if (await store.LeadCallResults.CountAsync(cancellationToken) >= LeadLimits.MaxResults)
                 return Result.Invalid(new ValidationError(LeadMessages.TooManyResults));
-            result = new LeadCallResult(input.Name, outcome, input.RetryDays, input.Position);
+            result = LeadCallResult.Create(input.Name, outcome, input.RetryDays, input.Position);
             if (!input.IsActive) result.Edit(input.Name, outcome, input.RetryDays, false, input.Position);
             store.LeadCallResults.Add(result);
         }

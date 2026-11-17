@@ -44,7 +44,7 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
             if (info.Name is null)
                 return Result.Conflict($"«{name}»: {Missing(info.Kind)} не знайдено в довіднику.");
             var line = requested[index];
-            lines.Add(new QuoteItemLine(index, line.Kind, line.ReferenceId, info.Name, info.Unit ?? "", line.Quantity,
+            lines.Add(QuoteItemLine.Create(index, line.Kind, line.ReferenceId, info.Name, info.Unit ?? "", line.Quantity,
                 line.ManualMinutes, line.CostCode));
         }
 
@@ -56,7 +56,7 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
             options.Add(priced.Value);
         }
 
-        return Result.Success(new QuoteItem(position, QuoteItemKind.CustomSewing, input.ProductId, texts, options, lines));
+        return Result.Success(QuoteItem.Create(position, QuoteItemKind.CustomSewing, input.ProductId, texts, options, lines));
     }
 
     /// <summary>A variant priced by the formula: its fabrics summed with the shared lines (R-26).</summary>
@@ -66,12 +66,12 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         if (variant.Title is not { } title) return Result.Conflict($"«{itemName}»: тканину не знайдено в довіднику.");
         if (variant.Prices is not { } prices)
             return Result.Conflict($"«{itemName}», «{title}»: не вдалося порахувати ціну ({string.Join("; ", variant.Problems)}).");
-        return Result.Success(new QuoteItemOption(position, null, variant.Fabrics[0].FabricId, Shorten(title),
+        return Result.Success(QuoteItemOption.Create(position, null, variant.Fabrics[0].FabricId, Shorten(title),
                 variant.Details, input.IsRecommended,
                 new QuotePrice(prices.Retail, null, input.Retail.Shown),
                 new QuotePrice(prices.Wholesale, null, input.Wholesale.Shown),
                 new QuotePrice(prices.Large, null, input.Large.Shown), now)
-            .WithFabrics(variant.Fabrics.Select((x, i) => new QuoteItemOptionFabric(i, x.FabricId, x.Name!, x.Meters))));
+            .WithFabrics(variant.Fabrics.Select((x, i) => QuoteItemOptionFabric.Create(i, x.FabricId, x.Name!, x.Meters))));
     }
 
     private static string Shorten(string title) =>
@@ -108,7 +108,7 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
             var saved = previous.Options.FirstOrDefault(x => x.Id == optionInput.Id);
             if (saved is null || !saved.HasFabrics(optionInput.Fabrics!.Select(x => (x.FabricId, x.Meters)).ToArray()))
                 return null;
-            options.Add(new QuoteItemOption(index, null, saved.FabricId, saved.Title, saved.Details,
+            options.Add(QuoteItemOption.Create(index, null, saved.FabricId, saved.Title, saved.Details,
                     optionInput.IsRecommended, saved.Retail with { Shown = optionInput.Retail.Shown },
                     saved.Wholesale with { Shown = optionInput.Wholesale.Shown },
                     saved.Large with { Shown = optionInput.Large.Shown }, saved.PricesTakenAt)
@@ -116,8 +116,8 @@ public sealed class QuoteCustomSewingItemBuilder(IQuoteSewingCalculator calculat
         }
 
         var lines = savedLines.Select((x, index) =>
-            new QuoteItemLine(index, x.Kind, x.ReferenceId, x.Name, x.Unit, x.Quantity, x.ManualMinutes, x.CostCode));
-        return new QuoteItem(position, QuoteItemKind.CustomSewing, previous.ProductId, texts, options, lines);
+            QuoteItemLine.Create(index, x.Kind, x.ReferenceId, x.Name, x.Unit, x.Quantity, x.ManualMinutes, x.CostCode));
+        return QuoteItem.Create(position, QuoteItemKind.CustomSewing, previous.ProductId, texts, options, lines);
     }
 
     private static QuoteItemTexts Texts(QuoteItemInput input, string name, QuoteItem? previous, QuoteCatalogProduct? model) =>

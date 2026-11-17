@@ -32,7 +32,7 @@ public sealed class SendProductionOrderTelegramHandler(
         var delivery = await db.TelegramDeliveries.SingleOrDefaultAsync(x => x.OrderId == order.Id, cancellationToken);
         if (delivery is null)
         {
-            delivery = new ProductionTelegramDelivery(order.Id);
+            delivery = ProductionTelegramDelivery.Create(order.Id);
             db.TelegramDeliveries.Add(delivery);
         }
 

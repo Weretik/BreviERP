@@ -43,7 +43,7 @@ public static class QuoteEmbroideryItems
         var shown = new QuotePrice(price.Unit, null, true);
         var uk = CultureInfo.GetCultureInfo("uk-UA");
         var repeat = $"Повтор з готовою програмою — {price.RepeatUnit.ToString("N2", uk)} грн за 1 шт.";
-        return new QuoteItemOption(0, null, null, EmbroideryCategories.Label(price.Name), repeat, false, shown, shown, shown, saved.CreatedAt);
+        return QuoteItemOption.Create(0, null, null, EmbroideryCategories.Label(price.Name), repeat, false, shown, shown, shown, saved.CreatedAt);
     }
 
     private static string Cut(string text, int max) => text.Length <= max ? text : text[..max];

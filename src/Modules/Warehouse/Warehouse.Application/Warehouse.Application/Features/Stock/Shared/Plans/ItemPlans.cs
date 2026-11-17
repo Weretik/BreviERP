@@ -32,13 +32,13 @@ public sealed class ItemPlans(IWarehouseDbContext db)
     /// <summary>Saves today's plan of the item, for its first issue.</summary>
     public FabricItemPlan Save(WarehousePlanItem item, string actorName, DateTimeOffset now)
     {
-        var plan = new FabricItemPlan(item.OrderId, item.ItemId, Math.Max(1, item.Quantity), Parts(item), actorName, now);
+        var plan = FabricItemPlan.Create(item.OrderId, item.ItemId, Math.Max(1, item.Quantity), Parts(item), actorName, now);
         db.FabricItemPlans.Add(plan);
         return plan;
     }
 
     public static IEnumerable<FabricItemPlanPart> Parts(WarehousePlanItem item) =>
-        item.Parts.Select(x => new FabricItemPlanPart(x.FabricCode, x.Color, x.ColorKey, x.Layer, x.Meters));
+        item.Parts.Select(x => FabricItemPlanPart.Create(x.FabricCode, x.Color, x.ColorKey, x.Layer, x.Meters));
 
     /// <summary>Why the item has no plan, or null when it has one.</summary>
     public static string? Missing(WarehousePlanItem item) =>
