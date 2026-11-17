@@ -7,6 +7,9 @@ public interface ITaskStore
 {
     DbSet<ManagerTask> ManagerTasks { get; }
 
+    /// <summary>The history of tasks for reading; a line is written only by its task and never loaded with it.</summary>
+    IQueryable<ManagerTaskEvent> ManagerTaskEvents { get; }
+
     /// <summary>The display name of an active Crm customer, or null.</summary>
     Task<string?> FindCustomerNameAsync(Guid publicId, CancellationToken cancellationToken);
 

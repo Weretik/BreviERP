@@ -5,8 +5,9 @@ namespace ArchitectureTests.Layers;
 /// <summary>
 /// Domain model rules (module rules «Domain model (DDD)»): a root carrying <c>IAggregateRoot</c> is created by a static
 /// factory, never by a public constructor; a module's persistence port in Application exposes a writable <c>DbSet</c>
-/// only for roots (children are read through an <c>IQueryable</c>), so a handler cannot write a child past its root; and
-/// domain properties have no public setter.
+/// only for roots (children are read through an <c>IQueryable</c>), so a handler cannot write a child past its root;
+/// domain properties have no public setter; and a change history is never loaded with its root (the root's
+/// <c>New*</c> navigation holds only the lines a command adds; the saved history is read by a query).
 /// </summary>
 public sealed partial class AggregateRootTests
 {
@@ -70,6 +71,17 @@ public sealed partial class AggregateRootTests
         Assert.That(offending, Is.Empty);
     }
 
+    [Test]
+    public void A_change_history_is_never_loaded_with_its_root()
+    {
+        var offending = SourceFiles("*.Application").Concat(SourceFiles("*.Infrastructure"))
+            .SelectMany(file => HistoryLoad().Matches(File.ReadAllText(file))
+                .Select(match => $"{Path.GetRelativePath(Root, file)}: {match.Value}"))
+            .ToArray();
+
+        Assert.That(offending, Is.Empty, "read the saved history through the module's IQueryable, not the root's New* list");
+    }
+
     private static IReadOnlyList<string> SourceFiles(string projectPattern) =>
         Directory.GetDirectories(Path.Combine(Root, "src", "Modules"), projectPattern, SearchOption.AllDirectories)
             .Where(dir => File.Exists(Path.Combine(dir, Path.GetFileName(dir) + ".csproj")))
@@ -87,6 +99,9 @@ public sealed partial class AggregateRootTests
 
     [GeneratedRegex(@"^public (?:sealed |abstract )?(?:partial )?class (?<name>\w+)(?<bases>[^\n{]*)", RegexOptions.Multiline)]
     private static partial Regex ClassHeader();
+
+    [GeneratedRegex(@"(?:Include|Collection)\(\s*\w+\s*=>\s*\w+\.New[A-Z]\w*")]
+    private static partial Regex HistoryLoad();
 
     [GeneratedRegex(@"DbSet<(?<type>\w+)>")]
     private static partial Regex DbSetType();

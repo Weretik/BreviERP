@@ -25,6 +25,6 @@ public sealed class CreateTaskHandler(ITaskStore store, ITaskStaffReader staff, 
         var task = ManagerTask.Create(draft.Value, author, now);
         store.ManagerTasks.Add(task);
         await store.SaveChangesAsync(cancellationToken);
-        return Result.Created(task.ToDetail(now));
+        return Result.Created(await store.DetailAsync(task, now, cancellationToken));
     }
 }

@@ -36,7 +36,7 @@ public sealed class ManagerTaskConfiguration : IEntityTypeConfiguration<ManagerT
         // A Crm customer by its public id, without a foreign key: the KeepinCRM sync may replace customers.
         b.HasMany(x => x.Steps).WithOne().HasForeignKey(x => x.TaskId).OnDelete(DeleteBehavior.Cascade);
         b.Navigation(x => x.Steps).HasField("_steps").UsePropertyAccessMode(PropertyAccessMode.Field);
-        b.HasMany(x => x.Events).WithOne().HasForeignKey(x => x.TaskId).OnDelete(DeleteBehavior.Cascade);
-        b.Navigation(x => x.Events).HasField("_events").UsePropertyAccessMode(PropertyAccessMode.Field);
+        b.HasMany(x => x.NewEvents).WithOne().HasForeignKey(x => x.TaskId).OnDelete(DeleteBehavior.Cascade);
+        b.Navigation(x => x.NewEvents).HasField("_newEvents").UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

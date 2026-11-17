@@ -44,6 +44,7 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : DbCon
     public IQueryable<QuoteEvent> QuoteEvents => Set<QuoteEvent>().AsNoTracking();
     public DbSet<QuoteIntroTemplate> QuoteIntroTemplates => Set<QuoteIntroTemplate>();
     public DbSet<ManagerTask> ManagerTasks => Set<ManagerTask>();
+    public IQueryable<ManagerTaskEvent> ManagerTaskEvents => Set<ManagerTaskEvent>().AsNoTracking();
     public DbSet<EmbroiderySettings> EmbroiderySettings => Set<EmbroiderySettings>();
     public DbSet<EmbroiderySavedCalculation> EmbroideryCalculations => Set<EmbroiderySavedCalculation>();
     public DbSet<Lead> Leads => Set<Lead>();

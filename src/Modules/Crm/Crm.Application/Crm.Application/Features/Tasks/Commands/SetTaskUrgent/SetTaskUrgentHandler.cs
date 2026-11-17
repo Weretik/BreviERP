@@ -22,9 +22,9 @@ public sealed class SetTaskUrgentHandler(ITaskStore store, ITaskStaffReader staf
         if (by is null) return Result.Forbidden(TaskMessages.ActorUnknown);
 
         var now = clock.GetUtcNow();
-        if (!task.SetUrgent(command.IsUrgent, by, now)) return Result.Success(task.ToDetail(now));
+        if (!task.SetUrgent(command.IsUrgent, by, now)) return Result.Success(await store.DetailAsync(task, now, cancellationToken));
         return await store.TrySaveAsync(cancellationToken)
-            ? Result.Success(task.ToDetail(now))
+            ? Result.Success(await store.DetailAsync(task, now, cancellationToken))
             : Result.Conflict(TaskMessages.Stale);
     }
 }

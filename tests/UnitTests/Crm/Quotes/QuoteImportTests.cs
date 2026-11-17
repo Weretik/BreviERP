@@ -78,9 +78,9 @@ public sealed class QuoteImportTests
             Assert.That(quote.AuthorUserId, Is.EqualTo(17));
             Assert.That(quote.ResponsibleName, Is.EqualTo("Олена"));
             Assert.That(quote.CustomerId, Is.EqualTo(55));
-            Assert.That(quote.Events.Select(x => x.Kind),
+            Assert.That(quote.NewEvents.Select(x => x.Kind),
                 Is.EqualTo(new[] { QuoteEventKind.Created, QuoteEventKind.Sent, QuoteEventKind.Imported }));
-            Assert.That(quote.Events[^1].ActorName, Is.EqualTo("Директор"));
+            Assert.That(quote.NewEvents[^1].ActorName, Is.EqualTo("Директор"));
         });
     }
 

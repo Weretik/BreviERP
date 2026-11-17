@@ -124,7 +124,7 @@ public sealed class QuoteRulesTests
             Assert.That(copied.Options.Single().ManualReason, Is.EqualTo("Знижка"));
             Assert.That(copied.Options.Single().FabricMeters, Is.EqualTo(1.5m));
             Assert.That(copied.Lines.Single().ManualMinutes, Is.EqualTo(12m));
-            Assert.That(copy.Events.Single().Details, Is.EqualTo("Копія КП 1-11-2026"));
+            Assert.That(copy.NewEvents.Single().Details, Is.EqualTo("Копія КП 1-11-2026"));
         });
     }
 }
